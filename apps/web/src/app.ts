@@ -60,7 +60,9 @@ const TIMELINE_COMMAND_LABELS: Record<string, string> = {
   skill: "元素战技",
   burst: "元素爆发",
   normal: "普通攻击",
-  charge: "重击"
+  charge: "重击",
+  dash: "冲刺",
+  jump: "跳跃"
 };
 
 function byId<TElement extends HTMLElement>(id: string): TElement {

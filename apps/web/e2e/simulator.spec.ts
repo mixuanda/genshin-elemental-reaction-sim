@@ -491,7 +491,8 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
     curve: [2223.5472, 3042.2952, 4037.1048],
     commands: [
       { startFrame: 0, cancelFrame: 16, animationEndFrame: 49 },
-      { startFrame: 16, cancelFrame: 57, animationEndFrame: 83 }
+      { startFrame: 16, cancelFrame: 58, animationEndFrame: 83 },
+      { startFrame: 58, cancelFrame: 59, animationEndFrame: 59 }
     ]
   });
 
@@ -513,6 +514,7 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   );
   await expect(page.locator("#timelineStateBody")).toContainText("黑度之否");
   await expect(page.locator("#timelineStateBody")).toContainText("消耗");
+  await expect(page.locator("#legalTimelineBody")).toContainText("冲刺");
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#damageCurveCanvas")).toBeVisible();

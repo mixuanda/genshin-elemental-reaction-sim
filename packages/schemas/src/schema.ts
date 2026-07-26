@@ -5,6 +5,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
+  HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
@@ -524,6 +525,8 @@ export const abilityCancelFramesSchema = z
     charge: frameSchema.optional(),
     skill: frameSchema.optional(),
     burst: frameSchema.optional(),
+    dash: frameSchema.optional(),
+    jump: frameSchema.optional(),
     swap: frameSchema.optional()
   })
   .strict();
@@ -623,6 +626,16 @@ export const legalTimelineCommandSchema = z.discriminatedUnion("type", [
       atFrame: frameSchema.optional()
     })
     .strict(),
+  ...(["dash", "jump"] as const).map((type) =>
+    z
+      .object({
+        type: z.literal(type),
+        actorId: idSchema,
+        frames: z.number().int().positive(),
+        atFrame: frameSchema.optional()
+      })
+      .strict()
+  ),
   ...(["skill", "burst", "normal", "charge"] as const).map((type) =>
     z
       .object({
@@ -950,6 +963,9 @@ export const simConfigSchema = z
             message: `unknown character id "${command.actorId}"`
           });
         }
+        if (!("abilityId" in command)) {
+          return;
+        }
         const ability = abilityById.get(command.abilityId);
         if (!ability) {
           context.addIssue({
@@ -1174,6 +1190,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === HIT_PARTICLE_TRIGGER_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === FIXED_ENERGY_ICD_SCHEMA_VERSION) {
     return parseSimConfig({

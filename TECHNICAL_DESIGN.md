@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 301.06 kB（gzip 76.70 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 301.76 kB（gzip 76.89 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0`、`1.5.0`、`1.6.0` 或 `1.7.0` 配置迁移到 `1.8.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、未知粒子触发命中 ID、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.8.0-hit-particle-triggers`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0`、`1.5.0`、`1.6.0`、`1.7.0` 或 `1.8.0` 配置迁移到 `1.9.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、未知粒子触发命中 ID、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.9.0-movement-commands`。
 
 ## 4. 确定性与排序
 
@@ -89,6 +89,8 @@ timeline: {
       charge,
       skill,
       burst,
+      dash,
+      jump,
       swap
     },
     animationEndFrame,
@@ -116,13 +118,16 @@ timeline: {
   }],
   commands: [
     { type: "skill", actorId, abilityId },
+    { type: "charge", actorId, abilityId },
+    { type: "dash", actorId, frames },
+    { type: "jump", actorId, frames },
     { type: "swap", characterId },
     { type: "wait", frames }
   ]
 }
 ```
 
-命令游标默认推进至行动的可取消帧。若紧随其后的命令是普攻、重击、战技、爆发或切人，编译器优先使用 `cancelFrames[下一命令类型]`；未声明、后续为 `wait` 或已到队尾时回退到 `cancelFrame`。所有取消帧必须是不超过动画结束的非负整数，实际选中的帧会进入逐指令结果和逐行动日志。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
+命令游标默认推进至行动的可取消帧。若紧随其后的命令是普攻、重击、战技、爆发、冲刺、跳跃或切人，编译器优先使用 `cancelFrames[下一命令类型]`；未声明、后续为 `wait` 或已到队尾时回退到 `cancelFrame`。所有取消帧必须是不超过动画结束的非负整数，实际选中的帧会进入逐指令结果和逐行动日志。冲刺/跳跃命令不是伤害技能，不查找 `abilityId`，但要求正整数 `frames` 作为显式占用并检查前台角色；当前不从角色数据猜测其持续时间，也不模拟耐力、位移、无敌帧、落地或碰撞。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
 
 `timelineState` 是归属于施放角色的行动合法性状态，与改变面板的 Buff/Debuff 分离。编译器在实际执行帧先处理到期，再检查 `requires`，随后执行 `consumes` 和 `grants`。因此状态在 `expiresAtFrame` 当帧不可再用；冷却等待跨过状态窗口后会重新检查并以 `MISSING_REQUIRED_STATE` 拒绝，而不会回到旧帧。`stateLog` 记录 `grant / replace / consume / expire`、来源指令和精确帧。
 
@@ -271,7 +276,7 @@ energyAfter
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
-`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.5 契约，并能把 1.0 / 1.1 / 1.2 / 1.3 / 1.4 输入迁移后再编译。每个技能映射必须包含：
+`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.6 契约，并能把 1.0 / 1.1 / 1.2 / 1.3 / 1.4 / 1.5 输入迁移后再编译。每个技能映射必须包含：
 
 - 数据版本、映射版本和角色/技能 ID。
 - 每段命中帧、倍率参数引用、缩放属性、元素、快照和附着流。
@@ -285,8 +290,8 @@ energyAfter
 
 - 倍率来源：`genshin-db@5.2.12` 固定目录的技能 10 级参数。
 - 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go` 与 `icd_groups.dm.go`。
-- 覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、当前命令模型可表达的普攻/战技/爆发/切人取消路径、三段命中、DurinSkill ICD、带角色级 360 帧共享内部冷却的 33 固定回能，以及首个已处理命中触发、18 帧共享粒子 ICD 的 4 火粒子。
-- 保持 `provisional + partial`：Dash/Jump/重击取消路径、Miss/无敌目标和多目标逐目标命中确认、AoE/Hitlag、白分支、爆发以及状态驱动的全部被动尚未实现。
+- 覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、普攻/重击/战技/爆发/冲刺/跳跃/切人取消路径、三段命中、DurinSkill ICD、带角色级 360 帧共享内部冷却的 33 固定回能，以及首个已处理命中触发、18 帧共享粒子 ICD 的 4 火粒子。固定 gcsim 提交给出的首段 E 冲刺/跳跃取消均为 14 帧，黑 E 为 42/41 帧；重击复用其 `ActionAttack` 取消点是本引擎的分类映射推断。
+- 保持 `provisional + partial`：冲刺/跳跃的耐力与移动物理、Miss/无敌目标和多目标逐目标命中确认、AoE/Hitlag、白分支、爆发以及状态驱动的全部被动尚未实现。
 
 ## 7. 测试策略
 
@@ -306,7 +311,7 @@ Vitest 当前覆盖：
 - 120 秒末端截断语义。
 - 相同版本/配置/种子的可复现性。
 - 默认 120 秒 Golden Fixture。
-- 整数帧行动、切人、命中追踪、按后续普攻/战技/爆发/切人选择取消帧、未声明路径回退与动画结束帧。
+- 整数帧行动、切人、命中追踪、显式冲刺/跳跃占用、按后续普攻/重击/战技/爆发/冲刺/跳跃/切人选择取消帧、未声明路径回退与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。
 - 行动状态的角色归属、授予、消耗、刷新、精确到期边界、缺少前置拒绝和冷却等待后重新检查。
@@ -390,7 +395,7 @@ game patch 6.7
 
 ## 10. Milestone 3–5 当前边界
 
-Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。能量不足现在会通过确定性前缀探测进入 `skippedActions` 和 `timelineExecution.failures`，失败行动不预占冷却或状态，后续命令会重排；条件语句、命中确认分支和目标驱动取消仍未进入命令语言。
+Milestone 2 的结构能力已经落地，但除已单独引用的杜林取消点外，内置行动帧仍是 provisional 示例，不代表游戏实测。能量不足现在会通过确定性前缀探测进入 `skippedActions` 和 `timelineExecution.failures`，失败行动不预占冷却或状态，后续命令会重排；重击、冲刺与跳跃已经进入命令语言，冲刺/跳跃只使用显式占用帧。条件语句、目标命中分支和目标驱动取消仍未进入命令语言。
 
 Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；新增黑 E 只是一段独立审计向量，不能用它替换 120 秒兼容预设后声称机制等价。
 
@@ -398,4 +403,4 @@ Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种�
 
 Milestone 5 已完成数据层基础和首个部分机制编译闭环，不等于正式杜林预设完成。杜林黑 E 已有倍率引用、裸伤/增伤、动作帧、附着/ICD、回能和粒子向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应先把 Dash/Jump/重击加入命令模型并完成相应取消路径，再实现 Miss/无敌/多目标各自的命中回调与状态驱动效果；随后映射杜林白 E 与黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。
+下一阶段应实现 Miss/无敌/多目标各自的命中回调与状态驱动效果，随后映射杜林白 E 与黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。

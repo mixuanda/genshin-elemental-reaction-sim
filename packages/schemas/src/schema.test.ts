@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.7.0 configs to the hit-particle schema", () => {
+  it("migrates 1.0.0 through 1.8.0 configs to the movement schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -181,6 +181,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.7.0",
       engineVersion: "1.7.0-fixed-energy-icd"
+    });
+    const migratedFromHitParticles = migrateConfig({
+      ...current,
+      schemaVersion: "1.8.0",
+      engineVersion: "1.8.0-hit-particle-triggers"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -223,6 +228,30 @@ describe("versioned config schema", () => {
     expect(migratedFromFixedEnergyIcd.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
+    expect(migratedFromHitParticles.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromHitParticles.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+  });
+
+  it("requires positive explicit occupancy for dash and jump commands", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [],
+          commands: [{ type: "dash", actorId: "a", frames: 0 }]
+        }
+      })
+    ).toThrow(/timeline\.commands\.0\.frames/);
   });
 
   it("rejects a hit-confirm particle that names an unknown action hit", () => {

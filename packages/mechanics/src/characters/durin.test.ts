@@ -82,8 +82,11 @@ describe("Durin black E partial mechanics audit vector", () => {
       cancelFrame: 16,
       cancelFrames: {
         normal: 16,
+        charge: 16,
         skill: 15,
         burst: 4,
+        dash: 14,
+        jump: 14,
         swap: 13
       },
       animationEndFrame: 49,
@@ -102,8 +105,11 @@ describe("Durin black E partial mechanics audit vector", () => {
       cancelFrame: 41,
       cancelFrames: {
         normal: 64,
+        charge: 64,
         skill: 48,
         burst: 45,
+        dash: 42,
+        jump: 41,
         swap: 43
       },
       animationEndFrame: 67,
@@ -220,7 +226,8 @@ describe("Durin black E partial mechanics audit vector", () => {
       )
     ).toEqual([
       { startFrame: 0, cancelFrame: 16, animationEndFrame: 49 },
-      { startFrame: 16, cancelFrame: 57, animationEndFrame: 83 }
+      { startFrame: 16, cancelFrame: 58, animationEndFrame: 83 },
+      { startFrame: 58, cancelFrame: 59, animationEndFrame: 59 }
     ]);
     expect(result.skippedActions).toEqual([]);
     expect(result.timelineExecution?.stateLog).toEqual([

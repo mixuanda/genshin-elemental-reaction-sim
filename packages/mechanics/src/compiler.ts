@@ -193,6 +193,12 @@ export function compileAbilityBlueprint(
       ...(blueprint.cancelFrames.burst === undefined
         ? {}
         : { burst: blueprint.cancelFrames.burst }),
+      ...(blueprint.cancelFrames.dash === undefined
+        ? {}
+        : { dash: blueprint.cancelFrames.dash }),
+      ...(blueprint.cancelFrames.jump === undefined
+        ? {}
+        : { jump: blueprint.cancelFrames.jump }),
       ...(blueprint.cancelFrames.swap === undefined
         ? {}
         : { swap: blueprint.cancelFrames.swap })

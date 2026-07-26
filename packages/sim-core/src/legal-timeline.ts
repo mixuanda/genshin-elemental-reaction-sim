@@ -175,7 +175,8 @@ function syntheticActiveAction(
   frame: number,
   id: string,
   name: string,
-  commandIndex?: number
+  commandIndex?: number,
+  endFrame = frame
 ): ActionDefinition {
   return {
     id,
@@ -187,8 +188,8 @@ function syntheticActiveAction(
       ? {}
       : { timelineCommandIndex: commandIndex }),
     startFrame: frame,
-    cancelFrame: frame,
-    animationEndFrame: frame
+    cancelFrame: endFrame,
+    animationEndFrame: endFrame
   };
 }
 
@@ -198,9 +199,7 @@ function commandActor(command: LegalTimelineCommand): string | null {
 }
 
 function commandAbility(command: LegalTimelineCommand): string | null {
-  return command.type === "wait" || command.type === "swap"
-    ? null
-    : command.abilityId;
+  return "abilityId" in command ? command.abilityId : null;
 }
 
 function commandFollowupKind(
@@ -495,6 +494,37 @@ export function compileLegalTimeline(
         `"${command.actorId}" 不在前台；当前前台为 "${activeCharacterId}"。`,
         anchored.requestedFrame
       );
+      return;
+    }
+
+    if ("frames" in command) {
+      const endFrame = startFrame + command.frames;
+      rotation.push(
+        syntheticActiveAction(
+          command.actorId,
+          startFrame,
+          `__${command.type}#${commandIndex}`,
+          command.type === "dash" ? "冲刺" : "跳跃",
+          commandIndex,
+          endFrame
+        )
+      );
+      cursor = endFrame;
+      expireStatesThrough(endFrame);
+      commandResults.push({
+        commandIndex,
+        commandType: command.type,
+        actorId: command.actorId,
+        abilityId: null,
+        requestedFrame: anchored.requestedFrame,
+        startFrame,
+        cancelFrame: endFrame,
+        animationEndFrame: endFrame,
+        endFrame,
+        status:
+          startFrame > anchored.requestedFrame ? "waited" : "executed",
+        waitedFrames: startFrame - anchored.requestedFrame
+      });
       return;
     }
 

@@ -127,6 +127,8 @@ const followupCancelA: AbilityDefinition = {
     charge: 8,
     skill: 3,
     burst: 5,
+    dash: 6,
+    jump: 4,
     swap: 7
   },
   animationEndFrame: 20,
@@ -515,6 +517,18 @@ describe("legal 60 FPS action timeline", () => {
       expected: 5
     },
     {
+      label: "dash",
+      next: { type: "dash", actorId: "a", frames: 5 } as const,
+      abilities: [followupCancelA],
+      expected: 6
+    },
+    {
+      label: "jump",
+      next: { type: "jump", actorId: "a", frames: 3 } as const,
+      abilities: [followupCancelA],
+      expected: 4
+    },
+    {
       label: "swap",
       next: { type: "swap", characterId: "b" } as const,
       abilities: [followupCancelA],
@@ -551,6 +565,64 @@ describe("legal 60 FPS action timeline", () => {
       });
     }
   );
+
+  it("advances explicit dash and jump occupancy without an ability lookup", () => {
+    const result = simulate(
+      legalConfig(
+        "strict",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-followup-cancel"
+          },
+          { type: "dash", actorId: "a", frames: 5 },
+          { type: "jump", actorId: "a", frames: 3 },
+          { type: "normal", actorId: "a", abilityId: "a-normal" }
+        ],
+        [followupCancelA, normalA]
+      )
+    );
+
+    expect(result.timelineExecution?.commandResults).toMatchObject([
+      { commandType: "skill", startFrame: 0, cancelFrame: 6 },
+      {
+        commandType: "dash",
+        abilityId: null,
+        startFrame: 6,
+        endFrame: 11
+      },
+      {
+        commandType: "jump",
+        abilityId: null,
+        startFrame: 11,
+        endFrame: 14
+      },
+      { commandType: "normal", startFrame: 14 }
+    ]);
+    expect(
+      result.actionLog.map(({ action, frame, cancelFrame }) => ({
+        action,
+        frame,
+        cancelFrame
+      }))
+    ).toEqual([
+      { action: "A 分后续取消", frame: 0, cancelFrame: 6 },
+      { action: "冲刺", frame: 6, cancelFrame: 11 },
+      { action: "跳跃", frame: 11, cancelFrame: 14 },
+      { action: "A 普攻", frame: 14, cancelFrame: 34 }
+    ]);
+  });
+
+  it("rejects movement by a character who is not active", () => {
+    expect(() =>
+      simulate(
+        legalConfig("strict", [
+          { type: "dash", actorId: "b", frames: 5 }
+        ])
+      )
+    ).toThrow(/WRONG_ACTIVE_CHARACTER/);
+  });
 
   it("uses the fallback cancel frame before an explicit wait", () => {
     const result = simulate(

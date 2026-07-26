@@ -1390,7 +1390,7 @@ function simulateLegalTimeline(
     if (
       command === undefined ||
       command.type === "wait" ||
-      command.type === "swap"
+      !("abilityId" in command)
     ) {
       continue;
     }

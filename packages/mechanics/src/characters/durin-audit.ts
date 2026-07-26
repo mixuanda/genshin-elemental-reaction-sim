@@ -5,7 +5,7 @@ import {
 } from "@genshin-dps-lab/schemas";
 
 export const durinBlackSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.5",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.6",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -34,10 +34,10 @@ export const durinBlackSkillAuditDisclosure = {
     }
   ],
   unresolvedMechanics: [
-    "Dash、Jump 与重击尚未进入合法命令模型，不能选择对应取消帧",
+    "冲刺/跳跃命令只接受显式占用帧；耐力、位移、无敌帧、落地和碰撞尚未建模",
     "命中停顿、队列窗口与输入缓冲尚未建模",
     "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
-    "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
+    "白 E、黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ]
 } as const;
 
@@ -52,7 +52,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
   dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.5",
+    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.6",
   randomSeed: "durin-black-e-audit-v1",
   meta: {
     name: "杜林黑 E · 部分机制审计向量",
@@ -113,8 +113,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
         cancelFrame: 16,
         cancelFrames: {
           normal: 16,
+          charge: 16,
           skill: 15,
           burst: 4,
+          dash: 14,
+          jump: 14,
           swap: 13
         },
         animationEndFrame: 49,
@@ -140,8 +143,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
         cancelFrame: 41,
         cancelFrames: {
           normal: 64,
+          charge: 64,
           skill: 48,
           burst: 45,
+          dash: 42,
+          jump: 41,
           swap: 43
         },
         animationEndFrame: 67,
@@ -247,6 +253,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
         type: "normal",
         actorId: "durin",
         abilityId: "durin-denial-of-darkness"
+      },
+      {
+        type: "dash",
+        actorId: "durin",
+        frames: 1
       }
     ]
   },

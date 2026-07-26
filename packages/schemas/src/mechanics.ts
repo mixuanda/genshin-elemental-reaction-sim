@@ -4,7 +4,9 @@ import {
   abilityTimelineStateSchema
 } from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.5.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.6.0" as const;
+export const HIT_PARTICLE_TRIGGER_MECHANICS_SCHEMA_VERSION =
+  "1.5.0" as const;
 export const FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION = "1.4.0" as const;
 export const RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION = "1.3.0" as const;
 export const FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION = "1.2.0" as const;
@@ -274,7 +276,9 @@ export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
       input.schemaVersion === ACTION_STATE_MECHANICS_SCHEMA_VERSION ||
       input.schemaVersion === FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION ||
       input.schemaVersion === RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION)
+      input.schemaVersion === FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION ||
+      input.schemaVersion ===
+        HIT_PARTICLE_TRIGGER_MECHANICS_SCHEMA_VERSION)
   ) {
     return abilityBlueprintSchema.parse({
       ...input,

@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.8.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.8.0-hit-particle-triggers" as const;
+export const CURRENT_SCHEMA_VERSION = "1.9.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.9.0-movement-commands" as const;
+export const HIT_PARTICLE_TRIGGER_SCHEMA_VERSION = "1.8.0" as const;
 export const FIXED_ENERGY_ICD_SCHEMA_VERSION = "1.7.0" as const;
 export const RUNTIME_ENERGY_SCHEMA_VERSION = "1.6.0" as const;
 export const FOLLOWUP_CANCEL_SCHEMA_VERSION = "1.5.0" as const;
@@ -35,7 +36,11 @@ export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
-export type AbilityFollowupKind = AbilityKind | "swap";
+export type AbilityFollowupKind =
+  | AbilityKind
+  | "dash"
+  | "jump"
+  | "swap";
 export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
@@ -342,6 +347,14 @@ export interface TimelineSwapCommand {
   atFrame?: number;
 }
 
+export interface TimelineMovementCommand {
+  type: "dash" | "jump";
+  actorId: string;
+  /** Explicit provisional action occupancy; stamina and movement physics are not inferred. */
+  frames: number;
+  atFrame?: number;
+}
+
 export interface TimelineAbilityCommand {
   type: AbilityKind;
   actorId: string;
@@ -352,6 +365,7 @@ export interface TimelineAbilityCommand {
 export type LegalTimelineCommand =
   | TimelineWaitCommand
   | TimelineSwapCommand
+  | TimelineMovementCommand
   | TimelineAbilityCommand;
 
 export interface LegalTimelineConfig {

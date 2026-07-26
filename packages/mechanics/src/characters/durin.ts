@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.5" as const;
+  "durin-gcsim-b4ae769d7c1c.6" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -48,7 +48,7 @@ const gcsimSkillEvidence: MechanicsEvidence = {
   verifiedAt,
   verificationStatus: "provisional",
   notes:
-    "用于交叉核对命中帧、动作帧、冷却、回能和产球；这是参考实现，不代表官方数据。"
+    "用于交叉核对命中帧、动作帧、冷却、回能和产球；重击复用 ActionAttack 取消点是本引擎的分类映射推断。这是参考实现，不代表官方数据。"
 };
 
 const gcsimIcdEvidence: MechanicsEvidence = {
@@ -102,8 +102,11 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   cancelFrame: 16,
   cancelFrames: {
     normal: 16,
+    charge: 16,
     skill: 15,
     burst: 4,
+    dash: 14,
+    jump: 14,
     swap: 13
   },
   animationEndFrame: 49,
@@ -122,7 +125,7 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   },
   prerequisites: [],
   unresolvedMechanics: [
-    "Dash、Jump 与重击尚未进入合法命令模型，不能选择对应取消帧",
+    "冲刺/跳跃命令只接受显式占用帧；耐力、位移、无敌帧、落地和碰撞尚未建模",
     "命中停顿、队列窗口与输入缓冲尚未建模"
   ],
   evidence: [gcsimSkillEvidence]
@@ -142,8 +145,11 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   cancelFrame: 41,
   cancelFrames: {
     normal: 64,
+    charge: 64,
     skill: 48,
     burst: 45,
+    dash: 42,
+    jump: 41,
     swap: 43
   },
   animationEndFrame: 67,
@@ -243,7 +249,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   ],
   unresolvedMechanics: [
     "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
-    "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
+    "白 E、黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
     genshinDbEvidence,
@@ -353,6 +359,11 @@ export function createDurinBlackSkillAuditConfig(
           type: "normal",
           actorId: "durin",
           abilityId: compiled.denialOfDarkness.ability.id
+        },
+        {
+          type: "dash",
+          actorId: "durin",
+          frames: 1
         }
       ]
     },
