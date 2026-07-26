@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  ACTOR_POSE_SCHEMA_VERSION,
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
   CAPSULE_GEOMETRY_SCHEMA_VERSION,
@@ -70,15 +71,15 @@ export const elementalApplicationSchema = z
 
 export const initialAuraApplicationSchema = z
   .object({
-    element: z.enum(["pyro", "cryo", "hydro"]),
+    element: z.enum(["pyro", "cryo", "hydro", "electro"]),
     gaugeUnits: finiteNumber.positive().max(20)
   })
   .strict();
 
 export const auraReactionEngineConfigSchema = z
   .object({
-    mode: z.literal("aura-v1"),
-    initialAura: z.array(initialAuraApplicationSchema).max(3).optional(),
+    mode: z.enum(["aura-v1", "aura-v2"]),
+    initialAura: z.array(initialAuraApplicationSchema).max(4).optional(),
     icdProfiles: z
       .record(
         idSchema,
@@ -96,6 +97,13 @@ export const auraReactionEngineConfigSchema = z
   .superRefine((engine, context) => {
     const elements = new Set<string>();
     engine.initialAura?.forEach((aura, index) => {
+      if (engine.mode === "aura-v1" && aura.element === "electro") {
+        context.addIssue({
+          code: "custom",
+          path: ["initialAura", index, "element"],
+          message: "electro aura requires reactionEngine.mode to be aura-v2"
+        });
+      }
       if (elements.has(aura.element)) {
         context.addIssue({
           code: "custom",
@@ -243,7 +251,7 @@ export const enemyTargetProfileSchema = z
     level: z.number().int().min(1).max(200).optional(),
     resistance: finiteNumber.optional(),
     defReduction: finiteNumber.optional(),
-    initialAura: z.array(initialAuraApplicationSchema).max(3).optional(),
+    initialAura: z.array(initialAuraApplicationSchema).max(4).optional(),
     position: point2DSchema.optional(),
     hitboxRadius: finiteNumber.min(0).max(1_000).optional()
   })
@@ -1083,14 +1091,35 @@ export const simConfigSchema = z
     config.enemy.targets?.forEach((target, index) => {
       if (
         target.initialAura !== undefined &&
-        config.reactionEngine?.mode !== "aura-v1"
+        config.reactionEngine?.mode !== "aura-v1" &&
+        config.reactionEngine?.mode !== "aura-v2"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
-          message: "requires reactionEngine.mode to be aura-v1"
+          message: "requires reactionEngine.mode to be aura-v1 or aura-v2"
         });
       }
+      target.initialAura?.forEach((aura, auraIndex) => {
+        if (
+          aura.element === "electro" &&
+          config.reactionEngine?.mode !== "aura-v2"
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "enemy",
+              "targets",
+              index,
+              "initialAura",
+              auraIndex,
+              "element"
+            ],
+            message:
+              "electro aura requires reactionEngine.mode to be aura-v2"
+          });
+        }
+      });
     });
     config.enemy.targetPhases?.forEach((phase, index) => {
       validateEnemyTarget(phase.targetId, [
@@ -1492,12 +1521,16 @@ export const simConfigSchema = z
       });
     }
 
-    if (config.reactionEngine?.mode === "aura-v1") {
+    if (
+      config.reactionEngine?.mode === "aura-v1" ||
+      config.reactionEngine?.mode === "aura-v2"
+    ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
-          message: "aura-v1 currently requires timeline.mode legal-frame-v1"
+          message:
+            "aura-v1 and aura-v2 currently require timeline.mode legal-frame-v1"
         });
       }
       const validateAuraHit = (
@@ -1516,7 +1549,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1 and aura-v2; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -1533,13 +1566,19 @@ export const simConfigSchema = z
         }
         if (
           hit.application !== undefined &&
-          !["pyro", "cryo", "hydro"].includes(hit.element ?? "")
+          !(
+            config.reactionEngine?.mode === "aura-v2"
+              ? ["pyro", "cryo", "hydro", "electro"]
+              : ["pyro", "cryo", "hydro"]
+          ).includes(hit.element ?? "")
         ) {
           context.addIssue({
             code: "custom",
             path: [...path, "application"],
             message:
-              "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
+              config.reactionEngine?.mode === "aura-v2"
+                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, and electro hits"
+                : "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
           });
         }
         if (
@@ -1699,6 +1738,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === ACTOR_POSE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === SECTOR_GEOMETRY_SCHEMA_VERSION) {
     return parseSimConfig({

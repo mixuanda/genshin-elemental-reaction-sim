@@ -5,7 +5,9 @@ import {
   calcDamage,
   calcDefenseMultiplier,
   calcResistanceMultiplier,
-  calcTotalStat
+  calcTransformativeReactionDamage,
+  calcTotalStat,
+  TRANSFORMATIVE_REACTION_LEVEL_BASE
 } from "../formulas";
 import { neutralStats } from "./fixtures";
 
@@ -116,5 +118,31 @@ describe("damage formula primitives", () => {
     expect(result.factors.resistanceMultiplier).toBeCloseTo(0.9, 15);
     expect(result.finalDamage).toBeCloseTo(855, 12);
   });
-});
 
+  it("calculates level-based Overload damage without defense or crit", () => {
+    const result = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: 100,
+      reactionBonus: 0.2,
+      baseMultiplier: 2.75,
+      effectiveResistance: 0.1
+    });
+
+    expect(result.levelBaseDamage).toBe(1446.8535);
+    expect(result.elementalMasteryBonus).toBeCloseTo(
+      1600 / 2100,
+      15
+    );
+    expect(result.preResistanceDamage).toBeCloseTo(
+      1446.8535 * 2.75 * (1 + 1600 / 2100 + 0.2),
+      10
+    );
+    expect(result.resistanceMultiplier).toBeCloseTo(0.9, 15);
+    expect(result.finalDamage).toBeCloseTo(
+      result.preResistanceDamage * 0.9,
+      10
+    );
+    expect(TRANSFORMATIVE_REACTION_LEVEL_BASE).toHaveLength(100);
+    expect(TRANSFORMATIVE_REACTION_LEVEL_BASE[99]).toBe(1674.8092);
+  });
+});

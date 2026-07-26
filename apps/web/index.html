@@ -245,6 +245,16 @@
               <tbody id="auraTimelineBody"></tbody>
             </table>
           </div>
+          <div class="section-title">
+            <h3>独立转化反应伤害队列</h3>
+            <span id="reactionDamageSummary"></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>触发 → 伤害帧</th><th>反应</th><th>触发目标</th><th>排队 / GCD</th><th>圆心 / 半径</th><th>检查 / 命中 / 未解析</th><th>伤害事件</th></tr></thead>
+              <tbody id="reactionDamageBody"></tbody>
+            </table>
+          </div>
         </article>
       </section>
 
@@ -319,9 +329,9 @@
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
               <dt>particles</dt><dd>描述微粒/晶球的元素、离散数量范围、生成帧与飞行帧；核心在到达帧按前后台、同/异色和充能效率向全队分配。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
-              <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
+              <dt>reactionEngine</dt><dd>aura-v1 根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；aura-v2 另加入雷 Aura 与超载独立伤害事件、6 帧伤害 GCD 和半径 3 的逐目标范围结算。正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物，也没有完整角色数据。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、超载独立伤害、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；超载以外的转化反应仍未实现，几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物，也没有完整角色机制数据库。</p>
           </article>
         </div>
       </section>

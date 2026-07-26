@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.21.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.21.0-actor-pose" as const;
+export const CURRENT_SCHEMA_VERSION = "1.22.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.22.0-overload-reaction" as const;
+export const ACTOR_POSE_SCHEMA_VERSION = "1.21.0" as const;
 export const SECTOR_GEOMETRY_SCHEMA_VERSION = "1.20.0" as const;
 export const CAPSULE_GEOMETRY_SCHEMA_VERSION = "1.19.0" as const;
 export const ORIENTED_RECTANGLE_SCHEMA_VERSION = "1.18.0" as const;
@@ -40,6 +41,9 @@ export type AmplifyingReaction =
   | "vaporize"
   | "reverseVaporize";
 
+export type TransformativeReaction = "overload";
+export type ReactionType = AmplifyingReaction | TransformativeReaction;
+
 export type ScalingStat = "atk" | "hp" | "def" | "em";
 export type SnapshotMode = "action" | "hit";
 export type CritMode = "average" | "allCrit" | "noCrit";
@@ -53,7 +57,10 @@ export type AbilityFollowupKind =
   | "dash"
   | "jump"
   | "swap";
-export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
+export type AuraElement = Extract<
+  Element,
+  "pyro" | "cryo" | "hydro" | "electro"
+>;
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
@@ -128,7 +135,7 @@ export interface IcdProfile {
 }
 
 export interface AuraReactionEngineConfig {
-  mode: "aura-v1";
+  mode: "aura-v1" | "aura-v2";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -574,7 +581,8 @@ export type SimulationEventType =
   | "energy"
   | "particleSpawn"
   | "particleReceive"
-  | "hit";
+  | "hit"
+  | "reactionDamage";
 
 export interface SimulationEvent<TPayload = unknown> {
   type: SimulationEventType;
@@ -621,9 +629,13 @@ export interface AuraGaugeEntry {
 }
 
 export interface ReactionAudit {
-  model: "none" | "manual-override" | "aura-engine";
+  model:
+    | "none"
+    | "manual-override"
+    | "aura-engine"
+    | "reaction-damage";
   triggered: boolean;
-  reaction: AmplifyingReaction;
+  reaction: ReactionType;
   icdAllowed: boolean | null;
   icdTag: string | null;
   icdGroup: IcdGroup | null;
@@ -634,7 +646,19 @@ export interface ReactionAudit {
   /** Actual remaining aura durability removed by this hit. */
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
+  transformativeReaction: TransformativeReactionAudit | null;
   note?: string;
+}
+
+export interface TransformativeReactionAudit {
+  reaction: TransformativeReaction;
+  damageElement: Element;
+  scheduled: boolean;
+  damageFrame: number;
+  radius: number;
+  baseMultiplier: number;
+  blockedReason: "REACTION_DAMAGE_GCD" | null;
+  nextAvailableFrame: number;
 }
 
 export interface FlatDamageDetail {
@@ -668,8 +692,23 @@ export interface DamageFactors {
   groupMultiplier: number;
 }
 
+export interface TransformativeReactionFactors {
+  reaction: TransformativeReaction;
+  characterLevel: number;
+  levelBaseDamage: number;
+  baseMultiplier: number;
+  elementalMastery: number;
+  elementalMasteryBonus: number;
+  reactionBonus: number;
+  preResistanceDamage: number;
+  effectiveResistance: number;
+  resistanceMultiplier: number;
+}
+
 export interface DamageEvent {
   id: number;
+  kind: "direct" | "transformative-reaction";
+  parentDamageEventId: number | null;
   sourceActorId: string;
   scalingOwnerId: string;
   creditOwnerId: string;
@@ -693,6 +732,7 @@ export interface DamageEvent {
   enemyStateBeforeHit: EnemyStateBeforeHit;
   reactionAudit: ReactionAudit;
   damageFactors: DamageFactors;
+  transformativeReactionFactors: TransformativeReactionFactors | null;
   /** Raw deterministic result retained for aggregation and Golden fixtures. */
   finalDamage: number;
   /** Nearest-integer display value, matching gcsim Sample presentation. */
@@ -703,7 +743,7 @@ export interface DamageEvent {
   actionName: string;
   hitLabel: string;
   element: Element;
-  reaction: AmplifyingReaction;
+  reaction: ReactionType;
   snapshot: SnapshotMode;
   cycle: number;
   flatDetails: FlatDamageDetail[];
@@ -845,7 +885,13 @@ export interface HitResolutionLogEntry {
   element: Element;
   targetId: TargetId;
   targetName: string;
-  targetingSource: "default" | "scripted" | "geometry";
+  targetingSource:
+    | "default"
+    | "scripted"
+    | "geometry"
+    | "reaction-source"
+    | "reaction-geometry";
+  resolutionKind: "direct" | "reaction-damage";
   targetPosition: { x: number; y: number } | null;
   sourceActorPosition: { x: number; y: number } | null;
   sourceActorFacingDegrees: number | null;
@@ -991,11 +1037,32 @@ export interface AuraTimelinePoint {
   hitId: string;
   incomingElement: Element;
   icdAllowed: boolean | null;
-  reaction: AmplifyingReaction;
+  reaction: ReactionType;
   auraBefore: AuraStateEntry[];
   auraApplied: AuraGaugeEntry[];
   auraConsumed: AuraGaugeEntry[];
   auraAfter: AuraStateEntry[];
+}
+
+export interface ReactionDamageLogEntry {
+  id: number;
+  reaction: TransformativeReaction;
+  triggerDamageEventId: number;
+  sourceActorId: string;
+  sourceTargetId: TargetId;
+  triggerFrame: number;
+  damageFrame: number;
+  scheduled: boolean;
+  /** Whether the queued damage frame is inside the configured simulation. */
+  withinSimulation: boolean;
+  blockedReason: "REACTION_DAMAGE_GCD" | null;
+  nextAvailableFrame: number;
+  centerPosition: { x: number; y: number } | null;
+  radius: number;
+  checkedTargetIds: TargetId[];
+  hitTargetIds: TargetId[];
+  unresolvedTargetIds: TargetId[];
+  damageEventIds: number[];
 }
 
 export type TimelineFailureCode =
@@ -1085,6 +1152,8 @@ export interface SimulationResult {
   hitEvents: DamageEvent[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
+  /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
+  reactionDamageLog: ReactionDamageLogEntry[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

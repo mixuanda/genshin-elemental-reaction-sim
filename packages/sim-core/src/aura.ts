@@ -6,6 +6,7 @@ import type {
   Element,
   ElementalApplication,
   IcdProfile,
+  ReactionType,
   ReactionAudit
 } from "@genshin-dps-lab/schemas";
 
@@ -15,6 +16,10 @@ const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
 const NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 6;
 const DEFAULT_ICD_RESET_FRAMES = 150;
 const DEFAULT_ICD_SEQUENCE = [true, false, false] as const;
+const OVERLOAD_DAMAGE_GCD_FRAMES = 6;
+const OVERLOAD_DAMAGE_DELAY_FRAMES = 1;
+const OVERLOAD_DAMAGE_RADIUS = 3;
+const OVERLOAD_BASE_MULTIPLIER = 2.75;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -33,7 +38,7 @@ interface IcdState {
 
 interface ReactionRule {
   auraElement: AuraElement;
-  reaction: AmplifyingReaction;
+  reaction: ReactionType;
   consumptionFactor: number;
 }
 
@@ -46,8 +51,13 @@ export interface AuraHitInput {
 }
 
 const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
-  // gcsim checks Vaporize before Melt for incoming Pyro.
+  // Fixed gcsim reference order for incoming Pyro: Overload, Vaporize, Melt.
   pyro: [
+    {
+      auraElement: "electro",
+      reaction: "overload",
+      consumptionFactor: 1
+    },
     {
       auraElement: "hydro",
       reaction: "reverseVaporize",
@@ -72,11 +82,26 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
       reaction: "vaporize",
       consumptionFactor: 2
     }
+  ],
+  electro: [
+    {
+      auraElement: "pyro",
+      reaction: "overload",
+      consumptionFactor: 1
+    }
   ]
 };
 
-function isAuraElement(element: Element): element is AuraElement {
-  return element === "pyro" || element === "cryo" || element === "hydro";
+function isAuraElement(
+  element: Element,
+  mode: AuraReactionEngineConfig["mode"]
+): element is AuraElement {
+  return (
+    element === "pyro" ||
+    element === "cryo" ||
+    element === "hydro" ||
+    (mode === "aura-v2" && element === "electro")
+  );
 }
 
 function cleanGaugeUnits(value: number): number {
@@ -87,19 +112,22 @@ function cleanGaugeUnits(value: number): number {
 /**
  * Minimal deterministic Aura/ICD engine for Milestone 3.
  *
- * It deliberately models only normal Pyro/Cryo/Hydro aura, amplifying
- * Melt/Vaporize, default 3-hit/2.5s ICD, and no-ICD applications. Coexistence,
- * transformative reactions, elemental shields, and per-source overlap arrays
- * remain future mechanics work.
+ * aura-v1 preserves normal Pyro/Cryo/Hydro aura and amplifying Melt/Vaporize.
+ * aura-v2 additionally models normal Electro aura and Overload scheduling.
+ * Coexistence, the remaining reactions, elemental shields, and per-source
+ * overlap arrays remain future mechanics work.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraElement, MutableAura>();
   private readonly icdStates = new Map<string, IcdState>();
   private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
   private readonly debugAllowReactionOverride: boolean;
+  private readonly mode: AuraReactionEngineConfig["mode"];
+  private overloadDamageReadyFrame = -1;
   private currentFrame = 0;
 
   constructor(config: AuraReactionEngineConfig) {
+    this.mode = config.mode;
     this.debugAllowReactionOverride =
       config.debugAllowReactionOverride === true;
     this.icdProfiles = {
@@ -171,7 +199,7 @@ export class AuraEngine {
       return;
     }
 
-    // Cryo/Hydro use overlap semantics. This single-target v1 state keeps the
+    // Cryo/Hydro/Electro use overlap semantics. This per-target state keeps the
     // stronger remaining aura; per-source overlap arrays are intentionally not
     // yet represented.
     if (appliedGaugeUnits > existing.gaugeUnits) {
@@ -212,7 +240,7 @@ export class AuraEngine {
     const auraBefore = this.snapshot();
     const application = input.application;
 
-    if (!application || !isAuraElement(input.element)) {
+    if (!application || !isAuraElement(input.element, this.mode)) {
       const override =
         this.debugAllowReactionOverride &&
         input.reactionOverride !== undefined &&
@@ -231,6 +259,7 @@ export class AuraEngine {
         auraApplied: [],
         auraConsumed: [],
         auraAfter: this.snapshot(),
+        transformativeReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -256,6 +285,7 @@ export class AuraEngine {
         auraApplied: [],
         auraConsumed: [],
         auraAfter: this.snapshot(),
+        transformativeReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -268,10 +298,12 @@ export class AuraEngine {
     ];
     const rule = REACTION_RULES[input.element].find(
       (candidate) =>
+        (this.mode === "aura-v2" ||
+          candidate.reaction !== "overload") &&
         (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
         AURA_EPSILON
     );
-    let automaticReaction: AmplifyingReaction = "none";
+    let automaticReaction: ReactionType = "none";
     const auraConsumed: ReactionAudit["auraConsumed"] = [];
 
     if (rule) {
@@ -302,6 +334,27 @@ export class AuraEngine {
         ? input.reactionOverride
         : null;
     const reaction = debugOverride ?? automaticReaction;
+    let transformativeReaction: ReactionAudit["transformativeReaction"] =
+      null;
+    if (debugOverride === null && automaticReaction === "overload") {
+      const scheduled =
+        this.overloadDamageReadyFrame < 0 ||
+        input.frame >= this.overloadDamageReadyFrame;
+      if (scheduled) {
+        this.overloadDamageReadyFrame =
+          input.frame + OVERLOAD_DAMAGE_GCD_FRAMES;
+      }
+      transformativeReaction = {
+        reaction: "overload",
+        damageElement: "pyro",
+        scheduled,
+        damageFrame: input.frame + OVERLOAD_DAMAGE_DELAY_FRAMES,
+        radius: OVERLOAD_DAMAGE_RADIUS,
+        baseMultiplier: OVERLOAD_BASE_MULTIPLIER,
+        blockedReason: scheduled ? null : "REACTION_DAMAGE_GCD",
+        nextAvailableFrame: this.overloadDamageReadyFrame
+      };
+    }
 
     return {
       model: debugOverride === null ? "aura-engine" : "manual-override",
@@ -315,11 +368,16 @@ export class AuraEngine {
       auraApplied,
       auraConsumed,
       auraAfter: this.snapshot(),
+      transformativeReaction,
       note:
         debugOverride === null
           ? automaticReaction === "none"
-            ? "附着通过 ICD；未找到可触发增幅反应的敌方 Aura。"
-            : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+            ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+            : automaticReaction === "overload"
+              ? transformativeReaction?.scheduled
+                ? "超载由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。"
+                : "超载已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。"
+              : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
           : "调试模式 reactionOverride 覆盖了自动反应结果。"
     };
   }
@@ -331,5 +389,9 @@ export const AURA_ENGINE_CONSTANTS = {
   normalAuraDurationPerUnitFrames: NORMAL_AURA_DURATION_PER_UNIT_FRAMES,
   defaultIcdResetFrames: DEFAULT_ICD_RESET_FRAMES,
   defaultIcdSequence: DEFAULT_ICD_SEQUENCE,
-  builtInDefaultIcdProfile: BUILT_IN_DEFAULT_ICD_PROFILE
+  builtInDefaultIcdProfile: BUILT_IN_DEFAULT_ICD_PROFILE,
+  overloadDamageGcdFrames: OVERLOAD_DAMAGE_GCD_FRAMES,
+  overloadDamageDelayFrames: OVERLOAD_DAMAGE_DELAY_FRAMES,
+  overloadDamageRadius: OVERLOAD_DAMAGE_RADIUS,
+  overloadBaseMultiplier: OVERLOAD_BASE_MULTIPLIER
 } as const;

@@ -228,6 +228,86 @@ describe("AuraEngine ICD", () => {
   });
 });
 
+describe("AuraEngine Overload scheduling", () => {
+  it("supports both Pyro-on-Electro and Electro-on-Pyro", () => {
+    const pyroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 10,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+    const electroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 10,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    for (const audit of [pyroIncoming, electroIncoming]) {
+      expect(audit.reaction).toBe("overload");
+      expect(audit.auraConsumed?.[0]?.gaugeUnits).toBeCloseTo(
+        0.8 - (0.8 / 426) * 10,
+        10
+      );
+      expect(audit.transformativeReaction).toMatchObject({
+        reaction: "overload",
+        damageElement: "pyro",
+        scheduled: true,
+        damageFrame: 11,
+        radius: 3,
+        baseMultiplier: 2.75,
+        blockedReason: null,
+        nextAvailableFrame: 16
+      });
+    }
+  });
+
+  it("consumes Aura even when the 6-frame damage GCD blocks the explosion", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "electro", gaugeUnits: 3 }]
+    });
+    const hit = (frame: number) =>
+      engine.processHit({
+        frame,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd()
+      });
+
+    const first = hit(0);
+    const blocked = hit(5);
+    const boundary = hit(6);
+
+    expect(first.transformativeReaction).toMatchObject({
+      scheduled: true,
+      nextAvailableFrame: 6
+    });
+    expect(blocked).toMatchObject({
+      triggered: true,
+      reaction: "overload",
+      transformativeReaction: {
+        scheduled: false,
+        blockedReason: "REACTION_DAMAGE_GCD",
+        nextAvailableFrame: 6
+      }
+    });
+    expect(blocked.auraConsumed?.[0]?.gaugeUnits).toBeGreaterThan(0);
+    expect(boundary.transformativeReaction).toMatchObject({
+      scheduled: true,
+      blockedReason: null,
+      damageFrame: 7,
+      nextAvailableFrame: 12
+    });
+  });
+});
+
 function makeAuraTimelineConfig(initialAura: boolean): SimConfig {
   const base = makeConfig();
   return {

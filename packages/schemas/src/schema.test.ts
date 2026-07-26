@@ -1592,4 +1592,85 @@ describe("versioned config schema", () => {
       })
     ).toThrow(/characters: Genshin parties support at most four characters/);
   });
+
+  it("gates Electro Aura behind aura-v2", () => {
+    const current = migrateConfig(legacyConfig);
+    const withTimeline = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      }
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...withTimeline,
+        reactionEngine: {
+          mode: "aura-v1",
+          initialAura: [{ element: "electro", gaugeUnits: 1 }]
+        }
+      })
+    ).toThrow(/electro aura requires reactionEngine\.mode to be aura-v2/);
+
+    const parsed = migrateConfig({
+      ...withTimeline,
+      reactionEngine: {
+        mode: "aura-v2",
+        initialAura: [{ element: "electro", gaugeUnits: 1 }]
+      },
+      timeline: {
+        ...withTimeline.timeline,
+        abilities: [
+          {
+            id: "electro-hit",
+            actorId: "a",
+            name: "雷附着",
+            kind: "skill",
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "electro-hit-1",
+                frame: 0,
+                scaling: 1,
+                element: "electro",
+                application: {
+                  gaugeUnits: 1,
+                  icdTag: "electro",
+                  icdGroup: "no-icd"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    });
+    expect(parsed.reactionEngine).toEqual({
+      mode: "aura-v2",
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    });
+    expect(
+      parsed.timeline?.abilities[0]?.hits?.[0]?.element
+    ).toBe("electro");
+  });
+
+  it("migrates the actor-pose schema into the Overload schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.21.0",
+      engineVersion: "1.21.0-actor-local-geometry"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
 });

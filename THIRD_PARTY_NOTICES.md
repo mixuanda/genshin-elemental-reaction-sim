@@ -6,8 +6,9 @@
 - Documentation: [docs.gcsim.app](https://docs.gcsim.app/)
 - License: MIT
 - Copyright: Copyright (c) 2021 genshinsim
+- Included license: [`third_party/licenses/gcsim-MIT.txt`](./third_party/licenses/gcsim-MIT.txt)
 
-This project currently uses gcsim as a product and testing reference only:
+This project uses gcsim as a product and testing reference:
 
 - character and skill damage distribution;
 - frame-oriented sample/event inspection;
@@ -21,13 +22,18 @@ This project currently uses gcsim as a product and testing reference only:
   `internal/characters/durin/skill.go`,
   `pkg/core/attacks/icd_groups.dm.go`, and the default particle delay in
   `pkg/core/player/character/character.go`.
+- Overload trigger order, one-frame delay, six-frame damage GCD, radius,
+  reaction multiplier, defense/crit behavior, and resistance application
+  cross-checked against the same fixed commit.
 
-No gcsim source code, character implementation, or game database has been
-copied. The TypeScript Aura, ICD, particle, Ability Blueprint, and Durin audit
-implementations were written independently; the pinned Go sources are used as
-behavior/test oracles and are cited by the blueprint evidence. If code is
-reused later, the applicable copyright and MIT license text must be retained
-with the copied or substantial portions.
+The level 1–100 transformative-reaction base-damage numeric table in
+`packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's
+`pkg/core/combat/reaction.dm.go` and is covered by the included MIT license.
+No Go source or character implementation was copied. The TypeScript Aura,
+ICD, reaction scheduling, particle, Ability Blueprint, and Durin audit
+implementations were written independently against the pinned behavior
+oracles. Any later reused code or substantial data portions must retain the
+applicable copyright and MIT license text.
 
 ## Enka.Network
 

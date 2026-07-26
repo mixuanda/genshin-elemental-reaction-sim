@@ -283,7 +283,9 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await page.locator("#presetSelect").selectOption({ index: 3 });
 
   await expect(page.locator("#notice")).toContainText("Aura / ICD 自动反应");
-  await expect(page.locator("#metricGrid")).toContainText("Aura 自动判定");
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v1 自动判定"
+  );
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#auraTimelineCard")).toBeVisible();
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
@@ -298,6 +300,167 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await expect(page.locator("#hitDetail")).toContainText("本段消耗 Aura");
   await expect(page.locator("#hitDetail")).toContainText(
     "m3-pyro-multihit / default"
+  );
+});
+
+test("renders Overload as independent per-target damage with queue and formula audits", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "超载独立伤害 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "触发目标",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "electro", gaugeUnits: 1 }]
+      },
+      {
+        id: "enemy-1",
+        name: "范围内免疫目标",
+        position: { x: 3, y: 0 },
+        resistance: 0.5
+      },
+      {
+        id: "enemy-2",
+        name: "范围外目标",
+        position: { x: 3.1, y: 0 }
+      },
+      {
+        id: "enemy-3",
+        name: "未提供位置目标"
+      }
+    ],
+    targetPhases: [
+      {
+        id: "enemy-1-immune",
+        label: "超载免疫窗",
+        targetId: "enemy-1",
+        startFrame: 1,
+        endFrame: 2,
+        reason: "OVERLOAD_IMMUNE_WINDOW",
+        effects: {
+          damage: "immune",
+          aura: "normal",
+          hitConfirm: "normal"
+        }
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...character,
+      element: "pyro",
+      stats: {
+        ...character.stats,
+        em: 100,
+        reactionBonus: 0.2
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "overload-skill",
+        actorId: character.id,
+        name: "超载触发战技",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "overload-trigger",
+            label: "火元素触发",
+            frame: 0,
+            scaling: 1,
+            element: "pyro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "overload-skill",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "overload-skill"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "overload-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v2 自动判定"
+  );
+  await expect(page.locator("#metricGrid")).toContainText("3");
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "雷 Aura"
+  );
+  await expect(page.locator("#auraTimelineBody")).toContainText("超载");
+  await expect(page.locator("#reactionDamageSummary")).toContainText(
+    "1 次转化反应触发"
+  );
+  await expect(page.locator("#reactionDamageSummary")).toContainText(
+    "2 段逐目标伤害事件"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("0f → 1f");
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "3 / 2 / 1"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("enemy-3");
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "Aura 不适用"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "OUTSIDE_CIRCLE_GEOMETRY"
+  );
+
+  await page.locator("#reactionDamageBody tr").click();
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText(
+    "独立转化反应伤害"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "转化反应伤害忽略防御"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "转化反应伤害不暴击"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "等级 90 基准 1,446.8535 × 超载 2.75"
   );
 });
 

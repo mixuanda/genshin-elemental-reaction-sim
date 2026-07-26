@@ -15,6 +15,7 @@ import {
   type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
+  type TransformativeReactionFactors,
   type SimConfig,
   type SimulationEvent,
   type SimulationOptions,
@@ -29,6 +30,7 @@ import {
 } from "./energy";
 import {
   calcDamage,
+  calcTransformativeReactionDamage,
   calcTotalStat,
   clamp,
   type DamageCalculationInput
@@ -47,7 +49,8 @@ export const EVENT_PRIORITY = {
   energy: 2,
   particleSpawn: 2,
   particleReceive: 2,
-  hit: 3
+  hit: 3,
+  reactionDamage: 4
 } as const;
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
@@ -388,6 +391,25 @@ interface HitEventPayload {
   cycle: number;
 }
 
+interface ReactionDamageEventPayload {
+  actorId: string;
+  action: ActionDefinition;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  triggerDamageEventId: number;
+  sourceTargetId: string;
+  centerPosition: { x: number; y: number } | null;
+  radius: number;
+  baseMultiplier: number;
+  stats: CharacterStats;
+  elementalMastery: number;
+  reactionBonus: number;
+  sourceBuffStatuses: ActiveStatusSnapshot[];
+  snapshot: DamageEvent["snapshot"];
+  cycle: number;
+  reactionDamageLogId: number;
+}
+
 type InternalEvent =
   | SimulationEvent<ActionEventPayload>
   | SimulationEvent<BuffEventPayload>
@@ -395,7 +417,8 @@ type InternalEvent =
   | SimulationEvent<EnergyEventPayload>
   | SimulationEvent<ParticleSpawnEventPayload>
   | SimulationEvent<ParticleReceiveEventPayload>
-  | SimulationEvent<HitEventPayload>;
+  | SimulationEvent<HitEventPayload>
+  | SimulationEvent<ReactionDamageEventPayload>;
 
 interface ActiveBuff {
   key: string;
@@ -610,7 +633,8 @@ function simulateConfig(
     return deepClone(position);
   };
   const auraEngines =
-    config.reactionEngine?.mode === "aura-v1"
+    config.reactionEngine?.mode === "aura-v1" ||
+    config.reactionEngine?.mode === "aura-v2"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -710,6 +734,7 @@ function simulateConfig(
   const activeDebuffs: ActiveDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
+  const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -1626,6 +1651,400 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "reactionDamage") {
+      const {
+        actorId,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        triggerDamageEventId,
+        sourceTargetId,
+        centerPosition,
+        radius,
+        baseMultiplier,
+        stats,
+        elementalMastery,
+        reactionBonus,
+        sourceBuffStatuses,
+        snapshot,
+        cycle,
+        reactionDamageLogId
+      } = event.payload as ReactionDamageEventPayload;
+      const sourceActor = characters.get(actorId);
+      const reactionLog = reactionDamageLog[reactionDamageLogId];
+      if (!sourceActor || !reactionLog) continue;
+
+      const spatialPlans: Array<{
+        targetId: string;
+        targetPosition: { x: number; y: number } | null;
+        landed: boolean;
+        reason: string | null;
+        distance: number | null;
+        threshold: number | null;
+        targetingSource: "reaction-source" | "reaction-geometry";
+      }> = [];
+      if (centerPosition === null) {
+        spatialPlans.push({
+          targetId: sourceTargetId,
+          targetPosition: resolveTargetPosition(
+            sourceTargetId,
+            event.frame
+          ),
+          landed: true,
+          reason: null,
+          distance: null,
+          threshold: null,
+          targetingSource: "reaction-source"
+        });
+        reactionLog.unresolvedTargetIds.push(
+          ...enemyTargets
+            .filter((target) => target.id !== sourceTargetId)
+            .map((target) => target.id)
+        );
+      } else {
+        for (const target of enemyTargets) {
+          const targetPosition = resolveTargetPosition(
+            target.id,
+            event.frame
+          );
+          if (targetPosition === null) {
+            reactionLog.unresolvedTargetIds.push(target.id);
+            continue;
+          }
+          const geometryResolution = resolveHitGeometry(
+            {
+              kind: "circle",
+              coordinateSpace: "world",
+              origin: centerPosition,
+              radius
+            },
+            targetPosition,
+            target.hitboxRadius
+          );
+          spatialPlans.push({
+            targetId: target.id,
+            targetPosition,
+            landed: geometryResolution.landed,
+            reason: geometryResolution.landed
+              ? null
+              : geometryResolution.missReason,
+            distance: geometryResolution.distance,
+            threshold: geometryResolution.threshold,
+            targetingSource: "reaction-geometry"
+          });
+        }
+      }
+
+      spatialPlans.forEach((plan, targetIndex) => {
+        const targetProfile = enemyTargetById.get(plan.targetId);
+        if (!targetProfile) return;
+        reactionLog.checkedTargetIds.push(plan.targetId);
+        if (plan.landed) reactionLog.hitTargetIds.push(plan.targetId);
+
+        const activeTargetPhase = targetPhaseTimeline.find(
+          (phase) =>
+            phase.targetId === plan.targetId &&
+            event.frame >= phase.startFrame &&
+            event.frame < phase.endFrame
+        );
+        const damageAllowed =
+          plan.landed &&
+          activeTargetPhase?.effects.damage !== "immune";
+        const targetResolutionId = hitResolutionLog.length;
+        const targetResolution: SimulationResult["hitResolutionLog"][number] =
+          {
+            id: targetResolutionId,
+            frame: event.frame,
+            timeSeconds,
+            cycle,
+            sourceActorId: actorId,
+            sourceActionId: action.id,
+            actionName: `${action.name} · 超载`,
+            hitId: `${triggerHitId}:overload`,
+            hitGroupId: `${triggerHitGroupId}:overload:${triggerDamageEventId}`,
+            targetIndex,
+            targetCount: spatialPlans.length,
+            hitLabel: "超载反应伤害",
+            element: "pyro",
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            targetingSource: plan.targetingSource,
+            resolutionKind: "reaction-damage",
+            targetPosition: deepClone(plan.targetPosition),
+            sourceActorPosition: null,
+            sourceActorFacingDegrees: null,
+            geometryKind:
+              plan.targetingSource === "reaction-geometry"
+                ? "circle"
+                : null,
+            geometryCoordinateSpace:
+              plan.targetingSource === "reaction-geometry"
+                ? "world"
+                : null,
+            geometryOrigin:
+              plan.targetingSource === "reaction-geometry"
+                ? deepClone(centerPosition)
+                : null,
+            geometryStart: null,
+            geometryEnd: null,
+            geometryRadius:
+              plan.targetingSource === "reaction-geometry"
+                ? radius
+                : null,
+            geometryHalfWidth: null,
+            geometryHalfHeight: null,
+            geometryRotationDegrees: null,
+            geometryDirectionDegrees: null,
+            geometryAngleDegrees: null,
+            geometryDistance: plan.distance,
+            geometryThreshold: plan.threshold,
+            outcome: plan.landed ? "landed" : "miss",
+            landed: plan.landed,
+            reason:
+              plan.reason ??
+              (activeTargetPhase === undefined
+                ? null
+                : activeTargetPhase.reason),
+            targetEffectSource:
+              activeTargetPhase === undefined
+                ? "normal"
+                : "target-phase",
+            targetPhaseId: activeTargetPhase?.id ?? null,
+            damageAllowed,
+            auraAllowed: false,
+            hitConfirmAllowed: false,
+            damageEventId: null,
+            potentialDamage: 0,
+            finalDamage: 0,
+            displayDamage: 0,
+            ...(action.timelineCommandIndex === undefined
+              ? {}
+              : {
+                  timelineCommandIndex:
+                    action.timelineCommandIndex
+                }),
+            ...(action.sourceAbilityId === undefined
+              ? {}
+              : { sourceAbilityId: action.sourceAbilityId })
+          };
+        hitResolutionLog.push(targetResolution);
+        if (!plan.landed) return;
+
+        const debuffState = getDebuffState(
+          timeSeconds,
+          "pyro",
+          targetProfile.defReduction
+        );
+        const effectiveResistance =
+          targetProfile.resistance - debuffState.resShred;
+        const effectiveDefenseReduction = clamp(
+          debuffState.defReduction,
+          -1,
+          0.9
+        );
+        const activeStatuses: ActiveStatusSnapshot[] = [
+          ...sourceBuffStatuses.map((status) =>
+            deepClone(status)
+          ),
+          ...debuffState.relevantDebuffs.map((debuff) => ({
+            key: debuff.key,
+            kind: "debuff" as const,
+            sourceActorId: debuff.actorId,
+            element: debuff.element,
+            resShred: debuff.resShred,
+            defReduction: debuff.defReduction,
+            startTimeSeconds: debuff.start,
+            endTimeSeconds: debuff.end,
+            label: debuff.label
+          }))
+        ];
+        const calculation = calcTransformativeReactionDamage({
+          characterLevel: sourceActor.level,
+          elementalMastery,
+          reactionBonus,
+          baseMultiplier,
+          effectiveResistance
+        });
+        const transformativeReactionFactors: TransformativeReactionFactors =
+          {
+            reaction: "overload",
+            characterLevel: sourceActor.level,
+            levelBaseDamage: calculation.levelBaseDamage,
+            baseMultiplier,
+            elementalMastery,
+            elementalMasteryBonus:
+              calculation.elementalMasteryBonus,
+            reactionBonus: calculation.reactionBonus,
+            preResistanceDamage:
+              calculation.preResistanceDamage,
+            effectiveResistance,
+            resistanceMultiplier:
+              calculation.resistanceMultiplier
+          };
+        const targetDamageMultiplier = damageAllowed ? 1 : 0;
+        const finalDamage =
+          calculation.finalDamage * targetDamageMultiplier;
+        const displayDamage = Math.round(finalDamage);
+        const damageEventId = damageEvents.length;
+        const buffLabels = sourceBuffStatuses.map(
+          (status) => status.label
+        );
+        const debuffLabels = debuffState.relevantDebuffs.map(
+          (debuff) => debuff.label
+        );
+        const damageFactors: DamageEvent["damageFactors"] = {
+          scaling: 0,
+          scalingStat: "em",
+          scalingValue: elementalMastery,
+          flatDamage: 0,
+          baseDamage: calculation.preResistanceDamage,
+          damageBonus: 0,
+          damageBonusMultiplier: 1,
+          defenseIgnore: 1,
+          defenseReduction: effectiveDefenseReduction,
+          defenseMultiplier: 1,
+          effectiveResistance,
+          resistanceMultiplier:
+            calculation.resistanceMultiplier,
+          critRate: 0,
+          critDamage: 0,
+          critMultiplier: 1,
+          reactionBase: baseMultiplier,
+          elementalMasteryBonus:
+            calculation.elementalMasteryBonus,
+          reactionBonus: calculation.reactionBonus,
+          amplifyingReactionMultiplier: 1,
+          groupMultiplier: 1
+        };
+        const reactionAudit: ReactionAudit = {
+          model: "reaction-damage",
+          triggered: true,
+          reaction: "overload",
+          icdAllowed: null,
+          icdTag: null,
+          icdGroup: null,
+          applicationGaugeUnits: null,
+          auraBefore: null,
+          auraApplied: null,
+          auraConsumed: null,
+          auraAfter: null,
+          transformativeReaction: null,
+          note:
+            "超载独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用火元素抗性与目标伤害策略。"
+        };
+        damageEvents.push({
+          id: damageEventId,
+          kind: "transformative-reaction",
+          parentDamageEventId: triggerDamageEventId,
+          sourceActorId: actorId,
+          scalingOwnerId: actorId,
+          creditOwnerId: actorId,
+          actionId: action.id,
+          hitId: `${triggerHitId}:overload`,
+          hitGroupId: `${triggerHitGroupId}:overload:${triggerDamageEventId}`,
+          targetIndex,
+          targetCount: spatialPlans.length,
+          targetResolutionId,
+          targetId: plan.targetId,
+          targetName: targetProfile.name,
+          targetDamagePolicy: damageAllowed
+            ? "normal"
+            : "immune",
+          targetDamageMultiplier,
+          potentialDamage: calculation.finalDamage,
+          frame: event.frame,
+          timeSeconds,
+          activeCharacterId,
+          statsBeforeDamage: deepClone(stats),
+          activeStatuses,
+          enemyStateBeforeHit: {
+            level: targetProfile.level,
+            baseResistance: targetProfile.resistance,
+            resistanceShred: debuffState.resShred,
+            effectiveResistance,
+            baseDefenseReduction: targetProfile.defReduction,
+            effectiveDefenseReduction
+          },
+          reactionAudit,
+          damageFactors,
+          transformativeReactionFactors,
+          finalDamage,
+          displayDamage,
+          sourceActorName: sourceActor.name,
+          scalingOwnerName: sourceActor.name,
+          creditOwnerName: sourceActor.name,
+          actionName: `${action.name} · 超载`,
+          hitLabel: "超载反应伤害",
+          element: "pyro",
+          reaction: "overload",
+          snapshot,
+          cycle,
+          flatDetails: [],
+          ...(action.timelineCommandIndex === undefined
+            ? {}
+            : {
+                timelineCommandIndex:
+                  action.timelineCommandIndex
+              }),
+          ...(action.sourceAbilityId === undefined
+            ? {}
+            : { sourceAbilityId: action.sourceAbilityId }),
+          ...(action.startFrame === undefined
+            ? {}
+            : { actionStartFrame: action.startFrame }),
+          ...(action.cancelFrame === undefined
+            ? {}
+            : { actionCancelFrame: action.cancelFrame }),
+          ...(action.animationEndFrame === undefined
+            ? {}
+            : {
+                actionAnimationEndFrame:
+                  action.animationEndFrame
+              }),
+          time: timeSeconds,
+          second: Math.floor(timeSeconds),
+          actorId,
+          creditId: actorId,
+          actorName: sourceActor.name,
+          activeId: activeCharacterId,
+          scaling: 0,
+          scalingStat: "em",
+          scalingValue: elementalMastery,
+          flat: 0,
+          baseDamage: calculation.preResistanceDamage,
+          dmgBonus: 0,
+          bonusFactor: 1,
+          defIgnore: 1,
+          defReduction: effectiveDefenseReduction,
+          defenseFactor: 1,
+          effectiveRes: effectiveResistance,
+          resFactor: calculation.resistanceMultiplier,
+          critRate: 0,
+          critDmg: 0,
+          critFactor: 1,
+          em: elementalMastery,
+          reactionBase: baseMultiplier,
+          emBonus: calculation.elementalMasteryBonus,
+          reactionBonus: calculation.reactionBonus,
+          reactionFactor:
+            baseMultiplier *
+            (1 +
+              calculation.elementalMasteryBonus +
+              calculation.reactionBonus),
+          groupMultiplier: 1,
+          buffs: buffLabels,
+          debuffs: debuffLabels
+        });
+        reactionLog.damageEventIds.push(damageEventId);
+        targetResolution.damageEventId = damageEventId;
+        targetResolution.potentialDamage =
+          calculation.finalDamage;
+        targetResolution.finalDamage = finalDamage;
+        targetResolution.displayDamage = displayDamage;
+      });
+      continue;
+    }
+
     const {
       actorId,
       action,
@@ -1712,6 +2131,7 @@ function simulateConfig(
       targetId,
       targetName: targetProfile.name,
       targetingSource,
+      resolutionKind: "direct",
       targetPosition,
       sourceActorPosition,
       sourceActorFacingDegrees,
@@ -1869,6 +2289,7 @@ function simulateConfig(
             auraApplied: null,
             auraConsumed: null,
             auraAfter: null,
+            transformativeReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -1898,6 +2319,8 @@ function simulateConfig(
                 "目标效果策略阻止了本段元素附着与反应；Aura 仅按当前帧衰减。"
             };
     const reaction = reactionAudit.reaction;
+    const amplifyingReaction =
+      reaction === "overload" ? "none" : reaction;
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -1912,7 +2335,7 @@ function simulateConfig(
       critRate: stats.critRate + safeNumber(hit.critRate),
       critDamage: stats.critDmg + safeNumber(hit.critDmg),
       critMode: options.critMode,
-      reaction,
+      reaction: amplifyingReaction,
       elementalMastery: stats.em,
       reactionBonus:
         stats.reactionBonus + safeNumber(hit.reactionBonus),
@@ -1956,6 +2379,8 @@ function simulateConfig(
     const displayDamage = Math.round(finalDamage);
     damageEvents.push({
       id: damageEventId,
+      kind: "direct",
+      parentDamageEventId: null,
       sourceActorId: actorId,
       scalingOwnerId,
       creditOwnerId,
@@ -1978,6 +2403,7 @@ function simulateConfig(
       enemyStateBeforeHit,
       reactionAudit,
       damageFactors: factors,
+      transformativeReactionFactors: null,
       finalDamage,
       displayDamage,
       sourceActorName: sourceActor.name,
@@ -2039,6 +2465,85 @@ function simulateConfig(
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
+    const transformativeReaction =
+      reactionAudit.transformativeReaction;
+    if (transformativeReaction !== null) {
+      const reactionSourceStats =
+        hit.snapshot === "action"
+          ? deepClone(
+              snapshots[actorId] ??
+                computeStats(actorId, timeSeconds)
+            )
+          : computeStats(actorId, timeSeconds);
+      if (reactionSourceStats === undefined) {
+        throw new Error(
+          `Reaction source stats for "${actorId}" could not be resolved.`
+        );
+      }
+      const reactionDamageLogId = reactionDamageLog.length;
+      const withinSimulation =
+        transformativeReaction.scheduled &&
+        transformativeReaction.damageFrame <=
+          Math.round(config.duration * 60);
+      reactionDamageLog.push({
+        id: reactionDamageLogId,
+        reaction: transformativeReaction.reaction,
+        triggerDamageEventId: damageEventId,
+        sourceActorId: actorId,
+        sourceTargetId: targetId,
+        triggerFrame: event.frame,
+        damageFrame: transformativeReaction.damageFrame,
+        scheduled: transformativeReaction.scheduled,
+        withinSimulation,
+        blockedReason: transformativeReaction.blockedReason,
+        nextAvailableFrame:
+          transformativeReaction.nextAvailableFrame,
+        centerPosition: deepClone(targetPosition),
+        radius: transformativeReaction.radius,
+        checkedTargetIds: [],
+        hitTargetIds: [],
+        unresolvedTargetIds: [],
+        damageEventIds: []
+      });
+      if (withinSimulation) {
+        push(
+          transformativeReaction.damageFrame / 60,
+          "reactionDamage",
+          {
+            actorId,
+            action,
+            triggerHitId: hitId,
+            triggerHitGroupId: hitGroupId,
+            triggerDamageEventId: damageEventId,
+            sourceTargetId: targetId,
+            centerPosition: deepClone(targetPosition),
+            radius: transformativeReaction.radius,
+            baseMultiplier: transformativeReaction.baseMultiplier,
+            stats: deepClone(reactionSourceStats),
+            elementalMastery: reactionSourceStats.em,
+            reactionBonus:
+              reactionSourceStats.reactionBonus +
+              safeNumber(hit.reactionBonus),
+            sourceBuffStatuses: activeBuffs
+              .filter((buff) => buff.targetId === actorId)
+              .map((buff) => ({
+                key: buff.key,
+                kind: "buff" as const,
+                sourceActorId: buff.actorId,
+                targetId: buff.targetId,
+                stat: buff.stat,
+                value: buff.value,
+                startTimeSeconds: buff.start,
+                endTimeSeconds: buff.end,
+                label: buff.label
+              })),
+            snapshot,
+            cycle,
+            reactionDamageLogId
+          }
+        );
+      }
+    }
     completeHitTarget({
       actorId,
       action,
@@ -2213,6 +2718,7 @@ function simulateConfig(
     damageEvents,
     hitEvents: damageEvents,
     hitResolutionLog,
+    reactionDamageLog,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,
@@ -2224,7 +2730,11 @@ function simulateConfig(
     energyCurve,
     totalDamage,
     dps: totalDamage / config.duration,
-    reactedHits: damageEvents.filter((event) => event.reaction !== "none").length,
+    reactedHits: damageEvents.filter(
+      (event) =>
+        event.kind === "direct" &&
+        event.reaction !== "none"
+    ).length,
     byCharacter,
     characterSummaries,
     targetSummaries,

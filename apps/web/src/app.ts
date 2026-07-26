@@ -53,7 +53,8 @@ const REACTION_LABELS: Record<string, string> = {
   melt: "融化",
   reverseMelt: "反向融化",
   vaporize: "蒸发",
-  reverseVaporize: "反向蒸发"
+  reverseVaporize: "反向蒸发",
+  overload: "超载"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -302,9 +303,10 @@ function renderMetrics(): void {
     [
       "有效命中",
       formatNumber(result.damageEvents.length, 0),
-      `${result.reactedHits} 段增幅反应 · ${
-        result.config.reactionEngine?.mode === "aura-v1"
-          ? "Aura 自动判定"
+      `${result.reactedHits} 次反应触发 · ${
+        result.config.reactionEngine?.mode === "aura-v1" ||
+        result.config.reactionEngine?.mode === "aura-v2"
+          ? `${result.config.reactionEngine.mode} 自动判定`
           : result.compatibilityMode === "legacy-v0.1"
             ? "兼容手工标签"
             : "未启用 Aura 引擎"
@@ -631,9 +633,9 @@ function renderHitTable(): void {
           `<td>${escapeHtml(hit.targetName)} <span class="muted">/ ${escapeHtml(hit.targetId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[hit.element] ?? "#ccc"}">${ELEMENT_LABELS[hit.element] ?? hit.element}</span></td>` +
           `<td>${hit.reaction === "none" ? "—" : `<span class="badge">${REACTION_LABELS[hit.reaction] ?? hit.reaction}</span>`}</td>` +
-          `<td>${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()}</td>` +
+          `<td>${hit.transformativeReactionFactors === null ? `${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()}` : `${formatNumber(hit.transformativeReactionFactors.levelBaseDamage, 4)} × ${hit.transformativeReactionFactors.baseMultiplier}`}</td>` +
           `<td>${formatNumber(hit.baseDamage, 0)}</td>` +
-          `<td>×${hit.critFactor.toFixed(3)}</td>` +
+          `<td>${hit.kind === "transformative-reaction" ? "不暴击" : `×${hit.critFactor.toFixed(3)}`}</td>` +
           `<td><strong>${formatNumber(hit.displayDamage, 0)}</strong></td></tr>`
       )
       .join("") ||
@@ -690,7 +692,14 @@ function renderHitDetail(): void {
   const statusText = hit.activeStatuses.length
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
+  const transformative = hit.transformativeReactionFactors;
   const factors: Array<[string, string]> = [
+    [
+      "事件类型",
+      hit.kind === "transformative-reaction"
+        ? `独立转化反应伤害 · 触发事件 #${hit.parentDamageEventId ?? "—"}`
+        : "直接命中伤害"
+    ],
     ["实际施放者", `${hit.sourceActorName} (${hit.sourceActorId})`],
     [
       "施放者静态姿态",
@@ -733,17 +742,29 @@ function renderHitDetail(): void {
     ],
     [
       "倍率基准",
-      `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
+      transformative === null
+        ? `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
+        : `等级 ${transformative.characterLevel} 基准 ${formatNumber(transformative.levelBaseDamage, 4)} × 超载 ${formatNumber(transformative.baseMultiplier, 2)}`
     ],
-    ["附加基础伤害", formatNumber(hit.flat, 0)],
-    ["基础伤害", formatNumber(hit.baseDamage, 0)],
+    [
+      "附加基础伤害",
+      transformative === null ? formatNumber(hit.flat, 0) : "不适用"
+    ],
+    [
+      transformative === null ? "基础伤害" : "抗性前反应伤害",
+      formatNumber(hit.baseDamage, 0)
+    ],
     [
       "增伤区",
-      `×${hit.bonusFactor.toFixed(3)} (${(hit.dmgBonus * 100).toFixed(1)}%)`
+      transformative === null
+        ? `×${hit.bonusFactor.toFixed(3)} (${(hit.dmgBonus * 100).toFixed(1)}%)`
+        : "普通增伤区不适用"
     ],
     [
       "防御区",
-      `×${hit.defenseFactor.toFixed(4)} · 无视 ${(hit.defIgnore * 100).toFixed(0)}%`
+      transformative === null
+        ? `×${hit.defenseFactor.toFixed(4)} · 无视 ${(hit.defIgnore * 100).toFixed(0)}%`
+        : "×1.0000 · 转化反应伤害忽略防御"
     ],
     [
       "抗性区",
@@ -751,11 +772,15 @@ function renderHitDetail(): void {
     ],
     [
       "暴击期望",
-      `×${hit.critFactor.toFixed(4)} · ${(hit.critRate * 100).toFixed(1)}/${(hit.critDmg * 100).toFixed(1)}`
+      transformative === null
+        ? `×${hit.critFactor.toFixed(4)} · ${(hit.critRate * 100).toFixed(1)}/${(hit.critDmg * 100).toFixed(1)}`
+        : "×1.0000 · 转化反应伤害不暴击"
     ],
     [
       "反应区",
-      `×${hit.reactionFactor.toFixed(4)} · ${REACTION_LABELS[hit.reaction] ?? hit.reaction}`
+      transformative === null
+        ? `×${hit.reactionFactor.toFixed(4)} · ${REACTION_LABELS[hit.reaction] ?? hit.reaction}`
+        : `等级基准 × ${transformative.baseMultiplier.toFixed(2)} × (1 + 精通 ${(transformative.elementalMasteryBonus * 100).toFixed(1)}% + 反应增伤 ${(transformative.reactionBonus * 100).toFixed(1)}%)`
     ],
     [
       "反应判定来源",
@@ -763,36 +788,48 @@ function renderHitDetail(): void {
         ? "命中配置手工指定"
         : hit.reactionAudit.model === "aura-engine"
           ? "Aura / ICD 引擎"
+          : hit.reactionAudit.model === "reaction-damage"
+            ? "由触发命中排队的独立反应伤害"
           : "未触发"
     ],
     [
       "敌方 Aura（命中前）",
       hit.reactionAudit.auraBefore === null
-        ? "未模拟（兼容模式）"
+        ? hit.kind === "transformative-reaction"
+          ? "不适用（独立反应伤害不处理 Aura）"
+          : "未模拟（兼容模式）"
         : formatAuraState(hit.reactionAudit.auraBefore)
     ],
     [
       "本段附着（标称元素量）",
       hit.reactionAudit.auraApplied === null
-        ? "未模拟（兼容模式）"
+        ? hit.kind === "transformative-reaction"
+          ? "不适用"
+          : "未模拟（兼容模式）"
         : formatAuraGauge(hit.reactionAudit.auraApplied)
     ],
     [
       "本段消耗 Aura",
       hit.reactionAudit.auraConsumed === null
-        ? "未模拟（兼容模式）"
+        ? hit.kind === "transformative-reaction"
+          ? "不适用"
+          : "未模拟（兼容模式）"
         : formatAuraGauge(hit.reactionAudit.auraConsumed)
     ],
     [
       "敌方 Aura（命中后）",
       hit.reactionAudit.auraAfter === null
-        ? "未模拟（兼容模式）"
+        ? hit.kind === "transformative-reaction"
+          ? "不适用"
+          : "未模拟（兼容模式）"
         : formatAuraState(hit.reactionAudit.auraAfter)
     ],
     [
       "ICD / 附着",
       hit.reactionAudit.icdAllowed === null
-        ? "未模拟"
+        ? hit.kind === "transformative-reaction"
+          ? "不适用"
+          : "未模拟"
         : hit.reactionAudit.icdAllowed
           ? "允许附着"
           : "ICD 阻止附着"
@@ -811,12 +848,31 @@ function renderHitDetail(): void {
     ["有效状态", statusText],
     [
       "结算方式",
-      hit.snapshot === "action" ? "行动开始快照" : "命中时动态"
+      hit.kind === "transformative-reaction"
+        ? "触发命中的角色面板快照；目标抗性在反应伤害帧读取"
+        : hit.snapshot === "action"
+          ? "行动开始快照"
+          : "命中时动态"
     ],
     ["时间", `${hit.timeSeconds.toFixed(3)}s / ${hit.frame}f`],
     ["最终伤害（整数显示）", formatNumber(hit.displayDamage, 0)],
     ["核心原始值", hit.finalDamage.toFixed(6)]
   ];
+  if (hit.reactionAudit.transformativeReaction !== null) {
+    const queued = hit.reactionAudit.transformativeReaction;
+    factors.push(
+      [
+        "独立反应伤害排队",
+        queued.scheduled
+          ? `${queued.damageFrame}f 结算 · 半径 ${queued.radius}`
+          : `${queued.blockedReason ?? "阻止"} · ${queued.nextAvailableFrame}f 可再次产生伤害`
+      ],
+      [
+        "超载伤害 GCD",
+        `同一触发目标 6f；反应与 Aura 消耗仍已发生`
+      ]
+    );
+  }
   if (hit.timelineCommandIndex !== undefined) {
     factors.push(
       ["时间线指令", `#${hit.timelineCommandIndex}`],
@@ -1170,11 +1226,17 @@ function renderTargetHitAudit(): void {
       .map(
         (entry) => {
           const policies = entry.landed
-            ? [
-                entry.damageAllowed ? "伤害正常" : "伤害免疫",
-                entry.auraAllowed ? "Aura 正常" : "Aura 阻断",
-                entry.hitConfirmAllowed ? "回调正常" : "回调阻断"
-              ].join(" / ")
+            ? entry.resolutionKind === "reaction-damage"
+              ? [
+                  entry.damageAllowed ? "伤害正常" : "伤害免疫",
+                  "Aura 不适用",
+                  "命中回调不适用"
+                ].join(" / ")
+              : [
+                  entry.damageAllowed ? "伤害正常" : "伤害免疫",
+                  entry.auraAllowed ? "Aura 正常" : "Aura 阻断",
+                  entry.hitConfirmAllowed ? "回调正常" : "回调阻断"
+                ].join(" / ")
             : "全部跳过";
           const policySource =
             entry.targetEffectSource === "target-phase"
@@ -1195,7 +1257,9 @@ function renderTargetHitAudit(): void {
                     ? `${entry.geometryCoordinateSpace === "actor-local" ? "局部→世界 " : ""}扇形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
                     : entry.targetingSource === "scripted"
                       ? "脚本"
-                      : "默认";
+                      : entry.targetingSource === "reaction-source"
+                        ? "反应源目标（无坐标回退）"
+                        : "默认";
           return (
           `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
@@ -1457,7 +1521,51 @@ function renderAuraTimeline(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("auraTimelineCard");
   const allTimeline = lastResult.auraTimeline;
-  card.hidden = allTimeline.length === 0;
+  const reactionDamageLog = lastResult.reactionDamageLog;
+  card.hidden =
+    allTimeline.length === 0 && reactionDamageLog.length === 0;
+  byId<HTMLElement>("reactionDamageSummary").textContent =
+    reactionDamageLog.length === 0
+      ? "当前结果没有独立转化反应伤害"
+      : `${reactionDamageLog.length} 次转化反应触发 · ${reactionDamageLog.filter((entry) => entry.scheduled).length} 次通过伤害 GCD · ${reactionDamageLog.reduce((total, entry) => total + entry.damageEventIds.length, 0)} 段逐目标伤害事件`;
+  byId<HTMLTableSectionElement>("reactionDamageBody").innerHTML =
+    reactionDamageLog
+      .map((entry) => {
+        const sourceTarget = lastResult?.enemyTargets.find(
+          (target) => target.id === entry.sourceTargetId
+        );
+        const status = !entry.scheduled
+          ? `<span class="badge warn">GCD 阻止伤害</span>`
+          : !entry.withinSimulation
+            ? `<span class="badge warn">模拟结束后</span>`
+            : `<span class="badge good">已结算</span>`;
+        return (
+          `<tr${entry.damageEventIds[0] === undefined ? "" : ` data-reaction-damage-id="${entry.damageEventIds[0]}"`}>` +
+          `<td>${entry.triggerFrame}f → ${entry.damageFrame}f</td>` +
+          `<td>${escapeHtml(REACTION_LABELS[entry.reaction] ?? entry.reaction)}</td>` +
+          `<td>${escapeHtml(sourceTarget?.name ?? entry.sourceTargetId)} <span class="muted">/ ${escapeHtml(entry.sourceTargetId)}</span></td>` +
+          `<td>${status}${entry.blockedReason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.blockedReason)} · ${entry.nextAvailableFrame}f 可用</span>`}</td>` +
+          `<td>${escapeHtml(formatPosition(entry.centerPosition))} / r=${formatNumber(entry.radius, 2)}</td>` +
+          `<td>${entry.checkedTargetIds.length} / ${entry.hitTargetIds.length} / ${entry.unresolvedTargetIds.length}${entry.unresolvedTargetIds.length ? ` <span class="muted">(${entry.unresolvedTargetIds.map(escapeHtml).join(", ")})</span>` : ""}</td>` +
+          `<td>${entry.damageEventIds.length ? entry.damageEventIds.map((id) => `#${id}`).join(", ") : "—"}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="7">没有独立转化反应伤害。</td></tr>`;
+  document
+    .querySelectorAll<HTMLTableRowElement>(
+      "#reactionDamageBody tr[data-reaction-damage-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.reactionDamageId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
   if (!allTimeline.length) return;
 
   const targetFilter = byId<HTMLSelectElement>("auraTargetFilter");
@@ -1488,7 +1596,7 @@ function renderAuraTimeline(): void {
   );
   if (!timeline.length) return;
 
-  const elements = ["pyro", "cryo", "hydro"] as const;
+  const elements = ["pyro", "cryo", "hydro", "electro"] as const;
   const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
   const context = canvas.getContext("2d");
   if (!context) return;
@@ -1615,7 +1723,7 @@ function renderAuraTimeline(): void {
           `${ELEMENT_LABELS[element]} Aura</span>`
       )
       .join("") +
-    `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>自动增幅反应</span>` +
+    `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>自动反应触发</span>` +
     `<span class="muted">普通附着初始 Aura = 标称元素量 × 0.8；点击曲线定位逐击记录。</span>`;
 
   byId<HTMLTableSectionElement>("auraTimelineBody").innerHTML = timeline
