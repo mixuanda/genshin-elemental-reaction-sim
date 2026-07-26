@@ -465,7 +465,8 @@ function simulateConfig(
     cycle,
     frame,
     timeSeconds,
-    landed
+    landed,
+    hitConfirmAllowed
   }: {
     actorId: string;
     action: ActionDefinition;
@@ -474,6 +475,7 @@ function simulateConfig(
     frame: number;
     timeSeconds: number;
     landed: boolean;
+    hitConfirmAllowed: boolean;
   }): void => {
     (action.particles ?? []).forEach((particle, particleIndex) => {
       const trigger = particle.trigger;
@@ -499,13 +501,13 @@ function simulateConfig(
               scopedInternalCooldownKey
             ) ?? 0);
       const blockedByInternalCooldown =
-        landed &&
+        hitConfirmAllowed &&
         previousReadyFrame !== null &&
         frame < previousReadyFrame;
       const internalCooldownReadyFrame =
         internalCooldownDurationFrames === null
           ? null
-          : !landed
+          : !hitConfirmAllowed
             ? previousReadyFrame !== null && previousReadyFrame > frame
               ? previousReadyFrame
               : null
@@ -513,7 +515,7 @@ function simulateConfig(
               ? previousReadyFrame
               : frame + internalCooldownDurationFrames;
       if (
-        landed &&
+        hitConfirmAllowed &&
         scopedInternalCooldownKey !== null &&
         internalCooldownReadyFrame !== null &&
         !blockedByInternalCooldown
@@ -529,6 +531,8 @@ function simulateConfig(
       const triggerLogId = particleTriggerLog.length;
       const blockedReason = !landed
         ? ("TARGET_MISS" as const)
+        : !hitConfirmAllowed
+          ? ("TARGET_HIT_CONFIRM_BLOCKED" as const)
         : blockedByInternalCooldown
           ? ("INTERNAL_COOLDOWN" as const)
           : null;
@@ -1011,6 +1015,14 @@ function simulateConfig(
     const element = hit.element ?? scalingOwner.element;
     const targetId = hit.targeting?.targetId ?? "enemy-0";
     const targetOutcome = hit.targeting?.outcome ?? "landed";
+    const targetEffects = hit.targeting?.effects;
+    const landed = targetOutcome === "landed";
+    const damageAllowed =
+      landed && targetEffects?.damage !== "immune";
+    const auraAllowed =
+      landed && targetEffects?.aura !== "blocked";
+    const hitConfirmAllowed =
+      landed && targetEffects?.hitConfirm !== "blocked";
     const targetResolutionId = hitResolutionLog.length;
     const targetResolution: SimulationResult["hitResolutionLog"][number] = {
       id: targetResolutionId,
@@ -1025,9 +1037,13 @@ function simulateConfig(
       element,
       targetId,
       outcome: targetOutcome,
-      landed: targetOutcome === "landed",
+      landed,
       reason: hit.targeting?.reason ?? null,
+      damageAllowed,
+      auraAllowed,
+      hitConfirmAllowed,
       damageEventId: null,
+      potentialDamage: 0,
       finalDamage: 0,
       displayDamage: 0,
       ...(action.timelineCommandIndex === undefined
@@ -1046,7 +1062,8 @@ function simulateConfig(
         cycle,
         frame: event.frame,
         timeSeconds,
-        landed: false
+        landed: false,
+        hitConfirmAllowed: false
       });
       continue;
     }
@@ -1130,7 +1147,7 @@ function simulateConfig(
       baseDefenseReduction: config.enemy.defReduction,
       effectiveDefenseReduction
     };
-    const manualReaction = hit.reaction ?? "none";
+    const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
     const reactionAudit: ReactionAudit =
       auraEngine === null
         ? {
@@ -1147,21 +1164,33 @@ function simulateConfig(
             auraConsumed: null,
             auraAfter: null,
             note:
-              manualReaction === "none"
+              !auraAllowed
+                ? "目标效果策略阻止了本段附着与手工反应标签。"
+                : manualReaction === "none"
                 ? "兼容模式未运行 Aura/ICD 引擎。"
                 : "反应由命中配置手工指定；未运行 Aura/ICD 合法性判断。"
           }
-        : auraEngine.processHit({
-            frame: event.frame,
-            sourceActorId: actorId,
-            element,
-            ...(hit.application === undefined
-              ? {}
-              : { application: hit.application }),
-            ...(hit.reactionOverride === undefined
-              ? {}
-              : { reactionOverride: hit.reactionOverride })
-          });
+        : auraAllowed
+          ? auraEngine.processHit({
+              frame: event.frame,
+              sourceActorId: actorId,
+              element,
+              ...(hit.application === undefined
+                ? {}
+                : { application: hit.application }),
+              ...(hit.reactionOverride === undefined
+                ? {}
+                : { reactionOverride: hit.reactionOverride })
+            })
+          : {
+              ...auraEngine.processHit({
+                frame: event.frame,
+                sourceActorId: actorId,
+                element
+              }),
+              note:
+                "目标效果策略阻止了本段元素附着与反应；Aura 仅按当前帧衰减。"
+            };
     const reaction = reactionAudit.reaction;
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
@@ -1215,6 +1244,10 @@ function simulateConfig(
       .map((status) => status.label);
     const snapshot = hit.snapshot ?? "hit";
     const damageEventId = damageEvents.length;
+    const targetDamageMultiplier = damageAllowed ? 1 : 0;
+    const finalDamage =
+      calculation.finalDamage * targetDamageMultiplier;
+    const displayDamage = Math.round(finalDamage);
     damageEvents.push({
       id: damageEventId,
       sourceActorId: actorId,
@@ -1224,6 +1257,9 @@ function simulateConfig(
       hitId,
       targetResolutionId,
       targetId,
+      targetDamagePolicy: damageAllowed ? "normal" : "immune",
+      targetDamageMultiplier,
+      potentialDamage: calculation.finalDamage,
       frame: event.frame,
       timeSeconds,
       activeCharacterId,
@@ -1232,8 +1268,8 @@ function simulateConfig(
       enemyStateBeforeHit,
       reactionAudit,
       damageFactors: factors,
-      finalDamage: calculation.finalDamage,
-      displayDamage: Math.round(calculation.finalDamage),
+      finalDamage,
+      displayDamage,
       sourceActorName: sourceActor.name,
       scalingOwnerName: scalingOwner.name,
       creditOwnerName: creditOwner.name,
@@ -1290,10 +1326,9 @@ function simulateConfig(
       debuffs: debuffLabels
     });
     targetResolution.damageEventId = damageEventId;
-    targetResolution.finalDamage = calculation.finalDamage;
-    targetResolution.displayDamage = Math.round(
-      calculation.finalDamage
-    );
+    targetResolution.potentialDamage = calculation.finalDamage;
+    targetResolution.finalDamage = finalDamage;
+    targetResolution.displayDamage = displayDamage;
     processHitConfirmedParticles({
       actorId,
       action,
@@ -1301,7 +1336,8 @@ function simulateConfig(
       cycle,
       frame: event.frame,
       timeSeconds,
-      landed: true
+      landed: true,
+      hitConfirmAllowed
     });
   }
 

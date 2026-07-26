@@ -13,6 +13,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
@@ -156,26 +157,58 @@ export const flatDamageSourceSchema = z
   })
   .strict();
 
+export const targetEffectPolicySchema = z
+  .object({
+    damage: z.enum(["normal", "immune"]),
+    aura: z.enum(["normal", "blocked"]),
+    hitConfirm: z.enum(["normal", "blocked"])
+  })
+  .strict()
+  .superRefine((effects, context) => {
+    if (
+      effects.damage === "normal" &&
+      effects.aura === "normal" &&
+      effects.hitConfirm === "normal"
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "must change at least one target effect"
+      });
+    }
+  });
+
 export const hitTargetingSchema = z
   .object({
     targetId: z.literal("enemy-0"),
     outcome: z.enum(["landed", "miss"]),
-    reason: z.string().trim().min(1).optional()
+    reason: z.string().trim().min(1).optional(),
+    effects: targetEffectPolicySchema.optional()
   })
   .strict()
   .superRefine((targeting, context) => {
-    if (targeting.outcome === "miss" && targeting.reason === undefined) {
+    const requiresReason =
+      targeting.outcome === "miss" || targeting.effects !== undefined;
+    if (requiresReason && targeting.reason === undefined) {
       context.addIssue({
         code: "custom",
         path: ["reason"],
-        message: "is required when outcome is miss"
+        message:
+          "is required for a miss or non-normal target effect policy"
       });
     }
-    if (targeting.outcome === "landed" && targeting.reason !== undefined) {
+    if (!requiresReason && targeting.reason !== undefined) {
       context.addIssue({
         code: "custom",
         path: ["reason"],
-        message: "must be omitted when outcome is landed"
+        message:
+          "must be omitted for a normal landed target result"
+      });
+    }
+    if (targeting.outcome === "miss" && targeting.effects !== undefined) {
+      context.addIssue({
+        code: "custom",
+        path: ["effects"],
+        message: "must be omitted when outcome is miss"
       });
     }
   });
@@ -1218,6 +1251,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === TARGET_HIT_RESOLUTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TIMELINE_STATE_CLEAR_SCHEMA_VERSION) {
     return parseSimConfig({

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.10.0 configs to target hit resolution", () => {
+  it("migrates 1.0.0 through 1.11.0 configs to target effect policies", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -196,6 +196,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.10.0",
       engineVersion: "1.10.0-timeline-state-clears"
+    });
+    const migratedFromTargetHitResolution = migrateConfig({
+      ...current,
+      schemaVersion: "1.11.0",
+      engineVersion: "1.11.0-target-hit-resolution"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -254,6 +259,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromStateClears.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromTargetHitResolution.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromTargetHitResolution.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -339,6 +350,93 @@ describe("versioned config schema", () => {
         ]
       })
     ).toThrow(/rotation\.0\.hits\.0\.targeting\.targetId/);
+  });
+
+  it("requires a reason and at least one change for target effect policies", () => {
+    const base = {
+      ...legacyConfig,
+      rotation: [
+        {
+          id: "effect-policy",
+          actorId: "a",
+          name: "目标策略",
+          at: 0,
+          hits: [
+            {
+              id: "policy-hit",
+              offset: 0,
+              scaling: 1,
+              targeting: {
+                targetId: "enemy-0",
+                outcome: "landed",
+                effects: {
+                  damage: "immune",
+                  aura: "blocked",
+                  hitConfirm: "blocked"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    expect(() => migrateConfig(base)).toThrow(
+      /rotation\.0\.hits\.0\.targeting\.reason/
+    );
+    const withReason = structuredClone(base);
+    Object.assign(withReason.rotation[0]!.hits[0]!.targeting, {
+      reason: "SCRIPTED_INVULNERABLE_PHASE"
+    });
+    withReason.rotation[0]!.hits[0]!.targeting.effects = {
+      damage: "normal",
+      aura: "normal",
+      hitConfirm: "normal"
+    };
+    expect(() => migrateConfig(withReason)).toThrow(
+      /rotation\.0\.hits\.0\.targeting\.effects/
+    );
+  });
+
+  it("accepts an explicit landed target effect policy", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      rotation: [
+        {
+          id: "effect-policy",
+          actorId: "a",
+          name: "目标策略",
+          at: 0,
+          hits: [
+            {
+              id: "policy-hit",
+              offset: 0,
+              scaling: 1,
+              targeting: {
+                targetId: "enemy-0",
+                outcome: "landed",
+                reason: "SCRIPTED_INVULNERABLE_PHASE",
+                effects: {
+                  damage: "immune",
+                  aura: "blocked",
+                  hitConfirm: "blocked"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(parsed.rotation[0]?.hits?.[0]?.targeting).toMatchObject({
+      outcome: "landed",
+      reason: "SCRIPTED_INVULNERABLE_PHASE",
+      effects: {
+        damage: "immune",
+        aura: "blocked",
+        hitConfirm: "blocked"
+      }
+    });
   });
 
   it("requires positive explicit occupancy for dash and jump commands", () => {

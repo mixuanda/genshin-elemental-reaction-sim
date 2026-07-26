@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.11.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.11.0-target-hit-resolution" as const;
+export const CURRENT_SCHEMA_VERSION = "1.12.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.12.0-target-effect-policy" as const;
+export const TARGET_HIT_RESOLUTION_SCHEMA_VERSION = "1.11.0" as const;
 export const TIMELINE_STATE_CLEAR_SCHEMA_VERSION = "1.10.0" as const;
 export const MOVEMENT_COMMAND_SCHEMA_VERSION = "1.9.0" as const;
 export const HIT_PARTICLE_TRIGGER_SCHEMA_VERSION = "1.8.0" as const;
@@ -49,6 +50,15 @@ export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
 export type TargetId = "enemy-0";
 export type TargetHitOutcome = "landed" | "miss";
+export type TargetDamagePolicy = "normal" | "immune";
+export type TargetAuraPolicy = "normal" | "blocked";
+export type TargetHitConfirmPolicy = "normal" | "blocked";
+
+export interface TargetEffectPolicy {
+  damage: TargetDamagePolicy;
+  aura: TargetAuraPolicy;
+  hitConfirm: TargetHitConfirmPolicy;
+}
 
 /**
  * Scenario-level, single-target hit result. Ability blueprints intentionally
@@ -58,8 +68,14 @@ export type TargetHitOutcome = "landed" | "miss";
 export interface HitTargeting {
   targetId: TargetId;
   outcome: TargetHitOutcome;
-  /** Required for scripted misses so audit output never hides why it missed. */
+  /** Required for misses or any non-normal target effect policy. */
   reason?: string;
+  /**
+   * Explicit scenario policy for a landed hit. This is not inferred from a
+   * generic "invulnerable" flag because real target phases can block these
+   * three layers independently.
+   */
+  effects?: TargetEffectPolicy;
 }
 
 export interface ElementalApplication {
@@ -536,6 +552,10 @@ export interface DamageEvent {
   hitId: string;
   targetResolutionId: number;
   targetId: TargetId;
+  targetDamagePolicy: TargetDamagePolicy;
+  targetDamageMultiplier: 0 | 1;
+  /** Formula result before the target-level damage policy. */
+  potentialDamage: number;
   frame: number;
   timeSeconds: number;
   activeCharacterId: string | null;
@@ -667,7 +687,11 @@ export interface ParticleTriggerLogEntry {
   particleId: string;
   hitId: string;
   triggered: boolean;
-  blockedReason: "INTERNAL_COOLDOWN" | "TARGET_MISS" | null;
+  blockedReason:
+    | "INTERNAL_COOLDOWN"
+    | "TARGET_MISS"
+    | "TARGET_HIT_CONFIRM_BLOCKED"
+    | null;
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
   internalCooldownReadyFrame: number | null;
@@ -688,8 +712,13 @@ export interface HitResolutionLogEntry {
   outcome: TargetHitOutcome;
   landed: boolean;
   reason: string | null;
+  damageAllowed: boolean;
+  auraAllowed: boolean;
+  hitConfirmAllowed: boolean;
   /** Null when the target was missed before combat resolution. */
   damageEventId: number | null;
+  /** Formula result before target immunity; zero for a miss. */
+  potentialDamage: number;
   finalDamage: number;
   displayDamage: number;
   timelineCommandIndex?: number;

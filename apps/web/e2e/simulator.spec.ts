@@ -687,6 +687,168 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
   );
 });
 
+test("keeps landed target damage, Aura, and hit-confirm policies independent", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const targetPolicyConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    firstHit.targeting = {
+      targetId: "enemy-0",
+      outcome: "landed",
+      reason: "SCRIPTED_FULL_INVULNERABILITY",
+      effects: {
+        damage: "immune",
+        aura: "blocked",
+        hitConfirm: "blocked"
+      }
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(targetPolicyConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          targets: result.hitResolutionLog.map(
+            ({
+              frame,
+              damageAllowed,
+              auraAllowed,
+              hitConfirmAllowed,
+              potentialDamage,
+              finalDamage
+            }) => ({
+              frame,
+              damageAllowed,
+              auraAllowed,
+              hitConfirmAllowed,
+              potentialDamage,
+              finalDamage
+            })
+          ),
+          damage: result.damageEvents.map(
+            ({
+              frame,
+              reaction,
+              targetDamagePolicy,
+              potentialDamage,
+              finalDamage
+            }) => ({
+              frame,
+              reaction,
+              targetDamagePolicy,
+              potentialDamage,
+              finalDamage
+            })
+          ),
+          triggerReasons: result.particleTriggerLog.map(
+            (entry) => entry.blockedReason
+          ),
+          particleSpawns: result.particleEvents.map(
+            (event) => event.spawnFrame
+          ),
+          curve: result.damageCurve.map(
+            (point) => point.cumulativeDamage
+          )
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    targets: [
+      {
+        frame: 48,
+        damageAllowed: false,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        potentialDamage: 1111.7736,
+        finalDamage: 0
+      },
+      {
+        frame: 53,
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        potentialDamage: 1637.496,
+        finalDamage: 1637.496
+      },
+      {
+        frame: 58,
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        potentialDamage: 994.8096,
+        finalDamage: 994.8096
+      }
+    ],
+    damage: [
+      {
+        frame: 48,
+        reaction: "none",
+        targetDamagePolicy: "immune",
+        potentialDamage: 1111.7736,
+        finalDamage: 0
+      },
+      {
+        frame: 53,
+        reaction: "melt",
+        targetDamagePolicy: "normal"
+      },
+      {
+        frame: 58,
+        reaction: "none",
+        targetDamagePolicy: "normal"
+      }
+    ],
+    triggerReasons: [
+      "TARGET_HIT_CONFIRM_BLOCKED",
+      null,
+      "INTERNAL_COOLDOWN"
+    ],
+    particleSpawns: [53],
+    curve: [0, 1637.496, 2632.3056]
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "1 次伤害免疫"
+  );
+  const firstTargetRow = page.locator("#targetHitAuditBody tr").first();
+  await expect(firstTargetRow).toContainText(
+    "伤害免疫 / Aura 阻断 / 回调阻断"
+  );
+  await expect(firstTargetRow).toContainText(
+    "SCRIPTED_FULL_INVULNERABILITY"
+  );
+  await expect(firstTargetRow).toContainText("潜在 1,112");
+  await expect(page.locator("#auraTimelineBody tr").first()).toContainText(
+    "冰"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "目标策略阻止回调"
+  );
+  await expect(page.locator("#energyAuditSummary")).toContainText(
+    "1 次被目标策略阻止"
+  );
+  await firstTargetRow.click();
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText("目标伤害策略");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "免疫 · 公式潜在 1,112 × 0"
+  );
+});
+
 test("renders the source-audited Durin white E branch and state transition", async ({
   page
 }) => {

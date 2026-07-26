@@ -649,6 +649,12 @@ function renderHitDetail(): void {
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
     ["目标 / 判定", `${hit.targetId} / landed (#${hit.targetResolutionId})`],
     [
+      "目标伤害策略",
+      hit.targetDamagePolicy === "immune"
+        ? `免疫 · 公式潜在 ${formatNumber(hit.potentialDamage, 0)} × 0`
+        : `正常 · 公式潜在 ${formatNumber(hit.potentialDamage, 0)} × 1`
+    ],
+    [
       "倍率基准",
       `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
     ],
@@ -967,26 +973,40 @@ function renderTargetHitAudit(): void {
     (entry) => entry.landed
   ).length;
   const missed = result.hitResolutionLog.length - landed;
+  const immune = result.hitResolutionLog.filter(
+    (entry) => entry.landed && !entry.damageAllowed
+  ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
-    `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss` +
+    `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
     (missed
       ? " · Miss 不进入伤害、Aura / 反应或命中确认产球"
       : " · 全部使用默认或显式 landed 判定");
   byId<HTMLTableSectionElement>("targetHitAuditBody").innerHTML =
     result.hitResolutionLog
       .map(
-        (entry) =>
+        (entry) => {
+          const policies = entry.landed
+            ? [
+                entry.damageAllowed ? "伤害正常" : "伤害免疫",
+                entry.auraAllowed ? "Aura 正常" : "Aura 阻断",
+                entry.hitConfirmAllowed ? "回调正常" : "回调阻断"
+              ].join(" / ")
+            : "全部跳过";
+          return (
           `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
           `<td>${escapeHtml(entry.targetId)}</td>` +
           `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
+          `<td>${escapeHtml(policies)}</td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
-          `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`
+          `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.potentialDamage === entry.finalDamage ? "" : ` <span class="muted">/ 潜在 ${formatNumber(entry.potentialDamage, 0)}</span>`}${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`
+          );
+        }
       )
       .join("") ||
-    `<tr><td colspan="7">没有进入目标判定的逐击。</td></tr>`;
+    `<tr><td colspan="8">没有进入目标判定的逐击。</td></tr>`;
   document
     .querySelectorAll<HTMLTableRowElement>(
       "#targetHitAuditBody tr[data-target-damage-id]"
@@ -1034,12 +1054,15 @@ function renderEnergyAudit(): void {
   const missedParticleTriggers = result.particleTriggerLog.filter(
     (entry) => entry.blockedReason === "TARGET_MISS"
   ).length;
+  const targetBlockedParticleTriggers = result.particleTriggerLog.filter(
+    (entry) => entry.blockedReason === "TARGET_HIT_CONFIRM_BLOCKED"
+  ).length;
   byId<HTMLElement>("energyAuditSummary").textContent =
     `${result.particleEvents.length} 次产球 · ${particleRows} 条角色粒子结算 · ` +
     `${fixedRows} 条固定回能${blockedFixedRows ? ` · ${blockedFixedRows} 条被内部冷却阻止` : ""}` +
     `${
       result.particleTriggerLog.length
-        ? ` · ${result.particleTriggerLog.length} 次命中产球检查${blockedParticleTriggers ? `（${blockedParticleTriggers} 次被粒子 ICD 阻止）` : ""}${missedParticleTriggers ? ` · ${missedParticleTriggers} 次因 Miss 未触发` : ""}`
+        ? ` · ${result.particleTriggerLog.length} 次命中产球检查${blockedParticleTriggers ? `（${blockedParticleTriggers} 次被粒子 ICD 阻止）` : ""}${missedParticleTriggers ? ` · ${missedParticleTriggers} 次因 Miss 未触发` : ""}${targetBlockedParticleTriggers ? ` · ${targetBlockedParticleTriggers} 次被目标策略阻止` : ""}`
         : ""
     }` +
     `${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
@@ -1159,13 +1182,16 @@ function renderEnergyAudit(): void {
             ? `<span class="badge warn">粒子 ICD 阻止</span>`
             : entry.blockedReason === "TARGET_MISS"
               ? `<span class="badge warn">目标 Miss</span>`
+              : entry.blockedReason === "TARGET_HIT_CONFIRM_BLOCKED"
+                ? `<span class="badge warn">目标策略阻止回调</span>`
               : `<span class="badge good">命中确认产球</span>`;
         const cooldown =
           entry.internalCooldownKey === null
             ? ""
             : entry.blockedReason === "INTERNAL_COOLDOWN"
               ? ` · ${escapeHtml(entry.internalCooldownKey)} · ${entry.internalCooldownReadyFrame ?? "—"}f 可用`
-              : entry.blockedReason === "TARGET_MISS"
+              : entry.blockedReason === "TARGET_MISS" ||
+                  entry.blockedReason === "TARGET_HIT_CONFIRM_BLOCKED"
                 ? ` · ${escapeHtml(entry.internalCooldownKey)} · ${
                     entry.internalCooldownReadyFrame === null
                       ? "未启动 ICD"
