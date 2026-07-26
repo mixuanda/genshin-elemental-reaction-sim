@@ -1877,6 +1877,152 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
   );
 });
 
+test("transforms actor-local geometry from a static source pose and audits world coordinates", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const actorLocalConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.actorPoses = [
+      {
+        actorId: "durin",
+        position: { x: 10, y: 20 },
+        facingDegrees: 90
+      }
+    ];
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "施放者前方",
+        position: { x: 10, y: 21 },
+        hitboxRadius: 0
+      },
+      {
+        id: "enemy-1",
+        name: "世界右侧",
+        position: { x: 11, y: 20 },
+        hitboxRadius: 0
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    delete firstHit.targeting;
+    firstHit.geometry = {
+      kind: "sector",
+      coordinateSpace: "actor-local",
+      origin: { x: 0, y: 0 },
+      radius: 2,
+      directionDegrees: 0,
+      angleDegrees: 60
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(actorLocalConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          actorPoses: result.actorPoses,
+          firstGroup: result.hitResolutionLog
+            .filter((entry) => entry.hitId === "durin-black-e-1")
+            .map(
+              ({
+                targetId,
+                sourceActorPosition,
+                sourceActorFacingDegrees,
+                geometryCoordinateSpace,
+                geometryOrigin,
+                geometryDirectionDegrees,
+                outcome,
+                reason
+              }) => ({
+                targetId,
+                sourceActorPosition,
+                sourceActorFacingDegrees,
+                geometryCoordinateSpace,
+                geometryOrigin,
+                geometryDirectionDegrees,
+                outcome,
+                reason
+              })
+            ),
+          firstTrigger: result.particleTriggerLog[0],
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length
+        }
+      : null;
+  });
+  expect(audit?.actorPoses).toEqual([
+    {
+      actorId: "durin",
+      position: { x: 10, y: 20 },
+      facingDegrees: 90
+    }
+  ]);
+  expect(audit?.firstGroup).toEqual([
+    {
+      targetId: "enemy-0",
+      sourceActorPosition: { x: 10, y: 20 },
+      sourceActorFacingDegrees: 90,
+      geometryCoordinateSpace: "actor-local",
+      geometryOrigin: { x: 10, y: 20 },
+      geometryDirectionDegrees: 90,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-1",
+      sourceActorPosition: { x: 10, y: 20 },
+      sourceActorFacingDegrees: 90,
+      geometryCoordinateSpace: "actor-local",
+      geometryOrigin: { x: 10, y: 20 },
+      geometryDirectionDegrees: 90,
+      outcome: "miss",
+      reason: "OUTSIDE_SECTOR_GEOMETRY"
+    }
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    checkedTargetIds: ["enemy-0", "enemy-1"],
+    confirmedTargetIds: ["enemy-0"],
+    triggered: true
+  });
+  expect(audit?.checks).toBe(4);
+  expect(audit?.damageEvents).toBe(3);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "1 个静态角色姿态"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "局部→世界 扇形最近距离"
+  );
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "施放者静态姿态"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "(10, 20) · 朝向 90°"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "施放者局部→世界 · 二维填充扇形"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "圆心 (10, 20) · 半径 2 · 方向 90° · 夹角 60°"
+  );
+});
+
 test("interpolates target motion at each hit frame before geometry resolution", async ({
   page
 }) => {

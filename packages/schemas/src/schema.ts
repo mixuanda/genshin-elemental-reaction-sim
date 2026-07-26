@@ -18,6 +18,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  SECTOR_GEOMETRY_SCHEMA_VERSION,
   TARGET_MOTION_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
@@ -29,6 +30,7 @@ import {
 const idSchema = z.string().trim().min(1);
 const finiteNumber = z.number().finite();
 const spatialCoordinateSchema = finiteNumber.min(-10_000).max(10_000);
+const geometryCoordinateSpaceSchema = z.enum(["world", "actor-local"]);
 
 export const point2DSchema = z
   .object({
@@ -156,6 +158,14 @@ export const characterProfileSchema = z
       });
     }
   });
+
+export const actorPoseDefinitionSchema = z
+  .object({
+    actorId: idSchema,
+    position: point2DSchema,
+    facingDegrees: finiteNumber.min(-360).max(360)
+  })
+  .strict();
 
 export const flatDamageSourceSchema = z
   .object({
@@ -421,6 +431,7 @@ export const hitTargetingConfigSchema = z.union([
 export const circleHitGeometrySchema = z
   .object({
     kind: z.literal("circle"),
+    coordinateSpace: geometryCoordinateSpaceSchema.optional(),
     origin: point2DSchema,
     radius: finiteNumber.min(0).max(1_000)
   })
@@ -429,6 +440,7 @@ export const circleHitGeometrySchema = z
 export const rectangleHitGeometrySchema = z
   .object({
     kind: z.literal("rectangle"),
+    coordinateSpace: geometryCoordinateSpaceSchema.optional(),
     origin: point2DSchema,
     halfWidth: finiteNumber.positive().max(1_000),
     halfHeight: finiteNumber.positive().max(1_000),
@@ -439,6 +451,7 @@ export const rectangleHitGeometrySchema = z
 export const capsuleHitGeometrySchema = z
   .object({
     kind: z.literal("capsule"),
+    coordinateSpace: geometryCoordinateSpaceSchema.optional(),
     start: point2DSchema,
     end: point2DSchema,
     radius: finiteNumber.min(0).max(1_000)
@@ -448,6 +461,7 @@ export const capsuleHitGeometrySchema = z
 export const sectorHitGeometrySchema = z
   .object({
     kind: z.literal("sector"),
+    coordinateSpace: geometryCoordinateSpaceSchema.optional(),
     origin: point2DSchema,
     radius: finiteNumber.positive().max(1_000),
     directionDegrees: finiteNumber.min(-360).max(360),
@@ -992,6 +1006,7 @@ export const simConfigSchema = z
       .array(characterProfileSchema)
       .min(1)
       .max(4, "Genshin parties support at most four characters"),
+    actorPoses: z.array(actorPoseDefinitionSchema).max(4).optional(),
     rotation: z.array(actionDefinitionSchema),
     timeline: legalTimelineConfigSchema.optional(),
     reactionEngine: auraReactionEngineConfigSchema.optional()
@@ -1015,8 +1030,22 @@ export const simConfigSchema = z
         });
       }
     };
+    const actorPoseIds = new Set(
+      (config.actorPoses ?? []).map((pose) => pose.actorId)
+    );
     const validateHitGeometry = (
-      hit: { targeting?: unknown; geometry?: unknown },
+      hit: {
+        targeting?: unknown;
+        geometry?:
+          | {
+              coordinateSpace?:
+                | "world"
+                | "actor-local"
+                | undefined;
+            }
+          | undefined;
+      },
+      actorId: string,
       path: Array<string | number>
     ): void => {
       if (hit.targeting !== undefined && hit.geometry !== undefined) {
@@ -1037,6 +1066,16 @@ export const simConfigSchema = z
           path: [...path, "geometry"],
           message:
             "requires enemy.targets and a position for every registered target"
+        });
+      }
+      if (
+        hit.geometry?.coordinateSpace === "actor-local" &&
+        !actorPoseIds.has(actorId)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "geometry", "coordinateSpace"],
+          message: `actor-local geometry requires an actorPoses entry for "${actorId}"`
         });
       }
     };
@@ -1088,6 +1127,24 @@ export const simConfigSchema = z
         });
       }
       characterIds.add(character.id);
+    });
+    const seenActorPoseIds = new Set<string>();
+    config.actorPoses?.forEach((pose, index) => {
+      if (seenActorPoseIds.has(pose.actorId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["actorPoses", index, "actorId"],
+          message: `duplicate actor pose for "${pose.actorId}"`
+        });
+      }
+      seenActorPoseIds.add(pose.actorId);
+      if (!characterIds.has(pose.actorId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["actorPoses", index, "actorId"],
+          message: `unknown character id "${pose.actorId}"`
+        });
+      }
     });
 
     const actionIds = new Set<string>();
@@ -1149,7 +1206,7 @@ export const simConfigSchema = z
       }
 
       action.hits?.forEach((hit, hitIndex) => {
-        validateHitGeometry(hit, [
+        validateHitGeometry(hit, action.actorId, [
           "rotation",
           actionIndex,
           "hits",
@@ -1263,7 +1320,7 @@ export const simConfigSchema = z
           });
         }
         ability.hits?.forEach((hit, hitIndex) => {
-          validateHitGeometry(hit, [
+          validateHitGeometry(hit, ability.actorId, [
             "timeline",
             "abilities",
             abilityIndex,
@@ -1642,6 +1699,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === SECTOR_GEOMETRY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === CAPSULE_GEOMETRY_SCHEMA_VERSION) {
     return parseSimConfig({

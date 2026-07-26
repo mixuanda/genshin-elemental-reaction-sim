@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.20.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.20.0-sector-geometry" as const;
+export const CURRENT_SCHEMA_VERSION = "1.21.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.21.0-actor-pose" as const;
+export const SECTOR_GEOMETRY_SCHEMA_VERSION = "1.20.0" as const;
 export const CAPSULE_GEOMETRY_SCHEMA_VERSION = "1.19.0" as const;
 export const ORIENTED_RECTANGLE_SCHEMA_VERSION = "1.18.0" as const;
 export const TARGET_MOTION_SCHEMA_VERSION = "1.17.0" as const;
@@ -215,12 +216,14 @@ export interface ResolvedEnemyTargetProfile {
 
 export interface CircleHitGeometry {
   kind: "circle";
+  coordinateSpace?: GeometryCoordinateSpace;
   origin: { x: number; y: number };
   radius: number;
 }
 
 export interface RectangleHitGeometry {
   kind: "rectangle";
+  coordinateSpace?: GeometryCoordinateSpace;
   origin: { x: number; y: number };
   halfWidth: number;
   halfHeight: number;
@@ -229,6 +232,7 @@ export interface RectangleHitGeometry {
 
 export interface CapsuleHitGeometry {
   kind: "capsule";
+  coordinateSpace?: GeometryCoordinateSpace;
   start: { x: number; y: number };
   end: { x: number; y: number };
   radius: number;
@@ -236,6 +240,7 @@ export interface CapsuleHitGeometry {
 
 export interface SectorHitGeometry {
   kind: "sector";
+  coordinateSpace?: GeometryCoordinateSpace;
   origin: { x: number; y: number };
   radius: number;
   directionDegrees: number;
@@ -247,6 +252,14 @@ export type HitGeometry =
   | RectangleHitGeometry
   | CapsuleHitGeometry
   | SectorHitGeometry;
+
+export type GeometryCoordinateSpace = "world" | "actor-local";
+
+export interface ActorPoseDefinition {
+  actorId: string;
+  position: { x: number; y: number };
+  facingDegrees: number;
+}
 
 export interface TargetMotionDefinition {
   id: string;
@@ -540,6 +553,8 @@ export interface SimConfig {
   cycleLength: number;
   enemy: EnemyProfile;
   characters: CharacterProfile[];
+  /** Static scenario pose. Actor movement is not inferred in this version. */
+  actorPoses?: ActorPoseDefinition[];
   rotation: RotationCommand[];
   timeline?: LegalTimelineConfig;
   reactionEngine?: AuraReactionEngineConfig;
@@ -832,7 +847,10 @@ export interface HitResolutionLogEntry {
   targetName: string;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
+  sourceActorPosition: { x: number; y: number } | null;
+  sourceActorFacingDegrees: number | null;
   geometryKind: HitGeometry["kind"] | null;
+  geometryCoordinateSpace: GeometryCoordinateSpace | null;
   geometryOrigin: { x: number; y: number } | null;
   geometryStart: { x: number; y: number } | null;
   geometryEnd: { x: number; y: number } | null;
@@ -1059,6 +1077,8 @@ export interface SimulationResult {
   reproducibilityKey: string;
   compatibilityMode: CompatibilityMode;
   config: SimConfig;
+  /** Static scenario poses used to resolve actor-local attack geometry. */
+  actorPoses: ActorPoseDefinition[];
   /** Effective per-target stats after applying shared enemy defaults. */
   enemyTargets: ResolvedEnemyTargetProfile[];
   damageEvents: DamageEvent[];

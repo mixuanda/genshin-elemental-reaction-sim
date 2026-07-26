@@ -10,6 +10,7 @@ import {
   type DebuffDefinition,
   type Element,
   type EnergySummary,
+  type HitGeometry,
   type HitDefinition,
   type HitTargeting,
   type ParticleDefinition,
@@ -83,6 +84,99 @@ function distancePointToSegment(
 
 function normalizeSignedDegrees(value: number): number {
   return ((value + 180) % 360 + 360) % 360 - 180;
+}
+
+function transformActorLocalPoint(
+  point: { x: number; y: number },
+  actorPosition: { x: number; y: number },
+  actorFacingDegrees: number
+): { x: number; y: number } {
+  const radians = (actorFacingDegrees * Math.PI) / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  return {
+    x:
+      actorPosition.x +
+      point.x * cosine -
+      point.y * sine,
+    y:
+      actorPosition.y +
+      point.x * sine +
+      point.y * cosine
+  };
+}
+
+function resolveWorldHitGeometry(
+  geometry: HitGeometry,
+  actorPose:
+    | {
+        position: { x: number; y: number };
+        facingDegrees: number;
+      }
+    | undefined
+): HitGeometry {
+  if ((geometry.coordinateSpace ?? "world") === "world") {
+    return geometry;
+  }
+  if (actorPose === undefined) {
+    throw new Error(
+      "Actor-local geometry passed schema validation without an actor pose."
+    );
+  }
+
+  if (geometry.kind === "circle") {
+    return {
+      ...geometry,
+      coordinateSpace: "world",
+      origin: transformActorLocalPoint(
+        geometry.origin,
+        actorPose.position,
+        actorPose.facingDegrees
+      )
+    };
+  }
+  if (geometry.kind === "rectangle") {
+    return {
+      ...geometry,
+      coordinateSpace: "world",
+      origin: transformActorLocalPoint(
+        geometry.origin,
+        actorPose.position,
+        actorPose.facingDegrees
+      ),
+      rotationDegrees: normalizeSignedDegrees(
+        geometry.rotationDegrees + actorPose.facingDegrees
+      )
+    };
+  }
+  if (geometry.kind === "capsule") {
+    return {
+      ...geometry,
+      coordinateSpace: "world",
+      start: transformActorLocalPoint(
+        geometry.start,
+        actorPose.position,
+        actorPose.facingDegrees
+      ),
+      end: transformActorLocalPoint(
+        geometry.end,
+        actorPose.position,
+        actorPose.facingDegrees
+      )
+    };
+  }
+  return {
+    ...geometry,
+    coordinateSpace: "world",
+    origin: transformActorLocalPoint(
+      geometry.origin,
+      actorPose.position,
+      actorPose.facingDegrees
+    ),
+    directionDegrees: normalizeSignedDegrees(
+      geometry.directionDegrees + actorPose.facingDegrees
+    )
+  };
 }
 
 function resolveHitGeometry(
@@ -267,12 +361,15 @@ interface HitEventPayload {
   targeting?: HitTargeting;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
+  sourceActorPosition: { x: number; y: number } | null;
+  sourceActorFacingDegrees: number | null;
   geometryKind:
     | "circle"
     | "rectangle"
     | "capsule"
     | "sector"
     | null;
+  geometryCoordinateSpace: "world" | "actor-local" | null;
   geometryOrigin: { x: number; y: number } | null;
   geometryStart: { x: number; y: number } | null;
   geometryEnd: { x: number; y: number } | null;
@@ -422,6 +519,10 @@ function simulateConfig(
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
   const random = new SeededRandom(options.randomSeed);
+  const actorPoses = deepClone(config.actorPoses ?? []);
+  const actorPoseById = new Map(
+    actorPoses.map((pose) => [pose.actorId, pose])
+  );
   const enemyTargets: SimulationResult["enemyTargets"] = (
     config.enemy.targets ?? [
       {
@@ -1061,15 +1162,26 @@ function simulateConfig(
         const hitTimeSeconds = timeSeconds + hit.offset;
         const hitFrame = toFrame(hitTimeSeconds);
         const geometry = hit.geometry;
+        const sourceActorPose = actorPoseById.get(actor.id);
+        const resolvedGeometry =
+          geometry === undefined
+            ? undefined
+            : resolveWorldHitGeometry(geometry, sourceActorPose);
         const targetPlans: Array<{
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
           targetPosition: { x: number; y: number } | null;
+          sourceActorPosition: { x: number; y: number } | null;
+          sourceActorFacingDegrees: number | null;
           geometryKind:
             | "circle"
             | "rectangle"
             | "capsule"
             | "sector"
+            | null;
+          geometryCoordinateSpace:
+            | "world"
+            | "actor-local"
             | null;
           geometryOrigin: { x: number; y: number } | null;
           geometryStart: { x: number; y: number } | null;
@@ -1098,7 +1210,14 @@ function simulateConfig(
                   targeting?.targetId ?? "enemy-0",
                   hitFrame
                 ),
+                sourceActorPosition:
+                  sourceActorPose === undefined
+                    ? null
+                    : deepClone(sourceActorPose.position),
+                sourceActorFacingDegrees:
+                  sourceActorPose?.facingDegrees ?? null,
                 geometryKind: null,
+                geometryCoordinateSpace: null,
                 geometryOrigin: null,
                 geometryStart: null,
                 geometryEnd: null,
@@ -1112,6 +1231,11 @@ function simulateConfig(
                 geometryThreshold: null
               }))
             : enemyTargets.map((target) => {
+                if (resolvedGeometry === undefined) {
+                  throw new Error(
+                    "Geometry resolution unexpectedly lost its shape."
+                  );
+                }
                 const targetPosition = resolveTargetPosition(
                   target.id,
                   hitFrame
@@ -1122,7 +1246,7 @@ function simulateConfig(
                   );
                 }
                 const geometryResolution = resolveHitGeometry(
-                  geometry,
+                  resolvedGeometry,
                   targetPosition,
                   target.hitboxRadius
                 );
@@ -1138,44 +1262,52 @@ function simulateConfig(
                   },
                   targetingSource: "geometry",
                   targetPosition,
-                  geometryKind: geometry.kind,
-                  geometryOrigin:
-                    geometry.kind === "capsule"
+                  sourceActorPosition:
+                    sourceActorPose === undefined
                       ? null
-                      : deepClone(geometry.origin),
+                      : deepClone(sourceActorPose.position),
+                  sourceActorFacingDegrees:
+                    sourceActorPose?.facingDegrees ?? null,
+                  geometryKind: resolvedGeometry.kind,
+                  geometryCoordinateSpace:
+                    geometry.coordinateSpace ?? "world",
+                  geometryOrigin:
+                    resolvedGeometry.kind === "capsule"
+                      ? null
+                      : deepClone(resolvedGeometry.origin),
                   geometryStart:
-                    geometry.kind === "capsule"
-                      ? deepClone(geometry.start)
+                    resolvedGeometry.kind === "capsule"
+                      ? deepClone(resolvedGeometry.start)
                       : null,
                   geometryEnd:
-                    geometry.kind === "capsule"
-                      ? deepClone(geometry.end)
+                    resolvedGeometry.kind === "capsule"
+                      ? deepClone(resolvedGeometry.end)
                       : null,
                   geometryRadius:
-                    geometry.kind === "circle" ||
-                    geometry.kind === "capsule" ||
-                    geometry.kind === "sector"
-                      ? geometry.radius
+                    resolvedGeometry.kind === "circle" ||
+                    resolvedGeometry.kind === "capsule" ||
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.radius
                       : null,
                   geometryHalfWidth:
-                    geometry.kind === "rectangle"
-                      ? geometry.halfWidth
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.halfWidth
                       : null,
                   geometryHalfHeight:
-                    geometry.kind === "rectangle"
-                      ? geometry.halfHeight
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.halfHeight
                       : null,
                   geometryRotationDegrees:
-                    geometry.kind === "rectangle"
-                      ? geometry.rotationDegrees
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.rotationDegrees
                       : null,
                   geometryDirectionDegrees:
-                    geometry.kind === "sector"
-                      ? geometry.directionDegrees
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.directionDegrees
                       : null,
                   geometryAngleDegrees:
-                    geometry.kind === "sector"
-                      ? geometry.angleDegrees
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.angleDegrees
                       : null,
                   geometryDistance: geometryResolution.distance,
                   geometryThreshold: geometryResolution.threshold
@@ -1502,7 +1634,10 @@ function simulateConfig(
       targeting,
       targetingSource,
       targetPosition,
+      sourceActorPosition,
+      sourceActorFacingDegrees,
       geometryKind,
+      geometryCoordinateSpace,
       geometryOrigin,
       geometryStart,
       geometryEnd,
@@ -1578,7 +1713,10 @@ function simulateConfig(
       targetName: targetProfile.name,
       targetingSource,
       targetPosition,
+      sourceActorPosition,
+      sourceActorFacingDegrees,
       geometryKind,
+      geometryCoordinateSpace,
       geometryOrigin,
       geometryStart,
       geometryEnd,
@@ -2070,6 +2208,7 @@ function simulateConfig(
     ),
     compatibilityMode: options.compatibilityMode,
     config: resultConfig,
+    actorPoses,
     enemyTargets,
     damageEvents,
     hitEvents: damageEvents,

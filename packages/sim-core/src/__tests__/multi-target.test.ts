@@ -1325,6 +1325,200 @@ describe("registered enemy targets", () => {
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 
+  it("transforms every actor-local geometry shape into world coordinates from a static pose", () => {
+    const ability: AbilityDefinition = {
+      id: "actor-local-geometry",
+      actorId: "a",
+      name: "施放者局部坐标命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 3,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "local-circle",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "circle",
+            coordinateSpace: "actor-local",
+            origin: { x: 1, y: 0 },
+            radius: 0.1
+          }
+        },
+        {
+          id: "local-rectangle",
+          frame: 1,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "rectangle",
+            coordinateSpace: "actor-local",
+            origin: { x: 0, y: 0 },
+            halfWidth: 2,
+            halfHeight: 0.2,
+            rotationDegrees: 0
+          }
+        },
+        {
+          id: "local-capsule",
+          frame: 2,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "capsule",
+            coordinateSpace: "actor-local",
+            start: { x: 0, y: 0 },
+            end: { x: 2, y: 0 },
+            radius: 0.2
+          }
+        },
+        {
+          id: "local-sector",
+          frame: 3,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "sector",
+            coordinateSpace: "actor-local",
+            origin: { x: 0, y: 0 },
+            radius: 2,
+            directionDegrees: 0,
+            angleDegrees: 60
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      actorPoses: [
+        {
+          actorId: "a",
+          position: { x: 10, y: 20 },
+          facingDegrees: 90
+        }
+      ],
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "朝向前方",
+            position: { x: 10, y: 21 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-1",
+            name: "世界坐标右侧",
+            position: { x: 11, y: 20 },
+            hitboxRadius: 0
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+    expect(result.actorPoses).toEqual([
+      {
+        actorId: "a",
+        position: { x: 10, y: 20 },
+        facingDegrees: 90
+      }
+    ]);
+    for (const hitId of [
+      "local-circle",
+      "local-rectangle",
+      "local-capsule",
+      "local-sector"
+    ]) {
+      const checks = result.hitResolutionLog.filter(
+        (entry) => entry.hitId === hitId
+      );
+      expect(checks.map((entry) => entry.outcome)).toEqual([
+        "landed",
+        "miss"
+      ]);
+      expect(
+        checks.every(
+          (entry) =>
+            entry.geometryCoordinateSpace === "actor-local" &&
+            entry.sourceActorPosition?.x === 10 &&
+            entry.sourceActorPosition.y === 20 &&
+            entry.sourceActorFacingDegrees === 90
+        )
+      ).toBe(true);
+    }
+
+    const circle = result.hitResolutionLog.find(
+      (entry) =>
+        entry.hitId === "local-circle" && entry.targetId === "enemy-0"
+    );
+    expect(circle).toMatchObject({
+      geometryKind: "circle",
+      geometryOrigin: { x: 10, y: 21 },
+      geometryRadius: 0.1,
+      outcome: "landed"
+    });
+
+    const rectangle = result.hitResolutionLog.find(
+      (entry) =>
+        entry.hitId === "local-rectangle" &&
+        entry.targetId === "enemy-0"
+    );
+    expect(rectangle).toMatchObject({
+      geometryKind: "rectangle",
+      geometryOrigin: { x: 10, y: 20 },
+      geometryRotationDegrees: 90,
+      outcome: "landed"
+    });
+
+    const capsule = result.hitResolutionLog.find(
+      (entry) =>
+        entry.hitId === "local-capsule" &&
+        entry.targetId === "enemy-0"
+    );
+    expect(capsule).toMatchObject({
+      geometryKind: "capsule",
+      geometryStart: { x: 10, y: 20 },
+      geometryEnd: { x: 10, y: 22 },
+      outcome: "landed"
+    });
+
+    const sector = result.hitResolutionLog.find(
+      (entry) =>
+        entry.hitId === "local-sector" && entry.targetId === "enemy-0"
+    );
+    expect(sector).toMatchObject({
+      geometryKind: "sector",
+      geometryOrigin: { x: 10, y: 20 },
+      geometryDirectionDegrees: 90,
+      geometryAngleDegrees: 60,
+      outcome: "landed"
+    });
+    expect(result.damageEvents).toHaveLength(4);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
+
   it("interpolates target motion at integer hit frames and holds adjacent boundaries", () => {
     const ability: AbilityDefinition = {
       id: "moving-circle-target",

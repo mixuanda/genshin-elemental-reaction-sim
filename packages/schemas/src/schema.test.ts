@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.19.0 configs to sector geometry", () => {
+  it("migrates 1.0.0 through 1.20.0 configs to actor poses", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -241,6 +241,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.19.0",
       engineVersion: "1.19.0-capsule-geometry"
+    });
+    const migratedFromSectorGeometry = migrateConfig({
+      ...current,
+      schemaVersion: "1.20.0",
+      engineVersion: "1.20.0-sector-geometry"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -353,6 +358,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromCapsuleGeometry.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromSectorGeometry.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromSectorGeometry.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -807,6 +818,79 @@ describe("versioned config schema", () => {
       360.1;
     expect(() => migrateConfig(invalidDirection)).toThrow(
       /geometry\.directionDegrees/
+    );
+  });
+
+  it("validates static actor poses required by actor-local geometry", () => {
+    const input = {
+      ...legacyConfig,
+      actorPoses: [
+        {
+          actorId: "a",
+          position: { x: 10, y: 20 },
+          facingDegrees: 90
+        }
+      ],
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "局部坐标目标",
+            position: { x: 10, y: 21 },
+            hitboxRadius: 0
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "actor-local",
+          actorId: "a",
+          name: "施放者局部范围",
+          at: 0,
+          hits: [
+            {
+              id: "actor-local-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "circle",
+                coordinateSpace: "actor-local",
+                origin: { x: 1, y: 0 },
+                radius: 0.1
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    const parsed = migrateConfig(input);
+    expect(parsed.actorPoses).toEqual(input.actorPoses);
+    expect(
+      parsed.rotation[0]?.hits?.[0]?.geometry?.coordinateSpace
+    ).toBe("actor-local");
+
+    const missingPose = structuredClone(input);
+    missingPose.actorPoses.length = 0;
+    expect(() => migrateConfig(missingPose)).toThrow(
+      /geometry\.coordinateSpace: actor-local geometry requires an actorPoses entry/
+    );
+
+    const duplicatePose = structuredClone(input);
+    duplicatePose.actorPoses.push({
+      actorId: "a",
+      position: { x: 0, y: 0 },
+      facingDegrees: 0
+    });
+    expect(() => migrateConfig(duplicatePose)).toThrow(
+      /actorPoses\.1\.actorId: duplicate actor pose/
+    );
+
+    const unknownPose = structuredClone(input);
+    unknownPose.actorPoses[0]!.actorId = "missing";
+    expect(() => migrateConfig(unknownPose)).toThrow(
+      /actorPoses\.0\.actorId: unknown character id/
     );
   });
 

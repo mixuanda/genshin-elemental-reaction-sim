@@ -671,15 +671,19 @@ function renderHitDetail(): void {
   const targetResolution = lastResult.hitResolutionLog.find(
     (entry) => entry.id === hit.targetResolutionId
   );
+  const geometrySpaceLabel =
+    targetResolution?.geometryCoordinateSpace === "actor-local"
+      ? "施放者局部→世界"
+      : "世界坐标";
   const targetingSource =
     targetResolution?.geometryKind === "circle"
-      ? `二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+      ? `${geometrySpaceLabel} · 二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
       : targetResolution?.geometryKind === "rectangle"
-        ? `二维旋转矩形 · 中心 ${formatPosition(targetResolution.geometryOrigin)} · 半宽 ${formatNumber(targetResolution.geometryHalfWidth ?? 0, 4)} · 半高 ${formatNumber(targetResolution.geometryHalfHeight ?? 0, 4)} · 旋转 ${formatNumber(targetResolution.geometryRotationDegrees ?? 0, 4)}° · 中心至矩形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+        ? `${geometrySpaceLabel} · 二维旋转矩形 · 中心 ${formatPosition(targetResolution.geometryOrigin)} · 半宽 ${formatNumber(targetResolution.geometryHalfWidth ?? 0, 4)} · 半高 ${formatNumber(targetResolution.geometryHalfHeight ?? 0, 4)} · 旋转 ${formatNumber(targetResolution.geometryRotationDegrees ?? 0, 4)}° · 中心至矩形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
         : targetResolution?.geometryKind === "capsule"
-          ? `二维胶囊几何 · 起点 ${formatPosition(targetResolution.geometryStart)} · 终点 ${formatPosition(targetResolution.geometryEnd)} · 扫掠半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心至线段最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+          ? `${geometrySpaceLabel} · 二维胶囊几何 · 起点 ${formatPosition(targetResolution.geometryStart)} · 终点 ${formatPosition(targetResolution.geometryEnd)} · 扫掠半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心至线段最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
           : targetResolution?.geometryKind === "sector"
-            ? `二维填充扇形 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 方向 ${formatNumber(targetResolution.geometryDirectionDegrees ?? 0, 4)}° · 夹角 ${formatNumber(targetResolution.geometryAngleDegrees ?? 0, 4)}° · 中心至扇形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+            ? `${geometrySpaceLabel} · 二维填充扇形 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 方向 ${formatNumber(targetResolution.geometryDirectionDegrees ?? 0, 4)}° · 夹角 ${formatNumber(targetResolution.geometryAngleDegrees ?? 0, 4)}° · 中心至扇形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
             : targetResolution?.targetingSource === "scripted"
               ? "逐击脚本 / 显式扇出"
               : "兼容默认 enemy-0 / landed";
@@ -688,6 +692,14 @@ function renderHitDetail(): void {
     : "无";
   const factors: Array<[string, string]> = [
     ["实际施放者", `${hit.sourceActorName} (${hit.sourceActorId})`],
+    [
+      "施放者静态姿态",
+      targetResolution?.sourceActorPosition === null ||
+      targetResolution?.sourceActorPosition === undefined ||
+      targetResolution.sourceActorFacingDegrees === null
+        ? "未声明"
+        : `${formatPosition(targetResolution.sourceActorPosition)} · 朝向 ${formatNumber(targetResolution.sourceActorFacingDegrees, 4)}°`
+    ],
     ["缩放面板", `${hit.scalingOwnerName} (${hit.scalingOwnerId})`],
     ["伤害归属", `${hit.creditOwnerName} (${hit.creditOwnerId})`],
     ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
@@ -1119,6 +1131,9 @@ function renderTargetHitAudit(): void {
     (sectorGeometryChecks
       ? ` · ${sectorGeometryChecks} 次扇形几何求交`
       : "") +
+    (result.actorPoses.length
+      ? ` · ${result.actorPoses.length} 个静态角色姿态`
+      : "") +
     (result.targetMotionTimeline.length
       ? ` · ${result.targetMotionTimeline.length} 个目标移动段`
       : "") +
@@ -1171,13 +1186,13 @@ function renderTargetHitAudit(): void {
                 : "默认";
           const resolutionSource =
             entry.geometryKind === "circle"
-              ? `圆形 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+              ? `${entry.geometryCoordinateSpace === "actor-local" ? "局部→世界 " : ""}圆形 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
               : entry.geometryKind === "rectangle"
-                ? `矩形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+                ? `${entry.geometryCoordinateSpace === "actor-local" ? "局部→世界 " : ""}矩形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
                 : entry.geometryKind === "capsule"
-                  ? `胶囊线段距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 总阈值 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+                  ? `${entry.geometryCoordinateSpace === "actor-local" ? "局部→世界 " : ""}胶囊线段距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 总阈值 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
                   : entry.geometryKind === "sector"
-                    ? `扇形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+                    ? `${entry.geometryCoordinateSpace === "actor-local" ? "局部→世界 " : ""}扇形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
                     : entry.targetingSource === "scripted"
                       ? "脚本"
                       : "默认";

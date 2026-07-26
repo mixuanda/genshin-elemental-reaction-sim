@@ -25,6 +25,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
+    expect(result.actorPoses).toEqual([]);
     expect(result.enemyTargets).toEqual([
       {
         id: "enemy-0",
@@ -48,7 +49,10 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.targetName === "敌人 0" &&
           entry.targetingSource === "default" &&
           entry.targetPosition === null &&
+          entry.sourceActorPosition === null &&
+          entry.sourceActorFacingDegrees === null &&
           entry.geometryKind === null &&
+          entry.geometryCoordinateSpace === null &&
           entry.geometryOrigin === null &&
           entry.geometryStart === null &&
           entry.geometryEnd === null &&
