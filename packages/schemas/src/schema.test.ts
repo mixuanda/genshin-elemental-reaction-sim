@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.4.0 configs to the current followup-cancel schema", () => {
+  it("migrates 1.0.0 through 1.5.0 configs to the runtime-energy schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -167,6 +167,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.4.0",
       engineVersion: "1.4.0-action-states"
     });
+    const migratedFromFollowupCancels = migrateConfig({
+      ...current,
+      schemaVersion: "1.5.0",
+      engineVersion: "1.5.0-followup-cancels"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -188,6 +193,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromActionStates.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromFollowupCancels.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromFollowupCancels.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -318,44 +329,52 @@ describe("versioned config schema", () => {
     );
   });
 
-  it("blocks energy-gated state transitions until runtime rollback exists", () => {
-    expect(() =>
-      migrateConfig({
-        ...legacyConfig,
-        rotation: [],
-        timeline: {
-          mode: "legal-frame-v1",
-          fps: 60,
-          legalityMode: "strict",
-          initialActiveCharacterId: "a",
-          swapFrames: 12,
-          abilities: [
-            {
-              id: "unsafe-burst-state",
-              actorId: "a",
-              name: "能量门槛状态",
-              kind: "burst",
-              cancelFrame: 1,
-              animationEndFrame: 1,
-              cooldownFrames: 600,
-              energyCost: 60,
-              timelineState: {
-                grants: [
-                  {
-                    key: "unsafe",
-                    label: "不应预授予",
-                    durationFrames: 60
-                  }
-                ]
-              }
+  it("accepts energy-gated state transitions for runtime rollback", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "energy-burst-state",
+            actorId: "a",
+            name: "能量爆发状态",
+            kind: "burst",
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 600,
+            energyCost: 60,
+            timelineState: {
+              grants: [
+                {
+                  key: "burst-active",
+                  label: "爆发状态",
+                  durationFrames: 60
+                }
+              ]
             }
-          ],
-          commands: []
-        }
-      })
-    ).toThrow(
-      /energy-gated abilities cannot transition action states/
-    );
+          }
+        ],
+        commands: []
+      }
+    });
+
+    expect(parsed.timeline?.abilities[0]).toMatchObject({
+      energyCost: 60,
+      timelineState: {
+        grants: [
+          {
+            key: "burst-active",
+            durationFrames: 60
+          }
+        ]
+      }
+    });
   });
 
   it("rejects a followup cancel after the animation end", () => {

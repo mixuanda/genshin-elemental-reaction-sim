@@ -154,6 +154,61 @@ const chargeA: AbilityDefinition = {
   cooldownFrames: 0
 };
 
+const energyBurstA: AbilityDefinition = {
+  id: "a-energy-burst",
+  actorId: "a",
+  name: "A 能量爆发",
+  kind: "burst",
+  cancelFrame: 5,
+  animationEndFrame: 10,
+  cooldownFrames: 120,
+  energyCost: 60,
+  hits: [
+    {
+      id: "energy-burst-hit",
+      frame: 1,
+      scaling: 1,
+      element: "pyro"
+    }
+  ],
+  particles: [
+    {
+      id: "energy-burst-particle",
+      element: "pyro",
+      count: 1,
+      spawnFrame: 1,
+      travelFrames: 0
+    }
+  ],
+  timelineState: {
+    grants: [
+      {
+        key: "burst-succeeded",
+        label: "爆发成功",
+        durationFrames: 60
+      }
+    ]
+  }
+};
+
+const refillSkillA: AbilityDefinition = {
+  id: "a-refill",
+  actorId: "a",
+  name: "A 固定回能",
+  kind: "skill",
+  cancelFrame: 1,
+  animationEndFrame: 1,
+  cooldownFrames: 0,
+  energyGains: [
+    {
+      target: "a",
+      frame: 0,
+      amount: 60,
+      source: "test-refill"
+    }
+  ]
+};
+
 function legalConfig(
   legalityMode: "strict" | "wait",
   commands: LegalTimelineCommand[],
@@ -311,6 +366,111 @@ describe("legal 60 FPS action timeline", () => {
         (command) => command.startFrame
       )
     ).toEqual([0, 10, 120]);
+  });
+
+  it("rolls back cooldown, state, hits, and particles when a burst lacks energy", () => {
+    const config = legalConfig(
+      "strict",
+      [
+        {
+          type: "burst",
+          actorId: "a",
+          abilityId: "a-energy-burst"
+        },
+        {
+          type: "skill",
+          actorId: "a",
+          abilityId: "a-refill"
+        },
+        {
+          type: "burst",
+          actorId: "a",
+          abilityId: "a-energy-burst"
+        }
+      ],
+      [energyBurstA, refillSkillA]
+    );
+    const result = simulate(config, { energyMode: "zero" });
+
+    expect(result.timelineExecution?.commandResults).toMatchObject([
+      {
+        commandIndex: 0,
+        startFrame: 0,
+        endFrame: 0,
+        status: "rejected",
+        failureCode: "INSUFFICIENT_ENERGY",
+        energyBefore: 0,
+        energyCost: 60
+      },
+      {
+        commandIndex: 1,
+        startFrame: 0,
+        cancelFrame: 1,
+        status: "executed"
+      },
+      {
+        commandIndex: 2,
+        startFrame: 1,
+        cancelFrame: 6,
+        status: "executed"
+      }
+    ]);
+    expect(result.timelineExecution?.adjustments).toEqual([]);
+    expect(result.timelineExecution?.failures).toContainEqual(
+      expect.objectContaining({
+        commandIndex: 0,
+        code: "INSUFFICIENT_ENERGY",
+        frame: 0,
+        energyBefore: 0,
+        energyCost: 60
+      })
+    );
+    expect(result.skippedActions).toEqual([
+      expect.objectContaining({
+        frame: 0,
+        actionId: "a-energy-burst#0",
+        timelineCommandIndex: 0,
+        sourceAbilityId: "a-energy-burst",
+        energyBefore: 0,
+        energyCost: 60
+      })
+    ]);
+    expect(result.actionLog.map((entry) => entry.timelineCommandIndex)).toEqual([
+      1, 2
+    ]);
+    expect(result.damageEvents).toHaveLength(1);
+    expect(result.damageEvents[0]).toMatchObject({
+      frame: 2,
+      timelineCommandIndex: 2
+    });
+    expect(result.particleEvents).toEqual([
+      expect.objectContaining({
+        sourceActionId: "a-energy-burst#2",
+        spawnFrame: 2,
+        receiveFrame: 2
+      })
+    ]);
+    expect(
+      result.timelineExecution?.stateLog.filter(
+        (entry) => entry.operation === "grant"
+      )
+    ).toEqual([
+      expect.objectContaining({
+        frame: 1,
+        commandIndex: 2,
+        statusKey: "burst-succeeded"
+      })
+    ]);
+    expect(result.energyStats.a).toMatchObject({
+      fixedGained: 60,
+      spent: 60,
+      skipped: 1
+    });
+    const repeated = simulate(config, { energyMode: "zero" });
+    expect(repeated.reproducibilityKey).toBe(result.reproducibilityKey);
+    expect(repeated.timelineExecution).toEqual(result.timelineExecution);
+    expect(repeated.skippedActions).toEqual(result.skippedActions);
+    expect(repeated.damageEvents).toEqual(result.damageEvents);
   });
 
   it.each([

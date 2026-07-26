@@ -1,6 +1,9 @@
 import { Buffer } from "node:buffer";
 import { expect, test } from "@playwright/test";
-import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
+import {
+  durinMeltPreset,
+  legalTimelineDemoPreset
+} from "@genshin-dps-lab/game-data/presets";
 
 test("runs, imports, explores, and exports the compatibility preset", async ({
   page
@@ -84,6 +87,152 @@ test("renders the legal frame action queue and traces hits to commands", async (
   await page.locator("#hitTableBody tr[data-hit-id]").first().click();
   await expect(page.locator("#hitDetail")).toContainText("时间线指令");
   await expect(page.locator("#hitDetail")).toContainText("合法行动帧");
+});
+
+test("rolls back a failed burst before executing the following commands", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "运行时能量回滚 · 浏览器验收"
+  };
+  config.duration = 2;
+  config.cycleLength = 2;
+  config.characters = [{ ...character, initialEnergy: 0 }];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "browser-burst",
+        actorId: character.id,
+        name: "浏览器爆发",
+        kind: "burst",
+        cancelFrame: 5,
+        animationEndFrame: 10,
+        cooldownFrames: 120,
+        energyCost: 60,
+        hits: [
+          {
+            id: "browser-burst-hit",
+            frame: 1,
+            scaling: 1,
+            element: "pyro"
+          }
+        ],
+        timelineState: {
+          grants: [
+            {
+              key: "browser-burst-succeeded",
+              label: "爆发成功",
+              durationFrames: 60
+            }
+          ]
+        }
+      },
+      {
+        id: "browser-refill",
+        actorId: character.id,
+        name: "浏览器固定回能",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        energyGains: [
+          {
+            target: character.id,
+            frame: 0,
+            amount: 60,
+            source: "browser-refill"
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "burst",
+        actorId: character.id,
+        abilityId: "browser-burst"
+      },
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "browser-refill"
+      },
+      {
+        type: "burst",
+        actorId: character.id,
+        abilityId: "browser-burst"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "runtime-energy-rollback.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#notice")).toContainText(
+    "运行时能量回滚 · 浏览器验收"
+  );
+  await expect(page.locator("#legalTimelineBody tr")).toHaveCount(3);
+  await expect(page.locator("#legalTimelineBody tr").first()).toContainText(
+    "拒绝 · INSUFFICIENT_ENERGY"
+  );
+  await expect(page.locator("#legalTimelineFailures")).toContainText(
+    "未施放且不占用冷却或改变行动状态"
+  );
+  await expect(page.locator("#energyStatus")).toContainText("跳过 1");
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          commands: result.timelineExecution?.commandResults.map(
+            ({ startFrame, status, failureCode }) => ({
+              startFrame,
+              status,
+              failureCode: failureCode ?? null
+            })
+          ),
+          actions: result.actionLog.map(
+            (entry) => entry.timelineCommandIndex
+          ),
+          skipped: result.skippedActions,
+          hits: result.damageEvents.map((event) => ({
+            frame: event.frame,
+            commandIndex: event.timelineCommandIndex
+          }))
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    commands: [
+      {
+        startFrame: 0,
+        status: "rejected",
+        failureCode: "INSUFFICIENT_ENERGY"
+      },
+      { startFrame: 0, status: "executed", failureCode: null },
+      { startFrame: 1, status: "executed", failureCode: null }
+    ],
+    actions: [1, 2],
+    skipped: [
+      {
+        timelineCommandIndex: 0,
+        energyBefore: 0,
+        energyCost: 60
+      }
+    ],
+    hits: [{ frame: 2, commandIndex: 2 }]
+  });
 });
 
 test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", async ({

@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.5.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.5.0-followup-cancels" as const;
+export const CURRENT_SCHEMA_VERSION = "1.6.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.6.0-runtime-energy" as const;
+export const FOLLOWUP_CANCEL_SCHEMA_VERSION = "1.5.0" as const;
 export const ACTION_STATE_SCHEMA_VERSION = "1.4.0" as const;
 export const ICD_PROFILE_SCHEMA_VERSION = "1.3.0" as const;
 export const PARTICLE_SCHEMA_VERSION = "1.2.0" as const;
@@ -539,7 +540,11 @@ export interface SkippedAction {
   action: string;
   reason: string;
   reasonCode: "INSUFFICIENT_ENERGY";
+  energyBefore: number;
+  energyCost: number;
   cycle: number;
+  timelineCommandIndex?: number;
+  sourceAbilityId?: string;
 }
 
 export interface ActionLogEntry {
@@ -672,6 +677,7 @@ export interface AuraTimelinePoint {
 export type TimelineFailureCode =
   | "ACTION_OVERLAP"
   | "ABILITY_ON_COOLDOWN"
+  | "INSUFFICIENT_ENERGY"
   | "UNKNOWN_ABILITY"
   | "WRONG_ACTIVE_CHARACTER"
   | "ALREADY_ACTIVE"
@@ -696,6 +702,8 @@ export interface TimelineFailure {
   code: TimelineFailureCode;
   frame: number;
   message: string;
+  energyBefore?: number;
+  energyCost?: number;
 }
 
 export interface TimelineAdjustment {
@@ -720,6 +728,8 @@ export interface TimelineCommandResult {
   status: "executed" | "waited" | "rejected";
   waitedFrames: number;
   failureCode?: TimelineFailureCode;
+  energyBefore?: number;
+  energyCost?: number;
 }
 
 export interface TimelineExecution {

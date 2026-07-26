@@ -3,6 +3,7 @@ import {
   ACTION_STATE_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  FOLLOWUP_CANCEL_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
@@ -457,18 +458,6 @@ export const abilityDefinitionSchema = z
         code: "custom",
         path: ["chargeRecoveryFrames"],
         message: "multi-charge abilities require a positive recovery"
-      });
-    }
-    if (
-      (ability.energyCost ?? 0) > 0 &&
-      ((ability.timelineState?.consumes?.length ?? 0) > 0 ||
-        (ability.timelineState?.grants?.length ?? 0) > 0)
-    ) {
-      context.addIssue({
-        code: "custom",
-        path: ["timelineState"],
-        message:
-          "energy-gated abilities cannot transition action states until runtime energy rollback is implemented"
       });
     }
   });
@@ -1038,6 +1027,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === FOLLOWUP_CANCEL_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ACTION_STATE_SCHEMA_VERSION) {
     return parseSimConfig({

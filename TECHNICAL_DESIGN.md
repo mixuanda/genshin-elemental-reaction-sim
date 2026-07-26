@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 293.26 kB（gzip 75.14 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 294.48 kB（gzip 75.42 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0` 或 `1.4.0` 配置迁移到 `1.5.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.5.0-followup-cancels`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0` 或 `1.5.0` 配置迁移到 `1.6.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.6.0-runtime-energy`。
 
 ## 4. 确定性与排序
 
@@ -119,7 +119,9 @@ timeline: {
 
 命令游标默认推进至行动的可取消帧。若紧随其后的命令是普攻、重击、战技、爆发或切人，编译器优先使用 `cancelFrames[下一命令类型]`；未声明、后续为 `wait` 或已到队尾时回退到 `cancelFrame`。所有取消帧必须是不超过动画结束的非负整数，实际选中的帧会进入逐指令结果和逐行动日志。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
 
-`timelineState` 是归属于施放角色的行动合法性状态，与改变面板的 Buff/Debuff 分离。编译器在实际执行帧先处理到期，再检查 `requires`，随后执行 `consumes` 和 `grants`。因此状态在 `expiresAtFrame` 当帧不可再用；冷却等待跨过状态窗口后会重新检查并以 `MISSING_REQUIRED_STATE` 拒绝，而不会回到旧帧。`stateLog` 记录 `grant / replace / consume / expire`、来源指令和精确帧。由于能量不足仍在后续模拟阶段判断，当前 Schema 禁止 `energyCost > 0` 的能力授予或消耗行动状态，避免失败爆发在编译期错误改状态；这必须等动态队列回滚完成后放开。
+`timelineState` 是归属于施放角色的行动合法性状态，与改变面板的 Buff/Debuff 分离。编译器在实际执行帧先处理到期，再检查 `requires`，随后执行 `consumes` 和 `grants`。因此状态在 `expiresAtFrame` 当帧不可再用；冷却等待跨过状态窗口后会重新检查并以 `MISSING_REQUIRED_STATE` 拒绝，而不会回到旧帧。`stateLog` 记录 `grant / replace / consume / expire`、来源指令和精确帧。
+
+能量是运行时状态，不能在静态时间线编译时猜测。`simulateLegalTimeline()` 按命令顺序对每个 `energyCost > 0` 的行动编译到该命令为止并运行确定性前缀，记录实际 `energyBefore / energyCost`；随后用已确认的失败集合重编译最终时间线。能量失败命令保留尝试帧和结构化 `INSUFFICIENT_ENERGY` 审计，但不加入执行队列、不占用冷却、不推进取消帧，也不执行 `consumes / grants`。后续命令、状态边界和冷却均从回滚后的游标重新计算。这样带能量消耗的能力可以安全声明行动状态。该实现优先保证确定性和可审计性；未来若引入大量条件命令，需要替换成单遍运行时调度器并保持相同输出契约。
 
 ## 5. 伤害公式
 
@@ -261,7 +263,7 @@ energyAfter
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
-`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.2 契约，并能把 1.0 / 1.1 输入迁移后再编译。每个技能映射必须包含：
+`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.3 契约，并能把 1.0 / 1.1 / 1.2 输入迁移后再编译。每个技能映射必须包含：
 
 - 数据版本、映射版本和角色/技能 ID。
 - 每段命中帧、倍率参数引用、缩放属性、元素、快照和附着流。
@@ -291,6 +293,7 @@ Vitest 当前覆盖：
 - 状态结束边界。
 - 行动快照与命中动态结算。
 - 能量刚好足够和能量不足整行动取消。
+- 合法时间线能量失败后的冷却、状态、命中、粒子和后续命令帧回滚。
 - 同时间命中稳定排序。
 - 120 秒末端截断语义。
 - 相同版本/配置/种子的可复现性。
@@ -318,6 +321,7 @@ Vitest 当前覆盖：
 - 杜林精质转变前置/消耗/黑状态日志，以及黑 E 三段倍率、48/53/58 全局命中帧、首段融化、ICD、逐击整数值、伤害曲线、33 固定回能和 4 火粒子。
 - UID 角色、武器、技能、天赋额外等级以及旅行者元素变体映射。
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
+- 120 秒兼容模拟和带运行时能量前缀探测的 120 秒合法时间线性能门。
 
 Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误、杜林黑 E 审计向量，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
 
@@ -376,7 +380,7 @@ game patch 6.7
 
 ## 10. Milestone 3–5 当前边界
 
-Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
+Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。能量不足现在会通过确定性前缀探测进入 `skippedActions` 和 `timelineExecution.failures`，失败行动不预占冷却或状态，后续命令会重排；条件语句、命中确认分支和目标驱动取消仍未进入命令语言。
 
 Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；新增黑 E 只是一段独立审计向量，不能用它替换 120 秒兼容预设后声称机制等价。
 

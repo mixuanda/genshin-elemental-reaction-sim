@@ -33,7 +33,10 @@ import {
 } from "./formulas";
 import { MinHeap } from "./min-heap";
 import type { DamageModifierPlugin } from "./plugins";
-import { compileLegalTimeline } from "./legal-timeline";
+import {
+  compileLegalTimeline,
+  type RuntimeEnergyFailure
+} from "./legal-timeline";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -472,7 +475,15 @@ function simulateConfig(
           action: action.name,
           reason: `能量不足 ${round(currentEnergy, 1)}/${energyCost}`,
           reasonCode: "INSUFFICIENT_ENERGY",
-          cycle
+          energyBefore: currentEnergy,
+          energyCost,
+          cycle,
+          ...(action.timelineCommandIndex === undefined
+            ? {}
+            : { timelineCommandIndex: action.timelineCommandIndex }),
+          ...(action.sourceAbilityId === undefined
+            ? {}
+            : { sourceAbilityId: action.sourceAbilityId })
         });
         const summary = energyStats.get(actor.id);
         if (summary) summary.skipped += 1;
@@ -1176,6 +1187,91 @@ function simulateConfig(
   };
 }
 
+function simulateLegalTimeline(
+  config: SimConfig,
+  runtimeOptions: SimulationRuntimeOptions
+): SimulationResult {
+  const timeline = config.timeline;
+  if (!timeline) {
+    throw new Error("simulateLegalTimeline requires config.timeline");
+  }
+
+  const runtimeEnergyFailures = new Map<number, RuntimeEnergyFailure>();
+  const skippedByCommand = new Map<
+    number,
+    SimulationResult["skippedActions"][number]
+  >();
+  const abilities = new Map(
+    timeline.abilities.map((ability) => [ability.id, ability])
+  );
+  const legalRuntimeOptions: SimulationRuntimeOptions = {
+    ...runtimeOptions,
+    compatibilityMode: "legal-frame-v1"
+  };
+
+  for (
+    let commandIndex = 0;
+    commandIndex < timeline.commands.length;
+    commandIndex += 1
+  ) {
+    const command = timeline.commands[commandIndex];
+    if (
+      command === undefined ||
+      command.type === "wait" ||
+      command.type === "swap"
+    ) {
+      continue;
+    }
+    const ability = abilities.get(command.abilityId);
+    if (!ability || (ability.energyCost ?? 0) <= 0) continue;
+
+    const prefix = compileLegalTimeline(config, {
+      runtimeEnergyFailures,
+      stopAfterCommandIndex: commandIndex
+    });
+    const probe = simulateConfig(
+      prefix.config,
+      legalRuntimeOptions,
+      config,
+      prefix.execution
+    );
+    const skipped = probe.skippedActions.find(
+      (entry) => entry.timelineCommandIndex === commandIndex
+    );
+    if (!skipped) continue;
+
+    runtimeEnergyFailures.set(commandIndex, {
+      commandIndex,
+      energyBefore: skipped.energyBefore,
+      energyCost: skipped.energyCost
+    });
+    skippedByCommand.set(commandIndex, skipped);
+  }
+
+  const compiled = compileLegalTimeline(config, {
+    runtimeEnergyFailures
+  });
+  const result = simulateConfig(
+    compiled.config,
+    legalRuntimeOptions,
+    config,
+    compiled.execution
+  );
+  for (const skipped of skippedByCommand.values()) {
+    result.skippedActions.push(skipped);
+    const summary = result.energyStats[skipped.actorId];
+    if (summary) summary.skipped += 1;
+  }
+  result.skippedActions.sort(
+    (left, right) =>
+      left.frame - right.frame ||
+      (left.timelineCommandIndex ?? Number.MAX_SAFE_INTEGER) -
+        (right.timelineCommandIndex ?? Number.MAX_SAFE_INTEGER) ||
+      left.actionId.localeCompare(right.actionId)
+  );
+  return result;
+}
+
 export function simulate(
   rawConfig: unknown,
   runtimeOptions: SimulationRuntimeOptions = {}
@@ -1184,14 +1280,5 @@ export function simulate(
   if (!config.timeline) {
     return simulateConfig(config, runtimeOptions);
   }
-  const compiled = compileLegalTimeline(config);
-  return simulateConfig(
-    compiled.config,
-    {
-      ...runtimeOptions,
-      compatibilityMode: "legal-frame-v1"
-    },
-    config,
-    compiled.execution
-  );
+  return simulateLegalTimeline(config, runtimeOptions);
 }

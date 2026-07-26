@@ -31,6 +31,18 @@ export interface CompiledTimeline {
   execution: TimelineExecution;
 }
 
+export interface RuntimeEnergyFailure {
+  commandIndex: number;
+  energyBefore: number;
+  energyCost: number;
+}
+
+export interface CompileLegalTimelineOptions {
+  runtimeEnergyFailures?: ReadonlyMap<number, RuntimeEnergyFailure>;
+  /** Used by the runtime energy probe to avoid compiling later commands. */
+  stopAfterCommandIndex?: number;
+}
+
 interface ActiveTimelineState {
   actorId: string;
   grant: TimelineStateGrant;
@@ -166,7 +178,10 @@ function commandFollowupKind(
   return command.type;
 }
 
-export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
+export function compileLegalTimeline(
+  config: SimConfig,
+  options: CompileLegalTimelineOptions = {}
+): CompiledTimeline {
   const timeline = config.timeline;
   if (!timeline) {
     throw new Error("compileLegalTimeline requires config.timeline");
@@ -356,6 +371,12 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
   };
 
   timeline.commands.forEach((command, commandIndex) => {
+    if (
+      options.stopAfterCommandIndex !== undefined &&
+      commandIndex > options.stopAfterCommandIndex
+    ) {
+      return;
+    }
     if (command.type === "wait") {
       const startFrame = cursor;
       cursor += command.frames;
@@ -517,6 +538,40 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
         `"${ability.name}" 需要 "${missingState}" 行动状态。`,
         anchored.requestedFrame
       );
+      return;
+    }
+
+    const runtimeEnergyFailure =
+      options.runtimeEnergyFailures?.get(commandIndex);
+    if (runtimeEnergyFailure !== undefined) {
+      const failure: TimelineFailure = {
+        commandIndex,
+        code: "INSUFFICIENT_ENERGY",
+        frame: startFrame,
+        message:
+          `"${ability.name}" 能量不足 ` +
+          `${runtimeEnergyFailure.energyBefore}/${runtimeEnergyFailure.energyCost}，` +
+          "未施放且不占用冷却或改变行动状态。",
+        energyBefore: runtimeEnergyFailure.energyBefore,
+        energyCost: runtimeEnergyFailure.energyCost
+      };
+      failures.push(failure);
+      commandResults.push({
+        commandIndex,
+        commandType: command.type,
+        actorId: command.actorId,
+        abilityId: ability.id,
+        requestedFrame: anchored.requestedFrame,
+        startFrame,
+        cancelFrame: null,
+        animationEndFrame: null,
+        endFrame: startFrame,
+        status: "rejected",
+        waitedFrames: startFrame - anchored.requestedFrame,
+        failureCode: "INSUFFICIENT_ENERGY",
+        energyBefore: runtimeEnergyFailure.energyBefore,
+        energyCost: runtimeEnergyFailure.energyCost
+      });
       return;
     }
 

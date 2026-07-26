@@ -104,7 +104,23 @@ describe("ability blueprint compiler gates", () => {
     );
   });
 
-  it.each(["1.0.0", "1.1.0"])(
+  it("compiles energy-gated state transitions for runtime rollback", () => {
+    const blueprint = {
+      ...durinEnterTransformationBlueprint,
+      energyCost: 60
+    };
+    const compiled = compileAbilityBlueprint(blueprint, {
+      catalog: gameDataCatalog,
+      allowPartial: true
+    });
+
+    expect(compiled.ability).toMatchObject({
+      energyCost: 60,
+      timelineState: durinEnterTransformationBlueprint.timelineState
+    });
+  });
+
+  it.each(["1.0.0", "1.1.0", "1.2.0"])(
     "migrates mechanics schema %s before compiling",
     (schemaVersion) => {
       const previous = {
