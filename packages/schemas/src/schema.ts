@@ -25,6 +25,7 @@ import {
   SHATTER_REACTION_SCHEMA_VERSION,
   SECTOR_GEOMETRY_SCHEMA_VERSION,
   SUPERCONDUCT_REACTION_SCHEMA_VERSION,
+  SWIRL_REACTION_SCHEMA_VERSION,
   TARGET_MOTION_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
@@ -991,6 +992,13 @@ export const legalTimelineCommandSchema = z.discriminatedUnion("type", [
       atFrame: frameSchema.optional()
     })
     .strict(),
+  z
+    .object({
+      type: z.literal("pickUpCrystallize"),
+      element: z.enum(["pyro", "hydro", "cryo", "electro", "any"]),
+      atFrame: frameSchema.optional()
+    })
+    .strict(),
   ...(["dash", "jump"] as const).map((type) =>
     z
       .object({
@@ -1506,7 +1514,12 @@ export const simConfigSchema = z
       });
 
       config.timeline.commands.forEach((command, commandIndex) => {
-        if (command.type === "wait") return;
+        if (
+          command.type === "wait" ||
+          command.type === "pickUpCrystallize"
+        ) {
+          return;
+        }
         if (command.type === "swap") {
           if (!characterIds.has(command.characterId)) {
             context.addIssue({
@@ -1600,7 +1613,7 @@ export const simConfigSchema = z
           hit.application !== undefined &&
           !(
             config.reactionEngine?.mode === "aura-v2"
-              ? ["pyro", "cryo", "hydro", "electro", "anemo"]
+              ? ["pyro", "cryo", "hydro", "electro", "anemo", "geo"]
               : ["pyro", "cryo", "hydro"]
           ).includes(hit.element ?? "")
         ) {
@@ -1609,7 +1622,7 @@ export const simConfigSchema = z
             path: [...path, "application"],
             message:
               config.reactionEngine?.mode === "aura-v2"
-                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, and anemo hits"
+                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
                 : "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
           });
         }
@@ -1770,6 +1783,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === SWIRL_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === SHATTER_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

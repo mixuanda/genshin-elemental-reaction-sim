@@ -276,6 +276,24 @@
             </table>
           </div>
           <div class="section-title">
+            <h3>结晶碎片 / 护盾状态机</h3>
+            <span id="crystallizeSummary"></span>
+          </div>
+          <canvas id="crystallizeShieldCanvas" height="220"></canvas>
+          <div id="crystallizeShieldLegend" class="legend"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>时间 / 帧</th><th>碎片操作</th><th>元素 / 碎片</th><th>来源</th><th>位置 / 半径</th><th>生成 / 最早拾取 / 到期</th><th>拾取者 / 指令</th><th>结果</th></tr></thead>
+              <tbody id="crystallizeShardBody"></tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>时间 / 帧</th><th>护盾操作</th><th>元素 / 护盾</th><th>来源 / 拾取者</th><th>等级 / 精通快照</th><th>基础 HP / 精通增益</th><th>通用 / 同元素 / 岩伤吸收</th><th>到期 / 覆盖</th></tr></thead>
+              <tbody id="crystallizeShieldBody"></tbody>
+            </table>
+          </div>
+          <div class="section-title">
             <h3>目标级反应状态</h3>
             <span id="reactionStatusSummary"></span>
           </div>

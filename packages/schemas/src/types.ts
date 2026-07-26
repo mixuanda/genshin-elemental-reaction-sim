@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.27.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.27.0-swirl-propagation" as const;
+export const CURRENT_SCHEMA_VERSION = "1.28.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.28.0-crystallize-shards" as const;
+export const SWIRL_REACTION_SCHEMA_VERSION = "1.27.0" as const;
 export const SHATTER_REACTION_SCHEMA_VERSION = "1.26.0" as const;
 export const FREEZE_REACTION_SCHEMA_VERSION = "1.25.0" as const;
 export const ELECTRO_CHARGED_REACTION_SCHEMA_VERSION = "1.24.0" as const;
@@ -56,12 +57,17 @@ export type SwirlReaction =
   | "swirlHydro"
   | "swirlCryo"
   | "swirlElectro";
+export type CrystallizeReaction =
+  | "crystallizePyro"
+  | "crystallizeHydro"
+  | "crystallizeCryo"
+  | "crystallizeElectro";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
   | PeriodicTransformativeReaction
   | ShatterReaction
   | SwirlReaction;
-export type NonDamageReaction = "freeze";
+export type NonDamageReaction = "freeze" | CrystallizeReaction;
 export type ReactionType =
   | AmplifyingReaction
   | TransformativeReaction
@@ -564,11 +570,18 @@ export interface TimelineAbilityCommand {
   atFrame?: number;
 }
 
+export interface TimelineCrystallizePickupCommand {
+  type: "pickUpCrystallize";
+  element: AuraElement | "any";
+  atFrame?: number;
+}
+
 export type LegalTimelineCommand =
   | TimelineWaitCommand
   | TimelineSwapCommand
   | TimelineMovementCommand
-  | TimelineAbilityCommand;
+  | TimelineAbilityCommand
+  | TimelineCrystallizePickupCommand;
 
 export interface LegalTimelineConfig {
   mode: "legal-frame-v1";
@@ -623,7 +636,11 @@ export type SimulationEventType =
   | "periodicReactionTick"
   | "periodicReactionWane"
   | "periodicReactionExpiry"
-  | "frozenExpiry";
+  | "frozenExpiry"
+  | "crystallizeShardSpawn"
+  | "crystallizeShardExpiry"
+  | "crystallizePickup"
+  | "crystallizeShieldExpiry";
 
 export interface SimulationEvent<TPayload = unknown> {
   type: SimulationEventType;
@@ -696,6 +713,8 @@ export interface ReactionAudit {
   swirlReactions: SwirlReactionAudit[];
   /** ReactionA damage ICD decision for a queued Swirl damage hit. */
   swirlDamageGroup: SwirlDamageGroupAudit | null;
+  /** Geo reaction, shared target-local queue, and shard timing decision. */
+  crystallizeReaction: CrystallizeReactionAudit | null;
   note?: string;
 }
 
@@ -795,6 +814,27 @@ export interface SwirlDamageGroupAudit {
   sequence: readonly [true, true, false];
   damageAllowed: boolean;
   blockedReason: "REACTION_A_DAMAGE_ICD" | null;
+}
+
+export interface CrystallizeReactionAudit {
+  reaction: CrystallizeReaction;
+  crystallizedElement: AuraElement;
+  /** Frozen creates a Cryo shard while consuming Frozen durability. */
+  consumedAuraElement: AuraStateElement;
+  sourceGaugeUnitsBefore: number;
+  sourceGaugeUnitsSpent: number;
+  sourceGaugeUnitsAfter: number;
+  auraGaugeUnitsBefore: number;
+  auraConsumedGaugeUnits: number;
+  auraGaugeUnitsAfter: number;
+  scheduled: boolean;
+  blockedReason: "REACTION_QUEUE_GCD" | null;
+  nextAvailableFrame: number;
+  shardSpawnFrame: number;
+  earliestPickupFrame: number;
+  shardExpiresAtFrame: number;
+  shardDurationFrames: number;
+  maxActiveShards: number;
 }
 
 export interface ReactionStatusEffectDefinition {
@@ -1270,7 +1310,8 @@ export interface FrozenStateLogEntry {
     | "melt"
     | "superconduct"
     | "shatter"
-    | "swirlCryo";
+    | "swirlCryo"
+    | "crystallizeCryo";
   generation: number;
   operation: FrozenStateOperation;
   frame: number;
@@ -1286,6 +1327,85 @@ export interface FrozenStateLogEntry {
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
   reason: string | null;
+}
+
+export type CrystallizeShardOperation =
+  | "spawn"
+  | "pickup-attempt"
+  | "pickup"
+  | "expire"
+  | "evict";
+
+export interface CrystallizeShardLogEntry {
+  id: number;
+  operation: CrystallizeShardOperation;
+  frame: number;
+  timeSeconds: number;
+  shardId: number | null;
+  reaction: CrystallizeReaction | null;
+  element: AuraElement | "any";
+  sourceActorId: string | null;
+  sourceTargetId: TargetId | null;
+  triggerDamageEventId: number | null;
+  triggerFrame: number | null;
+  spawnedAtFrame: number | null;
+  earliestPickupFrame: number | null;
+  expiresAtFrame: number | null;
+  position: { x: number; y: number } | null;
+  spawnRadius: number | null;
+  spawnAngleDegrees: number | null;
+  sourceCharacterLevel: number | null;
+  sourceElementalMastery: number | null;
+  pickupCommandIndex: number | null;
+  pickedUpByActorId: string | null;
+  shieldLogId: number | null;
+  success: boolean;
+  reason:
+    | "SPAWNED"
+    | "TOO_EARLY"
+    | "NO_MATCHING_SHARD"
+    | "PICKED_UP"
+    | "EXPIRED"
+    | "ACTIVE_SHARD_LIMIT"
+    | null;
+}
+
+export type CrystallizeShieldOperation =
+  | "add"
+  | "overwrite"
+  | "expire";
+
+export interface CrystallizeShieldLogEntry {
+  id: number;
+  operation: CrystallizeShieldOperation;
+  frame: number;
+  timeSeconds: number;
+  shieldId: number;
+  shardId: number;
+  element: AuraElement;
+  sourceActorId: string;
+  pickedUpByActorId: string;
+  sourceCharacterLevel: number;
+  sourceElementalMastery: number;
+  baseHp: number;
+  elementalMasteryBonus: number;
+  generalAbsorption: number;
+  matchingElementAbsorption: number;
+  geoDamageAbsorption: number;
+  currentBaseHp: number;
+  expiresAtFrame: number;
+  previousShieldId: number | null;
+}
+
+export interface CrystallizeShieldTimelinePoint {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  operation: CrystallizeShieldOperation;
+  shieldId: number | null;
+  element: AuraElement | null;
+  generalAbsorption: number;
+  expiresAtFrame: number | null;
 }
 
 export interface ReactionStatusLogEntry {
@@ -1402,6 +1522,12 @@ export interface SimulationResult {
   periodicReactionLog: PeriodicReactionLogEntry[];
   /** Frozen durability starts, refreshes, immunity, consumption, and expiry. */
   frozenStateLog: FrozenStateLogEntry[];
+  /** Crystallize shard lifecycle, explicit pickup attempts, and evictions. */
+  crystallizeShardLog: CrystallizeShardLogEntry[];
+  /** Crystallize shield add/overwrite/expiry state transitions. */
+  crystallizeShieldLog: CrystallizeShieldLogEntry[];
+  /** Core-produced step points for shield visualization. */
+  crystallizeShieldTimeline: CrystallizeShieldTimelinePoint[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

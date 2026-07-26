@@ -64,7 +64,11 @@ const REACTION_LABELS: Record<string, string> = {
   swirlPyro: "火扩散",
   swirlHydro: "水扩散",
   swirlCryo: "冰扩散",
-  swirlElectro: "雷扩散"
+  swirlElectro: "雷扩散",
+  crystallizePyro: "火结晶",
+  crystallizeHydro: "水结晶",
+  crystallizeCryo: "冰结晶",
+  crystallizeElectro: "雷结晶"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -75,7 +79,8 @@ const TIMELINE_COMMAND_LABELS: Record<string, string> = {
   normal: "普通攻击",
   charge: "重击",
   dash: "冲刺",
-  jump: "跳跃"
+  jump: "跳跃",
+  pickUpCrystallize: "拾取结晶碎片"
 };
 
 function byId<TElement extends HTMLElement>(id: string): TElement {
@@ -951,6 +956,13 @@ function renderHitDetail(): void {
       `窗口 ${group.windowStartFrame}f 起 ${group.resetFrames}f · 第 ${group.hitIndex + 1} 段 · ${group.damageAllowed ? "允许伤害" : `${group.blockedReason ?? "阻止伤害"}（附着仍处理）`}`
     ]);
   }
+  if (hit.reactionAudit.crystallizeReaction !== null) {
+    const crystallize = hit.reactionAudit.crystallizeReaction;
+    factors.push([
+      "结晶判定",
+      `${REACTION_LABELS[crystallize.reaction] ?? crystallize.reaction} · ${crystallize.consumedAuraElement === "frozen" ? "冻元素" : ELEMENT_LABELS[crystallize.consumedAuraElement] ?? crystallize.consumedAuraElement} ${formatNumber(crystallize.auraGaugeUnitsBefore, 4)}U → ${formatNumber(crystallize.auraGaugeUnitsAfter, 4)}U · 岩预算 ${formatNumber(crystallize.sourceGaugeUnitsBefore, 4)}U → ${formatNumber(crystallize.sourceGaugeUnitsAfter, 4)}U · ${crystallize.scheduled ? `${crystallize.shardSpawnFrame}f 生成 / ${crystallize.earliestPickupFrame}f 起可拾取 / ${crystallize.shardExpiresAtFrame}f 到期` : `${crystallize.blockedReason ?? "队列 GCD"} · ${crystallize.nextAvailableFrame}f 可用（Aura 未消耗）`}`
+    ]);
+  }
   if (hit.reactionAudit.frozenReaction !== null) {
     const frozen = hit.reactionAudit.frozenReaction;
     const operationLabel =
@@ -959,6 +971,8 @@ function renderHitDetail(): void {
           ? "融化消耗"
           : hit.reaction === "swirlCryo"
             ? "扩散消耗"
+            : hit.reaction === "crystallizeCryo"
+              ? "结晶消耗"
             : "冻结底超导消耗"
         : {
             start: "生成",
@@ -1666,6 +1680,194 @@ function renderEnergyAudit(): void {
       .join("");
 }
 
+function renderCrystallizeAudit(): void {
+  if (!lastResult) return;
+  const shardLog = lastResult.crystallizeShardLog;
+  const shieldLog = lastResult.crystallizeShieldLog;
+  const shieldTimeline = lastResult.crystallizeShieldTimeline;
+  const shardOperationLabels: Record<string, string> = {
+    spawn: "生成",
+    "pickup-attempt": "拾取尝试",
+    pickup: "拾取",
+    expire: "自然到期",
+    evict: "上限淘汰"
+  };
+  const shieldOperationLabels: Record<string, string> = {
+    add: "生成护盾",
+    overwrite: "覆盖旧盾",
+    expire: "护盾到期"
+  };
+  const shardReasonLabels: Record<string, string> = {
+    SPAWNED: "碎片已生成",
+    TOO_EARLY: "尚未到最早拾取帧",
+    NO_MATCHING_SHARD: "没有匹配碎片",
+    PICKED_UP: "拾取成功",
+    EXPIRED: "碎片自然到期",
+    ACTIVE_SHARD_LIMIT: "第 4 个碎片生成，淘汰最旧碎片"
+  };
+  byId<HTMLElement>("crystallizeSummary").textContent =
+    shardLog.length === 0 && shieldLog.length === 0
+      ? "当前结果没有结晶碎片或护盾状态"
+      : `${shardLog.filter((entry) => entry.operation === "spawn").length} 个碎片生成 · ${shardLog.filter((entry) => entry.operation === "pickup").length} 次拾取 · ${shardLog.filter((entry) => entry.operation === "evict").length} 次三碎片上限淘汰 · ${shieldLog.filter((entry) => entry.operation === "overwrite").length} 次护盾覆盖`;
+  byId<HTMLTableSectionElement>("crystallizeShardBody").innerHTML =
+    shardLog
+      .map((entry) => {
+        const source =
+          entry.sourceActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) =>
+                  character.id === entry.sourceActorId
+              )?.name ?? entry.sourceActorId;
+        const pickedUpBy =
+          entry.pickedUpByActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) =>
+                  character.id === entry.pickedUpByActorId
+              )?.name ?? entry.pickedUpByActorId;
+        const link =
+          entry.triggerDamageEventId === null
+            ? ""
+            : ` data-crystallize-hit-id="${entry.triggerDamageEventId}"`;
+        return (
+          `<tr${link}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f</td>` +
+          `<td>${escapeHtml(shardOperationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)} / ${entry.shardId === null ? "—" : `#${entry.shardId}`}</td>` +
+          `<td>${escapeHtml(source)}${entry.sourceTargetId === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.sourceTargetId)}</span>`}</td>` +
+          `<td>${escapeHtml(formatPosition(entry.position))}${entry.spawnRadius === null ? "" : ` / r=${formatNumber(entry.spawnRadius, 2)} / ${formatNumber(entry.spawnAngleDegrees ?? 0, 2)}°`}</td>` +
+          `<td>${entry.spawnedAtFrame === null ? "—" : `${entry.spawnedAtFrame}f`} / ${entry.earliestPickupFrame === null ? "—" : `${entry.earliestPickupFrame}f`} / ${entry.expiresAtFrame === null ? "—" : `${entry.expiresAtFrame}f`}</td>` +
+          `<td>${escapeHtml(pickedUpBy)} / ${entry.pickupCommandIndex === null ? "—" : `#${entry.pickupCommandIndex}`}</td>` +
+          `<td>${entry.success ? '<span class="badge good">成功</span>' : '<span class="badge warn">失败</span>'} ${entry.reason === null ? "" : escapeHtml(shardReasonLabels[entry.reason] ?? entry.reason)}${entry.shieldLogId === null ? "" : ` / 盾日志 #${entry.shieldLogId}`}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="8">没有结晶碎片状态。</td></tr>`;
+  byId<HTMLTableSectionElement>("crystallizeShieldBody").innerHTML =
+    shieldLog
+      .map((entry) => {
+        const source =
+          lastResult?.config.characters.find(
+            (character) => character.id === entry.sourceActorId
+          )?.name ?? entry.sourceActorId;
+        const picker =
+          lastResult?.config.characters.find(
+            (character) => character.id === entry.pickedUpByActorId
+          )?.name ?? entry.pickedUpByActorId;
+        return (
+          `<tr>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f</td>` +
+          `<td>${escapeHtml(shieldOperationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)} / #${entry.shieldId} <span class="muted">/ 碎片 #${entry.shardId}</span></td>` +
+          `<td>${escapeHtml(source)} / ${escapeHtml(picker)}</td>` +
+          `<td>Lv.${entry.sourceCharacterLevel} / ${formatNumber(entry.sourceElementalMastery, 2)} EM</td>` +
+          `<td>${formatNumber(entry.baseHp, 3)} / +${formatNumber(entry.elementalMasteryBonus * 100, 3)}%</td>` +
+          `<td>${formatNumber(entry.generalAbsorption, 3)} / ${formatNumber(entry.matchingElementAbsorption, 3)} / ${formatNumber(entry.geoDamageAbsorption, 3)}</td>` +
+          `<td>${entry.expiresAtFrame}f / ${entry.previousShieldId === null ? "—" : `覆盖 #${entry.previousShieldId}`}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="8">没有结晶护盾状态。</td></tr>`;
+  document
+    .querySelectorAll<HTMLTableRowElement>(
+      "#crystallizeShardBody tr[data-crystallize-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.crystallizeHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+
+  const canvas = byId<HTMLCanvasElement>("crystallizeShieldCanvas");
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const pixelRatio = window.devicePixelRatio || 1;
+  const cssWidth = Math.max(320, canvas.clientWidth);
+  const cssHeight = 220;
+  canvas.width = cssWidth * pixelRatio;
+  canvas.height = cssHeight * pixelRatio;
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  context.clearRect(0, 0, cssWidth, cssHeight);
+  const legend = byId<HTMLElement>("crystallizeShieldLegend");
+  if (shieldTimeline.length === 0) {
+    context.fillStyle = "#8f9bad";
+    context.font = "13px system-ui";
+    context.fillText("当前模拟没有结晶护盾区间。", 18, 32);
+    legend.innerHTML = "";
+    return;
+  }
+
+  const padding = { left: 66, right: 18, top: 18, bottom: 38 };
+  const width = cssWidth - padding.left - padding.right;
+  const height = cssHeight - padding.top - padding.bottom;
+  const durationFrames = Math.round(lastResult.config.duration * 60);
+  const maximum = Math.max(
+    1,
+    ...shieldTimeline.map((point) => point.generalAbsorption)
+  );
+  const xAt = (frame: number) =>
+    padding.left + (frame / Math.max(1, durationFrames)) * width;
+  const yAt = (value: number) =>
+    padding.top + height - (value / maximum) * height;
+  context.strokeStyle = "#293243";
+  context.fillStyle = "#8f9bad";
+  context.font = "12px system-ui";
+  for (let index = 0; index <= 4; index += 1) {
+    const value = (maximum * index) / 4;
+    const y = yAt(value);
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(cssWidth - padding.right, y);
+    context.stroke();
+    context.fillText(formatNumber(value, 0), 6, y + 4);
+  }
+  const points = [
+    { frame: 0, generalAbsorption: 0 },
+    ...shieldTimeline.map((point) => ({
+      frame: point.frame,
+      generalAbsorption: point.generalAbsorption
+    })),
+    {
+      frame: durationFrames,
+      generalAbsorption:
+        shieldTimeline.at(-1)?.generalAbsorption ?? 0
+    }
+  ];
+  const geoColor = ELEMENT_COLORS.geo ?? "#e9bd68";
+  context.strokeStyle = geoColor;
+  context.lineWidth = 2.5;
+  context.beginPath();
+  context.moveTo(xAt(points[0]!.frame), yAt(points[0]!.generalAbsorption));
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1]!;
+    const point = points[index]!;
+    context.lineTo(xAt(point.frame), yAt(previous.generalAbsorption));
+    context.lineTo(xAt(point.frame), yAt(point.generalAbsorption));
+  }
+  context.stroke();
+  context.fillStyle = "#8f9bad";
+  const secondStep = lastResult.config.duration > 20 ? 5 : 1;
+  for (
+    let second = 0;
+    second <= lastResult.config.duration;
+    second += secondStep
+  ) {
+    context.fillText(
+      `${second}s`,
+      xAt(second * 60) - 8,
+      cssHeight - 14
+    );
+  }
+  legend.innerHTML =
+    `<span><i style="background:${geoColor}"></i>通用结晶盾等效吸收量（同元素 ×2.5，岩伤 ×1.5）</span>`;
+}
+
 function renderAuraTimeline(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("auraTimelineCard");
@@ -1673,11 +1875,16 @@ function renderAuraTimeline(): void {
   const reactionDamageLog = lastResult.reactionDamageLog;
   const periodicReactionLog = lastResult.periodicReactionLog;
   const frozenStateLog = lastResult.frozenStateLog;
+  const crystallizeShardLog = lastResult.crystallizeShardLog;
+  const crystallizeShieldLog = lastResult.crystallizeShieldLog;
   card.hidden =
     allTimeline.length === 0 &&
     reactionDamageLog.length === 0 &&
     periodicReactionLog.length === 0 &&
-    frozenStateLog.length === 0;
+    frozenStateLog.length === 0 &&
+    crystallizeShardLog.length === 0 &&
+    crystallizeShieldLog.length === 0;
+  renderCrystallizeAudit();
   byId<HTMLElement>("reactionDamageSummary").textContent =
     reactionDamageLog.length === 0
       ? "当前结果没有独立转化反应伤害"

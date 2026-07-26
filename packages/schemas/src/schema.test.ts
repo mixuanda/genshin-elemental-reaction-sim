@@ -1720,6 +1720,77 @@ describe("versioned config schema", () => {
     ).toBe(1);
   });
 
+  it("accepts Geo applications only in aura-v2 and validates shard pickup commands", () => {
+    const current = migrateConfig(legacyConfig);
+    const withGeoApplication = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "geo-hit",
+            actorId: "a",
+            name: "岩附着",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "geo-hit-1",
+                frame: 0,
+                scaling: 1,
+                element: "geo" as const,
+                application: {
+                  gaugeUnits: 1,
+                  icdTag: "geo",
+                  icdGroup: "no-icd" as const
+                }
+              }
+            ]
+          }
+        ],
+        commands: [
+          {
+            type: "pickUpCrystallize" as const,
+            element: "any" as const,
+            atFrame: 54
+          }
+        ]
+      }
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...withGeoApplication,
+        reactionEngine: { mode: "aura-v1" }
+      })
+    ).toThrow(
+      /aura-v1 elemental applications currently support only pyro, cryo, and hydro hits/
+    );
+
+    const parsed = migrateConfig({
+      ...withGeoApplication,
+      reactionEngine: { mode: "aura-v2" }
+    });
+    expect(parsed.timeline?.commands).toEqual([
+      {
+        type: "pickUpCrystallize",
+        element: "any",
+        atFrame: 54
+      }
+    ]);
+    expect(
+      parsed.timeline?.abilities[0]?.hits?.[0]?.application
+        ?.gaugeUnits
+    ).toBe(1);
+  });
+
   it("migrates the actor-pose schema into the Overload schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
@@ -1786,6 +1857,18 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.26.0",
       engineVersion: "1.26.0-shatter-reaction"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
+
+  it("migrates the Swirl propagation schema into the Crystallize shard schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.27.0",
+      engineVersion: "1.27.0-swirl-propagation"
     });
 
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);

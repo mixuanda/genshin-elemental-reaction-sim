@@ -502,6 +502,236 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
   );
 });
 
+test("renders Crystallize Aura, shard pickup, shield state, and shield curve", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "结晶碎片与护盾 · 浏览器验收"
+  };
+  config.duration = 20;
+  config.cycleLength = 20;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "结晶目标",
+        position: { x: 10, y: 5 },
+        hitboxRadius: 1,
+        initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...character,
+      element: "geo",
+      level: 90,
+      stats: {
+        ...character.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 100,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "crystallize-browser",
+        actorId: character.id,
+        name: "结晶浏览器序列",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "crystallize-browser-trigger",
+            label: "岩命中",
+            frame: 0,
+            scaling: 1,
+            element: "geo",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "crystallize-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "crystallize-browser",
+        atFrame: 0
+      },
+      {
+        type: "pickUpCrystallize",
+        element: "pyro",
+        atFrame: 53
+      },
+      {
+        type: "pickUpCrystallize",
+        element: "pyro",
+        atFrame: 54
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "crystallize-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#crystallizeShieldCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineBody")).toContainText("火结晶");
+  await expect(page.locator("#crystallizeSummary")).toContainText(
+    "1 个碎片生成"
+  );
+  await expect(page.locator("#crystallizeSummary")).toContainText(
+    "1 次拾取"
+  );
+  await expect(page.locator("#crystallizeShardBody")).toContainText(
+    "尚未到最早拾取帧"
+  );
+  await expect(page.locator("#crystallizeShardBody")).toContainText(
+    "拾取成功"
+  );
+  await expect(page.locator("#crystallizeShieldBody")).toContainText(
+    "生成护盾"
+  );
+  await expect(page.locator("#crystallizeShieldBody")).toContainText(
+    "护盾到期"
+  );
+  await expect(page.locator("#crystallizeShieldLegend")).toContainText(
+    "通用结晶盾等效吸收量"
+  );
+  await expect(page.locator("#legalTimelineBody")).toContainText(
+    "拾取结晶碎片"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      damageEvents: result?.damageEvents.map((event) => ({
+        id: event.id,
+        frame: event.frame,
+        reaction: event.reaction
+      })),
+      shardLog: result?.crystallizeShardLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        reason: entry.reason,
+        shieldLogId: entry.shieldLogId
+      })),
+      shieldLog: result?.crystallizeShieldLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        sourceCharacterLevel: entry.sourceCharacterLevel,
+        sourceElementalMastery: entry.sourceElementalMastery,
+        expiresAtFrame: entry.expiresAtFrame,
+        baseHp: entry.baseHp
+      })),
+      shieldTimeline: result?.crystallizeShieldTimeline
+    };
+  });
+  expect(audit).toMatchObject({
+    damageEvents: [
+      {
+        id: 0,
+        frame: 0,
+        reaction: "crystallizePyro"
+      }
+    ],
+    shardLog: [
+      {
+        operation: "spawn",
+        frame: 23,
+        reason: "SPAWNED",
+        shieldLogId: null
+      },
+      {
+        operation: "pickup-attempt",
+        frame: 53,
+        reason: "TOO_EARLY",
+        shieldLogId: null
+      },
+      {
+        operation: "pickup",
+        frame: 54,
+        reason: "PICKED_UP",
+        shieldLogId: 0
+      }
+    ],
+    shieldLog: [
+      {
+        operation: "add",
+        frame: 54,
+        sourceCharacterLevel: 90,
+        sourceElementalMastery: 100,
+        expiresAtFrame: 960,
+        baseHp: 1851.0603
+      },
+      {
+        operation: "expire",
+        frame: 960,
+        expiresAtFrame: 960
+      }
+    ],
+    shieldTimeline: [
+      {
+        frame: 54,
+        operation: "add",
+        shieldId: 0,
+        element: "pyro"
+      },
+      {
+        frame: 960,
+        operation: "expire",
+        shieldId: null,
+        element: null,
+        generalAbsorption: 0
+      }
+    ]
+  });
+
+  await page
+    .locator("#crystallizeShardBody tr[data-crystallize-hit-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText("结晶判定");
+  await expect(page.locator("#hitDetail")).toContainText("23f 生成");
+  await expect(page.locator("#hitDetail")).toContainText("54f 起可拾取");
+});
+
 test("renders Overload as independent per-target damage with queue and formula audits", async ({
   page
 }) => {

@@ -4,9 +4,12 @@ import {
   type AmplifyingReaction,
   type ActionDefinition,
   type ActiveStatusSnapshot,
+  type AuraElement,
   type BuffDefinition,
   type BuffStat,
   type CharacterStats,
+  type CrystallizeReaction,
+  type CrystallizeReactionAudit,
   type DamageEvent,
   type DebuffDefinition,
   type Element,
@@ -54,6 +57,11 @@ import {
   compileLegalTimeline,
   type RuntimeEnergyFailure
 } from "./legal-timeline";
+import {
+  calcCrystallizeShield,
+  CRYSTALLIZE_CONSTANTS,
+  type CrystallizeShieldCalculation
+} from "./crystallize";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -65,9 +73,13 @@ export const EVENT_PRIORITY = {
   hit: 3,
   periodicReactionExpiry: 2,
   frozenExpiry: 2,
+  crystallizeShardSpawn: 2,
+  crystallizeShardExpiry: 2,
+  crystallizeShieldExpiry: 2,
   periodicReactionTick: 4,
   reactionDamage: 5,
-  periodicReactionWane: 6
+  periodicReactionWane: 6,
+  crystallizePickup: 7
 } as const;
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
@@ -501,6 +513,59 @@ interface FrozenExpiryEventPayload {
   expectedExpiryFrame: number;
 }
 
+interface CrystallizeShardSpawnEventPayload {
+  audit: CrystallizeReactionAudit;
+  actorId: string;
+  sourceTargetId: string;
+  triggerDamageEventId: number;
+  triggerFrame: number;
+}
+
+interface CrystallizeShardExpiryEventPayload {
+  shardId: number;
+  expectedExpiryFrame: number;
+}
+
+interface CrystallizePickupEventPayload {
+  commandIndex: number;
+  element: AuraElement | "any";
+}
+
+interface CrystallizeShieldExpiryEventPayload {
+  shieldId: number;
+  expectedExpiryFrame: number;
+}
+
+interface ActiveCrystallizeShard {
+  id: number;
+  reaction: CrystallizeReaction;
+  element: AuraElement;
+  sourceActorId: string;
+  sourceTargetId: string;
+  triggerDamageEventId: number;
+  triggerFrame: number;
+  spawnedAtFrame: number;
+  earliestPickupFrame: number;
+  expiresAtFrame: number;
+  position: { x: number; y: number } | null;
+  spawnRadius: number;
+  spawnAngleDegrees: number;
+  sourceCharacterLevel: number;
+  sourceElementalMastery: number;
+}
+
+interface ActiveCrystallizeShield {
+  id: number;
+  shardId: number;
+  element: AuraElement;
+  sourceActorId: string;
+  pickedUpByActorId: string;
+  sourceCharacterLevel: number;
+  sourceElementalMastery: number;
+  calculation: CrystallizeShieldCalculation;
+  expiresAtFrame: number;
+}
+
 type InternalEvent =
   | SimulationEvent<ActionEventPayload>
   | SimulationEvent<BuffEventPayload>
@@ -513,7 +578,11 @@ type InternalEvent =
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
-  | SimulationEvent<FrozenExpiryEventPayload>;
+  | SimulationEvent<FrozenExpiryEventPayload>
+  | SimulationEvent<CrystallizeShardSpawnEventPayload>
+  | SimulationEvent<CrystallizeShardExpiryEventPayload>
+  | SimulationEvent<CrystallizePickupEventPayload>
+  | SimulationEvent<CrystallizeShieldExpiryEventPayload>;
 
 interface ActiveBuff {
   key: string;
@@ -660,6 +729,9 @@ function simulateConfig(
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
   const random = new SeededRandom(options.randomSeed);
+  const crystallizeRandom = new SeededRandom(
+    `${options.randomSeed}:crystallize-shard-position-v1`
+  );
   const actorPoses = deepClone(config.actorPoses ?? []);
   const actorPoseById = new Map(
     actorPoses.map((pose) => [pose.actorId, pose])
@@ -852,6 +924,28 @@ function simulateConfig(
       }
     }
   }
+  if (timelineExecution !== undefined && resultConfig.timeline !== undefined) {
+    for (const commandResult of timelineExecution.commandResults) {
+      if (
+        commandResult.commandType !== "pickUpCrystallize" ||
+        commandResult.startFrame === null ||
+        commandResult.status === "rejected"
+      ) {
+        continue;
+      }
+      const command =
+        resultConfig.timeline.commands[commandResult.commandIndex];
+      if (command?.type !== "pickUpCrystallize") continue;
+      push(
+        commandResult.startFrame / 60,
+        "crystallizePickup",
+        {
+          commandIndex: commandResult.commandIndex,
+          element: command.element
+        } satisfies CrystallizePickupEventPayload
+      );
+    }
+  }
 
   const activeBuffs: ActiveBuff[] = [];
   const activeDebuffs: ActiveDebuff[] = [];
@@ -863,6 +957,19 @@ function simulateConfig(
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
+  const crystallizeShardLog: SimulationResult["crystallizeShardLog"] =
+    [];
+  const crystallizeShieldLog: SimulationResult["crystallizeShieldLog"] =
+    [];
+  const crystallizeShieldTimeline: SimulationResult["crystallizeShieldTimeline"] =
+    [];
+  const activeCrystallizeShards = new Map<
+    number,
+    ActiveCrystallizeShard
+  >();
+  let nextCrystallizeShardId = 0;
+  let nextCrystallizeShieldId = 0;
+  let activeCrystallizeShield: ActiveCrystallizeShield | null = null;
   const activePeriodicReactionSources = new Map<
     string,
     PeriodicReactionSourceSnapshot
@@ -1385,6 +1492,29 @@ function simulateConfig(
         } satisfies ReactionDamageEventPayload);
       }
     }
+  };
+
+  const scheduleCrystallizeShard = ({
+    audit,
+    actorId,
+    sourceTargetId,
+    triggerDamageEventId,
+    triggerFrame
+  }: {
+    audit: CrystallizeReactionAudit;
+    actorId: string;
+    sourceTargetId: string;
+    triggerDamageEventId: number;
+    triggerFrame: number;
+  }): void => {
+    if (!audit.scheduled) return;
+    push(audit.shardSpawnFrame / 60, "crystallizeShardSpawn", {
+      audit: deepClone(audit),
+      actorId,
+      sourceTargetId,
+      triggerDamageEventId,
+      triggerFrame
+    } satisfies CrystallizeShardSpawnEventPayload);
   };
 
   const processNestedAuraReactionConsequences = ({
@@ -2234,6 +2364,384 @@ function simulateConfig(
           });
         });
       });
+      continue;
+    }
+
+    if (event.type === "crystallizeShardSpawn") {
+      const {
+        audit,
+        actorId,
+        sourceTargetId,
+        triggerDamageEventId,
+        triggerFrame
+      } = event.payload as CrystallizeShardSpawnEventPayload;
+      const actor = characters.get(actorId);
+      const target = enemyTargetById.get(sourceTargetId);
+      const stats = computeStats(actorId, timeSeconds);
+      if (!actor || !target || !stats) continue;
+
+      while (
+        activeCrystallizeShards.size >=
+        CRYSTALLIZE_CONSTANTS.maxActiveShards
+      ) {
+        const oldest = [...activeCrystallizeShards.values()].sort(
+          (left, right) =>
+            left.spawnedAtFrame - right.spawnedAtFrame ||
+            left.id - right.id
+        )[0];
+        if (oldest === undefined) break;
+        activeCrystallizeShards.delete(oldest.id);
+        crystallizeShardLog.push({
+          id: crystallizeShardLog.length,
+          operation: "evict",
+          frame: event.frame,
+          timeSeconds,
+          shardId: oldest.id,
+          reaction: oldest.reaction,
+          element: oldest.element,
+          sourceActorId: oldest.sourceActorId,
+          sourceTargetId: oldest.sourceTargetId,
+          triggerDamageEventId: oldest.triggerDamageEventId,
+          triggerFrame: oldest.triggerFrame,
+          spawnedAtFrame: oldest.spawnedAtFrame,
+          earliestPickupFrame: oldest.earliestPickupFrame,
+          expiresAtFrame: oldest.expiresAtFrame,
+          position: deepClone(oldest.position),
+          spawnRadius: oldest.spawnRadius,
+          spawnAngleDegrees: oldest.spawnAngleDegrees,
+          sourceCharacterLevel: oldest.sourceCharacterLevel,
+          sourceElementalMastery:
+            oldest.sourceElementalMastery,
+          pickupCommandIndex: null,
+          pickedUpByActorId: null,
+          shieldLogId: null,
+          success: true,
+          reason: "ACTIVE_SHARD_LIMIT"
+        });
+      }
+
+      const centerPosition = resolveTargetPosition(
+        sourceTargetId,
+        event.frame
+      );
+      const spawnRadius = target.hitboxRadius + 0.5;
+      const spawnAngleDegrees = crystallizeRandom.next() * 360;
+      const radians = (spawnAngleDegrees * Math.PI) / 180;
+      const position =
+        centerPosition === null
+          ? null
+          : {
+              x: centerPosition.x + Math.cos(radians) * spawnRadius,
+              y: centerPosition.y + Math.sin(radians) * spawnRadius
+            };
+      const shard: ActiveCrystallizeShard = {
+        id: nextCrystallizeShardId++,
+        reaction: audit.reaction,
+        element: audit.crystallizedElement,
+        sourceActorId: actorId,
+        sourceTargetId,
+        triggerDamageEventId,
+        triggerFrame,
+        spawnedAtFrame: event.frame,
+        earliestPickupFrame: audit.earliestPickupFrame,
+        expiresAtFrame: audit.shardExpiresAtFrame,
+        position,
+        spawnRadius,
+        spawnAngleDegrees,
+        sourceCharacterLevel: actor.level,
+        sourceElementalMastery: stats.em
+      };
+      activeCrystallizeShards.set(shard.id, shard);
+      crystallizeShardLog.push({
+        id: crystallizeShardLog.length,
+        operation: "spawn",
+        frame: event.frame,
+        timeSeconds,
+        shardId: shard.id,
+        reaction: shard.reaction,
+        element: shard.element,
+        sourceActorId: shard.sourceActorId,
+        sourceTargetId: shard.sourceTargetId,
+        triggerDamageEventId: shard.triggerDamageEventId,
+        triggerFrame: shard.triggerFrame,
+        spawnedAtFrame: shard.spawnedAtFrame,
+        earliestPickupFrame: shard.earliestPickupFrame,
+        expiresAtFrame: shard.expiresAtFrame,
+        position: deepClone(shard.position),
+        spawnRadius: shard.spawnRadius,
+        spawnAngleDegrees: shard.spawnAngleDegrees,
+        sourceCharacterLevel: shard.sourceCharacterLevel,
+        sourceElementalMastery: shard.sourceElementalMastery,
+        pickupCommandIndex: null,
+        pickedUpByActorId: null,
+        shieldLogId: null,
+        success: true,
+        reason: "SPAWNED"
+      });
+      push(shard.expiresAtFrame / 60, "crystallizeShardExpiry", {
+        shardId: shard.id,
+        expectedExpiryFrame: shard.expiresAtFrame
+      } satisfies CrystallizeShardExpiryEventPayload);
+      continue;
+    }
+
+    if (event.type === "crystallizeShardExpiry") {
+      const { shardId, expectedExpiryFrame } =
+        event.payload as CrystallizeShardExpiryEventPayload;
+      const shard = activeCrystallizeShards.get(shardId);
+      if (
+        shard === undefined ||
+        shard.expiresAtFrame !== expectedExpiryFrame
+      ) {
+        continue;
+      }
+      activeCrystallizeShards.delete(shard.id);
+      crystallizeShardLog.push({
+        id: crystallizeShardLog.length,
+        operation: "expire",
+        frame: event.frame,
+        timeSeconds,
+        shardId: shard.id,
+        reaction: shard.reaction,
+        element: shard.element,
+        sourceActorId: shard.sourceActorId,
+        sourceTargetId: shard.sourceTargetId,
+        triggerDamageEventId: shard.triggerDamageEventId,
+        triggerFrame: shard.triggerFrame,
+        spawnedAtFrame: shard.spawnedAtFrame,
+        earliestPickupFrame: shard.earliestPickupFrame,
+        expiresAtFrame: shard.expiresAtFrame,
+        position: deepClone(shard.position),
+        spawnRadius: shard.spawnRadius,
+        spawnAngleDegrees: shard.spawnAngleDegrees,
+        sourceCharacterLevel: shard.sourceCharacterLevel,
+        sourceElementalMastery: shard.sourceElementalMastery,
+        pickupCommandIndex: null,
+        pickedUpByActorId: null,
+        shieldLogId: null,
+        success: true,
+        reason: "EXPIRED"
+      });
+      continue;
+    }
+
+    if (event.type === "crystallizePickup") {
+      const { commandIndex, element } =
+        event.payload as CrystallizePickupEventPayload;
+      const pickupActorId = activeCharacterId;
+      if (pickupActorId === null) continue;
+      const matchingShards = [...activeCrystallizeShards.values()]
+        .filter(
+          (shard) => element === "any" || shard.element === element
+        )
+        .sort((left, right) => left.id - right.id);
+      let pickedUp = false;
+      for (const shard of matchingShards) {
+        if (event.frame < shard.earliestPickupFrame) {
+          crystallizeShardLog.push({
+            id: crystallizeShardLog.length,
+            operation: "pickup-attempt",
+            frame: event.frame,
+            timeSeconds,
+            shardId: shard.id,
+            reaction: shard.reaction,
+            element: shard.element,
+            sourceActorId: shard.sourceActorId,
+            sourceTargetId: shard.sourceTargetId,
+            triggerDamageEventId: shard.triggerDamageEventId,
+            triggerFrame: shard.triggerFrame,
+            spawnedAtFrame: shard.spawnedAtFrame,
+            earliestPickupFrame: shard.earliestPickupFrame,
+            expiresAtFrame: shard.expiresAtFrame,
+            position: deepClone(shard.position),
+            spawnRadius: shard.spawnRadius,
+            spawnAngleDegrees: shard.spawnAngleDegrees,
+            sourceCharacterLevel: shard.sourceCharacterLevel,
+            sourceElementalMastery:
+              shard.sourceElementalMastery,
+            pickupCommandIndex: commandIndex,
+            pickedUpByActorId: pickupActorId,
+            shieldLogId: null,
+            success: false,
+            reason: "TOO_EARLY"
+          });
+          continue;
+        }
+
+        activeCrystallizeShards.delete(shard.id);
+        const calculation = calcCrystallizeShield(
+          shard.sourceCharacterLevel,
+          shard.sourceElementalMastery
+        );
+        const previousShieldId =
+          activeCrystallizeShield?.id ?? null;
+        const shield: ActiveCrystallizeShield = {
+          id: nextCrystallizeShieldId++,
+          shardId: shard.id,
+          element: shard.element,
+          sourceActorId: shard.sourceActorId,
+          pickedUpByActorId: pickupActorId,
+          sourceCharacterLevel: shard.sourceCharacterLevel,
+          sourceElementalMastery:
+            shard.sourceElementalMastery,
+          calculation,
+          expiresAtFrame:
+            event.frame +
+            CRYSTALLIZE_CONSTANTS.shieldDurationFrames
+        };
+        activeCrystallizeShield = shield;
+        const shieldLogId = crystallizeShieldLog.length;
+        crystallizeShieldLog.push({
+          id: shieldLogId,
+          operation:
+            previousShieldId === null ? "add" : "overwrite",
+          frame: event.frame,
+          timeSeconds,
+          shieldId: shield.id,
+          shardId: shield.shardId,
+          element: shield.element,
+          sourceActorId: shield.sourceActorId,
+          pickedUpByActorId: shield.pickedUpByActorId,
+          sourceCharacterLevel: shield.sourceCharacterLevel,
+          sourceElementalMastery:
+            shield.sourceElementalMastery,
+          baseHp: calculation.baseHp,
+          elementalMasteryBonus:
+            calculation.elementalMasteryBonus,
+          generalAbsorption: calculation.generalAbsorption,
+          matchingElementAbsorption:
+            calculation.matchingElementAbsorption,
+          geoDamageAbsorption: calculation.geoDamageAbsorption,
+          currentBaseHp: calculation.baseHp,
+          expiresAtFrame: shield.expiresAtFrame,
+          previousShieldId
+        });
+        crystallizeShieldTimeline.push({
+          id: crystallizeShieldTimeline.length,
+          frame: event.frame,
+          timeSeconds,
+          operation:
+            previousShieldId === null ? "add" : "overwrite",
+          shieldId: shield.id,
+          element: shield.element,
+          generalAbsorption: calculation.generalAbsorption,
+          expiresAtFrame: shield.expiresAtFrame
+        });
+        crystallizeShardLog.push({
+          id: crystallizeShardLog.length,
+          operation: "pickup",
+          frame: event.frame,
+          timeSeconds,
+          shardId: shard.id,
+          reaction: shard.reaction,
+          element: shard.element,
+          sourceActorId: shard.sourceActorId,
+          sourceTargetId: shard.sourceTargetId,
+          triggerDamageEventId: shard.triggerDamageEventId,
+          triggerFrame: shard.triggerFrame,
+          spawnedAtFrame: shard.spawnedAtFrame,
+          earliestPickupFrame: shard.earliestPickupFrame,
+          expiresAtFrame: shard.expiresAtFrame,
+          position: deepClone(shard.position),
+          spawnRadius: shard.spawnRadius,
+          spawnAngleDegrees: shard.spawnAngleDegrees,
+          sourceCharacterLevel: shard.sourceCharacterLevel,
+          sourceElementalMastery:
+            shard.sourceElementalMastery,
+          pickupCommandIndex: commandIndex,
+          pickedUpByActorId: pickupActorId,
+          shieldLogId,
+          success: true,
+          reason: "PICKED_UP"
+        });
+        push(
+          shield.expiresAtFrame / 60,
+          "crystallizeShieldExpiry",
+          {
+            shieldId: shield.id,
+            expectedExpiryFrame: shield.expiresAtFrame
+          } satisfies CrystallizeShieldExpiryEventPayload
+        );
+        pickedUp = true;
+        break;
+      }
+      if (!pickedUp && matchingShards.length === 0) {
+        crystallizeShardLog.push({
+          id: crystallizeShardLog.length,
+          operation: "pickup-attempt",
+          frame: event.frame,
+          timeSeconds,
+          shardId: null,
+          reaction: null,
+          element,
+          sourceActorId: null,
+          sourceTargetId: null,
+          triggerDamageEventId: null,
+          triggerFrame: null,
+          spawnedAtFrame: null,
+          earliestPickupFrame: null,
+          expiresAtFrame: null,
+          position: null,
+          spawnRadius: null,
+          spawnAngleDegrees: null,
+          sourceCharacterLevel: null,
+          sourceElementalMastery: null,
+          pickupCommandIndex: commandIndex,
+          pickedUpByActorId: pickupActorId,
+          shieldLogId: null,
+          success: false,
+          reason: "NO_MATCHING_SHARD"
+        });
+      }
+      continue;
+    }
+
+    if (event.type === "crystallizeShieldExpiry") {
+      const { shieldId, expectedExpiryFrame } =
+        event.payload as CrystallizeShieldExpiryEventPayload;
+      const shield = activeCrystallizeShield;
+      if (
+        shield === null ||
+        shield.id !== shieldId ||
+        shield.expiresAtFrame !== expectedExpiryFrame
+      ) {
+        continue;
+      }
+      crystallizeShieldLog.push({
+        id: crystallizeShieldLog.length,
+        operation: "expire",
+        frame: event.frame,
+        timeSeconds,
+        shieldId: shield.id,
+        shardId: shield.shardId,
+        element: shield.element,
+        sourceActorId: shield.sourceActorId,
+        pickedUpByActorId: shield.pickedUpByActorId,
+        sourceCharacterLevel: shield.sourceCharacterLevel,
+        sourceElementalMastery: shield.sourceElementalMastery,
+        baseHp: shield.calculation.baseHp,
+        elementalMasteryBonus:
+          shield.calculation.elementalMasteryBonus,
+        generalAbsorption: shield.calculation.generalAbsorption,
+        matchingElementAbsorption:
+          shield.calculation.matchingElementAbsorption,
+        geoDamageAbsorption:
+          shield.calculation.geoDamageAbsorption,
+        currentBaseHp: 0,
+        expiresAtFrame: shield.expiresAtFrame,
+        previousShieldId: null
+      });
+      crystallizeShieldTimeline.push({
+        id: crystallizeShieldTimeline.length,
+        frame: event.frame,
+        timeSeconds,
+        operation: "expire",
+        shieldId: null,
+        element: null,
+        generalAbsorption: 0,
+        expiresAtFrame: null
+      });
+      activeCrystallizeShield = null;
       continue;
     }
 
@@ -3229,7 +3737,8 @@ function simulateConfig(
             frozenReaction: null,
             shatterReaction: null,
             swirlReactions: [],
-            swirlDamageGroup: null
+            swirlDamageGroup: null,
+            crystallizeReaction: null
           }),
           shatterReaction: nestedShatterState?.audit ?? null,
           swirlDamageGroup,
@@ -3773,6 +4282,7 @@ function simulateConfig(
             shatterReaction: null,
             swirlReactions: [],
             swirlDamageGroup: null,
+            crystallizeReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -4054,6 +4564,15 @@ function simulateConfig(
         triggerFrame: event.frame
       });
     }
+    if (reactionAudit.crystallizeReaction !== null) {
+      scheduleCrystallizeShard({
+        audit: reactionAudit.crystallizeReaction,
+        actorId,
+        sourceTargetId: targetId,
+        triggerDamageEventId: damageEventId,
+        triggerFrame: event.frame
+      });
+    }
     const transformativeReaction =
       reactionAudit.transformativeReaction;
     if (transformativeReaction !== null) {
@@ -4165,6 +4684,8 @@ function simulateConfig(
           ? "MELT"
           : reaction === "swirlCryo"
             ? "SWIRL"
+            : reaction === "crystallizeCryo"
+              ? "CRYSTALLIZE"
             : "SUPERCONDUCT";
       const frozenConsumptionExtent =
         frozenReaction.frozenGaugeAfter <= 0
@@ -4185,6 +4706,8 @@ function simulateConfig(
               ? "superconduct"
               : reaction === "swirlCryo"
                 ? "swirlCryo"
+                : reaction === "crystallizeCryo"
+                  ? "crystallizeCryo"
                 : "freeze",
         generation: frozenReaction.generation,
         operation,
@@ -4549,6 +5072,9 @@ function simulateConfig(
     reactionStatusLog,
     periodicReactionLog,
     frozenStateLog,
+    crystallizeShardLog,
+    crystallizeShieldLog,
+    crystallizeShieldTimeline,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,

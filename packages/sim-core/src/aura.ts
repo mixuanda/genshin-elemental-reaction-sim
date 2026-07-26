@@ -4,6 +4,8 @@ import type {
   AuraReactionEngineConfig,
   AuraStateElement,
   AuraStateEntry,
+  CrystallizeReaction,
+  CrystallizeReactionAudit,
   Element,
   ElementalApplication,
   IcdProfile,
@@ -50,6 +52,12 @@ const SWIRL_SELF_DAMAGE_DELAY_FRAMES = 1;
 const SWIRL_PROPAGATION_DELAY_FRAMES = 5;
 const SWIRL_RADIUS = 5;
 const SWIRL_BASE_MULTIPLIER = 0.6;
+const CRYSTALLIZE_AURA_CONSUMPTION_FACTOR = 0.5;
+const CRYSTALLIZE_QUEUE_GCD_FRAMES = 60;
+const CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES = 23;
+const CRYSTALLIZE_EARLIEST_PICKUP_DELAY_FRAMES = 54;
+const CRYSTALLIZE_SHARD_DURATION_FRAMES = 15 * 60;
+const CRYSTALLIZE_MAX_ACTIVE_SHARDS = 3;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -259,13 +267,15 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
 function isAuraApplicationElement(
   element: Element,
   mode: AuraReactionEngineConfig["mode"]
-): element is AuraElement | "anemo" {
+): element is AuraElement | "anemo" | "geo" {
   return (
     element === "pyro" ||
     element === "cryo" ||
     element === "hydro" ||
     (mode === "aura-v2" &&
-      (element === "electro" || element === "anemo"))
+      (element === "electro" ||
+        element === "anemo" ||
+        element === "geo"))
   );
 }
 
@@ -315,6 +325,7 @@ export class AuraEngine {
     SwirlReaction,
     number
   >();
+  private crystallizeReadyFrame = -1;
   private currentFrame = 0;
 
   constructor(config: AuraEngineConfig) {
@@ -1188,10 +1199,227 @@ export class AuraEngine {
       shatterReaction: null,
       swirlReactions,
       swirlDamageGroup: null,
+      crystallizeReaction: null,
       note:
         firstSwirl === null
           ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
           : `${swirlReactions.length} 次扩散判定消耗了 Aura；仅通过各元素 6 帧队列 GCD 的判定会排入 1f 自身伤害与 5f 传播攻击。`
+    };
+  }
+
+  private processCrystallize(
+    input: AuraHitInput,
+    application: ElementalApplication,
+    auraBefore: AuraStateEntry[],
+    electroChargedWasActive: boolean
+  ): ReactionAudit {
+    const candidates: Array<{
+      consumedAuraElement: AuraStateElement;
+      crystallizedElement: AuraElement;
+      reaction: CrystallizeReaction;
+    }> = [
+      {
+        consumedAuraElement: "electro",
+        crystallizedElement: "electro",
+        reaction: "crystallizeElectro"
+      },
+      {
+        consumedAuraElement: "hydro",
+        crystallizedElement: "hydro",
+        reaction: "crystallizeHydro"
+      },
+      {
+        consumedAuraElement: "cryo",
+        crystallizedElement: "cryo",
+        reaction: "crystallizeCryo"
+      },
+      {
+        consumedAuraElement: "pyro",
+        crystallizedElement: "pyro",
+        reaction: "crystallizePyro"
+      },
+      {
+        consumedAuraElement: "frozen",
+        crystallizedElement: "cryo",
+        reaction: "crystallizeCryo"
+      }
+    ];
+    const candidate = candidates.find(
+      ({ consumedAuraElement }) =>
+        (this.auras.get(consumedAuraElement)?.gaugeUnits ?? 0) >
+        AURA_EPSILON
+    );
+    const auraApplied: NonNullable<ReactionAudit["auraApplied"]> = [
+      {
+        element: "geo",
+        gaugeUnits: application.gaugeUnits
+      }
+    ];
+    if (candidate === undefined) {
+      return {
+        model: "aura-engine",
+        triggered: false,
+        reaction: "none",
+        icdAllowed: true,
+        icdTag: application.icdTag,
+        icdGroup: application.icdGroup,
+        applicationGaugeUnits: application.gaugeUnits,
+        auraBefore,
+        auraApplied,
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        transformativeReaction: null,
+        periodicReaction: null,
+        frozenReaction: null,
+        shatterReaction: null,
+        swirlReactions: [],
+        swirlDamageGroup: null,
+        crystallizeReaction: null,
+        note:
+          "岩元素附着通过 ICD；当前没有可结晶的火/水/冰/雷/冻元素 Aura。"
+      };
+    }
+
+    const aura = this.auras.get(candidate.consumedAuraElement);
+    if (aura === undefined) {
+      throw new Error("Crystallize candidate disappeared before processing.");
+    }
+    const sourceGaugeUnitsBefore = application.gaugeUnits;
+    const auraGaugeUnitsBefore = aura.gaugeUnits;
+    const scheduled =
+      this.crystallizeReadyFrame < 0 ||
+      input.frame >= this.crystallizeReadyFrame;
+    const nextAvailableFrame = scheduled
+      ? input.frame + CRYSTALLIZE_QUEUE_GCD_FRAMES
+      : this.crystallizeReadyFrame;
+    let sourceGaugeUnitsSpent = 0;
+    let auraConsumedGaugeUnits = 0;
+    let frozenReaction: ReactionAudit["frozenReaction"] = null;
+    let periodicReaction: ReactionAudit["periodicReaction"] = null;
+
+    if (scheduled) {
+      this.crystallizeReadyFrame = nextAvailableFrame;
+      auraConsumedGaugeUnits = Math.min(
+        auraGaugeUnitsBefore,
+        sourceGaugeUnitsBefore *
+          CRYSTALLIZE_AURA_CONSUMPTION_FACTOR
+      );
+      sourceGaugeUnitsSpent =
+        auraConsumedGaugeUnits /
+        CRYSTALLIZE_AURA_CONSUMPTION_FACTOR;
+      aura.gaugeUnits -= auraConsumedGaugeUnits;
+      if (aura.gaugeUnits <= AURA_EPSILON) {
+        this.auras.delete(candidate.consumedAuraElement);
+      }
+
+      if (candidate.consumedAuraElement === "frozen") {
+        const frozenGaugeAfter = this.frozenGaugeUnits();
+        this.frozenGeneration += 1;
+        frozenReaction = {
+          generation: this.frozenGeneration,
+          operation: "consume",
+          freezeResistance: this.freezeResistance,
+          generatedGaugeUnits: 0,
+          consumedGaugeUnits: cleanGaugeUnits(
+            auraConsumedGaugeUnits
+          ),
+          frozenGaugeBefore: cleanGaugeUnits(
+            auraGaugeUnitsBefore
+          ),
+          frozenGaugeAfter: cleanGaugeUnits(frozenGaugeAfter),
+          decayRatePerFrame: this.frozenDecayRate,
+          expiresAtFrame: this.frozenExpiryFrame()
+        };
+      }
+      if (
+        electroChargedWasActive &&
+        !this.hasElectroChargedAuras()
+      ) {
+        this.electroChargedActive = false;
+        this.electroChargedNextTickFrame = -1;
+        periodicReaction = {
+          reaction: "electroCharged",
+          generation: this.electroChargedGeneration,
+          operation: "stop",
+          damageElement: "electro",
+          baseMultiplier: ELECTRO_CHARGED_BASE_MULTIPLIER,
+          firstDamageFrame: null,
+          nextTickFrame: null,
+          tickIntervalFrames:
+            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+          waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+          waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+          coexistenceExpiresAtFrame: null
+        };
+      }
+    }
+
+    const crystallizeReaction: CrystallizeReactionAudit = {
+      reaction: candidate.reaction,
+      crystallizedElement: candidate.crystallizedElement,
+      consumedAuraElement: candidate.consumedAuraElement,
+      sourceGaugeUnitsBefore: cleanGaugeUnits(
+        sourceGaugeUnitsBefore
+      ),
+      sourceGaugeUnitsSpent: cleanGaugeUnits(
+        sourceGaugeUnitsSpent
+      ),
+      sourceGaugeUnitsAfter: cleanGaugeUnits(
+        sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
+      ),
+      auraGaugeUnitsBefore: cleanGaugeUnits(auraGaugeUnitsBefore),
+      auraConsumedGaugeUnits: cleanGaugeUnits(
+        auraConsumedGaugeUnits
+      ),
+      auraGaugeUnitsAfter: cleanGaugeUnits(
+        this.auras.get(candidate.consumedAuraElement)?.gaugeUnits ??
+          0
+      ),
+      scheduled,
+      blockedReason: scheduled ? null : "REACTION_QUEUE_GCD",
+      nextAvailableFrame,
+      shardSpawnFrame:
+        input.frame + CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES,
+      earliestPickupFrame:
+        input.frame + CRYSTALLIZE_EARLIEST_PICKUP_DELAY_FRAMES,
+      shardExpiresAtFrame:
+        input.frame +
+        CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES +
+        CRYSTALLIZE_SHARD_DURATION_FRAMES,
+      shardDurationFrames: CRYSTALLIZE_SHARD_DURATION_FRAMES,
+      maxActiveShards: CRYSTALLIZE_MAX_ACTIVE_SHARDS
+    };
+    return {
+      model: "aura-engine",
+      triggered: scheduled,
+      reaction: scheduled ? candidate.reaction : "none",
+      icdAllowed: true,
+      icdTag: application.icdTag,
+      icdGroup: application.icdGroup,
+      applicationGaugeUnits: application.gaugeUnits,
+      auraBefore,
+      auraApplied,
+      auraConsumed: scheduled
+        ? [
+            {
+              element: candidate.consumedAuraElement,
+              gaugeUnits: cleanGaugeUnits(
+                auraConsumedGaugeUnits
+              )
+            }
+          ]
+        : [],
+      auraAfter: this.snapshot(),
+      transformativeReaction: null,
+      periodicReaction,
+      frozenReaction,
+      shatterReaction: null,
+      swirlReactions: [],
+      swirlDamageGroup: null,
+      crystallizeReaction,
+      note: scheduled
+        ? `${candidate.crystallizedElement}结晶通过目标本地 60 帧共享队列；23 帧后生成碎片，触发后第 54 帧起可拾取。`
+        : `${candidate.crystallizedElement}结晶被目标本地共享队列阻止；Aura 与岩元素预算均未消耗，第 ${nextAvailableFrame} 帧可再次触发。`
     };
   }
 
@@ -1230,6 +1458,7 @@ export class AuraEngine {
         shatterReaction: null,
         swirlReactions: [],
         swirlDamageGroup: null,
+        crystallizeReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -1261,6 +1490,7 @@ export class AuraEngine {
         shatterReaction: null,
         swirlReactions: [],
         swirlDamageGroup: null,
+        crystallizeReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -1290,6 +1520,7 @@ export class AuraEngine {
         shatterReaction: null,
         swirlReactions: [],
         swirlDamageGroup: null,
+        crystallizeReaction: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -1297,6 +1528,14 @@ export class AuraEngine {
 
     if (input.element === "anemo") {
       return this.processSwirl(
+        input,
+        application,
+        auraBefore,
+        electroChargedWasActive
+      );
+    }
+    if (input.element === "geo") {
+      return this.processCrystallize(
         input,
         application,
         auraBefore,
@@ -1632,6 +1871,7 @@ export class AuraEngine {
       shatterReaction: null,
       swirlReactions: [],
       swirlDamageGroup: null,
+      crystallizeReaction: null,
       note:
         periodicReaction?.operation === "stop"
           ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
@@ -1678,5 +1918,15 @@ export const AURA_ENGINE_CONSTANTS = {
   shatterGaugeConsumptionUnits:
     SHATTER_GAUGE_CONSUMPTION_UNITS,
   shatterDamageGcdFrames: SHATTER_DAMAGE_GCD_FRAMES,
-  shatterBaseMultiplier: SHATTER_BASE_MULTIPLIER
+  shatterBaseMultiplier: SHATTER_BASE_MULTIPLIER,
+  crystallizeAuraConsumptionFactor:
+    CRYSTALLIZE_AURA_CONSUMPTION_FACTOR,
+  crystallizeQueueGcdFrames: CRYSTALLIZE_QUEUE_GCD_FRAMES,
+  crystallizeShardSpawnDelayFrames:
+    CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES,
+  crystallizeEarliestPickupDelayFrames:
+    CRYSTALLIZE_EARLIEST_PICKUP_DELAY_FRAMES,
+  crystallizeShardDurationFrames:
+    CRYSTALLIZE_SHARD_DURATION_FRAMES,
+  crystallizeMaxActiveShards: CRYSTALLIZE_MAX_ACTIVE_SHARDS
 } as const;

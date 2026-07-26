@@ -194,7 +194,12 @@ function syntheticActiveAction(
 }
 
 function commandActor(command: LegalTimelineCommand): string | null {
-  if (command.type === "wait") return null;
+  if (
+    command.type === "wait" ||
+    command.type === "pickUpCrystallize"
+  ) {
+    return null;
+  }
   return command.type === "swap" ? command.characterId : command.actorId;
 }
 
@@ -205,7 +210,13 @@ function commandAbility(command: LegalTimelineCommand): string | null {
 function commandFollowupKind(
   command: LegalTimelineCommand | undefined
 ): AbilityFollowupKind | null {
-  if (command === undefined || command.type === "wait") return null;
+  if (
+    command === undefined ||
+    command.type === "wait" ||
+    command.type === "pickUpCrystallize"
+  ) {
+    return null;
+  }
   return command.type;
 }
 
@@ -458,6 +469,24 @@ export function compileLegalTimeline(
         `指令开始帧 ${startFrame} 超出模拟结束帧 ${durationFrames}。`,
         anchored.requestedFrame
       );
+      return;
+    }
+
+    if (command.type === "pickUpCrystallize") {
+      commandResults.push({
+        commandIndex,
+        commandType: command.type,
+        actorId: null,
+        abilityId: null,
+        requestedFrame: anchored.requestedFrame,
+        startFrame,
+        cancelFrame: null,
+        animationEndFrame: null,
+        endFrame: startFrame,
+        status:
+          startFrame > anchored.requestedFrame ? "waited" : "executed",
+        waitedFrames: startFrame - anchored.requestedFrame
+      });
       return;
     }
 
