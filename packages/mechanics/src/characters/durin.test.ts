@@ -175,8 +175,19 @@ describe("Durin black E partial mechanics audit vector", () => {
         element: "pyro",
         kind: "particle",
         count: 4,
-        spawnFrame: 32,
-        travelFrames: 100
+        travelFrames: 100,
+        trigger: {
+          kind: "hit-confirm",
+          hitIds: [
+            "durin-black-e-1",
+            "durin-black-e-2",
+            "durin-black-e-3"
+          ],
+          internalCooldown: {
+            key: "durin-particle-icd",
+            durationFrames: 18
+          }
+        }
       }
     ]);
     expect(DURIN_ICD_PROFILES["durin-skill"]).toEqual({
@@ -292,8 +303,54 @@ describe("Durin black E partial mechanics audit vector", () => {
         particleCount: 4,
         spawnFrame: 48,
         receiveFrame: 148,
-        receivedWithinSimulation: true
+        receivedWithinSimulation: true,
+        triggerLogId: 0,
+        triggerHitId: "durin-black-e-1"
       })
+    ]);
+    expect(
+      result.particleTriggerLog.map(
+        ({
+          frame,
+          hitId,
+          triggered,
+          blockedReason,
+          internalCooldownKey,
+          internalCooldownReadyFrame
+        }) => ({
+          frame,
+          hitId,
+          triggered,
+          blockedReason,
+          internalCooldownKey,
+          internalCooldownReadyFrame
+        })
+      )
+    ).toEqual([
+      {
+        frame: 48,
+        hitId: "durin-black-e-1",
+        triggered: true,
+        blockedReason: null,
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      },
+      {
+        frame: 53,
+        hitId: "durin-black-e-2",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      },
+      {
+        frame: 58,
+        hitId: "durin-black-e-3",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      }
     ]);
     expect(result.energyLog).toEqual([
       expect.objectContaining({
@@ -369,6 +426,9 @@ describe("Durin black E partial mechanics audit vector", () => {
     expect(browser.damageEvents).toEqual(authoring.damageEvents);
     expect(browser.energyLog).toEqual(authoring.energyLog);
     expect(browser.particleEvents).toEqual(authoring.particleEvents);
+    expect(browser.particleTriggerLog).toEqual(
+      authoring.particleTriggerLog
+    );
     expect(browser.auraTimeline).toEqual(authoring.auraTimeline);
   });
 });

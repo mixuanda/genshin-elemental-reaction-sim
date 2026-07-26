@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.4" as const;
+  "durin-gcsim-b4ae769d7c1c.5" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -211,8 +211,19 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       element: "pyro",
       kind: "particle",
       count: 4,
-      spawnFrame: 32,
-      travelFrames: 100
+      travelFrames: 100,
+      trigger: {
+        kind: "hit-confirm",
+        hitIds: [
+          "durin-black-e-1",
+          "durin-black-e-2",
+          "durin-black-e-3"
+        ],
+        internalCooldown: {
+          key: "durin-particle-icd",
+          durationFrames: 18
+        }
+      }
     }
   ],
   timelineState: {
@@ -231,7 +242,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "产球应只在首次成功命中可受击敌人时触发，并共享 0.3 秒角色级产球 ICD；当前向量按第 1 段必命中建模",
+    "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
     "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
   ],
   evidence: [

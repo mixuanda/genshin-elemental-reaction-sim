@@ -409,6 +409,23 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
           fixedEnergy: result.energyLog.find(
             (entry) => entry.kind === "fixed"
           ),
+          particleTriggers: result.particleTriggerLog.map(
+            ({
+              frame,
+              hitId,
+              triggered,
+              blockedReason,
+              internalCooldownKey,
+              internalCooldownReadyFrame
+            }) => ({
+              frame,
+              hitId,
+              triggered,
+              blockedReason,
+              internalCooldownKey,
+              internalCooldownReadyFrame
+            })
+          ),
           particle: result.particleEvents[0],
           curve: result.damageCurve.map((point) => point.cumulativeDamage),
           commands: result.timelineExecution?.commandResults.map(
@@ -438,10 +455,38 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
       internalCooldownDurationFrames: 360,
       internalCooldownReadyFrame: 376
     },
+    particleTriggers: [
+      {
+        frame: 48,
+        hitId: "durin-black-e-1",
+        triggered: true,
+        blockedReason: null,
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      },
+      {
+        frame: 53,
+        hitId: "durin-black-e-2",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      },
+      {
+        frame: 58,
+        hitId: "durin-black-e-3",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 66
+      }
+    ],
     particle: {
       particleCount: 4,
       spawnFrame: 48,
-      receiveFrame: 148
+      receiveFrame: 148,
+      triggerLogId: 0,
+      triggerHitId: "durin-black-e-1"
     },
     curve: [2223.5472, 3042.2952, 4037.1048],
     commands: [
@@ -479,6 +524,16 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
     "durin-skill-energy-icd"
   );
   await expect(page.locator("#energyLogBody")).toContainText("至 376f");
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "命中确认产球"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "粒子 ICD 阻止"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "durin-particle-icd"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText("66f 可用");
 });
 
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({

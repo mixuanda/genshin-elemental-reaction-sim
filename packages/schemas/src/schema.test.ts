@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.6.0 configs to the fixed-energy ICD schema", () => {
+  it("migrates 1.0.0 through 1.7.0 configs to the hit-particle schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -177,6 +177,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.6.0",
       engineVersion: "1.6.0-runtime-energy"
     });
+    const migratedFromFixedEnergyIcd = migrateConfig({
+      ...current,
+      schemaVersion: "1.7.0",
+      engineVersion: "1.7.0-fixed-energy-icd"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -211,6 +216,89 @@ describe("versioned config schema", () => {
     );
     expect(migratedFromRuntimeEnergy.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromFixedEnergyIcd.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromFixedEnergyIcd.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+  });
+
+  it("rejects a hit-confirm particle that names an unknown action hit", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "trigger",
+            actorId: "a",
+            name: "命中产球",
+            at: 0,
+            hits: [
+              {
+                id: "known-hit",
+                offset: 0,
+                scaling: 1,
+                element: "pyro"
+              }
+            ],
+            particles: [
+              {
+                id: "triggered-particle",
+                element: "pyro",
+                count: 1,
+                travelTime: 0,
+                trigger: {
+                  kind: "hit-confirm",
+                  hitIds: ["missing-hit"]
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(
+      /rotation\.0\.particles\.0\.trigger\.hitIds\.0: unknown action hit id "missing-hit"/
+    );
+  });
+
+  it("rejects a fixed spawn offset on a hit-confirm particle", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "trigger",
+            actorId: "a",
+            name: "命中产球",
+            at: 0,
+            hits: [
+              {
+                id: "hit",
+                offset: 0,
+                scaling: 1,
+                element: "pyro"
+              }
+            ],
+            particles: [
+              {
+                id: "triggered-particle",
+                element: "pyro",
+                count: 1,
+                spawnOffset: 0,
+                travelTime: 0,
+                trigger: {
+                  kind: "hit-confirm",
+                  hitIds: ["hit"]
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(
+      /rotation\.0\.particles\.0\.spawnOffset: must be omitted for hit-confirm particle triggers/
     );
   });
 

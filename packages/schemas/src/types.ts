@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.7.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.7.0-fixed-energy-icd" as const;
+export const CURRENT_SCHEMA_VERSION = "1.8.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.8.0-hit-particle-triggers" as const;
+export const FIXED_ENERGY_ICD_SCHEMA_VERSION = "1.7.0" as const;
 export const RUNTIME_ENERGY_SCHEMA_VERSION = "1.6.0" as const;
 export const FOLLOWUP_CANCEL_SCHEMA_VERSION = "1.5.0" as const;
 export const ACTION_STATE_SCHEMA_VERSION = "1.4.0" as const;
@@ -211,6 +212,14 @@ export interface ParticleDefinition {
   count: ParticleCount;
   spawnOffset?: number;
   travelTime: number;
+  trigger?: {
+    kind: "hit-confirm";
+    hitIds: string[];
+    internalCooldown?: {
+      key: string;
+      duration: number;
+    };
+  };
 }
 
 export interface ActionDefinition {
@@ -271,10 +280,18 @@ export type FrameEnergyEvent = Omit<
 
 export type FrameParticleDefinition = Omit<
   ParticleDefinition,
-  "spawnOffset" | "travelTime"
+  "spawnOffset" | "travelTime" | "trigger"
 > & {
   spawnFrame?: number;
   travelFrames: number;
+  trigger?: {
+    kind: "hit-confirm";
+    hitIds: string[];
+    internalCooldown?: {
+      key: string;
+      durationFrames: number;
+    };
+  };
 };
 
 export interface TimelineStateGrant {
@@ -600,6 +617,25 @@ export interface ParticleEventLog {
   particleCount: number;
   receivedWithinSimulation: boolean;
   cycle: number;
+  triggerLogId: number | null;
+  triggerHitId: string | null;
+}
+
+export interface ParticleTriggerLogEntry {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  cycle: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  source: string;
+  particleId: string;
+  hitId: string;
+  triggered: boolean;
+  blockedReason: "INTERNAL_COOLDOWN" | null;
+  internalCooldownKey: string | null;
+  internalCooldownDurationFrames: number | null;
+  internalCooldownReadyFrame: number | null;
 }
 
 export interface EnergyLogEntry {
@@ -777,6 +813,7 @@ export interface SimulationResult {
   energyStats: Record<string, EnergySummary>;
   energyLog: EnergyLogEntry[];
   particleEvents: ParticleEventLog[];
+  particleTriggerLog: ParticleTriggerLogEntry[];
   energyCurve: EnergyCurvePoint[];
   totalDamage: number;
   dps: number;

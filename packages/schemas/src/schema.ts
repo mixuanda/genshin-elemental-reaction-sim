@@ -3,6 +3,7 @@ import {
   ACTION_STATE_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
@@ -277,7 +278,7 @@ export const particleCountRangeSchema = z
     }
   });
 
-export const particleDefinitionSchema = z
+const particleDefinitionObjectSchema = z
   .object({
     id: idSchema.optional(),
     source: idSchema.optional(),
@@ -288,9 +289,44 @@ export const particleDefinitionSchema = z
     ]),
     count: z.union([finiteNumber.positive(), particleCountRangeSchema]),
     spawnOffset: finiteNumber.min(0).optional(),
-    travelTime: finiteNumber.min(0)
+    travelTime: finiteNumber.min(0),
+    trigger: z
+      .object({
+        kind: z.literal("hit-confirm"),
+        hitIds: z.array(idSchema).min(1),
+        internalCooldown: energyInternalCooldownSchema.optional()
+      })
+      .strict()
+      .optional()
   })
   .strict();
+
+export const particleDefinitionSchema =
+  particleDefinitionObjectSchema.superRefine((particle, context) => {
+    if (
+      particle.trigger !== undefined &&
+      particle.spawnOffset !== undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["spawnOffset"],
+        message: "must be omitted for hit-confirm particle triggers"
+      });
+    }
+    const hitIds = new Set<string>();
+    for (const [index, hitId] of (
+      particle.trigger?.hitIds ?? []
+    ).entries()) {
+      if (hitIds.has(hitId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["trigger", "hitIds", index],
+          message: `duplicate hit id "${hitId}"`
+        });
+      }
+      hitIds.add(hitId);
+    }
+  });
 
 export const actionDefinitionSchema = z
   .object({
@@ -314,7 +350,35 @@ export const actionDefinitionSchema = z
     cancelFrame: z.number().int().min(0).optional(),
     animationEndFrame: z.number().int().min(0).optional()
   })
-  .strict();
+  .strict()
+  .superRefine((action, context) => {
+    const hitIds = new Set(
+      (action.hits ?? []).flatMap((hit) =>
+        hit.id === undefined ? [] : [hit.id]
+      )
+    );
+    for (const [particleIndex, particle] of (
+      action.particles ?? []
+    ).entries()) {
+      for (const [hitIndex, hitId] of (
+        particle.trigger?.hitIds ?? []
+      ).entries()) {
+        if (!hitIds.has(hitId)) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "particles",
+              particleIndex,
+              "trigger",
+              "hitIds",
+              hitIndex
+            ],
+            message: `unknown action hit id "${hitId}"`
+          });
+        }
+      }
+    }
+  });
 
 const frameSchema = z.number().int().min(0);
 
@@ -355,13 +419,52 @@ export const frameEnergyEventSchema = energyEventSchema
   })
   .strict();
 
-export const frameParticleDefinitionSchema = particleDefinitionSchema
-  .omit({ spawnOffset: true, travelTime: true })
+export const frameParticleDefinitionSchema = particleDefinitionObjectSchema
+  .omit({ spawnOffset: true, travelTime: true, trigger: true })
   .extend({
     spawnFrame: frameSchema.optional(),
-    travelFrames: frameSchema
+    travelFrames: frameSchema,
+    trigger: z
+      .object({
+        kind: z.literal("hit-confirm"),
+        hitIds: z.array(idSchema).min(1),
+        internalCooldown: z
+          .object({
+            key: idSchema,
+            durationFrames: z.number().int().positive()
+          })
+          .strict()
+          .optional()
+      })
+      .strict()
+      .optional()
   })
-  .strict();
+  .strict()
+  .superRefine((particle, context) => {
+    if (
+      particle.trigger !== undefined &&
+      particle.spawnFrame !== undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["spawnFrame"],
+        message: "must be omitted for hit-confirm particle triggers"
+      });
+    }
+    const hitIds = new Set<string>();
+    for (const [index, hitId] of (
+      particle.trigger?.hitIds ?? []
+    ).entries()) {
+      if (hitIds.has(hitId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["trigger", "hitIds", index],
+          message: `duplicate hit id "${hitId}"`
+        });
+      }
+      hitIds.add(hitId);
+    }
+  });
 
 export const timelineStateGrantSchema = z
   .object({
@@ -477,6 +580,32 @@ export const abilityDefinitionSchema = z
         path: ["chargeRecoveryFrames"],
         message: "multi-charge abilities require a positive recovery"
       });
+    }
+    const abilityHitIds = new Set(
+      (ability.hits ?? []).flatMap((hit) =>
+        hit.id === undefined ? [] : [hit.id]
+      )
+    );
+    for (const [particleIndex, particle] of (
+      ability.particles ?? []
+    ).entries()) {
+      for (const [hitIndex, hitId] of (
+        particle.trigger?.hitIds ?? []
+      ).entries()) {
+        if (!abilityHitIds.has(hitId)) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "particles",
+              particleIndex,
+              "trigger",
+              "hitIds",
+              hitIndex
+            ],
+            message: `unknown ability hit id "${hitId}"`
+          });
+        }
+      }
     }
   });
 
@@ -1045,6 +1174,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === FIXED_ENERGY_ICD_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === RUNTIME_ENERGY_SCHEMA_VERSION) {
     return parseSimConfig({

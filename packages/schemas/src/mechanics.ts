@@ -4,7 +4,8 @@ import {
   abilityTimelineStateSchema
 } from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.4.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.5.0" as const;
+export const FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION = "1.4.0" as const;
 export const RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION = "1.3.0" as const;
 export const FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION = "1.2.0" as const;
 export const ACTION_STATE_MECHANICS_SCHEMA_VERSION = "1.1.0" as const;
@@ -99,10 +100,59 @@ export const mappedParticleBlueprintSchema = z
     ]),
     kind: z.enum(["particle", "orb"]).default("particle"),
     count: finiteNumber.positive(),
-    spawnFrame: z.number().int().min(0),
-    travelFrames: z.number().int().min(0)
+    spawnFrame: z.number().int().min(0).optional(),
+    travelFrames: z.number().int().min(0),
+    trigger: z
+      .object({
+        kind: z.literal("hit-confirm"),
+        hitIds: z.array(idSchema).min(1),
+        internalCooldown: z
+          .object({
+            key: idSchema,
+            durationFrames: z.number().int().positive()
+          })
+          .strict()
+          .optional()
+      })
+      .strict()
+      .optional()
   })
-  .strict();
+  .strict()
+  .superRefine((particle, context) => {
+    if (
+      particle.trigger !== undefined &&
+      particle.spawnFrame !== undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["spawnFrame"],
+        message: "must be omitted for hit-confirm particle triggers"
+      });
+    }
+    if (
+      particle.trigger === undefined &&
+      particle.spawnFrame === undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["spawnFrame"],
+        message: "is required without a hit-confirm trigger"
+      });
+    }
+    const hitIds = new Set<string>();
+    for (const [index, hitId] of (
+      particle.trigger?.hitIds ?? []
+    ).entries()) {
+      if (hitIds.has(hitId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["trigger", "hitIds", index],
+          message: `duplicate hit id "${hitId}"`
+        });
+      }
+      hitIds.add(hitId);
+    }
+  });
 
 export const abilityBlueprintSchema = z
   .object({
@@ -190,6 +240,23 @@ export const abilityBlueprintSchema = z
       }
       hitIds.add(hit.id);
     });
+    blueprint.particles.forEach((particle, particleIndex) => {
+      particle.trigger?.hitIds.forEach((hitId, hitIndex) => {
+        if (!hitIds.has(hitId)) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "particles",
+              particleIndex,
+              "trigger",
+              "hitIds",
+              hitIndex
+            ],
+            message: `unknown blueprint hit id "${hitId}"`
+          });
+        }
+      });
+    });
   });
 
 export type MechanicsEvidence = z.infer<typeof mechanicsEvidenceSchema>;
@@ -206,7 +273,8 @@ export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
     (input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION ||
       input.schemaVersion === ACTION_STATE_MECHANICS_SCHEMA_VERSION ||
       input.schemaVersion === FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION)
+      input.schemaVersion === RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION ||
+      input.schemaVersion === FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION)
   ) {
     return abilityBlueprintSchema.parse({
       ...input,

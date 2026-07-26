@@ -152,8 +152,27 @@ export function compileAbilityBlueprint(
       element: particle.element,
       kind: particle.kind,
       count: particle.count,
-      spawnFrame: particle.spawnFrame,
-      travelFrames: particle.travelFrames
+      travelFrames: particle.travelFrames,
+      ...(particle.spawnFrame === undefined
+        ? {}
+        : { spawnFrame: particle.spawnFrame }),
+      ...(particle.trigger === undefined
+        ? {}
+        : {
+            trigger: {
+              kind: particle.trigger.kind,
+              hitIds: particle.trigger.hitIds,
+              ...(particle.trigger.internalCooldown === undefined
+                ? {}
+                : {
+                    internalCooldown: {
+                      key: particle.trigger.internalCooldown.key,
+                      durationFrames:
+                        particle.trigger.internalCooldown.durationFrames
+                    }
+                  })
+            }
+          })
     }))
   };
 

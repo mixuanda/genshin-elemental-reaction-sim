@@ -133,6 +133,205 @@ function legalEnergyConfig(
 }
 
 describe("particle event simulation", () => {
+  it("spawns on confirmed hits, blocks inside particle ICD, and allows the boundary", () => {
+    const hitTriggeredSkill: AbilityDefinition = {
+      id: "hit-triggered-particles",
+      actorId: "a",
+      name: "命中确认产球",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 18,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "particle-hit-1",
+          frame: 0,
+          scaling: 1,
+          element: "pyro"
+        },
+        {
+          id: "particle-hit-2",
+          frame: 17,
+          scaling: 1,
+          element: "pyro"
+        },
+        {
+          id: "particle-hit-3",
+          frame: 18,
+          scaling: 1,
+          element: "pyro"
+        }
+      ],
+      particles: [
+        {
+          id: "hit-particle",
+          source: "confirmed-hit",
+          element: "pyro",
+          count: 1,
+          travelFrames: 0,
+          trigger: {
+            kind: "hit-confirm",
+            hitIds: [
+              "particle-hit-1",
+              "particle-hit-2",
+              "particle-hit-3"
+            ],
+            internalCooldown: {
+              key: "particle-icd",
+              durationFrames: 18
+            }
+          }
+        }
+      ]
+    };
+    const result = simulate(
+      legalEnergyConfig(
+        [hitTriggeredSkill],
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "hit-triggered-particles"
+          }
+        ]
+      ),
+      { energyMode: "zero" }
+    );
+
+    expect(
+      result.particleTriggerLog.map(
+        ({
+          frame,
+          hitId,
+          triggered,
+          blockedReason,
+          internalCooldownReadyFrame
+        }) => ({
+          frame,
+          hitId,
+          triggered,
+          blockedReason,
+          internalCooldownReadyFrame
+        })
+      )
+    ).toEqual([
+      {
+        frame: 0,
+        hitId: "particle-hit-1",
+        triggered: true,
+        blockedReason: null,
+        internalCooldownReadyFrame: 18
+      },
+      {
+        frame: 17,
+        hitId: "particle-hit-2",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownReadyFrame: 18
+      },
+      {
+        frame: 18,
+        hitId: "particle-hit-3",
+        triggered: true,
+        blockedReason: null,
+        internalCooldownReadyFrame: 36
+      }
+    ]);
+    expect(
+      result.particleEvents.map(
+        ({ spawnFrame, triggerLogId, triggerHitId }) => ({
+          spawnFrame,
+          triggerLogId,
+          triggerHitId
+        })
+      )
+    ).toEqual([
+      {
+        spawnFrame: 0,
+        triggerLogId: 0,
+        triggerHitId: "particle-hit-1"
+      },
+      {
+        spawnFrame: 18,
+        triggerLogId: 2,
+        triggerHitId: "particle-hit-3"
+      }
+    ]);
+  });
+
+  it("scopes a shared particle ICD key to the source actor", () => {
+    const makeTriggeredSkill = (
+      actorId: "a" | "b"
+    ): AbilityDefinition => ({
+      id: `${actorId}-particle-skill`,
+      actorId,
+      name: `${actorId} 命中产球`,
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 0,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: `${actorId}-particle-hit`,
+          frame: 0,
+          scaling: 1,
+          element: actorId === "a" ? "pyro" : "cryo"
+        }
+      ],
+      particles: [
+        {
+          id: `${actorId}-particle`,
+          element: actorId === "a" ? "pyro" : "cryo",
+          count: 1,
+          travelFrames: 0,
+          trigger: {
+            kind: "hit-confirm",
+            hitIds: [`${actorId}-particle-hit`],
+            internalCooldown: {
+              key: "shared-particle-icd",
+              durationFrames: 18
+            }
+          }
+        }
+      ]
+    });
+    const result = simulate(
+      legalEnergyConfig(
+        [makeTriggeredSkill("a"), makeTriggeredSkill("b")],
+        [
+          { type: "skill", actorId: "a", abilityId: "a-particle-skill" },
+          { type: "swap", characterId: "b" },
+          { type: "skill", actorId: "b", abilityId: "b-particle-skill" }
+        ]
+      ),
+      { energyMode: "zero" }
+    );
+
+    expect(
+      result.particleTriggerLog.map(
+        ({ frame, sourceActorId, triggered, internalCooldownReadyFrame }) => ({
+          frame,
+          sourceActorId,
+          triggered,
+          internalCooldownReadyFrame
+        })
+      )
+    ).toEqual([
+      {
+        frame: 0,
+        sourceActorId: "a",
+        triggered: true,
+        internalCooldownReadyFrame: 18
+      },
+      {
+        frame: 12,
+        sourceActorId: "b",
+        triggered: true,
+        internalCooldownReadyFrame: 30
+      }
+    ]);
+  });
+
   it("uses the active character at receive time and logs every receiver", () => {
     const particleSkill: AbilityDefinition = {
       id: "particle-skill",

@@ -5,7 +5,7 @@ import {
 } from "@genshin-dps-lab/schemas";
 
 export const durinBlackSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.4",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.5",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -36,7 +36,7 @@ export const durinBlackSkillAuditDisclosure = {
   unresolvedMechanics: [
     "Dash、Jump 与重击尚未进入合法命令模型，不能选择对应取消帧",
     "命中停顿、队列窗口与输入缓冲尚未建模",
-    "产球应只在首次成功命中可受击敌人时触发，并共享 0.3 秒角色级产球 ICD；当前向量按第 1 段必命中建模",
+    "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
     "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
   ]
 } as const;
@@ -52,7 +52,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
   dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.4",
+    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.5",
   randomSeed: "durin-black-e-audit-v1",
   meta: {
     name: "杜林黑 E · 部分机制审计向量",
@@ -209,8 +209,19 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             element: "pyro",
             kind: "particle",
             count: 4,
-            spawnFrame: 32,
-            travelFrames: 100
+            travelFrames: 100,
+            trigger: {
+              kind: "hit-confirm",
+              hitIds: [
+                "durin-black-e-1",
+                "durin-black-e-2",
+                "durin-black-e-3"
+              ],
+              internalCooldown: {
+                key: "durin-particle-icd",
+                durationFrames: 18
+              }
+            }
           }
         ],
         timelineState: {

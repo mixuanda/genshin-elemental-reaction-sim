@@ -81,6 +81,8 @@ interface ParticleSpawnEventPayload {
   particle: ParticleDefinition;
   particleIndex: number;
   cycle: number;
+  triggerLogId?: number;
+  triggerHitId?: string;
 }
 
 interface ParticleReceiveEventPayload {
@@ -237,6 +239,7 @@ function simulateConfig(
   const energies = new Map<string, number>();
   const energyStats = new Map<string, EnergySummary>();
   const fixedEnergyCooldownReadyFrames = new Map<string, number>();
+  const particleCooldownReadyFrames = new Map<string, number>();
 
   for (const character of config.characters) {
     const initial =
@@ -314,6 +317,7 @@ function simulateConfig(
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
   const particleEvents: SimulationResult["particleEvents"] = [];
+  const particleTriggerLog: SimulationResult["particleTriggerLog"] = [];
   const energyCurve: SimulationResult["energyCurve"] = [];
   let activeCharacterId =
     resultConfig.timeline?.initialActiveCharacterId ??
@@ -550,6 +554,7 @@ function simulateConfig(
         });
       }
       (action.particles ?? []).forEach((particle, particleIndex) => {
+        if (particle.trigger !== undefined) return;
         push(
           timeSeconds + safeNumber(particle.spawnOffset),
           "particleSpawn",
@@ -746,7 +751,9 @@ function simulateConfig(
         actionName,
         particle,
         particleIndex,
-        cycle
+        cycle,
+        triggerLogId,
+        triggerHitId
       } = event.payload as ParticleSpawnEventPayload;
       const particleCount = resolveParticleCount(particle.count, random);
       const receiveTimeSeconds =
@@ -774,7 +781,9 @@ function simulateConfig(
         particleKind: particle.kind ?? "particle",
         particleCount,
         receivedWithinSimulation,
-        cycle
+        cycle,
+        triggerLogId: triggerLogId ?? null,
+        triggerHitId: triggerHitId ?? null
       });
       if (receivedWithinSimulation) {
         push(receiveTimeSeconds, "particleReceive", { particleEventId });
@@ -1131,6 +1140,82 @@ function simulateConfig(
       buffs: buffLabels,
       debuffs: debuffLabels
     });
+    (action.particles ?? []).forEach((particle, particleIndex) => {
+      const trigger = particle.trigger;
+      if (
+        trigger === undefined ||
+        !trigger.hitIds.includes(hitId)
+      ) {
+        return;
+      }
+      const internalCooldown = trigger.internalCooldown;
+      const internalCooldownDurationFrames =
+        internalCooldown === undefined
+          ? null
+          : Math.max(1, toFrame(internalCooldown.duration));
+      const scopedInternalCooldownKey =
+        internalCooldown === undefined
+          ? null
+          : `${actorId}\u0000${internalCooldown.key}`;
+      const previousReadyFrame =
+        scopedInternalCooldownKey === null
+          ? null
+          : (particleCooldownReadyFrames.get(
+              scopedInternalCooldownKey
+            ) ?? 0);
+      const blockedByInternalCooldown =
+        previousReadyFrame !== null && event.frame < previousReadyFrame;
+      const internalCooldownReadyFrame =
+        internalCooldownDurationFrames === null
+          ? null
+          : blockedByInternalCooldown
+            ? previousReadyFrame
+            : event.frame + internalCooldownDurationFrames;
+      if (
+        scopedInternalCooldownKey !== null &&
+        internalCooldownReadyFrame !== null &&
+        !blockedByInternalCooldown
+      ) {
+        particleCooldownReadyFrames.set(
+          scopedInternalCooldownKey,
+          internalCooldownReadyFrame
+        );
+      }
+      const particleId =
+        particle.id ?? `${action.id}:particle-${particleIndex}`;
+      const source = particle.source ?? `${action.name}:${particleId}`;
+      const triggerLogId = particleTriggerLog.length;
+      particleTriggerLog.push({
+        id: triggerLogId,
+        frame: event.frame,
+        timeSeconds,
+        cycle,
+        sourceActorId: actorId,
+        sourceActionId: action.id,
+        source,
+        particleId,
+        hitId,
+        triggered: !blockedByInternalCooldown,
+        blockedReason: blockedByInternalCooldown
+          ? "INTERNAL_COOLDOWN"
+          : null,
+        internalCooldownKey: internalCooldown?.key ?? null,
+        internalCooldownDurationFrames,
+        internalCooldownReadyFrame
+      });
+      if (!blockedByInternalCooldown) {
+        push(timeSeconds, "particleSpawn", {
+          actorId,
+          actionId: action.id,
+          actionName: action.name,
+          particle,
+          particleIndex,
+          cycle,
+          triggerLogId,
+          triggerHitId: hitId
+        });
+      }
+    });
   }
 
   for (const character of config.characters) {
@@ -1259,6 +1344,7 @@ function simulateConfig(
     energyStats: Object.fromEntries(energyStats),
     energyLog,
     particleEvents,
+    particleTriggerLog,
     energyCurve,
     totalDamage,
     dps: totalDamage / config.duration,

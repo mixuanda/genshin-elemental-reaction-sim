@@ -945,7 +945,9 @@ function renderEnergyAudit(): void {
   const card = byId<HTMLElement>("energyAuditCard");
   const result = lastResult;
   const hasEvents =
-    result.energyLog.length > 0 || result.particleEvents.length > 0;
+    result.energyLog.length > 0 ||
+    result.particleEvents.length > 0 ||
+    result.particleTriggerLog.length > 0;
   card.hidden = !hasEvents;
   if (!hasEvents) return;
 
@@ -964,9 +966,17 @@ function renderEnergyAudit(): void {
   const outsideDuration = result.particleEvents.filter(
     (event) => !event.receivedWithinSimulation
   ).length;
+  const blockedParticleTriggers = result.particleTriggerLog.filter(
+    (entry) => entry.blockedReason === "INTERNAL_COOLDOWN"
+  ).length;
   byId<HTMLElement>("energyAuditSummary").textContent =
     `${result.particleEvents.length} 次产球 · ${particleRows} 条角色粒子结算 · ` +
     `${fixedRows} 条固定回能${blockedFixedRows ? ` · ${blockedFixedRows} 条被内部冷却阻止` : ""}` +
+    `${
+      result.particleTriggerLog.length
+        ? ` · ${result.particleTriggerLog.length} 次命中产球检查${blockedParticleTriggers ? `（${blockedParticleTriggers} 次被粒子 ICD 阻止）` : ""}`
+        : ""
+    }` +
     `${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
 
   const canvas = byId<HTMLCanvasElement>("energyTimelineCanvas");
@@ -1077,12 +1087,31 @@ function renderEnergyAudit(): void {
     `<span class="muted">虚线为生成帧，实线竖标为接收帧；曲线只读取核心能量快照。</span>`;
 
   byId<HTMLElement>("particleEventSummary").innerHTML =
+    result.particleTriggerLog
+      .map((entry) => {
+        const status =
+          entry.blockedReason === "INTERNAL_COOLDOWN"
+            ? `<span class="badge warn">粒子 ICD 阻止</span>`
+            : `<span class="badge good">命中确认产球</span>`;
+        const cooldown =
+          entry.internalCooldownKey === null
+            ? ""
+            : entry.blockedReason === "INTERNAL_COOLDOWN"
+              ? ` · ${escapeHtml(entry.internalCooldownKey)} · ${entry.internalCooldownReadyFrame ?? "—"}f 可用`
+              : ` · ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`;
+        return (
+          `<span class="particle-event"><strong>${escapeHtml(entry.source)}</strong> · ` +
+          `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}</span>`
+        );
+      })
+      .join("") +
     result.particleEvents
       .map(
         (event) =>
           `<span class="particle-event"><strong>${escapeHtml(event.source)}</strong> · ` +
           `${escapeHtml(ELEMENT_LABELS[event.particleElement] ?? event.particleElement)}${event.particleKind === "orb" ? "晶球" : "微粒"} × ${formatNumber(event.particleCount, 2)} · ` +
           `${event.spawnFrame}f → ${event.receiveFrame}f` +
+          `${event.triggerHitId ? ` · 由 ${escapeHtml(event.triggerHitId)} 命中触发` : ""}` +
           `${event.receivedWithinSimulation ? "" : " · 模拟结束后到达"}</span>`
       )
       .join("");

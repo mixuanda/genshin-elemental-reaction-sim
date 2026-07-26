@@ -133,10 +133,32 @@ function compileAbilityAction(
       ? {}
       : {
           particles: ability.particles.map(
-            ({ spawnFrame = 0, travelFrames, ...particle }) => ({
+            ({
+              spawnFrame = 0,
+              travelFrames,
+              trigger,
+              ...particle
+            }) => ({
               ...particle,
-              spawnOffset: toSeconds(spawnFrame),
-              travelTime: toSeconds(travelFrames)
+              travelTime: toSeconds(travelFrames),
+              ...(trigger === undefined
+                ? { spawnOffset: toSeconds(spawnFrame) }
+                : {
+                    trigger: {
+                      kind: trigger.kind,
+                      hitIds: trigger.hitIds,
+                      ...(trigger.internalCooldown === undefined
+                        ? {}
+                        : {
+                            internalCooldown: {
+                              key: trigger.internalCooldown.key,
+                              duration: toSeconds(
+                                trigger.internalCooldown.durationFrames
+                              )
+                            }
+                          })
+                    }
+                  })
             })
           )
         }),
