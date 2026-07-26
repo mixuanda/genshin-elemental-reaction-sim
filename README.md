@@ -1,6 +1,6 @@
 # 提瓦特伤害实验室
 
-一个以“逐段可审计、配置可迁移、结果可复现”为目标的原神队伍 DPS 模拟器。当前完成了 Vanilla v0.1 基线冻结、TypeScript 模拟核心、合法帧时间线、Milestone 3 的火/冰/水 Aura 与自动增幅反应最小闭环，以及 Milestone 4 的粒子/能量核心第一批闭环。
+一个以“逐段可审计、配置可迁移、结果可复现”为目标的原神队伍 DPS 模拟器。当前完成了 Vanilla v0.1 基线冻结、TypeScript 模拟核心、合法帧时间线、Milestone 3 的火/冰/水 Aura 与自动增幅反应最小闭环、Milestone 4 的粒子/能量核心第一批闭环，以及 Milestone 5 的版本化数据目录与 UID 映射基础。
 
 ## 安装和运行
 
@@ -30,7 +30,15 @@ npm run preview
 npm test
 npm run typecheck
 npm run test:e2e
+npm run data:check
 npm run check
+```
+
+数据目录由固定的 `genshin-db@5.2.12` npm 包和固定 Enka 数字互操作快照生成：
+
+```bash
+npm run data:generate  # 显式更新两个生成产物
+npm run data:check     # 验证提交产物与固定输入逐字节一致
 ```
 
 首次运行 Playwright 时若本机没有浏览器：
@@ -66,7 +74,14 @@ npx playwright install chromium
 - 逐角色能量阶梯曲线、粒子生成/接收标记、每次产球摘要和逐角色回能审计表。
 - 可筛选、分页并展开公式的逐段伤害日志。
 - JSON 导入、导出和高级编辑。
-- 从 Enka.Network 读取公开 UID 展示柜，经 Schema 校验后展示角色 ID、等级、命座、技能等级、面板、武器与圣遗物。
+- 固定游戏数据 Schema 与迁移门：当前目录版本
+  `gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1`。
+- 可审计的完整中文目录：120 个角色、125 套天赋、762 个技能/被动记录、237 把武器；技能倍率保留 15 级数组，武器保留 1–5 精炼值。
+- 每条角色、天赋、技能和武器记录都带补丁、来源、来源版本、核验时间、校验状态、说明和机制映射状态。
+- 完整 1.9 MB 数据包与 118 KB 浏览器 UID 索引分离；生产首屏 JS 只使用轻量索引。
+- 从 Enka.Network 读取公开 UID 展示柜，经 Schema 校验后展示本地化角色/武器/技能名称、等级、命座、技能等级、面板与圣遗物。
+- UID 映射会报告所有缺失的角色、武器和技能 ID；旅行者按实际技能 ID 集合解析元素变体。
+- 测试 UID `283733593` 在 2026-07-26 真实只读联调返回 12 名公开角色，当前目录映射为 0 项缺失。
 - “毕业站位”目前只生成显式不可模拟的占位对象，不会编造统一毕业面板。
 
 展示柜请求由 Vite 开发/预览服务器的 `/api/showcase/:uid` 代理发出，以便设置上游要求的自定义 `User-Agent`，并按上游 `ttl` 做内存缓存。纯静态部署时需要把同一路由迁移到服务端函数。
@@ -92,10 +107,11 @@ npx playwright install chromium
 - 尚未给全角色填入经过实测核验的命中帧、取消帧、动画结束帧和冷却数据。
 - Hitlag、多目标、AoE、索敌、移动、无敌、护盾和特殊易伤窗口。
 - Monte Carlo 暴击/粒子采样和统计分布；离散产球范围目前只按固定种子给出单次可复现轨迹。
-- 经过来源核验的角色、武器、圣遗物与敌人数据库。
-- 展示柜角色 ID 到本地化名称、角色技能数据与模拟配置的自动映射。
+- 社区数据目录已建立，但角色/武器记录仍为 `provisional`；尚未完成与官方文本、实测或独立向量交叉验证后的稳定数据发布。
+- 圣遗物套装、敌人数据库及其版本化效果尚未进入当前目录。
+- 展示柜已能映射本地化角色、武器与技能名称，但不会自动转换为 `SimConfig`；角色专属机制没有通过 `mechanics-mapped` 门。
 
-因此，本轮并未完成“全角色/全武器/全技能数据库”，也没有把展示柜角色直接用于伤害模拟。Enka 只提供玩家公开配置；角色倍率、动作帧与特殊机制仍需独立的版本化游戏数据源和校验流程。
+因此，当前完成的是“全量可查询目录”，不是“全角色可执行模拟器”。Enka 只提供玩家公开配置；社区倍率表也不能代替动作帧、附着、ICD、快照、粒子和特殊机制的逐角色实现与测试。
 
 合法时间线当前是确定性命令编译器。能量不足仍由伤害模拟阶段记录；尚未实现“施放失败后重新编排后续命令和返还预占冷却”的动态队列回滚。Aura 引擎当前为单目标；没有 AoE 各目标独立 Aura、Hitlag 和真实角色动作/ICD 数据库。
 
@@ -105,7 +121,7 @@ npx playwright install chromium
 apps/web                 Vite + TypeScript 展示层
 packages/sim-core        纯 TypeScript 模拟与公式
 packages/schemas         Zod Schema、类型和版本迁移
-packages/game-data       预设与数据（当前示例均明确标记状态）
+packages/game-data       预设、完整数据目录、轻量 UID 索引与展示柜适配器
 packages/mechanics       通用声明式伤害机制插件入口
 packages/test-vectors    Golden Fixture
 legacy/v0.1-vanilla      冻结的原版网站和基线记录
@@ -113,4 +129,4 @@ legacy/v0.1-vanilla      冻结的原版网站和基线记录
 
 ## gcsim 参考边界
 
-项目借鉴 gcsim 的“角色/技能伤害构成、逐帧 Sample、每个事件可展开计算、显式能量问题与版本化配置”思路，但本轮没有复制其实现或角色数据库。gcsim 本身采用 MIT License；详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+项目借鉴 gcsim 的“角色/技能伤害构成、逐帧 Sample、每个事件可展开计算、显式能量问题与版本化配置”思路，但没有复制其角色实现或数据库。完整目录来自单独固定的 `genshin-db` MIT 数据包；Enka 只用于公开展示柜和数字 ID 互操作。详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。

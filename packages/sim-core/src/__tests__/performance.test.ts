@@ -1,5 +1,5 @@
 import { performance } from "node:perf_hooks";
-import { durinMeltPreset } from "@genshin-dps-lab/game-data";
+import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 
@@ -22,4 +22,3 @@ describe("120-second compatibility performance", () => {
     expect(maximum).toBeLessThan(100);
   });
 });
-

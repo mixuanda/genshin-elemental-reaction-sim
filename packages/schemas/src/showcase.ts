@@ -168,6 +168,52 @@ export interface ImportedShowcase {
   characters: ImportedShowcaseCharacter[];
 }
 
+export interface CatalogResolvedSkill {
+  skillId: string;
+  baseLevel: number;
+  bonusLevel: number;
+  effectiveLevel: number;
+  abilityId: string | null;
+  name: string | null;
+  matchStatus: "matched" | "unmatched";
+}
+
+export interface CatalogResolvedShowcaseCharacter
+  extends ImportedShowcaseCharacter {
+  catalog: {
+    matchStatus: "matched" | "unmatched";
+    catalogVersion: string;
+    characterId: string | null;
+    name: string | null;
+    element: string | null;
+    weaponType: string | null;
+    rarity: number | null;
+    simulationStatus: "metadata-only" | "partial" | "mechanics-mapped" | null;
+    notes: string;
+  };
+  weaponCatalog: {
+    matchStatus: "matched" | "unmatched" | "not-equipped";
+    weaponId: string | null;
+    name: string | null;
+    simulationStatus: "metadata-only" | "partial" | "mechanics-mapped" | null;
+  };
+  resolvedSkills: CatalogResolvedSkill[];
+}
+
+export interface CatalogResolvedShowcase
+  extends Omit<ImportedShowcase, "characters"> {
+  catalogVersion: string;
+  catalogSchemaVersion: string;
+  catalogPatch: string;
+  catalogVerificationStatus: "verified" | "provisional" | "user-supplied";
+  characters: CatalogResolvedShowcaseCharacter[];
+  diagnostics: {
+    unmatchedAvatarIds: number[];
+    unmatchedWeaponIds: number[];
+    unmatchedSkillIds: string[];
+  };
+}
+
 export interface GraduationBuildPlaceholder {
   status: "graduation-target-placeholder";
   avatarId: number;

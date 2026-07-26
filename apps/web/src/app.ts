@@ -1,16 +1,18 @@
 import {
   createGraduationBuildPlaceholder,
+  gameDataRuntimeIndex,
   parseEnkaShowcase,
-  presets
+  presets,
+  resolveShowcaseCatalog
 } from "@genshin-dps-lab/game-data";
 import {
   ConfigMigrationError,
   migrateConfig,
   type AuraGaugeEntry,
   type AuraStateEntry,
+  type CatalogResolvedShowcase,
   type DamageEvent,
   type GraduationBuildPlaceholder,
-  type ImportedShowcase,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
@@ -134,7 +136,7 @@ let lastResult: SimulationResult | null = null;
 let currentPage = 1;
 let selectedHitId: number | null = null;
 let timelineSecondFilter: number | null = null;
-let importedShowcase: ImportedShowcase | null = null;
+let importedShowcase: CatalogResolvedShowcase | null = null;
 let graduationBuild: GraduationBuildPlaceholder | null = null;
 
 function populatePresetSelect(): void {
@@ -1216,8 +1218,17 @@ function renderAuraTimeline(): void {
 }
 
 function renderShowcase(): void {
+  const catalogStatus = byId<HTMLElement>("catalogStatus");
   const summary = byId<HTMLElement>("showcaseSummary");
   const container = byId<HTMLElement>("showcaseCharacters");
+  catalogStatus.innerHTML =
+    `<strong>固定数据目录 ${escapeHtml(gameDataRuntimeIndex.gamePatch)}</strong>` +
+    `<span class="badge warn">provisional</span>` +
+    `<span>${gameDataRuntimeIndex.counts.characters} 个角色 · ` +
+    `${gameDataRuntimeIndex.counts.talentSets} 套天赋 / ${gameDataRuntimeIndex.counts.abilities} 个技能与被动 · ` +
+    `${gameDataRuntimeIndex.counts.weapons} 把武器 · ` +
+    `${gameDataRuntimeIndex.counts.enkaCharacterMappings} 组 UID 映射</span>` +
+    `<span class="muted">目录版本 ${escapeHtml(gameDataRuntimeIndex.catalogVersion)}；完整倍率包不进入首屏，数值目录与可执行机制严格分离。</span>`;
   if (!importedShowcase) {
     summary.innerHTML = "";
     container.innerHTML = "";
@@ -1226,6 +1237,7 @@ function renderShowcase(): void {
   const showcase = importedShowcase;
   summary.innerHTML =
     `<span class="badge good">Enka 公开展示</span>` +
+    `<span class="badge warn">目录 ${escapeHtml(showcase.catalogPatch)} · ${escapeHtml(showcase.catalogVerificationStatus)}</span>` +
     `<strong> UID ${escapeHtml(showcase.uid)}</strong> · ` +
     `冒险等阶 ${showcase.playerLevel ?? "—"} · 世界等级 ${showcase.worldLevel ?? "—"} · ` +
     `${showcase.characters.length} 名角色 · 抓取于 ${escapeHtml(new Date(showcase.fetchedAt).toLocaleString("zh-CN"))}`;
@@ -1237,11 +1249,17 @@ function renderShowcase(): void {
   container.innerHTML = showcase.characters
     .map((character) => {
       const weapon = character.weapon
-        ? `武器 ID ${character.weapon.itemId} · Lv.${character.weapon.level} · 精${character.weapon.refinement}`
+        ? `${character.weaponCatalog.name ?? `未匹配武器 ${character.weapon.itemId}`} · ID ${character.weapon.itemId} · Lv.${character.weapon.level} · 精${character.weapon.refinement}`
         : "未返回武器";
       const skills =
-        Object.entries(character.skillLevels)
-          .map(([id, level]) => `${id}: ${level}`)
+        character.resolvedSkills
+          .map(
+            (skill) =>
+              `${skill.name ?? `未匹配技能 ${skill.skillId}`}: ${skill.effectiveLevel}` +
+              (skill.bonusLevel
+                ? ` (${skill.baseLevel}+${skill.bonusLevel})`
+                : "")
+          )
           .join(" · ") || "未返回天赋";
       const bonuses = Object.entries(character.stats.damageBonuses)
         .filter(([, value]) => value > 0)
@@ -1252,8 +1270,13 @@ function renderShowcase(): void {
         : "无";
       return (
         `<article class="showcase-character">` +
-        `<div class="showcase-character-head"><div><span class="badge">avatarId</span>` +
-        `<h3>${character.avatarId}</h3></div><strong>Lv.${character.level} · C${character.constellation}</strong></div>` +
+        `<div class="showcase-character-head"><div>` +
+        `<span class="badge ${character.catalog.matchStatus === "matched" ? "good" : "warn"}">${character.catalog.matchStatus === "matched" ? "目录已匹配" : "目录未匹配"}</span>` +
+        `<h3>${escapeHtml(character.catalog.name ?? `avatarId ${character.avatarId}`)}</h3>` +
+        `<span class="muted">avatarId ${character.avatarId}</span></div>` +
+        `<strong>Lv.${character.level} · C${character.constellation}</strong></div>` +
+        `<p><span class="badge warn">${escapeHtml(character.catalog.simulationStatus ?? "unmapped")}</span> ` +
+        `${character.catalog.simulationStatus === "mechanics-mapped" ? "机制可执行" : "仅数据目录，不自动进入模拟"}</p>` +
         `<p>${escapeHtml(weapon)}</p>` +
         `<dl><dt>面板</dt><dd>HP ${formatNumber(character.stats.maxHp, 0)} · ATK ${formatNumber(character.stats.attack, 0)} · DEF ${formatNumber(character.stats.defense, 0)} · EM ${formatNumber(character.stats.elementalMastery, 0)}</dd>` +
         `<dt>暴击 / 充能</dt><dd>${(character.stats.critRate * 100).toFixed(1)}% / ${(character.stats.critDamage * 100).toFixed(1)}% · ER ${(character.stats.energyRecharge * 100).toFixed(1)}%</dd>` +
@@ -1265,6 +1288,19 @@ function renderShowcase(): void {
       );
     })
     .join("");
+  const diagnosticCount =
+    showcase.diagnostics.unmatchedAvatarIds.length +
+    showcase.diagnostics.unmatchedWeaponIds.length +
+    showcase.diagnostics.unmatchedSkillIds.length;
+  if (diagnosticCount > 0) {
+    container.insertAdjacentHTML(
+      "afterbegin",
+      `<div class="empty-state"><strong>目录匹配诊断：${diagnosticCount} 项未匹配</strong>` +
+        `<p>角色 ${escapeHtml(showcase.diagnostics.unmatchedAvatarIds.join(", ") || "无")} · ` +
+        `武器 ${escapeHtml(showcase.diagnostics.unmatchedWeaponIds.join(", ") || "无")} · ` +
+        `技能 ${escapeHtml(showcase.diagnostics.unmatchedSkillIds.join(", ") || "无")}</p></div>`
+    );
+  }
   container
     .querySelectorAll<HTMLButtonElement>("[data-graduation-avatar]")
     .forEach((button) => {
@@ -1284,11 +1320,15 @@ function renderGraduationPlaceholder(): void {
   const container = byId<HTMLElement>("graduationPlaceholder");
   if (!graduationBuild) return;
   const weapon = graduationBuild.retainedWeapon
-    ? `保留展示柜武器 ID ${graduationBuild.retainedWeapon.itemId}，Lv.${graduationBuild.retainedWeapon.level}，精${graduationBuild.retainedWeapon.refinement}`
+    ? `保留展示柜武器 ${importedShowcase?.characters.find((character) => character.avatarId === graduationBuild?.avatarId)?.weaponCatalog.name ?? `ID ${graduationBuild.retainedWeapon.itemId}`}，Lv.${graduationBuild.retainedWeapon.level}，精${graduationBuild.retainedWeapon.refinement}`
     : "未返回可保留的武器";
+  const characterName =
+    importedShowcase?.characters.find(
+      (character) => character.avatarId === graduationBuild?.avatarId
+    )?.catalog.name ?? `avatarId ${graduationBuild.avatarId}`;
   container.className = "graduation-placeholder";
   container.innerHTML =
-    `<strong>站位角色 avatarId ${graduationBuild.avatarId}</strong>` +
+    `<strong>站位角色 ${escapeHtml(characterName)} · avatarId ${graduationBuild.avatarId}</strong>` +
     `<span class="badge warn">${graduationBuild.status}</span>` +
     `<p>来源等级 Lv.${graduationBuild.sourceLevel} · ${escapeHtml(weapon)}</p>` +
     `<p>${escapeHtml(graduationBuild.note)}</p>`;
@@ -1315,15 +1355,18 @@ async function importShowcase(): Promise<void> {
     if (!response.ok || envelope.data === undefined) {
       throw new Error(envelope.error ?? `HTTP ${response.status}`);
     }
-    importedShowcase = parseEnkaShowcase(envelope.data, {
-      uid,
-      ...(envelope.fetchedAt === undefined
-        ? {}
-        : { fetchedAt: envelope.fetchedAt })
-    });
+    importedShowcase = resolveShowcaseCatalog(
+      parseEnkaShowcase(envelope.data, {
+        uid,
+        ...(envelope.fetchedAt === undefined
+          ? {}
+          : { fetchedAt: envelope.fetchedAt })
+      })
+    );
     graduationBuild = null;
     status.textContent =
       `导入成功 · ${importedShowcase.characters.length} 名公开角色 · ` +
+      `${importedShowcase.diagnostics.unmatchedAvatarIds.length + importedShowcase.diagnostics.unmatchedWeaponIds.length + importedShowcase.diagnostics.unmatchedSkillIds.length} 项未匹配 · ` +
       `${envelope.cache === "hit" ? "使用 TTL 缓存" : "刚刚刷新"}`;
     byId<HTMLElement>("graduationPlaceholder").className =
       "graduation-placeholder muted";
@@ -1508,6 +1551,7 @@ declare global {
 populatePresetSelect();
 initEvents();
 syncControlsFromConfig();
+renderShowcase();
 runSimulation();
 
 window.GenshinDpsLab = {

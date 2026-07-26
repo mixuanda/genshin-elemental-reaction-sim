@@ -18,7 +18,8 @@ packages/sim-core
   不依赖 React、Vite、Canvas、DOM 或浏览器全局。
 
 packages/game-data
-  预设、版本化数据和展示柜数据适配器。当前杜林预设为 provisional。
+  预设、版本化完整目录、浏览器轻量索引和展示柜数据适配器。
+  当前杜林预设和目录记录均为 provisional。
 
 packages/mechanics
   声明式伤害修正插件入口，避免在核心循环写角色名分支。
@@ -34,6 +35,8 @@ schemas <- sim-core <- mechanics
 schemas <- game-data
 sim-core + schemas + game-data <- apps/web
 ```
+
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器，避免把 1.9 MB 倍率包隐式打进网页。生产构建从拆分前约 2.12 MB JS 降至 271.84 kB（gzip 70.56 kB）。
 
 ## 3. 配置契约
 
@@ -256,8 +259,14 @@ Vitest 当前覆盖：
 - 粒子到达前切人，按到达帧前台身份向全队分配。
 - 固定回能与粒子回能拆分、能量溢出、模拟结束后才到达的粒子。
 - 粒子支持后续爆发，能量不足行动不会错误产球。
+- 完整目录 Zod 校验、固定数量、固定输入哈希和逐字节再生检查。
+- 每条角色/天赋/技能/武器的来源字段与 `metadata-only` 闸门。
+- 首批五名角色的 ID、中文名、发布补丁和 provisional 状态。
+- 杜林 15 级倍率数组与武器 1–5 精炼值的精确抽样。
+- UID 角色、武器、技能、天赋额外等级以及旅行者元素变体映射。
+- 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出和字段路径错误。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
 
 ## 8. 展示柜导入边界
 
@@ -275,11 +284,44 @@ GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
 - 武器 ID、等级、精炼和面板。
 - 圣遗物槽位、套装 ID、等级、主副词条。
 
-展示柜数据与 `SimConfig` 故意分离：目前缺少版本化角色/武器数据库和机制映射，不能仅凭玩家面板生成可信轮转。所谓“毕业站位”同样只创建 `graduation-target-placeholder`，在目标标准核验前禁止模拟。
+规范化结果随后通过固定轻量索引补充：
+
+- `avatarId` 对应的中文角色名、元素、武器类型和稀有度。
+- 武器 `itemId` 对应的中文名称。
+- Enka `skillLevelMap` 对应的普通攻击、元素战技和元素爆发名称。
+- `proudSkillExtraLevelMap` 对应的额外天赋等级和有效等级。
+- 角色、武器和技能的逐项匹配诊断。
+- 旅行者按实际技能 ID 集合选择火/水/风/岩/雷/草/冰元素天赋变体。
+
+展示柜数据与 `SimConfig` 故意分离：目录中的身份和倍率信息不等于可执行的帧、ICD、Aura、粒子、快照和特殊机制，不能仅凭玩家面板生成可信轮转。只有 `simulationStatus: "mechanics-mapped"` 的记录以后才允许进入配置编译器；当前目录全部为 `metadata-only`。所谓“毕业站位”同样只创建 `graduation-target-placeholder`，在目标标准核验前禁止模拟。
 
 纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
 
-## 9. Milestone 3–4 当前边界
+## 9. 版本化游戏数据目录
+
+`packages/schemas/src/catalog.ts` 定义：
+
+- `GameDataCatalog`：完整角色、天赋、15 级参数数组、武器和精炼数据。
+- `GameDataRuntimeIndex`：网页只读 UID 映射所需的轻量身份索引。
+- `GameDataProvenance`：`patch`、`source`、`sourceVersion`、`verifiedAt`、`verificationStatus` 和 `notes`。
+- `simulationStatus`：`metadata-only | partial | mechanics-mapped`。
+- `migrateGameDataCatalog()`：拒绝缺版本或未来版本，防止静默接受上游破坏性字段变化。
+
+生成输入固定为：
+
+```text
+genshin-db npm 5.2.12
+repository commit 1bab2cdba4d218fd5caa46b5f54e7884ee8359a2
+Enka API-docs commit 2b9d23b334306f5845551ae7571d1165cdf096e5
+catalog schema 1.0.0
+game patch 6.7
+```
+
+`npm run data:generate` 同时生成完整目录和轻量索引；`npm run data:check` 从固定 npm 内容和提交的 Enka 数字 ID 快照重新生成内存结果并逐字节比较。完整目录当前含 120 个角色、125 套天赋、762 个技能/被动和 237 把武器。Enka 的 148 条映射只保留互操作数字关系；其审计仓库没有可识别许可证，因此没有复制文字或图片资产。
+
+目录全部标记为 `provisional + metadata-only`。即使倍率数组存在，也不能跳过动作帧、命中拆段、元素附着、ICD、快照、产球、状态机和专属机制插件而直接编译为正式伤害事件。
+
+## 10. Milestone 3–5 当前边界
 
 Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
 
@@ -287,4 +329,6 @@ Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元�
 
 Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。内置 M4 预设只用于机制验收；其面板、帧数和产球范围仍是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、几何飞行轨迹或真实技能产球数据库。
 
-下一阶段应优先把版本化角色/武器数据层、来源证据和杜林合法帧预设接到现有 Aura/粒子核心，再扩展复合附着、冻结、转化反应和角色特有 ICD Group。无论选择哪一条，都必须保留现有 Golden、Aura 和能量向量。
+Milestone 5 已完成数据层基础，不等于正式杜林预设完成。杜林、尼可、洛恩、茜特菈莉、希诺宁以及全量角色/武器身份与倍率均可查询，但仍需逐角色机制插件、裸伤/Buff 后向量、动作帧、附着/ICD、粒子和武器/圣遗物效果交叉验证。
+
+下一阶段应优先给杜林五人首批数据建立 `mechanics-mapped` 审核清单和可执行插件，补齐其相关武器/圣遗物效果与 120 秒 0 能量合法帧预设；再扩展复合附着、冻结、转化反应和角色特有 ICD Group。无论选择哪一条，都必须保留现有 Golden、Aura、能量和目录再生向量。

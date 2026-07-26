@@ -1,6 +1,9 @@
 import {
   enkaShowcaseResponseSchema,
   type EnkaShowcaseResponse,
+  type CatalogResolvedShowcase,
+  type CatalogResolvedShowcaseCharacter,
+  type GameDataRuntimeIndex,
   type GraduationBuildPlaceholder,
   type ImportedArtifact,
   type ImportedArtifactStat,
@@ -8,6 +11,13 @@ import {
   type ImportedShowcaseCharacter,
   type ImportedWeapon
 } from "@genshin-dps-lab/schemas";
+import {
+  findRuntimeCharacterByAvatarId,
+  findRuntimeEnkaCharacterMapping,
+  findRuntimeTalentSetForCharacter,
+  findRuntimeWeaponByItemId,
+  gameDataRuntimeIndex
+} from "./catalog-runtime";
 
 const DAMAGE_BONUS_FIGHT_PROPS: Record<string, string> = {
   "30": "physical",
@@ -158,6 +168,151 @@ export function parseEnkaShowcase(
     worldLevel: response.playerInfo.worldLevel ?? null,
     visibility: characters.length ? "public" : "closed-or-empty",
     characters
+  };
+}
+
+function resolveCharacter(
+  character: ImportedShowcaseCharacter,
+  catalog: GameDataRuntimeIndex
+): CatalogResolvedShowcaseCharacter {
+  const characterRecord =
+    catalog === gameDataRuntimeIndex
+      ? findRuntimeCharacterByAvatarId(character.avatarId)
+      : catalog.characters.find(
+          (candidate) => candidate.avatarId === character.avatarId
+        ) ?? null;
+  const weaponRecord =
+    character.weapon === null
+      ? null
+      : catalog === gameDataRuntimeIndex
+        ? findRuntimeWeaponByItemId(character.weapon.itemId)
+        : catalog.weapons.find(
+            (candidate) => candidate.itemId === character.weapon?.itemId
+          ) ?? null;
+  const enkaMapping =
+    catalog === gameDataRuntimeIndex
+      ? findRuntimeEnkaCharacterMapping(
+          character.avatarId,
+          Object.keys(character.skillLevels)
+        )
+      : catalog.enkaCharacterMappings.find(
+          (candidate) => candidate.avatarId === character.avatarId
+        ) ?? null;
+  const talentSet =
+    characterRecord === null
+      ? null
+      : catalog === gameDataRuntimeIndex
+        ? findRuntimeTalentSetForCharacter(characterRecord, enkaMapping)
+        : characterRecord.talentSetIds.length === 1
+          ? catalog.talentSets.find(
+              (candidate) =>
+                candidate.id === characterRecord.talentSetIds[0]
+            ) ?? null
+          : null;
+  const combatAbilities = (talentSet?.abilities ?? []).filter((ability) =>
+    ["combat1", "combat2", "combat3"].includes(ability.key)
+  );
+  const resolvedSkills = Object.entries(character.skillLevels).map(
+    ([skillId, baseLevel]) => {
+      const index = enkaMapping?.skillOrder.indexOf(Number(skillId)) ?? -1;
+      const ability = index >= 0 ? combatAbilities[index] ?? null : null;
+      const proudId = enkaMapping?.proudMap[skillId];
+      const bonusLevel =
+        proudId === undefined
+          ? 0
+          : character.skillLevelBonuses[String(proudId)] ?? 0;
+      return {
+        skillId,
+        baseLevel,
+        bonusLevel,
+        effectiveLevel: baseLevel + bonusLevel,
+        abilityId: ability?.id ?? null,
+        name: ability?.name ?? null,
+        matchStatus: ability === null ? "unmatched" : "matched"
+      } as const;
+    }
+  );
+
+  return {
+    ...character,
+    catalog: {
+      matchStatus: characterRecord === null ? "unmatched" : "matched",
+      catalogVersion: catalog.catalogVersion,
+      characterId: characterRecord?.id ?? null,
+      name: characterRecord?.name ?? null,
+      element: characterRecord?.element ?? null,
+      weaponType: characterRecord?.weaponType ?? null,
+      rarity: characterRecord?.rarity ?? null,
+      simulationStatus: characterRecord?.simulationStatus ?? null,
+      notes:
+        characterRecord === null
+          ? "No matching avatarId exists in the pinned character catalog."
+          : "Catalog identity matched; executable mechanics remain separately gated by simulationStatus."
+    },
+    weaponCatalog:
+      character.weapon === null
+        ? {
+            matchStatus: "not-equipped",
+            weaponId: null,
+            name: null,
+            simulationStatus: null
+          }
+        : {
+            matchStatus: weaponRecord === null ? "unmatched" : "matched",
+            weaponId: weaponRecord?.id ?? null,
+            name: weaponRecord?.name ?? null,
+            simulationStatus: weaponRecord?.simulationStatus ?? null
+          },
+    resolvedSkills
+  };
+}
+
+/**
+ * Enriches a validated showcase with the pinned catalog while preserving the
+ * original imported values. Resolution never converts account data into an
+ * executable simulation config.
+ */
+export function resolveShowcaseCatalog(
+  showcase: ImportedShowcase,
+  catalog: GameDataRuntimeIndex = gameDataRuntimeIndex
+): CatalogResolvedShowcase {
+  const characters = showcase.characters.map((character) =>
+    resolveCharacter(character, catalog)
+  );
+  const uniqueSortedNumbers = (values: number[]) =>
+    [...new Set(values)].sort((left, right) => left - right);
+  const uniqueSortedStrings = (values: string[]) =>
+    [...new Set(values)].sort((left, right) => left.localeCompare(right));
+  return {
+    ...showcase,
+    catalogVersion: catalog.catalogVersion,
+    catalogSchemaVersion: catalog.schemaVersion,
+    catalogPatch: catalog.gamePatch,
+    catalogVerificationStatus: catalog.verificationStatus,
+    characters,
+    diagnostics: {
+      unmatchedAvatarIds: uniqueSortedNumbers(
+        characters
+          .filter((character) => character.catalog.matchStatus === "unmatched")
+          .map((character) => character.avatarId)
+      ),
+      unmatchedWeaponIds: uniqueSortedNumbers(
+        characters
+          .filter(
+            (character) =>
+              character.weapon !== null &&
+              character.weaponCatalog.matchStatus === "unmatched"
+          )
+          .map((character) => character.weapon!.itemId)
+      ),
+      unmatchedSkillIds: uniqueSortedStrings(
+        characters.flatMap((character) =>
+          character.resolvedSkills
+            .filter((skill) => skill.matchStatus === "unmatched")
+            .map((skill) => `${character.avatarId}:${skill.skillId}`)
+        )
+      )
+    }
   };
 }
 

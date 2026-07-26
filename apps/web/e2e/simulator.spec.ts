@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { expect, test } from "@playwright/test";
-import { durinMeltPreset } from "@genshin-dps-lab/game-data";
+import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 
 test("runs, imports, explores, and exports the compatibility preset", async ({
   page
@@ -256,16 +256,47 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
 
   await page.goto("/");
   await page.getByRole("button", { name: "账号展示柜" }).click();
+  await expect(page.locator("#catalogStatus")).toContainText(
+    "120 个角色"
+  );
+  await expect(page.locator("#catalogStatus")).toContainText(
+    "762 个技能与被动"
+  );
+  await expect(page.locator("#catalogStatus")).toContainText(
+    "数值目录与可执行机制严格分离"
+  );
   await page.getByRole("button", { name: "导入展示柜" }).click();
   await expect(page.locator("#showcaseStatus")).toContainText("导入成功");
+  await expect(page.locator("#showcaseStatus")).toContainText("0 项未匹配");
   await expect(page.locator("#showcaseSummary")).toContainText("1 名角色");
+  await expect(page.locator("#showcaseSummary")).toContainText(
+    "目录 6.7 · provisional"
+  );
+  await expect(page.locator("#showcaseCharacters")).toContainText("流浪者");
   await expect(page.locator("#showcaseCharacters")).toContainText("10000075");
+  await expect(page.locator("#showcaseCharacters")).toContainText("风鹰剑");
   await expect(page.locator("#showcaseCharacters")).toContainText("精5");
+  await expect(page.locator("#showcaseCharacters")).toContainText("行幡鸣弦");
+  await expect(page.locator("#showcaseCharacters")).toContainText(
+    "羽画·风姿华歌"
+  );
+  await expect(page.locator("#showcaseCharacters")).toContainText(
+    "狂言·式乐五番"
+  );
+  await expect(page.locator("#showcaseCharacters")).toContainText(
+    "metadata-only"
+  );
+  await expect(page.locator("#showcaseCharacters")).toContainText(
+    "仅数据目录，不自动进入模拟"
+  );
   await page
     .getByRole("button", { name: "设为毕业站位占位" })
     .click();
   await expect(page.locator("#graduationPlaceholder")).toContainText(
     "graduation-target-placeholder"
+  );
+  await expect(page.locator("#graduationPlaceholder")).toContainText(
+    "流浪者"
   );
   await expect(page.locator("#graduationPlaceholder")).toContainText(
     "不进入伤害模拟"

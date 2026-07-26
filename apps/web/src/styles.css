@@ -92,6 +92,8 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 .detail-card { margin-top: 14px; }
 .showcase-import { display: grid; grid-template-columns: minmax(220px, 320px) auto minmax(260px, 1fr); gap: 12px; align-items: end; }
 .showcase-import button { min-height: 40px; }
+.catalog-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 16px; }
+.catalog-status .muted { flex-basis: 100%; }
 .showcase-summary { margin: 18px 0 12px; color: var(--muted); }
 .showcase-summary strong { color: var(--text); }
 .showcase-grid { display: grid; grid-template-columns: repeat(3, minmax(260px, 1fr)); gap: 12px; }

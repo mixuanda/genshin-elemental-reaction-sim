@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "data:generate": "node packages/game-data/scripts/generate-catalog.mjs",
+    "data:check": "node packages/game-data/scripts/generate-catalog.mjs --check",
     "dev": "npm run dev --workspace @genshin-dps-lab/web",
     "build": "npm run typecheck && npm run build --workspace @genshin-dps-lab/web",
     "preview": "npm run preview --workspace @genshin-dps-lab/web",
@@ -15,11 +17,13 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run data:check && npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
     "@playwright/test": "1.62.0",
     "@types/node": "26.1.1",
+    "genshin-db": "5.2.12",
+    "genshin-db": "5.2.12",
     "typescript": "7.0.2",
     "vite": "8.1.5",
     "vitest": "4.1.10"

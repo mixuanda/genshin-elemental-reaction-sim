@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { durinMeltPreset } from "@genshin-dps-lab/game-data";
+import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 
