@@ -15,6 +15,7 @@ import {
   type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
+  type ShatterReactionAudit,
   type ReactionStatusEffectDefinition,
   type TransformativeReactionFactors,
   type TransformativeReaction,
@@ -24,7 +25,11 @@ import {
   type SimulationResult,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
-import { AURA_ENGINE_CONSTANTS, AuraEngine } from "./aura";
+import {
+  AURA_ENGINE_CONSTANTS,
+  AuraEngine,
+  type ShatterStateResult
+} from "./aura";
 import {
   calculateParticleEnergy,
   resolveParticleCount,
@@ -400,6 +405,8 @@ interface HitEventPayload {
 interface ReactionDamageEventPayload {
   reaction: TransformativeReaction;
   damageElement: Element;
+  strikeType: "default" | "blunt";
+  poiseDamage: number;
   statusEffect: ReactionStatusEffectDefinition | null;
   actorId: string;
   action: ActionDefinition;
@@ -528,7 +535,8 @@ const TRANSFORMATIVE_REACTION_LABELS: Record<
 > = {
   overload: "超载",
   superconduct: "超导",
-  electroCharged: "感电"
+  electroCharged: "感电",
+  shatter: "碎冰"
 };
 
 const BUFF_STATS = new Set<BuffStat>([
@@ -964,6 +972,8 @@ function simulateConfig(
     push(frame / 60, "reactionDamage", {
       reaction: "electroCharged",
       damageElement: "electro",
+      strikeType: "default",
+      poiseDamage: 0,
       statusEffect: null,
       actorId: source.actorId,
       action: source.action,
@@ -1038,6 +1048,151 @@ function simulateConfig(
     stats.critRate = clamp(stats.critRate, 0, 1);
     stats.defIgnore = clamp(stats.defIgnore, 0, 1);
     return stats;
+  };
+
+  const recordShatterFrozenState = ({
+    result,
+    targetId,
+    targetName,
+    sourceActorId,
+    triggerDamageEventId,
+    frame,
+    timeSeconds,
+    freezeResistance
+  }: {
+    result: ShatterStateResult;
+    targetId: string;
+    targetName: string;
+    sourceActorId: string;
+    triggerDamageEventId: number;
+    frame: number;
+    timeSeconds: number;
+    freezeResistance: number;
+  }): void => {
+    for (const mutation of result.mutations) {
+      frozenStateLog.push({
+        id: frozenStateLog.length,
+        reaction: "shatter",
+        generation: result.audit.generation,
+        operation: mutation.operation,
+        frame,
+        timeSeconds,
+        targetId,
+        targetName,
+        sourceActorId,
+        triggerDamageEventId,
+        freezeResistance,
+        generatedGaugeUnits: 0,
+        consumedGaugeUnits: mutation.consumedGaugeUnits,
+        auraBefore: deepClone(mutation.auraBefore),
+        auraAfter: deepClone(mutation.auraAfter),
+        expiresAtFrame: result.audit.expiresAtFrame,
+        reason: mutation.reason
+      });
+    }
+    if (result.mutations.length === 0) return;
+    const existingSource = activeFrozenStateSources.get(targetId);
+    if (result.audit.frozenGaugeAfter > 0) {
+      activeFrozenStateSources.set(targetId, {
+        generation: result.audit.generation,
+        actorId: existingSource?.actorId ?? sourceActorId,
+        triggerDamageEventId:
+          existingSource?.triggerDamageEventId ??
+          triggerDamageEventId
+      });
+      scheduleFrozenExpiry(
+        targetId,
+        result.audit.generation,
+        result.audit.expiresAtFrame
+      );
+    } else {
+      activeFrozenStateSources.delete(targetId);
+    }
+  };
+
+  const scheduleShatterDamage = ({
+    audit,
+    actorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    triggerDamageEventId,
+    sourceTargetId,
+    stats,
+    reactionBonus,
+    sourceBuffStatuses,
+    snapshot,
+    cycle,
+    triggerFrame
+  }: {
+    audit: ShatterReactionAudit;
+    actorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    triggerDamageEventId: number;
+    sourceTargetId: string;
+    stats: CharacterStats;
+    reactionBonus: number;
+    sourceBuffStatuses: ActiveStatusSnapshot[];
+    snapshot: DamageEvent["snapshot"];
+    cycle: number;
+    triggerFrame: number;
+  }): void => {
+    if (!audit.triggered) return;
+    const reactionDamageLogId = reactionDamageLog.length;
+    const withinSimulation =
+      audit.scheduled &&
+      audit.damageFrame <= Math.round(config.duration * 60);
+    reactionDamageLog.push({
+      id: reactionDamageLogId,
+      reaction: "shatter",
+      triggerDamageEventId,
+      sourceActorId: actorId,
+      sourceTargetId,
+      triggerFrame,
+      damageFrame: audit.damageFrame,
+      scheduled: audit.scheduled,
+      withinSimulation,
+      blockedReason: audit.scheduled
+        ? null
+        : "REACTION_DAMAGE_GCD",
+      nextAvailableFrame: audit.nextAvailableFrame,
+      scheduleKind: "one-shot",
+      targetingMode: "single-target",
+      centerPosition: null,
+      radius: 0,
+      checkedTargetIds: [],
+      hitTargetIds: [],
+      unresolvedTargetIds: [],
+      damageEventIds: [],
+      reactionStatusLogIds: []
+    });
+    if (!withinSimulation) return;
+    push(audit.damageFrame / 60, "reactionDamage", {
+      reaction: "shatter",
+      damageElement: "physical",
+      strikeType: "default",
+      poiseDamage: 0,
+      statusEffect: null,
+      actorId,
+      action,
+      triggerHitId,
+      triggerHitGroupId,
+      triggerDamageEventId,
+      sourceTargetId,
+      targetingMode: "single-target",
+      centerPosition: null,
+      radius: 0,
+      baseMultiplier: audit.baseMultiplier,
+      stats: deepClone(stats),
+      elementalMastery: stats.em,
+      reactionBonus,
+      sourceBuffStatuses: deepClone(sourceBuffStatuses),
+      snapshot,
+      cycle,
+      reactionDamageLogId
+    } satisfies ReactionDamageEventPayload);
   };
 
   const addBuff = (
@@ -2208,6 +2363,8 @@ function simulateConfig(
       const {
         reaction,
         damageElement,
+        strikeType,
+        poiseDamage,
         statusEffect,
         actorId,
         action,
@@ -2319,6 +2476,19 @@ function simulateConfig(
             event.frame >= phase.startFrame &&
             event.frame < phase.endFrame
         );
+        const reactionDamageAuraAllowed =
+          activeTargetPhase?.effects.aura !== "blocked";
+        const nestedShatterState =
+          reactionDamageAuraAllowed
+            ? (auraEngines
+                ?.get(plan.targetId)
+                ?.processShatterHit({
+                  frame: event.frame,
+                  element: damageElement,
+                  strikeType,
+                  poiseDamage
+                }) ?? null)
+            : null;
         const damageAllowed =
           plan.landed &&
           activeTargetPhase?.effects.damage !== "immune";
@@ -2507,8 +2677,10 @@ function simulateConfig(
           transformativeReaction: null,
           periodicReaction: null,
           frozenReaction: null,
+          shatterReaction:
+            nestedShatterState?.audit ?? null,
           note:
-            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : damageElement === "cryo" ? "冰" : damageElement === "electro" ? "雷" : damageElement}元素抗性与目标伤害策略。`
+            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : damageElement === "cryo" ? "冰" : damageElement === "electro" ? "雷" : damageElement === "physical" ? "物理" : damageElement}抗性与目标伤害策略。`
         };
         damageEvents.push({
           id: damageEventId,
@@ -2619,6 +2791,35 @@ function simulateConfig(
           calculation.finalDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
+        if (nestedShatterState !== null) {
+          recordShatterFrozenState({
+            result: nestedShatterState,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            sourceActorId: actorId,
+            triggerDamageEventId: damageEventId,
+            frame: event.frame,
+            timeSeconds,
+            freezeResistance: targetProfile.freezeResistance
+          });
+          if (nestedShatterState.audit.triggered) {
+            scheduleShatterDamage({
+              audit: nestedShatterState.audit,
+              actorId,
+              action,
+              triggerHitId: reactionHitId,
+              triggerHitGroupId: reactionHitGroupId,
+              triggerDamageEventId: damageEventId,
+              sourceTargetId: plan.targetId,
+              stats,
+              reactionBonus,
+              sourceBuffStatuses,
+              snapshot,
+              cycle,
+              triggerFrame: event.frame
+            });
+          }
+        }
         if (
           periodicContext !== undefined &&
           plan.targetId === sourceTargetId
@@ -2958,6 +3159,19 @@ function simulateConfig(
       baseDefenseReduction: targetProfile.defReduction,
       effectiveDefenseReduction
     };
+    const shatterState =
+      auraEngine !== null && auraAllowed
+        ? auraEngine.processShatterHit({
+            frame: event.frame,
+            element,
+            ...(hit.strikeType === undefined
+              ? {}
+              : { strikeType: hit.strikeType }),
+            ...(hit.poiseDamage === undefined
+              ? {}
+              : { poiseDamage: hit.poiseDamage })
+          })
+        : null;
     const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
     const reactionAudit: ReactionAudit =
       auraEngine === null
@@ -2977,6 +3191,7 @@ function simulateConfig(
             transformativeReaction: null,
             periodicReaction: null,
             frozenReaction: null,
+            shatterReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -3005,6 +3220,8 @@ function simulateConfig(
               note:
                 "目标效果策略阻止了本段元素附着与反应；Aura 仅按当前帧衰减。"
             };
+    reactionAudit.shatterReaction =
+      shatterState?.audit ?? null;
     const reaction = reactionAudit.reaction;
     const amplifyingReaction =
       reaction === "melt" ||
@@ -3157,6 +3374,61 @@ function simulateConfig(
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
+    if (shatterState !== null) {
+      recordShatterFrozenState({
+        result: shatterState,
+        targetId,
+        targetName: targetProfile.name,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        frame: event.frame,
+        timeSeconds,
+        freezeResistance: targetProfile.freezeResistance
+      });
+      if (shatterState.audit.triggered) {
+        const shatterSourceStats =
+          hit.snapshot === "action"
+            ? deepClone(
+                snapshots[actorId] ??
+                  computeStats(actorId, timeSeconds)
+              )
+            : computeStats(actorId, timeSeconds);
+        if (shatterSourceStats === undefined) {
+          throw new Error(
+            `Shatter source stats for "${actorId}" could not be resolved.`
+          );
+        }
+        scheduleShatterDamage({
+          audit: shatterState.audit,
+          actorId,
+          action,
+          triggerHitId: hitId,
+          triggerHitGroupId: hitGroupId,
+          triggerDamageEventId: damageEventId,
+          sourceTargetId: targetId,
+          stats: shatterSourceStats,
+          reactionBonus:
+            shatterSourceStats.reactionBonus +
+            safeNumber(hit.reactionBonus),
+          sourceBuffStatuses: activeBuffs
+            .filter((buff) => buff.targetId === actorId)
+            .map((buff) => ({
+              key: buff.key,
+              kind: "buff" as const,
+              sourceActorId: buff.actorId,
+              targetId: buff.targetId,
+              stat: buff.stat,
+              value: buff.value,
+              startTimeSeconds: buff.start,
+              endTimeSeconds: buff.end,
+              label: buff.label
+            })),
+          snapshot,
+          cycle,
+          triggerFrame: event.frame
+        });
+      }
+    }
     const transformativeReaction =
       reactionAudit.transformativeReaction;
     if (transformativeReaction !== null) {
@@ -3208,6 +3480,14 @@ function simulateConfig(
             reaction: transformativeReaction.reaction,
             damageElement:
               transformativeReaction.damageElement,
+            strikeType:
+              transformativeReaction.reaction === "overload"
+                ? "blunt"
+                : "default",
+            poiseDamage:
+              transformativeReaction.reaction === "overload"
+                ? 90
+                : 0,
             statusEffect:
               transformativeReaction.statusEffect === null
                 ? null

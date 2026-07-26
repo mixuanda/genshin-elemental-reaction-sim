@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.25.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.25.0-freeze-state" as const;
+export const CURRENT_SCHEMA_VERSION = "1.26.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.26.0-shatter-reaction" as const;
+export const FREEZE_REACTION_SCHEMA_VERSION = "1.25.0" as const;
 export const ELECTRO_CHARGED_REACTION_SCHEMA_VERSION = "1.24.0" as const;
 export const SUPERCONDUCT_REACTION_SCHEMA_VERSION = "1.23.0" as const;
 export const OVERLOAD_REACTION_SCHEMA_VERSION = "1.22.0" as const;
@@ -48,9 +49,11 @@ export type OneShotTransformativeReaction =
   | "overload"
   | "superconduct";
 export type PeriodicTransformativeReaction = "electroCharged";
+export type ShatterReaction = "shatter";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
-  | PeriodicTransformativeReaction;
+  | PeriodicTransformativeReaction
+  | ShatterReaction;
 export type NonDamageReaction = "freeze";
 export type ReactionType =
   | AmplifyingReaction
@@ -59,6 +62,7 @@ export type ReactionType =
 
 export type ScalingStat = "atk" | "hp" | "def" | "em";
 export type SnapshotMode = "action" | "hit";
+export type StrikeType = "default" | "blunt";
 export type CritMode = "average" | "allCrit" | "noCrit";
 export type EnergyMode = "configured" | "zero" | "full";
 export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
@@ -309,6 +313,13 @@ export interface HitDefinition {
   scaling: number;
   scalingStat?: ScalingStat;
   element?: Element;
+  /**
+   * Frozen/Shatter strike classification. Other gcsim strike categories are
+   * intentionally not represented until they affect a modeled mechanic.
+   */
+  strikeType?: StrikeType;
+  /** gcsim poise damage; only valid for blunt hits and used to reduce Frozen. */
+  poiseDamage?: number;
   targeting?: HitTargetingConfig;
   geometry?: HitGeometry;
   application?: ElementalApplication;
@@ -672,6 +683,7 @@ export interface ReactionAudit {
   transformativeReaction: TransformativeReactionAudit | null;
   periodicReaction: PeriodicReactionAudit | null;
   frozenReaction: FrozenReactionAudit | null;
+  shatterReaction: ShatterReactionAudit | null;
   note?: string;
 }
 
@@ -710,6 +722,33 @@ export interface FrozenReactionAudit {
   frozenGaugeBefore: number;
   frozenGaugeAfter: number;
   decayRatePerFrame: number;
+  expiresAtFrame: number | null;
+}
+
+export interface ShatterReactionAudit {
+  reaction: "shatter";
+  generation: number;
+  strikeType: StrikeType;
+  poiseDamage: number;
+  triggered: boolean;
+  scheduled: boolean;
+  damageElement: "physical";
+  damageFrame: number;
+  baseMultiplier: number;
+  blockedReason:
+    | "NO_FROZEN_AURA"
+    | "FROZEN_DEPLETED_BY_POISE"
+    | "REACTION_DAMAGE_GCD"
+    | null;
+  nextAvailableFrame: number | null;
+  frozenGaugeBefore: number;
+  poiseConsumedGaugeUnits: number;
+  frozenGaugeAfterPoise: number;
+  shatterConsumedGaugeUnits: number;
+  frozenGaugeAfter: number;
+  auraBefore: AuraStateEntry[];
+  auraAfterPoise: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
 }
 
@@ -1165,11 +1204,13 @@ export type FrozenStateOperation =
   | "refresh"
   | "immune"
   | "consume"
+  | "poise-consume"
+  | "shatter-consume"
   | "expire";
 
 export interface FrozenStateLogEntry {
   id: number;
-  reaction: "freeze" | "melt" | "superconduct";
+  reaction: "freeze" | "melt" | "superconduct" | "shatter";
   generation: number;
   operation: FrozenStateOperation;
   frame: number;

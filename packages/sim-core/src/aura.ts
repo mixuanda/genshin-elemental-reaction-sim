@@ -10,6 +10,8 @@ import type {
   OneShotTransformativeReaction,
   ReactionType,
   ReactionAudit,
+  ShatterReactionAudit,
+  StrikeType,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 
@@ -36,6 +38,10 @@ const ELECTRO_CHARGED_WANE_GAUGE_UNITS = 0.4;
 const ELECTRO_CHARGED_BASE_MULTIPLIER = 2;
 const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
 const FROZEN_DECAY_ACCELERATION_PER_FRAME = 0.1 / (60 * 60);
+const FROZEN_POISE_DAMAGE_TO_GAUGE_UNITS = 0.15 / 25;
+const SHATTER_GAUGE_CONSUMPTION_UNITS = 200 / 25;
+const SHATTER_DAMAGE_GCD_FRAMES = 12;
+const SHATTER_BASE_MULTIPLIER = 3;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -138,6 +144,19 @@ export interface FrozenStateResult {
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
   reason: string;
+}
+
+export interface ShatterFrozenMutation {
+  operation: "poise-consume" | "shatter-consume";
+  consumedGaugeUnits: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  reason: string;
+}
+
+export interface ShatterStateResult {
+  audit: ShatterReactionAudit;
+  mutations: ShatterFrozenMutation[];
 }
 
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
@@ -277,6 +296,7 @@ export class AuraEngine {
   private electroChargedNextTickFrame = -1;
   private frozenGeneration = 0;
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
+  private shatterDamageReadyFrame = -1;
   private currentFrame = 0;
 
   constructor(config: AuraEngineConfig) {
@@ -450,6 +470,201 @@ export class AuraEngine {
     return {
       operation,
       generatedGaugeUnits: gaugeUnits
+    };
+  }
+
+  processShatterHit(input: {
+    frame: number;
+    element: Element;
+    strikeType?: StrikeType;
+    poiseDamage?: number;
+  }): ShatterStateResult | null {
+    this.advanceTo(input.frame);
+    const strikeType = input.strikeType ?? "default";
+    const poiseDamage = input.poiseDamage ?? 0;
+    if (
+      !Number.isFinite(poiseDamage) ||
+      poiseDamage < 0
+    ) {
+      throw new Error(
+        `poiseDamage must be a finite non-negative number; got ${poiseDamage}`
+      );
+    }
+    if (strikeType !== "blunt" && input.element !== "geo") {
+      return null;
+    }
+
+    const mutations: ShatterFrozenMutation[] = [];
+    const auraBefore = this.snapshot();
+    const frozenGaugeBefore = this.frozenGaugeUnits();
+    if (frozenGaugeBefore <= AURA_EPSILON) {
+      return {
+        audit: {
+          reaction: "shatter",
+          generation: this.frozenGeneration,
+          strikeType,
+          poiseDamage,
+          triggered: false,
+          scheduled: false,
+          damageElement: "physical",
+          damageFrame: input.frame,
+          baseMultiplier: SHATTER_BASE_MULTIPLIER,
+          blockedReason: "NO_FROZEN_AURA",
+          nextAvailableFrame: null,
+          frozenGaugeBefore: 0,
+          poiseConsumedGaugeUnits: 0,
+          frozenGaugeAfterPoise: 0,
+          shatterConsumedGaugeUnits: 0,
+          frozenGaugeAfter: 0,
+          auraBefore,
+          auraAfterPoise: this.snapshot(),
+          auraAfter: this.snapshot(),
+          expiresAtFrame: null
+        },
+        mutations
+      };
+    }
+
+    let poiseConsumedGaugeUnits = 0;
+    if (strikeType === "blunt" && poiseDamage > 0) {
+      const mutationBefore = this.snapshot();
+      const frozen = this.auras.get("frozen");
+      if (frozen !== undefined) {
+        poiseConsumedGaugeUnits = Math.min(
+          frozen.gaugeUnits,
+          poiseDamage * FROZEN_POISE_DAMAGE_TO_GAUGE_UNITS
+        );
+        frozen.gaugeUnits -= poiseConsumedGaugeUnits;
+        if (frozen.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("frozen");
+        }
+      }
+      if (poiseConsumedGaugeUnits > AURA_EPSILON) {
+        mutations.push({
+          operation: "poise-consume",
+          consumedGaugeUnits: cleanGaugeUnits(
+            poiseConsumedGaugeUnits
+          ),
+          auraBefore: mutationBefore,
+          auraAfter: this.snapshot(),
+          reason:
+            this.frozenGaugeUnits() <= AURA_EPSILON
+              ? "FROZEN_DEPLETED_BY_BLUNT_POISE"
+              : "FROZEN_PARTIALLY_CONSUMED_BY_BLUNT_POISE"
+        });
+      }
+    }
+
+    const auraAfterPoise = this.snapshot();
+    const frozenGaugeAfterPoise = this.frozenGaugeUnits();
+    if (frozenGaugeAfterPoise <= AURA_EPSILON) {
+      if (mutations.length > 0) {
+        this.frozenGeneration += 1;
+      }
+      return {
+        audit: {
+          reaction: "shatter",
+          generation: this.frozenGeneration,
+          strikeType,
+          poiseDamage,
+          triggered: false,
+          scheduled: false,
+          damageElement: "physical",
+          damageFrame: input.frame,
+          baseMultiplier: SHATTER_BASE_MULTIPLIER,
+          blockedReason: "FROZEN_DEPLETED_BY_POISE",
+          nextAvailableFrame: null,
+          frozenGaugeBefore: cleanGaugeUnits(
+            frozenGaugeBefore
+          ),
+          poiseConsumedGaugeUnits: cleanGaugeUnits(
+            poiseConsumedGaugeUnits
+          ),
+          frozenGaugeAfterPoise: 0,
+          shatterConsumedGaugeUnits: 0,
+          frozenGaugeAfter: 0,
+          auraBefore,
+          auraAfterPoise,
+          auraAfter: this.snapshot(),
+          expiresAtFrame: null
+        },
+        mutations
+      };
+    }
+
+    const shatterAuraBefore = this.snapshot();
+    const frozen = this.auras.get("frozen");
+    const shatterConsumedGaugeUnits =
+      frozen === undefined
+        ? 0
+        : Math.min(
+            frozen.gaugeUnits,
+            SHATTER_GAUGE_CONSUMPTION_UNITS
+          );
+    if (frozen !== undefined) {
+      frozen.gaugeUnits -= shatterConsumedGaugeUnits;
+      if (frozen.gaugeUnits <= AURA_EPSILON) {
+        this.auras.delete("frozen");
+      }
+    }
+    this.frozenGeneration += 1;
+    const auraAfter = this.snapshot();
+    mutations.push({
+      operation: "shatter-consume",
+      consumedGaugeUnits: cleanGaugeUnits(
+        shatterConsumedGaugeUnits
+      ),
+      auraBefore: shatterAuraBefore,
+      auraAfter,
+      reason:
+        this.frozenGaugeUnits() <= AURA_EPSILON
+          ? "FROZEN_CONSUMED_BY_SHATTER"
+          : "FROZEN_PARTIALLY_CONSUMED_BY_SHATTER"
+    });
+
+    const scheduled =
+      this.shatterDamageReadyFrame < 0 ||
+      input.frame >= this.shatterDamageReadyFrame;
+    if (scheduled) {
+      this.shatterDamageReadyFrame =
+        input.frame + SHATTER_DAMAGE_GCD_FRAMES;
+    }
+    return {
+      audit: {
+        reaction: "shatter",
+        generation: this.frozenGeneration,
+        strikeType,
+        poiseDamage,
+        triggered: true,
+        scheduled,
+        damageElement: "physical",
+        damageFrame: input.frame,
+        baseMultiplier: SHATTER_BASE_MULTIPLIER,
+        blockedReason: scheduled
+          ? null
+          : "REACTION_DAMAGE_GCD",
+        nextAvailableFrame: this.shatterDamageReadyFrame,
+        frozenGaugeBefore: cleanGaugeUnits(
+          frozenGaugeBefore
+        ),
+        poiseConsumedGaugeUnits: cleanGaugeUnits(
+          poiseConsumedGaugeUnits
+        ),
+        frozenGaugeAfterPoise: cleanGaugeUnits(
+          frozenGaugeAfterPoise
+        ),
+        shatterConsumedGaugeUnits: cleanGaugeUnits(
+          shatterConsumedGaugeUnits
+        ),
+        frozenGaugeAfter: cleanGaugeUnits(
+          this.frozenGaugeUnits()
+        ),
+        auraBefore,
+        auraAfterPoise,
+        auraAfter,
+        expiresAtFrame: this.frozenExpiryFrame()
+      },
+      mutations
     };
   }
 
@@ -801,6 +1016,7 @@ export class AuraEngine {
         transformativeReaction: null,
         periodicReaction: null,
         frozenReaction: null,
+        shatterReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -829,6 +1045,7 @@ export class AuraEngine {
         transformativeReaction: null,
         periodicReaction: null,
         frozenReaction: null,
+        shatterReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -855,6 +1072,7 @@ export class AuraEngine {
         transformativeReaction: null,
         periodicReaction: null,
         frozenReaction: null,
+        shatterReaction: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -1185,6 +1403,7 @@ export class AuraEngine {
       transformativeReaction,
       periodicReaction,
       frozenReaction,
+      shatterReaction: null,
       note:
         periodicReaction?.operation === "stop"
           ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
@@ -1225,5 +1444,11 @@ export const AURA_ENGINE_CONSTANTS = {
     ELECTRO_CHARGED_BASE_MULTIPLIER,
   frozenBaseDecayPerFrame: FROZEN_BASE_DECAY_PER_FRAME,
   frozenDecayAccelerationPerFrame:
-    FROZEN_DECAY_ACCELERATION_PER_FRAME
+    FROZEN_DECAY_ACCELERATION_PER_FRAME,
+  frozenPoiseDamageToGaugeUnits:
+    FROZEN_POISE_DAMAGE_TO_GAUGE_UNITS,
+  shatterGaugeConsumptionUnits:
+    SHATTER_GAUGE_CONSUMPTION_UNITS,
+  shatterDamageGcdFrames: SHATTER_DAMAGE_GCD_FRAMES,
+  shatterBaseMultiplier: SHATTER_BASE_MULTIPLIER
 } as const;

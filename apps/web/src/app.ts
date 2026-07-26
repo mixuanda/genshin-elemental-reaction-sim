@@ -59,7 +59,8 @@ const REACTION_LABELS: Record<string, string> = {
   overload: "超载",
   superconduct: "超导",
   electroCharged: "感电",
-  freeze: "冻结"
+  freeze: "冻结",
+  shatter: "碎冰"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -637,7 +638,7 @@ function renderHitTable(): void {
           `<td>${escapeHtml(hit.actionName)} <span class="muted">/ ${escapeHtml(hit.hitLabel)}</span></td>` +
           `<td>${escapeHtml(hit.targetName)} <span class="muted">/ ${escapeHtml(hit.targetId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[hit.element] ?? "#ccc"}">${ELEMENT_LABELS[hit.element] ?? hit.element}</span></td>` +
-          `<td>${hit.reaction === "none" ? "—" : `<span class="badge">${REACTION_LABELS[hit.reaction] ?? hit.reaction}</span>`}</td>` +
+          `<td>${hit.reaction === "none" ? hit.reactionAudit.shatterReaction?.triggered ? '<span class="badge">碎冰触发</span>' : "—" : `<span class="badge">${REACTION_LABELS[hit.reaction] ?? hit.reaction}</span>`}</td>` +
           `<td>${hit.transformativeReactionFactors === null ? `${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()}` : `${formatNumber(hit.transformativeReactionFactors.levelBaseDamage, 4)} × ${hit.transformativeReactionFactors.baseMultiplier}`}</td>` +
           `<td>${formatNumber(hit.baseDamage, 0)}</td>` +
           `<td>${hit.kind === "transformative-reaction" ? "不暴击" : `×${hit.critFactor.toFixed(3)}`}</td>` +
@@ -946,6 +947,34 @@ function renderHitDetail(): void {
         frozen.expiresAtFrame === null
           ? "未生成或已清除"
           : `${frozen.expiresAtFrame}f`
+      ]
+    );
+  }
+  if (hit.reactionAudit.shatterReaction !== null) {
+    const shatter = hit.reactionAudit.shatterReaction;
+    const schedule =
+      !shatter.triggered
+        ? `未触发 · ${shatter.blockedReason ?? "不满足条件"}`
+        : shatter.scheduled
+          ? `${shatter.damageFrame}f 同帧排队 · 下次 ${shatter.nextAvailableFrame}f`
+          : `冻结槽仍已消耗 · ${shatter.blockedReason ?? "GCD 阻止"} · ${shatter.nextAvailableFrame}f 可再次产生伤害`;
+    factors.push(
+      [
+        "碎冰触发检查",
+        `${shatter.strikeType === "blunt" ? "钝击" : "默认打击"} · ${ELEMENT_LABELS[hit.element] ?? hit.element}元素 · ${formatNumber(shatter.poiseDamage, 2)} 韧性伤害`
+      ],
+      [
+        "钝击先削冻",
+        `${formatNumber(shatter.frozenGaugeBefore, 4)}U → ${formatNumber(shatter.frozenGaugeAfterPoise, 4)}U · 消耗 ${formatNumber(shatter.poiseConsumedGaugeUnits, 4)}U`
+      ],
+      [
+        "碎冰再消耗",
+        `${formatNumber(shatter.frozenGaugeAfterPoise, 4)}U → ${formatNumber(shatter.frozenGaugeAfter, 4)}U · 消耗 ${formatNumber(shatter.shatterConsumedGaugeUnits, 4)}U`
+      ],
+      ["碎冰伤害调度", schedule],
+      [
+        "碎冰伤害规则",
+        "单目标物理 · 等级基准 × 3.0 · 不暴击 · 无视防御 · 同目标 12f 伤害 GCD"
       ]
     );
   }
@@ -1699,12 +1728,14 @@ function renderAuraTimeline(): void {
     refresh: "刷新",
     immune: "免疫耐久",
     consume: "超导消耗",
+    "poise-consume": "钝击削冻",
+    "shatter-consume": "碎冰消耗",
     expire: "自然到期"
   };
   byId<HTMLElement>("frozenStateSummary").textContent =
     frozenStateLog.length === 0
       ? "当前结果没有冻结状态"
-      : `${frozenStateLog.length} 条冻结耐久记录 · ${frozenStateLog.filter((entry) => entry.operation === "expire").length} 次自然到期`;
+      : `${frozenStateLog.length} 条冻结耐久记录 · ${frozenStateLog.filter((entry) => entry.operation === "expire").length} 次自然到期 · ${frozenStateLog.filter((entry) => entry.operation === "shatter-consume").length} 次碎冰消耗`;
   byId<HTMLTableSectionElement>("frozenStateBody").innerHTML =
     frozenStateLog
       .map((entry) => {
@@ -1864,15 +1895,17 @@ function renderAuraTimeline(): void {
     .filter(
       (point) =>
         point.targetId === selectedTargetId &&
-        point.operation === "expire"
+        (point.operation === "expire" ||
+          point.operation === "poise-consume" ||
+          point.operation === "shatter-consume")
     )
     .map((point) => ({
       frame: point.frame,
       auraBefore: point.auraBefore,
       auraAfter: point.auraAfter,
-      reaction: "freeze" as const,
+      reaction: point.reaction,
       damageEventId: point.triggerDamageEventId,
-      order: 2
+      order: -1
     }));
   const curveTimeline = [
     ...timeline.map((point) => ({

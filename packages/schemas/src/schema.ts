@@ -8,6 +8,7 @@ import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
+  FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
   HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
@@ -489,7 +490,7 @@ export const hitGeometrySchema = z.discriminatedUnion("kind", [
   sectorHitGeometrySchema
 ]);
 
-export const hitDefinitionSchema = z
+const hitDefinitionObjectSchema = z
   .object({
     id: idSchema.optional(),
     offset: finiteNumber.min(0),
@@ -497,6 +498,8 @@ export const hitDefinitionSchema = z
     scaling: finiteNumber,
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
+    strikeType: z.enum(["default", "blunt"]).optional(),
+    poiseDamage: finiteNumber.min(0).optional(),
     targeting: hitTargetingConfigSchema.optional(),
     geometry: hitGeometrySchema.optional(),
     application: elementalApplicationSchema.optional(),
@@ -518,6 +521,28 @@ export const hitDefinitionSchema = z
     groupMultiplier: finiteNumber.optional()
   })
   .strict();
+
+const validateHitPoiseDamage = (
+  hit: {
+    strikeType?: "default" | "blunt" | undefined;
+    poiseDamage?: number | undefined;
+  },
+  context: z.RefinementCtx
+): void => {
+    if (
+      hit.poiseDamage !== undefined &&
+      hit.strikeType !== "blunt"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["poiseDamage"],
+        message: 'requires strikeType "blunt"'
+      });
+    }
+};
+
+export const hitDefinitionSchema =
+  hitDefinitionObjectSchema.superRefine(validateHitPoiseDamage);
 
 export const buffDefinitionSchema = z
   .object({
@@ -720,12 +745,13 @@ export const actionDefinitionSchema = z
 
 const frameSchema = z.number().int().min(0);
 
-export const frameHitDefinitionSchema = hitDefinitionSchema
+export const frameHitDefinitionSchema = hitDefinitionObjectSchema
   .omit({ offset: true })
   .extend({
     frame: frameSchema
   })
-  .strict();
+  .strict()
+  .superRefine(validateHitPoiseDamage);
 
 export const frameBuffDefinitionSchema = buffDefinitionSchema
   .omit({ duration: true, offset: true })
@@ -1743,6 +1769,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === FREEZE_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ELECTRO_CHARGED_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

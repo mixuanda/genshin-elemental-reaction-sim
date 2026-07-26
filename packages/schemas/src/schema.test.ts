@@ -1710,6 +1710,100 @@ describe("versioned config schema", () => {
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
 
+  it("migrates the Frozen-state schema into the Shatter schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.25.0",
+      engineVersion: "1.25.0-freeze-state"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
+
+  it("validates blunt strike and poise damage in both action formats", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      rotation: [
+        {
+          id: "blunt-action",
+          actorId: "a",
+          name: "Blunt Action",
+          at: 0,
+          hits: [
+            {
+              offset: 0,
+              scaling: 1,
+              strikeType: "blunt",
+              poiseDamage: 90
+            }
+          ]
+        }
+      ]
+    });
+    expect(parsed.rotation[0]?.hits?.[0]).toMatchObject({
+      strikeType: "blunt",
+      poiseDamage: 90
+    });
+
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "invalid-poise",
+            actorId: "a",
+            name: "Invalid Poise",
+            at: 0,
+            hits: [
+              {
+                offset: 0,
+                scaling: 1,
+                strikeType: "default",
+                poiseDamage: 90
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.hits\.0\.poiseDamage/);
+
+    const current = migrateConfig(legacyConfig);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 1,
+          abilities: [
+            {
+              id: "invalid-frame-poise",
+              actorId: "a",
+              name: "Invalid Frame Poise",
+              kind: "skill",
+              cancelFrame: 1,
+              animationEndFrame: 1,
+              cooldownFrames: 0,
+              hits: [
+                {
+                  frame: 0,
+                  scaling: 1,
+                  poiseDamage: 1
+                }
+              ]
+            }
+          ],
+          commands: []
+        }
+      })
+    ).toThrow(/timeline\.abilities\.0\.hits\.0\.poiseDamage/);
+  });
+
   it("validates shared and target-specific Frozen resistance", () => {
     const current = migrateConfig(legacyConfig);
     const parsed = migrateConfig({

@@ -1007,6 +1007,232 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
   await expect(page.locator("#hitDetail")).toContainText("176f");
 });
 
+test("renders Shatter trigger audit, physical damage, frozen consumption, and curve", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const template = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "碎冰反应 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.25,
+    defReduction: 0,
+    freezeResistance: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "碎冰浏览器目标",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...template,
+      id: "hydro-browser",
+      name: "Hydro Browser",
+      element: "hydro",
+      stats: {
+        ...template.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        critRate: 0,
+        dmgBonus: 0,
+        em: 0,
+        reactionBonus: 0
+      }
+    },
+    {
+      ...template,
+      id: "crusher-browser",
+      name: "Crusher Browser",
+      element: "physical",
+      stats: {
+        ...template.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        critRate: 0,
+        dmgBonus: 0,
+        em: 100,
+        reactionBonus: 0.2
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: "hydro-browser",
+    swapFrames: 1,
+    abilities: [
+      {
+        id: "freeze-before-shatter",
+        actorId: "hydro-browser",
+        name: "Freeze Before Shatter",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "freeze-before-shatter-hit",
+            label: "水触发冻结",
+            frame: 0,
+            scaling: 1,
+            element: "hydro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "freeze-before-shatter",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      },
+      {
+        id: "browser-shatter",
+        actorId: "crusher-browser",
+        name: "Browser Shatter",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "browser-shatter-hit",
+            label: "钝击碎冰",
+            frame: 0,
+            scaling: 1,
+            element: "physical",
+            strikeType: "blunt"
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: "hydro-browser",
+        abilityId: "freeze-before-shatter"
+      },
+      { type: "swap", characterId: "crusher-browser" },
+      {
+        type: "skill",
+        actorId: "crusher-browser",
+        abilityId: "browser-shatter"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "shatter-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#reactionDamageSummary")).toContainText(
+    "1 次转化反应触发"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("碎冰");
+  await expect(page.locator("#reactionDamageBody")).toContainText("单目标");
+  await expect(page.locator("#frozenStateSummary")).toContainText(
+    "2 条冻结耐久记录 · 0 次自然到期"
+  );
+  await expect(page.locator("#frozenStateSummary")).toContainText(
+    "1 次碎冰消耗"
+  );
+  await expect(page.locator("#frozenStateBody")).toContainText("碎冰消耗");
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const trigger = result?.damageEvents.find(
+      (event) =>
+        event.kind === "direct" &&
+        event.sourceActorId === "crusher-browser"
+    );
+    const shatter = result?.damageEvents.find(
+      (event) => event.reaction === "shatter"
+    );
+    return {
+      trigger: trigger
+        ? {
+            id: trigger.id,
+            frame: trigger.frame,
+            audit: trigger.reactionAudit.shatterReaction
+          }
+        : null,
+      shatter: shatter
+        ? {
+            frame: shatter.frame,
+            element: shatter.element,
+            reaction: shatter.reaction,
+            parentDamageEventId: shatter.parentDamageEventId,
+            displayDamage: shatter.displayDamage
+          }
+        : null,
+      frozen: result?.frozenStateLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        consumedGaugeUnits: entry.consumedGaugeUnits
+      }))
+    };
+  });
+  expect(audit).toMatchObject({
+    trigger: {
+      frame: 2,
+      audit: {
+        triggered: true,
+        scheduled: true,
+        damageFrame: 2,
+        nextAvailableFrame: 14,
+        baseMultiplier: 3,
+        frozenGaugeAfter: 0
+      }
+    },
+    shatter: {
+      frame: 2,
+      element: "physical",
+      reaction: "shatter",
+      parentDamageEventId: audit.trigger?.id,
+      displayDamage: expect.any(Number)
+    },
+    frozen: [
+      { operation: "start", frame: 0 },
+      {
+        operation: "shatter-consume",
+        frame: 2,
+        consumedGaugeUnits: expect.any(Number)
+      }
+    ]
+  });
+
+  await page.locator("#frozenStateBody tr").nth(1).click();
+  await expect(page.locator("#hitDetail")).toContainText("碎冰触发检查");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "单目标物理 · 等级基准 × 3.0"
+  );
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await page.locator("#reactionDamageBody tr").first().click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "等级 90 基准 1,446.8535 × 碎冰 3"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "独立转化反应伤害"
+  );
+});
+
 test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
   page
 }) => {
