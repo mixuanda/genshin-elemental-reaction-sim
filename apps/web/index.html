@@ -114,6 +114,34 @@
           <canvas id="damageCurveCanvas" height="320"></canvas>
           <div id="curveLegend" class="legend"></div>
         </article>
+        <article class="card curve-card" id="energyAuditCard" hidden>
+          <div class="section-title">
+            <h2>粒子 / 能量审计曲线</h2>
+            <span id="energyAuditSummary"></span>
+          </div>
+          <canvas id="energyTimelineCanvas" height="320"></canvas>
+          <div id="energyTimelineLegend" class="legend"></div>
+          <div id="particleEventSummary" class="particle-event-list"></div>
+          <div class="table-wrap energy-log-wrap">
+            <table class="energy-log-table">
+              <thead>
+                <tr>
+                  <th>接收 / 生成</th>
+                  <th>来源</th>
+                  <th>接收者</th>
+                  <th>粒子</th>
+                  <th>接球状态</th>
+                  <th>同色</th>
+                  <th>充能效率</th>
+                  <th>基础 → 充能后</th>
+                  <th>实得 / 溢出</th>
+                  <th>能量前 → 后</th>
+                </tr>
+              </thead>
+              <tbody id="energyLogBody"></tbody>
+            </table>
+          </div>
+        </article>
         <article class="card curve-card" id="auraTimelineCard" hidden>
           <div class="section-title"><h2>敌方 Aura / 反应曲线</h2><span>核心逐击返回：附着前 → ICD → 标称附着 → Aura 消耗 → 附着后</span></div>
           <canvas id="auraTimelineCanvas" height="300"></canvas>
@@ -185,13 +213,14 @@
               <dt>characters</dt><dd>角色面板、等级、能量上限与初始能量。</dd>
               <dt>rotation</dt><dd>一个循环内的行动。系统按 cycleLength 自动重复至 duration。</dd>
               <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式。</dd>
-              <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus。</dd>
+              <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus 和 energyRecharge。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
-              <dt>energyGains</dt><dd>以确定性数值描述自产球、队伍回能或天赋回能；不足能量的行动会被跳过并记录。</dd>
+              <dt>energyGains</dt><dd>只描述不受充能效率影响的固定回能；不足能量的行动会被跳过并记录。</dd>
+              <dt>particles</dt><dd>描述微粒/晶球的元素、离散数量范围、生成帧与飞行帧；核心在到达帧按前后台、同/异色和充能效率向全队分配。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、取消帧、动画结束、冷却、充能次数，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、1U/2U/4U 等可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。元素共存、冻结、感电等转化反应、粒子与真实动作帧数据库仍未实现。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。粒子规则已有机制闭环，但真实角色产球、动作帧和角色/武器数据库仍未完成；元素共存、冻结、感电等转化反应也未实现。</p>
           </article>
         </div>
       </section>

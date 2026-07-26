@@ -29,7 +29,7 @@ describe("versioned config schema", () => {
   it("migrates a legacy config and fills required versions/default stats", () => {
     const migrated = migrateConfig(legacyConfig);
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe("1.1.0-aura");
+    expect(migrated.engineVersion).toBe("1.2.0-particles");
     expect(migrated.dataVersion).toBe("0.1.0-demo");
     expect(migrated.randomSeed).toBe("legacy-default");
     expect(migrated.meta.verificationStatus).toBe("provisional");
@@ -139,16 +139,23 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates a 1.0.0 config to the current optional Aura schema", () => {
+  it("migrates 1.0.0 and 1.1.0 configs to the current particle schema", () => {
     const current = migrateConfig(legacyConfig);
-    const migrated = migrateConfig({
+    const migratedFromOne = migrateConfig({
       ...current,
       schemaVersion: "1.0.0",
       engineVersion: "1.0.0-compat"
     });
+    const migratedFromAura = migrateConfig({
+      ...current,
+      schemaVersion: "1.1.0",
+      engineVersion: "1.1.0-aura"
+    });
 
-    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe("1.1.0-aura");
+    expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migratedFromOne.engineVersion).toBe("1.2.0-particles");
+    expect(migratedFromAura.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migratedFromAura.engineVersion).toBe("1.2.0-particles");
   });
 
   it("requires an explicit debug flag for reactionOverride", () => {
@@ -192,5 +199,40 @@ describe("versioned config schema", () => {
         }
       })
     ).toThrow(/debugAllowReactionOverride=true/);
+  });
+
+  it("validates discrete particle ranges with a precise field path", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "particles",
+            actorId: "a",
+            name: "粒子",
+            at: 0,
+            particles: [
+              {
+                element: "pyro",
+                count: { min: 2, max: 4, step: 0.7 },
+                travelTime: 0
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.particles\.0\.count\.step/);
+  });
+
+  it("rejects parties larger than the in-game four-character limit", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        characters: Array.from({ length: 5 }, (_, index) => ({
+          ...legacyConfig.characters[0],
+          id: `character-${index}`
+        }))
+      })
+    ).toThrow(/characters: Genshin parties support at most four characters/);
   });
 });

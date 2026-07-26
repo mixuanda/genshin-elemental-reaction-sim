@@ -20,7 +20,8 @@ export const neutralStats: CharacterStats = {
   critDmg: 0.5,
   dmgBonus: 0,
   defIgnore: 0,
-  reactionBonus: 0
+  reactionBonus: 0,
+  energyRecharge: 1
 };
 
 export function makeConfig(
@@ -59,4 +60,3 @@ export function makeConfig(
     ...overrides
   };
 }
-

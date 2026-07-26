@@ -18,6 +18,7 @@
 - Milestone 1 已完成：纯 TypeScript 核心、严格 Zod Schema、版本迁移、逐击审计、Vitest 和 Web UI 已提交。
 - Milestone 2 已完成最小闭环：60 FPS 整数帧、切人、行动占用、冷却/充能次数、strict/wait 合法性和命中追踪已提交。
 - Milestone 3 已完成第一批最小闭环：火/冰/水普通 Aura、可扩展元素量、衰减、默认 ICD、No ICD、自动融化/蒸发、逐击 Aura 审计和敌方 Aura 曲线已经实现并有测试。
+- Milestone 4 已完成核心第一批最小闭环：版本化粒子/晶球 Schema、固定种子离散产球、生成/到达帧、接收时前后台、同/异/无色、元素充能效率、固定/粒子回能拆分、溢出、逐次日志和能量曲线已实现并有测试。120 秒来源核验预设、敌人掉球和真实技能产球数据库仍未完成。
 - 冻结的杜林预设仍为 `legacy-v0.1` Golden 兼容配置，手工反应和示例魔法数没有被包装为正式数据。基于核验角色数据的杜林合法帧/Aura 正式预设仍未完成。
 
 ---
@@ -26,33 +27,35 @@
 
 项目名称：**提瓦特伤害实验室**
 
-当前文件：
+当前主工作区：
 
 ```text
 README.md
 TECHNICAL_DESIGN.md
 HANDOFF_FOR_CODEX.md
-index.html
-styles.css
-app.js
-serve.sh
-preview.png
+apps/web/
+packages/sim-core/
+packages/schemas/
+packages/game-data/
+packages/mechanics/
+packages/test-vectors/
+legacy/v0.1-vanilla/
 ```
 
 启动方式：
 
 ```bash
-cd genshin-dps-lab
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
 打开：
 
 ```text
-http://localhost:8080
+http://127.0.0.1:5173
 ```
 
-当前版本是无构建步骤的 Vanilla HTML/CSS/JavaScript 单页应用，核心实现位于 `app.js`。
+主版本是 npm workspace + Vite/TypeScript；无构建步骤的 Vanilla 版本只在 `legacy/v0.1-vanilla/` 作为只读回归基线保存。
 
 ---
 

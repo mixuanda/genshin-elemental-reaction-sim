@@ -13,11 +13,15 @@ This project currently uses gcsim as a product and testing reference only:
 - frame-oriented sample/event inspection;
 - expandable damage calculation details;
 - energy diagnostics;
+- particle distribution behavior documented by
+  [`pkg/core/player/character/energy.go`](https://github.com/genshinsim/gcsim/blob/main/pkg/core/player/character/energy.go);
 - explicit warnings about simulator limitations.
 
-No gcsim source code, character implementation, or game database was copied in
-the Milestone 0/1 migration. If code is reused later, the applicable copyright
-and MIT license text must be retained with the copied or substantial portions.
+No gcsim source code, character implementation, or game database has been
+copied. The TypeScript particle implementation was written independently and
+uses gcsim only as a behavior/test oracle. If code is reused later, the
+applicable copyright and MIT license text must be retained with the copied or
+substantial portions.
 
 ## Enka.Network
 

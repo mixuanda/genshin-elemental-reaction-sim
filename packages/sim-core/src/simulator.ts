@@ -11,6 +11,7 @@ import {
   type Element,
   type EnergySummary,
   type HitDefinition,
+  type ParticleDefinition,
   type ReactionAudit,
   type SimConfig,
   type SimulationEvent,
@@ -19,6 +20,11 @@ import {
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "./aura";
+import {
+  calculateParticleEnergy,
+  resolveParticleCount,
+  SeededRandom
+} from "./energy";
 import {
   calcDamage,
   calcTotalStat,
@@ -34,6 +40,8 @@ export const EVENT_PRIORITY = {
   buff: 1,
   debuff: 1,
   energy: 2,
+  particleSpawn: 2,
+  particleReceive: 2,
   hit: 3
 } as const;
 
@@ -58,7 +66,22 @@ interface DebuffEventPayload {
 
 interface EnergyEventPayload {
   actorId: string;
+  actionId: string;
   gain: NonNullable<ActionDefinition["energyGains"]>[number];
+  cycle: number;
+}
+
+interface ParticleSpawnEventPayload {
+  actorId: string;
+  actionId: string;
+  actionName: string;
+  particle: ParticleDefinition;
+  particleIndex: number;
+  cycle: number;
+}
+
+interface ParticleReceiveEventPayload {
+  particleEventId: number;
 }
 
 interface HitEventPayload {
@@ -75,6 +98,8 @@ type InternalEvent =
   | SimulationEvent<BuffEventPayload>
   | SimulationEvent<DebuffEventPayload>
   | SimulationEvent<EnergyEventPayload>
+  | SimulationEvent<ParticleSpawnEventPayload>
+  | SimulationEvent<ParticleReceiveEventPayload>
   | SimulationEvent<HitEventPayload>;
 
 interface ActiveBuff {
@@ -111,7 +136,8 @@ const BUFF_STATS = new Set<BuffStat>([
   "critDmg",
   "em",
   "defIgnore",
-  "reactionBonus"
+  "reactionBonus",
+  "energyRecharge"
 ]);
 
 function deepClone<T>(value: T): T {
@@ -197,6 +223,7 @@ function simulateConfig(
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
+  const random = new SeededRandom(options.randomSeed);
   const auraEngine =
     config.reactionEngine?.mode === "aura-v1"
       ? new AuraEngine(config.reactionEngine)
@@ -218,6 +245,9 @@ function simulateConfig(
     energyStats.set(character.id, {
       initial,
       gained: 0,
+      fixedGained: 0,
+      particleGained: 0,
+      wasted: 0,
       spent: 0,
       skipped: 0,
       final: initial
@@ -278,10 +308,31 @@ function simulateConfig(
   const damageEvents: DamageEvent[] = [];
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
+  const energyLog: SimulationResult["energyLog"] = [];
+  const particleEvents: SimulationResult["particleEvents"] = [];
+  const energyCurve: SimulationResult["energyCurve"] = [];
   let activeCharacterId =
     resultConfig.timeline?.initialActiveCharacterId ??
     config.characters[0]?.id ??
     null;
+  const recordEnergyCurve = (
+    frame: number,
+    timeSeconds: number,
+    kind: SimulationResult["energyCurve"][number]["kind"],
+    receiverId: string | null,
+    source: string
+  ): void => {
+    energyCurve.push({
+      id: energyCurve.length,
+      frame,
+      timeSeconds,
+      kind,
+      receiverId,
+      source,
+      energyByCharacter: Object.fromEntries(energies)
+    });
+  };
+  recordEnergyCurve(0, 0, "initial", null, "initial-energy");
 
   const cleanup = (timeSeconds: number): void => {
     for (let index = activeBuffs.length - 1; index >= 0; index -= 1) {
@@ -428,9 +479,21 @@ function simulateConfig(
         continue;
       }
 
-      energies.set(actor.id, currentEnergy - energyCost);
+      const energyAfterCost = round(currentEnergy - energyCost, 12);
+      energies.set(actor.id, energyAfterCost);
       const energySummary = energyStats.get(actor.id);
-      if (energySummary) energySummary.spent += energyCost;
+      if (energySummary) {
+        energySummary.spent = round(energySummary.spent + energyCost, 12);
+      }
+      if (energyCost > 0) {
+        recordEnergyCurve(
+          event.frame,
+          timeSeconds,
+          "spend",
+          actor.id,
+          `${action.id}:energy-cost`
+        );
+      }
       actionLog.push({
         time: timeSeconds,
         frame: event.frame,
@@ -439,7 +502,7 @@ function simulateConfig(
         action: action.name,
         cycle,
         energyBefore: currentEnergy,
-        energyAfter: currentEnergy - energyCost,
+        energyAfter: energyAfterCost,
         ...(action.timelineCommandIndex === undefined
           ? {}
           : { timelineCommandIndex: action.timelineCommandIndex }),
@@ -469,9 +532,25 @@ function simulateConfig(
       for (const gain of action.energyGains ?? []) {
         push(timeSeconds + safeNumber(gain.offset), "energy", {
           actorId: actor.id,
-          gain
+          actionId: action.id,
+          gain,
+          cycle
         });
       }
+      (action.particles ?? []).forEach((particle, particleIndex) => {
+        push(
+          timeSeconds + safeNumber(particle.spawnOffset),
+          "particleSpawn",
+          {
+            actorId: actor.id,
+            actionId: action.id,
+            actionName: action.name,
+            particle,
+            particleIndex,
+            cycle
+          }
+        );
+      });
       for (const buff of action.buffs ?? []) {
         push(timeSeconds + safeNumber(buff.offset), "buff", {
           actorId: actor.id,
@@ -498,7 +577,8 @@ function simulateConfig(
     }
 
     if (event.type === "energy") {
-      const { actorId, gain } = event.payload as EnergyEventPayload;
+      const { actorId, actionId, gain } =
+        event.payload as EnergyEventPayload;
       const targets =
         gain.target === "team"
           ? config.characters.map((character) => character.id)
@@ -509,10 +589,182 @@ function simulateConfig(
         const character = characters.get(targetId);
         if (!character) continue;
         const before = energies.get(targetId) ?? 0;
-        const after = clamp(before + gain.amount, 0, character.energyMax);
+        const after = round(
+          clamp(before + gain.amount, 0, character.energyMax),
+          12
+        );
+        const gainedEnergy = round(after - before, 12);
+        const wastedEnergy =
+          gain.amount > 0
+            ? round(Math.max(0, gain.amount - gainedEnergy), 12)
+            : 0;
         energies.set(targetId, after);
         const summary = energyStats.get(targetId);
-        if (summary) summary.gained += after - before;
+        if (summary) {
+          summary.gained = round(summary.gained + gainedEnergy, 12);
+          summary.fixedGained = round(
+            summary.fixedGained + gainedEnergy,
+            12
+          );
+          summary.wasted = round(summary.wasted + wastedEnergy, 12);
+        }
+        const source = gain.source ?? `${actionId}:fixed-energy`;
+        energyLog.push({
+          id: energyLog.length,
+          kind: "fixed",
+          frame: event.frame,
+          timeSeconds,
+          sourceActorId: actorId,
+          sourceActionId: actionId,
+          source,
+          receiverId: targetId,
+          activeCharacterId,
+          isOnField: activeCharacterId === targetId,
+          energyBefore: before,
+          rawEnergy: gain.amount,
+          finalEnergy: gain.amount,
+          gainedEnergy,
+          wastedEnergy,
+          energyAfter: after,
+          spawnFrame: null,
+          receiveFrame: event.frame,
+          particleElement: null,
+          particleKind: null,
+          particleCount: null,
+          isSameElement: null,
+          energyRecharge: 1,
+          fieldMultiplier: 1,
+          baseEnergyPerParticle: null
+        });
+        recordEnergyCurve(
+          event.frame,
+          timeSeconds,
+          "fixed",
+          targetId,
+          source
+        );
+      }
+      continue;
+    }
+
+    if (event.type === "particleSpawn") {
+      const {
+        actorId,
+        actionId,
+        actionName,
+        particle,
+        particleIndex,
+        cycle
+      } = event.payload as ParticleSpawnEventPayload;
+      const particleCount = resolveParticleCount(particle.count, random);
+      const receiveTimeSeconds =
+        timeSeconds + Math.max(0, particle.travelTime);
+      const receiveFrame = toFrame(receiveTimeSeconds);
+      const particleEventId = particleEvents.length;
+      const particleId =
+        particle.id ?? `${actionId}:particle-${particleIndex}`;
+      const source = particle.source ?? `${actionName}:${particleId}`;
+      const receivedWithinSimulation =
+        receiveTimeSeconds <= config.duration + 1e-9;
+      particleEvents.push({
+        id: particleEventId,
+        sourceActorId: actorId,
+        sourceActionId: actionId,
+        source,
+        particleId,
+        spawnFrame: event.frame,
+        receiveFrame,
+        spawnTimeSeconds: timeSeconds,
+        receiveTimeSeconds: frameNative
+          ? receiveFrame / 60
+          : receiveTimeSeconds,
+        particleElement: particle.element,
+        particleKind: particle.kind ?? "particle",
+        particleCount,
+        receivedWithinSimulation,
+        cycle
+      });
+      if (receivedWithinSimulation) {
+        push(receiveTimeSeconds, "particleReceive", { particleEventId });
+      }
+      continue;
+    }
+
+    if (event.type === "particleReceive") {
+      const { particleEventId } =
+        event.payload as ParticleReceiveEventPayload;
+      const particle = particleEvents[particleEventId];
+      if (!particle) continue;
+      for (const character of config.characters) {
+        const before = energies.get(character.id) ?? 0;
+        const stats = computeStats(character.id, timeSeconds);
+        const energyRecharge = stats?.energyRecharge ?? 1;
+        const calculation = calculateParticleEnergy({
+          particleElement: particle.particleElement,
+          particleKind: particle.particleKind,
+          particleCount: particle.particleCount,
+          receiverElement: character.element,
+          isOnField: activeCharacterId === character.id,
+          partySize: config.characters.length,
+          energyRecharge
+        });
+        const after = round(
+          clamp(
+            before + calculation.finalEnergy,
+            0,
+            character.energyMax
+          ),
+          12
+        );
+        const gainedEnergy = round(after - before, 12);
+        const wastedEnergy = round(
+          Math.max(0, calculation.finalEnergy - gainedEnergy),
+          12
+        );
+        energies.set(character.id, after);
+        const summary = energyStats.get(character.id);
+        if (summary) {
+          summary.gained = round(summary.gained + gainedEnergy, 12);
+          summary.particleGained = round(
+            summary.particleGained + gainedEnergy,
+            12
+          );
+          summary.wasted = round(summary.wasted + wastedEnergy, 12);
+        }
+        energyLog.push({
+          id: energyLog.length,
+          kind: "particle",
+          frame: event.frame,
+          timeSeconds,
+          sourceActorId: particle.sourceActorId,
+          sourceActionId: particle.sourceActionId,
+          source: particle.source,
+          receiverId: character.id,
+          activeCharacterId,
+          isOnField: activeCharacterId === character.id,
+          energyBefore: before,
+          rawEnergy: calculation.rawEnergy,
+          finalEnergy: calculation.finalEnergy,
+          gainedEnergy,
+          wastedEnergy,
+          energyAfter: after,
+          spawnFrame: particle.spawnFrame,
+          receiveFrame: event.frame,
+          particleElement: particle.particleElement,
+          particleKind: particle.particleKind,
+          particleCount: particle.particleCount,
+          isSameElement: calculation.isSameElement,
+          energyRecharge: calculation.energyRecharge,
+          fieldMultiplier: calculation.fieldMultiplier,
+          baseEnergyPerParticle: calculation.baseEnergyPerParticle
+        });
+        recordEnergyCurve(
+          event.frame,
+          timeSeconds,
+          "particle",
+          character.id,
+          particle.source
+        );
       }
       continue;
     }
@@ -908,6 +1160,9 @@ function simulateConfig(
     skippedActions,
     actionLog,
     energyStats: Object.fromEntries(energyStats),
+    energyLog,
+    particleEvents,
+    energyCurve,
     totalDamage,
     dps: totalDamage / config.duration,
     reactedHits: damageEvents.filter((event) => event.reaction !== "none").length,

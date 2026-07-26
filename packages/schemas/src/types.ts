@@ -1,6 +1,7 @@
-export const CURRENT_SCHEMA_VERSION = "1.1.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.1.0-aura" as const;
-export const PREVIOUS_SCHEMA_VERSION = "1.0.0" as const;
+export const CURRENT_SCHEMA_VERSION = "1.2.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.2.0-particles" as const;
+export const PREVIOUS_SCHEMA_VERSION = "1.1.0" as const;
+export const INITIAL_TYPED_SCHEMA_VERSION = "1.0.0" as const;
 export const LEGACY_SCHEMA_VERSION = "0.1.0" as const;
 
 export type Element =
@@ -30,6 +31,8 @@ export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
 export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
 export type IcdGroup = "default" | "no-icd";
+export type ParticleElement = Exclude<Element, "physical"> | "neutral";
+export type ParticleKind = "particle" | "orb";
 
 export interface ElementalApplication {
   /** Nominal elemental application strength (for example 1U, 2U, or 4U). */
@@ -71,6 +74,8 @@ export interface CharacterStats {
   dmgBonus: number;
   defIgnore: number;
   reactionBonus: number;
+  /** 1.0 means 100% Energy Recharge. */
+  energyRecharge: number;
 }
 
 export interface CharacterProfile {
@@ -134,7 +139,8 @@ export type BuffStat =
   | "critDmg"
   | "em"
   | "defIgnore"
-  | "reactionBonus";
+  | "reactionBonus"
+  | "energyRecharge";
 
 export type StatusTarget = "team" | "self" | string | string[];
 
@@ -166,6 +172,26 @@ export interface EnergyEvent {
   target?: "team" | string | string[];
   amount: number;
   offset?: number;
+  source?: string;
+}
+
+export interface ParticleCountRange {
+  min: number;
+  max: number;
+  /** Discrete inclusive roll step. Defaults to 1. */
+  step?: number;
+}
+
+export type ParticleCount = number | ParticleCountRange;
+
+export interface ParticleDefinition {
+  id?: string;
+  source?: string;
+  kind?: ParticleKind;
+  element: ParticleElement;
+  count: ParticleCount;
+  spawnOffset?: number;
+  travelTime: number;
 }
 
 export interface ActionDefinition {
@@ -182,6 +208,7 @@ export interface ActionDefinition {
   buffs?: BuffDefinition[];
   debuffs?: DebuffDefinition[];
   energyGains?: EnergyEvent[];
+  particles?: ParticleDefinition[];
   /** Compiler metadata for legal-frame-v1 actions. */
   timelineCommandIndex?: number;
   sourceAbilityId?: string;
@@ -216,6 +243,14 @@ export type FrameEnergyEvent = Omit<EnergyEvent, "offset"> & {
   frame?: number;
 };
 
+export type FrameParticleDefinition = Omit<
+  ParticleDefinition,
+  "spawnOffset" | "travelTime"
+> & {
+  spawnFrame?: number;
+  travelFrames: number;
+};
+
 export interface AbilityDefinition {
   id: string;
   actorId: string;
@@ -231,6 +266,7 @@ export interface AbilityDefinition {
   buffs?: FrameBuffDefinition[];
   debuffs?: FrameDebuffDefinition[];
   energyGains?: FrameEnergyEvent[];
+  particles?: FrameParticleDefinition[];
 }
 
 export interface TimelineWaitCommand {
@@ -295,7 +331,14 @@ export interface SimulationOptions {
   randomSeed?: string;
 }
 
-export type SimulationEventType = "action" | "buff" | "debuff" | "energy" | "hit";
+export type SimulationEventType =
+  | "action"
+  | "buff"
+  | "debuff"
+  | "energy"
+  | "particleSpawn"
+  | "particleReceive"
+  | "hit";
 
 export interface SimulationEvent<TPayload = unknown> {
   type: SimulationEventType;
@@ -485,9 +528,69 @@ export interface ActionLogEntry {
 export interface EnergySummary {
   initial: number;
   gained: number;
+  fixedGained: number;
+  particleGained: number;
+  wasted: number;
   spent: number;
   skipped: number;
   final: number;
+}
+
+export interface ParticleEventLog {
+  id: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  source: string;
+  particleId: string;
+  spawnFrame: number;
+  receiveFrame: number;
+  spawnTimeSeconds: number;
+  receiveTimeSeconds: number;
+  particleElement: ParticleElement;
+  particleKind: ParticleKind;
+  particleCount: number;
+  receivedWithinSimulation: boolean;
+  cycle: number;
+}
+
+export interface EnergyLogEntry {
+  id: number;
+  kind: "fixed" | "particle";
+  frame: number;
+  timeSeconds: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  source: string;
+  receiverId: string;
+  activeCharacterId: string | null;
+  isOnField: boolean;
+  energyBefore: number;
+  /** Particle energy after element/field rules but before Energy Recharge. */
+  rawEnergy: number;
+  /** Requested energy after Energy Recharge and before the energy cap. */
+  finalEnergy: number;
+  gainedEnergy: number;
+  wastedEnergy: number;
+  energyAfter: number;
+  spawnFrame: number | null;
+  receiveFrame: number;
+  particleElement: ParticleElement | null;
+  particleKind: ParticleKind | null;
+  particleCount: number | null;
+  isSameElement: boolean | null;
+  energyRecharge: number;
+  fieldMultiplier: number;
+  baseEnergyPerParticle: number | null;
+}
+
+export interface EnergyCurvePoint {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  kind: "initial" | "spend" | "fixed" | "particle";
+  receiverId: string | null;
+  source: string;
+  energyByCharacter: Record<string, number>;
 }
 
 export interface SkillSummary {
@@ -598,6 +701,9 @@ export interface SimulationResult {
   skippedActions: SkippedAction[];
   actionLog: ActionLogEntry[];
   energyStats: Record<string, EnergySummary>;
+  energyLog: EnergyLogEntry[];
+  particleEvents: ParticleEventLog[];
+  energyCurve: EnergyCurvePoint[];
   totalDamage: number;
   dps: number;
   reactedHits: number;

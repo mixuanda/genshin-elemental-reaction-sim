@@ -48,7 +48,8 @@ export const durinMeltPreset: SimConfig = {
         critDmg: 2.55,
         dmgBonus: 1.88,
         defIgnore: 0.7,
-        reactionBonus: 0.7
+        reactionBonus: 0.7,
+        energyRecharge: 1
       }
     },
     {
@@ -74,7 +75,8 @@ export const durinMeltPreset: SimConfig = {
         critDmg: 1.85,
         dmgBonus: 1.05,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     },
     {
@@ -100,7 +102,8 @@ export const durinMeltPreset: SimConfig = {
         critDmg: 2.25,
         dmgBonus: 1.42,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     },
     {
@@ -126,7 +129,8 @@ export const durinMeltPreset: SimConfig = {
         critDmg: 1.45,
         dmgBonus: 0.85,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     }
   ],
@@ -484,7 +488,8 @@ export const blankPreset: SimConfig = {
         critDmg: 1.8,
         dmgBonus: 1,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     },
     {
@@ -510,7 +515,8 @@ export const blankPreset: SimConfig = {
         critDmg: 1.5,
         dmgBonus: 0.8,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     }
   ],
@@ -574,7 +580,8 @@ export const legalTimelineDemoPreset: SimConfig = {
         critDmg: 1.5,
         dmgBonus: 0.8,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     },
     {
@@ -600,7 +607,8 @@ export const legalTimelineDemoPreset: SimConfig = {
         critDmg: 1.4,
         dmgBonus: 0.7,
         defIgnore: 0,
-        reactionBonus: 0
+        reactionBonus: 0,
+        energyRecharge: 1
       }
     }
   ],
@@ -801,9 +809,139 @@ export const auraReactionDemoPreset: SimConfig = {
   }
 };
 
+export const particleEnergyDemoPreset: SimConfig = {
+  schemaVersion: CURRENT_SCHEMA_VERSION,
+  engineVersion: CURRENT_ENGINE_VERSION,
+  dataVersion: "m4-particle-demo-1",
+  randomSeed: "particle-energy-demo",
+  meta: {
+    name: "粒子 / 回能 · M4 结构示例",
+    version: "m4-particle-demo-1",
+    verificationStatus: "provisional",
+    note:
+      "用于验证掉球随机数、飞行时间、接球时前后台、同/异色、元素充能效率、固定回能、溢出和爆发门槛；角色面板、帧数与产球范围均为机制示例，不是已核验游戏数据。"
+  },
+  duration: 4,
+  cycleLength: 4,
+  enemy: { level: 110, resistance: 0.1, defReduction: 0 },
+  characters: [
+    {
+      ...legalTimelineDemoPreset.characters[0]!,
+      id: "energy-a",
+      name: "回能测试 A",
+      initialEnergy: 0,
+      stats: {
+        ...legalTimelineDemoPreset.characters[0]!.stats,
+        energyRecharge: 1.5
+      }
+    },
+    {
+      ...legalTimelineDemoPreset.characters[1]!,
+      id: "energy-b",
+      name: "回能测试 B",
+      initialEnergy: 0,
+      stats: {
+        ...legalTimelineDemoPreset.characters[1]!.stats,
+        energyRecharge: 2
+      }
+    }
+  ],
+  rotation: [],
+  timeline: {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: "energy-a",
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "m4-energy-a-skill",
+        actorId: "energy-a",
+        name: "A 战技产球",
+        kind: "skill",
+        cancelFrame: 20,
+        animationEndFrame: 32,
+        cooldownFrames: 180,
+        hits: [
+          {
+            id: "m4-energy-a-skill-hit",
+            frame: 10,
+            label: "战技命中",
+            scaling: 1.5,
+            scalingStat: "atk",
+            element: "pyro",
+            snapshot: "hit"
+          }
+        ],
+        particles: [
+          {
+            id: "m4-pyro-particles",
+            source: "A 战技示例掉球",
+            element: "pyro",
+            kind: "particle",
+            count: { min: 2, max: 4, step: 1 },
+            spawnFrame: 12,
+            travelFrames: 30
+          }
+        ]
+      },
+      {
+        id: "m4-energy-b-burst",
+        actorId: "energy-b",
+        name: "B 爆发（粒子到达后）",
+        kind: "burst",
+        cancelFrame: 30,
+        animationEndFrame: 46,
+        cooldownFrames: 180,
+        energyCost: 4,
+        hits: [
+          {
+            id: "m4-energy-b-burst-hit",
+            frame: 12,
+            label: "爆发命中",
+            scaling: 2.2,
+            scalingStat: "atk",
+            element: "cryo",
+            snapshot: "action"
+          }
+        ],
+        energyGains: [
+          {
+            target: "team",
+            amount: 1,
+            frame: 5,
+            source: "爆发示例固定回能"
+          },
+          {
+            target: "energy-a",
+            amount: 50,
+            frame: 6,
+            source: "A 能量上限溢出示例"
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: "energy-a",
+        abilityId: "m4-energy-a-skill"
+      },
+      { type: "swap", characterId: "energy-b" },
+      { type: "wait", frames: 15 },
+      {
+        type: "burst",
+        actorId: "energy-b",
+        abilityId: "m4-energy-b-burst"
+      }
+    ]
+  }
+};
+
 export const presets = [
   durinMeltPreset,
   blankPreset,
   legalTimelineDemoPreset,
-  auraReactionDemoPreset
+  auraReactionDemoPreset,
+  particleEnergyDemoPreset
 ] as const;

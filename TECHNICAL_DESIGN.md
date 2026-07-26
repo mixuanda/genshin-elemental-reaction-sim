@@ -2,7 +2,7 @@
 
 ## 1. 当前目标
 
-Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线，以及火/冰/水 Aura、默认 ICD 和自动融化/蒸发的最小闭环；仍不声称拥有完整游戏机制精度。
+Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线、火/冰/水 Aura、默认 ICD、自动融化/蒸发，以及第一批可复现粒子/能量事件；仍不声称拥有完整游戏机制精度。
 
 ## 2. 包边界
 
@@ -46,7 +46,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0` 或 `1.0.0` 配置迁移到 `1.1.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.1.0-aura`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0` 或 `1.1.0` 配置迁移到 `1.2.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.2.0-particles`。
 
 ## 4. 确定性与排序
 
@@ -54,11 +54,13 @@ randomSeed
 
 1. `action`
 2. `buff` / `debuff`
-3. `energy`
+3. `energy` / `particleSpawn` / `particleReceive`
 4. `hit`
 5. 同类型同时间按插入序号
 
 状态在 `end <= hitTime` 时先过期，因此恰好处于结束边界的命中不享受该状态。该规则由测试固定。
+
+因此同帧行动会先检查/消耗能量，随后才接收该帧到达的粒子；同帧先产生的充能效率 Buff 则会在粒子接收前生效。这两个子阶段语义均有专门测试，后续若要与新实测帧规则对齐，必须作为引擎版本变更处理。
 
 引擎保留两条时间路径：
 
@@ -81,7 +83,14 @@ timeline: {
     cooldownFrames,
     maxCharges,
     chargeRecoveryFrames,
-    hits: [{ frame, ...damageDefinition }]
+    hits: [{ frame, ...damageDefinition }],
+    particles: [{
+      element,
+      kind: "particle" | "orb",
+      count: number | { min, max, step },
+      spawnFrame,
+      travelFrames
+    }]
   }],
   commands: [
     { type: "skill", actorId, abilityId },
@@ -155,6 +164,9 @@ displayDamage
 - `perSecond`：逐秒、逐角色伤害桶。
 - `damageCurve`：每一段伤害对应一个累计曲线点，含逐角色累计值。
 - `auraTimeline`：每一段 Aura 模式伤害对应的附着前后、ICD、消耗和反应记录。
+- `particleEvents`：每一次产球的来源、生成帧、到达帧、元素、类型、随机后数量和是否在模拟期内接收。
+- `energyLog`：每个固定回能或粒子对每名接收者的逐次结算。
+- `energyCurve`：初始、消耗、固定回能和粒子接收后的全队能量快照。
 
 UI 只绘制这些结构化结果，不重新执行伤害公式。
 
@@ -183,6 +195,37 @@ application: {
 
 当前状态机只实现单目标的火/冰/水普通 Aura。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以单状态的较强剩余 Aura 表示；复合共存、冻结、转化反应和角色特有 ICD Group 尚未实现。
 
+### 6.2 粒子 / 能量事件
+
+`packages/sim-core/src/energy.ts` 提供无 DOM 依赖的确定性随机数和纯粒子能量计算。当前基础口径与所参考的 gcsim 能量实现保持同一组规则：
+
+- 同色、无色、异色的单个基础能量分别为 `3 / 2 / 1`。
+- 晶球是微粒的 `3` 倍。
+- 前台倍率为 `1`；后台倍率为 `1 - 0.1 × 队伍人数`。
+- 上述结果再乘接收角色命中帧的元素充能效率。
+- 角色能量不得超过上限，未实际加入的部分写入 `wastedEnergy`。
+
+离散数量范围由 `randomSeed` 驱动。随机算法是引擎版本契约的一部分，变更算法必须升级 `engineVersion`。粒子先产生 `particleSpawn`，再按飞行时间产生 `particleReceive`；前后台身份只在接收事件执行时读取。一次接收向全队逐角色分配，并记录：
+
+```ts
+spawnFrame
+receiveFrame
+particleElement
+particleKind
+particleCount
+receiverId
+isOnField
+isSameElement
+energyRecharge
+rawEnergy
+finalEnergy
+gainedEnergy
+wastedEnergy
+energyAfter
+```
+
+固定回能不会套用粒子倍率或元素充能效率，并在同一日志中以 `kind: "fixed"` 明确区分。UI 只读取 `particleEvents`、`energyLog` 和 `energyCurve`，不重新计算能量。
+
 ## 7. 测试策略
 
 Vitest 当前覆盖：
@@ -208,8 +251,13 @@ Vitest 当前覆盖：
 - 正/反融化与正/反蒸发的反应方向和 Aura 消耗。
 - 无 Aura 不触发融化，以及正式 Aura 配置拒绝手工反应标签。
 - Aura 结果接入伤害乘区和 `auraTimeline`。
+- 同/异/无色微粒、晶球、前后台、队伍人数和元素充能效率倍率。
+- 离散产球范围在相同随机种子下完全复现。
+- 粒子到达前切人，按到达帧前台身份向全队分配。
+- 固定回能与粒子回能拆分、能量溢出、模拟结束后才到达的粒子。
+- 粒子支持后续爆发，能量不足行动不会错误产球。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、逐段筛选、公式展开、导出和字段路径错误。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出和字段路径错误。
 
 ## 8. 展示柜导入边界
 
@@ -231,10 +279,12 @@ GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
 
 纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
 
-## 9. Milestone 3 当前边界
+## 9. Milestone 3–4 当前边界
 
 Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
 
 Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认 ICD、No ICD、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；尚未有基于核验角色数据重建的正式杜林合法帧/Aura 预设，因此不能把兼容预设的手工标签删除后声称机制等价。
 
-下一阶段应先扩展 Milestone 3 的机制矩阵和测试向量（复合附着、冻结、转化反应、角色特有 ICD Group），或者进入 Milestone 4 建立粒子对象和动态能量队列。无论选择哪一条，都必须保留现有 Golden 与 Aura 向量。
+Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。内置 M4 预设只用于机制验收；其面板、帧数和产球范围仍是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、几何飞行轨迹或真实技能产球数据库。
+
+下一阶段应优先把版本化角色/武器数据层、来源证据和杜林合法帧预设接到现有 Aura/粒子核心，再扩展复合附着、冻结、转化反应和角色特有 ICD Group。无论选择哪一条，都必须保留现有 Golden、Aura 和能量向量。

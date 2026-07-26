@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   type SimConfig
@@ -83,7 +84,8 @@ export const characterStatsSchema = z
     critDmg: finiteNumber.default(0.5),
     dmgBonus: finiteNumber.default(0),
     defIgnore: finiteNumber.default(0),
-    reactionBonus: finiteNumber.default(0)
+    reactionBonus: finiteNumber.default(0),
+    energyRecharge: finiteNumber.min(0).max(10).default(1)
   })
   .strict();
 
@@ -171,7 +173,8 @@ export const buffDefinitionSchema = z
       "critDmg",
       "em",
       "defIgnore",
-      "reactionBonus"
+      "reactionBonus",
+      "energyRecharge"
     ]),
     value: finiteNumber,
     duration: finiteNumber.min(0),
@@ -196,7 +199,61 @@ export const energyEventSchema = z
   .object({
     target: z.union([z.string(), z.array(idSchema)]).optional(),
     amount: finiteNumber,
-    offset: finiteNumber.min(0).optional()
+    offset: finiteNumber.min(0).optional(),
+    source: idSchema.optional()
+  })
+  .strict();
+
+export const particleCountRangeSchema = z
+  .object({
+    min: finiteNumber.positive(),
+    max: finiteNumber.positive(),
+    step: finiteNumber.positive().optional()
+  })
+  .strict()
+  .superRefine((range, context) => {
+    if (range.max < range.min) {
+      context.addIssue({
+        code: "custom",
+        path: ["max"],
+        message: "must be greater than or equal to min"
+      });
+    }
+    if (
+      range.step !== undefined &&
+      range.step > range.max - range.min + 1e-12 &&
+      range.max !== range.min
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["step"],
+        message: "must not exceed the configured range"
+      });
+    }
+    if (range.step !== undefined) {
+      const steps = (range.max - range.min) / range.step;
+      if (Math.abs(steps - Math.round(steps)) > 1e-9) {
+        context.addIssue({
+          code: "custom",
+          path: ["step"],
+          message: "must divide the min-to-max range into whole steps"
+        });
+      }
+    }
+  });
+
+export const particleDefinitionSchema = z
+  .object({
+    id: idSchema.optional(),
+    source: idSchema.optional(),
+    kind: z.enum(["particle", "orb"]).optional(),
+    element: z.union([
+      z.enum(["pyro", "cryo", "hydro", "electro", "anemo", "geo", "dendro"]),
+      z.literal("neutral")
+    ]),
+    count: z.union([finiteNumber.positive(), particleCountRangeSchema]),
+    spawnOffset: finiteNumber.min(0).optional(),
+    travelTime: finiteNumber.min(0)
   })
   .strict();
 
@@ -215,6 +272,7 @@ export const actionDefinitionSchema = z
     buffs: z.array(buffDefinitionSchema).optional(),
     debuffs: z.array(debuffDefinitionSchema).optional(),
     energyGains: z.array(energyEventSchema).optional(),
+    particles: z.array(particleDefinitionSchema).optional(),
     timelineCommandIndex: z.number().int().min(0).optional(),
     sourceAbilityId: idSchema.optional(),
     startFrame: z.number().int().min(0).optional(),
@@ -255,6 +313,14 @@ export const frameEnergyEventSchema = energyEventSchema
   })
   .strict();
 
+export const frameParticleDefinitionSchema = particleDefinitionSchema
+  .omit({ spawnOffset: true, travelTime: true })
+  .extend({
+    spawnFrame: frameSchema.optional(),
+    travelFrames: frameSchema
+  })
+  .strict();
+
 export const abilityDefinitionSchema = z
   .object({
     id: idSchema,
@@ -270,7 +336,8 @@ export const abilityDefinitionSchema = z
     hits: z.array(frameHitDefinitionSchema).optional(),
     buffs: z.array(frameBuffDefinitionSchema).optional(),
     debuffs: z.array(frameDebuffDefinitionSchema).optional(),
-    energyGains: z.array(frameEnergyEventSchema).optional()
+    energyGains: z.array(frameEnergyEventSchema).optional(),
+    particles: z.array(frameParticleDefinitionSchema).optional()
   })
   .strict()
   .superRefine((ability, context) => {
@@ -348,7 +415,10 @@ export const simConfigSchema = z
     duration: finiteNumber.min(1).max(600),
     cycleLength: finiteNumber.min(0.1).max(120),
     enemy: enemyProfileSchema,
-    characters: z.array(characterProfileSchema).min(1),
+    characters: z
+      .array(characterProfileSchema)
+      .min(1)
+      .max(4, "Genshin parties support at most four characters"),
     rotation: z.array(actionDefinitionSchema),
     timeline: legalTimelineConfigSchema.optional(),
     reactionEngine: auraReactionEngineConfigSchema.optional()
@@ -842,6 +912,13 @@ export function migrateConfig(input: unknown): SimConfig {
     return parseSimConfig(input);
   }
   if (version === PREVIOUS_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  }
+  if (version === INITIAL_TYPED_SCHEMA_VERSION) {
     return parseSimConfig({
       ...input,
       schemaVersion: CURRENT_SCHEMA_VERSION,

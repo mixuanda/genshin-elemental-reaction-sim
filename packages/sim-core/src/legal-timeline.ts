@@ -95,6 +95,17 @@ function compileAbilityAction(
             })
           )
         }),
+    ...(ability.particles === undefined
+      ? {}
+      : {
+          particles: ability.particles.map(
+            ({ spawnFrame = 0, travelFrames, ...particle }) => ({
+              ...particle,
+              spawnOffset: toSeconds(spawnFrame),
+              travelTime: toSeconds(travelFrames)
+            })
+          )
+        }),
     timelineCommandIndex: commandIndex,
     sourceAbilityId: ability.id,
     startFrame,

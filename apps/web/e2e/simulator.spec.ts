@@ -111,6 +111,80 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   );
 });
 
+test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page.locator("#presetSelect").selectOption({ index: 4 });
+
+  await expect(page.locator("#notice")).toContainText("粒子 / 回能");
+  await expect(page.locator("#notice")).toContainText("不是已核验游戏数据");
+  await expect(page.locator("#metricGrid")).toContainText(
+    "未启用 Aura 引擎"
+  );
+  await expect(page.locator("#energyStatus")).toContainText("充能效率 150%");
+  await expect(page.locator("#energyStatus")).toContainText("固定 45.6");
+  await expect(page.locator("#energyStatus")).toContainText("粒子 14.4");
+  await expect(page.locator("#energyStatus")).toContainText("溢出 5.4");
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          randomSeed: result.randomSeed,
+          particles: result.particleEvents,
+          energyStats: result.energyStats,
+          skipped: result.skippedActions.length
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    randomSeed: "particle-energy-demo",
+    skipped: 0,
+    particles: [
+      {
+        particleCount: 4,
+        spawnFrame: 12,
+        receiveFrame: 42,
+        receivedWithinSimulation: true
+      }
+    ],
+    energyStats: {
+      "energy-a": {
+        particleGained: 14.4,
+        fixedGained: 45.6,
+        wasted: 5.4,
+        final: 60
+      },
+      "energy-b": {
+        particleGained: 8,
+        fixedGained: 1,
+        spent: 4,
+        final: 5
+      }
+    }
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#energyAuditCard")).toBeVisible();
+  await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#energyAuditSummary")).toContainText(
+    "1 次产球 · 2 条角色粒子结算 · 3 条固定回能"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "火微粒 × 4"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "12f → 42f"
+  );
+  await expect(page.locator("#energyLogBody tr")).toHaveCount(5);
+  await expect(page.locator("#energyLogBody")).toContainText("后台 · ×0.8");
+  await expect(page.locator("#energyLogBody")).toContainText("前台 · ×1");
+  await expect(page.locator("#energyLogBody")).toContainText("150%");
+  await expect(page.locator("#energyLogBody")).toContainText("200%");
+  await expect(page.locator("#energyLogBody")).toContainText("44.6 / 5.4");
+});
+
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page
 }) => {

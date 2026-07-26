@@ -24,7 +24,8 @@ const ELEMENT_LABELS: Record<string, string> = {
   anemo: "风",
   geo: "岩",
   dendro: "草",
-  physical: "物理"
+  physical: "物理",
+  neutral: "无色"
 };
 
 const ELEMENT_COLORS: Record<string, string> = {
@@ -35,7 +36,8 @@ const ELEMENT_COLORS: Record<string, string> = {
   anemo: "#72e0c1",
   geo: "#e9bd68",
   dendro: "#9edc72",
-  physical: "#b9c0cb"
+  physical: "#b9c0cb",
+  neutral: "#d6d9df"
 };
 
 const REACTION_LABELS: Record<string, string> = {
@@ -226,6 +228,7 @@ function renderAll(): void {
   renderHitTable();
   renderTimeline();
   renderDamageCurve();
+  renderEnergyAudit();
   renderAuraTimeline();
   renderHitDetail();
   const status = lastResult.config.meta.verificationStatus;
@@ -254,7 +257,11 @@ function renderMetrics(): void {
       "有效命中",
       formatNumber(result.damageEvents.length, 0),
       `${result.reactedHits} 段增幅反应 · ${
-        result.auraTimeline.length ? "Aura 自动判定" : "兼容手工标签"
+        result.config.reactionEngine?.mode === "aura-v1"
+          ? "Aura 自动判定"
+          : result.compatibilityMode === "legacy-v0.1"
+            ? "兼容手工标签"
+            : "未启用 Aura 引擎"
       }`
     ],
     execution
@@ -349,8 +356,10 @@ function renderEnergy(): void {
         `<div class="energy-item"><div class="energy-head">` +
         `<strong>${escapeHtml(character.name)}</strong>${status}</div>` +
         `<div class="energy-track"><div class="energy-fill" style="width:${percentage}%;background:${escapeHtml(character.color)}"></div></div>` +
-        `<small>初始 ${round(energy.initial, 1)} · 获得 ${round(energy.gained, 1)} · ` +
-        `消耗 ${round(energy.spent, 1)} · 最终 ${round(energy.final, 1)}/${character.energyMax}</small></div>`
+        `<small>充能效率 ${formatNumber(character.stats.energyRecharge * 100, 1)}% · ` +
+        `初始 ${round(energy.initial, 2)} · 固定 ${round(energy.fixedGained, 2)} · ` +
+        `粒子 ${round(energy.particleGained, 2)} · 消耗 ${round(energy.spent, 2)} · ` +
+        `溢出 ${round(energy.wasted, 2)} · 最终 ${round(energy.final, 2)}/${character.energyMax}</small></div>`
       );
     })
     .join("");
@@ -871,6 +880,173 @@ function renderDamageCurve(): void {
       .join("");
 }
 
+function renderEnergyAudit(): void {
+  if (!lastResult) return;
+  const card = byId<HTMLElement>("energyAuditCard");
+  const result = lastResult;
+  const hasEvents =
+    result.energyLog.length > 0 || result.particleEvents.length > 0;
+  card.hidden = !hasEvents;
+  if (!hasEvents) return;
+
+  const characters = new Map(
+    result.config.characters.map((character) => [character.id, character])
+  );
+  const particleRows = result.energyLog.filter(
+    (entry) => entry.kind === "particle"
+  ).length;
+  const fixedRows = result.energyLog.length - particleRows;
+  const outsideDuration = result.particleEvents.filter(
+    (event) => !event.receivedWithinSimulation
+  ).length;
+  byId<HTMLElement>("energyAuditSummary").textContent =
+    `${result.particleEvents.length} 次产球 · ${particleRows} 条角色粒子结算 · ` +
+    `${fixedRows} 条固定回能${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
+
+  const canvas = byId<HTMLCanvasElement>("energyTimelineCanvas");
+  const context = canvas.getContext("2d");
+  if (context) {
+    const pixelRatio = window.devicePixelRatio || 1;
+    const cssWidth = Math.max(320, canvas.clientWidth);
+    const cssHeight = 320;
+    canvas.width = cssWidth * pixelRatio;
+    canvas.height = cssHeight * pixelRatio;
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.clearRect(0, 0, cssWidth, cssHeight);
+
+    const padding = { left: 58, right: 18, top: 18, bottom: 42 };
+    const width = cssWidth - padding.left - padding.right;
+    const height = cssHeight - padding.top - padding.bottom;
+    const durationFrames = Math.max(
+      1,
+      Math.round(result.config.duration * 60)
+    );
+    const maximum = Math.max(
+      1,
+      ...result.config.characters.map((character) => character.energyMax)
+    );
+    const xAt = (frame: number) =>
+      padding.left +
+      (clamp(frame, 0, durationFrames) / durationFrames) * width;
+    const yAt = (energy: number) =>
+      padding.top + height - (clamp(energy, 0, maximum) / maximum) * height;
+
+    context.strokeStyle = "#293243";
+    context.fillStyle = "#8f9bad";
+    context.font = "12px system-ui";
+    context.lineWidth = 1;
+    for (let index = 0; index <= 4; index += 1) {
+      const energy = (maximum * index) / 4;
+      const y = yAt(energy);
+      context.beginPath();
+      context.moveTo(padding.left, y);
+      context.lineTo(cssWidth - padding.right, y);
+      context.stroke();
+      context.fillText(formatNumber(energy, 1), 6, y + 4);
+    }
+    const secondStep =
+      result.config.duration > 90
+        ? 20
+        : result.config.duration > 20
+          ? 5
+          : 1;
+    for (
+      let second = 0;
+      second <= result.config.duration;
+      second += secondStep
+    ) {
+      const x = xAt(second * 60);
+      context.fillText(`${second}s`, x - 8, cssHeight - 16);
+    }
+
+    result.particleEvents.forEach((event) => {
+      context.save();
+      context.strokeStyle =
+        ELEMENT_COLORS[event.particleElement] ??
+        ELEMENT_COLORS.neutral ??
+        "#d6d9df";
+      context.globalAlpha = 0.38;
+      context.setLineDash([3, 4]);
+      context.beginPath();
+      context.moveTo(xAt(event.spawnFrame), padding.top);
+      context.lineTo(xAt(event.spawnFrame), padding.top + height);
+      context.stroke();
+      if (event.receivedWithinSimulation) {
+        context.setLineDash([]);
+        context.beginPath();
+        context.moveTo(xAt(event.receiveFrame), padding.top);
+        context.lineTo(xAt(event.receiveFrame), padding.top + height);
+        context.stroke();
+      }
+      context.restore();
+    });
+
+    result.config.characters.forEach((character) => {
+      let previousEnergy =
+        result.energyCurve[0]?.energyByCharacter[character.id] ?? 0;
+      context.beginPath();
+      context.moveTo(xAt(0), yAt(previousEnergy));
+      result.energyCurve.slice(1).forEach((point) => {
+        const x = xAt(point.frame);
+        context.lineTo(x, yAt(previousEnergy));
+        previousEnergy =
+          point.energyByCharacter[character.id] ?? previousEnergy;
+        context.lineTo(x, yAt(previousEnergy));
+      });
+      context.lineTo(xAt(durationFrames), yAt(previousEnergy));
+      context.strokeStyle = character.color;
+      context.lineWidth = 2.2;
+      context.stroke();
+    });
+  }
+
+  byId<HTMLElement>("energyTimelineLegend").innerHTML =
+    result.config.characters
+      .map(
+        (character) =>
+          `<span class="legend-item"><span class="dot" style="background:${escapeHtml(character.color)}"></span>` +
+          `${escapeHtml(character.name)} · ${formatNumber(character.stats.energyRecharge * 100, 1)}% ER</span>`
+      )
+      .join("") +
+    `<span class="muted">虚线为生成帧，实线竖标为接收帧；曲线只读取核心能量快照。</span>`;
+
+  byId<HTMLElement>("particleEventSummary").innerHTML =
+    result.particleEvents
+      .map(
+        (event) =>
+          `<span class="particle-event"><strong>${escapeHtml(event.source)}</strong> · ` +
+          `${escapeHtml(ELEMENT_LABELS[event.particleElement] ?? event.particleElement)}${event.particleKind === "orb" ? "晶球" : "微粒"} × ${formatNumber(event.particleCount, 2)} · ` +
+          `${event.spawnFrame}f → ${event.receiveFrame}f` +
+          `${event.receivedWithinSimulation ? "" : " · 模拟结束后到达"}</span>`
+      )
+      .join("");
+
+  byId<HTMLTableSectionElement>("energyLogBody").innerHTML =
+    result.energyLog
+      .map((entry) => {
+        const receiver = characters.get(entry.receiverId);
+        const particle =
+          entry.kind === "particle"
+            ? `${ELEMENT_LABELS[entry.particleElement ?? "neutral"] ?? entry.particleElement}` +
+              `${entry.particleKind === "orb" ? "晶球" : "微粒"} × ${formatNumber(entry.particleCount ?? 0, 2)}`
+            : "固定回能";
+        return (
+          `<tr data-energy-log-id="${entry.id}">` +
+          `<td>${entry.receiveFrame}f / ${entry.spawnFrame === null ? "—" : `${entry.spawnFrame}f`}</td>` +
+          `<td>${escapeHtml(entry.source)}</td>` +
+          `<td><span class="dot" style="display:inline-block;background:${escapeHtml(receiver?.color ?? "#999")}"></span> ${escapeHtml(receiver?.name ?? entry.receiverId)}</td>` +
+          `<td>${escapeHtml(particle)}</td>` +
+          `<td>${entry.isOnField ? "前台" : "后台"} · ×${formatNumber(entry.fieldMultiplier, 2)}</td>` +
+          `<td>${entry.isSameElement === null ? "—" : entry.isSameElement ? "是" : "否"}</td>` +
+          `<td>${entry.kind === "fixed" ? "不适用" : `${formatNumber(entry.energyRecharge * 100, 1)}%`}</td>` +
+          `<td>${formatNumber(entry.rawEnergy, 3)} → ${formatNumber(entry.finalEnergy, 3)}</td>` +
+          `<td>${formatNumber(entry.gainedEnergy, 3)} / ${formatNumber(entry.wastedEnergy, 3)}</td>` +
+          `<td>${formatNumber(entry.energyBefore, 3)} → ${formatNumber(entry.energyAfter, 3)}</td></tr>`
+        );
+      })
+      .join("");
+}
+
 function renderAuraTimeline(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("auraTimelineCard");
@@ -1176,6 +1352,7 @@ function activateTab(tabName: string): void {
     requestAnimationFrame(() => {
       renderTimeline();
       renderDamageCurve();
+      renderEnergyAudit();
       renderAuraTimeline();
     });
   }
@@ -1311,6 +1488,7 @@ function initEvents(): void {
     if (byId<HTMLElement>("timelinePanel").classList.contains("active")) {
       renderTimeline();
       renderDamageCurve();
+      renderEnergyAudit();
       renderAuraTimeline();
     }
   });
