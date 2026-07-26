@@ -160,7 +160,7 @@ describe("AuraEngine ICD", () => {
     const apply = (
       actor: string,
       tag: string,
-      group: "default" | "no-icd"
+      group: string
     ) =>
       engine.processHit({
         frame: 0,
@@ -179,6 +179,52 @@ describe("AuraEngine ICD", () => {
     expect(apply("b", "shared", "default")).toBe(true);
     expect(apply("a", "shared", "no-icd")).toBe(true);
     expect(apply("a", "shared", "no-icd")).toBe(true);
+  });
+
+  it("supports a declared character-specific reset and application sequence", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v1",
+      icdProfiles: {
+        "durin-skill": {
+          resetFrames: 18,
+          applicationSequence: [true, false, false]
+        }
+      }
+    });
+    const hit = (frame: number) =>
+      engine.processHit({
+        frame,
+        sourceActorId: "durin",
+        element: "pyro",
+        application: {
+          gaugeUnits: 1,
+          icdTag: "denial-of-darkness",
+          icdGroup: "durin-skill"
+        }
+      }).icdAllowed;
+
+    expect([hit(0), hit(5), hit(10), hit(18)]).toEqual([
+      true,
+      false,
+      false,
+      true
+    ]);
+  });
+
+  it("fails loudly when direct engine use references an undeclared profile", () => {
+    const engine = new AuraEngine({ mode: "aura-v1" });
+    expect(() =>
+      engine.processHit({
+        frame: 0,
+        sourceActorId: "durin",
+        element: "pyro",
+        application: {
+          gaugeUnits: 1,
+          icdTag: "skill",
+          icdGroup: "missing-profile"
+        }
+      })
+    ).toThrow(/Unknown ICD profile/);
   });
 });
 
@@ -275,6 +321,16 @@ describe("Aura engine simulation integration", () => {
 
     expect(() => simulate(config)).toThrow(
       /manual reaction labels are forbidden in aura-v1/
+    );
+  });
+
+  it("rejects undeclared custom ICD groups before simulation starts", () => {
+    const config = makeAuraTimelineConfig(false);
+    config.timeline!.abilities[0]!.hits![0]!.application!.icdGroup =
+      "missing-profile";
+
+    expect(() => simulate(config)).toThrow(
+      /unknown ICD profile "missing-profile"/
     );
   });
 });

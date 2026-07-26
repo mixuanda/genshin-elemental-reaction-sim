@@ -6,6 +6,10 @@ import {
   resolveShowcaseCatalog
 } from "@genshin-dps-lab/game-data";
 import {
+  durinBlackSkillAuditDisclosure,
+  durinBlackSkillAuditPreset
+} from "@genshin-dps-lab/mechanics/durin-audit";
+import {
   ConfigMigrationError,
   migrateConfig,
   type AuraGaugeEntry,
@@ -131,7 +135,9 @@ function escapeHtml(value: unknown): string {
   );
 }
 
-let currentConfig: SimConfig = migrateConfig(presets[0]);
+const availablePresets = [...presets, durinBlackSkillAuditPreset] as const;
+
+let currentConfig: SimConfig = migrateConfig(availablePresets[0]);
 let lastResult: SimulationResult | null = null;
 let currentPage = 1;
 let selectedHitId: number | null = null;
@@ -140,7 +146,7 @@ let importedShowcase: CatalogResolvedShowcase | null = null;
 let graduationBuild: GraduationBuildPlaceholder | null = null;
 
 function populatePresetSelect(): void {
-  byId<HTMLSelectElement>("presetSelect").innerHTML = presets
+  byId<HTMLSelectElement>("presetSelect").innerHTML = availablePresets
     .map(
       (preset, index) =>
         `<option value="${index}">${escapeHtml(preset.meta.name)}</option>`
@@ -234,11 +240,30 @@ function renderAll(): void {
   renderAuraTimeline();
   renderHitDetail();
   const status = lastResult.config.meta.verificationStatus;
+  const auditDisclosure =
+    lastResult.config.meta.name === durinBlackSkillAuditPreset.meta.name
+      ? durinBlackSkillAuditDisclosure
+      : null;
   byId<HTMLElement>("notice").innerHTML =
     `<strong>${escapeHtml(lastResult.config.meta.name)}</strong> ` +
     `<span class="badge warn">${escapeHtml(status)}</span> · ` +
     `<span class="badge">${escapeHtml(lastResult.compatibilityMode)}</span> · ` +
-    `${escapeHtml(lastResult.config.meta.note ?? "")}`;
+    `${escapeHtml(lastResult.config.meta.note ?? "")}` +
+    (auditDisclosure === null
+      ? ""
+      : `<details><summary><span class="badge warn">${escapeHtml(auditDisclosure.simulationStatus)}</span> · ` +
+        `${auditDisclosure.blueprintIds.length} 个 Ability Blueprint · ` +
+        `${auditDisclosure.unresolvedMechanics.length} 项待实现 · 展开来源与边界</summary>` +
+        `<p>${auditDisclosure.evidence
+          .map(
+            (source) =>
+              `<a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.label)}</a> ` +
+              `<code>${escapeHtml(source.path)}</code>`
+          )
+          .join(" · ")}</p>` +
+        `<ul>${auditDisclosure.unresolvedMechanics
+          .map((item) => `<li>${escapeHtml(item)}</li>`)
+          .join("")}</ul></details>`);
 }
 
 function renderMetrics(): void {
@@ -569,10 +594,11 @@ function renderHitDetail(): void {
     ["实际施放者", `${hit.sourceActorName} (${hit.sourceActorId})`],
     ["缩放面板", `${hit.scalingOwnerName} (${hit.scalingOwnerId})`],
     ["伤害归属", `${hit.creditOwnerName} (${hit.creditOwnerId})`],
+    ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
     [
       "倍率基准",
-      `${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
+      `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
     ],
     ["附加基础伤害", formatNumber(hit.flat, 0)],
     ["基础伤害", formatNumber(hit.baseDamage, 0)],
@@ -1443,7 +1469,7 @@ function initEvents(): void {
     "change",
     (event) => {
       const selected = Number((event.currentTarget as HTMLSelectElement).value);
-      const preset = presets[selected];
+      const preset = availablePresets[selected];
       if (!preset) return;
       currentConfig = migrateConfig(deepClone(preset));
       syncControlsFromConfig();
@@ -1541,7 +1567,7 @@ declare global {
   interface Window {
     GenshinDpsLab: {
       simulate: typeof simulate;
-      presets: typeof presets;
+      presets: typeof availablePresets;
       getConfig: () => SimConfig;
       getLastResult: () => SimulationResult | null;
     };
@@ -1556,7 +1582,7 @@ runSimulation();
 
 window.GenshinDpsLab = {
   simulate,
-  presets,
+  presets: availablePresets,
   getConfig: () => deepClone(currentConfig),
   getLastResult: () => deepClone(lastResult)
 };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ConfigMigrationError,
+  CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   migrateConfig
 } from "./index";
@@ -29,7 +30,7 @@ describe("versioned config schema", () => {
   it("migrates a legacy config and fills required versions/default stats", () => {
     const migrated = migrateConfig(legacyConfig);
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe("1.2.0-particles");
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(migrated.dataVersion).toBe("0.1.0-demo");
     expect(migrated.randomSeed).toBe("legacy-default");
     expect(migrated.meta.verificationStatus).toBe("provisional");
@@ -139,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 and 1.1.0 configs to the current particle schema", () => {
+  it("migrates 1.0.0, 1.1.0 and 1.2.0 configs to the current ICD schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -151,11 +152,49 @@ describe("versioned config schema", () => {
       schemaVersion: "1.1.0",
       engineVersion: "1.1.0-aura"
     });
+    const migratedFromParticles = migrateConfig({
+      ...current,
+      schemaVersion: "1.2.0",
+      engineVersion: "1.2.0-particles"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migratedFromOne.engineVersion).toBe("1.2.0-particles");
+    expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(migratedFromAura.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migratedFromAura.engineVersion).toBe("1.2.0-particles");
+    expect(migratedFromAura.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+    expect(migratedFromParticles.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromParticles.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+  });
+
+  it("does not allow custom profiles to replace built-in ICD semantics", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        reactionEngine: {
+          mode: "aura-v1",
+          icdProfiles: {
+            default: {
+              resetFrames: 1,
+              applicationSequence: [true]
+            }
+          }
+        },
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [],
+          commands: []
+        }
+      })
+    ).toThrow(/built-in ICD group/);
   });
 
   it("requires an explicit debug flag for reactionOverride", () => {

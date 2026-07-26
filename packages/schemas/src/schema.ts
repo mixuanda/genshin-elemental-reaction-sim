@@ -4,6 +4,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
+  PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
@@ -36,7 +37,7 @@ export const elementalApplicationSchema = z
   .object({
     gaugeUnits: finiteNumber.positive().max(20),
     icdTag: idSchema,
-    icdGroup: z.enum(["default", "no-icd"])
+    icdGroup: idSchema
   })
   .strict();
 
@@ -51,6 +52,17 @@ export const auraReactionEngineConfigSchema = z
   .object({
     mode: z.literal("aura-v1"),
     initialAura: z.array(initialAuraApplicationSchema).max(3).optional(),
+    icdProfiles: z
+      .record(
+        idSchema,
+        z
+          .object({
+            resetFrames: z.number().int().positive().max(36_000),
+            applicationSequence: z.array(z.boolean()).min(1).max(128)
+          })
+          .strict()
+      )
+      .optional(),
     debugAllowReactionOverride: z.boolean().optional()
   })
   .strict()
@@ -66,6 +78,15 @@ export const auraReactionEngineConfigSchema = z
       }
       elements.add(aura.element);
     });
+    for (const builtIn of ["default", "no-icd"]) {
+      if (engine.icdProfiles?.[builtIn] !== undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["icdProfiles", builtIn],
+          message: `"${builtIn}" is a built-in ICD group and cannot be overridden`
+        });
+      }
+    }
   });
 
 export const characterStatsSchema = z
@@ -739,7 +760,9 @@ export const simConfigSchema = z
         hit: {
           reaction?: string | undefined;
           reactionOverride?: string | undefined;
-          application?: { gaugeUnits: number } | undefined;
+          application?:
+            | { gaugeUnits: number; icdGroup: string }
+            | undefined;
           element?: string | undefined;
         },
         path: Array<string | number>
@@ -773,6 +796,19 @@ export const simConfigSchema = z
             path: [...path, "application"],
             message:
               "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
+          });
+        }
+        if (
+          hit.application !== undefined &&
+          !["default", "no-icd"].includes(hit.application.icdGroup) &&
+          config.reactionEngine?.icdProfiles?.[
+            hit.application.icdGroup
+          ] === undefined
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [...path, "application", "icdGroup"],
+            message: `unknown ICD profile "${hit.application.icdGroup}"`
           });
         }
       };
@@ -910,6 +946,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === PARTICLE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === PREVIOUS_SCHEMA_VERSION) {
     return parseSimConfig({

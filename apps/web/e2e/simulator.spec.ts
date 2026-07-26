@@ -185,6 +185,81 @@ test("renders deterministic particle travel, receive-time field state, and energ
   await expect(page.locator("#energyLogBody")).toContainText("44.6 / 5.4");
 });
 
+test("renders the source-audited Durin black E hit, ICD, aura, energy, and damage curves", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page.locator("#presetSelect").selectOption({ index: 5 });
+
+  await expect(page.locator("#notice")).toContainText(
+    "杜林黑 E · 部分机制审计向量"
+  );
+  await expect(page.locator("#notice")).toContainText("不是完整角色预设");
+  await expect(page.locator("#notice")).toContainText("provisional");
+  await expect(page.locator("#notice")).toContainText("partial");
+  await expect(page.locator("#notice")).toContainText("7 项待实现");
+  await page.locator("#notice summary").click();
+  await expect(page.locator("#notice")).toContainText(
+    "gcsim 杜林技能行为"
+  );
+  await expect(page.locator("#notice")).toContainText(
+    "固定回能的 6 秒内部冷却尚未跨动作建模"
+  );
+  await expect(page.locator("#metricGrid")).toContainText("4,037");
+  await expect(page.locator("#metricGrid")).toContainText("3");
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          frames: result.damageEvents.map((event) => event.frame),
+          damage: result.damageEvents.map((event) => event.displayDamage),
+          icd: result.damageEvents.map(
+            (event) => event.reactionAudit.icdAllowed
+          ),
+          reactions: result.damageEvents.map((event) => event.reaction),
+          energy: result.energyStats.durin,
+          particle: result.particleEvents[0],
+          curve: result.damageCurve.map((point) => point.cumulativeDamage)
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    frames: [48, 53, 58],
+    damage: [2224, 819, 995],
+    icd: [true, false, false],
+    reactions: ["melt", "none", "none"],
+    energy: {
+      fixedGained: 33,
+      particleGained: 12,
+      final: 45
+    },
+    particle: {
+      particleCount: 4,
+      spawnFrame: 48,
+      receiveFrame: 148
+    },
+    curve: [2223.5472, 3042.2952, 4037.1048]
+  });
+
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(page.locator("#pageInfo")).toContainText("共 3 段");
+  await expect(page.locator("#hitTableBody tr[data-hit-id]")).toHaveCount(3);
+  await page.locator("#hitTableBody tr[data-hit-id]").first().click();
+  await expect(page.locator("#hitDetail")).toContainText("黑 E 第 1 段");
+  await expect(page.locator("#hitDetail")).toContainText("1.30032");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "durin-elemental-art / durin-skill"
+  );
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#damageCurveCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(3);
+  await expect(page.locator("#energyLogBody tr")).toHaveCount(2);
+});
+
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page
 }) => {

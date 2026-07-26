@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./durin-audit": "./src/characters/durin-audit.ts"
+  },
   "dependencies": {
+    "@genshin-dps-lab/game-data": "1.0.0",
+    "@genshin-dps-lab/schemas": "1.0.0",
     "@genshin-dps-lab/sim-core": "1.0.0"
   }
 }
-

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@genshin-dps-lab/game-data": "1.0.0",
+    "@genshin-dps-lab/mechanics": "1.0.0",
     "@genshin-dps-lab/schemas": "1.0.0",
     "@genshin-dps-lab/sim-core": "1.0.0"
   },
@@ -17,4 +18,3 @@
     "vite": "8.1.5"
   }
 }
-

@@ -5,6 +5,7 @@ import type {
   AuraStateEntry,
   Element,
   ElementalApplication,
+  IcdProfile,
   ReactionAudit
 } from "@genshin-dps-lab/schemas";
 
@@ -14,6 +15,10 @@ const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
 const NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 6;
 const DEFAULT_ICD_RESET_FRAMES = 150;
 const DEFAULT_ICD_SEQUENCE = [true, false, false] as const;
+const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
+  resetFrames: DEFAULT_ICD_RESET_FRAMES,
+  applicationSequence: [...DEFAULT_ICD_SEQUENCE]
+};
 
 interface MutableAura {
   element: AuraElement;
@@ -90,12 +95,17 @@ function cleanGaugeUnits(value: number): number {
 export class AuraEngine {
   private readonly auras = new Map<AuraElement, MutableAura>();
   private readonly icdStates = new Map<string, IcdState>();
+  private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
   private readonly debugAllowReactionOverride: boolean;
   private currentFrame = 0;
 
   constructor(config: AuraReactionEngineConfig) {
     this.debugAllowReactionOverride =
       config.debugAllowReactionOverride === true;
+    this.icdProfiles = {
+      default: BUILT_IN_DEFAULT_ICD_PROFILE,
+      ...(config.icdProfiles ?? {})
+    };
     for (const initial of config.initialAura ?? []) {
       this.attachNormalAura(initial.element, initial.gaugeUnits);
     }
@@ -175,16 +185,22 @@ export class AuraEngine {
     application: ElementalApplication
   ): boolean {
     if (application.icdGroup === "no-icd") return true;
+    const profile = this.icdProfiles[application.icdGroup];
+    if (!profile) {
+      throw new Error(
+        `Unknown ICD profile "${application.icdGroup}"; declare it in reactionEngine.icdProfiles.`
+      );
+    }
     const key = `${sourceActorId}\u0000${application.icdTag}\u0000${application.icdGroup}`;
     const existing = this.icdStates.get(key);
     const state =
       existing === undefined ||
-      frame - existing.windowStartFrame >= DEFAULT_ICD_RESET_FRAMES
+      frame - existing.windowStartFrame >= profile.resetFrames
         ? { windowStartFrame: frame, hitCount: 0 }
         : existing;
     const allowed =
-      DEFAULT_ICD_SEQUENCE[
-        state.hitCount % DEFAULT_ICD_SEQUENCE.length
+      profile.applicationSequence[
+        state.hitCount % profile.applicationSequence.length
       ] ?? false;
     state.hitCount += 1;
     this.icdStates.set(key, state);
@@ -240,7 +256,7 @@ export class AuraEngine {
         auraApplied: [],
         auraConsumed: [],
         auraAfter: this.snapshot(),
-        note: "默认 ICD 阻止本段附着与反应。"
+        note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
 
@@ -314,5 +330,6 @@ export const AURA_ENGINE_CONSTANTS = {
   normalAuraBaseDurationFrames: NORMAL_AURA_BASE_DURATION_FRAMES,
   normalAuraDurationPerUnitFrames: NORMAL_AURA_DURATION_PER_UNIT_FRAMES,
   defaultIcdResetFrames: DEFAULT_ICD_RESET_FRAMES,
-  defaultIcdSequence: DEFAULT_ICD_SEQUENCE
+  defaultIcdSequence: DEFAULT_ICD_SEQUENCE,
+  builtInDefaultIcdProfile: BUILT_IN_DEFAULT_ICD_PROFILE
 } as const;

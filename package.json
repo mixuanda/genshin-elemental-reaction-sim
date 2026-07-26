@@ -23,7 +23,6 @@
     "@playwright/test": "1.62.0",
     "@types/node": "26.1.1",
     "genshin-db": "5.2.12",
-    "genshin-db": "5.2.12",
     "typescript": "7.0.2",
     "vite": "8.1.5",
     "vitest": "4.1.10"

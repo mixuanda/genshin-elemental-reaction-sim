@@ -4,6 +4,9 @@ import type {
   DamagePluginContext
 } from "@genshin-dps-lab/sim-core";
 
+export * from "./compiler";
+export * from "./characters/durin";
+
 export interface DeclarativeDamageEffect {
   id: string;
   when: {
@@ -71,4 +74,3 @@ export function createDeclarativeDamagePlugin(
     }
   };
 }
-

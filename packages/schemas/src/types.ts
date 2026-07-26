@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.2.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.2.0-particles" as const;
+export const CURRENT_SCHEMA_VERSION = "1.3.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.3.0-icd-profiles" as const;
+export const PARTICLE_SCHEMA_VERSION = "1.2.0" as const;
 export const PREVIOUS_SCHEMA_VERSION = "1.1.0" as const;
 export const INITIAL_TYPED_SCHEMA_VERSION = "1.0.0" as const;
 export const LEGACY_SCHEMA_VERSION = "0.1.0" as const;
@@ -30,7 +31,7 @@ export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
 export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
-export type IcdGroup = "default" | "no-icd";
+export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
 
@@ -48,9 +49,18 @@ export interface InitialAuraApplication {
   gaugeUnits: number;
 }
 
+export interface IcdProfile {
+  /** Time-based reset boundary for the sequence, in 60 FPS frames. */
+  resetFrames: number;
+  /** Per-hit elemental application permission sequence, repeated by index. */
+  applicationSequence: boolean[];
+}
+
 export interface AuraReactionEngineConfig {
   mode: "aura-v1";
   initialAura?: InitialAuraApplication[];
+  /** Character-specific ICD groups keyed by the id used on each hit. */
+  icdProfiles?: Record<string, IcdProfile>;
   /**
    * Debug-only escape hatch. Formal presets must leave this false and rely on
    * Aura/ICD state rather than manually labelling reactions.

@@ -1,6 +1,6 @@
 # 提瓦特伤害实验室
 
-一个以“逐段可审计、配置可迁移、结果可复现”为目标的原神队伍 DPS 模拟器。当前完成了 Vanilla v0.1 基线冻结、TypeScript 模拟核心、合法帧时间线、Milestone 3 的火/冰/水 Aura 与自动增幅反应最小闭环、Milestone 4 的粒子/能量核心第一批闭环，以及 Milestone 5 的版本化数据目录与 UID 映射基础。
+一个以“逐段可审计、配置可迁移、结果可复现”为目标的原神队伍 DPS 模拟器。当前完成了 Vanilla v0.1 基线冻结、TypeScript 模拟核心、合法帧时间线、火/冰/水 Aura 与自动增幅反应最小闭环、粒子/能量核心第一批闭环、版本化数据目录与 UID 映射基础，以及首个带来源闸门的杜林黑 E 部分机制审计向量。
 
 ## 安装和运行
 
@@ -54,8 +54,8 @@ npx playwright install chromium
 - 支持切人耗时、行动开始帧、命中帧、取消帧、动画结束帧、技能冷却和多充能次数。
 - 合法时间线支持 `strict` 拒绝模式和 `wait` 自动等待模式，并返回逐指令诊断。
 - 输入配置含 `schemaVersion`、`engineVersion`、`dataVersion` 和 `randomSeed`。
-- Zod 严格校验、字段路径错误，以及 v0.1 / 1.0.0 / 1.1.0 配置迁移；当前 Schema 为 `1.2.0`、引擎为 `1.2.0-particles`。
-- `aura-v1` 支持火/冰/水普通 Aura、可扩展元素量、衰减、默认三击/2.5秒 ICD、No ICD 和独立的角色/Tag/Group 流。
+- Zod 严格校验、字段路径错误，以及 v0.1 / 1.0.0 / 1.1.0 / 1.2.0 配置迁移；当前 Schema 为 `1.3.0`、引擎为 `1.3.0-icd-profiles`。
+- `aura-v1` 支持火/冰/水普通 Aura、可扩展元素量、衰减、默认三击/2.5秒 ICD、No ICD、独立的角色/Tag/Group 流和显式声明的角色特有 ICD Profile。
 - 正向/反向融化、正向/反向蒸发由核心根据命中元素、敌方 Aura、元素量和 ICD 自动判断。
 - 正式 `aura-v1` 配置禁止手工 `reaction` 标签；`reactionOverride` 只在显式调试开关下可用。
 - ATK / HP / DEF / EM 缩放、增伤、防御、抗性、暴击和增幅反应。
@@ -78,6 +78,8 @@ npx playwright install chromium
   `gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1`。
 - 可审计的完整中文目录：120 个角色、125 套天赋、762 个技能/被动记录、237 把武器；技能倍率保留 15 级数组，武器保留 1–5 精炼值。
 - 每条角色、天赋、技能和武器记录都带补丁、来源、来源版本、核验时间、校验状态、说明和机制映射状态。
+- `AbilityBlueprint` 把技能倍率引用、命中帧、附着、ICD、固定回能、产球、前置条件、未实现机制和逐项证据放入严格 Schema；通用编译器默认拒绝 `partial`，只有审计向量可显式放行。
+- 内置“杜林黑 E · 部分机制审计向量”：天赋 10 级三段倍率 `1.30032 / 0.9576 / 1.16352`，命中帧 `48 / 53 / 58`，DurinSkill 自定义 ICD、33 固定回能和 4 火粒子均由核心输出并在网页逐段、伤害曲线、Aura 曲线和能量曲线中展示。
 - 完整 1.9 MB 数据包与 118 KB 浏览器 UID 索引分离；生产首屏 JS 只使用轻量索引。
 - 从 Enka.Network 读取公开 UID 展示柜，经 Schema 校验后展示本地化角色/武器/技能名称、等级、命座、技能等级、面板与圣遗物。
 - UID 映射会报告所有缺失的角色、武器和技能 ID；旅行者按实际技能 ID 集合解析元素变体。
@@ -94,6 +96,8 @@ npx playwright install chromium
 - Golden Fixture 只证明迁移前后结果一致，不证明数值符合游戏实测。
 - 页面明确显示 `provisional`，导出配置也保留这一状态。
 
+单独的“杜林黑 E · 部分机制审计向量”同样是 `provisional + partial`。它的倍率来自固定 `genshin-db` 数据，帧、ICD、回能和产球用固定 gcsim 提交交叉核对；这只证明列出的黑 E 子集可追溯、可执行，不代表杜林整角、命座、武器或完整队伍已经验证。
+
 ## 当前精度边界
 
 本版本不是 gcsim 精度实现。`legacy-v0.1` 继续保持 Golden 兼容；`aura-v1` 和粒子引擎只覆盖当前最小机制闭环。尚未实现：
@@ -101,10 +105,11 @@ npx playwright install chromium
 - 雷/草 Aura、火雷水共存、冻结/冻元素、燃烧和其他复合附着状态。
 - 超载、感电、超导、冻结、扩散、结晶、绽放、激化等转化/加算反应及其伤害事件。
 - gcsim 式按来源保存的 Aura overlap 数组；当前冰/水同元素补充使用单一目标状态的较强值近似。
-- 角色特有 ICD Group 序列；当前只实现默认三击/2.5秒与 No ICD。
+- 全角色的特有 ICD Group 数据库；引擎已经支持声明式 Profile，但当前只有 DurinSkill 的 18 帧 / `[允许, 阻止, 阻止]` 审计映射。
 - 经过来源核验的逐技能产球数量/概率/飞行帧，以及敌人掉球、击杀掉球、白球来源、拾取路径和多目标粒子。
 - 粒子目前按一次定义聚合为同一到达事件；没有场景几何、碰撞、角色位置或逐个粒子的独立飞行轨迹。
-- 尚未给全角色填入经过实测核验的命中帧、取消帧、动画结束帧和冷却数据。
+- 尚未给全角色填入经过实测核验的命中帧、逐后续动作取消帧、动画结束帧和冷却数据；杜林黑 E 目前也只覆盖指定黑分支路径。
+- 杜林的精质转变状态机、6 秒固定回能 ICD、首次成功命中才产球、黑/白状态、爆发、命座和专属装备效果尚未完成。
 - Hitlag、多目标、AoE、索敌、移动、无敌、护盾和特殊易伤窗口。
 - Monte Carlo 暴击/粒子采样和统计分布；离散产球范围目前只按固定种子给出单次可复现轨迹。
 - 社区数据目录已建立，但角色/武器记录仍为 `provisional`；尚未完成与官方文本、实测或独立向量交叉验证后的稳定数据发布。
@@ -122,11 +127,11 @@ apps/web                 Vite + TypeScript 展示层
 packages/sim-core        纯 TypeScript 模拟与公式
 packages/schemas         Zod Schema、类型和版本迁移
 packages/game-data       预设、完整数据目录、轻量 UID 索引与展示柜适配器
-packages/mechanics       通用声明式伤害机制插件入口
+packages/mechanics       Ability Blueprint、来源编译闸门、声明式插件与部分机制审计向量
 packages/test-vectors    Golden Fixture
 legacy/v0.1-vanilla      冻结的原版网站和基线记录
 ```
 
 ## gcsim 参考边界
 
-项目借鉴 gcsim 的“角色/技能伤害构成、逐帧 Sample、每个事件可展开计算、显式能量问题与版本化配置”思路，但没有复制其角色实现或数据库。完整目录来自单独固定的 `genshin-db` MIT 数据包；Enka 只用于公开展示柜和数字 ID 互操作。详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+项目借鉴 gcsim 的“角色/技能伤害构成、逐帧 Sample、每个事件可展开计算、显式能量问题与版本化配置”思路。杜林黑 E 的帧、ICD、回能和产球行为还使用固定 gcsim 提交作为交叉校验依据，但 TypeScript 实现和 Schema 为独立编写，没有复制其 Go 角色实现或数据库。完整倍率目录来自单独固定的 `genshin-db` MIT 数据包；Enka 只用于公开展示柜和数字 ID 互操作。详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。

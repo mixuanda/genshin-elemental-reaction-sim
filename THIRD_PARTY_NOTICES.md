@@ -16,12 +16,18 @@ This project currently uses gcsim as a product and testing reference only:
 - particle distribution behavior documented by
   [`pkg/core/player/character/energy.go`](https://github.com/genshinsim/gcsim/blob/main/pkg/core/player/character/energy.go);
 - explicit warnings about simulator limitations.
+- Durin black-skill behavior cross-checked against repository commit
+  `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541`, specifically
+  `internal/characters/durin/skill.go`,
+  `pkg/core/attacks/icd_groups.dm.go`, and the default particle delay in
+  `pkg/core/player/character/character.go`.
 
 No gcsim source code, character implementation, or game database has been
-copied. The TypeScript particle implementation was written independently and
-uses gcsim only as a behavior/test oracle. If code is reused later, the
-applicable copyright and MIT license text must be retained with the copied or
-substantial portions.
+copied. The TypeScript Aura, ICD, particle, Ability Blueprint, and Durin audit
+implementations were written independently; the pinned Go sources are used as
+behavior/test oracles and are cited by the blueprint evidence. If code is
+reused later, the applicable copyright and MIT license text must be retained
+with the copied or substantial portions.
 
 ## Enka.Network
 

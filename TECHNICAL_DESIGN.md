@@ -2,7 +2,7 @@
 
 ## 1. 当前目标
 
-Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线、火/冰/水 Aura、默认 ICD、自动融化/蒸发，以及第一批可复现粒子/能量事件；仍不声称拥有完整游戏机制精度。
+Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线、火/冰/水 Aura、声明式 ICD Profile、自动融化/蒸发、第一批可复现粒子/能量事件，以及首个来源可追溯的杜林黑 E 部分机制向量；仍不声称拥有完整游戏机制精度。
 
 ## 2. 包边界
 
@@ -22,7 +22,8 @@ packages/game-data
   当前杜林预设和目录记录均为 provisional。
 
 packages/mechanics
-  声明式伤害修正插件入口，避免在核心循环写角色名分支。
+  Ability Blueprint、来源编译闸门、声明式伤害修正插件和角色机制向量；
+  避免在核心循环写角色名分支。
 
 packages/test-vectors
   从冻结 v0.1 采集的 Golden Fixture。
@@ -31,12 +32,13 @@ packages/test-vectors
 依赖方向：
 
 ```text
-schemas <- sim-core <- mechanics
 schemas <- game-data
-sim-core + schemas + game-data <- apps/web
+schemas <- sim-core
+schemas + sim-core + game-data <- mechanics
+sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器，避免把 1.9 MB 倍率包隐式打进网页。生产构建从拆分前约 2.12 MB JS 降至 271.84 kB（gzip 70.56 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 288.69 kB（gzip 73.88 kB）。
 
 ## 3. 配置契约
 
@@ -49,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0` 或 `1.1.0` 配置迁移到 `1.2.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.2.0-particles`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0` 或 `1.2.0` 配置迁移到 `1.3.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.3.0-icd-profiles`。
 
 ## 4. 确定性与排序
 
@@ -181,11 +183,24 @@ UI 只绘制这些结构化结果，不重新执行伤害公式。
 application: {
   gaugeUnits: 1,
   icdTag: "ability-stream",
-  icdGroup: "default" | "no-icd"
+  icdGroup: "default" | "no-icd" | "declared-profile-id"
 }
 ```
 
 普通 Aura 的初始耐久为标称元素量的 `0.8` 倍；1U 的衰减长度为 `420 + 6 × 1 = 426` 帧。默认 ICD 窗口为 150 帧，序列为允许、阻止、阻止并循环；状态键包含施放者、`icdTag` 和 `icdGroup`。`no-icd` 每次允许附着。
+
+角色特有组必须在 `reactionEngine.icdProfiles` 中显式声明：
+
+```ts
+icdProfiles: {
+  "durin-skill": {
+    resetFrames: 18,
+    applicationSequence: [true, false, false]
+  }
+}
+```
+
+未知组在 Schema 校验和直接状态机调用两层都失败；不得静默退回默认 ICD。内置 `default` / `no-icd` 也禁止由配置覆盖。
 
 当前增幅反应消耗规则与 gcsim 的最小语义对齐：
 
@@ -196,7 +211,7 @@ application: {
 
 如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机只实现单目标的火/冰/水普通 Aura。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以单状态的较强剩余 Aura 表示；复合共存、冻结、转化反应和角色特有 ICD Group 尚未实现。
+当前状态机只实现单目标的火/冰/水普通 Aura。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以单状态的较强剩余 Aura 表示；复合共存、冻结和转化反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
 ### 6.2 粒子 / 能量事件
 
@@ -229,6 +244,25 @@ energyAfter
 
 固定回能不会套用粒子倍率或元素充能效率，并在同一日志中以 `kind: "fixed"` 明确区分。UI 只读取 `particleEvents`、`energyLog` 和 `energyCurve`，不重新计算能量。
 
+### 6.3 Ability Blueprint 与部分机制闸门
+
+`packages/schemas/src/mechanics.ts` 定义独立的 `AbilityBlueprint` 契约。每个技能映射必须包含：
+
+- 数据版本、映射版本和角色/技能 ID。
+- 每段命中帧、倍率参数引用、缩放属性、元素、快照和附着流。
+- 固定回能与粒子定义。
+- 前置条件、尚未实现机制和逐项来源证据。
+- `verificationStatus` 与 `simulationStatus: "partial" | "mechanics-mapped"`。
+
+`packages/mechanics/src/compiler.ts` 按 `talentSetId / abilityKey / parameterKey / talentLevel` 从固定目录解析倍率。错误引用返回精确路径；`partial` 默认拒绝，审计测试必须显式 `allowPartial: true`。只有无未解决项的 Blueprint 才能标记 `mechanics-mapped`。
+
+首个向量是杜林黑 E：
+
+- 倍率来源：`genshin-db@5.2.12` 固定目录的技能 10 级参数。
+- 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go` 与 `icd_groups.dm.go`。
+- 覆盖：进入黑分支所需取消路径、三段命中、DurinSkill ICD、33 固定回能和 4 火粒子。
+- 保持 `provisional + partial`：精质转变状态、逐后续动作取消帧、6 秒回能 ICD、首次成功命中产球条件、多目标/AoE/Hitlag、黑白状态和爆发尚未实现。
+
 ## 7. 测试策略
 
 Vitest 当前覆盖：
@@ -251,6 +285,7 @@ Vitest 当前覆盖：
 - 多充能次数、行动重叠与错误前台角色。
 - 1U Aura 的 0.8 初始耐久和 426 帧衰减。
 - 默认 ICD 第 1/2/3/4 次附着、150 帧重置、独立角色/Tag/Group 和 No ICD。
+- 自定义 ICD Profile、禁止覆盖内置组、未知组失败和 DurinSkill 18 帧序列。
 - 正/反融化与正/反蒸发的反应方向和 Aura 消耗。
 - 无 Aura 不触发融化，以及正式 Aura 配置拒绝手工反应标签。
 - Aura 结果接入伤害乘区和 `auraTimeline`。
@@ -263,10 +298,12 @@ Vitest 当前覆盖：
 - 每条角色/天赋/技能/武器的来源字段与 `metadata-only` 闸门。
 - 首批五名角色的 ID、中文名、发布补丁和 provisional 状态。
 - 杜林 15 级倍率数组与武器 1–5 精炼值的精确抽样。
+- Ability Blueprint 的部分机制默认拒绝、来源参数路径解析和错误路径。
+- 杜林黑 E 三段倍率、48/53/58 全局命中帧、首段融化、ICD、逐击整数值、伤害曲线、33 固定回能和 4 火粒子。
 - UID 角色、武器、技能、天赋额外等级以及旅行者元素变体映射。
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误、杜林黑 E 审计向量，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
 
 ## 8. 展示柜导入边界
 
@@ -293,7 +330,7 @@ GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
 - 角色、武器和技能的逐项匹配诊断。
 - 旅行者按实际技能 ID 集合选择火/水/风/岩/雷/草/冰元素天赋变体。
 
-展示柜数据与 `SimConfig` 故意分离：目录中的身份和倍率信息不等于可执行的帧、ICD、Aura、粒子、快照和特殊机制，不能仅凭玩家面板生成可信轮转。只有 `simulationStatus: "mechanics-mapped"` 的记录以后才允许进入配置编译器；当前目录全部为 `metadata-only`。所谓“毕业站位”同样只创建 `graduation-target-placeholder`，在目标标准核验前禁止模拟。
+展示柜数据与 `SimConfig` 故意分离：目录中的身份和倍率信息不等于可执行的帧、ICD、Aura、粒子、快照和特殊机制，不能仅凭玩家面板生成可信轮转。完整目录记录当前仍全部为 `metadata-only`；杜林黑 E 的独立 Ability Blueprint 也只到 `partial`，不能把整名角色视为已映射。所谓“毕业站位”同样只创建 `graduation-target-placeholder`，在目标标准核验前禁止模拟。
 
 纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
 
@@ -325,10 +362,10 @@ game patch 6.7
 
 Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
 
-Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认 ICD、No ICD、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；尚未有基于核验角色数据重建的正式杜林合法帧/Aura 预设，因此不能把兼容预设的手工标签删除后声称机制等价。
+Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；新增黑 E 只是一段独立审计向量，不能用它替换 120 秒兼容预设后声称机制等价。
 
 Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。内置 M4 预设只用于机制验收；其面板、帧数和产球范围仍是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、几何飞行轨迹或真实技能产球数据库。
 
-Milestone 5 已完成数据层基础，不等于正式杜林预设完成。杜林、尼可、洛恩、茜特菈莉、希诺宁以及全量角色/武器身份与倍率均可查询，但仍需逐角色机制插件、裸伤/Buff 后向量、动作帧、附着/ICD、粒子和武器/圣遗物效果交叉验证。
+Milestone 5 已完成数据层基础和首个部分机制编译闭环，不等于正式杜林预设完成。杜林黑 E 已有倍率引用、裸伤/增伤、动作帧、附着/ICD、回能和粒子向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应优先给杜林五人首批数据建立 `mechanics-mapped` 审核清单和可执行插件，补齐其相关武器/圣遗物效果与 120 秒 0 能量合法帧预设；再扩展复合附着、冻结、转化反应和角色特有 ICD Group。无论选择哪一条，都必须保留现有 Golden、Aura、能量和目录再生向量。
+下一阶段应先完成杜林精质转变状态机、逐后续动作取消窗口、6 秒回能 ICD、命中成功产球条件、白 E 与黑/白 Q，再逐项补齐命座、专武和圣遗物效果；之后才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。随后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、Aura、能量、Ability Blueprint 和目录再生向量。
