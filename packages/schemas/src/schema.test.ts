@@ -89,4 +89,53 @@ describe("versioned config schema", () => {
       })
     ).toThrow(/rotation\.0\.actorId/);
   });
+
+  it("validates legal timeline ability references before scheduling", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [],
+          commands: [
+            {
+              type: "skill",
+              actorId: "a",
+              abilityId: "missing"
+            }
+          ]
+        }
+      })
+    ).toThrow(/timeline\.commands\.0\.abilityId/);
+  });
+
+  it("rejects absolute rotations mixed with a legal timeline", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "legacy-action",
+            actorId: "a",
+            name: "旧行动",
+            at: 0
+          }
+        ],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [],
+          commands: []
+        }
+      })
+    ).toThrow(/rotation: must be empty/);
+  });
 });

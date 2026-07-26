@@ -76,6 +76,31 @@
           <div class="section-title"><h2>能量与执行状态</h2><span>用于识别 0 能量启动导致的断轴</span></div>
           <div id="energyStatus" class="energy-grid"></div>
         </article>
+        <article class="card legal-timeline-card" id="legalTimelineCard" hidden>
+          <div class="section-title">
+            <h2>合法帧行动队列</h2>
+            <span id="legalTimelineSummary"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="legal-timeline-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>指令</th>
+                  <th>角色 / 行动</th>
+                  <th>请求帧</th>
+                  <th>开始帧</th>
+                  <th>取消帧</th>
+                  <th>动画结束</th>
+                  <th>等待</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="legalTimelineBody"></tbody>
+            </table>
+          </div>
+          <div id="legalTimelineFailures" class="timeline-failures"></div>
+        </article>
       </section>
 
       <section class="tab-panel" id="timelinePanel">
@@ -152,8 +177,9 @@
               <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>以确定性数值描述自产球、队伍回能或天赋回能；不足能量的行动会被跳过并记录。</dd>
+              <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、取消帧、动画结束、冷却、充能次数，以及 strict / wait 合法性模式。</dd>
             </dl>
-            <p class="muted">当前兼容引擎采用命中时动态结算；将 hit.snapshot 设为 action 可使用行动开始时的角色快照。元素附着、Aura、ICD、粒子和动作帧合法性尚未自动推演，增幅反应仍由命中段明确标记。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。元素附着、Aura、ICD 与粒子仍未自动推演，增幅反应仍由命中段明确标记。</p>
           </article>
         </div>
       </section>

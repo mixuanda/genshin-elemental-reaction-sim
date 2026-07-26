@@ -60,7 +60,38 @@ randomSeed
 
 状态在 `end <= hitTime` 时先过期，因此恰好处于结束边界的命中不享受该状态。该规则由测试固定。
 
-当前输出包含秒和由 `round(timeSeconds * 60)` 得到的展示帧。模拟尚未以整数帧推进；真正的 60 FPS 合法行动时间线属于下一阶段。
+引擎保留两条时间路径：
+
+- `legacy-v0.1`：保留浮点秒和原有排序，保证 Golden 完全一致。
+- `legal-frame-v1`：命令、行动占用、切人、冷却、效果和命中以 60 FPS 整数帧编译；事件队列首先按整数帧排序，秒数只作为 UI 表示。
+
+合法帧配置把角色行动数据与轮转命令分离：
+
+```ts
+timeline: {
+  mode: "legal-frame-v1",
+  fps: 60,
+  legalityMode: "strict" | "wait",
+  initialActiveCharacterId,
+  swapFrames,
+  abilities: [{
+    kind,
+    cancelFrame,
+    animationEndFrame,
+    cooldownFrames,
+    maxCharges,
+    chargeRecoveryFrames,
+    hits: [{ frame, ...damageDefinition }]
+  }],
+  commands: [
+    { type: "skill", actorId, abilityId },
+    { type: "swap", characterId },
+    { type: "wait", frames }
+  ]
+}
+```
+
+命令游标默认推进至行动的可取消帧。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
 
 ## 5. 伤害公式
 
@@ -143,6 +174,9 @@ Vitest 当前覆盖：
 - 120 秒末端截断语义。
 - 相同版本/配置/种子的可复现性。
 - 默认 120 秒 Golden Fixture。
+- 整数帧行动、切人、命中追踪、取消帧与动画结束帧。
+- 严格模式冷却拒绝和等待模式冷却调整。
+- 多充能次数、行动重叠与错误前台角色。
 
 Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、逐段筛选、公式展开、导出和字段路径错误。
 
@@ -166,6 +200,8 @@ GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
 
 纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
 
-## 9. 下一阶段
+## 9. Milestone 2 当前边界
 
-Milestone 2 应把内部时间改为 60 FPS 整数帧，并加入行动命令、切人、占用时间、命中帧、取消帧、冷却、充能次数和严格/等待模式。完成后再进入 Aura/ICD；不要把当前 `frame` 展示字段误认为已经实现合法帧模拟。
+Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
+
+下一阶段进入 Milestone 3：先实现 Pyro、Cryo、Hydro Aura、1U/2U/4U、衰减、默认 ICD 和融化/蒸发，再扩展其他反应。Aura 结果必须写入现有 `reactionAudit`，并增加敌方附着时间线。

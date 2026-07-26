@@ -62,6 +62,30 @@ test("shows a field path for an invalid config", async ({ page }) => {
   await expect(page.locator("#jsonError")).toContainText("enemy.level");
 });
 
+test("renders the legal frame action queue and traces hits to commands", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page.locator("#presetSelect").selectOption({ index: 2 });
+
+  await expect(page.locator("#notice")).toContainText("legal-frame-v1");
+  await expect(page.locator("#legalTimelineCard")).toBeVisible();
+  await expect(page.locator("#legalTimelineSummary")).toContainText(
+    "等待模式"
+  );
+  await expect(page.locator("#legalTimelineBody tr")).toHaveCount(8);
+  await expect(page.locator("#legalTimelineFailures")).toContainText(
+    "等待冷却/充能至第 176 帧"
+  );
+  await expect(page.locator("#metricGrid")).toContainText("时间线指令");
+
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(page.locator("#pageInfo")).toContainText("共 5 段");
+  await page.locator("#hitTableBody tr[data-hit-id]").first().click();
+  await expect(page.locator("#hitDetail")).toContainText("时间线指令");
+  await expect(page.locator("#hitDetail")).toContainText("合法行动帧");
+});
+
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page
 }) => {

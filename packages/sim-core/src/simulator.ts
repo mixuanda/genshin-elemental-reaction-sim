@@ -14,7 +14,8 @@ import {
   type SimConfig,
   type SimulationEvent,
   type SimulationOptions,
-  type SimulationResult
+  type SimulationResult,
+  type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import {
   calcDamage,
@@ -24,6 +25,7 @@ import {
 } from "./formulas";
 import { MinHeap } from "./min-heap";
 import type { DamageModifierPlugin } from "./plugins";
+import { compileLegalTimeline } from "./legal-timeline";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -178,15 +180,18 @@ function applyPluginChanges(
   return { ...input, ...changes };
 }
 
-export function simulate(
-  rawConfig: unknown,
-  runtimeOptions: SimulationRuntimeOptions = {}
+function simulateConfig(
+  config: SimConfig,
+  runtimeOptions: SimulationRuntimeOptions = {},
+  resultConfig: SimConfig = config,
+  timelineExecution?: TimelineExecution
 ): SimulationResult {
-  const config = migrateConfig(rawConfig);
   const options = {
     energyMode: runtimeOptions.energyMode ?? "configured",
     critMode: runtimeOptions.critMode ?? "average",
-    compatibilityMode: runtimeOptions.compatibilityMode ?? "legacy-v0.1",
+    compatibilityMode:
+      runtimeOptions.compatibilityMode ??
+      (timelineExecution ? "legal-frame-v1" : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
@@ -213,12 +218,17 @@ export function simulate(
     });
   }
 
-  const queue = new MinHeap<InternalEvent>(
-    (left, right) =>
-      left.timeSeconds - right.timeSeconds ||
+  const frameNative = options.compatibilityMode === "legal-frame-v1";
+  const queue = new MinHeap<InternalEvent>((left, right) => {
+    const timeOrder = frameNative
+      ? left.frame - right.frame
+      : left.timeSeconds - right.timeSeconds;
+    return (
+      timeOrder ||
       left.priority - right.priority ||
       left.sequence - right.sequence
-  );
+    );
+  });
   let sequence = 0;
   const push = <TPayload>(
     timeSeconds: number,
@@ -226,9 +236,10 @@ export function simulate(
     payload: TPayload
   ): void => {
     if (timeSeconds <= config.duration + 1e-9) {
+      const frame = toFrame(timeSeconds);
       queue.push({
-        timeSeconds,
-        frame: toFrame(timeSeconds),
+        timeSeconds: frameNative ? frame / 60 : timeSeconds,
+        frame,
         priority: EVENT_PRIORITY[type],
         type,
         payload,
@@ -261,7 +272,10 @@ export function simulate(
   const damageEvents: DamageEvent[] = [];
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
-  let activeCharacterId = config.characters[0]?.id ?? null;
+  let activeCharacterId =
+    resultConfig.timeline?.initialActiveCharacterId ??
+    config.characters[0]?.id ??
+    null;
 
   const cleanup = (timeSeconds: number): void => {
     for (let index = activeBuffs.length - 1; index >= 0; index -= 1) {
@@ -419,7 +433,19 @@ export function simulate(
         action: action.name,
         cycle,
         energyBefore: currentEnergy,
-        energyAfter: currentEnergy - energyCost
+        energyAfter: currentEnergy - energyCost,
+        ...(action.timelineCommandIndex === undefined
+          ? {}
+          : { timelineCommandIndex: action.timelineCommandIndex }),
+        ...(action.sourceAbilityId === undefined
+          ? {}
+          : { sourceAbilityId: action.sourceAbilityId }),
+        ...(action.cancelFrame === undefined
+          ? {}
+          : { cancelFrame: action.cancelFrame }),
+        ...(action.animationEndFrame === undefined
+          ? {}
+          : { animationEndFrame: action.animationEndFrame })
       });
 
       const snapshotIds = new Set([actor.id]);
@@ -685,6 +711,21 @@ export function simulate(
       snapshot,
       cycle,
       flatDetails,
+      ...(action.timelineCommandIndex === undefined
+        ? {}
+        : { timelineCommandIndex: action.timelineCommandIndex }),
+      ...(action.sourceAbilityId === undefined
+        ? {}
+        : { sourceAbilityId: action.sourceAbilityId }),
+      ...(action.startFrame === undefined
+        ? {}
+        : { actionStartFrame: action.startFrame }),
+      ...(action.cancelFrame === undefined
+        ? {}
+        : { actionCancelFrame: action.cancelFrame }),
+      ...(action.animationEndFrame === undefined
+        ? {}
+        : { actionAnimationEndFrame: action.animationEndFrame }),
       time: timeSeconds,
       second: Math.floor(timeSeconds),
       actorId,
@@ -799,9 +840,13 @@ export function simulate(
     engineVersion: config.engineVersion,
     dataVersion: config.dataVersion,
     randomSeed: options.randomSeed,
-    reproducibilityKey: makeReproducibilityKey(config, options, plugins),
+    reproducibilityKey: makeReproducibilityKey(
+      resultConfig,
+      options,
+      plugins
+    ),
     compatibilityMode: options.compatibilityMode,
-    config,
+    config: resultConfig,
     damageEvents,
     hitEvents: damageEvents,
     skippedActions,
@@ -814,6 +859,27 @@ export function simulate(
     characterSummaries,
     bySkill: skillSummaries,
     perSecond,
-    damageCurve
+    damageCurve,
+    ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+}
+
+export function simulate(
+  rawConfig: unknown,
+  runtimeOptions: SimulationRuntimeOptions = {}
+): SimulationResult {
+  const config = migrateConfig(rawConfig);
+  if (!config.timeline) {
+    return simulateConfig(config, runtimeOptions);
+  }
+  const compiled = compileLegalTimeline(config);
+  return simulateConfig(
+    compiled.config,
+    {
+      ...runtimeOptions,
+      compatibilityMode: "legal-frame-v1"
+    },
+    config,
+    compiled.execution
+  );
 }

@@ -175,7 +175,120 @@ export const actionDefinitionSchema = z
     hits: z.array(hitDefinitionSchema).optional(),
     buffs: z.array(buffDefinitionSchema).optional(),
     debuffs: z.array(debuffDefinitionSchema).optional(),
-    energyGains: z.array(energyEventSchema).optional()
+    energyGains: z.array(energyEventSchema).optional(),
+    timelineCommandIndex: z.number().int().min(0).optional(),
+    sourceAbilityId: idSchema.optional(),
+    startFrame: z.number().int().min(0).optional(),
+    cancelFrame: z.number().int().min(0).optional(),
+    animationEndFrame: z.number().int().min(0).optional()
+  })
+  .strict();
+
+const frameSchema = z.number().int().min(0);
+
+export const frameHitDefinitionSchema = hitDefinitionSchema
+  .omit({ offset: true })
+  .extend({
+    frame: frameSchema
+  })
+  .strict();
+
+export const frameBuffDefinitionSchema = buffDefinitionSchema
+  .omit({ duration: true, offset: true })
+  .extend({
+    startFrame: frameSchema.optional(),
+    durationFrames: frameSchema
+  })
+  .strict();
+
+export const frameDebuffDefinitionSchema = debuffDefinitionSchema
+  .omit({ duration: true, offset: true })
+  .extend({
+    startFrame: frameSchema.optional(),
+    durationFrames: frameSchema
+  })
+  .strict();
+
+export const frameEnergyEventSchema = energyEventSchema
+  .omit({ offset: true })
+  .extend({
+    frame: frameSchema.optional()
+  })
+  .strict();
+
+export const abilityDefinitionSchema = z
+  .object({
+    id: idSchema,
+    actorId: idSchema,
+    name: idSchema,
+    kind: z.enum(["skill", "burst", "normal", "charge"]),
+    cancelFrame: frameSchema,
+    animationEndFrame: frameSchema,
+    cooldownFrames: frameSchema,
+    maxCharges: z.number().int().min(1).max(10).optional(),
+    chargeRecoveryFrames: frameSchema.optional(),
+    energyCost: finiteNumber.min(0).optional(),
+    hits: z.array(frameHitDefinitionSchema).optional(),
+    buffs: z.array(frameBuffDefinitionSchema).optional(),
+    debuffs: z.array(frameDebuffDefinitionSchema).optional(),
+    energyGains: z.array(frameEnergyEventSchema).optional()
+  })
+  .strict()
+  .superRefine((ability, context) => {
+    if (ability.cancelFrame > ability.animationEndFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["cancelFrame"],
+        message: "must not exceed animationEndFrame"
+      });
+    }
+    if (
+      (ability.maxCharges ?? 1) > 1 &&
+      (ability.chargeRecoveryFrames ?? ability.cooldownFrames) <= 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["chargeRecoveryFrames"],
+        message: "multi-charge abilities require a positive recovery"
+      });
+    }
+  });
+
+export const legalTimelineCommandSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("wait"),
+      frames: z.number().int().min(1)
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("swap"),
+      characterId: idSchema,
+      atFrame: frameSchema.optional()
+    })
+    .strict(),
+  ...(["skill", "burst", "normal", "charge"] as const).map((type) =>
+    z
+      .object({
+        type: z.literal(type),
+        actorId: idSchema,
+        abilityId: idSchema,
+        atFrame: frameSchema.optional()
+      })
+      .strict()
+  )
+]);
+
+export const legalTimelineConfigSchema = z
+  .object({
+    mode: z.literal("legal-frame-v1"),
+    fps: z.literal(60),
+    legalityMode: z.enum(["strict", "wait"]),
+    initialActiveCharacterId: idSchema,
+    swapFrames: z.number().int().min(1),
+    abilities: z.array(abilityDefinitionSchema),
+    commands: z.array(legalTimelineCommandSchema)
   })
   .strict();
 
@@ -197,7 +310,8 @@ export const simConfigSchema = z
     cycleLength: finiteNumber.min(0.1).max(120),
     enemy: enemyProfileSchema,
     characters: z.array(characterProfileSchema).min(1),
-    rotation: z.array(actionDefinitionSchema)
+    rotation: z.array(actionDefinitionSchema),
+    timeline: legalTimelineConfigSchema.optional()
   })
   .strict()
   .superRefine((config, context) => {
@@ -310,6 +424,198 @@ export const simConfigSchema = z
         );
       });
     });
+
+    if (config.timeline) {
+      if (config.rotation.length > 0) {
+        context.addIssue({
+          code: "custom",
+          path: ["rotation"],
+          message: "must be empty when timeline.mode is legal-frame-v1"
+        });
+      }
+      const durationFrames = config.duration * config.timeline.fps;
+      if (
+        Math.abs(durationFrames - Math.round(durationFrames)) >
+        1e-9
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["duration"],
+          message: "must resolve to an integer frame for legal-frame-v1"
+        });
+      }
+      if (!characterIds.has(config.timeline.initialActiveCharacterId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["timeline", "initialActiveCharacterId"],
+          message: `unknown character id "${config.timeline.initialActiveCharacterId}"`
+        });
+      }
+
+      const abilityIds = new Set<string>();
+      const abilityById = new Map<
+        string,
+        (typeof config.timeline.abilities)[number]
+      >();
+      config.timeline.abilities.forEach((ability, abilityIndex) => {
+        if (abilityIds.has(ability.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "abilities", abilityIndex, "id"],
+            message: `duplicate ability id "${ability.id}"`
+          });
+        }
+        abilityIds.add(ability.id);
+        abilityById.set(ability.id, ability);
+        if (!characterIds.has(ability.actorId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "abilities", abilityIndex, "actorId"],
+            message: `unknown character id "${ability.actorId}"`
+          });
+        }
+        ability.hits?.forEach((hit, hitIndex) => {
+          for (const [field, id] of [
+            ["scalingOwnerId", hit.scalingOwnerId],
+            ["creditId", hit.creditId]
+          ] as const) {
+            if (id !== undefined && !characterIds.has(id)) {
+              context.addIssue({
+                code: "custom",
+                path: [
+                  "timeline",
+                  "abilities",
+                  abilityIndex,
+                  "hits",
+                  hitIndex,
+                  field
+                ],
+                message: `unknown character id "${id}"`
+              });
+            }
+          }
+          hit.flatSources?.forEach((source, sourceIndex) => {
+            if (
+              source.ownerId !== undefined &&
+              !characterIds.has(source.ownerId)
+            ) {
+              context.addIssue({
+                code: "custom",
+                path: [
+                  "timeline",
+                  "abilities",
+                  abilityIndex,
+                  "hits",
+                  hitIndex,
+                  "flatSources",
+                  sourceIndex,
+                  "ownerId"
+                ],
+                message: `unknown character id "${source.ownerId}"`
+              });
+            }
+          });
+        });
+        const validateTimelineTarget = (
+          target: string | string[] | undefined,
+          path: Array<string | number>,
+          allowSelf: boolean
+        ): void => {
+          const targets = Array.isArray(target) ? target : [target];
+          targets.forEach((candidate, targetIndex) => {
+            if (
+              candidate === undefined ||
+              candidate === "team" ||
+              (allowSelf && candidate === "self")
+            ) {
+              return;
+            }
+            if (!characterIds.has(candidate)) {
+              context.addIssue({
+                code: "custom",
+                path: [
+                  ...path,
+                  ...(Array.isArray(target) ? [targetIndex] : [])
+                ],
+                message: `unknown character id "${candidate}"`
+              });
+            }
+          });
+        };
+        ability.buffs?.forEach((buff, buffIndex) => {
+          validateTimelineTarget(
+            buff.target,
+            [
+              "timeline",
+              "abilities",
+              abilityIndex,
+              "buffs",
+              buffIndex,
+              "target"
+            ],
+            true
+          );
+        });
+        ability.energyGains?.forEach((gain, gainIndex) => {
+          validateTimelineTarget(
+            gain.target,
+            [
+              "timeline",
+              "abilities",
+              abilityIndex,
+              "energyGains",
+              gainIndex,
+              "target"
+            ],
+            false
+          );
+        });
+      });
+
+      config.timeline.commands.forEach((command, commandIndex) => {
+        if (command.type === "wait") return;
+        if (command.type === "swap") {
+          if (!characterIds.has(command.characterId)) {
+            context.addIssue({
+              code: "custom",
+              path: ["timeline", "commands", commandIndex, "characterId"],
+              message: `unknown character id "${command.characterId}"`
+            });
+          }
+          return;
+        }
+        if (!characterIds.has(command.actorId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "commands", commandIndex, "actorId"],
+            message: `unknown character id "${command.actorId}"`
+          });
+        }
+        const ability = abilityById.get(command.abilityId);
+        if (!ability) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "commands", commandIndex, "abilityId"],
+            message: `unknown ability id "${command.abilityId}"`
+          });
+          return;
+        }
+        if (ability.actorId !== command.actorId) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "commands", commandIndex, "actorId"],
+            message: `ability "${command.abilityId}" belongs to "${ability.actorId}"`
+          });
+        }
+        if (ability.kind !== command.type) {
+          context.addIssue({
+            code: "custom",
+            path: ["timeline", "commands", commandIndex, "type"],
+            message: `ability "${command.abilityId}" is kind "${ability.kind}"`
+          });
+        }
+      });
+    }
   });
 
 export class ConfigMigrationError extends Error {

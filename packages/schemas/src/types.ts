@@ -23,8 +23,10 @@ export type ScalingStat = "atk" | "hp" | "def" | "em";
 export type SnapshotMode = "action" | "hit";
 export type CritMode = "average" | "allCrit" | "noCrit";
 export type EnergyMode = "configured" | "zero" | "full";
-export type CompatibilityMode = "legacy-v0.1";
+export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
+export type TimelineLegalityMode = "strict" | "wait";
+export type AbilityKind = "skill" | "burst" | "normal" | "charge";
 
 export interface CharacterStats {
   baseAtk: number;
@@ -151,9 +153,89 @@ export interface ActionDefinition {
   buffs?: BuffDefinition[];
   debuffs?: DebuffDefinition[];
   energyGains?: EnergyEvent[];
+  /** Compiler metadata for legal-frame-v1 actions. */
+  timelineCommandIndex?: number;
+  sourceAbilityId?: string;
+  startFrame?: number;
+  cancelFrame?: number;
+  animationEndFrame?: number;
 }
 
 export type RotationCommand = ActionDefinition;
+
+export type FrameHitDefinition = Omit<HitDefinition, "offset"> & {
+  frame: number;
+};
+
+export type FrameBuffDefinition = Omit<
+  BuffDefinition,
+  "duration" | "offset"
+> & {
+  startFrame?: number;
+  durationFrames: number;
+};
+
+export type FrameDebuffDefinition = Omit<
+  DebuffDefinition,
+  "duration" | "offset"
+> & {
+  startFrame?: number;
+  durationFrames: number;
+};
+
+export type FrameEnergyEvent = Omit<EnergyEvent, "offset"> & {
+  frame?: number;
+};
+
+export interface AbilityDefinition {
+  id: string;
+  actorId: string;
+  name: string;
+  kind: AbilityKind;
+  cancelFrame: number;
+  animationEndFrame: number;
+  cooldownFrames: number;
+  maxCharges?: number;
+  chargeRecoveryFrames?: number;
+  energyCost?: number;
+  hits?: FrameHitDefinition[];
+  buffs?: FrameBuffDefinition[];
+  debuffs?: FrameDebuffDefinition[];
+  energyGains?: FrameEnergyEvent[];
+}
+
+export interface TimelineWaitCommand {
+  type: "wait";
+  frames: number;
+}
+
+export interface TimelineSwapCommand {
+  type: "swap";
+  characterId: string;
+  atFrame?: number;
+}
+
+export interface TimelineAbilityCommand {
+  type: AbilityKind;
+  actorId: string;
+  abilityId: string;
+  atFrame?: number;
+}
+
+export type LegalTimelineCommand =
+  | TimelineWaitCommand
+  | TimelineSwapCommand
+  | TimelineAbilityCommand;
+
+export interface LegalTimelineConfig {
+  mode: "legal-frame-v1";
+  fps: 60;
+  legalityMode: TimelineLegalityMode;
+  initialActiveCharacterId: string;
+  swapFrames: number;
+  abilities: AbilityDefinition[];
+  commands: LegalTimelineCommand[];
+}
 
 export interface ConfigMeta {
   name: string;
@@ -173,6 +255,7 @@ export interface SimConfig {
   enemy: EnemyProfile;
   characters: CharacterProfile[];
   rotation: RotationCommand[];
+  timeline?: LegalTimelineConfig;
 }
 
 export interface SimulationOptions {
@@ -294,6 +377,11 @@ export interface DamageEvent {
   snapshot: SnapshotMode;
   cycle: number;
   flatDetails: FlatDamageDetail[];
+  timelineCommandIndex?: number;
+  sourceAbilityId?: string;
+  actionStartFrame?: number;
+  actionCancelFrame?: number;
+  actionAnimationEndFrame?: number;
 
   /** Compatibility aliases consumed by the v0.1-shaped UI. */
   time: number;
@@ -347,6 +435,10 @@ export interface ActionLogEntry {
   cycle: number;
   energyBefore: number;
   energyAfter: number;
+  timelineCommandIndex?: number;
+  sourceAbilityId?: string;
+  cancelFrame?: number;
+  animationEndFrame?: number;
 }
 
 export interface EnergySummary {
@@ -385,6 +477,57 @@ export interface DamageCurvePoint {
   cumulativeByCharacter: Record<string, number>;
 }
 
+export type TimelineFailureCode =
+  | "ACTION_OVERLAP"
+  | "ABILITY_ON_COOLDOWN"
+  | "UNKNOWN_ABILITY"
+  | "WRONG_ACTIVE_CHARACTER"
+  | "ALREADY_ACTIVE"
+  | "OUT_OF_DURATION";
+
+export interface TimelineFailure {
+  commandIndex: number;
+  code: TimelineFailureCode;
+  frame: number;
+  message: string;
+}
+
+export interface TimelineAdjustment {
+  commandIndex: number;
+  code: "ACTION_OVERLAP" | "ABILITY_ON_COOLDOWN";
+  requestedFrame: number;
+  executedFrame: number;
+  waitedFrames: number;
+  message: string;
+}
+
+export interface TimelineCommandResult {
+  commandIndex: number;
+  commandType: LegalTimelineCommand["type"];
+  actorId: string | null;
+  abilityId: string | null;
+  requestedFrame: number;
+  startFrame: number | null;
+  cancelFrame: number | null;
+  animationEndFrame: number | null;
+  endFrame: number | null;
+  status: "executed" | "waited" | "rejected";
+  waitedFrames: number;
+  failureCode?: TimelineFailureCode;
+}
+
+export interface TimelineExecution {
+  mode: "legal-frame-v1";
+  fps: 60;
+  legalityMode: TimelineLegalityMode;
+  initialActiveCharacterId: string;
+  finalActiveCharacterId: string;
+  totalFrames: number;
+  commandResults: TimelineCommandResult[];
+  adjustments: TimelineAdjustment[];
+  failures: TimelineFailure[];
+}
+
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: string;
@@ -406,4 +549,5 @@ export interface SimulationResult {
   bySkill: SkillSummary[];
   perSecond: Array<Record<string, number>>;
   damageCurve: DamageCurvePoint[];
+  timelineExecution?: TimelineExecution;
 }

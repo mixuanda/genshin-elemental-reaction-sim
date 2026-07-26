@@ -535,5 +535,179 @@ export const blankPreset: SimConfig = {
   ]
 };
 
-export const presets = [durinMeltPreset, blankPreset] as const;
+export const legalTimelineDemoPreset: SimConfig = {
+  schemaVersion: CURRENT_SCHEMA_VERSION,
+  engineVersion: CURRENT_ENGINE_VERSION,
+  dataVersion: "m2-frame-demo-1",
+  randomSeed: "legal-frame-demo",
+  meta: {
+    name: "合法帧时间线 · 双角色结构示例",
+    version: "m2-frame-demo-1",
+    verificationStatus: "provisional",
+    note:
+      "用于验证 60 FPS 整数帧、切人、取消帧、冷却等待与逐击追踪；行动帧和倍率不是已核验游戏数据。"
+  },
+  duration: 10,
+  cycleLength: 10,
+  enemy: { level: 110, resistance: 0.1, defReduction: 0 },
+  characters: [
+    {
+      id: "frame-a",
+      name: "帧测试 A",
+      element: "pyro",
+      color: "#ff8b72",
+      level: 90,
+      energyMax: 60,
+      initialEnergy: 60,
+      stats: {
+        baseAtk: 900,
+        atkPct: 0.8,
+        flatAtk: 600,
+        baseHp: 12000,
+        hpPct: 0,
+        flatHp: 0,
+        baseDef: 700,
+        defPct: 0,
+        flatDef: 0,
+        em: 100,
+        critRate: 0.65,
+        critDmg: 1.5,
+        dmgBonus: 0.8,
+        defIgnore: 0,
+        reactionBonus: 0
+      }
+    },
+    {
+      id: "frame-b",
+      name: "帧测试 B",
+      element: "cryo",
+      color: "#8ed8ff",
+      level: 90,
+      energyMax: 60,
+      initialEnergy: 60,
+      stats: {
+        baseAtk: 850,
+        atkPct: 0.75,
+        flatAtk: 550,
+        baseHp: 12500,
+        hpPct: 0,
+        flatHp: 0,
+        baseDef: 760,
+        defPct: 0,
+        flatDef: 0,
+        em: 120,
+        critRate: 0.6,
+        critDmg: 1.4,
+        dmgBonus: 0.7,
+        defIgnore: 0,
+        reactionBonus: 0
+      }
+    }
+  ],
+  rotation: [],
+  timeline: {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "wait",
+    initialActiveCharacterId: "frame-a",
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "frame-a-skill",
+        actorId: "frame-a",
+        name: "A 元素战技",
+        kind: "skill",
+        cancelFrame: 24,
+        animationEndFrame: 42,
+        cooldownFrames: 180,
+        hits: [
+          {
+            id: "frame-a-skill-hit",
+            frame: 12,
+            label: "战技命中",
+            scaling: 2.4,
+            scalingStat: "atk",
+            element: "pyro",
+            snapshot: "hit"
+          }
+        ]
+      },
+      {
+        id: "frame-a-normal",
+        actorId: "frame-a",
+        name: "A 普通攻击",
+        kind: "normal",
+        cancelFrame: 20,
+        animationEndFrame: 28,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "frame-a-normal-hit",
+            frame: 8,
+            label: "普攻命中",
+            scaling: 1.1,
+            scalingStat: "atk",
+            element: "pyro",
+            snapshot: "hit"
+          }
+        ]
+      },
+      {
+        id: "frame-b-skill",
+        actorId: "frame-b",
+        name: "B 元素战技",
+        kind: "skill",
+        cancelFrame: 30,
+        animationEndFrame: 48,
+        cooldownFrames: 120,
+        hits: [
+          {
+            id: "frame-b-skill-hit",
+            frame: 18,
+            label: "战技命中",
+            scaling: 2,
+            scalingStat: "atk",
+            element: "cryo",
+            snapshot: "hit"
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: "frame-a",
+        abilityId: "frame-a-skill"
+      },
+      {
+        type: "normal",
+        actorId: "frame-a",
+        abilityId: "frame-a-normal"
+      },
+      { type: "swap", characterId: "frame-b" },
+      {
+        type: "skill",
+        actorId: "frame-b",
+        abilityId: "frame-b-skill"
+      },
+      { type: "wait", frames: 60 },
+      {
+        type: "skill",
+        actorId: "frame-b",
+        abilityId: "frame-b-skill"
+      },
+      { type: "swap", characterId: "frame-a" },
+      {
+        type: "skill",
+        actorId: "frame-a",
+        abilityId: "frame-a-skill"
+      }
+    ]
+  }
+};
 
+export const presets = [
+  durinMeltPreset,
+  blankPreset,
+  legalTimelineDemoPreset
+] as const;

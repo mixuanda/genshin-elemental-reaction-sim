@@ -44,6 +44,15 @@ const REACTION_LABELS: Record<string, string> = {
   reverseVaporize: "反向蒸发"
 };
 
+const TIMELINE_COMMAND_LABELS: Record<string, string> = {
+  wait: "等待",
+  swap: "切人",
+  skill: "元素战技",
+  burst: "元素爆发",
+  normal: "普通攻击",
+  charge: "重击"
+};
+
 function byId<TElement extends HTMLElement>(id: string): TElement {
   const element = document.getElementById(id);
   if (!element) throw new Error(`Missing required element #${id}`);
@@ -163,7 +172,9 @@ function runSimulation(): void {
         | "average"
         | "allCrit"
         | "noCrit",
-      compatibilityMode: "legacy-v0.1"
+      compatibilityMode: currentConfig.timeline
+        ? "legal-frame-v1"
+        : "legacy-v0.1"
     });
     currentPage = 1;
     selectedHitId = null;
@@ -186,6 +197,7 @@ function renderAll(): void {
   renderCharacterBreakdown();
   renderSkillTable();
   renderEnergy();
+  renderLegalTimeline();
   renderHitFilters();
   renderHitTable();
   renderTimeline();
@@ -195,6 +207,7 @@ function renderAll(): void {
   byId<HTMLElement>("notice").innerHTML =
     `<strong>${escapeHtml(lastResult.config.meta.name)}</strong> ` +
     `<span class="badge warn">${escapeHtml(status)}</span> · ` +
+    `<span class="badge">${escapeHtml(lastResult.compatibilityMode)}</span> · ` +
     `${escapeHtml(lastResult.config.meta.note ?? "")}`;
 }
 
@@ -204,6 +217,7 @@ function renderMetrics(): void {
   const fullCycles = Math.floor(
     result.config.duration / result.config.cycleLength
   );
+  const execution = result.timelineExecution;
   const metrics = [
     ["队伍 DPS", compact(result.dps), `${formatNumber(result.dps, 0)} / 秒`],
     [
@@ -216,11 +230,17 @@ function renderMetrics(): void {
       formatNumber(result.damageEvents.length, 0),
       `${result.reactedHits} 段手工增幅反应`
     ],
-    [
-      "执行循环",
-      formatNumber(fullCycles, 0),
-      `循环轴 ${result.config.cycleLength}s`
-    ],
+    execution
+      ? [
+          "时间线指令",
+          formatNumber(execution.commandResults.length, 0),
+          `${execution.totalFrames}f · ${(execution.totalFrames / 60).toFixed(2)}s`
+        ]
+      : [
+          "执行循环",
+          formatNumber(fullCycles, 0),
+          `循环轴 ${result.config.cycleLength}s`
+        ],
     [
       "跳过行动",
       formatNumber(result.skippedActions.length, 0),
@@ -307,6 +327,72 @@ function renderEnergy(): void {
       );
     })
     .join("");
+}
+
+function renderLegalTimeline(): void {
+  const card = byId<HTMLElement>("legalTimelineCard");
+  const execution = lastResult?.timelineExecution;
+  if (!lastResult || !execution) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+  const characters = new Map(
+    lastResult.config.characters.map((character) => [
+      character.id,
+      character.name
+    ])
+  );
+  const abilities = new Map(
+    (lastResult.config.timeline?.abilities ?? []).map((ability) => [
+      ability.id,
+      ability.name
+    ])
+  );
+  byId<HTMLElement>("legalTimelineSummary").textContent =
+    `${execution.fps} FPS · ${execution.legalityMode === "strict" ? "严格模式" : "等待模式"} · ` +
+    `${execution.adjustments.length} 次调整 · ${execution.failures.length} 次拒绝`;
+  const frameText = (frame: number | null): string =>
+    frame === null ? "—" : `${frame}f / ${(frame / 60).toFixed(3)}s`;
+  byId<HTMLTableSectionElement>("legalTimelineBody").innerHTML =
+    execution.commandResults
+      .map((command) => {
+        const actor = command.actorId
+          ? (characters.get(command.actorId) ?? command.actorId)
+          : "—";
+        const action = command.abilityId
+          ? (abilities.get(command.abilityId) ?? command.abilityId)
+          : TIMELINE_COMMAND_LABELS[command.commandType] ??
+            command.commandType;
+        const status =
+          command.status === "rejected"
+            ? `<span class="badge warn">拒绝 · ${escapeHtml(command.failureCode ?? "")}</span>`
+            : command.status === "waited"
+              ? `<span class="badge warn">等待后执行</span>`
+              : `<span class="badge good">已执行</span>`;
+        return (
+          `<tr><td>${command.commandIndex}</td>` +
+          `<td>${escapeHtml(TIMELINE_COMMAND_LABELS[command.commandType] ?? command.commandType)}</td>` +
+          `<td>${escapeHtml(actor)} / ${escapeHtml(action)}</td>` +
+          `<td>${frameText(command.requestedFrame)}</td>` +
+          `<td>${frameText(command.startFrame)}</td>` +
+          `<td>${frameText(command.cancelFrame)}</td>` +
+          `<td>${frameText(command.animationEndFrame)}</td>` +
+          `<td>${command.waitedFrames ? `${command.waitedFrames}f` : "—"}</td>` +
+          `<td>${status}</td></tr>`
+        );
+      })
+      .join("");
+  byId<HTMLElement>("legalTimelineFailures").innerHTML = [
+    ...execution.adjustments.map(
+      (adjustment) =>
+        `<span class="badge warn">#${adjustment.commandIndex} ${escapeHtml(adjustment.message)}</span>`
+    ),
+    ...execution.failures.map(
+      (failure) =>
+        `<span class="badge warn">#${failure.commandIndex} ${escapeHtml(failure.message)}</span>`
+    )
+  ].join("");
 }
 
 function renderHitFilters(): void {
@@ -441,7 +527,7 @@ function renderHitDetail(): void {
   const statusText = hit.activeStatuses.length
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
-  const factors = [
+  const factors: Array<[string, string]> = [
     ["实际施放者", `${hit.sourceActorName} (${hit.sourceActorId})`],
     ["缩放面板", `${hit.scalingOwnerName} (${hit.scalingOwnerId})`],
     ["伤害归属", `${hit.creditOwnerName} (${hit.creditOwnerId})`],
@@ -518,6 +604,16 @@ function renderHitDetail(): void {
     ["最终伤害（整数显示）", formatNumber(hit.displayDamage, 0)],
     ["核心原始值", hit.finalDamage.toFixed(6)]
   ];
+  if (hit.timelineCommandIndex !== undefined) {
+    factors.push(
+      ["时间线指令", `#${hit.timelineCommandIndex}`],
+      ["行动定义", hit.sourceAbilityId ?? "—"],
+      [
+        "合法行动帧",
+        `开始 ${hit.actionStartFrame ?? "—"}f · 取消 ${hit.actionCancelFrame ?? "—"}f · 动画结束 ${hit.actionAnimationEndFrame ?? "—"}f`
+      ]
+    );
+  }
   detail.className = "formula-detail";
   detail.innerHTML = factors
     .map(
