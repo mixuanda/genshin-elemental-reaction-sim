@@ -26,6 +26,11 @@ This project uses gcsim as a product and testing reference:
   six-frame damage GCDs, radius, reaction multipliers, defense/crit behavior,
   resistance application, and Superconduct's 720-frame physical-resistance
   modifier were cross-checked against the same fixed commit.
+- Electro-Charged Hydro/Electro coexistence, ten-frame first damage,
+  sixty-frame tick cadence, snapshot ownership refresh, six-frame delayed
+  `0.4U` Aura wane, zero-damage behavior, single-target scope, and `2.0`
+  reaction multiplier were cross-checked against
+  `pkg/reactable/electrocharged.go` in the same fixed commit.
 
 The level 1–100 transformative-reaction base-damage numeric table in
 `packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's

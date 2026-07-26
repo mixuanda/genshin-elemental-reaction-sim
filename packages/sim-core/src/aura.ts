@@ -6,6 +6,7 @@ import type {
   Element,
   ElementalApplication,
   IcdProfile,
+  OneShotTransformativeReaction,
   ReactionType,
   ReactionAudit,
   TransformativeReaction
@@ -27,6 +28,11 @@ const SUPERCONDUCT_DAMAGE_RADIUS = 3;
 const SUPERCONDUCT_BASE_MULTIPLIER = 1.5;
 const SUPERCONDUCT_PHYSICAL_RES_SHRED = 0.4;
 const SUPERCONDUCT_STATUS_DURATION_FRAMES = 720;
+const ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES = 10;
+const ELECTRO_CHARGED_TICK_INTERVAL_FRAMES = 60;
+const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
+const ELECTRO_CHARGED_WANE_GAUGE_UNITS = 0.4;
+const ELECTRO_CHARGED_BASE_MULTIPLIER = 2;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -73,7 +79,7 @@ const TRANSFORMATIVE_REACTION_DEFINITIONS = {
     }
   }
 } as const satisfies Record<
-  TransformativeReaction,
+  OneShotTransformativeReaction,
   {
     damageElement: Element;
     damageGcdFrames: number;
@@ -90,10 +96,31 @@ const TRANSFORMATIVE_REACTION_DEFINITIONS = {
   }
 >;
 
+function isOneShotTransformativeReaction(
+  reaction: ReactionType
+): reaction is OneShotTransformativeReaction {
+  return reaction === "overload" || reaction === "superconduct";
+}
+
 function isTransformativeReaction(
   reaction: ReactionType
 ): reaction is TransformativeReaction {
-  return reaction === "overload" || reaction === "superconduct";
+  return (
+    isOneShotTransformativeReaction(reaction) ||
+    reaction === "electroCharged"
+  );
+}
+
+export interface ElectroChargedStateResult {
+  generation: number;
+  operation: "tick" | "wane" | "wane-skipped" | "stop" | "stale";
+  frame: number;
+  auraBefore: AuraStateEntry[];
+  auraConsumed: NonNullable<ReactionAudit["auraConsumed"]>;
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+  coexistenceExpiresAtFrame: number | null;
+  reason: string | null;
 }
 
 export interface AuraHitInput {
@@ -140,6 +167,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
       auraElement: "pyro",
       reaction: "vaporize",
       consumptionFactor: 2
+    },
+    {
+      auraElement: "electro",
+      reaction: "electroCharged",
+      consumptionFactor: 0
     }
   ],
   electro: [
@@ -147,6 +179,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
       auraElement: "pyro",
       reaction: "overload",
       consumptionFactor: 1
+    },
+    {
+      auraElement: "hydro",
+      reaction: "electroCharged",
+      consumptionFactor: 0
     },
     {
       auraElement: "cryo",
@@ -173,14 +210,25 @@ function cleanGaugeUnits(value: number): number {
   return Number(value.toFixed(12));
 }
 
+function remainingDecayFrames(
+  gaugeUnits: number,
+  decayPerFrame: number
+): number {
+  return Math.max(
+    0,
+    Math.ceil(gaugeUnits / decayPerFrame - 1e-9)
+  );
+}
+
 /**
  * Minimal deterministic Aura/ICD engine for Milestone 3.
  *
  * aura-v1 preserves normal Pyro/Cryo/Hydro aura and amplifying Melt/Vaporize.
  * aura-v2 additionally models normal Electro aura plus Overload and
- * Superconduct scheduling.
- * Coexistence, the remaining reactions, elemental shields, and per-source
- * overlap arrays remain future mechanics work.
+ * Superconduct scheduling, Hydro/Electro coexistence, and Electro-Charged
+ * periodic streams.
+ * Coexistence beyond Hydro/Electro, the remaining reactions, elemental
+ * shields, and per-source overlap arrays remain future mechanics work.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraElement, MutableAura>();
@@ -189,9 +237,12 @@ export class AuraEngine {
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
   private readonly reactionDamageReadyFrames = new Map<
-    TransformativeReaction,
+    OneShotTransformativeReaction,
     number
   >();
+  private electroChargedGeneration = 0;
+  private electroChargedActive = false;
+  private electroChargedNextTickFrame = -1;
   private currentFrame = 0;
 
   constructor(config: AuraReactionEngineConfig) {
@@ -222,6 +273,13 @@ export class AuraEngine {
         }
       }
       this.currentFrame = frame;
+      if (
+        this.electroChargedActive &&
+        !this.hasElectroChargedAuras()
+      ) {
+        this.electroChargedActive = false;
+        this.electroChargedNextTickFrame = -1;
+      }
     }
   }
 
@@ -235,9 +293,243 @@ export class AuraEngine {
         expiresAtFrame:
           aura.decayPerFrame > 0
             ? this.currentFrame +
-              Math.ceil(aura.gaugeUnits / aura.decayPerFrame)
+              remainingDecayFrames(
+                aura.gaugeUnits,
+                aura.decayPerFrame
+              )
             : null
       }));
+  }
+
+  private hasElectroChargedAuras(): boolean {
+    return (
+      (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+        AURA_EPSILON &&
+      (this.auras.get("electro")?.gaugeUnits ?? 0) >
+        AURA_EPSILON
+    );
+  }
+
+  private electroChargedExpiryFrame(): number | null {
+    if (!this.hasElectroChargedAuras()) return null;
+    const hydro = this.auras.get("hydro");
+    const electro = this.auras.get("electro");
+    if (!hydro || !electro) return null;
+    const expiryFrames = [hydro, electro].map((aura) =>
+      aura.decayPerFrame > 0
+        ? this.currentFrame +
+          remainingDecayFrames(
+            aura.gaugeUnits,
+            aura.decayPerFrame
+          )
+        : Number.POSITIVE_INFINITY
+    );
+    const earliest = Math.min(...expiryFrames);
+    return Number.isFinite(earliest) ? earliest : null;
+  }
+
+  getAuraStateAt(frame: number): AuraStateEntry[] {
+    this.advanceTo(frame);
+    return this.snapshot();
+  }
+
+  prepareElectroChargedTick(
+    frame: number,
+    generation: number
+  ): ElectroChargedStateResult {
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    if (generation !== this.electroChargedGeneration) {
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame:
+          this.electroChargedExpiryFrame(),
+        reason: "SUPERSEDED_STREAM"
+      };
+    }
+    if (
+      !this.electroChargedActive ||
+      !this.hasElectroChargedAuras()
+    ) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      return {
+        generation,
+        operation: "stop",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        reason: "COEXISTING_AURA_MISSING"
+      };
+    }
+    this.electroChargedNextTickFrame =
+      frame + ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+    return {
+      generation,
+      operation: "tick",
+      frame,
+      auraBefore,
+      auraConsumed: [],
+      auraAfter: this.snapshot(),
+      nextTickFrame: this.electroChargedNextTickFrame,
+      coexistenceExpiresAtFrame:
+        this.electroChargedExpiryFrame(),
+      reason: null
+    };
+  }
+
+  waneElectroCharged(
+    frame: number,
+    damageApplied: boolean
+  ): ElectroChargedStateResult {
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    const generation = this.electroChargedGeneration;
+    if (
+      !this.electroChargedActive ||
+      !this.hasElectroChargedAuras()
+    ) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      return {
+        generation,
+        operation: "stop",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
+      };
+    }
+    if (!damageApplied) {
+      return {
+        generation,
+        operation: "wane-skipped",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        nextTickFrame: this.electroChargedNextTickFrame,
+        coexistenceExpiresAtFrame:
+          this.electroChargedExpiryFrame(),
+        reason: "ZERO_ACTUAL_DAMAGE"
+      };
+    }
+
+    const auraConsumed: NonNullable<ReactionAudit["auraConsumed"]> =
+      [];
+    for (const element of ["hydro", "electro"] as const) {
+      const aura = this.auras.get(element);
+      if (!aura) continue;
+      const consumed = Math.min(
+        aura.gaugeUnits,
+        ELECTRO_CHARGED_WANE_GAUGE_UNITS
+      );
+      aura.gaugeUnits -= consumed;
+      auraConsumed.push({
+        element,
+        gaugeUnits: cleanGaugeUnits(consumed)
+      });
+      if (aura.gaugeUnits <= AURA_EPSILON) {
+        this.auras.delete(element);
+      }
+    }
+    if (!this.hasElectroChargedAuras()) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+    }
+    return {
+      generation,
+      operation: "wane",
+      frame,
+      auraBefore,
+      auraConsumed,
+      auraAfter: this.snapshot(),
+      nextTickFrame: this.electroChargedActive
+        ? this.electroChargedNextTickFrame
+        : null,
+      coexistenceExpiresAtFrame:
+        this.electroChargedExpiryFrame(),
+      reason: this.electroChargedActive
+        ? null
+        : "AURA_DEPLETED_BY_WANE"
+    };
+  }
+
+  expireElectroCharged(
+    frame: number,
+    generation: number,
+    expectedExpiryFrame: number
+  ): ElectroChargedStateResult {
+    const streamWasEligible =
+      generation === this.electroChargedGeneration &&
+      this.electroChargedActive;
+    if (frame > this.currentFrame) {
+      this.advanceTo(Math.max(this.currentFrame, frame - 1));
+    }
+    const auraBefore = this.snapshot();
+    this.advanceTo(frame);
+    const auraAfter = this.snapshot();
+    const currentExpiry = this.electroChargedExpiryFrame();
+    if (
+      !streamWasEligible ||
+      generation !== this.electroChargedGeneration ||
+      (currentExpiry !== null &&
+        currentExpiry !== expectedExpiryFrame)
+    ) {
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter,
+        nextTickFrame: this.electroChargedActive
+          ? this.electroChargedNextTickFrame
+          : null,
+        coexistenceExpiresAtFrame: currentExpiry,
+        reason: streamWasEligible
+          ? "STALE_EXPIRY_CHECK"
+          : "STREAM_ALREADY_INACTIVE"
+      };
+    }
+    if (!this.hasElectroChargedAuras()) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      return {
+        generation,
+        operation: "stop",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter,
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        reason: "AURA_DECAY_EXPIRED"
+      };
+    }
+    return {
+      generation,
+      operation: "stale",
+      frame,
+      auraBefore,
+      auraConsumed: [],
+      auraAfter,
+      nextTickFrame: this.electroChargedNextTickFrame,
+      coexistenceExpiresAtFrame: currentExpiry,
+      reason: "AURA_REFRESHED_BEFORE_EXPIRY"
+    };
   }
 
   private attachNormalAura(element: AuraElement, nominalGaugeUnits: number): void {
@@ -306,6 +598,8 @@ export class AuraEngine {
   processHit(input: AuraHitInput): ReactionAudit {
     this.advanceTo(input.frame);
     const auraBefore = this.snapshot();
+    const electroChargedWasActive =
+      this.electroChargedActive;
     const application = input.application;
 
     if (!application || !isAuraElement(input.element, this.mode)) {
@@ -328,6 +622,7 @@ export class AuraEngine {
         auraConsumed: [],
         auraAfter: this.snapshot(),
         transformativeReaction: null,
+        periodicReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -354,7 +649,34 @@ export class AuraEngine {
         auraConsumed: [],
         auraAfter: this.snapshot(),
         transformativeReaction: null,
+        periodicReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
+      };
+    }
+
+    const debugOverride =
+      this.debugAllowReactionOverride &&
+      input.reactionOverride !== undefined &&
+      input.reactionOverride !== "none"
+        ? input.reactionOverride
+        : null;
+    if (debugOverride !== null) {
+      return {
+        model: "manual-override",
+        triggered: true,
+        reaction: debugOverride,
+        icdAllowed,
+        icdTag: application.icdTag,
+        icdGroup: application.icdGroup,
+        applicationGaugeUnits: application.gaugeUnits,
+        auraBefore,
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: this.snapshot(),
+        transformativeReaction: null,
+        periodicReaction: null,
+        note:
+          "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
     }
 
@@ -374,7 +696,47 @@ export class AuraEngine {
     let automaticReaction: ReactionType = "none";
     const auraConsumed: ReactionAudit["auraConsumed"] = [];
 
-    if (rule) {
+    let periodicReaction: ReactionAudit["periodicReaction"] = null;
+    if (rule?.reaction === "electroCharged") {
+      this.attachNormalAura(input.element, application.gaugeUnits);
+      const operation = this.electroChargedActive
+        ? "refresh"
+        : "start";
+      if (operation === "start") {
+        this.electroChargedGeneration += 1;
+        this.electroChargedActive = true;
+        this.electroChargedNextTickFrame =
+          input.frame +
+          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+      }
+      const coexistenceExpiresAtFrame =
+        this.electroChargedExpiryFrame();
+      if (coexistenceExpiresAtFrame === null) {
+        throw new Error(
+          "Electro-Charged was selected without coexisting Hydro and Electro aura."
+        );
+      }
+      automaticReaction = "electroCharged";
+      periodicReaction = {
+        reaction: "electroCharged",
+        generation: this.electroChargedGeneration,
+        operation,
+        damageElement: "electro",
+        baseMultiplier: ELECTRO_CHARGED_BASE_MULTIPLIER,
+        firstDamageFrame:
+          operation === "start"
+            ? input.frame +
+              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+            : null,
+        nextTickFrame: this.electroChargedNextTickFrame,
+        tickIntervalFrames:
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+        waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+        coexistenceExpiresAtFrame
+      };
+    } else if (rule) {
       const targetAura = this.auras.get(rule.auraElement);
       if (targetAura) {
         const consumedGaugeUnits = Math.min(
@@ -395,18 +757,34 @@ export class AuraEngine {
       this.attachNormalAura(input.element, application.gaugeUnits);
     }
 
-    const debugOverride =
-      this.debugAllowReactionOverride &&
-      input.reactionOverride !== undefined &&
-      input.reactionOverride !== "none"
-        ? input.reactionOverride
-        : null;
-    const reaction = debugOverride ?? automaticReaction;
+    if (
+      periodicReaction === null &&
+      electroChargedWasActive &&
+      !this.hasElectroChargedAuras()
+    ) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      periodicReaction = {
+        reaction: "electroCharged",
+        generation: this.electroChargedGeneration,
+        operation: "stop",
+        damageElement: "electro",
+        baseMultiplier: ELECTRO_CHARGED_BASE_MULTIPLIER,
+        firstDamageFrame: null,
+        nextTickFrame: null,
+        tickIntervalFrames:
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+        waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+        coexistenceExpiresAtFrame: null
+      };
+    }
+
+    const reaction = automaticReaction;
     let transformativeReaction: ReactionAudit["transformativeReaction"] =
       null;
     if (
-      debugOverride === null &&
-      isTransformativeReaction(automaticReaction)
+      isOneShotTransformativeReaction(automaticReaction)
     ) {
       const definition =
         TRANSFORMATIVE_REACTION_DEFINITIONS[automaticReaction];
@@ -440,8 +818,20 @@ export class AuraEngine {
       };
     }
 
+    const reactionNote =
+      automaticReaction === "none"
+        ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        : automaticReaction === "electroCharged"
+          ? periodicReaction?.operation === "start"
+            ? "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
+            : "感电共存 Aura 已刷新；Tick 节奏不重置，未来 Tick 归属更新为本次触发者。"
+          : isOneShotTransformativeReaction(automaticReaction)
+            ? transformativeReaction?.scheduled
+              ? `${automaticReaction === "overload" ? "超载" : "超导"}由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。`
+              : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
+            : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。";
     return {
-      model: debugOverride === null ? "aura-engine" : "manual-override",
+      model: "aura-engine",
       triggered: reaction !== "none",
       reaction,
       icdAllowed,
@@ -453,16 +843,11 @@ export class AuraEngine {
       auraConsumed,
       auraAfter: this.snapshot(),
       transformativeReaction,
+      periodicReaction,
       note:
-        debugOverride === null
-          ? automaticReaction === "none"
-            ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
-            : isTransformativeReaction(automaticReaction)
-              ? transformativeReaction?.scheduled
-                ? `${automaticReaction === "overload" ? "超载" : "超导"}由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。`
-                : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
-              : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
-          : "调试模式 reactionOverride 覆盖了自动反应结果。"
+        periodicReaction?.operation === "stop"
+          ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
+          : reactionNote
     };
   }
 }
@@ -484,5 +869,15 @@ export const AURA_ENGINE_CONSTANTS = {
   superconductBaseMultiplier: SUPERCONDUCT_BASE_MULTIPLIER,
   superconductPhysicalResShred: SUPERCONDUCT_PHYSICAL_RES_SHRED,
   superconductStatusDurationFrames:
-    SUPERCONDUCT_STATUS_DURATION_FRAMES
+    SUPERCONDUCT_STATUS_DURATION_FRAMES,
+  electroChargedFirstDamageDelayFrames:
+    ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES,
+  electroChargedTickIntervalFrames:
+    ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+  electroChargedWaneDelayFrames:
+    ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+  electroChargedWaneGaugeUnits:
+    ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+  electroChargedBaseMultiplier:
+    ELECTRO_CHARGED_BASE_MULTIPLIER
 } as const;

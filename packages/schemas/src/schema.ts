@@ -21,6 +21,7 @@ import {
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
   SECTOR_GEOMETRY_SCHEMA_VERSION,
+  SUPERCONDUCT_REACTION_SCHEMA_VERSION,
   TARGET_MOTION_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
@@ -1739,6 +1740,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === SUPERCONDUCT_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === OVERLOAD_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

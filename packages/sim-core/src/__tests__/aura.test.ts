@@ -394,6 +394,267 @@ describe("AuraEngine Superconduct scheduling", () => {
   });
 });
 
+describe("AuraEngine Electro-Charged streams", () => {
+  it("creates Hydro/Electro coexistence in both trigger directions", () => {
+    const hydroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const electroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    for (const audit of [hydroIncoming, electroIncoming]) {
+      expect(audit).toMatchObject({
+        reaction: "electroCharged",
+        auraConsumed: [],
+        auraAfter: [
+          { element: "electro", gaugeUnits: 0.8 },
+          { element: "hydro", gaugeUnits: 0.8 }
+        ],
+        transformativeReaction: null,
+        periodicReaction: {
+          reaction: "electroCharged",
+          generation: 1,
+          operation: "start",
+          damageElement: "electro",
+          baseMultiplier: 2,
+          firstDamageFrame: 10,
+          nextTickFrame: 70,
+          tickIntervalFrames: 60,
+          waneDelayFrames: 6,
+          waneGaugeUnits: 0.4,
+          coexistenceExpiresAtFrame: 426
+        }
+      });
+    }
+  });
+
+  it("refreshes ownership without resetting the existing tick cadence", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    const started = engine.processHit({
+      frame: 0,
+      sourceActorId: "electro-a",
+      element: "electro",
+      application: noIcd()
+    });
+    const refreshed = engine.processHit({
+      frame: 20,
+      sourceActorId: "hydro-b",
+      element: "hydro",
+      application: noIcd()
+    });
+
+    expect(started.periodicReaction).toMatchObject({
+      generation: 1,
+      operation: "start",
+      firstDamageFrame: 10,
+      nextTickFrame: 70
+    });
+    expect(refreshed.periodicReaction).toMatchObject({
+      generation: 1,
+      operation: "refresh",
+      firstDamageFrame: null,
+      nextTickFrame: 70
+    });
+  });
+
+  it("wanes both auras six frames after non-zero ticks and stops on depletion", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    const firstWane = engine.waneElectroCharged(16, true);
+    const nextTick = engine.prepareElectroChargedTick(70, 1);
+    const secondWane = engine.waneElectroCharged(76, true);
+
+    expect(firstWane).toMatchObject({
+      operation: "wane",
+      auraConsumed: [
+        { element: "hydro", gaugeUnits: 0.4 },
+        { element: "electro", gaugeUnits: 0.4 }
+      ],
+      nextTickFrame: 70,
+      reason: null
+    });
+    expect(nextTick).toMatchObject({
+      operation: "tick",
+      nextTickFrame: 130
+    });
+    expect(secondWane).toMatchObject({
+      operation: "wane",
+      auraAfter: [],
+      nextTickFrame: null,
+      coexistenceExpiresAtFrame: null,
+      reason: "AURA_DEPLETED_BY_WANE"
+    });
+  });
+
+  it("does not wane Aura when target policy reduces actual damage to zero", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    const skipped = engine.waneElectroCharged(16, false);
+
+    expect(skipped.operation).toBe("wane-skipped");
+    expect(skipped.auraConsumed).toEqual([]);
+    expect(skipped.auraAfter).toEqual(skipped.auraBefore);
+    expect(skipped.reason).toBe("ZERO_ACTUAL_DAMAGE");
+  });
+
+  it("stops the stream on the same frame when another reaction removes coexistence", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    const overload = engine.processHit({
+      frame: 20,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+
+    expect(overload).toMatchObject({
+      reaction: "overload",
+      auraConsumed: [
+        expect.objectContaining({ element: "electro" })
+      ],
+      auraAfter: [
+        expect.objectContaining({ element: "hydro" })
+      ],
+      periodicReaction: {
+        reaction: "electroCharged",
+        generation: 1,
+        operation: "stop",
+        firstDamageFrame: null,
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null
+      }
+    });
+    expect(overload.note).toContain(
+      "感电周期流在同帧停止"
+    );
+  });
+
+  it("invalidates stale expiry checks and stops at the refreshed half-open boundary", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "electro-a",
+      element: "electro",
+      application: noIcd()
+    });
+    engine.processHit({
+      frame: 20,
+      sourceActorId: "hydro-b",
+      element: "hydro",
+      application: noIcd()
+    });
+    const refreshed = engine.processHit({
+      frame: 21,
+      sourceActorId: "electro-a",
+      element: "electro",
+      application: noIcd()
+    });
+
+    expect(
+      refreshed.periodicReaction?.coexistenceExpiresAtFrame
+    ).toBe(446);
+    const stale = engine.expireElectroCharged(426, 1, 426);
+    const stopped = engine.expireElectroCharged(446, 1, 446);
+
+    expect(stale).toMatchObject({
+      operation: "stale",
+      reason: "STALE_EXPIRY_CHECK",
+      coexistenceExpiresAtFrame: 446
+    });
+    expect(stopped).toMatchObject({
+      operation: "stop",
+      reason: "AURA_DECAY_EXPIRED",
+      coexistenceExpiresAtFrame: null
+    });
+    expect(stopped.auraBefore).toEqual([
+      expect.objectContaining({ element: "electro" }),
+      expect.objectContaining({ element: "hydro" })
+    ]);
+    expect(stopped.auraAfter).toEqual([
+      expect.objectContaining({ element: "electro" })
+    ]);
+  });
+
+  it("keeps debug overrides from creating an untracked periodic stream", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      debugAllowReactionOverride: true,
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    });
+    const debug = engine.processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd(),
+      reactionOverride: "melt"
+    });
+    const automatic = engine.processHit({
+      frame: 1,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    expect(debug).toMatchObject({
+      model: "manual-override",
+      reaction: "melt",
+      auraAfter: [{ element: "hydro", gaugeUnits: 0.8 }],
+      periodicReaction: null
+    });
+    expect(automatic.periodicReaction).toMatchObject({
+      generation: 1,
+      operation: "start",
+      firstDamageFrame: 11
+    });
+  });
+});
+
 function makeAuraTimelineConfig(initialAura: boolean): SimConfig {
   const base = makeConfig();
   return {

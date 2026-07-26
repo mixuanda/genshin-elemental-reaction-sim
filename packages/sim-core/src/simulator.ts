@@ -24,7 +24,7 @@ import {
   type SimulationResult,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
-import { AuraEngine } from "./aura";
+import { AURA_ENGINE_CONSTANTS, AuraEngine } from "./aura";
 import {
   calculateParticleEnergy,
   resolveParticleCount,
@@ -52,7 +52,10 @@ export const EVENT_PRIORITY = {
   particleSpawn: 2,
   particleReceive: 2,
   hit: 3,
-  reactionDamage: 4
+  periodicReactionExpiry: 2,
+  periodicReactionTick: 4,
+  reactionDamage: 5,
+  periodicReactionWane: 6
 } as const;
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
@@ -403,6 +406,7 @@ interface ReactionDamageEventPayload {
   triggerHitGroupId: string;
   triggerDamageEventId: number;
   sourceTargetId: string;
+  targetingMode: "radius" | "single-target";
   centerPosition: { x: number; y: number } | null;
   radius: number;
   baseMultiplier: number;
@@ -413,6 +417,51 @@ interface ReactionDamageEventPayload {
   snapshot: DamageEvent["snapshot"];
   cycle: number;
   reactionDamageLogId: number;
+  periodicContext?: {
+    generation: number;
+    tickIndex: number;
+    periodicReactionLogId: number;
+    waneEligible: boolean;
+  };
+}
+
+interface PeriodicReactionSourceSnapshot {
+  generation: number;
+  actorId: string;
+  action: ActionDefinition;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  triggerDamageEventId: number;
+  triggerFrame: number;
+  stats: CharacterStats;
+  elementalMastery: number;
+  reactionBonus: number;
+  sourceBuffStatuses: ActiveStatusSnapshot[];
+  snapshot: DamageEvent["snapshot"];
+  cycle: number;
+}
+
+interface PeriodicReactionTickEventPayload {
+  targetId: string;
+  generation: number;
+  tickIndex: number;
+  firstTick: boolean;
+  pinnedSource?: PeriodicReactionSourceSnapshot;
+}
+
+interface PeriodicReactionWaneEventPayload {
+  targetId: string;
+  sourceActorId: string;
+  triggerDamageEventId: number;
+  damageEventId: number;
+  tickIndex: number;
+  damageApplied: boolean;
+}
+
+interface PeriodicReactionExpiryEventPayload {
+  targetId: string;
+  generation: number;
+  expectedExpiryFrame: number;
 }
 
 type InternalEvent =
@@ -423,7 +472,10 @@ type InternalEvent =
   | SimulationEvent<ParticleSpawnEventPayload>
   | SimulationEvent<ParticleReceiveEventPayload>
   | SimulationEvent<HitEventPayload>
-  | SimulationEvent<ReactionDamageEventPayload>;
+  | SimulationEvent<ReactionDamageEventPayload>
+  | SimulationEvent<PeriodicReactionTickEventPayload>
+  | SimulationEvent<PeriodicReactionWaneEventPayload>
+  | SimulationEvent<PeriodicReactionExpiryEventPayload>;
 
 interface ActiveBuff {
   key: string;
@@ -461,7 +513,8 @@ const TRANSFORMATIVE_REACTION_LABELS: Record<
   string
 > = {
   overload: "超载",
-  superconduct: "超导"
+  superconduct: "超导",
+  electroCharged: "感电"
 };
 
 const BUFF_STATS = new Set<BuffStat>([
@@ -759,6 +812,13 @@ function simulateConfig(
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
   const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
+  const periodicReactionLog: SimulationResult["periodicReactionLog"] =
+    [];
+  const activePeriodicReactionSources = new Map<
+    string,
+    PeriodicReactionSourceSnapshot
+  >();
+  const periodicReactionExpiryScheduleKeys = new Set<string>();
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -794,6 +854,102 @@ function simulateConfig(
     });
   };
   recordEnergyCurve(0, 0, "initial", null, "initial-energy");
+
+  const schedulePeriodicReactionExpiry = (
+    targetId: string,
+    generation: number,
+    expiryFrame: number | null
+  ): void => {
+    if (expiryFrame === null) return;
+    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    if (periodicReactionExpiryScheduleKeys.has(scheduleKey)) return;
+    periodicReactionExpiryScheduleKeys.add(scheduleKey);
+    push(expiryFrame / 60, "periodicReactionExpiry", {
+      targetId,
+      generation,
+      expectedExpiryFrame: expiryFrame
+    } satisfies PeriodicReactionExpiryEventPayload);
+  };
+
+  const scheduleElectroChargedDamage = ({
+    frame,
+    targetId,
+    generation,
+    tickIndex,
+    source,
+    periodicReactionLogId,
+    nextTickFrame,
+    waneEligible
+  }: {
+    frame: number;
+    targetId: string;
+    generation: number;
+    tickIndex: number;
+    source: PeriodicReactionSourceSnapshot;
+    periodicReactionLogId: number;
+    nextTickFrame: number | null;
+    waneEligible: boolean;
+  }): void => {
+    const reactionDamageLogId = reactionDamageLog.length;
+    const withinSimulation =
+      frame <= Math.round(config.duration * 60);
+    reactionDamageLog.push({
+      id: reactionDamageLogId,
+      reaction: "electroCharged",
+      triggerDamageEventId: source.triggerDamageEventId,
+      sourceActorId: source.actorId,
+      sourceTargetId: targetId,
+      triggerFrame: source.triggerFrame,
+      damageFrame: frame,
+      scheduled: true,
+      withinSimulation,
+      blockedReason: null,
+      nextAvailableFrame: nextTickFrame,
+      scheduleKind: "periodic-tick",
+      targetingMode: "single-target",
+      centerPosition: null,
+      radius: 0,
+      checkedTargetIds: [],
+      hitTargetIds: [],
+      unresolvedTargetIds: [],
+      damageEventIds: [],
+      reactionStatusLogIds: []
+    });
+    const periodicLog = periodicReactionLog[periodicReactionLogId];
+    if (periodicLog !== undefined) {
+      periodicLog.reactionDamageLogId = reactionDamageLogId;
+    }
+    if (!withinSimulation) return;
+    push(frame / 60, "reactionDamage", {
+      reaction: "electroCharged",
+      damageElement: "electro",
+      statusEffect: null,
+      actorId: source.actorId,
+      action: source.action,
+      triggerHitId: source.triggerHitId,
+      triggerHitGroupId: source.triggerHitGroupId,
+      triggerDamageEventId: source.triggerDamageEventId,
+      sourceTargetId: targetId,
+      targetingMode: "single-target",
+      centerPosition: null,
+      radius: 0,
+      baseMultiplier:
+        AURA_ENGINE_CONSTANTS.electroChargedBaseMultiplier,
+      stats: deepClone(source.stats),
+      elementalMastery: source.elementalMastery,
+      reactionBonus: source.reactionBonus,
+      sourceBuffStatuses: deepClone(source.sourceBuffStatuses),
+      snapshot: source.snapshot,
+      cycle: source.cycle,
+      reactionDamageLogId,
+      periodicContext: {
+        generation,
+        tickIndex,
+        periodicReactionLogId,
+        waneEligible
+      }
+    } satisfies ReactionDamageEventPayload);
+  };
 
   const cleanup = (timeSeconds: number): void => {
     for (let index = activeBuffs.length - 1; index >= 0; index -= 1) {
@@ -1699,6 +1855,269 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "periodicReactionExpiry") {
+      const {
+        targetId,
+        generation,
+        expectedExpiryFrame
+      } = event.payload as PeriodicReactionExpiryEventPayload;
+      periodicReactionExpiryScheduleKeys.delete(
+        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+      );
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+      const result = auraEngine.expireElectroCharged(
+        event.frame,
+        generation,
+        expectedExpiryFrame
+      );
+      if (result.operation === "stale") continue;
+      const source = activePeriodicReactionSources.get(targetId);
+      periodicReactionLog.push({
+        id: periodicReactionLog.length,
+        reaction: "electroCharged",
+        generation,
+        operation: "stop",
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId: source?.actorId ?? null,
+        triggerDamageEventId:
+          source?.triggerDamageEventId ?? null,
+        reactionDamageLogId: null,
+        damageEventId: null,
+        tickIndex: null,
+        auraBefore: result.auraBefore,
+        auraConsumed: result.auraConsumed,
+        auraAfter: result.auraAfter,
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        waneFrame: null,
+        reason: result.reason
+      });
+      if (source?.generation === generation) {
+        activePeriodicReactionSources.delete(targetId);
+      }
+      continue;
+    }
+
+    if (event.type === "periodicReactionTick") {
+      const {
+        targetId,
+        generation,
+        tickIndex,
+        firstTick,
+        pinnedSource
+      } = event.payload as PeriodicReactionTickEventPayload;
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+
+      let source: PeriodicReactionSourceSnapshot | undefined;
+      let auraBefore: SimulationResult["periodicReactionLog"][number]["auraBefore"];
+      let auraAfter: SimulationResult["periodicReactionLog"][number]["auraAfter"];
+      let nextTickFrame: number | null;
+      let coexistenceExpiresAtFrame: number | null;
+      let waneEligible = true;
+      let tickReason: string | null = null;
+      if (firstTick) {
+        source = pinnedSource;
+        const auraState = auraEngine.getAuraStateAt(event.frame);
+        auraBefore = auraState;
+        auraAfter = deepClone(auraState);
+        const activeSource =
+          activePeriodicReactionSources.get(targetId);
+        const coexistencePresent =
+          auraState.some((aura) => aura.element === "hydro") &&
+          auraState.some((aura) => aura.element === "electro");
+        const streamContinues =
+          activeSource?.generation === generation &&
+          coexistencePresent;
+        nextTickFrame = streamContinues
+          ? event.frame +
+            AURA_ENGINE_CONSTANTS.electroChargedTickIntervalFrames
+          : null;
+        waneEligible = coexistencePresent;
+        tickReason = streamContinues
+          ? null
+          : activeSource === undefined
+            ? "QUEUED_FIRST_TICK_AFTER_STREAM_STOP"
+            : "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED";
+        coexistenceExpiresAtFrame = coexistencePresent
+          ? (auraState
+              .filter(
+                (aura) =>
+                  aura.element === "hydro" ||
+                  aura.element === "electro"
+              )
+              .map((aura) => aura.expiresAtFrame)
+              .filter((frame): frame is number => frame !== null)
+              .sort((left, right) => left - right)[0] ?? null)
+          : null;
+      } else {
+        const activeSource =
+          activePeriodicReactionSources.get(targetId);
+        if (
+          !activeSource ||
+          activeSource.generation !== generation
+        ) {
+          continue;
+        }
+        const prepared = auraEngine.prepareElectroChargedTick(
+          event.frame,
+          generation
+        );
+        if (prepared.operation === "stale") continue;
+        if (prepared.operation === "stop") {
+          periodicReactionLog.push({
+            id: periodicReactionLog.length,
+            reaction: "electroCharged",
+            generation,
+            operation: "stop",
+            frame: event.frame,
+            timeSeconds,
+            targetId,
+            targetName: target.name,
+            sourceActorId: activeSource?.actorId ?? null,
+            triggerDamageEventId:
+              activeSource?.triggerDamageEventId ?? null,
+            reactionDamageLogId: null,
+            damageEventId: null,
+            tickIndex,
+            auraBefore: prepared.auraBefore,
+            auraConsumed: prepared.auraConsumed,
+            auraAfter: prepared.auraAfter,
+            nextTickFrame: null,
+            coexistenceExpiresAtFrame: null,
+            waneFrame: null,
+            reason: prepared.reason
+          });
+          if (activeSource?.generation === generation) {
+            activePeriodicReactionSources.delete(targetId);
+          }
+          continue;
+        }
+        source = activeSource;
+        auraBefore = prepared.auraBefore;
+        auraAfter = prepared.auraAfter;
+        nextTickFrame = prepared.nextTickFrame;
+        coexistenceExpiresAtFrame =
+          prepared.coexistenceExpiresAtFrame;
+      }
+      if (!source) continue;
+
+      const periodicReactionLogId = periodicReactionLog.length;
+      periodicReactionLog.push({
+        id: periodicReactionLogId,
+        reaction: "electroCharged",
+        generation,
+        operation: "tick",
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId: source.actorId,
+        triggerDamageEventId: source.triggerDamageEventId,
+        reactionDamageLogId: null,
+        damageEventId: null,
+        tickIndex,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter,
+        nextTickFrame,
+        coexistenceExpiresAtFrame,
+        waneFrame: null,
+        reason: tickReason
+      });
+      scheduleElectroChargedDamage({
+        frame: event.frame,
+        targetId,
+        generation,
+        tickIndex,
+        source,
+        periodicReactionLogId,
+        nextTickFrame,
+        waneEligible
+      });
+      if (nextTickFrame !== null) {
+        push(nextTickFrame / 60, "periodicReactionTick", {
+          targetId,
+          generation,
+          tickIndex: tickIndex + 1,
+          firstTick: false
+        } satisfies PeriodicReactionTickEventPayload);
+      }
+      if (nextTickFrame !== null) {
+        schedulePeriodicReactionExpiry(
+          targetId,
+          generation,
+          coexistenceExpiresAtFrame
+        );
+      }
+      continue;
+    }
+
+    if (event.type === "periodicReactionWane") {
+      const {
+        targetId,
+        sourceActorId,
+        triggerDamageEventId,
+        damageEventId,
+        tickIndex,
+        damageApplied
+      } = event.payload as PeriodicReactionWaneEventPayload;
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+      const result = auraEngine.waneElectroCharged(
+        event.frame,
+        damageApplied
+      );
+      periodicReactionLog.push({
+        id: periodicReactionLog.length,
+        reaction: "electroCharged",
+        generation: result.generation,
+        operation:
+          result.operation === "stale" ||
+          result.operation === "tick"
+            ? "stop"
+            : result.operation,
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId,
+        triggerDamageEventId,
+        reactionDamageLogId: null,
+        damageEventId,
+        tickIndex,
+        auraBefore: result.auraBefore,
+        auraConsumed: result.auraConsumed,
+        auraAfter: result.auraAfter,
+        nextTickFrame: result.nextTickFrame,
+        coexistenceExpiresAtFrame:
+          result.coexistenceExpiresAtFrame,
+        waneFrame: event.frame,
+        reason: result.reason
+      });
+      if (
+        result.operation === "stop" ||
+        (result.operation === "wane" &&
+          result.coexistenceExpiresAtFrame === null)
+      ) {
+        activePeriodicReactionSources.delete(targetId);
+      } else {
+        schedulePeriodicReactionExpiry(
+          targetId,
+          result.generation,
+          result.coexistenceExpiresAtFrame
+        );
+      }
+      continue;
+    }
+
     if (event.type === "reactionDamage") {
       const {
         reaction,
@@ -1710,6 +2129,7 @@ function simulateConfig(
         triggerHitGroupId,
         triggerDamageEventId,
         sourceTargetId,
+        targetingMode,
         centerPosition,
         radius,
         baseMultiplier,
@@ -1719,7 +2139,8 @@ function simulateConfig(
         sourceBuffStatuses,
         snapshot,
         cycle,
-        reactionDamageLogId
+        reactionDamageLogId,
+        periodicContext
       } = event.payload as ReactionDamageEventPayload;
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
@@ -1741,7 +2162,10 @@ function simulateConfig(
         threshold: number | null;
         targetingSource: "reaction-source" | "reaction-geometry";
       }> = [];
-      if (centerPosition === null) {
+      if (
+        targetingMode === "single-target" ||
+        centerPosition === null
+      ) {
         spatialPlans.push({
           targetId: sourceTargetId,
           targetPosition: resolveTargetPosition(
@@ -1754,11 +2178,13 @@ function simulateConfig(
           threshold: null,
           targetingSource: "reaction-source"
         });
-        reactionLog.unresolvedTargetIds.push(
-          ...enemyTargets
-            .filter((target) => target.id !== sourceTargetId)
-            .map((target) => target.id)
-        );
+        if (targetingMode === "radius") {
+          reactionLog.unresolvedTargetIds.push(
+            ...enemyTargets
+              .filter((target) => target.id !== sourceTargetId)
+              .map((target) => target.id)
+          );
+        }
       } else {
         for (const target of enemyTargets) {
           const targetPosition = resolveTargetPosition(
@@ -1793,6 +2219,8 @@ function simulateConfig(
         }
       }
 
+      let periodicDamageEventId: number | null = null;
+      let periodicActualDamage = 0;
       spatialPlans.forEach((plan, targetIndex) => {
         const targetProfile = enemyTargetById.get(plan.targetId);
         if (!targetProfile) return;
@@ -1991,8 +2419,9 @@ function simulateConfig(
           auraConsumed: null,
           auraAfter: null,
           transformativeReaction: null,
+          periodicReaction: null,
           note:
-            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : "冰"}元素抗性与目标伤害策略。`
+            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : damageElement === "cryo" ? "冰" : damageElement === "electro" ? "雷" : damageElement}元素抗性与目标伤害策略。`
         };
         damageEvents.push({
           id: damageEventId,
@@ -2103,6 +2532,13 @@ function simulateConfig(
           calculation.finalDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
+        if (
+          periodicContext !== undefined &&
+          plan.targetId === sourceTargetId
+        ) {
+          periodicDamageEventId = damageEventId;
+          periodicActualDamage = finalDamage;
+        }
         if (statusEffect !== null) {
           const existingIndex = activeTargetDebuffs.findIndex(
             (debuff) =>
@@ -2168,6 +2604,38 @@ function simulateConfig(
           );
         }
       });
+      if (
+        periodicContext !== undefined &&
+        periodicDamageEventId !== null
+      ) {
+        const periodicLog =
+          periodicReactionLog[
+            periodicContext.periodicReactionLogId
+          ];
+        if (periodicLog !== undefined) {
+          periodicLog.damageEventId = periodicDamageEventId;
+          periodicLog.waneFrame = periodicContext.waneEligible
+            ? event.frame +
+              AURA_ENGINE_CONSTANTS.electroChargedWaneDelayFrames
+            : null;
+        }
+        if (periodicContext.waneEligible) {
+          push(
+            (event.frame +
+              AURA_ENGINE_CONSTANTS.electroChargedWaneDelayFrames) /
+              60,
+            "periodicReactionWane",
+            {
+              targetId: sourceTargetId,
+              sourceActorId: actorId,
+              triggerDamageEventId,
+              damageEventId: periodicDamageEventId,
+              tickIndex: periodicContext.tickIndex,
+              damageApplied: periodicActualDamage > 0
+            } satisfies PeriodicReactionWaneEventPayload
+          );
+        }
+      }
       continue;
     }
 
@@ -2420,6 +2888,7 @@ function simulateConfig(
             auraConsumed: null,
             auraAfter: null,
             transformativeReaction: null,
+            periodicReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -2450,7 +2919,9 @@ function simulateConfig(
             };
     const reaction = reactionAudit.reaction;
     const amplifyingReaction =
-      reaction === "overload" || reaction === "superconduct"
+      reaction === "overload" ||
+      reaction === "superconduct" ||
+      reaction === "electroCharged"
         ? "none"
         : reaction;
     let damageInput: DamageCalculationInput = {
@@ -2630,6 +3101,8 @@ function simulateConfig(
         blockedReason: transformativeReaction.blockedReason,
         nextAvailableFrame:
           transformativeReaction.nextAvailableFrame,
+        scheduleKind: "one-shot",
+        targetingMode: "radius",
         centerPosition: deepClone(targetPosition),
         radius: transformativeReaction.radius,
         checkedTargetIds: [],
@@ -2658,6 +3131,7 @@ function simulateConfig(
             triggerHitGroupId: hitGroupId,
             triggerDamageEventId: damageEventId,
             sourceTargetId: targetId,
+            targetingMode: "radius",
             centerPosition: deepClone(targetPosition),
             radius: transformativeReaction.radius,
             baseMultiplier: transformativeReaction.baseMultiplier,
@@ -2684,6 +3158,139 @@ function simulateConfig(
             reactionDamageLogId
           }
         );
+      }
+    }
+    const periodicReaction = reactionAudit.periodicReaction;
+    if (periodicReaction !== null) {
+      if (periodicReaction.operation === "stop") {
+        periodicReactionLog.push({
+          id: periodicReactionLog.length,
+          reaction: periodicReaction.reaction,
+          generation: periodicReaction.generation,
+          operation: "stop",
+          frame: event.frame,
+          timeSeconds,
+          targetId,
+          targetName: targetProfile.name,
+          sourceActorId: actorId,
+          triggerDamageEventId: damageEventId,
+          reactionDamageLogId: null,
+          damageEventId: null,
+          tickIndex: null,
+          auraBefore: deepClone(
+            reactionAudit.auraBefore ?? []
+          ),
+          auraConsumed: deepClone(
+            reactionAudit.auraConsumed ?? []
+          ),
+          auraAfter: deepClone(
+            reactionAudit.auraAfter ?? []
+          ),
+          nextTickFrame: null,
+          coexistenceExpiresAtFrame: null,
+          waneFrame: null,
+          reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+        });
+        const activeSource =
+          activePeriodicReactionSources.get(targetId);
+        if (
+          activeSource?.generation ===
+          periodicReaction.generation
+        ) {
+          activePeriodicReactionSources.delete(targetId);
+        }
+      } else {
+        const reactionSourceStats =
+          hit.snapshot === "action"
+            ? deepClone(
+                snapshots[actorId] ??
+                  computeStats(actorId, timeSeconds)
+              )
+            : computeStats(actorId, timeSeconds);
+        if (reactionSourceStats === undefined) {
+          throw new Error(
+            `Periodic reaction source stats for "${actorId}" could not be resolved.`
+          );
+        }
+        const sourceBuffStatuses = activeBuffs
+          .filter((buff) => buff.targetId === actorId)
+          .map((buff) => ({
+            key: buff.key,
+            kind: "buff" as const,
+            sourceActorId: buff.actorId,
+            targetId: buff.targetId,
+            stat: buff.stat,
+            value: buff.value,
+            startTimeSeconds: buff.start,
+            endTimeSeconds: buff.end,
+            label: buff.label
+          }));
+        const periodicSource: PeriodicReactionSourceSnapshot = {
+          generation: periodicReaction.generation,
+          actorId,
+          action,
+          triggerHitId: hitId,
+          triggerHitGroupId: hitGroupId,
+          triggerDamageEventId: damageEventId,
+          triggerFrame: event.frame,
+          stats: deepClone(reactionSourceStats),
+          elementalMastery: reactionSourceStats.em,
+          reactionBonus:
+            reactionSourceStats.reactionBonus +
+            safeNumber(hit.reactionBonus),
+          sourceBuffStatuses,
+          snapshot,
+          cycle
+        };
+        activePeriodicReactionSources.set(
+          targetId,
+          periodicSource
+        );
+        periodicReactionLog.push({
+          id: periodicReactionLog.length,
+          reaction: periodicReaction.reaction,
+          generation: periodicReaction.generation,
+          operation: periodicReaction.operation,
+          frame: event.frame,
+          timeSeconds,
+          targetId,
+          targetName: targetProfile.name,
+          sourceActorId: actorId,
+          triggerDamageEventId: damageEventId,
+          reactionDamageLogId: null,
+          damageEventId: null,
+          tickIndex: null,
+          auraBefore: deepClone(
+            reactionAudit.auraBefore ?? []
+          ),
+          auraConsumed: [],
+          auraAfter: deepClone(
+            reactionAudit.auraAfter ?? []
+          ),
+          nextTickFrame: periodicReaction.nextTickFrame,
+          coexistenceExpiresAtFrame:
+            periodicReaction.coexistenceExpiresAtFrame,
+          waneFrame: null,
+          reason: null
+        });
+        schedulePeriodicReactionExpiry(
+          targetId,
+          periodicReaction.generation,
+          periodicReaction.coexistenceExpiresAtFrame
+        );
+        if (periodicReaction.firstDamageFrame !== null) {
+          push(
+            periodicReaction.firstDamageFrame / 60,
+            "periodicReactionTick",
+            {
+              targetId,
+              generation: periodicReaction.generation,
+              tickIndex: 0,
+              firstTick: true,
+              pinnedSource: deepClone(periodicSource)
+            } satisfies PeriodicReactionTickEventPayload
+          );
+        }
       }
     }
     completeHitTarget({
@@ -2862,6 +3469,7 @@ function simulateConfig(
     hitResolutionLog,
     reactionDamageLog,
     reactionStatusLog,
+    periodicReactionLog,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,

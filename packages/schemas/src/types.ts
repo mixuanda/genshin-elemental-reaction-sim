@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.23.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.23.0-superconduct-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.24.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.24.0-electro-charged-reaction" as const;
+export const SUPERCONDUCT_REACTION_SCHEMA_VERSION = "1.23.0" as const;
 export const OVERLOAD_REACTION_SCHEMA_VERSION = "1.22.0" as const;
 export const ACTOR_POSE_SCHEMA_VERSION = "1.21.0" as const;
 export const SECTOR_GEOMETRY_SCHEMA_VERSION = "1.20.0" as const;
@@ -42,7 +43,13 @@ export type AmplifyingReaction =
   | "vaporize"
   | "reverseVaporize";
 
-export type TransformativeReaction = "overload" | "superconduct";
+export type OneShotTransformativeReaction =
+  | "overload"
+  | "superconduct";
+export type PeriodicTransformativeReaction = "electroCharged";
+export type TransformativeReaction =
+  | OneShotTransformativeReaction
+  | PeriodicTransformativeReaction;
 export type ReactionType = AmplifyingReaction | TransformativeReaction;
 
 export type ScalingStat = "atk" | "hp" | "def" | "em";
@@ -583,7 +590,10 @@ export type SimulationEventType =
   | "particleSpawn"
   | "particleReceive"
   | "hit"
-  | "reactionDamage";
+  | "reactionDamage"
+  | "periodicReactionTick"
+  | "periodicReactionWane"
+  | "periodicReactionExpiry";
 
 export interface SimulationEvent<TPayload = unknown> {
   type: SimulationEventType;
@@ -648,11 +658,12 @@ export interface ReactionAudit {
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
   transformativeReaction: TransformativeReactionAudit | null;
+  periodicReaction: PeriodicReactionAudit | null;
   note?: string;
 }
 
 export interface TransformativeReactionAudit {
-  reaction: TransformativeReaction;
+  reaction: OneShotTransformativeReaction;
   damageElement: Element;
   scheduled: boolean;
   damageFrame: number;
@@ -661,6 +672,20 @@ export interface TransformativeReactionAudit {
   blockedReason: "REACTION_DAMAGE_GCD" | null;
   nextAvailableFrame: number;
   statusEffect: ReactionStatusEffectDefinition | null;
+}
+
+export interface PeriodicReactionAudit {
+  reaction: PeriodicTransformativeReaction;
+  generation: number;
+  operation: "start" | "refresh" | "stop";
+  damageElement: Element;
+  baseMultiplier: number;
+  firstDamageFrame: number | null;
+  nextTickFrame: number | null;
+  tickIntervalFrames: number;
+  waneDelayFrames: number;
+  waneGaugeUnits: number;
+  coexistenceExpiresAtFrame: number | null;
 }
 
 export interface ReactionStatusEffectDefinition {
@@ -1066,7 +1091,10 @@ export interface ReactionDamageLogEntry {
   /** Whether the queued damage frame is inside the configured simulation. */
   withinSimulation: boolean;
   blockedReason: "REACTION_DAMAGE_GCD" | null;
-  nextAvailableFrame: number;
+  /** Next one-shot GCD frame or periodic cadence frame; null when no later tick is queued. */
+  nextAvailableFrame: number | null;
+  scheduleKind: "one-shot" | "periodic-tick";
+  targetingMode: "radius" | "single-target";
   centerPosition: { x: number; y: number } | null;
   radius: number;
   checkedTargetIds: TargetId[];
@@ -1074,6 +1102,37 @@ export interface ReactionDamageLogEntry {
   unresolvedTargetIds: TargetId[];
   damageEventIds: number[];
   reactionStatusLogIds: number[];
+}
+
+export type PeriodicReactionOperation =
+  | "start"
+  | "refresh"
+  | "tick"
+  | "wane"
+  | "wane-skipped"
+  | "stop";
+
+export interface PeriodicReactionLogEntry {
+  id: number;
+  reaction: PeriodicTransformativeReaction;
+  generation: number;
+  operation: PeriodicReactionOperation;
+  frame: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  sourceActorId: string | null;
+  triggerDamageEventId: number | null;
+  reactionDamageLogId: number | null;
+  damageEventId: number | null;
+  tickIndex: number | null;
+  auraBefore: AuraStateEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+  coexistenceExpiresAtFrame: number | null;
+  waneFrame: number | null;
+  reason: string | null;
 }
 
 export interface ReactionStatusLogEntry {
@@ -1186,6 +1245,8 @@ export interface SimulationResult {
   reactionDamageLog: ReactionDamageLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
   reactionStatusLog: ReactionStatusLogEntry[];
+  /** Periodic reaction stream starts, refreshes, ticks, wanes, and stops. */
+  periodicReactionLog: PeriodicReactionLogEntry[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

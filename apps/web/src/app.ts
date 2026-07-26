@@ -55,7 +55,8 @@ const REACTION_LABELS: Record<string, string> = {
   vaporize: "蒸发",
   reverseVaporize: "反向蒸发",
   overload: "超载",
-  superconduct: "超导"
+  superconduct: "超导",
+  electroCharged: "感电"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -883,6 +884,38 @@ function renderHitDetail(): void {
       ]);
     }
   }
+  if (hit.reactionAudit.periodicReaction !== null) {
+    const periodic = hit.reactionAudit.periodicReaction;
+    const operationLabel =
+      periodic.operation === "start"
+        ? "启动"
+        : periodic.operation === "refresh"
+          ? "刷新"
+          : "停止";
+    const scheduleLabel =
+      periodic.operation === "stop"
+        ? "水雷共存被本次命中移除；不再排队 Tick"
+        : periodic.firstDamageFrame === null
+          ? `不追加即时 Tick · 既有下次 Tick ${periodic.nextTickFrame}f`
+          : `首次 ${periodic.firstDamageFrame}f · 后续 ${periodic.nextTickFrame}f 起每 ${periodic.tickIntervalFrames}f`;
+    factors.push(
+      [
+        "周期反应流",
+        `${REACTION_LABELS[periodic.reaction] ?? periodic.reaction} · 第 ${periodic.generation} 代 · ${operationLabel}`
+      ],
+      ["伤害调度", scheduleLabel],
+      [
+        "Aura 削减",
+        `实际非零伤害后 ${periodic.waneDelayFrames}f · 水/雷各 ${formatNumber(periodic.waneGaugeUnits, 2)}U`
+      ],
+      [
+        "共存预计到期",
+        periodic.coexistenceExpiresAtFrame === null
+          ? "已结束"
+          : `${periodic.coexistenceExpiresAtFrame}f`
+      ]
+    );
+  }
   if (reactionStatusEntries.length > 0) {
     factors.push([
       "反应目标状态",
@@ -1543,8 +1576,11 @@ function renderAuraTimeline(): void {
   const card = byId<HTMLElement>("auraTimelineCard");
   const allTimeline = lastResult.auraTimeline;
   const reactionDamageLog = lastResult.reactionDamageLog;
+  const periodicReactionLog = lastResult.periodicReactionLog;
   card.hidden =
-    allTimeline.length === 0 && reactionDamageLog.length === 0;
+    allTimeline.length === 0 &&
+    reactionDamageLog.length === 0 &&
+    periodicReactionLog.length === 0;
   byId<HTMLElement>("reactionDamageSummary").textContent =
     reactionDamageLog.length === 0
       ? "当前结果没有独立转化反应伤害"
@@ -1559,20 +1595,70 @@ function renderAuraTimeline(): void {
           ? `<span class="badge warn">GCD 阻止伤害</span>`
           : !entry.withinSimulation
             ? `<span class="badge warn">模拟结束后</span>`
-            : `<span class="badge good">已结算</span>`;
+            : entry.scheduleKind === "periodic-tick"
+              ? `<span class="badge good">周期 Tick</span>`
+              : `<span class="badge good">已结算</span>`;
+        const scheduleDetail =
+          entry.scheduleKind === "periodic-tick"
+            ? `${status} <span class="muted">/ ${entry.nextAvailableFrame === null ? "无后续 Tick" : `下次 ${entry.nextAvailableFrame}f`}</span>`
+            : `${status}${entry.blockedReason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.blockedReason)} · ${entry.nextAvailableFrame}f 可用</span>`}`;
+        const targetMode =
+          entry.targetingMode === "single-target"
+            ? "单目标"
+            : `${escapeHtml(formatPosition(entry.centerPosition))} / r=${formatNumber(entry.radius, 2)}`;
         return (
           `<tr${entry.damageEventIds[0] === undefined ? "" : ` data-reaction-damage-id="${entry.damageEventIds[0]}"`}>` +
           `<td>${entry.triggerFrame}f → ${entry.damageFrame}f</td>` +
           `<td>${escapeHtml(REACTION_LABELS[entry.reaction] ?? entry.reaction)}</td>` +
           `<td>${escapeHtml(sourceTarget?.name ?? entry.sourceTargetId)} <span class="muted">/ ${escapeHtml(entry.sourceTargetId)}</span></td>` +
-          `<td>${status}${entry.blockedReason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.blockedReason)} · ${entry.nextAvailableFrame}f 可用</span>`}</td>` +
-          `<td>${escapeHtml(formatPosition(entry.centerPosition))} / r=${formatNumber(entry.radius, 2)}</td>` +
+          `<td>${scheduleDetail}</td>` +
+          `<td>${targetMode}</td>` +
           `<td>${entry.checkedTargetIds.length} / ${entry.hitTargetIds.length} / ${entry.unresolvedTargetIds.length}${entry.unresolvedTargetIds.length ? ` <span class="muted">(${entry.unresolvedTargetIds.map(escapeHtml).join(", ")})</span>` : ""}</td>` +
           `<td>${entry.damageEventIds.length ? entry.damageEventIds.map((id) => `#${id}`).join(", ") : "—"}</td></tr>`
         );
       })
       .join("") ||
     `<tr><td colspan="7">没有独立转化反应伤害。</td></tr>`;
+  const operationLabels: Record<string, string> = {
+    start: "启动",
+    refresh: "刷新",
+    tick: "Tick",
+    wane: "削减 Aura",
+    "wane-skipped": "跳过削减",
+    stop: "停止"
+  };
+  byId<HTMLElement>("periodicReactionSummary").textContent =
+    periodicReactionLog.length === 0
+      ? "当前结果没有周期反应流"
+      : `${periodicReactionLog.length} 条周期状态记录 · ${periodicReactionLog.filter((entry) => entry.operation === "tick").length} 次逐击 Tick`;
+  byId<HTMLTableSectionElement>("periodicReactionBody").innerHTML =
+    periodicReactionLog
+      .map((entry) => {
+        const linkedHitId =
+          entry.damageEventId ?? entry.triggerDamageEventId;
+        const link =
+          linkedHitId === null
+            ? ""
+            : ` data-periodic-hit-id="${linkedHitId}"`;
+        const owner = entry.sourceActorId === null
+          ? "—"
+          : lastResult?.config.characters.find(
+              (character) => character.id === entry.sourceActorId
+            )?.name ?? entry.sourceActorId;
+        return (
+          `<tr${link}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f</td>` +
+          `<td>${escapeHtml(operationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)} · gen ${entry.generation}${entry.tickIndex === null ? "" : ` · tick ${entry.tickIndex}`}</span></td>` +
+          `<td>${escapeHtml(owner)}</td>` +
+          `<td>${escapeHtml(formatAuraState(entry.auraBefore))} → ${escapeHtml(formatAuraState(entry.auraAfter))}</td>` +
+          `<td>${escapeHtml(formatAuraGauge(entry.auraConsumed))}</td>` +
+          `<td>${entry.nextTickFrame === null ? "—" : `${entry.nextTickFrame}f`} / ${entry.coexistenceExpiresAtFrame === null ? "—" : `${entry.coexistenceExpiresAtFrame}f`}</td>` +
+          `<td>${entry.damageEventId === null ? "—" : `#${entry.damageEventId}`}${entry.reason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.reason)}</span>`}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="8">没有周期反应状态。</td></tr>`;
   const reactionStatusLog = lastResult.reactionStatusLog;
   byId<HTMLElement>("reactionStatusSummary").textContent =
     reactionStatusLog.length === 0
@@ -1608,6 +1694,20 @@ function renderAuraTimeline(): void {
     });
   document
     .querySelectorAll<HTMLTableRowElement>(
+      "#periodicReactionBody tr[data-periodic-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.periodicHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+  document
+    .querySelectorAll<HTMLTableRowElement>(
       "#reactionStatusBody tr[data-reaction-status-damage-id]"
     )
     .forEach((row) => {
@@ -1626,7 +1726,10 @@ function renderAuraTimeline(): void {
 
   const targetFilter = byId<HTMLSelectElement>("auraTargetFilter");
   const targetIdsWithAura = new Set(
-    allTimeline.map((point) => point.targetId)
+    [
+      ...allTimeline.map((point) => point.targetId),
+      ...periodicReactionLog.map((point) => point.targetId)
+    ]
   );
   const availableTargets = lastResult.enemyTargets.filter((target) =>
     targetIdsWithAura.has(target.id)
@@ -1650,7 +1753,38 @@ function renderAuraTimeline(): void {
   const timeline = allTimeline.filter(
     (point) => point.targetId === selectedTargetId
   );
-  if (!timeline.length) return;
+  const periodicCurvePoints = periodicReactionLog
+    .filter(
+      (point) =>
+        point.targetId === selectedTargetId &&
+        (point.operation === "wane" ||
+          point.operation === "wane-skipped" ||
+          point.operation === "stop")
+    )
+    .map((point) => ({
+      frame: point.frame,
+      auraBefore: point.auraBefore,
+      auraAfter: point.auraAfter,
+      reaction: point.reaction,
+      damageEventId:
+        point.damageEventId ?? point.triggerDamageEventId,
+      order: 1
+    }));
+  const curveTimeline = [
+    ...timeline.map((point) => ({
+      frame: point.frame,
+      auraBefore: point.auraBefore,
+      auraAfter: point.auraAfter,
+      reaction: point.reaction,
+      damageEventId: point.damageEventId as number | null,
+      order: 0
+    })),
+    ...periodicCurvePoints
+  ].sort(
+    (left, right) =>
+      left.frame - right.frame || left.order - right.order
+  );
+  if (!curveTimeline.length) return;
 
   const elements = ["pyro", "cryo", "hydro", "electro"] as const;
   const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
@@ -1670,7 +1804,7 @@ function renderAuraTimeline(): void {
   const durationFrames = Math.round(lastResult.config.duration * 60);
   const maximum = Math.max(
     1,
-    ...timeline.flatMap((point) => [
+    ...curveTimeline.flatMap((point) => [
       ...point.auraBefore.map((aura) => aura.gaugeUnits),
       ...point.auraAfter.map((aura) => aura.gaugeUnits)
     ])
@@ -1715,12 +1849,12 @@ function renderAuraTimeline(): void {
   elements.forEach((element) => {
     context.beginPath();
     context.moveTo(padding.left, yAt(0));
-    timeline.forEach((point) => {
+    curveTimeline.forEach((point) => {
       const x = xAt(point.frame);
       context.lineTo(x, yAt(valueFor(point.auraBefore, element)));
       context.lineTo(x, yAt(valueFor(point.auraAfter, element)));
     });
-    const finalPoint = timeline[timeline.length - 1];
+    const finalPoint = curveTimeline[curveTimeline.length - 1];
     const finalAura = finalPoint?.auraAfter.find(
       (aura) => aura.element === element
     );
@@ -1736,7 +1870,7 @@ function renderAuraTimeline(): void {
     context.stroke();
   });
 
-  timeline.forEach((point) => {
+  curveTimeline.forEach((point) => {
     if (point.reaction === "none") return;
     const x = xAt(point.frame);
     context.strokeStyle = "#f2f6ff";
@@ -1757,11 +1891,12 @@ function renderAuraTimeline(): void {
         durationFrames
       )
     );
-    const nearest = timeline.reduce((best, point) =>
+    const nearest = curveTimeline.reduce((best, point) =>
       Math.abs(point.frame - clickedFrame) < Math.abs(best.frame - clickedFrame)
         ? point
         : best
     );
+    if (nearest.damageEventId === null) return;
     selectedHitId = nearest.damageEventId;
     timelineSecondFilter = null;
     currentPage = 1;

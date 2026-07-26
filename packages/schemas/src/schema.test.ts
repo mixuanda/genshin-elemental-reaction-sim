@@ -1685,4 +1685,16 @@ describe("versioned config schema", () => {
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
+
+  it("migrates the Superconduct schema into the Electro-Charged schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.23.0",
+      engineVersion: "1.23.0-superconduct-reaction"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
 });

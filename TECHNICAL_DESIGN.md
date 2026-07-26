@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本及 `0.1.0`–`1.22.0` 配置迁移到 `1.23.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 只能用于 `aura-v2`。`engineVersion` 当前为 `1.23.0-superconduct-reaction`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.23.0` 配置迁移到 `1.24.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 只能用于 `aura-v2`。`engineVersion` 当前为 `1.24.0-electro-charged-reaction`。
 
 ## 4. 确定性与排序
 
@@ -59,13 +59,16 @@ randomSeed
 
 1. `action`
 2. `buff` / `debuff`
-3. `energy` / `particleSpawn` / `particleReceive`
+3. `energy` / `particleSpawn` / `particleReceive` / 周期 Aura 到期检查
 4. `hit`
-5. 同类型同时间按插入序号
+5. 周期反应 Tick 准备
+6. 独立反应伤害
+7. 周期反应延迟 Aura 削减
+8. 同类型同时间按插入序号
 
 状态在 `end <= hitTime` 时先过期，因此恰好处于结束边界的命中不享受该状态。该规则由测试固定。
 
-因此同帧行动会先检查/消耗能量，随后才接收该帧到达的粒子；同帧先产生的充能效率 Buff 则会在粒子接收前生效。这两个子阶段语义均有专门测试，后续若要与新实测帧规则对齐，必须作为引擎版本变更处理。
+因此同帧行动会先检查/消耗能量，随后才接收该帧到达的粒子；同帧先产生的充能效率 Buff 则会在粒子接收前生效。普通命中先于周期 Tick 准备，因此恰好与感电 Tick 同帧的水雷刷新会更新该 Tick 的未来伤害归属；普通命中也先于独立反应伤害和 6 帧延迟 Aura 削减。这些子阶段语义均有专门测试，后续若要与新实测帧规则对齐，必须作为引擎版本变更处理。
 
 引擎保留两条时间路径：
 
@@ -201,6 +204,7 @@ displayDamage
 - `hitResolutionLog`：每次排队逐击的目标、判定来源、`landed / miss`、原因、命中时目标位置、静态施放者位置/朝向、原始坐标空间、解析后的圆心/端点/尺寸/旋转/扇形方向与夹角、几何距离/阈值、伤害/Aura/命中回调三层许可、公式潜在伤害、实际伤害，以及可空的伤害事件反向链接；因此 Miss 和免疫 0 伤害都不会从审计中消失。
 - `reactionDamageLog`：每次转化反应的触发伤害 ID、触发/伤害帧、伤害 GCD 结果、下一可用帧、触发目标、固定圆心、半径、全部已检查/命中/坐标未解析目标，以及生成的独立伤害事件 ID。
 - `reactionStatusLog`：由转化反应伤害实际命中后施加的目标级状态，含来源伤害、目标、抗性元素/数值、开始/结束帧、施加/刷新，以及被刷新时对旧半开区间的精确截断。
+- `periodicReactionLog`：每个目标上的周期反应启动、刷新、逐次 Tick、延迟 Aura 削减、零伤害跳过和停止，含流代次、Tick 序号、伤害归属、来源伤害 ID、Aura 前后状态和下一调度帧。
 - `targetPhaseTimeline`：核心实际使用的 60 FPS 半开目标阶段窗口，含目标、开始/结束帧、三层策略和原因。
 - `targetMotionTimeline`：核心实际使用的 60 FPS 线性移动分段，含解析后的起点、终点、开始/结束帧和秒数。
 - `auraTimeline`：每一段 Aura 模式伤害对应的目标、附着前后、ICD、消耗和反应记录。
@@ -262,7 +266,7 @@ icdProfiles: {
 
 如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura。同一角色/Tag/Group 在不同目标上互不推进。冰/水/雷的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；复合共存、冻结和超载/超导以外的转化/加算反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
+当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura，并为感电保留同目标水雷共存。同一角色/Tag/Group、感电流和周期调度在不同目标上互不推进。冰/水/雷的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；水雷以外的复合共存、冻结和超载/超导/感电以外的转化/加算反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
 #### 6.1.1 超载 / 超导独立伤害与目标状态
 
@@ -283,7 +287,25 @@ icdProfiles: {
 
 超导伤害命中后才给对应目标施加 `superconduct-phys-shred`：物理抗性降低 `40%`，基础持续 720 帧。状态使用 `[startFrame, endFrame)`；同帧优先级较高的普通命中不会提前受益，结束帧立即失效。刷新在新超导伤害帧截断旧日志区间并创建新的 720 帧区间。数值伤害免疫只把独立冰伤乘为零，只要范围判定为 landed 仍会施加状态；这与固定 gcsim 提交在伤害应用后始终发出 `OnEnemyDamage`、再由该事件添加超导减抗的路径一致。当前不实现 gcsim 的 Hitlag 延长，所以长 Hitlag 场景会与 gcsim 存在差异。
 
-实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/reactable/superconduct.go`、`pkg/simulation/setup.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。当前未实现冻结底超导、击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这是两条可审计的纵向切片，不是完整 gcsim 反应系统。
+实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/reactable/superconduct.go`、`pkg/simulation/setup.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。当前未实现冻结底超导、击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这些是可审计的纵向切片，不是完整 gcsim 反应系统。
+
+#### 6.1.2 水雷共存与感电周期流
+
+`aura-v2` 在水命中雷 Aura 或雷命中水 Aura 时保留两种普通 Aura；触发本身不立即消耗 Aura。每个目标维护独立的感电流代次和固定节奏：
+
+```text
+新流首次伤害帧 = 触发帧 + 10
+后续 Tick = 首次伤害帧 + 60 × n
+伤害后 Aura 削减帧 = Tick 帧 + 6
+水/雷削减 = 各 0.4U（仅当实际伤害 > 0）
+感电抗性前伤害 = 等级基准 × 2.0 × (1 + 精通加成 + 反应增伤)
+```
+
+流存续期间再次触发感电只刷新共存 Aura 和未来 Tick 的角色等级/精通/反应增伤快照，不重置 Tick 节奏，也不追加即时 Tick。首次 Tick 保留初次触发时已经排队的快照；之后的 Tick 使用最近刷新者。每个 Tick 是单目标、雷元素、不暴击、忽略防御的独立 `DamageEvent`。目标数值伤害策略将实际伤害乘为零时，6 帧后的 Aura 削减被明确记录为 `wane-skipped`。
+
+核心会按水/雷中较早的衰减到期帧排队可失效的检查；刷新或削减导致到期帧变化时，旧检查以流代次和期望到期帧判为过期，不会重复停止。若普通命中通过其他反应消耗掉水或雷 Aura，该命中的 `ReactionAudit.periodicReaction` 会在同帧记录 `stop`，清除未来 Tick 的活动来源，而不是等待下一 Tick 才发现共存丢失。固定 gcsim 实现已经把新流的首次伤害作为独立攻击排队，因此共存若在前 10 帧内丢失，首次伤害仍结算并记录 `QUEUED_FIRST_TICK_AFTER_STREAM_STOP`，但不会安排后续 Tick 或 6 帧后的 Aura 削减。网页把 `wane / stop` 节点合并进敌方 Aura 曲线，因此周期削减和命中终止都不会只存在于日志表。
+
+该语义交叉核对固定 gcsim 提交的 `pkg/reactable/electrocharged.go`。当前上游实现使用 `NewSingleTargetHit`，所以本核心同样让每个敌人独立维护单目标 Tick 流，不推断附近潮湿目标的额外连锁。尚未实现同一次来袭元素的多反应链、按来源 Aura overlap、冻结存在时拒绝感电，以及任何未经固定来源核验的目标传播；因此仍不是完整 gcsim Aura 系统。
 
 ### 6.2 粒子 / 能量事件
 

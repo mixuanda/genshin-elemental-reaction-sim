@@ -642,6 +642,225 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
   );
 });
 
+test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curve state", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const electro = config.characters[0]!;
+  const hydro = config.characters[1]!;
+  config.meta = {
+    ...config.meta,
+    name: "感电周期流 · 浏览器验收"
+  };
+  config.duration = 3;
+  config.cycleLength = 3;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "感电浏览器目标",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...electro,
+      element: "electro",
+      stats: {
+        ...electro.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 100,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.2
+      }
+    },
+    {
+      ...hydro,
+      element: "hydro",
+      stats: {
+        ...hydro.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 300,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.1
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: electro.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "ec-browser-start",
+        actorId: electro.id,
+        name: "感电启动",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "ec-browser-start-hit",
+            label: "雷触发",
+            frame: 0,
+            scaling: 1,
+            element: "electro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "ec-browser-start",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      },
+      {
+        id: "ec-browser-refresh",
+        actorId: hydro.id,
+        name: "感电刷新",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "ec-browser-refresh-hit",
+            label: "水刷新",
+            frame: 0,
+            scaling: 1,
+            element: "hydro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "ec-browser-refresh",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: electro.id,
+        abilityId: "ec-browser-start"
+      },
+      { type: "wait", frames: 7 },
+      { type: "swap", characterId: hydro.id },
+      {
+        type: "skill",
+        actorId: hydro.id,
+        abilityId: "ec-browser-refresh"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "electro-charged-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineBody")).toContainText("感电");
+  await expect(page.locator("#reactionDamageBody tr")).toHaveCount(2);
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "周期 Tick"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "单目标"
+  );
+  await expect(page.locator("#periodicReactionSummary")).toContainText(
+    "6 条周期状态记录"
+  );
+  await expect(page.locator("#periodicReactionBody tr")).toHaveCount(6);
+  await expect(page.locator("#periodicReactionBody")).toContainText(
+    "削减 Aura"
+  );
+  await expect(page.locator("#periodicReactionBody")).toContainText(
+    "AURA_DEPLETED_BY_WANE"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      ticks: result?.damageEvents
+        .filter(
+          (event) =>
+            event.kind === "transformative-reaction" &&
+            event.reaction === "electroCharged"
+        )
+        .map((event) => ({
+          frame: event.frame,
+          actorId: event.sourceActorId,
+          targetId: event.targetId,
+          displayDamage: event.displayDamage
+        })),
+      operations: result?.periodicReactionLog.map(
+        (entry) => `${entry.operation}@${entry.frame}`
+      )
+    };
+  });
+  expect(audit).toMatchObject({
+    ticks: [
+      {
+        frame: 10,
+        actorId: electro.id,
+        targetId: "enemy-0",
+        displayDamage: expect.any(Number)
+      },
+      {
+        frame: 70,
+        actorId: hydro.id,
+        targetId: "enemy-0",
+        displayDamage: expect.any(Number)
+      }
+    ],
+    operations: [
+      "start@0",
+      "tick@10",
+      "wane@16",
+      "refresh@20",
+      "tick@70",
+      "wane@76"
+    ]
+  });
+
+  await page.locator("#reactionDamageBody tr").first().click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "等级 90 基准 1,446.8535 × 感电 2"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "独立转化反应伤害"
+  );
+});
+
 test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
   page
 }) => {
