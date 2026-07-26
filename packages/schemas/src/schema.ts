@@ -13,6 +13,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
 
@@ -155,6 +156,30 @@ export const flatDamageSourceSchema = z
   })
   .strict();
 
+export const hitTargetingSchema = z
+  .object({
+    targetId: z.literal("enemy-0"),
+    outcome: z.enum(["landed", "miss"]),
+    reason: z.string().trim().min(1).optional()
+  })
+  .strict()
+  .superRefine((targeting, context) => {
+    if (targeting.outcome === "miss" && targeting.reason === undefined) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message: "is required when outcome is miss"
+      });
+    }
+    if (targeting.outcome === "landed" && targeting.reason !== undefined) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message: "must be omitted when outcome is landed"
+      });
+    }
+  });
+
 export const hitDefinitionSchema = z
   .object({
     id: idSchema.optional(),
@@ -163,6 +188,7 @@ export const hitDefinitionSchema = z
     scaling: finiteNumber,
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
+    targeting: hitTargetingSchema.optional(),
     application: elementalApplicationSchema.optional(),
     reaction: reactionSchema.optional(),
     reactionOverride: reactionSchema.optional(),
@@ -1192,6 +1218,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === TIMELINE_STATE_CLEAR_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === MOVEMENT_COMMAND_SCHEMA_VERSION) {
     return parseSimConfig({

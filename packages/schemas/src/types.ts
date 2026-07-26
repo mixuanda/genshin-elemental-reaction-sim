@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.10.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.10.0-timeline-state-clears" as const;
+export const CURRENT_SCHEMA_VERSION = "1.11.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.11.0-target-hit-resolution" as const;
+export const TIMELINE_STATE_CLEAR_SCHEMA_VERSION = "1.10.0" as const;
 export const MOVEMENT_COMMAND_SCHEMA_VERSION = "1.9.0" as const;
 export const HIT_PARTICLE_TRIGGER_SCHEMA_VERSION = "1.8.0" as const;
 export const FIXED_ENERGY_ICD_SCHEMA_VERSION = "1.7.0" as const;
@@ -46,6 +47,20 @@ export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
+export type TargetId = "enemy-0";
+export type TargetHitOutcome = "landed" | "miss";
+
+/**
+ * Scenario-level, single-target hit result. Ability blueprints intentionally
+ * omit this field because whether an attack lands belongs to the target
+ * scenario rather than immutable character data.
+ */
+export interface HitTargeting {
+  targetId: TargetId;
+  outcome: TargetHitOutcome;
+  /** Required for scripted misses so audit output never hides why it missed. */
+  reason?: string;
+}
 
 export interface ElementalApplication {
   /** Nominal elemental application strength (for example 1U, 2U, or 4U). */
@@ -130,6 +145,7 @@ export interface HitDefinition {
   scaling: number;
   scalingStat?: ScalingStat;
   element?: Element;
+  targeting?: HitTargeting;
   application?: ElementalApplication;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
@@ -518,6 +534,8 @@ export interface DamageEvent {
   creditOwnerId: string;
   actionId: string;
   hitId: string;
+  targetResolutionId: number;
+  targetId: TargetId;
   frame: number;
   timeSeconds: number;
   activeCharacterId: string | null;
@@ -649,10 +667,33 @@ export interface ParticleTriggerLogEntry {
   particleId: string;
   hitId: string;
   triggered: boolean;
-  blockedReason: "INTERNAL_COOLDOWN" | null;
+  blockedReason: "INTERNAL_COOLDOWN" | "TARGET_MISS" | null;
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
   internalCooldownReadyFrame: number | null;
+}
+
+export interface HitResolutionLogEntry {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  cycle: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  actionName: string;
+  hitId: string;
+  hitLabel: string;
+  element: Element;
+  targetId: TargetId;
+  outcome: TargetHitOutcome;
+  landed: boolean;
+  reason: string | null;
+  /** Null when the target was missed before combat resolution. */
+  damageEventId: number | null;
+  finalDamage: number;
+  displayDamage: number;
+  timelineCommandIndex?: number;
+  sourceAbilityId?: string;
 }
 
 export interface EnergyLogEntry {
@@ -825,6 +866,8 @@ export interface SimulationResult {
   config: SimConfig;
   damageEvents: DamageEvent[];
   hitEvents: DamageEvent[];
+  /** Every scheduled target check, including misses that did no damage. */
+  hitResolutionLog: HitResolutionLogEntry[];
   skippedActions: SkippedAction[];
   actionLog: ActionLogEntry[];
   energyStats: Record<string, EnergySummary>;

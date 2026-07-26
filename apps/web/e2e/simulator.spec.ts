@@ -538,6 +538,155 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#particleEventSummary")).toContainText("66f 可用");
 });
 
+test("audits a scripted target miss before damage, Aura, and hit-confirmed particles", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const scriptedMissConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    firstHit.targeting = {
+      targetId: "enemy-0",
+      outcome: "miss",
+      reason: "SCRIPTED_OUTSIDE_HITBOX"
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(scriptedMissConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  await expect(page.locator("#metricGrid")).toContainText("目标判定");
+  await expect(page.locator("#metricGrid")).toContainText("2 / 3");
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          targets: result.hitResolutionLog.map(
+            ({
+              frame,
+              hitId,
+              outcome,
+              reason,
+              damageEventId,
+              displayDamage
+            }) => ({
+              frame,
+              hitId,
+              outcome,
+              reason,
+              damageEventId,
+              displayDamage
+            })
+          ),
+          damageFrames: result.damageEvents.map((event) => event.frame),
+          auraFrames: result.auraTimeline.map((event) => event.frame),
+          triggers: result.particleTriggerLog.map(
+            ({
+              frame,
+              hitId,
+              triggered,
+              blockedReason,
+              internalCooldownReadyFrame
+            }) => ({
+              frame,
+              hitId,
+              triggered,
+              blockedReason,
+              internalCooldownReadyFrame
+            })
+          ),
+          particleSpawns: result.particleEvents.map(
+            (event) => event.spawnFrame
+          )
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    targets: [
+      {
+        frame: 48,
+        hitId: "durin-black-e-1",
+        outcome: "miss",
+        reason: "SCRIPTED_OUTSIDE_HITBOX",
+        damageEventId: null,
+        displayDamage: 0
+      },
+      {
+        frame: 53,
+        hitId: "durin-black-e-2",
+        outcome: "landed",
+        reason: null,
+        damageEventId: 0
+      },
+      {
+        frame: 58,
+        hitId: "durin-black-e-3",
+        outcome: "landed",
+        reason: null,
+        damageEventId: 1
+      }
+    ],
+    damageFrames: [53, 58],
+    auraFrames: [53, 58],
+    triggers: [
+      {
+        frame: 48,
+        hitId: "durin-black-e-1",
+        triggered: false,
+        blockedReason: "TARGET_MISS",
+        internalCooldownReadyFrame: null
+      },
+      {
+        frame: 53,
+        hitId: "durin-black-e-2",
+        triggered: true,
+        blockedReason: null,
+        internalCooldownReadyFrame: 71
+      },
+      {
+        frame: 58,
+        hitId: "durin-black-e-3",
+        triggered: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownReadyFrame: 71
+      }
+    ],
+    particleSpawns: [53]
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次目标检查 · 2 次命中 · 1 次 Miss"
+  );
+  await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(3);
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "SCRIPTED_OUTSIDE_HITBOX"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText("Miss");
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "目标 Miss"
+  );
+  await expect(page.locator("#energyAuditSummary")).toContainText(
+    "1 次因 Miss 未触发"
+  );
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText(
+    "enemy-0 / landed (#1)"
+  );
+});
+
 test("renders the source-audited Durin white E branch and state transition", async ({
   page
 }) => {

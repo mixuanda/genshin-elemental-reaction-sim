@@ -244,6 +244,7 @@ function renderAll(): void {
   renderHitTable();
   renderTimeline();
   renderDamageCurve();
+  renderTargetHitAudit();
   renderEnergyAudit();
   renderAuraTimeline();
   renderHitDetail();
@@ -300,6 +301,13 @@ function renderMetrics(): void {
             ? "兼容手工标签"
             : "未启用 Aura 引擎"
       }`
+    ],
+    [
+      "目标判定",
+      `${formatNumber(result.damageEvents.length, 0)} / ${formatNumber(result.hitResolutionLog.length, 0)}`,
+      result.hitResolutionLog.length === result.damageEvents.length
+        ? "全部命中"
+        : `${result.hitResolutionLog.length - result.damageEvents.length} 段 Miss`
     ],
     execution
       ? [
@@ -639,6 +647,7 @@ function renderHitDetail(): void {
     ["伤害归属", `${hit.creditOwnerName} (${hit.creditOwnerId})`],
     ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
+    ["目标 / 判定", `${hit.targetId} / landed (#${hit.targetResolutionId})`],
     [
       "倍率基准",
       `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
@@ -951,6 +960,48 @@ function renderDamageCurve(): void {
       .join("");
 }
 
+function renderTargetHitAudit(): void {
+  if (!lastResult) return;
+  const result = lastResult;
+  const landed = result.hitResolutionLog.filter(
+    (entry) => entry.landed
+  ).length;
+  const missed = result.hitResolutionLog.length - landed;
+  byId<HTMLElement>("targetHitAuditSummary").textContent =
+    `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss` +
+    (missed
+      ? " · Miss 不进入伤害、Aura / 反应或命中确认产球"
+      : " · 全部使用默认或显式 landed 判定");
+  byId<HTMLTableSectionElement>("targetHitAuditBody").innerHTML =
+    result.hitResolutionLog
+      .map(
+        (entry) =>
+          `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
+          `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
+          `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
+          `<td>${escapeHtml(entry.targetId)}</td>` +
+          `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
+          `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
+          `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`
+      )
+      .join("") ||
+    `<tr><td colspan="7">没有进入目标判定的逐击。</td></tr>`;
+  document
+    .querySelectorAll<HTMLTableRowElement>(
+      "#targetHitAuditBody tr[data-target-damage-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.targetDamageId);
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+}
+
 function renderEnergyAudit(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("energyAuditCard");
@@ -980,12 +1031,15 @@ function renderEnergyAudit(): void {
   const blockedParticleTriggers = result.particleTriggerLog.filter(
     (entry) => entry.blockedReason === "INTERNAL_COOLDOWN"
   ).length;
+  const missedParticleTriggers = result.particleTriggerLog.filter(
+    (entry) => entry.blockedReason === "TARGET_MISS"
+  ).length;
   byId<HTMLElement>("energyAuditSummary").textContent =
     `${result.particleEvents.length} 次产球 · ${particleRows} 条角色粒子结算 · ` +
     `${fixedRows} 条固定回能${blockedFixedRows ? ` · ${blockedFixedRows} 条被内部冷却阻止` : ""}` +
     `${
       result.particleTriggerLog.length
-        ? ` · ${result.particleTriggerLog.length} 次命中产球检查${blockedParticleTriggers ? `（${blockedParticleTriggers} 次被粒子 ICD 阻止）` : ""}`
+        ? ` · ${result.particleTriggerLog.length} 次命中产球检查${blockedParticleTriggers ? `（${blockedParticleTriggers} 次被粒子 ICD 阻止）` : ""}${missedParticleTriggers ? ` · ${missedParticleTriggers} 次因 Miss 未触发` : ""}`
         : ""
     }` +
     `${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
@@ -1103,13 +1157,21 @@ function renderEnergyAudit(): void {
         const status =
           entry.blockedReason === "INTERNAL_COOLDOWN"
             ? `<span class="badge warn">粒子 ICD 阻止</span>`
-            : `<span class="badge good">命中确认产球</span>`;
+            : entry.blockedReason === "TARGET_MISS"
+              ? `<span class="badge warn">目标 Miss</span>`
+              : `<span class="badge good">命中确认产球</span>`;
         const cooldown =
           entry.internalCooldownKey === null
             ? ""
             : entry.blockedReason === "INTERNAL_COOLDOWN"
               ? ` · ${escapeHtml(entry.internalCooldownKey)} · ${entry.internalCooldownReadyFrame ?? "—"}f 可用`
-              : ` · ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`;
+              : entry.blockedReason === "TARGET_MISS"
+                ? ` · ${escapeHtml(entry.internalCooldownKey)} · ${
+                    entry.internalCooldownReadyFrame === null
+                      ? "未启动 ICD"
+                      : `既有 ICD 至 ${entry.internalCooldownReadyFrame}f`
+                  }`
+                : ` · ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`;
         return (
           `<span class="particle-event"><strong>${escapeHtml(entry.source)}</strong> · ` +
           `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}</span>`
@@ -1506,6 +1568,7 @@ function activateTab(tabName: string): void {
     requestAnimationFrame(() => {
       renderTimeline();
       renderDamageCurve();
+      renderTargetHitAudit();
       renderEnergyAudit();
       renderAuraTimeline();
     });
@@ -1642,6 +1705,7 @@ function initEvents(): void {
     if (byId<HTMLElement>("timelinePanel").classList.contains("active")) {
       renderTimeline();
       renderDamageCurve();
+      renderTargetHitAudit();
       renderEnergyAudit();
       renderAuraTimeline();
     }

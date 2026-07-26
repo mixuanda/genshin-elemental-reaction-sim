@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.9.0 configs to state clears", () => {
+  it("migrates 1.0.0 through 1.10.0 configs to target hit resolution", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -191,6 +191,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.9.0",
       engineVersion: "1.9.0-movement-commands"
+    });
+    const migratedFromStateClears = migrateConfig({
+      ...current,
+      schemaVersion: "1.10.0",
+      engineVersion: "1.10.0-timeline-state-clears"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -245,6 +250,95 @@ describe("versioned config schema", () => {
     expect(migratedFromMovementCommands.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
+    expect(migratedFromStateClears.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromStateClears.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+  });
+
+  it("requires an auditable reason for a scripted miss", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "miss",
+            actorId: "a",
+            name: "未命中",
+            at: 0,
+            hits: [
+              {
+                id: "miss-hit",
+                offset: 0,
+                scaling: 1,
+                targeting: {
+                  targetId: "enemy-0",
+                  outcome: "miss"
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.hits\.0\.targeting\.reason/);
+  });
+
+  it("rejects a misleading reason on an explicitly landed hit", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "landed",
+            actorId: "a",
+            name: "命中",
+            at: 0,
+            hits: [
+              {
+                id: "landed-hit",
+                offset: 0,
+                scaling: 1,
+                targeting: {
+                  targetId: "enemy-0",
+                  outcome: "landed",
+                  reason: "should not exist"
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.hits\.0\.targeting\.reason/);
+  });
+
+  it("rejects fake additional target ids before multi-target support exists", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "fake-multitarget",
+            actorId: "a",
+            name: "伪多目标",
+            at: 0,
+            hits: [
+              {
+                id: "fake-second-target",
+                offset: 0,
+                scaling: 1,
+                targeting: {
+                  targetId: "enemy-1",
+                  outcome: "miss",
+                  reason: "UNSUPPORTED_SECOND_TARGET"
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.hits\.0\.targeting\.targetId/);
   });
 
   it("requires positive explicit occupancy for dash and jump commands", () => {

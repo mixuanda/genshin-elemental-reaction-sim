@@ -26,6 +26,16 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
     expect(result.damageEvents).toHaveLength(golden.hitCount);
+    expect(result.hitResolutionLog).toHaveLength(golden.hitCount);
+    expect(
+      result.hitResolutionLog.every(
+        (entry, index) =>
+          entry.landed &&
+          entry.outcome === "landed" &&
+          entry.damageEventId === index &&
+          entry.displayDamage === result.damageEvents[index]?.displayDamage
+      )
+    ).toBe(true);
     expect(result.damageCurve).toHaveLength(golden.hitCount);
     expect(result.damageCurve.at(-1)?.cumulativeDamage).toBeCloseTo(
       result.totalDamage,

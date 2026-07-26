@@ -260,7 +260,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
+    "支持场景显式 landed / miss 并联动阻断伤害、Aura 与命中产球，但尚无几何自动命中、无敌目标和多目标逐目标回调",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
@@ -353,7 +353,7 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
   ],
   unresolvedMechanics: [
     "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
-    "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
+    "支持场景显式 landed / miss 并联动阻断伤害、Aura 与命中产球，但尚无几何自动命中、无敌目标和多目标逐目标回调",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
