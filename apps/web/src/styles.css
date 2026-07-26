@@ -59,6 +59,7 @@ p { color: var(--muted); }
 .breakdown-value small { display: block; color: var(--muted); }
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
 table { width: 100%; border-collapse: collapse; min-width: 760px; }
+.hit-table { min-width: 1240px; }
 th, td { padding: 10px 11px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; white-space: nowrap; }
 th { position: sticky; top: 0; background: #111722; color: var(--muted); z-index: 1; }
 tbody tr { cursor: default; }
@@ -72,12 +73,31 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 .energy-item .energy-track { height: 8px; background: #0b1018; border-radius: 99px; overflow: hidden; }
 .energy-item .energy-fill { height: 100%; background: var(--accent); }
 .energy-item small { color: var(--muted); display: block; margin-top: 8px; }
-#timelineCanvas { width: 100%; display: block; background: #0d121b; border: 1px solid var(--border); border-radius: 12px; }
+#timelineCanvas, #damageCurveCanvas { width: 100%; display: block; background: #0d121b; border: 1px solid var(--border); border-radius: 12px; }
+.curve-card { margin-top: 14px; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; color: var(--muted); font-size: 13px; }
 .legend-item { display: inline-flex; align-items: center; gap: 7px; }
 .hit-filters { display: grid; grid-template-columns: 180px 180px minmax(200px, 1fr) 100px; gap: 10px; margin-bottom: 12px; }
 .pager { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; color: var(--muted); }
 .detail-card { margin-top: 14px; }
+.showcase-import { display: grid; grid-template-columns: minmax(220px, 320px) auto minmax(260px, 1fr); gap: 12px; align-items: end; }
+.showcase-import button { min-height: 40px; }
+.showcase-summary { margin: 18px 0 12px; color: var(--muted); }
+.showcase-summary strong { color: var(--text); }
+.showcase-grid { display: grid; grid-template-columns: repeat(3, minmax(260px, 1fr)); gap: 12px; }
+.showcase-character { border: 1px solid var(--border); background: var(--panel-2); border-radius: 12px; padding: 14px; }
+.showcase-character-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.showcase-character h3 { margin: 5px 0 0; font-size: 21px; }
+.showcase-character p { margin: 10px 0; font-size: 13px; }
+.showcase-character dl { display: grid; gap: 5px; margin: 0 0 12px; }
+.showcase-character dt { color: var(--accent); font-size: 11px; font-weight: 700; }
+.showcase-character dd { margin: 0 0 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.showcase-character button { width: 100%; }
+.empty-state { border: 1px dashed var(--border); border-radius: 12px; padding: 28px; color: var(--muted); text-align: center; }
+.graduation-card { margin-top: 14px; }
+.graduation-placeholder { border: 1px dashed rgba(255,201,120,.45); border-radius: 12px; padding: 16px; }
+.graduation-placeholder > .badge { margin-left: 10px; }
+.graduation-placeholder p { margin: 8px 0 0; }
 .formula-detail { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px; }
 .formula-detail.empty { display: block; color: var(--muted); }
 .factor { border: 1px solid var(--border); background: var(--panel-2); border-radius: 10px; padding: 11px; }
@@ -108,10 +128,14 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
   .energy-grid { grid-template-columns: repeat(2, 1fr); }
   .hit-filters { grid-template-columns: repeat(2, 1fr); }
+  .showcase-import { grid-template-columns: 1fr auto; }
+  .showcase-import .muted { grid-column: 1 / -1; }
+  .showcase-grid { grid-template-columns: repeat(2, minmax(240px, 1fr)); }
   .formula-detail { grid-template-columns: repeat(2, 1fr); }
   .breakdown-row { grid-template-columns: 110px 1fr; }
   .breakdown-value { grid-column: 2; }
 }
 @media (max-width: 440px) {
-  .control-grid, .metric-grid, .energy-grid, .hit-filters, .formula-detail { grid-template-columns: 1fr; }
+  .control-grid, .metric-grid, .energy-grid, .hit-filters, .showcase-import, .showcase-grid, .formula-detail { grid-template-columns: 1fr; }
+  .showcase-import .muted { grid-column: auto; }
 }

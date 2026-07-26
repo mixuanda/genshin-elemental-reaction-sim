@@ -1,0 +1,11 @@
+{
+  "name": "@genshin-dps-lab/mechanics",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@genshin-dps-lab/sim-core": "1.0.0"
+  }
+}
+

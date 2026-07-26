@@ -1,0 +1,92 @@
+import { describe, expect, it } from "vitest";
+import {
+  ConfigMigrationError,
+  CURRENT_SCHEMA_VERSION,
+  migrateConfig
+} from "./index";
+
+const legacyConfig = {
+  meta: { name: "旧配置", version: "0.1.0-demo", note: "legacy" },
+  duration: 120,
+  cycleLength: 20,
+  enemy: { level: 110, resistance: 0.1, defReduction: 0 },
+  characters: [
+    {
+      id: "a",
+      name: "A",
+      element: "pyro",
+      color: "#f00",
+      level: 90,
+      energyMax: 60,
+      initialEnergy: 0,
+      stats: {}
+    }
+  ],
+  rotation: []
+};
+
+describe("versioned config schema", () => {
+  it("migrates a legacy config and fills required versions/default stats", () => {
+    const migrated = migrateConfig(legacyConfig);
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe("1.0.0-compat");
+    expect(migrated.dataVersion).toBe("0.1.0-demo");
+    expect(migrated.randomSeed).toBe("legacy-default");
+    expect(migrated.meta.verificationStatus).toBe("provisional");
+    expect(migrated.characters[0]?.stats.critRate).toBe(0.05);
+  });
+
+  it("reports a precise field path before simulation", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        enemy: { ...legacyConfig.enemy, level: 999 }
+      })
+    ).toThrowError(ConfigMigrationError);
+
+    try {
+      migrateConfig({
+        ...legacyConfig,
+        enemy: { ...legacyConfig.enemy, level: 999 }
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(ConfigMigrationError);
+      expect((error as ConfigMigrationError).issues).toContain(
+        "enemy.level: Too big: expected number to be <=200"
+      );
+    }
+  });
+
+  it("rejects unknown fields instead of silently ignoring them", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: "1",
+        dataVersion: "1",
+        randomSeed: "seed",
+        meta: {
+          ...legacyConfig.meta,
+          verificationStatus: "provisional"
+        },
+        unexpected: true
+      })
+    ).toThrow(/unexpected/);
+  });
+
+  it("rejects unknown character references with a field path", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [
+          {
+            id: "bad",
+            actorId: "missing",
+            name: "坏行动",
+            at: 0
+          }
+        ]
+      })
+    ).toThrow(/rotation\.0\.actorId/);
+  });
+});

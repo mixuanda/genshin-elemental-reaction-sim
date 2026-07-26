@@ -1,113 +1,171 @@
 # 技术设计：提瓦特伤害实验室
 
-## 1. 目标
+## 1. 当前目标
 
-该项目是一个浏览器端、确定性的事件驱动 DPS 模拟器。它的首要目标不是立即覆盖全部角色，而是先建立一套可审计、可扩展的机制：每次行动何时发生、是否有足够能量、何时施加 Buff、每一段伤害使用什么面板和乘区，都能够在结果中追溯。
+本阶段冻结 Vanilla v0.1 结果，并把模拟迁移为可在 Node 和浏览器运行的纯 TypeScript 核心。当前引擎仍使用旧版的“手工反应 + 确定性回能 + 绝对秒偏移”兼容口径，不声称拥有完整游戏机制精度。
 
-## 2. 引擎结构
-
-模拟器使用按时间排序的最小堆事件队列。事件优先级为：
-
-1. 行动开始
-2. Buff / Debuff 生效
-3. 能量变化
-4. 命中结算
-
-每个循环内的 `rotation` 会按 `cycleLength` 重复，直到达到 `duration`。行动因能量不足而失败时，其命中、Buff 和回能事件均不会生成，并在执行状态中记录。
-
-## 3. 伤害模型
-
-普通倍率伤害采用以下结构：
+## 2. 包边界
 
 ```text
-基础伤害
-= 倍率 × 对应缩放属性 + 附加基础伤害
+apps/web
+  只负责输入、调用核心和渲染结构化结果。
 
-最终伤害
-= 基础伤害
-× (1 + 增伤)
-× 防御区
-× 抗性区
-× 暴击区
-× 增幅反应区
-× 伤害组修正
+packages/schemas
+  TypeScript 公共类型、Zod Schema、字段路径错误、版本迁移。
+
+packages/sim-core
+  事件队列、状态、能量、公式、聚合和逐击曲线数据。
+  不依赖 React、Vite、Canvas、DOM 或浏览器全局。
+
+packages/game-data
+  预设、版本化数据和展示柜数据适配器。当前杜林预设为 provisional。
+
+packages/mechanics
+  声明式伤害修正插件入口，避免在核心循环写角色名分支。
+
+packages/test-vectors
+  从冻结 v0.1 采集的 Golden Fixture。
 ```
 
-支持 ATK、HP、DEF、EM 四类缩放属性。融化和蒸发的元素精通增幅为：
+依赖方向：
 
 ```text
-2.78 × EM / (1400 + EM)
+schemas <- sim-core <- mechanics
+schemas <- game-data
+sim-core + schemas + game-data <- apps/web
 ```
 
-暴击默认使用期望值：
+## 3. 配置契约
+
+每个输入必须包含：
+
+```ts
+schemaVersion
+engineVersion
+dataVersion
+randomSeed
+```
+
+`migrateConfig()` 负责把无版本或 `0.1.0` 配置迁移到 `1.0.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用和越界数值在模拟前失败，并返回字段路径。
+
+## 4. 确定性与排序
+
+相同时间的事件排序为：
+
+1. `action`
+2. `buff` / `debuff`
+3. `energy`
+4. `hit`
+5. 同类型同时间按插入序号
+
+状态在 `end <= hitTime` 时先过期，因此恰好处于结束边界的命中不享受该状态。该规则由测试固定。
+
+当前输出包含秒和由 `round(timeSeconds * 60)` 得到的展示帧。模拟尚未以整数帧推进；真正的 60 FPS 合法行动时间线属于下一阶段。
+
+## 5. 伤害公式
+
+公式拆分为纯函数：
+
+```ts
+calcTotalStat()
+calcDefenseMultiplier()
+calcResistanceMultiplier()
+calcCritMultiplier()
+calcAmplifyingReactionMultiplier()
+calcDamage()
+```
+
+普通倍率伤害：
 
 ```text
-1 + 暴击率 × 暴击伤害
+基础伤害 = 倍率 × 缩放属性 + 附加基础伤害
+
+最终伤害 = 基础伤害
+         × (1 + 增伤)
+         × 防御区
+         × 抗性区
+         × 暴击区
+         × 增幅反应区
+         × 伤害组修正
 ```
 
-## 4. 快照
+兼容模式保留旧版语义，包括旧配置的字段行为。Golden 回归容差为 `1e-8` 相对误差。
 
-每段命中可设置：
+## 6. 逐击审计与曲线
 
-- `snapshot: "action"`：使用行动开始时的面板。
-- `snapshot: "hit"`：在实际命中时重新读取当前 Buff。
+每个 `DamageEvent` 至少记录：
 
-这允许同一技能中不同伤害段使用不同的结算规则。
+```ts
+sourceActorId
+scalingOwnerId
+creditOwnerId
+actionId
+hitId
+frame
+timeSeconds
+activeCharacterId
+statsBeforeDamage
+activeStatuses
+enemyStateBeforeHit
+reactionAudit
+damageFactors
+finalDamage
+displayDamage
+```
 
-## 5. 结果数据
+`finalDamage` 是用于 Golden、聚合与后续计算的浮点原始值；`displayDamage` 使用 `Math.round(finalDamage)`，与 gcsim Sample 页的整数展示口径一致。二者并存，避免 UI 隐式改变模拟结果。
 
-引擎输出：
+`reactionAudit` 已包含 `icdAllowed`、`applicationGaugeUnits`、`auraBefore` 和 `auraAfter`。兼容引擎不具备 Aura/ICD 推演能力，所以这些字段必须为 `null`，手工反应标记为 `manual-override`；不得用空数组伪装为“敌人无附着”。
 
-- 全队总伤与 DPS
-- 每个角色的伤害、DPS 和占比
-- 每个行动/技能的次数和伤害
-- 每一段伤害的完整乘区
-- 每秒、每角色伤害桶
-- 能量获得、消耗、最终值与失败行动
-- 所有有效 Buff 和 Debuff 标签
+核心同时返回：
 
-## 6. 前端视图
+- `characterSummaries`：伤害、命中、DPS、占比。
+- `bySkill`：伤害、命中、DPS、占比。
+- `perSecond`：逐秒、逐角色伤害桶。
+- `damageCurve`：每一段伤害对应一个累计曲线点，含逐角色累计值。
 
-- 总览：角色和技能伤害构成
-- 时间轴：按秒堆叠的角色伤害
-- 逐段伤害：可筛选、分页并查看完整公式
-- 高级配置：直接编辑、导入和导出 JSON
+UI 只绘制这些结构化结果，不重新执行伤害公式。
 
-## 7. 生产版本路线
+## 7. 测试策略
 
-### 阶段 A：机制完整性
+Vitest 当前覆盖：
 
-- 自动元素附着和 Aura 状态
-- 独立 ICD 组和附着量
-- 粒子颗数、前后台能量系数和元素匹配
-- 动作帧、切人、取消帧、命中延迟
-- 多目标、AoE、索敌和命中范围
+- 裸伤与完整因子。
+- 防御区与 100% 防御无视边界。
+- 负抗、0%、75% 和高抗分段。
+- 平均/全暴击/无暴击。
+- 正向与反向增幅反应。
+- 同帧状态和命中排序。
+- 状态结束边界。
+- 行动快照与命中动态结算。
+- 能量刚好足够和能量不足整行动取消。
+- 同时间命中稳定排序。
+- 120 秒末端截断语义。
+- 相同版本/配置/种子的可复现性。
+- 默认 120 秒 Golden Fixture。
 
-### 阶段 B：数据库
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、逐段筛选、公式展开、导出和字段路径错误。
 
-- 角色、武器、圣遗物、敌人数据版本化
-- 命座和精炼分支
-- 每个版本的变更记录和预设迁移
-- 数据来源和校验状态显示
+## 8. 展示柜导入边界
 
-### 阶段 C：高级模拟
+`apps/web/vite.config.ts` 提供开发/预览期服务端代理：
 
-- Web Worker 并行模拟
-- Monte Carlo 暴击、粒子和命中随机性
-- 置信区间、P50/P90 和最差轴
-- 自动轮转搜索与约束优化
-- 分享链接、版本哈希和结果复现
+```text
+GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
+```
 
-## 8. 质量控制
+代理设置自定义 `User-Agent`，检查 UID，处理上游状态码，并按 `ttl` 做内存缓存。浏览器收到的数据先通过 `enkaShowcaseResponseSchema` 校验，再由 `packages/game-data` 规范化为：
 
-生产版应为每个角色机制建立最小测试向量：
+- 玩家等级和世界等级。
+- 公开角色 ID、等级、命座与技能等级。
+- `fightPropMap` 的关键面板和元素伤害加成。
+- 武器 ID、等级、精炼和面板。
+- 圣遗物槽位、套装 ID、等级、主副词条。
 
-- 单段裸伤
-- Buff 起止边界
-- 快照与非快照
-- 抗性跨越 0% 和 75% 的分段函数
-- 防御降低与防御无视叠加
-- 能量不足与循环错位
-- 反应触发和 ICD 序列
+展示柜数据与 `SimConfig` 故意分离：目前缺少版本化角色/武器数据库和机制映射，不能仅凭玩家面板生成可信轮转。所谓“毕业站位”同样只创建 `graduation-target-placeholder`，在目标标准核验前禁止模拟。
 
-这些测试应与游戏内录制数据或可信模拟器的可复现实例交叉校验。
+纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
+
+## 9. 下一阶段
+
+Milestone 2 应把内部时间改为 60 FPS 整数帧，并加入行动命令、切人、占用时间、命中帧、取消帧、冷却、充能次数和严格/等待模式。完成后再进入 Aura/ICD；不要把当前 `frame` 展示字段误认为已经实现合法帧模拟。

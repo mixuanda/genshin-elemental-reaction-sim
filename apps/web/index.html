@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark light" />
   <title>提瓦特伤害实验室</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -26,7 +26,7 @@
     </header>
 
     <section class="notice" id="notice">
-      <strong>首版范围：</strong>支持循环、能量门槛、Buff/减抗窗口、平均暴击、增幅反应、动态/行动快照和逐击追踪。内置黑杜林融化队为结构校准示例，角色数据库仍需继续扩充。
+      <strong>兼容模式：</strong>支持循环、能量门槛、Buff/减抗窗口、平均暴击、手工增幅反应、动态/行动快照和逐击追踪。内置杜林队数据为未验证结构示例，不是正式游戏数据库。
     </section>
 
     <main>
@@ -57,6 +57,7 @@
         <button class="tab active" data-tab="overview">总览</button>
         <button class="tab" data-tab="timeline">时间轴</button>
         <button class="tab" data-tab="hits">逐段伤害</button>
+        <button class="tab" data-tab="showcase">账号展示柜</button>
         <button class="tab" data-tab="config">高级配置</button>
       </nav>
 
@@ -79,9 +80,14 @@
 
       <section class="tab-panel" id="timelinePanel">
         <article class="card">
-          <div class="section-title"><h2>每秒伤害时间轴</h2><span>点击柱体可筛选对应秒的逐击记录</span></div>
+          <div class="section-title"><h2>逐秒伤害时间轴</h2><span>点击柱体可筛选对应秒的逐击记录</span></div>
           <canvas id="timelineCanvas" height="360"></canvas>
           <div id="timelineLegend" class="legend"></div>
+        </article>
+        <article class="card curve-card">
+          <div class="section-title"><h2>逐击累计伤害曲线</h2><span>每个折点对应一段实际伤害；点击可定位该秒逐击记录</span></div>
+          <canvas id="damageCurveCanvas" height="320"></canvas>
+          <div id="curveLegend" class="legend"></div>
         </article>
       </section>
 
@@ -93,12 +99,39 @@
             <label>搜索<input id="hitSearch" type="search" placeholder="技能或段数" /></label>
             <label>每页<select id="pageSizeInput"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
           </div>
-          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间</th><th>角色</th><th>技能 / 段数</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
+          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间 / 帧</th><th>施放者</th><th>缩放面板</th><th>伤害归属</th><th>技能 / 段数</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
           <div class="pager"><button id="prevPage">上一页</button><span id="pageInfo"></span><button id="nextPage">下一页</button></div>
         </article>
         <article class="card detail-card" id="hitDetailCard">
           <div class="section-title"><h2>单段伤害公式</h2><span>选择任意一行查看</span></div>
           <div id="hitDetail" class="formula-detail empty">尚未选择伤害事件。</div>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="showcasePanel">
+        <article class="card">
+          <div class="section-title">
+            <h2>玩家展示柜导入</h2>
+            <span>只读取公开展示数据，不保存 UID 或账号数据</span>
+          </div>
+          <div class="showcase-import">
+            <label>原神 UID
+              <input id="showcaseUidInput" inputmode="numeric" pattern="[0-9]*" value="283733593" />
+            </label>
+            <button id="showcaseImportButton" class="primary">导入展示柜</button>
+            <div id="showcaseStatus" class="muted">尚未导入。开发/预览服务器会按上游 TTL 缓存结果。</div>
+          </div>
+          <div id="showcaseSummary" class="showcase-summary"></div>
+          <div id="showcaseCharacters" class="showcase-grid"></div>
+        </article>
+        <article class="card graduation-card">
+          <div class="section-title">
+            <h2>毕业站位角色模板</h2>
+            <span class="badge warn">placeholder · 不参与模拟</span>
+          </div>
+          <div id="graduationPlaceholder" class="graduation-placeholder muted">
+            导入展示柜后，可选择一个角色建立“毕业目标”占位。由于“毕业”没有统一面板定义，在角色数据、套装与词条目标完成版本核验前，不会填入魔法数或参与伤害计算。
+          </div>
         </article>
       </section>
 
@@ -120,13 +153,13 @@
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>以确定性数值描述自产球、队伍回能或天赋回能；不足能量的行动会被跳过并记录。</dd>
             </dl>
-            <p class="muted">当前引擎采用命中时动态结算；将 hit.snapshot 设为 action 可使用行动开始时的角色快照。元素附着与 ICD 尚未自动推演，增幅反应需要在命中段中明确标记。</p>
+            <p class="muted">当前兼容引擎采用命中时动态结算；将 hit.snapshot 设为 action 可使用行动开始时的角色快照。元素附着、Aura、ICD、粒子和动作帧合法性尚未自动推演，增幅反应仍由命中段明确标记。</p>
           </article>
         </div>
       </section>
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="/src/app.ts"></script>
 </body>
 </html>

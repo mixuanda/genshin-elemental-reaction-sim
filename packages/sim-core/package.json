@@ -1,0 +1,11 @@
+{
+  "name": "@genshin-dps-lab/sim-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@genshin-dps-lab/schemas": "1.0.0"
+  }
+}
+
