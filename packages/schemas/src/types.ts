@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.14.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.14.0-multi-target-registry" as const;
+export const CURRENT_SCHEMA_VERSION = "1.15.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.15.0-aoe-fanout" as const;
+export const MULTI_TARGET_REGISTRY_SCHEMA_VERSION = "1.14.0" as const;
 export const TARGET_PHASE_TIMELINE_SCHEMA_VERSION = "1.13.0" as const;
 export const TARGET_EFFECT_POLICY_SCHEMA_VERSION = "1.12.0" as const;
 export const TARGET_HIT_RESOLUTION_SCHEMA_VERSION = "1.11.0" as const;
@@ -91,6 +92,13 @@ export interface HitTargeting {
    */
   effects?: TargetEffectPolicy;
 }
+
+export interface HitTargetingGroup {
+  mode: "fanout";
+  targets: HitTargeting[];
+}
+
+export type HitTargetingConfig = HitTargeting | HitTargetingGroup;
 
 export interface ElementalApplication {
   /** Nominal elemental application strength (for example 1U, 2U, or 4U). */
@@ -204,7 +212,7 @@ export interface HitDefinition {
   scaling: number;
   scalingStat?: ScalingStat;
   element?: Element;
-  targeting?: HitTargeting;
+  targeting?: HitTargetingConfig;
   application?: ElementalApplication;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
@@ -593,6 +601,9 @@ export interface DamageEvent {
   creditOwnerId: string;
   actionId: string;
   hitId: string;
+  hitGroupId: string;
+  targetIndex: number;
+  targetCount: number;
   targetResolutionId: number;
   targetId: TargetId;
   targetName: string;
@@ -730,6 +741,9 @@ export interface ParticleTriggerLogEntry {
   source: string;
   particleId: string;
   hitId: string;
+  hitGroupId: string;
+  checkedTargetIds: TargetId[];
+  confirmedTargetIds: TargetId[];
   triggered: boolean;
   blockedReason:
     | "INTERNAL_COOLDOWN"
@@ -750,6 +764,9 @@ export interface HitResolutionLogEntry {
   sourceActionId: string;
   actionName: string;
   hitId: string;
+  hitGroupId: string;
+  targetIndex: number;
+  targetCount: number;
   hitLabel: string;
   element: Element;
   targetId: TargetId;

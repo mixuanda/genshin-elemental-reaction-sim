@@ -673,6 +673,10 @@ function renderHitDetail(): void {
     ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
     [
+      "命中组 / 目标序号",
+      `${hit.hitGroupId} · ${hit.targetIndex + 1}/${hit.targetCount}`
+    ],
+    [
       "目标 / 判定",
       `${hit.targetName} (${hit.targetId}) / landed (#${hit.targetResolutionId})`
     ],
@@ -1088,7 +1092,7 @@ function renderTargetHitAudit(): void {
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
-          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}</span></td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}${entry.targetCount > 1 ? ` · ${entry.targetIndex + 1}/${entry.targetCount}` : ""}</span></td>` +
           `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
           `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
@@ -1291,7 +1295,8 @@ function renderEnergyAudit(): void {
                 : ` · ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`;
         return (
           `<span class="particle-event"><strong>${escapeHtml(entry.source)}</strong> · ` +
-          `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}</span>`
+          `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}` +
+          `${entry.checkedTargetIds.length > 1 ? ` · 检查 ${entry.checkedTargetIds.length} 目标 / 确认 ${entry.confirmedTargetIds.length}` : ""}</span>`
         );
       })
       .join("") +

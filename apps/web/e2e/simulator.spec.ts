@@ -1163,6 +1163,102 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
   );
 });
 
+test("fans one AoE hit across targets while producing hit-confirm particles once", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const aoeConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      { id: "enemy-0", name: "主目标" },
+      { id: "enemy-1", name: "副目标" }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    firstHit.targeting = {
+      mode: "fanout",
+      targets: [
+        { targetId: "enemy-0", outcome: "landed" },
+        { targetId: "enemy-1", outcome: "landed" }
+      ]
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(aoeConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const firstGroup = result?.hitResolutionLog.filter(
+      (entry) => entry.hitId === "durin-black-e-1"
+    );
+    return result
+      ? {
+          firstGroup: firstGroup?.map(
+            ({
+              targetId,
+              hitGroupId,
+              targetIndex,
+              targetCount,
+              finalDamage
+            }) => ({
+              targetId,
+              hitGroupId,
+              targetIndex,
+              targetCount,
+              finalDamage
+            })
+          ),
+          firstTrigger: result.particleTriggerLog[0],
+          particleSpawns: result.particleEvents.map(
+            (event) => event.spawnFrame
+          ),
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length
+        }
+      : null;
+  });
+  expect(audit?.firstGroup).toHaveLength(2);
+  expect(audit?.firstGroup?.map((entry) => entry.targetId)).toEqual([
+    "enemy-0",
+    "enemy-1"
+  ]);
+  expect(
+    new Set(audit?.firstGroup?.map((entry) => entry.hitGroupId)).size
+  ).toBe(1);
+  expect(audit?.firstGroup?.map((entry) => entry.targetIndex)).toEqual([
+    0, 1
+  ]);
+  expect(audit?.firstGroup?.map((entry) => entry.targetCount)).toEqual([
+    2, 2
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    hitId: "durin-black-e-1",
+    checkedTargetIds: ["enemy-0", "enemy-1"],
+    confirmedTargetIds: ["enemy-0", "enemy-1"],
+    triggered: true,
+    blockedReason: null
+  });
+  expect(audit?.particleSpawns).toEqual([48]);
+  expect(audit?.checks).toBe(4);
+  expect(audit?.damageEvents).toBe(4);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(4);
+  await expect(page.locator("#targetHitAuditBody")).toContainText("1/2");
+  await expect(page.locator("#targetHitAuditBody")).toContainText("2/2");
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "检查 2 目标 / 确认 2"
+  );
+});
+
 test("renders the source-audited Durin white E branch and state transition", async ({
   page
 }) => {

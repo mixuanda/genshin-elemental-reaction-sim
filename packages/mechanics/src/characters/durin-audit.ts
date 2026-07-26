@@ -36,7 +36,7 @@ export const durinBlackSkillAuditDisclosure = {
   unresolvedMechanics: [
     "冲刺/跳跃命令只接受显式占用帧；耐力、位移、无敌帧、落地和碰撞尚未建模",
     "命中停顿、队列窗口与输入缓冲尚未建模",
-    "支持具名多目标的逐目标 Aura/ICD、landed / miss、三层策略与按帧阶段，但尚无单击 AoE 扇出、几何自动命中和真实 Boss AI",
+    "支持显式 AoE 扇出、逐目标 Aura/ICD 与一次产球聚合，但尚无几何自动命中和真实 Boss AI",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ]
 } as const;
@@ -307,7 +307,7 @@ export const durinWhiteSkillAuditDisclosure = {
     "冲刺/跳跃命令只接受显式占用帧；耐力、位移、无敌帧、落地和碰撞尚未建模",
     "命中停顿、队列窗口与输入缓冲尚未建模",
     "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
-    "支持具名多目标的逐目标 Aura/ICD、landed / miss、三层策略与按帧阶段，但尚无单击 AoE 扇出、几何自动命中和真实 Boss AI",
+    "支持显式 AoE 扇出、逐目标 Aura/ICD 与一次产球聚合，但尚无几何自动命中和真实 Boss AI",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ]
 } as const;

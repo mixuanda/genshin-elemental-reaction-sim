@@ -44,7 +44,10 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.outcome === "landed" &&
           entry.targetId === "enemy-0" &&
           entry.targetName === "敌人 0" &&
+          entry.targetIndex === 0 &&
+          entry.targetCount === 1 &&
           entry.damageEventId === index &&
+          entry.hitGroupId === result.damageEvents[index]?.hitGroupId &&
           entry.displayDamage === result.damageEvents[index]?.displayDamage
       )
     ).toBe(true);

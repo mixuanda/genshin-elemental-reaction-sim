@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.13.0 configs to the multi-target registry", () => {
+  it("migrates 1.0.0 through 1.14.0 configs to AoE fanout", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -211,6 +211,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.13.0",
       engineVersion: "1.13.0-target-phase-timeline"
+    });
+    const migratedFromMultiTargetRegistry = migrateConfig({
+      ...current,
+      schemaVersion: "1.14.0",
+      engineVersion: "1.14.0-multi-target-registry"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -287,6 +292,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromTargetPhaseTimeline.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromMultiTargetRegistry.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromMultiTargetRegistry.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -464,6 +475,56 @@ describe("versioned config schema", () => {
         }
       })
     ).toThrow(/enemy\.targets\.1\.initialAura/);
+  });
+
+  it("accepts unique AoE fanout targets and rejects duplicates", () => {
+    const input = {
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          { id: "enemy-0", name: "主目标" },
+          { id: "enemy-1", name: "副目标" }
+        ]
+      },
+      rotation: [
+        {
+          id: "aoe",
+          actorId: "a",
+          name: "范围命中",
+          at: 0,
+          hits: [
+            {
+              id: "aoe-hit",
+              offset: 0,
+              scaling: 1,
+              targeting: {
+                mode: "fanout",
+                targets: [
+                  { targetId: "enemy-0", outcome: "landed" },
+                  { targetId: "enemy-1", outcome: "landed" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    };
+    const parsed = migrateConfig(input);
+    expect(parsed.rotation[0]?.hits?.[0]?.targeting).toMatchObject({
+      mode: "fanout",
+      targets: [
+        { targetId: "enemy-0" },
+        { targetId: "enemy-1" }
+      ]
+    });
+
+    const duplicate = structuredClone(input);
+    duplicate.rotation[0]!.hits[0]!.targeting.targets[1]!.targetId =
+      "enemy-0";
+    expect(() => migrateConfig(duplicate)).toThrow(
+      /targeting\.targets\.1\.targetId/
+    );
   });
 
   it("requires a reason and at least one change for target effect policies", () => {

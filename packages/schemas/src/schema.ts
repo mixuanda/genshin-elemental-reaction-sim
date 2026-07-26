@@ -10,6 +10,7 @@ import {
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
   MOVEMENT_COMMAND_SCHEMA_VERSION,
+  MULTI_TARGET_REGISTRY_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
@@ -310,6 +311,31 @@ export const hitTargetingSchema = z
     }
   });
 
+export const hitTargetingGroupSchema = z
+  .object({
+    mode: z.literal("fanout"),
+    targets: z.array(hitTargetingSchema).min(1).max(32)
+  })
+  .strict()
+  .superRefine((group, context) => {
+    const targetIds = new Set<string>();
+    for (const [index, targeting] of group.targets.entries()) {
+      if (targetIds.has(targeting.targetId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["targets", index, "targetId"],
+          message: `duplicate fanout target id "${targeting.targetId}"`
+        });
+      }
+      targetIds.add(targeting.targetId);
+    }
+  });
+
+export const hitTargetingConfigSchema = z.union([
+  hitTargetingSchema,
+  hitTargetingGroupSchema
+]);
+
 export const hitDefinitionSchema = z
   .object({
     id: idSchema.optional(),
@@ -318,7 +344,7 @@ export const hitDefinitionSchema = z
     scaling: finiteNumber,
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
-    targeting: hitTargetingSchema.optional(),
+    targeting: hitTargetingConfigSchema.optional(),
     application: elementalApplicationSchema.optional(),
     reaction: reactionSchema.optional(),
     reactionOverride: reactionSchema.optional(),
@@ -962,14 +988,25 @@ export const simConfigSchema = z
       }
 
       action.hits?.forEach((hit, hitIndex) => {
-        validateEnemyTarget(hit.targeting?.targetId, [
-          "rotation",
-          actionIndex,
-          "hits",
-          hitIndex,
-          "targeting",
-          "targetId"
-        ]);
+        const targetings =
+          hit.targeting === undefined
+            ? []
+            : "mode" in hit.targeting
+              ? hit.targeting.targets
+              : [hit.targeting];
+        targetings.forEach((targeting, targetingIndex) => {
+          validateEnemyTarget(targeting.targetId, [
+            "rotation",
+            actionIndex,
+            "hits",
+            hitIndex,
+            "targeting",
+            ...("mode" in (hit.targeting ?? {})
+              ? ["targets", targetingIndex]
+              : []),
+            "targetId"
+          ]);
+        });
         for (const [field, id] of [
           ["scalingOwnerId", hit.scalingOwnerId],
           ["creditId", hit.creditId]
@@ -1059,15 +1096,26 @@ export const simConfigSchema = z
           });
         }
         ability.hits?.forEach((hit, hitIndex) => {
-          validateEnemyTarget(hit.targeting?.targetId, [
-            "timeline",
-            "abilities",
-            abilityIndex,
-            "hits",
-            hitIndex,
-            "targeting",
-            "targetId"
-          ]);
+          const targetings =
+            hit.targeting === undefined
+              ? []
+              : "mode" in hit.targeting
+                ? hit.targeting.targets
+                : [hit.targeting];
+          targetings.forEach((targeting, targetingIndex) => {
+            validateEnemyTarget(targeting.targetId, [
+              "timeline",
+              "abilities",
+              abilityIndex,
+              "hits",
+              hitIndex,
+              "targeting",
+              ...("mode" in (hit.targeting ?? {})
+                ? ["targets", targetingIndex]
+                : []),
+              "targetId"
+            ]);
+          });
           for (const [field, id] of [
             ["scalingOwnerId", hit.scalingOwnerId],
             ["creditId", hit.creditId]
@@ -1417,6 +1465,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === MULTI_TARGET_REGISTRY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_PHASE_TIMELINE_SCHEMA_VERSION) {
     return parseSimConfig({

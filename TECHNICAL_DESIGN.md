@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 318.62 kB（gzip 80.63 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 320.47 kB（gzip 81.11 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0`、`1.5.0`、`1.6.0`、`1.7.0`、`1.8.0`、`1.9.0`、`1.10.0`、`1.11.0`、`1.12.0` 或 `1.13.0` 配置迁移到 `1.14.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、未注册敌方目标、未知粒子触发命中 ID、缺失 Miss/目标策略原因、空操作目标策略、同目标重复/重叠/越界阶段、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.14.0-multi-target-registry`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.14.0` 配置迁移到 `1.15.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标。`engineVersion` 当前为 `1.15.0-aoe-fanout`。
 
 ## 4. 确定性与排序
 
@@ -201,7 +201,7 @@ displayDamage
 - `targetPhaseTimeline`：核心实际使用的 60 FPS 半开目标阶段窗口，含目标、开始/结束帧、三层策略和原因。
 - `auraTimeline`：每一段 Aura 模式伤害对应的目标、附着前后、ICD、消耗和反应记录。
 - `particleEvents`：每一次产球的来源、生成帧、到达帧、元素、类型、随机后数量和是否在模拟期内接收。
-- `particleTriggerLog`：每一次逐击产球检查、对应 hit ID、是否触发、被阻止原因、内部冷却键和下一可用帧。
+- `particleTriggerLog`：每一次逻辑命中的产球检查、`hitGroupId`、全部检查/确认目标、是否触发、被阻止原因、内部冷却键和下一可用帧。
 - `energyLog`：每个固定回能或粒子对每名接收者的逐次结算。
 - `energyCurve`：初始、消耗、固定回能和粒子接收后的全队能量快照。
 - `timelineExecution.stateLog`：行动状态的进入、刷新、消耗、清除和到期帧。
@@ -285,7 +285,7 @@ energyAfter
 
 固定回能不会套用粒子倍率或元素充能效率，并在同一日志中以 `kind: "fixed"` 明确区分。可选的 `internalCooldown { key, durationFrames }` 按“来源角色 + key”建立共享流：第一次事件在处理帧立即设置下一可用帧，`frame < readyFrame` 的后续事件被阻止，恰好位于 `readyFrame` 的事件重新允许。无论通过还是阻止都进入 `energyLog`；阻止事件同时写入不改变数值的 `fixed-blocked` 能量曲线点。
 
-粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。核心在已选目标判定为 landed、命中回调策略允许且对应伤害事件处理完毕后逐次检查触发；粒子内部冷却同样按“来源角色 + key”共享并允许精确边界帧，所有通过、`TARGET_MISS`、`TARGET_HIT_CONFIRM_BLOCKED` 或 `INTERNAL_COOLDOWN` 检查都进入 `particleTriggerLog`，实际生成事件反向保存 `triggerLogId` 与 `triggerHitId`。按帧目标阶段可阻止回调且不会错误启动粒子 ICD。当前每个命中定义只选择一个目标；同一攻击的 AoE 扇出、跨目标“至少命中一个即产球”聚合、几何自动命中和真实 Boss AI 尚未建模。UI 只读取 `particleEvents`、`particleTriggerLog`、`energyLog` 和 `energyCurve`，不重新计算能量或触发条件。
+粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。fanout 的所有目标先分别完成 Miss、阶段、伤害、Aura 和回调判定，再以同一 `hitGroupId` 聚合；只要至少一个目标允许命中回调，该逻辑命中只执行一次产球检查。`particleTriggerLog` 保存全部检查目标和确认目标，粒子 ICD 也只启动一次。几何自动命中和真实 Boss AI 尚未建模；UI 不重新计算触发条件。
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
@@ -305,7 +305,7 @@ energyAfter
 - 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go`、`icd_groups.dm.go` 与 `pkg/core/info/combat.go`。
 - 黑分支覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、普攻/重击/战技/爆发/冲刺/跳跃/切人取消路径、三段命中、DurinSkill ICD、带角色级 360 帧共享内部冷却的 33 固定回能，以及首个已处理命中触发、18 帧共享粒子 ICD 的 4 火粒子。固定 gcsim 提交给出的首段 E 冲刺/跳跃取消均为 14 帧，黑 E 为 42/41 帧；重击复用其 `ActionAttack` 取消点是本引擎的分类映射推断。
 - 白分支覆盖：技能 10 级 `1.9008` 倍率、35 帧命中、83 帧动画、相同回能/产球规则、30 秒白状态，以及通过 `clears` 与既有黑状态互斥；审计预设中的全局命中帧为 50。锁定 gcsim 提交未设置 `AttackInfo.Durability`，而其核心把 `0` 定义为不施加 Aura，因此本向量输出火伤但不施加附着、不触发反应；该口径仍保持 `provisional`，等待官方资料或官服实测交叉验证。
-- 保持 `provisional + partial`：冲刺/跳跃的耐力与移动物理、几何自动命中、真实 Boss 阶段状态机、单击 AoE 扇出/回调聚合、Hitlag、黑/白爆发以及状态驱动的全部被动尚未实现；多目标注册、场景显式 Miss、三层阻断与按帧阶段只验证结算门，不代表已建模真实范围或官服 Boss 行为。
+- 保持 `provisional + partial`：冲刺/跳跃物理、AoE 几何求交、真实 Boss 状态机、Hitlag、黑/白爆发及全部被动尚未实现；显式 fanout 只验证逐目标结算与回调聚合，不代表已建模真实范围。
 
 ## 7. 测试策略
 
@@ -356,7 +356,7 @@ Vitest 当前覆盖：
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 - 120 秒兼容模拟和带运行时能量前缀探测的 120 秒合法时间线性能门。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、具名多目标属性与逐目标 Aura/ICD 隔离、目标/Aura 筛选、目标命中判定表、脚本化 Miss 对伤害/Aura/产球的共同阻断、landed 命中的伤害免疫/Aura 阻断/回调阻断独立组合、按帧目标阶段的半开边界及来源显示、敌方 Aura 曲线、固定回能 ICD 阻止、命中确认产球与粒子 ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误、杜林黑/白 E 审计向量，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、具名多目标属性与逐目标 Aura/ICD 隔离、显式 AoE 扇出及跨目标一次产球聚合、目标/Aura 筛选、目标命中判定表、脚本化 Miss、三层目标策略、按帧阶段、敌方 Aura 曲线、能量曲线、公式展开、杜林黑/白 E 审计向量，以及 UID 展示柜边界。
 
 ## 8. 展示柜导入边界
 
@@ -421,4 +421,4 @@ Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种�
 
 Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等于正式杜林预设完成。杜林黑/白 E 已有倍率引用、裸伤/增伤、动作帧、黑 E 附着/ICD、白 E 无附着口径、回能、粒子和互斥状态向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应在现有目标注册表之上加入“一次命中定义 → 多个目标结算”的 AoE 扇出、至少一目标命中时的一次产球/回调聚合，再逐步加入范围/位置驱动判定和有来源的具体 Boss 阶段状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、目标注册、目标判定、阶段、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。
+下一阶段应为 fanout 加入范围/位置驱动的自动目标求交，再建立有来源的具体 Boss 状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。之后再扩展复合附着、冻结和转化反应；所有工作都必须保留现有 Golden 和审计向量。

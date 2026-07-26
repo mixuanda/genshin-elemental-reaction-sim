@@ -297,7 +297,7 @@
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。具名多目标、逐目标 Aura/ICD、脚本化 landed / miss、三层目标策略和按帧阶段窗口已有机制闭环，但每个命中定义目前只选择一个目标；同一攻击的 AoE 扇出、一次产球聚合、几何命中和真实 Boss AI 尚未实现，也未完成全角色可执行产球与动作帧映射。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、显式 AoE 扇出、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；但扇出目标仍由场景列出，尚无范围/位置自动求交、真实 Boss AI 或完整角色数据。</p>
           </article>
         </div>
       </section>

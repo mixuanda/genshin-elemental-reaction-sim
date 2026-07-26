@@ -11,6 +11,7 @@ import {
   type Element,
   type EnergySummary,
   type HitDefinition,
+  type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
   type SimConfig,
@@ -94,6 +95,10 @@ interface HitEventPayload {
   action: ActionDefinition;
   hit: HitDefinition;
   hitIndex: number;
+  targeting?: HitTargeting;
+  targetIndex: number;
+  targetCount: number;
+  hitGroupId: string;
   snapshots: Record<string, CharacterStats | undefined>;
   cycle: number;
 }
@@ -268,6 +273,14 @@ function simulateConfig(
   const energyStats = new Map<string, EnergySummary>();
   const fixedEnergyCooldownReadyFrames = new Map<string, number>();
   const particleCooldownReadyFrames = new Map<string, number>();
+  const hitCallbackAggregates = new Map<
+    string,
+    {
+      checkedTargetIds: string[];
+      confirmedTargetIds: string[];
+      landed: boolean;
+    }
+  >();
 
   for (const character of config.characters) {
     const initial =
@@ -498,6 +511,9 @@ function simulateConfig(
     actorId,
     action,
     hitId,
+    hitGroupId,
+    checkedTargetIds,
+    confirmedTargetIds,
     cycle,
     frame,
     timeSeconds,
@@ -507,6 +523,9 @@ function simulateConfig(
     actorId: string;
     action: ActionDefinition;
     hitId: string;
+    hitGroupId: string;
+    checkedTargetIds: string[];
+    confirmedTargetIds: string[];
     cycle: number;
     frame: number;
     timeSeconds: number;
@@ -582,6 +601,9 @@ function simulateConfig(
         source,
         particleId,
         hitId,
+        hitGroupId,
+        checkedTargetIds: [...checkedTargetIds],
+        confirmedTargetIds: [...confirmedTargetIds],
         triggered: blockedReason === null,
         blockedReason,
         internalCooldownKey: internalCooldown?.key ?? null,
@@ -601,6 +623,61 @@ function simulateConfig(
         });
       }
     });
+  };
+
+  const completeHitTarget = ({
+    actorId,
+    action,
+    hitId,
+    hitGroupId,
+    cycle,
+    frame,
+    timeSeconds,
+    targetId,
+    targetIndex,
+    targetCount,
+    landed,
+    hitConfirmAllowed
+  }: {
+    actorId: string;
+    action: ActionDefinition;
+    hitId: string;
+    hitGroupId: string;
+    cycle: number;
+    frame: number;
+    timeSeconds: number;
+    targetId: string;
+    targetIndex: number;
+    targetCount: number;
+    landed: boolean;
+    hitConfirmAllowed: boolean;
+  }): void => {
+    const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
+      checkedTargetIds: [],
+      confirmedTargetIds: [],
+      landed: false
+    };
+    aggregate.checkedTargetIds.push(targetId);
+    if (landed) aggregate.landed = true;
+    if (landed && hitConfirmAllowed) {
+      aggregate.confirmedTargetIds.push(targetId);
+    }
+    hitCallbackAggregates.set(hitGroupId, aggregate);
+    if (targetIndex !== targetCount - 1) return;
+    processHitConfirmedParticles({
+      actorId,
+      action,
+      hitId,
+      hitGroupId,
+      checkedTargetIds: aggregate.checkedTargetIds,
+      confirmedTargetIds: aggregate.confirmedTargetIds,
+      cycle,
+      frame,
+      timeSeconds,
+      landed: aggregate.landed,
+      hitConfirmAllowed: aggregate.confirmedTargetIds.length > 0
+    });
+    hitCallbackAggregates.delete(hitGroupId);
   };
 
   while (queue.size > 0) {
@@ -727,13 +804,27 @@ function simulateConfig(
         });
       }
       (action.hits ?? []).forEach((hit, hitIndex) => {
-        push(timeSeconds + hit.offset, "hit", {
-          actorId: actor.id,
-          action,
-          hit,
-          hitIndex,
-          snapshots,
-          cycle
+        const targetings =
+          hit.targeting === undefined
+            ? [undefined]
+            : "mode" in hit.targeting
+              ? hit.targeting.targets
+              : [hit.targeting];
+        const hitTimeSeconds = timeSeconds + hit.offset;
+        const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
+        targetings.forEach((targeting, targetIndex) => {
+          push(hitTimeSeconds, "hit", {
+            actorId: actor.id,
+            action,
+            hit,
+            hitIndex,
+            targeting,
+            targetIndex,
+            targetCount: targetings.length,
+            hitGroupId,
+            snapshots,
+            cycle
+          });
         });
       });
       continue;
@@ -1038,6 +1129,10 @@ function simulateConfig(
       action,
       hit,
       hitIndex,
+      targeting,
+      targetIndex,
+      targetCount,
+      hitGroupId,
       snapshots,
       cycle
     } = event.payload as HitEventPayload;
@@ -1049,7 +1144,7 @@ function simulateConfig(
     if (!sourceActor || !scalingOwner || !creditOwner) continue;
     const hitId = hit.id ?? `${action.id}:hit-${hitIndex}`;
     const element = hit.element ?? scalingOwner.element;
-    const targetId = hit.targeting?.targetId ?? "enemy-0";
+    const targetId = targeting?.targetId ?? "enemy-0";
     const targetProfile = enemyTargetById.get(targetId);
     if (!targetProfile) {
       throw new Error(
@@ -1057,7 +1152,7 @@ function simulateConfig(
       );
     }
     const auraEngine = auraEngines?.get(targetId) ?? null;
-    const targetOutcome = hit.targeting?.outcome ?? "landed";
+    const targetOutcome = targeting?.outcome ?? "landed";
     const activeTargetPhase = targetPhaseTimeline.find(
       (phase) =>
         phase.targetId === targetId &&
@@ -1065,9 +1160,9 @@ function simulateConfig(
         event.frame < phase.endFrame
     );
     const targetEffects =
-      hit.targeting?.effects ?? activeTargetPhase?.effects;
+      targeting?.effects ?? activeTargetPhase?.effects;
     const targetEffectSource =
-      hit.targeting?.effects !== undefined ||
+      targeting?.effects !== undefined ||
       targetOutcome === "miss"
         ? ("hit" as const)
         : activeTargetPhase === undefined
@@ -1090,6 +1185,9 @@ function simulateConfig(
       sourceActionId: action.id,
       actionName: action.name,
       hitId,
+      hitGroupId,
+      targetIndex,
+      targetCount,
       hitLabel: hit.label ?? "命中",
       element,
       targetId,
@@ -1097,7 +1195,7 @@ function simulateConfig(
       outcome: targetOutcome,
       landed,
       reason:
-        hit.targeting?.reason ??
+        targeting?.reason ??
         (targetEffectSource === "target-phase"
           ? activeTargetPhase?.reason ?? null
           : null),
@@ -1119,13 +1217,17 @@ function simulateConfig(
     };
     hitResolutionLog.push(targetResolution);
     if (!targetResolution.landed) {
-      processHitConfirmedParticles({
+      completeHitTarget({
         actorId,
         action,
         hitId,
+        hitGroupId,
         cycle,
         frame: event.frame,
         timeSeconds,
+        targetId,
+        targetIndex,
+        targetCount,
         landed: false,
         hitConfirmAllowed: false
       });
@@ -1323,6 +1425,9 @@ function simulateConfig(
       creditOwnerId,
       actionId: action.id,
       hitId,
+      hitGroupId,
+      targetIndex,
+      targetCount,
       targetResolutionId,
       targetId,
       targetName: targetProfile.name,
@@ -1398,13 +1503,17 @@ function simulateConfig(
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
-    processHitConfirmedParticles({
+    completeHitTarget({
       actorId,
       action,
       hitId,
+      hitGroupId,
       cycle,
       frame: event.frame,
       timeSeconds,
+      targetId,
+      targetIndex,
+      targetCount,
       landed: true,
       hitConfirmAllowed
     });

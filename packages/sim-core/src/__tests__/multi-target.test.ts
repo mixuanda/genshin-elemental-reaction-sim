@@ -341,4 +341,194 @@ describe("registered enemy targets", () => {
     ]);
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
+
+  it("fans one logical hit out per target but aggregates hit-confirmed particles once", () => {
+    const ability: AbilityDefinition = {
+      id: "aoe-fanout",
+      actorId: "a",
+      name: "范围扇出",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 0,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "aoe-hit",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          targeting: {
+            mode: "fanout",
+            targets: [
+              {
+                targetId: "enemy-0",
+                outcome: "miss",
+                reason: "OUTSIDE_AOE"
+              },
+              {
+                targetId: "enemy-1",
+                outcome: "landed",
+                reason: "CALLBACK_BLOCKED",
+                effects: {
+                  damage: "immune",
+                  aura: "normal",
+                  hitConfirm: "blocked"
+                }
+              },
+              {
+                targetId: "enemy-2",
+                outcome: "landed"
+              }
+            ]
+          },
+          application: {
+            gaugeUnits: 1,
+            icdTag: "aoe",
+            icdGroup: "no-icd"
+          }
+        }
+      ],
+      particles: [
+        {
+          id: "aoe-particle",
+          source: "aoe-hit-confirm",
+          element: "pyro",
+          count: 1,
+          travelFrames: 0,
+          trigger: {
+            kind: "hit-confirm",
+            hitIds: ["aoe-hit"]
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          { id: "enemy-0", name: "范围外目标" },
+          { id: "enemy-1", name: "回调阻断目标" },
+          { id: "enemy-2", name: "正常目标" }
+        ]
+      },
+      reactionEngine: {
+        mode: "aura-v1",
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+
+    expect(
+      result.hitResolutionLog.map(
+        ({
+          targetId,
+          outcome,
+          damageAllowed,
+          auraAllowed,
+          hitConfirmAllowed,
+          hitGroupId,
+          targetIndex,
+          targetCount
+        }) => ({
+          targetId,
+          outcome,
+          damageAllowed,
+          auraAllowed,
+          hitConfirmAllowed,
+          hitGroupId,
+          targetIndex,
+          targetCount
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        outcome: "miss",
+        damageAllowed: false,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        hitGroupId: "aoe-fanout#0:0:0:0",
+        targetIndex: 0,
+        targetCount: 3
+      },
+      {
+        targetId: "enemy-1",
+        outcome: "landed",
+        damageAllowed: false,
+        auraAllowed: true,
+        hitConfirmAllowed: false,
+        hitGroupId: "aoe-fanout#0:0:0:0",
+        targetIndex: 1,
+        targetCount: 3
+      },
+      {
+        targetId: "enemy-2",
+        outcome: "landed",
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        hitGroupId: "aoe-fanout#0:0:0:0",
+        targetIndex: 2,
+        targetCount: 3
+      }
+    ]);
+    expect(result.damageEvents).toHaveLength(2);
+    expect(
+      result.damageEvents.map(
+        ({ targetId, finalDamage, hitGroupId }) => ({
+          targetId,
+          finalDamage,
+          hitGroupId
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-1",
+        finalDamage: 0,
+        hitGroupId: "aoe-fanout#0:0:0:0"
+      },
+      {
+        targetId: "enemy-2",
+        finalDamage: 900,
+        hitGroupId: "aoe-fanout#0:0:0:0"
+      }
+    ]);
+    expect(result.particleTriggerLog).toEqual([
+      expect.objectContaining({
+        hitId: "aoe-hit",
+        hitGroupId: "aoe-fanout#0:0:0:0",
+        checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+        confirmedTargetIds: ["enemy-2"],
+        triggered: true,
+        blockedReason: null
+      })
+    ]);
+    expect(result.particleEvents).toHaveLength(1);
+    expect(result.particleEvents[0]).toMatchObject({
+      spawnFrame: 0,
+      triggerHitId: "aoe-hit"
+    });
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
 });
