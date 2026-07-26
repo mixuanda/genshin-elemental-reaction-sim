@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
@@ -342,6 +343,58 @@ export const frameParticleDefinitionSchema = particleDefinitionSchema
   })
   .strict();
 
+export const timelineStateGrantSchema = z
+  .object({
+    key: idSchema,
+    label: idSchema,
+    durationFrames: z.number().int().min(1).max(216_000)
+  })
+  .strict();
+
+export const abilityTimelineStateSchema = z
+  .object({
+    requires: z.array(idSchema).optional(),
+    consumes: z.array(idSchema).optional(),
+    grants: z.array(timelineStateGrantSchema).optional()
+  })
+  .strict()
+  .superRefine((state, context) => {
+    for (const field of ["requires", "consumes"] as const) {
+      const seen = new Set<string>();
+      for (const [index, key] of (state[field] ?? []).entries()) {
+        if (seen.has(key)) {
+          context.addIssue({
+            code: "custom",
+            path: [field, index],
+            message: `duplicate state key "${key}"`
+          });
+        }
+        seen.add(key);
+      }
+    }
+    const grantKeys = new Set<string>();
+    for (const [index, grant] of (state.grants ?? []).entries()) {
+      if (grantKeys.has(grant.key)) {
+        context.addIssue({
+          code: "custom",
+          path: ["grants", index, "key"],
+          message: `duplicate state key "${grant.key}"`
+        });
+      }
+      grantKeys.add(grant.key);
+    }
+    const required = new Set(state.requires ?? []);
+    for (const [index, key] of (state.consumes ?? []).entries()) {
+      if (!required.has(key)) {
+        context.addIssue({
+          code: "custom",
+          path: ["consumes", index],
+          message: `consumed state "${key}" must also be required`
+        });
+      }
+    }
+  });
+
 export const abilityDefinitionSchema = z
   .object({
     id: idSchema,
@@ -358,7 +411,8 @@ export const abilityDefinitionSchema = z
     buffs: z.array(frameBuffDefinitionSchema).optional(),
     debuffs: z.array(frameDebuffDefinitionSchema).optional(),
     energyGains: z.array(frameEnergyEventSchema).optional(),
-    particles: z.array(frameParticleDefinitionSchema).optional()
+    particles: z.array(frameParticleDefinitionSchema).optional(),
+    timelineState: abilityTimelineStateSchema.optional()
   })
   .strict()
   .superRefine((ability, context) => {
@@ -377,6 +431,18 @@ export const abilityDefinitionSchema = z
         code: "custom",
         path: ["chargeRecoveryFrames"],
         message: "multi-charge abilities require a positive recovery"
+      });
+    }
+    if (
+      (ability.energyCost ?? 0) > 0 &&
+      ((ability.timelineState?.consumes?.length ?? 0) > 0 ||
+        (ability.timelineState?.grants?.length ?? 0) > 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["timelineState"],
+        message:
+          "energy-gated abilities cannot transition action states until runtime energy rollback is implemented"
       });
     }
   });
@@ -946,6 +1012,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === ICD_PROFILE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === PARTICLE_SCHEMA_VERSION) {
     return parseSimConfig({

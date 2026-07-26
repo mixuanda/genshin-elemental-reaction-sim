@@ -7,7 +7,9 @@ import type {
   TimelineCommandResult,
   TimelineExecution,
   TimelineFailure,
-  TimelineFailureCode
+  TimelineFailureCode,
+  TimelineStateGrant,
+  TimelineStateLogEntry
 } from "@genshin-dps-lab/schemas";
 
 export class TimelineLegalityError extends Error {
@@ -26,6 +28,14 @@ export class TimelineLegalityError extends Error {
 export interface CompiledTimeline {
   config: SimConfig;
   execution: TimelineExecution;
+}
+
+interface ActiveTimelineState {
+  actorId: string;
+  grant: TimelineStateGrant;
+  expiresAtFrame: number;
+  commandIndex: number;
+  abilityId: string;
 }
 
 function toSeconds(frame: number): number {
@@ -167,8 +177,97 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
   const commandResults: TimelineCommandResult[] = [];
   const adjustments: TimelineAdjustment[] = [];
   const failures: TimelineFailure[] = [];
+  const stateLog: TimelineStateLogEntry[] = [];
+  const activeStates = new Map<string, ActiveTimelineState>();
+  let stateSequence = 0;
   let cursor = 0;
   let activeCharacterId = timeline.initialActiveCharacterId;
+
+  const scopedStateKey = (actorId: string, statusKey: string): string =>
+    `${actorId}\u0000${statusKey}`;
+
+  const expireStatesThrough = (frame: number): void => {
+    const cutoffFrame = Math.min(frame, durationFrames);
+    const expiring = [...activeStates.entries()]
+      .filter(([, state]) => state.expiresAtFrame <= cutoffFrame)
+      .sort(
+        (left, right) =>
+          left[1].expiresAtFrame - right[1].expiresAtFrame ||
+          left[1].commandIndex - right[1].commandIndex ||
+          (left[1].grant.key < right[1].grant.key
+            ? -1
+            : left[1].grant.key > right[1].grant.key
+              ? 1
+              : 0)
+      );
+    for (const [key, state] of expiring) {
+      if (activeStates.get(key) !== state) continue;
+      activeStates.delete(key);
+      stateLog.push({
+        sequence: stateSequence++,
+        frame: state.expiresAtFrame,
+        timeSeconds: toSeconds(state.expiresAtFrame),
+        operation: "expire",
+        actorId: state.actorId,
+        statusKey: state.grant.key,
+        label: state.grant.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex: state.commandIndex,
+        abilityId: state.abilityId
+      });
+    }
+  };
+
+  const applyAbilityStates = (
+    ability: AbilityDefinition,
+    commandIndex: number,
+    startFrame: number
+  ): void => {
+    const stateDefinition = ability.timelineState;
+    if (!stateDefinition) return;
+    for (const statusKey of stateDefinition.consumes ?? []) {
+      const key = scopedStateKey(ability.actorId, statusKey);
+      const state = activeStates.get(key);
+      if (!state) continue;
+      activeStates.delete(key);
+      stateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: toSeconds(startFrame),
+        operation: "consume",
+        actorId: ability.actorId,
+        statusKey,
+        label: state.grant.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
+    for (const grant of stateDefinition.grants ?? []) {
+      const key = scopedStateKey(ability.actorId, grant.key);
+      const existing = activeStates.get(key);
+      const expiresAtFrame = startFrame + grant.durationFrames;
+      activeStates.set(key, {
+        actorId: ability.actorId,
+        grant,
+        expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+      stateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: toSeconds(startFrame),
+        operation: existing ? "replace" : "grant",
+        actorId: ability.actorId,
+        statusKey: grant.key,
+        label: grant.label,
+        expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
+  };
 
   if (config.characters[0]?.id !== activeCharacterId) {
     rotation.push(
@@ -210,7 +309,7 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
       animationEndFrame: null,
       endFrame: null,
       status: "rejected",
-      waitedFrames: 0,
+      waitedFrames: Math.max(0, frame - requestedFrame),
       failureCode: code
     });
     return false;
@@ -251,6 +350,7 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
     if (command.type === "wait") {
       const startFrame = cursor;
       cursor += command.frames;
+      expireStatesThrough(cursor);
       commandResults.push({
         commandIndex,
         commandType: command.type,
@@ -269,6 +369,7 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
 
     const anchored = applyRequestedFrame(commandIndex, command);
     let startFrame = anchored.startFrame;
+    expireStatesThrough(startFrame);
     if (startFrame > durationFrames) {
       fail(
         commandIndex,
@@ -304,6 +405,7 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
         )
       );
       cursor = endFrame;
+      expireStatesThrough(endFrame);
       activeCharacterId = command.characterId;
       commandResults.push({
         commandIndex,
@@ -378,6 +480,8 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
         message: `"${ability.name}" 等待冷却/充能至第 ${chargeReadyFrame} 帧。`
       });
       startFrame = chargeReadyFrame;
+      cursor = startFrame;
+      expireStatesThrough(startFrame);
     }
     if (startFrame > durationFrames) {
       fail(
@@ -391,6 +495,22 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
       return;
     }
 
+    const missingState = (ability.timelineState?.requires ?? []).find(
+      (statusKey) =>
+        !activeStates.has(scopedStateKey(ability.actorId, statusKey))
+    );
+    if (missingState !== undefined) {
+      fail(
+        commandIndex,
+        command,
+        "MISSING_REQUIRED_STATE",
+        startFrame,
+        `"${ability.name}" 需要 "${missingState}" 行动状态。`,
+        anchored.requestedFrame
+      );
+      return;
+    }
+
     const recoveryFrames =
       ability.chargeRecoveryFrames ?? ability.cooldownFrames;
     chargeFrames[chargeIndex] = startFrame + recoveryFrames;
@@ -398,6 +518,7 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
     rotation.push(
       compileAbilityAction(ability, commandIndex, startFrame)
     );
+    applyAbilityStates(ability, commandIndex, startFrame);
     const cancelFrame = startFrame + ability.cancelFrame;
     const animationEndFrame = startFrame + ability.animationEndFrame;
     cursor = cancelFrame;
@@ -417,6 +538,8 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
     });
   });
 
+  expireStatesThrough(durationFrames);
+
   return {
     config: {
       ...withoutTimeline(config),
@@ -431,7 +554,8 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
       totalFrames: cursor,
       commandResults,
       adjustments,
-      failures
+      failures,
+      stateLog
     }
   };
 }

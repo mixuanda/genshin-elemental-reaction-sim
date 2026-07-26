@@ -80,6 +80,7 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 .legal-timeline-card { margin-top: 14px; }
 .legal-timeline-table { min-width: 1040px; }
 .timeline-failures { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.timeline-state-audit { margin-top: 18px; }
 #timelineCanvas, #damageCurveCanvas, #energyTimelineCanvas, #auraTimelineCanvas { width: 100%; display: block; background: #0d121b; border: 1px solid var(--border); border-radius: 12px; }
 .curve-card { margin-top: 14px; }
 .aura-table-wrap { margin-top: 14px; }

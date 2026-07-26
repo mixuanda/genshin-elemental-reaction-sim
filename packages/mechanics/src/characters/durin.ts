@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.1" as const;
+  "durin-gcsim-b4ae769d7c1c.2" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -105,9 +105,17 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   hits: [],
   energyGains: [],
   particles: [],
+  timelineState: {
+    grants: [
+      {
+        key: "durin-essential-transformation",
+        label: "精质转变",
+        durationFrames: 6 * 60
+      }
+    ]
+  },
   prerequisites: [],
   unresolvedMechanics: [
-    "精质转变的 6 秒状态窗口尚未由状态机强制执行",
     "不同后续动作对应不同取消帧；本向量只映射接普攻的第 16 帧",
     "命中停顿、队列窗口与输入缓冲尚未建模"
   ],
@@ -191,12 +199,22 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       travelFrames: 100
     }
   ],
+  timelineState: {
+    requires: ["durin-essential-transformation"],
+    consumes: ["durin-essential-transformation"],
+    grants: [
+      {
+        key: "durin-denial-of-darkness-state",
+        label: "黑度之否",
+        durationFrames: 30 * 60
+      }
+    ]
+  },
   prerequisites: [
     "杜林处于精质转变状态",
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "精质转变前置状态与黑度之否 30 秒后续状态尚未由状态机强制执行",
     "固定回能的 6 秒内部冷却尚未跨动作建模",
     "产球应只在首次成功命中可受击敌人时触发；当前向量按第 1 段必命中建模",
     "多目标、范围判定、命中停顿、逐后续动作取消帧与输入缓冲尚未建模"
@@ -250,7 +268,7 @@ export function createDurinBlackSkillAuditConfig(
       version: "1.0.0",
       verificationStatus: "provisional",
       note:
-        "只覆盖黑 E 的三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
+        "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
     },
     duration: 3,
     cycleLength: 3,

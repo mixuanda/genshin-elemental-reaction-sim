@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { abilityTimelineStateSchema } from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.0.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.1.0" as const;
+export const INITIAL_MECHANICS_SCHEMA_VERSION = "1.0.0" as const;
 
 const idSchema = z.string().trim().min(1);
 const finiteNumber = z.number().finite();
@@ -114,6 +116,7 @@ export const abilityBlueprintSchema = z
     hits: z.array(mappedHitBlueprintSchema),
     energyGains: z.array(mappedEnergyGainBlueprintSchema).default([]),
     particles: z.array(mappedParticleBlueprintSchema).default([]),
+    timelineState: abilityTimelineStateSchema.optional(),
     prerequisites: z.array(idSchema),
     unresolvedMechanics: z.array(idSchema),
     evidence: z.array(mechanicsEvidenceSchema).min(1)
@@ -148,6 +151,18 @@ export const abilityBlueprintSchema = z
         message: "partial abilities must state what remains unresolved"
       });
     }
+    if (
+      (blueprint.energyCost ?? 0) > 0 &&
+      ((blueprint.timelineState?.consumes?.length ?? 0) > 0 ||
+        (blueprint.timelineState?.grants?.length ?? 0) > 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["timelineState"],
+        message:
+          "energy-gated abilities cannot transition action states until runtime energy rollback is implemented"
+      });
+    }
     const hitIds = new Set<string>();
     blueprint.hits.forEach((hit, index) => {
       if (hitIds.has(hit.id)) {
@@ -166,3 +181,18 @@ export type TalentParameterReference = z.infer<
   typeof talentParameterReferenceSchema
 >;
 export type AbilityBlueprint = z.infer<typeof abilityBlueprintSchema>;
+
+export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    "schemaVersion" in input &&
+    input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION
+  ) {
+    return abilityBlueprintSchema.parse({
+      ...input,
+      schemaVersion: CURRENT_MECHANICS_SCHEMA_VERSION
+    });
+  }
+  return abilityBlueprintSchema.parse(input);
+}

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0, 1.1.0 and 1.2.0 configs to the current ICD schema", () => {
+  it("migrates 1.0.0 through 1.3.0 configs to the current action-state schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -157,6 +157,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.2.0",
       engineVersion: "1.2.0-particles"
     });
+    const migratedFromIcdProfiles = migrateConfig({
+      ...current,
+      schemaVersion: "1.3.0",
+      engineVersion: "1.3.0-icd-profiles"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -166,6 +171,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromParticles.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromIcdProfiles.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromIcdProfiles.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -261,6 +272,79 @@ describe("versioned config schema", () => {
         ]
       })
     ).toThrow(/rotation\.0\.particles\.0\.count\.step/);
+  });
+
+  it("requires every consumed action state to be declared as required", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [
+            {
+              id: "bad-state",
+              actorId: "a",
+              name: "坏状态定义",
+              kind: "skill",
+              cancelFrame: 1,
+              animationEndFrame: 1,
+              cooldownFrames: 0,
+              timelineState: {
+                consumes: ["missing-requirement"]
+              }
+            }
+          ],
+          commands: []
+        }
+      })
+    ).toThrow(
+      /timeline\.abilities\.0\.timelineState\.consumes\.0: consumed state/
+    );
+  });
+
+  it("blocks energy-gated state transitions until runtime rollback exists", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [
+            {
+              id: "unsafe-burst-state",
+              actorId: "a",
+              name: "能量门槛状态",
+              kind: "burst",
+              cancelFrame: 1,
+              animationEndFrame: 1,
+              cooldownFrames: 600,
+              energyCost: 60,
+              timelineState: {
+                grants: [
+                  {
+                    key: "unsafe",
+                    label: "不应预授予",
+                    durationFrames: 60
+                  }
+                ]
+              }
+            }
+          ],
+          commands: []
+        }
+      })
+    ).toThrow(
+      /energy-gated abilities cannot transition action states/
+    );
   });
 
   it("rejects parties larger than the in-game four-character limit", () => {

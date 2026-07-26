@@ -1,5 +1,5 @@
 import {
-  abilityBlueprintSchema,
+  migrateAbilityBlueprint,
   type AbilityBlueprint,
   type AbilityDefinition,
   type GameDataCatalog,
@@ -85,7 +85,7 @@ export function compileAbilityBlueprint(
   input: unknown,
   options: CompileAbilityBlueprintOptions
 ): CompiledAbilityBlueprint {
-  const blueprint = abilityBlueprintSchema.parse(input);
+  const blueprint = migrateAbilityBlueprint(input);
   if (
     blueprint.simulationStatus === "partial" &&
     options.allowPartial !== true
@@ -157,6 +157,19 @@ export function compileAbilityBlueprint(
   }
   if (blueprint.energyCost !== undefined) {
     ability.energyCost = blueprint.energyCost;
+  }
+  if (blueprint.timelineState !== undefined) {
+    ability.timelineState = {
+      ...(blueprint.timelineState.requires === undefined
+        ? {}
+        : { requires: blueprint.timelineState.requires }),
+      ...(blueprint.timelineState.consumes === undefined
+        ? {}
+        : { consumes: blueprint.timelineState.consumes }),
+      ...(blueprint.timelineState.grants === undefined
+        ? {}
+        : { grants: blueprint.timelineState.grants })
+    };
   }
 
   return { blueprint, ability, resolvedParameters };

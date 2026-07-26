@@ -5,7 +5,7 @@ import {
 } from "@genshin-dps-lab/schemas";
 
 export const durinBlackSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.1",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.2",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -34,10 +34,8 @@ export const durinBlackSkillAuditDisclosure = {
     }
   ],
   unresolvedMechanics: [
-    "精质转变的 6 秒状态窗口尚未由状态机强制执行",
     "不同后续动作对应不同取消帧；本向量只映射接普攻的第 16 帧",
     "命中停顿、队列窗口与输入缓冲尚未建模",
-    "精质转变前置状态与黑度之否 30 秒后续状态尚未由状态机强制执行",
     "固定回能的 6 秒内部冷却尚未跨动作建模",
     "产球应只在首次成功命中可受击敌人时触发；当前向量按第 1 段必命中建模",
     "多目标、范围判定、命中停顿、逐后续动作取消帧与输入缓冲尚未建模"
@@ -55,14 +53,14 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
   dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.1",
+    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.2",
   randomSeed: "durin-black-e-audit-v1",
   meta: {
     name: "杜林黑 E · 部分机制审计向量",
     version: "1.0.0",
     verificationStatus: "provisional",
     note:
-      "只覆盖黑 E 的三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
+      "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
   },
   duration: 3,
   cycleLength: 3,
@@ -118,7 +116,16 @@ export const durinBlackSkillAuditPreset: SimConfig = {
         cooldownFrames: 720,
         hits: [],
         energyGains: [],
-        particles: []
+        particles: [],
+        timelineState: {
+          grants: [
+            {
+              key: "durin-essential-transformation",
+              label: "精质转变",
+              durationFrames: 360
+            }
+          ]
+        }
       },
       {
         id: "durin-denial-of-darkness",
@@ -190,7 +197,18 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             spawnFrame: 32,
             travelFrames: 100
           }
-        ]
+        ],
+        timelineState: {
+          requires: ["durin-essential-transformation"],
+          consumes: ["durin-essential-transformation"],
+          grants: [
+            {
+              key: "durin-denial-of-darkness-state",
+              label: "黑度之否",
+              durationFrames: 1800
+            }
+          ]
+        }
       }
     ],
     commands: [

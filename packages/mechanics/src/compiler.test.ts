@@ -1,5 +1,9 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
-import { abilityBlueprintSchema } from "@genshin-dps-lab/schemas";
+import {
+  abilityBlueprintSchema,
+  CURRENT_MECHANICS_SCHEMA_VERSION,
+  migrateAbilityBlueprint
+} from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import {
   compileAbilityBlueprint,
@@ -80,5 +84,22 @@ describe("ability blueprint compiler gates", () => {
     expect(() => abilityBlueprintSchema.parse(emptyPartial)).toThrow(
       /partial abilities must state what remains unresolved/
     );
+  });
+
+  it("migrates the initial mechanics schema before compiling", () => {
+    const initial = {
+      ...durinEnterTransformationBlueprint,
+      schemaVersion: "1.0.0"
+    };
+
+    expect(migrateAbilityBlueprint(initial).schemaVersion).toBe(
+      CURRENT_MECHANICS_SCHEMA_VERSION
+    );
+    expect(
+      compileAbilityBlueprint(initial, {
+        catalog: gameDataCatalog,
+        allowPartial: true
+      }).ability.id
+    ).toBe(durinEnterTransformationBlueprint.id);
   });
 });

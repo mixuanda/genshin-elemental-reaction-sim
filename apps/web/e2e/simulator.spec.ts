@@ -197,7 +197,7 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#notice")).toContainText("不是完整角色预设");
   await expect(page.locator("#notice")).toContainText("provisional");
   await expect(page.locator("#notice")).toContainText("partial");
-  await expect(page.locator("#notice")).toContainText("7 项待实现");
+  await expect(page.locator("#notice")).toContainText("5 项待实现");
   await page.locator("#notice summary").click();
   await expect(page.locator("#notice")).toContainText(
     "gcsim 杜林技能行为"
@@ -251,6 +251,15 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#hitDetail")).toContainText(
     "durin-elemental-art / durin-skill"
   );
+
+  await page.getByRole("button", { name: "总览" }).click();
+  await expect(page.locator("#timelineStateAudit")).toBeVisible();
+  await expect(page.locator("#timelineStateBody tr")).toHaveCount(3);
+  await expect(page.locator("#timelineStateBody")).toContainText(
+    "精质转变"
+  );
+  await expect(page.locator("#timelineStateBody")).toContainText("黑度之否");
+  await expect(page.locator("#timelineStateBody")).toContainText("消耗");
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#damageCurveCanvas")).toBeVisible();

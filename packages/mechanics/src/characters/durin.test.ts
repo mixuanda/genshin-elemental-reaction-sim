@@ -81,13 +81,31 @@ describe("Durin black E partial mechanics audit vector", () => {
       kind: "skill",
       cancelFrame: 16,
       animationEndFrame: 49,
-      cooldownFrames: 720
+      cooldownFrames: 720,
+      timelineState: {
+        grants: [
+          {
+            key: "durin-essential-transformation",
+            durationFrames: 360
+          }
+        ]
+      }
     });
     expect(denialOfDarkness.ability).toMatchObject({
       kind: "normal",
       cancelFrame: 41,
       animationEndFrame: 67,
-      cooldownFrames: 0
+      cooldownFrames: 0,
+      timelineState: {
+        requires: ["durin-essential-transformation"],
+        consumes: ["durin-essential-transformation"],
+        grants: [
+          {
+            key: "durin-denial-of-darkness-state",
+            durationFrames: 1800
+          }
+        ]
+      }
     });
     expect(
       denialOfDarkness.ability.hits?.map(
@@ -178,6 +196,29 @@ describe("Durin black E partial mechanics audit vector", () => {
       { startFrame: 16, cancelFrame: 57, animationEndFrame: 83 }
     ]);
     expect(result.skippedActions).toEqual([]);
+    expect(result.timelineExecution?.stateLog).toEqual([
+      expect.objectContaining({
+        frame: 0,
+        operation: "grant",
+        statusKey: "durin-essential-transformation",
+        expiresAtFrame: 360,
+        commandIndex: 0
+      }),
+      expect.objectContaining({
+        frame: 16,
+        operation: "consume",
+        statusKey: "durin-essential-transformation",
+        expiresAtFrame: 360,
+        commandIndex: 1
+      }),
+      expect.objectContaining({
+        frame: 16,
+        operation: "grant",
+        statusKey: "durin-denial-of-darkness-state",
+        expiresAtFrame: 1816,
+        commandIndex: 1
+      })
+    ]);
     expect(result.damageEvents).toHaveLength(3);
     expect(result.damageEvents.map((event) => event.frame)).toEqual([
       48, 53, 58
@@ -277,6 +318,22 @@ describe("Durin black E partial mechanics audit vector", () => {
       base.damageEvents.map((event) => event.finalDamage * 1.5)
     );
     expect(buffed.totalDamage).toBeCloseTo(6055.6572, 10);
+  });
+
+  it("rejects black E when the transformation state was never entered", () => {
+    const config = createDurinBlackSkillAuditConfig();
+    if (!config.timeline) throw new Error("expected legal timeline");
+    config.timeline.commands = [
+      {
+        type: "normal",
+        actorId: "durin",
+        abilityId: "durin-denial-of-darkness"
+      }
+    ];
+
+    expect(() => simulate(config)).toThrow(
+      /MISSING_REQUIRED_STATE.*durin-essential-transformation/
+    );
   });
 
   it("keeps the compact browser projection equivalent to the authoring vector", () => {

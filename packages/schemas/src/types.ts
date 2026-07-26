@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.3.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.3.0-icd-profiles" as const;
+export const CURRENT_SCHEMA_VERSION = "1.4.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.4.0-action-states" as const;
+export const ICD_PROFILE_SCHEMA_VERSION = "1.3.0" as const;
 export const PARTICLE_SCHEMA_VERSION = "1.2.0" as const;
 export const PREVIOUS_SCHEMA_VERSION = "1.1.0" as const;
 export const INITIAL_TYPED_SCHEMA_VERSION = "1.0.0" as const;
@@ -261,6 +262,22 @@ export type FrameParticleDefinition = Omit<
   travelFrames: number;
 };
 
+export interface TimelineStateGrant {
+  key: string;
+  label: string;
+  durationFrames: number;
+}
+
+/**
+ * Action-legality state owned by the ability actor. This is intentionally
+ * separate from combat-stat buffs/debuffs.
+ */
+export interface AbilityTimelineState {
+  requires?: string[];
+  consumes?: string[];
+  grants?: TimelineStateGrant[];
+}
+
 export interface AbilityDefinition {
   id: string;
   actorId: string;
@@ -277,6 +294,7 @@ export interface AbilityDefinition {
   debuffs?: FrameDebuffDefinition[];
   energyGains?: FrameEnergyEvent[];
   particles?: FrameParticleDefinition[];
+  timelineState?: AbilityTimelineState;
 }
 
 export interface TimelineWaitCommand {
@@ -653,7 +671,21 @@ export type TimelineFailureCode =
   | "UNKNOWN_ABILITY"
   | "WRONG_ACTIVE_CHARACTER"
   | "ALREADY_ACTIVE"
+  | "MISSING_REQUIRED_STATE"
   | "OUT_OF_DURATION";
+
+export interface TimelineStateLogEntry {
+  sequence: number;
+  frame: number;
+  timeSeconds: number;
+  operation: "grant" | "replace" | "consume" | "expire";
+  actorId: string;
+  statusKey: string;
+  label: string;
+  expiresAtFrame: number;
+  commandIndex: number;
+  abilityId: string;
+}
 
 export interface TimelineFailure {
   commandIndex: number;
@@ -696,6 +728,7 @@ export interface TimelineExecution {
   commandResults: TimelineCommandResult[];
   adjustments: TimelineAdjustment[];
   failures: TimelineFailure[];
+  stateLog: TimelineStateLogEntry[];
 }
 
 export interface SimulationResult {

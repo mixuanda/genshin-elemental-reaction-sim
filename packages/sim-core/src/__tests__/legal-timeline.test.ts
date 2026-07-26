@@ -65,6 +65,57 @@ const skillB: AbilityDefinition = {
   ]
 };
 
+const enterStateA: AbilityDefinition = {
+  id: "a-enter-state",
+  actorId: "a",
+  name: "A 进入状态",
+  kind: "skill",
+  cancelFrame: 1,
+  animationEndFrame: 5,
+  cooldownFrames: 0,
+  timelineState: {
+    grants: [
+      {
+        key: "special-window",
+        label: "特殊行动窗口",
+        durationFrames: 10
+      }
+    ]
+  }
+};
+
+const consumeStateA: AbilityDefinition = {
+  id: "a-consume-state",
+  actorId: "a",
+  name: "A 状态派生攻击",
+  kind: "normal",
+  cancelFrame: 1,
+  animationEndFrame: 5,
+  cooldownFrames: 0,
+  timelineState: {
+    requires: ["special-window"],
+    consumes: ["special-window"]
+  },
+  hits: [
+    {
+      id: "state-hit",
+      frame: 0,
+      scaling: 1,
+      element: "pyro"
+    }
+  ]
+};
+
+const cooldownGatedStateA: AbilityDefinition = {
+  ...consumeStateA,
+  id: "a-cooldown-gated-state",
+  name: "A 状态窗口冷却攻击",
+  cooldownFrames: 120,
+  timelineState: {
+    requires: ["special-window"]
+  }
+};
+
 function legalConfig(
   legalityMode: "strict" | "wait",
   commands: LegalTimelineCommand[],
@@ -265,5 +316,173 @@ describe("legal 60 FPS action timeline", () => {
       "rejected"
     );
     expect(result.damageEvents).toHaveLength(0);
+  });
+
+  it("rejects a derived action when its actor-owned state is absent", () => {
+    const config = legalConfig(
+      "strict",
+      [
+        {
+          type: "normal",
+          actorId: "a",
+          abilityId: "a-consume-state"
+        }
+      ],
+      [enterStateA, consumeStateA]
+    );
+
+    expect(() => compileLegalTimeline(config)).toThrow(
+      /MISSING_REQUIRED_STATE/
+    );
+    try {
+      compileLegalTimeline(config);
+    } catch (error) {
+      expect((error as TimelineLegalityError).failure).toEqual({
+        commandIndex: 0,
+        code: "MISSING_REQUIRED_STATE",
+        frame: 0,
+        message:
+          "\"A 状态派生攻击\" 需要 \"special-window\" 行动状态。"
+      });
+    }
+  });
+
+  it("grants and consumes a state with a complete transition log", () => {
+    const result = simulate(
+      legalConfig(
+        "strict",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-enter-state"
+          },
+          {
+            type: "normal",
+            actorId: "a",
+            abilityId: "a-consume-state"
+          }
+        ],
+        [enterStateA, consumeStateA]
+      )
+    );
+
+    expect(result.damageEvents).toHaveLength(1);
+    expect(result.timelineExecution?.stateLog).toEqual([
+      {
+        sequence: 0,
+        frame: 0,
+        timeSeconds: 0,
+        operation: "grant",
+        actorId: "a",
+        statusKey: "special-window",
+        label: "特殊行动窗口",
+        expiresAtFrame: 10,
+        commandIndex: 0,
+        abilityId: "a-enter-state"
+      },
+      {
+        sequence: 1,
+        frame: 1,
+        timeSeconds: 1 / 60,
+        operation: "consume",
+        actorId: "a",
+        statusKey: "special-window",
+        label: "特殊行动窗口",
+        expiresAtFrame: 10,
+        commandIndex: 1,
+        abilityId: "a-consume-state"
+      }
+    ]);
+  });
+
+  it("expires the state exactly at its boundary before checking requirements", () => {
+    const result = simulate(
+      legalConfig(
+        "wait",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-enter-state"
+          },
+          { type: "wait", frames: 9 },
+          {
+            type: "normal",
+            actorId: "a",
+            abilityId: "a-consume-state"
+          }
+        ],
+        [enterStateA, consumeStateA]
+      )
+    );
+
+    expect(result.timelineExecution?.stateLog).toEqual([
+      expect.objectContaining({
+        frame: 0,
+        operation: "grant",
+        expiresAtFrame: 10
+      }),
+      expect.objectContaining({
+        frame: 10,
+        operation: "expire",
+        expiresAtFrame: 10
+      })
+    ]);
+    expect(result.timelineExecution?.failures).toContainEqual({
+      commandIndex: 2,
+      code: "MISSING_REQUIRED_STATE",
+      frame: 10,
+      message:
+        "\"A 状态派生攻击\" 需要 \"special-window\" 行动状态。"
+    });
+    expect(result.timelineExecution?.commandResults[2]).toMatchObject({
+      status: "rejected",
+      failureCode: "MISSING_REQUIRED_STATE"
+    });
+    expect(result.damageEvents).toHaveLength(0);
+  });
+
+  it("rechecks state after cooldown waiting and keeps the attempted frame", () => {
+    const result = simulate(
+      legalConfig(
+        "wait",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-enter-state"
+          },
+          {
+            type: "normal",
+            actorId: "a",
+            abilityId: "a-cooldown-gated-state"
+          },
+          {
+            type: "normal",
+            actorId: "a",
+            abilityId: "a-cooldown-gated-state"
+          }
+        ],
+        [enterStateA, cooldownGatedStateA]
+      )
+    );
+
+    expect(result.timelineExecution?.adjustments).toContainEqual({
+      commandIndex: 2,
+      code: "ABILITY_ON_COOLDOWN",
+      requestedFrame: 2,
+      executedFrame: 121,
+      waitedFrames: 119,
+      message:
+        "\"A 状态窗口冷却攻击\" 等待冷却/充能至第 121 帧。"
+    });
+    expect(result.timelineExecution?.commandResults[2]).toMatchObject({
+      status: "rejected",
+      failureCode: "MISSING_REQUIRED_STATE",
+      waitedFrames: 119
+    });
+    expect(result.timelineExecution?.totalFrames).toBe(121);
+    expect(result.damageEvents).toHaveLength(1);
   });
 });

@@ -414,7 +414,8 @@ function renderLegalTimeline(): void {
   );
   byId<HTMLElement>("legalTimelineSummary").textContent =
     `${execution.fps} FPS · ${execution.legalityMode === "strict" ? "严格模式" : "等待模式"} · ` +
-    `${execution.adjustments.length} 次调整 · ${execution.failures.length} 次拒绝`;
+    `${execution.adjustments.length} 次调整 · ${execution.failures.length} 次拒绝 · ` +
+    `${execution.stateLog.length} 次状态变更`;
   const frameText = (frame: number | null): string =>
     frame === null ? "—" : `${frame}f / ${(frame / 60).toFixed(3)}s`;
   byId<HTMLTableSectionElement>("legalTimelineBody").innerHTML =
@@ -456,6 +457,37 @@ function renderLegalTimeline(): void {
         `<span class="badge warn">#${failure.commandIndex} ${escapeHtml(failure.message)}</span>`
     )
   ].join("");
+  const stateAudit = byId<HTMLElement>("timelineStateAudit");
+  stateAudit.hidden = execution.stateLog.length === 0;
+  if (execution.stateLog.length > 0) {
+    const operationLabels = {
+      grant: "进入",
+      replace: "刷新",
+      consume: "消耗",
+      expire: "到期"
+    } as const;
+    byId<HTMLElement>("timelineStateSummary").textContent =
+      `${execution.stateLog.length} 条由核心合法性编译器返回的状态记录`;
+    byId<HTMLTableSectionElement>("timelineStateBody").innerHTML =
+      execution.stateLog
+        .map((entry) => {
+          const actor = characters.get(entry.actorId) ?? entry.actorId;
+          const ability = abilities.get(entry.abilityId) ?? entry.abilityId;
+          return (
+            `<tr data-state-sequence="${entry.sequence}">` +
+            `<td>${entry.frame}f / ${entry.timeSeconds.toFixed(3)}s</td>` +
+            `<td>${escapeHtml(operationLabels[entry.operation])}</td>` +
+            `<td>${escapeHtml(actor)}</td>` +
+            `<td>${escapeHtml(entry.label)} <span class="muted">/ ${escapeHtml(entry.statusKey)}</span></td>` +
+            `<td>${entry.expiresAtFrame}f</td>` +
+            `<td>#${entry.commandIndex} · ${escapeHtml(ability)}</td></tr>`
+          );
+        })
+        .join("");
+  } else {
+    byId<HTMLTableSectionElement>("timelineStateBody").innerHTML = "";
+    byId<HTMLElement>("timelineStateSummary").textContent = "";
+  }
 }
 
 function renderHitFilters(): void {
