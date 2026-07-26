@@ -527,4 +527,277 @@ describe("single-target hit resolution", () => {
       0, 0
     ]);
   });
+
+  it("resolves half-open target phases by frame and lets a hit policy override the active phase", () => {
+    const ability: AbilityDefinition = {
+      id: "target-phase-boundaries",
+      actorId: "a",
+      name: "目标阶段边界",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 30,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "before-phase",
+          frame: 5,
+          scaling: 1,
+          element: "pyro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        },
+        {
+          id: "phase-start",
+          frame: 6,
+          scaling: 1,
+          element: "pyro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        },
+        {
+          id: "hit-override",
+          frame: 12,
+          scaling: 1,
+          element: "pyro",
+          targeting: {
+            targetId: "enemy-0",
+            outcome: "landed",
+            reason: "SCRIPTED_HIT_OVERRIDE",
+            effects: {
+              damage: "normal",
+              aura: "normal",
+              hitConfirm: "blocked"
+            }
+          },
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        },
+        {
+          id: "miss-override",
+          frame: 17,
+          scaling: 1,
+          element: "pyro",
+          targeting: {
+            targetId: "enemy-0",
+            outcome: "miss",
+            reason: "SCRIPTED_MISS_OVERRIDE"
+          },
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        },
+        {
+          id: "adjacent-phase-start",
+          frame: 18,
+          scaling: 1,
+          element: "pyro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        },
+        {
+          id: "after-phases",
+          frame: 30,
+          scaling: 1,
+          element: "pyro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "target-phase",
+            icdGroup: "no-icd"
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targetPhases: [
+          {
+            id: "full-block",
+            label: "全层阻断",
+            targetId: "enemy-0",
+            startFrame: 6,
+            endFrame: 18,
+            reason: "SCRIPTED_FULL_BLOCK_PHASE",
+            effects: {
+              damage: "immune",
+              aura: "blocked",
+              hitConfirm: "blocked"
+            }
+          },
+          {
+            id: "damage-only",
+            label: "伤害免疫",
+            targetId: "enemy-0",
+            startFrame: 18,
+            endFrame: 30,
+            reason: "SCRIPTED_DAMAGE_ONLY_PHASE",
+            effects: {
+              damage: "immune",
+              aura: "normal",
+              hitConfirm: "normal"
+            }
+          }
+        ]
+      },
+      reactionEngine: {
+        mode: "aura-v1",
+        initialAura: [{ element: "cryo", gaugeUnits: 10 }]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+
+    expect(result.targetPhaseTimeline).toEqual([
+      expect.objectContaining({
+        id: "full-block",
+        startFrame: 6,
+        endFrame: 18,
+        startTimeSeconds: 0.1,
+        endTimeSeconds: 0.3
+      }),
+      expect.objectContaining({
+        id: "damage-only",
+        startFrame: 18,
+        endFrame: 30,
+        startTimeSeconds: 0.3,
+        endTimeSeconds: 0.5
+      })
+    ]);
+    expect(
+      result.hitResolutionLog.map(
+        ({
+          frame,
+          hitId,
+          targetEffectSource,
+          targetPhaseId,
+          reason,
+          damageAllowed,
+          auraAllowed,
+          hitConfirmAllowed,
+          potentialDamage,
+          finalDamage
+        }) => ({
+          frame,
+          hitId,
+          targetEffectSource,
+          targetPhaseId,
+          reason,
+          damageAllowed,
+          auraAllowed,
+          hitConfirmAllowed,
+          potentialDamage,
+          finalDamage
+        })
+      )
+    ).toEqual([
+      {
+        frame: 5,
+        hitId: "before-phase",
+        targetEffectSource: "normal",
+        targetPhaseId: null,
+        reason: null,
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        potentialDamage: 900,
+        finalDamage: 900
+      },
+      {
+        frame: 6,
+        hitId: "phase-start",
+        targetEffectSource: "target-phase",
+        targetPhaseId: "full-block",
+        reason: "SCRIPTED_FULL_BLOCK_PHASE",
+        damageAllowed: false,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        potentialDamage: 450,
+        finalDamage: 0
+      },
+      {
+        frame: 12,
+        hitId: "hit-override",
+        targetEffectSource: "hit",
+        targetPhaseId: "full-block",
+        reason: "SCRIPTED_HIT_OVERRIDE",
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: false,
+        potentialDamage: 900,
+        finalDamage: 900
+      },
+      {
+        frame: 17,
+        hitId: "miss-override",
+        targetEffectSource: "hit",
+        targetPhaseId: "full-block",
+        reason: "SCRIPTED_MISS_OVERRIDE",
+        damageAllowed: false,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        potentialDamage: 0,
+        finalDamage: 0
+      },
+      {
+        frame: 18,
+        hitId: "adjacent-phase-start",
+        targetEffectSource: "target-phase",
+        targetPhaseId: "damage-only",
+        reason: "SCRIPTED_DAMAGE_ONLY_PHASE",
+        damageAllowed: false,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        potentialDamage: 900,
+        finalDamage: 0
+      },
+      {
+        frame: 30,
+        hitId: "after-phases",
+        targetEffectSource: "normal",
+        targetPhaseId: null,
+        reason: null,
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        potentialDamage: 900,
+        finalDamage: 900
+      }
+    ]);
+    expect(result.totalDamage).toBe(2700);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
 });

@@ -638,6 +638,9 @@ function renderHitDetail(): void {
     (candidate) => candidate.id === selectedHitId
   );
   if (!hit) return;
+  const targetResolution = lastResult.hitResolutionLog.find(
+    (entry) => entry.id === hit.targetResolutionId
+  );
   const statusText = hit.activeStatuses.length
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
@@ -648,6 +651,17 @@ function renderHitDetail(): void {
     ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
     ["目标 / 判定", `${hit.targetId} / landed (#${hit.targetResolutionId})`],
+    [
+      "目标策略来源",
+      targetResolution?.targetEffectSource === "target-phase"
+        ? `敌方阶段 ${targetResolution.targetPhaseId ?? "—"}`
+        : targetResolution?.targetEffectSource === "hit"
+          ? targetResolution.targetPhaseId === null
+            ? "逐击配置"
+            : `逐击覆盖（活动阶段 ${targetResolution.targetPhaseId}）`
+          : "默认正常"
+    ],
+    ["目标判定原因", targetResolution?.reason ?? "—"],
     [
       "目标伤害策略",
       hit.targetDamagePolicy === "immune"
@@ -969,6 +983,32 @@ function renderDamageCurve(): void {
 function renderTargetHitAudit(): void {
   if (!lastResult) return;
   const result = lastResult;
+  const phaseAudit = byId<HTMLElement>("targetPhaseAudit");
+  phaseAudit.hidden = result.targetPhaseTimeline.length === 0;
+  byId<HTMLElement>("targetPhaseSummary").textContent =
+    `${result.targetPhaseTimeline.length} 个按帧窗口 · [开始帧, 结束帧) · 逐击策略可显式覆盖`;
+  byId<HTMLTableSectionElement>("targetPhaseBody").innerHTML =
+    result.targetPhaseTimeline
+      .map((phase) => {
+        const policies = [
+          phase.effects.damage === "normal" ? "伤害正常" : "伤害免疫",
+          phase.effects.aura === "normal" ? "Aura 正常" : "Aura 阻断",
+          phase.effects.hitConfirm === "normal"
+            ? "回调正常"
+            : "回调阻断"
+        ].join(" / ");
+        return (
+          `<tr>` +
+          `<td>${escapeHtml(phase.label)} <span class="muted">/ ${escapeHtml(phase.id)}</span></td>` +
+          `<td>${escapeHtml(phase.targetId)}</td>` +
+          `<td>${phase.startTimeSeconds.toFixed(3)}s <span class="muted">/ ${phase.startFrame}f</span></td>` +
+          `<td>${phase.endTimeSeconds.toFixed(3)}s <span class="muted">/ ${phase.endFrame}f</span></td>` +
+          `<td>${escapeHtml(policies)}</td>` +
+          `<td>${escapeHtml(phase.reason)}</td>` +
+          `</tr>`
+        );
+      })
+      .join("");
   const landed = result.hitResolutionLog.filter(
     (entry) => entry.landed
   ).length;
@@ -978,6 +1018,9 @@ function renderTargetHitAudit(): void {
   ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
+    (result.targetPhaseTimeline.length
+      ? ` · ${result.targetPhaseTimeline.length} 个目标阶段`
+      : "") +
     (missed
       ? " · Miss 不进入伤害、Aura / 反应或命中确认产球"
       : " · 全部使用默认或显式 landed 判定");
@@ -992,6 +1035,14 @@ function renderTargetHitAudit(): void {
                 entry.hitConfirmAllowed ? "回调正常" : "回调阻断"
               ].join(" / ")
             : "全部跳过";
+          const policySource =
+            entry.targetEffectSource === "target-phase"
+              ? `阶段 ${entry.targetPhaseId ?? "—"}`
+              : entry.targetEffectSource === "hit"
+                ? entry.targetPhaseId === null
+                  ? "逐击"
+                  : `逐击覆盖（活动阶段 ${entry.targetPhaseId}）`
+                : "默认";
           return (
           `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
@@ -999,7 +1050,7 @@ function renderTargetHitAudit(): void {
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
           `<td>${escapeHtml(entry.targetId)}</td>` +
           `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
-          `<td>${escapeHtml(policies)}</td>` +
+          `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
           `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.potentialDamage === entry.finalDamage ? "" : ` <span class="muted">/ 潜在 ${formatNumber(entry.potentialDamage, 0)}</span>`}${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`
           );

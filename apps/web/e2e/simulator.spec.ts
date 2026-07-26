@@ -849,6 +849,153 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
   );
 });
 
+test("applies half-open enemy target phases and exposes their source per hit", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const targetPhaseConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targetPhases = [
+      {
+        id: "full-block",
+        label: "全层阻断阶段",
+        targetId: "enemy-0",
+        startFrame: 48,
+        endFrame: 53,
+        reason: "SCRIPTED_FULL_BLOCK_PHASE",
+        effects: {
+          damage: "immune",
+          aura: "blocked",
+          hitConfirm: "blocked"
+        }
+      },
+      {
+        id: "damage-only",
+        label: "伤害免疫阶段",
+        targetId: "enemy-0",
+        startFrame: 53,
+        endFrame: 58,
+        reason: "SCRIPTED_DAMAGE_ONLY_PHASE",
+        effects: {
+          damage: "immune",
+          aura: "normal",
+          hitConfirm: "normal"
+        }
+      }
+    ];
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(targetPhaseConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          phases: result.targetPhaseTimeline.map(
+            ({ id, startFrame, endFrame }) => ({
+              id,
+              startFrame,
+              endFrame
+            })
+          ),
+          hits: result.hitResolutionLog.map(
+            ({
+              frame,
+              targetEffectSource,
+              targetPhaseId,
+              damageAllowed,
+              auraAllowed,
+              hitConfirmAllowed,
+              finalDamage
+            }) => ({
+              frame,
+              targetEffectSource,
+              targetPhaseId,
+              damageAllowed,
+              auraAllowed,
+              hitConfirmAllowed,
+              finalDamage
+            })
+          ),
+          reactions: result.damageEvents.map((event) => event.reaction),
+          triggerReasons: result.particleTriggerLog.map(
+            (entry) => entry.blockedReason
+          ),
+          totalDamage: result.totalDamage
+        }
+      : null;
+  });
+  expect(audit).toEqual({
+    phases: [
+      { id: "full-block", startFrame: 48, endFrame: 53 },
+      { id: "damage-only", startFrame: 53, endFrame: 58 }
+    ],
+    hits: [
+      {
+        frame: 48,
+        targetEffectSource: "target-phase",
+        targetPhaseId: "full-block",
+        damageAllowed: false,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        finalDamage: 0
+      },
+      {
+        frame: 53,
+        targetEffectSource: "target-phase",
+        targetPhaseId: "damage-only",
+        damageAllowed: false,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        finalDamage: 0
+      },
+      {
+        frame: 58,
+        targetEffectSource: "normal",
+        targetPhaseId: null,
+        damageAllowed: true,
+        auraAllowed: true,
+        hitConfirmAllowed: true,
+        finalDamage: 994.8096
+      }
+    ],
+    reactions: ["none", "melt", "none"],
+    triggerReasons: [
+      "TARGET_HIT_CONFIRM_BLOCKED",
+      null,
+      "INTERNAL_COOLDOWN"
+    ],
+    totalDamage: 994.8096
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetPhaseAudit")).toBeVisible();
+  await expect(page.locator("#targetPhaseSummary")).toContainText(
+    "2 个按帧窗口"
+  );
+  await expect(page.locator("#targetPhaseBody tr")).toHaveCount(2);
+  await expect(page.locator("#targetPhaseBody tr").first()).toContainText(
+    "48f"
+  );
+  await expect(page.locator("#targetPhaseBody tr").first()).toContainText(
+    "53f"
+  );
+  await expect(page.locator("#targetHitAuditBody tr").nth(0)).toContainText(
+    "阶段 full-block"
+  );
+  await expect(page.locator("#targetHitAuditBody tr").nth(1)).toContainText(
+    "阶段 damage-only"
+  );
+  await expect(page.locator("#targetHitAuditBody tr").nth(2)).toContainText(
+    "默认"
+  );
+});
+
 test("renders the source-audited Durin white E branch and state transition", async ({
   page
 }) => {

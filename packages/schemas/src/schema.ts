@@ -13,6 +13,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig
@@ -141,14 +142,6 @@ export const characterProfileSchema = z
     }
   });
 
-export const enemyProfileSchema = z
-  .object({
-    level: z.number().int().min(1).max(200),
-    resistance: finiteNumber,
-    defReduction: finiteNumber
-  })
-  .strict();
-
 export const flatDamageSourceSchema = z
   .object({
     ownerId: idSchema.optional(),
@@ -174,6 +167,59 @@ export const targetEffectPolicySchema = z
         code: "custom",
         message: "must change at least one target effect"
       });
+    }
+  });
+
+export const targetPhaseDefinitionSchema = z
+  .object({
+    id: idSchema,
+    label: idSchema,
+    targetId: z.literal("enemy-0"),
+    startFrame: z.number().int().min(0).max(36_000),
+    endFrame: z.number().int().positive().max(36_000),
+    reason: z.string().trim().min(1),
+    effects: targetEffectPolicySchema
+  })
+  .strict()
+  .superRefine((phase, context) => {
+    if (phase.endFrame <= phase.startFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["endFrame"],
+        message: "must be greater than startFrame"
+      });
+    }
+  });
+
+export const enemyProfileSchema = z
+  .object({
+    level: z.number().int().min(1).max(200),
+    resistance: finiteNumber,
+    defReduction: finiteNumber,
+    targetPhases: z.array(targetPhaseDefinitionSchema).max(256).optional()
+  })
+  .strict()
+  .superRefine((enemy, context) => {
+    const phaseIds = new Set<string>();
+    let previousEndFrame = -1;
+    for (const [index, phase] of (enemy.targetPhases ?? []).entries()) {
+      if (phaseIds.has(phase.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetPhases", index, "id"],
+          message: `duplicate target phase id "${phase.id}"`
+        });
+      }
+      phaseIds.add(phase.id);
+      if (phase.startFrame < previousEndFrame) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetPhases", index, "startFrame"],
+          message:
+            "target phases must be sorted and non-overlapping with half-open boundaries"
+        });
+      }
+      previousEndFrame = Math.max(previousEndFrame, phase.endFrame);
     }
   });
 
@@ -748,6 +794,17 @@ export const simConfigSchema = z
   })
   .strict()
   .superRefine((config, context) => {
+    const durationFrames = Math.round(config.duration * 60);
+    config.enemy.targetPhases?.forEach((phase, index) => {
+      if (phase.endFrame > durationFrames) {
+        context.addIssue({
+          code: "custom",
+          path: ["enemy", "targetPhases", index, "endFrame"],
+          message: `must not exceed simulation duration (${durationFrames} frames)`
+        });
+      }
+    });
+
     const characterIds = new Set<string>();
     config.characters.forEach((character, index) => {
       if (characterIds.has(character.id)) {
@@ -1207,7 +1264,10 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
       ? {
           level: input.enemy.level ?? 110,
           resistance: input.enemy.resistance ?? 0.1,
-          defReduction: input.enemy.defReduction ?? 0
+          defReduction: input.enemy.defReduction ?? 0,
+          ...(Array.isArray(input.enemy.targetPhases)
+            ? { targetPhases: input.enemy.targetPhases }
+            : {})
         }
       : { level: 110, resistance: 0.1, defReduction: 0 },
     characters: Array.isArray(input.characters)
@@ -1251,6 +1311,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === TARGET_EFFECT_POLICY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_HIT_RESOLUTION_SCHEMA_VERSION) {
     return parseSimConfig({

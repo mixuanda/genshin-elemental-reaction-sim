@@ -320,6 +320,13 @@ function simulateConfig(
   const particleEvents: SimulationResult["particleEvents"] = [];
   const particleTriggerLog: SimulationResult["particleTriggerLog"] = [];
   const energyCurve: SimulationResult["energyCurve"] = [];
+  const targetPhaseTimeline: SimulationResult["targetPhaseTimeline"] = (
+    config.enemy.targetPhases ?? []
+  ).map((phase) => ({
+    ...phase,
+    startTimeSeconds: phase.startFrame / 60,
+    endTimeSeconds: phase.endFrame / 60
+  }));
   let activeCharacterId =
     resultConfig.timeline?.initialActiveCharacterId ??
     config.characters[0]?.id ??
@@ -1015,7 +1022,21 @@ function simulateConfig(
     const element = hit.element ?? scalingOwner.element;
     const targetId = hit.targeting?.targetId ?? "enemy-0";
     const targetOutcome = hit.targeting?.outcome ?? "landed";
-    const targetEffects = hit.targeting?.effects;
+    const activeTargetPhase = targetPhaseTimeline.find(
+      (phase) =>
+        phase.targetId === targetId &&
+        event.frame >= phase.startFrame &&
+        event.frame < phase.endFrame
+    );
+    const targetEffects =
+      hit.targeting?.effects ?? activeTargetPhase?.effects;
+    const targetEffectSource =
+      hit.targeting?.effects !== undefined ||
+      targetOutcome === "miss"
+        ? ("hit" as const)
+        : activeTargetPhase === undefined
+          ? ("normal" as const)
+          : ("target-phase" as const);
     const landed = targetOutcome === "landed";
     const damageAllowed =
       landed && targetEffects?.damage !== "immune";
@@ -1038,7 +1059,13 @@ function simulateConfig(
       targetId,
       outcome: targetOutcome,
       landed,
-      reason: hit.targeting?.reason ?? null,
+      reason:
+        hit.targeting?.reason ??
+        (targetEffectSource === "target-phase"
+          ? activeTargetPhase?.reason ?? null
+          : null),
+      targetEffectSource,
+      targetPhaseId: activeTargetPhase?.id ?? null,
       damageAllowed,
       auraAllowed,
       hitConfirmAllowed,
@@ -1463,6 +1490,7 @@ function simulateConfig(
     damageEvents,
     hitEvents: damageEvents,
     hitResolutionLog,
+    targetPhaseTimeline,
     skippedActions,
     actionLog,
     energyStats: Object.fromEntries(energyStats),

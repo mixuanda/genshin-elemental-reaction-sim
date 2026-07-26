@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.12.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.12.0-target-effect-policy" as const;
+export const CURRENT_SCHEMA_VERSION = "1.13.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.13.0-target-phase-timeline" as const;
+export const TARGET_EFFECT_POLICY_SCHEMA_VERSION = "1.12.0" as const;
 export const TARGET_HIT_RESOLUTION_SCHEMA_VERSION = "1.11.0" as const;
 export const TIMELINE_STATE_CLEAR_SCHEMA_VERSION = "1.10.0" as const;
 export const MOVEMENT_COMMAND_SCHEMA_VERSION = "1.9.0" as const;
@@ -58,6 +59,18 @@ export interface TargetEffectPolicy {
   damage: TargetDamagePolicy;
   aura: TargetAuraPolicy;
   hitConfirm: TargetHitConfirmPolicy;
+}
+
+export interface TargetPhaseDefinition {
+  id: string;
+  label: string;
+  targetId: TargetId;
+  /** Inclusive 60 FPS boundary. */
+  startFrame: number;
+  /** Exclusive 60 FPS boundary. */
+  endFrame: number;
+  reason: string;
+  effects: TargetEffectPolicy;
 }
 
 /**
@@ -146,6 +159,11 @@ export interface EnemyProfile {
   level: number;
   resistance: number;
   defReduction: number;
+  /**
+   * Sorted, non-overlapping target-state windows. Per-hit targeting effects
+   * override the active phase while a scripted miss bypasses all effect layers.
+   */
+  targetPhases?: TargetPhaseDefinition[];
 }
 
 export interface FlatDamageSource {
@@ -712,6 +730,9 @@ export interface HitResolutionLogEntry {
   outcome: TargetHitOutcome;
   landed: boolean;
   reason: string | null;
+  targetEffectSource: "normal" | "hit" | "target-phase";
+  /** Active phase even when a per-hit override or miss takes precedence. */
+  targetPhaseId: string | null;
   damageAllowed: boolean;
   auraAllowed: boolean;
   hitConfirmAllowed: boolean;
@@ -723,6 +744,11 @@ export interface HitResolutionLogEntry {
   displayDamage: number;
   timelineCommandIndex?: number;
   sourceAbilityId?: string;
+}
+
+export interface TargetPhaseTimelineEntry extends TargetPhaseDefinition {
+  startTimeSeconds: number;
+  endTimeSeconds: number;
 }
 
 export interface EnergyLogEntry {
@@ -897,6 +923,8 @@ export interface SimulationResult {
   hitEvents: DamageEvent[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
+  /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
+  targetPhaseTimeline: TargetPhaseTimelineEntry[];
   skippedActions: SkippedAction[];
   actionLog: ActionLogEntry[];
   energyStats: Record<string, EnergySummary>;

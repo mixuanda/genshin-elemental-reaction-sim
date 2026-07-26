@@ -140,6 +140,27 @@
             <h2>目标命中判定</h2>
             <span id="targetHitAuditSummary">核心逐击返回：目标检查 → 命中或 Miss → 伤害 / Aura / 命中回调</span>
           </div>
+          <div id="targetPhaseAudit" hidden>
+            <div class="section-title">
+              <h3>敌方阶段时间线</h3>
+              <span id="targetPhaseSummary"></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>阶段</th>
+                    <th>目标</th>
+                    <th>开始（含）</th>
+                    <th>结束（不含）</th>
+                    <th>层级策略</th>
+                    <th>原因</th>
+                  </tr>
+                </thead>
+                <tbody id="targetPhaseBody"></tbody>
+              </table>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -260,7 +281,8 @@
             <dl>
               <dt>characters</dt><dd>角色面板、等级、能量上限与初始能量。</dd>
               <dt>rotation</dt><dd>一个循环内的行动。系统按 cycleLength 自动重复至 duration。</dd>
-              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 显式脚本化单目标 landed / miss，或分别声明伤害免疫、Aura 阻断和命中回调阻断，所有非正常策略都必须保留原因。</dd>
+              <dt>enemy.targetPhases</dt><dd>按 60 FPS 声明有序、不重叠的半开目标阶段；开始帧生效、结束帧恢复。阶段可分别控制伤害、Aura / 反应和命中回调，并强制保存原因。</dd>
+              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 显式脚本化单目标 landed / miss，或覆盖阶段的伤害免疫、Aura 阻断和命中回调策略，所有非正常策略都必须保留原因。</dd>
               <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus 和 energyRecharge。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
@@ -268,7 +290,7 @@
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。粒子规则、脚本化单目标 landed / miss 和三层目标效果策略已有机制闭环，但尚无几何命中、按帧目标阶段或多目标策略，也未完成全角色可执行产球与动作帧映射；元素共存、冻结、感电等转化反应同样未实现。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。粒子规则、脚本化单目标 landed / miss、三层目标效果策略和按帧阶段窗口已有机制闭环，但阶段仍是场景输入，并非由真实 Boss AI 自动生成；几何命中与多目标策略尚未实现，也未完成全角色可执行产球与动作帧映射。元素共存、冻结、感电等转化反应同样未实现。</p>
           </article>
         </div>
       </section>

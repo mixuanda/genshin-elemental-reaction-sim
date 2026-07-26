@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.11.0 configs to target effect policies", () => {
+  it("migrates 1.0.0 through 1.12.0 configs to target phase timelines", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -201,6 +201,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.11.0",
       engineVersion: "1.11.0-target-hit-resolution"
+    });
+    const migratedFromTargetEffectPolicy = migrateConfig({
+      ...current,
+      schemaVersion: "1.12.0",
+      engineVersion: "1.12.0-target-effect-policy"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -265,6 +270,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromTargetHitResolution.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromTargetEffectPolicy.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromTargetEffectPolicy.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -437,6 +448,96 @@ describe("versioned config schema", () => {
         hitConfirm: "blocked"
       }
     });
+  });
+
+  it("accepts sorted half-open target phases within the simulation", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      duration: 2,
+      enemy: {
+        ...legacyConfig.enemy,
+        targetPhases: [
+          {
+            id: "damage-window",
+            label: "伤害免疫窗口",
+            targetId: "enemy-0",
+            startFrame: 30,
+            endFrame: 60,
+            reason: "SCRIPTED_DAMAGE_WINDOW",
+            effects: {
+              damage: "immune",
+              aura: "normal",
+              hitConfirm: "normal"
+            }
+          },
+          {
+            id: "full-window",
+            label: "全层阻断窗口",
+            targetId: "enemy-0",
+            startFrame: 60,
+            endFrame: 90,
+            reason: "SCRIPTED_FULL_WINDOW",
+            effects: {
+              damage: "immune",
+              aura: "blocked",
+              hitConfirm: "blocked"
+            }
+          }
+        ]
+      }
+    });
+
+    expect(parsed.enemy.targetPhases).toHaveLength(2);
+    expect(parsed.enemy.targetPhases?.[1]).toMatchObject({
+      id: "full-window",
+      startFrame: 60,
+      endFrame: 90
+    });
+  });
+
+  it("rejects overlapping or out-of-duration target phases", () => {
+    const phase = {
+      id: "phase-a",
+      label: "阶段 A",
+      targetId: "enemy-0",
+      startFrame: 30,
+      endFrame: 61,
+      reason: "SCRIPTED_PHASE_A",
+      effects: {
+        damage: "immune",
+        aura: "blocked",
+        hitConfirm: "blocked"
+      }
+    };
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        duration: 2,
+        enemy: {
+          ...legacyConfig.enemy,
+          targetPhases: [
+            phase,
+            {
+              ...phase,
+              id: "phase-b",
+              startFrame: 60,
+              endFrame: 90
+            }
+          ]
+        }
+      })
+    ).toThrow(/enemy\.targetPhases\.1\.startFrame/);
+
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        duration: 1,
+        enemy: {
+          ...legacyConfig.enemy,
+          targetPhases: [phase]
+        }
+      })
+    ).toThrow(/enemy\.targetPhases\.0\.endFrame/);
   });
 
   it("requires positive explicit occupancy for dash and jump commands", () => {
