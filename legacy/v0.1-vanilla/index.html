@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>提瓦特伤害实验室</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">GENSHIN EVENT SIMULATOR</div>
+        <h1>提瓦特伤害实验室</h1>
+        <p>事件驱动的队伍 DPS、角色占比与逐段伤害模拟器</p>
+      </div>
+      <div class="top-actions">
+        <label class="select-label">预设
+          <select id="presetSelect"></select>
+        </label>
+        <button id="runButton" class="primary">运行模拟</button>
+        <button id="exportButton">导出 JSON</button>
+        <label class="file-button">导入 JSON<input id="importInput" type="file" accept="application/json" /></label>
+      </div>
+    </header>
+
+    <section class="notice" id="notice">
+      <strong>首版范围：</strong>支持循环、能量门槛、Buff/减抗窗口、平均暴击、增幅反应、动态/行动快照和逐击追踪。内置黑杜林融化队为结构校准示例，角色数据库仍需继续扩充。
+    </section>
+
+    <main>
+      <section class="control-grid card">
+        <label>模拟时长（秒）<input id="durationInput" type="number" min="1" max="600" step="1" /></label>
+        <label>循环长度（秒）<input id="cycleInput" type="number" min="1" max="120" step="0.1" /></label>
+        <label>敌人等级<input id="enemyLevelInput" type="number" min="1" max="200" step="1" /></label>
+        <label>基础抗性（%）<input id="resInput" type="number" min="-100" max="200" step="1" /></label>
+        <label>初始能量模式
+          <select id="energyModeInput">
+            <option value="configured">按角色配置</option>
+            <option value="zero">强制全员 0</option>
+            <option value="full">强制全员满能量</option>
+          </select>
+        </label>
+        <label>暴击模式
+          <select id="critModeInput">
+            <option value="average">期望值</option>
+            <option value="allCrit">全部暴击</option>
+            <option value="noCrit">全部不暴击</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="metric-grid" id="metricGrid"></section>
+
+      <nav class="tabs" aria-label="结果视图">
+        <button class="tab active" data-tab="overview">总览</button>
+        <button class="tab" data-tab="timeline">时间轴</button>
+        <button class="tab" data-tab="hits">逐段伤害</button>
+        <button class="tab" data-tab="config">高级配置</button>
+      </nav>
+
+      <section class="tab-panel active" id="overviewPanel">
+        <div class="two-column">
+          <article class="card">
+            <div class="section-title"><h2>角色伤害构成</h2><span id="characterSummary"></span></div>
+            <div id="characterBreakdown" class="breakdown-list"></div>
+          </article>
+          <article class="card">
+            <div class="section-title"><h2>技能伤害构成</h2><span>按最终伤害排序</span></div>
+            <div class="table-wrap compact"><table><thead><tr><th>角色</th><th>技能</th><th>次数</th><th>伤害</th><th>DPS</th><th>占比</th></tr></thead><tbody id="skillTableBody"></tbody></table></div>
+          </article>
+        </div>
+        <article class="card">
+          <div class="section-title"><h2>能量与执行状态</h2><span>用于识别 0 能量启动导致的断轴</span></div>
+          <div id="energyStatus" class="energy-grid"></div>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="timelinePanel">
+        <article class="card">
+          <div class="section-title"><h2>每秒伤害时间轴</h2><span>点击柱体可筛选对应秒的逐击记录</span></div>
+          <canvas id="timelineCanvas" height="360"></canvas>
+          <div id="timelineLegend" class="legend"></div>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="hitsPanel">
+        <article class="card">
+          <div class="hit-filters">
+            <label>角色<select id="hitCharacterFilter"></select></label>
+            <label>反应<select id="hitReactionFilter"><option value="all">全部</option></select></label>
+            <label>搜索<input id="hitSearch" type="search" placeholder="技能或段数" /></label>
+            <label>每页<select id="pageSizeInput"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
+          </div>
+          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间</th><th>角色</th><th>技能 / 段数</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
+          <div class="pager"><button id="prevPage">上一页</button><span id="pageInfo"></span><button id="nextPage">下一页</button></div>
+        </article>
+        <article class="card detail-card" id="hitDetailCard">
+          <div class="section-title"><h2>单段伤害公式</h2><span>选择任意一行查看</span></div>
+          <div id="hitDetail" class="formula-detail empty">尚未选择伤害事件。</div>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="configPanel">
+        <div class="two-column config-layout">
+          <article class="card">
+            <div class="section-title"><h2>预设 JSON</h2><span>直接编辑角色、行动、Buff 与命中段</span></div>
+            <textarea id="jsonEditor" spellcheck="false"></textarea>
+            <div class="editor-actions"><button id="applyJsonButton" class="primary">应用并运行</button><button id="formatJsonButton">格式化</button></div>
+            <pre id="jsonError" class="error-box" hidden></pre>
+          </article>
+          <article class="card docs">
+            <h2>核心字段</h2>
+            <dl>
+              <dt>characters</dt><dd>角色面板、等级、能量上限与初始能量。</dd>
+              <dt>rotation</dt><dd>一个循环内的行动。系统按 cycleLength 自动重复至 duration。</dd>
+              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式。</dd>
+              <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus。</dd>
+              <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
+              <dt>energyGains</dt><dd>以确定性数值描述自产球、队伍回能或天赋回能；不足能量的行动会被跳过并记录。</dd>
+            </dl>
+            <p class="muted">当前引擎采用命中时动态结算；将 hit.snapshot 设为 action 可使用行动开始时的角色快照。元素附着与 ICD 尚未自动推演，增幅反应需要在命中段中明确标记。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
