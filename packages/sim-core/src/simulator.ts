@@ -99,6 +99,9 @@ interface HitEventPayload {
   hitIndex: number;
   targeting?: HitTargeting;
   targetingSource: "default" | "scripted" | "geometry";
+  targetPosition: { x: number; y: number } | null;
+  geometryOrigin: { x: number; y: number } | null;
+  geometryRadius: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   targetIndex: number;
@@ -261,6 +264,70 @@ function simulateConfig(
   const enemyTargetById = new Map(
     enemyTargets.map((target) => [target.id, target])
   );
+  const lastMotionPositionByTarget = new Map(
+    enemyTargets.map((target) => [
+      target.id,
+      target.position === null ? null : deepClone(target.position)
+    ])
+  );
+  const targetMotionTimeline: SimulationResult["targetMotionTimeline"] = (
+    config.enemy.targetMotions ?? []
+  ).map((motion) => {
+    const startPosition = lastMotionPositionByTarget.get(motion.targetId);
+    if (startPosition === null || startPosition === undefined) {
+      throw new Error(
+        `Target motion "${motion.id}" passed schema validation without an initial position.`
+      );
+    }
+    const resolved = {
+      ...motion,
+      startPosition: deepClone(startPosition),
+      endPosition: deepClone(motion.endPosition),
+      startTimeSeconds: motion.startFrame / 60,
+      endTimeSeconds: motion.endFrame / 60
+    };
+    lastMotionPositionByTarget.set(
+      motion.targetId,
+      deepClone(motion.endPosition)
+    );
+    return resolved;
+  });
+  const targetMotionsByTarget = new Map<
+    string,
+    SimulationResult["targetMotionTimeline"]
+  >();
+  for (const motion of targetMotionTimeline) {
+    const motions = targetMotionsByTarget.get(motion.targetId) ?? [];
+    motions.push(motion);
+    targetMotionsByTarget.set(motion.targetId, motions);
+  }
+  const resolveTargetPosition = (
+    targetId: string,
+    frame: number
+  ): { x: number; y: number } | null => {
+    const initialPosition = enemyTargetById.get(targetId)?.position ?? null;
+    if (initialPosition === null) return null;
+    let position = initialPosition;
+    for (const motion of targetMotionsByTarget.get(targetId) ?? []) {
+      if (frame < motion.startFrame) break;
+      if (frame >= motion.endFrame) {
+        position = motion.endPosition;
+        continue;
+      }
+      const progress =
+        (frame - motion.startFrame) /
+        (motion.endFrame - motion.startFrame);
+      return {
+        x:
+          motion.startPosition.x +
+          (motion.endPosition.x - motion.startPosition.x) * progress,
+        y:
+          motion.startPosition.y +
+          (motion.endPosition.y - motion.startPosition.y) * progress
+      };
+    }
+    return deepClone(position);
+  };
   const auraEngines =
     config.reactionEngine?.mode === "aura-v1"
       ? new Map(
@@ -811,13 +878,19 @@ function simulateConfig(
         });
       }
       (action.hits ?? []).forEach((hit, hitIndex) => {
+        const hitTimeSeconds = timeSeconds + hit.offset;
+        const hitFrame = toFrame(hitTimeSeconds);
+        const geometry = hit.geometry;
         const targetPlans: Array<{
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
+          targetPosition: { x: number; y: number } | null;
+          geometryOrigin: { x: number; y: number } | null;
+          geometryRadius: number | null;
           geometryDistance: number | null;
           geometryThreshold: number | null;
         }> =
-          hit.geometry === undefined
+          geometry === undefined
             ? (
                 hit.targeting === undefined
                   ? [undefined]
@@ -828,21 +901,31 @@ function simulateConfig(
                 ...(targeting === undefined ? {} : { targeting }),
                 targetingSource:
                   targeting === undefined ? "default" : "scripted",
+                targetPosition: resolveTargetPosition(
+                  targeting?.targetId ?? "enemy-0",
+                  hitFrame
+                ),
+                geometryOrigin: null,
+                geometryRadius: null,
                 geometryDistance: null,
                 geometryThreshold: null
               }))
             : enemyTargets.map((target) => {
-                if (target.position === null) {
+                const targetPosition = resolveTargetPosition(
+                  target.id,
+                  hitFrame
+                );
+                if (targetPosition === null) {
                   throw new Error(
                     `Target "${target.id}" passed geometry schema validation without a position.`
                   );
                 }
                 const geometryDistance = Math.hypot(
-                  target.position.x - hit.geometry!.origin.x,
-                  target.position.y - hit.geometry!.origin.y
+                  targetPosition.x - geometry.origin.x,
+                  targetPosition.y - geometry.origin.y
                 );
                 const geometryThreshold =
-                  hit.geometry!.radius + target.hitboxRadius;
+                  geometry.radius + target.hitboxRadius;
                 const landed =
                   geometryDistance <=
                   geometryThreshold + CIRCLE_HIT_EPSILON;
@@ -855,11 +938,13 @@ function simulateConfig(
                       : { reason: "OUTSIDE_CIRCLE_GEOMETRY" })
                   },
                   targetingSource: "geometry",
+                  targetPosition,
+                  geometryOrigin: deepClone(geometry.origin),
+                  geometryRadius: geometry.radius,
                   geometryDistance,
                   geometryThreshold
                 };
               });
-        const hitTimeSeconds = timeSeconds + hit.offset;
         const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
         targetPlans.forEach((targetPlan, targetIndex) => {
           push(hitTimeSeconds, "hit", {
@@ -1180,6 +1265,9 @@ function simulateConfig(
       hitIndex,
       targeting,
       targetingSource,
+      targetPosition,
+      geometryOrigin,
+      geometryRadius,
       geometryDistance,
       geometryThreshold,
       targetIndex,
@@ -1245,6 +1333,9 @@ function simulateConfig(
       targetId,
       targetName: targetProfile.name,
       targetingSource,
+      targetPosition,
+      geometryOrigin,
+      geometryRadius,
       geometryDistance,
       geometryThreshold,
       outcome: targetOutcome,
@@ -1732,6 +1823,7 @@ function simulateConfig(
     hitEvents: damageEvents,
     hitResolutionLog,
     targetPhaseTimeline,
+    targetMotionTimeline,
     skippedActions,
     actionLog,
     energyStats: Object.fromEntries(energyStats),

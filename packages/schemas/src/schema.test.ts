@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.15.0 configs to circle geometry", () => {
+  it("migrates 1.0.0 through 1.16.0 configs to target motion", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -221,6 +221,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.15.0",
       engineVersion: "1.15.0-aoe-fanout"
+    });
+    const migratedFromCircleGeometry = migrateConfig({
+      ...current,
+      schemaVersion: "1.16.0",
+      engineVersion: "1.16.0-circle-geometry"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -309,6 +314,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromAoeFanout.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromCircleGeometry.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromCircleGeometry.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -641,6 +652,121 @@ describe("versioned config schema", () => {
     });
     expect(() => migrateConfig(conflicting)).toThrow(
       /cannot be combined with scripted targeting/
+    );
+  });
+
+  it("accepts sorted adjacent target motions with explicit initial positions", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      duration: 2,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "移动目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ],
+        targetMotions: [
+          {
+            id: "outbound",
+            label: "向外移动",
+            targetId: "enemy-0",
+            startFrame: 0,
+            endFrame: 60,
+            endPosition: { x: 2, y: 0 }
+          },
+          {
+            id: "return",
+            label: "返回",
+            targetId: "enemy-0",
+            startFrame: 60,
+            endFrame: 120,
+            endPosition: { x: 0, y: 0 }
+          }
+        ]
+      }
+    });
+
+    expect(parsed.enemy.targetMotions).toHaveLength(2);
+    expect(parsed.enemy.targetMotions?.[1]).toMatchObject({
+      startFrame: 60,
+      endFrame: 120,
+      endPosition: { x: 0, y: 0 }
+    });
+  });
+
+  it("rejects overlapping, unregistered, and positionless target motions", () => {
+    const base = {
+      ...legacyConfig,
+      duration: 2,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "移动目标",
+            position: { x: 0, y: 0 }
+          }
+        ],
+        targetMotions: [
+          {
+            id: "first",
+            label: "第一段",
+            targetId: "enemy-0",
+            startFrame: 0,
+            endFrame: 60,
+            endPosition: { x: 2, y: 0 }
+          },
+          {
+            id: "overlap",
+            label: "重叠段",
+            targetId: "enemy-0",
+            startFrame: 59,
+            endFrame: 120,
+            endPosition: { x: 0, y: 0 }
+          }
+        ]
+      }
+    };
+    expect(() => migrateConfig(base)).toThrow(
+      /target motions must be sorted and non-overlapping/
+    );
+
+    const unregistered = structuredClone(base);
+    unregistered.enemy.targetMotions = [
+      {
+        ...unregistered.enemy.targetMotions[0]!,
+        targetId: "enemy-1"
+      }
+    ];
+    expect(() => migrateConfig(unregistered)).toThrow(
+      /unknown enemy target id "enemy-1"/
+    );
+
+    const positionless = structuredClone(base);
+    positionless.enemy.targets = [
+      { id: "enemy-0", name: "移动目标" }
+    ] as typeof positionless.enemy.targets;
+    positionless.enemy.targetMotions = [
+      positionless.enemy.targetMotions[0]!
+    ];
+    expect(() => migrateConfig(positionless)).toThrow(
+      /requires an initial position/
+    );
+
+    const outOfBounds = structuredClone(base);
+    outOfBounds.duration = 1;
+    outOfBounds.enemy.targetMotions = [
+      {
+        ...outOfBounds.enemy.targetMotions[0]!,
+        endFrame: 61
+      }
+    ];
+    expect(() => migrateConfig(outOfBounds)).toThrow(
+      /targetMotions\.0\.endFrame: must not exceed simulation duration/
     );
   });
 

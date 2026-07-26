@@ -1381,7 +1381,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
     "5 次目标检查 · 4 次命中 · 1 次 Miss"
   );
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次静态圆形几何求交"
+    "3 次二维圆形几何求交"
   );
   await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(5);
   await expect(page.locator("#targetHitAuditBody")).toContainText(
@@ -1394,7 +1394,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
     "OUTSIDE_CIRCLE_GEOMETRY"
   );
   await expect(page.locator("#targetDamageSummary")).toContainText(
-    "坐标 (1.5, 0) · 碰撞半径 0.5"
+    "初始坐标 (1.5, 0) · 碰撞半径 0.5"
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
     "检查 3 目标 / 确认 2"
@@ -1406,8 +1406,175 @@ test("derives circle hits from target positions and exposes geometric evidence",
     .click();
   await expect(page.locator("#hitDetail")).toContainText("命中判定来源");
   await expect(page.locator("#hitDetail")).toContainText(
-    "静态圆形几何 · 距离 0 / 阈值 1.5"
+    "二维圆形几何 · 圆心 (0, 0) · 攻击半径 1 · 距离 0 / 阈值 1.5"
   );
+});
+
+test("interpolates target motion at each hit frame before geometry resolution", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const movingTargetConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "移动目标",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0.5
+      }
+    ];
+    config.enemy.targetMotions = [
+      {
+        id: "outbound",
+        label: "线性远离",
+        targetId: "enemy-0",
+        startFrame: 0,
+        endFrame: 60,
+        endPosition: { x: 1.8, y: 0 }
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    if (!ability?.hits) throw new Error("expected Durin black E hits");
+    for (const hit of ability.hits) {
+      delete hit.targeting;
+      hit.geometry = {
+        kind: "circle",
+        origin: { x: 0, y: 0 },
+        radius: 1
+      };
+    }
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(movingTargetConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          motion: result.targetMotionTimeline,
+          hits: result.hitResolutionLog.map(
+            ({
+              frame,
+              targetPosition,
+              geometryDistance,
+              geometryThreshold,
+              outcome,
+              reason
+            }) => ({
+              frame,
+              targetPosition:
+                targetPosition === null
+                  ? null
+                  : {
+                      x: Number(targetPosition.x.toFixed(6)),
+                      y: Number(targetPosition.y.toFixed(6))
+                    },
+              geometryDistance:
+                geometryDistance === null
+                  ? null
+                  : Number(geometryDistance.toFixed(6)),
+              geometryThreshold,
+              outcome,
+              reason
+            })
+          ),
+          damageFrames: result.damageEvents.map((event) => event.frame),
+          triggerReasons: result.particleTriggerLog.map(
+            (entry) => entry.blockedReason
+          )
+        }
+      : null;
+  });
+  expect(audit?.motion).toEqual([
+    {
+      id: "outbound",
+      label: "线性远离",
+      targetId: "enemy-0",
+      startFrame: 0,
+      endFrame: 60,
+      endPosition: { x: 1.8, y: 0 },
+      startPosition: { x: 0, y: 0 },
+      startTimeSeconds: 0,
+      endTimeSeconds: 1
+    }
+  ]);
+  expect(audit?.hits).toEqual([
+    {
+      frame: 48,
+      targetPosition: { x: 1.44, y: 0 },
+      geometryDistance: 1.44,
+      geometryThreshold: 1.5,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      frame: 53,
+      targetPosition: { x: 1.59, y: 0 },
+      geometryDistance: 1.59,
+      geometryThreshold: 1.5,
+      outcome: "miss",
+      reason: "OUTSIDE_CIRCLE_GEOMETRY"
+    },
+    {
+      frame: 58,
+      targetPosition: { x: 1.74, y: 0 },
+      geometryDistance: 1.74,
+      geometryThreshold: 1.5,
+      outcome: "miss",
+      reason: "OUTSIDE_CIRCLE_GEOMETRY"
+    }
+  ]);
+  expect(audit?.damageFrames).toEqual([48]);
+  expect(audit?.triggerReasons).toEqual([
+    null,
+    "TARGET_MISS",
+    "TARGET_MISS"
+  ]);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetMotionAudit")).toBeVisible();
+  await expect(page.locator("#targetMotionSummary")).toContainText(
+    "1 个线性分段"
+  );
+  await expect(page.locator("#targetMotionBody tr")).toHaveCount(1);
+  await expect(page.locator("#targetMotionBody")).toContainText(
+    "线性远离"
+  );
+  await expect(page.locator("#targetMotionBody")).toContainText(
+    "(0, 0)"
+  );
+  await expect(page.locator("#targetMotionBody")).toContainText(
+    "(1.8, 0)"
+  );
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次目标检查 · 1 次命中 · 2 次 Miss"
+  );
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "1 个目标移动段"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "(1.44, 0)"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "(1.59, 0)"
+  );
+
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "命中时目标位置"
+  );
+  await expect(page.locator("#hitDetail")).toContainText("(1.44, 0)");
 });
 
 test("renders the source-audited Durin white E branch and state transition", async ({

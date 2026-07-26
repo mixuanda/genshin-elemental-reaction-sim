@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
+  CIRCLE_GEOMETRY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
@@ -202,6 +203,26 @@ export const targetPhaseDefinitionSchema = z
     }
   });
 
+export const targetMotionDefinitionSchema = z
+  .object({
+    id: idSchema,
+    label: idSchema,
+    targetId: idSchema,
+    startFrame: z.number().int().min(0).max(36_000),
+    endFrame: z.number().int().positive().max(36_000),
+    endPosition: point2DSchema
+  })
+  .strict()
+  .superRefine((motion, context) => {
+    if (motion.endFrame <= motion.startFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["endFrame"],
+        message: "must be greater than startFrame"
+      });
+    }
+  });
+
 export const enemyTargetProfileSchema = z
   .object({
     id: idSchema,
@@ -221,7 +242,8 @@ export const enemyProfileSchema = z
     resistance: finiteNumber,
     defReduction: finiteNumber,
     targets: z.array(enemyTargetProfileSchema).min(1).max(32).optional(),
-    targetPhases: z.array(targetPhaseDefinitionSchema).max(256).optional()
+    targetPhases: z.array(targetPhaseDefinitionSchema).max(256).optional(),
+    targetMotions: z.array(targetMotionDefinitionSchema).max(256).optional()
   })
   .strict()
   .superRefine((enemy, context) => {
@@ -256,6 +278,52 @@ export const enemyProfileSchema = z
         message:
           'must include compatibility target "enemy-0" because hits without targeting resolve to it'
       });
+    }
+
+    const targetById = new Map(
+      (enemy.targets ?? []).map((target) => [target.id, target])
+    );
+    const motionIds = new Set<string>();
+    const previousMotionEndFrameByTarget = new Map<string, number>();
+    for (const [index, motion] of (
+      enemy.targetMotions ?? []
+    ).entries()) {
+      if (motionIds.has(motion.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetMotions", index, "id"],
+          message: `duplicate target motion id "${motion.id}"`
+        });
+      }
+      motionIds.add(motion.id);
+      const target = targetById.get(motion.targetId);
+      if (target === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetMotions", index, "targetId"],
+          message: `unknown enemy target id "${motion.targetId}"`
+        });
+      } else if (target.position === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetMotions", index, "targetId"],
+          message: `target "${motion.targetId}" requires an initial position`
+        });
+      }
+      const previousEndFrame =
+        previousMotionEndFrameByTarget.get(motion.targetId) ?? -1;
+      if (motion.startFrame < previousEndFrame) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetMotions", index, "startFrame"],
+          message:
+            "target motions must be sorted and non-overlapping per target"
+        });
+      }
+      previousMotionEndFrameByTarget.set(
+        motion.targetId,
+        Math.max(previousEndFrame, motion.endFrame)
+      );
     }
 
     const phaseIds = new Set<string>();
@@ -961,6 +1029,15 @@ export const simConfigSchema = z
         });
       }
     });
+    config.enemy.targetMotions?.forEach((motion, index) => {
+      if (motion.endFrame > durationFrames) {
+        context.addIssue({
+          code: "custom",
+          path: ["enemy", "targetMotions", index, "endFrame"],
+          message: `must not exceed simulation duration (${durationFrames} frames)`
+        });
+      }
+    });
 
     const characterIds = new Set<string>();
     config.characters.forEach((character, index) => {
@@ -1479,6 +1556,9 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
             : {}),
           ...(Array.isArray(input.enemy.targetPhases)
             ? { targetPhases: input.enemy.targetPhases }
+            : {}),
+          ...(Array.isArray(input.enemy.targetMotions)
+            ? { targetMotions: input.enemy.targetMotions }
             : {})
         }
       : { level: 110, resistance: 0.1, defReduction: 0 },
@@ -1523,6 +1603,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === CIRCLE_GEOMETRY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === AOE_FANOUT_SCHEMA_VERSION) {
     return parseSimConfig({

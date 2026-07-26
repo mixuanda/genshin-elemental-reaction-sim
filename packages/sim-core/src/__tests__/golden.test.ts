@@ -47,6 +47,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.targetId === "enemy-0" &&
           entry.targetName === "敌人 0" &&
           entry.targetingSource === "default" &&
+          entry.targetPosition === null &&
+          entry.geometryOrigin === null &&
+          entry.geometryRadius === null &&
           entry.geometryDistance === null &&
           entry.geometryThreshold === null &&
           entry.targetIndex === 0 &&
@@ -56,6 +59,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.displayDamage === result.damageEvents[index]?.displayDamage
       )
     ).toBe(true);
+    expect(result.targetMotionTimeline).toEqual([]);
     expect(result.damageCurve).toHaveLength(golden.hitCount);
     expect(
       result.damageCurve.every(

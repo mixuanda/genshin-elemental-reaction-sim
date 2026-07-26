@@ -96,6 +96,14 @@ function formatNumber(value: number, digits = 1): string {
   }).format(value || 0);
 }
 
+function formatPosition(
+  position: { x: number; y: number } | null | undefined
+): string {
+  return position === null || position === undefined
+    ? "—"
+    : `(${formatNumber(position.x, 4)}, ${formatNumber(position.y, 4)})`;
+}
+
 function compact(value: number): string {
   const number = value || 0;
   if (Math.abs(number) >= 1e8) return `${(number / 1e8).toFixed(2)}亿`;
@@ -665,7 +673,7 @@ function renderHitDetail(): void {
   );
   const targetingSource =
     targetResolution?.targetingSource === "geometry"
-      ? `静态圆形几何 · 距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+      ? `二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
       : targetResolution?.targetingSource === "scripted"
         ? "逐击脚本 / 显式扇出"
         : "兼容默认 enemy-0 / landed";
@@ -686,6 +694,7 @@ function renderHitDetail(): void {
       "目标 / 判定",
       `${hit.targetName} (${hit.targetId}) / landed (#${hit.targetResolutionId})`
     ],
+    ["命中时目标位置", formatPosition(targetResolution?.targetPosition)],
     ["命中判定来源", targetingSource],
     [
       "目标策略来源",
@@ -1019,6 +1028,29 @@ function renderDamageCurve(): void {
 function renderTargetHitAudit(): void {
   if (!lastResult) return;
   const result = lastResult;
+  const motionAudit = byId<HTMLElement>("targetMotionAudit");
+  motionAudit.hidden = result.targetMotionTimeline.length === 0;
+  byId<HTMLElement>("targetMotionSummary").textContent =
+    `${result.targetMotionTimeline.length} 个线性分段 · 60 FPS 按命中帧插值 · 分段间保持上一位置`;
+  byId<HTMLTableSectionElement>("targetMotionBody").innerHTML =
+    result.targetMotionTimeline
+      .map((motion) => {
+        const target = result.enemyTargets.find(
+          (candidate) => candidate.id === motion.targetId
+        );
+        return (
+          `<tr>` +
+          `<td>${escapeHtml(motion.label)} <span class="muted">/ ${escapeHtml(motion.id)}</span></td>` +
+          `<td>${escapeHtml(target?.name ?? motion.targetId)} <span class="muted">/ ${escapeHtml(motion.targetId)}</span></td>` +
+          `<td>${motion.startTimeSeconds.toFixed(3)}s <span class="muted">/ ${motion.startFrame}f</span></td>` +
+          `<td>${motion.endTimeSeconds.toFixed(3)}s <span class="muted">/ ${motion.endFrame}f</span></td>` +
+          `<td>${escapeHtml(formatPosition(motion.startPosition))}</td>` +
+          `<td>${escapeHtml(formatPosition(motion.endPosition))}</td>` +
+          `<td>线性</td>` +
+          `</tr>`
+        );
+      })
+      .join("");
   const phaseAudit = byId<HTMLElement>("targetPhaseAudit");
   phaseAudit.hidden = result.targetPhaseTimeline.length === 0;
   byId<HTMLElement>("targetPhaseSummary").textContent =
@@ -1060,7 +1092,10 @@ function renderTargetHitAudit(): void {
   ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
-    (geometryChecks ? ` · ${geometryChecks} 次静态圆形几何求交` : "") +
+    (geometryChecks ? ` · ${geometryChecks} 次二维圆形几何求交` : "") +
+    (result.targetMotionTimeline.length
+      ? ` · ${result.targetMotionTimeline.length} 个目标移动段`
+      : "") +
     (result.targetPhaseTimeline.length
       ? ` · ${result.targetPhaseTimeline.length} 个目标阶段`
       : "") +
@@ -1077,7 +1112,7 @@ function renderTargetHitAudit(): void {
           const geometry =
             profile?.position === null || profile?.position === undefined
               ? ""
-              : ` · 坐标 (${formatNumber(profile.position.x, 3)}, ${formatNumber(profile.position.y, 3)}) · 碰撞半径 ${formatNumber(profile.hitboxRadius, 3)}`;
+              : ` · 初始坐标 ${formatPosition(profile.position)} · 碰撞半径 ${formatNumber(profile.hitboxRadius, 3)}`;
           return (
             `<span class="legend-item"><strong>${escapeHtml(target.targetName)}</strong> ` +
             `<span class="muted">${escapeHtml(target.targetId)}</span> · ` +
@@ -1119,7 +1154,7 @@ function renderTargetHitAudit(): void {
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
-          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}${entry.targetCount > 1 ? ` · ${entry.targetIndex + 1}/${entry.targetCount}` : ""}</span></td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}${entry.targetCount > 1 ? ` · ${entry.targetIndex + 1}/${entry.targetCount}` : ""}${entry.targetPosition === null ? "" : ` · ${escapeHtml(formatPosition(entry.targetPosition))}`}</span></td>` +
           `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'} <span class="muted">/ ${escapeHtml(resolutionSource)}</span></td>` +
           `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +

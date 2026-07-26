@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.16.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.16.0-circle-geometry" as const;
+export const CURRENT_SCHEMA_VERSION = "1.17.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.17.0-target-motion" as const;
+export const CIRCLE_GEOMETRY_SCHEMA_VERSION = "1.16.0" as const;
 export const AOE_FANOUT_SCHEMA_VERSION = "1.15.0" as const;
 export const MULTI_TARGET_REGISTRY_SCHEMA_VERSION = "1.14.0" as const;
 export const TARGET_PHASE_TIMELINE_SCHEMA_VERSION = "1.13.0" as const;
@@ -179,6 +180,11 @@ export interface EnemyProfile {
    * override the active phase while a scripted miss bypasses all effect layers.
    */
   targetPhases?: TargetPhaseDefinition[];
+  /**
+   * Sorted, non-overlapping linear motion segments. A target holds its prior
+   * position in gaps and reaches endPosition exactly at endFrame.
+   */
+  targetMotions?: TargetMotionDefinition[];
 }
 
 export interface EnemyTargetProfile {
@@ -208,6 +214,15 @@ export interface CircleHitGeometry {
   kind: "circle";
   origin: { x: number; y: number };
   radius: number;
+}
+
+export interface TargetMotionDefinition {
+  id: string;
+  label: string;
+  targetId: TargetId;
+  startFrame: number;
+  endFrame: number;
+  endPosition: { x: number; y: number };
 }
 
 export interface FlatDamageSource {
@@ -784,6 +799,9 @@ export interface HitResolutionLogEntry {
   targetId: TargetId;
   targetName: string;
   targetingSource: "default" | "scripted" | "geometry";
+  targetPosition: { x: number; y: number } | null;
+  geometryOrigin: { x: number; y: number } | null;
+  geometryRadius: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   outcome: TargetHitOutcome;
@@ -806,6 +824,12 @@ export interface HitResolutionLogEntry {
 }
 
 export interface TargetPhaseTimelineEntry extends TargetPhaseDefinition {
+  startTimeSeconds: number;
+  endTimeSeconds: number;
+}
+
+export interface TargetMotionTimelineEntry extends TargetMotionDefinition {
+  startPosition: { x: number; y: number };
   startTimeSeconds: number;
   endTimeSeconds: number;
 }
@@ -1003,6 +1027,8 @@ export interface SimulationResult {
   hitResolutionLog: HitResolutionLogEntry[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
+  /** Core-resolved linear target movement segments consumed by geometry checks. */
+  targetMotionTimeline: TargetMotionTimelineEntry[];
   skippedActions: SkippedAction[];
   actionLog: ActionLogEntry[];
   energyStats: Record<string, EnergySummary>;

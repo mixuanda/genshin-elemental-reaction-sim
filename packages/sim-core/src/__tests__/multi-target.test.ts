@@ -705,4 +705,191 @@ describe("registered enemy targets", () => {
     expect(result.particleEvents).toHaveLength(1);
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
+
+  it("interpolates target motion at integer hit frames and holds adjacent boundaries", () => {
+    const ability: AbilityDefinition = {
+      id: "moving-circle-target",
+      actorId: "a",
+      name: "移动目标圆形命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 120,
+      cooldownFrames: 0,
+      hits: [0, 30, 31, 60, 75, 90, 105, 106, 120].map((frame) => ({
+        id: `moving-hit-${frame}`,
+        frame,
+        scaling: 1,
+        element: "pyro" as const,
+        geometry: {
+          kind: "circle" as const,
+          origin: { x: 0, y: 0 },
+          radius: 0.5
+        }
+      }))
+    };
+    const config = makeConfig({
+      duration: 3,
+      cycleLength: 3,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "往返目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ],
+        targetMotions: [
+          {
+            id: "outbound",
+            label: "向外移动",
+            targetId: "enemy-0",
+            startFrame: 0,
+            endFrame: 60,
+            endPosition: { x: 2, y: 0 }
+          },
+          {
+            id: "return",
+            label: "返回中心",
+            targetId: "enemy-0",
+            startFrame: 90,
+            endFrame: 120,
+            endPosition: { x: 0, y: 0 }
+          },
+          {
+            id: "adjacent-outbound",
+            label: "边界帧再次向外",
+            targetId: "enemy-0",
+            startFrame: 120,
+            endFrame: 180,
+            endPosition: { x: 2, y: 0 }
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+
+    expect(result.targetMotionTimeline).toEqual([
+      {
+        id: "outbound",
+        label: "向外移动",
+        targetId: "enemy-0",
+        startFrame: 0,
+        endFrame: 60,
+        startPosition: { x: 0, y: 0 },
+        endPosition: { x: 2, y: 0 },
+        startTimeSeconds: 0,
+        endTimeSeconds: 1
+      },
+      {
+        id: "return",
+        label: "返回中心",
+        targetId: "enemy-0",
+        startFrame: 90,
+        endFrame: 120,
+        startPosition: { x: 2, y: 0 },
+        endPosition: { x: 0, y: 0 },
+        startTimeSeconds: 1.5,
+        endTimeSeconds: 2
+      },
+      {
+        id: "adjacent-outbound",
+        label: "边界帧再次向外",
+        targetId: "enemy-0",
+        startFrame: 120,
+        endFrame: 180,
+        startPosition: { x: 0, y: 0 },
+        endPosition: { x: 2, y: 0 },
+        startTimeSeconds: 2,
+        endTimeSeconds: 3
+      }
+    ]);
+    expect(
+      result.hitResolutionLog.map(
+        ({ frame, targetPosition, geometryDistance, outcome }) => ({
+          frame,
+          targetPosition,
+          geometryDistance,
+          outcome
+        })
+      )
+    ).toEqual([
+      {
+        frame: 0,
+        targetPosition: { x: 0, y: 0 },
+        geometryDistance: 0,
+        outcome: "landed"
+      },
+      {
+        frame: 30,
+        targetPosition: { x: 1, y: 0 },
+        geometryDistance: 1,
+        outcome: "landed"
+      },
+      {
+        frame: 31,
+        targetPosition: { x: 31 / 30, y: 0 },
+        geometryDistance: 31 / 30,
+        outcome: "miss"
+      },
+      {
+        frame: 60,
+        targetPosition: { x: 2, y: 0 },
+        geometryDistance: 2,
+        outcome: "miss"
+      },
+      {
+        frame: 75,
+        targetPosition: { x: 2, y: 0 },
+        geometryDistance: 2,
+        outcome: "miss"
+      },
+      {
+        frame: 90,
+        targetPosition: { x: 2, y: 0 },
+        geometryDistance: 2,
+        outcome: "miss"
+      },
+      {
+        frame: 105,
+        targetPosition: { x: 1, y: 0 },
+        geometryDistance: 1,
+        outcome: "landed"
+      },
+      {
+        frame: 106,
+        targetPosition: { x: 0.9333333333333333, y: 0 },
+        geometryDistance: 0.9333333333333333,
+        outcome: "landed"
+      },
+      {
+        frame: 120,
+        targetPosition: { x: 0, y: 0 },
+        geometryDistance: 0,
+        outcome: "landed"
+      }
+    ]);
+    expect(result.damageEvents).toHaveLength(5);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
 });
