@@ -152,6 +152,25 @@ export function compileAbilityBlueprint(
   if (blueprint.maxCharges !== undefined) {
     ability.maxCharges = blueprint.maxCharges;
   }
+  if (blueprint.cancelFrames !== undefined) {
+    ability.cancelFrames = {
+      ...(blueprint.cancelFrames.normal === undefined
+        ? {}
+        : { normal: blueprint.cancelFrames.normal }),
+      ...(blueprint.cancelFrames.charge === undefined
+        ? {}
+        : { charge: blueprint.cancelFrames.charge }),
+      ...(blueprint.cancelFrames.skill === undefined
+        ? {}
+        : { skill: blueprint.cancelFrames.skill }),
+      ...(blueprint.cancelFrames.burst === undefined
+        ? {}
+        : { burst: blueprint.cancelFrames.burst }),
+      ...(blueprint.cancelFrames.swap === undefined
+        ? {}
+        : { swap: blueprint.cancelFrames.swap })
+    };
+  }
   if (blueprint.chargeRecoveryFrames !== undefined) {
     ability.chargeRecoveryFrames = blueprint.chargeRecoveryFrames;
   }

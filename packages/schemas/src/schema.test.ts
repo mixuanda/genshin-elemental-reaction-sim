@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.3.0 configs to the current action-state schema", () => {
+  it("migrates 1.0.0 through 1.4.0 configs to the current followup-cancel schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -162,6 +162,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.3.0",
       engineVersion: "1.3.0-icd-profiles"
     });
+    const migratedFromActionStates = migrateConfig({
+      ...current,
+      schemaVersion: "1.4.0",
+      engineVersion: "1.4.0-action-states"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -177,6 +182,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromIcdProfiles.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromActionStates.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromActionStates.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -344,6 +355,39 @@ describe("versioned config schema", () => {
       })
     ).toThrow(
       /energy-gated abilities cannot transition action states/
+    );
+  });
+
+  it("rejects a followup cancel after the animation end", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [
+            {
+              id: "bad-cancel",
+              actorId: "a",
+              name: "坏取消帧",
+              kind: "skill",
+              cancelFrame: 1,
+              cancelFrames: {
+                burst: 11
+              },
+              animationEndFrame: 10,
+              cooldownFrames: 0
+            }
+          ],
+          commands: []
+        }
+      })
+    ).toThrow(
+      /timeline\.abilities\.0\.cancelFrames\.burst: must not exceed animationEndFrame/
     );
   });
 

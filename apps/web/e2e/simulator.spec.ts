@@ -220,7 +220,14 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
           reactions: result.damageEvents.map((event) => event.reaction),
           energy: result.energyStats.durin,
           particle: result.particleEvents[0],
-          curve: result.damageCurve.map((point) => point.cumulativeDamage)
+          curve: result.damageCurve.map((point) => point.cumulativeDamage),
+          commands: result.timelineExecution?.commandResults.map(
+            ({ startFrame, cancelFrame, animationEndFrame }) => ({
+              startFrame,
+              cancelFrame,
+              animationEndFrame
+            })
+          )
         }
       : null;
   });
@@ -239,7 +246,11 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
       spawnFrame: 48,
       receiveFrame: 148
     },
-    curve: [2223.5472, 3042.2952, 4037.1048]
+    curve: [2223.5472, 3042.2952, 4037.1048],
+    commands: [
+      { startFrame: 0, cancelFrame: 16, animationEndFrame: 49 },
+      { startFrame: 16, cancelFrame: 57, animationEndFrame: 83 }
+    ]
   });
 
   await page.getByRole("button", { name: "逐段伤害" }).click();

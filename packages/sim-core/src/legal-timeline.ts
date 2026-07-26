@@ -1,5 +1,6 @@
 import type {
   AbilityDefinition,
+  AbilityFollowupKind,
   ActionDefinition,
   LegalTimelineCommand,
   SimConfig,
@@ -50,7 +51,8 @@ function withoutTimeline(config: SimConfig): Omit<SimConfig, "timeline"> {
 function compileAbilityAction(
   ability: AbilityDefinition,
   commandIndex: number,
-  startFrame: number
+  startFrame: number,
+  cancelOffset: number
 ): ActionDefinition {
   return {
     id: `${ability.id}#${commandIndex}`,
@@ -119,7 +121,7 @@ function compileAbilityAction(
     timelineCommandIndex: commandIndex,
     sourceAbilityId: ability.id,
     startFrame,
-    cancelFrame: startFrame + ability.cancelFrame,
+    cancelFrame: startFrame + cancelOffset,
     animationEndFrame: startFrame + ability.animationEndFrame
   };
 }
@@ -155,6 +157,13 @@ function commandAbility(command: LegalTimelineCommand): string | null {
   return command.type === "wait" || command.type === "swap"
     ? null
     : command.abilityId;
+}
+
+function commandFollowupKind(
+  command: LegalTimelineCommand | undefined
+): AbilityFollowupKind | null {
+  if (command === undefined || command.type === "wait") return null;
+  return command.type;
 }
 
 export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
@@ -515,11 +524,23 @@ export function compileLegalTimeline(config: SimConfig): CompiledTimeline {
       ability.chargeRecoveryFrames ?? ability.cooldownFrames;
     chargeFrames[chargeIndex] = startFrame + recoveryFrames;
     chargeAvailability.set(ability.id, chargeFrames);
+    const followupKind = commandFollowupKind(
+      timeline.commands[commandIndex + 1]
+    );
+    const cancelOffset =
+      (followupKind === null
+        ? undefined
+        : ability.cancelFrames?.[followupKind]) ?? ability.cancelFrame;
     rotation.push(
-      compileAbilityAction(ability, commandIndex, startFrame)
+      compileAbilityAction(
+        ability,
+        commandIndex,
+        startFrame,
+        cancelOffset
+      )
     );
     applyAbilityStates(ability, commandIndex, startFrame);
-    const cancelFrame = startFrame + ability.cancelFrame;
+    const cancelFrame = startFrame + cancelOffset;
     const animationEndFrame = startFrame + ability.animationEndFrame;
     cursor = cancelFrame;
     commandResults.push({

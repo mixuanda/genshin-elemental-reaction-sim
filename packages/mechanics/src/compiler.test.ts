@@ -86,20 +86,41 @@ describe("ability blueprint compiler gates", () => {
     );
   });
 
-  it("migrates the initial mechanics schema before compiling", () => {
-    const initial = {
-      ...durinEnterTransformationBlueprint,
-      schemaVersion: "1.0.0"
+  it("rejects an impossible follow-up cancel with a field path", () => {
+    const invalid = structuredClone(durinEnterTransformationBlueprint);
+    invalid.cancelFrames = {
+      ...invalid.cancelFrames,
+      swap: invalid.animationEndFrame + 1
     };
 
-    expect(migrateAbilityBlueprint(initial).schemaVersion).toBe(
-      CURRENT_MECHANICS_SCHEMA_VERSION
+    const parsed = abilityBlueprintSchema.safeParse(invalid);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("expected Blueprint validation failure");
+    expect(parsed.error.issues).toContainEqual(
+      expect.objectContaining({
+        path: ["cancelFrames", "swap"],
+        message: "must not exceed animationEndFrame"
+      })
     );
-    expect(
-      compileAbilityBlueprint(initial, {
-        catalog: gameDataCatalog,
-        allowPartial: true
-      }).ability.id
-    ).toBe(durinEnterTransformationBlueprint.id);
   });
+
+  it.each(["1.0.0", "1.1.0"])(
+    "migrates mechanics schema %s before compiling",
+    (schemaVersion) => {
+      const previous = {
+        ...durinEnterTransformationBlueprint,
+        schemaVersion
+      };
+
+      expect(migrateAbilityBlueprint(previous).schemaVersion).toBe(
+        CURRENT_MECHANICS_SCHEMA_VERSION
+      );
+      expect(
+        compileAbilityBlueprint(previous, {
+          catalog: gameDataCatalog,
+          allowPartial: true
+        }).ability.id
+      ).toBe(durinEnterTransformationBlueprint.id);
+    }
+  );
 });

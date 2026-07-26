@@ -80,6 +80,12 @@ describe("Durin black E partial mechanics audit vector", () => {
     expect(enterTransformation.ability).toMatchObject({
       kind: "skill",
       cancelFrame: 16,
+      cancelFrames: {
+        normal: 16,
+        skill: 15,
+        burst: 4,
+        swap: 13
+      },
       animationEndFrame: 49,
       cooldownFrames: 720,
       timelineState: {
@@ -94,6 +100,12 @@ describe("Durin black E partial mechanics audit vector", () => {
     expect(denialOfDarkness.ability).toMatchObject({
       kind: "normal",
       cancelFrame: 41,
+      cancelFrames: {
+        normal: 64,
+        skill: 48,
+        burst: 45,
+        swap: 43
+      },
       animationEndFrame: 67,
       cooldownFrames: 0,
       timelineState: {

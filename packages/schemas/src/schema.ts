@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  ACTION_STATE_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
@@ -395,6 +396,16 @@ export const abilityTimelineStateSchema = z
     }
   });
 
+export const abilityCancelFramesSchema = z
+  .object({
+    normal: frameSchema.optional(),
+    charge: frameSchema.optional(),
+    skill: frameSchema.optional(),
+    burst: frameSchema.optional(),
+    swap: frameSchema.optional()
+  })
+  .strict();
+
 export const abilityDefinitionSchema = z
   .object({
     id: idSchema,
@@ -402,6 +413,7 @@ export const abilityDefinitionSchema = z
     name: idSchema,
     kind: z.enum(["skill", "burst", "normal", "charge"]),
     cancelFrame: frameSchema,
+    cancelFrames: abilityCancelFramesSchema.optional(),
     animationEndFrame: frameSchema,
     cooldownFrames: frameSchema,
     maxCharges: z.number().int().min(1).max(10).optional(),
@@ -422,6 +434,20 @@ export const abilityDefinitionSchema = z
         path: ["cancelFrame"],
         message: "must not exceed animationEndFrame"
       });
+    }
+    for (const [followup, cancelFrame] of Object.entries(
+      ability.cancelFrames ?? {}
+    )) {
+      if (
+        cancelFrame !== undefined &&
+        cancelFrame > ability.animationEndFrame
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cancelFrames", followup],
+          message: "must not exceed animationEndFrame"
+        });
+      }
     }
     if (
       (ability.maxCharges ?? 1) > 1 &&
@@ -1012,6 +1038,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === ACTION_STATE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ICD_PROFILE_SCHEMA_VERSION) {
     return parseSimConfig({

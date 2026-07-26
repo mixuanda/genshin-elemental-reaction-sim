@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { abilityTimelineStateSchema } from "./schema";
+import {
+  abilityCancelFramesSchema,
+  abilityTimelineStateSchema
+} from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.1.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.2.0" as const;
+export const ACTION_STATE_MECHANICS_SCHEMA_VERSION = "1.1.0" as const;
 export const INITIAL_MECHANICS_SCHEMA_VERSION = "1.0.0" as const;
 
 const idSchema = z.string().trim().min(1);
@@ -108,6 +112,7 @@ export const abilityBlueprintSchema = z
     ]),
     simulationStatus: z.enum(["partial", "mechanics-mapped"]),
     cancelFrame: z.number().int().min(0),
+    cancelFrames: abilityCancelFramesSchema.optional(),
     animationEndFrame: z.number().int().min(0),
     cooldownFrames: z.number().int().min(0),
     maxCharges: z.number().int().min(1).max(10).optional(),
@@ -129,6 +134,20 @@ export const abilityBlueprintSchema = z
         path: ["cancelFrame"],
         message: "must not exceed animationEndFrame"
       });
+    }
+    for (const [followup, cancelFrame] of Object.entries(
+      blueprint.cancelFrames ?? {}
+    )) {
+      if (
+        cancelFrame !== undefined &&
+        cancelFrame > blueprint.animationEndFrame
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cancelFrames", followup],
+          message: "must not exceed animationEndFrame"
+        });
+      }
     }
     if (
       blueprint.simulationStatus === "mechanics-mapped" &&
@@ -187,7 +206,8 @@ export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
     typeof input === "object" &&
     input !== null &&
     "schemaVersion" in input &&
-    input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION
+    (input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION ||
+      input.schemaVersion === ACTION_STATE_MECHANICS_SCHEMA_VERSION)
   ) {
     return abilityBlueprintSchema.parse({
       ...input,

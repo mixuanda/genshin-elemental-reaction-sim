@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 292.48 kB（gzip 74.98 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 293.26 kB（gzip 75.14 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0` 或 `1.3.0` 配置迁移到 `1.4.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.4.0-action-states`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0` 或 `1.4.0` 配置迁移到 `1.5.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.5.0-followup-cancels`。
 
 ## 4. 确定性与排序
 
@@ -84,6 +84,13 @@ timeline: {
   abilities: [{
     kind,
     cancelFrame,
+    cancelFrames: {
+      normal,
+      charge,
+      skill,
+      burst,
+      swap
+    },
     animationEndFrame,
     cooldownFrames,
     maxCharges,
@@ -110,7 +117,7 @@ timeline: {
 }
 ```
 
-命令游标默认推进至行动的可取消帧。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
+命令游标默认推进至行动的可取消帧。若紧随其后的命令是普攻、重击、战技、爆发或切人，编译器优先使用 `cancelFrames[下一命令类型]`；未声明、后续为 `wait` 或已到队尾时回退到 `cancelFrame`。所有取消帧必须是不超过动画结束的非负整数，实际选中的帧会进入逐指令结果和逐行动日志。显式 `atFrame` 早于游标时视为行动重叠；`strict` 抛出带命令路径的错误，`wait` 移动至可执行帧并记录调整。冷却和充能次数使用每个充能槽的下一可用帧计算。
 
 `timelineState` 是归属于施放角色的行动合法性状态，与改变面板的 Buff/Debuff 分离。编译器在实际执行帧先处理到期，再检查 `requires`，随后执行 `consumes` 和 `grants`。因此状态在 `expiresAtFrame` 当帧不可再用；冷却等待跨过状态窗口后会重新检查并以 `MISSING_REQUIRED_STATE` 拒绝，而不会回到旧帧。`stateLog` 记录 `grant / replace / consume / expire`、来源指令和精确帧。由于能量不足仍在后续模拟阶段判断，当前 Schema 禁止 `energyCost > 0` 的能力授予或消耗行动状态，避免失败爆发在编译期错误改状态；这必须等动态队列回滚完成后放开。
 
@@ -254,7 +261,7 @@ energyAfter
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
-`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.1 契约，并能把 1.0 输入迁移后再编译。每个技能映射必须包含：
+`packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.2 契约，并能把 1.0 / 1.1 输入迁移后再编译。每个技能映射必须包含：
 
 - 数据版本、映射版本和角色/技能 ID。
 - 每段命中帧、倍率参数引用、缩放属性、元素、快照和附着流。
@@ -268,8 +275,8 @@ energyAfter
 
 - 倍率来源：`genshin-db@5.2.12` 固定目录的技能 10 级参数。
 - 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go` 与 `icd_groups.dm.go`。
-- 覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、黑分支取消路径、三段命中、DurinSkill ICD、33 固定回能和 4 火粒子。
-- 保持 `provisional + partial`：逐后续动作取消帧、6 秒回能 ICD、首次成功命中产球条件、多目标/AoE/Hitlag、白分支、爆发以及状态驱动的全部被动尚未实现。
+- 覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、当前命令模型可表达的普攻/战技/爆发/切人取消路径、三段命中、DurinSkill ICD、33 固定回能和 4 火粒子。
+- 保持 `provisional + partial`：Dash/Jump/重击取消路径、6 秒回能 ICD、首次成功命中产球条件、多目标/AoE/Hitlag、白分支、爆发以及状态驱动的全部被动尚未实现。
 
 ## 7. 测试策略
 
@@ -288,7 +295,7 @@ Vitest 当前覆盖：
 - 120 秒末端截断语义。
 - 相同版本/配置/种子的可复现性。
 - 默认 120 秒 Golden Fixture。
-- 整数帧行动、切人、命中追踪、取消帧与动画结束帧。
+- 整数帧行动、切人、命中追踪、按后续普攻/战技/爆发/切人选择取消帧、未声明路径回退与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。
 - 行动状态的角色归属、授予、消耗、刷新、精确到期边界、缺少前置拒绝和冷却等待后重新检查。
@@ -377,4 +384,4 @@ Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种�
 
 Milestone 5 已完成数据层基础和首个部分机制编译闭环，不等于正式杜林预设完成。杜林黑 E 已有倍率引用、裸伤/增伤、动作帧、附着/ICD、回能和粒子向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应先完成逐后续动作取消窗口、固定回能 ICD、命中确认型产球和状态驱动效果，再映射杜林白 E 与黑/白 Q，之后逐项补齐命座、专武和圣遗物效果；只有这样才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。随后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。
+下一阶段应先把 Dash/Jump/重击加入命令模型并完成相应取消路径，再实现固定回能 ICD、命中确认型产球和状态驱动效果；随后映射杜林白 E 与黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。

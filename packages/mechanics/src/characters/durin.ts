@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.2" as const;
+  "durin-gcsim-b4ae769d7c1c.3" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -85,8 +85,8 @@ function durinSkillRef(
 }
 
 /**
- * First E press. The current legal timeline has one cancel frame per ability,
- * so 16 is intentionally the normal-attack path used by this audit vector.
+ * First E press. The fallback remains the normal-attack path used by the
+ * compact audit vector; supported immediate follow-ups select their own frame.
  */
 export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   schemaVersion: CURRENT_MECHANICS_SCHEMA_VERSION,
@@ -100,6 +100,12 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   verificationStatus: "provisional",
   simulationStatus: "partial",
   cancelFrame: 16,
+  cancelFrames: {
+    normal: 16,
+    skill: 15,
+    burst: 4,
+    swap: 13
+  },
   animationEndFrame: 49,
   cooldownFrames: 12 * 60,
   hits: [],
@@ -116,7 +122,7 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   },
   prerequisites: [],
   unresolvedMechanics: [
-    "不同后续动作对应不同取消帧；本向量只映射接普攻的第 16 帧",
+    "Dash、Jump 与重击尚未进入合法命令模型，不能选择对应取消帧",
     "命中停顿、队列窗口与输入缓冲尚未建模"
   ],
   evidence: [gcsimSkillEvidence]
@@ -134,6 +140,12 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   verificationStatus: "provisional",
   simulationStatus: "partial",
   cancelFrame: 41,
+  cancelFrames: {
+    normal: 64,
+    skill: 48,
+    burst: 45,
+    swap: 43
+  },
   animationEndFrame: 67,
   cooldownFrames: 0,
   hits: [
@@ -217,7 +229,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   unresolvedMechanics: [
     "固定回能的 6 秒内部冷却尚未跨动作建模",
     "产球应只在首次成功命中可受击敌人时触发；当前向量按第 1 段必命中建模",
-    "多目标、范围判定、命中停顿、逐后续动作取消帧与输入缓冲尚未建模"
+    "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
   ],
   evidence: [
     genshinDbEvidence,

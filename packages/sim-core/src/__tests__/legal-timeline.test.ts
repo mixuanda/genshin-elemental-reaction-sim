@@ -116,6 +116,44 @@ const cooldownGatedStateA: AbilityDefinition = {
   }
 };
 
+const followupCancelA: AbilityDefinition = {
+  id: "a-followup-cancel",
+  actorId: "a",
+  name: "A 分后续取消",
+  kind: "skill",
+  cancelFrame: 10,
+  cancelFrames: {
+    normal: 9,
+    charge: 8,
+    skill: 3,
+    burst: 5,
+    swap: 7
+  },
+  animationEndFrame: 20,
+  cooldownFrames: 0
+};
+
+const burstA: AbilityDefinition = {
+  id: "a-burst",
+  actorId: "a",
+  name: "A 爆发",
+  kind: "burst",
+  cancelFrame: 1,
+  animationEndFrame: 1,
+  cooldownFrames: 0,
+  energyCost: 0
+};
+
+const chargeA: AbilityDefinition = {
+  id: "a-charge",
+  actorId: "a",
+  name: "A 重击",
+  kind: "charge",
+  cancelFrame: 1,
+  animationEndFrame: 1,
+  cooldownFrames: 0
+};
+
 function legalConfig(
   legalityMode: "strict" | "wait",
   commands: LegalTimelineCommand[],
@@ -273,6 +311,107 @@ describe("legal 60 FPS action timeline", () => {
         (command) => command.startFrame
       )
     ).toEqual([0, 10, 120]);
+  });
+
+  it.each([
+    {
+      label: "normal",
+      next: {
+        type: "normal",
+        actorId: "a",
+        abilityId: "a-normal"
+      } as const,
+      abilities: [followupCancelA, normalA],
+      expected: 9
+    },
+    {
+      label: "skill",
+      next: {
+        type: "skill",
+        actorId: "a",
+        abilityId: "a-skill"
+      } as const,
+      abilities: [followupCancelA, skillA],
+      expected: 3
+    },
+    {
+      label: "charge",
+      next: {
+        type: "charge",
+        actorId: "a",
+        abilityId: "a-charge"
+      } as const,
+      abilities: [followupCancelA, chargeA],
+      expected: 8
+    },
+    {
+      label: "burst",
+      next: {
+        type: "burst",
+        actorId: "a",
+        abilityId: "a-burst"
+      } as const,
+      abilities: [followupCancelA, burstA],
+      expected: 5
+    },
+    {
+      label: "swap",
+      next: { type: "swap", characterId: "b" } as const,
+      abilities: [followupCancelA],
+      expected: 7
+    }
+  ])(
+    "selects the $label-specific cancel frame from the next command",
+    ({ next, abilities, expected }) => {
+      const result = simulate(
+        legalConfig(
+          "strict",
+          [
+            {
+              type: "skill",
+              actorId: "a",
+              abilityId: "a-followup-cancel"
+            },
+            next
+          ],
+          abilities
+        )
+      );
+
+      expect(result.timelineExecution?.commandResults[0]).toMatchObject({
+        startFrame: 0,
+        cancelFrame: expected,
+        endFrame: expected
+      });
+      expect(
+        result.timelineExecution?.commandResults[1]?.startFrame
+      ).toBe(expected);
+      expect(result.actionLog[0]).toMatchObject({
+        cancelFrame: expected
+      });
+    }
+  );
+
+  it("uses the fallback cancel frame before an explicit wait", () => {
+    const result = simulate(
+      legalConfig(
+        "strict",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-followup-cancel"
+          },
+          { type: "wait", frames: 1 }
+        ],
+        [followupCancelA]
+      )
+    );
+
+    expect(result.timelineExecution?.commandResults).toMatchObject([
+      { startFrame: 0, cancelFrame: 10 },
+      { startFrame: 10, endFrame: 11 }
+    ]);
   });
 
   it("rejects overlap in strict mode and shifts it in wait mode", () => {

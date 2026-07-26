@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.4.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.4.0-action-states" as const;
+export const CURRENT_SCHEMA_VERSION = "1.5.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.5.0-followup-cancels" as const;
+export const ACTION_STATE_SCHEMA_VERSION = "1.4.0" as const;
 export const ICD_PROFILE_SCHEMA_VERSION = "1.3.0" as const;
 export const PARTICLE_SCHEMA_VERSION = "1.2.0" as const;
 export const PREVIOUS_SCHEMA_VERSION = "1.1.0" as const;
@@ -31,6 +32,7 @@ export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
+export type AbilityFollowupKind = AbilityKind | "swap";
 export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
@@ -284,6 +286,8 @@ export interface AbilityDefinition {
   name: string;
   kind: AbilityKind;
   cancelFrame: number;
+  /** Optional action-specific cancel offsets selected from the next command. */
+  cancelFrames?: Partial<Record<AbilityFollowupKind, number>>;
   animationEndFrame: number;
   cooldownFrames: number;
   maxCharges?: number;
