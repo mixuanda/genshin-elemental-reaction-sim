@@ -236,6 +236,7 @@ function simulateConfig(
   );
   const energies = new Map<string, number>();
   const energyStats = new Map<string, EnergySummary>();
+  const fixedEnergyCooldownReadyFrames = new Map<string, number>();
 
   for (const character of config.characters) {
     const initial =
@@ -590,6 +591,39 @@ function simulateConfig(
     if (event.type === "energy") {
       const { actorId, actionId, gain } =
         event.payload as EnergyEventPayload;
+      const internalCooldown = gain.internalCooldown;
+      const internalCooldownDurationFrames =
+        internalCooldown === undefined
+          ? null
+          : Math.max(1, toFrame(internalCooldown.duration));
+      const scopedInternalCooldownKey =
+        internalCooldown === undefined
+          ? null
+          : `${actorId}\u0000${internalCooldown.key}`;
+      const previousReadyFrame =
+        scopedInternalCooldownKey === null
+          ? null
+          : (fixedEnergyCooldownReadyFrames.get(
+              scopedInternalCooldownKey
+            ) ?? 0);
+      const blockedByInternalCooldown =
+        previousReadyFrame !== null && event.frame < previousReadyFrame;
+      const internalCooldownReadyFrame =
+        internalCooldownDurationFrames === null
+          ? null
+          : blockedByInternalCooldown
+            ? previousReadyFrame
+            : event.frame + internalCooldownDurationFrames;
+      if (
+        scopedInternalCooldownKey !== null &&
+        internalCooldownReadyFrame !== null &&
+        !blockedByInternalCooldown
+      ) {
+        fixedEnergyCooldownReadyFrames.set(
+          scopedInternalCooldownKey,
+          internalCooldownReadyFrame
+        );
+      }
       const targets =
         gain.target === "team"
           ? config.characters.map((character) => character.id)
@@ -600,6 +634,49 @@ function simulateConfig(
         const character = characters.get(targetId);
         if (!character) continue;
         const before = energies.get(targetId) ?? 0;
+        const source = gain.source ?? `${actionId}:fixed-energy`;
+        if (blockedByInternalCooldown) {
+          energyLog.push({
+            id: energyLog.length,
+            kind: "fixed",
+            frame: event.frame,
+            timeSeconds,
+            sourceActorId: actorId,
+            sourceActionId: actionId,
+            source,
+            receiverId: targetId,
+            activeCharacterId,
+            isOnField: activeCharacterId === targetId,
+            energyBefore: before,
+            rawEnergy: gain.amount,
+            finalEnergy: gain.amount,
+            gainedEnergy: 0,
+            wastedEnergy: 0,
+            energyAfter: before,
+            spawnFrame: null,
+            receiveFrame: event.frame,
+            particleElement: null,
+            particleKind: null,
+            particleCount: null,
+            isSameElement: null,
+            energyRecharge: 1,
+            fieldMultiplier: 1,
+            baseEnergyPerParticle: null,
+            applied: false,
+            blockedReason: "INTERNAL_COOLDOWN",
+            internalCooldownKey: internalCooldown?.key ?? null,
+            internalCooldownDurationFrames,
+            internalCooldownReadyFrame
+          });
+          recordEnergyCurve(
+            event.frame,
+            timeSeconds,
+            "fixed-blocked",
+            targetId,
+            source
+          );
+          continue;
+        }
         const after = round(
           clamp(before + gain.amount, 0, character.energyMax),
           12
@@ -619,7 +696,6 @@ function simulateConfig(
           );
           summary.wasted = round(summary.wasted + wastedEnergy, 12);
         }
-        const source = gain.source ?? `${actionId}:fixed-energy`;
         energyLog.push({
           id: energyLog.length,
           kind: "fixed",
@@ -645,7 +721,12 @@ function simulateConfig(
           isSameElement: null,
           energyRecharge: 1,
           fieldMultiplier: 1,
-          baseEnergyPerParticle: null
+          baseEnergyPerParticle: null,
+          applied: true,
+          blockedReason: null,
+          internalCooldownKey: internalCooldown?.key ?? null,
+          internalCooldownDurationFrames,
+          internalCooldownReadyFrame
         });
         recordEnergyCurve(
           event.frame,
@@ -767,7 +848,12 @@ function simulateConfig(
           isSameElement: calculation.isSameElement,
           energyRecharge: calculation.energyRecharge,
           fieldMultiplier: calculation.fieldMultiplier,
-          baseEnergyPerParticle: calculation.baseEnergyPerParticle
+          baseEnergyPerParticle: calculation.baseEnergyPerParticle,
+          applied: true,
+          blockedReason: null,
+          internalCooldownKey: null,
+          internalCooldownDurationFrames: null,
+          internalCooldownReadyFrame: null
         });
         recordEnergyCurve(
           event.frame,

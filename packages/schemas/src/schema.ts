@@ -9,6 +9,7 @@ import {
   LEGACY_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
+  RUNTIME_ENERGY_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
 
@@ -184,7 +185,9 @@ export const buffDefinitionSchema = z
     kind: z.literal("buff").optional(),
     key: idSchema.optional(),
     label: z.string().optional(),
-    target: z.union([z.string(), z.array(idSchema)]).optional(),
+    target: z
+      .union([z.string(), z.array(idSchema).min(1)])
+      .optional(),
     stat: z.enum([
       "atkFlat",
       "atkPct",
@@ -219,12 +222,20 @@ export const debuffDefinitionSchema = z
   })
   .strict();
 
+export const energyInternalCooldownSchema = z
+  .object({
+    key: idSchema,
+    duration: finiteNumber.positive()
+  })
+  .strict();
+
 export const energyEventSchema = z
   .object({
     target: z.union([z.string(), z.array(idSchema)]).optional(),
     amount: finiteNumber,
     offset: finiteNumber.min(0).optional(),
-    source: idSchema.optional()
+    source: idSchema.optional(),
+    internalCooldown: energyInternalCooldownSchema.optional()
   })
   .strict();
 
@@ -331,9 +342,16 @@ export const frameDebuffDefinitionSchema = debuffDefinitionSchema
   .strict();
 
 export const frameEnergyEventSchema = energyEventSchema
-  .omit({ offset: true })
+  .omit({ offset: true, internalCooldown: true })
   .extend({
-    frame: frameSchema.optional()
+    frame: frameSchema.optional(),
+    internalCooldown: z
+      .object({
+        key: idSchema,
+        durationFrames: z.number().int().positive()
+      })
+      .strict()
+      .optional()
   })
   .strict();
 
@@ -1027,6 +1045,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === RUNTIME_ENERGY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === FOLLOWUP_CANCEL_SCHEMA_VERSION) {
     return parseSimConfig({

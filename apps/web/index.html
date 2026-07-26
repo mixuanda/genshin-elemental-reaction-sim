@@ -151,6 +151,7 @@
                   <th>来源</th>
                   <th>接收者</th>
                   <th>粒子</th>
+                  <th>触发状态</th>
                   <th>接球状态</th>
                   <th>同色</th>
                   <th>充能效率</th>
@@ -239,7 +240,7 @@
               <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式。</dd>
               <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus 和 energyRecharge。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
-              <dt>energyGains</dt><dd>只描述不受充能效率影响的固定回能；不足能量的行动会被跳过并记录。</dd>
+              <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
               <dt>particles</dt><dd>描述微粒/晶球的元素、离散数量范围、生成帧与飞行帧；核心在到达帧按前后台、同/异色和充能效率向全队分配。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>

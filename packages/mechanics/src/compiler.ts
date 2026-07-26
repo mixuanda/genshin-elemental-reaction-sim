@@ -136,7 +136,15 @@ export function compileAbilityBlueprint(
       target: gain.target,
       frame: gain.frame,
       amount: resolve(gain.amountRef, `energyGains[${index}].amountRef`),
-      source: gain.source
+      source: gain.source,
+      ...(gain.internalCooldown === undefined
+        ? {}
+        : {
+            internalCooldown: {
+              key: gain.internalCooldown.key,
+              durationFrames: gain.internalCooldown.durationFrames
+            }
+          })
     })),
     particles: blueprint.particles.map((particle) => ({
       id: particle.id,

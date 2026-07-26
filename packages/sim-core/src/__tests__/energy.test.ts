@@ -296,6 +296,171 @@ describe("particle event simulation", () => {
     });
   });
 
+  it("blocks fixed energy inside an actor-scoped cooldown and allows the boundary frame", () => {
+    const fixedEnergySkill: AbilityDefinition = {
+      id: "fixed-energy-icd",
+      actorId: "a",
+      name: "固定回能 ICD",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 0,
+      cooldownFrames: 0,
+      energyGains: [
+        {
+          target: "a",
+          amount: 10,
+          frame: 0,
+          source: "fixed-energy-icd",
+          internalCooldown: {
+            key: "shared-energy-icd",
+            durationFrames: 360
+          }
+        }
+      ]
+    };
+    const result = simulate(
+      legalEnergyConfig(
+        [fixedEnergySkill],
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "fixed-energy-icd",
+            atFrame: 0
+          },
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "fixed-energy-icd",
+            atFrame: 359
+          },
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "fixed-energy-icd",
+            atFrame: 360
+          }
+        ],
+        {
+          duration: 7,
+          cycleLength: 7,
+          characters: [
+            {
+              ...makeConfig().characters[0]!,
+              initialEnergy: 0
+            }
+          ]
+        }
+      ),
+      { energyMode: "zero" }
+    );
+
+    expect(
+      result.energyLog.map(
+        ({
+          frame,
+          applied,
+          blockedReason,
+          gainedEnergy,
+          energyAfter,
+          internalCooldownKey,
+          internalCooldownReadyFrame
+        }) => ({
+          frame,
+          applied,
+          blockedReason,
+          gainedEnergy,
+          energyAfter,
+          internalCooldownKey,
+          internalCooldownReadyFrame
+        })
+      )
+    ).toEqual([
+      {
+        frame: 0,
+        applied: true,
+        blockedReason: null,
+        gainedEnergy: 10,
+        energyAfter: 10,
+        internalCooldownKey: "shared-energy-icd",
+        internalCooldownReadyFrame: 360
+      },
+      {
+        frame: 359,
+        applied: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        gainedEnergy: 0,
+        energyAfter: 10,
+        internalCooldownKey: "shared-energy-icd",
+        internalCooldownReadyFrame: 360
+      },
+      {
+        frame: 360,
+        applied: true,
+        blockedReason: null,
+        gainedEnergy: 10,
+        energyAfter: 20,
+        internalCooldownKey: "shared-energy-icd",
+        internalCooldownReadyFrame: 720
+      }
+    ]);
+    expect(result.energyStats.a).toMatchObject({
+      fixedGained: 20,
+      final: 20
+    });
+    expect(result.energyCurve.map((point) => point.kind)).toEqual([
+      "initial",
+      "fixed",
+      "fixed-blocked",
+      "fixed"
+    ]);
+  });
+
+  it("keeps identical fixed-energy cooldown keys isolated by source actor", () => {
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      characters: [
+        {
+          ...makeConfig().characters[0]!,
+          id: "a",
+          initialEnergy: 0
+        },
+        {
+          ...makeConfig().characters[0]!,
+          id: "b",
+          initialEnergy: 0
+        }
+      ],
+      rotation: ["a", "b"].map((actorId) => ({
+        id: `${actorId}-fixed-energy`,
+        actorId,
+        name: `${actorId} 固定回能`,
+        at: 0,
+        once: true,
+        energyGains: [
+          {
+            target: actorId,
+            amount: 5,
+            source: "actor-scoped-energy",
+            internalCooldown: {
+              key: "same-key",
+              duration: 6
+            }
+          }
+        ]
+      }))
+    });
+    const result = simulate(config, { energyMode: "zero" });
+
+    expect(result.energyLog.map((entry) => entry.applied)).toEqual([
+      true,
+      true
+    ]);
+    expect(result.energyStats.a?.fixedGained).toBe(5);
+    expect(result.energyStats.b?.fixedGained).toBe(5);
+  });
+
   it("uses received particles for a later burst and exposes the full energy curve", () => {
     const skill: AbilityDefinition = {
       id: "battery",

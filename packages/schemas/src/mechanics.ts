@@ -4,7 +4,8 @@ import {
   abilityTimelineStateSchema
 } from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.3.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.4.0" as const;
+export const RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION = "1.3.0" as const;
 export const FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION = "1.2.0" as const;
 export const ACTION_STATE_MECHANICS_SCHEMA_VERSION = "1.1.0" as const;
 export const INITIAL_MECHANICS_SCHEMA_VERSION = "1.0.0" as const;
@@ -71,7 +72,14 @@ export const mappedEnergyGainBlueprintSchema = z
     target: idSchema,
     frame: z.number().int().min(0),
     amountRef: talentParameterReferenceSchema,
-    source: idSchema
+    source: idSchema,
+    internalCooldown: z
+      .object({
+        key: idSchema,
+        durationFrames: z.number().int().positive()
+      })
+      .strict()
+      .optional()
   })
   .strict();
 
@@ -197,7 +205,8 @@ export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
     "schemaVersion" in input &&
     (input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION ||
       input.schemaVersion === ACTION_STATE_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION)
+      input.schemaVersion === FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION ||
+      input.schemaVersion === RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION)
   ) {
     return abilityBlueprintSchema.parse({
       ...input,

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.5.0 configs to the runtime-energy schema", () => {
+  it("migrates 1.0.0 through 1.6.0 configs to the fixed-energy ICD schema", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -172,6 +172,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.5.0",
       engineVersion: "1.5.0-followup-cancels"
     });
+    const migratedFromRuntimeEnergy = migrateConfig({
+      ...current,
+      schemaVersion: "1.6.0",
+      engineVersion: "1.6.0-runtime-energy"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -199,6 +204,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromFollowupCancels.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromRuntimeEnergy.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromRuntimeEnergy.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -407,6 +418,46 @@ describe("versioned config schema", () => {
       })
     ).toThrow(
       /timeline\.abilities\.0\.cancelFrames\.burst: must not exceed animationEndFrame/
+    );
+  });
+
+  it("rejects a non-positive fixed-energy internal cooldown", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [
+            {
+              id: "bad-energy-icd",
+              actorId: "a",
+              name: "坏回能 ICD",
+              kind: "skill",
+              cancelFrame: 1,
+              animationEndFrame: 1,
+              cooldownFrames: 0,
+              energyGains: [
+                {
+                  target: "a",
+                  amount: 5,
+                  internalCooldown: {
+                    key: "bad",
+                    durationFrames: 0
+                  }
+                }
+              ]
+            }
+          ],
+          commands: []
+        }
+      })
+    ).toThrow(
+      /timeline\.abilities\.0\.energyGains\.0\.internalCooldown\.durationFrames/
     );
   });
 

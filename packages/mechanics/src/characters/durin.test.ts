@@ -161,7 +161,11 @@ describe("Durin black E partial mechanics audit vector", () => {
         target: "durin",
         frame: 0,
         amount: 33,
-        source: "durin-skill-state-entry"
+        source: "durin-skill-state-entry",
+        internalCooldown: {
+          key: "durin-skill-energy-icd",
+          durationFrames: 360
+        }
       }
     ]);
     expect(denialOfDarkness.ability.particles).toEqual([
@@ -298,7 +302,12 @@ describe("Durin black E partial mechanics audit vector", () => {
         source: "durin-skill-state-entry",
         rawEnergy: 33,
         gainedEnergy: 33,
-        energyAfter: 33
+        energyAfter: 33,
+        applied: true,
+        blockedReason: null,
+        internalCooldownKey: "durin-skill-energy-icd",
+        internalCooldownDurationFrames: 360,
+        internalCooldownReadyFrame: 376
       }),
       expect.objectContaining({
         kind: "particle",

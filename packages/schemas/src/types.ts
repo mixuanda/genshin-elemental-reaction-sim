@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.6.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.6.0-runtime-energy" as const;
+export const CURRENT_SCHEMA_VERSION = "1.7.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.7.0-fixed-energy-icd" as const;
+export const RUNTIME_ENERGY_SCHEMA_VERSION = "1.6.0" as const;
 export const FOLLOWUP_CANCEL_SCHEMA_VERSION = "1.5.0" as const;
 export const ACTION_STATE_SCHEMA_VERSION = "1.4.0" as const;
 export const ICD_PROFILE_SCHEMA_VERSION = "1.3.0" as const;
@@ -187,6 +188,10 @@ export interface EnergyEvent {
   amount: number;
   offset?: number;
   source?: string;
+  internalCooldown?: {
+    key: string;
+    duration: number;
+  };
 }
 
 export interface ParticleCountRange {
@@ -253,8 +258,15 @@ export type FrameDebuffDefinition = Omit<
   durationFrames: number;
 };
 
-export type FrameEnergyEvent = Omit<EnergyEvent, "offset"> & {
+export type FrameEnergyEvent = Omit<
+  EnergyEvent,
+  "offset" | "internalCooldown"
+> & {
   frame?: number;
+  internalCooldown?: {
+    key: string;
+    durationFrames: number;
+  };
 };
 
 export type FrameParticleDefinition = Omit<
@@ -618,13 +630,18 @@ export interface EnergyLogEntry {
   energyRecharge: number;
   fieldMultiplier: number;
   baseEnergyPerParticle: number | null;
+  applied: boolean;
+  blockedReason: "INTERNAL_COOLDOWN" | null;
+  internalCooldownKey: string | null;
+  internalCooldownDurationFrames: number | null;
+  internalCooldownReadyFrame: number | null;
 }
 
 export interface EnergyCurvePoint {
   id: number;
   frame: number;
   timeSeconds: number;
-  kind: "initial" | "spend" | "fixed" | "particle";
+  kind: "initial" | "spend" | "fixed" | "fixed-blocked" | "particle";
   receiverId: string | null;
   source: string;
   energyByCharacter: Record<string, number>;

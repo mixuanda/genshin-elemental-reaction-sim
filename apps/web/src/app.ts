@@ -956,12 +956,18 @@ function renderEnergyAudit(): void {
     (entry) => entry.kind === "particle"
   ).length;
   const fixedRows = result.energyLog.length - particleRows;
+  const blockedFixedRows = result.energyLog.filter(
+    (entry) =>
+      entry.kind === "fixed" &&
+      entry.blockedReason === "INTERNAL_COOLDOWN"
+  ).length;
   const outsideDuration = result.particleEvents.filter(
     (event) => !event.receivedWithinSimulation
   ).length;
   byId<HTMLElement>("energyAuditSummary").textContent =
     `${result.particleEvents.length} 次产球 · ${particleRows} 条角色粒子结算 · ` +
-    `${fixedRows} 条固定回能${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
+    `${fixedRows} 条固定回能${blockedFixedRows ? ` · ${blockedFixedRows} 条被内部冷却阻止` : ""}` +
+    `${outsideDuration ? ` · ${outsideDuration} 次在模拟结束后到达` : ""}`;
 
   const canvas = byId<HTMLCanvasElement>("energyTimelineCanvas");
   const context = canvas.getContext("2d");
@@ -1090,12 +1096,19 @@ function renderEnergyAudit(): void {
             ? `${ELEMENT_LABELS[entry.particleElement ?? "neutral"] ?? entry.particleElement}` +
               `${entry.particleKind === "orb" ? "晶球" : "微粒"} × ${formatNumber(entry.particleCount ?? 0, 2)}`
             : "固定回能";
+        const triggerStatus =
+          entry.blockedReason === "INTERNAL_COOLDOWN"
+            ? `<span class="badge warn">ICD 阻止</span> ${escapeHtml(entry.internalCooldownKey ?? "")} · ${entry.internalCooldownReadyFrame ?? "—"}f 可用`
+            : entry.internalCooldownKey
+              ? `<span class="badge good">触发</span> ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`
+              : `<span class="badge good">已结算</span>`;
         return (
           `<tr data-energy-log-id="${entry.id}">` +
           `<td>${entry.receiveFrame}f / ${entry.spawnFrame === null ? "—" : `${entry.spawnFrame}f`}</td>` +
           `<td>${escapeHtml(entry.source)}</td>` +
           `<td><span class="dot" style="display:inline-block;background:${escapeHtml(receiver?.color ?? "#999")}"></span> ${escapeHtml(receiver?.name ?? entry.receiverId)}</td>` +
           `<td>${escapeHtml(particle)}</td>` +
+          `<td>${triggerStatus}</td>` +
           `<td>${entry.isOnField ? "前台" : "后台"} · ×${formatNumber(entry.fieldMultiplier, 2)}</td>` +
           `<td>${entry.isSameElement === null ? "—" : entry.isSameElement ? "是" : "否"}</td>` +
           `<td>${entry.kind === "fixed" ? "不适用" : `${formatNumber(entry.energyRecharge * 100, 1)}%`}</td>` +

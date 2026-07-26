@@ -113,9 +113,19 @@ function compileAbilityAction(
       ? {}
       : {
           energyGains: ability.energyGains.map(
-            ({ frame = 0, ...energy }) => ({
+            ({ frame = 0, internalCooldown, ...energy }) => ({
               ...energy,
-              offset: toSeconds(frame)
+              offset: toSeconds(frame),
+              ...(internalCooldown === undefined
+                ? {}
+                : {
+                    internalCooldown: {
+                      key: internalCooldown.key,
+                      duration: toSeconds(
+                        internalCooldown.durationFrames
+                      )
+                    }
+                  })
             })
           )
         }),

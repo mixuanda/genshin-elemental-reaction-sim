@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.3" as const;
+  "durin-gcsim-b4ae769d7c1c.4" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -197,7 +197,11 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       target: "durin",
       frame: 0,
       amountRef: durinSkillRef("param5"),
-      source: "durin-skill-state-entry"
+      source: "durin-skill-state-entry",
+      internalCooldown: {
+        key: "durin-skill-energy-icd",
+        durationFrames: 6 * 60
+      }
     }
   ],
   particles: [
@@ -227,8 +231,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "固定回能的 6 秒内部冷却尚未跨动作建模",
-    "产球应只在首次成功命中可受击敌人时触发；当前向量按第 1 段必命中建模",
+    "产球应只在首次成功命中可受击敌人时触发，并共享 0.3 秒角色级产球 ICD；当前向量按第 1 段必命中建模",
     "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
   ],
   evidence: [
@@ -280,7 +283,7 @@ export function createDurinBlackSkillAuditConfig(
       version: "1.0.0",
       verificationStatus: "provisional",
       note:
-        "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
+        "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义附着 ICD、带 6 秒共享冷却的固定回能与单次产球；不是完整角色预设，也不是官方验证数据。"
     },
     duration: 3,
     cycleLength: 3,

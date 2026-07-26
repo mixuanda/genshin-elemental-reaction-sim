@@ -148,7 +148,11 @@ test("rolls back a failed burst before executing the following commands", async 
             target: character.id,
             frame: 0,
             amount: 60,
-            source: "browser-refill"
+            source: "browser-refill",
+            internalCooldown: {
+              key: "browser-refill-icd",
+              durationFrames: 360
+            }
           }
         ]
       }
@@ -158,6 +162,11 @@ test("rolls back a failed burst before executing the following commands", async 
         type: "burst",
         actorId: character.id,
         abilityId: "browser-burst"
+      },
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "browser-refill"
       },
       {
         type: "skill",
@@ -182,7 +191,7 @@ test("rolls back a failed burst before executing the following commands", async 
   await expect(page.locator("#notice")).toContainText(
     "运行时能量回滚 · 浏览器验收"
   );
-  await expect(page.locator("#legalTimelineBody tr")).toHaveCount(3);
+  await expect(page.locator("#legalTimelineBody tr")).toHaveCount(4);
   await expect(page.locator("#legalTimelineBody tr").first()).toContainText(
     "拒绝 · INSUFFICIENT_ENERGY"
   );
@@ -190,6 +199,14 @@ test("rolls back a failed burst before executing the following commands", async 
     "未施放且不占用冷却或改变行动状态"
   );
   await expect(page.locator("#energyStatus")).toContainText("跳过 1");
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#energyAuditSummary")).toContainText(
+    "1 条被内部冷却阻止"
+  );
+  await expect(page.locator("#energyLogBody")).toContainText("ICD 阻止");
+  await expect(page.locator("#energyLogBody")).toContainText(
+    "browser-refill-icd"
+  );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -206,6 +223,17 @@ test("rolls back a failed burst before executing the following commands", async 
             (entry) => entry.timelineCommandIndex
           ),
           skipped: result.skippedActions,
+          fixedEnergy: result.energyLog.map(
+            ({
+              applied,
+              blockedReason,
+              internalCooldownReadyFrame
+            }) => ({
+              applied,
+              blockedReason,
+              internalCooldownReadyFrame
+            })
+          ),
           hits: result.damageEvents.map((event) => ({
             frame: event.frame,
             commandIndex: event.timelineCommandIndex
@@ -221,9 +249,10 @@ test("rolls back a failed burst before executing the following commands", async 
         failureCode: "INSUFFICIENT_ENERGY"
       },
       { startFrame: 0, status: "executed", failureCode: null },
-      { startFrame: 1, status: "executed", failureCode: null }
+      { startFrame: 1, status: "executed", failureCode: null },
+      { startFrame: 2, status: "executed", failureCode: null }
     ],
-    actions: [1, 2],
+    actions: [1, 2, 3],
     skipped: [
       {
         timelineCommandIndex: 0,
@@ -231,7 +260,19 @@ test("rolls back a failed burst before executing the following commands", async 
         energyCost: 60
       }
     ],
-    hits: [{ frame: 2, commandIndex: 2 }]
+    fixedEnergy: [
+      {
+        applied: true,
+        blockedReason: null,
+        internalCooldownReadyFrame: 360
+      },
+      {
+        applied: false,
+        blockedReason: "INTERNAL_COOLDOWN",
+        internalCooldownReadyFrame: 360
+      }
+    ],
+    hits: [{ frame: 3, commandIndex: 3 }]
   });
 });
 
@@ -346,13 +387,10 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#notice")).toContainText("不是完整角色预设");
   await expect(page.locator("#notice")).toContainText("provisional");
   await expect(page.locator("#notice")).toContainText("partial");
-  await expect(page.locator("#notice")).toContainText("5 项待实现");
+  await expect(page.locator("#notice")).toContainText("4 项待实现");
   await page.locator("#notice summary").click();
   await expect(page.locator("#notice")).toContainText(
     "gcsim 杜林技能行为"
-  );
-  await expect(page.locator("#notice")).toContainText(
-    "固定回能的 6 秒内部冷却尚未跨动作建模"
   );
   await expect(page.locator("#metricGrid")).toContainText("4,037");
   await expect(page.locator("#metricGrid")).toContainText("3");
@@ -368,6 +406,9 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
           ),
           reactions: result.damageEvents.map((event) => event.reaction),
           energy: result.energyStats.durin,
+          fixedEnergy: result.energyLog.find(
+            (entry) => entry.kind === "fixed"
+          ),
           particle: result.particleEvents[0],
           curve: result.damageCurve.map((point) => point.cumulativeDamage),
           commands: result.timelineExecution?.commandResults.map(
@@ -389,6 +430,13 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
       fixedGained: 33,
       particleGained: 12,
       final: 45
+    },
+    fixedEnergy: {
+      applied: true,
+      blockedReason: null,
+      internalCooldownKey: "durin-skill-energy-icd",
+      internalCooldownDurationFrames: 360,
+      internalCooldownReadyFrame: 376
     },
     particle: {
       particleCount: 4,
@@ -427,6 +475,10 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(3);
   await expect(page.locator("#energyLogBody tr")).toHaveCount(2);
+  await expect(page.locator("#energyLogBody")).toContainText(
+    "durin-skill-energy-icd"
+  );
+  await expect(page.locator("#energyLogBody")).toContainText("至 376f");
 });
 
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({

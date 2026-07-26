@@ -5,7 +5,7 @@ import {
 } from "@genshin-dps-lab/schemas";
 
 export const durinBlackSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.3",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.4",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -36,8 +36,7 @@ export const durinBlackSkillAuditDisclosure = {
   unresolvedMechanics: [
     "Dash、Jump 与重击尚未进入合法命令模型，不能选择对应取消帧",
     "命中停顿、队列窗口与输入缓冲尚未建模",
-    "固定回能的 6 秒内部冷却尚未跨动作建模",
-    "产球应只在首次成功命中可受击敌人时触发；当前向量按第 1 段必命中建模",
+    "产球应只在首次成功命中可受击敌人时触发，并共享 0.3 秒角色级产球 ICD；当前向量按第 1 段必命中建模",
     "多目标、范围判定、命中停顿、Dash/Jump/重击取消路径与输入缓冲尚未建模"
   ]
 } as const;
@@ -53,14 +52,14 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
   dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.3",
+    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.4",
   randomSeed: "durin-black-e-audit-v1",
   meta: {
     name: "杜林黑 E · 部分机制审计向量",
     version: "1.0.0",
     verificationStatus: "provisional",
     note:
-      "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义 ICD、单次回能与单次产球；不是完整角色预设，也不是官方验证数据。"
+      "只覆盖精质转变前置/状态转换、黑 E 三段倍率、命中帧、自定义附着 ICD、带 6 秒共享冷却的固定回能与单次产球；不是完整角色预设，也不是官方验证数据。"
   },
   duration: 3,
   cycleLength: 3,
@@ -196,7 +195,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             target: "durin",
             frame: 0,
             amount: 33,
-            source: "durin-skill-state-entry"
+            source: "durin-skill-state-entry",
+            internalCooldown: {
+              key: "durin-skill-energy-icd",
+              durationFrames: 360
+            }
           }
         ],
         particles: [
