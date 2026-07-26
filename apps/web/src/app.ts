@@ -32,6 +32,7 @@ const ELEMENT_LABELS: Record<string, string> = {
   anemo: "风",
   geo: "岩",
   dendro: "草",
+  frozen: "冻元素",
   physical: "物理",
   neutral: "无色"
 };
@@ -44,6 +45,7 @@ const ELEMENT_COLORS: Record<string, string> = {
   anemo: "#72e0c1",
   geo: "#e9bd68",
   dendro: "#9edc72",
+  frozen: "#d6f1ff",
   physical: "#b9c0cb",
   neutral: "#d6d9df"
 };
@@ -56,7 +58,8 @@ const REACTION_LABELS: Record<string, string> = {
   reverseVaporize: "反向蒸发",
   overload: "超载",
   superconduct: "超导",
-  electroCharged: "感电"
+  electroCharged: "感电",
+  freeze: "冻结"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -916,6 +919,36 @@ function renderHitDetail(): void {
       ]
     );
   }
+  if (hit.reactionAudit.frozenReaction !== null) {
+    const frozen = hit.reactionAudit.frozenReaction;
+    const operationLabel =
+      frozen.operation === "consume"
+        ? hit.reaction === "melt"
+          ? "融化消耗"
+          : "冻结底超导消耗"
+        : {
+            start: "生成",
+            refresh: "刷新",
+            immune: "免疫耐久"
+          }[frozen.operation];
+    factors.push(
+      ["冻结状态", `第 ${frozen.generation} 代 · ${operationLabel}`],
+      [
+        "冻元素耐久",
+        `${formatNumber(frozen.frozenGaugeBefore, 4)}U → ${formatNumber(frozen.frozenGaugeAfter, 4)}U · 生成 ${formatNumber(frozen.generatedGaugeUnits, 4)}U · 消耗 ${formatNumber(frozen.consumedGaugeUnits, 4)}U`
+      ],
+      [
+        "冻结抗性 / 衰减",
+        `${formatNumber(frozen.freezeResistance * 100, 1)}% · 当前 ${formatNumber(frozen.decayRatePerFrame, 6)}U/f`
+      ],
+      [
+        "冻元素预计到期",
+        frozen.expiresAtFrame === null
+          ? "未生成或已清除"
+          : `${frozen.expiresAtFrame}f`
+      ]
+    );
+  }
   if (reactionStatusEntries.length > 0) {
     factors.push([
       "反应目标状态",
@@ -1577,10 +1610,12 @@ function renderAuraTimeline(): void {
   const allTimeline = lastResult.auraTimeline;
   const reactionDamageLog = lastResult.reactionDamageLog;
   const periodicReactionLog = lastResult.periodicReactionLog;
+  const frozenStateLog = lastResult.frozenStateLog;
   card.hidden =
     allTimeline.length === 0 &&
     reactionDamageLog.length === 0 &&
-    periodicReactionLog.length === 0;
+    periodicReactionLog.length === 0 &&
+    frozenStateLog.length === 0;
   byId<HTMLElement>("reactionDamageSummary").textContent =
     reactionDamageLog.length === 0
       ? "当前结果没有独立转化反应伤害"
@@ -1659,6 +1694,46 @@ function renderAuraTimeline(): void {
       })
       .join("") ||
     `<tr><td colspan="8">没有周期反应状态。</td></tr>`;
+  const frozenOperationLabels: Record<string, string> = {
+    start: "生成",
+    refresh: "刷新",
+    immune: "免疫耐久",
+    consume: "超导消耗",
+    expire: "自然到期"
+  };
+  byId<HTMLElement>("frozenStateSummary").textContent =
+    frozenStateLog.length === 0
+      ? "当前结果没有冻结状态"
+      : `${frozenStateLog.length} 条冻结耐久记录 · ${frozenStateLog.filter((entry) => entry.operation === "expire").length} 次自然到期`;
+  byId<HTMLTableSectionElement>("frozenStateBody").innerHTML =
+    frozenStateLog
+      .map((entry) => {
+        const linkedHitId = entry.triggerDamageEventId;
+        const link =
+          linkedHitId === null
+            ? ""
+            : ` data-frozen-hit-id="${linkedHitId}"`;
+        const source =
+          entry.sourceActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) =>
+                  character.id === entry.sourceActorId
+              )?.name ?? entry.sourceActorId;
+        return (
+          `<tr${link}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f</td>` +
+          `<td>${escapeHtml(entry.operation === "consume" ? `${REACTION_LABELS[entry.reaction] ?? entry.reaction}消耗` : frozenOperationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)} · gen ${entry.generation}</span></td>` +
+          `<td>${escapeHtml(source)}</td>` +
+          `<td>+${formatNumber(entry.generatedGaugeUnits, 4)}U / -${formatNumber(entry.consumedGaugeUnits, 4)}U</td>` +
+          `<td>${escapeHtml(formatAuraState(entry.auraBefore))} → ${escapeHtml(formatAuraState(entry.auraAfter))}</td>` +
+          `<td>${formatNumber(entry.freezeResistance * 100, 1)}% / ${entry.expiresAtFrame === null ? "—" : `${entry.expiresAtFrame}f`}</td>` +
+          `<td>${entry.reason === null ? "—" : escapeHtml(entry.reason)}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="8">没有冻结状态。</td></tr>`;
   const reactionStatusLog = lastResult.reactionStatusLog;
   byId<HTMLElement>("reactionStatusSummary").textContent =
     reactionStatusLog.length === 0
@@ -1708,6 +1783,20 @@ function renderAuraTimeline(): void {
     });
   document
     .querySelectorAll<HTMLTableRowElement>(
+      "#frozenStateBody tr[data-frozen-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.frozenHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+  document
+    .querySelectorAll<HTMLTableRowElement>(
       "#reactionStatusBody tr[data-reaction-status-damage-id]"
     )
     .forEach((row) => {
@@ -1728,7 +1817,8 @@ function renderAuraTimeline(): void {
   const targetIdsWithAura = new Set(
     [
       ...allTimeline.map((point) => point.targetId),
-      ...periodicReactionLog.map((point) => point.targetId)
+      ...periodicReactionLog.map((point) => point.targetId),
+      ...frozenStateLog.map((point) => point.targetId)
     ]
   );
   const availableTargets = lastResult.enemyTargets.filter((target) =>
@@ -1770,6 +1860,20 @@ function renderAuraTimeline(): void {
         point.damageEventId ?? point.triggerDamageEventId,
       order: 1
     }));
+  const frozenCurvePoints = frozenStateLog
+    .filter(
+      (point) =>
+        point.targetId === selectedTargetId &&
+        point.operation === "expire"
+    )
+    .map((point) => ({
+      frame: point.frame,
+      auraBefore: point.auraBefore,
+      auraAfter: point.auraAfter,
+      reaction: "freeze" as const,
+      damageEventId: point.triggerDamageEventId,
+      order: 2
+    }));
   const curveTimeline = [
     ...timeline.map((point) => ({
       frame: point.frame,
@@ -1779,14 +1883,21 @@ function renderAuraTimeline(): void {
       damageEventId: point.damageEventId as number | null,
       order: 0
     })),
-    ...periodicCurvePoints
+    ...periodicCurvePoints,
+    ...frozenCurvePoints
   ].sort(
     (left, right) =>
       left.frame - right.frame || left.order - right.order
   );
   if (!curveTimeline.length) return;
 
-  const elements = ["pyro", "cryo", "hydro", "electro"] as const;
+  const elements = [
+    "pyro",
+    "cryo",
+    "hydro",
+    "electro",
+    "frozen"
+  ] as const;
   const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
   const context = canvas.getContext("2d");
   if (!context) return;

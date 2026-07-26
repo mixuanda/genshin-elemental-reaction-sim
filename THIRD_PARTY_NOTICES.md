@@ -31,6 +31,11 @@ This project uses gcsim as a product and testing reference:
   `0.4U` Aura wane, zero-damage behavior, single-target scope, and `2.0`
   reaction multiplier were cross-checked against
   `pkg/reactable/electrocharged.go` in the same fixed commit.
+- Frozen Hydro/Cryo consumption, doubled Frozen durability, accelerating
+  per-frame decay, Freeze resistance, Frozen Melt/Vaporize exclusion,
+  Electro-Charged exclusion, and Frozen Superconduct consumption order were
+  cross-checked against `pkg/reactable/freeze.go`, `melt.go`, `vaporize.go`,
+  `superconduct.go`, and `reactable.go` in the same fixed commit.
 
 The level 1–100 transformative-reaction base-damage numeric table in
 `packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's

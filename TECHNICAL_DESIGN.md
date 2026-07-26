@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本及 `0.1.0`–`1.23.0` 配置迁移到 `1.24.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 只能用于 `aura-v2`。`engineVersion` 当前为 `1.24.0-electro-charged-reaction`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.24.0` 配置迁移到 `1.25.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 与冻元素状态只由 `aura-v2` 产生，敌人共享或逐目标 `freezeResistance` 必须位于 `[0, 1]`。`engineVersion` 当前为 `1.25.0-freeze-state`。
 
 ## 4. 确定性与排序
 
@@ -59,7 +59,7 @@ randomSeed
 
 1. `action`
 2. `buff` / `debuff`
-3. `energy` / `particleSpawn` / `particleReceive` / 周期 Aura 到期检查
+3. `energy` / `particleSpawn` / `particleReceive` / 周期 Aura 与冻元素到期检查
 4. `hit`
 5. 周期反应 Tick 准备
 6. 独立反应伤害
@@ -205,6 +205,7 @@ displayDamage
 - `reactionDamageLog`：每次转化反应的触发伤害 ID、触发/伤害帧、伤害 GCD 结果、下一可用帧、触发目标、固定圆心、半径、全部已检查/命中/坐标未解析目标，以及生成的独立伤害事件 ID。
 - `reactionStatusLog`：由转化反应伤害实际命中后施加的目标级状态，含来源伤害、目标、抗性元素/数值、开始/结束帧、施加/刷新，以及被刷新时对旧半开区间的精确截断。
 - `periodicReactionLog`：每个目标上的周期反应启动、刷新、逐次 Tick、延迟 Aura 削减、零伤害跳过和停止，含流代次、Tick 序号、伤害归属、来源伤害 ID、Aura 前后状态和下一调度帧。
+- `frozenStateLog`：每个目标的冻元素耐久生成、刷新、冻结抗性免疫、融化/超导消耗和自然到期，含代次、来源伤害、Aura 前后状态、生成/消耗量、冻结抗性和精确到期帧。
 - `targetPhaseTimeline`：核心实际使用的 60 FPS 半开目标阶段窗口，含目标、开始/结束帧、三层策略和原因。
 - `targetMotionTimeline`：核心实际使用的 60 FPS 线性移动分段，含解析后的起点、终点、开始/结束帧和秒数。
 - `auraTimeline`：每一段 Aura 模式伤害对应的目标、附着前后、ICD、消耗和反应记录。
@@ -266,7 +267,7 @@ icdProfiles: {
 
 如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura，并为感电保留同目标水雷共存。同一角色/Tag/Group、感电流和周期调度在不同目标上互不推进。冰/水/雷的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；水雷以外的复合共存、冻结和超载/超导/感电以外的转化/加算反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
+当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura、独立冻元素耐久，并为感电保留同目标水雷共存。同一角色/Tag/Group、感电流、冻元素代次和周期调度在不同目标上互不推进。冰/水/雷/冻元素的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；水雷和冻结相关以外的复合共存，以及超载/超导/感电以外的伤害反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
 #### 6.1.1 超载 / 超导独立伤害与目标状态
 
@@ -287,7 +288,7 @@ icdProfiles: {
 
 超导伤害命中后才给对应目标施加 `superconduct-phys-shred`：物理抗性降低 `40%`，基础持续 720 帧。状态使用 `[startFrame, endFrame)`；同帧优先级较高的普通命中不会提前受益，结束帧立即失效。刷新在新超导伤害帧截断旧日志区间并创建新的 720 帧区间。数值伤害免疫只把独立冰伤乘为零，只要范围判定为 landed 仍会施加状态；这与固定 gcsim 提交在伤害应用后始终发出 `OnEnemyDamage`、再由该事件添加超导减抗的路径一致。当前不实现 gcsim 的 Hitlag 延长，所以长 Hitlag 场景会与 gcsim 存在差异。
 
-实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/reactable/superconduct.go`、`pkg/simulation/setup.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。当前未实现冻结底超导、击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这些是可审计的纵向切片，不是完整 gcsim 反应系统。
+实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/reactable/superconduct.go`、`pkg/simulation/setup.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。冻结底超导现会先消耗剩余冰 Aura、再用来袭雷元素的余量消耗冻元素，并复用同一超导伤害/状态管线。当前未实现击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这些是可审计的纵向切片，不是完整 gcsim 反应系统。
 
 #### 6.1.2 水雷共存与感电周期流
 
@@ -305,7 +306,25 @@ icdProfiles: {
 
 核心会按水/雷中较早的衰减到期帧排队可失效的检查；刷新或削减导致到期帧变化时，旧检查以流代次和期望到期帧判为过期，不会重复停止。若普通命中通过其他反应消耗掉水或雷 Aura，该命中的 `ReactionAudit.periodicReaction` 会在同帧记录 `stop`，清除未来 Tick 的活动来源，而不是等待下一 Tick 才发现共存丢失。固定 gcsim 实现已经把新流的首次伤害作为独立攻击排队，因此共存若在前 10 帧内丢失，首次伤害仍结算并记录 `QUEUED_FIRST_TICK_AFTER_STREAM_STOP`，但不会安排后续 Tick 或 6 帧后的 Aura 削减。网页把 `wane / stop` 节点合并进敌方 Aura 曲线，因此周期削减和命中终止都不会只存在于日志表。
 
-该语义交叉核对固定 gcsim 提交的 `pkg/reactable/electrocharged.go`。当前上游实现使用 `NewSingleTargetHit`，所以本核心同样让每个敌人独立维护单目标 Tick 流，不推断附近潮湿目标的额外连锁。尚未实现同一次来袭元素的多反应链、按来源 Aura overlap、冻结存在时拒绝感电，以及任何未经固定来源核验的目标传播；因此仍不是完整 gcsim Aura 系统。
+该语义交叉核对固定 gcsim 提交的 `pkg/reactable/electrocharged.go`。当前上游实现使用 `NewSingleTargetHit`，所以本核心同样让每个敌人独立维护单目标 Tick 流，不推断附近潮湿目标的额外连锁。冻元素存在时会拒绝新感电；尚未实现同一次来袭元素的多反应链、按来源 Aura overlap，以及任何未经固定来源核验的目标传播；因此仍不是完整 gcsim Aura 系统。
+
+#### 6.1.3 冻元素耐久、冻结抗性与冻结底反应
+
+`aura-v2` 在水命中冰 Aura 或冰命中水 Aura 时触发冻结。目标 Aura 和来袭元素的实际反应量为二者较小值 `d`；目标普通 Aura 消耗 `d`，来袭元素不再附着，冻元素生成量为 `2d`。冻元素是独立于普通冰 Aura 的目标状态，可与后续普通冰或水 Aura 共存。
+
+固定 gcsim 提交以内部 `25 durability = 1U` 换算后，冻元素的逐帧衰减为：
+
+```text
+初始衰减速率 = 0.4 / 60 U/f
+每帧速率增量 = 0.1 / 3600 U/f
+本帧冻元素削减 = 当前递增后速率 / (1 - freezeResistance)
+```
+
+因此无冻结抗性的 `1.6U` 冻元素在触发后第 176 帧边界清零。冻结刷新取当前有效耐久与新生成耐久的较强值，不重置已经升高的衰减速率；冻元素消失后速率每帧以两倍增量回落到初始值。`freezeResistance = 1` 时仍发生冻结事件并消耗冰/水，但不生成冻元素。
+
+火命中冻元素按正向融化处理，冻元素与同时存在的普通冰 Aura 都按 `2U` 消耗系数减少；冻元素会阻止水底蒸发。雷命中冻元素走冻结底超导：先消耗普通冰，再用余量消耗冻元素；冻元素也会阻止普通冰底超导和新感电。每次生成、刷新、免疫、消耗及失效都写入 `frozenStateLog`，网页以独立状态表和 Aura 曲线的精确到期节点展示。
+
+这部分交叉核对固定提交的 `pkg/reactable/freeze.go`、`pkg/reactable/melt.go`、`pkg/reactable/vaporize.go`、`pkg/reactable/superconduct.go` 和 `pkg/reactable/reactable.go`。当前只实现冻元素耐久与反应分支；没有敌人定身/动画状态、钝击韧性削冻、碎冰伤害、冻结气泡破裂、Hitlag 或敌人冻结抗性数据库。单次来袭元素的多反应链仍未实现。
 
 ### 6.2 粒子 / 能量事件
 

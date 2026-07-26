@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.24.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.24.0-electro-charged-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.25.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.25.0-freeze-state" as const;
+export const ELECTRO_CHARGED_REACTION_SCHEMA_VERSION = "1.24.0" as const;
 export const SUPERCONDUCT_REACTION_SCHEMA_VERSION = "1.23.0" as const;
 export const OVERLOAD_REACTION_SCHEMA_VERSION = "1.22.0" as const;
 export const ACTOR_POSE_SCHEMA_VERSION = "1.21.0" as const;
@@ -50,7 +51,11 @@ export type PeriodicTransformativeReaction = "electroCharged";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
   | PeriodicTransformativeReaction;
-export type ReactionType = AmplifyingReaction | TransformativeReaction;
+export type NonDamageReaction = "freeze";
+export type ReactionType =
+  | AmplifyingReaction
+  | TransformativeReaction
+  | NonDamageReaction;
 
 export type ScalingStat = "atk" | "hp" | "def" | "em";
 export type SnapshotMode = "action" | "hit";
@@ -69,6 +74,7 @@ export type AuraElement = Extract<
   Element,
   "pyro" | "cryo" | "hydro" | "electro"
 >;
+export type AuraStateElement = AuraElement | "frozen";
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
@@ -189,6 +195,8 @@ export interface EnemyProfile {
   level: number;
   resistance: number;
   defReduction: number;
+  /** 0 = normal Frozen decay; 1 = immune to Frozen durability. */
+  freezeResistance?: number;
   /**
    * Optional named target registry. When omitted, the engine materializes the
    * compatibility target enemy-0 from the shared enemy stats.
@@ -212,6 +220,8 @@ export interface EnemyTargetProfile {
   level?: number;
   resistance?: number;
   defReduction?: number;
+  /** Overrides the shared enemy Frozen resistance. */
+  freezeResistance?: number;
   /** Overrides reactionEngine.initialAura for this target. */
   initialAura?: InitialAuraApplication[];
   position?: { x: number; y: number };
@@ -224,6 +234,7 @@ export interface ResolvedEnemyTargetProfile {
   level: number;
   resistance: number;
   defReduction: number;
+  freezeResistance: number;
   initialAura: InitialAuraApplication[];
   position: { x: number; y: number } | null;
   hitboxRadius: number;
@@ -593,7 +604,8 @@ export type SimulationEventType =
   | "reactionDamage"
   | "periodicReactionTick"
   | "periodicReactionWane"
-  | "periodicReactionExpiry";
+  | "periodicReactionExpiry"
+  | "frozenExpiry";
 
 export interface SimulationEvent<TPayload = unknown> {
   type: SimulationEventType;
@@ -629,13 +641,13 @@ export interface EnemyStateBeforeHit {
 }
 
 export interface AuraStateEntry {
-  element: AuraElement;
+  element: AuraStateElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
 }
 
 export interface AuraGaugeEntry {
-  element: AuraElement;
+  element: AuraStateElement;
   gaugeUnits: number;
 }
 
@@ -659,6 +671,7 @@ export interface ReactionAudit {
   auraAfter: AuraStateEntry[] | null;
   transformativeReaction: TransformativeReactionAudit | null;
   periodicReaction: PeriodicReactionAudit | null;
+  frozenReaction: FrozenReactionAudit | null;
   note?: string;
 }
 
@@ -686,6 +699,18 @@ export interface PeriodicReactionAudit {
   waneDelayFrames: number;
   waneGaugeUnits: number;
   coexistenceExpiresAtFrame: number | null;
+}
+
+export interface FrozenReactionAudit {
+  generation: number;
+  operation: "start" | "refresh" | "immune" | "consume";
+  freezeResistance: number;
+  generatedGaugeUnits: number;
+  consumedGaugeUnits: number;
+  frozenGaugeBefore: number;
+  frozenGaugeAfter: number;
+  decayRatePerFrame: number;
+  expiresAtFrame: number | null;
 }
 
 export interface ReactionStatusEffectDefinition {
@@ -1135,6 +1160,33 @@ export interface PeriodicReactionLogEntry {
   reason: string | null;
 }
 
+export type FrozenStateOperation =
+  | "start"
+  | "refresh"
+  | "immune"
+  | "consume"
+  | "expire";
+
+export interface FrozenStateLogEntry {
+  id: number;
+  reaction: "freeze" | "melt" | "superconduct";
+  generation: number;
+  operation: FrozenStateOperation;
+  frame: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  sourceActorId: string | null;
+  triggerDamageEventId: number | null;
+  freezeResistance: number;
+  generatedGaugeUnits: number;
+  consumedGaugeUnits: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  expiresAtFrame: number | null;
+  reason: string | null;
+}
+
 export interface ReactionStatusLogEntry {
   id: number;
   reaction: TransformativeReaction;
@@ -1247,6 +1299,8 @@ export interface SimulationResult {
   reactionStatusLog: ReactionStatusLogEntry[];
   /** Periodic reaction stream starts, refreshes, ticks, wanes, and stops. */
   periodicReactionLog: PeriodicReactionLogEntry[];
+  /** Frozen durability starts, refreshes, immunity, consumption, and expiry. */
+  frozenStateLog: FrozenStateLogEntry[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

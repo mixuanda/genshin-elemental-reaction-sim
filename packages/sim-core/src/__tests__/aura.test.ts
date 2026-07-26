@@ -655,6 +655,277 @@ describe("AuraEngine Electro-Charged streams", () => {
   });
 });
 
+describe("AuraEngine Frozen durability", () => {
+  it("keeps aura-v1 behavior unchanged and gates Frozen behind aura-v2", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v1",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+
+    expect(audit).toMatchObject({
+      reaction: "none",
+      frozenReaction: null,
+      auraAfter: [
+        expect.objectContaining({ element: "cryo" }),
+        expect.objectContaining({ element: "hydro" })
+      ]
+    });
+  });
+
+  it("creates the same Frozen gauge in both Hydro/Cryo trigger directions", () => {
+    const hydroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const cryoIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd()
+    });
+
+    for (const audit of [hydroIncoming, cryoIncoming]) {
+      expect(audit).toMatchObject({
+        reaction: "freeze",
+        auraConsumed: [
+          expect.objectContaining({ gaugeUnits: 0.8 })
+        ],
+        auraAfter: [
+          {
+            element: "frozen",
+            gaugeUnits: 1.6,
+            expiresAtFrame: 176
+          }
+        ],
+        transformativeReaction: null,
+        periodicReaction: null,
+        frozenReaction: {
+          generation: 1,
+          operation: "start",
+          freezeResistance: 0,
+          generatedGaugeUnits: 1.6,
+          consumedGaugeUnits: 0,
+          frozenGaugeBefore: 0,
+          frozenGaugeAfter: 1.6,
+          expiresAtFrame: 176
+        }
+      });
+    }
+  });
+
+  it("uses accelerating per-frame decay and expires at the exact half-open boundary", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    });
+    const started = engine.processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const stopped = engine.expireFrozen(176, 1, 176);
+
+    expect(started.frozenReaction?.decayRatePerFrame).toBeCloseTo(
+      0.4 / 60,
+      12
+    );
+    expect(stopped).toMatchObject({
+      operation: "expire",
+      frame: 176,
+      auraBefore: [
+        expect.objectContaining({ element: "frozen" })
+      ],
+      auraAfter: [],
+      expiresAtFrame: null,
+      reason: "FROZEN_DECAY_EXPIRED"
+    });
+  });
+
+  it("applies target Frozen resistance to duration and supports immunity", () => {
+    const resistant = new AuraEngine({
+      mode: "aura-v2",
+      freezeResistance: 0.5,
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const immune = new AuraEngine({
+      mode: "aura-v2",
+      freezeResistance: 1,
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+
+    expect(resistant.frozenReaction).toMatchObject({
+      operation: "start",
+      freezeResistance: 0.5,
+      frozenGaugeAfter: 1.6,
+      expiresAtFrame: 100
+    });
+    expect(immune).toMatchObject({
+      reaction: "freeze",
+      auraConsumed: [{ element: "cryo", gaugeUnits: 0.8 }],
+      auraAfter: [],
+      frozenReaction: {
+        operation: "immune",
+        freezeResistance: 1,
+        generatedGaugeUnits: 0,
+        frozenGaugeAfter: 0,
+        expiresAtFrame: null
+      }
+    });
+  });
+
+  it("refreshes effective Frozen gauge without resetting its accelerated decay rate", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "hydro-a",
+      element: "hydro",
+      application: noIcd()
+    });
+    engine.processHit({
+      frame: 1,
+      sourceActorId: "cryo-b",
+      element: "cryo",
+      application: noIcd()
+    });
+    const refreshed = engine.processHit({
+      frame: 2,
+      sourceActorId: "hydro-a",
+      element: "hydro",
+      application: noIcd()
+    });
+
+    expect(refreshed.frozenReaction).toMatchObject({
+      generation: 2,
+      operation: "refresh"
+    });
+    expect(
+      refreshed.frozenReaction?.frozenGaugeAfter
+    ).toBe(refreshed.frozenReaction?.generatedGaugeUnits);
+    expect(
+      refreshed.frozenReaction?.frozenGaugeAfter
+    ).toBeGreaterThan(1.5);
+    expect(
+      refreshed.frozenReaction?.decayRatePerFrame
+    ).toBeGreaterThan(0.4 / 60);
+  });
+
+  it("treats Frozen as Cryo for forward Melt and blocks Vaporize", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    engine.processHit({
+      frame: 1,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const melt = engine.processHit({
+      frame: 2,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+
+    expect(melt).toMatchObject({
+      reaction: "melt",
+      auraConsumed: [
+        expect.objectContaining({ element: "frozen" })
+      ],
+      auraAfter: [
+        expect.objectContaining({ element: "hydro" })
+      ],
+      frozenReaction: {
+        operation: "consume",
+        frozenGaugeAfter: 0,
+        expiresAtFrame: null
+      }
+    });
+    expect(melt.note).toContain("融化消耗了冻元素耐久");
+  });
+
+  it("blocks Electro-Charged and routes Electro into Frozen Superconduct", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    engine.processHit({
+      frame: 1,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd()
+    });
+    const superconduct = engine.processHit({
+      frame: 2,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd(2)
+    });
+
+    expect(superconduct).toMatchObject({
+      reaction: "superconduct",
+      auraConsumed: [
+        expect.objectContaining({
+          element: "frozen"
+        })
+      ],
+      auraAfter: [
+        expect.objectContaining({ element: "hydro" })
+      ],
+      transformativeReaction: {
+        reaction: "superconduct",
+        scheduled: true
+      },
+      periodicReaction: null,
+      frozenReaction: {
+        operation: "consume",
+        frozenGaugeBefore: expect.any(Number),
+        frozenGaugeAfter: 0,
+        expiresAtFrame: null
+      }
+    });
+  });
+});
+
 function makeAuraTimelineConfig(initialAura: boolean): SimConfig {
   const base = makeConfig();
   return {

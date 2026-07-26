@@ -1697,4 +1697,46 @@ describe("versioned config schema", () => {
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
+
+  it("migrates the Electro-Charged schema into the Frozen-state schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.24.0",
+      engineVersion: "1.24.0-electro-charged-reaction"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
+
+  it("validates shared and target-specific Frozen resistance", () => {
+    const current = migrateConfig(legacyConfig);
+    const parsed = migrateConfig({
+      ...current,
+      enemy: {
+        ...current.enemy,
+        freezeResistance: 0.25,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "冻结抗性目标",
+            freezeResistance: 1
+          }
+        ]
+      }
+    });
+
+    expect(parsed.enemy.freezeResistance).toBe(0.25);
+    expect(parsed.enemy.targets?.[0]?.freezeResistance).toBe(1);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        enemy: {
+          ...current.enemy,
+          freezeResistance: 1.01
+        }
+      })
+    ).toThrow(/enemy\.freezeResistance/);
+  });
 });

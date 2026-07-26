@@ -266,6 +266,16 @@
             </table>
           </div>
           <div class="section-title">
+            <h3>冻结状态机</h3>
+            <span id="frozenStateSummary"></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>时间 / 帧</th><th>操作</th><th>目标 / 代次</th><th>来源</th><th>生成 / 消耗</th><th>Aura 前 → 后</th><th>冻结抗性 / 到期</th><th>原因</th></tr></thead>
+              <tbody id="frozenStateBody"></tbody>
+            </table>
+          </div>
+          <div class="section-title">
             <h3>目标级反应状态</h3>
             <span id="reactionStatusSummary"></span>
           </div>
@@ -349,9 +359,9 @@
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
               <dt>particles</dt><dd>描述微粒/晶球的元素、离散数量范围、生成帧与飞行帧；核心在到达帧按前后台、同/异色和充能效率向全队分配。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
-              <dt>reactionEngine</dt><dd>aura-v1 根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；aura-v2 另加入雷 Aura、超载/超导独立范围伤害，以及水雷共存和逐目标感电周期流。超导命中目标获得 720 帧物抗降低；感电逐次记录 Tick、归属刷新、延迟 Aura 削减，以及其他反应移除共存 Aura 时的同帧停止。正式预设禁止手工 reaction 标签。</dd>
+              <dt>reactionEngine</dt><dd>aura-v1 根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；aura-v2 另加入雷 Aura、超载/超导独立范围伤害、水雷共存/感电周期流，以及带逐帧加速衰减和冻结抗性的冻元素耐久。冻元素可被火正向融化或雷冻结底超导消耗，并阻止火打水反向蒸发、冰打雷普通超导和新感电等错误分支。正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、超载/超导独立伤害、超导物抗状态、水雷共存/感电周期流、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；冻结、扩散、结晶、草反应等仍未实现，几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物，也没有完整角色机制数据库。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD/冻结抗性、超载/超导独立伤害、超导物抗状态、水雷共存/感电周期流、冻元素耐久、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；碎冰、扩散、结晶、草反应等仍未实现，冻结也不会自动定身或停止声明式移动。几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物，也没有完整角色机制数据库。</p>
           </article>
         </div>
       </section>

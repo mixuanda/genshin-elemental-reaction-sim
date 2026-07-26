@@ -172,6 +172,7 @@ describe("registered enemy targets", () => {
         level: 90,
         resistance: 0.1,
         defReduction: 0,
+        freezeResistance: 0,
         initialAura: [{ element: "cryo", gaugeUnits: 1 }],
         position: null,
         hitboxRadius: 0
@@ -182,6 +183,7 @@ describe("registered enemy targets", () => {
         level: 90,
         resistance: 0.5,
         defReduction: 0,
+        freezeResistance: 0,
         initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         position: null,
         hitboxRadius: 0

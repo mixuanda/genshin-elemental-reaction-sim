@@ -53,6 +53,7 @@ export const EVENT_PRIORITY = {
   particleReceive: 2,
   hit: 3,
   periodicReactionExpiry: 2,
+  frozenExpiry: 2,
   periodicReactionTick: 4,
   reactionDamage: 5,
   periodicReactionWane: 6
@@ -441,6 +442,12 @@ interface PeriodicReactionSourceSnapshot {
   cycle: number;
 }
 
+interface FrozenStateSource {
+  generation: number;
+  actorId: string;
+  triggerDamageEventId: number;
+}
+
 interface PeriodicReactionTickEventPayload {
   targetId: string;
   generation: number;
@@ -464,6 +471,12 @@ interface PeriodicReactionExpiryEventPayload {
   expectedExpiryFrame: number;
 }
 
+interface FrozenExpiryEventPayload {
+  targetId: string;
+  generation: number;
+  expectedExpiryFrame: number;
+}
+
 type InternalEvent =
   | SimulationEvent<ActionEventPayload>
   | SimulationEvent<BuffEventPayload>
@@ -475,7 +488,8 @@ type InternalEvent =
   | SimulationEvent<ReactionDamageEventPayload>
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
-  | SimulationEvent<PeriodicReactionExpiryEventPayload>;
+  | SimulationEvent<PeriodicReactionExpiryEventPayload>
+  | SimulationEvent<FrozenExpiryEventPayload>;
 
 interface ActiveBuff {
   key: string;
@@ -634,6 +648,10 @@ function simulateConfig(
     level: target.level ?? config.enemy.level,
     resistance: target.resistance ?? config.enemy.resistance,
     defReduction: target.defReduction ?? config.enemy.defReduction,
+    freezeResistance:
+      target.freezeResistance ??
+      config.enemy.freezeResistance ??
+      0,
     initialAura: deepClone(
       target.initialAura ?? config.reactionEngine?.initialAura ?? []
     ),
@@ -715,7 +733,8 @@ function simulateConfig(
             target.id,
             new AuraEngine({
               ...config.reactionEngine!,
-              initialAura: deepClone(target.initialAura)
+              initialAura: deepClone(target.initialAura),
+              freezeResistance: target.freezeResistance
             })
           ])
         )
@@ -814,11 +833,17 @@ function simulateConfig(
   const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
+  const frozenStateLog: SimulationResult["frozenStateLog"] = [];
   const activePeriodicReactionSources = new Map<
     string,
     PeriodicReactionSourceSnapshot
   >();
   const periodicReactionExpiryScheduleKeys = new Set<string>();
+  const activeFrozenStateSources = new Map<
+    string,
+    FrozenStateSource
+  >();
+  const frozenExpiryScheduleKeys = new Set<string>();
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -869,6 +894,22 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies PeriodicReactionExpiryEventPayload);
+  };
+
+  const scheduleFrozenExpiry = (
+    targetId: string,
+    generation: number,
+    expiryFrame: number | null
+  ): void => {
+    if (expiryFrame === null) return;
+    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    if (frozenExpiryScheduleKeys.has(scheduleKey)) return;
+    frozenExpiryScheduleKeys.add(scheduleKey);
+    push(expiryFrame / 60, "frozenExpiry", {
+      targetId,
+      generation,
+      expectedExpiryFrame: expiryFrame
+    } satisfies FrozenExpiryEventPayload);
   };
 
   const scheduleElectroChargedDamage = ({
@@ -1855,6 +1896,51 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "frozenExpiry") {
+      const {
+        targetId,
+        generation,
+        expectedExpiryFrame
+      } = event.payload as FrozenExpiryEventPayload;
+      frozenExpiryScheduleKeys.delete(
+        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+      );
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+      const result = auraEngine.expireFrozen(
+        event.frame,
+        generation,
+        expectedExpiryFrame
+      );
+      if (result.operation === "stale") continue;
+      const source = activeFrozenStateSources.get(targetId);
+      frozenStateLog.push({
+        id: frozenStateLog.length,
+        reaction: "freeze",
+        generation,
+        operation: "expire",
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId: source?.actorId ?? null,
+        triggerDamageEventId:
+          source?.triggerDamageEventId ?? null,
+        freezeResistance: target.freezeResistance,
+        generatedGaugeUnits: 0,
+        consumedGaugeUnits: 0,
+        auraBefore: result.auraBefore,
+        auraAfter: result.auraAfter,
+        expiresAtFrame: null,
+        reason: result.reason
+      });
+      if (source?.generation === generation) {
+        activeFrozenStateSources.delete(targetId);
+      }
+      continue;
+    }
+
     if (event.type === "periodicReactionExpiry") {
       const {
         targetId,
@@ -2420,6 +2506,7 @@ function simulateConfig(
           auraAfter: null,
           transformativeReaction: null,
           periodicReaction: null,
+          frozenReaction: null,
           note:
             `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : damageElement === "cryo" ? "冰" : damageElement === "electro" ? "雷" : damageElement}元素抗性与目标伤害策略。`
         };
@@ -2889,6 +2976,7 @@ function simulateConfig(
             auraAfter: null,
             transformativeReaction: null,
             periodicReaction: null,
+            frozenReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -2919,11 +3007,12 @@ function simulateConfig(
             };
     const reaction = reactionAudit.reaction;
     const amplifyingReaction =
-      reaction === "overload" ||
-      reaction === "superconduct" ||
-      reaction === "electroCharged"
-        ? "none"
-        : reaction;
+      reaction === "melt" ||
+      reaction === "reverseMelt" ||
+      reaction === "vaporize" ||
+      reaction === "reverseVaporize"
+        ? reaction
+        : "none";
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -3159,6 +3248,81 @@ function simulateConfig(
           }
         );
       }
+    }
+    const frozenReaction = reactionAudit.frozenReaction;
+    if (frozenReaction !== null) {
+      const operation = frozenReaction.operation;
+      const frozenConsumptionReaction =
+        reaction === "melt" ? "MELT" : "SUPERCONDUCT";
+      const frozenConsumptionExtent =
+        frozenReaction.frozenGaugeAfter <= 0
+          ? "FROZEN_CONSUMED"
+          : "FROZEN_PARTIALLY_CONSUMED";
+      const reason =
+        operation === "immune"
+          ? "FREEZE_RESISTANCE_IMMUNE"
+          : operation === "consume"
+            ? `${frozenConsumptionExtent}_BY_${frozenConsumptionReaction}`
+            : null;
+      frozenStateLog.push({
+        id: frozenStateLog.length,
+        reaction:
+          reaction === "melt"
+            ? "melt"
+            : reaction === "superconduct"
+              ? "superconduct"
+              : "freeze",
+        generation: frozenReaction.generation,
+        operation,
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: targetProfile.name,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        freezeResistance: frozenReaction.freezeResistance,
+        generatedGaugeUnits:
+          frozenReaction.generatedGaugeUnits,
+        consumedGaugeUnits:
+          frozenReaction.consumedGaugeUnits,
+        auraBefore: deepClone(
+          reactionAudit.auraBefore ?? []
+        ),
+        auraAfter: deepClone(
+          reactionAudit.auraAfter ?? []
+        ),
+        expiresAtFrame: frozenReaction.expiresAtFrame,
+        reason
+      });
+      if (
+        operation === "start" ||
+        operation === "refresh"
+      ) {
+        activeFrozenStateSources.set(targetId, {
+          generation: frozenReaction.generation,
+          actorId,
+          triggerDamageEventId: damageEventId
+        });
+      } else if (operation === "consume") {
+        const existingSource =
+          activeFrozenStateSources.get(targetId);
+        if (frozenReaction.frozenGaugeAfter > 0) {
+          activeFrozenStateSources.set(targetId, {
+            generation: frozenReaction.generation,
+            actorId: existingSource?.actorId ?? actorId,
+            triggerDamageEventId:
+              existingSource?.triggerDamageEventId ??
+              damageEventId
+          });
+        } else {
+          activeFrozenStateSources.delete(targetId);
+        }
+      }
+      scheduleFrozenExpiry(
+        targetId,
+        frozenReaction.generation,
+        frozenReaction.expiresAtFrame
+      );
     }
     const periodicReaction = reactionAudit.periodicReaction;
     if (periodicReaction !== null) {
@@ -3470,6 +3634,7 @@ function simulateConfig(
     reactionDamageLog,
     reactionStatusLog,
     periodicReactionLog,
+    frozenStateLog,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,

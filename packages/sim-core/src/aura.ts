@@ -2,6 +2,7 @@ import type {
   AmplifyingReaction,
   AuraElement,
   AuraReactionEngineConfig,
+  AuraStateElement,
   AuraStateEntry,
   Element,
   ElementalApplication,
@@ -33,13 +34,15 @@ const ELECTRO_CHARGED_TICK_INTERVAL_FRAMES = 60;
 const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
 const ELECTRO_CHARGED_WANE_GAUGE_UNITS = 0.4;
 const ELECTRO_CHARGED_BASE_MULTIPLIER = 2;
+const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
+const FROZEN_DECAY_ACCELERATION_PER_FRAME = 0.1 / (60 * 60);
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
 };
 
 interface MutableAura {
-  element: AuraElement;
+  element: AuraStateElement;
   gaugeUnits: number;
   decayPerFrame: number;
 }
@@ -111,6 +114,10 @@ function isTransformativeReaction(
   );
 }
 
+function requiresAuraV2(reaction: ReactionType): boolean {
+  return isTransformativeReaction(reaction) || reaction === "freeze";
+}
+
 export interface ElectroChargedStateResult {
   generation: number;
   operation: "tick" | "wane" | "wane-skipped" | "stop" | "stale";
@@ -121,6 +128,20 @@ export interface ElectroChargedStateResult {
   nextTickFrame: number | null;
   coexistenceExpiresAtFrame: number | null;
   reason: string | null;
+}
+
+export interface FrozenStateResult {
+  generation: number;
+  operation: "expire" | "stale";
+  frame: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  expiresAtFrame: number | null;
+  reason: string;
+}
+
+export interface AuraEngineConfig extends AuraReactionEngineConfig {
+  freezeResistance?: number;
 }
 
 export interface AuraHitInput {
@@ -160,6 +181,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
       auraElement: "pyro",
       reaction: "reverseMelt",
       consumptionFactor: 0.5
+    },
+    {
+      auraElement: "hydro",
+      reaction: "freeze",
+      consumptionFactor: 1
     }
   ],
   hydro: [
@@ -167,6 +193,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
       auraElement: "pyro",
       reaction: "vaporize",
       consumptionFactor: 2
+    },
+    {
+      auraElement: "cryo",
+      reaction: "freeze",
+      consumptionFactor: 1
     },
     {
       auraElement: "electro",
@@ -231,11 +262,12 @@ function remainingDecayFrames(
  * shields, and per-source overlap arrays remain future mechanics work.
  */
 export class AuraEngine {
-  private readonly auras = new Map<AuraElement, MutableAura>();
+  private readonly auras = new Map<AuraStateElement, MutableAura>();
   private readonly icdStates = new Map<string, IcdState>();
   private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
+  private readonly freezeResistance: number;
   private readonly reactionDamageReadyFrames = new Map<
     OneShotTransformativeReaction,
     number
@@ -243,10 +275,22 @@ export class AuraEngine {
   private electroChargedGeneration = 0;
   private electroChargedActive = false;
   private electroChargedNextTickFrame = -1;
+  private frozenGeneration = 0;
+  private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
   private currentFrame = 0;
 
-  constructor(config: AuraReactionEngineConfig) {
+  constructor(config: AuraEngineConfig) {
     this.mode = config.mode;
+    this.freezeResistance = config.freezeResistance ?? 0;
+    if (
+      !Number.isFinite(this.freezeResistance) ||
+      this.freezeResistance < 0 ||
+      this.freezeResistance > 1
+    ) {
+      throw new Error(
+        `freezeResistance must be between 0 and 1; got ${this.freezeResistance}`
+      );
+    }
     this.debugAllowReactionOverride =
       config.debugAllowReactionOverride === true;
     this.icdProfiles = {
@@ -258,6 +302,44 @@ export class AuraEngine {
     }
   }
 
+  private advanceFrozenBy(elapsed: number): void {
+    for (let offset = 0; offset < elapsed; offset += 1) {
+      const frozen = this.auras.get("frozen");
+      if (frozen !== undefined) {
+        this.frozenDecayRate +=
+          FROZEN_DECAY_ACCELERATION_PER_FRAME;
+        frozen.decayPerFrame = this.frozenDecayRate;
+        frozen.gaugeUnits -=
+          this.frozenDecayRate / (1 - this.freezeResistance);
+        if (frozen.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("frozen");
+        }
+      } else {
+        this.frozenDecayRate = Math.max(
+          FROZEN_BASE_DECAY_PER_FRAME,
+          this.frozenDecayRate -
+            2 * FROZEN_DECAY_ACCELERATION_PER_FRAME
+        );
+      }
+    }
+  }
+
+  private remainingFrozenFrames(): number | null {
+    const frozen = this.auras.get("frozen");
+    if (frozen === undefined || this.freezeResistance >= 1) {
+      return null;
+    }
+    let gaugeUnits = frozen.gaugeUnits;
+    let decayRate = this.frozenDecayRate;
+    let frames = 0;
+    while (gaugeUnits > AURA_EPSILON && frames <= 36_000) {
+      decayRate += FROZEN_DECAY_ACCELERATION_PER_FRAME;
+      gaugeUnits -= decayRate / (1 - this.freezeResistance);
+      frames += 1;
+    }
+    return gaugeUnits <= AURA_EPSILON ? frames : null;
+  }
+
   private advanceTo(frame: number): void {
     if (!Number.isInteger(frame) || frame < this.currentFrame) {
       throw new Error(
@@ -267,11 +349,13 @@ export class AuraEngine {
     const elapsed = frame - this.currentFrame;
     if (elapsed > 0) {
       for (const [element, aura] of this.auras) {
+        if (element === "frozen") continue;
         aura.gaugeUnits -= aura.decayPerFrame * elapsed;
         if (aura.gaugeUnits <= AURA_EPSILON) {
           this.auras.delete(element);
         }
       }
+      this.advanceFrozenBy(elapsed);
       this.currentFrame = frame;
       if (
         this.electroChargedActive &&
@@ -291,13 +375,15 @@ export class AuraEngine {
         element: aura.element,
         gaugeUnits: cleanGaugeUnits(aura.gaugeUnits),
         expiresAtFrame:
-          aura.decayPerFrame > 0
-            ? this.currentFrame +
-              remainingDecayFrames(
-                aura.gaugeUnits,
-                aura.decayPerFrame
-              )
-            : null
+          aura.element === "frozen"
+            ? this.frozenExpiryFrame()
+            : aura.decayPerFrame > 0
+              ? this.currentFrame +
+                remainingDecayFrames(
+                  aura.gaugeUnits,
+                  aura.decayPerFrame
+                )
+              : null
       }));
   }
 
@@ -326,6 +412,97 @@ export class AuraEngine {
     );
     const earliest = Math.min(...expiryFrames);
     return Number.isFinite(earliest) ? earliest : null;
+  }
+
+  private frozenGaugeUnits(): number {
+    return this.auras.get("frozen")?.gaugeUnits ?? 0;
+  }
+
+  private frozenExpiryFrame(): number | null {
+    const remainingFrames = this.remainingFrozenFrames();
+    return remainingFrames === null
+      ? null
+      : this.currentFrame + remainingFrames;
+  }
+
+  private attachFrozen(gaugeUnits: number): {
+    operation: "start" | "refresh" | "immune";
+    generatedGaugeUnits: number;
+  } {
+    this.frozenGeneration += 1;
+    if (this.freezeResistance >= 1) {
+      return {
+        operation: "immune",
+        generatedGaugeUnits: 0
+      };
+    }
+    const existing = this.auras.get("frozen");
+    const operation = existing === undefined ? "start" : "refresh";
+    if (existing === undefined) {
+      this.auras.set("frozen", {
+        element: "frozen",
+        gaugeUnits,
+        decayPerFrame: this.frozenDecayRate
+      });
+    } else if (gaugeUnits > existing.gaugeUnits) {
+      existing.gaugeUnits = gaugeUnits;
+    }
+    return {
+      operation,
+      generatedGaugeUnits: gaugeUnits
+    };
+  }
+
+  expireFrozen(
+    frame: number,
+    generation: number,
+    expectedExpiryFrame: number
+  ): FrozenStateResult {
+    const generationWasCurrent =
+      generation === this.frozenGeneration;
+    if (frame > this.currentFrame) {
+      this.advanceTo(Math.max(this.currentFrame, frame - 1));
+    }
+    const auraBefore = this.snapshot();
+    this.advanceTo(frame);
+    const auraAfter = this.snapshot();
+    const currentExpiry = this.frozenExpiryFrame();
+    if (
+      !generationWasCurrent ||
+      generation !== this.frozenGeneration ||
+      (currentExpiry !== null &&
+        currentExpiry !== expectedExpiryFrame)
+    ) {
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore,
+        auraAfter,
+        expiresAtFrame: currentExpiry,
+        reason: "STALE_FROZEN_EXPIRY_CHECK"
+      };
+    }
+    if (this.frozenGaugeUnits() <= AURA_EPSILON) {
+      return {
+        generation,
+        operation: "expire",
+        frame,
+        auraBefore,
+        auraAfter,
+        expiresAtFrame: null,
+        reason: "FROZEN_DECAY_EXPIRED"
+      };
+    }
+    return {
+      generation,
+      operation: "stale",
+      frame,
+      auraBefore,
+      auraAfter,
+      expiresAtFrame: currentExpiry,
+      reason: "FROZEN_REFRESHED_BEFORE_EXPIRY"
+    };
   }
 
   getAuraStateAt(frame: number): AuraStateEntry[] {
@@ -623,6 +800,7 @@ export class AuraEngine {
         auraAfter: this.snapshot(),
         transformativeReaction: null,
         periodicReaction: null,
+        frozenReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -650,6 +828,7 @@ export class AuraEngine {
         auraAfter: this.snapshot(),
         transformativeReaction: null,
         periodicReaction: null,
+        frozenReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -675,6 +854,7 @@ export class AuraEngine {
         auraAfter: this.snapshot(),
         transformativeReaction: null,
         periodicReaction: null,
+        frozenReaction: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -686,18 +866,138 @@ export class AuraEngine {
         gaugeUnits: application.gaugeUnits
       }
     ];
-    const rule = REACTION_RULES[input.element].find(
-      (candidate) =>
-        (this.mode === "aura-v2" ||
-          !isTransformativeReaction(candidate.reaction)) &&
-        (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
-        AURA_EPSILON
-    );
+    const frozenPresent =
+      this.frozenGaugeUnits() > AURA_EPSILON;
+    const frozenMelt =
+      this.mode === "aura-v2" &&
+      input.element === "pyro" &&
+      frozenPresent &&
+      (this.auras.get("electro")?.gaugeUnits ?? 0) <=
+        AURA_EPSILON;
+    const frozenSuperconduct =
+      this.mode === "aura-v2" &&
+      input.element === "electro" &&
+      frozenPresent &&
+      (this.auras.get("pyro")?.gaugeUnits ?? 0) <=
+        AURA_EPSILON;
+    const rule = frozenMelt || frozenSuperconduct
+      ? undefined
+      : REACTION_RULES[input.element].find(
+          (candidate) =>
+            (this.mode === "aura-v2" ||
+              !requiresAuraV2(candidate.reaction)) &&
+            !(
+              frozenPresent &&
+              (candidate.reaction === "electroCharged" ||
+                candidate.reaction === "reverseVaporize" ||
+                (input.element === "cryo" &&
+                  candidate.reaction === "superconduct"))
+            ) &&
+            (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
+              AURA_EPSILON
+        );
     let automaticReaction: ReactionType = "none";
     const auraConsumed: ReactionAudit["auraConsumed"] = [];
 
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
-    if (rule?.reaction === "electroCharged") {
+    let frozenReaction: ReactionAudit["frozenReaction"] = null;
+    if (frozenMelt) {
+      const cryoAura = this.auras.get("cryo");
+      if (cryoAura !== undefined) {
+        const consumedCryo = Math.min(
+          cryoAura.gaugeUnits,
+          application.gaugeUnits * 2
+        );
+        cryoAura.gaugeUnits -= consumedCryo;
+        auraConsumed.push({
+          element: "cryo",
+          gaugeUnits: cleanGaugeUnits(consumedCryo)
+        });
+        if (cryoAura.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("cryo");
+        }
+      }
+      const frozenBefore = this.frozenGaugeUnits();
+      const frozenConsumed = Math.min(
+        frozenBefore,
+        application.gaugeUnits * 2
+      );
+      const frozenAura = this.auras.get("frozen");
+      if (frozenAura !== undefined && frozenConsumed > 0) {
+        frozenAura.gaugeUnits -= frozenConsumed;
+        auraConsumed.push({
+          element: "frozen",
+          gaugeUnits: cleanGaugeUnits(frozenConsumed)
+        });
+        if (frozenAura.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("frozen");
+        }
+        this.frozenGeneration += 1;
+      }
+      automaticReaction = "melt";
+      frozenReaction = {
+        generation: this.frozenGeneration,
+        operation: "consume",
+        freezeResistance: this.freezeResistance,
+        generatedGaugeUnits: 0,
+        consumedGaugeUnits: cleanGaugeUnits(frozenConsumed),
+        frozenGaugeBefore: cleanGaugeUnits(frozenBefore),
+        frozenGaugeAfter: cleanGaugeUnits(
+          this.frozenGaugeUnits()
+        ),
+        decayRatePerFrame: this.frozenDecayRate,
+        expiresAtFrame: this.frozenExpiryFrame()
+      };
+    } else if (frozenSuperconduct) {
+      let remainingGaugeUnits = application.gaugeUnits;
+      const cryoAura = this.auras.get("cryo");
+      if (cryoAura !== undefined && remainingGaugeUnits > AURA_EPSILON) {
+        const consumedCryo = Math.min(
+          cryoAura.gaugeUnits,
+          remainingGaugeUnits
+        );
+        cryoAura.gaugeUnits -= consumedCryo;
+        remainingGaugeUnits -= consumedCryo;
+        auraConsumed.push({
+          element: "cryo",
+          gaugeUnits: cleanGaugeUnits(consumedCryo)
+        });
+        if (cryoAura.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("cryo");
+        }
+      }
+      const frozenBefore = this.frozenGaugeUnits();
+      const frozenConsumed = Math.min(
+        frozenBefore,
+        remainingGaugeUnits
+      );
+      const frozenAura = this.auras.get("frozen");
+      if (frozenAura !== undefined && frozenConsumed > 0) {
+        frozenAura.gaugeUnits -= frozenConsumed;
+        auraConsumed.push({
+          element: "frozen",
+          gaugeUnits: cleanGaugeUnits(frozenConsumed)
+        });
+        if (frozenAura.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete("frozen");
+        }
+        this.frozenGeneration += 1;
+      }
+      automaticReaction = "superconduct";
+      frozenReaction = {
+        generation: this.frozenGeneration,
+        operation: "consume",
+        freezeResistance: this.freezeResistance,
+        generatedGaugeUnits: 0,
+        consumedGaugeUnits: cleanGaugeUnits(frozenConsumed),
+        frozenGaugeBefore: cleanGaugeUnits(frozenBefore),
+        frozenGaugeAfter: cleanGaugeUnits(
+          this.frozenGaugeUnits()
+        ),
+        decayRatePerFrame: this.frozenDecayRate,
+        expiresAtFrame: this.frozenExpiryFrame()
+      };
+    } else if (rule?.reaction === "electroCharged") {
       this.attachNormalAura(input.element, application.gaugeUnits);
       const operation = this.electroChargedActive
         ? "refresh"
@@ -736,6 +1036,42 @@ export class AuraEngine {
         waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
         coexistenceExpiresAtFrame
       };
+    } else if (rule?.reaction === "freeze") {
+      const targetAura = this.auras.get(rule.auraElement);
+      if (targetAura !== undefined) {
+        const consumedGaugeUnits = Math.min(
+          targetAura.gaugeUnits,
+          application.gaugeUnits
+        );
+        targetAura.gaugeUnits -= consumedGaugeUnits;
+        if (targetAura.gaugeUnits <= AURA_EPSILON) {
+          this.auras.delete(rule.auraElement);
+        }
+        auraConsumed.push({
+          element: rule.auraElement,
+          gaugeUnits: cleanGaugeUnits(consumedGaugeUnits)
+        });
+        const frozenBefore = this.frozenGaugeUnits();
+        const frozenAttachment = this.attachFrozen(
+          2 * consumedGaugeUnits
+        );
+        automaticReaction = "freeze";
+        frozenReaction = {
+          generation: this.frozenGeneration,
+          operation: frozenAttachment.operation,
+          freezeResistance: this.freezeResistance,
+          generatedGaugeUnits: cleanGaugeUnits(
+            frozenAttachment.generatedGaugeUnits
+          ),
+          consumedGaugeUnits: 0,
+          frozenGaugeBefore: cleanGaugeUnits(frozenBefore),
+          frozenGaugeAfter: cleanGaugeUnits(
+            this.frozenGaugeUnits()
+          ),
+          decayRatePerFrame: this.frozenDecayRate,
+          expiresAtFrame: this.frozenExpiryFrame()
+        };
+      }
     } else if (rule) {
       const targetAura = this.auras.get(rule.auraElement);
       if (targetAura) {
@@ -825,6 +1161,10 @@ export class AuraEngine {
           ? periodicReaction?.operation === "start"
             ? "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
             : "感电共存 Aura 已刷新；Tick 节奏不重置，未来 Tick 归属更新为本次触发者。"
+          : automaticReaction === "freeze"
+            ? frozenReaction?.operation === "immune"
+              ? "冻结反应已消耗冰/水 Aura；目标冻结抗性为 1，未生成冻元素耐久。"
+              : `冻结反应已生成冻元素耐久；逐帧加速衰减，预计在 ${frozenReaction?.expiresAtFrame ?? "未知"}f 到期。`
           : isOneShotTransformativeReaction(automaticReaction)
             ? transformativeReaction?.scheduled
               ? `${automaticReaction === "overload" ? "超载" : "超导"}由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。`
@@ -844,9 +1184,12 @@ export class AuraEngine {
       auraAfter: this.snapshot(),
       transformativeReaction,
       periodicReaction,
+      frozenReaction,
       note:
         periodicReaction?.operation === "stop"
           ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
+          : frozenReaction?.operation === "consume"
+            ? `${reactionNote}；本次${automaticReaction === "melt" ? "融化" : "超导"}消耗了冻元素耐久。`
           : reactionNote
     };
   }
@@ -879,5 +1222,8 @@ export const AURA_ENGINE_CONSTANTS = {
   electroChargedWaneGaugeUnits:
     ELECTRO_CHARGED_WANE_GAUGE_UNITS,
   electroChargedBaseMultiplier:
-    ELECTRO_CHARGED_BASE_MULTIPLIER
+    ELECTRO_CHARGED_BASE_MULTIPLIER,
+  frozenBaseDecayPerFrame: FROZEN_BASE_DECAY_PER_FRAME,
+  frozenDecayAccelerationPerFrame:
+    FROZEN_DECAY_ACCELERATION_PER_FRAME
 } as const;

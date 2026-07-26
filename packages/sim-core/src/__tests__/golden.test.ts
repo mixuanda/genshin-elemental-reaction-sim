@@ -33,6 +33,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
         level: durinMeltPreset.enemy.level,
         resistance: durinMeltPreset.enemy.resistance,
         defReduction: durinMeltPreset.enemy.defReduction,
+        freezeResistance: 0,
         initialAura: [],
         position: null,
         hitboxRadius: 0

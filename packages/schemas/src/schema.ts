@@ -7,6 +7,7 @@ import {
   CIRCLE_GEOMETRY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
   HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
@@ -253,6 +254,7 @@ export const enemyTargetProfileSchema = z
     level: z.number().int().min(1).max(200).optional(),
     resistance: finiteNumber.optional(),
     defReduction: finiteNumber.optional(),
+    freezeResistance: finiteNumber.min(0).max(1).optional(),
     initialAura: z.array(initialAuraApplicationSchema).max(4).optional(),
     position: point2DSchema.optional(),
     hitboxRadius: finiteNumber.min(0).max(1_000).optional()
@@ -264,6 +266,7 @@ export const enemyProfileSchema = z
     level: z.number().int().min(1).max(200),
     resistance: finiteNumber,
     defReduction: finiteNumber,
+    freezeResistance: finiteNumber.min(0).max(1).optional(),
     targets: z.array(enemyTargetProfileSchema).min(1).max(32).optional(),
     targetPhases: z.array(targetPhaseDefinitionSchema).max(256).optional(),
     targetMotions: z.array(targetMotionDefinitionSchema).max(256).optional()
@@ -1740,6 +1743,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === ELECTRO_CHARGED_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === SUPERCONDUCT_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

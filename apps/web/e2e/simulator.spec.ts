@@ -861,6 +861,152 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
   );
 });
 
+test("renders Frozen creation, exact expiry, resistance, and curve state", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const hydro = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "冻结状态 · 浏览器验收"
+  };
+  config.duration = 3;
+  config.cycleLength = 3;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    freezeResistance: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "冻结浏览器目标",
+        freezeResistance: 0,
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...hydro,
+      element: "hydro",
+      stats: {
+        ...hydro.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: hydro.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "freeze-browser",
+        actorId: hydro.id,
+        name: "冻结浏览器向量",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "freeze-browser-hit",
+            label: "水触发冻结",
+            frame: 0,
+            scaling: 1,
+            element: "hydro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "freeze-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: hydro.id,
+        abilityId: "freeze-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "freeze-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#auraTimelineBody")).toContainText("冻结");
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "冻元素 Aura"
+  );
+  await expect(page.locator("#frozenStateSummary")).toContainText(
+    "2 条冻结耐久记录 · 1 次自然到期"
+  );
+  await expect(page.locator("#frozenStateBody tr")).toHaveCount(2);
+  await expect(page.locator("#frozenStateBody")).toContainText("176f");
+  await expect(page.locator("#frozenStateBody")).toContainText(
+    "FROZEN_DECAY_EXPIRED"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      reaction: result?.damageEvents[0]?.reaction,
+      reactionBase:
+        result?.damageEvents[0]?.damageFactors.reactionBase,
+      frozen: result?.frozenStateLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        expiresAtFrame: entry.expiresAtFrame,
+        freezeResistance: entry.freezeResistance
+      }))
+    };
+  });
+  expect(audit).toEqual({
+    reaction: "freeze",
+    reactionBase: 1,
+    frozen: [
+      {
+        operation: "start",
+        frame: 0,
+        expiresAtFrame: 176,
+        freezeResistance: 0
+      },
+      {
+        operation: "expire",
+        frame: 176,
+        expiresAtFrame: null,
+        freezeResistance: 0
+      }
+    ]
+  });
+
+  await page.locator("#frozenStateBody tr").first().click();
+  await expect(page.locator("#hitDetail")).toContainText("冻结状态");
+  await expect(page.locator("#hitDetail")).toContainText("1.6U");
+  await expect(page.locator("#hitDetail")).toContainText("176f");
+});
+
 test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
   page
 }) => {
@@ -1631,6 +1777,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         level: 110,
         resistance: 0.1,
         defReduction: 0,
+        freezeResistance: 0,
         initialAura: [{ element: "cryo", gaugeUnits: 1 }],
         position: null,
         hitboxRadius: 0
@@ -1641,6 +1788,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         level: 110,
         resistance: 0.5,
         defReduction: 0,
+        freezeResistance: 0,
         initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         position: null,
         hitboxRadius: 0
