@@ -298,6 +298,24 @@ export function compileLegalTimeline(
         abilityId: ability.id
       });
     }
+    for (const statusKey of stateDefinition.clears ?? []) {
+      const key = scopedStateKey(ability.actorId, statusKey);
+      const state = activeStates.get(key);
+      if (!state) continue;
+      activeStates.delete(key);
+      stateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: toSeconds(startFrame),
+        operation: "clear",
+        actorId: ability.actorId,
+        statusKey,
+        label: state.grant.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
     for (const grant of stateDefinition.grants ?? []) {
       const key = scopedStateKey(ability.actorId, grant.key);
       const existing = activeStates.get(key);

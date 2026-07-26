@@ -15,7 +15,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.6" as const;
+  "durin-gcsim-b4ae769d7c1c.7" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -62,6 +62,17 @@ const gcsimIcdEvidence: MechanicsEvidence = {
     "用于交叉核对 DurinSkill 的 18 帧重置与 [应用, 不应用, 不应用] 序列。"
 };
 
+const gcsimAttackInfoEvidence: MechanicsEvidence = {
+  source: "genshinsim/gcsim",
+  sourceVersion: gcsimCommit,
+  url: `https://github.com/genshinsim/gcsim/blob/${gcsimCommit}/pkg/core/info/combat.go`,
+  path: "pkg/core/info/combat.go",
+  verifiedAt,
+  verificationStatus: "provisional",
+  notes:
+    "AttackInfo 将 Durability 0 定义为不施加附着；锁定提交的白 E 未设置 Durability，因此本向量按无附着实现，仍需官方或实测交叉验证。"
+};
+
 const gcsimParticleDelayEvidence: MechanicsEvidence = {
   source: "genshinsim/gcsim",
   sourceVersion: gcsimCommit,
@@ -95,7 +106,7 @@ export const durinEnterTransformationBlueprint: AbilityBlueprint = {
   id: "durin-enter-essential-transformation",
   catalogCharacterId: "character:10000123",
   actorId: "durin",
-  name: "杜林 E：进入精质转变（黑分支审计入口）",
+  name: "杜林 E：进入精质转变（分支审计入口）",
   kind: "skill",
   verificationStatus: "provisional",
   simulationStatus: "partial",
@@ -235,6 +246,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   timelineState: {
     requires: ["durin-essential-transformation"],
     consumes: ["durin-essential-transformation"],
+    clears: ["durin-confirmation-of-purity-state"],
     grants: [
       {
         key: "durin-denial-of-darkness-state",
@@ -249,12 +261,105 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
   ],
   unresolvedMechanics: [
     "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
-    "白 E、黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
+    "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
     genshinDbEvidence,
     gcsimSkillEvidence,
     gcsimIcdEvidence,
+    gcsimParticleDelayEvidence
+  ]
+};
+
+export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
+  schemaVersion: CURRENT_MECHANICS_SCHEMA_VERSION,
+  mappingVersion: DURIN_MECHANICS_MAPPING_VERSION,
+  dataVersion: gameDataCatalog.catalogVersion,
+  id: "durin-confirmation-of-purity",
+  catalogCharacterId: "character:10000123",
+  actorId: "durin",
+  name: "转变·白化之是",
+  kind: "skill",
+  verificationStatus: "provisional",
+  simulationStatus: "partial",
+  cancelFrame: 46,
+  cancelFrames: {
+    normal: 62,
+    charge: 62,
+    skill: 53,
+    burst: 50,
+    dash: 46,
+    jump: 47,
+    swap: 48
+  },
+  animationEndFrame: 83,
+  cooldownFrames: 0,
+  hits: [
+    {
+      id: "durin-white-e",
+      label: "白 E",
+      frame: 35,
+      scalingRef: durinSkillRef("param1"),
+      scalingStat: "atk",
+      element: "pyro",
+      snapshot: "hit"
+    }
+  ],
+  energyGains: [
+    {
+      target: "durin",
+      frame: 0,
+      amountRef: durinSkillRef("param5"),
+      source: "durin-skill-state-entry",
+      internalCooldown: {
+        key: "durin-skill-energy-icd",
+        durationFrames: 6 * 60
+      }
+    }
+  ],
+  particles: [
+    {
+      id: "durin-white-e-particles",
+      source: "durin-white-e-first-target-hit",
+      element: "pyro",
+      kind: "particle",
+      count: 4,
+      travelFrames: 100,
+      trigger: {
+        kind: "hit-confirm",
+        hitIds: ["durin-white-e"],
+        internalCooldown: {
+          key: "durin-particle-icd",
+          durationFrames: 18
+        }
+      }
+    }
+  ],
+  timelineState: {
+    requires: ["durin-essential-transformation"],
+    consumes: ["durin-essential-transformation"],
+    clears: ["durin-denial-of-darkness-state"],
+    grants: [
+      {
+        key: "durin-confirmation-of-purity-state",
+        label: "白化之是",
+        durationFrames: 30 * 60
+      }
+    ]
+  },
+  prerequisites: [
+    "杜林处于精质转变状态",
+    "元素战技输入被替换为转变·白化之是"
+  ],
+  unresolvedMechanics: [
+    "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
+    "当前单目标模型把进入逐击日志视为成功命中可受击敌人；Miss、无敌目标和多目标各自回调尚未建模",
+    "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
+  ],
+  evidence: [
+    genshinDbEvidence,
+    gcsimSkillEvidence,
+    gcsimAttackInfoEvidence,
     gcsimParticleDelayEvidence
   ]
 };
@@ -270,6 +375,22 @@ export function compileDurinBlackSkillAuditAbilities(): {
     ),
     denialOfDarkness: compileAbilityBlueprint(
       durinDenialOfDarknessBlueprint,
+      { catalog: gameDataCatalog, allowPartial: true }
+    )
+  };
+}
+
+export function compileDurinWhiteSkillAuditAbilities(): {
+  enterTransformation: CompiledAbilityBlueprint;
+  confirmationOfPurity: CompiledAbilityBlueprint;
+} {
+  return {
+    enterTransformation: compileAbilityBlueprint(
+      durinEnterTransformationBlueprint,
+      { catalog: gameDataCatalog, allowPartial: true }
+    ),
+    confirmationOfPurity: compileAbilityBlueprint(
+      durinConfirmationOfPurityBlueprint,
       { catalog: gameDataCatalog, allowPartial: true }
     )
   };
@@ -375,6 +496,108 @@ export function createDurinBlackSkillAuditConfig(
           }
         : {}),
       icdProfiles: DURIN_ICD_PROFILES
+    }
+  };
+}
+
+export interface DurinWhiteSkillAuditConfigOptions {
+  damageBonus?: number;
+  initialCryoAura?: boolean;
+}
+
+/**
+ * Source-audit vector for the white recast branch only. It intentionally
+ * excludes burst, passives, constellations, weapons, and artifact effects.
+ */
+export function createDurinWhiteSkillAuditConfig(
+  options: DurinWhiteSkillAuditConfigOptions = {}
+): SimConfig {
+  const compiled = compileDurinWhiteSkillAuditAbilities();
+  const initialCryoAura = options.initialCryoAura ?? true;
+  return {
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    engineVersion: CURRENT_ENGINE_VERSION,
+    dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
+    randomSeed: "durin-white-e-audit-v1",
+    meta: {
+      name: "杜林白 E · 部分机制审计向量",
+      version: "1.0.0",
+      verificationStatus: "provisional",
+      note:
+        "只覆盖精质转变前置/状态转换、白 E 单段倍率、命中帧、锁定 gcsim 的无附着口径、带 6 秒共享冷却的固定回能与命中产球；不是完整角色预设，也不是官方验证数据。"
+    },
+    duration: 3,
+    cycleLength: 3,
+    enemy: {
+      level: 110,
+      resistance: 0.1,
+      defReduction: 0
+    },
+    characters: [
+      {
+        id: "durin",
+        name: "杜林",
+        element: "pyro",
+        color: "#ff8b72",
+        level: 90,
+        energyMax: 70,
+        initialEnergy: 0,
+        stats: {
+          baseAtk: 1000,
+          atkPct: 0,
+          flatAtk: 1000,
+          baseHp: 10000,
+          hpPct: 0,
+          flatHp: 0,
+          baseDef: 700,
+          defPct: 0,
+          flatDef: 0,
+          em: 0,
+          critRate: 0,
+          critDmg: 0.5,
+          dmgBonus: options.damageBonus ?? 0,
+          defIgnore: 0,
+          reactionBonus: 0,
+          energyRecharge: 1
+        }
+      }
+    ],
+    rotation: [],
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "durin",
+      swapFrames: 12,
+      abilities: [
+        compiled.enterTransformation.ability,
+        compiled.confirmationOfPurity.ability
+      ],
+      commands: [
+        {
+          type: "skill",
+          actorId: "durin",
+          abilityId: compiled.enterTransformation.ability.id
+        },
+        {
+          type: "skill",
+          actorId: "durin",
+          abilityId: compiled.confirmationOfPurity.ability.id
+        },
+        {
+          type: "dash",
+          actorId: "durin",
+          frames: 1
+        }
+      ]
+    },
+    reactionEngine: {
+      mode: "aura-v1",
+      ...(initialCryoAura
+        ? {
+            initialAura: [{ element: "cryo" as const, gaugeUnits: 1 }]
+          }
+        : {})
     }
   };
 }

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.8.0 configs to the movement schema", () => {
+  it("migrates 1.0.0 through 1.9.0 configs to state clears", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -187,6 +187,11 @@ describe("versioned config schema", () => {
       schemaVersion: "1.8.0",
       engineVersion: "1.8.0-hit-particle-triggers"
     });
+    const migratedFromMovementCommands = migrateConfig({
+      ...current,
+      schemaVersion: "1.9.0",
+      engineVersion: "1.9.0-movement-commands"
+    });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migratedFromOne.engineVersion).toBe(CURRENT_ENGINE_VERSION);
@@ -232,6 +237,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromHitParticles.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromMovementCommands.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromMovementCommands.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });

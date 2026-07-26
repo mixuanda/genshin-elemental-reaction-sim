@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.9.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.9.0-movement-commands" as const;
+export const CURRENT_SCHEMA_VERSION = "1.10.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.10.0-timeline-state-clears" as const;
+export const MOVEMENT_COMMAND_SCHEMA_VERSION = "1.9.0" as const;
 export const HIT_PARTICLE_TRIGGER_SCHEMA_VERSION = "1.8.0" as const;
 export const FIXED_ENERGY_ICD_SCHEMA_VERSION = "1.7.0" as const;
 export const RUNTIME_ENERGY_SCHEMA_VERSION = "1.6.0" as const;
@@ -312,6 +313,8 @@ export interface TimelineStateGrant {
 export interface AbilityTimelineState {
   requires?: string[];
   consumes?: string[];
+  /** Removes any matching actor-owned state without requiring it to exist. */
+  clears?: string[];
   grants?: TimelineStateGrant[];
 }
 
@@ -755,7 +758,7 @@ export interface TimelineStateLogEntry {
   sequence: number;
   frame: number;
   timeSeconds: number;
-  operation: "grant" | "replace" | "consume" | "expire";
+  operation: "grant" | "replace" | "consume" | "clear" | "expire";
   actorId: string;
   statusKey: string;
   label: string;

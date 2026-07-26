@@ -2,13 +2,18 @@ import { simulate } from "@genshin-dps-lab/sim-core";
 import { describe, expect, it } from "vitest";
 import {
   compileDurinBlackSkillAuditAbilities,
+  compileDurinWhiteSkillAuditAbilities,
   createDurinBlackSkillAuditConfig,
+  createDurinWhiteSkillAuditConfig,
   DURIN_ICD_PROFILES,
+  durinConfirmationOfPurityBlueprint,
   durinDenialOfDarknessBlueprint
 } from "./durin";
 import {
   durinBlackSkillAuditDisclosure,
-  durinBlackSkillAuditPreset
+  durinBlackSkillAuditPreset,
+  durinWhiteSkillAuditDisclosure,
+  durinWhiteSkillAuditPreset
 } from "./durin-audit";
 
 describe("Durin black E partial mechanics audit vector", () => {
@@ -430,6 +435,315 @@ describe("Durin black E partial mechanics audit vector", () => {
     });
 
     expect(browser.reproducibilityKey).toBe(authoring.reproducibilityKey);
+    expect(browser.damageEvents).toEqual(authoring.damageEvents);
+    expect(browser.energyLog).toEqual(authoring.energyLog);
+    expect(browser.particleEvents).toEqual(authoring.particleEvents);
+    expect(browser.particleTriggerLog).toEqual(
+      authoring.particleTriggerLog
+    );
+    expect(browser.auraTimeline).toEqual(authoring.auraTimeline);
+  });
+});
+
+describe("Durin white E partial mechanics audit vector", () => {
+  it("compiles the source-audited multiplier, frames, state, energy, and particles", () => {
+    const { enterTransformation, confirmationOfPurity } =
+      compileDurinWhiteSkillAuditAbilities();
+
+    expect(durinConfirmationOfPurityBlueprint).toMatchObject({
+      verificationStatus: "provisional",
+      simulationStatus: "partial",
+      prerequisites: [
+        "杜林处于精质转变状态",
+        "元素战技输入被替换为转变·白化之是"
+      ]
+    });
+    expect(confirmationOfPurity.ability).toMatchObject({
+      kind: "skill",
+      cancelFrame: 46,
+      cancelFrames: {
+        normal: 62,
+        charge: 62,
+        skill: 53,
+        burst: 50,
+        dash: 46,
+        jump: 47,
+        swap: 48
+      },
+      animationEndFrame: 83,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "durin-white-e",
+          frame: 35,
+          scaling: 1.9008
+        }
+      ],
+      energyGains: [
+        {
+          amount: 33,
+          internalCooldown: {
+            key: "durin-skill-energy-icd",
+            durationFrames: 360
+          }
+        }
+      ],
+      timelineState: {
+        requires: ["durin-essential-transformation"],
+        consumes: ["durin-essential-transformation"],
+        clears: ["durin-denial-of-darkness-state"],
+        grants: [
+          {
+            key: "durin-confirmation-of-purity-state",
+            durationFrames: 1800
+          }
+        ]
+      }
+    });
+    expect(confirmationOfPurity.ability.particles).toEqual([
+      {
+        id: "durin-white-e-particles",
+        source: "durin-white-e-first-target-hit",
+        element: "pyro",
+        kind: "particle",
+        count: 4,
+        travelFrames: 100,
+        trigger: {
+          kind: "hit-confirm",
+          hitIds: ["durin-white-e"],
+          internalCooldown: {
+            key: "durin-particle-icd",
+            durationFrames: 18
+          }
+        }
+      }
+    ]);
+    expect(
+      confirmationOfPurity.resolvedParameters.map(({ path, value }) => ({
+        path,
+        value
+      }))
+    ).toEqual([
+      { path: "hits[0].scalingRef", value: 1.9008 },
+      { path: "energyGains[0].amountRef", value: 33 }
+    ]);
+    const compiledBlueprints = [
+      enterTransformation.blueprint,
+      confirmationOfPurity.blueprint
+    ];
+    expect(durinWhiteSkillAuditDisclosure.blueprintIds).toEqual(
+      compiledBlueprints.map((blueprint) => blueprint.id)
+    );
+    expect(durinWhiteSkillAuditDisclosure.unresolvedMechanics).toEqual(
+      compiledBlueprints.flatMap(
+        (blueprint) => blueprint.unresolvedMechanics
+      )
+    );
+    const expectedEvidence = compiledBlueprints
+      .flatMap((blueprint) => blueprint.evidence)
+      .filter(
+        (source, index, all) =>
+          all.findIndex((candidate) => candidate.path === source.path) ===
+          index
+      )
+      .map(({ path, url }) => ({ path, url }));
+    expect(
+      durinWhiteSkillAuditDisclosure.evidence.map(({ path, url }) => ({
+        path,
+        url
+      }))
+    ).toEqual(expect.arrayContaining(expectedEvidence));
+  });
+
+  it("simulates every white E event and audit field deterministically", () => {
+    const result = simulate(createDurinWhiteSkillAuditConfig(), {
+      critMode: "noCrit"
+    });
+
+    expect(
+      result.timelineExecution?.commandResults.map(
+        ({ commandType, startFrame, cancelFrame, animationEndFrame }) => ({
+          commandType,
+          startFrame,
+          cancelFrame,
+          animationEndFrame
+        })
+      )
+    ).toEqual([
+      {
+        commandType: "skill",
+        startFrame: 0,
+        cancelFrame: 15,
+        animationEndFrame: 49
+      },
+      {
+        commandType: "skill",
+        startFrame: 15,
+        cancelFrame: 61,
+        animationEndFrame: 98
+      },
+      {
+        commandType: "dash",
+        startFrame: 61,
+        cancelFrame: 62,
+        animationEndFrame: 62
+      }
+    ]);
+    expect(result.damageEvents).toHaveLength(1);
+    expect(result.damageEvents[0]).toMatchObject({
+      frame: 50,
+      hitId: "durin-white-e",
+      hitLabel: "白 E",
+      scaling: 1.9008,
+      reaction: "none",
+      displayDamage: 1625,
+      reactionAudit: {
+        icdAllowed: null,
+        icdTag: null,
+        icdGroup: null
+      }
+    });
+    expect(result.damageEvents[0]?.finalDamage).toBeCloseTo(
+      1625.184,
+      10
+    );
+    expect(result.damageCurve).toEqual([
+      expect.objectContaining({
+        frame: 50,
+        damageEventId: 0
+      })
+    ]);
+    expect(result.damageCurve[0]?.cumulativeDamage).toBeCloseTo(
+      1625.184,
+      10
+    );
+    expect(result.auraTimeline[0]).toMatchObject({
+      frame: 50,
+      icdAllowed: null,
+      reaction: "none",
+      auraBefore: [expect.objectContaining({ element: "cryo" })],
+      auraAfter: [expect.objectContaining({ element: "cryo" })]
+    });
+    expect(result.particleTriggerLog).toEqual([
+      expect.objectContaining({
+        frame: 50,
+        hitId: "durin-white-e",
+        triggered: true,
+        internalCooldownKey: "durin-particle-icd",
+        internalCooldownReadyFrame: 68
+      })
+    ]);
+    expect(result.particleEvents).toEqual([
+      expect.objectContaining({
+        particleId: "durin-white-e-particles",
+        particleCount: 4,
+        spawnFrame: 50,
+        receiveFrame: 150,
+        triggerLogId: 0,
+        triggerHitId: "durin-white-e"
+      })
+    ]);
+    expect(result.energyStats.durin).toMatchObject({
+      fixedGained: 33,
+      particleGained: 12,
+      final: 45
+    });
+    expect(result.timelineExecution?.stateLog).toEqual([
+      expect.objectContaining({
+        frame: 0,
+        operation: "grant",
+        statusKey: "durin-essential-transformation"
+      }),
+      expect.objectContaining({
+        frame: 15,
+        operation: "consume",
+        statusKey: "durin-essential-transformation"
+      }),
+      expect.objectContaining({
+        frame: 15,
+        operation: "grant",
+        statusKey: "durin-confirmation-of-purity-state",
+        expiresAtFrame: 1815
+      })
+    ]);
+  });
+
+  it("rejects white E without the transformation state", () => {
+    const config = createDurinWhiteSkillAuditConfig();
+    if (!config.timeline) throw new Error("expected legal timeline");
+    config.timeline.commands = [
+      {
+        type: "skill",
+        actorId: "durin",
+        abilityId: "durin-confirmation-of-purity"
+      }
+    ];
+
+    expect(() => simulate(config)).toThrow(
+      /MISSING_REQUIRED_STATE.*durin-essential-transformation/
+    );
+  });
+
+  it("clears the prior black branch when a later white recast succeeds", () => {
+    const config = createDurinBlackSkillAuditConfig();
+    const { confirmationOfPurity } =
+      compileDurinWhiteSkillAuditAbilities();
+    if (!config.timeline) throw new Error("expected legal timeline");
+    config.duration = 14;
+    config.cycleLength = 14;
+    config.timeline.abilities.push(confirmationOfPurity.ability);
+    config.timeline.commands = [
+      {
+        type: "skill",
+        actorId: "durin",
+        abilityId: "durin-enter-essential-transformation"
+      },
+      {
+        type: "normal",
+        actorId: "durin",
+        abilityId: "durin-denial-of-darkness"
+      },
+      { type: "wait", frames: 663 },
+      {
+        type: "skill",
+        actorId: "durin",
+        abilityId: "durin-enter-essential-transformation"
+      },
+      {
+        type: "skill",
+        actorId: "durin",
+        abilityId: "durin-confirmation-of-purity"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    expect(result.timelineExecution?.stateLog).toContainEqual(
+      expect.objectContaining({
+        frame: 735,
+        operation: "clear",
+        statusKey: "durin-denial-of-darkness-state",
+        abilityId: "durin-confirmation-of-purity"
+      })
+    );
+    expect(result.timelineExecution?.stateLog).toContainEqual(
+      expect.objectContaining({
+        frame: 735,
+        operation: "grant",
+        statusKey: "durin-confirmation-of-purity-state"
+      })
+    );
+  });
+
+  it("keeps the compact white branch equivalent to the authoring vector", () => {
+    const authoring = simulate(createDurinWhiteSkillAuditConfig(), {
+      critMode: "noCrit"
+    });
+    const browser = simulate(durinWhiteSkillAuditPreset, {
+      critMode: "noCrit"
+    });
+
+    expect(browser.reproducibilityKey).toBe(authoring.reproducibilityKey);
+    expect(browser.timelineExecution).toEqual(authoring.timelineExecution);
     expect(browser.damageEvents).toEqual(authoring.damageEvents);
     expect(browser.energyLog).toEqual(authoring.energyLog);
     expect(browser.particleEvents).toEqual(authoring.particleEvents);

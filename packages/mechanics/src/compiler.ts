@@ -218,6 +218,9 @@ export function compileAbilityBlueprint(
       ...(blueprint.timelineState.consumes === undefined
         ? {}
         : { consumes: blueprint.timelineState.consumes }),
+      ...(blueprint.timelineState.clears === undefined
+        ? {}
+        : { clears: blueprint.timelineState.clears }),
       ...(blueprint.timelineState.grants === undefined
         ? {}
         : { grants: blueprint.timelineState.grants })

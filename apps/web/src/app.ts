@@ -7,7 +7,9 @@ import {
 } from "@genshin-dps-lab/game-data";
 import {
   durinBlackSkillAuditDisclosure,
-  durinBlackSkillAuditPreset
+  durinBlackSkillAuditPreset,
+  durinWhiteSkillAuditDisclosure,
+  durinWhiteSkillAuditPreset
 } from "@genshin-dps-lab/mechanics/durin-audit";
 import {
   ConfigMigrationError,
@@ -137,7 +139,11 @@ function escapeHtml(value: unknown): string {
   );
 }
 
-const availablePresets = [...presets, durinBlackSkillAuditPreset] as const;
+const availablePresets = [
+  ...presets,
+  durinBlackSkillAuditPreset,
+  durinWhiteSkillAuditPreset
+] as const;
 
 let currentConfig: SimConfig = migrateConfig(availablePresets[0]);
 let lastResult: SimulationResult | null = null;
@@ -245,7 +251,9 @@ function renderAll(): void {
   const auditDisclosure =
     lastResult.config.meta.name === durinBlackSkillAuditPreset.meta.name
       ? durinBlackSkillAuditDisclosure
-      : null;
+      : lastResult.config.meta.name === durinWhiteSkillAuditPreset.meta.name
+        ? durinWhiteSkillAuditDisclosure
+        : null;
   byId<HTMLElement>("notice").innerHTML =
     `<strong>${escapeHtml(lastResult.config.meta.name)}</strong> ` +
     `<span class="badge warn">${escapeHtml(status)}</span> · ` +
@@ -466,6 +474,7 @@ function renderLegalTimeline(): void {
       grant: "进入",
       replace: "刷新",
       consume: "消耗",
+      clear: "清除",
       expire: "到期"
     } as const;
     byId<HTMLElement>("timelineStateSummary").textContent =

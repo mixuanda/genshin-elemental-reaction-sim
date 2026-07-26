@@ -9,6 +9,7 @@ import {
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
+  MOVEMENT_COMMAND_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
@@ -479,11 +480,12 @@ export const abilityTimelineStateSchema = z
   .object({
     requires: z.array(idSchema).optional(),
     consumes: z.array(idSchema).optional(),
+    clears: z.array(idSchema).optional(),
     grants: z.array(timelineStateGrantSchema).optional()
   })
   .strict()
   .superRefine((state, context) => {
-    for (const field of ["requires", "consumes"] as const) {
+    for (const field of ["requires", "consumes", "clears"] as const) {
       const seen = new Set<string>();
       for (const [index, key] of (state[field] ?? []).entries()) {
         if (seen.has(key)) {
@@ -1190,6 +1192,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === MOVEMENT_COMMAND_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === HIT_PARTICLE_TRIGGER_SCHEMA_VERSION) {
     return parseSimConfig({

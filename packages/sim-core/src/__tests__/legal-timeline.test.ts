@@ -106,6 +106,19 @@ const consumeStateA: AbilityDefinition = {
   ]
 };
 
+const clearStateA: AbilityDefinition = {
+  id: "a-clear-state",
+  actorId: "a",
+  name: "A 清除状态",
+  kind: "skill",
+  cancelFrame: 1,
+  animationEndFrame: 1,
+  cooldownFrames: 0,
+  timelineState: {
+    clears: ["special-window"]
+  }
+};
+
 const cooldownGatedStateA: AbilityDefinition = {
   ...consumeStateA,
   id: "a-cooldown-gated-state",
@@ -765,6 +778,50 @@ describe("legal 60 FPS action timeline", () => {
         abilityId: "a-consume-state"
       }
     ]);
+  });
+
+  it("clears an existing actor state without requiring it to exist", () => {
+    const result = simulate(
+      legalConfig(
+        "strict",
+        [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-enter-state"
+          },
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-clear-state"
+          },
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: "a-clear-state"
+          }
+        ],
+        [enterStateA, clearStateA]
+      )
+    );
+
+    expect(result.timelineExecution?.stateLog).toEqual([
+      expect.objectContaining({
+        sequence: 0,
+        frame: 0,
+        operation: "grant",
+        statusKey: "special-window"
+      }),
+      expect.objectContaining({
+        sequence: 1,
+        frame: 1,
+        operation: "clear",
+        statusKey: "special-window",
+        commandIndex: 1,
+        abilityId: "a-clear-state"
+      })
+    ]);
+    expect(result.timelineExecution?.commandResults).toHaveLength(3);
   });
 
   it("expires the state exactly at its boundary before checking requirements", () => {

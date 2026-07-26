@@ -538,6 +538,162 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#particleEventSummary")).toContainText("66f 可用");
 });
 
+test("renders the source-audited Durin white E branch and state transition", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林白 E · 部分机制审计向量" });
+
+  await expect(page.locator("#notice")).toContainText(
+    "杜林白 E · 部分机制审计向量"
+  );
+  await expect(page.locator("#notice")).toContainText("不是完整角色预设");
+  await expect(page.locator("#notice")).toContainText("partial");
+  await expect(page.locator("#notice")).toContainText("5 项待实现");
+  await expect(page.locator("#metricGrid")).toContainText("1,625");
+  await expect(page.locator("#metricGrid")).toContainText("1");
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          damage: result.damageEvents.map(
+            ({
+              frame,
+              hitId,
+              displayDamage,
+              reaction,
+              reactionAudit
+            }) => ({
+              frame,
+              hitId,
+              displayDamage,
+              reaction,
+              icdAllowed: reactionAudit.icdAllowed,
+              icdGroup: reactionAudit.icdGroup
+            })
+          ),
+          commands: result.timelineExecution?.commandResults.map(
+            ({ commandType, startFrame, cancelFrame, animationEndFrame }) => ({
+              commandType,
+              startFrame,
+              cancelFrame,
+              animationEndFrame
+            })
+          ),
+          states: result.timelineExecution?.stateLog.map(
+            ({ frame, operation, statusKey }) => ({
+              frame,
+              operation,
+              statusKey
+            })
+          ),
+          energy: result.energyStats.durin,
+          particle: result.particleEvents[0],
+          trigger: result.particleTriggerLog[0]
+        }
+      : null;
+  });
+  expect(audit).toMatchObject({
+    damage: [
+      {
+        frame: 50,
+        hitId: "durin-white-e",
+        displayDamage: 1625,
+        reaction: "none",
+        icdAllowed: null,
+        icdGroup: null
+      }
+    ],
+    commands: [
+      {
+        commandType: "skill",
+        startFrame: 0,
+        cancelFrame: 15,
+        animationEndFrame: 49
+      },
+      {
+        commandType: "skill",
+        startFrame: 15,
+        cancelFrame: 61,
+        animationEndFrame: 98
+      },
+      {
+        commandType: "dash",
+        startFrame: 61,
+        cancelFrame: 62,
+        animationEndFrame: 62
+      }
+    ],
+    states: [
+      {
+        frame: 0,
+        operation: "grant",
+        statusKey: "durin-essential-transformation"
+      },
+      {
+        frame: 15,
+        operation: "consume",
+        statusKey: "durin-essential-transformation"
+      },
+      {
+        frame: 15,
+        operation: "grant",
+        statusKey: "durin-confirmation-of-purity-state"
+      }
+    ],
+    energy: {
+      fixedGained: 33,
+      particleGained: 12,
+      final: 45
+    },
+    particle: {
+      particleCount: 4,
+      spawnFrame: 50,
+      receiveFrame: 150,
+      triggerHitId: "durin-white-e"
+    },
+    trigger: {
+      frame: 50,
+      hitId: "durin-white-e",
+      triggered: true,
+      internalCooldownKey: "durin-particle-icd",
+      internalCooldownReadyFrame: 68
+    }
+  });
+
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(page.locator("#hitTableBody tr[data-hit-id]")).toHaveCount(1);
+  await page.locator("#hitTableBody tr[data-hit-id]").click();
+  await expect(page.locator("#hitDetail")).toContainText("白 E");
+  await expect(page.locator("#hitDetail")).toContainText("1.9008");
+
+  await page.getByRole("button", { name: "总览" }).click();
+  await expect(page.locator("#timelineStateBody")).toContainText("白化之是");
+  await expect(page.locator("#legalTimelineBody")).toContainText("冲刺");
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#damageCurveCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
+  const auraRow = page.locator("#auraTimelineBody tr").first();
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(1);
+  await expect(auraRow.locator("td").nth(2)).toHaveText("—");
+  await expect(auraRow.locator("td").nth(3)).toContainText("冰");
+  await expect(auraRow.locator("td").nth(4)).toHaveText("无");
+  await expect(auraRow.locator("td").nth(5)).toHaveText("无");
+  await expect(auraRow.locator("td").nth(6)).toHaveText("—");
+  await expect(auraRow.locator("td").nth(7)).toContainText("冰");
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "durin-white-e"
+  );
+  await expect(page.locator("#energyLogBody")).toContainText(
+    "durin-skill-energy-icd"
+  );
+});
+
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page
 }) => {
