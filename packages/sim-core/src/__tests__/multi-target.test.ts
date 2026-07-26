@@ -706,6 +706,182 @@ describe("registered enemy targets", () => {
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 
+  it("intersects circular target hitboxes with a rotated rectangle", () => {
+    const ability: AbilityDefinition = {
+      id: "rotated-rectangle",
+      actorId: "a",
+      name: "旋转矩形命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 0,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "rectangle-hit",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "rectangle",
+            origin: { x: 0, y: 0 },
+            halfWidth: 2,
+            halfHeight: 0.5,
+            rotationDegrees: 90
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "矩形内部",
+            position: { x: 0, y: 1.5 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-1",
+            name: "长边边界",
+            position: { x: 0, y: 2 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-2",
+            name: "短边碰撞体接触",
+            position: { x: -0.6, y: 0 },
+            hitboxRadius: 0.1
+          },
+          {
+            id: "enemy-3",
+            name: "角点碰撞体接触",
+            position: { x: -0.9, y: 2.3 },
+            hitboxRadius: 0.5
+          },
+          {
+            id: "enemy-4",
+            name: "角点范围外",
+            position: { x: -0.9, y: 2.3001 },
+            hitboxRadius: 0.5
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const rectangleChecks = result.hitResolutionLog;
+
+    expect(
+      rectangleChecks.map(
+        ({
+          targetId,
+          geometryKind,
+          geometryRadius,
+          geometryHalfWidth,
+          geometryHalfHeight,
+          geometryRotationDegrees,
+          geometryThreshold,
+          outcome,
+          reason
+        }) => ({
+          targetId,
+          geometryKind,
+          geometryRadius,
+          geometryHalfWidth,
+          geometryHalfHeight,
+          geometryRotationDegrees,
+          geometryThreshold,
+          outcome,
+          reason
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        geometryKind: "rectangle",
+        geometryRadius: null,
+        geometryHalfWidth: 2,
+        geometryHalfHeight: 0.5,
+        geometryRotationDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-1",
+        geometryKind: "rectangle",
+        geometryRadius: null,
+        geometryHalfWidth: 2,
+        geometryHalfHeight: 0.5,
+        geometryRotationDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-2",
+        geometryKind: "rectangle",
+        geometryRadius: null,
+        geometryHalfWidth: 2,
+        geometryHalfHeight: 0.5,
+        geometryRotationDegrees: 90,
+        geometryThreshold: 0.1,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-3",
+        geometryKind: "rectangle",
+        geometryRadius: null,
+        geometryHalfWidth: 2,
+        geometryHalfHeight: 0.5,
+        geometryRotationDegrees: 90,
+        geometryThreshold: 0.5,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-4",
+        geometryKind: "rectangle",
+        geometryRadius: null,
+        geometryHalfWidth: 2,
+        geometryHalfHeight: 0.5,
+        geometryRotationDegrees: 90,
+        geometryThreshold: 0.5,
+        outcome: "miss",
+        reason: "OUTSIDE_RECTANGLE_GEOMETRY"
+      }
+    ]);
+    expect(rectangleChecks[0]?.geometryDistance).toBeCloseTo(0, 12);
+    expect(rectangleChecks[1]?.geometryDistance).toBeCloseTo(0, 12);
+    expect(rectangleChecks[2]?.geometryDistance).toBeCloseTo(0.1, 12);
+    expect(rectangleChecks[3]?.geometryDistance).toBeCloseTo(0.5, 12);
+    expect(rectangleChecks[4]?.geometryDistance).toBeGreaterThan(0.5);
+    expect(result.damageEvents).toHaveLength(4);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
+
   it("interpolates target motion at integer hit frames and holds adjacent boundaries", () => {
     const ability: AbilityDefinition = {
       id: "moving-circle-target",

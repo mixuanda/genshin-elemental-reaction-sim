@@ -1385,10 +1385,10 @@ test("derives circle hits from target positions and exposes geometric evidence",
   );
   await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(5);
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "几何 d=1.5 ≤ 1.5"
+    "圆形 d=1.5 ≤ 1.5"
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "几何 d=1.5001 > 1.5"
+    "圆形 d=1.5001 > 1.5"
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
     "OUTSIDE_CIRCLE_GEOMETRY"
@@ -1406,7 +1406,162 @@ test("derives circle hits from target positions and exposes geometric evidence",
     .click();
   await expect(page.locator("#hitDetail")).toContainText("命中判定来源");
   await expect(page.locator("#hitDetail")).toContainText(
-    "二维圆形几何 · 圆心 (0, 0) · 攻击半径 1 · 距离 0 / 阈值 1.5"
+    "二维圆形几何 · 圆心 (0, 0) · 攻击半径 1 · 中心距离 0 / 总阈值 1.5"
+  );
+});
+
+test("audits rotated rectangle intersections against circular target hitboxes", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const rectangleConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "矩形内部",
+        position: { x: 0, y: 1.5 },
+        hitboxRadius: 0
+      },
+      {
+        id: "enemy-1",
+        name: "短边接触",
+        position: { x: -0.6, y: 0 },
+        hitboxRadius: 0.1
+      },
+      {
+        id: "enemy-2",
+        name: "短边范围外",
+        position: { x: -0.6001, y: 0 },
+        hitboxRadius: 0.1
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    delete firstHit.targeting;
+    firstHit.geometry = {
+      kind: "rectangle",
+      origin: { x: 0, y: 0 },
+      halfWidth: 2,
+      halfHeight: 0.5,
+      rotationDegrees: 90
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(rectangleConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          firstGroup: result.hitResolutionLog
+            .filter((entry) => entry.hitId === "durin-black-e-1")
+            .map(
+              ({
+                targetId,
+                geometryKind,
+                geometryHalfWidth,
+                geometryHalfHeight,
+                geometryRotationDegrees,
+                geometryDistance,
+                geometryThreshold,
+                outcome,
+                reason
+              }) => ({
+                targetId,
+                geometryKind,
+                geometryHalfWidth,
+                geometryHalfHeight,
+                geometryRotationDegrees,
+                geometryDistance:
+                  geometryDistance === null
+                    ? null
+                    : Number(geometryDistance.toFixed(6)),
+                geometryThreshold,
+                outcome,
+                reason
+              })
+            ),
+          firstTrigger: result.particleTriggerLog[0],
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length
+        }
+      : null;
+  });
+  expect(audit?.firstGroup).toEqual([
+    {
+      targetId: "enemy-0",
+      geometryKind: "rectangle",
+      geometryHalfWidth: 2,
+      geometryHalfHeight: 0.5,
+      geometryRotationDegrees: 90,
+      geometryDistance: 0,
+      geometryThreshold: 0,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-1",
+      geometryKind: "rectangle",
+      geometryHalfWidth: 2,
+      geometryHalfHeight: 0.5,
+      geometryRotationDegrees: 90,
+      geometryDistance: 0.1,
+      geometryThreshold: 0.1,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-2",
+      geometryKind: "rectangle",
+      geometryHalfWidth: 2,
+      geometryHalfHeight: 0.5,
+      geometryRotationDegrees: 90,
+      geometryDistance: 0.1001,
+      geometryThreshold: 0.1,
+      outcome: "miss",
+      reason: "OUTSIDE_RECTANGLE_GEOMETRY"
+    }
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    hitId: "durin-black-e-1",
+    checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+    confirmedTargetIds: ["enemy-0", "enemy-1"],
+    triggered: true
+  });
+  expect(audit?.checks).toBe(5);
+  expect(audit?.damageEvents).toBe(4);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次旋转矩形几何求交"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "矩形最近距离=0.1 ≤ 碰撞半径 0.1"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "矩形最近距离=0.1001 > 碰撞半径 0.1"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "OUTSIDE_RECTANGLE_GEOMETRY"
+  );
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "二维旋转矩形"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "半宽 2 · 半高 0.5 · 旋转 90°"
   );
 });
 

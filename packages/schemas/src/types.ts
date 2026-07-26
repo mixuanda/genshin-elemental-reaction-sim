@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.17.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.17.0-target-motion" as const;
+export const CURRENT_SCHEMA_VERSION = "1.18.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.18.0-oriented-rectangle" as const;
+export const TARGET_MOTION_SCHEMA_VERSION = "1.17.0" as const;
 export const CIRCLE_GEOMETRY_SCHEMA_VERSION = "1.16.0" as const;
 export const AOE_FANOUT_SCHEMA_VERSION = "1.15.0" as const;
 export const MULTI_TARGET_REGISTRY_SCHEMA_VERSION = "1.14.0" as const;
@@ -216,6 +217,16 @@ export interface CircleHitGeometry {
   radius: number;
 }
 
+export interface RectangleHitGeometry {
+  kind: "rectangle";
+  origin: { x: number; y: number };
+  halfWidth: number;
+  halfHeight: number;
+  rotationDegrees: number;
+}
+
+export type HitGeometry = CircleHitGeometry | RectangleHitGeometry;
+
 export interface TargetMotionDefinition {
   id: string;
   label: string;
@@ -239,7 +250,7 @@ export interface HitDefinition {
   scalingStat?: ScalingStat;
   element?: Element;
   targeting?: HitTargetingConfig;
-  geometry?: CircleHitGeometry;
+  geometry?: HitGeometry;
   application?: ElementalApplication;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
@@ -800,8 +811,12 @@ export interface HitResolutionLogEntry {
   targetName: string;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
+  geometryKind: HitGeometry["kind"] | null;
   geometryOrigin: { x: number; y: number } | null;
   geometryRadius: number | null;
+  geometryHalfWidth: number | null;
+  geometryHalfHeight: number | null;
+  geometryRotationDegrees: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   outcome: TargetHitOutcome;

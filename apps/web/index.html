@@ -312,7 +312,7 @@
               <dt>enemy.targets</dt><dd>注册具名目标并可分别覆盖等级、抗性、减防、初始附着、静态二维坐标和碰撞半径；省略时保留兼容目标 enemy-0。每个目标的 Aura 与附着 ICD 状态独立。</dd>
               <dt>enemy.targetMotions</dt><dd>按目标声明有序、不重叠的 60 FPS 线性移动分段；分段间保持上一位置，核心按每次命中帧插值并返回解析后的移动时间线。</dd>
               <dt>enemy.targetPhases</dt><dd>按目标和 60 FPS 声明有序、不重叠的半开阶段；开始帧生效、结束帧恢复。不同目标的阶段可以同时存在。</dd>
-              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 选择已注册目标、显式 landed / miss，或覆盖阶段的伤害免疫、Aura 阻断和命中回调策略；也可用 geometry.circle 按命中帧位置对全部目标做二维圆形求交。</dd>
+              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 选择已注册目标、显式 landed / miss，或覆盖阶段的伤害免疫、Aura 阻断和命中回调策略；也可用 geometry.circle 或带半宽、半高和旋转角的 geometry.rectangle 按命中帧位置求交全部目标。</dd>
               <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus 和 energyRecharge。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
@@ -320,7 +320,7 @@
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、显式 AoE 扇出、二维圆形求交、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；几何仍不含其他形状、高度、角色移动、AI 移动或索敌，也没有完整角色数据。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD、显式 AoE 扇出、二维圆形/旋转矩形求交、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；几何仍不含扇形、胶囊、高度、角色移动、AI 移动或索敌，也没有完整角色数据。</p>
           </article>
         </div>
       </section>

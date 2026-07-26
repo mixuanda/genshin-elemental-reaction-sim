@@ -53,7 +53,60 @@ export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly DamageModifierPlugin[];
 }
 
-const CIRCLE_HIT_EPSILON = 1e-9;
+const GEOMETRY_EPSILON = 1e-9;
+
+function resolveHitGeometry(
+  geometry: NonNullable<HitDefinition["geometry"]>,
+  targetPosition: { x: number; y: number },
+  hitboxRadius: number
+): {
+  landed: boolean;
+  distance: number;
+  threshold: number;
+  missReason: string;
+} {
+  if (geometry.kind === "circle") {
+    const distance = Math.hypot(
+      targetPosition.x - geometry.origin.x,
+      targetPosition.y - geometry.origin.y
+    );
+    const threshold = geometry.radius + hitboxRadius;
+    return {
+      landed: distance <= threshold + GEOMETRY_EPSILON,
+      distance,
+      threshold,
+      missReason: "OUTSIDE_CIRCLE_GEOMETRY"
+    };
+  }
+
+  const radians = (geometry.rotationDegrees * Math.PI) / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const deltaX = targetPosition.x - geometry.origin.x;
+  const deltaY = targetPosition.y - geometry.origin.y;
+  const localX = deltaX * cosine + deltaY * sine;
+  const localY = -deltaX * sine + deltaY * cosine;
+  const closestX = clamp(
+    localX,
+    -geometry.halfWidth,
+    geometry.halfWidth
+  );
+  const closestY = clamp(
+    localY,
+    -geometry.halfHeight,
+    geometry.halfHeight
+  );
+  const distance = Math.hypot(
+    localX - closestX,
+    localY - closestY
+  );
+  return {
+    landed: distance <= hitboxRadius + GEOMETRY_EPSILON,
+    distance,
+    threshold: hitboxRadius,
+    missReason: "OUTSIDE_RECTANGLE_GEOMETRY"
+  };
+}
 
 interface ActionEventPayload {
   action: ActionDefinition;
@@ -100,8 +153,12 @@ interface HitEventPayload {
   targeting?: HitTargeting;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
+  geometryKind: "circle" | "rectangle" | null;
   geometryOrigin: { x: number; y: number } | null;
   geometryRadius: number | null;
+  geometryHalfWidth: number | null;
+  geometryHalfHeight: number | null;
+  geometryRotationDegrees: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   targetIndex: number;
@@ -885,8 +942,12 @@ function simulateConfig(
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
           targetPosition: { x: number; y: number } | null;
+          geometryKind: "circle" | "rectangle" | null;
           geometryOrigin: { x: number; y: number } | null;
           geometryRadius: number | null;
+          geometryHalfWidth: number | null;
+          geometryHalfHeight: number | null;
+          geometryRotationDegrees: number | null;
           geometryDistance: number | null;
           geometryThreshold: number | null;
         }> =
@@ -905,8 +966,12 @@ function simulateConfig(
                   targeting?.targetId ?? "enemy-0",
                   hitFrame
                 ),
+                geometryKind: null,
                 geometryOrigin: null,
                 geometryRadius: null,
+                geometryHalfWidth: null,
+                geometryHalfHeight: null,
+                geometryRotationDegrees: null,
                 geometryDistance: null,
                 geometryThreshold: null
               }))
@@ -920,29 +985,41 @@ function simulateConfig(
                     `Target "${target.id}" passed geometry schema validation without a position.`
                   );
                 }
-                const geometryDistance = Math.hypot(
-                  targetPosition.x - geometry.origin.x,
-                  targetPosition.y - geometry.origin.y
+                const geometryResolution = resolveHitGeometry(
+                  geometry,
+                  targetPosition,
+                  target.hitboxRadius
                 );
-                const geometryThreshold =
-                  geometry.radius + target.hitboxRadius;
-                const landed =
-                  geometryDistance <=
-                  geometryThreshold + CIRCLE_HIT_EPSILON;
                 return {
                   targeting: {
                     targetId: target.id,
-                    outcome: landed ? "landed" : "miss",
-                    ...(landed
+                    outcome: geometryResolution.landed
+                      ? "landed"
+                      : "miss",
+                    ...(geometryResolution.landed
                       ? {}
-                      : { reason: "OUTSIDE_CIRCLE_GEOMETRY" })
+                      : { reason: geometryResolution.missReason })
                   },
                   targetingSource: "geometry",
                   targetPosition,
+                  geometryKind: geometry.kind,
                   geometryOrigin: deepClone(geometry.origin),
-                  geometryRadius: geometry.radius,
-                  geometryDistance,
-                  geometryThreshold
+                  geometryRadius:
+                    geometry.kind === "circle" ? geometry.radius : null,
+                  geometryHalfWidth:
+                    geometry.kind === "rectangle"
+                      ? geometry.halfWidth
+                      : null,
+                  geometryHalfHeight:
+                    geometry.kind === "rectangle"
+                      ? geometry.halfHeight
+                      : null,
+                  geometryRotationDegrees:
+                    geometry.kind === "rectangle"
+                      ? geometry.rotationDegrees
+                      : null,
+                  geometryDistance: geometryResolution.distance,
+                  geometryThreshold: geometryResolution.threshold
                 };
               });
         const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
@@ -1266,8 +1343,12 @@ function simulateConfig(
       targeting,
       targetingSource,
       targetPosition,
+      geometryKind,
       geometryOrigin,
       geometryRadius,
+      geometryHalfWidth,
+      geometryHalfHeight,
+      geometryRotationDegrees,
       geometryDistance,
       geometryThreshold,
       targetIndex,
@@ -1334,8 +1415,12 @@ function simulateConfig(
       targetName: targetProfile.name,
       targetingSource,
       targetPosition,
+      geometryKind,
       geometryOrigin,
       geometryRadius,
+      geometryHalfWidth,
+      geometryHalfHeight,
+      geometryRotationDegrees,
       geometryDistance,
       geometryThreshold,
       outcome: targetOutcome,

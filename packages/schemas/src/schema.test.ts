@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.16.0 configs to target motion", () => {
+  it("migrates 1.0.0 through 1.17.0 configs to oriented rectangles", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -226,6 +226,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.16.0",
       engineVersion: "1.16.0-circle-geometry"
+    });
+    const migratedFromTargetMotion = migrateConfig({
+      ...current,
+      schemaVersion: "1.17.0",
+      engineVersion: "1.17.0-target-motion"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -320,6 +325,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromCircleGeometry.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromTargetMotion.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromTargetMotion.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -600,6 +611,59 @@ describe("versioned config schema", () => {
       origin: { x: 0, y: 0 },
       radius: 1
     });
+  });
+
+  it("accepts a rotated rectangle and rejects incomplete rectangle parameters", () => {
+    const input = {
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "矩形目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "rectangle",
+          actorId: "a",
+          name: "矩形范围",
+          at: 0,
+          hits: [
+            {
+              id: "rectangle-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "rectangle",
+                origin: { x: 0, y: 0 },
+                halfWidth: 2,
+                halfHeight: 0.5,
+                rotationDegrees: 45
+              }
+            }
+          ]
+        }
+      ]
+    };
+    const parsed = migrateConfig(input);
+    expect(parsed.rotation[0]?.hits?.[0]?.geometry).toEqual({
+      kind: "rectangle",
+      origin: { x: 0, y: 0 },
+      halfWidth: 2,
+      halfHeight: 0.5,
+      rotationDegrees: 45
+    });
+
+    const invalid = structuredClone(input);
+    invalid.rotation[0]!.hits[0]!.geometry.halfHeight = 0;
+    expect(() => migrateConfig(invalid)).toThrow(
+      /geometry\.halfHeight/
+    );
   });
 
   it("requires complete target positions and one hit-resolution source for geometry", () => {

@@ -672,8 +672,10 @@ function renderHitDetail(): void {
     (entry) => entry.id === hit.targetResolutionId
   );
   const targetingSource =
-    targetResolution?.targetingSource === "geometry"
-      ? `二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+    targetResolution?.geometryKind === "circle"
+      ? `二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+      : targetResolution?.geometryKind === "rectangle"
+        ? `二维旋转矩形 · 中心 ${formatPosition(targetResolution.geometryOrigin)} · 半宽 ${formatNumber(targetResolution.geometryHalfWidth ?? 0, 4)} · 半高 ${formatNumber(targetResolution.geometryHalfHeight ?? 0, 4)} · 旋转 ${formatNumber(targetResolution.geometryRotationDegrees ?? 0, 4)}° · 中心至矩形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
       : targetResolution?.targetingSource === "scripted"
         ? "逐击脚本 / 显式扇出"
         : "兼容默认 enemy-0 / landed";
@@ -1087,12 +1089,20 @@ function renderTargetHitAudit(): void {
   const immune = result.hitResolutionLog.filter(
     (entry) => entry.landed && !entry.damageAllowed
   ).length;
-  const geometryChecks = result.hitResolutionLog.filter(
-    (entry) => entry.targetingSource === "geometry"
+  const circleGeometryChecks = result.hitResolutionLog.filter(
+    (entry) => entry.geometryKind === "circle"
+  ).length;
+  const rectangleGeometryChecks = result.hitResolutionLog.filter(
+    (entry) => entry.geometryKind === "rectangle"
   ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
-    (geometryChecks ? ` · ${geometryChecks} 次二维圆形几何求交` : "") +
+    (circleGeometryChecks
+      ? ` · ${circleGeometryChecks} 次二维圆形几何求交`
+      : "") +
+    (rectangleGeometryChecks
+      ? ` · ${rectangleGeometryChecks} 次旋转矩形几何求交`
+      : "") +
     (result.targetMotionTimeline.length
       ? ` · ${result.targetMotionTimeline.length} 个目标移动段`
       : "") +
@@ -1144,8 +1154,10 @@ function renderTargetHitAudit(): void {
                   : `逐击覆盖（活动阶段 ${entry.targetPhaseId}）`
                 : "默认";
           const resolutionSource =
-            entry.targetingSource === "geometry"
-              ? `几何 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+            entry.geometryKind === "circle"
+              ? `圆形 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+              : entry.geometryKind === "rectangle"
+                ? `矩形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
               : entry.targetingSource === "scripted"
                 ? "脚本"
                 : "默认";

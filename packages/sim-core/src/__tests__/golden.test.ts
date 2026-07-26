@@ -48,8 +48,12 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.targetName === "敌人 0" &&
           entry.targetingSource === "default" &&
           entry.targetPosition === null &&
+          entry.geometryKind === null &&
           entry.geometryOrigin === null &&
           entry.geometryRadius === null &&
+          entry.geometryHalfWidth === null &&
+          entry.geometryHalfHeight === null &&
+          entry.geometryRotationDegrees === null &&
           entry.geometryDistance === null &&
           entry.geometryThreshold === null &&
           entry.targetIndex === 0 &&

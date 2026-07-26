@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 326.34 kB（gzip 82.63 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 328.06 kB（gzip 83.13 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本及 `0.1.0`–`1.16.0` 配置迁移到 `1.17.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置的几何配置，以及未注册/无初始位置/重叠/越界的目标移动分段。`engineVersion` 当前为 `1.17.0-target-motion`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.17.0` 配置迁移到 `1.18.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置，以及未注册/无初始位置/重叠/越界的目标移动分段。`engineVersion` 当前为 `1.18.0-oriented-rectangle`。
 
 ## 4. 确定性与排序
 
@@ -209,13 +209,13 @@ displayDamage
 
 UI 只绘制这些结构化结果，不重新执行伤害公式。
 
-`enemy.targets` 是最多 32 项的具名目标注册表；每项目标可覆盖共享 `enemy.level / resistance / defReduction` 和 `reactionEngine.initialAura`，并可声明初始二维 `position` 与 `hitboxRadius`，但必须保留兼容目标 `enemy-0`。`enemy.targetMotions` 可为已注册且有初始位置的目标声明有序、不重叠的线性移动段 `{ startFrame, endFrame, endPosition }`：每段起点取该目标上一段终点（首段取初始位置），段内按整数命中帧线性插值，间隙保持上一位置，`endFrame` 精确到达终点并可与下一段相邻。未提供注册表时核心自动物化 `enemy-0`，因此既有 Golden 配置无需改写。每段命中在伤害公式之前先选择一个已注册目标；未声明 `targeting` 或 `geometry` 时使用 `enemy-0 / landed`。场景可显式声明 `{ targetId, outcome: "miss", reason }`，或声明 `{ kind: "circle", origin, radius }`，让核心先解析该命中帧的目标位置，再对全部注册目标按 `hypot(positionAtHit - origin) <= radius + hitboxRadius + 1e-9` 自动扇出。几何与脚本 targeting 互斥，且要求所有目标都有位置。Miss 会写入 `hitResolutionLog`，但不会调用该目标的 Aura / ICD 状态机，不会生成 `damageEvents`，也不会触发或占用命中产球 ICD。对 landed 命中，`effects` 可分别把 `damage` 设为 `immune`、把 `aura` 或 `hitConfirm` 设为 `blocked`，并强制附带原因。伤害免疫仍保留公式潜在值和 0 实际值；Aura 阻断只推进该目标的时间衰减，不施加元素或反应；回调阻断写入 `TARGET_HIT_CONFIRM_BLOCKED` 且不启动粒子 ICD。
+`enemy.targets` 是最多 32 项的具名目标注册表；每项目标可覆盖共享 `enemy.level / resistance / defReduction` 和 `reactionEngine.initialAura`，并可声明初始二维 `position` 与圆形 `hitboxRadius`，但必须保留兼容目标 `enemy-0`。`enemy.targetMotions` 可为已注册且有初始位置的目标声明有序、不重叠的线性移动段 `{ startFrame, endFrame, endPosition }`：每段起点取该目标上一段终点（首段取初始位置），段内按整数命中帧线性插值，间隙保持上一位置，`endFrame` 精确到达终点并可与下一段相邻。未提供注册表时核心自动物化 `enemy-0`，因此既有 Golden 配置无需改写。每段命中在伤害公式之前先选择一个已注册目标；未声明 `targeting` 或 `geometry` 时使用 `enemy-0 / landed`。场景可显式声明 `{ targetId, outcome: "miss", reason }`，或声明圆形/旋转矩形 geometry。圆形按 `hypot(positionAtHit - origin) <= radius + hitboxRadius + 1e-9`；矩形先将目标中心按 `-rotationDegrees` 转到局部坐标，夹取到 `[-halfWidth, halfWidth] × [-halfHeight, halfHeight]` 的最近点，再比较最近距离与 `hitboxRadius + 1e-9`。几何与脚本 targeting 互斥，且要求所有目标都有位置。Miss 会写入 `hitResolutionLog`，但不会调用该目标的 Aura / ICD 状态机，不会生成 `damageEvents`，也不会触发或占用命中产球 ICD。对 landed 命中，`effects` 可分别把 `damage` 设为 `immune`、把 `aura` 或 `hitConfirm` 设为 `blocked`，并强制附带原因。伤害免疫仍保留公式潜在值和 0 实际值；Aura 阻断只推进该目标的时间衰减，不施加元素或反应；回调阻断写入 `TARGET_HIT_CONFIRM_BLOCKED` 且不启动粒子 ICD。
 
 `enemy.targetPhases` 把相同三层策略提升为有序、不重叠的 `[startFrame, endFrame)` 场景窗口；开始帧立即生效，结束帧立即恢复或切换到相邻阶段。逐击 `effects` 可完整覆盖活动阶段，脚本化 Miss 仍拥有最高优先级。每条 `hitResolutionLog` 都保存 `targetEffectSource` 和活动 `targetPhaseId`，因此阶段策略、逐击覆盖和默认正常路径可区分。阶段由输入配置提供，当前不包含 Boss AI、血量阈值或动作状态自动驱动。
 
 目标自身的等级、抗性、减防、初始 Aura、初始位置、线性移动分段和碰撞半径已逐目标解析；现有行动 `debuffs` 仍是场景全局敌方状态，会同时影响所有已注册目标。把 Debuff 绑定到单个目标属于后续 Schema 扩展。
 
-这一分层参考锁定 gcsim 提交中 [`Combat.attack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go) 的 `AttackWillLand` 前置门、[`Enemy.HandleAttack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go) 中反应/实际伤害/附着/回调的顺序，以及 [`Target.AttackWillLand`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/target/target.go) 的目标/范围检查边界。gcsim 在这些文件中没有统一的通用无敌开关，因此本项目要求场景显式选择三层策略；这不是对所有官服无敌阶段行为的验证。当前只复制了二维圆形碰撞和预声明线性位置更新的最小子集，不是 gcsim 的完整形状、运动控制或目标系统。
+这一分层参考锁定 gcsim 提交中 [`Combat.attack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go) 的 `AttackWillLand` 前置门、[`Enemy.HandleAttack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go) 中反应/实际伤害/附着/回调的顺序，以及 [`Target.AttackWillLand`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/target/target.go) 的目标/范围检查边界。gcsim 在这些文件中没有统一的通用无敌开关，因此本项目要求场景显式选择三层策略；这不是对所有官服无敌阶段行为的验证。当前只复制了二维圆形、旋转矩形与预声明线性位置更新的最小子集，不是 gcsim 的完整形状、运动控制或目标系统。
 
 ### 6.1 Aura / ICD 最小状态机
 
@@ -286,7 +286,7 @@ energyAfter
 
 固定回能不会套用粒子倍率或元素充能效率，并在同一日志中以 `kind: "fixed"` 明确区分。可选的 `internalCooldown { key, durationFrames }` 按“来源角色 + key”建立共享流：第一次事件在处理帧立即设置下一可用帧，`frame < readyFrame` 的后续事件被阻止，恰好位于 `readyFrame` 的事件重新允许。无论通过还是阻止都进入 `energyLog`；阻止事件同时写入不改变数值的 `fixed-blocked` 能量曲线点。
 
-粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。显式 fanout 或圆形几何产生的所有目标先分别完成 Miss、阶段、伤害、Aura 和回调判定，再以同一 `hitGroupId` 聚合；只要至少一个目标允许命中回调，该逻辑命中只执行一次产球检查。`particleTriggerLog` 保存全部检查目标和确认目标，粒子 ICD 也只启动一次。当前几何只读取该次命中帧的声明式线性目标位置，不模拟其他形状、角色移动、追踪弹道、粒子飞行碰撞或真实 Boss AI；UI 不重新计算触发条件。
+粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。显式 fanout、圆形或旋转矩形几何产生的所有目标先分别完成 Miss、阶段、伤害、Aura 和回调判定，再以同一 `hitGroupId` 聚合；只要至少一个目标允许命中回调，该逻辑命中只执行一次产球检查。`particleTriggerLog` 保存全部检查目标和确认目标，粒子 ICD 也只启动一次。当前几何只读取该次命中帧的声明式线性目标位置，不模拟扇形/胶囊、高度、角色移动、追踪弹道、粒子飞行碰撞或真实 Boss AI；UI 不重新计算触发条件。
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
@@ -306,7 +306,7 @@ energyAfter
 - 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go`、`icd_groups.dm.go` 与 `pkg/core/info/combat.go`。
 - 黑分支覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、普攻/重击/战技/爆发/冲刺/跳跃/切人取消路径、三段命中、DurinSkill ICD、带角色级 360 帧共享内部冷却的 33 固定回能，以及首个已处理命中触发、18 帧共享粒子 ICD 的 4 火粒子。固定 gcsim 提交给出的首段 E 冲刺/跳跃取消均为 14 帧，黑 E 为 42/41 帧；重击复用其 `ActionAttack` 取消点是本引擎的分类映射推断。
 - 白分支覆盖：技能 10 级 `1.9008` 倍率、35 帧命中、83 帧动画、相同回能/产球规则、30 秒白状态，以及通过 `clears` 与既有黑状态互斥；审计预设中的全局命中帧为 50。锁定 gcsim 提交未设置 `AttackInfo.Durability`，而其核心把 `0` 定义为不施加 Aura，因此本向量输出火伤但不施加附着、不触发反应；该口径仍保持 `provisional`，等待官方资料或官服实测交叉验证。
-- 保持 `provisional + partial`：冲刺/跳跃物理、该技能实际 AoE 形状/半径/位置、实战目标移动轨迹、真实 Boss 状态机、Hitlag、黑/白爆发及全部被动尚未实现；通用圆形求交与声明式线性移动只验证引擎路径，不代表杜林真实范围或敌人运动已经核验。
+- 保持 `provisional + partial`：冲刺/跳跃物理、该技能实际 AoE 形状/尺寸/旋转/位置、实战目标移动轨迹、真实 Boss 状态机、Hitlag、黑/白爆发及全部被动尚未实现；通用圆形/旋转矩形求交与声明式线性移动只验证引擎路径，不代表杜林真实范围或敌人运动已经核验。
 
 ## 7. 测试策略
 
@@ -325,6 +325,7 @@ Vitest 当前覆盖：
 - 同时间命中稳定排序。
 - 具名目标注册、目标级属性覆盖、未注册目标拒绝、逐目标 landed / miss、独立 Aura/ICD、伤害免疫双值审计、命中回调阻断，以及被阻断事件不启动粒子 ICD。
 - 圆形几何 Schema、目标位置完整性、脚本/几何互斥、中心/精确边界/范围外求交、距离与阈值日志，以及几何扇出仍只执行一次命中产球回调。
+- 旋转矩形 Schema、局部坐标变换、矩形内部、长短边、圆形碰撞体与角点接触、刚好范围外，以及形状参数逐击审计。
 - 目标移动分段的注册/初始位置/排序/重叠/时长校验、整数帧线性插值、相邻边界、分段间保持、移动后圆形命中与确定性复现。
 - 有序不重叠的目标阶段 Schema、半开边界、相邻阶段切换、活动阶段来源日志和逐击覆盖优先级。
 - 120 秒末端截断语义。
@@ -359,7 +360,7 @@ Vitest 当前覆盖：
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 - 120 秒兼容模拟和带运行时能量前缀探测的 120 秒合法时间线性能门。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、具名多目标属性与逐目标 Aura/ICD 隔离、显式 AoE 扇出、圆形几何的中心/边界/范围外判定、目标线性移动插值及跨目标一次产球聚合、目标/Aura 筛选、目标命中判定表、脚本化 Miss、三层目标策略、按帧阶段、敌方 Aura 曲线、能量曲线、公式展开、杜林黑/白 E 审计向量，以及 UID 展示柜边界。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、具名多目标属性与逐目标 Aura/ICD 隔离、显式 AoE 扇出、圆形与旋转矩形几何的内部/边界/范围外判定、目标线性移动插值及跨目标一次产球聚合、目标/Aura 筛选、目标命中判定表、脚本化 Miss、三层目标策略、按帧阶段、敌方 Aura 曲线、能量曲线、公式展开、杜林黑/白 E 审计向量，以及 UID 展示柜边界。
 
 ## 8. 展示柜导入边界
 
@@ -420,8 +421,8 @@ Milestone 2 的结构能力已经落地，但除已单独引用的杜林取消�
 
 Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；新增黑/白 E 只是独立审计向量，不能用它们替换 120 秒兼容预设后声称机制等价。
 
-Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、固定帧或逐击命中触发、角色级粒子内部冷却、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。具名多目标、逐目标 landed / miss、独立 Aura/ICD、三层目标效果策略、按帧阶段窗口、显式/圆形扇出、声明式线性目标移动和一次回调聚合已成为伤害和命中产球的共同门；内置 M4 预设仍只用于机制验收，其面板、帧数和产球范围是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、粒子几何飞行轨迹、真实 Boss AI 或真实技能产球数据库。
+Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、固定帧或逐击命中触发、角色级粒子内部冷却、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。具名多目标、逐目标 landed / miss、独立 Aura/ICD、三层目标效果策略、按帧阶段窗口、显式/圆形/旋转矩形扇出、声明式线性目标移动和一次回调聚合已成为伤害和命中产球的共同门；内置 M4 预设仍只用于机制验收，其面板、帧数和产球范围是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、粒子几何飞行轨迹、真实 Boss AI 或真实技能产球数据库。
 
 Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等于正式杜林预设完成。杜林黑/白 E 已有倍率引用、裸伤/增伤、动作帧、黑 E 附着/ICD、白 E 无附着口径、回能、粒子和互斥状态向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应在当前圆形/线性移动最小模型上增加矩形/扇形/线段形状、角色位置、追踪/索敌语义和由命令或 AI 驱动的位置更新，再建立有来源的具体 Boss 状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。之后再扩展复合附着、冻结和转化反应；所有工作都必须保留现有 Golden 和审计向量。
+下一阶段应在当前圆形/旋转矩形/线性移动最小模型上增加扇形/胶囊形状、角色位置、追踪/索敌语义和由命令或 AI 驱动的位置更新，再建立有来源的具体 Boss 状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。之后再扩展复合附着、冻结和转化反应；所有工作都必须保留现有 Golden 和审计向量。

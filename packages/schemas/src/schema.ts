@@ -16,6 +16,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  TARGET_MOTION_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
   TARGET_PHASE_TIMELINE_SCHEMA_VERSION,
@@ -423,6 +424,21 @@ export const circleHitGeometrySchema = z
   })
   .strict();
 
+export const rectangleHitGeometrySchema = z
+  .object({
+    kind: z.literal("rectangle"),
+    origin: point2DSchema,
+    halfWidth: finiteNumber.positive().max(1_000),
+    halfHeight: finiteNumber.positive().max(1_000),
+    rotationDegrees: finiteNumber.min(-360).max(360)
+  })
+  .strict();
+
+export const hitGeometrySchema = z.discriminatedUnion("kind", [
+  circleHitGeometrySchema,
+  rectangleHitGeometrySchema
+]);
+
 export const hitDefinitionSchema = z
   .object({
     id: idSchema.optional(),
@@ -432,7 +448,7 @@ export const hitDefinitionSchema = z
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
     targeting: hitTargetingConfigSchema.optional(),
-    geometry: circleHitGeometrySchema.optional(),
+    geometry: hitGeometrySchema.optional(),
     application: elementalApplicationSchema.optional(),
     reaction: reactionSchema.optional(),
     reactionOverride: reactionSchema.optional(),
@@ -1603,6 +1619,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === TARGET_MOTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === CIRCLE_GEOMETRY_SCHEMA_VERSION) {
     return parseSimConfig({
