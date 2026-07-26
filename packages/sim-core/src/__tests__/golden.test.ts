@@ -25,6 +25,16 @@ describe("Vanilla v0.1 golden compatibility", () => {
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
+    expect(result.enemyTargets).toEqual([
+      {
+        id: "enemy-0",
+        name: "敌人 0",
+        level: durinMeltPreset.enemy.level,
+        resistance: durinMeltPreset.enemy.resistance,
+        defReduction: durinMeltPreset.enemy.defReduction,
+        initialAura: []
+      }
+    ]);
     expect(result.damageEvents).toHaveLength(golden.hitCount);
     expect(result.hitResolutionLog).toHaveLength(golden.hitCount);
     expect(
@@ -32,15 +42,38 @@ describe("Vanilla v0.1 golden compatibility", () => {
         (entry, index) =>
           entry.landed &&
           entry.outcome === "landed" &&
+          entry.targetId === "enemy-0" &&
+          entry.targetName === "敌人 0" &&
           entry.damageEventId === index &&
           entry.displayDamage === result.damageEvents[index]?.displayDamage
       )
     ).toBe(true);
     expect(result.damageCurve).toHaveLength(golden.hitCount);
+    expect(
+      result.damageCurve.every(
+        (point) =>
+          point.targetId === "enemy-0" &&
+          point.targetName === "敌人 0"
+      )
+    ).toBe(true);
     expect(result.damageCurve.at(-1)?.cumulativeDamage).toBeCloseTo(
       result.totalDamage,
       8
     );
+    expect(result.targetSummaries).toEqual([
+      {
+        targetId: "enemy-0",
+        targetName: "敌人 0",
+        damage: result.totalDamage,
+        potentialDamage: result.totalDamage,
+        damageEvents: golden.hitCount,
+        landedChecks: golden.hitCount,
+        missedChecks: 0,
+        immuneDamageEvents: 0,
+        dps: result.dps,
+        share: 1
+      }
+    ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
 

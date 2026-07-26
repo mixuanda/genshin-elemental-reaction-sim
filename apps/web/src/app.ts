@@ -530,6 +530,24 @@ function renderHitFilters(): void {
     characterFilter.value = previousCharacter;
   }
 
+  const targetFilter = byId<HTMLSelectElement>("hitTargetFilter");
+  const previousTarget = targetFilter.value || "all";
+  targetFilter.innerHTML =
+    `<option value="all">全部目标</option>` +
+    result.enemyTargets
+      .map(
+        (target) =>
+          `<option value="${escapeHtml(target.id)}">${escapeHtml(target.name)} (${escapeHtml(target.id)})</option>`
+      )
+      .join("");
+  if (
+    [...targetFilter.options].some(
+      (option) => option.value === previousTarget
+    )
+  ) {
+    targetFilter.value = previousTarget;
+  }
+
   const reactionFilter = byId<HTMLSelectElement>("hitReactionFilter");
   const previousReaction = reactionFilter.value || "all";
   const reactions = [...new Set(result.damageEvents.map((hit) => hit.reaction))];
@@ -554,6 +572,8 @@ function filteredHits(): DamageEvent[] {
   if (!lastResult) return [];
   const character =
     byId<HTMLSelectElement>("hitCharacterFilter").value || "all";
+  const target =
+    byId<HTMLSelectElement>("hitTargetFilter").value || "all";
   const reaction =
     byId<HTMLSelectElement>("hitReactionFilter").value || "all";
   const search = byId<HTMLInputElement>("hitSearch").value
@@ -561,6 +581,7 @@ function filteredHits(): DamageEvent[] {
     .toLowerCase();
   return lastResult.damageEvents.filter((hit) => {
     if (character !== "all" && hit.creditOwnerId !== character) return false;
+    if (target !== "all" && hit.targetId !== target) return false;
     if (reaction !== "all" && hit.reaction !== reaction) return false;
     if (
       timelineSecondFilter !== null &&
@@ -570,7 +591,7 @@ function filteredHits(): DamageEvent[] {
     }
     if (
       search &&
-      !`${hit.actionName} ${hit.hitLabel} ${hit.sourceActorName} ${hit.creditOwnerName}`
+      !`${hit.actionName} ${hit.hitLabel} ${hit.sourceActorName} ${hit.creditOwnerName} ${hit.targetName} ${hit.targetId}`
         .toLowerCase()
         .includes(search)
     ) {
@@ -599,6 +620,7 @@ function renderHitTable(): void {
           `<td>${escapeHtml(hit.scalingOwnerName)}</td>` +
           `<td>${escapeHtml(hit.creditOwnerName)}</td>` +
           `<td>${escapeHtml(hit.actionName)} <span class="muted">/ ${escapeHtml(hit.hitLabel)}</span></td>` +
+          `<td>${escapeHtml(hit.targetName)} <span class="muted">/ ${escapeHtml(hit.targetId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[hit.element] ?? "#ccc"}">${ELEMENT_LABELS[hit.element] ?? hit.element}</span></td>` +
           `<td>${hit.reaction === "none" ? "—" : `<span class="badge">${REACTION_LABELS[hit.reaction] ?? hit.reaction}</span>`}</td>` +
           `<td>${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()}</td>` +
@@ -607,7 +629,7 @@ function renderHitTable(): void {
           `<td><strong>${formatNumber(hit.displayDamage, 0)}</strong></td></tr>`
       )
       .join("") ||
-    `<tr><td colspan="11">没有符合筛选条件的伤害事件。</td></tr>`;
+    `<tr><td colspan="12">没有符合筛选条件的伤害事件。</td></tr>`;
 
   byId<HTMLElement>("pageInfo").textContent =
     `${currentPage} / ${totalPages} · 共 ${hits.length} 段` +
@@ -650,7 +672,10 @@ function renderHitDetail(): void {
     ["伤害归属", `${hit.creditOwnerName} (${hit.creditOwnerId})`],
     ["行动 / 命中", `${hit.actionName} / ${hit.hitLabel}`],
     ["行动 / 命中 ID", `${hit.actionId} / ${hit.hitId}`],
-    ["目标 / 判定", `${hit.targetId} / landed (#${hit.targetResolutionId})`],
+    [
+      "目标 / 判定",
+      `${hit.targetName} (${hit.targetId}) / landed (#${hit.targetResolutionId})`
+    ],
     [
       "目标策略来源",
       targetResolution?.targetEffectSource === "target-phase"
@@ -990,6 +1015,9 @@ function renderTargetHitAudit(): void {
   byId<HTMLTableSectionElement>("targetPhaseBody").innerHTML =
     result.targetPhaseTimeline
       .map((phase) => {
+        const target = result.enemyTargets.find(
+          (candidate) => candidate.id === phase.targetId
+        );
         const policies = [
           phase.effects.damage === "normal" ? "伤害正常" : "伤害免疫",
           phase.effects.aura === "normal" ? "Aura 正常" : "Aura 阻断",
@@ -1000,7 +1028,7 @@ function renderTargetHitAudit(): void {
         return (
           `<tr>` +
           `<td>${escapeHtml(phase.label)} <span class="muted">/ ${escapeHtml(phase.id)}</span></td>` +
-          `<td>${escapeHtml(phase.targetId)}</td>` +
+          `<td>${escapeHtml(target?.name ?? phase.targetId)} <span class="muted">/ ${escapeHtml(phase.targetId)}</span></td>` +
           `<td>${phase.startTimeSeconds.toFixed(3)}s <span class="muted">/ ${phase.startFrame}f</span></td>` +
           `<td>${phase.endTimeSeconds.toFixed(3)}s <span class="muted">/ ${phase.endFrame}f</span></td>` +
           `<td>${escapeHtml(policies)}</td>` +
@@ -1024,6 +1052,18 @@ function renderTargetHitAudit(): void {
     (missed
       ? " · Miss 不进入伤害、Aura / 反应或命中确认产球"
       : " · 全部使用默认或显式 landed 判定");
+  byId<HTMLElement>("targetDamageSummary").innerHTML =
+    result.targetSummaries
+      .map(
+        (target) =>
+          `<span class="legend-item"><strong>${escapeHtml(target.targetName)}</strong> ` +
+          `<span class="muted">${escapeHtml(target.targetId)}</span> · ` +
+          `${formatNumber(target.damage, 0)} 伤害 · ${target.damageEvents} 段 · ` +
+          `${(target.share * 100).toFixed(1)}%` +
+          `${target.immuneDamageEvents ? ` · ${target.immuneDamageEvents} 段免疫` : ""}` +
+          `${target.missedChecks ? ` · ${target.missedChecks} 段 Miss` : ""}</span>`
+      )
+      .join("");
   byId<HTMLTableSectionElement>("targetHitAuditBody").innerHTML =
     result.hitResolutionLog
       .map(
@@ -1048,7 +1088,7 @@ function renderTargetHitAudit(): void {
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
-          `<td>${escapeHtml(entry.targetId)}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}</span></td>` +
           `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
           `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
@@ -1302,8 +1342,36 @@ function renderEnergyAudit(): void {
 function renderAuraTimeline(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("auraTimelineCard");
-  const timeline = lastResult.auraTimeline;
-  card.hidden = timeline.length === 0;
+  const allTimeline = lastResult.auraTimeline;
+  card.hidden = allTimeline.length === 0;
+  if (!allTimeline.length) return;
+
+  const targetFilter = byId<HTMLSelectElement>("auraTargetFilter");
+  const targetIdsWithAura = new Set(
+    allTimeline.map((point) => point.targetId)
+  );
+  const availableTargets = lastResult.enemyTargets.filter((target) =>
+    targetIdsWithAura.has(target.id)
+  );
+  const previousTarget = targetFilter.value;
+  targetFilter.innerHTML = availableTargets
+    .map(
+      (target) =>
+        `<option value="${escapeHtml(target.id)}">${escapeHtml(target.name)} (${escapeHtml(target.id)})</option>`
+    )
+    .join("");
+  targetFilter.value = availableTargets.some(
+    (target) => target.id === previousTarget
+  )
+    ? previousTarget
+    : availableTargets[0]?.id ?? "";
+  const selectedTargetId = targetFilter.value;
+  const selectedTarget = availableTargets.find(
+    (target) => target.id === selectedTargetId
+  );
+  const timeline = allTimeline.filter(
+    (point) => point.targetId === selectedTargetId
+  );
   if (!timeline.length) return;
 
   const elements = ["pyro", "cryo", "hydro"] as const;
@@ -1425,6 +1493,7 @@ function renderAuraTimeline(): void {
   };
 
   byId<HTMLElement>("auraTimelineLegend").innerHTML =
+    `<span class="legend-item"><strong>${escapeHtml(selectedTarget?.name ?? selectedTargetId)}</strong> <span class="muted">${escapeHtml(selectedTargetId)}</span></span>` +
     elements
       .map(
         (element) =>
@@ -1441,6 +1510,7 @@ function renderAuraTimeline(): void {
       return (
         `<tr data-aura-hit-id="${point.damageEventId}">` +
         `<td>${point.timeSeconds.toFixed(3)}s / ${point.frame}f</td>` +
+        `<td>${escapeHtml(point.targetName)} <span class="muted">/ ${escapeHtml(point.targetId)}</span></td>` +
         `<td>${escapeHtml(hit?.actionName ?? point.actionId)} <span class="muted">/ ${escapeHtml(hit?.hitLabel ?? point.hitId)}</span></td>` +
         `<td>${point.icdAllowed === null ? "—" : point.icdAllowed ? "通过" : "阻止"}</td>` +
         `<td>${escapeHtml(formatAuraState(point.auraBefore))}</td>` +
@@ -1733,7 +1803,12 @@ function initEvents(): void {
       activateTab(button.dataset.tab ?? "overview")
     );
   });
-  ["hitCharacterFilter", "hitReactionFilter", "pageSizeInput"].forEach(
+  [
+    "hitCharacterFilter",
+    "hitTargetFilter",
+    "hitReactionFilter",
+    "pageSizeInput"
+  ].forEach(
     (id) => {
       byId<HTMLSelectElement>(id).addEventListener("change", () => {
         currentPage = 1;
@@ -1745,6 +1820,10 @@ function initEvents(): void {
     currentPage = 1;
     renderHitTable();
   });
+  byId<HTMLSelectElement>("auraTargetFilter").addEventListener(
+    "change",
+    renderAuraTimeline
+  );
   byId<HTMLButtonElement>("prevPage").addEventListener("click", () => {
     currentPage -= 1;
     renderHitTable();

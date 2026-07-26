@@ -260,7 +260,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "支持场景显式 landed / miss、三层目标策略与按帧目标阶段，但尚无几何自动命中、真实 Boss AI 和多目标逐目标回调",
+    "支持具名多目标的逐目标 Aura/ICD、landed / miss、三层策略与按帧阶段，但尚无单击 AoE 扇出、几何自动命中和真实 Boss AI",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
@@ -353,7 +353,7 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
   ],
   unresolvedMechanics: [
     "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
-    "支持场景显式 landed / miss、三层目标策略与按帧目标阶段，但尚无几何自动命中、真实 Boss AI 和多目标逐目标回调",
+    "支持具名多目标的逐目标 Aura/ICD、landed / miss、三层策略与按帧阶段，但尚无单击 AoE 扇出、几何自动命中和真实 Boss AI",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.12.0 configs to target phase timelines", () => {
+  it("migrates 1.0.0 through 1.13.0 configs to the multi-target registry", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -206,6 +206,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.12.0",
       engineVersion: "1.12.0-target-effect-policy"
+    });
+    const migratedFromTargetPhaseTimeline = migrateConfig({
+      ...current,
+      schemaVersion: "1.13.0",
+      engineVersion: "1.13.0-target-phase-timeline"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -278,6 +283,12 @@ describe("versioned config schema", () => {
     expect(migratedFromTargetEffectPolicy.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
+    expect(migratedFromTargetPhaseTimeline.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromTargetPhaseTimeline.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
   });
 
   it("requires an auditable reason for a scripted miss", () => {
@@ -335,7 +346,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation\.0\.hits\.0\.targeting\.reason/);
   });
 
-  it("rejects fake additional target ids before multi-target support exists", () => {
+  it("rejects unregistered enemy target ids", () => {
     expect(() =>
       migrateConfig({
         ...legacyConfig,
@@ -361,6 +372,98 @@ describe("versioned config schema", () => {
         ]
       })
     ).toThrow(/rotation\.0\.hits\.0\.targeting\.targetId/);
+  });
+
+  it("accepts registered targets and overlapping phases on different targets", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      duration: 2,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          { id: "enemy-0", name: "主目标" },
+          {
+            id: "enemy-1",
+            name: "副目标",
+            level: 100,
+            resistance: 0.5,
+            defReduction: 0.1
+          }
+        ],
+        targetPhases: [
+          {
+            id: "main-window",
+            label: "主目标窗口",
+            targetId: "enemy-0",
+            startFrame: 30,
+            endFrame: 60,
+            reason: "MAIN_WINDOW",
+            effects: {
+              damage: "immune",
+              aura: "blocked",
+              hitConfirm: "blocked"
+            }
+          },
+          {
+            id: "secondary-window",
+            label: "副目标窗口",
+            targetId: "enemy-1",
+            startFrame: 30,
+            endFrame: 60,
+            reason: "SECONDARY_WINDOW",
+            effects: {
+              damage: "immune",
+              aura: "normal",
+              hitConfirm: "normal"
+            }
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "secondary-hit",
+          actorId: "a",
+          name: "副目标命中",
+          at: 0,
+          hits: [
+            {
+              id: "secondary-hit-1",
+              offset: 0,
+              scaling: 1,
+              targeting: {
+                targetId: "enemy-1",
+                outcome: "landed"
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(parsed.enemy.targets?.[1]).toMatchObject({
+      id: "enemy-1",
+      resistance: 0.5
+    });
+    expect(parsed.enemy.targetPhases).toHaveLength(2);
+  });
+
+  it("rejects target-specific initial Aura when the Aura engine is disabled", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        enemy: {
+          ...legacyConfig.enemy,
+          targets: [
+            { id: "enemy-0", name: "主目标" },
+            {
+              id: "enemy-1",
+              name: "副目标",
+              initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+            }
+          ]
+        }
+      })
+    ).toThrow(/enemy\.targets\.1\.initialAura/);
   });
 
   it("requires a reason and at least one change for target effect policies", () => {

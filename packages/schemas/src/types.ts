@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.13.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.13.0-target-phase-timeline" as const;
+export const CURRENT_SCHEMA_VERSION = "1.14.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.14.0-multi-target-registry" as const;
+export const TARGET_PHASE_TIMELINE_SCHEMA_VERSION = "1.13.0" as const;
 export const TARGET_EFFECT_POLICY_SCHEMA_VERSION = "1.12.0" as const;
 export const TARGET_HIT_RESOLUTION_SCHEMA_VERSION = "1.11.0" as const;
 export const TIMELINE_STATE_CLEAR_SCHEMA_VERSION = "1.10.0" as const;
@@ -49,7 +50,7 @@ export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
-export type TargetId = "enemy-0";
+export type TargetId = string;
 export type TargetHitOutcome = "landed" | "miss";
 export type TargetDamagePolicy = "normal" | "immune";
 export type TargetAuraPolicy = "normal" | "blocked";
@@ -160,10 +161,34 @@ export interface EnemyProfile {
   resistance: number;
   defReduction: number;
   /**
+   * Optional named target registry. When omitted, the engine materializes the
+   * compatibility target enemy-0 from the shared enemy stats.
+   */
+  targets?: EnemyTargetProfile[];
+  /**
    * Sorted, non-overlapping target-state windows. Per-hit targeting effects
    * override the active phase while a scripted miss bypasses all effect layers.
    */
   targetPhases?: TargetPhaseDefinition[];
+}
+
+export interface EnemyTargetProfile {
+  id: TargetId;
+  name: string;
+  level?: number;
+  resistance?: number;
+  defReduction?: number;
+  /** Overrides reactionEngine.initialAura for this target. */
+  initialAura?: InitialAuraApplication[];
+}
+
+export interface ResolvedEnemyTargetProfile {
+  id: TargetId;
+  name: string;
+  level: number;
+  resistance: number;
+  defReduction: number;
+  initialAura: InitialAuraApplication[];
 }
 
 export interface FlatDamageSource {
@@ -570,6 +595,7 @@ export interface DamageEvent {
   hitId: string;
   targetResolutionId: number;
   targetId: TargetId;
+  targetName: string;
   targetDamagePolicy: TargetDamagePolicy;
   targetDamageMultiplier: 0 | 1;
   /** Formula result before the target-level damage policy. */
@@ -727,6 +753,7 @@ export interface HitResolutionLogEntry {
   hitLabel: string;
   element: Element;
   targetId: TargetId;
+  targetName: string;
   outcome: TargetHitOutcome;
   landed: boolean;
   reason: string | null;
@@ -813,8 +840,23 @@ export interface CharacterDamageSummary {
   share: number;
 }
 
+export interface EnemyTargetDamageSummary {
+  targetId: TargetId;
+  targetName: string;
+  damage: number;
+  potentialDamage: number;
+  damageEvents: number;
+  landedChecks: number;
+  missedChecks: number;
+  immuneDamageEvents: number;
+  dps: number;
+  share: number;
+}
+
 export interface DamageCurvePoint {
   damageEventId: number;
+  targetId: TargetId;
+  targetName: string;
   frame: number;
   timeSeconds: number;
   sourceActorId: string;
@@ -826,6 +868,8 @@ export interface DamageCurvePoint {
 
 export interface AuraTimelinePoint {
   damageEventId: number;
+  targetId: TargetId;
+  targetName: string;
   frame: number;
   timeSeconds: number;
   sourceActorId: string;
@@ -919,6 +963,8 @@ export interface SimulationResult {
   reproducibilityKey: string;
   compatibilityMode: CompatibilityMode;
   config: SimConfig;
+  /** Effective per-target stats after applying shared enemy defaults. */
+  enemyTargets: ResolvedEnemyTargetProfile[];
   damageEvents: DamageEvent[];
   hitEvents: DamageEvent[];
   /** Every scheduled target check, including misses that did no damage. */
@@ -937,6 +983,7 @@ export interface SimulationResult {
   reactedHits: number;
   byCharacter: Record<string, number>;
   characterSummaries: CharacterDamageSummary[];
+  targetSummaries: EnemyTargetDamageSummary[];
   bySkill: SkillSummary[];
   perSecond: Array<Record<string, number>>;
   damageCurve: DamageCurvePoint[];

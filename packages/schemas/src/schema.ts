@@ -15,6 +15,7 @@ import {
   RUNTIME_ENERGY_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
+  TARGET_PHASE_TIMELINE_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
@@ -174,7 +175,7 @@ export const targetPhaseDefinitionSchema = z
   .object({
     id: idSchema,
     label: idSchema,
-    targetId: z.literal("enemy-0"),
+    targetId: idSchema,
     startFrame: z.number().int().min(0).max(36_000),
     endFrame: z.number().int().positive().max(36_000),
     reason: z.string().trim().min(1),
@@ -191,17 +192,62 @@ export const targetPhaseDefinitionSchema = z
     }
   });
 
+export const enemyTargetProfileSchema = z
+  .object({
+    id: idSchema,
+    name: idSchema,
+    level: z.number().int().min(1).max(200).optional(),
+    resistance: finiteNumber.optional(),
+    defReduction: finiteNumber.optional(),
+    initialAura: z.array(initialAuraApplicationSchema).max(3).optional()
+  })
+  .strict();
+
 export const enemyProfileSchema = z
   .object({
     level: z.number().int().min(1).max(200),
     resistance: finiteNumber,
     defReduction: finiteNumber,
+    targets: z.array(enemyTargetProfileSchema).min(1).max(32).optional(),
     targetPhases: z.array(targetPhaseDefinitionSchema).max(256).optional()
   })
   .strict()
   .superRefine((enemy, context) => {
+    const targetIds = new Set<string>();
+    for (const [index, target] of (enemy.targets ?? []).entries()) {
+      if (targetIds.has(target.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["targets", index, "id"],
+          message: `duplicate enemy target id "${target.id}"`
+        });
+      }
+      targetIds.add(target.id);
+      const auraElements = new Set<string>();
+      for (const [auraIndex, aura] of (
+        target.initialAura ?? []
+      ).entries()) {
+        if (auraElements.has(aura.element)) {
+          context.addIssue({
+            code: "custom",
+            path: ["targets", index, "initialAura", auraIndex, "element"],
+            message: `duplicate initial aura element "${aura.element}"`
+          });
+        }
+        auraElements.add(aura.element);
+      }
+    }
+    if (enemy.targets !== undefined && !targetIds.has("enemy-0")) {
+      context.addIssue({
+        code: "custom",
+        path: ["targets"],
+        message:
+          'must include compatibility target "enemy-0" because hits without targeting resolve to it'
+      });
+    }
+
     const phaseIds = new Set<string>();
-    let previousEndFrame = -1;
+    const previousEndFrameByTarget = new Map<string, number>();
     for (const [index, phase] of (enemy.targetPhases ?? []).entries()) {
       if (phaseIds.has(phase.id)) {
         context.addIssue({
@@ -211,6 +257,8 @@ export const enemyProfileSchema = z
         });
       }
       phaseIds.add(phase.id);
+      const previousEndFrame =
+        previousEndFrameByTarget.get(phase.targetId) ?? -1;
       if (phase.startFrame < previousEndFrame) {
         context.addIssue({
           code: "custom",
@@ -219,13 +267,16 @@ export const enemyProfileSchema = z
             "target phases must be sorted and non-overlapping with half-open boundaries"
         });
       }
-      previousEndFrame = Math.max(previousEndFrame, phase.endFrame);
+      previousEndFrameByTarget.set(
+        phase.targetId,
+        Math.max(previousEndFrame, phase.endFrame)
+      );
     }
   });
 
 export const hitTargetingSchema = z
   .object({
-    targetId: z.literal("enemy-0"),
+    targetId: idSchema,
     outcome: z.enum(["landed", "miss"]),
     reason: z.string().trim().min(1).optional(),
     effects: targetEffectPolicySchema.optional()
@@ -794,8 +845,43 @@ export const simConfigSchema = z
   })
   .strict()
   .superRefine((config, context) => {
+    const enemyTargetIds = new Set(
+      (config.enemy.targets ?? [{ id: "enemy-0" }]).map(
+        (target) => target.id
+      )
+    );
+    const validateEnemyTarget = (
+      targetId: string | undefined,
+      path: Array<string | number>
+    ): void => {
+      if (targetId !== undefined && !enemyTargetIds.has(targetId)) {
+        context.addIssue({
+          code: "custom",
+          path,
+          message: `unknown enemy target id "${targetId}"`
+        });
+      }
+    };
     const durationFrames = Math.round(config.duration * 60);
+    config.enemy.targets?.forEach((target, index) => {
+      if (
+        target.initialAura !== undefined &&
+        config.reactionEngine?.mode !== "aura-v1"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["enemy", "targets", index, "initialAura"],
+          message: "requires reactionEngine.mode to be aura-v1"
+        });
+      }
+    });
     config.enemy.targetPhases?.forEach((phase, index) => {
+      validateEnemyTarget(phase.targetId, [
+        "enemy",
+        "targetPhases",
+        index,
+        "targetId"
+      ]);
       if (phase.endFrame > durationFrames) {
         context.addIssue({
           code: "custom",
@@ -876,6 +962,14 @@ export const simConfigSchema = z
       }
 
       action.hits?.forEach((hit, hitIndex) => {
+        validateEnemyTarget(hit.targeting?.targetId, [
+          "rotation",
+          actionIndex,
+          "hits",
+          hitIndex,
+          "targeting",
+          "targetId"
+        ]);
         for (const [field, id] of [
           ["scalingOwnerId", hit.scalingOwnerId],
           ["creditId", hit.creditId]
@@ -965,6 +1059,15 @@ export const simConfigSchema = z
           });
         }
         ability.hits?.forEach((hit, hitIndex) => {
+          validateEnemyTarget(hit.targeting?.targetId, [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex,
+            "targeting",
+            "targetId"
+          ]);
           for (const [field, id] of [
             ["scalingOwnerId", hit.scalingOwnerId],
             ["creditId", hit.creditId]
@@ -1265,6 +1368,9 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
           level: input.enemy.level ?? 110,
           resistance: input.enemy.resistance ?? 0.1,
           defReduction: input.enemy.defReduction ?? 0,
+          ...(Array.isArray(input.enemy.targets)
+            ? { targets: input.enemy.targets }
+            : {}),
           ...(Array.isArray(input.enemy.targetPhases)
             ? { targetPhases: input.enemy.targetPhases }
             : {})
@@ -1311,6 +1417,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === TARGET_PHASE_TIMELINE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_EFFECT_POLICY_SCHEMA_VERSION) {
     return parseSimConfig({

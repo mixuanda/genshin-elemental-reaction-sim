@@ -38,7 +38,7 @@ schemas + sim-core + game-data <- mechanics
 sim-core + schemas + game-data + mechanics/durin-audit <- apps/web
 ```
 
-完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 314.52 kB（gzip 79.64 kB）。
+完整目录通过 `@genshin-dps-lab/game-data/catalog` 子路径显式导入；包根只导出轻量运行时索引、预设和展示柜适配器。网页从 `@genshin-dps-lab/mechanics/durin-audit` 读取由测试锁定的紧凑运行时投影，不在浏览器重新解析完整倍率目录。当前生产入口为 318.62 kB（gzip 80.63 kB）。
 
 ## 3. 配置契约
 
@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0`、`1.5.0`、`1.6.0`、`1.7.0`、`1.8.0`、`1.9.0`、`1.10.0`、`1.11.0` 或 `1.12.0` 配置迁移到 `1.13.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、未知粒子触发命中 ID、缺失 Miss/目标策略原因、空操作目标策略、重复/重叠/越界目标阶段、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.13.0-target-phase-timeline`。
+`migrateConfig()` 负责把无版本、`0.1.0`、`1.0.0`、`1.1.0`、`1.2.0`、`1.3.0`、`1.4.0`、`1.5.0`、`1.6.0`、`1.7.0`、`1.8.0`、`1.9.0`、`1.10.0`、`1.11.0`、`1.12.0` 或 `1.13.0` 配置迁移到 `1.14.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用、未注册敌方目标、未知粒子触发命中 ID、缺失 Miss/目标策略原因、空操作目标策略、同目标重复/重叠/越界阶段、超过四人的队伍和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.14.0-multi-target-registry`。
 
 ## 4. 确定性与排序
 
@@ -191,13 +191,15 @@ displayDamage
 
 核心同时返回：
 
+- `enemyTargets`：应用共享敌人默认值后的具名目标等级、抗性和减防。
 - `characterSummaries`：伤害、命中、DPS、占比。
+- `targetSummaries`：逐目标实际/潜在伤害、结算段数、landed/Miss、免疫段数、DPS 和占比。
 - `bySkill`：伤害、命中、DPS、占比。
 - `perSecond`：逐秒、逐角色伤害桶。
 - `damageCurve`：每一段伤害对应一个累计曲线点，含逐角色累计值。
 - `hitResolutionLog`：每次排队逐击的目标、`landed / miss`、原因、伤害/Aura/命中回调三层许可、公式潜在伤害、实际伤害，以及可空的伤害事件反向链接；因此 Miss 和免疫 0 伤害都不会从审计中消失。
 - `targetPhaseTimeline`：核心实际使用的 60 FPS 半开目标阶段窗口，含目标、开始/结束帧、三层策略和原因。
-- `auraTimeline`：每一段 Aura 模式伤害对应的附着前后、ICD、消耗和反应记录。
+- `auraTimeline`：每一段 Aura 模式伤害对应的目标、附着前后、ICD、消耗和反应记录。
 - `particleEvents`：每一次产球的来源、生成帧、到达帧、元素、类型、随机后数量和是否在模拟期内接收。
 - `particleTriggerLog`：每一次逐击产球检查、对应 hit ID、是否触发、被阻止原因、内部冷却键和下一可用帧。
 - `energyLog`：每个固定回能或粒子对每名接收者的逐次结算。
@@ -206,9 +208,11 @@ displayDamage
 
 UI 只绘制这些结构化结果，不重新执行伤害公式。
 
-每段命中在伤害公式之前先经过单目标判定。未声明 `targeting` 时使用 `enemy-0 / landed`，保持旧配置与 Golden 兼容；场景可显式声明 `{ targetId, outcome: "miss", reason }`。Miss 会写入 `hitResolutionLog`，但不会调用 Aura / ICD 状态机，不会生成 `damageEvents`，也不会触发或占用命中产球 ICD。对 landed 命中，`effects` 可分别把 `damage` 设为 `immune`、把 `aura` 或 `hitConfirm` 设为 `blocked`，并强制附带原因。伤害免疫仍保留公式潜在值和 0 实际值；Aura 阻断只推进时间衰减，不施加元素或反应；回调阻断写入 `TARGET_HIT_CONFIRM_BLOCKED` 且不启动粒子 ICD。
+`enemy.targets` 是最多 32 项的具名目标注册表；每项目标可覆盖共享 `enemy.level / resistance / defReduction` 和 `reactionEngine.initialAura`，但必须保留兼容目标 `enemy-0`。未提供注册表时核心自动物化 `enemy-0`，因此既有 Golden 配置无需改写。每段命中在伤害公式之前先选择一个已注册目标；未声明 `targeting` 时使用 `enemy-0 / landed`。场景可显式声明 `{ targetId, outcome: "miss", reason }`。Miss 会写入 `hitResolutionLog`，但不会调用该目标的 Aura / ICD 状态机，不会生成 `damageEvents`，也不会触发或占用命中产球 ICD。对 landed 命中，`effects` 可分别把 `damage` 设为 `immune`、把 `aura` 或 `hitConfirm` 设为 `blocked`，并强制附带原因。伤害免疫仍保留公式潜在值和 0 实际值；Aura 阻断只推进该目标的时间衰减，不施加元素或反应；回调阻断写入 `TARGET_HIT_CONFIRM_BLOCKED` 且不启动粒子 ICD。
 
 `enemy.targetPhases` 把相同三层策略提升为有序、不重叠的 `[startFrame, endFrame)` 场景窗口；开始帧立即生效，结束帧立即恢复或切换到相邻阶段。逐击 `effects` 可完整覆盖活动阶段，脚本化 Miss 仍拥有最高优先级。每条 `hitResolutionLog` 都保存 `targetEffectSource` 和活动 `targetPhaseId`，因此阶段策略、逐击覆盖和默认正常路径可区分。阶段由输入配置提供，当前不包含 Boss AI、血量阈值或动作状态自动驱动。
+
+目标自身的等级、抗性、减防和初始 Aura 已逐目标解析；现有行动 `debuffs` 仍是场景全局敌方状态，会同时影响所有已注册目标。把 Debuff 绑定到单个目标属于后续 Schema 扩展。
 
 这一分层参考锁定 gcsim 提交中 [`Combat.attack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go) 的 `AttackWillLand` 前置门、[`Enemy.HandleAttack`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go) 中反应/实际伤害/附着/回调的顺序，以及 [`Target.AttackWillLand`](https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/target/target.go) 的目标/范围检查边界。gcsim 在这些文件中没有统一的通用无敌开关，因此本项目要求场景显式选择三层策略；这不是对所有官服无敌阶段行为的验证，且尚未复制其几何系统。
 
@@ -248,7 +252,7 @@ icdProfiles: {
 
 如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机只实现单目标的火/冰/水普通 Aura。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以单状态的较强剩余 Aura 表示；复合共存、冻结和转化反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
+当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例，同一角色/Tag/Group 在不同目标上互不推进。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；复合共存、冻结和转化反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
 ### 6.2 粒子 / 能量事件
 
@@ -281,7 +285,7 @@ energyAfter
 
 固定回能不会套用粒子倍率或元素充能效率，并在同一日志中以 `kind: "fixed"` 明确区分。可选的 `internalCooldown { key, durationFrames }` 按“来源角色 + key”建立共享流：第一次事件在处理帧立即设置下一可用帧，`frame < readyFrame` 的后续事件被阻止，恰好位于 `readyFrame` 的事件重新允许。无论通过还是阻止都进入 `energyLog`；阻止事件同时写入不改变数值的 `fixed-blocked` 能量曲线点。
 
-粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。核心在目标判定为 landed、命中回调策略允许且对应伤害事件处理完毕后逐次检查触发；粒子内部冷却同样按“来源角色 + key”共享并允许精确边界帧，所有通过、`TARGET_MISS`、`TARGET_HIT_CONFIRM_BLOCKED` 或 `INTERNAL_COOLDOWN` 检查都进入 `particleTriggerLog`，实际生成事件反向保存 `triggerLogId` 与 `triggerHitId`。按帧目标阶段可阻止回调且不会错误启动粒子 ICD，但当前仍是脚本化单目标口径；几何自动命中、真实 Boss AI、多目标各自命中回调与逐目标产球尚未建模。UI 只读取 `particleEvents`、`particleTriggerLog`、`energyLog` 和 `energyCurve`，不重新计算能量或触发条件。
+粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。核心在已选目标判定为 landed、命中回调策略允许且对应伤害事件处理完毕后逐次检查触发；粒子内部冷却同样按“来源角色 + key”共享并允许精确边界帧，所有通过、`TARGET_MISS`、`TARGET_HIT_CONFIRM_BLOCKED` 或 `INTERNAL_COOLDOWN` 检查都进入 `particleTriggerLog`，实际生成事件反向保存 `triggerLogId` 与 `triggerHitId`。按帧目标阶段可阻止回调且不会错误启动粒子 ICD。当前每个命中定义只选择一个目标；同一攻击的 AoE 扇出、跨目标“至少命中一个即产球”聚合、几何自动命中和真实 Boss AI 尚未建模。UI 只读取 `particleEvents`、`particleTriggerLog`、`energyLog` 和 `energyCurve`，不重新计算能量或触发条件。
 
 ### 6.3 Ability Blueprint 与部分机制闸门
 
@@ -301,7 +305,7 @@ energyAfter
 - 行为交叉校验：gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `skill.go`、`icd_groups.dm.go` 与 `pkg/core/info/combat.go`。
 - 黑分支覆盖：精质转变 6 秒状态授予/前置/消耗、30 秒黑状态进入、普攻/重击/战技/爆发/冲刺/跳跃/切人取消路径、三段命中、DurinSkill ICD、带角色级 360 帧共享内部冷却的 33 固定回能，以及首个已处理命中触发、18 帧共享粒子 ICD 的 4 火粒子。固定 gcsim 提交给出的首段 E 冲刺/跳跃取消均为 14 帧，黑 E 为 42/41 帧；重击复用其 `ActionAttack` 取消点是本引擎的分类映射推断。
 - 白分支覆盖：技能 10 级 `1.9008` 倍率、35 帧命中、83 帧动画、相同回能/产球规则、30 秒白状态，以及通过 `clears` 与既有黑状态互斥；审计预设中的全局命中帧为 50。锁定 gcsim 提交未设置 `AttackInfo.Durability`，而其核心把 `0` 定义为不施加 Aura，因此本向量输出火伤但不施加附着、不触发反应；该口径仍保持 `provisional`，等待官方资料或官服实测交叉验证。
-- 保持 `provisional + partial`：冲刺/跳跃的耐力与移动物理、几何自动命中、真实 Boss 阶段状态机和多目标逐目标命中确认、AoE/Hitlag、黑/白爆发以及状态驱动的全部被动尚未实现；场景显式 Miss、三层阻断与按帧阶段只验证结算门，不代表已建模真实范围或官服 Boss 行为。
+- 保持 `provisional + partial`：冲刺/跳跃的耐力与移动物理、几何自动命中、真实 Boss 阶段状态机、单击 AoE 扇出/回调聚合、Hitlag、黑/白爆发以及状态驱动的全部被动尚未实现；多目标注册、场景显式 Miss、三层阻断与按帧阶段只验证结算门，不代表已建模真实范围或官服 Boss 行为。
 
 ## 7. 测试策略
 
@@ -318,7 +322,7 @@ Vitest 当前覆盖：
 - 能量刚好足够和能量不足整行动取消。
 - 合法时间线能量失败后的冷却、状态、命中、粒子和后续命令帧回滚。
 - 同时间命中稳定排序。
-- 单目标显式 landed / miss、Miss 原因校验、伤害免疫的潜在值/实际 0 双值审计、Aura / 反应阻断、命中回调阻断，以及被阻断事件不启动粒子 ICD。
+- 具名目标注册、目标级属性覆盖、未注册目标拒绝、逐目标 landed / miss、独立 Aura/ICD、伤害免疫双值审计、命中回调阻断，以及被阻断事件不启动粒子 ICD。
 - 有序不重叠的目标阶段 Schema、半开边界、相邻阶段切换、活动阶段来源日志和逐击覆盖优先级。
 - 120 秒末端截断语义。
 - 相同版本/配置/种子的可复现性。
@@ -352,7 +356,7 @@ Vitest 当前覆盖：
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 - 120 秒兼容模拟和带运行时能量前缀探测的 120 秒合法时间线性能门。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、目标命中判定表、脚本化 Miss 对伤害/Aura/产球的共同阻断、landed 命中的伤害免疫/Aura 阻断/回调阻断独立组合、按帧目标阶段的半开边界及来源显示、敌方 Aura 曲线、附着 ICD、固定回能 ICD 阻止、命中确认产球与粒子 ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误、杜林黑/白 E 审计向量，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、具名多目标属性与逐目标 Aura/ICD 隔离、目标/Aura 筛选、目标命中判定表、脚本化 Miss 对伤害/Aura/产球的共同阻断、landed 命中的伤害免疫/Aura 阻断/回调阻断独立组合、按帧目标阶段的半开边界及来源显示、敌方 Aura 曲线、固定回能 ICD 阻止、命中确认产球与粒子 ICD 阻止、自动融化、粒子生成/接收、接球时前后台、能量曲线、逐段筛选、公式展开、导出、字段路径错误、杜林黑/白 E 审计向量，以及 UID 的本地化角色/武器/技能名称、目录状态和毕业占位边界。
 
 ## 8. 展示柜导入边界
 
@@ -413,8 +417,8 @@ Milestone 2 的结构能力已经落地，但除已单独引用的杜林取消�
 
 Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；新增黑/白 E 只是独立审计向量，不能用它们替换 120 秒兼容预设后声称机制等价。
 
-Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、固定帧或逐击命中触发、角色级粒子内部冷却、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。脚本化单目标 landed / miss、三层目标效果策略与按帧阶段窗口已成为伤害、Aura 和命中产球的共同门；内置 M4 预设仍只用于机制验收，其面板、帧数和产球范围是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、几何飞行轨迹、真实 Boss AI、多目标命中回调或真实技能产球数据库。
+Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、固定帧或逐击命中触发、角色级粒子内部冷却、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。具名多目标、逐目标 landed / miss、独立 Aura/ICD、三层目标效果策略与按帧阶段窗口已成为伤害和命中产球的共同门；内置 M4 预设仍只用于机制验收，其面板、帧数和产球范围是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、几何飞行轨迹、AoE 回调聚合、真实 Boss AI 或真实技能产球数据库。
 
 Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等于正式杜林预设完成。杜林黑/白 E 已有倍率引用、裸伤/增伤、动作帧、黑 E 附着/ICD、白 E 无附着口径、回能、粒子和互斥状态向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。
 
-下一阶段应在现有按帧目标阶段之上逐步加入范围/位置驱动判定、多目标各自的 Aura/命中回调，以及有来源的具体 Boss 阶段状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、目标判定、阶段、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。
+下一阶段应在现有目标注册表之上加入“一次命中定义 → 多个目标结算”的 AoE 扇出、至少一目标命中时的一次产球/回调聚合，再逐步加入范围/位置驱动判定和有来源的具体 Boss 阶段状态机；随后映射杜林黑/白 Q，并逐项补齐命座、专武和圣遗物效果，才能组合 120 秒 0 能量合法帧预设。并行的数据工作应给尼可、茜特菈莉、希诺宁建立同样的 Blueprint；洛恩在当前 gcsim 参考提交中不存在，必须另找可审计来源，不能猜。之后再扩展复合附着、冻结和转化反应。所有工作都必须保留现有 Golden、目标注册、目标判定、阶段、Aura、能量、行动状态、Ability Blueprint 和目录再生向量。

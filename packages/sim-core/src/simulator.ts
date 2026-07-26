@@ -229,9 +229,37 @@ function simulateConfig(
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
   const random = new SeededRandom(options.randomSeed);
-  const auraEngine =
+  const enemyTargets: SimulationResult["enemyTargets"] = (
+    config.enemy.targets ?? [
+      {
+        id: "enemy-0",
+        name: "敌人 0"
+      }
+    ]
+  ).map((target) => ({
+    id: target.id,
+    name: target.name,
+    level: target.level ?? config.enemy.level,
+    resistance: target.resistance ?? config.enemy.resistance,
+    defReduction: target.defReduction ?? config.enemy.defReduction,
+    initialAura: deepClone(
+      target.initialAura ?? config.reactionEngine?.initialAura ?? []
+    )
+  }));
+  const enemyTargetById = new Map(
+    enemyTargets.map((target) => [target.id, target])
+  );
+  const auraEngines =
     config.reactionEngine?.mode === "aura-v1"
-      ? new AuraEngine(config.reactionEngine)
+      ? new Map(
+          enemyTargets.map((target) => [
+            target.id,
+            new AuraEngine({
+              ...config.reactionEngine!,
+              initialAura: deepClone(target.initialAura)
+            })
+          ])
+        )
       : null;
   const characters = new Map(
     config.characters.map((character) => [character.id, character])
@@ -439,7 +467,8 @@ function simulateConfig(
 
   const getDebuffState = (
     timeSeconds: number,
-    element: Element
+    element: Element,
+    baseDefenseReduction: number
   ): {
     resShred: number;
     defReduction: number;
@@ -447,7 +476,7 @@ function simulateConfig(
   } => {
     cleanup(timeSeconds);
     let resShred = 0;
-    let defReduction = config.enemy.defReduction;
+    let defReduction = baseDefenseReduction;
     const relevantDebuffs: ActiveDebuff[] = [];
     for (const debuff of activeDebuffs) {
       const affectsResistance =
@@ -1021,6 +1050,13 @@ function simulateConfig(
     const hitId = hit.id ?? `${action.id}:hit-${hitIndex}`;
     const element = hit.element ?? scalingOwner.element;
     const targetId = hit.targeting?.targetId ?? "enemy-0";
+    const targetProfile = enemyTargetById.get(targetId);
+    if (!targetProfile) {
+      throw new Error(
+        `Target "${targetId}" passed schema validation but was not resolved.`
+      );
+    }
+    const auraEngine = auraEngines?.get(targetId) ?? null;
     const targetOutcome = hit.targeting?.outcome ?? "landed";
     const activeTargetPhase = targetPhaseTimeline.find(
       (phase) =>
@@ -1057,6 +1093,7 @@ function simulateConfig(
       hitLabel: hit.label ?? "命中",
       element,
       targetId,
+      targetName: targetProfile.name,
       outcome: targetOutcome,
       landed,
       reason:
@@ -1130,9 +1167,13 @@ function simulateConfig(
       });
     }
 
-    const debuffState = getDebuffState(timeSeconds, element);
+    const debuffState = getDebuffState(
+      timeSeconds,
+      element,
+      targetProfile.defReduction
+    );
     const effectiveResistance =
-      config.enemy.resistance -
+      targetProfile.resistance -
       debuffState.resShred -
       safeNumber(hit.resShred);
     const effectiveDefenseReduction = clamp(
@@ -1167,11 +1208,11 @@ function simulateConfig(
       }))
     ];
     const enemyStateBeforeHit = {
-      level: config.enemy.level,
-      baseResistance: config.enemy.resistance,
+      level: targetProfile.level,
+      baseResistance: targetProfile.resistance,
       resistanceShred: debuffState.resShred + safeNumber(hit.resShred),
       effectiveResistance,
-      baseDefenseReduction: config.enemy.defReduction,
+      baseDefenseReduction: targetProfile.defReduction,
       effectiveDefenseReduction
     };
     const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
@@ -1226,7 +1267,7 @@ function simulateConfig(
       flatDamage,
       damageBonus: stats.dmgBonus + safeNumber(hit.dmgBonus),
       characterLevel: scalingOwner.level,
-      enemyLevel: config.enemy.level,
+      enemyLevel: targetProfile.level,
       defenseReduction: effectiveDefenseReduction,
       defenseIgnore: stats.defIgnore + safeNumber(hit.defIgnore),
       effectiveResistance,
@@ -1284,6 +1325,7 @@ function simulateConfig(
       hitId,
       targetResolutionId,
       targetId,
+      targetName: targetProfile.name,
       targetDamagePolicy: damageAllowed ? "normal" : "immune",
       targetDamageMultiplier,
       potentialDamage: calculation.finalDamage,
@@ -1420,6 +1462,36 @@ function simulateConfig(
       };
     })
     .sort((left, right) => right.damage - left.damage);
+  const targetSummaries: SimulationResult["targetSummaries"] =
+    enemyTargets.map((target) => {
+      const events = damageEvents.filter(
+        (event) => event.targetId === target.id
+      );
+      const checks = hitResolutionLog.filter(
+        (entry) => entry.targetId === target.id
+      );
+      const damage = events.reduce(
+        (sum, event) => sum + event.finalDamage,
+        0
+      );
+      return {
+        targetId: target.id,
+        targetName: target.name,
+        damage,
+        potentialDamage: events.reduce(
+          (sum, event) => sum + event.potentialDamage,
+          0
+        ),
+        damageEvents: events.length,
+        landedChecks: checks.filter((entry) => entry.landed).length,
+        missedChecks: checks.filter((entry) => !entry.landed).length,
+        immuneDamageEvents: events.filter(
+          (event) => event.targetDamagePolicy === "immune"
+        ).length,
+        dps: damage / config.duration,
+        share: totalDamage ? damage / totalDamage : 0
+      };
+    });
   const skillSummaries = [...bySkill.values()]
     .map((skill) => ({
       ...skill,
@@ -1435,6 +1507,8 @@ function simulateConfig(
       (cumulativeByCharacter[event.creditOwnerId] ?? 0) + event.finalDamage;
     return {
       damageEventId: event.id,
+      targetId: event.targetId,
+      targetName: event.targetName,
       frame: event.frame,
       timeSeconds: event.timeSeconds,
       sourceActorId: event.sourceActorId,
@@ -1458,6 +1532,8 @@ function simulateConfig(
       return [
         {
           damageEventId: event.id,
+          targetId: event.targetId,
+          targetName: event.targetName,
           frame: event.frame,
           timeSeconds: event.timeSeconds,
           sourceActorId: event.sourceActorId,
@@ -1487,6 +1563,7 @@ function simulateConfig(
     ),
     compatibilityMode: options.compatibilityMode,
     config: resultConfig,
+    enemyTargets,
     damageEvents,
     hitEvents: damageEvents,
     hitResolutionLog,
@@ -1503,6 +1580,7 @@ function simulateConfig(
     reactedHits: damageEvents.filter((event) => event.reaction !== "none").length,
     byCharacter,
     characterSummaries,
+    targetSummaries,
     bySkill: skillSummaries,
     perSecond,
     damageCurve,

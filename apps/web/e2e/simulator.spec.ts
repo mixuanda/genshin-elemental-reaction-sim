@@ -683,7 +683,7 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
     .click();
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
   await expect(page.locator("#hitDetail")).toContainText(
-    "enemy-0 / landed (#1)"
+    "敌人 0 (enemy-0) / landed (#1)"
   );
 });
 
@@ -996,6 +996,173 @@ test("applies half-open enemy target phases and exposes their source per hit", a
   );
 });
 
+test("keeps registered enemy stats, Aura, ICD, and UI filters independent", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const multiTargetConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      { id: "enemy-0", name: "主目标" },
+      {
+        id: "enemy-1",
+        name: "副目标",
+        resistance: 0.5,
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const secondHit = ability?.hits?.[1];
+    if (!secondHit) throw new Error("expected Durin black E second hit");
+    secondHit.targeting = {
+      targetId: "enemy-1",
+      outcome: "landed"
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(multiTargetConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          targets: result.enemyTargets,
+          hits: result.damageEvents.map(
+            ({
+              frame,
+              targetId,
+              targetName,
+              reaction,
+              enemyStateBeforeHit,
+              finalDamage
+            }) => ({
+              frame,
+              targetId,
+              targetName,
+              reaction,
+              resistance: enemyStateBeforeHit.baseResistance,
+              finalDamage
+            })
+          ),
+          aura: result.auraTimeline.map(
+            ({ frame, targetId, reaction, icdAllowed }) => ({
+              frame,
+              targetId,
+              reaction,
+              icdAllowed
+            })
+          ),
+          curveTargets: result.damageCurve.map((point) => point.targetId)
+        }
+      : null;
+  });
+  expect(audit).toEqual({
+    targets: [
+      {
+        id: "enemy-0",
+        name: "主目标",
+        level: 110,
+        resistance: 0.1,
+        defReduction: 0,
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      },
+      {
+        id: "enemy-1",
+        name: "副目标",
+        level: 110,
+        resistance: 0.5,
+        defReduction: 0,
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      }
+    ],
+    hits: [
+      {
+        frame: 48,
+        targetId: "enemy-0",
+        targetName: "主目标",
+        reaction: "melt",
+        resistance: 0.1,
+        finalDamage: 2223.5472
+      },
+      {
+        frame: 53,
+        targetId: "enemy-1",
+        targetName: "副目标",
+        reaction: "reverseVaporize",
+        resistance: 0.5,
+        finalDamage: 682.29
+      },
+      {
+        frame: 58,
+        targetId: "enemy-0",
+        targetName: "主目标",
+        reaction: "none",
+        resistance: 0.1,
+        finalDamage: 994.8096
+      }
+    ],
+    aura: [
+      {
+        frame: 48,
+        targetId: "enemy-0",
+        reaction: "melt",
+        icdAllowed: true
+      },
+      {
+        frame: 53,
+        targetId: "enemy-1",
+        reaction: "reverseVaporize",
+        icdAllowed: true
+      },
+      {
+        frame: 58,
+        targetId: "enemy-0",
+        reaction: "none",
+        icdAllowed: false
+      }
+    ],
+    curveTargets: ["enemy-0", "enemy-1", "enemy-0"]
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "主目标"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "副目标"
+  );
+  await expect(page.locator("#targetDamageSummary")).toContainText(
+    "3,218 伤害"
+  );
+  await expect(page.locator("#targetDamageSummary")).toContainText(
+    "682 伤害"
+  );
+  await expect(page.locator("#auraTargetFilter option")).toHaveCount(2);
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(2);
+  await page.locator("#auraTargetFilter").selectOption("enemy-1");
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(1);
+  await expect(page.locator("#auraTimelineBody")).toContainText("副目标");
+
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(page.locator("#hitTargetFilter option")).toHaveCount(3);
+  await page.locator("#hitTargetFilter").selectOption("enemy-1");
+  await expect(page.locator("#pageInfo")).toContainText("共 1 段");
+  const secondaryRow = page.locator("#hitTableBody tr[data-hit-id]");
+  await expect(secondaryRow).toHaveCount(1);
+  await expect(secondaryRow).toContainText("副目标");
+  await secondaryRow.click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "副目标 (enemy-1)"
+  );
+});
+
 test("renders the source-audited Durin white E branch and state transition", async ({
   page
 }) => {
@@ -1138,12 +1305,12 @@ test("renders the source-audited Durin white E branch and state transition", asy
   await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
   const auraRow = page.locator("#auraTimelineBody tr").first();
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(1);
-  await expect(auraRow.locator("td").nth(2)).toHaveText("—");
-  await expect(auraRow.locator("td").nth(3)).toContainText("冰");
-  await expect(auraRow.locator("td").nth(4)).toHaveText("无");
+  await expect(auraRow.locator("td").nth(3)).toHaveText("—");
+  await expect(auraRow.locator("td").nth(4)).toContainText("冰");
   await expect(auraRow.locator("td").nth(5)).toHaveText("无");
-  await expect(auraRow.locator("td").nth(6)).toHaveText("—");
-  await expect(auraRow.locator("td").nth(7)).toContainText("冰");
+  await expect(auraRow.locator("td").nth(6)).toHaveText("无");
+  await expect(auraRow.locator("td").nth(7)).toHaveText("—");
+  await expect(auraRow.locator("td").nth(8)).toContainText("冰");
   await expect(page.locator("#particleEventSummary")).toContainText(
     "durin-white-e"
   );

@@ -140,6 +140,7 @@
             <h2>目标命中判定</h2>
             <span id="targetHitAuditSummary">核心逐击返回：目标检查 → 命中或 Miss → 伤害 / Aura / 命中回调</span>
           </div>
+          <div id="targetDamageSummary" class="particle-event-list"></div>
           <div id="targetPhaseAudit" hidden>
             <div class="section-title">
               <h3>敌方阶段时间线</h3>
@@ -209,12 +210,16 @@
           </div>
         </article>
         <article class="card curve-card" id="auraTimelineCard" hidden>
-          <div class="section-title"><h2>敌方 Aura / 反应曲线</h2><span>核心逐击返回：附着前 → ICD → 标称附着 → Aura 消耗 → 附着后</span></div>
+          <div class="section-title">
+            <h2>敌方 Aura / 反应曲线</h2>
+            <label>目标<select id="auraTargetFilter"></select></label>
+            <span>核心逐击返回：附着前 → ICD → 标称附着 → Aura 消耗 → 附着后</span>
+          </div>
           <canvas id="auraTimelineCanvas" height="300"></canvas>
           <div id="auraTimelineLegend" class="legend"></div>
           <div class="table-wrap aura-table-wrap">
             <table>
-              <thead><tr><th>时间 / 帧</th><th>技能 / 段数</th><th>ICD</th><th>命中前 Aura</th><th>标称附着</th><th>消耗 Aura</th><th>反应</th><th>命中后 Aura</th></tr></thead>
+              <thead><tr><th>时间 / 帧</th><th>目标</th><th>技能 / 段数</th><th>ICD</th><th>命中前 Aura</th><th>标称附着</th><th>消耗 Aura</th><th>反应</th><th>命中后 Aura</th></tr></thead>
               <tbody id="auraTimelineBody"></tbody>
             </table>
           </div>
@@ -225,11 +230,12 @@
         <article class="card">
           <div class="hit-filters">
             <label>角色<select id="hitCharacterFilter"></select></label>
+            <label>目标<select id="hitTargetFilter"></select></label>
             <label>反应<select id="hitReactionFilter"><option value="all">全部</option></select></label>
             <label>搜索<input id="hitSearch" type="search" placeholder="技能或段数" /></label>
             <label>每页<select id="pageSizeInput"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
           </div>
-          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间 / 帧</th><th>施放者</th><th>缩放面板</th><th>伤害归属</th><th>技能 / 段数</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
+          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间 / 帧</th><th>施放者</th><th>缩放面板</th><th>伤害归属</th><th>技能 / 段数</th><th>目标</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
           <div class="pager"><button id="prevPage">上一页</button><span id="pageInfo"></span><button id="nextPage">下一页</button></div>
         </article>
         <article class="card detail-card" id="hitDetailCard">
@@ -281,8 +287,9 @@
             <dl>
               <dt>characters</dt><dd>角色面板、等级、能量上限与初始能量。</dd>
               <dt>rotation</dt><dd>一个循环内的行动。系统按 cycleLength 自动重复至 duration。</dd>
-              <dt>enemy.targetPhases</dt><dd>按 60 FPS 声明有序、不重叠的半开目标阶段；开始帧生效、结束帧恢复。阶段可分别控制伤害、Aura / 反应和命中回调，并强制保存原因。</dd>
-              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 显式脚本化单目标 landed / miss，或覆盖阶段的伤害免疫、Aura 阻断和命中回调策略，所有非正常策略都必须保留原因。</dd>
+              <dt>enemy.targets</dt><dd>注册具名目标并可分别覆盖等级、抗性、减防和初始附着；省略时保留兼容目标 enemy-0。每个目标的 Aura 与附着 ICD 状态独立。</dd>
+              <dt>enemy.targetPhases</dt><dd>按目标和 60 FPS 声明有序、不重叠的半开阶段；开始帧生效、结束帧恢复。不同目标的阶段可以同时存在。</dd>
+              <dt>hits</dt><dd>每段伤害的偏移、倍率、附加基础伤害、元素、反应和快照方式；可用 targeting 选择已注册目标、显式 landed / miss，或覆盖阶段的伤害免疫、Aura 阻断和命中回调策略。</dd>
               <dt>buffs</dt><dd>支持 atkFlat、atkPct、dmgBonus、critRate、critDmg、em、defIgnore、reactionBonus 和 energyRecharge。</dd>
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
@@ -290,7 +297,7 @@
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
               <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。粒子规则、脚本化单目标 landed / miss、三层目标效果策略和按帧阶段窗口已有机制闭环，但阶段仍是场景输入，并非由真实 Boss AI 自动生成；几何命中与多目标策略尚未实现，也未完成全角色可执行产球与动作帧映射。元素共存、冻结、感电等转化反应同样未实现。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。具名多目标、逐目标 Aura/ICD、脚本化 landed / miss、三层目标策略和按帧阶段窗口已有机制闭环，但每个命中定义目前只选择一个目标；同一攻击的 AoE 扇出、一次产球聚合、几何命中和真实 Boss AI 尚未实现，也未完成全角色可执行产球与动作帧映射。</p>
           </article>
         </div>
       </section>
