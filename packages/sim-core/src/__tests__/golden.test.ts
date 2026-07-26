@@ -32,7 +32,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
         level: durinMeltPreset.enemy.level,
         resistance: durinMeltPreset.enemy.resistance,
         defReduction: durinMeltPreset.enemy.defReduction,
-        initialAura: []
+        initialAura: [],
+        position: null,
+        hitboxRadius: 0
       }
     ]);
     expect(result.damageEvents).toHaveLength(golden.hitCount);
@@ -44,6 +46,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.outcome === "landed" &&
           entry.targetId === "enemy-0" &&
           entry.targetName === "敌人 0" &&
+          entry.targetingSource === "default" &&
+          entry.geometryDistance === null &&
+          entry.geometryThreshold === null &&
           entry.targetIndex === 0 &&
           entry.targetCount === 1 &&
           entry.damageEventId === index &&

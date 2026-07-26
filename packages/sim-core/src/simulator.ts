@@ -53,6 +53,8 @@ export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly DamageModifierPlugin[];
 }
 
+const CIRCLE_HIT_EPSILON = 1e-9;
+
 interface ActionEventPayload {
   action: ActionDefinition;
   cycle: number;
@@ -96,6 +98,9 @@ interface HitEventPayload {
   hit: HitDefinition;
   hitIndex: number;
   targeting?: HitTargeting;
+  targetingSource: "default" | "scripted" | "geometry";
+  geometryDistance: number | null;
+  geometryThreshold: number | null;
   targetIndex: number;
   targetCount: number;
   hitGroupId: string;
@@ -249,7 +254,9 @@ function simulateConfig(
     defReduction: target.defReduction ?? config.enemy.defReduction,
     initialAura: deepClone(
       target.initialAura ?? config.reactionEngine?.initialAura ?? []
-    )
+    ),
+    position: target.position === undefined ? null : deepClone(target.position),
+    hitboxRadius: target.hitboxRadius ?? 0
   }));
   const enemyTargetById = new Map(
     enemyTargets.map((target) => [target.id, target])
@@ -804,23 +811,65 @@ function simulateConfig(
         });
       }
       (action.hits ?? []).forEach((hit, hitIndex) => {
-        const targetings =
-          hit.targeting === undefined
-            ? [undefined]
-            : "mode" in hit.targeting
-              ? hit.targeting.targets
-              : [hit.targeting];
+        const targetPlans: Array<{
+          targeting?: HitTargeting;
+          targetingSource: "default" | "scripted" | "geometry";
+          geometryDistance: number | null;
+          geometryThreshold: number | null;
+        }> =
+          hit.geometry === undefined
+            ? (
+                hit.targeting === undefined
+                  ? [undefined]
+                  : "mode" in hit.targeting
+                    ? hit.targeting.targets
+                    : [hit.targeting]
+              ).map((targeting) => ({
+                ...(targeting === undefined ? {} : { targeting }),
+                targetingSource:
+                  targeting === undefined ? "default" : "scripted",
+                geometryDistance: null,
+                geometryThreshold: null
+              }))
+            : enemyTargets.map((target) => {
+                if (target.position === null) {
+                  throw new Error(
+                    `Target "${target.id}" passed geometry schema validation without a position.`
+                  );
+                }
+                const geometryDistance = Math.hypot(
+                  target.position.x - hit.geometry!.origin.x,
+                  target.position.y - hit.geometry!.origin.y
+                );
+                const geometryThreshold =
+                  hit.geometry!.radius + target.hitboxRadius;
+                const landed =
+                  geometryDistance <=
+                  geometryThreshold + CIRCLE_HIT_EPSILON;
+                return {
+                  targeting: {
+                    targetId: target.id,
+                    outcome: landed ? "landed" : "miss",
+                    ...(landed
+                      ? {}
+                      : { reason: "OUTSIDE_CIRCLE_GEOMETRY" })
+                  },
+                  targetingSource: "geometry",
+                  geometryDistance,
+                  geometryThreshold
+                };
+              });
         const hitTimeSeconds = timeSeconds + hit.offset;
         const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
-        targetings.forEach((targeting, targetIndex) => {
+        targetPlans.forEach((targetPlan, targetIndex) => {
           push(hitTimeSeconds, "hit", {
             actorId: actor.id,
             action,
             hit,
             hitIndex,
-            targeting,
+            ...targetPlan,
             targetIndex,
-            targetCount: targetings.length,
+            targetCount: targetPlans.length,
             hitGroupId,
             snapshots,
             cycle
@@ -1130,6 +1179,9 @@ function simulateConfig(
       hit,
       hitIndex,
       targeting,
+      targetingSource,
+      geometryDistance,
+      geometryThreshold,
       targetIndex,
       targetCount,
       hitGroupId,
@@ -1192,6 +1244,9 @@ function simulateConfig(
       element,
       targetId,
       targetName: targetProfile.name,
+      targetingSource,
+      geometryDistance,
+      geometryThreshold,
       outcome: targetOutcome,
       landed,
       reason:

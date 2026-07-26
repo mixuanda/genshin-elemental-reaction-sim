@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   ACTION_STATE_SCHEMA_VERSION,
+  AOE_FANOUT_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
@@ -23,6 +24,14 @@ import {
 
 const idSchema = z.string().trim().min(1);
 const finiteNumber = z.number().finite();
+const spatialCoordinateSchema = finiteNumber.min(-10_000).max(10_000);
+
+export const point2DSchema = z
+  .object({
+    x: spatialCoordinateSchema,
+    y: spatialCoordinateSchema
+  })
+  .strict();
 
 export const elementSchema = z.enum([
   "pyro",
@@ -200,7 +209,9 @@ export const enemyTargetProfileSchema = z
     level: z.number().int().min(1).max(200).optional(),
     resistance: finiteNumber.optional(),
     defReduction: finiteNumber.optional(),
-    initialAura: z.array(initialAuraApplicationSchema).max(3).optional()
+    initialAura: z.array(initialAuraApplicationSchema).max(3).optional(),
+    position: point2DSchema.optional(),
+    hitboxRadius: finiteNumber.min(0).max(1_000).optional()
   })
   .strict();
 
@@ -336,6 +347,14 @@ export const hitTargetingConfigSchema = z.union([
   hitTargetingGroupSchema
 ]);
 
+export const circleHitGeometrySchema = z
+  .object({
+    kind: z.literal("circle"),
+    origin: point2DSchema,
+    radius: finiteNumber.min(0).max(1_000)
+  })
+  .strict();
+
 export const hitDefinitionSchema = z
   .object({
     id: idSchema.optional(),
@@ -345,6 +364,7 @@ export const hitDefinitionSchema = z
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
     targeting: hitTargetingConfigSchema.optional(),
+    geometry: circleHitGeometrySchema.optional(),
     application: elementalApplicationSchema.optional(),
     reaction: reactionSchema.optional(),
     reactionOverride: reactionSchema.optional(),
@@ -888,6 +908,31 @@ export const simConfigSchema = z
         });
       }
     };
+    const validateHitGeometry = (
+      hit: { targeting?: unknown; geometry?: unknown },
+      path: Array<string | number>
+    ): void => {
+      if (hit.targeting !== undefined && hit.geometry !== undefined) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "geometry"],
+          message:
+            "cannot be combined with scripted targeting; choose one hit-resolution source"
+        });
+      }
+      if (
+        hit.geometry !== undefined &&
+        (config.enemy.targets === undefined ||
+          config.enemy.targets.some((target) => target.position === undefined))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "geometry"],
+          message:
+            "requires enemy.targets and a position for every registered target"
+        });
+      }
+    };
     const durationFrames = Math.round(config.duration * 60);
     config.enemy.targets?.forEach((target, index) => {
       if (
@@ -988,6 +1033,12 @@ export const simConfigSchema = z
       }
 
       action.hits?.forEach((hit, hitIndex) => {
+        validateHitGeometry(hit, [
+          "rotation",
+          actionIndex,
+          "hits",
+          hitIndex
+        ]);
         const targetings =
           hit.targeting === undefined
             ? []
@@ -1096,6 +1147,13 @@ export const simConfigSchema = z
           });
         }
         ability.hits?.forEach((hit, hitIndex) => {
+          validateHitGeometry(hit, [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex
+          ]);
           const targetings =
             hit.targeting === undefined
               ? []
@@ -1465,6 +1523,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === AOE_FANOUT_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === MULTI_TARGET_REGISTRY_SCHEMA_VERSION) {
     return parseSimConfig({

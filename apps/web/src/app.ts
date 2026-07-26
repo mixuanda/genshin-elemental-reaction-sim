@@ -663,6 +663,12 @@ function renderHitDetail(): void {
   const targetResolution = lastResult.hitResolutionLog.find(
     (entry) => entry.id === hit.targetResolutionId
   );
+  const targetingSource =
+    targetResolution?.targetingSource === "geometry"
+      ? `静态圆形几何 · 距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+      : targetResolution?.targetingSource === "scripted"
+        ? "逐击脚本 / 显式扇出"
+        : "兼容默认 enemy-0 / landed";
   const statusText = hit.activeStatuses.length
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
@@ -680,6 +686,7 @@ function renderHitDetail(): void {
       "目标 / 判定",
       `${hit.targetName} (${hit.targetId}) / landed (#${hit.targetResolutionId})`
     ],
+    ["命中判定来源", targetingSource],
     [
       "目标策略来源",
       targetResolution?.targetEffectSource === "target-phase"
@@ -1048,8 +1055,12 @@ function renderTargetHitAudit(): void {
   const immune = result.hitResolutionLog.filter(
     (entry) => entry.landed && !entry.damageAllowed
   ).length;
+  const geometryChecks = result.hitResolutionLog.filter(
+    (entry) => entry.targetingSource === "geometry"
+  ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
+    (geometryChecks ? ` · ${geometryChecks} 次静态圆形几何求交` : "") +
     (result.targetPhaseTimeline.length
       ? ` · ${result.targetPhaseTimeline.length} 个目标阶段`
       : "") +
@@ -1059,13 +1070,23 @@ function renderTargetHitAudit(): void {
   byId<HTMLElement>("targetDamageSummary").innerHTML =
     result.targetSummaries
       .map(
-        (target) =>
-          `<span class="legend-item"><strong>${escapeHtml(target.targetName)}</strong> ` +
-          `<span class="muted">${escapeHtml(target.targetId)}</span> · ` +
-          `${formatNumber(target.damage, 0)} 伤害 · ${target.damageEvents} 段 · ` +
-          `${(target.share * 100).toFixed(1)}%` +
-          `${target.immuneDamageEvents ? ` · ${target.immuneDamageEvents} 段免疫` : ""}` +
-          `${target.missedChecks ? ` · ${target.missedChecks} 段 Miss` : ""}</span>`
+        (target) => {
+          const profile = result.enemyTargets.find(
+            (candidate) => candidate.id === target.targetId
+          );
+          const geometry =
+            profile?.position === null || profile?.position === undefined
+              ? ""
+              : ` · 坐标 (${formatNumber(profile.position.x, 3)}, ${formatNumber(profile.position.y, 3)}) · 碰撞半径 ${formatNumber(profile.hitboxRadius, 3)}`;
+          return (
+            `<span class="legend-item"><strong>${escapeHtml(target.targetName)}</strong> ` +
+            `<span class="muted">${escapeHtml(target.targetId)}</span> · ` +
+            `${formatNumber(target.damage, 0)} 伤害 · ${target.damageEvents} 段 · ` +
+            `${(target.share * 100).toFixed(1)}%` +
+            `${target.immuneDamageEvents ? ` · ${target.immuneDamageEvents} 段免疫` : ""}` +
+            `${target.missedChecks ? ` · ${target.missedChecks} 段 Miss` : ""}${geometry}</span>`
+          );
+        }
       )
       .join("");
   byId<HTMLTableSectionElement>("targetHitAuditBody").innerHTML =
@@ -1087,13 +1108,19 @@ function renderTargetHitAudit(): void {
                   ? "逐击"
                   : `逐击覆盖（活动阶段 ${entry.targetPhaseId}）`
                 : "默认";
+          const resolutionSource =
+            entry.targetingSource === "geometry"
+              ? `几何 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+              : entry.targetingSource === "scripted"
+                ? "脚本"
+                : "默认";
           return (
           `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
           `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}${entry.targetCount > 1 ? ` · ${entry.targetIndex + 1}/${entry.targetCount}` : ""}</span></td>` +
-          `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}</td>` +
+          `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'} <span class="muted">/ ${escapeHtml(resolutionSource)}</span></td>` +
           `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
           `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.potentialDamage === entry.finalDamage ? "" : ` <span class="muted">/ 潜在 ${formatNumber(entry.potentialDamage, 0)}</span>`}${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`

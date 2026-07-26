@@ -172,7 +172,9 @@ describe("registered enemy targets", () => {
         level: 90,
         resistance: 0.1,
         defReduction: 0,
-        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+        position: null,
+        hitboxRadius: 0
       },
       {
         id: "enemy-1",
@@ -180,7 +182,9 @@ describe("registered enemy targets", () => {
         level: 90,
         resistance: 0.5,
         defReduction: 0,
-        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+        position: null,
+        hitboxRadius: 0
       }
     ]);
     expect(
@@ -529,6 +533,176 @@ describe("registered enemy targets", () => {
       spawnFrame: 0,
       triggerHitId: "aoe-hit"
     });
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
+
+  it("resolves circle geometry at the hitbox boundary and audits distance per target", () => {
+    const ability: AbilityDefinition = {
+      id: "circle-geometry",
+      actorId: "a",
+      name: "圆形几何命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 0,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "circle-hit",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "circle",
+            origin: { x: 0, y: 0 },
+            radius: 1
+          },
+          application: {
+            gaugeUnits: 1,
+            icdTag: "circle-hit",
+            icdGroup: "no-icd"
+          }
+        }
+      ],
+      particles: [
+        {
+          id: "circle-particle",
+          source: "circle-hit-confirm",
+          element: "pyro",
+          count: 1,
+          travelFrames: 0,
+          trigger: {
+            kind: "hit-confirm",
+            hitIds: ["circle-hit"]
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "中心目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          },
+          {
+            id: "enemy-1",
+            name: "边界目标",
+            position: { x: 1.5, y: 0 },
+            hitboxRadius: 0.5
+          },
+          {
+            id: "enemy-2",
+            name: "范围外目标",
+            position: { x: 1.5001, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ]
+      },
+      reactionEngine: {
+        mode: "aura-v1",
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+
+    expect(
+      result.hitResolutionLog.map(
+        ({
+          targetId,
+          targetingSource,
+          geometryDistance,
+          geometryThreshold,
+          outcome,
+          reason,
+          targetIndex,
+          targetCount
+        }) => ({
+          targetId,
+          targetingSource,
+          geometryDistance,
+          geometryThreshold,
+          outcome,
+          reason,
+          targetIndex,
+          targetCount
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        targetingSource: "geometry",
+        geometryDistance: 0,
+        geometryThreshold: 1.5,
+        outcome: "landed",
+        reason: null,
+        targetIndex: 0,
+        targetCount: 3
+      },
+      {
+        targetId: "enemy-1",
+        targetingSource: "geometry",
+        geometryDistance: 1.5,
+        geometryThreshold: 1.5,
+        outcome: "landed",
+        reason: null,
+        targetIndex: 1,
+        targetCount: 3
+      },
+      {
+        targetId: "enemy-2",
+        targetingSource: "geometry",
+        geometryDistance: 1.5001,
+        geometryThreshold: 1.5,
+        outcome: "miss",
+        reason: "OUTSIDE_CIRCLE_GEOMETRY",
+        targetIndex: 2,
+        targetCount: 3
+      }
+    ]);
+    expect(result.damageEvents.map((event) => event.targetId)).toEqual([
+      "enemy-0",
+      "enemy-1"
+    ]);
+    expect(result.auraTimeline.map((entry) => entry.targetId)).toEqual([
+      "enemy-0",
+      "enemy-1"
+    ]);
+    expect(result.totalDamage).toBe(1800);
+    expect(result.particleTriggerLog).toEqual([
+      expect.objectContaining({
+        hitId: "circle-hit",
+        hitGroupId: "circle-geometry#0:0:0:0",
+        checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+        confirmedTargetIds: ["enemy-0", "enemy-1"],
+        triggered: true,
+        blockedReason: null
+      })
+    ]);
+    expect(result.particleEvents).toHaveLength(1);
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 });

@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.14.0 configs to AoE fanout", () => {
+  it("migrates 1.0.0 through 1.15.0 configs to circle geometry", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -216,6 +216,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.14.0",
       engineVersion: "1.14.0-multi-target-registry"
+    });
+    const migratedFromAoeFanout = migrateConfig({
+      ...current,
+      schemaVersion: "1.15.0",
+      engineVersion: "1.15.0-aoe-fanout"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -298,6 +303,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromMultiTargetRegistry.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromAoeFanout.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromAoeFanout.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -524,6 +535,112 @@ describe("versioned config schema", () => {
       "enemy-0";
     expect(() => migrateConfig(duplicate)).toThrow(
       /targeting\.targets\.1\.targetId/
+    );
+  });
+
+  it("accepts static circle geometry when every target has a position", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "主目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          },
+          {
+            id: "enemy-1",
+            name: "副目标",
+            position: { x: 1.5, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "circle",
+          actorId: "a",
+          name: "圆形范围",
+          at: 0,
+          hits: [
+            {
+              id: "circle-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "circle",
+                origin: { x: 0, y: 0 },
+                radius: 1
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(parsed.enemy.targets?.[1]).toMatchObject({
+      position: { x: 1.5, y: 0 },
+      hitboxRadius: 0.5
+    });
+    expect(parsed.rotation[0]?.hits?.[0]?.geometry).toEqual({
+      kind: "circle",
+      origin: { x: 0, y: 0 },
+      radius: 1
+    });
+  });
+
+  it("requires complete target positions and one hit-resolution source for geometry", () => {
+    const base = {
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "主目标",
+            position: { x: 0, y: 0 }
+          },
+          { id: "enemy-1", name: "缺少位置" }
+        ]
+      },
+      rotation: [
+        {
+          id: "circle",
+          actorId: "a",
+          name: "圆形范围",
+          at: 0,
+          hits: [
+            {
+              id: "circle-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "circle",
+                origin: { x: 0, y: 0 },
+                radius: 1
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    expect(() => migrateConfig(base)).toThrow(
+      /requires enemy\.targets and a position for every registered target/
+    );
+
+    const conflicting = structuredClone(base);
+    conflicting.enemy.targets[1]!.position = { x: 2, y: 0 };
+    Object.assign(conflicting.rotation[0]!.hits[0]!, {
+      targeting: {
+        targetId: "enemy-0",
+        outcome: "landed"
+      }
+    });
+    expect(() => migrateConfig(conflicting)).toThrow(
+      /cannot be combined with scripted targeting/
     );
   });
 

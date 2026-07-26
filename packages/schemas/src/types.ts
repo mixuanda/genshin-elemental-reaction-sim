@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.15.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.15.0-aoe-fanout" as const;
+export const CURRENT_SCHEMA_VERSION = "1.16.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.16.0-circle-geometry" as const;
+export const AOE_FANOUT_SCHEMA_VERSION = "1.15.0" as const;
 export const MULTI_TARGET_REGISTRY_SCHEMA_VERSION = "1.14.0" as const;
 export const TARGET_PHASE_TIMELINE_SCHEMA_VERSION = "1.13.0" as const;
 export const TARGET_EFFECT_POLICY_SCHEMA_VERSION = "1.12.0" as const;
@@ -188,6 +189,8 @@ export interface EnemyTargetProfile {
   defReduction?: number;
   /** Overrides reactionEngine.initialAura for this target. */
   initialAura?: InitialAuraApplication[];
+  position?: { x: number; y: number };
+  hitboxRadius?: number;
 }
 
 export interface ResolvedEnemyTargetProfile {
@@ -197,6 +200,14 @@ export interface ResolvedEnemyTargetProfile {
   resistance: number;
   defReduction: number;
   initialAura: InitialAuraApplication[];
+  position: { x: number; y: number } | null;
+  hitboxRadius: number;
+}
+
+export interface CircleHitGeometry {
+  kind: "circle";
+  origin: { x: number; y: number };
+  radius: number;
 }
 
 export interface FlatDamageSource {
@@ -213,6 +224,7 @@ export interface HitDefinition {
   scalingStat?: ScalingStat;
   element?: Element;
   targeting?: HitTargetingConfig;
+  geometry?: CircleHitGeometry;
   application?: ElementalApplication;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
@@ -771,6 +783,9 @@ export interface HitResolutionLogEntry {
   element: Element;
   targetId: TargetId;
   targetName: string;
+  targetingSource: "default" | "scripted" | "geometry";
+  geometryDistance: number | null;
+  geometryThreshold: number | null;
   outcome: TargetHitOutcome;
   landed: boolean;
   reason: string | null;

@@ -1071,7 +1071,9 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         level: 110,
         resistance: 0.1,
         defReduction: 0,
-        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+        position: null,
+        hitboxRadius: 0
       },
       {
         id: "enemy-1",
@@ -1079,7 +1081,9 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         level: 110,
         resistance: 0.5,
         defReduction: 0,
-        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+        position: null,
+        hitboxRadius: 0
       }
     ],
     hits: [
@@ -1256,6 +1260,153 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
   await expect(page.locator("#targetHitAuditBody")).toContainText("2/2");
   await expect(page.locator("#particleEventSummary")).toContainText(
     "检查 2 目标 / 确认 2"
+  );
+});
+
+test("derives circle hits from target positions and exposes geometric evidence", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const geometryConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "中心目标",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0.5
+      },
+      {
+        id: "enemy-1",
+        name: "边界目标",
+        position: { x: 1.5, y: 0 },
+        hitboxRadius: 0.5
+      },
+      {
+        id: "enemy-2",
+        name: "范围外目标",
+        position: { x: 1.5001, y: 0 },
+        hitboxRadius: 0.5
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    delete firstHit.targeting;
+    firstHit.geometry = {
+      kind: "circle",
+      origin: { x: 0, y: 0 },
+      radius: 1
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(geometryConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          firstGroup: result.hitResolutionLog
+            .filter((entry) => entry.hitId === "durin-black-e-1")
+            .map(
+              ({
+                targetId,
+                targetingSource,
+                geometryDistance,
+                geometryThreshold,
+                outcome,
+                reason
+              }) => ({
+                targetId,
+                targetingSource,
+                geometryDistance,
+                geometryThreshold,
+                outcome,
+                reason
+              })
+            ),
+          firstTrigger: result.particleTriggerLog[0],
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length,
+          auraTargets: result.auraTimeline.map((entry) => entry.targetId)
+        }
+      : null;
+  });
+  expect(audit?.firstGroup).toEqual([
+    {
+      targetId: "enemy-0",
+      targetingSource: "geometry",
+      geometryDistance: 0,
+      geometryThreshold: 1.5,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-1",
+      targetingSource: "geometry",
+      geometryDistance: 1.5,
+      geometryThreshold: 1.5,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-2",
+      targetingSource: "geometry",
+      geometryDistance: 1.5001,
+      geometryThreshold: 1.5,
+      outcome: "miss",
+      reason: "OUTSIDE_CIRCLE_GEOMETRY"
+    }
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    hitId: "durin-black-e-1",
+    checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+    confirmedTargetIds: ["enemy-0", "enemy-1"],
+    triggered: true,
+    blockedReason: null
+  });
+  expect(audit?.checks).toBe(5);
+  expect(audit?.damageEvents).toBe(4);
+  expect(audit?.auraTargets).not.toContain("enemy-2");
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "5 次目标检查 · 4 次命中 · 1 次 Miss"
+  );
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次静态圆形几何求交"
+  );
+  await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(5);
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "几何 d=1.5 ≤ 1.5"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "几何 d=1.5001 > 1.5"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "OUTSIDE_CIRCLE_GEOMETRY"
+  );
+  await expect(page.locator("#targetDamageSummary")).toContainText(
+    "坐标 (1.5, 0) · 碰撞半径 0.5"
+  );
+  await expect(page.locator("#particleEventSummary")).toContainText(
+    "检查 3 目标 / 确认 2"
+  );
+
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText("命中判定来源");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "静态圆形几何 · 距离 0 / 阈值 1.5"
   );
 });
 

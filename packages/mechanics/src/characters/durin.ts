@@ -260,7 +260,7 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
     "普攻输入被替换为转变·黑度之否"
   ],
   unresolvedMechanics: [
-    "支持显式 AoE 扇出、逐目标 Aura/ICD 与一次产球聚合，但尚无几何自动命中和真实 Boss AI",
+    "仅支持通用静态二维圆形求交；杜林真实范围、其他形状、移动和真实 Boss AI 尚未核验",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
@@ -353,7 +353,7 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
   ],
   unresolvedMechanics: [
     "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
-    "支持显式 AoE 扇出、逐目标 Aura/ICD 与一次产球聚合，但尚无几何自动命中和真实 Boss AI",
+    "仅支持通用静态二维圆形求交；杜林真实范围、其他形状、移动和真实 Boss AI 尚未核验",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
   evidence: [
