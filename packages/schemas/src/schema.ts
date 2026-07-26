@@ -22,6 +22,7 @@ import {
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
+  SHATTER_REACTION_SCHEMA_VERSION,
   SECTOR_GEOMETRY_SCHEMA_VERSION,
   SUPERCONDUCT_REACTION_SCHEMA_VERSION,
   TARGET_MOTION_SCHEMA_VERSION,
@@ -1599,7 +1600,7 @@ export const simConfigSchema = z
           hit.application !== undefined &&
           !(
             config.reactionEngine?.mode === "aura-v2"
-              ? ["pyro", "cryo", "hydro", "electro"]
+              ? ["pyro", "cryo", "hydro", "electro", "anemo"]
               : ["pyro", "cryo", "hydro"]
           ).includes(hit.element ?? "")
         ) {
@@ -1608,7 +1609,7 @@ export const simConfigSchema = z
             path: [...path, "application"],
             message:
               config.reactionEngine?.mode === "aura-v2"
-                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, and electro hits"
+                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, and anemo hits"
                 : "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
           });
         }
@@ -1769,6 +1770,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === SHATTER_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === FREEZE_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

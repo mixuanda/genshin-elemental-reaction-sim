@@ -60,7 +60,11 @@ const REACTION_LABELS: Record<string, string> = {
   superconduct: "超导",
   electroCharged: "感电",
   freeze: "冻结",
-  shatter: "碎冰"
+  shatter: "碎冰",
+  swirlPyro: "火扩散",
+  swirlHydro: "水扩散",
+  swirlCryo: "冰扩散",
+  swirlElectro: "雷扩散"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -867,6 +871,15 @@ function renderHitDetail(): void {
     ["最终伤害（整数显示）", formatNumber(hit.displayDamage, 0)],
     ["核心原始值", hit.finalDamage.toFixed(6)]
   ];
+  if (
+    hit.reactionAudit.reaction !== "none" &&
+    hit.reactionAudit.reaction !== hit.reaction
+  ) {
+    factors.push([
+      "传播后的二次反应",
+      `${REACTION_LABELS[hit.reactionAudit.reaction] ?? hit.reactionAudit.reaction} · 先处理 Aura，再放大扩散伤害或排入独立反应事件`
+    ]);
+  }
   if (hit.reactionAudit.transformativeReaction !== null) {
     const queued = hit.reactionAudit.transformativeReaction;
     factors.push(
@@ -920,13 +933,33 @@ function renderHitDetail(): void {
       ]
     );
   }
+  if (hit.reactionAudit.swirlReactions.length > 0) {
+    factors.push([
+      "扩散判定",
+      hit.reactionAudit.swirlReactions
+        .map(
+          (swirl, index) =>
+            `#${index + 1} ${REACTION_LABELS[swirl.reaction] ?? swirl.reaction}：${swirl.consumedAuraElement === "frozen" ? "冻元素" : ELEMENT_LABELS[swirl.consumedAuraElement] ?? swirl.consumedAuraElement} ${formatNumber(swirl.auraGaugeUnitsBefore, 4)}U → ${formatNumber(swirl.auraGaugeUnitsAfter, 4)}U；风预算 ${formatNumber(swirl.sourceGaugeUnitsBefore, 4)}U → ${formatNumber(swirl.sourceGaugeUnitsAfter, 4)}U；传播 ${formatNumber(swirl.propagatedGaugeUnits, 4)}U；${swirl.scheduled ? `自身 ${swirl.selfDamageFrame}f / 范围 ${swirl.propagationDamageFrame}f` : `${swirl.blockedReason ?? "队列 GCD"} / ${swirl.nextAvailableFrame}f 可用`}`
+        )
+        .join("；")
+    ]);
+  }
+  if (hit.reactionAudit.swirlDamageGroup !== null) {
+    const group = hit.reactionAudit.swirlDamageGroup;
+    factors.push([
+      "扩散 ReactionA 伤害 ICD",
+      `窗口 ${group.windowStartFrame}f 起 ${group.resetFrames}f · 第 ${group.hitIndex + 1} 段 · ${group.damageAllowed ? "允许伤害" : `${group.blockedReason ?? "阻止伤害"}（附着仍处理）`}`
+    ]);
+  }
   if (hit.reactionAudit.frozenReaction !== null) {
     const frozen = hit.reactionAudit.frozenReaction;
     const operationLabel =
       frozen.operation === "consume"
         ? hit.reaction === "melt"
           ? "融化消耗"
-          : "冻结底超导消耗"
+          : hit.reaction === "swirlCryo"
+            ? "扩散消耗"
+            : "冻结底超导消耗"
         : {
             start: "生成",
             refresh: "刷新",
@@ -1648,7 +1681,7 @@ function renderAuraTimeline(): void {
   byId<HTMLElement>("reactionDamageSummary").textContent =
     reactionDamageLog.length === 0
       ? "当前结果没有独立转化反应伤害"
-      : `${reactionDamageLog.length} 次转化反应触发 · ${reactionDamageLog.filter((entry) => entry.scheduled).length} 次通过伤害 GCD · ${reactionDamageLog.reduce((total, entry) => total + entry.damageEventIds.length, 0)} 段逐目标伤害事件`;
+      : `${reactionDamageLog.length} 次转化反应触发/扩散攻击 · ${reactionDamageLog.filter((entry) => entry.scheduled).length} 次通过队列 GCD · ${reactionDamageLog.reduce((total, entry) => total + entry.damageEventIds.length, 0)} 段逐目标伤害事件`;
   byId<HTMLTableSectionElement>("reactionDamageBody").innerHTML =
     reactionDamageLog
       .map((entry) => {
@@ -1656,12 +1689,16 @@ function renderAuraTimeline(): void {
           (target) => target.id === entry.sourceTargetId
         );
         const status = !entry.scheduled
-          ? `<span class="badge warn">GCD 阻止伤害</span>`
+          ? `<span class="badge warn">${entry.blockedReason === "REACTION_QUEUE_GCD" ? "队列 GCD 阻止攻击" : "GCD 阻止伤害"}</span>`
           : !entry.withinSimulation
             ? `<span class="badge warn">模拟结束后</span>`
             : entry.scheduleKind === "periodic-tick"
               ? `<span class="badge good">周期 Tick</span>`
-              : `<span class="badge good">已结算</span>`;
+              : entry.scheduleKind === "swirl-self"
+                ? `<span class="badge good">扩散自身伤害</span>`
+                : entry.scheduleKind === "swirl-propagation"
+                  ? `<span class="badge good">扩散范围传播</span>`
+                  : `<span class="badge good">已结算</span>`;
         const scheduleDetail =
           entry.scheduleKind === "periodic-tick"
             ? `${status} <span class="muted">/ ${entry.nextAvailableFrame === null ? "无后续 Tick" : `下次 ${entry.nextAvailableFrame}f`}</span>`
@@ -1669,7 +1706,7 @@ function renderAuraTimeline(): void {
         const targetMode =
           entry.targetingMode === "single-target"
             ? "单目标"
-            : `${escapeHtml(formatPosition(entry.centerPosition))} / r=${formatNumber(entry.radius, 2)}`;
+            : `${escapeHtml(formatPosition(entry.centerPosition))} / r=${formatNumber(entry.radius, 2)}${entry.applicationGaugeUnits === null ? "" : ` / 附着 ${formatNumber(entry.applicationGaugeUnits, 4)}U`}${entry.excludedTargetIds.length === 0 ? "" : ` / 排除 ${entry.excludedTargetIds.map(escapeHtml).join(", ")}`}`;
         return (
           `<tr${entry.damageEventIds[0] === undefined ? "" : ` data-reaction-damage-id="${entry.damageEventIds[0]}"`}>` +
           `<td>${entry.triggerFrame}f → ${entry.damageFrame}f</td>` +
@@ -1677,7 +1714,7 @@ function renderAuraTimeline(): void {
           `<td>${escapeHtml(sourceTarget?.name ?? entry.sourceTargetId)} <span class="muted">/ ${escapeHtml(entry.sourceTargetId)}</span></td>` +
           `<td>${scheduleDetail}</td>` +
           `<td>${targetMode}</td>` +
-          `<td>${entry.checkedTargetIds.length} / ${entry.hitTargetIds.length} / ${entry.unresolvedTargetIds.length}${entry.unresolvedTargetIds.length ? ` <span class="muted">(${entry.unresolvedTargetIds.map(escapeHtml).join(", ")})</span>` : ""}</td>` +
+          `<td>${entry.checkedTargetIds.length} / ${entry.hitTargetIds.length} / ${entry.unresolvedTargetIds.length}${entry.unresolvedTargetIds.length ? ` <span class="muted">(${entry.unresolvedTargetIds.map(escapeHtml).join(", ")})</span>` : ""}${entry.damageGroupBlockedTargetIds.length ? ` <span class="muted">/ ReactionA 阻止 ${entry.damageGroupBlockedTargetIds.map(escapeHtml).join(", ")}</span>` : ""}</td>` +
           `<td>${entry.damageEventIds.length ? entry.damageEventIds.map((id) => `#${id}`).join(", ") : "—"}</td></tr>`
         );
       })

@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.26.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.26.0-shatter-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.27.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.27.0-swirl-propagation" as const;
+export const SHATTER_REACTION_SCHEMA_VERSION = "1.26.0" as const;
 export const FREEZE_REACTION_SCHEMA_VERSION = "1.25.0" as const;
 export const ELECTRO_CHARGED_REACTION_SCHEMA_VERSION = "1.24.0" as const;
 export const SUPERCONDUCT_REACTION_SCHEMA_VERSION = "1.23.0" as const;
@@ -50,10 +51,16 @@ export type OneShotTransformativeReaction =
   | "superconduct";
 export type PeriodicTransformativeReaction = "electroCharged";
 export type ShatterReaction = "shatter";
+export type SwirlReaction =
+  | "swirlPyro"
+  | "swirlHydro"
+  | "swirlCryo"
+  | "swirlElectro";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
   | PeriodicTransformativeReaction
-  | ShatterReaction;
+  | ShatterReaction
+  | SwirlReaction;
 export type NonDamageReaction = "freeze";
 export type ReactionType =
   | AmplifyingReaction
@@ -658,7 +665,8 @@ export interface AuraStateEntry {
 }
 
 export interface AuraGaugeEntry {
-  element: AuraStateElement;
+  /** Nominal application may be Anemo/Geo/Dendro even when it cannot persist. */
+  element: AuraStateElement | "anemo" | "geo" | "dendro";
   gaugeUnits: number;
 }
 
@@ -684,6 +692,10 @@ export interface ReactionAudit {
   periodicReaction: PeriodicReactionAudit | null;
   frozenReaction: FrozenReactionAudit | null;
   shatterReaction: ShatterReactionAudit | null;
+  /** One Anemo application can Swirl multiple coexisting Aura elements. */
+  swirlReactions: SwirlReactionAudit[];
+  /** ReactionA damage ICD decision for a queued Swirl damage hit. */
+  swirlDamageGroup: SwirlDamageGroupAudit | null;
   note?: string;
 }
 
@@ -750,6 +762,39 @@ export interface ShatterReactionAudit {
   auraAfterPoise: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
+}
+
+export interface SwirlReactionAudit {
+  reaction: SwirlReaction;
+  swirledElement: AuraElement;
+  /** Aura state consumed; Frozen is emitted as Cryo Swirl. */
+  consumedAuraElement: AuraStateElement;
+  sourceGaugeUnitsBefore: number;
+  /** Incoming Anemo budget spent, equal to actual Aura reduction / 0.5. */
+  sourceGaugeUnitsSpent: number;
+  sourceGaugeUnitsAfter: number;
+  auraGaugeUnitsBefore: number;
+  auraConsumedGaugeUnits: number;
+  auraGaugeUnitsAfter: number;
+  propagatedGaugeUnits: number;
+  scheduled: boolean;
+  blockedReason: "REACTION_QUEUE_GCD" | null;
+  nextAvailableFrame: number;
+  selfDamageFrame: number;
+  propagationDamageFrame: number;
+  selfBaseMultiplier: number;
+  propagationBaseMultiplier: number;
+  radius: number;
+}
+
+export interface SwirlDamageGroupAudit {
+  reaction: SwirlReaction;
+  windowStartFrame: number;
+  hitIndex: number;
+  resetFrames: number;
+  sequence: readonly [true, true, false];
+  damageAllowed: boolean;
+  blockedReason: "REACTION_A_DAMAGE_ICD" | null;
 }
 
 export interface ReactionStatusEffectDefinition {
@@ -1154,16 +1199,26 @@ export interface ReactionDamageLogEntry {
   scheduled: boolean;
   /** Whether the queued damage frame is inside the configured simulation. */
   withinSimulation: boolean;
-  blockedReason: "REACTION_DAMAGE_GCD" | null;
+  blockedReason:
+    | "REACTION_DAMAGE_GCD"
+    | "REACTION_QUEUE_GCD"
+    | null;
   /** Next one-shot GCD frame or periodic cadence frame; null when no later tick is queued. */
   nextAvailableFrame: number | null;
-  scheduleKind: "one-shot" | "periodic-tick";
+  scheduleKind:
+    | "one-shot"
+    | "periodic-tick"
+    | "swirl-self"
+    | "swirl-propagation";
   targetingMode: "radius" | "single-target";
   centerPosition: { x: number; y: number } | null;
   radius: number;
+  applicationGaugeUnits: number | null;
+  excludedTargetIds: TargetId[];
   checkedTargetIds: TargetId[];
   hitTargetIds: TargetId[];
   unresolvedTargetIds: TargetId[];
+  damageGroupBlockedTargetIds: TargetId[];
   damageEventIds: number[];
   reactionStatusLogIds: number[];
 }
@@ -1210,7 +1265,12 @@ export type FrozenStateOperation =
 
 export interface FrozenStateLogEntry {
   id: number;
-  reaction: "freeze" | "melt" | "superconduct" | "shatter";
+  reaction:
+    | "freeze"
+    | "melt"
+    | "superconduct"
+    | "shatter"
+    | "swirlCryo";
   generation: number;
   operation: FrozenStateOperation;
   frame: number;

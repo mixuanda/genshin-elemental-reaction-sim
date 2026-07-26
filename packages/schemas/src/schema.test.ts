@@ -1662,6 +1662,64 @@ describe("versioned config schema", () => {
     ).toBe("electro");
   });
 
+  it("accepts Anemo applications only in aura-v2", () => {
+    const current = migrateConfig(legacyConfig);
+    const withAnemoApplication = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "anemo-hit",
+            actorId: "a",
+            name: "风附着",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "anemo-hit-1",
+                frame: 0,
+                scaling: 1,
+                element: "anemo" as const,
+                application: {
+                  gaugeUnits: 1,
+                  icdTag: "anemo",
+                  icdGroup: "no-icd" as const
+                }
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...withAnemoApplication,
+        reactionEngine: { mode: "aura-v1" }
+      })
+    ).toThrow(
+      /aura-v1 elemental applications currently support only pyro, cryo, and hydro hits/
+    );
+
+    const parsed = migrateConfig({
+      ...withAnemoApplication,
+      reactionEngine: { mode: "aura-v2" }
+    });
+    expect(
+      parsed.timeline?.abilities[0]?.hits?.[0]?.application
+        ?.gaugeUnits
+    ).toBe(1);
+  });
+
   it("migrates the actor-pose schema into the Overload schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
@@ -1716,6 +1774,18 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.25.0",
       engineVersion: "1.25.0-freeze-state"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
+
+  it("migrates the Shatter schema into the Swirl propagation schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.26.0",
+      engineVersion: "1.26.0-shatter-reaction"
     });
 
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);

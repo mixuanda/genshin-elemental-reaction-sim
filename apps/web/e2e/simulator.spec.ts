@@ -303,6 +303,205 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   );
 });
 
+test("renders Swirl self damage, propagation, secondary reaction, Aura, and curve events", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "扩散传播与二次反应 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "火扩散源",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+      },
+      {
+        id: "enemy-1",
+        name: "水附着传播目标",
+        position: { x: 3, y: 0 },
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      },
+      {
+        id: "enemy-2",
+        name: "范围外目标",
+        position: { x: 5.1, y: 0 }
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...character,
+      element: "anemo",
+      stats: {
+        ...character.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 100,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.2
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "swirl-browser",
+        actorId: character.id,
+        name: "扩散浏览器序列",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "swirl-browser-trigger",
+            label: "风命中",
+            frame: 0,
+            scaling: 1,
+            element: "anemo",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "swirl-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "swirl-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "swirl-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#damageCurveCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineBody")).toContainText("火扩散");
+  await page.locator("#auraTargetFilter").selectOption("enemy-1");
+  await expect(page.locator("#auraTimelineBody")).toContainText(
+    "反向蒸发"
+  );
+  await expect(page.locator("#reactionDamageSummary")).toContainText(
+    "2 次转化反应触发/扩散攻击"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "扩散自身伤害"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "扩散范围传播"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "附着 2.2U"
+  );
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "排除 enemy-0"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const direct = result?.damageEvents.find(
+      (event) => event.kind === "direct"
+    );
+    const self = result?.damageEvents.find(
+      (event) =>
+        event.reaction === "swirlPyro" && event.frame === 1
+    );
+    const propagation = result?.damageEvents.find(
+      (event) =>
+        event.reaction === "swirlPyro" && event.frame === 5
+    );
+    return {
+      direct: direct && {
+        id: direct.id,
+        reaction: direct.reaction,
+        propagatedGaugeUnits:
+          direct.reactionAudit.swirlReactions[0]
+            ?.propagatedGaugeUnits
+      },
+      self: self && {
+        frame: self.frame,
+        targetId: self.targetId,
+        parentDamageEventId: self.parentDamageEventId
+      },
+      propagation: propagation && {
+        frame: propagation.frame,
+        targetId: propagation.targetId,
+        parentDamageEventId: propagation.parentDamageEventId,
+        secondaryReaction: propagation.reactionAudit.reaction,
+        applicationGaugeUnits:
+          propagation.reactionAudit.applicationGaugeUnits
+      },
+      curveEvents: result?.damageCurve.length
+    };
+  });
+  expect(audit).toMatchObject({
+    direct: {
+      id: 0,
+      reaction: "swirlPyro",
+      propagatedGaugeUnits: 2.2
+    },
+    self: {
+      frame: 1,
+      targetId: "enemy-0",
+      parentDamageEventId: 0
+    },
+    propagation: {
+      frame: 5,
+      targetId: "enemy-1",
+      parentDamageEventId: 0,
+      secondaryReaction: "reverseVaporize",
+      applicationGaugeUnits: 2.2
+    },
+    curveEvents: 3
+  });
+
+  await page.locator("#reactionDamageBody tr").nth(1).click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "传播后的二次反应"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "扩散 ReactionA 伤害 ICD"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "反向蒸发"
+  );
+});
+
 test("renders Overload as independent per-target damage with queue and formula audits", async ({
   page
 }) => {

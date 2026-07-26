@@ -12,6 +12,8 @@ import type {
   ReactionAudit,
   ShatterReactionAudit,
   StrikeType,
+  SwirlReaction,
+  SwirlReactionAudit,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 
@@ -42,6 +44,12 @@ const FROZEN_POISE_DAMAGE_TO_GAUGE_UNITS = 0.15 / 25;
 const SHATTER_GAUGE_CONSUMPTION_UNITS = 200 / 25;
 const SHATTER_DAMAGE_GCD_FRAMES = 12;
 const SHATTER_BASE_MULTIPLIER = 3;
+const SWIRL_AURA_CONSUMPTION_FACTOR = 0.5;
+const SWIRL_QUEUE_GCD_FRAMES = 6;
+const SWIRL_SELF_DAMAGE_DELAY_FRAMES = 1;
+const SWIRL_PROPAGATION_DELAY_FRAMES = 5;
+const SWIRL_RADIUS = 5;
+const SWIRL_BASE_MULTIPLIER = 0.6;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -116,7 +124,12 @@ function isTransformativeReaction(
 ): reaction is TransformativeReaction {
   return (
     isOneShotTransformativeReaction(reaction) ||
-    reaction === "electroCharged"
+    reaction === "electroCharged" ||
+    reaction === "shatter" ||
+    reaction === "swirlPyro" ||
+    reaction === "swirlHydro" ||
+    reaction === "swirlCryo" ||
+    reaction === "swirlElectro"
   );
 }
 
@@ -243,15 +256,16 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
   ]
 };
 
-function isAuraElement(
+function isAuraApplicationElement(
   element: Element,
   mode: AuraReactionEngineConfig["mode"]
-): element is AuraElement {
+): element is AuraElement | "anemo" {
   return (
     element === "pyro" ||
     element === "cryo" ||
     element === "hydro" ||
-    (mode === "aura-v2" && element === "electro")
+    (mode === "aura-v2" &&
+      (element === "electro" || element === "anemo"))
   );
 }
 
@@ -297,6 +311,10 @@ export class AuraEngine {
   private frozenGeneration = 0;
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
   private shatterDamageReadyFrame = -1;
+  private readonly swirlDamageReadyFrames = new Map<
+    SwirlReaction,
+    number
+  >();
   private currentFrame = 0;
 
   constructor(config: AuraEngineConfig) {
@@ -987,6 +1005,196 @@ export class AuraEngine {
     return allowed;
   }
 
+  private processSwirl(
+    input: AuraHitInput,
+    application: ElementalApplication,
+    auraBefore: AuraStateEntry[],
+    electroChargedWasActive: boolean
+  ): ReactionAudit {
+    let remainingSourceGaugeUnits = application.gaugeUnits;
+    const auraApplied: NonNullable<ReactionAudit["auraApplied"]> = [
+      {
+        element: "anemo",
+        gaugeUnits: application.gaugeUnits
+      }
+    ];
+    const auraConsumed: NonNullable<ReactionAudit["auraConsumed"]> = [];
+    const swirlReactions: SwirlReactionAudit[] = [];
+    let frozenReaction: ReactionAudit["frozenReaction"] = null;
+
+    const trySwirl = (
+      consumedAuraElement: AuraStateElement,
+      swirledElement: AuraElement,
+      reaction: SwirlReaction
+    ): boolean => {
+      if (remainingSourceGaugeUnits <= AURA_EPSILON) return false;
+      const aura = this.auras.get(consumedAuraElement);
+      if (aura === undefined || aura.gaugeUnits <= AURA_EPSILON) {
+        return false;
+      }
+
+      const sourceGaugeUnitsBefore = remainingSourceGaugeUnits;
+      const auraGaugeUnitsBefore = aura.gaugeUnits;
+      const auraConsumedGaugeUnits = Math.min(
+        auraGaugeUnitsBefore,
+        sourceGaugeUnitsBefore * SWIRL_AURA_CONSUMPTION_FACTOR
+      );
+      const sourceGaugeUnitsSpent =
+        auraConsumedGaugeUnits / SWIRL_AURA_CONSUMPTION_FACTOR;
+      remainingSourceGaugeUnits = cleanGaugeUnits(
+        Math.max(0, remainingSourceGaugeUnits - sourceGaugeUnitsSpent)
+      );
+      aura.gaugeUnits -= auraConsumedGaugeUnits;
+      if (aura.gaugeUnits <= AURA_EPSILON) {
+        this.auras.delete(consumedAuraElement);
+      }
+      auraConsumed.push({
+        element: consumedAuraElement,
+        gaugeUnits: cleanGaugeUnits(auraConsumedGaugeUnits)
+      });
+
+      // Exact U-space conversion of fixed gcsim's internal durability formula:
+      // 1.25 * (0.5 * consumed - 1) + 25, or
+      // 1.25 * (source - 1) + 25 when all source durability is spent.
+      const propagatedGaugeUnits =
+        sourceGaugeUnitsSpent + AURA_EPSILON < sourceGaugeUnitsBefore
+          ? 0.625 * sourceGaugeUnitsSpent + 0.95
+          : 1.25 * sourceGaugeUnitsBefore + 0.95;
+      const previousReadyFrame =
+        this.swirlDamageReadyFrames.get(reaction) ?? -1;
+      const scheduled =
+        previousReadyFrame < 0 || input.frame >= previousReadyFrame;
+      const nextAvailableFrame = scheduled
+        ? input.frame + SWIRL_QUEUE_GCD_FRAMES
+        : previousReadyFrame;
+      if (scheduled) {
+        this.swirlDamageReadyFrames.set(reaction, nextAvailableFrame);
+      }
+
+      if (consumedAuraElement === "frozen") {
+        const frozenGaugeAfter = this.frozenGaugeUnits();
+        this.frozenGeneration += 1;
+        frozenReaction = {
+          generation: this.frozenGeneration,
+          operation: "consume",
+          freezeResistance: this.freezeResistance,
+          generatedGaugeUnits: 0,
+          consumedGaugeUnits: cleanGaugeUnits(
+            auraConsumedGaugeUnits
+          ),
+          frozenGaugeBefore: cleanGaugeUnits(
+            auraGaugeUnitsBefore
+          ),
+          frozenGaugeAfter: cleanGaugeUnits(frozenGaugeAfter),
+          decayRatePerFrame: this.frozenDecayRate,
+          expiresAtFrame: this.frozenExpiryFrame()
+        };
+      }
+
+      swirlReactions.push({
+        reaction,
+        swirledElement,
+        consumedAuraElement,
+        sourceGaugeUnitsBefore: cleanGaugeUnits(
+          sourceGaugeUnitsBefore
+        ),
+        sourceGaugeUnitsSpent: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        sourceGaugeUnitsAfter: cleanGaugeUnits(
+          remainingSourceGaugeUnits
+        ),
+        auraGaugeUnitsBefore: cleanGaugeUnits(
+          auraGaugeUnitsBefore
+        ),
+        auraConsumedGaugeUnits: cleanGaugeUnits(
+          auraConsumedGaugeUnits
+        ),
+        auraGaugeUnitsAfter: cleanGaugeUnits(
+          this.auras.get(consumedAuraElement)?.gaugeUnits ?? 0
+        ),
+        propagatedGaugeUnits: cleanGaugeUnits(
+          propagatedGaugeUnits
+        ),
+        scheduled,
+        blockedReason: scheduled ? null : "REACTION_QUEUE_GCD",
+        nextAvailableFrame,
+        selfDamageFrame:
+          input.frame + SWIRL_SELF_DAMAGE_DELAY_FRAMES,
+        propagationDamageFrame:
+          input.frame + SWIRL_PROPAGATION_DELAY_FRAMES,
+        selfBaseMultiplier: SWIRL_BASE_MULTIPLIER,
+        propagationBaseMultiplier:
+          swirledElement === "hydro" ? 0 : SWIRL_BASE_MULTIPLIER,
+        radius: SWIRL_RADIUS
+      });
+      return true;
+    };
+
+    const swirledElectro = trySwirl(
+      "electro",
+      "electro",
+      "swirlElectro"
+    );
+    // Fixed gcsim recursively checks Hydro immediately after Electro in an
+    // Electro-Charged coexistence, then performs the regular Hydro check later.
+    if (swirledElectro && remainingSourceGaugeUnits > AURA_EPSILON) {
+      trySwirl("hydro", "hydro", "swirlHydro");
+    }
+    trySwirl("pyro", "pyro", "swirlPyro");
+    trySwirl("hydro", "hydro", "swirlHydro");
+    trySwirl("cryo", "cryo", "swirlCryo");
+    trySwirl("frozen", "cryo", "swirlCryo");
+
+    let periodicReaction: ReactionAudit["periodicReaction"] = null;
+    if (
+      electroChargedWasActive &&
+      !this.hasElectroChargedAuras()
+    ) {
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      periodicReaction = {
+        reaction: "electroCharged",
+        generation: this.electroChargedGeneration,
+        operation: "stop",
+        damageElement: "electro",
+        baseMultiplier: ELECTRO_CHARGED_BASE_MULTIPLIER,
+        firstDamageFrame: null,
+        nextTickFrame: null,
+        tickIntervalFrames:
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+        waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+        coexistenceExpiresAtFrame: null
+      };
+    }
+
+    const firstSwirl = swirlReactions[0] ?? null;
+    return {
+      model: "aura-engine",
+      triggered: firstSwirl !== null,
+      reaction: firstSwirl?.reaction ?? "none",
+      icdAllowed: true,
+      icdTag: application.icdTag,
+      icdGroup: application.icdGroup,
+      applicationGaugeUnits: application.gaugeUnits,
+      auraBefore,
+      auraApplied,
+      auraConsumed,
+      auraAfter: this.snapshot(),
+      transformativeReaction: null,
+      periodicReaction,
+      frozenReaction,
+      shatterReaction: null,
+      swirlReactions,
+      swirlDamageGroup: null,
+      note:
+        firstSwirl === null
+          ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
+          : `${swirlReactions.length} 次扩散判定消耗了 Aura；仅通过各元素 6 帧队列 GCD 的判定会排入 1f 自身伤害与 5f 传播攻击。`
+    };
+  }
+
   processHit(input: AuraHitInput): ReactionAudit {
     this.advanceTo(input.frame);
     const auraBefore = this.snapshot();
@@ -994,7 +1202,10 @@ export class AuraEngine {
       this.electroChargedActive;
     const application = input.application;
 
-    if (!application || !isAuraElement(input.element, this.mode)) {
+    if (
+      !application ||
+      !isAuraApplicationElement(input.element, this.mode)
+    ) {
       const override =
         this.debugAllowReactionOverride &&
         input.reactionOverride !== undefined &&
@@ -1017,6 +1228,8 @@ export class AuraEngine {
         periodicReaction: null,
         frozenReaction: null,
         shatterReaction: null,
+        swirlReactions: [],
+        swirlDamageGroup: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -1046,6 +1259,8 @@ export class AuraEngine {
         periodicReaction: null,
         frozenReaction: null,
         shatterReaction: null,
+        swirlReactions: [],
+        swirlDamageGroup: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -1073,9 +1288,20 @@ export class AuraEngine {
         periodicReaction: null,
         frozenReaction: null,
         shatterReaction: null,
+        swirlReactions: [],
+        swirlDamageGroup: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
+    }
+
+    if (input.element === "anemo") {
+      return this.processSwirl(
+        input,
+        application,
+        auraBefore,
+        electroChargedWasActive
+      );
     }
 
     const auraApplied = [
@@ -1404,6 +1630,8 @@ export class AuraEngine {
       periodicReaction,
       frozenReaction,
       shatterReaction: null,
+      swirlReactions: [],
+      swirlDamageGroup: null,
       note:
         periodicReaction?.operation === "stop"
           ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`

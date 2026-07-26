@@ -1,6 +1,7 @@
 import {
   CURRENT_SCHEMA_VERSION,
   migrateConfig,
+  type AmplifyingReaction,
   type ActionDefinition,
   type ActiveStatusSnapshot,
   type BuffDefinition,
@@ -9,6 +10,7 @@ import {
   type DamageEvent,
   type DebuffDefinition,
   type Element,
+  type ElementalApplication,
   type EnergySummary,
   type HitGeometry,
   type HitDefinition,
@@ -16,6 +18,9 @@ import {
   type ParticleDefinition,
   type ReactionAudit,
   type ShatterReactionAudit,
+  type SwirlDamageGroupAudit,
+  type SwirlReaction,
+  type SwirlReactionAudit,
   type ReactionStatusEffectDefinition,
   type TransformativeReactionFactors,
   type TransformativeReaction,
@@ -37,6 +42,7 @@ import {
 } from "./energy";
 import {
   calcDamage,
+  calcAmplifyingReactionMultiplier,
   calcTransformativeReactionDamage,
   calcTotalStat,
   clamp,
@@ -425,6 +431,12 @@ interface ReactionDamageEventPayload {
   snapshot: DamageEvent["snapshot"];
   cycle: number;
   reactionDamageLogId: number;
+  application?: ElementalApplication;
+  excludedTargetIds?: string[];
+  swirlContext?: {
+    scheduleKind: "swirl-self" | "swirl-propagation";
+    reaction: SwirlReaction;
+  };
   periodicContext?: {
     generation: number;
     tickIndex: number;
@@ -453,6 +465,11 @@ interface FrozenStateSource {
   generation: number;
   actorId: string;
   triggerDamageEventId: number;
+}
+
+interface SwirlDamageIcdState {
+  windowStartFrame: number;
+  hitCount: number;
 }
 
 interface PeriodicReactionTickEventPayload {
@@ -536,7 +553,11 @@ const TRANSFORMATIVE_REACTION_LABELS: Record<
   overload: "超载",
   superconduct: "超导",
   electroCharged: "感电",
-  shatter: "碎冰"
+  shatter: "碎冰",
+  swirlPyro: "火扩散",
+  swirlHydro: "水扩散",
+  swirlCryo: "冰扩散",
+  swirlElectro: "雷扩散"
 };
 
 const BUFF_STATS = new Set<BuffStat>([
@@ -852,6 +873,10 @@ function simulateConfig(
     FrozenStateSource
   >();
   const frozenExpiryScheduleKeys = new Set<string>();
+  const swirlDamageIcdStates = new Map<
+    string,
+    SwirlDamageIcdState
+  >();
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -958,9 +983,12 @@ function simulateConfig(
       targetingMode: "single-target",
       centerPosition: null,
       radius: 0,
+      applicationGaugeUnits: null,
+      excludedTargetIds: [],
       checkedTargetIds: [],
       hitTargetIds: [],
       unresolvedTargetIds: [],
+      damageGroupBlockedTargetIds: [],
       damageEventIds: [],
       reactionStatusLogIds: []
     });
@@ -1162,9 +1190,12 @@ function simulateConfig(
       targetingMode: "single-target",
       centerPosition: null,
       radius: 0,
+      applicationGaugeUnits: null,
+      excludedTargetIds: [],
       checkedTargetIds: [],
       hitTargetIds: [],
       unresolvedTargetIds: [],
+      damageGroupBlockedTargetIds: [],
       damageEventIds: [],
       reactionStatusLogIds: []
     });
@@ -1193,6 +1224,455 @@ function simulateConfig(
       cycle,
       reactionDamageLogId
     } satisfies ReactionDamageEventPayload);
+  };
+
+  const resolveSwirlDamageGroup = ({
+    targetId,
+    actorId,
+    reaction,
+    frame
+  }: {
+    targetId: string;
+    actorId: string;
+    reaction: SwirlReaction;
+    frame: number;
+  }): SwirlDamageGroupAudit => {
+    const key = `${targetId}\u0000${actorId}\u0000${reaction}`;
+    const previous = swirlDamageIcdStates.get(key);
+    const state =
+      previous === undefined ||
+      frame - previous.windowStartFrame >= 30
+        ? { windowStartFrame: frame, hitCount: 0 }
+        : previous;
+    const hitIndex = state.hitCount;
+    const damageAllowed = hitIndex < 2;
+    state.hitCount += 1;
+    swirlDamageIcdStates.set(key, state);
+    return {
+      reaction,
+      windowStartFrame: state.windowStartFrame,
+      hitIndex,
+      resetFrames: 30,
+      sequence: [true, true, false],
+      damageAllowed,
+      blockedReason: damageAllowed
+        ? null
+        : "REACTION_A_DAMAGE_ICD"
+    };
+  };
+
+  const scheduleSwirlAttacks = ({
+    audits,
+    actorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    triggerDamageEventId,
+    sourceTargetId,
+    centerPosition,
+    stats,
+    reactionBonus,
+    sourceBuffStatuses,
+    snapshot,
+    cycle,
+    triggerFrame
+  }: {
+    audits: SwirlReactionAudit[];
+    actorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    triggerDamageEventId: number;
+    sourceTargetId: string;
+    centerPosition: { x: number; y: number } | null;
+    stats: CharacterStats;
+    reactionBonus: number;
+    sourceBuffStatuses: ActiveStatusSnapshot[];
+    snapshot: DamageEvent["snapshot"];
+    cycle: number;
+    triggerFrame: number;
+  }): void => {
+    for (const audit of audits) {
+      const attacks = [
+        {
+          scheduleKind: "swirl-self" as const,
+          damageFrame: audit.selfDamageFrame,
+          targetingMode: "single-target" as const,
+          centerPosition: null,
+          radius: 0,
+          baseMultiplier: audit.selfBaseMultiplier,
+          application: undefined,
+          excludedTargetIds: [] as string[]
+        },
+        {
+          scheduleKind: "swirl-propagation" as const,
+          damageFrame: audit.propagationDamageFrame,
+          targetingMode: "radius" as const,
+          centerPosition: deepClone(centerPosition),
+          radius: audit.radius,
+          baseMultiplier: audit.propagationBaseMultiplier,
+          application: {
+            gaugeUnits: audit.propagatedGaugeUnits,
+            icdTag: audit.reaction,
+            icdGroup: "no-icd"
+          } satisfies ElementalApplication,
+          excludedTargetIds: [sourceTargetId]
+        }
+      ];
+      for (const attack of attacks) {
+        const reactionDamageLogId = reactionDamageLog.length;
+        const withinSimulation =
+          audit.scheduled &&
+          attack.damageFrame <= Math.round(config.duration * 60);
+        reactionDamageLog.push({
+          id: reactionDamageLogId,
+          reaction: audit.reaction,
+          triggerDamageEventId,
+          sourceActorId: actorId,
+          sourceTargetId,
+          triggerFrame,
+          damageFrame: attack.damageFrame,
+          scheduled: audit.scheduled,
+          withinSimulation,
+          blockedReason: audit.blockedReason,
+          nextAvailableFrame: audit.nextAvailableFrame,
+          scheduleKind: attack.scheduleKind,
+          targetingMode: attack.targetingMode,
+          centerPosition: deepClone(attack.centerPosition),
+          radius: attack.radius,
+          applicationGaugeUnits:
+            attack.application?.gaugeUnits ?? null,
+          excludedTargetIds: deepClone(attack.excludedTargetIds),
+          checkedTargetIds: [],
+          hitTargetIds: [],
+          unresolvedTargetIds: [],
+          damageGroupBlockedTargetIds: [],
+          damageEventIds: [],
+          reactionStatusLogIds: []
+        });
+        if (!withinSimulation) continue;
+        push(attack.damageFrame / 60, "reactionDamage", {
+          reaction: audit.reaction,
+          damageElement: audit.swirledElement,
+          strikeType: "default",
+          poiseDamage: 0,
+          statusEffect: null,
+          actorId,
+          action,
+          triggerHitId,
+          triggerHitGroupId,
+          triggerDamageEventId,
+          sourceTargetId,
+          targetingMode: attack.targetingMode,
+          centerPosition: deepClone(attack.centerPosition),
+          radius: attack.radius,
+          baseMultiplier: attack.baseMultiplier,
+          stats: deepClone(stats),
+          elementalMastery: stats.em,
+          reactionBonus,
+          sourceBuffStatuses: deepClone(sourceBuffStatuses),
+          snapshot,
+          cycle,
+          reactionDamageLogId,
+          ...(attack.application === undefined
+            ? {}
+            : { application: deepClone(attack.application) }),
+          excludedTargetIds: deepClone(attack.excludedTargetIds),
+          swirlContext: {
+            scheduleKind: attack.scheduleKind,
+            reaction: audit.reaction
+          }
+        } satisfies ReactionDamageEventPayload);
+      }
+    }
+  };
+
+  const processNestedAuraReactionConsequences = ({
+    audit,
+    damageEventId,
+    actorId,
+    action,
+    hitId,
+    hitGroupId,
+    targetId,
+    targetName,
+    targetPosition,
+    stats,
+    reactionBonus,
+    sourceBuffStatuses,
+    snapshot,
+    cycle,
+    frame,
+    timeSeconds,
+    freezeResistance
+  }: {
+    audit: ReactionAudit;
+    damageEventId: number;
+    actorId: string;
+    action: ActionDefinition;
+    hitId: string;
+    hitGroupId: string;
+    targetId: string;
+    targetName: string;
+    targetPosition: { x: number; y: number } | null;
+    stats: CharacterStats;
+    reactionBonus: number;
+    sourceBuffStatuses: ActiveStatusSnapshot[];
+    snapshot: DamageEvent["snapshot"];
+    cycle: number;
+    frame: number;
+    timeSeconds: number;
+    freezeResistance: number;
+  }): void => {
+    const transformativeReaction = audit.transformativeReaction;
+    if (transformativeReaction !== null) {
+      const reactionDamageLogId = reactionDamageLog.length;
+      const withinSimulation =
+        transformativeReaction.scheduled &&
+        transformativeReaction.damageFrame <=
+          Math.round(config.duration * 60);
+      reactionDamageLog.push({
+        id: reactionDamageLogId,
+        reaction: transformativeReaction.reaction,
+        triggerDamageEventId: damageEventId,
+        sourceActorId: actorId,
+        sourceTargetId: targetId,
+        triggerFrame: frame,
+        damageFrame: transformativeReaction.damageFrame,
+        scheduled: transformativeReaction.scheduled,
+        withinSimulation,
+        blockedReason: transformativeReaction.blockedReason,
+        nextAvailableFrame:
+          transformativeReaction.nextAvailableFrame,
+        scheduleKind: "one-shot",
+        targetingMode: "radius",
+        centerPosition: deepClone(targetPosition),
+        radius: transformativeReaction.radius,
+        applicationGaugeUnits: null,
+        excludedTargetIds: [],
+        checkedTargetIds: [],
+        hitTargetIds: [],
+        unresolvedTargetIds: [],
+        damageGroupBlockedTargetIds: [],
+        damageEventIds: [],
+        reactionStatusLogIds: []
+      });
+      if (withinSimulation) {
+        push(
+          transformativeReaction.damageFrame / 60,
+          "reactionDamage",
+          {
+            reaction: transformativeReaction.reaction,
+            damageElement:
+              transformativeReaction.damageElement,
+            strikeType:
+              transformativeReaction.reaction === "overload"
+                ? "blunt"
+                : "default",
+            poiseDamage:
+              transformativeReaction.reaction === "overload"
+                ? 90
+                : 0,
+            statusEffect:
+              transformativeReaction.statusEffect === null
+                ? null
+                : deepClone(
+                    transformativeReaction.statusEffect
+                  ),
+            actorId,
+            action,
+            triggerHitId: hitId,
+            triggerHitGroupId: hitGroupId,
+            triggerDamageEventId: damageEventId,
+            sourceTargetId: targetId,
+            targetingMode: "radius",
+            centerPosition: deepClone(targetPosition),
+            radius: transformativeReaction.radius,
+            baseMultiplier:
+              transformativeReaction.baseMultiplier,
+            stats: deepClone(stats),
+            elementalMastery: stats.em,
+            reactionBonus,
+            sourceBuffStatuses:
+              deepClone(sourceBuffStatuses),
+            snapshot,
+            cycle,
+            reactionDamageLogId
+          } satisfies ReactionDamageEventPayload
+        );
+      }
+    }
+
+    const frozenReaction = audit.frozenReaction;
+    if (frozenReaction !== null) {
+      const frozenConsumptionExtent =
+        frozenReaction.frozenGaugeAfter <= 0
+          ? "FROZEN_CONSUMED"
+          : "FROZEN_PARTIALLY_CONSUMED";
+      const reason =
+        frozenReaction.operation === "immune"
+          ? "FREEZE_RESISTANCE_IMMUNE"
+          : frozenReaction.operation === "consume"
+            ? audit.reaction === "swirlCryo"
+              ? `${frozenConsumptionExtent}_BY_SWIRL`
+              : `${frozenConsumptionExtent}_BY_${
+                  audit.reaction === "melt"
+                    ? "MELT"
+                    : "SUPERCONDUCT"
+                }`
+            : null;
+      frozenStateLog.push({
+        id: frozenStateLog.length,
+        reaction:
+          audit.reaction === "melt"
+            ? "melt"
+            : audit.reaction === "superconduct"
+              ? "superconduct"
+              : audit.reaction === "swirlCryo"
+                ? "swirlCryo"
+                : "freeze",
+        generation: frozenReaction.generation,
+        operation: frozenReaction.operation,
+        frame,
+        timeSeconds,
+        targetId,
+        targetName,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        freezeResistance: frozenReaction.freezeResistance,
+        generatedGaugeUnits:
+          frozenReaction.generatedGaugeUnits,
+        consumedGaugeUnits:
+          frozenReaction.consumedGaugeUnits,
+        auraBefore: deepClone(audit.auraBefore ?? []),
+        auraAfter: deepClone(audit.auraAfter ?? []),
+        expiresAtFrame: frozenReaction.expiresAtFrame,
+        reason
+      });
+      if (
+        frozenReaction.operation === "start" ||
+        frozenReaction.operation === "refresh"
+      ) {
+        activeFrozenStateSources.set(targetId, {
+          generation: frozenReaction.generation,
+          actorId,
+          triggerDamageEventId: damageEventId
+        });
+      } else if (frozenReaction.operation === "consume") {
+        const existingSource =
+          activeFrozenStateSources.get(targetId);
+        if (frozenReaction.frozenGaugeAfter > 0) {
+          activeFrozenStateSources.set(targetId, {
+            generation: frozenReaction.generation,
+            actorId: existingSource?.actorId ?? actorId,
+            triggerDamageEventId:
+              existingSource?.triggerDamageEventId ??
+              damageEventId
+          });
+        } else {
+          activeFrozenStateSources.delete(targetId);
+        }
+      }
+      scheduleFrozenExpiry(
+        targetId,
+        frozenReaction.generation,
+        frozenReaction.expiresAtFrame
+      );
+    }
+
+    const periodicReaction = audit.periodicReaction;
+    if (periodicReaction === null) return;
+    if (periodicReaction.operation === "stop") {
+      periodicReactionLog.push({
+        id: periodicReactionLog.length,
+        reaction: periodicReaction.reaction,
+        generation: periodicReaction.generation,
+        operation: "stop",
+        frame,
+        timeSeconds,
+        targetId,
+        targetName,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        reactionDamageLogId: null,
+        damageEventId: null,
+        tickIndex: null,
+        auraBefore: deepClone(audit.auraBefore ?? []),
+        auraConsumed: deepClone(audit.auraConsumed ?? []),
+        auraAfter: deepClone(audit.auraAfter ?? []),
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        waneFrame: null,
+        reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+      });
+      const activeSource =
+        activePeriodicReactionSources.get(targetId);
+      if (
+        activeSource?.generation === periodicReaction.generation
+      ) {
+        activePeriodicReactionSources.delete(targetId);
+      }
+      return;
+    }
+
+    const periodicSource: PeriodicReactionSourceSnapshot = {
+      generation: periodicReaction.generation,
+      actorId,
+      action,
+      triggerHitId: hitId,
+      triggerHitGroupId: hitGroupId,
+      triggerDamageEventId: damageEventId,
+      triggerFrame: frame,
+      stats: deepClone(stats),
+      elementalMastery: stats.em,
+      reactionBonus,
+      sourceBuffStatuses: deepClone(sourceBuffStatuses),
+      snapshot,
+      cycle
+    };
+    activePeriodicReactionSources.set(targetId, periodicSource);
+    const periodicReactionLogId = periodicReactionLog.length;
+    periodicReactionLog.push({
+      id: periodicReactionLogId,
+      reaction: periodicReaction.reaction,
+      generation: periodicReaction.generation,
+      operation: periodicReaction.operation,
+      frame,
+      timeSeconds,
+      targetId,
+      targetName,
+      sourceActorId: actorId,
+      triggerDamageEventId: damageEventId,
+      reactionDamageLogId: null,
+      damageEventId: null,
+      tickIndex: null,
+      auraBefore: deepClone(audit.auraBefore ?? []),
+      auraConsumed: [],
+      auraAfter: deepClone(audit.auraAfter ?? []),
+      nextTickFrame: periodicReaction.nextTickFrame,
+      coexistenceExpiresAtFrame:
+        periodicReaction.coexistenceExpiresAtFrame,
+      waneFrame: null,
+      reason: null
+    });
+    schedulePeriodicReactionExpiry(
+      targetId,
+      periodicReaction.generation,
+      periodicReaction.coexistenceExpiresAtFrame
+    );
+    if (periodicReaction.firstDamageFrame !== null) {
+      push(
+        periodicReaction.firstDamageFrame / 60,
+        "periodicReactionTick",
+        {
+          targetId,
+          generation: periodicReaction.generation,
+          tickIndex: 0,
+          firstTick: true,
+          pinnedSource: deepClone(periodicSource)
+        } satisfies PeriodicReactionTickEventPayload
+      );
+    }
   };
 
   const addBuff = (
@@ -2383,7 +2863,10 @@ function simulateConfig(
         snapshot,
         cycle,
         reactionDamageLogId,
-        periodicContext
+        periodicContext,
+        application,
+        excludedTargetIds = [],
+        swirlContext
       } = event.payload as ReactionDamageEventPayload;
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
@@ -2405,31 +2888,49 @@ function simulateConfig(
         threshold: number | null;
         targetingSource: "reaction-source" | "reaction-geometry";
       }> = [];
-      if (
-        targetingMode === "single-target" ||
-        centerPosition === null
-      ) {
-        spatialPlans.push({
-          targetId: sourceTargetId,
-          targetPosition: resolveTargetPosition(
-            sourceTargetId,
-            event.frame
-          ),
-          landed: true,
-          reason: null,
-          distance: null,
-          threshold: null,
-          targetingSource: "reaction-source"
-        });
-        if (targetingMode === "radius") {
-          reactionLog.unresolvedTargetIds.push(
-            ...enemyTargets
-              .filter((target) => target.id !== sourceTargetId)
-              .map((target) => target.id)
-          );
+      const excludedTargetIdSet = new Set(excludedTargetIds);
+      if (targetingMode === "single-target") {
+        if (!excludedTargetIdSet.has(sourceTargetId)) {
+          spatialPlans.push({
+            targetId: sourceTargetId,
+            targetPosition: resolveTargetPosition(
+              sourceTargetId,
+              event.frame
+            ),
+            landed: true,
+            reason: null,
+            distance: null,
+            threshold: null,
+            targetingSource: "reaction-source"
+          });
         }
+      } else if (centerPosition === null) {
+        if (!excludedTargetIdSet.has(sourceTargetId)) {
+          spatialPlans.push({
+            targetId: sourceTargetId,
+            targetPosition: resolveTargetPosition(
+              sourceTargetId,
+              event.frame
+            ),
+            landed: true,
+            reason: null,
+            distance: null,
+            threshold: null,
+            targetingSource: "reaction-source"
+          });
+        }
+        reactionLog.unresolvedTargetIds.push(
+          ...enemyTargets
+            .filter(
+              (target) =>
+                target.id !== sourceTargetId &&
+                !excludedTargetIdSet.has(target.id)
+            )
+            .map((target) => target.id)
+        );
       } else {
         for (const target of enemyTargets) {
+          if (excludedTargetIdSet.has(target.id)) continue;
           const targetPosition = resolveTargetPosition(
             target.id,
             event.frame
@@ -2478,6 +2979,31 @@ function simulateConfig(
         );
         const reactionDamageAuraAllowed =
           activeTargetPhase?.effects.aura !== "blocked";
+        const propagatedReactionAudit =
+          plan.landed &&
+          application !== undefined &&
+          reactionDamageAuraAllowed
+            ? (auraEngines
+                ?.get(plan.targetId)
+                ?.processHit({
+                  frame: event.frame,
+                  sourceActorId: actorId,
+                  element: damageElement,
+                  application
+                }) ?? null)
+            : null;
+        const swirlDamageGroup =
+          plan.landed && swirlContext !== undefined
+            ? resolveSwirlDamageGroup({
+                targetId: plan.targetId,
+                actorId,
+                reaction: swirlContext.reaction,
+                frame: event.frame
+              })
+            : null;
+        if (swirlDamageGroup?.damageAllowed === false) {
+          reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
+        }
         const nestedShatterState =
           reactionDamageAuraAllowed
             ? (auraEngines
@@ -2553,7 +3079,10 @@ function simulateConfig(
                 : "target-phase",
             targetPhaseId: activeTargetPhase?.id ?? null,
             damageAllowed,
-            auraAllowed: false,
+            auraAllowed:
+              plan.landed &&
+              application !== undefined &&
+              reactionDamageAuraAllowed,
             hitConfirmAllowed: false,
             damageEventId: null,
             potentialDamage: 0,
@@ -2611,6 +3140,22 @@ function simulateConfig(
           baseMultiplier,
           effectiveResistance
         });
+        const secondaryReaction = propagatedReactionAudit?.reaction;
+        const amplifyingReaction: AmplifyingReaction =
+          secondaryReaction === "melt" ||
+          secondaryReaction === "reverseMelt" ||
+          secondaryReaction === "vaporize" ||
+          secondaryReaction === "reverseVaporize"
+            ? secondaryReaction
+            : "none";
+        const amplifyingFactors =
+          calcAmplifyingReactionMultiplier({
+            reaction: amplifyingReaction,
+            elementalMastery,
+            reactionBonus
+          });
+        const swirlDamageGroupMultiplier =
+          swirlDamageGroup?.damageAllowed === false ? 0 : 1;
         const transformativeReactionFactors: TransformativeReactionFactors =
           {
             reaction,
@@ -2628,8 +3173,12 @@ function simulateConfig(
               calculation.resistanceMultiplier
           };
         const targetDamageMultiplier = damageAllowed ? 1 : 0;
+        const potentialDamage =
+          calculation.finalDamage *
+          amplifyingFactors.total *
+          swirlDamageGroupMultiplier;
         const finalDamage =
-          calculation.finalDamage * targetDamageMultiplier;
+          potentialDamage * targetDamageMultiplier;
         const displayDamage = Math.round(finalDamage);
         const damageEventId = damageEvents.length;
         const buffLabels = sourceBuffStatuses.map(
@@ -2659,28 +3208,37 @@ function simulateConfig(
           elementalMasteryBonus:
             calculation.elementalMasteryBonus,
           reactionBonus: calculation.reactionBonus,
-          amplifyingReactionMultiplier: 1,
-          groupMultiplier: 1
+          amplifyingReactionMultiplier: amplifyingFactors.total,
+          groupMultiplier: swirlDamageGroupMultiplier
         };
         const reactionAudit: ReactionAudit = {
-          model: "reaction-damage",
-          triggered: true,
-          reaction,
-          icdAllowed: null,
-          icdTag: null,
-          icdGroup: null,
-          applicationGaugeUnits: null,
-          auraBefore: null,
-          auraApplied: null,
-          auraConsumed: null,
-          auraAfter: null,
-          transformativeReaction: null,
-          periodicReaction: null,
-          frozenReaction: null,
-          shatterReaction:
-            nestedShatterState?.audit ?? null,
+          ...(propagatedReactionAudit ?? {
+            model: "reaction-damage" as const,
+            triggered: true,
+            reaction,
+            icdAllowed: null,
+            icdTag: null,
+            icdGroup: null,
+            applicationGaugeUnits: null,
+            auraBefore: null,
+            auraApplied: null,
+            auraConsumed: null,
+            auraAfter: null,
+            transformativeReaction: null,
+            periodicReaction: null,
+            frozenReaction: null,
+            shatterReaction: null,
+            swirlReactions: [],
+            swirlDamageGroup: null
+          }),
+          shatterReaction: nestedShatterState?.audit ?? null,
+          swirlDamageGroup,
           note:
-            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : damageElement === "cryo" ? "冰" : damageElement === "electro" ? "雷" : damageElement === "physical" ? "物理" : damageElement}抗性与目标伤害策略。`
+            application === undefined
+              ? `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与 ReactionA 伤害 ICD。`
+              : reactionDamageAuraAllowed
+                ? `${reactionLabel}范围传播：先以 ${application.gaugeUnits}U 附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的扩散伤害。`
+                : `${reactionLabel}范围传播命中，但目标阶段阻止了元素附着；扩散伤害仍按目标伤害策略结算。`
         };
         damageEvents.push({
           id: damageEventId,
@@ -2701,7 +3259,7 @@ function simulateConfig(
             ? "normal"
             : "immune",
           targetDamageMultiplier,
-          potentialDamage: calculation.finalDamage,
+          potentialDamage,
           frame: event.frame,
           timeSeconds,
           activeCharacterId,
@@ -2780,15 +3338,15 @@ function simulateConfig(
             baseMultiplier *
             (1 +
               calculation.elementalMasteryBonus +
-              calculation.reactionBonus),
-          groupMultiplier: 1,
+              calculation.reactionBonus) *
+            amplifyingFactors.total,
+          groupMultiplier: swirlDamageGroupMultiplier,
           buffs: buffLabels,
           debuffs: debuffLabels
         });
         reactionLog.damageEventIds.push(damageEventId);
         targetResolution.damageEventId = damageEventId;
-        targetResolution.potentialDamage =
-          calculation.finalDamage;
+        targetResolution.potentialDamage = potentialDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
         if (nestedShatterState !== null) {
@@ -2819,6 +3377,27 @@ function simulateConfig(
               triggerFrame: event.frame
             });
           }
+        }
+        if (propagatedReactionAudit !== null) {
+          processNestedAuraReactionConsequences({
+            audit: propagatedReactionAudit,
+            damageEventId,
+            actorId,
+            action,
+            hitId: reactionHitId,
+            hitGroupId: reactionHitGroupId,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            targetPosition: plan.targetPosition,
+            stats,
+            reactionBonus,
+            sourceBuffStatuses,
+            snapshot,
+            cycle,
+            frame: event.frame,
+            timeSeconds,
+            freezeResistance: targetProfile.freezeResistance
+          });
         }
         if (
           periodicContext !== undefined &&
@@ -3192,6 +3771,8 @@ function simulateConfig(
             periodicReaction: null,
             frozenReaction: null,
             shatterReaction: null,
+            swirlReactions: [],
+            swirlDamageGroup: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -3429,6 +4010,50 @@ function simulateConfig(
         });
       }
     }
+    if (reactionAudit.swirlReactions.length > 0) {
+      const swirlSourceStats =
+        hit.snapshot === "action"
+          ? deepClone(
+              snapshots[actorId] ??
+                computeStats(actorId, timeSeconds)
+            )
+          : computeStats(actorId, timeSeconds);
+      if (swirlSourceStats === undefined) {
+        throw new Error(
+          `Swirl source stats for "${actorId}" could not be resolved.`
+        );
+      }
+      scheduleSwirlAttacks({
+        audits: reactionAudit.swirlReactions,
+        actorId,
+        action,
+        triggerHitId: hitId,
+        triggerHitGroupId: hitGroupId,
+        triggerDamageEventId: damageEventId,
+        sourceTargetId: targetId,
+        centerPosition: targetPosition,
+        stats: swirlSourceStats,
+        reactionBonus:
+          swirlSourceStats.reactionBonus +
+          safeNumber(hit.reactionBonus),
+        sourceBuffStatuses: activeBuffs
+          .filter((buff) => buff.targetId === actorId)
+          .map((buff) => ({
+            key: buff.key,
+            kind: "buff" as const,
+            sourceActorId: buff.actorId,
+            targetId: buff.targetId,
+            stat: buff.stat,
+            value: buff.value,
+            startTimeSeconds: buff.start,
+            endTimeSeconds: buff.end,
+            label: buff.label
+          })),
+        snapshot,
+        cycle,
+        triggerFrame: event.frame
+      });
+    }
     const transformativeReaction =
       reactionAudit.transformativeReaction;
     if (transformativeReaction !== null) {
@@ -3466,9 +4091,12 @@ function simulateConfig(
         targetingMode: "radius",
         centerPosition: deepClone(targetPosition),
         radius: transformativeReaction.radius,
+        applicationGaugeUnits: null,
+        excludedTargetIds: [],
         checkedTargetIds: [],
         hitTargetIds: [],
         unresolvedTargetIds: [],
+        damageGroupBlockedTargetIds: [],
         damageEventIds: [],
         reactionStatusLogIds: []
       });
@@ -3533,7 +4161,11 @@ function simulateConfig(
     if (frozenReaction !== null) {
       const operation = frozenReaction.operation;
       const frozenConsumptionReaction =
-        reaction === "melt" ? "MELT" : "SUPERCONDUCT";
+        reaction === "melt"
+          ? "MELT"
+          : reaction === "swirlCryo"
+            ? "SWIRL"
+            : "SUPERCONDUCT";
       const frozenConsumptionExtent =
         frozenReaction.frozenGaugeAfter <= 0
           ? "FROZEN_CONSUMED"
@@ -3551,7 +4183,9 @@ function simulateConfig(
             ? "melt"
             : reaction === "superconduct"
               ? "superconduct"
-              : "freeze",
+              : reaction === "swirlCryo"
+                ? "swirlCryo"
+                : "freeze",
         generation: frozenReaction.generation,
         operation,
         frame: event.frame,
@@ -3884,7 +4518,7 @@ function simulateConfig(
           hitId: event.hitId,
           incomingElement: event.element,
           icdAllowed: audit.icdAllowed,
-          reaction: event.reaction,
+          reaction: audit.reaction,
           auraBefore: audit.auraBefore,
           auraApplied: audit.auraApplied,
           auraConsumed: audit.auraConsumed,
