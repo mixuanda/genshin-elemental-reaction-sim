@@ -882,6 +882,200 @@ describe("registered enemy targets", () => {
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 
+  it("intersects target hitboxes with a finite capsule and handles a zero-length segment", () => {
+    const ability: AbilityDefinition = {
+      id: "capsule-geometry",
+      actorId: "a",
+      name: "胶囊命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 1,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "capsule-main",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "capsule",
+            start: { x: -2, y: 0 },
+            end: { x: 2, y: 0 },
+            radius: 0.5
+          }
+        },
+        {
+          id: "capsule-degenerate",
+          frame: 1,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "capsule",
+            start: { x: 0, y: 0 },
+            end: { x: 0, y: 0 },
+            radius: 1
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "线段内部",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-1",
+            name: "侧边边界",
+            position: { x: 0, y: 0.5 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-2",
+            name: "端帽边界",
+            position: { x: 2.5, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-3",
+            name: "目标碰撞体接触",
+            position: { x: 1, y: 0.7 },
+            hitboxRadius: 0.2
+          },
+          {
+            id: "enemy-4",
+            name: "端帽范围外",
+            position: { x: 2.5001, y: 0 },
+            hitboxRadius: 0
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const mainChecks = result.hitResolutionLog.filter(
+      (entry) => entry.hitId === "capsule-main"
+    );
+    expect(
+      mainChecks.map(
+        ({
+          targetId,
+          geometryKind,
+          geometryStart,
+          geometryEnd,
+          geometryRadius,
+          geometryThreshold,
+          outcome,
+          reason
+        }) => ({
+          targetId,
+          geometryKind,
+          geometryStart,
+          geometryEnd,
+          geometryRadius,
+          geometryThreshold,
+          outcome,
+          reason
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        geometryKind: "capsule",
+        geometryStart: { x: -2, y: 0 },
+        geometryEnd: { x: 2, y: 0 },
+        geometryRadius: 0.5,
+        geometryThreshold: 0.5,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-1",
+        geometryKind: "capsule",
+        geometryStart: { x: -2, y: 0 },
+        geometryEnd: { x: 2, y: 0 },
+        geometryRadius: 0.5,
+        geometryThreshold: 0.5,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-2",
+        geometryKind: "capsule",
+        geometryStart: { x: -2, y: 0 },
+        geometryEnd: { x: 2, y: 0 },
+        geometryRadius: 0.5,
+        geometryThreshold: 0.5,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-3",
+        geometryKind: "capsule",
+        geometryStart: { x: -2, y: 0 },
+        geometryEnd: { x: 2, y: 0 },
+        geometryRadius: 0.5,
+        geometryThreshold: 0.7,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-4",
+        geometryKind: "capsule",
+        geometryStart: { x: -2, y: 0 },
+        geometryEnd: { x: 2, y: 0 },
+        geometryRadius: 0.5,
+        geometryThreshold: 0.5,
+        outcome: "miss",
+        reason: "OUTSIDE_CAPSULE_GEOMETRY"
+      }
+    ]);
+    expect(mainChecks.map((entry) => entry.geometryDistance)).toEqual([
+      0, 0.5, 0.5, 0.7, 0.5001000000000002
+    ]);
+    const degenerateChecks = result.hitResolutionLog.filter(
+      (entry) => entry.hitId === "capsule-degenerate"
+    );
+    expect(degenerateChecks[0]).toMatchObject({
+      geometryStart: { x: 0, y: 0 },
+      geometryEnd: { x: 0, y: 0 },
+      geometryDistance: 0,
+      geometryThreshold: 1,
+      outcome: "landed"
+    });
+    expect(degenerateChecks[2]).toMatchObject({
+      geometryDistance: 2.5,
+      geometryThreshold: 1,
+      outcome: "miss"
+    });
+    expect(result.damageEvents).toHaveLength(6);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
+
   it("interpolates target motion at integer hit frames and holds adjacent boundaries", () => {
     const ability: AbilityDefinition = {
       id: "moving-circle-target",

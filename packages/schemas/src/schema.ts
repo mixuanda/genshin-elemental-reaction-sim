@@ -13,6 +13,7 @@ import {
   LEGACY_SCHEMA_VERSION,
   MOVEMENT_COMMAND_SCHEMA_VERSION,
   MULTI_TARGET_REGISTRY_SCHEMA_VERSION,
+  ORIENTED_RECTANGLE_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
@@ -434,9 +435,19 @@ export const rectangleHitGeometrySchema = z
   })
   .strict();
 
+export const capsuleHitGeometrySchema = z
+  .object({
+    kind: z.literal("capsule"),
+    start: point2DSchema,
+    end: point2DSchema,
+    radius: finiteNumber.min(0).max(1_000)
+  })
+  .strict();
+
 export const hitGeometrySchema = z.discriminatedUnion("kind", [
   circleHitGeometrySchema,
-  rectangleHitGeometrySchema
+  rectangleHitGeometrySchema,
+  capsuleHitGeometrySchema
 ]);
 
 export const hitDefinitionSchema = z
@@ -1619,6 +1630,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === ORIENTED_RECTANGLE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_MOTION_SCHEMA_VERSION) {
     return parseSimConfig({

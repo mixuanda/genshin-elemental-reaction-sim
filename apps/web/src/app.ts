@@ -676,6 +676,8 @@ function renderHitDetail(): void {
       ? `二维圆形几何 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 攻击半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
       : targetResolution?.geometryKind === "rectangle"
         ? `二维旋转矩形 · 中心 ${formatPosition(targetResolution.geometryOrigin)} · 半宽 ${formatNumber(targetResolution.geometryHalfWidth ?? 0, 4)} · 半高 ${formatNumber(targetResolution.geometryHalfHeight ?? 0, 4)} · 旋转 ${formatNumber(targetResolution.geometryRotationDegrees ?? 0, 4)}° · 中心至矩形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+        : targetResolution?.geometryKind === "capsule"
+          ? `二维胶囊几何 · 起点 ${formatPosition(targetResolution.geometryStart)} · 终点 ${formatPosition(targetResolution.geometryEnd)} · 扫掠半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心至线段最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
       : targetResolution?.targetingSource === "scripted"
         ? "逐击脚本 / 显式扇出"
         : "兼容默认 enemy-0 / landed";
@@ -1095,6 +1097,9 @@ function renderTargetHitAudit(): void {
   const rectangleGeometryChecks = result.hitResolutionLog.filter(
     (entry) => entry.geometryKind === "rectangle"
   ).length;
+  const capsuleGeometryChecks = result.hitResolutionLog.filter(
+    (entry) => entry.geometryKind === "capsule"
+  ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
     (circleGeometryChecks
@@ -1102,6 +1107,9 @@ function renderTargetHitAudit(): void {
       : "") +
     (rectangleGeometryChecks
       ? ` · ${rectangleGeometryChecks} 次旋转矩形几何求交`
+      : "") +
+    (capsuleGeometryChecks
+      ? ` · ${capsuleGeometryChecks} 次胶囊几何求交`
       : "") +
     (result.targetMotionTimeline.length
       ? ` · ${result.targetMotionTimeline.length} 个目标移动段`
@@ -1158,6 +1166,8 @@ function renderTargetHitAudit(): void {
               ? `圆形 d=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
               : entry.geometryKind === "rectangle"
                 ? `矩形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+                : entry.geometryKind === "capsule"
+                  ? `胶囊线段距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 总阈值 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
               : entry.targetingSource === "scripted"
                 ? "脚本"
                 : "默认";

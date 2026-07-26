@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.18.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.18.0-oriented-rectangle" as const;
+export const CURRENT_SCHEMA_VERSION = "1.19.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.19.0-capsule-geometry" as const;
+export const ORIENTED_RECTANGLE_SCHEMA_VERSION = "1.18.0" as const;
 export const TARGET_MOTION_SCHEMA_VERSION = "1.17.0" as const;
 export const CIRCLE_GEOMETRY_SCHEMA_VERSION = "1.16.0" as const;
 export const AOE_FANOUT_SCHEMA_VERSION = "1.15.0" as const;
@@ -225,7 +226,17 @@ export interface RectangleHitGeometry {
   rotationDegrees: number;
 }
 
-export type HitGeometry = CircleHitGeometry | RectangleHitGeometry;
+export interface CapsuleHitGeometry {
+  kind: "capsule";
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+  radius: number;
+}
+
+export type HitGeometry =
+  | CircleHitGeometry
+  | RectangleHitGeometry
+  | CapsuleHitGeometry;
 
 export interface TargetMotionDefinition {
   id: string;
@@ -813,6 +824,8 @@ export interface HitResolutionLogEntry {
   targetPosition: { x: number; y: number } | null;
   geometryKind: HitGeometry["kind"] | null;
   geometryOrigin: { x: number; y: number } | null;
+  geometryStart: { x: number; y: number } | null;
+  geometryEnd: { x: number; y: number } | null;
   geometryRadius: number | null;
   geometryHalfWidth: number | null;
   geometryHalfHeight: number | null;

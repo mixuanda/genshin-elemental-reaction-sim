@@ -1565,6 +1565,159 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
   );
 });
 
+test("audits finite capsule side and end-cap intersections", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const capsuleConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "线段内部",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0
+      },
+      {
+        id: "enemy-1",
+        name: "端帽边界",
+        position: { x: 2.5, y: 0 },
+        hitboxRadius: 0
+      },
+      {
+        id: "enemy-2",
+        name: "端帽范围外",
+        position: { x: 2.5001, y: 0 },
+        hitboxRadius: 0
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    delete firstHit.targeting;
+    firstHit.geometry = {
+      kind: "capsule",
+      start: { x: -2, y: 0 },
+      end: { x: 2, y: 0 },
+      radius: 0.5
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(capsuleConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          firstGroup: result.hitResolutionLog
+            .filter((entry) => entry.hitId === "durin-black-e-1")
+            .map(
+              ({
+                targetId,
+                geometryKind,
+                geometryStart,
+                geometryEnd,
+                geometryRadius,
+                geometryDistance,
+                geometryThreshold,
+                outcome,
+                reason
+              }) => ({
+                targetId,
+                geometryKind,
+                geometryStart,
+                geometryEnd,
+                geometryRadius,
+                geometryDistance:
+                  geometryDistance === null
+                    ? null
+                    : Number(geometryDistance.toFixed(6)),
+                geometryThreshold,
+                outcome,
+                reason
+              })
+            ),
+          firstTrigger: result.particleTriggerLog[0],
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length
+        }
+      : null;
+  });
+  expect(audit?.firstGroup).toEqual([
+    {
+      targetId: "enemy-0",
+      geometryKind: "capsule",
+      geometryStart: { x: -2, y: 0 },
+      geometryEnd: { x: 2, y: 0 },
+      geometryRadius: 0.5,
+      geometryDistance: 0,
+      geometryThreshold: 0.5,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-1",
+      geometryKind: "capsule",
+      geometryStart: { x: -2, y: 0 },
+      geometryEnd: { x: 2, y: 0 },
+      geometryRadius: 0.5,
+      geometryDistance: 0.5,
+      geometryThreshold: 0.5,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-2",
+      geometryKind: "capsule",
+      geometryStart: { x: -2, y: 0 },
+      geometryEnd: { x: 2, y: 0 },
+      geometryRadius: 0.5,
+      geometryDistance: 0.5001,
+      geometryThreshold: 0.5,
+      outcome: "miss",
+      reason: "OUTSIDE_CAPSULE_GEOMETRY"
+    }
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+    confirmedTargetIds: ["enemy-0", "enemy-1"],
+    triggered: true
+  });
+  expect(audit?.checks).toBe(5);
+  expect(audit?.damageEvents).toBe(4);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次胶囊几何求交"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "胶囊线段距离=0.5 ≤ 总阈值 0.5"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "胶囊线段距离=0.5001 > 总阈值 0.5"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "OUTSIDE_CAPSULE_GEOMETRY"
+  );
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "二维胶囊几何"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "起点 (-2, 0) · 终点 (2, 0) · 扫掠半径 0.5"
+  );
+});
+
 test("interpolates target motion at each hit frame before geometry resolution", async ({
   page
 }) => {

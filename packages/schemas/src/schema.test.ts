@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.17.0 configs to oriented rectangles", () => {
+  it("migrates 1.0.0 through 1.18.0 configs to capsule geometry", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -231,6 +231,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.17.0",
       engineVersion: "1.17.0-target-motion"
+    });
+    const migratedFromOrientedRectangle = migrateConfig({
+      ...current,
+      schemaVersion: "1.18.0",
+      engineVersion: "1.18.0-oriented-rectangle"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -331,6 +336,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromTargetMotion.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromOrientedRectangle.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromOrientedRectangle.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -664,6 +675,67 @@ describe("versioned config schema", () => {
     expect(() => migrateConfig(invalid)).toThrow(
       /geometry\.halfHeight/
     );
+  });
+
+  it("accepts capsule geometry including a degenerate zero-length segment", () => {
+    const parsed = migrateConfig({
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "胶囊目标",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "capsule",
+          actorId: "a",
+          name: "胶囊范围",
+          at: 0,
+          hits: [
+            {
+              id: "capsule-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "capsule",
+                start: { x: -1, y: 0 },
+                end: { x: 2, y: 0 },
+                radius: 0.5
+              }
+            },
+            {
+              id: "degenerate-capsule",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "capsule",
+                start: { x: 0, y: 0 },
+                end: { x: 0, y: 0 },
+                radius: 1
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(parsed.rotation[0]?.hits?.[0]?.geometry).toEqual({
+      kind: "capsule",
+      start: { x: -1, y: 0 },
+      end: { x: 2, y: 0 },
+      radius: 0.5
+    });
+    expect(parsed.rotation[0]?.hits?.[1]?.geometry).toMatchObject({
+      kind: "capsule",
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 0 }
+    });
   });
 
   it("requires complete target positions and one hit-resolution source for geometry", () => {

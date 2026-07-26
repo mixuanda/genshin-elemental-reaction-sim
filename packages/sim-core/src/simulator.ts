@@ -79,32 +79,63 @@ function resolveHitGeometry(
     };
   }
 
-  const radians = (geometry.rotationDegrees * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
-  const deltaX = targetPosition.x - geometry.origin.x;
-  const deltaY = targetPosition.y - geometry.origin.y;
-  const localX = deltaX * cosine + deltaY * sine;
-  const localY = -deltaX * sine + deltaY * cosine;
-  const closestX = clamp(
-    localX,
-    -geometry.halfWidth,
-    geometry.halfWidth
-  );
-  const closestY = clamp(
-    localY,
-    -geometry.halfHeight,
-    geometry.halfHeight
-  );
+  if (geometry.kind === "rectangle") {
+    const radians = (geometry.rotationDegrees * Math.PI) / 180;
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    const deltaX = targetPosition.x - geometry.origin.x;
+    const deltaY = targetPosition.y - geometry.origin.y;
+    const localX = deltaX * cosine + deltaY * sine;
+    const localY = -deltaX * sine + deltaY * cosine;
+    const closestX = clamp(
+      localX,
+      -geometry.halfWidth,
+      geometry.halfWidth
+    );
+    const closestY = clamp(
+      localY,
+      -geometry.halfHeight,
+      geometry.halfHeight
+    );
+    const distance = Math.hypot(
+      localX - closestX,
+      localY - closestY
+    );
+    return {
+      landed: distance <= hitboxRadius + GEOMETRY_EPSILON,
+      distance,
+      threshold: hitboxRadius,
+      missReason: "OUTSIDE_RECTANGLE_GEOMETRY"
+    };
+  }
+
+  const segmentX = geometry.end.x - geometry.start.x;
+  const segmentY = geometry.end.y - geometry.start.y;
+  const segmentLengthSquared =
+    segmentX * segmentX + segmentY * segmentY;
+  const fromStartX = targetPosition.x - geometry.start.x;
+  const fromStartY = targetPosition.y - geometry.start.y;
+  const projection =
+    segmentLengthSquared === 0
+      ? 0
+      : clamp(
+          (fromStartX * segmentX + fromStartY * segmentY) /
+            segmentLengthSquared,
+          0,
+          1
+        );
+  const closestX = geometry.start.x + segmentX * projection;
+  const closestY = geometry.start.y + segmentY * projection;
   const distance = Math.hypot(
-    localX - closestX,
-    localY - closestY
+    targetPosition.x - closestX,
+    targetPosition.y - closestY
   );
+  const threshold = geometry.radius + hitboxRadius;
   return {
-    landed: distance <= hitboxRadius + GEOMETRY_EPSILON,
+    landed: distance <= threshold + GEOMETRY_EPSILON,
     distance,
-    threshold: hitboxRadius,
-    missReason: "OUTSIDE_RECTANGLE_GEOMETRY"
+    threshold,
+    missReason: "OUTSIDE_CAPSULE_GEOMETRY"
   };
 }
 
@@ -153,8 +184,10 @@ interface HitEventPayload {
   targeting?: HitTargeting;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
-  geometryKind: "circle" | "rectangle" | null;
+  geometryKind: "circle" | "rectangle" | "capsule" | null;
   geometryOrigin: { x: number; y: number } | null;
+  geometryStart: { x: number; y: number } | null;
+  geometryEnd: { x: number; y: number } | null;
   geometryRadius: number | null;
   geometryHalfWidth: number | null;
   geometryHalfHeight: number | null;
@@ -942,8 +975,10 @@ function simulateConfig(
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
           targetPosition: { x: number; y: number } | null;
-          geometryKind: "circle" | "rectangle" | null;
+          geometryKind: "circle" | "rectangle" | "capsule" | null;
           geometryOrigin: { x: number; y: number } | null;
+          geometryStart: { x: number; y: number } | null;
+          geometryEnd: { x: number; y: number } | null;
           geometryRadius: number | null;
           geometryHalfWidth: number | null;
           geometryHalfHeight: number | null;
@@ -968,6 +1003,8 @@ function simulateConfig(
                 ),
                 geometryKind: null,
                 geometryOrigin: null,
+                geometryStart: null,
+                geometryEnd: null,
                 geometryRadius: null,
                 geometryHalfWidth: null,
                 geometryHalfHeight: null,
@@ -1003,9 +1040,23 @@ function simulateConfig(
                   targetingSource: "geometry",
                   targetPosition,
                   geometryKind: geometry.kind,
-                  geometryOrigin: deepClone(geometry.origin),
+                  geometryOrigin:
+                    geometry.kind === "capsule"
+                      ? null
+                      : deepClone(geometry.origin),
+                  geometryStart:
+                    geometry.kind === "capsule"
+                      ? deepClone(geometry.start)
+                      : null,
+                  geometryEnd:
+                    geometry.kind === "capsule"
+                      ? deepClone(geometry.end)
+                      : null,
                   geometryRadius:
-                    geometry.kind === "circle" ? geometry.radius : null,
+                    geometry.kind === "circle" ||
+                    geometry.kind === "capsule"
+                      ? geometry.radius
+                      : null,
                   geometryHalfWidth:
                     geometry.kind === "rectangle"
                       ? geometry.halfWidth
@@ -1345,6 +1396,8 @@ function simulateConfig(
       targetPosition,
       geometryKind,
       geometryOrigin,
+      geometryStart,
+      geometryEnd,
       geometryRadius,
       geometryHalfWidth,
       geometryHalfHeight,
@@ -1417,6 +1470,8 @@ function simulateConfig(
       targetPosition,
       geometryKind,
       geometryOrigin,
+      geometryStart,
+      geometryEnd,
       geometryRadius,
       geometryHalfWidth,
       geometryHalfHeight,
