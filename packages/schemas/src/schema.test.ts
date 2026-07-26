@@ -1673,4 +1673,16 @@ describe("versioned config schema", () => {
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
+
+  it("migrates the Overload schema into the Superconduct schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.22.0",
+      engineVersion: "1.22.0-overload-reaction"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
 });

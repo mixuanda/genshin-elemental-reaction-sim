@@ -22,9 +22,10 @@ This project uses gcsim as a product and testing reference:
   `internal/characters/durin/skill.go`,
   `pkg/core/attacks/icd_groups.dm.go`, and the default particle delay in
   `pkg/core/player/character/character.go`.
-- Overload trigger order, one-frame delay, six-frame damage GCD, radius,
-  reaction multiplier, defense/crit behavior, and resistance application
-  cross-checked against the same fixed commit.
+- Overload and Superconduct trigger order, one-frame delay, independent
+  six-frame damage GCDs, radius, reaction multipliers, defense/crit behavior,
+  resistance application, and Superconduct's 720-frame physical-resistance
+  modifier were cross-checked against the same fixed commit.
 
 The level 1–100 transformative-reaction base-damage numeric table in
 `packages/sim-core/src/formulas.ts` is reproduced from that fixed commit's

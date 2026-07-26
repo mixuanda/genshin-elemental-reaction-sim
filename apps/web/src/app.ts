@@ -54,7 +54,8 @@ const REACTION_LABELS: Record<string, string> = {
   reverseMelt: "反向融化",
   vaporize: "蒸发",
   reverseVaporize: "反向蒸发",
-  overload: "超载"
+  overload: "超载",
+  superconduct: "超导"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -693,6 +694,9 @@ function renderHitDetail(): void {
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
   const transformative = hit.transformativeReactionFactors;
+  const reactionStatusEntries = lastResult.reactionStatusLog.filter(
+    (entry) => entry.reactionDamageEventId === hit.id
+  );
   const factors: Array<[string, string]> = [
     [
       "事件类型",
@@ -744,7 +748,7 @@ function renderHitDetail(): void {
       "倍率基准",
       transformative === null
         ? `${formatNumber(hit.scaling, 6)} × ${hit.scalingStat.toUpperCase()} (${formatNumber(hit.scalingValue, 0)})`
-        : `等级 ${transformative.characterLevel} 基准 ${formatNumber(transformative.levelBaseDamage, 4)} × 超载 ${formatNumber(transformative.baseMultiplier, 2)}`
+        : `等级 ${transformative.characterLevel} 基准 ${formatNumber(transformative.levelBaseDamage, 4)} × ${REACTION_LABELS[transformative.reaction] ?? transformative.reaction} ${formatNumber(transformative.baseMultiplier, 2)}`
     ],
     [
       "附加基础伤害",
@@ -868,10 +872,27 @@ function renderHitDetail(): void {
           : `${queued.blockedReason ?? "阻止"} · ${queued.nextAvailableFrame}f 可再次产生伤害`
       ],
       [
-        "超载伤害 GCD",
+        `${REACTION_LABELS[queued.reaction] ?? queued.reaction}伤害 GCD`,
         `同一触发目标 6f；反应与 Aura 消耗仍已发生`
       ]
     );
+    if (queued.statusEffect !== null) {
+      factors.push([
+        "反应目标状态",
+        `${queued.statusEffect.label} · ${ELEMENT_LABELS[queued.statusEffect.element] ?? queued.statusEffect.element}抗性 -${formatNumber(queued.statusEffect.resShred * 100, 1)}% · ${queued.statusEffect.durationFrames}f`
+      ]);
+    }
+  }
+  if (reactionStatusEntries.length > 0) {
+    factors.push([
+      "反应目标状态",
+      reactionStatusEntries
+        .map(
+          (entry) =>
+            `${entry.label} · ${ELEMENT_LABELS[entry.element] ?? entry.element}抗性 -${formatNumber(entry.resShred * 100, 1)}% · ${entry.startFrame}f → ${entry.endFrame}f · ${entry.operation === "refresh" ? "刷新" : "施加"}`
+        )
+        .join("；")
+    ]);
   }
   if (hit.timelineCommandIndex !== undefined) {
     factors.push(
@@ -1552,6 +1573,25 @@ function renderAuraTimeline(): void {
       })
       .join("") ||
     `<tr><td colspan="7">没有独立转化反应伤害。</td></tr>`;
+  const reactionStatusLog = lastResult.reactionStatusLog;
+  byId<HTMLElement>("reactionStatusSummary").textContent =
+    reactionStatusLog.length === 0
+      ? "当前结果没有目标级反应状态"
+      : `${reactionStatusLog.length} 条目标级反应状态区间 · 半开边界 [开始帧, 结束帧)`;
+  byId<HTMLTableSectionElement>("reactionStatusBody").innerHTML =
+    reactionStatusLog
+      .map(
+        (entry) =>
+          `<tr data-reaction-status-damage-id="${entry.reactionDamageEventId}">` +
+          `<td>${entry.startFrame}f → ${entry.endFrame}f</td>` +
+          `<td>${entry.operation === "refresh" ? '<span class="badge">刷新</span>' : '<span class="badge good">施加</span>'}${entry.supersededAtFrame === null ? "" : ` <span class="muted">/ ${entry.supersededAtFrame}f 被刷新</span>`}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}</span></td>` +
+          `<td>${escapeHtml(entry.label)} <span class="muted">/ ${escapeHtml(entry.key)}</span></td>` +
+          `<td>${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}抗性 -${formatNumber(entry.resShred * 100, 1)}%</td>` +
+          `<td>${escapeHtml(REACTION_LABELS[entry.reaction] ?? entry.reaction)} / #${entry.reactionDamageEventId}</td></tr>`
+      )
+      .join("") ||
+    `<tr><td colspan="6">没有目标级反应状态。</td></tr>`;
   document
     .querySelectorAll<HTMLTableRowElement>(
       "#reactionDamageBody tr[data-reaction-damage-id]"
@@ -1559,6 +1599,22 @@ function renderAuraTimeline(): void {
     .forEach((row) => {
       row.addEventListener("click", () => {
         selectedHitId = Number(row.dataset.reactionDamageId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+  document
+    .querySelectorAll<HTMLTableRowElement>(
+      "#reactionStatusBody tr[data-reaction-status-damage-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(
+          row.dataset.reactionStatusDamageId
+        );
         timelineSecondFilter = null;
         currentPage = 1;
         activateTab("hits");

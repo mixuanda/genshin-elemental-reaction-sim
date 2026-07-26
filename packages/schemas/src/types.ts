@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.22.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.22.0-overload-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.23.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.23.0-superconduct-reaction" as const;
+export const OVERLOAD_REACTION_SCHEMA_VERSION = "1.22.0" as const;
 export const ACTOR_POSE_SCHEMA_VERSION = "1.21.0" as const;
 export const SECTOR_GEOMETRY_SCHEMA_VERSION = "1.20.0" as const;
 export const CAPSULE_GEOMETRY_SCHEMA_VERSION = "1.19.0" as const;
@@ -41,7 +42,7 @@ export type AmplifyingReaction =
   | "vaporize"
   | "reverseVaporize";
 
-export type TransformativeReaction = "overload";
+export type TransformativeReaction = "overload" | "superconduct";
 export type ReactionType = AmplifyingReaction | TransformativeReaction;
 
 export type ScalingStat = "atk" | "hp" | "def" | "em";
@@ -659,6 +660,15 @@ export interface TransformativeReactionAudit {
   baseMultiplier: number;
   blockedReason: "REACTION_DAMAGE_GCD" | null;
   nextAvailableFrame: number;
+  statusEffect: ReactionStatusEffectDefinition | null;
+}
+
+export interface ReactionStatusEffectDefinition {
+  key: string;
+  label: string;
+  element: Element | "all";
+  resShred: number;
+  durationFrames: number;
 }
 
 export interface FlatDamageDetail {
@@ -1063,6 +1073,26 @@ export interface ReactionDamageLogEntry {
   hitTargetIds: TargetId[];
   unresolvedTargetIds: TargetId[];
   damageEventIds: number[];
+  reactionStatusLogIds: number[];
+}
+
+export interface ReactionStatusLogEntry {
+  id: number;
+  reaction: TransformativeReaction;
+  reactionDamageEventId: number;
+  targetId: TargetId;
+  targetName: string;
+  key: string;
+  label: string;
+  element: Element | "all";
+  resShred: number;
+  startFrame: number;
+  endFrame: number;
+  startTimeSeconds: number;
+  endTimeSeconds: number;
+  operation: "apply" | "refresh";
+  /** Frame at which a refresh replaced this interval, otherwise null. */
+  supersededAtFrame: number | null;
 }
 
 export type TimelineFailureCode =
@@ -1154,6 +1184,8 @@ export interface SimulationResult {
   hitResolutionLog: HitResolutionLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
   reactionDamageLog: ReactionDamageLogEntry[];
+  /** Target-scoped reaction status applications with exact half-open windows. */
+  reactionStatusLog: ReactionStatusLogEntry[];
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

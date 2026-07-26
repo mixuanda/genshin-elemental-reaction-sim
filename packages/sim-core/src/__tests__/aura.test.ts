@@ -308,6 +308,92 @@ describe("AuraEngine Overload scheduling", () => {
   });
 });
 
+describe("AuraEngine Superconduct scheduling", () => {
+  it("supports Cryo-on-Electro and Electro-on-Cryo with a target status", () => {
+    const cryoIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 10,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd()
+    });
+    const electroIncoming = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 10,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    for (const audit of [cryoIncoming, electroIncoming]) {
+      expect(audit).toMatchObject({
+        reaction: "superconduct",
+        auraConsumed: [
+          {
+            gaugeUnits: expect.closeTo(
+              0.8 - (0.8 / 426) * 10,
+              10
+            )
+          }
+        ],
+        transformativeReaction: {
+          reaction: "superconduct",
+          damageElement: "cryo",
+          scheduled: true,
+          damageFrame: 11,
+          radius: 3,
+          baseMultiplier: 1.5,
+          blockedReason: null,
+          nextAvailableFrame: 16,
+          statusEffect: {
+            key: "superconduct-phys-shred",
+            element: "physical",
+            resShred: 0.4,
+            durationFrames: 720
+          }
+        }
+      });
+    }
+  });
+
+  it("keeps Superconduct and Overload damage GCD streams independent", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [
+        { element: "pyro", gaugeUnits: 1 },
+        { element: "cryo", gaugeUnits: 2 }
+      ]
+    });
+    const overload = engine.processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+    const superconduct = engine.processHit({
+      frame: 1,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    expect(overload.transformativeReaction).toMatchObject({
+      reaction: "overload",
+      scheduled: true,
+      nextAvailableFrame: 6
+    });
+    expect(superconduct.transformativeReaction).toMatchObject({
+      reaction: "superconduct",
+      scheduled: true,
+      nextAvailableFrame: 7
+    });
+  });
+});
+
 function makeAuraTimelineConfig(initialAura: boolean): SimConfig {
   const base = makeConfig();
   return {

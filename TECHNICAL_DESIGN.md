@@ -51,7 +51,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本及 `0.1.0`–`1.21.0` 配置迁移到 `1.22.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 只能用于 `aura-v2`。`engineVersion` 当前为 `1.22.0-overload-reaction`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.22.0` 配置迁移到 `1.23.0`。严格 Zod Schema 还会拒绝未注册或重复的 fanout 目标、同时声明脚本命中与几何命中、缺少目标位置或形状参数的几何配置、重复/未知的静态角色姿态、没有对应姿态的施放者局部几何，以及未注册/无初始位置/重叠/越界的目标移动分段；雷 Aura 只能用于 `aura-v2`。`engineVersion` 当前为 `1.23.0-superconduct-reaction`。
 
 ## 4. 确定性与排序
 
@@ -200,6 +200,7 @@ displayDamage
 - `damageCurve`：每一段伤害对应一个累计曲线点，含逐角色累计值。
 - `hitResolutionLog`：每次排队逐击的目标、判定来源、`landed / miss`、原因、命中时目标位置、静态施放者位置/朝向、原始坐标空间、解析后的圆心/端点/尺寸/旋转/扇形方向与夹角、几何距离/阈值、伤害/Aura/命中回调三层许可、公式潜在伤害、实际伤害，以及可空的伤害事件反向链接；因此 Miss 和免疫 0 伤害都不会从审计中消失。
 - `reactionDamageLog`：每次转化反应的触发伤害 ID、触发/伤害帧、伤害 GCD 结果、下一可用帧、触发目标、固定圆心、半径、全部已检查/命中/坐标未解析目标，以及生成的独立伤害事件 ID。
+- `reactionStatusLog`：由转化反应伤害实际命中后施加的目标级状态，含来源伤害、目标、抗性元素/数值、开始/结束帧、施加/刷新，以及被刷新时对旧半开区间的精确截断。
 - `targetPhaseTimeline`：核心实际使用的 60 FPS 半开目标阶段窗口，含目标、开始/结束帧、三层策略和原因。
 - `targetMotionTimeline`：核心实际使用的 60 FPS 线性移动分段，含解析后的起点、终点、开始/结束帧和秒数。
 - `auraTimeline`：每一段 Aura 模式伤害对应的目标、附着前后、ICD、消耗和反应记录。
@@ -261,26 +262,28 @@ icdProfiles: {
 
 如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura。同一角色/Tag/Group 在不同目标上互不推进。冰/水/雷的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；复合共存、冻结和超载以外的转化/加算反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
+当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura。同一角色/Tag/Group 在不同目标上互不推进。冰/水/雷的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以每个目标单状态的较强剩余 Aura 表示；复合共存、冻结和超载/超导以外的转化/加算反应尚未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
-#### 6.1.1 超载独立伤害
+#### 6.1.1 超载 / 超导独立伤害与目标状态
 
-`aura-v2` 支持火命中雷 Aura 与雷命中火 Aura。两种方向都按 `1 × 来袭元素量` 消耗现有 Aura；反应触发与独立伤害是否通过 GCD 是两个不同事实。即使同一目标的 6 帧超载伤害 GCD 阻止爆炸，Aura 仍会被消耗，触发命中仍标记为超载。
+`aura-v2` 支持火命中雷 Aura 与雷命中火 Aura 的超载，也支持冰命中雷 Aura 与雷命中冰 Aura 的超导。四种方向都按 `1 × 来袭元素量` 消耗现有 Aura；反应触发与独立伤害是否通过 GCD 是两个不同事实。即使同一目标的 6 帧反应伤害 GCD 阻止爆炸，Aura 仍会被消耗，触发命中仍保留反应。超载和超导拥有彼此独立的伤害 GCD 流。
 
 通过 GCD 后，核心在下一帧排入 `reactionDamage` 事件。触发目标在原命中帧的位置被冻结为爆炸圆心；伤害帧再读取其他目标的位置，并按半径 3 加各目标圆形碰撞半径逐一求交。触发目标没有坐标时确定性回退为只伤害该目标，其他目标写入 `unresolvedTargetIds`，不会假装命中。范围命中只处理伤害层：不施加 Aura、不推进附着 ICD、不执行普通命中确认产球。
 
-当前超载公式为：
+两种反应共享转化反应公式，超载为火伤 `2.75` 基础倍率，超导为冰伤 `1.5`：
 
 ```text
 等级基准 = gcsim 固定提交的 TransformativeBase[level]
 精通加成 = 16 × EM / (2000 + EM)
-抗性前伤害 = 等级基准 × 2.75 × (1 + 精通加成 + 反应增伤)
-最终伤害 = 抗性前伤害 × 火元素抗性区 × 目标伤害策略
+抗性前伤害 = 等级基准 × 反应基础倍率 × (1 + 精通加成 + 反应增伤)
+最终伤害 = 抗性前伤害 × 对应伤害元素抗性区 × 目标伤害策略
 ```
 
-该事件不暴击且防御区固定为 1。每个范围内 landed 目标都生成独立 `DamageEvent(kind: "transformative-reaction")`，用 `parentDamageEventId` 指向触发命中，并提供 `transformativeReactionFactors`；普通伤害聚合、技能构成、逐秒桶和每击累计曲线因此自然包含超载，而 UI 不重算公式。
+该事件不暴击且防御区固定为 1。每个范围内 landed 目标都生成独立 `DamageEvent(kind: "transformative-reaction")`，用 `parentDamageEventId` 指向触发命中，并提供 `transformativeReactionFactors`；普通伤害聚合、技能构成、逐秒桶和每击累计曲线因此自然包含反应，而 UI 不重算公式。
 
-实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。当前未实现击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这是一条可审计的纵向切片，不是完整 gcsim 反应系统。
+超导伤害命中后才给对应目标施加 `superconduct-phys-shred`：物理抗性降低 `40%`，基础持续 720 帧。状态使用 `[startFrame, endFrame)`；同帧优先级较高的普通命中不会提前受益，结束帧立即失效。刷新在新超导伤害帧截断旧日志区间并创建新的 720 帧区间。数值伤害免疫只把独立冰伤乘为零，只要范围判定为 landed 仍会施加状态；这与固定 gcsim 提交在伤害应用后始终发出 `OnEnemyDamage`、再由该事件添加超导减抗的路径一致。当前不实现 gcsim 的 Hitlag 延长，所以长 Hitlag 场景会与 gcsim 存在差异。
+
+实现语义交叉核对固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/overload.go`、`pkg/reactable/superconduct.go`、`pkg/simulation/setup.go`、`pkg/core/combat/reaction.go`、`pkg/core/combat/reaction.dm.go` 与命中盒代码。当前未实现冻结底超导、击退、韧性、三维范围、物件/召唤物/自伤或其他反应；这是两条可审计的纵向切片，不是完整 gcsim 反应系统。
 
 ### 6.2 粒子 / 能量事件
 

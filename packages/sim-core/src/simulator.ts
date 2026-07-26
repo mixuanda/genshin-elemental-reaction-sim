@@ -15,7 +15,9 @@ import {
   type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
+  type ReactionStatusEffectDefinition,
   type TransformativeReactionFactors,
+  type TransformativeReaction,
   type SimConfig,
   type SimulationEvent,
   type SimulationOptions,
@@ -392,6 +394,9 @@ interface HitEventPayload {
 }
 
 interface ReactionDamageEventPayload {
+  reaction: TransformativeReaction;
+  damageElement: Element;
+  statusEffect: ReactionStatusEffectDefinition | null;
   actorId: string;
   action: ActionDefinition;
   triggerHitId: string;
@@ -441,6 +446,23 @@ interface ActiveDebuff {
   end: number;
   label: string;
 }
+
+interface ActiveTargetDebuff extends ActiveDebuff {
+  targetId: string;
+  startFrame: number;
+  endFrame: number;
+  reaction: TransformativeReaction;
+  reactionDamageEventId: number;
+  reactionStatusLogId: number;
+}
+
+const TRANSFORMATIVE_REACTION_LABELS: Record<
+  TransformativeReaction,
+  string
+> = {
+  overload: "超载",
+  superconduct: "超导"
+};
 
 const BUFF_STATS = new Set<BuffStat>([
   "atkFlat",
@@ -732,9 +754,11 @@ function simulateConfig(
 
   const activeBuffs: ActiveBuff[] = [];
   const activeDebuffs: ActiveDebuff[] = [];
+  const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
+  const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -782,6 +806,19 @@ function simulateConfig(
       const debuff = activeDebuffs[index];
       if (debuff !== undefined && debuff.end <= timeSeconds + 1e-9) {
         activeDebuffs.splice(index, 1);
+      }
+    }
+    for (
+      let index = activeTargetDebuffs.length - 1;
+      index >= 0;
+      index -= 1
+    ) {
+      const debuff = activeTargetDebuffs[index];
+      if (
+        debuff !== undefined &&
+        debuff.end <= timeSeconds + 1e-9
+      ) {
+        activeTargetDebuffs.splice(index, 1);
       }
     }
   };
@@ -861,17 +898,28 @@ function simulateConfig(
   const getDebuffState = (
     timeSeconds: number,
     element: Element,
-    baseDefenseReduction: number
+    baseDefenseReduction: number,
+    targetId: string
   ): {
     resShred: number;
     defReduction: number;
-    relevantDebuffs: ActiveDebuff[];
+    relevantDebuffs: Array<ActiveDebuff | ActiveTargetDebuff>;
   } => {
     cleanup(timeSeconds);
     let resShred = 0;
     let defReduction = baseDefenseReduction;
     const relevantDebuffs: ActiveDebuff[] = [];
     for (const debuff of activeDebuffs) {
+      const affectsResistance =
+        debuff.element === "all" || debuff.element === element;
+      if (affectsResistance) resShred += debuff.resShred;
+      defReduction += debuff.defReduction;
+      if (affectsResistance || debuff.defReduction !== 0) {
+        relevantDebuffs.push(debuff);
+      }
+    }
+    for (const debuff of activeTargetDebuffs) {
+      if (debuff.targetId !== targetId) continue;
       const affectsResistance =
         debuff.element === "all" || debuff.element === element;
       if (affectsResistance) resShred += debuff.resShred;
@@ -1653,6 +1701,9 @@ function simulateConfig(
 
     if (event.type === "reactionDamage") {
       const {
+        reaction,
+        damageElement,
+        statusEffect,
         actorId,
         action,
         triggerHitId,
@@ -1673,6 +1724,13 @@ function simulateConfig(
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
+      const reactionLabel =
+        TRANSFORMATIVE_REACTION_LABELS[reaction];
+      const reactionHitId = `${triggerHitId}:${reaction}`;
+      const reactionHitGroupId =
+        `${triggerHitGroupId}:${reaction}:${triggerDamageEventId}`;
+      const reactionActionName =
+        `${action.name} · ${reactionLabel}`;
 
       const spatialPlans: Array<{
         targetId: string;
@@ -1759,13 +1817,13 @@ function simulateConfig(
             cycle,
             sourceActorId: actorId,
             sourceActionId: action.id,
-            actionName: `${action.name} · 超载`,
-            hitId: `${triggerHitId}:overload`,
-            hitGroupId: `${triggerHitGroupId}:overload:${triggerDamageEventId}`,
+            actionName: reactionActionName,
+            hitId: reactionHitId,
+            hitGroupId: reactionHitGroupId,
             targetIndex,
             targetCount: spatialPlans.length,
-            hitLabel: "超载反应伤害",
-            element: "pyro",
+            hitLabel: `${reactionLabel}反应伤害`,
+            element: damageElement,
             targetId: plan.targetId,
             targetName: targetProfile.name,
             targetingSource: plan.targetingSource,
@@ -1832,8 +1890,9 @@ function simulateConfig(
 
         const debuffState = getDebuffState(
           timeSeconds,
-          "pyro",
-          targetProfile.defReduction
+          damageElement,
+          targetProfile.defReduction,
+          plan.targetId
         );
         const effectiveResistance =
           targetProfile.resistance - debuffState.resShred;
@@ -1850,6 +1909,9 @@ function simulateConfig(
             key: debuff.key,
             kind: "debuff" as const,
             sourceActorId: debuff.actorId,
+            ...("targetId" in debuff
+              ? { targetId: debuff.targetId }
+              : {}),
             element: debuff.element,
             resShred: debuff.resShred,
             defReduction: debuff.defReduction,
@@ -1867,7 +1929,7 @@ function simulateConfig(
         });
         const transformativeReactionFactors: TransformativeReactionFactors =
           {
-            reaction: "overload",
+            reaction,
             characterLevel: sourceActor.level,
             levelBaseDamage: calculation.levelBaseDamage,
             baseMultiplier,
@@ -1919,7 +1981,7 @@ function simulateConfig(
         const reactionAudit: ReactionAudit = {
           model: "reaction-damage",
           triggered: true,
-          reaction: "overload",
+          reaction,
           icdAllowed: null,
           icdTag: null,
           icdGroup: null,
@@ -1930,7 +1992,7 @@ function simulateConfig(
           auraAfter: null,
           transformativeReaction: null,
           note:
-            "超载独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用火元素抗性与目标伤害策略。"
+            `${reactionLabel}独立伤害：不暴击、忽略防御，不附着元素且不触发命中回调；仅应用${damageElement === "pyro" ? "火" : "冰"}元素抗性与目标伤害策略。`
         };
         damageEvents.push({
           id: damageEventId,
@@ -1940,8 +2002,8 @@ function simulateConfig(
           scalingOwnerId: actorId,
           creditOwnerId: actorId,
           actionId: action.id,
-          hitId: `${triggerHitId}:overload`,
-          hitGroupId: `${triggerHitGroupId}:overload:${triggerDamageEventId}`,
+          hitId: reactionHitId,
+          hitGroupId: reactionHitGroupId,
           targetIndex,
           targetCount: spatialPlans.length,
           targetResolutionId,
@@ -1973,10 +2035,10 @@ function simulateConfig(
           sourceActorName: sourceActor.name,
           scalingOwnerName: sourceActor.name,
           creditOwnerName: sourceActor.name,
-          actionName: `${action.name} · 超载`,
-          hitLabel: "超载反应伤害",
-          element: "pyro",
-          reaction: "overload",
+          actionName: reactionActionName,
+          hitLabel: `${reactionLabel}反应伤害`,
+          element: damageElement,
+          reaction,
           snapshot,
           cycle,
           flatDetails: [],
@@ -2041,6 +2103,70 @@ function simulateConfig(
           calculation.finalDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
+        if (statusEffect !== null) {
+          const existingIndex = activeTargetDebuffs.findIndex(
+            (debuff) =>
+              debuff.targetId === plan.targetId &&
+              debuff.key === statusEffect.key
+          );
+          const operation =
+            existingIndex === -1 ? "apply" : "refresh";
+          if (existingIndex !== -1) {
+            const existing =
+              activeTargetDebuffs[existingIndex];
+            const existingLog =
+              existing === undefined
+                ? undefined
+                : reactionStatusLog[
+                    existing.reactionStatusLogId
+                  ];
+            if (existingLog !== undefined) {
+              existingLog.endFrame = event.frame;
+              existingLog.endTimeSeconds = timeSeconds;
+              existingLog.supersededAtFrame = event.frame;
+            }
+            activeTargetDebuffs.splice(existingIndex, 1);
+          }
+          const endFrame =
+            event.frame + statusEffect.durationFrames;
+          const reactionStatusLogId = reactionStatusLog.length;
+          activeTargetDebuffs.push({
+            key: statusEffect.key,
+            actorId,
+            targetId: plan.targetId,
+            element: statusEffect.element,
+            resShred: statusEffect.resShred,
+            defReduction: 0,
+            start: timeSeconds,
+            end: endFrame / 60,
+            label: statusEffect.label,
+            startFrame: event.frame,
+            endFrame,
+            reaction,
+            reactionDamageEventId: damageEventId,
+            reactionStatusLogId
+          });
+          reactionStatusLog.push({
+            id: reactionStatusLogId,
+            reaction,
+            reactionDamageEventId: damageEventId,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            key: statusEffect.key,
+            label: statusEffect.label,
+            element: statusEffect.element,
+            resShred: statusEffect.resShred,
+            startFrame: event.frame,
+            endFrame,
+            startTimeSeconds: timeSeconds,
+            endTimeSeconds: endFrame / 60,
+            operation,
+            supersededAtFrame: null
+          });
+          reactionLog.reactionStatusLogIds.push(
+            reactionStatusLogId
+          );
+        }
       });
       continue;
     }
@@ -2228,7 +2354,8 @@ function simulateConfig(
     const debuffState = getDebuffState(
       timeSeconds,
       element,
-      targetProfile.defReduction
+      targetProfile.defReduction,
+      targetId
     );
     const effectiveResistance =
       targetProfile.resistance -
@@ -2257,6 +2384,9 @@ function simulateConfig(
         key: debuff.key,
         kind: "debuff" as const,
         sourceActorId: debuff.actorId,
+        ...("targetId" in debuff
+          ? { targetId: debuff.targetId }
+          : {}),
         element: debuff.element,
         resShred: debuff.resShred,
         defReduction: debuff.defReduction,
@@ -2320,7 +2450,9 @@ function simulateConfig(
             };
     const reaction = reactionAudit.reaction;
     const amplifyingReaction =
-      reaction === "overload" ? "none" : reaction;
+      reaction === "overload" || reaction === "superconduct"
+        ? "none"
+        : reaction;
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -2503,13 +2635,23 @@ function simulateConfig(
         checkedTargetIds: [],
         hitTargetIds: [],
         unresolvedTargetIds: [],
-        damageEventIds: []
+        damageEventIds: [],
+        reactionStatusLogIds: []
       });
       if (withinSimulation) {
         push(
           transformativeReaction.damageFrame / 60,
           "reactionDamage",
           {
+            reaction: transformativeReaction.reaction,
+            damageElement:
+              transformativeReaction.damageElement,
+            statusEffect:
+              transformativeReaction.statusEffect === null
+                ? null
+                : deepClone(
+                    transformativeReaction.statusEffect
+                  ),
             actorId,
             action,
             triggerHitId: hitId,
@@ -2719,6 +2861,7 @@ function simulateConfig(
     hitEvents: damageEvents,
     hitResolutionLog,
     reactionDamageLog,
+    reactionStatusLog,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,

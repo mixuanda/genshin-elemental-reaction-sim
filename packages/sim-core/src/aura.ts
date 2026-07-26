@@ -7,7 +7,8 @@ import type {
   ElementalApplication,
   IcdProfile,
   ReactionType,
-  ReactionAudit
+  ReactionAudit,
+  TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 
 const AURA_EPSILON = 1e-10;
@@ -20,6 +21,12 @@ const OVERLOAD_DAMAGE_GCD_FRAMES = 6;
 const OVERLOAD_DAMAGE_DELAY_FRAMES = 1;
 const OVERLOAD_DAMAGE_RADIUS = 3;
 const OVERLOAD_BASE_MULTIPLIER = 2.75;
+const SUPERCONDUCT_DAMAGE_GCD_FRAMES = 6;
+const SUPERCONDUCT_DAMAGE_DELAY_FRAMES = 1;
+const SUPERCONDUCT_DAMAGE_RADIUS = 3;
+const SUPERCONDUCT_BASE_MULTIPLIER = 1.5;
+const SUPERCONDUCT_PHYSICAL_RES_SHRED = 0.4;
+const SUPERCONDUCT_STATUS_DURATION_FRAMES = 720;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
@@ -40,6 +47,53 @@ interface ReactionRule {
   auraElement: AuraElement;
   reaction: ReactionType;
   consumptionFactor: number;
+}
+
+const TRANSFORMATIVE_REACTION_DEFINITIONS = {
+  overload: {
+    damageElement: "pyro",
+    damageGcdFrames: OVERLOAD_DAMAGE_GCD_FRAMES,
+    damageDelayFrames: OVERLOAD_DAMAGE_DELAY_FRAMES,
+    radius: OVERLOAD_DAMAGE_RADIUS,
+    baseMultiplier: OVERLOAD_BASE_MULTIPLIER,
+    statusEffect: null
+  },
+  superconduct: {
+    damageElement: "cryo",
+    damageGcdFrames: SUPERCONDUCT_DAMAGE_GCD_FRAMES,
+    damageDelayFrames: SUPERCONDUCT_DAMAGE_DELAY_FRAMES,
+    radius: SUPERCONDUCT_DAMAGE_RADIUS,
+    baseMultiplier: SUPERCONDUCT_BASE_MULTIPLIER,
+    statusEffect: {
+      key: "superconduct-phys-shred",
+      label: "超导物理抗性降低",
+      element: "physical",
+      resShred: SUPERCONDUCT_PHYSICAL_RES_SHRED,
+      durationFrames: SUPERCONDUCT_STATUS_DURATION_FRAMES
+    }
+  }
+} as const satisfies Record<
+  TransformativeReaction,
+  {
+    damageElement: Element;
+    damageGcdFrames: number;
+    damageDelayFrames: number;
+    radius: number;
+    baseMultiplier: number;
+    statusEffect: {
+      key: string;
+      label: string;
+      element: Element | "all";
+      resShred: number;
+      durationFrames: number;
+    } | null;
+  }
+>;
+
+function isTransformativeReaction(
+  reaction: ReactionType
+): reaction is TransformativeReaction {
+  return reaction === "overload" || reaction === "superconduct";
 }
 
 export interface AuraHitInput {
@@ -71,6 +125,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
   ],
   cryo: [
     {
+      auraElement: "electro",
+      reaction: "superconduct",
+      consumptionFactor: 1
+    },
+    {
       auraElement: "pyro",
       reaction: "reverseMelt",
       consumptionFactor: 0.5
@@ -87,6 +146,11 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
     {
       auraElement: "pyro",
       reaction: "overload",
+      consumptionFactor: 1
+    },
+    {
+      auraElement: "cryo",
+      reaction: "superconduct",
       consumptionFactor: 1
     }
   ]
@@ -113,7 +177,8 @@ function cleanGaugeUnits(value: number): number {
  * Minimal deterministic Aura/ICD engine for Milestone 3.
  *
  * aura-v1 preserves normal Pyro/Cryo/Hydro aura and amplifying Melt/Vaporize.
- * aura-v2 additionally models normal Electro aura and Overload scheduling.
+ * aura-v2 additionally models normal Electro aura plus Overload and
+ * Superconduct scheduling.
  * Coexistence, the remaining reactions, elemental shields, and per-source
  * overlap arrays remain future mechanics work.
  */
@@ -123,7 +188,10 @@ export class AuraEngine {
   private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
-  private overloadDamageReadyFrame = -1;
+  private readonly reactionDamageReadyFrames = new Map<
+    TransformativeReaction,
+    number
+  >();
   private currentFrame = 0;
 
   constructor(config: AuraReactionEngineConfig) {
@@ -299,7 +367,7 @@ export class AuraEngine {
     const rule = REACTION_RULES[input.element].find(
       (candidate) =>
         (this.mode === "aura-v2" ||
-          candidate.reaction !== "overload") &&
+          !isTransformativeReaction(candidate.reaction)) &&
         (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
         AURA_EPSILON
     );
@@ -336,23 +404,39 @@ export class AuraEngine {
     const reaction = debugOverride ?? automaticReaction;
     let transformativeReaction: ReactionAudit["transformativeReaction"] =
       null;
-    if (debugOverride === null && automaticReaction === "overload") {
+    if (
+      debugOverride === null &&
+      isTransformativeReaction(automaticReaction)
+    ) {
+      const definition =
+        TRANSFORMATIVE_REACTION_DEFINITIONS[automaticReaction];
+      const previousReadyFrame =
+        this.reactionDamageReadyFrames.get(automaticReaction) ?? -1;
       const scheduled =
-        this.overloadDamageReadyFrame < 0 ||
-        input.frame >= this.overloadDamageReadyFrame;
+        previousReadyFrame < 0 ||
+        input.frame >= previousReadyFrame;
+      const nextAvailableFrame = scheduled
+        ? input.frame + definition.damageGcdFrames
+        : previousReadyFrame;
       if (scheduled) {
-        this.overloadDamageReadyFrame =
-          input.frame + OVERLOAD_DAMAGE_GCD_FRAMES;
+        this.reactionDamageReadyFrames.set(
+          automaticReaction,
+          nextAvailableFrame
+        );
       }
       transformativeReaction = {
-        reaction: "overload",
-        damageElement: "pyro",
+        reaction: automaticReaction,
+        damageElement: definition.damageElement,
         scheduled,
-        damageFrame: input.frame + OVERLOAD_DAMAGE_DELAY_FRAMES,
-        radius: OVERLOAD_DAMAGE_RADIUS,
-        baseMultiplier: OVERLOAD_BASE_MULTIPLIER,
+        damageFrame: input.frame + definition.damageDelayFrames,
+        radius: definition.radius,
+        baseMultiplier: definition.baseMultiplier,
         blockedReason: scheduled ? null : "REACTION_DAMAGE_GCD",
-        nextAvailableFrame: this.overloadDamageReadyFrame
+        nextAvailableFrame,
+        statusEffect:
+          definition.statusEffect === null
+            ? null
+            : { ...definition.statusEffect }
       };
     }
 
@@ -373,10 +457,10 @@ export class AuraEngine {
         debugOverride === null
           ? automaticReaction === "none"
             ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
-            : automaticReaction === "overload"
+            : isTransformativeReaction(automaticReaction)
               ? transformativeReaction?.scheduled
-                ? "超载由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。"
-                : "超载已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。"
+                ? `${automaticReaction === "overload" ? "超载" : "超导"}由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。`
+                : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
               : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
           : "调试模式 reactionOverride 覆盖了自动反应结果。"
     };
@@ -393,5 +477,12 @@ export const AURA_ENGINE_CONSTANTS = {
   overloadDamageGcdFrames: OVERLOAD_DAMAGE_GCD_FRAMES,
   overloadDamageDelayFrames: OVERLOAD_DAMAGE_DELAY_FRAMES,
   overloadDamageRadius: OVERLOAD_DAMAGE_RADIUS,
-  overloadBaseMultiplier: OVERLOAD_BASE_MULTIPLIER
+  overloadBaseMultiplier: OVERLOAD_BASE_MULTIPLIER,
+  superconductDamageGcdFrames: SUPERCONDUCT_DAMAGE_GCD_FRAMES,
+  superconductDamageDelayFrames: SUPERCONDUCT_DAMAGE_DELAY_FRAMES,
+  superconductDamageRadius: SUPERCONDUCT_DAMAGE_RADIUS,
+  superconductBaseMultiplier: SUPERCONDUCT_BASE_MULTIPLIER,
+  superconductPhysicalResShred: SUPERCONDUCT_PHYSICAL_RES_SHRED,
+  superconductStatusDurationFrames:
+    SUPERCONDUCT_STATUS_DURATION_FRAMES
 } as const;

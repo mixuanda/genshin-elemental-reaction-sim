@@ -464,6 +464,184 @@ test("renders Overload as independent per-target damage with queue and formula a
   );
 });
 
+test("renders Superconduct damage and target-scoped physical resistance windows", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "超导目标状态 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "超导触发目标",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      },
+      {
+        id: "enemy-1",
+        name: "范围外目标",
+        position: { x: 3.1, y: 0 }
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...character,
+      element: "electro",
+      stats: {
+        ...character.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 100,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.2
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v2" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "superconduct-browser",
+        actorId: character.id,
+        name: "超导浏览器序列",
+        kind: "skill",
+        cancelFrame: 2,
+        animationEndFrame: 2,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "superconduct-trigger-browser",
+            label: "雷触发超导",
+            frame: 0,
+            scaling: 1,
+            element: "electro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "superconduct-browser",
+              icdGroup: "no-icd"
+            }
+          },
+          {
+            id: "physical-same-frame-browser",
+            label: "同帧物理",
+            frame: 1,
+            scaling: 1,
+            element: "physical",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            }
+          },
+          {
+            id: "physical-after-browser",
+            label: "状态后物理",
+            frame: 2,
+            scaling: 1,
+            element: "physical",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "superconduct-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "superconduct-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await page.getByRole("button", { name: "时间轴" }).click();
+
+  await expect(page.locator("#auraTimelineBody")).toContainText("超导");
+  await expect(page.locator("#reactionDamageBody")).toContainText("超导");
+  await expect(page.locator("#reactionStatusSummary")).toContainText(
+    "1 条目标级反应状态区间"
+  );
+  await expect(page.locator("#reactionStatusBody")).toContainText(
+    "超导物理抗性降低"
+  );
+  await expect(page.locator("#reactionStatusBody")).toContainText(
+    "1f → 721f"
+  );
+  await expect(page.locator("#reactionStatusBody")).toContainText(
+    "物理抗性 -40%"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const sameFrame = result?.damageEvents.find(
+      (event) => event.hitId === "physical-same-frame-browser"
+    );
+    const after = result?.damageEvents.find(
+      (event) => event.hitId === "physical-after-browser"
+    );
+    return {
+      sameFrameResistance: sameFrame?.effectiveRes,
+      afterResistance: after?.effectiveRes,
+      afterDebuffs: after?.debuffs,
+      statusLog: result?.reactionStatusLog
+    };
+  });
+  expect(audit).toMatchObject({
+    sameFrameResistance: 0.1,
+    afterResistance: -0.30000000000000004,
+    afterDebuffs: ["超导物理抗性降低"],
+    statusLog: [
+      {
+        targetId: "enemy-0",
+        startFrame: 1,
+        endFrame: 721,
+        supersededAtFrame: null
+      }
+    ]
+  });
+
+  await page.locator("#reactionDamageBody tr").click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "等级 90 基准 1,446.8535 × 超导 1.5"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "反应目标状态"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "物理抗性 -40%"
+  );
+});
+
 test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
   page
 }) => {

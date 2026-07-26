@@ -15,6 +15,7 @@ import {
   LEGACY_SCHEMA_VERSION,
   MOVEMENT_COMMAND_SCHEMA_VERSION,
   MULTI_TARGET_REGISTRY_SCHEMA_VERSION,
+  OVERLOAD_REACTION_SCHEMA_VERSION,
   ORIENTED_RECTANGLE_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
@@ -1738,6 +1739,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === OVERLOAD_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ACTOR_POSE_SCHEMA_VERSION) {
     return parseSimConfig({
