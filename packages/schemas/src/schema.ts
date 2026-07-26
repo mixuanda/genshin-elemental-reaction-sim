@@ -3,6 +3,7 @@ import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   LEGACY_SCHEMA_VERSION,
+  PREVIOUS_SCHEMA_VERSION,
   type SimConfig
 } from "./types";
 
@@ -29,6 +30,42 @@ export const reactionSchema = z.enum([
 ]);
 
 export const scalingStatSchema = z.enum(["atk", "hp", "def", "em"]);
+
+export const elementalApplicationSchema = z
+  .object({
+    gaugeUnits: finiteNumber.positive().max(20),
+    icdTag: idSchema,
+    icdGroup: z.enum(["default", "no-icd"])
+  })
+  .strict();
+
+export const initialAuraApplicationSchema = z
+  .object({
+    element: z.enum(["pyro", "cryo", "hydro"]),
+    gaugeUnits: finiteNumber.positive().max(20)
+  })
+  .strict();
+
+export const auraReactionEngineConfigSchema = z
+  .object({
+    mode: z.literal("aura-v1"),
+    initialAura: z.array(initialAuraApplicationSchema).max(3).optional(),
+    debugAllowReactionOverride: z.boolean().optional()
+  })
+  .strict()
+  .superRefine((engine, context) => {
+    const elements = new Set<string>();
+    engine.initialAura?.forEach((aura, index) => {
+      if (elements.has(aura.element)) {
+        context.addIssue({
+          code: "custom",
+          path: ["initialAura", index, "element"],
+          message: `duplicate initial aura element "${aura.element}"`
+        });
+      }
+      elements.add(aura.element);
+    });
+  });
 
 export const characterStatsSchema = z
   .object({
@@ -96,7 +133,9 @@ export const hitDefinitionSchema = z
     scaling: finiteNumber,
     scalingStat: scalingStatSchema.optional(),
     element: elementSchema.optional(),
+    application: elementalApplicationSchema.optional(),
     reaction: reactionSchema.optional(),
+    reactionOverride: reactionSchema.optional(),
     snapshot: z.enum(["action", "hit"]).optional(),
     scalingOwnerId: idSchema.optional(),
     creditId: idSchema.optional(),
@@ -311,7 +350,8 @@ export const simConfigSchema = z
     enemy: enemyProfileSchema,
     characters: z.array(characterProfileSchema).min(1),
     rotation: z.array(actionDefinitionSchema),
-    timeline: legalTimelineConfigSchema.optional()
+    timeline: legalTimelineConfigSchema.optional(),
+    reactionEngine: auraReactionEngineConfigSchema.optional()
   })
   .strict()
   .superRefine((config, context) => {
@@ -616,6 +656,78 @@ export const simConfigSchema = z
         }
       });
     }
+
+    if (config.reactionEngine?.mode === "aura-v1") {
+      if (!config.timeline) {
+        context.addIssue({
+          code: "custom",
+          path: ["reactionEngine"],
+          message: "aura-v1 currently requires timeline.mode legal-frame-v1"
+        });
+      }
+      const validateAuraHit = (
+        hit: {
+          reaction?: string | undefined;
+          reactionOverride?: string | undefined;
+          application?: { gaugeUnits: number } | undefined;
+          element?: string | undefined;
+        },
+        path: Array<string | number>
+      ): void => {
+        if (hit.reaction !== undefined && hit.reaction !== "none") {
+          context.addIssue({
+            code: "custom",
+            path: [...path, "reaction"],
+            message:
+              "manual reaction labels are forbidden in aura-v1; use reactionOverride only for explicit debug runs"
+          });
+        }
+        if (
+          hit.reactionOverride !== undefined &&
+          hit.reactionOverride !== "none" &&
+          config.reactionEngine?.debugAllowReactionOverride !== true
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [...path, "reactionOverride"],
+            message:
+              "requires reactionEngine.debugAllowReactionOverride=true"
+          });
+        }
+        if (
+          hit.application !== undefined &&
+          !["pyro", "cryo", "hydro"].includes(hit.element ?? "")
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [...path, "application"],
+            message:
+              "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
+          });
+        }
+      };
+      config.rotation.forEach((action, actionIndex) => {
+        action.hits?.forEach((hit, hitIndex) => {
+          validateAuraHit(hit, [
+            "rotation",
+            actionIndex,
+            "hits",
+            hitIndex
+          ]);
+        });
+      });
+      config.timeline?.abilities.forEach((ability, abilityIndex) => {
+        ability.hits?.forEach((hit, hitIndex) => {
+          validateAuraHit(hit, [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex
+          ]);
+        });
+      });
+    }
   });
 
 export class ConfigMigrationError extends Error {
@@ -728,6 +840,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === PREVIOUS_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   throw new ConfigMigrationError(
     `不支持的 schemaVersion "${String(version)}"；当前版本为 ${CURRENT_SCHEMA_VERSION}`

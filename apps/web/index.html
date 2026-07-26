@@ -114,6 +114,17 @@
           <canvas id="damageCurveCanvas" height="320"></canvas>
           <div id="curveLegend" class="legend"></div>
         </article>
+        <article class="card curve-card" id="auraTimelineCard" hidden>
+          <div class="section-title"><h2>敌方 Aura / 反应曲线</h2><span>核心逐击返回：附着前 → ICD → 标称附着 → Aura 消耗 → 附着后</span></div>
+          <canvas id="auraTimelineCanvas" height="300"></canvas>
+          <div id="auraTimelineLegend" class="legend"></div>
+          <div class="table-wrap aura-table-wrap">
+            <table>
+              <thead><tr><th>时间 / 帧</th><th>技能 / 段数</th><th>ICD</th><th>命中前 Aura</th><th>标称附着</th><th>消耗 Aura</th><th>反应</th><th>命中后 Aura</th></tr></thead>
+              <tbody id="auraTimelineBody"></tbody>
+            </table>
+          </div>
+        </article>
       </section>
 
       <section class="tab-panel" id="hitsPanel">
@@ -178,8 +189,9 @@
               <dt>debuffs</dt><dd>支持分元素减抗与防御降低。</dd>
               <dt>energyGains</dt><dd>以确定性数值描述自产球、队伍回能或天赋回能；不足能量的行动会被跳过并记录。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、取消帧、动画结束、冷却、充能次数，以及 strict / wait 合法性模式。</dd>
+              <dt>reactionEngine</dt><dd>启用 aura-v1 后，由模拟核心根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。元素附着、Aura、ICD 与粒子仍未自动推演，增幅反应仍由命中段明确标记。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。aura-v1 目前只实现火/冰/水普通 Aura、1U/2U/4U 等可扩展元素量、默认三击/2.5秒 ICD、No ICD、融化与蒸发。元素共存、冻结、感电等转化反应、粒子与真实动作帧数据库仍未实现。</p>
           </article>
         </div>
       </section>

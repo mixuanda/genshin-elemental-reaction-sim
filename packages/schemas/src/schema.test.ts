@@ -29,7 +29,7 @@ describe("versioned config schema", () => {
   it("migrates a legacy config and fills required versions/default stats", () => {
     const migrated = migrateConfig(legacyConfig);
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe("1.0.0-compat");
+    expect(migrated.engineVersion).toBe("1.1.0-aura");
     expect(migrated.dataVersion).toBe("0.1.0-demo");
     expect(migrated.randomSeed).toBe("legacy-default");
     expect(migrated.meta.verificationStatus).toBe("provisional");
@@ -137,5 +137,60 @@ describe("versioned config schema", () => {
         }
       })
     ).toThrow(/rotation: must be empty/);
+  });
+
+  it("migrates a 1.0.0 config to the current optional Aura schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.0.0",
+      engineVersion: "1.0.0-compat"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe("1.1.0-aura");
+  });
+
+  it("requires an explicit debug flag for reactionOverride", () => {
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        rotation: [],
+        reactionEngine: { mode: "aura-v1" },
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "a",
+          swapFrames: 12,
+          abilities: [
+            {
+              id: "debug-hit",
+              actorId: "a",
+              name: "debug",
+              kind: "skill",
+              cancelFrame: 1,
+              animationEndFrame: 1,
+              cooldownFrames: 0,
+              hits: [
+                {
+                  frame: 0,
+                  scaling: 1,
+                  element: "pyro",
+                  reactionOverride: "melt"
+                }
+              ]
+            }
+          ],
+          commands: [
+            {
+              type: "skill",
+              actorId: "a",
+              abilityId: "debug-hit"
+            }
+          ]
+        }
+      })
+    ).toThrow(/debugAllowReactionOverride=true/);
   });
 });

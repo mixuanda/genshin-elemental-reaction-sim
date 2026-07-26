@@ -6,6 +6,8 @@ import {
 import {
   ConfigMigrationError,
   migrateConfig,
+  type AuraGaugeEntry,
+  type AuraStateEntry,
   type DamageEvent,
   type GraduationBuildPlaceholder,
   type ImportedShowcase,
@@ -87,6 +89,28 @@ function compact(value: number): string {
   if (Math.abs(number) >= 1e8) return `${(number / 1e8).toFixed(2)}亿`;
   if (Math.abs(number) >= 1e4) return `${(number / 1e4).toFixed(2)}万`;
   return formatNumber(number, 0);
+}
+
+function formatAuraState(auras: readonly AuraStateEntry[]): string {
+  return (
+    auras
+      .map(
+        (aura) =>
+          `${ELEMENT_LABELS[aura.element] ?? aura.element} ${formatNumber(aura.gaugeUnits, 3)}U`
+      )
+      .join("、") || "无"
+  );
+}
+
+function formatAuraGauge(auras: readonly AuraGaugeEntry[]): string {
+  return (
+    auras
+      .map(
+        (aura) =>
+          `${ELEMENT_LABELS[aura.element] ?? aura.element} ${formatNumber(aura.gaugeUnits, 3)}U`
+      )
+      .join("、") || "无"
+  );
 }
 
 function escapeHtml(value: unknown): string {
@@ -202,6 +226,7 @@ function renderAll(): void {
   renderHitTable();
   renderTimeline();
   renderDamageCurve();
+  renderAuraTimeline();
   renderHitDetail();
   const status = lastResult.config.meta.verificationStatus;
   byId<HTMLElement>("notice").innerHTML =
@@ -228,7 +253,9 @@ function renderMetrics(): void {
     [
       "有效命中",
       formatNumber(result.damageEvents.length, 0),
-      `${result.reactedHits} 段手工增幅反应`
+      `${result.reactedHits} 段增幅反应 · ${
+        result.auraTimeline.length ? "Aura 自动判定" : "兼容手工标签"
+      }`
     ],
     execution
       ? [
@@ -570,17 +597,25 @@ function renderHitDetail(): void {
       "敌方 Aura（命中前）",
       hit.reactionAudit.auraBefore === null
         ? "未模拟（兼容模式）"
-        : hit.reactionAudit.auraBefore
-            .map((aura) => `${aura.element} ${aura.gaugeUnits}U`)
-            .join("、") || "无"
+        : formatAuraState(hit.reactionAudit.auraBefore)
+    ],
+    [
+      "本段附着（标称元素量）",
+      hit.reactionAudit.auraApplied === null
+        ? "未模拟（兼容模式）"
+        : formatAuraGauge(hit.reactionAudit.auraApplied)
+    ],
+    [
+      "本段消耗 Aura",
+      hit.reactionAudit.auraConsumed === null
+        ? "未模拟（兼容模式）"
+        : formatAuraGauge(hit.reactionAudit.auraConsumed)
     ],
     [
       "敌方 Aura（命中后）",
       hit.reactionAudit.auraAfter === null
         ? "未模拟（兼容模式）"
-        : hit.reactionAudit.auraAfter
-            .map((aura) => `${aura.element} ${aura.gaugeUnits}U`)
-            .join("、") || "无"
+        : formatAuraState(hit.reactionAudit.auraAfter)
     ],
     [
       "ICD / 附着",
@@ -589,6 +624,12 @@ function renderHitDetail(): void {
         : hit.reactionAudit.icdAllowed
           ? "允许附着"
           : "ICD 阻止附着"
+    ],
+    [
+      "ICD 流",
+      hit.reactionAudit.icdTag === null
+        ? "—"
+        : `${hit.reactionAudit.icdTag} / ${hit.reactionAudit.icdGroup}`
     ],
     [
       "元素精通",
@@ -830,6 +871,174 @@ function renderDamageCurve(): void {
       .join("");
 }
 
+function renderAuraTimeline(): void {
+  if (!lastResult) return;
+  const card = byId<HTMLElement>("auraTimelineCard");
+  const timeline = lastResult.auraTimeline;
+  card.hidden = timeline.length === 0;
+  if (!timeline.length) return;
+
+  const elements = ["pyro", "cryo", "hydro"] as const;
+  const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const pixelRatio = window.devicePixelRatio || 1;
+  const cssWidth = Math.max(320, canvas.clientWidth);
+  const cssHeight = 300;
+  canvas.width = cssWidth * pixelRatio;
+  canvas.height = cssHeight * pixelRatio;
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  context.clearRect(0, 0, cssWidth, cssHeight);
+
+  const padding = { left: 58, right: 18, top: 18, bottom: 42 };
+  const width = cssWidth - padding.left - padding.right;
+  const height = cssHeight - padding.top - padding.bottom;
+  const durationFrames = Math.round(lastResult.config.duration * 60);
+  const maximum = Math.max(
+    1,
+    ...timeline.flatMap((point) => [
+      ...point.auraBefore.map((aura) => aura.gaugeUnits),
+      ...point.auraAfter.map((aura) => aura.gaugeUnits)
+    ])
+  );
+  const xAt = (frame: number) =>
+    padding.left + (frame / Math.max(1, durationFrames)) * width;
+  const yAt = (gaugeUnits: number) =>
+    padding.top + height - (gaugeUnits / maximum) * height;
+
+  context.strokeStyle = "#293243";
+  context.fillStyle = "#8f9bad";
+  context.font = "12px system-ui";
+  context.lineWidth = 1;
+  for (let index = 0; index <= 4; index += 1) {
+    const value = (maximum * index) / 4;
+    const y = yAt(value);
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(cssWidth - padding.right, y);
+    context.stroke();
+    context.fillText(`${formatNumber(value, 2)}U`, 6, y + 4);
+  }
+  const secondStep =
+    lastResult.config.duration > 90
+      ? 20
+      : lastResult.config.duration > 20
+        ? 5
+        : 1;
+  for (
+    let second = 0;
+    second <= lastResult.config.duration;
+    second += secondStep
+  ) {
+    const x = xAt(second * 60);
+    context.fillText(`${second}s`, x - 8, cssHeight - 16);
+  }
+
+  const valueFor = (
+    auras: readonly AuraStateEntry[],
+    element: (typeof elements)[number]
+  ) => auras.find((aura) => aura.element === element)?.gaugeUnits ?? 0;
+  elements.forEach((element) => {
+    context.beginPath();
+    context.moveTo(padding.left, yAt(0));
+    timeline.forEach((point) => {
+      const x = xAt(point.frame);
+      context.lineTo(x, yAt(valueFor(point.auraBefore, element)));
+      context.lineTo(x, yAt(valueFor(point.auraAfter, element)));
+    });
+    const finalPoint = timeline[timeline.length - 1];
+    const finalAura = finalPoint?.auraAfter.find(
+      (aura) => aura.element === element
+    );
+    if (finalAura?.expiresAtFrame !== null && finalAura !== undefined) {
+      context.lineTo(
+        xAt(Math.min(durationFrames, finalAura.expiresAtFrame)),
+        yAt(0)
+      );
+    }
+    context.lineTo(xAt(durationFrames), yAt(0));
+    context.strokeStyle = ELEMENT_COLORS[element] ?? "#fff";
+    context.lineWidth = 2.2;
+    context.stroke();
+  });
+
+  timeline.forEach((point) => {
+    if (point.reaction === "none") return;
+    const x = xAt(point.frame);
+    context.strokeStyle = "#f2f6ff";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(x, padding.top);
+    context.lineTo(x, padding.top + height);
+    context.stroke();
+  });
+
+  canvas.onclick = (event) => {
+    const rectangle = canvas.getBoundingClientRect();
+    const clickedFrame = Math.round(
+      clamp(
+        ((event.clientX - rectangle.left - padding.left) / width) *
+          durationFrames,
+        0,
+        durationFrames
+      )
+    );
+    const nearest = timeline.reduce((best, point) =>
+      Math.abs(point.frame - clickedFrame) < Math.abs(best.frame - clickedFrame)
+        ? point
+        : best
+    );
+    selectedHitId = nearest.damageEventId;
+    timelineSecondFilter = null;
+    currentPage = 1;
+    activateTab("hits");
+    renderHitTable();
+    renderHitDetail();
+  };
+
+  byId<HTMLElement>("auraTimelineLegend").innerHTML =
+    elements
+      .map(
+        (element) =>
+          `<span class="legend-item"><span class="dot" style="background:${ELEMENT_COLORS[element]}"></span>` +
+          `${ELEMENT_LABELS[element]} Aura</span>`
+      )
+      .join("") +
+    `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>自动增幅反应</span>` +
+    `<span class="muted">普通附着初始 Aura = 标称元素量 × 0.8；点击曲线定位逐击记录。</span>`;
+
+  byId<HTMLTableSectionElement>("auraTimelineBody").innerHTML = timeline
+    .map((point) => {
+      const hit = lastResult?.damageEvents[point.damageEventId];
+      return (
+        `<tr data-aura-hit-id="${point.damageEventId}">` +
+        `<td>${point.timeSeconds.toFixed(3)}s / ${point.frame}f</td>` +
+        `<td>${escapeHtml(hit?.actionName ?? point.actionId)} <span class="muted">/ ${escapeHtml(hit?.hitLabel ?? point.hitId)}</span></td>` +
+        `<td>${point.icdAllowed === null ? "—" : point.icdAllowed ? "通过" : "阻止"}</td>` +
+        `<td>${escapeHtml(formatAuraState(point.auraBefore))}</td>` +
+        `<td>${escapeHtml(formatAuraGauge(point.auraApplied))}</td>` +
+        `<td>${escapeHtml(formatAuraGauge(point.auraConsumed))}</td>` +
+        `<td>${point.reaction === "none" ? "—" : escapeHtml(REACTION_LABELS[point.reaction] ?? point.reaction)}</td>` +
+        `<td>${escapeHtml(formatAuraState(point.auraAfter))}</td></tr>`
+      );
+    })
+    .join("");
+  document
+    .querySelectorAll<HTMLTableRowElement>(
+      "#auraTimelineBody tr[data-aura-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.auraHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+}
+
 function renderShowcase(): void {
   const summary = byId<HTMLElement>("showcaseSummary");
   const container = byId<HTMLElement>("showcaseCharacters");
@@ -967,6 +1176,7 @@ function activateTab(tabName: string): void {
     requestAnimationFrame(() => {
       renderTimeline();
       renderDamageCurve();
+      renderAuraTimeline();
     });
   }
 }
@@ -1101,6 +1311,7 @@ function initEvents(): void {
     if (byId<HTMLElement>("timelinePanel").classList.contains("active")) {
       renderTimeline();
       renderDamageCurve();
+      renderAuraTimeline();
     }
   });
 }

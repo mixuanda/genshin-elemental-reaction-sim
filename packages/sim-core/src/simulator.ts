@@ -11,12 +11,14 @@ import {
   type Element,
   type EnergySummary,
   type HitDefinition,
+  type ReactionAudit,
   type SimConfig,
   type SimulationEvent,
   type SimulationOptions,
   type SimulationResult,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
+import { AuraEngine } from "./aura";
 import {
   calcDamage,
   calcTotalStat,
@@ -195,6 +197,10 @@ function simulateConfig(
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   } as const;
   const plugins = runtimeOptions.plugins ?? [];
+  const auraEngine =
+    config.reactionEngine?.mode === "aura-v1"
+      ? new AuraEngine(config.reactionEngine)
+      : null;
   const characters = new Map(
     config.characters.map((character) => [character.id, character])
   );
@@ -618,6 +624,39 @@ function simulateConfig(
       baseDefenseReduction: config.enemy.defReduction,
       effectiveDefenseReduction
     };
+    const manualReaction = hit.reaction ?? "none";
+    const reactionAudit: ReactionAudit =
+      auraEngine === null
+        ? {
+            model:
+              manualReaction === "none" ? "none" : "manual-override",
+            triggered: manualReaction !== "none",
+            reaction: manualReaction,
+            icdAllowed: null,
+            icdTag: null,
+            icdGroup: null,
+            applicationGaugeUnits: null,
+            auraBefore: null,
+            auraApplied: null,
+            auraConsumed: null,
+            auraAfter: null,
+            note:
+              manualReaction === "none"
+                ? "兼容模式未运行 Aura/ICD 引擎。"
+                : "反应由命中配置手工指定；未运行 Aura/ICD 合法性判断。"
+          }
+        : auraEngine.processHit({
+            frame: event.frame,
+            sourceActorId: actorId,
+            element,
+            ...(hit.application === undefined
+              ? {}
+              : { application: hit.application }),
+            ...(hit.reactionOverride === undefined
+              ? {}
+              : { reactionOverride: hit.reactionOverride })
+          });
+    const reaction = reactionAudit.reaction;
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -632,7 +671,7 @@ function simulateConfig(
       critRate: stats.critRate + safeNumber(hit.critRate),
       critDamage: stats.critDmg + safeNumber(hit.critDmg),
       critMode: options.critMode,
-      reaction: hit.reaction ?? "none",
+      reaction,
       elementalMastery: stats.em,
       reactionBonus:
         stats.reactionBonus + safeNumber(hit.reactionBonus),
@@ -668,7 +707,6 @@ function simulateConfig(
     const debuffLabels = activeStatuses
       .filter((status) => status.kind === "debuff")
       .map((status) => status.label);
-    const reaction = hit.reaction ?? "none";
     const snapshot = hit.snapshot ?? "hit";
     const hitId = hit.id ?? `${action.id}:hit-${hitIndex}`;
 
@@ -685,19 +723,7 @@ function simulateConfig(
       statsBeforeDamage: deepClone(stats),
       activeStatuses,
       enemyStateBeforeHit,
-      reactionAudit: {
-        model: reaction === "none" ? "none" : "manual-override",
-        triggered: reaction !== "none",
-        reaction,
-        icdAllowed: null,
-        applicationGaugeUnits: null,
-        auraBefore: null,
-        auraAfter: null,
-        note:
-          reaction === "none"
-            ? "兼容模式未运行 Aura/ICD 引擎。"
-            : "反应由命中配置手工指定；未运行 Aura/ICD 合法性判断。"
-      },
+      reactionAudit,
       damageFactors: factors,
       finalDamage: calculation.finalDamage,
       displayDamage: Math.round(calculation.finalDamage),
@@ -834,6 +860,36 @@ function simulateConfig(
       cumulativeByCharacter: { ...cumulativeByCharacter }
     };
   });
+  const auraTimeline: SimulationResult["auraTimeline"] = damageEvents.flatMap(
+    (event) => {
+      const audit = event.reactionAudit;
+      if (
+        audit.auraBefore === null ||
+        audit.auraApplied === null ||
+        audit.auraConsumed === null ||
+        audit.auraAfter === null
+      ) {
+        return [];
+      }
+      return [
+        {
+          damageEventId: event.id,
+          frame: event.frame,
+          timeSeconds: event.timeSeconds,
+          sourceActorId: event.sourceActorId,
+          actionId: event.actionId,
+          hitId: event.hitId,
+          incomingElement: event.element,
+          icdAllowed: audit.icdAllowed,
+          reaction: event.reaction,
+          auraBefore: audit.auraBefore,
+          auraApplied: audit.auraApplied,
+          auraConsumed: audit.auraConsumed,
+          auraAfter: audit.auraAfter
+        }
+      ];
+    }
+  );
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -860,6 +916,7 @@ function simulateConfig(
     bySkill: skillSummaries,
     perSecond,
     damageCurve,
+    auraTimeline,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
 }

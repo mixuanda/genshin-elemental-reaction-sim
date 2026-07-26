@@ -2,7 +2,7 @@
 
 ## 1. 当前目标
 
-本阶段冻结 Vanilla v0.1 结果，并把模拟迁移为可在 Node 和浏览器运行的纯 TypeScript 核心。当前引擎仍使用旧版的“手工反应 + 确定性回能 + 绝对秒偏移”兼容口径，不声称拥有完整游戏机制精度。
+Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线，以及火/冰/水 Aura、默认 ICD 和自动融化/蒸发的最小闭环；仍不声称拥有完整游戏机制精度。
 
 ## 2. 包边界
 
@@ -46,7 +46,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本或 `0.1.0` 配置迁移到 `1.0.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用和越界数值在模拟前失败，并返回字段路径。
+`migrateConfig()` 负责把无版本、`0.1.0` 或 `1.0.0` 配置迁移到 `1.1.0`。迁移后由严格 Zod Schema 校验；未知字段、重复 ID、未知角色引用和越界数值在模拟前失败，并返回字段路径。`engineVersion` 当前为 `1.1.0-aura`。
 
 ## 4. 确定性与排序
 
@@ -146,7 +146,7 @@ displayDamage
 
 `finalDamage` 是用于 Golden、聚合与后续计算的浮点原始值；`displayDamage` 使用 `Math.round(finalDamage)`，与 gcsim Sample 页的整数展示口径一致。二者并存，避免 UI 隐式改变模拟结果。
 
-`reactionAudit` 已包含 `icdAllowed`、`applicationGaugeUnits`、`auraBefore` 和 `auraAfter`。兼容引擎不具备 Aura/ICD 推演能力，所以这些字段必须为 `null`，手工反应标记为 `manual-override`；不得用空数组伪装为“敌人无附着”。
+`reactionAudit` 包含 `icdAllowed`、`icdTag`、`icdGroup`、`applicationGaugeUnits`、`auraBefore`、`auraApplied`、`auraConsumed` 和 `auraAfter`。兼容引擎不具备 Aura/ICD 推演能力，所以这些字段必须为 `null`，手工反应标记为 `manual-override`；不得用空数组伪装为“敌人无附着”。`aura-v1` 下数组表示核心实际判定的空/非空状态。
 
 核心同时返回：
 
@@ -154,8 +154,34 @@ displayDamage
 - `bySkill`：伤害、命中、DPS、占比。
 - `perSecond`：逐秒、逐角色伤害桶。
 - `damageCurve`：每一段伤害对应一个累计曲线点，含逐角色累计值。
+- `auraTimeline`：每一段 Aura 模式伤害对应的附着前后、ICD、消耗和反应记录。
 
 UI 只绘制这些结构化结果，不重新执行伤害公式。
+
+### 6.1 Aura / ICD 最小状态机
+
+`packages/sim-core/src/aura.ts` 是无 DOM 依赖的纯状态机。命中通过以下字段声明附着：
+
+```ts
+application: {
+  gaugeUnits: 1,
+  icdTag: "ability-stream",
+  icdGroup: "default" | "no-icd"
+}
+```
+
+普通 Aura 的初始耐久为标称元素量的 `0.8` 倍；1U 的衰减长度为 `420 + 6 × 1 = 426` 帧。默认 ICD 窗口为 150 帧，序列为允许、阻止、阻止并循环；状态键包含施放者、`icdTag` 和 `icdGroup`。`no-icd` 每次允许附着。
+
+当前增幅反应消耗规则与 gcsim 的最小语义对齐：
+
+- 火打冰：正向融化，2 倍伤害基础，按 2 倍来袭元素量消耗冰 Aura。
+- 冰打火：反向融化，1.5 倍基础，按 0.5 倍消耗火 Aura。
+- 水打火：正向蒸发，2 倍基础，按 2 倍消耗火 Aura。
+- 火打水：反向蒸发，1.5 倍基础，按 0.5 倍消耗水 Aura。
+
+如果反应发生，剩余来袭元素不继续挂为普通 Aura。正式 `aura-v1` Schema 禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
+
+当前状态机只实现单目标的火/冰/水普通 Aura。冰/水的同元素 overlap 尚未保存 gcsim 式按来源数组，暂以单状态的较强剩余 Aura 表示；复合共存、冻结、转化反应和角色特有 ICD Group 尚未实现。
 
 ## 7. 测试策略
 
@@ -177,8 +203,13 @@ Vitest 当前覆盖：
 - 整数帧行动、切人、命中追踪、取消帧与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。
+- 1U Aura 的 0.8 初始耐久和 426 帧衰减。
+- 默认 ICD 第 1/2/3/4 次附着、150 帧重置、独立角色/Tag/Group 和 No ICD。
+- 正/反融化与正/反蒸发的反应方向和 Aura 消耗。
+- 无 Aura 不触发融化，以及正式 Aura 配置拒绝手工反应标签。
+- Aura 结果接入伤害乘区和 `auraTimeline`。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、逐段筛选、公式展开、导出和字段路径错误。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计曲线、敌方 Aura 曲线、ICD 阻止、自动融化、逐段筛选、公式展开、导出和字段路径错误。
 
 ## 8. 展示柜导入边界
 
@@ -200,8 +231,10 @@ GET /api/showcase/:uid -> https://enka.network/api/uid/:uid/
 
 纯静态部署没有 Vite 中间件，必须把代理迁移为受控服务端函数，并继续遵守上游 TTL 和限流要求。
 
-## 9. Milestone 2 当前边界
+## 9. Milestone 3 当前边界
 
 Milestone 2 的结构能力已经落地，但内置行动帧仍是 provisional 示例，不代表游戏实测。当前时间线先编译再执行；若爆发因能量不足失败，后续命令尚不会动态回滚或重新排程，失败仍通过 `skippedActions` 明确记录。
 
-下一阶段进入 Milestone 3：先实现 Pyro、Cryo、Hydro Aura、1U/2U/4U、衰减、默认 ICD 和融化/蒸发，再扩展其他反应。Aura 结果必须写入现有 `reactionAudit`，并增加敌方附着时间线。
+Milestone 3 的最小闭环已经落地：火/冰/水普通 Aura、可扩展元素量、衰减、默认 ICD、No ICD、融化/蒸发、逐击审计和敌方附着曲线均有测试。冻结的杜林兼容预设仍保留手工反应以维持 Golden；尚未有基于核验角色数据重建的正式杜林合法帧/Aura 预设，因此不能把兼容预设的手工标签删除后声称机制等价。
+
+下一阶段应先扩展 Milestone 3 的机制矩阵和测试向量（复合附着、冻结、转化反应、角色特有 ICD Group），或者进入 Milestone 4 建立粒子对象和动态能量队列。无论选择哪一条，都必须保留现有 Golden 与 Aura 向量。

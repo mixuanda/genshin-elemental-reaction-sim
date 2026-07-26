@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.0.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.0.0-compat" as const;
+export const CURRENT_SCHEMA_VERSION = "1.1.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.1.0-aura" as const;
+export const PREVIOUS_SCHEMA_VERSION = "1.0.0" as const;
 export const LEGACY_SCHEMA_VERSION = "0.1.0" as const;
 
 export type Element =
@@ -27,6 +28,32 @@ export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
+export type AuraElement = Extract<Element, "pyro" | "cryo" | "hydro">;
+export type IcdGroup = "default" | "no-icd";
+
+export interface ElementalApplication {
+  /** Nominal elemental application strength (for example 1U, 2U, or 4U). */
+  gaugeUnits: number;
+  /** Independent ICD stream identifier within one actor and ICD group. */
+  icdTag: string;
+  icdGroup: IcdGroup;
+}
+
+export interface InitialAuraApplication {
+  element: AuraElement;
+  /** Nominal application strength; the normal aura starts at 0.8 × this value. */
+  gaugeUnits: number;
+}
+
+export interface AuraReactionEngineConfig {
+  mode: "aura-v1";
+  initialAura?: InitialAuraApplication[];
+  /**
+   * Debug-only escape hatch. Formal presets must leave this false and rely on
+   * Aura/ICD state rather than manually labelling reactions.
+   */
+  debugAllowReactionOverride?: boolean;
+}
 
 export interface CharacterStats {
   baseAtk: number;
@@ -76,7 +103,9 @@ export interface HitDefinition {
   scaling: number;
   scalingStat?: ScalingStat;
   element?: Element;
+  application?: ElementalApplication;
   reaction?: AmplifyingReaction;
+  reactionOverride?: AmplifyingReaction;
   snapshot?: SnapshotMode;
   scalingOwnerId?: string;
   creditId?: string;
@@ -256,6 +285,7 @@ export interface SimConfig {
   characters: CharacterProfile[];
   rotation: RotationCommand[];
   timeline?: LegalTimelineConfig;
+  reactionEngine?: AuraReactionEngineConfig;
 }
 
 export interface SimulationOptions {
@@ -301,9 +331,14 @@ export interface EnemyStateBeforeHit {
 }
 
 export interface AuraStateEntry {
-  element: Exclude<Element, "physical" | "anemo" | "geo">;
+  element: AuraElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
+}
+
+export interface AuraGaugeEntry {
+  element: AuraElement;
+  gaugeUnits: number;
 }
 
 export interface ReactionAudit {
@@ -311,8 +346,14 @@ export interface ReactionAudit {
   triggered: boolean;
   reaction: AmplifyingReaction;
   icdAllowed: boolean | null;
+  icdTag: string | null;
+  icdGroup: IcdGroup | null;
   applicationGaugeUnits: number | null;
   auraBefore: AuraStateEntry[] | null;
+  /** Nominal attack application that passed ICD. */
+  auraApplied: AuraGaugeEntry[] | null;
+  /** Actual remaining aura durability removed by this hit. */
+  auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
   note?: string;
 }
@@ -477,6 +518,22 @@ export interface DamageCurvePoint {
   cumulativeByCharacter: Record<string, number>;
 }
 
+export interface AuraTimelinePoint {
+  damageEventId: number;
+  frame: number;
+  timeSeconds: number;
+  sourceActorId: string;
+  actionId: string;
+  hitId: string;
+  incomingElement: Element;
+  icdAllowed: boolean | null;
+  reaction: AmplifyingReaction;
+  auraBefore: AuraStateEntry[];
+  auraApplied: AuraGaugeEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+}
+
 export type TimelineFailureCode =
   | "ACTION_OVERLAP"
   | "ABILITY_ON_COOLDOWN"
@@ -549,5 +606,6 @@ export interface SimulationResult {
   bySkill: SkillSummary[];
   perSecond: Array<Record<string, number>>;
   damageCurve: DamageCurvePoint[];
+  auraTimeline: AuraTimelinePoint[];
   timelineExecution?: TimelineExecution;
 }

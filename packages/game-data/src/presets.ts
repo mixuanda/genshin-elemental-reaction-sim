@@ -706,8 +706,104 @@ export const legalTimelineDemoPreset: SimConfig = {
   }
 };
 
+export const auraReactionDemoPreset: SimConfig = {
+  schemaVersion: CURRENT_SCHEMA_VERSION,
+  engineVersion: CURRENT_ENGINE_VERSION,
+  dataVersion: "m3-aura-demo-1",
+  randomSeed: "aura-reaction-demo",
+  meta: {
+    name: "Aura / ICD 自动反应 · M3 结构示例",
+    version: "m3-aura-demo-1",
+    verificationStatus: "provisional",
+    note:
+      "用于验证冰附着、默认三击/2.5秒 ICD、自动正向融化和敌方 Aura 逐击审计；行动帧、角色面板与倍率均为结构示例，不是已核验游戏数据。"
+  },
+  duration: 4,
+  cycleLength: 4,
+  enemy: { level: 110, resistance: 0.1, defReduction: 0 },
+  characters: legalTimelineDemoPreset.characters.map((character) => ({
+    ...character,
+    stats: { ...character.stats }
+  })),
+  rotation: [],
+  reactionEngine: {
+    mode: "aura-v1"
+  },
+  timeline: {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: "frame-b",
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "m3-cryo-primer",
+        actorId: "frame-b",
+        name: "B 冰附着",
+        kind: "skill",
+        cancelFrame: 20,
+        animationEndFrame: 30,
+        cooldownFrames: 120,
+        hits: [
+          {
+            id: "m3-cryo-primer-hit",
+            frame: 10,
+            label: "1U 冰附着",
+            scaling: 1,
+            scalingStat: "atk",
+            element: "cryo",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "none",
+              icdGroup: "no-icd"
+            },
+            snapshot: "hit"
+          }
+        ]
+      },
+      {
+        id: "m3-pyro-multihit",
+        actorId: "frame-a",
+        name: "A 四段火伤",
+        kind: "skill",
+        cancelFrame: 42,
+        animationEndFrame: 52,
+        cooldownFrames: 180,
+        hits: [8, 16, 24, 32].map((frame, index) => ({
+          id: `m3-pyro-hit-${index + 1}`,
+          frame,
+          label: `火伤第 ${index + 1} 段`,
+          scaling: 1.2,
+          scalingStat: "atk" as const,
+          element: "pyro" as const,
+          application: {
+            gaugeUnits: 1,
+            icdTag: "m3-pyro-multihit",
+            icdGroup: "default" as const
+          },
+          snapshot: "hit" as const
+        }))
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: "frame-b",
+        abilityId: "m3-cryo-primer"
+      },
+      { type: "swap", characterId: "frame-a" },
+      {
+        type: "skill",
+        actorId: "frame-a",
+        abilityId: "m3-pyro-multihit"
+      }
+    ]
+  }
+};
+
 export const presets = [
   durinMeltPreset,
   blankPreset,
-  legalTimelineDemoPreset
+  legalTimelineDemoPreset,
+  auraReactionDemoPreset
 ] as const;

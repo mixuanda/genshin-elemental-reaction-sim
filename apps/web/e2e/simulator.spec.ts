@@ -86,6 +86,31 @@ test("renders the legal frame action queue and traces hits to commands", async (
   await expect(page.locator("#hitDetail")).toContainText("合法行动帧");
 });
 
+test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page.locator("#presetSelect").selectOption({ index: 3 });
+
+  await expect(page.locator("#notice")).toContainText("Aura / ICD 自动反应");
+  await expect(page.locator("#metricGrid")).toContainText("Aura 自动判定");
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#auraTimelineCard")).toBeVisible();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineLegend")).toContainText("火 Aura");
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(5);
+  await expect(page.locator("#auraTimelineBody")).toContainText("融化");
+  await expect(page.locator("#auraTimelineBody")).toContainText("阻止");
+
+  await page.locator("#auraTimelineBody tr").nth(1).click();
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText("Aura / ICD 引擎");
+  await expect(page.locator("#hitDetail")).toContainText("本段消耗 Aura");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "m3-pyro-multihit / default"
+  );
+});
+
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page
 }) => {
