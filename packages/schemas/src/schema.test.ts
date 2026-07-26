@@ -140,7 +140,7 @@ describe("versioned config schema", () => {
     ).toThrow(/rotation: must be empty/);
   });
 
-  it("migrates 1.0.0 through 1.18.0 configs to capsule geometry", () => {
+  it("migrates 1.0.0 through 1.19.0 configs to sector geometry", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
       ...current,
@@ -236,6 +236,11 @@ describe("versioned config schema", () => {
       ...current,
       schemaVersion: "1.18.0",
       engineVersion: "1.18.0-oriented-rectangle"
+    });
+    const migratedFromCapsuleGeometry = migrateConfig({
+      ...current,
+      schemaVersion: "1.19.0",
+      engineVersion: "1.19.0-capsule-geometry"
     });
 
     expect(migratedFromOne.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -342,6 +347,12 @@ describe("versioned config schema", () => {
       CURRENT_SCHEMA_VERSION
     );
     expect(migratedFromOrientedRectangle.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
+    expect(migratedFromCapsuleGeometry.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(migratedFromCapsuleGeometry.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
   });
@@ -736,6 +747,67 @@ describe("versioned config schema", () => {
       start: { x: 0, y: 0 },
       end: { x: 0, y: 0 }
     });
+  });
+
+  it("accepts a filled sector geometry and rejects invalid angular bounds", () => {
+    const input = {
+      ...legacyConfig,
+      enemy: {
+        ...legacyConfig.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "扇形目标",
+            position: { x: 1, y: 0 },
+            hitboxRadius: 0.25
+          }
+        ]
+      },
+      rotation: [
+        {
+          id: "sector",
+          actorId: "a",
+          name: "扇形范围",
+          at: 0,
+          hits: [
+            {
+              id: "sector-hit",
+              offset: 0,
+              scaling: 1,
+              geometry: {
+                kind: "sector",
+                origin: { x: 0, y: 0 },
+                radius: 2,
+                directionDegrees: 45,
+                angleDegrees: 90
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    const parsed = migrateConfig(input);
+    expect(parsed.rotation[0]?.hits?.[0]?.geometry).toEqual({
+      kind: "sector",
+      origin: { x: 0, y: 0 },
+      radius: 2,
+      directionDegrees: 45,
+      angleDegrees: 90
+    });
+
+    const invalidAngle = structuredClone(input);
+    invalidAngle.rotation[0]!.hits[0]!.geometry.angleDegrees = 0;
+    expect(() => migrateConfig(invalidAngle)).toThrow(
+      /geometry\.angleDegrees/
+    );
+
+    const invalidDirection = structuredClone(input);
+    invalidDirection.rotation[0]!.hits[0]!.geometry.directionDegrees =
+      360.1;
+    expect(() => migrateConfig(invalidDirection)).toThrow(
+      /geometry\.directionDegrees/
+    );
   });
 
   it("requires complete target positions and one hit-resolution source for geometry", () => {

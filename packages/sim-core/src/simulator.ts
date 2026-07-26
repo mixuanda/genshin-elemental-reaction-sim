@@ -55,6 +55,36 @@ export interface SimulationRuntimeOptions extends SimulationOptions {
 
 const GEOMETRY_EPSILON = 1e-9;
 
+function distancePointToSegment(
+  point: { x: number; y: number },
+  start: { x: number; y: number },
+  end: { x: number; y: number }
+): number {
+  const segmentX = end.x - start.x;
+  const segmentY = end.y - start.y;
+  const segmentLengthSquared =
+    segmentX * segmentX + segmentY * segmentY;
+  const fromStartX = point.x - start.x;
+  const fromStartY = point.y - start.y;
+  const projection =
+    segmentLengthSquared === 0
+      ? 0
+      : clamp(
+          (fromStartX * segmentX + fromStartY * segmentY) /
+            segmentLengthSquared,
+          0,
+          1
+        );
+  return Math.hypot(
+    point.x - (start.x + segmentX * projection),
+    point.y - (start.y + segmentY * projection)
+  );
+}
+
+function normalizeSignedDegrees(value: number): number {
+  return ((value + 180) % 360 + 360) % 360 - 180;
+}
+
 function resolveHitGeometry(
   geometry: NonNullable<HitDefinition["geometry"]>,
   targetPosition: { x: number; y: number },
@@ -109,26 +139,79 @@ function resolveHitGeometry(
     };
   }
 
-  const segmentX = geometry.end.x - geometry.start.x;
-  const segmentY = geometry.end.y - geometry.start.y;
-  const segmentLengthSquared =
-    segmentX * segmentX + segmentY * segmentY;
-  const fromStartX = targetPosition.x - geometry.start.x;
-  const fromStartY = targetPosition.y - geometry.start.y;
-  const projection =
-    segmentLengthSquared === 0
-      ? 0
-      : clamp(
-          (fromStartX * segmentX + fromStartY * segmentY) /
-            segmentLengthSquared,
-          0,
-          1
+  if (geometry.kind === "sector") {
+    const deltaX = targetPosition.x - geometry.origin.x;
+    const deltaY = targetPosition.y - geometry.origin.y;
+    const centerDistance = Math.hypot(deltaX, deltaY);
+    const threshold = hitboxRadius;
+
+    if (geometry.angleDegrees === 360) {
+      const distance = Math.max(0, centerDistance - geometry.radius);
+      return {
+        landed: distance <= threshold + GEOMETRY_EPSILON,
+        distance,
+        threshold,
+        missReason: "OUTSIDE_SECTOR_GEOMETRY"
+      };
+    }
+
+    const targetDirectionDegrees =
+      (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
+    const angularDifference = Math.abs(
+      normalizeSignedDegrees(
+        targetDirectionDegrees - geometry.directionDegrees
+      )
+    );
+    const halfAngleDegrees = geometry.angleDegrees / 2;
+    const centerInside =
+      centerDistance <= geometry.radius + GEOMETRY_EPSILON &&
+      angularDifference <= halfAngleDegrees + GEOMETRY_EPSILON;
+
+    let distance = 0;
+    if (!centerInside) {
+      const boundaryAngles = [
+        geometry.directionDegrees - halfAngleDegrees,
+        geometry.directionDegrees + halfAngleDegrees
+      ];
+      const radialDistances = boundaryAngles.map((angleDegrees) => {
+        const angleRadians = (angleDegrees * Math.PI) / 180;
+        return distancePointToSegment(
+          targetPosition,
+          geometry.origin,
+          {
+            x:
+              geometry.origin.x +
+              geometry.radius * Math.cos(angleRadians),
+            y:
+              geometry.origin.y +
+              geometry.radius * Math.sin(angleRadians)
+          }
         );
-  const closestX = geometry.start.x + segmentX * projection;
-  const closestY = geometry.start.y + segmentY * projection;
-  const distance = Math.hypot(
-    targetPosition.x - closestX,
-    targetPosition.y - closestY
+      });
+      distance = Math.min(...radialDistances);
+      if (
+        angularDifference <=
+        halfAngleDegrees + GEOMETRY_EPSILON
+      ) {
+        distance = Math.min(
+          distance,
+          Math.abs(centerDistance - geometry.radius)
+        );
+      }
+    }
+
+    return {
+      landed: distance <= threshold + GEOMETRY_EPSILON,
+      distance,
+      threshold,
+      missReason: "OUTSIDE_SECTOR_GEOMETRY"
+    };
+  }
+
+  const distance = distancePointToSegment(
+    targetPosition,
+    geometry.start,
+    geometry.end
   );
   const threshold = geometry.radius + hitboxRadius;
   return {
@@ -184,7 +267,12 @@ interface HitEventPayload {
   targeting?: HitTargeting;
   targetingSource: "default" | "scripted" | "geometry";
   targetPosition: { x: number; y: number } | null;
-  geometryKind: "circle" | "rectangle" | "capsule" | null;
+  geometryKind:
+    | "circle"
+    | "rectangle"
+    | "capsule"
+    | "sector"
+    | null;
   geometryOrigin: { x: number; y: number } | null;
   geometryStart: { x: number; y: number } | null;
   geometryEnd: { x: number; y: number } | null;
@@ -192,6 +280,8 @@ interface HitEventPayload {
   geometryHalfWidth: number | null;
   geometryHalfHeight: number | null;
   geometryRotationDegrees: number | null;
+  geometryDirectionDegrees: number | null;
+  geometryAngleDegrees: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   targetIndex: number;
@@ -975,7 +1065,12 @@ function simulateConfig(
           targeting?: HitTargeting;
           targetingSource: "default" | "scripted" | "geometry";
           targetPosition: { x: number; y: number } | null;
-          geometryKind: "circle" | "rectangle" | "capsule" | null;
+          geometryKind:
+            | "circle"
+            | "rectangle"
+            | "capsule"
+            | "sector"
+            | null;
           geometryOrigin: { x: number; y: number } | null;
           geometryStart: { x: number; y: number } | null;
           geometryEnd: { x: number; y: number } | null;
@@ -983,6 +1078,8 @@ function simulateConfig(
           geometryHalfWidth: number | null;
           geometryHalfHeight: number | null;
           geometryRotationDegrees: number | null;
+          geometryDirectionDegrees: number | null;
+          geometryAngleDegrees: number | null;
           geometryDistance: number | null;
           geometryThreshold: number | null;
         }> =
@@ -1009,6 +1106,8 @@ function simulateConfig(
                 geometryHalfWidth: null,
                 geometryHalfHeight: null,
                 geometryRotationDegrees: null,
+                geometryDirectionDegrees: null,
+                geometryAngleDegrees: null,
                 geometryDistance: null,
                 geometryThreshold: null
               }))
@@ -1054,7 +1153,8 @@ function simulateConfig(
                       : null,
                   geometryRadius:
                     geometry.kind === "circle" ||
-                    geometry.kind === "capsule"
+                    geometry.kind === "capsule" ||
+                    geometry.kind === "sector"
                       ? geometry.radius
                       : null,
                   geometryHalfWidth:
@@ -1068,6 +1168,14 @@ function simulateConfig(
                   geometryRotationDegrees:
                     geometry.kind === "rectangle"
                       ? geometry.rotationDegrees
+                      : null,
+                  geometryDirectionDegrees:
+                    geometry.kind === "sector"
+                      ? geometry.directionDegrees
+                      : null,
+                  geometryAngleDegrees:
+                    geometry.kind === "sector"
+                      ? geometry.angleDegrees
                       : null,
                   geometryDistance: geometryResolution.distance,
                   geometryThreshold: geometryResolution.threshold
@@ -1402,6 +1510,8 @@ function simulateConfig(
       geometryHalfWidth,
       geometryHalfHeight,
       geometryRotationDegrees,
+      geometryDirectionDegrees,
+      geometryAngleDegrees,
       geometryDistance,
       geometryThreshold,
       targetIndex,
@@ -1476,6 +1586,8 @@ function simulateConfig(
       geometryHalfWidth,
       geometryHalfHeight,
       geometryRotationDegrees,
+      geometryDirectionDegrees,
+      geometryAngleDegrees,
       geometryDistance,
       geometryThreshold,
       outcome: targetOutcome,

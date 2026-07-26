@@ -678,9 +678,11 @@ function renderHitDetail(): void {
         ? `二维旋转矩形 · 中心 ${formatPosition(targetResolution.geometryOrigin)} · 半宽 ${formatNumber(targetResolution.geometryHalfWidth ?? 0, 4)} · 半高 ${formatNumber(targetResolution.geometryHalfHeight ?? 0, 4)} · 旋转 ${formatNumber(targetResolution.geometryRotationDegrees ?? 0, 4)}° · 中心至矩形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
         : targetResolution?.geometryKind === "capsule"
           ? `二维胶囊几何 · 起点 ${formatPosition(targetResolution.geometryStart)} · 终点 ${formatPosition(targetResolution.geometryEnd)} · 扫掠半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 中心至线段最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 总阈值 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
-      : targetResolution?.targetingSource === "scripted"
-        ? "逐击脚本 / 显式扇出"
-        : "兼容默认 enemy-0 / landed";
+          : targetResolution?.geometryKind === "sector"
+            ? `二维填充扇形 · 圆心 ${formatPosition(targetResolution.geometryOrigin)} · 半径 ${formatNumber(targetResolution.geometryRadius ?? 0, 4)} · 方向 ${formatNumber(targetResolution.geometryDirectionDegrees ?? 0, 4)}° · 夹角 ${formatNumber(targetResolution.geometryAngleDegrees ?? 0, 4)}° · 中心至扇形最近距离 ${formatNumber(targetResolution.geometryDistance ?? 0, 4)} / 碰撞半径 ${formatNumber(targetResolution.geometryThreshold ?? 0, 4)}`
+            : targetResolution?.targetingSource === "scripted"
+              ? "逐击脚本 / 显式扇出"
+              : "兼容默认 enemy-0 / landed";
   const statusText = hit.activeStatuses.length
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
@@ -1100,6 +1102,9 @@ function renderTargetHitAudit(): void {
   const capsuleGeometryChecks = result.hitResolutionLog.filter(
     (entry) => entry.geometryKind === "capsule"
   ).length;
+  const sectorGeometryChecks = result.hitResolutionLog.filter(
+    (entry) => entry.geometryKind === "sector"
+  ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
     (circleGeometryChecks
@@ -1110,6 +1115,9 @@ function renderTargetHitAudit(): void {
       : "") +
     (capsuleGeometryChecks
       ? ` · ${capsuleGeometryChecks} 次胶囊几何求交`
+      : "") +
+    (sectorGeometryChecks
+      ? ` · ${sectorGeometryChecks} 次扇形几何求交`
       : "") +
     (result.targetMotionTimeline.length
       ? ` · ${result.targetMotionTimeline.length} 个目标移动段`
@@ -1168,9 +1176,11 @@ function renderTargetHitAudit(): void {
                 ? `矩形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
                 : entry.geometryKind === "capsule"
                   ? `胶囊线段距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 总阈值 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
-              : entry.targetingSource === "scripted"
-                ? "脚本"
-                : "默认";
+                  : entry.geometryKind === "sector"
+                    ? `扇形最近距离=${formatNumber(entry.geometryDistance ?? 0, 4)} ${entry.landed ? "≤" : ">"} 碰撞半径 ${formatNumber(entry.geometryThreshold ?? 0, 4)}`
+                    : entry.targetingSource === "scripted"
+                      ? "脚本"
+                      : "默认";
           return (
           `<tr${entry.damageEventId === null ? "" : ` data-target-damage-id="${entry.damageEventId}"`}>` +
           `<td>${entry.timeSeconds.toFixed(3)}s <span class="muted">/ ${entry.frame}f</span></td>` +

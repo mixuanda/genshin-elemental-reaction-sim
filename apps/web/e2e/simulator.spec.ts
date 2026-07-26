@@ -1718,6 +1718,165 @@ test("audits finite capsule side and end-cap intersections", async ({
   );
 });
 
+test("audits filled sector arc, radial-edge, and out-of-range intersections", async ({
+  page
+}) => {
+  await page.goto("/");
+  await page
+    .locator("#presetSelect")
+    .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  const sectorConfig = await page.evaluate(() => {
+    const config = structuredClone(window.GenshinDpsLab.getConfig());
+    config.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "扇形内部",
+        position: { x: 1, y: 0 },
+        hitboxRadius: 0
+      },
+      {
+        id: "enemy-1",
+        name: "径向边擦碰",
+        position: { x: 1, y: 1.2 },
+        hitboxRadius: 0.15
+      },
+      {
+        id: "enemy-2",
+        name: "圆弧范围外",
+        position: { x: 2.0001, y: 0 },
+        hitboxRadius: 0
+      }
+    ];
+    const ability = config.timeline?.abilities.find(
+      (candidate) => candidate.id === "durin-denial-of-darkness"
+    );
+    const firstHit = ability?.hits?.[0];
+    if (!firstHit) throw new Error("expected Durin black E first hit");
+    delete firstHit.targeting;
+    firstHit.geometry = {
+      kind: "sector",
+      origin: { x: 0, y: 0 },
+      radius: 2,
+      directionDegrees: 0,
+      angleDegrees: 90
+    };
+    return JSON.stringify(config, null, 2);
+  });
+  await page.getByRole("button", { name: "高级配置" }).click();
+  await page.locator("#jsonEditor").fill(sectorConfig);
+  await page.getByRole("button", { name: "应用并运行" }).click();
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return result
+      ? {
+          firstGroup: result.hitResolutionLog
+            .filter((entry) => entry.hitId === "durin-black-e-1")
+            .map(
+              ({
+                targetId,
+                geometryKind,
+                geometryOrigin,
+                geometryRadius,
+                geometryDirectionDegrees,
+                geometryAngleDegrees,
+                geometryDistance,
+                geometryThreshold,
+                outcome,
+                reason
+              }) => ({
+                targetId,
+                geometryKind,
+                geometryOrigin,
+                geometryRadius,
+                geometryDirectionDegrees,
+                geometryAngleDegrees,
+                geometryDistance:
+                  geometryDistance === null
+                    ? null
+                    : Number(geometryDistance.toFixed(6)),
+                geometryThreshold,
+                outcome,
+                reason
+              })
+            ),
+          firstTrigger: result.particleTriggerLog[0],
+          checks: result.hitResolutionLog.length,
+          damageEvents: result.damageEvents.length
+        }
+      : null;
+  });
+  expect(audit?.firstGroup).toEqual([
+    {
+      targetId: "enemy-0",
+      geometryKind: "sector",
+      geometryOrigin: { x: 0, y: 0 },
+      geometryRadius: 2,
+      geometryDirectionDegrees: 0,
+      geometryAngleDegrees: 90,
+      geometryDistance: 0,
+      geometryThreshold: 0,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-1",
+      geometryKind: "sector",
+      geometryOrigin: { x: 0, y: 0 },
+      geometryRadius: 2,
+      geometryDirectionDegrees: 0,
+      geometryAngleDegrees: 90,
+      geometryDistance: 0.141421,
+      geometryThreshold: 0.15,
+      outcome: "landed",
+      reason: null
+    },
+    {
+      targetId: "enemy-2",
+      geometryKind: "sector",
+      geometryOrigin: { x: 0, y: 0 },
+      geometryRadius: 2,
+      geometryDirectionDegrees: 0,
+      geometryAngleDegrees: 90,
+      geometryDistance: 0.0001,
+      geometryThreshold: 0,
+      outcome: "miss",
+      reason: "OUTSIDE_SECTOR_GEOMETRY"
+    }
+  ]);
+  expect(audit?.firstTrigger).toMatchObject({
+    checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
+    confirmedTargetIds: ["enemy-0", "enemy-1"],
+    triggered: true
+  });
+  expect(audit?.checks).toBe(5);
+  expect(audit?.damageEvents).toBe(4);
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次扇形几何求交"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "扇形最近距离=0.1414 ≤ 碰撞半径 0.15"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "扇形最近距离=0.0001 > 碰撞半径 0"
+  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText(
+    "OUTSIDE_SECTOR_GEOMETRY"
+  );
+  await page
+    .locator("#targetHitAuditBody tr[data-target-damage-id]")
+    .first()
+    .click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "二维填充扇形"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "半径 2 · 方向 0° · 夹角 90°"
+  );
+});
+
 test("interpolates target motion at each hit frame before geometry resolution", async ({
   page
 }) => {

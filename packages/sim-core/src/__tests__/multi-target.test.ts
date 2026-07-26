@@ -1076,6 +1076,255 @@ describe("registered enemy targets", () => {
     expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 
+  it("intersects circular target hitboxes with a filled sector and treats 360 degrees as a disk", () => {
+    const ability: AbilityDefinition = {
+      id: "sector-geometry",
+      actorId: "a",
+      name: "扇形命中",
+      kind: "skill",
+      cancelFrame: 0,
+      animationEndFrame: 1,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "sector-main",
+          frame: 0,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "sector",
+            origin: { x: 0, y: 0 },
+            radius: 2,
+            directionDegrees: 0,
+            angleDegrees: 90
+          }
+        },
+        {
+          id: "sector-full-disk",
+          frame: 1,
+          scaling: 1,
+          element: "pyro",
+          geometry: {
+            kind: "sector",
+            origin: { x: 0, y: 0 },
+            radius: 2,
+            directionDegrees: 123,
+            angleDegrees: 360
+          }
+        }
+      ]
+    };
+    const config = makeConfig({
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "扇形内部",
+            position: { x: 1, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-1",
+            name: "圆弧边界",
+            position: { x: 2, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-2",
+            name: "径向边界",
+            position: { x: 1, y: 1 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-3",
+            name: "径向边擦碰",
+            position: { x: 1, y: 1.2 },
+            hitboxRadius: 0.15
+          },
+          {
+            id: "enemy-4",
+            name: "角点擦碰",
+            position: { x: 1.6, y: 1.6 },
+            hitboxRadius: 0.27
+          },
+          {
+            id: "enemy-5",
+            name: "圆弧范围外",
+            position: { x: 2.0001, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-6",
+            name: "全圆边界擦碰",
+            position: { x: 0, y: -2.1 },
+            hitboxRadius: 0.1
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: [
+          {
+            type: "skill",
+            actorId: "a",
+            abilityId: ability.id
+          }
+        ]
+      }
+    });
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const sectorChecks = result.hitResolutionLog.filter(
+      (entry) => entry.hitId === "sector-main"
+    );
+    expect(
+      sectorChecks.map(
+        ({
+          targetId,
+          geometryKind,
+          geometryOrigin,
+          geometryRadius,
+          geometryDirectionDegrees,
+          geometryAngleDegrees,
+          geometryThreshold,
+          outcome,
+          reason
+        }) => ({
+          targetId,
+          geometryKind,
+          geometryOrigin,
+          geometryRadius,
+          geometryDirectionDegrees,
+          geometryAngleDegrees,
+          geometryThreshold,
+          outcome,
+          reason
+        })
+      )
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-1",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-2",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-3",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0.15,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-4",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0.27,
+        outcome: "landed",
+        reason: null
+      },
+      {
+        targetId: "enemy-5",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0,
+        outcome: "miss",
+        reason: "OUTSIDE_SECTOR_GEOMETRY"
+      },
+      {
+        targetId: "enemy-6",
+        geometryKind: "sector",
+        geometryOrigin: { x: 0, y: 0 },
+        geometryRadius: 2,
+        geometryDirectionDegrees: 0,
+        geometryAngleDegrees: 90,
+        geometryThreshold: 0.1,
+        outcome: "miss",
+        reason: "OUTSIDE_SECTOR_GEOMETRY"
+      }
+    ]);
+    expect(sectorChecks[0]?.geometryDistance).toBeCloseTo(0, 12);
+    expect(sectorChecks[1]?.geometryDistance).toBeCloseTo(0, 12);
+    expect(sectorChecks[2]?.geometryDistance).toBeCloseTo(0, 12);
+    expect(sectorChecks[3]?.geometryDistance).toBeCloseTo(
+      Math.SQRT1_2 * 0.2,
+      12
+    );
+    expect(sectorChecks[4]?.geometryDistance).toBeCloseTo(
+      Math.hypot(1.6 - Math.SQRT2, 1.6 - Math.SQRT2),
+      12
+    );
+    expect(sectorChecks[5]?.geometryDistance).toBeCloseTo(0.0001, 12);
+
+    const fullDiskChecks = result.hitResolutionLog.filter(
+      (entry) => entry.hitId === "sector-full-disk"
+    );
+    expect(fullDiskChecks[6]).toMatchObject({
+      geometryDirectionDegrees: 123,
+      geometryAngleDegrees: 360,
+      geometryThreshold: 0.1,
+      outcome: "landed",
+      reason: null
+    });
+    expect(fullDiskChecks[6]?.geometryDistance).toBeCloseTo(0.1, 12);
+    expect(fullDiskChecks[5]).toMatchObject({
+      geometryDistance: 0.00010000000000021103,
+      geometryThreshold: 0,
+      outcome: "miss",
+      reason: "OUTSIDE_SECTOR_GEOMETRY"
+    });
+    expect(result.damageEvents).toHaveLength(11);
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
+  });
+
   it("interpolates target motion at integer hit frames and holds adjacent boundaries", () => {
     const ability: AbilityDefinition = {
       id: "moving-circle-target",

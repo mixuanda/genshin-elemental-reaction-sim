@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.19.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.19.0-capsule-geometry" as const;
+export const CURRENT_SCHEMA_VERSION = "1.20.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.20.0-sector-geometry" as const;
+export const CAPSULE_GEOMETRY_SCHEMA_VERSION = "1.19.0" as const;
 export const ORIENTED_RECTANGLE_SCHEMA_VERSION = "1.18.0" as const;
 export const TARGET_MOTION_SCHEMA_VERSION = "1.17.0" as const;
 export const CIRCLE_GEOMETRY_SCHEMA_VERSION = "1.16.0" as const;
@@ -233,10 +234,19 @@ export interface CapsuleHitGeometry {
   radius: number;
 }
 
+export interface SectorHitGeometry {
+  kind: "sector";
+  origin: { x: number; y: number };
+  radius: number;
+  directionDegrees: number;
+  angleDegrees: number;
+}
+
 export type HitGeometry =
   | CircleHitGeometry
   | RectangleHitGeometry
-  | CapsuleHitGeometry;
+  | CapsuleHitGeometry
+  | SectorHitGeometry;
 
 export interface TargetMotionDefinition {
   id: string;
@@ -830,6 +840,8 @@ export interface HitResolutionLogEntry {
   geometryHalfWidth: number | null;
   geometryHalfHeight: number | null;
   geometryRotationDegrees: number | null;
+  geometryDirectionDegrees: number | null;
+  geometryAngleDegrees: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
   outcome: TargetHitOutcome;

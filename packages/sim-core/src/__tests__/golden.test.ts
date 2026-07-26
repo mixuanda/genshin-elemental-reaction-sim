@@ -56,6 +56,8 @@ describe("Vanilla v0.1 golden compatibility", () => {
           entry.geometryHalfWidth === null &&
           entry.geometryHalfHeight === null &&
           entry.geometryRotationDegrees === null &&
+          entry.geometryDirectionDegrees === null &&
+          entry.geometryAngleDegrees === null &&
           entry.geometryDistance === null &&
           entry.geometryThreshold === null &&
           entry.targetIndex === 0 &&

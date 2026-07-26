@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
+  CAPSULE_GEOMETRY_SCHEMA_VERSION,
   CIRCLE_GEOMETRY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
@@ -444,10 +445,21 @@ export const capsuleHitGeometrySchema = z
   })
   .strict();
 
+export const sectorHitGeometrySchema = z
+  .object({
+    kind: z.literal("sector"),
+    origin: point2DSchema,
+    radius: finiteNumber.positive().max(1_000),
+    directionDegrees: finiteNumber.min(-360).max(360),
+    angleDegrees: finiteNumber.positive().max(360)
+  })
+  .strict();
+
 export const hitGeometrySchema = z.discriminatedUnion("kind", [
   circleHitGeometrySchema,
   rectangleHitGeometrySchema,
-  capsuleHitGeometrySchema
+  capsuleHitGeometrySchema,
+  sectorHitGeometrySchema
 ]);
 
 export const hitDefinitionSchema = z
@@ -1630,6 +1642,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === CAPSULE_GEOMETRY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ORIENTED_RECTANGLE_SCHEMA_VERSION) {
     return parseSimConfig({
