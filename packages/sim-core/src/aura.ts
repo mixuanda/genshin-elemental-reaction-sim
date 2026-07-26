@@ -1,28 +1,40 @@
 import type {
+  AdditiveReactionAudit,
   AmplifyingReaction,
   AuraElement,
   AuraReactionEngineConfig,
+  AuraSourceGaugeMutation,
   AuraStateElement,
   AuraStateEntry,
+  CatalyzeReactionAudit,
   CrystallizeReaction,
   CrystallizeReactionAudit,
   Element,
   ElementalApplication,
   IcdProfile,
   OneShotTransformativeReaction,
+  PersistentAuraElement,
+  QuickenReactionAudit,
   ReactionType,
   ReactionAudit,
   ShatterReactionAudit,
   StrikeType,
   SwirlReaction,
   SwirlReactionAudit,
+  TargetMechanicsTruncationAudit,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 
 const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
 const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
+/** Historical aura-v1/v2 coefficient retained for exact config replay. */
 const NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 6;
+/** Fixed gcsim uses 25 internal durability per 1U: 6 × 25 = 150f/U. */
+const AURA_V3_NORMAL_DURATION_PER_UNIT_FRAMES = 150;
+const QUICKEN_BASE_DURATION_FRAMES = 360;
+/** Fixed gcsim Quicken duration is 12 × 25 = 300f per generated U. */
+const QUICKEN_DURATION_PER_UNIT_FRAMES = 300;
 const DEFAULT_ICD_RESET_FRAMES = 150;
 const DEFAULT_ICD_SEQUENCE = [true, false, false] as const;
 const OVERLOAD_DAMAGE_GCD_FRAMES = 6;
@@ -67,6 +79,8 @@ interface MutableAura {
   element: AuraStateElement;
   gaugeUnits: number;
   decayPerFrame: number;
+  /** aura-v3 only: source ownership slots sharing one modifier decay rate. */
+  sourceSlots?: Map<string, number>;
 }
 
 interface IcdState {
@@ -267,15 +281,16 @@ const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
 function isAuraApplicationElement(
   element: Element,
   mode: AuraReactionEngineConfig["mode"]
-): element is AuraElement | "anemo" | "geo" {
+): element is PersistentAuraElement | "anemo" | "geo" {
   return (
     element === "pyro" ||
     element === "cryo" ||
     element === "hydro" ||
-    (mode === "aura-v2" &&
+    (mode !== "aura-v1" &&
       (element === "electro" ||
         element === "anemo" ||
-        element === "geo"))
+        element === "geo")) ||
+    (mode === "aura-v3" && element === "dendro")
   );
 }
 
@@ -301,8 +316,10 @@ function remainingDecayFrames(
  * aura-v2 additionally models normal Electro aura plus Overload and
  * Superconduct scheduling, Hydro/Electro coexistence, and Electro-Charged
  * periodic streams.
- * Coexistence beyond Hydro/Electro, the remaining reactions, elemental
- * shields, and per-source overlap arrays remain future mechanics work.
+ * aura-v3 corrects the durability-to-U lifetime conversion, adds per-source
+ * normal/Quicken slots, and implements Dendro, Quicken, Aggravate, and Spread.
+ * Burning, Bloom/core entities, elemental shields, and their special overlap
+ * modifiers remain future mechanics work.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -320,6 +337,7 @@ export class AuraEngine {
   private electroChargedNextTickFrame = -1;
   private frozenGeneration = 0;
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
+  private quickenGeneration = 0;
   private shatterDamageReadyFrame = -1;
   private readonly swirlDamageReadyFrames = new Map<
     SwirlReaction,
@@ -327,6 +345,8 @@ export class AuraEngine {
   >();
   private crystallizeReadyFrame = -1;
   private currentFrame = 0;
+  private mechanicsTruncation: TargetMechanicsTruncationAudit | null =
+    null;
 
   constructor(config: AuraEngineConfig) {
     this.mode = config.mode;
@@ -347,8 +367,140 @@ export class AuraEngine {
       ...(config.icdProfiles ?? {})
     };
     for (const initial of config.initialAura ?? []) {
-      this.attachNormalAura(initial.element, initial.gaugeUnits);
+      this.attachNormalAura(
+        initial.element,
+        initial.gaugeUnits,
+        "__initial__"
+      );
     }
+  }
+
+  isMechanicsTruncated(): boolean {
+    return this.mechanicsTruncation !== null;
+  }
+
+  getMechanicsTruncation(): TargetMechanicsTruncationAudit | null {
+    if (this.mechanicsTruncation === null) return null;
+    return {
+      ...this.mechanicsTruncation,
+      unsupportedReactions: [
+        ...this.mechanicsTruncation.unsupportedReactions
+      ],
+      discardedAura: this.mechanicsTruncation.discardedAura.map(
+        (entry) => ({
+          ...entry,
+          ...(entry.sourceSlots === undefined
+            ? {}
+            : {
+                sourceSlots: entry.sourceSlots.map((slot) => ({
+                  ...slot
+                }))
+              })
+        })
+      )
+    };
+  }
+
+  private triggerMechanicsTruncation(
+    frame: number,
+    unsupportedReactions: TargetMechanicsTruncationAudit["unsupportedReactions"]
+  ): TargetMechanicsTruncationAudit {
+    if (this.mechanicsTruncation !== null) {
+      return {
+        ...this.getMechanicsTruncation()!,
+        operation: "carry"
+      };
+    }
+    const discardedAura = this.snapshot();
+    this.mechanicsTruncation = {
+      operation: "trigger",
+      startedAtFrame: frame,
+      unsupportedReactions: [...unsupportedReactions],
+      discardedAura,
+      reason: "UNSUPPORTED_DENDRO_REACTION"
+    };
+    // Invalidate every target-local state event that may already be queued.
+    // The target is now outside the implemented mechanics boundary, so a
+    // later expiry/tick must resolve as stale rather than inventing a natural
+    // state transition after the fail-closed frame.
+    this.frozenGeneration += 1;
+    this.electroChargedGeneration += 1;
+    this.quickenGeneration += 1;
+    this.auras.clear();
+    this.electroChargedActive = false;
+    this.electroChargedNextTickFrame = -1;
+    return this.getMechanicsTruncation()!;
+  }
+
+  private carriedMechanicsTruncation(): TargetMechanicsTruncationAudit {
+    const audit = this.getMechanicsTruncation();
+    if (audit === null) {
+      throw new Error("Missing target mechanics truncation state.");
+    }
+    return {
+      ...audit,
+      operation: "carry"
+    };
+  }
+
+  private syncAuraFromSourceSlots(aura: MutableAura): void {
+    if (aura.sourceSlots === undefined) return;
+    for (const [sourceActorId, gaugeUnits] of aura.sourceSlots) {
+      if (gaugeUnits <= AURA_EPSILON) {
+        aura.sourceSlots.delete(sourceActorId);
+      }
+    }
+    aura.gaugeUnits = Math.max(0, ...aura.sourceSlots.values());
+  }
+
+  private reduceAuraGauge(
+    element: AuraStateElement,
+    maximumGaugeUnits: number
+  ): {
+    consumedGaugeUnits: number;
+    sourceMutations: AuraSourceGaugeMutation[];
+  } {
+    const aura = this.auras.get(element);
+    if (aura === undefined || maximumGaugeUnits <= AURA_EPSILON) {
+      return {
+        consumedGaugeUnits: 0,
+        sourceMutations: []
+      };
+    }
+    const consumedGaugeUnits = Math.min(
+      aura.gaugeUnits,
+      maximumGaugeUnits
+    );
+    const sourceMutations: AuraSourceGaugeMutation[] = [];
+    if (aura.sourceSlots !== undefined) {
+      for (const [sourceActorId, gaugeUnitsBefore] of aura.sourceSlots) {
+        const sourceConsumedGaugeUnits = Math.min(
+          consumedGaugeUnits,
+          gaugeUnitsBefore
+        );
+        const gaugeUnitsAfter =
+          gaugeUnitsBefore - sourceConsumedGaugeUnits;
+        sourceMutations.push({
+          sourceActorId,
+          gaugeUnitsBefore: cleanGaugeUnits(gaugeUnitsBefore),
+          consumedGaugeUnits: cleanGaugeUnits(
+            sourceConsumedGaugeUnits
+          ),
+          gaugeUnitsAfter: cleanGaugeUnits(gaugeUnitsAfter)
+        });
+        aura.sourceSlots.set(sourceActorId, gaugeUnitsAfter);
+      }
+      this.syncAuraFromSourceSlots(aura);
+    } else {
+      aura.gaugeUnits -= consumedGaugeUnits;
+    }
+    if (aura.gaugeUnits <= AURA_EPSILON) {
+      this.auras.delete(element);
+    }
+    return {
+      consumedGaugeUnits: cleanGaugeUnits(consumedGaugeUnits),
+      sourceMutations
+    };
   }
 
   private advanceFrozenBy(elapsed: number): void {
@@ -399,7 +551,17 @@ export class AuraEngine {
     if (elapsed > 0) {
       for (const [element, aura] of this.auras) {
         if (element === "frozen") continue;
-        aura.gaugeUnits -= aura.decayPerFrame * elapsed;
+        if (aura.sourceSlots !== undefined) {
+          for (const [sourceActorId, gaugeUnits] of aura.sourceSlots) {
+            aura.sourceSlots.set(
+              sourceActorId,
+              gaugeUnits - aura.decayPerFrame * elapsed
+            );
+          }
+          this.syncAuraFromSourceSlots(aura);
+        } else {
+          aura.gaugeUnits -= aura.decayPerFrame * elapsed;
+        }
         if (aura.gaugeUnits <= AURA_EPSILON) {
           this.auras.delete(element);
         }
@@ -432,7 +594,18 @@ export class AuraEngine {
                   aura.gaugeUnits,
                   aura.decayPerFrame
                 )
-              : null
+              : null,
+        ...(aura.sourceSlots === undefined
+          ? {}
+          : {
+              sourceSlots: [...aura.sourceSlots]
+                .filter(([, gaugeUnits]) => gaugeUnits > AURA_EPSILON)
+                .sort(([left], [right]) => left.localeCompare(right))
+                .map(([sourceActorId, gaugeUnits]) => ({
+                  sourceActorId,
+                  gaugeUnits: cleanGaugeUnits(gaugeUnits)
+                }))
+            })
       }));
   }
 
@@ -509,6 +682,7 @@ export class AuraEngine {
     poiseDamage?: number;
   }): ShatterStateResult | null {
     this.advanceTo(input.frame);
+    if (this.mechanicsTruncation !== null) return null;
     const strikeType = input.strikeType ?? "default";
     const poiseDamage = input.poiseDamage ?? 0;
     if (
@@ -851,20 +1025,18 @@ export class AuraEngine {
     const auraConsumed: NonNullable<ReactionAudit["auraConsumed"]> =
       [];
     for (const element of ["hydro", "electro"] as const) {
-      const aura = this.auras.get(element);
-      if (!aura) continue;
-      const consumed = Math.min(
-        aura.gaugeUnits,
+      const mutation = this.reduceAuraGauge(
+        element,
         ELECTRO_CHARGED_WANE_GAUGE_UNITS
       );
-      aura.gaugeUnits -= consumed;
+      if (mutation.consumedGaugeUnits <= AURA_EPSILON) continue;
       auraConsumed.push({
         element,
-        gaugeUnits: cleanGaugeUnits(consumed)
+        gaugeUnits: mutation.consumedGaugeUnits,
+        ...(mutation.sourceMutations.length === 0
+          ? {}
+          : { sourceMutations: mutation.sourceMutations })
       });
-      if (aura.gaugeUnits <= AURA_EPSILON) {
-        this.auras.delete(element);
-      }
     }
     if (!this.hasElectroChargedAuras()) {
       this.electroChargedActive = false;
@@ -953,11 +1125,19 @@ export class AuraEngine {
     };
   }
 
-  private attachNormalAura(element: AuraElement, nominalGaugeUnits: number): void {
+  private attachNormalAura(
+    element: PersistentAuraElement,
+    nominalGaugeUnits: number,
+    sourceActorId: string
+  ): void {
     const appliedGaugeUnits = NORMAL_AURA_RATIO * nominalGaugeUnits;
+    const durationPerUnitFrames =
+      this.mode === "aura-v3"
+        ? AURA_V3_NORMAL_DURATION_PER_UNIT_FRAMES
+        : NORMAL_AURA_DURATION_PER_UNIT_FRAMES;
     const durationFrames =
       NORMAL_AURA_BASE_DURATION_FRAMES +
-      NORMAL_AURA_DURATION_PER_UNIT_FRAMES * nominalGaugeUnits;
+      durationPerUnitFrames * nominalGaugeUnits;
     const nextDecayPerFrame = appliedGaugeUnits / durationFrames;
     const existing = this.auras.get(element);
 
@@ -965,8 +1145,40 @@ export class AuraEngine {
       this.auras.set(element, {
         element,
         gaugeUnits: appliedGaugeUnits,
-        decayPerFrame: nextDecayPerFrame
+        decayPerFrame: nextDecayPerFrame,
+        ...(this.mode === "aura-v3"
+          ? {
+              sourceSlots: new Map([
+                [sourceActorId, appliedGaugeUnits]
+              ])
+            }
+          : {})
       });
+      return;
+    }
+
+    if (this.mode === "aura-v3") {
+      const sourceSlots =
+        existing.sourceSlots ??
+        new Map([["__legacy__", existing.gaugeUnits]]);
+      existing.sourceSlots = sourceSlots;
+      if (element === "pyro") {
+        if (
+          appliedGaugeUnits + AURA_EPSILON >=
+          existing.gaugeUnits
+        ) {
+          sourceSlots.set(sourceActorId, appliedGaugeUnits);
+          existing.decayPerFrame = nextDecayPerFrame;
+          this.syncAuraFromSourceSlots(existing);
+        }
+        return;
+      }
+      const existingSourceGauge =
+        sourceSlots.get(sourceActorId) ?? 0;
+      if (appliedGaugeUnits > existingSourceGauge) {
+        sourceSlots.set(sourceActorId, appliedGaugeUnits);
+        this.syncAuraFromSourceSlots(existing);
+      }
       return;
     }
 
@@ -980,12 +1192,141 @@ export class AuraEngine {
       return;
     }
 
-    // Cryo/Hydro/Electro use overlap semantics. This per-target state keeps the
-    // stronger remaining aura; per-source overlap arrays are intentionally not
-    // yet represented.
+    // Cryo/Hydro/Electro/Dendro use overlap semantics. This per-target state
+    // keeps the stronger remaining aura; per-source overlap arrays are
+    // intentionally not yet represented.
     if (appliedGaugeUnits > existing.gaugeUnits) {
       existing.gaugeUnits = appliedGaugeUnits;
     }
+  }
+
+  private quickenGaugeUnits(): number {
+    return this.auras.get("quicken")?.gaugeUnits ?? 0;
+  }
+
+  private quickenExpiryFrame(): number | null {
+    const quicken = this.auras.get("quicken");
+    if (quicken === undefined || quicken.decayPerFrame <= 0) {
+      return null;
+    }
+    return (
+      this.currentFrame +
+      remainingDecayFrames(
+        quicken.gaugeUnits,
+        quicken.decayPerFrame
+      )
+    );
+  }
+
+  private attachQuicken(
+    candidateGaugeUnits: number,
+    sourceActorId: string
+  ): {
+    operation: QuickenReactionAudit["operation"];
+    generation: number;
+    quickenGaugeUnitsBefore: number;
+    quickenGaugeUnitsAfter: number;
+    decayPerFrame: number;
+    expiresAtFrame: number | null;
+  } {
+    const quickenGaugeUnitsBefore = this.quickenGaugeUnits();
+    const existing = this.auras.get("quicken");
+    let operation: QuickenReactionAudit["operation"] = "unchanged";
+    if (
+      existing === undefined ||
+      candidateGaugeUnits + AURA_EPSILON >= existing.gaugeUnits
+    ) {
+      const durationFrames =
+        QUICKEN_BASE_DURATION_FRAMES +
+        QUICKEN_DURATION_PER_UNIT_FRAMES * candidateGaugeUnits;
+      const decayPerFrame = candidateGaugeUnits / durationFrames;
+      operation = existing === undefined ? "start" : "refresh";
+      const sourceSlots =
+        existing?.sourceSlots ?? new Map<string, number>();
+      sourceSlots.set(sourceActorId, candidateGaugeUnits);
+      const quicken: MutableAura = {
+        element: "quicken",
+        gaugeUnits: candidateGaugeUnits,
+        decayPerFrame,
+        sourceSlots
+      };
+      this.syncAuraFromSourceSlots(quicken);
+      this.auras.set("quicken", quicken);
+      this.quickenGeneration += 1;
+    }
+    const quicken = this.auras.get("quicken");
+    return {
+      operation,
+      generation: this.quickenGeneration,
+      quickenGaugeUnitsBefore: cleanGaugeUnits(
+        quickenGaugeUnitsBefore
+      ),
+      quickenGaugeUnitsAfter: cleanGaugeUnits(
+        quicken?.gaugeUnits ?? 0
+      ),
+      decayPerFrame: quicken?.decayPerFrame ?? 0,
+      expiresAtFrame: this.quickenExpiryFrame()
+    };
+  }
+
+  expireQuicken(
+    frame: number,
+    generation: number,
+    expectedExpiryFrame: number
+  ): {
+    generation: number;
+    operation: "expire" | "stale";
+    frame: number;
+    auraBefore: AuraStateEntry[];
+    auraAfter: AuraStateEntry[];
+    expiresAtFrame: number | null;
+    reason: string;
+  } {
+    const generationWasCurrent =
+      generation === this.quickenGeneration;
+    if (frame > this.currentFrame) {
+      this.advanceTo(Math.max(this.currentFrame, frame - 1));
+    }
+    const auraBefore = this.snapshot();
+    this.advanceTo(frame);
+    const auraAfter = this.snapshot();
+    const currentExpiry = this.quickenExpiryFrame();
+    if (
+      !generationWasCurrent ||
+      generation !== this.quickenGeneration ||
+      (currentExpiry !== null &&
+        currentExpiry !== expectedExpiryFrame)
+    ) {
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore,
+        auraAfter,
+        expiresAtFrame: currentExpiry,
+        reason: "STALE_QUICKEN_EXPIRY_CHECK"
+      };
+    }
+    if (this.quickenGaugeUnits() <= AURA_EPSILON) {
+      return {
+        generation,
+        operation: "expire",
+        frame,
+        auraBefore,
+        auraAfter,
+        expiresAtFrame: null,
+        reason: "QUICKEN_DECAY_EXPIRED"
+      };
+    }
+    return {
+      generation,
+      operation: "stale",
+      frame,
+      auraBefore,
+      auraAfter,
+      expiresAtFrame: currentExpiry,
+      reason: "QUICKEN_REFRESHED_BEFORE_EXPIRY"
+    };
   }
 
   private willApply(
@@ -1026,7 +1367,10 @@ export class AuraEngine {
     const auraApplied: NonNullable<ReactionAudit["auraApplied"]> = [
       {
         element: "anemo",
-        gaugeUnits: application.gaugeUnits
+        gaugeUnits: application.gaugeUnits,
+        ...(this.mode === "aura-v3"
+          ? { sourceActorId: input.sourceActorId }
+          : {})
       }
     ];
     const auraConsumed: NonNullable<ReactionAudit["auraConsumed"]> = [];
@@ -1055,13 +1399,16 @@ export class AuraEngine {
       remainingSourceGaugeUnits = cleanGaugeUnits(
         Math.max(0, remainingSourceGaugeUnits - sourceGaugeUnitsSpent)
       );
-      aura.gaugeUnits -= auraConsumedGaugeUnits;
-      if (aura.gaugeUnits <= AURA_EPSILON) {
-        this.auras.delete(consumedAuraElement);
-      }
+      const mutation = this.reduceAuraGauge(
+        consumedAuraElement,
+        auraConsumedGaugeUnits
+      );
       auraConsumed.push({
         element: consumedAuraElement,
-        gaugeUnits: cleanGaugeUnits(auraConsumedGaugeUnits)
+        gaugeUnits: mutation.consumedGaugeUnits,
+        ...(mutation.sourceMutations.length === 0
+          ? {}
+          : { sourceMutations: mutation.sourceMutations })
       });
 
       // Exact U-space conversion of fixed gcsim's internal durability formula:
@@ -1185,6 +1532,9 @@ export class AuraEngine {
       model: "aura-engine",
       triggered: firstSwirl !== null,
       reaction: firstSwirl?.reaction ?? "none",
+      reactions: swirlReactions.map((entry) => entry.reaction),
+      unsupportedReactions: [],
+      mechanicsTruncation: null,
       icdAllowed: true,
       icdTag: application.icdTag,
       icdGroup: application.icdGroup,
@@ -1200,6 +1550,7 @@ export class AuraEngine {
       swirlReactions,
       swirlDamageGroup: null,
       crystallizeReaction: null,
+      catalyzeReaction: null,
       note:
         firstSwirl === null
           ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
@@ -1252,7 +1603,10 @@ export class AuraEngine {
     const auraApplied: NonNullable<ReactionAudit["auraApplied"]> = [
       {
         element: "geo",
-        gaugeUnits: application.gaugeUnits
+        gaugeUnits: application.gaugeUnits,
+        ...(this.mode === "aura-v3"
+          ? { sourceActorId: input.sourceActorId }
+          : {})
       }
     ];
     if (candidate === undefined) {
@@ -1260,6 +1614,9 @@ export class AuraEngine {
         model: "aura-engine",
         triggered: false,
         reaction: "none",
+        reactions: [],
+        unsupportedReactions: [],
+        mechanicsTruncation: null,
         icdAllowed: true,
         icdTag: application.icdTag,
         icdGroup: application.icdGroup,
@@ -1275,6 +1632,7 @@ export class AuraEngine {
         swirlReactions: [],
         swirlDamageGroup: null,
         crystallizeReaction: null,
+        catalyzeReaction: null,
         note:
           "岩元素附着通过 ICD；当前没有可结晶的火/水/冰/雷/冻元素 Aura。"
       };
@@ -1294,6 +1652,7 @@ export class AuraEngine {
       : this.crystallizeReadyFrame;
     let sourceGaugeUnitsSpent = 0;
     let auraConsumedGaugeUnits = 0;
+    let auraSourceMutations: AuraSourceGaugeMutation[] = [];
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
 
@@ -1307,10 +1666,12 @@ export class AuraEngine {
       sourceGaugeUnitsSpent =
         auraConsumedGaugeUnits /
         CRYSTALLIZE_AURA_CONSUMPTION_FACTOR;
-      aura.gaugeUnits -= auraConsumedGaugeUnits;
-      if (aura.gaugeUnits <= AURA_EPSILON) {
-        this.auras.delete(candidate.consumedAuraElement);
-      }
+      const mutation = this.reduceAuraGauge(
+        candidate.consumedAuraElement,
+        auraConsumedGaugeUnits
+      );
+      auraConsumedGaugeUnits = mutation.consumedGaugeUnits;
+      auraSourceMutations = mutation.sourceMutations;
 
       if (candidate.consumedAuraElement === "frozen") {
         const frozenGaugeAfter = this.frozenGaugeUnits();
@@ -1393,6 +1754,9 @@ export class AuraEngine {
       model: "aura-engine",
       triggered: scheduled,
       reaction: scheduled ? candidate.reaction : "none",
+      reactions: scheduled ? [candidate.reaction] : [],
+      unsupportedReactions: [],
+      mechanicsTruncation: null,
       icdAllowed: true,
       icdTag: application.icdTag,
       icdGroup: application.icdGroup,
@@ -1405,7 +1769,10 @@ export class AuraEngine {
               element: candidate.consumedAuraElement,
               gaugeUnits: cleanGaugeUnits(
                 auraConsumedGaugeUnits
-              )
+              ),
+              ...(auraSourceMutations.length === 0
+                ? {}
+                : { sourceMutations: auraSourceMutations })
             }
           ]
         : [],
@@ -1417,6 +1784,7 @@ export class AuraEngine {
       swirlReactions: [],
       swirlDamageGroup: null,
       crystallizeReaction,
+      catalyzeReaction: null,
       note: scheduled
         ? `${candidate.crystallizedElement}结晶通过目标本地 60 帧共享队列；23 帧后生成碎片，触发后第 54 帧起可拾取。`
         : `${candidate.crystallizedElement}结晶被目标本地共享队列阻止；Aura 与岩元素预算均未消耗，第 ${nextAvailableFrame} 帧可再次触发。`
@@ -1426,6 +1794,38 @@ export class AuraEngine {
   processHit(input: AuraHitInput): ReactionAudit {
     this.advanceTo(input.frame);
     const auraBefore = this.snapshot();
+    if (this.mechanicsTruncation !== null) {
+      const mechanicsTruncation =
+        this.carriedMechanicsTruncation();
+      return {
+        model: "aura-engine",
+        triggered: false,
+        reaction: "none",
+        reactions: [],
+        unsupportedReactions: [
+          ...mechanicsTruncation.unsupportedReactions
+        ],
+        mechanicsTruncation,
+        icdAllowed: null,
+        icdTag: input.application?.icdTag ?? null,
+        icdGroup: input.application?.icdGroup ?? null,
+        applicationGaugeUnits:
+          input.application?.gaugeUnits ?? null,
+        auraBefore,
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: [],
+        transformativeReaction: null,
+        periodicReaction: null,
+        frozenReaction: null,
+        shatterReaction: null,
+        swirlReactions: [],
+        swirlDamageGroup: null,
+        crystallizeReaction: null,
+        catalyzeReaction: null,
+        note: `目标已于第 ${mechanicsTruncation.startedAtFrame} 帧进入机制截断；后续 Aura、ICD 与反应均冻结，本事件仅保留非反应伤害的潜在值。`
+      };
+    }
     const electroChargedWasActive =
       this.electroChargedActive;
     const application = input.application;
@@ -1444,6 +1844,9 @@ export class AuraEngine {
         model: override === "none" ? "aura-engine" : "manual-override",
         triggered: override !== "none",
         reaction: override,
+        reactions: override === "none" ? [] : [override],
+        unsupportedReactions: [],
+        mechanicsTruncation: null,
         icdAllowed: null,
         icdTag: null,
         icdGroup: null,
@@ -1459,6 +1862,7 @@ export class AuraEngine {
         swirlReactions: [],
         swirlDamageGroup: null,
         crystallizeReaction: null,
+        catalyzeReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -1476,6 +1880,9 @@ export class AuraEngine {
         model: "aura-engine",
         triggered: false,
         reaction: "none",
+        reactions: [],
+        unsupportedReactions: [],
+        mechanicsTruncation: null,
         icdAllowed,
         icdTag: application.icdTag,
         icdGroup: application.icdGroup,
@@ -1491,6 +1898,7 @@ export class AuraEngine {
         swirlReactions: [],
         swirlDamageGroup: null,
         crystallizeReaction: null,
+        catalyzeReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -1506,6 +1914,9 @@ export class AuraEngine {
         model: "manual-override",
         triggered: true,
         reaction: debugOverride,
+        reactions: [debugOverride],
+        unsupportedReactions: [],
+        mechanicsTruncation: null,
         icdAllowed,
         icdTag: application.icdTag,
         icdGroup: application.icdGroup,
@@ -1521,6 +1932,7 @@ export class AuraEngine {
         swirlReactions: [],
         swirlDamageGroup: null,
         crystallizeReaction: null,
+        catalyzeReaction: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -1543,31 +1955,101 @@ export class AuraEngine {
       );
     }
 
+    const dendroLikeBefore = auraBefore.some(
+      (entry) =>
+        (entry.element === "dendro" ||
+          entry.element === "quicken") &&
+        entry.gaugeUnits > AURA_EPSILON
+    );
+    const unsupportedReactions: ReactionAudit["unsupportedReactions"] =
+      [];
+    if (this.mode === "aura-v3") {
+      const hydroAuraPresent = auraBefore.some(
+        (entry) =>
+          entry.element === "hydro" &&
+          entry.gaugeUnits > AURA_EPSILON
+      );
+      const pyroAuraPresent = auraBefore.some(
+        (entry) =>
+          entry.element === "pyro" &&
+          entry.gaugeUnits > AURA_EPSILON
+      );
+      if (input.element === "pyro" && dendroLikeBefore) {
+        unsupportedReactions.push("burning");
+      } else if (
+        input.element === "hydro" &&
+        dendroLikeBefore
+      ) {
+        unsupportedReactions.push("bloom");
+      } else if (input.element === "dendro") {
+        // Fixed gcsim order for Dendro is Spread → Quicken → Burning
+        // → Bloom. Fail closed at the first unsupported branch; after that
+        // boundary, a later branch is not observable or auditable truth.
+        if (pyroAuraPresent) {
+          unsupportedReactions.push("burning");
+        } else if (hydroAuraPresent) {
+          unsupportedReactions.push("bloom");
+        }
+      }
+    }
+
+    const quickenBefore = this.quickenGaugeUnits();
+    const additiveReaction: AdditiveReactionAudit | null =
+      this.mode === "aura-v3" &&
+      quickenBefore > AURA_EPSILON &&
+      (input.element === "electro" ||
+        input.element === "dendro")
+        ? {
+            reaction:
+              input.element === "electro"
+                ? "aggravate"
+                : "spread",
+            triggerElement: input.element,
+            quickenGaugeUnitsBefore: cleanGaugeUnits(
+              quickenBefore
+            ),
+            quickenGaugeUnitsAfter: cleanGaugeUnits(
+              quickenBefore
+            ),
+            consumedQuickenGaugeUnits: 0
+          }
+        : null;
+    let catalyzeReaction: CatalyzeReactionAudit | null =
+      additiveReaction === null
+        ? null
+        : {
+            quicken: null,
+            additive: additiveReaction
+          };
     const auraApplied = [
       {
         element: input.element,
-        gaugeUnits: application.gaugeUnits
+        gaugeUnits: application.gaugeUnits,
+        ...(this.mode === "aura-v3"
+          ? { sourceActorId: input.sourceActorId }
+          : {})
       }
     ];
     const frozenPresent =
       this.frozenGaugeUnits() > AURA_EPSILON;
     const frozenMelt =
-      this.mode === "aura-v2" &&
+      this.mode !== "aura-v1" &&
       input.element === "pyro" &&
       frozenPresent &&
       (this.auras.get("electro")?.gaugeUnits ?? 0) <=
         AURA_EPSILON;
     const frozenSuperconduct =
-      this.mode === "aura-v2" &&
+      this.mode !== "aura-v1" &&
       input.element === "electro" &&
       frozenPresent &&
       (this.auras.get("pyro")?.gaugeUnits ?? 0) <=
         AURA_EPSILON;
-    const rule = frozenMelt || frozenSuperconduct
+    const rule = frozenMelt || frozenSuperconduct ||
+      input.element === "dendro"
       ? undefined
       : REACTION_RULES[input.element].find(
           (candidate) =>
-            (this.mode === "aura-v2" ||
+            (this.mode !== "aura-v1" ||
               !requiresAuraV2(candidate.reaction)) &&
             !(
               frozenPresent &&
@@ -1576,9 +2058,21 @@ export class AuraEngine {
                 (input.element === "cryo" &&
                   candidate.reaction === "superconduct"))
             ) &&
+            !(
+              input.element === "hydro" &&
+              candidate.reaction === "electroCharged" &&
+              unsupportedReactions.includes("bloom")
+            ) &&
             (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
               AURA_EPSILON
         );
+    const quickenConsumedAuraElement =
+      this.mode === "aura-v3" && input.element === "dendro"
+        ? "electro"
+        : this.mode === "aura-v3" &&
+            input.element === "electro"
+          ? "dendro"
+          : null;
     let automaticReaction: ReactionType = "none";
     const auraConsumed: ReactionAudit["auraConsumed"] = [];
 
@@ -1587,18 +2081,17 @@ export class AuraEngine {
     if (frozenMelt) {
       const cryoAura = this.auras.get("cryo");
       if (cryoAura !== undefined) {
-        const consumedCryo = Math.min(
-          cryoAura.gaugeUnits,
+        const mutation = this.reduceAuraGauge(
+          "cryo",
           application.gaugeUnits * 2
         );
-        cryoAura.gaugeUnits -= consumedCryo;
         auraConsumed.push({
           element: "cryo",
-          gaugeUnits: cleanGaugeUnits(consumedCryo)
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : { sourceMutations: mutation.sourceMutations })
         });
-        if (cryoAura.gaugeUnits <= AURA_EPSILON) {
-          this.auras.delete("cryo");
-        }
       }
       const frozenBefore = this.frozenGaugeUnits();
       const frozenConsumed = Math.min(
@@ -1635,19 +2128,18 @@ export class AuraEngine {
       let remainingGaugeUnits = application.gaugeUnits;
       const cryoAura = this.auras.get("cryo");
       if (cryoAura !== undefined && remainingGaugeUnits > AURA_EPSILON) {
-        const consumedCryo = Math.min(
-          cryoAura.gaugeUnits,
+        const mutation = this.reduceAuraGauge(
+          "cryo",
           remainingGaugeUnits
         );
-        cryoAura.gaugeUnits -= consumedCryo;
-        remainingGaugeUnits -= consumedCryo;
+        remainingGaugeUnits -= mutation.consumedGaugeUnits;
         auraConsumed.push({
           element: "cryo",
-          gaugeUnits: cleanGaugeUnits(consumedCryo)
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : { sourceMutations: mutation.sourceMutations })
         });
-        if (cryoAura.gaugeUnits <= AURA_EPSILON) {
-          this.auras.delete("cryo");
-        }
       }
       const frozenBefore = this.frozenGaugeUnits();
       const frozenConsumed = Math.min(
@@ -1681,7 +2173,11 @@ export class AuraEngine {
         expiresAtFrame: this.frozenExpiryFrame()
       };
     } else if (rule?.reaction === "electroCharged") {
-      this.attachNormalAura(input.element, application.gaugeUnits);
+      this.attachNormalAura(
+        input.element,
+        application.gaugeUnits,
+        input.sourceActorId
+      );
       const operation = this.electroChargedActive
         ? "refresh"
         : "start";
@@ -1722,21 +2218,20 @@ export class AuraEngine {
     } else if (rule?.reaction === "freeze") {
       const targetAura = this.auras.get(rule.auraElement);
       if (targetAura !== undefined) {
-        const consumedGaugeUnits = Math.min(
-          targetAura.gaugeUnits,
+        const mutation = this.reduceAuraGauge(
+          rule.auraElement,
           application.gaugeUnits
         );
-        targetAura.gaugeUnits -= consumedGaugeUnits;
-        if (targetAura.gaugeUnits <= AURA_EPSILON) {
-          this.auras.delete(rule.auraElement);
-        }
         auraConsumed.push({
           element: rule.auraElement,
-          gaugeUnits: cleanGaugeUnits(consumedGaugeUnits)
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : { sourceMutations: mutation.sourceMutations })
         });
         const frozenBefore = this.frozenGaugeUnits();
         const frozenAttachment = this.attachFrozen(
-          2 * consumedGaugeUnits
+          2 * mutation.consumedGaugeUnits
         );
         automaticReaction = "freeze";
         frozenReaction = {
@@ -1758,22 +2253,102 @@ export class AuraEngine {
     } else if (rule) {
       const targetAura = this.auras.get(rule.auraElement);
       if (targetAura) {
-        const consumedGaugeUnits = Math.min(
-          targetAura.gaugeUnits,
+        const mutation = this.reduceAuraGauge(
+          rule.auraElement,
           application.gaugeUnits * rule.consumptionFactor
         );
-        targetAura.gaugeUnits -= consumedGaugeUnits;
-        if (targetAura.gaugeUnits <= AURA_EPSILON) {
-          this.auras.delete(rule.auraElement);
-        }
         auraConsumed.push({
           element: rule.auraElement,
-          gaugeUnits: cleanGaugeUnits(consumedGaugeUnits)
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : { sourceMutations: mutation.sourceMutations })
         });
         automaticReaction = rule.reaction;
       }
-    } else {
-      this.attachNormalAura(input.element, application.gaugeUnits);
+    } else if (
+      quickenConsumedAuraElement !== null &&
+      (this.auras.get(quickenConsumedAuraElement)?.gaugeUnits ?? 0) >
+        AURA_EPSILON
+    ) {
+      const targetAura = this.auras.get(
+        quickenConsumedAuraElement
+      );
+      if (targetAura === undefined) {
+        throw new Error(
+          "Quicken candidate disappeared before processing."
+        );
+      }
+      const auraGaugeUnitsBefore = targetAura.gaugeUnits;
+      const sourceGaugeUnitsBefore = application.gaugeUnits;
+      const sourceGaugeUnitsSpent = Math.min(
+        sourceGaugeUnitsBefore,
+        auraGaugeUnitsBefore
+      );
+      const mutation = this.reduceAuraGauge(
+        quickenConsumedAuraElement,
+        sourceGaugeUnitsSpent
+      );
+      auraConsumed.push({
+        element: quickenConsumedAuraElement,
+        gaugeUnits: mutation.consumedGaugeUnits,
+        ...(mutation.sourceMutations.length === 0
+          ? {}
+          : { sourceMutations: mutation.sourceMutations })
+      });
+      const attachment = this.attachQuicken(
+        sourceGaugeUnitsSpent,
+        input.sourceActorId
+      );
+      const quickenReaction: QuickenReactionAudit = {
+        reaction: "quicken",
+        triggerElement: input.element as "dendro" | "electro",
+        consumedAuraElement: quickenConsumedAuraElement,
+        sourceGaugeUnitsBefore: cleanGaugeUnits(
+          sourceGaugeUnitsBefore
+        ),
+        sourceGaugeUnitsSpent: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        sourceGaugeUnitsAfter: cleanGaugeUnits(
+          sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
+        ),
+        auraGaugeUnitsBefore: cleanGaugeUnits(
+          auraGaugeUnitsBefore
+        ),
+        auraConsumedGaugeUnits: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        auraGaugeUnitsAfter: cleanGaugeUnits(
+          this.auras.get(quickenConsumedAuraElement)
+            ?.gaugeUnits ?? 0
+        ),
+        quickenGaugeUnitsBefore:
+          attachment.quickenGaugeUnitsBefore,
+        candidateGaugeUnits: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        quickenGaugeUnitsAfter:
+          attachment.quickenGaugeUnitsAfter,
+        operation: attachment.operation,
+        generation: attachment.generation,
+        decayPerFrame: attachment.decayPerFrame,
+        expiresAtFrame: attachment.expiresAtFrame,
+        pendingHydroBloomFollowup:
+          (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      };
+      catalyzeReaction = {
+        quicken: quickenReaction,
+        additive: additiveReaction
+      };
+      automaticReaction = "quicken";
+    } else if (unsupportedReactions.length === 0) {
+      this.attachNormalAura(
+        input.element,
+        application.gaugeUnits,
+        input.sourceActorId
+      );
     }
 
     if (
@@ -1799,7 +2374,16 @@ export class AuraEngine {
       };
     }
 
-    const reaction = automaticReaction;
+    const reaction =
+      additiveReaction?.reaction ?? automaticReaction;
+    const reactions: ReactionType[] = [
+      ...(additiveReaction === null
+        ? []
+        : [additiveReaction.reaction]),
+      ...(automaticReaction === "none"
+        ? []
+        : [automaticReaction])
+    ];
     let transformativeReaction: ReactionAudit["transformativeReaction"] =
       null;
     if (
@@ -1837,8 +2421,36 @@ export class AuraEngine {
       };
     }
 
+    const mechanicsTruncation =
+      unsupportedReactions.length === 0
+        ? null
+        : this.triggerMechanicsTruncation(
+            input.frame,
+            unsupportedReactions
+          );
+    if (
+      mechanicsTruncation !== null &&
+      transformativeReaction?.scheduled === true
+    ) {
+      transformativeReaction = {
+        ...transformativeReaction,
+        scheduled: false,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      };
+    }
+
     const reactionNote =
-      automaticReaction === "none"
+      catalyzeReaction?.additive !== null &&
+      catalyzeReaction?.additive !== undefined &&
+      catalyzeReaction.quicken !== null
+        ? `${catalyzeReaction.additive.reaction === "aggravate" ? "超激化" : "蔓激化"}读取命中帧激元素且不消耗耐久；同一命中随后生成或刷新激元素。`
+        : catalyzeReaction?.additive !== null &&
+            catalyzeReaction?.additive !== undefined
+          ? `${catalyzeReaction.additive.reaction === "aggravate" ? "超激化" : "蔓激化"}读取命中帧激元素并追加可暴击、受增伤/防御/抗性影响的加算基础伤害；激元素耐久不消耗。`
+          : catalyzeReaction?.quicken !== null &&
+              catalyzeReaction?.quicken !== undefined
+            ? `原激化消耗 ${catalyzeReaction.quicken.auraConsumedGaugeUnits}U ${catalyzeReaction.quicken.consumedAuraElement} Aura，${catalyzeReaction.quicken.operation === "unchanged" ? "较弱激元素未覆盖既有状态" : `${catalyzeReaction.quicken.operation === "start" ? "生成" : "刷新"} ${catalyzeReaction.quicken.quickenGaugeUnitsAfter}U 激元素至 ${catalyzeReaction.quicken.expiresAtFrame ?? "未知"}f`}。`
+      : automaticReaction === "none"
         ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
         : automaticReaction === "electroCharged"
           ? periodicReaction?.operation === "start"
@@ -1851,12 +2463,38 @@ export class AuraEngine {
           : isOneShotTransformativeReaction(automaticReaction)
             ? transformativeReaction?.scheduled
               ? `${automaticReaction === "overload" ? "超载" : "超导"}由命中元素、敌方 Aura、元素量与 ICD 自动判定；独立反应伤害已排队。`
-              : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
+              : transformativeReaction?.blockedReason ===
+                  "TARGET_MECHANICS_TRUNCATION"
+                ? `${automaticReaction === "overload" ? "超载" : "超导"}已按反应顺序识别并消耗 Aura；同一命中随后进入目标机制截断，独立反应伤害未排队。`
+                : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
             : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。";
+    const unsupportedDendroReaction =
+      unsupportedReactions.length === 0
+        ? null
+        : unsupportedReactions
+            .map((candidate) =>
+              candidate === "bloom"
+                ? "检测到绽放前提，但草原核实体尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被绽放处理的入射元素，不得据此推断后续 Aura 或伤害。"
+                : "检测到燃烧前提，但燃烧燃料、周期伤害和共存状态尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被燃烧处理的入射元素。"
+            )
+            .join("；");
+    const baseNote =
+      periodicReaction?.operation === "stop"
+        ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
+        : frozenReaction?.operation === "consume"
+          ? `${reactionNote}；本次${automaticReaction === "melt" ? "融化" : "超导"}消耗了冻元素耐久。`
+          : reactionNote;
+    const pendingBloomNote =
+      catalyzeReaction?.quicken?.pendingHydroBloomFollowup === true
+        ? "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
+        : null;
     return {
       model: "aura-engine",
       triggered: reaction !== "none",
       reaction,
+      reactions,
+      unsupportedReactions,
+      mechanicsTruncation,
       icdAllowed,
       icdTag: application.icdTag,
       icdGroup: application.icdGroup,
@@ -1864,7 +2502,8 @@ export class AuraEngine {
       auraBefore,
       auraApplied,
       auraConsumed,
-      auraAfter: this.snapshot(),
+      auraAfter:
+        mechanicsTruncation === null ? this.snapshot() : [],
       transformativeReaction,
       periodicReaction,
       frozenReaction,
@@ -1872,12 +2511,10 @@ export class AuraEngine {
       swirlReactions: [],
       swirlDamageGroup: null,
       crystallizeReaction: null,
-      note:
-        periodicReaction?.operation === "stop"
-          ? `${reactionNote}；本次命中移除了水雷共存，感电周期流在同帧停止。`
-          : frozenReaction?.operation === "consume"
-            ? `${reactionNote}；本次${automaticReaction === "melt" ? "融化" : "超导"}消耗了冻元素耐久。`
-          : reactionNote
+      catalyzeReaction,
+      note: [baseNote, pendingBloomNote, unsupportedDendroReaction]
+        .filter((part): part is string => part !== null)
+        .join("；")
     };
   }
 }
@@ -1885,7 +2522,13 @@ export class AuraEngine {
 export const AURA_ENGINE_CONSTANTS = {
   normalAuraRatio: NORMAL_AURA_RATIO,
   normalAuraBaseDurationFrames: NORMAL_AURA_BASE_DURATION_FRAMES,
+  /** Historical aura-v1/v2 replay coefficient. */
   normalAuraDurationPerUnitFrames: NORMAL_AURA_DURATION_PER_UNIT_FRAMES,
+  auraV3NormalAuraDurationPerUnitFrames:
+    AURA_V3_NORMAL_DURATION_PER_UNIT_FRAMES,
+  quickenBaseDurationFrames: QUICKEN_BASE_DURATION_FRAMES,
+  quickenDurationPerUnitFrames:
+    QUICKEN_DURATION_PER_UNIT_FRAMES,
   defaultIcdResetFrames: DEFAULT_ICD_RESET_FRAMES,
   defaultIcdSequence: DEFAULT_ICD_SEQUENCE,
   builtInDefaultIcdProfile: BUILT_IN_DEFAULT_ICD_PROFILE,

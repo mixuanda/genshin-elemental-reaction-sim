@@ -131,7 +131,7 @@
           <div id="timelineLegend" class="legend"></div>
         </article>
         <article class="card curve-card">
-          <div class="section-title"><h2>逐击累计伤害曲线</h2><span>每个折点对应一段实际伤害；点击可定位该秒逐击记录</span></div>
+          <div class="section-title"><h2>逐击累计伤害 / 构成曲线</h2><span>核心返回全队、角色、直接伤害、激化加算与转化反应累计值；点击可定位逐击记录</span></div>
           <canvas id="damageCurveCanvas" height="320"></canvas>
           <div id="curveLegend" class="legend"></div>
         </article>
@@ -276,6 +276,16 @@
             </table>
           </div>
           <div class="section-title">
+            <h3>激元素状态机</h3>
+            <span id="quickenStateSummary"></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>时间 / 帧</th><th>操作</th><th>目标 / 代次</th><th>来源</th><th>触发 / 消耗</th><th>候选 / 激元素前 → 后</th><th>Aura 前 → 后</th><th>到期 / 原因</th></tr></thead>
+              <tbody id="quickenStateBody"></tbody>
+            </table>
+          </div>
+          <div class="section-title">
             <h3>结晶碎片 / 护盾状态机</h3>
             <span id="crystallizeSummary"></span>
           </div>
@@ -315,7 +325,7 @@
             <label>搜索<input id="hitSearch" type="search" placeholder="技能或段数" /></label>
             <label>每页<select id="pageSizeInput"><option>25</option><option selected>50</option><option>100</option><option>250</option></select></label>
           </div>
-          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间 / 帧</th><th>施放者</th><th>缩放面板</th><th>伤害归属</th><th>技能 / 段数</th><th>目标</th><th>元素</th><th>反应</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
+          <div class="table-wrap"><table class="hit-table"><thead><tr><th>时间 / 帧</th><th>施放者</th><th>缩放面板</th><th>伤害归属</th><th>技能 / 段数</th><th>目标</th><th>元素</th><th>反应链</th><th>倍率</th><th>基础伤害</th><th>暴击期望</th><th>最终伤害</th></tr></thead><tbody id="hitTableBody"></tbody></table></div>
           <div class="pager"><button id="prevPage">上一页</button><span id="pageInfo"></span><button id="nextPage">下一页</button></div>
         </article>
         <article class="card detail-card" id="hitDetailCard">
@@ -331,7 +341,7 @@
         <article class="card">
           <div class="section-title">
             <h2>玩家展示柜导入</h2>
-            <span>只读取公开展示数据，不保存 UID 或账号数据</span>
+            <span>只读取公开展示数据；不持久化，开发/预览代理按 TTL 在内存缓存响应</span>
           </div>
           <div class="showcase-import">
             <label>原神 UID
@@ -377,9 +387,9 @@
               <dt>energyGains</dt><dd>描述不受充能效率影响的固定回能，可声明按来源角色和键共享的内部冷却；每次触发或阻止都由核心记录。</dd>
               <dt>particles</dt><dd>描述微粒/晶球的元素、离散数量范围、生成帧与飞行帧；核心在到达帧按前后台、同/异色和充能效率向全队分配。</dd>
               <dt>timeline</dt><dd>启用 legal-frame-v1 后，以 60 FPS 整数帧描述行动定义和命令序列；支持切人、分后续行动取消帧、动画结束、冷却、充能次数、能量失败回滚，以及 strict / wait 合法性模式。</dd>
-              <dt>reactionEngine</dt><dd>aura-v1 根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；aura-v2 另加入雷 Aura、超载/超导独立范围伤害、水雷共存/感电周期流，以及带逐帧加速衰减和冻结抗性的冻元素耐久。冻元素可被火正向融化、雷冻结底超导、钝击或岩元素碎冰消耗；碎冰产生同帧单目标物理独立伤害，超载范围伤害也按钝击规则检查邻近冻结目标。正式预设禁止手工 reaction 标签。</dd>
+              <dt>reactionEngine</dt><dd>aura-v1 根据每段 application 的元素量、icdTag、icdGroup 和敌方 Aura 自动判定融化/蒸发；aura-v2 加入雷 Aura、超载/超导/感电/冻结/碎冰/扩散/结晶机制；aura-v3 进一步按固定 gcsim 提交的 25 耐久 = 1U 语义修正普通 1U Aura 为 0.8U / 570f，并加入逐来源槽、草 Aura、激元素、原激化、超激化与蔓激化。燃烧、绽放、草原核、超绽放和烈绽放尚未执行；首个未支持分支会逐目标丢弃并锁定 Aura，触发当击保留；后续可独立求值的伤害仅保留潜在值且不计总伤/DPS，依赖未知 Aura 的周期状态事件直接失效，结果明确标为 partial。正式预设禁止手工 reaction 标签。</dd>
             </dl>
-            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD/冻结抗性、超载/超导/感电/碎冰独立伤害、超导物抗状态、冻元素耐久、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有机制闭环；扩散、结晶、草反应等仍未实现，冻结也不会自动定身或停止声明式移动，钝击韧性数值只用于削冻而不是完整韧性系统。几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物，也没有完整角色机制数据库。</p>
+            <p class="muted">旧配置继续使用绝对秒兼容模式；legal-frame-v1 的行动和命中使用整数帧。具名多目标、逐目标 Aura/ICD/冻结抗性、超载/超导/感电/碎冰独立伤害、扩散传播、结晶碎片/护盾、草雷激化、超导物抗状态、冻元素耐久、显式 AoE 扇出、二维圆形/旋转矩形/胶囊/填充扇形求交、静态施放者局部坐标变换、声明式目标线性移动、一次产球聚合、landed / miss、三层策略和阶段窗口已有可审计实现。燃烧、绽放系、完整元素共存/ICD、Monte Carlo 粒子采样、真实技能产球概率与飞行轨迹、动作帧数据库和全角色机制仍未完成；离散产球范围目前只按固定种子给出单次可复现轨迹。冻结不会自动定身或停止声明式移动，钝击韧性数值只用于削冻而不是完整韧性系统。几何仍不含高度、角色移动、自动转向、AI 移动、索敌或障碍物；本项目不声称达到完整 gcsim 精度。</p>
           </article>
         </div>
       </section>

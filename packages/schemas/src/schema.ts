@@ -5,6 +5,7 @@ import {
   AOE_FANOUT_SCHEMA_VERSION,
   CAPSULE_GEOMETRY_SCHEMA_VERSION,
   CIRCLE_GEOMETRY_SCHEMA_VERSION,
+  CRYSTALLIZE_REACTION_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
@@ -77,15 +78,15 @@ export const elementalApplicationSchema = z
 
 export const initialAuraApplicationSchema = z
   .object({
-    element: z.enum(["pyro", "cryo", "hydro", "electro"]),
+    element: z.enum(["pyro", "cryo", "hydro", "electro", "dendro"]),
     gaugeUnits: finiteNumber.positive().max(20)
   })
   .strict();
 
 export const auraReactionEngineConfigSchema = z
   .object({
-    mode: z.enum(["aura-v1", "aura-v2"]),
-    initialAura: z.array(initialAuraApplicationSchema).max(4).optional(),
+    mode: z.enum(["aura-v1", "aura-v2", "aura-v3"]),
+    initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
       .record(
         idSchema,
@@ -107,7 +108,14 @@ export const auraReactionEngineConfigSchema = z
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
-          message: "electro aura requires reactionEngine.mode to be aura-v2"
+          message: "electro aura requires reactionEngine.mode to be aura-v2 or aura-v3"
+        });
+      }
+      if (engine.mode !== "aura-v3" && aura.element === "dendro") {
+        context.addIssue({
+          code: "custom",
+          path: ["initialAura", index, "element"],
+          message: "dendro aura requires reactionEngine.mode to be aura-v3"
         });
       }
       if (elements.has(aura.element)) {
@@ -258,7 +266,7 @@ export const enemyTargetProfileSchema = z
     resistance: finiteNumber.optional(),
     defReduction: finiteNumber.optional(),
     freezeResistance: finiteNumber.min(0).max(1).optional(),
-    initialAura: z.array(initialAuraApplicationSchema).max(4).optional(),
+    initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     position: point2DSchema.optional(),
     hitboxRadius: finiteNumber.min(0).max(1_000).optional()
   })
@@ -1132,18 +1140,21 @@ export const simConfigSchema = z
       if (
         target.initialAura !== undefined &&
         config.reactionEngine?.mode !== "aura-v1" &&
-        config.reactionEngine?.mode !== "aura-v2"
+        config.reactionEngine?.mode !== "aura-v2" &&
+        config.reactionEngine?.mode !== "aura-v3"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
-          message: "requires reactionEngine.mode to be aura-v1 or aura-v2"
+          message:
+            "requires reactionEngine.mode to be aura-v1, aura-v2, or aura-v3"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
         if (
           aura.element === "electro" &&
-          config.reactionEngine?.mode !== "aura-v2"
+          config.reactionEngine?.mode !== "aura-v2" &&
+          config.reactionEngine?.mode !== "aura-v3"
         ) {
           context.addIssue({
             code: "custom",
@@ -1156,7 +1167,25 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2"
+              "electro aura requires reactionEngine.mode to be aura-v2 or aura-v3"
+          });
+        }
+        if (
+          aura.element === "dendro" &&
+          config.reactionEngine?.mode !== "aura-v3"
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "enemy",
+              "targets",
+              index,
+              "initialAura",
+              auraIndex,
+              "element"
+            ],
+            message:
+              "dendro aura requires reactionEngine.mode to be aura-v3"
           });
         }
       });
@@ -1568,14 +1597,15 @@ export const simConfigSchema = z
 
     if (
       config.reactionEngine?.mode === "aura-v1" ||
-      config.reactionEngine?.mode === "aura-v2"
+      config.reactionEngine?.mode === "aura-v2" ||
+      config.reactionEngine?.mode === "aura-v3"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1 and aura-v2 currently require timeline.mode legal-frame-v1"
+            "aura-v1, aura-v2, and aura-v3 currently require timeline.mode legal-frame-v1"
         });
       }
       const validateAuraHit = (
@@ -1594,7 +1624,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1 and aura-v2; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1, aura-v2, and aura-v3; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -1613,7 +1643,24 @@ export const simConfigSchema = z
           hit.application !== undefined &&
           !(
             config.reactionEngine?.mode === "aura-v2"
-              ? ["pyro", "cryo", "hydro", "electro", "anemo", "geo"]
+              ? [
+                  "pyro",
+                  "cryo",
+                  "hydro",
+                  "electro",
+                  "anemo",
+                  "geo"
+                ]
+              : config.reactionEngine?.mode === "aura-v3"
+                ? [
+                    "pyro",
+                    "cryo",
+                    "hydro",
+                    "electro",
+                    "anemo",
+                    "geo",
+                    "dendro"
+                  ]
               : ["pyro", "cryo", "hydro"]
           ).includes(hit.element ?? "")
         ) {
@@ -1621,8 +1668,10 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "application"],
             message:
-              config.reactionEngine?.mode === "aura-v2"
-                ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
+              config.reactionEngine?.mode === "aura-v3"
+                ? "aura-v3 elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits"
+                : config.reactionEngine?.mode === "aura-v2"
+                  ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
                 : "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
           });
         }
@@ -1783,6 +1832,13 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === CRYSTALLIZE_REACTION_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === SWIRL_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

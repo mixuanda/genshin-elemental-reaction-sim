@@ -1875,6 +1875,212 @@ describe("versioned config schema", () => {
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
 
+  it("migrates the Crystallize shard schema into the Catalyze schema", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.28.0",
+      engineVersion: "1.28.0-crystallize-shards"
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  });
+
+  it("gates Dendro Aura and applications behind aura-v3", () => {
+    const current = migrateConfig(legacyConfig);
+    const withDendroApplication = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "dendro-hit",
+            actorId: "a",
+            name: "草附着",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "dendro-hit-1",
+                frame: 0,
+                scaling: 1,
+                element: "dendro" as const,
+                application: {
+                  gaugeUnits: 1,
+                  icdTag: "dendro",
+                  icdGroup: "no-icd" as const
+                }
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    };
+
+    for (const mode of ["aura-v1", "aura-v2"] as const) {
+      expect(() =>
+        migrateConfig({
+          ...withDendroApplication,
+          reactionEngine: { mode }
+        })
+      ).toThrow(
+        new RegExp(`${mode} elemental applications currently support`)
+      );
+      expect(() =>
+        migrateConfig({
+          ...withDendroApplication,
+          reactionEngine: {
+            mode,
+            initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+          },
+          timeline: {
+            ...withDendroApplication.timeline,
+            abilities: []
+          }
+        })
+      ).toThrow(/dendro aura requires reactionEngine\.mode to be aura-v3/);
+    }
+
+    const parsed = migrateConfig({
+      ...withDendroApplication,
+      reactionEngine: {
+        mode: "aura-v3",
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      }
+    });
+    expect(parsed.reactionEngine).toEqual({
+      mode: "aura-v3",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+    expect(parsed.timeline?.abilities[0]?.hits?.[0]?.element).toBe(
+      "dendro"
+    );
+  });
+
+  it("requires a legal frame timeline for aura-v3", () => {
+    const current = migrateConfig(legacyConfig);
+
+    expect(() =>
+      migrateConfig({
+        ...current,
+        rotation: [],
+        reactionEngine: { mode: "aura-v3" }
+      })
+    ).toThrow(
+      /aura-v1, aura-v2, and aura-v3 currently require timeline\.mode legal-frame-v1/
+    );
+  });
+
+  it("applies Aura hit validation to aura-v3", () => {
+    const current = migrateConfig(legacyConfig);
+    const withHit = (hit: Record<string, unknown>) => ({
+      ...current,
+      rotation: [],
+      reactionEngine: { mode: "aura-v3" as const },
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "aura-v3-hit",
+            actorId: "a",
+            name: "Aura v3 validation",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "aura-v3-hit-1",
+                frame: 0,
+                scaling: 1,
+                ...hit
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    });
+
+    expect(() =>
+      migrateConfig(
+        withHit({
+          element: "electro",
+          reaction: "melt"
+        })
+      )
+    ).toThrow(/manual reaction labels are forbidden in aura-v1, aura-v2, and aura-v3/);
+
+    expect(() =>
+      migrateConfig(
+        withHit({
+          element: "electro",
+          reactionOverride: "melt"
+        })
+      )
+    ).toThrow(/debugAllowReactionOverride=true/);
+
+    expect(() =>
+      migrateConfig(
+        withHit({
+          element: "dendro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "dendro",
+            icdGroup: "missing-profile"
+          }
+        })
+      )
+    ).toThrow(/unknown ICD profile "missing-profile"/);
+
+    expect(() =>
+      migrateConfig(
+        withHit({
+          element: "physical",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "invalid",
+            icdGroup: "no-icd"
+          }
+        })
+      )
+    ).toThrow(
+      /aura-v3 elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits/
+    );
+
+    const parsed = migrateConfig({
+      ...withHit({
+        element: "dendro",
+        reactionOverride: "melt",
+        application: {
+          gaugeUnits: 1,
+          icdTag: "dendro",
+          icdGroup: "no-icd"
+        }
+      }),
+      reactionEngine: {
+        mode: "aura-v3",
+        debugAllowReactionOverride: true
+      }
+    });
+    expect(
+      parsed.timeline?.abilities[0]?.hits?.[0]?.reactionOverride
+    ).toBe("melt");
+  });
+
   it("validates blunt strike and poise damage in both action formats", () => {
     const parsed = migrateConfig({
       ...legacyConfig,

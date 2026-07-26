@@ -32,6 +32,7 @@ const ELEMENT_LABELS: Record<string, string> = {
   anemo: "风",
   geo: "岩",
   dendro: "草",
+  quicken: "激元素",
   frozen: "冻元素",
   physical: "物理",
   neutral: "无色"
@@ -45,6 +46,7 @@ const ELEMENT_COLORS: Record<string, string> = {
   anemo: "#72e0c1",
   geo: "#e9bd68",
   dendro: "#9edc72",
+  quicken: "#d4f06f",
   frozen: "#d6f1ff",
   physical: "#b9c0cb",
   neutral: "#d6d9df"
@@ -68,7 +70,12 @@ const REACTION_LABELS: Record<string, string> = {
   crystallizePyro: "火结晶",
   crystallizeHydro: "水结晶",
   crystallizeCryo: "冰结晶",
-  crystallizeElectro: "雷结晶"
+  crystallizeElectro: "雷结晶",
+  quicken: "原激化",
+  aggravate: "超激化",
+  spread: "蔓激化",
+  burning: "燃烧（未实现）",
+  bloom: "绽放（未实现）"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -131,8 +138,18 @@ function formatAuraState(auras: readonly AuraStateEntry[]): string {
   return (
     auras
       .map(
-        (aura) =>
-          `${ELEMENT_LABELS[aura.element] ?? aura.element} ${formatNumber(aura.gaugeUnits, 3)}U`
+        (aura) => {
+          const sources =
+            aura.sourceSlots === undefined || aura.sourceSlots.length === 0
+              ? ""
+              : `〔${aura.sourceSlots
+                  .map(
+                    (slot) =>
+                      `${slot.sourceActorId}:${formatNumber(slot.gaugeUnits, 3)}U`
+                  )
+                  .join("、")}〕`;
+          return `${ELEMENT_LABELS[aura.element] ?? aura.element} ${formatNumber(aura.gaugeUnits, 3)}U${sources}`;
+        }
       )
       .join("、") || "无"
   );
@@ -147,6 +164,44 @@ function formatAuraGauge(auras: readonly AuraGaugeEntry[]): string {
       )
       .join("、") || "无"
   );
+}
+
+function getReactionChain(hit: DamageEvent): string[] {
+  const ordered = [...hit.reactionAudit.reactions];
+  if (hit.reaction !== "none" && !ordered.includes(hit.reaction)) {
+    ordered.unshift(hit.reaction);
+  }
+  return ordered;
+}
+
+function formatReactionBadges(hit: DamageEvent): string {
+  const reactions = getReactionChain(hit);
+  const unsupported = hit.reactionAudit.unsupportedReactions;
+  const shatter = hit.reactionAudit.shatterReaction?.triggered
+    ? '<span class="badge">碎冰触发</span>'
+    : "";
+  if (
+    reactions.length === 0 &&
+    unsupported.length === 0 &&
+    shatter === ""
+  ) {
+    return "—";
+  }
+  const executed = reactions
+    .map(
+      (reaction) =>
+        `<span class="badge">${escapeHtml(REACTION_LABELS[reaction] ?? reaction)}</span>`
+    )
+    .join(" → ");
+  const truncated = unsupported
+    .map(
+      (reaction) =>
+        `<span class="badge warn">${escapeHtml(REACTION_LABELS[reaction] ?? reaction)}</span>`
+    )
+    .join(" → ");
+  return [shatter, executed, truncated]
+    .filter(Boolean)
+    .join(" → ");
 }
 
 function escapeHtml(value: unknown): string {
@@ -279,6 +334,23 @@ function renderAll(): void {
       : lastResult.config.meta.name === durinWhiteSkillAuditPreset.meta.name
         ? durinWhiteSkillAuditDisclosure
         : null;
+  const mechanicsDisclosure =
+    lastResult.mechanicsStatus === "partial"
+      ? `<details><summary><span class="badge warn">结果部分有效</span> · ` +
+        `${lastResult.targetMechanicsTruncationLog.length} 个目标遇到未实现机制 · 展开截断边界</summary>` +
+        `<ul>${lastResult.targetMechanicsTruncationLog
+          .map(
+            (entry) =>
+              `<li>${escapeHtml(entry.targetName)} (${escapeHtml(entry.targetId)}) · ` +
+              `${entry.frame}f · ${entry.unsupportedReactions
+                .map(
+                  (reaction) =>
+                    REACTION_LABELS[reaction] ?? reaction
+                )
+                .join(" / ")}：丢弃 ${escapeHtml(formatAuraState(entry.discardedAura))}；触发当击保留；后续可独立求值的伤害只保留潜在值并从总伤 / DPS 排除，依赖未知 Aura 的周期状态事件直接失效。</li>`
+          )
+          .join("")}</ul></details>`
+      : "";
   byId<HTMLElement>("notice").innerHTML =
     `<strong>${escapeHtml(lastResult.config.meta.name)}</strong> ` +
     `<span class="badge warn">${escapeHtml(status)}</span> · ` +
@@ -298,12 +370,18 @@ function renderAll(): void {
           .join(" · ")}</p>` +
         `<ul>${auditDisclosure.unresolvedMechanics
           .map((item) => `<li>${escapeHtml(item)}</li>`)
-          .join("")}</ul></details>`);
+          .join("")}</ul></details>`) +
+    mechanicsDisclosure;
 }
 
 function renderMetrics(): void {
   if (!lastResult) return;
   const result = lastResult;
+  const authoritativeDamageEvents = result.damageEvents.filter(
+    (event) => event.mechanicsStatus === "authoritative"
+  ).length;
+  const truncatedDamageEvents =
+    result.damageEvents.length - authoritativeDamageEvents;
   const fullCycles = Math.floor(
     result.config.duration / result.config.cycleLength
   );
@@ -316,11 +394,19 @@ function renderMetrics(): void {
       formatNumber(result.totalDamage, 0)
     ],
     [
-      "有效命中",
-      formatNumber(result.damageEvents.length, 0),
+      "机制完整性",
+      result.mechanicsStatus === "complete" ? "完整" : "部分有效",
+      result.mechanicsStatus === "complete"
+        ? "未跨过已知未实现机制"
+        : `${result.targetMechanicsTruncationLog.length} 个目标截断 · ${truncatedDamageEvents} 段后续伤害未计入总伤`
+    ],
+    [
+      "权威 / 全部伤害段",
+      `${formatNumber(authoritativeDamageEvents, 0)} / ${formatNumber(result.damageEvents.length, 0)}`,
       `${result.reactedHits} 次反应触发 · ${
         result.config.reactionEngine?.mode === "aura-v1" ||
-        result.config.reactionEngine?.mode === "aura-v2"
+        result.config.reactionEngine?.mode === "aura-v2" ||
+        result.config.reactionEngine?.mode === "aura-v3"
           ? `${result.config.reactionEngine.mode} 自动判定`
           : result.compatibilityMode === "legacy-v0.1"
             ? "兼容手工标签"
@@ -575,7 +661,17 @@ function renderHitFilters(): void {
 
   const reactionFilter = byId<HTMLSelectElement>("hitReactionFilter");
   const previousReaction = reactionFilter.value || "all";
-  const reactions = [...new Set(result.damageEvents.map((hit) => hit.reaction))];
+  const reactions = [
+    ...new Set(
+      result.damageEvents.flatMap((hit) => {
+        const chain = getReactionChain(hit);
+        return [
+          ...(chain.length > 0 ? chain : ["none"]),
+          ...hit.reactionAudit.unsupportedReactions
+        ];
+      })
+    )
+  ];
   reactionFilter.innerHTML =
     `<option value="all">全部反应</option>` +
     reactions
@@ -607,7 +703,18 @@ function filteredHits(): DamageEvent[] {
   return lastResult.damageEvents.filter((hit) => {
     if (character !== "all" && hit.creditOwnerId !== character) return false;
     if (target !== "all" && hit.targetId !== target) return false;
-    if (reaction !== "all" && hit.reaction !== reaction) return false;
+    if (
+      reaction !== "all" &&
+      hit.reaction !== reaction &&
+      !hit.reactionAudit.reactions.some(
+        (candidate) => candidate === reaction
+      ) &&
+      !hit.reactionAudit.unsupportedReactions.some(
+        (candidate) => candidate === reaction
+      )
+    ) {
+      return false;
+    }
     if (
       timelineSecondFilter !== null &&
       hit.second !== timelineSecondFilter
@@ -647,11 +754,11 @@ function renderHitTable(): void {
           `<td>${escapeHtml(hit.actionName)} <span class="muted">/ ${escapeHtml(hit.hitLabel)}</span></td>` +
           `<td>${escapeHtml(hit.targetName)} <span class="muted">/ ${escapeHtml(hit.targetId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[hit.element] ?? "#ccc"}">${ELEMENT_LABELS[hit.element] ?? hit.element}</span></td>` +
-          `<td>${hit.reaction === "none" ? hit.reactionAudit.shatterReaction?.triggered ? '<span class="badge">碎冰触发</span>' : "—" : `<span class="badge">${REACTION_LABELS[hit.reaction] ?? hit.reaction}</span>`}</td>` +
+          `<td>${formatReactionBadges(hit)}</td>` +
           `<td>${hit.transformativeReactionFactors === null ? `${hit.scaling.toFixed(3)} × ${hit.scalingStat.toUpperCase()}` : `${formatNumber(hit.transformativeReactionFactors.levelBaseDamage, 4)} × ${hit.transformativeReactionFactors.baseMultiplier}`}</td>` +
           `<td>${formatNumber(hit.baseDamage, 0)}</td>` +
           `<td>${hit.kind === "transformative-reaction" ? "不暴击" : `×${hit.critFactor.toFixed(3)}`}</td>` +
-          `<td><strong>${formatNumber(hit.displayDamage, 0)}</strong></td></tr>`
+          `<td><strong>${formatNumber(hit.displayDamage, 0)}</strong>${hit.mechanicsStatus === "mechanics-truncated" ? ` <span class="badge warn">机制截断</span><br><span class="muted">潜在 ${formatNumber(hit.potentialDamage, 0)}，未计总伤</span>` : ""}</td></tr>`
       )
       .join("") ||
     `<tr><td colspan="12">没有符合筛选条件的伤害事件。</td></tr>`;
@@ -708,6 +815,8 @@ function renderHitDetail(): void {
     ? hit.activeStatuses.map((status) => status.label).join("、")
     : "无";
   const transformative = hit.transformativeReactionFactors;
+  const mechanicsTruncation =
+    hit.reactionAudit.mechanicsTruncation;
   const reactionStatusEntries = lastResult.reactionStatusLog.filter(
     (entry) => entry.reactionDamageEventId === hit.id
   );
@@ -754,9 +863,19 @@ function renderHitDetail(): void {
     ["目标判定原因", targetResolution?.reason ?? "—"],
     [
       "目标伤害策略",
-      hit.targetDamagePolicy === "immune"
+      hit.mechanicsStatus === "mechanics-truncated"
+        ? `机制截断 · 公式潜在 ${formatNumber(hit.potentialDamage, 0)} × 0，不计入总伤 / DPS`
+        : hit.targetDamagePolicy === "immune"
         ? `免疫 · 公式潜在 ${formatNumber(hit.potentialDamage, 0)} × 0`
         : `正常 · 公式潜在 ${formatNumber(hit.potentialDamage, 0)} × 1`
+    ],
+    [
+      "机制完整性",
+      mechanicsTruncation === null
+        ? "本段权威"
+        : mechanicsTruncation.operation === "trigger"
+          ? `本段触发 ${mechanicsTruncation.unsupportedReactions.map((reaction) => REACTION_LABELS[reaction] ?? reaction).join(" / ")} 未实现分支；本段已支持的直接伤害与激化加算保留（若有），目标后续从第 ${mechanicsTruncation.startedAtFrame} 帧起截断`
+          : `继承第 ${mechanicsTruncation.startedAtFrame} 帧的 ${mechanicsTruncation.unsupportedReactions.map((reaction) => REACTION_LABELS[reaction] ?? reaction).join(" / ")} 截断；Aura / ICD / 反应不再推演`
     ],
     [
       "倍率基准",
@@ -874,8 +993,91 @@ function renderHitDetail(): void {
     ],
     ["时间", `${hit.timeSeconds.toFixed(3)}s / ${hit.frame}f`],
     ["最终伤害（整数显示）", formatNumber(hit.displayDamage, 0)],
-    ["核心原始值", hit.finalDamage.toFixed(6)]
+    ["核心原始值", hit.finalDamage.toFixed(6)],
+    [
+      "最终伤害构成",
+      `直接 ${formatNumber(hit.damageComposition.direct, 6)} + 激化加算 ${formatNumber(hit.damageComposition.additiveReaction, 6)} + 转化反应 ${formatNumber(hit.damageComposition.transformativeReaction, 6)} = ${formatNumber(hit.finalDamage, 6)}`
+    ]
   ];
+  if (hit.reactionAudit.reactions.length > 0) {
+    factors.push([
+      "同段反应顺序",
+      hit.reactionAudit.reactions
+        .map((reaction) => REACTION_LABELS[reaction] ?? reaction)
+        .join(" → ")
+    ]);
+  }
+  if (hit.additiveReactionFactors !== null) {
+    const additive = hit.additiveReactionFactors;
+    factors.push(
+      [
+        `${REACTION_LABELS[additive.reaction] ?? additive.reaction}加算`,
+        `${formatNumber(additive.levelBaseDamage, 6)} × ${additive.baseMultiplier.toFixed(2)} × (1 + 精通 ${(additive.elementalMasteryBonus * 100).toFixed(4)}% + 反应增伤 ${(additive.reactionBonus * 100).toFixed(4)}%) = ${formatNumber(additive.flatDamage, 6)} 基础伤害；插件后实入 ${formatNumber(additive.appliedFlatDamage, 6)}`
+      ],
+      [
+        "激化面板读取",
+        `${additive.sourceActorId} · Lv.${additive.characterLevel} · 命中时实时精通 ${formatNumber(additive.elementalMastery, 4)}（不沿用行动快照）`
+      ],
+      [
+        "激化最终贡献",
+        `${formatNumber(hit.damageComposition.additiveReaction, 6)} · 已经过本段增伤、防御、抗性、暴击、增幅与目标策略`
+      ]
+    );
+  }
+  const auraSourceMutations = [
+    ...(hit.reactionAudit.auraApplied ?? []),
+    ...(hit.reactionAudit.auraConsumed ?? [])
+  ].flatMap((entry) => entry.sourceMutations ?? []);
+  if (auraSourceMutations.length > 0) {
+    factors.push([
+      "Aura 来源槽变更",
+      auraSourceMutations
+        .map(
+          (mutation) =>
+            `${mutation.sourceActorId}: ${formatNumber(mutation.gaugeUnitsBefore, 4)}U - ${formatNumber(mutation.consumedGaugeUnits, 4)}U = ${formatNumber(mutation.gaugeUnitsAfter, 4)}U`
+        )
+        .join("；")
+    ]);
+  }
+  if (hit.reactionAudit.catalyzeReaction !== null) {
+    const catalyze = hit.reactionAudit.catalyzeReaction;
+    if (catalyze.additive !== null) {
+      factors.push([
+        "激元素消耗",
+        `${REACTION_LABELS[catalyze.additive.reaction] ?? catalyze.additive.reaction}不消耗激元素：${formatNumber(catalyze.additive.quickenGaugeUnitsBefore, 4)}U → ${formatNumber(catalyze.additive.quickenGaugeUnitsAfter, 4)}U`
+      ]);
+    }
+    if (catalyze.quicken !== null) {
+      const quicken = catalyze.quicken;
+      factors.push(
+        [
+          "原激化判定",
+          `${ELEMENT_LABELS[quicken.triggerElement]}触发 / 消耗${ELEMENT_LABELS[quicken.consumedAuraElement]} · 候选 ${formatNumber(quicken.candidateGaugeUnits, 4)}U · ${quicken.operation}`
+        ],
+        [
+          "激元素状态",
+          `${formatNumber(quicken.quickenGaugeUnitsBefore, 4)}U → ${formatNumber(quicken.quickenGaugeUnitsAfter, 4)}U · gen ${quicken.generation} · ${quicken.expiresAtFrame === null ? "已结束" : `${quicken.expiresAtFrame}f 到期`}`
+        ]
+      );
+      if (quicken.pendingHydroBloomFollowup) {
+        factors.push([
+          "同帧绽放后续",
+          "检测到水元素，但当前版本仅审计此前置条件，未执行绽放或草原核。"
+        ]);
+      }
+    }
+  }
+  if (hit.reactionAudit.unsupportedReactions.length > 0) {
+    factors.push([
+      "未执行的草反应",
+      hit.reactionAudit.unsupportedReactions
+        .map((reaction) => REACTION_LABELS[reaction] ?? reaction)
+        .join("、")
+    ]);
+  }
+  if (hit.reactionAudit.note !== undefined) {
+    factors.push(["核心反应说明", hit.reactionAudit.note]);
+  }
   if (
     hit.reactionAudit.reaction !== "none" &&
     hit.reactionAudit.reaction !== hit.reaction
@@ -887,18 +1089,23 @@ function renderHitDetail(): void {
   }
   if (hit.reactionAudit.transformativeReaction !== null) {
     const queued = hit.reactionAudit.transformativeReaction;
-    factors.push(
-      [
-        "独立反应伤害排队",
-        queued.scheduled
-          ? `${queued.damageFrame}f 结算 · 半径 ${queued.radius}`
+    factors.push([
+      "独立反应伤害排队",
+      queued.scheduled
+        ? `${queued.damageFrame}f 结算 · 半径 ${queued.radius}`
+        : queued.blockedReason ===
+            "TARGET_MECHANICS_TRUNCATION"
+          ? "目标机制截断 · 本次独立反应伤害未排队，后续结果不具权威性"
           : `${queued.blockedReason ?? "阻止"} · ${queued.nextAvailableFrame}f 可再次产生伤害`
-      ],
-      [
+    ]);
+    if (
+      queued.blockedReason !== "TARGET_MECHANICS_TRUNCATION"
+    ) {
+      factors.push([
         `${REACTION_LABELS[queued.reaction] ?? queued.reaction}伤害 GCD`,
         `同一触发目标 6f；反应与 Aura 消耗仍已发生`
-      ]
-    );
+      ]);
+    }
     if (queued.statusEffect !== null) {
       factors.push([
         "反应目标状态",
@@ -1004,7 +1211,10 @@ function renderHitDetail(): void {
         ? `未触发 · ${shatter.blockedReason ?? "不满足条件"}`
         : shatter.scheduled
           ? `${shatter.damageFrame}f 同帧排队 · 下次 ${shatter.nextAvailableFrame}f`
-          : `冻结槽仍已消耗 · ${shatter.blockedReason ?? "GCD 阻止"} · ${shatter.nextAvailableFrame}f 可再次产生伤害`;
+          : shatter.blockedReason ===
+              "TARGET_MECHANICS_TRUNCATION"
+            ? "冻结槽仍已消耗 · 目标机制截断，本次碎冰伤害未排队"
+            : `冻结槽仍已消耗 · ${shatter.blockedReason ?? "GCD 阻止"} · ${shatter.nextAvailableFrame}f 可再次产生伤害`;
     factors.push(
       [
         "碎冰触发检查",
@@ -1166,22 +1376,34 @@ function renderDamageCurve(): void {
   const padding = { left: 70, right: 18, top: 18, bottom: 42 };
   const width = cssWidth - padding.left - padding.right;
   const height = cssHeight - padding.top - padding.bottom;
-  const maximum = Math.max(1, lastResult.totalDamage);
   const duration = lastResult.config.duration;
   const points = lastResult.damageCurve;
   const characters = lastResult.config.characters;
+  const plottedValues = points.flatMap((point) => [
+    point.cumulativeDamage,
+    ...Object.values(point.cumulativeByCharacter),
+    ...Object.values(point.cumulativeByComponent)
+  ]);
+  const minimum = Math.min(0, ...plottedValues);
+  const maximum = Math.max(1, ...plottedValues);
+  const valueRange = maximum - minimum;
+  const yForValue = (value: number): number =>
+    padding.top +
+    height -
+    ((value - minimum) / valueRange) * height;
 
   context.strokeStyle = "#293243";
   context.fillStyle = "#8f9bad";
   context.font = "12px system-ui";
   context.lineWidth = 1;
   for (let index = 0; index <= 4; index += 1) {
-    const y = padding.top + height - (height * index) / 4;
+    const value = minimum + (valueRange * index) / 4;
+    const y = yForValue(value);
     context.beginPath();
     context.moveTo(padding.left, y);
     context.lineTo(cssWidth - padding.right, y);
     context.stroke();
-    context.fillText(compact((maximum * index) / 4), 6, y + 4);
+    context.fillText(compact(value), 6, y + 4);
   }
   const secondStep = duration > 180 ? 30 : duration > 90 ? 20 : 10;
   for (let second = 0; second <= duration; second += secondStep) {
@@ -1192,29 +1414,65 @@ function renderDamageCurve(): void {
   const drawCurve = (
     color: string,
     valueAt: (point: (typeof points)[number]) => number,
-    lineWidth: number
+    lineWidth: number,
+    lineDash: number[] = []
   ): void => {
     context.beginPath();
-    context.moveTo(padding.left, padding.top + height);
+    context.moveTo(padding.left, yForValue(0));
     points.forEach((point) => {
       const x = padding.left + (point.timeSeconds / duration) * width;
-      const y =
-        padding.top + height - (valueAt(point) / maximum) * height;
+      const y = yForValue(valueAt(point));
       context.lineTo(x, y);
     });
     if (points.length) {
       const lastPoint = points[points.length - 1];
       if (lastPoint) {
-        const lastY =
-          padding.top + height - (valueAt(lastPoint) / maximum) * height;
+        const lastY = yForValue(valueAt(lastPoint));
         context.lineTo(padding.left + width, lastY);
       }
     }
     context.strokeStyle = color;
     context.lineWidth = lineWidth;
+    context.setLineDash(lineDash);
     context.stroke();
+    context.setLineDash([]);
   };
 
+  const componentSeries = [
+    {
+      key: "direct" as const,
+      label: "直接伤害累计",
+      color: "#7fc8ff",
+      dash: [7, 4]
+    },
+    {
+      key: "additiveReaction" as const,
+      label: "激化加算累计",
+      color: "#b9ed72",
+      dash: [3, 3]
+    },
+    {
+      key: "transformativeReaction" as const,
+      label: "转化反应累计",
+      color: "#ffb45c",
+      dash: [10, 4, 2, 4]
+    }
+  ].filter(
+    (series) =>
+      points.some(
+        (point) =>
+          Math.abs(point.cumulativeByComponent[series.key]) >
+          1e-9
+      )
+  );
+  componentSeries.forEach((series) => {
+    drawCurve(
+      series.color,
+      (point) => point.cumulativeByComponent[series.key],
+      1.8,
+      series.dash
+    );
+  });
   characters.forEach((character) => {
     drawCurve(
       character.color,
@@ -1227,10 +1485,7 @@ function renderDamageCurve(): void {
   context.fillStyle = "#f2f6ff";
   points.forEach((point) => {
     const x = padding.left + (point.timeSeconds / duration) * width;
-    const y =
-      padding.top +
-      height -
-      (point.cumulativeDamage / maximum) * height;
+    const y = yForValue(point.cumulativeDamage);
     context.fillRect(x - 1, y - 1, 2, 2);
   });
 
@@ -1254,6 +1509,12 @@ function renderDamageCurve(): void {
 
   byId<HTMLElement>("curveLegend").innerHTML =
     `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>全队累计</span>` +
+    componentSeries
+      .map(
+        (series) =>
+          `<span class="legend-item"><span class="dot" style="background:${series.color}"></span>${series.label}</span>`
+      )
+      .join("") +
     characters
       .map(
         (character) =>
@@ -1324,6 +1585,9 @@ function renderTargetHitAudit(): void {
   const immune = result.hitResolutionLog.filter(
     (entry) => entry.landed && !entry.damageAllowed
   ).length;
+  const mechanicsTruncated = result.hitResolutionLog.filter(
+    (entry) => entry.mechanicsStatus === "mechanics-truncated"
+  ).length;
   const circleGeometryChecks = result.hitResolutionLog.filter(
     (entry) => entry.geometryKind === "circle"
   ).length;
@@ -1338,6 +1602,9 @@ function renderTargetHitAudit(): void {
   ).length;
   byId<HTMLElement>("targetHitAuditSummary").textContent =
     `${result.hitResolutionLog.length} 次目标检查 · ${landed} 次命中 · ${missed} 次 Miss · ${immune} 次伤害免疫` +
+    (mechanicsTruncated
+      ? ` · ${mechanicsTruncated} 段因未实现机制未计入权威总伤`
+      : "") +
     (circleGeometryChecks
       ? ` · ${circleGeometryChecks} 次二维圆形几何求交`
       : "") +
@@ -1388,7 +1655,7 @@ function renderTargetHitAudit(): void {
     result.hitResolutionLog
       .map(
         (entry) => {
-          const policies = entry.landed
+          const basePolicies = entry.landed
             ? entry.resolutionKind === "reaction-damage"
               ? [
                   entry.damageAllowed ? "伤害正常" : "伤害免疫",
@@ -1401,6 +1668,10 @@ function renderTargetHitAudit(): void {
                   entry.hitConfirmAllowed ? "回调正常" : "回调阻断"
                 ].join(" / ")
             : "全部跳过";
+          const policies =
+            entry.mechanicsStatus === "mechanics-truncated"
+              ? `${basePolicies} / 机制截断（不计权威总伤）`
+              : basePolicies;
           const policySource =
             entry.targetEffectSource === "target-phase"
               ? `阶段 ${entry.targetPhaseId ?? "—"}`
@@ -1429,7 +1700,7 @@ function renderTargetHitAudit(): void {
           `<td>${escapeHtml(entry.actionName)} <span class="muted">/ ${escapeHtml(entry.hitLabel)} · ${escapeHtml(entry.hitId)}</span></td>` +
           `<td><span style="color:${ELEMENT_COLORS[entry.element] ?? "#ccc"}">${escapeHtml(ELEMENT_LABELS[entry.element] ?? entry.element)}</span></td>` +
           `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)}${entry.targetCount > 1 ? ` · ${entry.targetIndex + 1}/${entry.targetCount}` : ""}${entry.targetPosition === null ? "" : ` · ${escapeHtml(formatPosition(entry.targetPosition))}`}</span></td>` +
-          `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'} <span class="muted">/ ${escapeHtml(resolutionSource)}</span></td>` +
+          `<td>${entry.landed ? '<span class="badge good">landed</span>' : '<span class="badge warn">Miss</span>'}${entry.mechanicsStatus === "mechanics-truncated" ? ' <span class="badge warn">truncated</span>' : ""} <span class="muted">/ ${escapeHtml(resolutionSource)}</span></td>` +
           `<td>${escapeHtml(policies)} <span class="muted">/ ${escapeHtml(policySource)}</span></td>` +
           `<td>${escapeHtml(entry.reason ?? "—")}</td>` +
           `<td><strong>${formatNumber(entry.displayDamage, 0)}</strong>${entry.potentialDamage === entry.finalDamage ? "" : ` <span class="muted">/ 潜在 ${formatNumber(entry.potentialDamage, 0)}</span>`}${entry.damageEventId === null ? "" : ` <span class="muted">#${entry.damageEventId}</span>`}</td></tr>`
@@ -1875,6 +2146,7 @@ function renderAuraTimeline(): void {
   const reactionDamageLog = lastResult.reactionDamageLog;
   const periodicReactionLog = lastResult.periodicReactionLog;
   const frozenStateLog = lastResult.frozenStateLog;
+  const quickenStateLog = lastResult.quickenStateLog;
   const crystallizeShardLog = lastResult.crystallizeShardLog;
   const crystallizeShieldLog = lastResult.crystallizeShieldLog;
   card.hidden =
@@ -1882,6 +2154,7 @@ function renderAuraTimeline(): void {
     reactionDamageLog.length === 0 &&
     periodicReactionLog.length === 0 &&
     frozenStateLog.length === 0 &&
+    quickenStateLog.length === 0 &&
     crystallizeShardLog.length === 0 &&
     crystallizeShieldLog.length === 0;
   renderCrystallizeAudit();
@@ -2009,6 +2282,48 @@ function renderAuraTimeline(): void {
       })
       .join("") ||
     `<tr><td colspan="8">没有冻结状态。</td></tr>`;
+  const quickenOperationLabels: Record<string, string> = {
+    start: "生成",
+    refresh: "刷新",
+    unchanged: "较弱候选不覆盖",
+    expire: "自然到期"
+  };
+  byId<HTMLElement>("quickenStateSummary").textContent =
+    quickenStateLog.length === 0
+      ? "当前结果没有激元素状态"
+      : `${quickenStateLog.length} 条激元素记录 · ${quickenStateLog.filter((entry) => entry.operation === "start").length} 次生成 · ${quickenStateLog.filter((entry) => entry.operation === "refresh").length} 次刷新 · ${quickenStateLog.filter((entry) => entry.operation === "unchanged").length} 次较弱候选 · ${quickenStateLog.filter((entry) => entry.operation === "expire").length} 次自然到期`;
+  byId<HTMLTableSectionElement>("quickenStateBody").innerHTML =
+    quickenStateLog
+      .map((entry) => {
+        const linkedHitId = entry.triggerDamageEventId;
+        const link =
+          linkedHitId === null
+            ? ""
+            : ` data-quicken-hit-id="${linkedHitId}"`;
+        const source =
+          entry.sourceActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) => character.id === entry.sourceActorId
+              )?.name ?? entry.sourceActorId;
+        const trigger =
+          entry.triggerElement === null
+            ? "—"
+            : `${ELEMENT_LABELS[entry.triggerElement] ?? entry.triggerElement} → ${entry.consumedAuraElement === null ? "—" : ELEMENT_LABELS[entry.consumedAuraElement] ?? entry.consumedAuraElement}`;
+        return (
+          `<tr${link}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f</td>` +
+          `<td>${escapeHtml(quickenOperationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)} · gen ${entry.generation}</span></td>` +
+          `<td>${escapeHtml(source)}</td>` +
+          `<td>${escapeHtml(trigger)}</td>` +
+          `<td>${formatNumber(entry.candidateGaugeUnits, 4)}U / ${formatNumber(entry.quickenGaugeUnitsBefore, 4)}U → ${formatNumber(entry.quickenGaugeUnitsAfter, 4)}U</td>` +
+          `<td>${escapeHtml(formatAuraState(entry.auraBefore))} → ${escapeHtml(formatAuraState(entry.auraAfter))}</td>` +
+          `<td>${entry.expiresAtFrame === null ? "—" : `${entry.expiresAtFrame}f`}${entry.reason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.reason)}</span>`}</td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="8">没有激元素状态。</td></tr>`;
   const reactionStatusLog = lastResult.reactionStatusLog;
   byId<HTMLElement>("reactionStatusSummary").textContent =
     reactionStatusLog.length === 0
@@ -2072,6 +2387,20 @@ function renderAuraTimeline(): void {
     });
   document
     .querySelectorAll<HTMLTableRowElement>(
+      "#quickenStateBody tr[data-quicken-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.quickenHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+  document
+    .querySelectorAll<HTMLTableRowElement>(
       "#reactionStatusBody tr[data-reaction-status-damage-id]"
     )
     .forEach((row) => {
@@ -2086,14 +2415,22 @@ function renderAuraTimeline(): void {
         renderHitDetail();
       });
     });
-  if (!allTimeline.length) return;
+  if (
+    allTimeline.length === 0 &&
+    periodicReactionLog.length === 0 &&
+    frozenStateLog.length === 0 &&
+    quickenStateLog.length === 0
+  ) {
+    return;
+  }
 
   const targetFilter = byId<HTMLSelectElement>("auraTargetFilter");
   const targetIdsWithAura = new Set(
     [
       ...allTimeline.map((point) => point.targetId),
       ...periodicReactionLog.map((point) => point.targetId),
-      ...frozenStateLog.map((point) => point.targetId)
+      ...frozenStateLog.map((point) => point.targetId),
+      ...quickenStateLog.map((point) => point.targetId)
     ]
   );
   const availableTargets = lastResult.enemyTargets.filter((target) =>
@@ -2151,6 +2488,20 @@ function renderAuraTimeline(): void {
       damageEventId: point.triggerDamageEventId,
       order: -1
     }));
+  const quickenCurvePoints = quickenStateLog
+    .filter(
+      (point) =>
+        point.targetId === selectedTargetId &&
+        point.operation === "expire"
+    )
+    .map((point) => ({
+      frame: point.frame,
+      auraBefore: point.auraBefore,
+      auraAfter: point.auraAfter,
+      reaction: "none" as const,
+      damageEventId: point.triggerDamageEventId,
+      order: -2
+    }));
   const curveTimeline = [
     ...timeline.map((point) => ({
       frame: point.frame,
@@ -2161,7 +2512,8 @@ function renderAuraTimeline(): void {
       order: 0
     })),
     ...periodicCurvePoints,
-    ...frozenCurvePoints
+    ...frozenCurvePoints,
+    ...quickenCurvePoints
   ].sort(
     (left, right) =>
       left.frame - right.frame || left.order - right.order
@@ -2173,6 +2525,8 @@ function renderAuraTimeline(): void {
     "cryo",
     "hydro",
     "electro",
+    "dendro",
+    "quicken",
     "frozen"
   ] as const;
   const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
@@ -2317,7 +2671,7 @@ function renderAuraTimeline(): void {
         `<td>${escapeHtml(formatAuraState(point.auraBefore))}</td>` +
         `<td>${escapeHtml(formatAuraGauge(point.auraApplied))}</td>` +
         `<td>${escapeHtml(formatAuraGauge(point.auraConsumed))}</td>` +
-        `<td>${point.reaction === "none" ? "—" : escapeHtml(REACTION_LABELS[point.reaction] ?? point.reaction)}</td>` +
+        `<td>${hit === undefined ? `${point.reactions.length === 0 ? "—" : point.reactions.map((reaction) => escapeHtml(REACTION_LABELS[reaction] ?? reaction)).join(" → ")}${point.unsupportedReactions.map((reaction) => ` <span class="badge warn">${escapeHtml(REACTION_LABELS[reaction] ?? reaction)}</span>`).join("")}` : formatReactionBadges(hit)}</td>` +
         `<td>${escapeHtml(formatAuraState(point.auraAfter))}</td></tr>`
       );
     })

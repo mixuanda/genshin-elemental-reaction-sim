@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.28.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.28.0-crystallize-shards" as const;
+export const CURRENT_SCHEMA_VERSION = "1.29.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.29.0-catalyze-reaction" as const;
+export const CRYSTALLIZE_REACTION_SCHEMA_VERSION = "1.28.0" as const;
 export const SWIRL_REACTION_SCHEMA_VERSION = "1.27.0" as const;
 export const SHATTER_REACTION_SCHEMA_VERSION = "1.26.0" as const;
 export const FREEZE_REACTION_SCHEMA_VERSION = "1.25.0" as const;
@@ -62,15 +63,26 @@ export type CrystallizeReaction =
   | "crystallizeHydro"
   | "crystallizeCryo"
   | "crystallizeElectro";
+export type AdditiveReaction = "aggravate" | "spread";
+export type QuickenReaction = "quicken";
+export type UnsupportedDendroReaction = "burning" | "bloom";
+export type MechanicsResolutionStatus =
+  | "authoritative"
+  | "mechanics-truncated";
+export type SimulationMechanicsStatus = "complete" | "partial";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
   | PeriodicTransformativeReaction
   | ShatterReaction
   | SwirlReaction;
-export type NonDamageReaction = "freeze" | CrystallizeReaction;
+export type NonDamageReaction =
+  | "freeze"
+  | QuickenReaction
+  | CrystallizeReaction;
 export type ReactionType =
   | AmplifyingReaction
   | TransformativeReaction
+  | AdditiveReaction
   | NonDamageReaction;
 
 export type ScalingStat = "atk" | "hp" | "def" | "em";
@@ -91,7 +103,11 @@ export type AuraElement = Extract<
   Element,
   "pyro" | "cryo" | "hydro" | "electro"
 >;
-export type AuraStateElement = AuraElement | "frozen";
+export type PersistentAuraElement = AuraElement | "dendro";
+export type AuraStateElement =
+  | PersistentAuraElement
+  | "quicken"
+  | "frozen";
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
@@ -153,7 +169,7 @@ export interface ElementalApplication {
 }
 
 export interface InitialAuraApplication {
-  element: AuraElement;
+  element: PersistentAuraElement;
   /** Nominal application strength; the normal aura starts at 0.8 × this value. */
   gaugeUnits: number;
 }
@@ -166,7 +182,7 @@ export interface IcdProfile {
 }
 
 export interface AuraReactionEngineConfig {
-  mode: "aura-v1" | "aura-v2";
+  mode: "aura-v1" | "aura-v2" | "aura-v3";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -637,6 +653,7 @@ export type SimulationEventType =
   | "periodicReactionWane"
   | "periodicReactionExpiry"
   | "frozenExpiry"
+  | "quickenExpiry"
   | "crystallizeShardSpawn"
   | "crystallizeShardExpiry"
   | "crystallizePickup"
@@ -679,12 +696,28 @@ export interface AuraStateEntry {
   element: AuraStateElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
+  /** Present in aura-v3; each application owner keeps an independent slot. */
+  sourceSlots?: AuraSourceGaugeSlot[];
 }
 
 export interface AuraGaugeEntry {
   /** Nominal application may be Anemo/Geo/Dendro even when it cannot persist. */
   element: AuraStateElement | "anemo" | "geo" | "dendro";
   gaugeUnits: number;
+  sourceActorId?: string;
+  sourceMutations?: AuraSourceGaugeMutation[];
+}
+
+export interface AuraSourceGaugeSlot {
+  sourceActorId: string;
+  gaugeUnits: number;
+}
+
+export interface AuraSourceGaugeMutation {
+  sourceActorId: string;
+  gaugeUnitsBefore: number;
+  consumedGaugeUnits: number;
+  gaugeUnitsAfter: number;
 }
 
 export interface ReactionAudit {
@@ -695,6 +728,15 @@ export interface ReactionAudit {
     | "reaction-damage";
   triggered: boolean;
   reaction: ReactionType;
+  /** Ordered reactions observed on this hit; preserves valid multi-reactions. */
+  reactions: ReactionType[];
+  /** Detected but deliberately not executed by the current engine slice. */
+  unsupportedReactions: UnsupportedDendroReaction[];
+  /**
+   * Target-local fail-closed boundary. Once triggered, later hits on this
+   * target cannot claim authoritative Aura or reaction resolution.
+   */
+  mechanicsTruncation: TargetMechanicsTruncationAudit | null;
   icdAllowed: boolean | null;
   icdTag: string | null;
   icdGroup: IcdGroup | null;
@@ -715,7 +757,52 @@ export interface ReactionAudit {
   swirlDamageGroup: SwirlDamageGroupAudit | null;
   /** Geo reaction, shared target-local queue, and shard timing decision. */
   crystallizeReaction: CrystallizeReactionAudit | null;
+  /** Dendro/Electro Quicken state and optional additive hit reaction. */
+  catalyzeReaction: CatalyzeReactionAudit | null;
   note?: string;
+}
+
+export interface TargetMechanicsTruncationAudit {
+  operation: "trigger" | "carry";
+  startedAtFrame: number;
+  unsupportedReactions: UnsupportedDendroReaction[];
+  /** Aura state discarded when the unsupported branch was first reached. */
+  discardedAura: AuraStateEntry[];
+  reason: "UNSUPPORTED_DENDRO_REACTION";
+}
+
+export interface QuickenReactionAudit {
+  reaction: "quicken";
+  triggerElement: "dendro" | "electro";
+  consumedAuraElement: "dendro" | "electro";
+  sourceGaugeUnitsBefore: number;
+  sourceGaugeUnitsSpent: number;
+  sourceGaugeUnitsAfter: number;
+  auraGaugeUnitsBefore: number;
+  auraConsumedGaugeUnits: number;
+  auraGaugeUnitsAfter: number;
+  quickenGaugeUnitsBefore: number;
+  candidateGaugeUnits: number;
+  quickenGaugeUnitsAfter: number;
+  operation: "start" | "refresh" | "unchanged";
+  generation: number;
+  decayPerFrame: number;
+  expiresAtFrame: number | null;
+  /** Fixed gcsim queues a same-frame Bloom follow-up when Hydro is present. */
+  pendingHydroBloomFollowup: boolean;
+}
+
+export interface AdditiveReactionAudit {
+  reaction: AdditiveReaction;
+  triggerElement: "dendro" | "electro";
+  quickenGaugeUnitsBefore: number;
+  quickenGaugeUnitsAfter: number;
+  consumedQuickenGaugeUnits: 0;
+}
+
+export interface CatalyzeReactionAudit {
+  quicken: QuickenReactionAudit | null;
+  additive: AdditiveReactionAudit | null;
 }
 
 export interface TransformativeReactionAudit {
@@ -725,7 +812,10 @@ export interface TransformativeReactionAudit {
   damageFrame: number;
   radius: number;
   baseMultiplier: number;
-  blockedReason: "REACTION_DAMAGE_GCD" | null;
+  blockedReason:
+    | "REACTION_DAMAGE_GCD"
+    | "TARGET_MECHANICS_TRUNCATION"
+    | null;
   nextAvailableFrame: number;
   statusEffect: ReactionStatusEffectDefinition | null;
 }
@@ -770,6 +860,7 @@ export interface ShatterReactionAudit {
     | "NO_FROZEN_AURA"
     | "FROZEN_DEPLETED_BY_POISE"
     | "REACTION_DAMAGE_GCD"
+    | "TARGET_MECHANICS_TRUNCATION"
     | null;
   nextAvailableFrame: number | null;
   frozenGaugeBefore: number;
@@ -889,6 +980,33 @@ export interface TransformativeReactionFactors {
   resistanceMultiplier: number;
 }
 
+export interface AdditiveReactionFactors {
+  reaction: AdditiveReaction;
+  sourceActorId: string;
+  characterLevel: number;
+  levelBaseDamage: number;
+  baseMultiplier: number;
+  elementalMastery: number;
+  elementalMasteryBonus: number;
+  reactionBonus: number;
+  /** Formula contribution before plugin-level flat-damage overrides. */
+  flatDamage: number;
+  /** Contribution that remains in the final damage input after plugins. */
+  appliedFlatDamage: number;
+  /** Catalyze EM is read at the damage frame even for action-snapshot hits. */
+  snapshotMode: "hit-time";
+}
+
+/**
+ * Final-damage contributions after every formula zone and target policy.
+ * The three fields must sum to the event's `finalDamage`.
+ */
+export interface DamageComposition {
+  direct: number;
+  additiveReaction: number;
+  transformativeReaction: number;
+}
+
 export interface DamageEvent {
   id: number;
   kind: "direct" | "transformative-reaction";
@@ -906,6 +1024,11 @@ export interface DamageEvent {
   targetName: string;
   targetDamagePolicy: TargetDamagePolicy;
   targetDamageMultiplier: 0 | 1;
+  /**
+   * Truncated events retain potentialDamage but contribute zero finalDamage to
+   * authoritative totals.
+   */
+  mechanicsStatus: MechanicsResolutionStatus;
   /** Formula result before the target-level damage policy. */
   potentialDamage: number;
   frame: number;
@@ -917,6 +1040,8 @@ export interface DamageEvent {
   reactionAudit: ReactionAudit;
   damageFactors: DamageFactors;
   transformativeReactionFactors: TransformativeReactionFactors | null;
+  additiveReactionFactors: AdditiveReactionFactors | null;
+  damageComposition: DamageComposition;
   /** Raw deterministic result retained for aggregation and Golden fixtures. */
   finalDamage: number;
   /** Nearest-integer display value, matching gcsim Sample presentation. */
@@ -1101,6 +1226,7 @@ export interface HitResolutionLogEntry {
   damageAllowed: boolean;
   auraAllowed: boolean;
   hitConfirmAllowed: boolean;
+  mechanicsStatus: MechanicsResolutionStatus;
   /** Null when the target was missed before combat resolution. */
   damageEventId: number | null;
   /** Formula result before target immunity; zero for a miss. */
@@ -1208,6 +1334,7 @@ export interface DamageCurvePoint {
   finalDamage: number;
   cumulativeDamage: number;
   cumulativeByCharacter: Record<string, number>;
+  cumulativeByComponent: DamageComposition;
 }
 
 export interface AuraTimelinePoint {
@@ -1222,10 +1349,28 @@ export interface AuraTimelinePoint {
   incomingElement: Element;
   icdAllowed: boolean | null;
   reaction: ReactionType;
+  reactions: ReactionType[];
+  unsupportedReactions: UnsupportedDendroReaction[];
+  mechanicsTruncation: TargetMechanicsTruncationAudit | null;
   auraBefore: AuraStateEntry[];
   auraApplied: AuraGaugeEntry[];
   auraConsumed: AuraGaugeEntry[];
   auraAfter: AuraStateEntry[];
+}
+
+export interface TargetMechanicsTruncationLogEntry {
+  id: number;
+  targetId: TargetId;
+  targetName: string;
+  frame: number;
+  timeSeconds: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  hitId: string;
+  triggerDamageEventId: number;
+  unsupportedReactions: UnsupportedDendroReaction[];
+  discardedAura: AuraStateEntry[];
+  reason: "UNSUPPORTED_DENDRO_REACTION";
 }
 
 export interface ReactionDamageLogEntry {
@@ -1242,6 +1387,7 @@ export interface ReactionDamageLogEntry {
   blockedReason:
     | "REACTION_DAMAGE_GCD"
     | "REACTION_QUEUE_GCD"
+    | "TARGET_MECHANICS_TRUNCATION"
     | null;
   /** Next one-shot GCD frame or periodic cadence frame; null when no later tick is queued. */
   nextAvailableFrame: number | null;
@@ -1323,6 +1469,34 @@ export interface FrozenStateLogEntry {
   freezeResistance: number;
   generatedGaugeUnits: number;
   consumedGaugeUnits: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  expiresAtFrame: number | null;
+  reason: string | null;
+}
+
+export type QuickenStateOperation =
+  | "start"
+  | "refresh"
+  | "unchanged"
+  | "expire";
+
+export interface QuickenStateLogEntry {
+  id: number;
+  reaction: "quicken";
+  generation: number;
+  operation: QuickenStateOperation;
+  frame: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  sourceActorId: string | null;
+  triggerDamageEventId: number | null;
+  triggerElement: "dendro" | "electro" | null;
+  consumedAuraElement: "dendro" | "electro" | null;
+  candidateGaugeUnits: number;
+  quickenGaugeUnitsBefore: number;
+  quickenGaugeUnitsAfter: number;
   auraBefore: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
@@ -1505,6 +1679,8 @@ export interface SimulationResult {
   randomSeed: string;
   reproducibilityKey: string;
   compatibilityMode: CompatibilityMode;
+  /** Partial only when this run actually crossed an unsupported mechanic. */
+  mechanicsStatus: SimulationMechanicsStatus;
   config: SimConfig;
   /** Static scenario poses used to resolve actor-local attack geometry. */
   actorPoses: ActorPoseDefinition[];
@@ -1514,6 +1690,8 @@ export interface SimulationResult {
   hitEvents: DamageEvent[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
+  /** One first-crossing entry per target; later hits carry the audit in-place. */
+  targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
   reactionDamageLog: ReactionDamageLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
@@ -1522,6 +1700,8 @@ export interface SimulationResult {
   periodicReactionLog: PeriodicReactionLogEntry[];
   /** Frozen durability starts, refreshes, immunity, consumption, and expiry. */
   frozenStateLog: FrozenStateLogEntry[];
+  /** Quicken state starts, refreshes, weaker no-ops, and exact expiry. */
+  quickenStateLog: QuickenStateLogEntry[];
   /** Crystallize shard lifecycle, explicit pickup attempts, and evictions. */
   crystallizeShardLog: CrystallizeShardLogEntry[];
   /** Crystallize shield add/overwrite/expiry state transitions. */

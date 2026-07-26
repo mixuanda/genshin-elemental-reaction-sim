@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  calcAdditiveReactionDamage,
   calcAmplifyingReactionMultiplier,
   calcCritMultiplier,
   calcDamage,
@@ -144,5 +145,34 @@ describe("damage formula primitives", () => {
     );
     expect(TRANSFORMATIVE_REACTION_LEVEL_BASE).toHaveLength(100);
     expect(TRANSFORMATIVE_REACTION_LEVEL_BASE[99]).toBe(1674.8092);
+  });
+
+  it("calculates Aggravate and Spread as additive flat damage", () => {
+    const aggravate = calcAdditiveReactionDamage({
+      reaction: "aggravate",
+      characterLevel: 90,
+      elementalMastery: 100,
+      reactionBonus: 0.2
+    });
+    const spread = calcAdditiveReactionDamage({
+      reaction: "spread",
+      characterLevel: 90,
+      elementalMastery: 100,
+      reactionBonus: 0.2
+    });
+
+    expect(aggravate.levelBaseDamage).toBe(1446.8535);
+    expect(aggravate.elementalMasteryBonus).toBeCloseTo(
+      500 / 1300,
+      15
+    );
+    expect(aggravate.flatDamage).toBeCloseTo(
+      1446.8535 * 1.15 * (1 + 500 / 1300 + 0.2),
+      10
+    );
+    expect(spread.flatDamage).toBeCloseTo(
+      1446.8535 * 1.25 * (1 + 500 / 1300 + 0.2),
+      10
+    );
   });
 });

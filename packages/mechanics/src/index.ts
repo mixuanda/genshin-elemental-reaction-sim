@@ -1,6 +1,7 @@
 import type {
   DamageCalculationInput,
   DamageModifierPlugin,
+  DamagePluginChanges,
   DamagePluginContext
 } from "@genshin-dps-lab/sim-core";
 
@@ -19,13 +20,20 @@ export interface DeclarativeDamageEffect {
   add?: Partial<
     Pick<
       DamageCalculationInput,
-      | "flatDamage"
       | "damageBonus"
       | "defenseReduction"
       | "defenseIgnore"
       | "reactionBonus"
     >
-  >;
+  > & {
+    /**
+     * Legacy total-flat addition. The core accepts it only on hits without
+     * Aggravate/Spread.
+     */
+    flatDamage?: number;
+    ordinaryFlatDamage?: number;
+    additiveReactionFlatDamage?: number;
+  };
   multiplyGroupBy?: number;
 }
 
@@ -53,16 +61,29 @@ export function createDeclarativeDamagePlugin(
   return {
     id: `declarative:${effects.map((effect) => effect.id).join(",")}`,
     modifyDamage(context) {
-      let changes: Partial<DamageCalculationInput> | undefined;
+      let changes: DamagePluginChanges | undefined;
       for (const effect of effects) {
         if (!matches(effect, context)) continue;
         changes ??= {};
         for (const [field, value] of Object.entries(effect.add ?? {})) {
-          const key = field as keyof DamageCalculationInput;
           const numericValue = value as number;
-          const current = (changes[key] ??
-            context.damageInput[key]) as number;
-          Object.assign(changes, { [key]: current + numericValue });
+          const current =
+            field === "ordinaryFlatDamage"
+              ? (changes.ordinaryFlatDamage ??
+                context.flatDamageComponents.ordinaryFlatDamage)
+              : field === "additiveReactionFlatDamage"
+                ? (changes.additiveReactionFlatDamage ??
+                  context.flatDamageComponents
+                    .additiveReactionFlatDamage)
+                : (changes[
+                    field as keyof DamagePluginChanges
+                  ] ??
+                  context.damageInput[
+                    field as keyof DamageCalculationInput
+                  ]);
+          Object.assign(changes, {
+            [field]: (current as number) + numericValue
+          });
         }
         if (effect.multiplyGroupBy !== undefined) {
           changes.groupMultiplier =

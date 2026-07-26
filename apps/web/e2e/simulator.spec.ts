@@ -303,6 +303,484 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   );
 });
 
+test("renders Dendro Catalyze, per-hit composition, Quicken state, and component curves", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "草雷激化与伤害构成 · 浏览器验收"
+  };
+  config.duration = 11;
+  config.cycleLength = 11;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0
+  };
+  config.characters = [
+    {
+      ...character,
+      element: "electro",
+      level: 90,
+      stats: {
+        ...character.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 100,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.1
+      }
+    }
+  ];
+  config.reactionEngine = {
+    mode: "aura-v3",
+    initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+  };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "catalyze-browser",
+        actorId: character.id,
+        name: "草雷激化浏览器序列",
+        kind: "skill",
+        cancelFrame: 3,
+        animationEndFrame: 3,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "quicken-browser-hit",
+            label: "原激化命中",
+            frame: 0,
+            scaling: 1,
+            element: "electro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "catalyze-browser",
+              icdGroup: "no-icd"
+            }
+          },
+          {
+            id: "aggravate-browser-hit",
+            label: "超激化命中",
+            frame: 1,
+            scaling: 1,
+            element: "electro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "catalyze-browser",
+              icdGroup: "no-icd"
+            }
+          },
+          {
+            id: "spread-browser-hit",
+            label: "蔓激化再原激化",
+            frame: 2,
+            scaling: 1,
+            element: "dendro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "catalyze-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "catalyze-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "catalyze-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v3 自动判定"
+  );
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#curveLegend")).toContainText("直接伤害累计");
+  await expect(page.locator("#curveLegend")).toContainText("激化加算累计");
+  await expect(page.locator("#auraTimelineLegend")).toContainText("草 Aura");
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "激元素 Aura"
+  );
+  await expect(page.locator("#auraTimelineBody")).toContainText("原激化");
+  await expect(page.locator("#auraTimelineBody")).toContainText("超激化");
+  await expect(page.locator("#auraTimelineBody")).toContainText(
+    "蔓激化"
+  );
+  await expect(page.locator("#quickenStateSummary")).toContainText(
+    "1 次生成"
+  );
+  await expect(page.locator("#quickenStateSummary")).toContainText(
+    "1 次刷新"
+  );
+  await expect(page.locator("#quickenStateSummary")).toContainText(
+    "1 次自然到期"
+  );
+  await expect(page.locator("#quickenStateBody")).toContainText("602f");
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const compositionSums = result?.damageEvents.map((event) =>
+      Object.values(event.damageComposition).reduce(
+        (sum, value) => sum + value,
+        0
+      )
+    );
+    const lastCurve = result?.damageCurve.at(-1);
+    return {
+      reactions: result?.damageEvents.map(
+        (event) => event.reactionAudit.reactions
+      ),
+      unsupported: result?.damageEvents.map(
+        (event) => event.reactionAudit.unsupportedReactions
+      ),
+      additives: result?.damageEvents.map(
+        (event) => event.additiveReactionFactors?.reaction ?? null
+      ),
+      quicken: result?.quickenStateLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        generation: entry.generation,
+        expiresAtFrame: entry.expiresAtFrame
+      })),
+      eventDamage: result?.damageEvents.map((event) => event.finalDamage),
+      compositionSums,
+      componentTotal:
+        lastCurve === undefined
+          ? null
+          : Object.values(lastCurve.cumulativeByComponent).reduce(
+              (sum, value) => sum + value,
+              0
+            ),
+      totalDamage: result?.totalDamage
+    };
+  });
+  expect(audit).toMatchObject({
+    reactions: [
+      ["quicken"],
+      ["aggravate"],
+      ["spread", "quicken"]
+    ],
+    unsupported: [[], [], []],
+    additives: [null, "aggravate", "spread"],
+    quicken: [
+      {
+        operation: "start",
+        frame: 0,
+        generation: 1,
+        expiresAtFrame: 600
+      },
+      {
+        operation: "refresh",
+        frame: 2,
+        generation: 2,
+        expiresAtFrame: 602
+      },
+      {
+        operation: "expire",
+        frame: 602,
+        generation: 2,
+        expiresAtFrame: null
+      }
+    ]
+  });
+  expect(audit.compositionSums).toEqual(audit.eventDamage);
+  expect(audit.componentTotal).toBeCloseTo(audit.totalDamage ?? 0, 8);
+
+  await page.locator("#auraTimelineBody tr").nth(1).click();
+  await expect(page.locator("#hitDetail")).toContainText("超激化加算");
+  await expect(page.locator("#hitDetail")).toContainText("命中时实时精通");
+  await expect(page.locator("#hitDetail")).toContainText("不消耗激元素");
+  await expect(page.locator("#hitDetail")).toContainText("最终伤害构成");
+});
+
+test("renders target-local mechanics truncation without counting later potential damage", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "未实现绽放的目标级截断 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0
+  };
+  config.reactionEngine = {
+    mode: "aura-v3",
+    initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+  };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "mechanics-truncation-browser",
+        actorId: character.id,
+        name: "绽放截断序列",
+        kind: "skill",
+        cancelFrame: 2,
+        animationEndFrame: 2,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "unsupported-bloom-trigger",
+            label: "绽放前提触发",
+            frame: 0,
+            scaling: 1,
+            element: "hydro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "truncation-browser",
+              icdGroup: "no-icd"
+            }
+          },
+          {
+            id: "post-truncation-hit",
+            label: "截断后潜在命中",
+            frame: 1,
+            scaling: 1,
+            element: "electro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "truncation-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "mechanics-truncation-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "mechanics-truncation-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#notice")).toContainText("结果部分有效");
+  await expect(page.locator("#notice")).toContainText("绽放（未实现）");
+  await expect(page.locator("#metricGrid")).toContainText("部分有效");
+  await expect(page.locator("#metricGrid")).toContainText(
+    "1 段后续伤害未计入总伤"
+  );
+
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  const truncatedRow = page
+    .locator("#hitTableBody tr")
+    .filter({ hasText: "截断后潜在命中" });
+  await expect(truncatedRow).toContainText("机制截断");
+  await expect(truncatedRow).toContainText("未计总伤");
+  await truncatedRow.click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "继承第 0 帧"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "Aura / ICD / 反应不再推演"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      mechanicsStatus: result?.mechanicsStatus,
+      truncations: result?.targetMechanicsTruncationLog,
+      events: result?.damageEvents.map((event) => ({
+        hitId: event.hitId,
+        mechanicsStatus: event.mechanicsStatus,
+        operation:
+          event.reactionAudit.mechanicsTruncation?.operation ?? null,
+        unsupported: event.reactionAudit.unsupportedReactions,
+        potentialDamage: event.potentialDamage,
+        finalDamage: event.finalDamage
+      })),
+      totalDamage: result?.totalDamage
+    };
+  });
+  expect(audit.mechanicsStatus).toBe("partial");
+  expect(audit.truncations).toHaveLength(1);
+  expect(audit.events).toMatchObject([
+    {
+      hitId: "unsupported-bloom-trigger",
+      mechanicsStatus: "authoritative",
+      operation: "trigger",
+      unsupported: ["bloom"]
+    },
+    {
+      hitId: "post-truncation-hit",
+      mechanicsStatus: "mechanics-truncated",
+      operation: "carry",
+      unsupported: ["bloom"],
+      finalDamage: 0
+    }
+  ]);
+  expect(audit.events?.[1]?.potentialDamage ?? 0).toBeGreaterThan(0);
+  expect(audit.totalDamage).toBeCloseTo(
+    audit.events?.[0]?.finalDamage ?? 0,
+    8
+  );
+});
+
+test("renders an ordered Overload as cancelled when the same hit truncates on Burning", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "超载后燃烧截断 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0
+  };
+  config.reactionEngine = {
+    mode: "aura-v3",
+    initialAura: [
+      { element: "dendro", gaugeUnits: 1 },
+      { element: "electro", gaugeUnits: 1 }
+    ]
+  };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "overload-burning-browser",
+        actorId: character.id,
+        name: "超载后燃烧截断序列",
+        kind: "skill",
+        cancelFrame: 1,
+        animationEndFrame: 1,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "overload-burning-browser-hit",
+            label: "超载后燃烧截断命中",
+            frame: 0,
+            scaling: 1,
+            element: "pyro",
+            application: {
+              gaugeUnits: 1,
+              icdTag: "overload-burning-browser",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "overload-burning-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "overload-burning-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#notice")).toContainText("结果部分有效");
+  await expect(page.locator("#notice")).toContainText("燃烧（未实现）");
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  const triggerRow = page
+    .locator("#hitTableBody tr")
+    .filter({ hasText: "超载后燃烧截断命中" });
+  await expect(triggerRow).toContainText("超载");
+  await triggerRow.click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "目标机制截断 · 本次独立反应伤害未排队"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "本段已支持的直接伤害与激化加算保留"
+  );
+  await expect(page.locator("#hitDetail")).not.toContainText(
+    "6f 可再次产生伤害"
+  );
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const trigger = result?.damageEvents.find(
+      (event) => event.hitId === "overload-burning-browser-hit"
+    );
+    return {
+      reactions: trigger?.reactionAudit.reactions,
+      unsupported: trigger?.reactionAudit.unsupportedReactions,
+      transformative:
+        trigger?.reactionAudit.transformativeReaction,
+      reactionLogs: result?.reactionDamageLog.filter(
+        (entry) =>
+          entry.triggerDamageEventId === trigger?.id &&
+          entry.reaction === "overload"
+      ),
+      childEvents: result?.damageEvents.filter(
+        (event) =>
+          event.parentDamageEventId === trigger?.id &&
+          event.reaction === "overload"
+      )
+    };
+  });
+  expect(audit).toMatchObject({
+    reactions: ["overload"],
+    unsupported: ["burning"],
+    transformative: {
+      reaction: "overload",
+      scheduled: false,
+      blockedReason: "TARGET_MECHANICS_TRUNCATION"
+    },
+    reactionLogs: [],
+    childEvents: []
+  });
+});
+
 test("renders Swirl self damage, propagation, secondary reaction, Aura, and curve events", async ({
   page
 }) => {
@@ -407,6 +885,18 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(config))
   });
+  await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(
+    page.locator('#hitReactionFilter option[value="swirlPyro"]')
+  ).toHaveText("火扩散");
+  await expect(
+    page.locator('#hitReactionFilter option[value="reverseVaporize"]')
+  ).toHaveText("反向蒸发");
+  const propagationRow = page
+    .locator("#hitTableBody tr")
+    .filter({ hasText: "水附着传播目标" });
+  await expect(propagationRow).toContainText("火扩散");
+  await expect(propagationRow).toContainText("反向蒸发");
   await page.getByRole("button", { name: "时间轴" }).click();
 
   await expect(page.locator("#damageCurveCanvas")).toBeVisible();

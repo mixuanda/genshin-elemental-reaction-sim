@@ -84,7 +84,12 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 #timelineCanvas, #damageCurveCanvas, #energyTimelineCanvas, #auraTimelineCanvas { width: 100%; display: block; background: #0d121b; border: 1px solid var(--border); border-radius: 12px; }
 .curve-card { margin-top: 14px; }
 .aura-table-wrap { margin-top: 14px; }
-#auraTimelineBody tr { cursor: pointer; }
+#auraTimelineBody tr,
+#reactionDamageBody tr[data-reaction-damage-id],
+#periodicReactionBody tr[data-periodic-hit-id],
+#frozenStateBody tr[data-frozen-hit-id],
+#quickenStateBody tr[data-quicken-hit-id],
+#reactionStatusBody tr[data-reaction-status-damage-id] { cursor: pointer; }
 .particle-event-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .particle-event { border: 1px solid var(--border); background: var(--panel-2); border-radius: 9px; padding: 7px 9px; color: var(--muted); font-size: 12px; }
 .particle-event strong { color: var(--text); }

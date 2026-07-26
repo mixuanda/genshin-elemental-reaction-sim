@@ -1,4 +1,5 @@
 import type {
+  AdditiveReaction,
   AmplifyingReaction,
   CharacterStats,
   CritMode,
@@ -184,6 +185,22 @@ export interface TransformativeReactionDamageResult {
   resistanceMultiplier: number;
 }
 
+export interface AdditiveReactionDamageInput {
+  reaction: AdditiveReaction;
+  characterLevel: number;
+  elementalMastery: number;
+  reactionBonus: number;
+}
+
+export interface AdditiveReactionDamageResult {
+  reaction: AdditiveReaction;
+  levelBaseDamage: number;
+  baseMultiplier: number;
+  elementalMasteryBonus: number;
+  reactionBonus: number;
+  flatDamage: number;
+}
+
 export function clamp(value: number, minimum: number, maximum: number): number {
   return Math.max(minimum, Math.min(maximum, value));
 }
@@ -251,6 +268,32 @@ export function calcTransformativeReactionDamage(
     reactionBonus,
     preResistanceDamage,
     resistanceMultiplier
+  };
+}
+
+export function calcAdditiveReactionDamage(
+  input: AdditiveReactionDamageInput
+): AdditiveReactionDamageResult {
+  const levelIndex = clamp(Math.trunc(input.characterLevel), 1, 100) - 1;
+  const levelBaseDamage =
+    TRANSFORMATIVE_REACTION_LEVEL_BASE[levelIndex] ??
+    TRANSFORMATIVE_REACTION_LEVEL_BASE[0];
+  const elementalMastery = Math.max(0, input.elementalMastery);
+  const elementalMasteryBonus =
+    (5 * elementalMastery) / (1200 + elementalMastery);
+  const reactionBonus = Math.max(0, input.reactionBonus);
+  const baseMultiplier = input.reaction === "aggravate" ? 1.15 : 1.25;
+  const flatDamage =
+    levelBaseDamage *
+    baseMultiplier *
+    (1 + elementalMasteryBonus + reactionBonus);
+  return {
+    reaction: input.reaction,
+    levelBaseDamage,
+    baseMultiplier,
+    elementalMasteryBonus,
+    reactionBonus,
+    flatDamage
   };
 }
 

@@ -1,6 +1,7 @@
 import {
   CURRENT_SCHEMA_VERSION,
   migrateConfig,
+  type AdditiveReactionFactors,
   type AmplifyingReaction,
   type ActionDefinition,
   type ActiveStatusSnapshot,
@@ -45,6 +46,7 @@ import {
 } from "./energy";
 import {
   calcDamage,
+  calcAdditiveReactionDamage,
   calcAmplifyingReactionMultiplier,
   calcTransformativeReactionDamage,
   calcTotalStat,
@@ -52,7 +54,11 @@ import {
   type DamageCalculationInput
 } from "./formulas";
 import { MinHeap } from "./min-heap";
-import type { DamageModifierPlugin } from "./plugins";
+import type {
+  DamageFlatComponents,
+  DamageModifierPlugin,
+  DamagePluginChanges
+} from "./plugins";
 import {
   compileLegalTimeline,
   type RuntimeEnergyFailure
@@ -73,6 +79,7 @@ export const EVENT_PRIORITY = {
   hit: 3,
   periodicReactionExpiry: 2,
   frozenExpiry: 2,
+  quickenExpiry: 2,
   crystallizeShardSpawn: 2,
   crystallizeShardExpiry: 2,
   crystallizeShieldExpiry: 2,
@@ -479,6 +486,12 @@ interface FrozenStateSource {
   triggerDamageEventId: number;
 }
 
+interface QuickenStateSource {
+  generation: number;
+  actorId: string;
+  triggerDamageEventId: number;
+}
+
 interface SwirlDamageIcdState {
   windowStartFrame: number;
   hitCount: number;
@@ -508,6 +521,12 @@ interface PeriodicReactionExpiryEventPayload {
 }
 
 interface FrozenExpiryEventPayload {
+  targetId: string;
+  generation: number;
+  expectedExpiryFrame: number;
+}
+
+interface QuickenExpiryEventPayload {
   targetId: string;
   generation: number;
   expectedExpiryFrame: number;
@@ -579,6 +598,7 @@ type InternalEvent =
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
   | SimulationEvent<FrozenExpiryEventPayload>
+  | SimulationEvent<QuickenExpiryEventPayload>
   | SimulationEvent<CrystallizeShardSpawnEventPayload>
   | SimulationEvent<CrystallizeShardExpiryEventPayload>
   | SimulationEvent<CrystallizePickupEventPayload>
@@ -705,12 +725,128 @@ function makeReproducibilityKey(
   )}`;
 }
 
+interface AppliedDamagePluginChanges {
+  damageInput: DamageCalculationInput;
+  flatDamageComponents: DamageFlatComponents;
+}
+
+function hasOwn(
+  value: object,
+  key: PropertyKey
+): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function requireFinitePluginNumber(
+  pluginId: string,
+  field: string,
+  value: unknown
+): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(
+      `Damage plugin "${pluginId}" returned a non-finite ${field} override.`
+    );
+  }
+  return value;
+}
+
 function applyPluginChanges(
   input: DamageCalculationInput,
-  changes: Partial<DamageCalculationInput> | void
-): DamageCalculationInput {
-  if (!changes) return input;
-  return { ...input, ...changes };
+  flatDamageComponents: DamageFlatComponents,
+  changes: DamagePluginChanges | void,
+  pluginId: string,
+  hasAdditiveReaction: boolean
+): AppliedDamagePluginChanges {
+  if (!changes) {
+    return {
+      damageInput: input,
+      flatDamageComponents
+    };
+  }
+
+  const hasLegacyFlat = hasOwn(changes, "flatDamage");
+  const hasOrdinaryFlat = hasOwn(
+    changes,
+    "ordinaryFlatDamage"
+  );
+  const hasAdditiveFlat = hasOwn(
+    changes,
+    "additiveReactionFlatDamage"
+  );
+
+  if (
+    hasLegacyFlat &&
+    (hasOrdinaryFlat || hasAdditiveFlat)
+  ) {
+    throw new Error(
+      `Damage plugin "${pluginId}" returned flatDamage together with explicit flat-damage components.`
+    );
+  }
+  if (hasLegacyFlat && hasAdditiveReaction) {
+    throw new Error(
+      `Damage plugin "${pluginId}" returned ambiguous flatDamage for a Catalyze hit; return ordinaryFlatDamage and/or additiveReactionFlatDamage instead.`
+    );
+  }
+  if (hasAdditiveFlat && !hasAdditiveReaction) {
+    throw new Error(
+      `Damage plugin "${pluginId}" returned additiveReactionFlatDamage for a hit without Aggravate or Spread.`
+    );
+  }
+
+  const {
+    flatDamage: legacyFlatDamage,
+    ordinaryFlatDamage,
+    additiveReactionFlatDamage,
+    ...inputChanges
+  } = changes;
+  let nextOrdinaryFlatDamage =
+    flatDamageComponents.ordinaryFlatDamage;
+  let nextAdditiveReactionFlatDamage =
+    flatDamageComponents.additiveReactionFlatDamage;
+
+  if (hasLegacyFlat) {
+    nextOrdinaryFlatDamage = requireFinitePluginNumber(
+      pluginId,
+      "flatDamage",
+      legacyFlatDamage
+    );
+  }
+  if (hasOrdinaryFlat) {
+    nextOrdinaryFlatDamage = requireFinitePluginNumber(
+      pluginId,
+      "ordinaryFlatDamage",
+      ordinaryFlatDamage
+    );
+  }
+  if (hasAdditiveFlat) {
+    nextAdditiveReactionFlatDamage =
+      requireFinitePluginNumber(
+        pluginId,
+        "additiveReactionFlatDamage",
+        additiveReactionFlatDamage
+      );
+    if (nextAdditiveReactionFlatDamage < 0) {
+      throw new Error(
+        `Damage plugin "${pluginId}" returned a negative additiveReactionFlatDamage override.`
+      );
+    }
+  }
+
+  const nextFlatDamageComponents = {
+    ordinaryFlatDamage: nextOrdinaryFlatDamage,
+    additiveReactionFlatDamage:
+      nextAdditiveReactionFlatDamage
+  };
+  return {
+    damageInput: {
+      ...input,
+      ...inputChanges,
+      flatDamage:
+        nextFlatDamageComponents.ordinaryFlatDamage +
+        nextFlatDamageComponents.additiveReactionFlatDamage
+    },
+    flatDamageComponents: nextFlatDamageComponents
+  };
 }
 
 function simulateConfig(
@@ -828,7 +964,8 @@ function simulateConfig(
   };
   const auraEngines =
     config.reactionEngine?.mode === "aura-v1" ||
-    config.reactionEngine?.mode === "aura-v2"
+    config.reactionEngine?.mode === "aura-v2" ||
+    config.reactionEngine?.mode === "aura-v3"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -952,11 +1089,14 @@ function simulateConfig(
   const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
+  const targetMechanicsTruncationLog: SimulationResult["targetMechanicsTruncationLog"] =
+    [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
   const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
+  const quickenStateLog: SimulationResult["quickenStateLog"] = [];
   const crystallizeShardLog: SimulationResult["crystallizeShardLog"] =
     [];
   const crystallizeShieldLog: SimulationResult["crystallizeShieldLog"] =
@@ -980,10 +1120,66 @@ function simulateConfig(
     FrozenStateSource
   >();
   const frozenExpiryScheduleKeys = new Set<string>();
+  const activeQuickenStateSources = new Map<
+    string,
+    QuickenStateSource
+  >();
+  const quickenExpiryScheduleKeys = new Set<string>();
   const swirlDamageIcdStates = new Map<
     string,
     SwirlDamageIcdState
   >();
+  const recordTargetMechanicsTruncation = ({
+    audit,
+    targetId,
+    targetName,
+    sourceActorId,
+    sourceActionId,
+    hitId,
+    triggerDamageEventId,
+    frame,
+    timeSeconds
+  }: {
+    audit: ReactionAudit;
+    targetId: string;
+    targetName: string;
+    sourceActorId: string;
+    sourceActionId: string;
+    hitId: string;
+    triggerDamageEventId: number;
+    frame: number;
+    timeSeconds: number;
+  }): void => {
+    const truncation = audit.mechanicsTruncation;
+    if (
+      truncation === null ||
+      truncation.operation !== "trigger" ||
+      targetMechanicsTruncationLog.some(
+        (entry) => entry.targetId === targetId
+      )
+    ) {
+      return;
+    }
+    targetMechanicsTruncationLog.push({
+      id: targetMechanicsTruncationLog.length,
+      targetId,
+      targetName,
+      frame,
+      timeSeconds,
+      sourceActorId,
+      sourceActionId,
+      hitId,
+      triggerDamageEventId,
+      unsupportedReactions: [
+        ...truncation.unsupportedReactions
+      ],
+      discardedAura: deepClone(truncation.discardedAura),
+      reason: truncation.reason
+    });
+    activePeriodicReactionSources.delete(targetId);
+    activeFrozenStateSources.delete(targetId);
+    activeQuickenStateSources.delete(targetId);
+  };
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
   const energyLog: SimulationResult["energyLog"] = [];
@@ -1050,6 +1246,22 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies FrozenExpiryEventPayload);
+  };
+
+  const scheduleQuickenExpiry = (
+    targetId: string,
+    generation: number,
+    expiryFrame: number | null
+  ): void => {
+    if (expiryFrame === null) return;
+    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    if (quickenExpiryScheduleKeys.has(scheduleKey)) return;
+    quickenExpiryScheduleKeys.add(scheduleKey);
+    push(expiryFrame / 60, "quickenExpiry", {
+      targetId,
+      generation,
+      expectedExpiryFrame: expiryFrame
+    } satisfies QuickenExpiryEventPayload);
   };
 
   const scheduleElectroChargedDamage = ({
@@ -1243,6 +1455,70 @@ function simulateConfig(
     } else {
       activeFrozenStateSources.delete(targetId);
     }
+  };
+
+  const recordQuickenState = ({
+    audit,
+    targetId,
+    targetName,
+    sourceActorId,
+    triggerDamageEventId,
+    frame,
+    timeSeconds
+  }: {
+    audit: ReactionAudit;
+    targetId: string;
+    targetName: string;
+    sourceActorId: string;
+    triggerDamageEventId: number;
+    frame: number;
+    timeSeconds: number;
+  }): void => {
+    const quicken = audit.catalyzeReaction?.quicken;
+    if (quicken === null || quicken === undefined) return;
+    quickenStateLog.push({
+      id: quickenStateLog.length,
+      reaction: "quicken",
+      generation: quicken.generation,
+      operation: quicken.operation,
+      frame,
+      timeSeconds,
+      targetId,
+      targetName,
+      sourceActorId,
+      triggerDamageEventId,
+      triggerElement: quicken.triggerElement,
+      consumedAuraElement: quicken.consumedAuraElement,
+      candidateGaugeUnits: quicken.candidateGaugeUnits,
+      quickenGaugeUnitsBefore:
+        quicken.quickenGaugeUnitsBefore,
+      quickenGaugeUnitsAfter:
+        quicken.quickenGaugeUnitsAfter,
+      auraBefore: deepClone(audit.auraBefore ?? []),
+      auraAfter: deepClone(audit.auraAfter ?? []),
+      expiresAtFrame: quicken.expiresAtFrame,
+      reason:
+        quicken.operation === "unchanged"
+          ? "WEAKER_QUICKEN_DID_NOT_REFRESH"
+          : quicken.operation === "start"
+            ? "QUICKEN_STARTED"
+            : "QUICKEN_REFRESHED"
+    });
+    if (
+      quicken.operation === "start" ||
+      quicken.operation === "refresh"
+    ) {
+      activeQuickenStateSources.set(targetId, {
+        generation: quicken.generation,
+        actorId: sourceActorId,
+        triggerDamageEventId
+      });
+    }
+    scheduleQuickenExpiry(
+      targetId,
+      quicken.generation,
+      quicken.expiresAtFrame
+    );
   };
 
   const scheduleShatterDamage = ({
@@ -1554,6 +1830,15 @@ function simulateConfig(
     timeSeconds: number;
     freezeResistance: number;
   }): void => {
+    recordQuickenState({
+      audit,
+      targetId,
+      targetName,
+      sourceActorId: actorId,
+      triggerDamageEventId: damageEventId,
+      frame,
+      timeSeconds
+    });
     const transformativeReaction = audit.transformativeReaction;
     if (transformativeReaction !== null) {
       const reactionDamageLogId = reactionDamageLog.length;
@@ -3084,6 +3369,56 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "quickenExpiry") {
+      const {
+        targetId,
+        generation,
+        expectedExpiryFrame
+      } = event.payload as QuickenExpiryEventPayload;
+      quickenExpiryScheduleKeys.delete(
+        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+      );
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+      const result = auraEngine.expireQuicken(
+        event.frame,
+        generation,
+        expectedExpiryFrame
+      );
+      if (result.operation === "stale") continue;
+      const source = activeQuickenStateSources.get(targetId);
+      quickenStateLog.push({
+        id: quickenStateLog.length,
+        reaction: "quicken",
+        generation,
+        operation: "expire",
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId: source?.actorId ?? null,
+        triggerDamageEventId:
+          source?.triggerDamageEventId ?? null,
+        triggerElement: null,
+        consumedAuraElement: null,
+        candidateGaugeUnits: 0,
+        quickenGaugeUnitsBefore:
+          result.auraBefore.find(
+            (entry) => entry.element === "quicken"
+          )?.gaugeUnits ?? 0,
+        quickenGaugeUnitsAfter: 0,
+        auraBefore: result.auraBefore,
+        auraAfter: result.auraAfter,
+        expiresAtFrame: null,
+        reason: result.reason
+      });
+      if (source?.generation === generation) {
+        activeQuickenStateSources.delete(targetId);
+      }
+      continue;
+    }
+
     if (event.type === "periodicReactionExpiry") {
       const {
         targetId,
@@ -3142,7 +3477,13 @@ function simulateConfig(
       } = event.payload as PeriodicReactionTickEventPayload;
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (
+        !auraEngine ||
+        !target ||
+        auraEngine.isMechanicsTruncated()
+      ) {
+        continue;
+      }
 
       let source: PeriodicReactionSourceSnapshot | undefined;
       let auraBefore: SimulationResult["periodicReactionLog"][number]["auraBefore"];
@@ -3299,7 +3640,13 @@ function simulateConfig(
       } = event.payload as PeriodicReactionWaneEventPayload;
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (
+        !auraEngine ||
+        !target ||
+        auraEngine.isMechanicsTruncated()
+      ) {
+        continue;
+      }
       const result = auraEngine.waneElectroCharged(
         event.frame,
         damageApplied
@@ -3476,6 +3823,14 @@ function simulateConfig(
       spatialPlans.forEach((plan, targetIndex) => {
         const targetProfile = enemyTargetById.get(plan.targetId);
         if (!targetProfile) return;
+        const targetAuraEngine =
+          auraEngines?.get(plan.targetId) ?? null;
+        const mechanicsTruncatedBefore =
+          targetAuraEngine?.isMechanicsTruncated() ?? false;
+        const mechanicsStatus: DamageEvent["mechanicsStatus"] =
+          mechanicsTruncatedBefore
+            ? "mechanics-truncated"
+            : "authoritative";
         reactionLog.checkedTargetIds.push(plan.targetId);
         if (plan.landed) reactionLog.hitTargetIds.push(plan.targetId);
 
@@ -3489,16 +3844,17 @@ function simulateConfig(
           activeTargetPhase?.effects.aura !== "blocked";
         const propagatedReactionAudit =
           plan.landed &&
-          application !== undefined &&
-          reactionDamageAuraAllowed
-            ? (auraEngines
-                ?.get(plan.targetId)
-                ?.processHit({
+          reactionDamageAuraAllowed &&
+          targetAuraEngine !== null &&
+          (application !== undefined || mechanicsTruncatedBefore)
+            ? targetAuraEngine.processHit({
                   frame: event.frame,
                   sourceActorId: actorId,
                   element: damageElement,
-                  application
-                }) ?? null)
+                  ...(application === undefined
+                    ? {}
+                    : { application })
+                })
             : null;
         const swirlDamageGroup =
           plan.landed && swirlContext !== undefined
@@ -3513,10 +3869,9 @@ function simulateConfig(
           reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
         }
         const nestedShatterState =
-          reactionDamageAuraAllowed
-            ? (auraEngines
-                ?.get(plan.targetId)
-                ?.processShatterHit({
+          reactionDamageAuraAllowed &&
+          !mechanicsTruncatedBefore
+            ? (targetAuraEngine?.processShatterHit({
                   frame: event.frame,
                   element: damageElement,
                   strikeType,
@@ -3587,6 +3942,7 @@ function simulateConfig(
                 : "target-phase",
             targetPhaseId: activeTargetPhase?.id ?? null,
             damageAllowed,
+            mechanicsStatus,
             auraAllowed:
               plan.landed &&
               application !== undefined &&
@@ -3648,6 +4004,53 @@ function simulateConfig(
           baseMultiplier,
           effectiveResistance
         });
+        let additiveReactionFactors: AdditiveReactionFactors | null =
+          null;
+        const additiveReaction =
+          propagatedReactionAudit?.catalyzeReaction?.additive;
+        if (
+          additiveReaction !== null &&
+          additiveReaction !== undefined
+        ) {
+          const liveReactionStats = computeStats(
+            actorId,
+            timeSeconds
+          );
+          if (liveReactionStats === undefined) {
+            throw new Error(
+              `Missing live stats for nested Catalyze source "${actorId}".`
+            );
+          }
+          const additiveCalculation =
+            calcAdditiveReactionDamage({
+              reaction: additiveReaction.reaction,
+              characterLevel: sourceActor.level,
+              elementalMastery: liveReactionStats.em,
+              reactionBonus:
+                liveReactionStats.reactionBonus
+            });
+          additiveReactionFactors = {
+            reaction: additiveCalculation.reaction,
+            sourceActorId: actorId,
+            characterLevel: sourceActor.level,
+            levelBaseDamage:
+              additiveCalculation.levelBaseDamage,
+            baseMultiplier:
+              additiveCalculation.baseMultiplier,
+            elementalMastery: liveReactionStats.em,
+            elementalMasteryBonus:
+              additiveCalculation.elementalMasteryBonus,
+            reactionBonus:
+              additiveCalculation.reactionBonus,
+            flatDamage: additiveCalculation.flatDamage,
+            appliedFlatDamage: additiveCalculation.flatDamage,
+            snapshotMode: "hit-time"
+          };
+        }
+        const additiveFlatDamage =
+          additiveReactionFactors?.appliedFlatDamage ?? 0;
+        const combinedPreResistanceDamage =
+          calculation.preResistanceDamage + additiveFlatDamage;
         const secondaryReaction = propagatedReactionAudit?.reaction;
         const amplifyingReaction: AmplifyingReaction =
           secondaryReaction === "melt" ||
@@ -3680,14 +4083,27 @@ function simulateConfig(
             resistanceMultiplier:
               calculation.resistanceMultiplier
           };
-        const targetDamageMultiplier = damageAllowed ? 1 : 0;
+        const targetDamageMultiplier =
+          damageAllowed && !mechanicsTruncatedBefore ? 1 : 0;
         const potentialDamage =
-          calculation.finalDamage *
+          combinedPreResistanceDamage *
+          calculation.resistanceMultiplier *
           amplifyingFactors.total *
           swirlDamageGroupMultiplier;
         const finalDamage =
           potentialDamage * targetDamageMultiplier;
         const displayDamage = Math.round(finalDamage);
+        const additiveReactionContribution =
+          combinedPreResistanceDamage === 0
+            ? 0
+            : finalDamage *
+              (additiveFlatDamage / combinedPreResistanceDamage);
+        const damageComposition: DamageEvent["damageComposition"] = {
+          direct: 0,
+          additiveReaction: additiveReactionContribution,
+          transformativeReaction:
+            finalDamage - additiveReactionContribution
+        };
         const damageEventId = damageEvents.length;
         const buffLabels = sourceBuffStatuses.map(
           (status) => status.label
@@ -3699,8 +4115,8 @@ function simulateConfig(
           scaling: 0,
           scalingStat: "em",
           scalingValue: elementalMastery,
-          flatDamage: 0,
-          baseDamage: calculation.preResistanceDamage,
+          flatDamage: additiveFlatDamage,
+          baseDamage: combinedPreResistanceDamage,
           damageBonus: 0,
           damageBonusMultiplier: 1,
           defenseIgnore: 1,
@@ -3724,6 +4140,9 @@ function simulateConfig(
             model: "reaction-damage" as const,
             triggered: true,
             reaction,
+            reactions: [reaction],
+            unsupportedReactions: [],
+            mechanicsTruncation: null,
             icdAllowed: null,
             icdTag: null,
             icdGroup: null,
@@ -3738,7 +4157,8 @@ function simulateConfig(
             shatterReaction: null,
             swirlReactions: [],
             swirlDamageGroup: null,
-            crystallizeReaction: null
+            crystallizeReaction: null,
+            catalyzeReaction: null
           }),
           shatterReaction: nestedShatterState?.audit ?? null,
           swirlDamageGroup,
@@ -3768,6 +4188,7 @@ function simulateConfig(
             ? "normal"
             : "immune",
           targetDamageMultiplier,
+          mechanicsStatus,
           potentialDamage,
           frame: event.frame,
           timeSeconds,
@@ -3785,6 +4206,8 @@ function simulateConfig(
           reactionAudit,
           damageFactors,
           transformativeReactionFactors,
+          additiveReactionFactors,
+          damageComposition,
           finalDamage,
           displayDamage,
           sourceActorName: sourceActor.name,
@@ -3827,8 +4250,8 @@ function simulateConfig(
           scaling: 0,
           scalingStat: "em",
           scalingValue: elementalMastery,
-          flat: 0,
-          baseDamage: calculation.preResistanceDamage,
+          flat: additiveFlatDamage,
+          baseDamage: combinedPreResistanceDamage,
           dmgBonus: 0,
           bonusFactor: 1,
           defIgnore: 1,
@@ -3858,7 +4281,21 @@ function simulateConfig(
         targetResolution.potentialDamage = potentialDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
-        if (nestedShatterState !== null) {
+        recordTargetMechanicsTruncation({
+          audit: reactionAudit,
+          targetId: plan.targetId,
+          targetName: targetProfile.name,
+          sourceActorId: actorId,
+          sourceActionId: action.id,
+          hitId: reactionHitId,
+          triggerDamageEventId: damageEventId,
+          frame: event.frame,
+          timeSeconds
+        });
+        if (
+          reactionAudit.mechanicsTruncation === null &&
+          nestedShatterState !== null
+        ) {
           recordShatterFrozenState({
             result: nestedShatterState,
             targetId: plan.targetId,
@@ -3887,7 +4324,10 @@ function simulateConfig(
             });
           }
         }
-        if (propagatedReactionAudit !== null) {
+        if (
+          propagatedReactionAudit !== null &&
+          propagatedReactionAudit.mechanicsTruncation === null
+        ) {
           processNestedAuraReactionConsequences({
             audit: propagatedReactionAudit,
             damageEventId,
@@ -3915,7 +4355,10 @@ function simulateConfig(
           periodicDamageEventId = damageEventId;
           periodicActualDamage = finalDamage;
         }
-        if (statusEffect !== null) {
+        if (
+          statusEffect !== null &&
+          mechanicsStatus === "authoritative"
+        ) {
           const existingIndex = activeTargetDebuffs.findIndex(
             (debuff) =>
               debuff.targetId === plan.targetId &&
@@ -4060,6 +4503,12 @@ function simulateConfig(
       );
     }
     const auraEngine = auraEngines?.get(targetId) ?? null;
+    const mechanicsTruncatedBefore =
+      auraEngine?.isMechanicsTruncated() ?? false;
+    const mechanicsStatus: DamageEvent["mechanicsStatus"] =
+      mechanicsTruncatedBefore
+        ? "mechanics-truncated"
+        : "authoritative";
     const targetOutcome = targeting?.outcome ?? "landed";
     const activeTargetPhase = targetPhaseTimeline.find(
       (phase) =>
@@ -4130,6 +4579,7 @@ function simulateConfig(
       damageAllowed,
       auraAllowed,
       hitConfirmAllowed,
+      mechanicsStatus,
       damageEventId: null,
       potentialDamage: 0,
       finalDamage: 0,
@@ -4248,7 +4698,9 @@ function simulateConfig(
       effectiveDefenseReduction
     };
     const shatterState =
-      auraEngine !== null && auraAllowed
+      auraEngine !== null &&
+      auraAllowed &&
+      !mechanicsTruncatedBefore
         ? auraEngine.processShatterHit({
             frame: event.frame,
             element,
@@ -4268,6 +4720,10 @@ function simulateConfig(
               manualReaction === "none" ? "none" : "manual-override",
             triggered: manualReaction !== "none",
             reaction: manualReaction,
+            reactions:
+              manualReaction === "none" ? [] : [manualReaction],
+            unsupportedReactions: [],
+            mechanicsTruncation: null,
             icdAllowed: null,
             icdTag: null,
             icdGroup: null,
@@ -4283,6 +4739,7 @@ function simulateConfig(
             swirlReactions: [],
             swirlDamageGroup: null,
             crystallizeReaction: null,
+            catalyzeReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -4313,7 +4770,61 @@ function simulateConfig(
             };
     reactionAudit.shatterReaction =
       shatterState?.audit ?? null;
+    if (
+      reactionAudit.mechanicsTruncation !== null &&
+      reactionAudit.shatterReaction?.scheduled === true
+    ) {
+      reactionAudit.shatterReaction = {
+        ...reactionAudit.shatterReaction,
+        scheduled: false,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      };
+    }
     const reaction = reactionAudit.reaction;
+    let additiveReactionFactors: AdditiveReactionFactors | null =
+      null;
+    const additiveReaction =
+      reactionAudit.catalyzeReaction?.additive;
+    if (additiveReaction !== null && additiveReaction !== undefined) {
+      const reactionSourceStats = computeStats(
+        actorId,
+        timeSeconds
+      );
+      if (reactionSourceStats === undefined) {
+        throw new Error(
+          `Missing live stats for Catalyze source "${actorId}".`
+        );
+      }
+      const additiveCalculation =
+        calcAdditiveReactionDamage({
+          reaction: additiveReaction.reaction,
+          characterLevel: sourceActor.level,
+          elementalMastery: reactionSourceStats.em,
+          reactionBonus:
+            reactionSourceStats.reactionBonus +
+            safeNumber(hit.reactionBonus)
+        });
+      additiveReactionFactors = {
+        reaction: additiveCalculation.reaction,
+        sourceActorId: actorId,
+        characterLevel: sourceActor.level,
+        levelBaseDamage:
+          additiveCalculation.levelBaseDamage,
+        baseMultiplier: additiveCalculation.baseMultiplier,
+        elementalMastery: reactionSourceStats.em,
+        elementalMasteryBonus:
+          additiveCalculation.elementalMasteryBonus,
+        reactionBonus: additiveCalculation.reactionBonus,
+        flatDamage: additiveCalculation.flatDamage,
+        appliedFlatDamage: additiveCalculation.flatDamage,
+        snapshotMode: "hit-time"
+      };
+    }
+    let flatDamageComponents: DamageFlatComponents = {
+      ordinaryFlatDamage: flatDamage,
+      additiveReactionFlatDamage:
+        additiveReactionFactors?.appliedFlatDamage ?? 0
+    };
     const amplifyingReaction =
       reaction === "melt" ||
       reaction === "reverseMelt" ||
@@ -4325,7 +4836,9 @@ function simulateConfig(
       scaling: hit.scaling,
       scalingStat,
       scalingValue,
-      flatDamage,
+      flatDamage:
+        flatDamageComponents.ordinaryFlatDamage +
+        flatDamageComponents.additiveReactionFlatDamage,
       damageBonus: stats.dmgBonus + safeNumber(hit.dmgBonus),
       characterLevel: scalingOwner.level,
       enemyLevel: targetProfile.level,
@@ -4345,22 +4858,45 @@ function simulateConfig(
       groupMultiplier: safeNumber(hit.groupMultiplier, 1)
     };
     for (const plugin of plugins) {
-      damageInput = applyPluginChanges(
+      const pluginChanges = plugin.modifyDamage({
+        config,
+        action,
+        hit,
+        cycle,
+        timeSeconds,
+        sourceActor,
+        scalingOwner,
+        creditOwner,
+        statsBeforeDamage: stats,
+        enemyStateBeforeHit,
+        reactionAudit,
+        additiveReactionFactors:
+          additiveReactionFactors === null
+            ? null
+            : Object.freeze({
+                ...additiveReactionFactors,
+                appliedFlatDamage:
+                  flatDamageComponents.additiveReactionFlatDamage
+              }),
+        flatDamageComponents: Object.freeze({
+          ...flatDamageComponents
+        }),
+        damageInput: Object.freeze({ ...damageInput })
+      });
+      const appliedChanges = applyPluginChanges(
         damageInput,
-        plugin.modifyDamage({
-          config,
-          action,
-          hit,
-          cycle,
-          timeSeconds,
-          sourceActor,
-          scalingOwner,
-          creditOwner,
-          statsBeforeDamage: stats,
-          enemyStateBeforeHit,
-          damageInput
-        })
+        flatDamageComponents,
+        pluginChanges,
+        plugin.id,
+        additiveReactionFactors !== null
       );
+      damageInput = appliedChanges.damageInput;
+      flatDamageComponents =
+        appliedChanges.flatDamageComponents;
+    }
+    if (additiveReactionFactors !== null) {
+      additiveReactionFactors.appliedFlatDamage =
+        flatDamageComponents.additiveReactionFlatDamage;
     }
 
     const calculation = calcDamage(damageInput);
@@ -4373,10 +4909,27 @@ function simulateConfig(
       .map((status) => status.label);
     const snapshot = hit.snapshot ?? "hit";
     const damageEventId = damageEvents.length;
-    const targetDamageMultiplier = damageAllowed ? 1 : 0;
+    const targetDamageMultiplier =
+      damageAllowed && !mechanicsTruncatedBefore ? 1 : 0;
     const finalDamage =
       calculation.finalDamage * targetDamageMultiplier;
     const displayDamage = Math.round(finalDamage);
+    const sharedDirectDamageMultiplier =
+      factors.damageBonusMultiplier *
+      factors.defenseMultiplier *
+      factors.resistanceMultiplier *
+      factors.critMultiplier *
+      factors.amplifyingReactionMultiplier *
+      factors.groupMultiplier *
+      targetDamageMultiplier;
+    const additiveReactionContribution =
+      (additiveReactionFactors?.appliedFlatDamage ?? 0) *
+      sharedDirectDamageMultiplier;
+    const damageComposition: DamageEvent["damageComposition"] = {
+      direct: finalDamage - additiveReactionContribution,
+      additiveReaction: additiveReactionContribution,
+      transformativeReaction: 0
+    };
     damageEvents.push({
       id: damageEventId,
       kind: "direct",
@@ -4394,6 +4947,7 @@ function simulateConfig(
       targetName: targetProfile.name,
       targetDamagePolicy: damageAllowed ? "normal" : "immune",
       targetDamageMultiplier,
+      mechanicsStatus,
       potentialDamage: calculation.finalDamage,
       frame: event.frame,
       timeSeconds,
@@ -4404,6 +4958,8 @@ function simulateConfig(
       reactionAudit,
       damageFactors: factors,
       transformativeReactionFactors: null,
+      additiveReactionFactors,
+      damageComposition,
       finalDamage,
       displayDamage,
       sourceActorName: sourceActor.name,
@@ -4465,6 +5021,27 @@ function simulateConfig(
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
+    recordTargetMechanicsTruncation({
+      audit: reactionAudit,
+      targetId,
+      targetName: targetProfile.name,
+      sourceActorId: actorId,
+      sourceActionId: action.id,
+      hitId,
+      triggerDamageEventId: damageEventId,
+      frame: event.frame,
+      timeSeconds
+    });
+    if (reactionAudit.mechanicsTruncation === null) {
+    recordQuickenState({
+      audit: reactionAudit,
+      targetId,
+      targetName: targetProfile.name,
+      sourceActorId: actorId,
+      triggerDamageEventId: damageEventId,
+      frame: event.frame,
+      timeSeconds
+    });
     if (shatterState !== null) {
       recordShatterFrozenState({
         result: shatterState,
@@ -4894,6 +5471,7 @@ function simulateConfig(
         }
       }
     }
+    }
     completeHitTarget({
       actorId,
       action,
@@ -5001,10 +5579,20 @@ function simulateConfig(
     .sort((left, right) => right.damage - left.damage);
   let cumulativeDamage = 0;
   const cumulativeByCharacter: Record<string, number> = {};
+  const cumulativeByComponent = {
+    direct: 0,
+    additiveReaction: 0,
+    transformativeReaction: 0
+  };
   const damageCurve = damageEvents.map((event) => {
     cumulativeDamage += event.finalDamage;
     cumulativeByCharacter[event.creditOwnerId] =
       (cumulativeByCharacter[event.creditOwnerId] ?? 0) + event.finalDamage;
+    cumulativeByComponent.direct += event.damageComposition.direct;
+    cumulativeByComponent.additiveReaction +=
+      event.damageComposition.additiveReaction;
+    cumulativeByComponent.transformativeReaction +=
+      event.damageComposition.transformativeReaction;
     return {
       damageEventId: event.id,
       targetId: event.targetId,
@@ -5015,7 +5603,8 @@ function simulateConfig(
       creditOwnerId: event.creditOwnerId,
       finalDamage: event.finalDamage,
       cumulativeDamage,
-      cumulativeByCharacter: { ...cumulativeByCharacter }
+      cumulativeByCharacter: { ...cumulativeByCharacter },
+      cumulativeByComponent: { ...cumulativeByComponent }
     };
   });
   const auraTimeline: SimulationResult["auraTimeline"] = damageEvents.flatMap(
@@ -5042,6 +5631,12 @@ function simulateConfig(
           incomingElement: event.element,
           icdAllowed: audit.icdAllowed,
           reaction: audit.reaction,
+          reactions: [...audit.reactions],
+          unsupportedReactions: [...audit.unsupportedReactions],
+          mechanicsTruncation:
+            audit.mechanicsTruncation === null
+              ? null
+              : deepClone(audit.mechanicsTruncation),
           auraBefore: audit.auraBefore,
           auraApplied: audit.auraApplied,
           auraConsumed: audit.auraConsumed,
@@ -5062,16 +5657,22 @@ function simulateConfig(
       plugins
     ),
     compatibilityMode: options.compatibilityMode,
+    mechanicsStatus:
+      targetMechanicsTruncationLog.length === 0
+        ? "complete"
+        : "partial",
     config: resultConfig,
     actorPoses,
     enemyTargets,
     damageEvents,
     hitEvents: damageEvents,
     hitResolutionLog,
+    targetMechanicsTruncationLog,
     reactionDamageLog,
     reactionStatusLog,
     periodicReactionLog,
     frozenStateLog,
+    quickenStateLog,
     crystallizeShardLog,
     crystallizeShieldLog,
     crystallizeShieldTimeline,
