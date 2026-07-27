@@ -1,18 +1,24 @@
 import {
   CURRENT_SCHEMA_VERSION,
+  createSimulationConfigHash,
+  createSimulationRunManifest,
   migrateConfig,
+  simulationRunManifestSchema,
   type AdditiveReactionFactors,
   type AmplifyingReaction,
   type ActionDefinition,
   type ActiveStatusSnapshot,
   type AuraElement,
+  type BloomReactionAudit,
   type BuffDefinition,
   type BuffStat,
   type CharacterStats,
   type CrystallizeReaction,
   type CrystallizeReactionAudit,
   type DamageEvent,
+  type DamagePluginManifestEntry,
   type DebuffDefinition,
+  type DendroCoreReaction,
   type Element,
   type ElementalApplication,
   type EnergySummary,
@@ -21,6 +27,10 @@ import {
   type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
+  type ReactionADamageGroupAudit,
+  type ReactionBDamageGroupAudit,
+  type ResolvedWorldHitGeometry,
+  type ResolvedSimulationRuntimeOptions,
   type ShatterReactionAudit,
   type SwirlDamageGroupAudit,
   type SwirlReaction,
@@ -57,7 +67,8 @@ import { MinHeap } from "./min-heap";
 import type {
   DamageFlatComponents,
   DamageModifierPlugin,
-  DamagePluginChanges
+  DamagePluginChanges,
+  DamageModifierPluginRuntime
 } from "./plugins";
 import {
   compileLegalTimeline,
@@ -72,6 +83,15 @@ import {
   auraStateSnapshotsEqual,
   TargetStateTimelineRecorder
 } from "./target-state-timeline";
+import { ReactionALimiter } from "./reaction-a";
+import { ReactionBLimiter } from "./reaction-b";
+import {
+  DENDRO_CORE_CONSTANTS,
+  DendroCoreManager,
+  selectNearestDendroCoreTarget,
+  type DendroCoreRemovalDecision,
+  type DendroCoreReservation
+} from "./dendro-core";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -88,6 +108,8 @@ export const EVENT_PRIORITY = {
   crystallizeShardSpawn: 2,
   crystallizeShardExpiry: 2,
   crystallizeShieldExpiry: 2,
+  dendroCoreSpawn: 2,
+  dendroCoreExpiry: 2,
   periodicReactionTick: 4,
   burningTick: 4,
   reactionDamage: 5,
@@ -97,6 +119,25 @@ export const EVENT_PRIORITY = {
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly DamageModifierPlugin[];
+}
+
+export function projectBloomBurningFuelExpiry(
+  mutation: BloomReactionAudit["burningFuelStateMutation"]
+): Readonly<{
+  generation: number;
+  expiryFrame: number;
+}> | null {
+  if (
+    mutation.operation === "none" ||
+    mutation.generation === null ||
+    mutation.expiresAtFrameAfter === null
+  ) {
+    return null;
+  }
+  return {
+    generation: mutation.generation,
+    expiryFrame: mutation.expiresAtFrameAfter
+  };
 }
 
 const GEOMETRY_EPSILON = 1e-9;
@@ -159,9 +200,12 @@ function resolveWorldHitGeometry(
         facingDegrees: number;
       }
     | undefined
-): HitGeometry {
+): ResolvedWorldHitGeometry {
   if ((geometry.coordinateSpace ?? "world") === "world") {
-    return geometry;
+    return {
+      ...geometry,
+      coordinateSpace: "world"
+    } as ResolvedWorldHitGeometry;
   }
   if (actorPose === undefined) {
     throw new Error(
@@ -426,6 +470,7 @@ interface HitEventPayload {
   geometryAngleDegrees: number | null;
   geometryDistance: number | null;
   geometryThreshold: number | null;
+  resolvedGeometry: ResolvedWorldHitGeometry | null;
   targetIndex: number;
   targetCount: number;
   hitGroupId: string;
@@ -443,9 +488,12 @@ interface ReactionDamageEventPayload {
   action: ActionDefinition;
   triggerHitId: string;
   triggerHitGroupId: string;
-  triggerDamageEventId: number;
+  triggerDamageEventId: number | null;
   sourceTargetId: string;
-  targetingMode: "radius" | "single-target";
+  targetingMode:
+    | "radius"
+    | "single-target"
+    | "nearest-target-radius";
   centerPosition: { x: number; y: number } | null;
   radius: number;
   baseMultiplier: number;
@@ -461,6 +509,12 @@ interface ReactionDamageEventPayload {
   swirlContext?: {
     scheduleKind: "swirl-self" | "swirl-propagation";
     reaction: SwirlReaction;
+    /**
+     * Per-hit/event reaction bonus that travels with the queued Swirl attack.
+     * Character reaction bonus is intentionally read again if propagation
+     * triggers a delayed amplifying reaction.
+     */
+    reactionBonusDelta: number;
   };
   periodicContext?: {
     generation: number;
@@ -472,6 +526,13 @@ interface ReactionDamageEventPayload {
     generation: number;
     tickIndex: number;
     burningStateLogId: number;
+  };
+  dendroCoreContext?: {
+    reaction: DendroCoreReaction;
+    coreId: number;
+    removalLogId: number;
+    reactionBonusDelta: number;
+    selectionRadius: number | null;
   };
 }
 
@@ -576,6 +637,24 @@ interface QuickenExpiryEventPayload {
   expectedExpiryFrame: number;
 }
 
+interface DendroCoreSpawnEventPayload {
+  reservation: DendroCoreReservation;
+}
+
+interface DendroCoreExpiryEventPayload {
+  coreId: number;
+  expectedExpiryFrame: number;
+}
+
+interface DendroCoreRuntimeSource {
+  reservation: DendroCoreReservation;
+  action: ActionDefinition;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  reactionBonusDelta: number;
+  cycle: number;
+}
+
 interface CrystallizeShardSpawnEventPayload {
   audit: CrystallizeReactionAudit;
   actorId: string;
@@ -645,6 +724,8 @@ type InternalEvent =
   | SimulationEvent<BurningFuelExpiryEventPayload>
   | SimulationEvent<FrozenExpiryEventPayload>
   | SimulationEvent<QuickenExpiryEventPayload>
+  | SimulationEvent<DendroCoreSpawnEventPayload>
+  | SimulationEvent<DendroCoreExpiryEventPayload>
   | SimulationEvent<CrystallizeShardSpawnEventPayload>
   | SimulationEvent<CrystallizeShardExpiryEventPayload>
   | SimulationEvent<CrystallizePickupEventPayload>
@@ -693,7 +774,10 @@ const TRANSFORMATIVE_REACTION_LABELS: Record<
   swirlPyro: "火扩散",
   swirlHydro: "水扩散",
   swirlCryo: "冰扩散",
-  swirlElectro: "雷扩散"
+  swirlElectro: "雷扩散",
+  bloom: "绽放",
+  burgeon: "烈绽放",
+  hyperbloom: "超绽放"
 };
 
 const BUFF_STATS = new Set<BuffStat>([
@@ -728,48 +812,43 @@ function toFrame(timeSeconds: number): number {
   return Math.round(timeSeconds * 60);
 }
 
-function stableStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(",")}]`;
-  }
-  if (value !== null && typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    return `{${Object.keys(record)
-      .sort()
-      .map(
-        (key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`
-      )
-      .join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
-function fnv1a(value: string): string {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
-}
-
-function makeReproducibilityKey(
-  config: SimConfig,
-  options: Required<
-    Pick<
-      SimulationRuntimeOptions,
-      "energyMode" | "critMode" | "compatibilityMode" | "randomSeed"
-    >
-  >,
+function createPluginManifest(
   plugins: readonly DamageModifierPlugin[]
-): string {
-  return `gdl-${fnv1a(
-    stableStringify({
-      config,
-      options,
-      plugins: plugins.map((plugin) => plugin.id)
-    })
-  )}`;
+): DamagePluginManifestEntry[] {
+  return plugins.map((plugin, index) => ({
+    order: index,
+    index,
+    id: plugin.descriptor.id,
+    version: plugin.descriptor.version,
+    kind: plugin.descriptor.kind,
+    contentHash: plugin.descriptor.contentHash
+  }));
+}
+
+interface ActiveDamageModifierPlugin {
+  descriptor: DamageModifierPlugin["descriptor"];
+  runtime: DamageModifierPluginRuntime;
+}
+
+function instantiateDamagePlugins(
+  plugins: readonly DamageModifierPlugin[]
+): ActiveDamageModifierPlugin[] {
+  return plugins.map((plugin) => {
+    const runtime = plugin.createRuntime();
+    if (
+      runtime === null ||
+      typeof runtime !== "object" ||
+      typeof runtime.modifyDamage !== "function"
+    ) {
+      throw new Error(
+        `Damage plugin "${plugin.descriptor.id}" returned an invalid runtime.`
+      );
+    }
+    return {
+      descriptor: plugin.descriptor,
+      runtime
+    };
+  });
 }
 
 interface AppliedDamagePluginChanges {
@@ -902,18 +981,37 @@ function simulateConfig(
   resultConfig: SimConfig = config,
   timelineExecution?: TimelineExecution
 ): SimulationResult {
-  const options = {
+  const options: ResolvedSimulationRuntimeOptions = {
     energyMode: runtimeOptions.energyMode ?? "configured",
     critMode: runtimeOptions.critMode ?? "average",
     compatibilityMode:
       runtimeOptions.compatibilityMode ??
       (timelineExecution ? "legal-frame-v1" : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
-  } as const;
-  const plugins = runtimeOptions.plugins ?? [];
+  };
+  const pluginDefinitions = runtimeOptions.plugins ?? [];
+  const pluginManifest = createPluginManifest(
+    pluginDefinitions
+  );
+  const runManifest = simulationRunManifestSchema.parse(
+    createSimulationRunManifest({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: config.engineVersion,
+      dataVersion: config.dataVersion,
+      configHash: createSimulationConfigHash(resultConfig),
+      resolvedRuntimeOptions: options,
+      plugins: pluginManifest
+    })
+  );
+  const plugins = instantiateDamagePlugins(pluginDefinitions);
   const random = new SeededRandom(options.randomSeed);
   const crystallizeRandom = new SeededRandom(
     `${options.randomSeed}:crystallize-shard-position-v1`
+  );
+  const dendroCoreManager = new DendroCoreManager(
+    new SeededRandom(
+      `${options.randomSeed}:dendro-core-position-v1`
+    )
   );
   const actorPoses = deepClone(config.actorPoses ?? []);
   const actorPoseById = new Map(
@@ -1030,7 +1128,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v1" ||
     config.reactionEngine?.mode === "aura-v2" ||
     config.reactionEngine?.mode === "aura-v3" ||
-    config.reactionEngine?.mode === "aura-v4"
+    config.reactionEngine?.mode === "aura-v4" ||
+    config.reactionEngine?.mode === "aura-v5"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -1201,6 +1300,9 @@ function simulateConfig(
     {
       checkedTargetIds: string[];
       confirmedTargetIds: string[];
+      hitResolutionLogIds: number[];
+      triggerDamageEventIds: number[];
+      resolvedGeometry: ResolvedWorldHitGeometry | null;
       landed: boolean;
     }
   >();
@@ -1311,6 +1413,17 @@ function simulateConfig(
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
   const quickenStateLog: SimulationResult["quickenStateLog"] = [];
   const burningStateLog: SimulationResult["burningStateLog"] = [];
+  const dendroCoreLog: SimulationResult["dendroCoreLog"] = [];
+  const dendroCoreContactLog: SimulationResult["dendroCoreContactLog"] =
+    [];
+  const dendroCoreTimeline: SimulationResult["dendroCoreTimeline"] = {
+    version: "1.0.0",
+    points: []
+  };
+  const dendroCoreRuntimeSources = new Map<
+    number,
+    DendroCoreRuntimeSource
+  >();
   const crystallizeShardLog: SimulationResult["crystallizeShardLog"] =
     [];
   const crystallizeShieldLog: SimulationResult["crystallizeShieldLog"] =
@@ -1348,6 +1461,11 @@ function simulateConfig(
     string,
     SwirlDamageIcdState
   >();
+  const dendroCoreReactionALimiter = new ReactionALimiter();
+  const shatterReactionALimiter = new ReactionALimiter();
+  const superconductReactionALimiter = new ReactionALimiter();
+  const overloadAndElectroChargedReactionBLimiter =
+    new ReactionBLimiter();
   const recordTargetMechanicsTruncation = ({
     audit,
     targetId,
@@ -1589,6 +1707,7 @@ function simulateConfig(
       id: reactionDamageLogId,
       reaction: "electroCharged",
       triggerDamageEventId: source.triggerDamageEventId,
+      triggerHitGroupId: null,
       sourceActorId: source.actorId,
       sourceTargetId: targetId,
       triggerFrame: source.triggerFrame,
@@ -1601,6 +1720,11 @@ function simulateConfig(
       targetingMode: "single-target",
       centerPosition: null,
       radius: 0,
+      sourceCoreId: null,
+      sourceCoreLogId: null,
+      selectionRadius: null,
+      selectedTargetId: null,
+      resolutionReason: null,
       applicationGaugeUnits: null,
       excludedTargetIds: [],
       checkedTargetIds: [],
@@ -1608,7 +1732,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
-      reactionStatusLogIds: []
+      reactionStatusLogIds: [],
+      damageGroupDecisions: []
     });
     const periodicLog = periodicReactionLog[periodicReactionLogId];
     if (periodicLog !== undefined) {
@@ -1672,6 +1797,7 @@ function simulateConfig(
       id: reactionDamageLogId,
       reaction: "burning",
       triggerDamageEventId: source.triggerDamageEventId,
+      triggerHitGroupId: null,
       sourceActorId: source.actorId,
       sourceTargetId: targetId,
       triggerFrame: source.triggerFrame,
@@ -1684,6 +1810,11 @@ function simulateConfig(
       targetingMode: "radius",
       centerPosition: resolveTargetPosition(targetId, frame),
       radius: AURA_ENGINE_CONSTANTS.burningRadius,
+      sourceCoreId: null,
+      sourceCoreLogId: null,
+      selectionRadius: null,
+      selectedTargetId: null,
+      resolutionReason: null,
       applicationGaugeUnits:
         AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits,
       excludedTargetIds: [],
@@ -1692,7 +1823,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
-      reactionStatusLogIds: []
+      reactionStatusLogIds: [],
+      damageGroupDecisions: []
     });
     const burningLog = burningStateLog[burningStateLogId];
     if (burningLog !== undefined) {
@@ -1790,6 +1922,329 @@ function simulateConfig(
     return stats;
   };
 
+  const dendroCoreSnapshots =
+    (): SimulationResult["dendroCoreTimeline"]["points"][number]["activeCores"] =>
+      dendroCoreManager.snapshots().map((core) => ({
+        coreId: core.coreId,
+        sourceActorId: core.sourceActorId,
+        sourceTargetId: core.sourceTargetId,
+        spawnedAtFrame: core.spawnedAtFrame,
+        expiresAtFrame: core.expiresAtFrame,
+        position: deepClone(core.position),
+        hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius
+      }));
+
+  const appendDendroCoreTimelinePoint = ({
+    frame,
+    eventType,
+    eventPriority,
+    eventSequence,
+    intraEventSequence,
+    operation,
+    dendroCoreLogId,
+    coreId,
+    activeCores = dendroCoreSnapshots()
+  }: {
+    frame: number;
+    eventType:
+      | "dendroCoreSpawn"
+      | "dendroCoreExpiry"
+      | "hit"
+      | "reactionDamage";
+    eventPriority: number;
+    eventSequence: number;
+    intraEventSequence: number;
+    operation: "spawn" | "expire" | "evict" | "consume";
+    dendroCoreLogId: number;
+    coreId: number;
+    activeCores?: SimulationResult["dendroCoreTimeline"]["points"][number]["activeCores"];
+  }): void => {
+    dendroCoreTimeline.points.push({
+      id: dendroCoreTimeline.points.length,
+      frame,
+      timeSeconds: frame / 60,
+      eventType,
+      eventPriority,
+      eventSequence,
+      intraEventSequence,
+      operation,
+      dendroCoreLogId,
+      coreId,
+      activeCores: deepClone(activeCores)
+    });
+  };
+
+  const scheduleDendroCoreDamage = ({
+    decision,
+    damageSourceActorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    triggerDamageEventId,
+    reactionBonusDelta,
+    cycle,
+    contactLogId,
+    contactEventType,
+    removalFrame,
+    eventPriority,
+    eventSequence,
+    intraEventSequence
+  }: {
+    decision: DendroCoreRemovalDecision;
+    damageSourceActorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    triggerDamageEventId: number | null;
+    reactionBonusDelta: number;
+    cycle: number;
+    contactLogId: number | null;
+    contactEventType: "hit" | "reactionDamage" | null;
+    removalFrame: number;
+    eventPriority: number;
+    eventSequence: number;
+    intraEventSequence: number;
+  }): {
+    removalLogId: number;
+    reactionDamageLogId: number;
+  } => {
+    const sourceActor = characters.get(damageSourceActorId);
+    if (sourceActor === undefined) {
+      throw new Error(
+        `Dendro-core damage source "${damageSourceActorId}" could not be resolved.`
+      );
+    }
+    const removalLogId = dendroCoreLog.length;
+    const reactionDamageLogId = reactionDamageLog.length;
+    const withinSimulation =
+      decision.damageFrame <= Math.round(config.duration * 60);
+    const eventType =
+      decision.operation === "expire"
+        ? ("dendroCoreExpiry" as const)
+        : decision.operation === "evict"
+          ? ("dendroCoreSpawn" as const)
+          : contactEventType;
+    if (eventType === null) {
+      throw new Error(
+        "Dendro-core consumption requires a contact event type."
+      );
+    }
+    dendroCoreLog.push({
+      id: removalLogId,
+      coreId: decision.core.coreId,
+      operation: decision.operation,
+      eventType,
+      frame: removalFrame,
+      timeSeconds: removalFrame / 60,
+      eventPriority,
+      eventSequence,
+      intraEventSequence,
+      sourceActorId: decision.core.sourceActorId,
+      sourceTargetId: decision.core.sourceTargetId,
+      originDamageEventId: decision.core.originDamageEventId,
+      triggerFrame: decision.core.triggerFrame,
+      coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
+      hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
+      maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
+      clockModel: "global-frame-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      mechanicsDataStatus:
+        DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
+      selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+      reaction: decision.reaction,
+      reactionDamageLogId,
+      contactLogId,
+      damageFrame: decision.damageFrame,
+      withinSimulation,
+      reason: decision.reason
+    });
+    const targetingMode =
+      decision.reaction === "hyperbloom"
+        ? ("nearest-target-radius" as const)
+        : ("radius" as const);
+    const radius =
+      decision.reaction === "bloom"
+        ? DENDRO_CORE_CONSTANTS.bloomRadius
+        : decision.reaction === "burgeon"
+          ? DENDRO_CORE_CONSTANTS.burgeonRadius
+          : DENDRO_CORE_CONSTANTS.hyperbloomDamageRadius;
+    reactionDamageLog.push({
+      id: reactionDamageLogId,
+      reaction: decision.reaction,
+      triggerDamageEventId,
+      triggerHitGroupId:
+        contactLogId === null ? null : triggerHitGroupId,
+      sourceActorId: damageSourceActorId,
+      sourceTargetId: decision.core.sourceTargetId,
+      triggerFrame: removalFrame,
+      damageFrame: decision.damageFrame,
+      scheduled: true,
+      withinSimulation,
+      blockedReason: null,
+      nextAvailableFrame: null,
+      scheduleKind:
+        decision.reaction === "bloom"
+          ? "dendro-core-bloom"
+          : decision.reaction === "burgeon"
+            ? "dendro-core-burgeon"
+            : "dendro-core-hyperbloom",
+      targetingMode,
+      centerPosition: deepClone(decision.core.position),
+      radius,
+      sourceCoreId: decision.core.coreId,
+      sourceCoreLogId: removalLogId,
+      selectionRadius:
+        decision.reaction === "hyperbloom"
+          ? DENDRO_CORE_CONSTANTS.hyperbloomSelectionRadius
+          : null,
+      selectedTargetId: null,
+      resolutionReason: null,
+      applicationGaugeUnits: null,
+      excludedTargetIds: [],
+      checkedTargetIds: [],
+      hitTargetIds: [],
+      unresolvedTargetIds: [],
+      damageGroupBlockedTargetIds: [],
+      damageEventIds: [],
+      reactionStatusLogIds: [],
+      damageGroupDecisions: []
+    });
+    if (withinSimulation) {
+      push(decision.damageFrame / 60, "reactionDamage", {
+        reaction: decision.reaction,
+        damageElement: "dendro",
+        strikeType: "default",
+        poiseDamage: 0,
+        statusEffect: null,
+        actorId: damageSourceActorId,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        triggerDamageEventId,
+        sourceTargetId: decision.core.sourceTargetId,
+        targetingMode,
+        centerPosition: deepClone(decision.core.position),
+        radius,
+        baseMultiplier:
+          decision.reaction === "bloom"
+            ? DENDRO_CORE_CONSTANTS.bloomMultiplier
+            : decision.reaction === "burgeon"
+              ? DENDRO_CORE_CONSTANTS.burgeonMultiplier
+              : DENDRO_CORE_CONSTANTS.hyperbloomMultiplier,
+        // These values are deliberately replaced by live values when the
+        // queued explosion resolves.
+        stats: deepClone(sourceActor.stats),
+        elementalMastery: sourceActor.stats.em,
+        reactionBonus:
+          sourceActor.stats.reactionBonus + reactionBonusDelta,
+        sourceBuffStatuses: [],
+        snapshot: "hit",
+        cycle,
+        reactionDamageLogId,
+        dendroCoreContext: {
+          reaction: decision.reaction,
+          coreId: decision.core.coreId,
+          removalLogId,
+          reactionBonusDelta,
+          selectionRadius:
+            decision.reaction === "hyperbloom"
+              ? DENDRO_CORE_CONSTANTS.hyperbloomSelectionRadius
+              : null
+        }
+      } satisfies ReactionDamageEventPayload);
+    }
+    return { removalLogId, reactionDamageLogId };
+  };
+
+  const scheduleBloomCoreSpawns = ({
+    audits,
+    actorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    triggerDamageEventId,
+    sourceTargetId,
+    reactionBonusDelta,
+    cycle,
+    eventType,
+    eventPriority,
+    eventSequence,
+    nextIntraEventSequence
+  }: {
+    audits: readonly BloomReactionAudit[];
+    actorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    triggerDamageEventId: number;
+    sourceTargetId: string;
+    reactionBonusDelta: number;
+    cycle: number;
+    eventType: "hit" | "reactionDamage";
+    eventPriority: number;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): void => {
+    audits.forEach((audit, bloomReactionIndex) => {
+      if (!audit.scheduled || audit.coreSpawnFrame === null) return;
+      const reservation = dendroCoreManager.reserve({
+        sourceActorId: actorId,
+        sourceTargetId,
+        originDamageEventId: triggerDamageEventId,
+        triggerFrame: audit.triggerFrame,
+        bloomReactionIndex
+      });
+      if (reservation.spawnFrame !== audit.coreSpawnFrame) {
+        throw new Error(
+          `Bloom core ${reservation.coreId} spawn frame disagrees with its Aura audit.`
+        );
+      }
+      dendroCoreRuntimeSources.set(reservation.coreId, {
+        reservation,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        reactionBonusDelta,
+        cycle
+      });
+      const withinSimulation =
+        reservation.spawnFrame <=
+        Math.round(config.duration * 60);
+      dendroCoreLog.push({
+        id: dendroCoreLog.length,
+        coreId: reservation.coreId,
+        operation: "spawn-scheduled",
+        eventType,
+        frame: audit.triggerFrame,
+        timeSeconds: audit.triggerFrame / 60,
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence(),
+        sourceActorId: actorId,
+        sourceTargetId,
+        originDamageEventId: triggerDamageEventId,
+        triggerFrame: audit.triggerFrame,
+        coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
+        hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
+        maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
+        clockModel: "global-frame-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        mechanicsDataStatus:
+          DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
+        selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+        bloomReactionIndex,
+        spawnFrame: reservation.spawnFrame,
+        withinSimulation,
+        reason: "BLOOM_TRIGGERED"
+      });
+      if (withinSimulation) {
+        push(reservation.spawnFrame / 60, "dendroCoreSpawn", {
+          reservation
+        } satisfies DendroCoreSpawnEventPayload);
+      }
+    });
+  };
+
   const recordShatterFrozenState = ({
     result,
     targetId,
@@ -1868,50 +2323,247 @@ function simulateConfig(
     timeSeconds: number;
   }): void => {
     const quicken = audit.catalyzeReaction?.quicken;
-    if (quicken === null || quicken === undefined) return;
+    if (quicken !== null && quicken !== undefined) {
+      quickenStateLog.push({
+        id: quickenStateLog.length,
+        reaction: "quicken",
+        generation: quicken.generation,
+        operation: quicken.operation,
+        frame,
+        timeSeconds,
+        targetId,
+        targetName,
+        sourceActorId,
+        triggerDamageEventId,
+        triggerElement: quicken.triggerElement,
+        consumedAuraElement: quicken.consumedAuraElement,
+        candidateGaugeUnits: quicken.candidateGaugeUnits,
+        quickenGaugeUnitsBefore:
+          quicken.quickenGaugeUnitsBefore,
+        quickenGaugeUnitsAfter:
+          quicken.quickenGaugeUnitsAfter,
+        decayPerFrameBefore: quicken.decayPerFrameBefore,
+        decayPerFrameAfter: quicken.decayPerFrame,
+        expiresAtFrameBefore: quicken.expiresAtFrameBefore,
+        auraBefore: deepClone(quicken.operationAuraBefore),
+        auraAfter: deepClone(quicken.operationAuraAfter),
+        expiresAtFrame: quicken.expiresAtFrame,
+        endCauseBefore: quicken.endCauseBefore,
+        endCauseAfter: quicken.endCause,
+        reason:
+          quicken.operation === "unchanged"
+            ? "WEAKER_QUICKEN_DID_NOT_REFRESH"
+            : quicken.operation === "start"
+              ? "QUICKEN_STARTED"
+              : "QUICKEN_REFRESHED"
+      });
+      if (
+        quicken.operation === "start" ||
+        quicken.operation === "refresh"
+      ) {
+        activeQuickenStateSources.set(targetId, {
+          generation: quicken.generation,
+          actorId: sourceActorId,
+          triggerDamageEventId
+        });
+      }
+      if (quicken.endCause === "QUICKEN_DECAY") {
+        scheduleQuickenExpiry(
+          targetId,
+          quicken.generation,
+          quicken.expiresAtFrame
+        );
+      }
+    }
+
+    for (const bloom of audit.bloomReactions) {
+      const fuelExpiry = projectBloomBurningFuelExpiry(
+        bloom.burningFuelStateMutation
+      );
+      if (fuelExpiry !== null) {
+        scheduleBurningFuelExpiry(
+          targetId,
+          fuelExpiry.generation,
+          fuelExpiry.expiryFrame
+        );
+      }
+      const mutation = bloom.quickenStateMutation;
+      if (mutation.operation === "none") continue;
+      const existingSource =
+        activeQuickenStateSources.get(targetId);
+      const lifecycleSourceActorId =
+        existingSource?.actorId ?? sourceActorId;
+      quickenStateLog.push({
+        id: quickenStateLog.length,
+        reaction: "quicken",
+        generation: mutation.generationAfter,
+        operation: mutation.operation,
+        frame,
+        timeSeconds,
+        targetId,
+        targetName,
+        sourceActorId: lifecycleSourceActorId,
+        triggerDamageEventId,
+        triggerElement: null,
+        consumedAuraElement: null,
+        candidateGaugeUnits: 0,
+        quickenGaugeUnitsBefore:
+          bloom.quickenGaugeUnitsBefore,
+        quickenGaugeUnitsAfter:
+          bloom.quickenGaugeUnitsAfter,
+        decayPerFrameBefore: mutation.decayPerFrameBefore,
+        decayPerFrameAfter: mutation.decayPerFrameAfter,
+        expiresAtFrameBefore: mutation.expiresAtFrameBefore,
+        auraBefore: deepClone(mutation.operationAuraBefore),
+        auraAfter: deepClone(mutation.operationAuraAfter),
+        expiresAtFrame: mutation.expiresAtFrameAfter,
+        endCauseBefore: mutation.endCauseBefore,
+        endCauseAfter: mutation.endCauseAfter,
+        reason:
+          mutation.operation === "partial-consume"
+            ? "BLOOM_PARTIALLY_CONSUMED_QUICKEN"
+            : mutation.operation === "decay-rebase"
+              ? "BLOOM_REBASED_QUICKEN_DECAY"
+              : "BLOOM_REMOVED_QUICKEN"
+      });
+      if (
+        mutation.operation === "partial-consume" ||
+        mutation.operation === "decay-rebase"
+      ) {
+        const lifecycleTriggerDamageEventId =
+          mutation.operation === "decay-rebase"
+            ? existingSource?.triggerDamageEventId ??
+              triggerDamageEventId
+            : triggerDamageEventId;
+        activeQuickenStateSources.set(targetId, {
+          generation: mutation.generationAfter,
+          actorId: lifecycleSourceActorId,
+          triggerDamageEventId:
+            lifecycleTriggerDamageEventId
+        });
+        if (mutation.endCauseAfter === "QUICKEN_DECAY") {
+          scheduleQuickenExpiry(
+            targetId,
+            mutation.generationAfter,
+            mutation.expiresAtFrameAfter
+          );
+        }
+      } else {
+        activeQuickenStateSources.delete(targetId);
+      }
+    }
+  };
+
+  const projectedQuickenDecayRebaseLogIds = (
+    audit: ReactionAudit
+  ): number[] => {
+    let nextLogId = quickenStateLog.length;
+    const projectedIds: number[] = [];
+    if (audit.catalyzeReaction?.quicken != null) {
+      nextLogId += 1;
+    }
+    for (const bloom of audit.bloomReactions) {
+      const operation = bloom.quickenStateMutation.operation;
+      if (operation === "none") continue;
+      if (operation === "decay-rebase") {
+        projectedIds.push(nextLogId);
+      }
+      nextLogId += 1;
+    }
+    const burningMutation =
+      audit.burningReaction?.quickenStateMutation;
+    if (
+      burningMutation !== undefined &&
+      burningMutation.operation !== "none"
+    ) {
+      if (burningMutation.operation === "decay-rebase") {
+        projectedIds.push(nextLogId);
+      }
+    }
+    return projectedIds;
+  };
+
+  const recordBurningQuickenStateMutation = ({
+    audit,
+    targetId,
+    targetName,
+    fallbackSourceActorId,
+    fallbackTriggerDamageEventId,
+    frame,
+    timeSeconds
+  }: {
+    audit: ReactionAudit;
+    targetId: string;
+    targetName: string;
+    fallbackSourceActorId: string;
+    fallbackTriggerDamageEventId: number;
+    frame: number;
+    timeSeconds: number;
+  }): number | null => {
+    const mutation =
+      audit.burningReaction?.quickenStateMutation;
+    if (
+      mutation === undefined ||
+      mutation.operation === "none"
+    ) {
+      return null;
+    }
+    const existingSource =
+      activeQuickenStateSources.get(targetId);
+    const sourceActorId =
+      existingSource?.actorId ?? fallbackSourceActorId;
+    const triggerDamageEventId =
+      existingSource?.triggerDamageEventId ??
+      fallbackTriggerDamageEventId;
+    const logId = quickenStateLog.length;
     quickenStateLog.push({
-      id: quickenStateLog.length,
+      id: logId,
       reaction: "quicken",
-      generation: quicken.generation,
-      operation: quicken.operation,
+      generation: mutation.generationAfter,
+      operation: mutation.operation,
       frame,
       timeSeconds,
       targetId,
       targetName,
       sourceActorId,
       triggerDamageEventId,
-      triggerElement: quicken.triggerElement,
-      consumedAuraElement: quicken.consumedAuraElement,
-      candidateGaugeUnits: quicken.candidateGaugeUnits,
+      triggerElement: null,
+      consumedAuraElement: null,
+      candidateGaugeUnits: 0,
       quickenGaugeUnitsBefore:
-        quicken.quickenGaugeUnitsBefore,
+        mutation.quickenGaugeUnitsBefore,
       quickenGaugeUnitsAfter:
-        quicken.quickenGaugeUnitsAfter,
-      auraBefore: deepClone(audit.auraBefore ?? []),
-      auraAfter: deepClone(audit.auraAfter ?? []),
-      expiresAtFrame: quicken.expiresAtFrame,
+        mutation.quickenGaugeUnitsAfter,
+      decayPerFrameBefore: mutation.decayPerFrameBefore,
+      decayPerFrameAfter: mutation.decayPerFrameAfter,
+      expiresAtFrameBefore: mutation.expiresAtFrameBefore,
+      auraBefore: deepClone(mutation.operationAuraBefore),
+      auraAfter: deepClone(mutation.operationAuraAfter),
+      expiresAtFrame: mutation.expiresAtFrameAfter,
+      endCauseBefore: mutation.endCauseBefore,
+      endCauseAfter: mutation.endCauseAfter,
       reason:
-        quicken.operation === "unchanged"
-          ? "WEAKER_QUICKEN_DID_NOT_REFRESH"
-          : quicken.operation === "start"
-            ? "QUICKEN_STARTED"
-            : "QUICKEN_REFRESHED"
+        mutation.operation === "decay-rebase"
+          ? "BURNING_REBASED_QUICKEN_DECAY"
+          : "BURNING_REMOVED_QUICKEN"
     });
-    if (
-      quicken.operation === "start" ||
-      quicken.operation === "refresh"
-    ) {
+    if (mutation.operation === "decay-rebase") {
       activeQuickenStateSources.set(targetId, {
-        generation: quicken.generation,
+        generation: mutation.generationAfter,
         actorId: sourceActorId,
         triggerDamageEventId
       });
+      if (mutation.endCauseAfter === "QUICKEN_DECAY") {
+        scheduleQuickenExpiry(
+          targetId,
+          mutation.generationAfter,
+          mutation.expiresAtFrameAfter
+        );
+      }
+    } else {
+      activeQuickenStateSources.delete(targetId);
     }
-    scheduleQuickenExpiry(
-      targetId,
-      quicken.generation,
-      quicken.expiresAtFrame
-    );
+    return logId;
   };
 
   const scheduleShatterDamage = ({
@@ -1952,6 +2604,7 @@ function simulateConfig(
       id: reactionDamageLogId,
       reaction: "shatter",
       triggerDamageEventId,
+      triggerHitGroupId: null,
       sourceActorId: actorId,
       sourceTargetId,
       triggerFrame,
@@ -1966,6 +2619,11 @@ function simulateConfig(
       targetingMode: "single-target",
       centerPosition: null,
       radius: 0,
+      sourceCoreId: null,
+      sourceCoreLogId: null,
+      selectionRadius: null,
+      selectedTargetId: null,
+      resolutionReason: null,
       applicationGaugeUnits: null,
       excludedTargetIds: [],
       checkedTargetIds: [],
@@ -1973,7 +2631,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
-      reactionStatusLogIds: []
+      reactionStatusLogIds: [],
+      damageGroupDecisions: []
     });
     if (!withinSimulation) return;
     push(audit.damageFrame / 60, "reactionDamage", {
@@ -2104,6 +2763,7 @@ function simulateConfig(
           id: reactionDamageLogId,
           reaction: audit.reaction,
           triggerDamageEventId,
+          triggerHitGroupId: null,
           sourceActorId: actorId,
           sourceTargetId,
           triggerFrame,
@@ -2116,6 +2776,11 @@ function simulateConfig(
           targetingMode: attack.targetingMode,
           centerPosition: deepClone(attack.centerPosition),
           radius: attack.radius,
+          sourceCoreId: null,
+          sourceCoreLogId: null,
+          selectionRadius: null,
+          selectedTargetId: null,
+          resolutionReason: null,
           applicationGaugeUnits:
             attack.application?.gaugeUnits ?? null,
           excludedTargetIds: deepClone(attack.excludedTargetIds),
@@ -2124,7 +2789,8 @@ function simulateConfig(
           unresolvedTargetIds: [],
           damageGroupBlockedTargetIds: [],
           damageEventIds: [],
-          reactionStatusLogIds: []
+          reactionStatusLogIds: [],
+          damageGroupDecisions: []
         });
         if (!withinSimulation) continue;
         push(attack.damageFrame / 60, "reactionDamage", {
@@ -2156,7 +2822,9 @@ function simulateConfig(
           excludedTargetIds: deepClone(attack.excludedTargetIds),
           swirlContext: {
             scheduleKind: attack.scheduleKind,
-            reaction: audit.reaction
+            reaction: audit.reaction,
+            reactionBonusDelta:
+              reactionBonus - stats.reactionBonus
           }
         } satisfies ReactionDamageEventPayload);
       }
@@ -2225,6 +2893,15 @@ function simulateConfig(
   }): void => {
     const burningReaction = audit.burningReaction;
     if (burningReaction !== null) {
+      recordBurningQuickenStateMutation({
+        audit,
+        targetId,
+        targetName,
+        fallbackSourceActorId: actorId,
+        fallbackTriggerDamageEventId: damageEventId,
+        frame,
+        timeSeconds
+      });
       if (burningReaction.operation === "stop") {
         const activeSource = activeBurningSources.get(targetId);
         burningStateLog.push({
@@ -2500,7 +3177,8 @@ function simulateConfig(
     timeSeconds,
     freezeResistance,
     eventPriority,
-    eventSequence
+    eventSequence,
+    nextIntraEventSequence
   }: {
     audit: ReactionAudit;
     damageEventId: number;
@@ -2521,6 +3199,7 @@ function simulateConfig(
     freezeResistance: number;
     eventPriority: number;
     eventSequence: number;
+    nextIntraEventSequence: () => number;
   }): void => {
     const liveBurningStats =
       audit.burningReaction !== null &&
@@ -2548,15 +3227,37 @@ function simulateConfig(
               label: buff.label
             }))
         : sourceBuffStatuses;
-    recordQuickenState({
-      audit,
-      targetId,
-      targetName,
-      sourceActorId: actorId,
-      triggerDamageEventId: damageEventId,
-      frame,
-      timeSeconds
-    });
+    if (
+      audit.catalyzeReaction?.quicken != null ||
+      audit.bloomReactions.length > 0
+    ) {
+      recordQuickenState({
+        audit,
+        targetId,
+        targetName,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        frame,
+        timeSeconds
+      });
+    }
+    if (audit.bloomReactions.length > 0) {
+      scheduleBloomCoreSpawns({
+        audits: audit.bloomReactions,
+        actorId,
+        action,
+        triggerHitId: hitId,
+        triggerHitGroupId: hitGroupId,
+        triggerDamageEventId: damageEventId,
+        sourceTargetId: targetId,
+        reactionBonusDelta: reactionBonus - stats.reactionBonus,
+        cycle,
+        eventType: "reactionDamage",
+        eventPriority,
+        eventSequence,
+        nextIntraEventSequence
+      });
+    }
     processBurningConsequences({
       audit,
       damageEventId,
@@ -2578,6 +3279,32 @@ function simulateConfig(
     });
     const transformativeReaction = audit.transformativeReaction;
     if (transformativeReaction !== null) {
+      const liveReactionStats = computeStats(
+        actorId,
+        timeSeconds
+      );
+      if (liveReactionStats === undefined) {
+        throw new Error(
+          `Nested reaction source stats for "${actorId}" could not be resolved at frame ${frame}.`
+        );
+      }
+      const reactionBonusDelta =
+        reactionBonus - stats.reactionBonus;
+      const liveReactionBonus =
+        liveReactionStats.reactionBonus + reactionBonusDelta;
+      const liveReactionSourceBuffStatuses = activeBuffs
+        .filter((buff) => buff.targetId === actorId)
+        .map((buff) => ({
+          key: buff.key,
+          kind: "buff" as const,
+          sourceActorId: buff.actorId,
+          targetId: buff.targetId,
+          stat: buff.stat,
+          value: buff.value,
+          startTimeSeconds: buff.start,
+          endTimeSeconds: buff.end,
+          label: buff.label
+        }));
       const reactionDamageLogId = reactionDamageLog.length;
       const withinSimulation =
         transformativeReaction.scheduled &&
@@ -2587,6 +3314,7 @@ function simulateConfig(
         id: reactionDamageLogId,
         reaction: transformativeReaction.reaction,
         triggerDamageEventId: damageEventId,
+        triggerHitGroupId: null,
         sourceActorId: actorId,
         sourceTargetId: targetId,
         triggerFrame: frame,
@@ -2600,6 +3328,11 @@ function simulateConfig(
         targetingMode: "radius",
         centerPosition: deepClone(targetPosition),
         radius: transformativeReaction.radius,
+        sourceCoreId: null,
+        sourceCoreLogId: null,
+        selectionRadius: null,
+        selectedTargetId: null,
+        resolutionReason: null,
         applicationGaugeUnits: null,
         excludedTargetIds: [],
         checkedTargetIds: [],
@@ -2607,7 +3340,8 @@ function simulateConfig(
         unresolvedTargetIds: [],
         damageGroupBlockedTargetIds: [],
         damageEventIds: [],
-        reactionStatusLogIds: []
+        reactionStatusLogIds: [],
+        damageGroupDecisions: []
       });
       if (withinSimulation) {
         push(
@@ -2642,12 +3376,12 @@ function simulateConfig(
             radius: transformativeReaction.radius,
             baseMultiplier:
               transformativeReaction.baseMultiplier,
-            stats: deepClone(stats),
-            elementalMastery: stats.em,
-            reactionBonus,
+            stats: deepClone(liveReactionStats),
+            elementalMastery: liveReactionStats.em,
+            reactionBonus: liveReactionBonus,
             sourceBuffStatuses:
-              deepClone(sourceBuffStatuses),
-            snapshot,
+              deepClone(liveReactionSourceBuffStatuses),
+            snapshot: "hit",
             cycle,
             reactionDamageLogId
           } satisfies ReactionDamageEventPayload
@@ -2767,6 +3501,30 @@ function simulateConfig(
       return;
     }
 
+    const livePeriodicStats = computeStats(
+      actorId,
+      timeSeconds
+    );
+    if (livePeriodicStats === undefined) {
+      throw new Error(
+        `Nested periodic reaction source stats for "${actorId}" could not be resolved at frame ${frame}.`
+      );
+    }
+    const periodicReactionBonusDelta =
+      reactionBonus - stats.reactionBonus;
+    const livePeriodicSourceBuffStatuses = activeBuffs
+      .filter((buff) => buff.targetId === actorId)
+      .map((buff) => ({
+        key: buff.key,
+        kind: "buff" as const,
+        sourceActorId: buff.actorId,
+        targetId: buff.targetId,
+        stat: buff.stat,
+        value: buff.value,
+        startTimeSeconds: buff.start,
+        endTimeSeconds: buff.end,
+        label: buff.label
+      }));
     const periodicSource: PeriodicReactionSourceSnapshot = {
       generation: periodicReaction.generation,
       actorId,
@@ -2775,11 +3533,15 @@ function simulateConfig(
       triggerHitGroupId: hitGroupId,
       triggerDamageEventId: damageEventId,
       triggerFrame: frame,
-      stats: deepClone(stats),
-      elementalMastery: stats.em,
-      reactionBonus,
-      sourceBuffStatuses: deepClone(sourceBuffStatuses),
-      snapshot,
+      stats: deepClone(livePeriodicStats),
+      elementalMastery: livePeriodicStats.em,
+      reactionBonus:
+        livePeriodicStats.reactionBonus +
+        periodicReactionBonusDelta,
+      sourceBuffStatuses: deepClone(
+        livePeriodicSourceBuffStatuses
+      ),
+      snapshot: "hit",
       cycle
     };
     activePeriodicReactionSources.set(targetId, periodicSource);
@@ -3037,39 +3799,196 @@ function simulateConfig(
     });
   };
 
-  const completeHitTarget = ({
+  const processDendroCoreContacts = ({
     actorId,
     action,
     hitId,
     hitGroupId,
+    element,
+    application,
+    reactionBonusDelta,
+    hitResolutionLogIds,
+    triggerDamageEventIds,
+    triggerReactionDamageLogId,
+    resolvedGeometry,
     cycle,
     frame,
-    timeSeconds,
-    targetId,
-    targetIndex,
-    targetCount,
-    landed,
-    hitConfirmAllowed
+    eventType,
+    eventPriority,
+    eventSequence,
+    nextIntraEventSequence
   }: {
     actorId: string;
     action: ActionDefinition;
     hitId: string;
     hitGroupId: string;
+    element: Element;
+    application: ElementalApplication | undefined;
+    reactionBonusDelta: number;
+    hitResolutionLogIds: number[];
+    triggerDamageEventIds: number[];
+    triggerReactionDamageLogId: number | null;
+    resolvedGeometry: ResolvedWorldHitGeometry | null;
+    cycle: number;
+    frame: number;
+    eventType: "hit" | "reactionDamage";
+    eventPriority: number;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): void => {
+    if (
+      config.reactionEngine?.mode !== "aura-v5" ||
+      (element !== "pyro" && element !== "electro") ||
+      application === undefined ||
+      application.gaugeUnits <= 0
+    ) {
+      return;
+    }
+    const activeCores = dendroCoreManager.snapshots();
+    if (activeCores.length === 0) return;
+
+    const contactLogId = dendroCoreContactLog.length;
+    const checkedCoreIds = activeCores.map((core) => core.coreId);
+    const contactedCores =
+      resolvedGeometry === null
+        ? []
+        : activeCores.filter((core) =>
+            resolveHitGeometry(
+              resolvedGeometry,
+              core.position,
+              core.hitboxRadius
+            ).landed
+          );
+    const contactedCoreIds: number[] = [];
+    const removalLogIds: number[] = [];
+    const reactionDamageLogIds: number[] = [];
+    for (const core of contactedCores) {
+      const removalDecision = dendroCoreManager.consume(
+        core.coreId,
+        frame,
+        element
+      );
+      if (removalDecision === null) continue;
+      const scheduled = scheduleDendroCoreDamage({
+        decision: removalDecision,
+        damageSourceActorId: actorId,
+        action,
+        triggerHitId: hitId,
+        triggerHitGroupId: hitGroupId,
+        triggerDamageEventId:
+          triggerDamageEventIds[0] ?? null,
+        reactionBonusDelta,
+        cycle,
+        contactLogId,
+        contactEventType: eventType,
+        removalFrame: frame,
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence()
+      });
+      contactedCoreIds.push(core.coreId);
+      removalLogIds.push(scheduled.removalLogId);
+      reactionDamageLogIds.push(
+        scheduled.reactionDamageLogId
+      );
+      appendDendroCoreTimelinePoint({
+        frame,
+        eventType,
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence(),
+        operation: "consume",
+        dendroCoreLogId: scheduled.removalLogId,
+        coreId: core.coreId
+      });
+      dendroCoreRuntimeSources.delete(core.coreId);
+    }
+    dendroCoreContactLog.push({
+      id: contactLogId,
+      frame,
+      timeSeconds: frame / 60,
+      eventType,
+      eventPriority,
+      eventSequence,
+      intraEventSequence: nextIntraEventSequence(),
+      sourceActorId: actorId,
+      sourceActionId: action.id,
+      hitId,
+      hitGroupId,
+      triggerElement: element,
+      reaction: element === "pyro" ? "burgeon" : "hyperbloom",
+      hitResolutionLogIds: [...hitResolutionLogIds],
+      triggerDamageEventIds: [...triggerDamageEventIds],
+      triggerReactionDamageLogId,
+      resolvedGeometry:
+        resolvedGeometry === null
+          ? null
+          : deepClone(resolvedGeometry),
+      checkedCoreIds,
+      contactedCoreIds,
+      removalLogIds,
+      reactionDamageLogIds,
+      blockedReason:
+        resolvedGeometry === null
+          ? "MISSING_EXPLICIT_GEOMETRY"
+          : null
+    });
+  };
+
+  const completeHitTarget = ({
+    actorId,
+    action,
+    hit,
+    hitId,
+    hitGroupId,
+    element,
+    cycle,
+    frame,
+    timeSeconds,
+    targetId,
+    targetResolutionId,
+    damageEventId,
+    targetIndex,
+    targetCount,
+    landed,
+    hitConfirmAllowed,
+    resolvedGeometry,
+    eventSequence,
+    nextIntraEventSequence
+  }: {
+    actorId: string;
+    action: ActionDefinition;
+    hit: HitDefinition;
+    hitId: string;
+    hitGroupId: string;
+    element: Element;
     cycle: number;
     frame: number;
     timeSeconds: number;
     targetId: string;
+    targetResolutionId: number;
+    damageEventId: number | null;
     targetIndex: number;
     targetCount: number;
     landed: boolean;
     hitConfirmAllowed: boolean;
+    resolvedGeometry: ResolvedWorldHitGeometry | null;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
   }): void => {
     const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
       checkedTargetIds: [],
       confirmedTargetIds: [],
+      hitResolutionLogIds: [],
+      triggerDamageEventIds: [],
+      resolvedGeometry,
       landed: false
     };
     aggregate.checkedTargetIds.push(targetId);
+    aggregate.hitResolutionLogIds.push(targetResolutionId);
+    if (damageEventId !== null) {
+      aggregate.triggerDamageEventIds.push(damageEventId);
+    }
     if (landed) aggregate.landed = true;
     if (landed && hitConfirmAllowed) {
       aggregate.confirmedTargetIds.push(targetId);
@@ -3089,6 +4008,27 @@ function simulateConfig(
       landed: aggregate.landed,
       hitConfirmAllowed: aggregate.confirmedTargetIds.length > 0
     });
+    if (config.reactionEngine?.mode === "aura-v5") {
+      processDendroCoreContacts({
+        actorId,
+        action,
+        hitId,
+        hitGroupId,
+        element,
+        application: hit.application,
+        reactionBonusDelta: safeNumber(hit.reactionBonus),
+        hitResolutionLogIds: aggregate.hitResolutionLogIds,
+        triggerDamageEventIds: aggregate.triggerDamageEventIds,
+        triggerReactionDamageLogId: null,
+        resolvedGeometry: aggregate.resolvedGeometry,
+        cycle,
+        frame,
+        eventType: "hit",
+        eventPriority: EVENT_PRIORITY.hit,
+        eventSequence,
+        nextIntraEventSequence
+      });
+    }
     hitCallbackAggregates.delete(hitGroupId);
   };
 
@@ -3102,9 +4042,18 @@ function simulateConfig(
       event.type === "quickenExpiry" ||
       event.type === "periodicReactionExpiry" ||
       event.type === "burningFuelExpiry";
+    // Priority 0..2 events run before target-local Aura expiry boundaries.
+    // Advancing the shared Aura engine through the current frame for an
+    // action/buff/energy event could otherwise consume Quicken, Fuel, or
+    // Frozen before its authoritative priority-2 lifecycle event records it.
+    // By the time a hit (priority 3) or damage tick runs, current-frame
+    // ordinary Aura expiries are materialized at their exact frame.
+    const includeCurrentFrameNaturalAuraExpiry =
+      !preservesDedicatedAuraExpiryBoundary &&
+      event.priority > EVENT_PRIORITY.quickenExpiry;
     recordNaturalAuraExpiries(
       event.frame,
-      !preservesDedicatedAuraExpiryBoundary
+      includeCurrentFrameNaturalAuraExpiry
     );
     cleanup(timeSeconds);
     let intraEventSequence = 0;
@@ -3263,6 +4212,7 @@ function simulateConfig(
           geometryAngleDegrees: number | null;
           geometryDistance: number | null;
           geometryThreshold: number | null;
+          resolvedGeometry: ResolvedWorldHitGeometry | null;
         }> =
           geometry === undefined
             ? (
@@ -3297,7 +4247,8 @@ function simulateConfig(
                 geometryDirectionDegrees: null,
                 geometryAngleDegrees: null,
                 geometryDistance: null,
-                geometryThreshold: null
+                geometryThreshold: null,
+                resolvedGeometry: null
               }))
             : enemyTargets.map((target) => {
                 if (resolvedGeometry === undefined) {
@@ -3379,7 +4330,8 @@ function simulateConfig(
                       ? resolvedGeometry.angleDegrees
                       : null,
                   geometryDistance: geometryResolution.distance,
-                  geometryThreshold: geometryResolution.threshold
+                  geometryThreshold: geometryResolution.threshold,
+                  resolvedGeometry: deepClone(resolvedGeometry)
                 };
               });
         const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
@@ -3398,6 +4350,192 @@ function simulateConfig(
           });
         });
       });
+      continue;
+    }
+
+    if (event.type === "dendroCoreSpawn") {
+      const { reservation } =
+        event.payload as DendroCoreSpawnEventPayload;
+      const runtimeSource = dendroCoreRuntimeSources.get(
+        reservation.coreId
+      );
+      const target = enemyTargetById.get(
+        reservation.sourceTargetId
+      );
+      const targetPosition = resolveTargetPosition(
+        reservation.sourceTargetId,
+        event.frame
+      );
+      if (
+        runtimeSource === undefined ||
+        target === undefined ||
+        targetPosition === null
+      ) {
+        throw new Error(
+          `Dendro core ${reservation.coreId} could not resolve its source target at spawn.`
+        );
+      }
+      const spawnDecision = dendroCoreManager.spawn({
+        reservation,
+        frame: event.frame,
+        targetPosition,
+        targetHitboxRadius: target.hitboxRadius
+      });
+      const postSpawnSnapshots = dendroCoreSnapshots();
+      const preSpawnSnapshots = postSpawnSnapshots.filter(
+        (snapshot) =>
+          snapshot.coreId !== spawnDecision.spawned.coreId
+      );
+      for (const evictedCore of spawnDecision.evicted) {
+        const evictedRuntimeSource =
+          dendroCoreRuntimeSources.get(evictedCore.coreId);
+        if (evictedRuntimeSource === undefined) {
+          throw new Error(
+            `Evicted Dendro core ${evictedCore.coreId} lost its runtime source.`
+          );
+        }
+        const removalDecision =
+          dendroCoreManager.makeEvictionDecision(
+            evictedCore,
+            event.frame
+          );
+        const scheduled = scheduleDendroCoreDamage({
+          decision: removalDecision,
+          damageSourceActorId: evictedCore.sourceActorId,
+          action: evictedRuntimeSource.action,
+          triggerHitId: evictedRuntimeSource.triggerHitId,
+          triggerHitGroupId:
+            evictedRuntimeSource.triggerHitGroupId,
+          triggerDamageEventId:
+            evictedCore.originDamageEventId,
+          reactionBonusDelta:
+            evictedRuntimeSource.reactionBonusDelta,
+          cycle: evictedRuntimeSource.cycle,
+          contactLogId: null,
+          contactEventType: null,
+          removalFrame: event.frame,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence()
+        });
+        appendDendroCoreTimelinePoint({
+          frame: event.frame,
+          eventType: "dendroCoreSpawn",
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence(),
+          operation: "evict",
+          dendroCoreLogId: scheduled.removalLogId,
+          coreId: evictedCore.coreId,
+          activeCores: preSpawnSnapshots
+        });
+        dendroCoreRuntimeSources.delete(evictedCore.coreId);
+      }
+      const spawnLogId = dendroCoreLog.length;
+      dendroCoreLog.push({
+        id: spawnLogId,
+        coreId: spawnDecision.spawned.coreId,
+        operation: "spawn",
+        eventType: "dendroCoreSpawn",
+        frame: event.frame,
+        timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        sourceActorId: spawnDecision.spawned.sourceActorId,
+        sourceTargetId: spawnDecision.spawned.sourceTargetId,
+        originDamageEventId:
+          spawnDecision.spawned.originDamageEventId,
+        triggerFrame: spawnDecision.spawned.triggerFrame,
+        coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
+        hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
+        maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
+        clockModel: "global-frame-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        mechanicsDataStatus:
+          DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
+        selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+        spawnedAtFrame: spawnDecision.spawned.spawnedAtFrame,
+        expiresAtFrame: spawnDecision.spawned.expiresAtFrame,
+        position: deepClone(spawnDecision.spawned.position),
+        spawnRadius: spawnDecision.spawned.spawnRadius,
+        spawnAngleDegrees:
+          spawnDecision.spawned.spawnAngleDegrees,
+        positionRandomRoll:
+          spawnDecision.spawned.positionRandomRoll,
+        rngStream: "dendro-core-position-v1",
+        reason: "SPAWNED"
+      });
+      appendDendroCoreTimelinePoint({
+        frame: event.frame,
+        eventType: "dendroCoreSpawn",
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        operation: "spawn",
+        dendroCoreLogId: spawnLogId,
+        coreId: spawnDecision.spawned.coreId
+      });
+      push(
+        spawnDecision.spawned.expiresAtFrame / 60,
+        "dendroCoreExpiry",
+        {
+          coreId: spawnDecision.spawned.coreId,
+          expectedExpiryFrame:
+            spawnDecision.spawned.expiresAtFrame
+        } satisfies DendroCoreExpiryEventPayload
+      );
+      continue;
+    }
+
+    if (event.type === "dendroCoreExpiry") {
+      const { coreId, expectedExpiryFrame } =
+        event.payload as DendroCoreExpiryEventPayload;
+      if (event.frame !== expectedExpiryFrame) {
+        throw new Error(
+          `Dendro core ${coreId} expiry event resolved at the wrong frame.`
+        );
+      }
+      const runtimeSource = dendroCoreRuntimeSources.get(coreId);
+      const removalDecision = dendroCoreManager.expire(
+        coreId,
+        event.frame
+      );
+      if (removalDecision === null) continue;
+      if (runtimeSource === undefined) {
+        throw new Error(
+          `Expired Dendro core ${coreId} lost its runtime source.`
+        );
+      }
+      const scheduled = scheduleDendroCoreDamage({
+        decision: removalDecision,
+        damageSourceActorId:
+          removalDecision.core.sourceActorId,
+        action: runtimeSource.action,
+        triggerHitId: runtimeSource.triggerHitId,
+        triggerHitGroupId: runtimeSource.triggerHitGroupId,
+        triggerDamageEventId:
+          removalDecision.core.originDamageEventId,
+        reactionBonusDelta: runtimeSource.reactionBonusDelta,
+        cycle: runtimeSource.cycle,
+        contactLogId: null,
+        contactEventType: null,
+        removalFrame: event.frame,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence()
+      });
+      appendDendroCoreTimelinePoint({
+        frame: event.frame,
+        eventType: "dendroCoreExpiry",
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        operation: "expire",
+        dendroCoreLogId: scheduled.removalLogId,
+        coreId
+      });
+      dendroCoreRuntimeSources.delete(coreId);
       continue;
     }
 
@@ -4158,6 +5296,13 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      const source = activeQuickenStateSources.get(targetId);
+      // The Aura engine may already have reduced Quicken to numeric zero
+      // while Burning is winding down. The simulator-owned source generation
+      // remains the authoritative lifecycle gate for queued expiry events.
+      const isCurrentLifecycleExpiry =
+        result.operation !== "stale" &&
+        source?.generation === generation;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -4170,7 +5315,7 @@ function simulateConfig(
         intraEventSequence: nextIntraEventSequence(),
         primaryDamageEventId: null,
         links:
-          result.operation === "stale"
+          !isCurrentLifecycleExpiry
             ? []
             : [
                 {
@@ -4181,8 +5326,7 @@ function simulateConfig(
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter
       });
-      if (result.operation === "stale") continue;
-      const source = activeQuickenStateSources.get(targetId);
+      if (!isCurrentLifecycleExpiry) continue;
       quickenStateLog.push({
         id: quickenStateLog.length,
         reaction: "quicken",
@@ -4199,13 +5343,19 @@ function simulateConfig(
         consumedAuraElement: null,
         candidateGaugeUnits: 0,
         quickenGaugeUnitsBefore:
-          result.auraBefore.find(
-            (entry) => entry.element === "quicken"
-          )?.gaugeUnits ?? 0,
-        quickenGaugeUnitsAfter: 0,
+          result.quickenGaugeUnitsBefore,
+        quickenGaugeUnitsAfter:
+          result.quickenGaugeUnitsAfter,
+        decayPerFrameBefore:
+          result.decayPerFrameBefore,
+        decayPerFrameAfter: result.decayPerFrameAfter,
+        expiresAtFrameBefore:
+          result.expiresAtFrameBefore,
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter,
-        expiresAtFrame: null,
+        expiresAtFrame: result.expiresAtFrame,
+        endCauseBefore: result.endCauseBefore,
+        endCauseAfter: result.endCauseAfter,
         reason: result.reason
       });
       if (source?.generation === generation) {
@@ -4305,6 +5455,17 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      const quickenSource =
+        activeQuickenStateSources.get(targetId);
+      const quickenMutation = result.quickenStateMutation;
+      const quickenWasRemoved =
+        result.operation !== "stale" &&
+        quickenSource !== undefined &&
+        quickenMutation.operation === "remove";
+      const burningStateLogId = burningStateLog.length;
+      const quickenStateLogId = quickenWasRemoved
+        ? quickenStateLog.length
+        : null;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -4324,8 +5485,16 @@ function simulateConfig(
             : [
                 {
                   kind: "burning-state-log",
-                  id: burningStateLog.length
-                }
+                  id: burningStateLogId
+                },
+                ...(quickenStateLogId === null
+                  ? []
+                  : [
+                      {
+                        kind: "quicken-state-log" as const,
+                        id: quickenStateLogId
+                      }
+                    ])
               ],
         auraBefore: result.auraBefore,
         auraAfter: result.auraAfter
@@ -4398,6 +5567,45 @@ function simulateConfig(
         selfDamageStatus: result.selfDamageStatus,
         reason: "FUEL_EXPIRED"
       });
+      if (quickenWasRemoved) {
+        quickenStateLog.push({
+          id: quickenStateLog.length,
+          reaction: "quicken",
+          generation: quickenMutation.generationAfter,
+          operation: "remove",
+          frame: event.frame,
+          timeSeconds,
+          targetId,
+          targetName: target.name,
+          sourceActorId: quickenSource.actorId,
+          triggerDamageEventId:
+            quickenSource.triggerDamageEventId,
+          triggerElement: null,
+          consumedAuraElement: null,
+          candidateGaugeUnits: 0,
+          quickenGaugeUnitsBefore:
+            quickenMutation.quickenGaugeUnitsBefore,
+          quickenGaugeUnitsAfter:
+            quickenMutation.quickenGaugeUnitsAfter,
+          decayPerFrameBefore:
+            quickenMutation.decayPerFrameBefore,
+          decayPerFrameAfter:
+            quickenMutation.decayPerFrameAfter,
+          expiresAtFrameBefore:
+            quickenMutation.expiresAtFrameBefore,
+          auraBefore: deepClone(
+            quickenMutation.operationAuraBefore
+          ),
+          auraAfter: deepClone(
+            quickenMutation.operationAuraAfter
+          ),
+          expiresAtFrame: null,
+          endCauseBefore: quickenMutation.endCauseBefore,
+          endCauseAfter: quickenMutation.endCauseAfter,
+          reason: "BURNING_FUEL_EXPIRED"
+        });
+        activeQuickenStateSources.delete(targetId);
+      }
       if (source?.generation === generation) {
         activeBurningSources.delete(targetId);
       }
@@ -4921,10 +6129,10 @@ function simulateConfig(
         centerPosition,
         radius,
         baseMultiplier,
-        stats,
-        elementalMastery,
-        reactionBonus,
-        sourceBuffStatuses,
+        stats: scheduledStats,
+        elementalMastery: scheduledElementalMastery,
+        reactionBonus: scheduledReactionBonus,
+        sourceBuffStatuses: scheduledSourceBuffStatuses,
         snapshot,
         cycle,
         reactionDamageLogId,
@@ -4932,18 +6140,96 @@ function simulateConfig(
         burningContext,
         application,
         excludedTargetIds = [],
-        swirlContext
+        swirlContext,
+        dendroCoreContext
       } = event.payload as ReactionDamageEventPayload;
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
+      const stats =
+        dendroCoreContext === undefined
+          ? scheduledStats
+          : computeStats(actorId, timeSeconds);
+      if (stats === undefined) {
+        throw new Error(
+          `Dendro-core reaction source stats for "${actorId}" could not be resolved at frame ${event.frame}.`
+        );
+      }
+      const elementalMastery =
+        dendroCoreContext === undefined
+          ? scheduledElementalMastery
+          : stats.em;
+      const reactionBonus =
+        dendroCoreContext === undefined
+          ? scheduledReactionBonus
+          : stats.reactionBonus +
+            dendroCoreContext.reactionBonusDelta;
+      const sourceBuffStatuses =
+        dendroCoreContext === undefined
+          ? scheduledSourceBuffStatuses
+          : activeBuffs
+              .filter((buff) => buff.targetId === actorId)
+              .map((buff) => ({
+                key: buff.key,
+                kind: "buff" as const,
+                sourceActorId: buff.actorId,
+                targetId: buff.targetId,
+                stat: buff.stat,
+                value: buff.value,
+                startTimeSeconds: buff.start,
+                endTimeSeconds: buff.end,
+                label: buff.label
+              }));
       const reactionLabel =
         TRANSFORMATIVE_REACTION_LABELS[reaction];
+      const dendroCoreReactionInstanceSuffix =
+        dendroCoreContext === undefined
+          ? ""
+          : `:core-${dendroCoreContext.coreId}:log-${reactionDamageLogId}`;
       const reactionHitId = `${triggerHitId}:${reaction}`;
+      const resolvedReactionHitId =
+        `${reactionHitId}${dendroCoreReactionInstanceSuffix}`;
       const reactionHitGroupId =
         `${triggerHitGroupId}:${reaction}:${triggerDamageEventId}`;
+      const resolvedReactionHitGroupId =
+        `${reactionHitGroupId}${dendroCoreReactionInstanceSuffix}`;
       const reactionActionName =
         `${action.name} · ${reactionLabel}`;
+      let resolvedReactionCenterPosition = centerPosition;
+      if (targetingMode === "nearest-target-radius") {
+        if (
+          centerPosition === null ||
+          dendroCoreContext?.selectionRadius === null ||
+          dendroCoreContext?.selectionRadius === undefined
+        ) {
+          throw new Error(
+            "Hyperbloom targeting requires a source-core position and selection radius."
+          );
+        }
+        const selection = selectNearestDendroCoreTarget(
+          centerPosition,
+          enemyTargets.map((target) => ({
+            targetId: target.id,
+            position: resolveTargetPosition(target.id, event.frame)
+          })),
+          DENDRO_CORE_CONSTANTS.hyperbloomSelectionRadius
+        );
+        reactionLog.selectedTargetId = selection.selectedTargetId;
+        reactionLog.resolutionReason =
+          selection.reason === "NO_TARGET_IN_RANGE"
+            ? "NO_TARGET_IN_RANGE"
+            : null;
+        if (selection.selectedPosition === null) {
+          reactionLog.centerPosition = null;
+          continue;
+        }
+        resolvedReactionCenterPosition = deepClone(
+          selection.selectedPosition
+        );
+        reactionLog.centerPosition = deepClone(
+          selection.selectedPosition
+        );
+      }
 
       const spatialPlans: Array<{
         targetId: string;
@@ -4970,7 +6256,7 @@ function simulateConfig(
             targetingSource: "reaction-source"
           });
         }
-      } else if (centerPosition === null) {
+      } else if (resolvedReactionCenterPosition === null) {
         if (!excludedTargetIdSet.has(sourceTargetId)) {
           spatialPlans.push({
             targetId: sourceTargetId,
@@ -5009,7 +6295,7 @@ function simulateConfig(
             {
               kind: "circle",
               coordinateSpace: "world",
-              origin: centerPosition,
+              origin: resolvedReactionCenterPosition,
               radius
             },
             targetPosition,
@@ -5031,6 +6317,8 @@ function simulateConfig(
 
       let periodicDamageEventId: number | null = null;
       let periodicActualDamage = 0;
+      const reactionHitResolutionLogIds: number[] = [];
+      const reactionTriggerDamageEventIds: number[] = [];
       spatialPlans.forEach((plan, targetIndex) => {
         const targetProfile = enemyTargetById.get(plan.targetId);
         if (!targetProfile) return;
@@ -5090,7 +6378,16 @@ function simulateConfig(
               {
                 kind: "reaction-damage-log",
                 id: reactionDamageLogId
-              }
+              },
+              ...(propagatedReactionAudit.mechanicsTruncation ===
+              null
+                ? projectedQuickenDecayRebaseLogIds(
+                    propagatedReactionAudit
+                  ).map((id) => ({
+                    kind: "quicken-state-log" as const,
+                    id
+                  }))
+                : [])
             ],
             auraBefore: propagatedReactionAudit.auraBefore ?? [],
             auraApplied: propagatedReactionAudit.auraApplied ?? [],
@@ -5113,8 +6410,163 @@ function simulateConfig(
                 frame: event.frame
               })
             : null;
-        if (swirlDamageGroup?.damageAllowed === false) {
-          reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
+        if (swirlDamageGroup !== null) {
+          reactionLog.damageGroupDecisions.push({
+            reaction: swirlDamageGroup.reaction,
+            sourceActorId: actorId,
+            targetId: plan.targetId,
+            windowStartFrame: swirlDamageGroup.windowStartFrame,
+            hitIndex: swirlDamageGroup.hitIndex,
+            resetFrames: 30,
+            sequence: [true, true, false],
+            damageAllowed: swirlDamageGroup.damageAllowed,
+            blockedReason: swirlDamageGroup.blockedReason
+          });
+          if (!swirlDamageGroup.damageAllowed) {
+            reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
+          }
+        }
+        const dendroCoreDamageGroupDecision =
+          plan.landed && dendroCoreContext !== undefined
+            ? dendroCoreReactionALimiter.decide({
+                targetId: plan.targetId,
+                actorId,
+                reactionTag: dendroCoreContext.reaction,
+                frame: event.frame
+              })
+            : null;
+        const dendroCoreDamageGroupAudit:
+          | ReactionADamageGroupAudit
+          | null =
+          dendroCoreDamageGroupDecision === null
+            ? null
+            : {
+                reaction:
+                  dendroCoreDamageGroupDecision.reactionTag,
+                sourceActorId: actorId,
+                targetId: plan.targetId,
+                windowStartFrame:
+                  dendroCoreDamageGroupDecision.windowStartFrame,
+                hitIndex:
+                  dendroCoreDamageGroupDecision.hitIndex,
+                resetFrames: 30,
+                sequence: [true, true, false],
+                damageAllowed:
+                  dendroCoreDamageGroupDecision.damageAllowed,
+                blockedReason:
+                  dendroCoreDamageGroupDecision.blockedReason
+              };
+        if (dendroCoreDamageGroupAudit !== null) {
+          reactionLog.damageGroupDecisions.push(
+            dendroCoreDamageGroupAudit
+          );
+          if (!dendroCoreDamageGroupAudit.damageAllowed) {
+            reactionLog.damageGroupBlockedTargetIds.push(
+              plan.targetId
+            );
+          }
+        }
+        const shatterDamageGroupDecision =
+          plan.landed && reaction === "shatter"
+            ? shatterReactionALimiter.decide({
+                targetId: plan.targetId,
+                actorId,
+                reactionTag: "shatter",
+                frame: event.frame
+              })
+            : null;
+        const shatterDamageGroupAudit:
+          | ReactionADamageGroupAudit
+          | null =
+          shatterDamageGroupDecision === null
+            ? null
+            : {
+                reaction: "shatter",
+                sourceActorId: actorId,
+                targetId: plan.targetId,
+                windowStartFrame:
+                  shatterDamageGroupDecision.windowStartFrame,
+                hitIndex: shatterDamageGroupDecision.hitIndex,
+                resetFrames: 30,
+                sequence: [true, true, false],
+                damageAllowed:
+                  shatterDamageGroupDecision.damageAllowed,
+                blockedReason:
+                  shatterDamageGroupDecision.blockedReason
+              };
+        const superconductDamageGroupDecision =
+          plan.landed && reaction === "superconduct"
+            ? superconductReactionALimiter.decide({
+                targetId: plan.targetId,
+                actorId,
+                reactionTag: "superconduct",
+                frame: event.frame
+              })
+            : null;
+        const superconductDamageGroupAudit:
+          | ReactionADamageGroupAudit
+          | null =
+          superconductDamageGroupDecision === null
+            ? null
+            : {
+                reaction: "superconduct",
+                sourceActorId: actorId,
+                targetId: plan.targetId,
+                windowStartFrame:
+                  superconductDamageGroupDecision.windowStartFrame,
+                hitIndex:
+                  superconductDamageGroupDecision.hitIndex,
+                resetFrames: 30,
+                sequence: [true, true, false],
+                damageAllowed:
+                  superconductDamageGroupDecision.damageAllowed,
+                blockedReason:
+                  superconductDamageGroupDecision.blockedReason
+              };
+        const reactionBDamageGroupDecision =
+          plan.landed &&
+          (reaction === "overload" ||
+            reaction === "electroCharged")
+            ? overloadAndElectroChargedReactionBLimiter.decide({
+                targetId: plan.targetId,
+                actorId,
+                reactionTag: reaction,
+                frame: event.frame
+              })
+            : null;
+        const reactionBDamageGroupAudit:
+          | ReactionBDamageGroupAudit
+          | null =
+          reactionBDamageGroupDecision === null
+            ? null
+            : {
+                reaction:
+                  reactionBDamageGroupDecision.reactionTag,
+                sourceActorId: actorId,
+                targetId: plan.targetId,
+                windowStartFrame:
+                  reactionBDamageGroupDecision.windowStartFrame,
+                hitIndex:
+                  reactionBDamageGroupDecision.hitIndex,
+                resetFrames: 30,
+                sequence: [true, false],
+                damageAllowed:
+                  reactionBDamageGroupDecision.damageAllowed,
+                blockedReason:
+                  reactionBDamageGroupDecision.blockedReason
+              };
+        for (const groupAudit of [
+          shatterDamageGroupAudit,
+          superconductDamageGroupAudit,
+          reactionBDamageGroupAudit
+        ]) {
+          if (groupAudit === null) continue;
+          reactionLog.damageGroupDecisions.push(groupAudit);
+          if (!groupAudit.damageAllowed) {
+            reactionLog.damageGroupBlockedTargetIds.push(
+              plan.targetId
+            );
+          }
         }
         const shatterCheckAllowed =
           plan.landed &&
@@ -5190,8 +6642,8 @@ function simulateConfig(
             sourceActorId: actorId,
             sourceActionId: action.id,
             actionName: reactionActionName,
-            hitId: reactionHitId,
-            hitGroupId: reactionHitGroupId,
+            hitId: resolvedReactionHitId,
+            hitGroupId: resolvedReactionHitGroupId,
             targetIndex,
             targetCount: spatialPlans.length,
             hitLabel: `${reactionLabel}反应伤害`,
@@ -5213,7 +6665,7 @@ function simulateConfig(
                 : null,
             geometryOrigin:
               plan.targetingSource === "reaction-geometry"
-                ? deepClone(centerPosition)
+                ? deepClone(resolvedReactionCenterPosition)
                 : null,
             geometryStart: null,
             geometryEnd: null,
@@ -5262,6 +6714,7 @@ function simulateConfig(
               : { sourceAbilityId: action.sourceAbilityId })
           };
         hitResolutionLog.push(targetResolution);
+        reactionHitResolutionLogIds.push(targetResolutionId);
         if (!plan.landed) return;
 
         const debuffState = getDebuffState(
@@ -5311,6 +6764,9 @@ function simulateConfig(
           additiveReaction !== null &&
           additiveReaction !== undefined
         ) {
+          const scheduledReactionBonusDelta =
+            scheduledReactionBonus -
+            scheduledStats.reactionBonus;
           const liveReactionStats = computeStats(
             actorId,
             timeSeconds
@@ -5326,7 +6782,8 @@ function simulateConfig(
               characterLevel: sourceActor.level,
               elementalMastery: liveReactionStats.em,
               reactionBonus:
-                liveReactionStats.reactionBonus
+                liveReactionStats.reactionBonus +
+                scheduledReactionBonusDelta
             });
           additiveReactionFactors = {
             reaction: additiveCalculation.reaction,
@@ -5358,14 +6815,41 @@ function simulateConfig(
           secondaryReaction === "reverseVaporize"
             ? secondaryReaction
             : "none";
+        let amplifyingReactionBonus = reactionBonus;
+        if (
+          amplifyingReaction !== "none" &&
+          swirlContext?.scheduleKind === "swirl-propagation"
+        ) {
+          const liveReactionStats = computeStats(
+            actorId,
+            timeSeconds
+          );
+          if (liveReactionStats === undefined) {
+            throw new Error(
+              `Missing live stats for nested amplifying-reaction source "${actorId}".`
+            );
+          }
+          // The queued Swirl attack owns trigger-frame EM, while ReactBonus is
+          // evaluated when its F+5 propagation damage lands. Keep any
+          // hit/event-local delta attached to the queued attack.
+          amplifyingReactionBonus =
+            liveReactionStats.reactionBonus +
+            swirlContext.reactionBonusDelta;
+        }
         const amplifyingFactors =
           calcAmplifyingReactionMultiplier({
             reaction: amplifyingReaction,
             elementalMastery,
-            reactionBonus
+            reactionBonus: amplifyingReactionBonus
           });
-        const swirlDamageGroupMultiplier =
-          swirlDamageGroup?.damageAllowed === false ? 0 : 1;
+        const reactionDamageGroupMultiplier =
+          swirlDamageGroup?.damageAllowed === false ||
+          dendroCoreDamageGroupAudit?.damageAllowed === false ||
+          shatterDamageGroupAudit?.damageAllowed === false ||
+          superconductDamageGroupAudit?.damageAllowed === false ||
+          reactionBDamageGroupAudit?.damageAllowed === false
+            ? 0
+            : 1;
         const transformativeReactionFactors: TransformativeReactionFactors =
           {
             reaction,
@@ -5388,7 +6872,7 @@ function simulateConfig(
           combinedPreResistanceDamage *
           calculation.resistanceMultiplier *
           amplifyingFactors.total *
-          swirlDamageGroupMultiplier;
+          reactionDamageGroupMultiplier;
         const finalDamage =
           potentialDamage * targetDamageMultiplier;
         const displayDamage = Math.round(finalDamage);
@@ -5432,7 +6916,7 @@ function simulateConfig(
             calculation.elementalMasteryBonus,
           reactionBonus: calculation.reactionBonus,
           amplifyingReactionMultiplier: amplifyingFactors.total,
-          groupMultiplier: swirlDamageGroupMultiplier
+          groupMultiplier: reactionDamageGroupMultiplier
         };
         const reactionAudit: ReactionAudit = {
           ...(propagatedReactionAudit ?? {
@@ -5458,13 +6942,14 @@ function simulateConfig(
             swirlDamageGroup: null,
             crystallizeReaction: null,
             catalyzeReaction: null,
-            burningReaction: null
+            burningReaction: null,
+            bloomReactions: []
           }),
           shatterReaction: nestedShatterState?.audit ?? null,
           swirlDamageGroup,
           note:
             application === undefined
-              ? `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与 ReactionA 伤害 ICD。`
+              ? `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。`
               : reactionDamageAuraAllowed
                 ? `${reactionLabel}范围传播：先以 ${application.gaugeUnits}U 附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的扩散伤害。`
                 : `${reactionLabel}范围传播命中，但目标阶段阻止了元素附着；扩散伤害仍按目标伤害策略结算。`
@@ -5479,8 +6964,8 @@ function simulateConfig(
           scalingOwnerId: actorId,
           creditOwnerId: actorId,
           actionId: action.id,
-          hitId: reactionHitId,
-          hitGroupId: reactionHitGroupId,
+          hitId: resolvedReactionHitId,
+          hitGroupId: resolvedReactionHitGroupId,
           targetIndex,
           targetCount: spatialPlans.length,
           targetResolutionId,
@@ -5574,10 +7059,11 @@ function simulateConfig(
               calculation.elementalMasteryBonus +
               calculation.reactionBonus) *
             amplifyingFactors.total,
-          groupMultiplier: swirlDamageGroupMultiplier,
+          groupMultiplier: reactionDamageGroupMultiplier,
           buffs: buffLabels,
           debuffs: debuffLabels
         });
+        reactionTriggerDamageEventIds.push(damageEventId);
         reactionLog.damageEventIds.push(damageEventId);
         targetResolution.damageEventId = damageEventId;
         targetResolution.potentialDamage = potentialDamage;
@@ -5637,7 +7123,7 @@ function simulateConfig(
           targetName: targetProfile.name,
           sourceActorId: actorId,
           sourceActionId: action.id,
-          hitId: reactionHitId,
+          hitId: resolvedReactionHitId,
           triggerDamageEventId: damageEventId,
           frame: event.frame,
           timeSeconds,
@@ -5659,18 +7145,46 @@ function simulateConfig(
             freezeResistance: targetProfile.freezeResistance
           });
           if (nestedShatterState.audit.triggered) {
+            // A Shatter triggered by reaction damage also snapshots this
+            // nested trigger frame rather than the parent reaction payload.
+            const shatterSourceStats = computeStats(
+              actorId,
+              timeSeconds
+            );
+            if (shatterSourceStats === undefined) {
+              throw new Error(
+                `Shatter source stats for "${actorId}" could not be resolved at frame ${event.frame}.`
+              );
+            }
+            const shatterReactionBonusDelta =
+              scheduledReactionBonus -
+              scheduledStats.reactionBonus;
             scheduleShatterDamage({
               audit: nestedShatterState.audit,
               actorId,
               action,
-              triggerHitId: reactionHitId,
-              triggerHitGroupId: reactionHitGroupId,
+              triggerHitId: resolvedReactionHitId,
+              triggerHitGroupId: resolvedReactionHitGroupId,
               triggerDamageEventId: damageEventId,
               sourceTargetId: plan.targetId,
-              stats,
-              reactionBonus,
-              sourceBuffStatuses,
-              snapshot,
+              stats: shatterSourceStats,
+              reactionBonus:
+                shatterSourceStats.reactionBonus +
+                shatterReactionBonusDelta,
+              sourceBuffStatuses: activeBuffs
+                .filter((buff) => buff.targetId === actorId)
+                .map((buff) => ({
+                  key: buff.key,
+                  kind: "buff" as const,
+                  sourceActorId: buff.actorId,
+                  targetId: buff.targetId,
+                  stat: buff.stat,
+                  value: buff.value,
+                  startTimeSeconds: buff.start,
+                  endTimeSeconds: buff.end,
+                  label: buff.label
+                })),
+              snapshot: "hit",
               cycle,
               triggerFrame: event.frame
             });
@@ -5685,8 +7199,8 @@ function simulateConfig(
             damageEventId,
             actorId,
             action,
-            hitId: reactionHitId,
-            hitGroupId: reactionHitGroupId,
+            hitId: resolvedReactionHitId,
+            hitGroupId: resolvedReactionHitGroupId,
             targetId: plan.targetId,
             targetName: targetProfile.name,
             targetPosition: plan.targetPosition,
@@ -5699,7 +7213,8 @@ function simulateConfig(
             timeSeconds,
             freezeResistance: targetProfile.freezeResistance,
             eventPriority: event.priority,
-            eventSequence: event.sequence
+            eventSequence: event.sequence,
+            nextIntraEventSequence
           });
         }
         if (
@@ -5777,6 +7292,44 @@ function simulateConfig(
           );
         }
       });
+      if (config.reactionEngine?.mode === "aura-v5") {
+        processDendroCoreContacts({
+          actorId,
+          action,
+          // A periodic reaction stream can reuse its originating hit identity
+          // across multiple queued attacks. Core contact is once per reaction
+          // attack event, so give this contact-only identity the stable
+          // reaction-damage log id without changing legacy DamageEvent ids.
+          hitId: `${resolvedReactionHitId}:reaction-damage-log-${reactionDamageLogId}`,
+          hitGroupId: `${resolvedReactionHitGroupId}:reaction-damage-log-${reactionDamageLogId}`,
+          element: damageElement,
+          application,
+          reactionBonusDelta:
+            reactionBonus - stats.reactionBonus,
+          hitResolutionLogIds: reactionHitResolutionLogIds,
+          triggerDamageEventIds:
+            reactionTriggerDamageEventIds,
+          triggerReactionDamageLogId: reactionDamageLogId,
+          resolvedGeometry:
+            targetingMode === "radius" &&
+            resolvedReactionCenterPosition !== null
+              ? {
+                  kind: "circle",
+                  coordinateSpace: "world",
+                  origin: deepClone(
+                    resolvedReactionCenterPosition
+                  ),
+                  radius
+                }
+              : null,
+          cycle,
+          frame: event.frame,
+          eventType: "reactionDamage",
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          nextIntraEventSequence
+        });
+      }
       if (
         periodicContext !== undefined &&
         periodicDamageEventId !== null
@@ -5793,6 +7346,11 @@ function simulateConfig(
             : null;
         }
         if (periodicContext.waneEligible) {
+          if (triggerDamageEventId === null) {
+            throw new Error(
+              "Periodic reaction damage requires a trigger damage event."
+            );
+          }
           push(
             (event.frame +
               AURA_ENGINE_CONSTANTS.electroChargedWaneDelayFrames) /
@@ -5840,6 +7398,7 @@ function simulateConfig(
       geometryAngleDegrees,
       geometryDistance,
       geometryThreshold,
+      resolvedGeometry,
       targetIndex,
       targetCount,
       hitGroupId,
@@ -5955,16 +7514,23 @@ function simulateConfig(
       completeHitTarget({
         actorId,
         action,
+        hit,
         hitId,
         hitGroupId,
+        element,
         cycle,
         frame: event.frame,
         timeSeconds,
         targetId,
+        targetResolutionId,
+        damageEventId: null,
         targetIndex,
         targetCount,
         landed: false,
-        hitConfirmAllowed: false
+        hitConfirmAllowed: false,
+        resolvedGeometry,
+        eventSequence: event.sequence,
+        nextIntraEventSequence
       });
       continue;
     }
@@ -6133,6 +7699,7 @@ function simulateConfig(
             crystallizeReaction: null,
             catalyzeReaction: null,
             burningReaction: null,
+            bloomReactions: [],
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -6179,7 +7746,15 @@ function simulateConfig(
           {
             kind: "damage-event",
             id: pendingDirectDamageEventId
-          }
+          },
+          ...(reactionAudit.mechanicsTruncation === null
+            ? projectedQuickenDecayRebaseLogIds(
+                reactionAudit
+              ).map((id) => ({
+                kind: "quicken-state-log" as const,
+                id
+              }))
+            : [])
         ],
         auraBefore: reactionAudit.auraBefore ?? [],
         auraApplied: reactionAudit.auraApplied ?? [],
@@ -6251,6 +7826,35 @@ function simulateConfig(
       reaction === "reverseVaporize"
         ? reaction
         : "none";
+    let amplifyingElementalMastery = stats.em;
+    let amplifyingReactionBonus =
+      stats.reactionBonus + safeNumber(hit.reactionBonus);
+    if (amplifyingReaction !== "none") {
+      const liveReactionSourceStats = computeStats(
+        actorId,
+        timeSeconds
+      );
+      const reactionSourceSnapshot =
+        hit.snapshot === "action"
+          ? snapshots[actorId]
+          : liveReactionSourceStats;
+      if (
+        liveReactionSourceStats === undefined ||
+        reactionSourceSnapshot === undefined
+      ) {
+        throw new Error(
+          `Missing amplifying-reaction stats for source "${actorId}".`
+        );
+      }
+      // gcsim's AttackInfo.ActorIndex owns both parts of an amplifying
+      // reaction, but they intentionally use different clocks: EM comes from
+      // the attack snapshot while reaction bonus is evaluated when damage
+      // lands. scalingOwnerId only selects the ordinary direct-damage panel.
+      amplifyingElementalMastery = reactionSourceSnapshot.em;
+      amplifyingReactionBonus =
+        liveReactionSourceStats.reactionBonus +
+        safeNumber(hit.reactionBonus);
+    }
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -6268,16 +7872,19 @@ function simulateConfig(
       critDamage: stats.critDmg + safeNumber(hit.critDmg),
       critMode: options.critMode,
       reaction: amplifyingReaction,
-      elementalMastery: stats.em,
-      reactionBonus:
-        stats.reactionBonus + safeNumber(hit.reactionBonus),
-      ...(hit.ampBase === undefined
+      elementalMastery: amplifyingElementalMastery,
+      reactionBonus: amplifyingReactionBonus,
+      // Formal Aura runs derive their amplifying base from the audited
+      // reaction. ampBase remains available only to legacy/manual debug runs.
+      ...(hit.ampBase === undefined ||
+          (auraEngine !== null &&
+            reactionAudit.model !== "manual-override")
         ? {}
         : { explicitReactionBase: hit.ampBase }),
       groupMultiplier: safeNumber(hit.groupMultiplier, 1)
     };
     for (const plugin of plugins) {
-      const pluginChanges = plugin.modifyDamage({
+      const pluginChanges = plugin.runtime.modifyDamage({
         config,
         action,
         hit,
@@ -6306,7 +7913,7 @@ function simulateConfig(
         damageInput,
         flatDamageComponents,
         pluginChanges,
-        plugin.id,
+        plugin.descriptor.id,
         additiveReactionFactors !== null
       );
       damageInput = appliedChanges.damageInput;
@@ -6456,15 +8063,37 @@ function simulateConfig(
       eventSequence: event.sequence
     });
     if (reactionAudit.mechanicsTruncation === null) {
-      recordQuickenState({
-        audit: reactionAudit,
-        targetId,
-        targetName: targetProfile.name,
-        sourceActorId: actorId,
-        triggerDamageEventId: damageEventId,
-        frame: event.frame,
-        timeSeconds
-      });
+      if (reactionAudit.bloomReactions.length > 0) {
+        scheduleBloomCoreSpawns({
+          audits: reactionAudit.bloomReactions,
+          actorId,
+          action,
+          triggerHitId: hitId,
+          triggerHitGroupId: hitGroupId,
+          triggerDamageEventId: damageEventId,
+          sourceTargetId: targetId,
+          reactionBonusDelta: safeNumber(hit.reactionBonus),
+          cycle,
+          eventType: "hit",
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          nextIntraEventSequence
+        });
+      }
+      if (
+        reactionAudit.catalyzeReaction?.quicken != null ||
+        reactionAudit.bloomReactions.length > 0
+      ) {
+        recordQuickenState({
+          audit: reactionAudit,
+          targetId,
+          targetName: targetProfile.name,
+          sourceActorId: actorId,
+          triggerDamageEventId: damageEventId,
+          frame: event.frame,
+          timeSeconds
+        });
+      }
       const burningSourceStats = computeStats(actorId, timeSeconds);
       processBurningConsequences({
         audit: reactionAudit,
@@ -6511,13 +8140,12 @@ function simulateConfig(
         freezeResistance: targetProfile.freezeResistance
       });
       if (shatterState.audit.triggered) {
-        const shatterSourceStats =
-          hit.snapshot === "action"
-            ? deepClone(
-                snapshots[actorId] ??
-                  computeStats(actorId, timeSeconds)
-              )
-            : computeStats(actorId, timeSeconds);
+        // Shatter freezes its own trigger-frame reaction snapshot; it must not
+        // inherit the triggering attack's action snapshot.
+        const shatterSourceStats = computeStats(
+          actorId,
+          timeSeconds
+        );
         if (shatterSourceStats === undefined) {
           throw new Error(
             `Shatter source stats for "${actorId}" could not be resolved.`
@@ -6548,20 +8176,14 @@ function simulateConfig(
               endTimeSeconds: buff.end,
               label: buff.label
             })),
-          snapshot,
+          snapshot: "hit",
           cycle,
           triggerFrame: event.frame
         });
       }
     }
     if (reactionAudit.swirlReactions.length > 0) {
-      const swirlSourceStats =
-        hit.snapshot === "action"
-          ? deepClone(
-              snapshots[actorId] ??
-                computeStats(actorId, timeSeconds)
-            )
-          : computeStats(actorId, timeSeconds);
+      const swirlSourceStats = computeStats(actorId, timeSeconds);
       if (swirlSourceStats === undefined) {
         throw new Error(
           `Swirl source stats for "${actorId}" could not be resolved.`
@@ -6610,13 +8232,10 @@ function simulateConfig(
     const transformativeReaction =
       reactionAudit.transformativeReaction;
     if (transformativeReaction !== null) {
-      const reactionSourceStats =
-        hit.snapshot === "action"
-          ? deepClone(
-              snapshots[actorId] ??
-                computeStats(actorId, timeSeconds)
-            )
-          : computeStats(actorId, timeSeconds);
+      const reactionSourceStats = computeStats(
+        actorId,
+        timeSeconds
+      );
       if (reactionSourceStats === undefined) {
         throw new Error(
           `Reaction source stats for "${actorId}" could not be resolved.`
@@ -6631,6 +8250,7 @@ function simulateConfig(
         id: reactionDamageLogId,
         reaction: transformativeReaction.reaction,
         triggerDamageEventId: damageEventId,
+        triggerHitGroupId: null,
         sourceActorId: actorId,
         sourceTargetId: targetId,
         triggerFrame: event.frame,
@@ -6644,6 +8264,11 @@ function simulateConfig(
         targetingMode: "radius",
         centerPosition: deepClone(targetPosition),
         radius: transformativeReaction.radius,
+        sourceCoreId: null,
+        sourceCoreLogId: null,
+        selectionRadius: null,
+        selectedTargetId: null,
+        resolutionReason: null,
         applicationGaugeUnits: null,
         excludedTargetIds: [],
         checkedTargetIds: [],
@@ -6651,7 +8276,8 @@ function simulateConfig(
         unresolvedTargetIds: [],
         damageGroupBlockedTargetIds: [],
         damageEventIds: [],
-        reactionStatusLogIds: []
+        reactionStatusLogIds: [],
+        damageGroupDecisions: []
       });
       if (withinSimulation) {
         push(
@@ -6703,7 +8329,7 @@ function simulateConfig(
                 endTimeSeconds: buff.end,
                 label: buff.label
               })),
-            snapshot,
+            snapshot: "hit",
             cycle,
             reactionDamageLogId
           }
@@ -6835,13 +8461,10 @@ function simulateConfig(
           activePeriodicReactionSources.delete(targetId);
         }
       } else {
-        const reactionSourceStats =
-          hit.snapshot === "action"
-            ? deepClone(
-                snapshots[actorId] ??
-                  computeStats(actorId, timeSeconds)
-              )
-            : computeStats(actorId, timeSeconds);
+        const reactionSourceStats = computeStats(
+          actorId,
+          timeSeconds
+        );
         if (reactionSourceStats === undefined) {
           throw new Error(
             `Periodic reaction source stats for "${actorId}" could not be resolved.`
@@ -6874,7 +8497,7 @@ function simulateConfig(
             reactionSourceStats.reactionBonus +
             safeNumber(hit.reactionBonus),
           sourceBuffStatuses,
-          snapshot,
+          snapshot: "hit",
           cycle
         };
         activePeriodicReactionSources.set(
@@ -6932,16 +8555,23 @@ function simulateConfig(
     completeHitTarget({
       actorId,
       action,
+      hit,
       hitId,
       hitGroupId,
+      element,
       cycle,
       frame: event.frame,
       timeSeconds,
       targetId,
+      targetResolutionId,
+      damageEventId,
       targetIndex,
       targetCount,
       landed: true,
-      hitConfirmAllowed
+      hitConfirmAllowed,
+      resolvedGeometry,
+      eventSequence: event.sequence,
+      nextIntraEventSequence
     });
   }
 
@@ -7145,11 +8775,11 @@ function simulateConfig(
     engineVersion: config.engineVersion,
     dataVersion: config.dataVersion,
     randomSeed: options.randomSeed,
-    reproducibilityKey: makeReproducibilityKey(
-      resultConfig,
-      options,
-      plugins
-    ),
+    runManifest,
+    resolvedRuntimeOptions:
+      runManifest.resolvedRuntimeOptions,
+    pluginManifest: runManifest.plugins,
+    reproducibilityKey: runManifest.reproducibilityKey,
     compatibilityMode: options.compatibilityMode,
     mechanicsStatus:
       targetMechanicsTruncationLog.length === 0
@@ -7168,6 +8798,9 @@ function simulateConfig(
     frozenStateLog,
     quickenStateLog,
     burningStateLog,
+    dendroCoreLog,
+    dendroCoreContactLog,
+    dendroCoreTimeline,
     crystallizeShardLog,
     crystallizeShieldLog,
     crystallizeShieldTimeline,

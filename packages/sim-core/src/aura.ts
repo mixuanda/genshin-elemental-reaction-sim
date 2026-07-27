@@ -6,6 +6,7 @@ import type {
   AuraSourceGaugeMutation,
   AuraStateElement,
   AuraStateEntry,
+  BloomReactionAudit,
   BurningReactionAudit,
   CatalyzeReactionAudit,
   CrystallizeReaction,
@@ -15,6 +16,8 @@ import type {
   IcdProfile,
   OneShotTransformativeReaction,
   PersistentAuraElement,
+  QuickenDecayEndCause,
+  QuickenDecayMutationAudit,
   QuickenReactionAudit,
   ReactionType,
   ReactionAudit,
@@ -25,6 +28,7 @@ import type {
   TargetMechanicsTruncationAudit,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
+import { resolveBloomGauge } from "./bloom-gauge";
 
 const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
@@ -79,6 +83,7 @@ const BURNING_SKIPPED_TICK_INDEX = 9;
 const BURNING_BASE_MULTIPLIER = 0.25;
 const BURNING_RADIUS = 1;
 const BURNING_APPLICATION_GAUGE_UNITS = 1;
+const BLOOM_CORE_SPAWN_DELAY_FRAMES = 30;
 const BURNING_ICD_RESET_FRAMES = 120;
 const BURNING_ICD_SEQUENCE = [
   true,
@@ -120,6 +125,21 @@ interface BurningStateCapture {
   fuelGaugeUnits: number;
   fuelDecayPerFrame: number;
   fuelExpiresAtFrame: number | null;
+}
+
+interface QuickenDecayStateCapture {
+  generation: number;
+  gaugeUnits: number;
+  decayPerFrame: number;
+  expiresAtFrame: number | null;
+  endCause: QuickenDecayEndCause;
+  auraEntry: AuraStateEntry | null;
+}
+
+interface QuickenNaturalExpiryBoundary {
+  generation: number;
+  frame: number;
+  lifecycleBefore: QuickenDecayStateCapture;
 }
 
 interface ReactionRule {
@@ -262,6 +282,7 @@ export interface BurningFuelExpiryResult {
   auraAfter: AuraStateEntry[];
   nextTickFrame: number | null;
   fuelExpiresAtFrame: number | null;
+  quickenStateMutation: QuickenDecayMutationAudit;
   selfDamageStatus: "unsupported-player-damage-model";
   reason:
     | "FUEL_EXPIRED"
@@ -291,6 +312,31 @@ export interface ShatterStateResult {
 
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
   freezeResistance?: number;
+}
+
+export interface QuickenLifecycleState {
+  generation: number;
+  gaugeUnits: number;
+  decayPerFrame: number;
+  expiresAtFrame: number | null;
+  endCause: QuickenDecayEndCause;
+}
+
+export interface QuickenExpiryResult {
+  generation: number;
+  operation: "expire" | "stale";
+  frame: number;
+  quickenGaugeUnitsBefore: number;
+  quickenGaugeUnitsAfter: number;
+  decayPerFrameBefore: number;
+  decayPerFrameAfter: number;
+  expiresAtFrameBefore: number | null;
+  expiresAtFrame: number | null;
+  endCauseBefore: QuickenDecayEndCause;
+  endCauseAfter: QuickenDecayEndCause;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  reason: string;
 }
 
 export interface AuraHitInput {
@@ -385,7 +431,9 @@ function isAuraApplicationElement(
       (element === "electro" ||
         element === "anemo" ||
         element === "geo")) ||
-    ((mode === "aura-v3" || mode === "aura-v4") &&
+    ((mode === "aura-v3" ||
+      mode === "aura-v4" ||
+      mode === "aura-v5") &&
       element === "dendro")
   );
 }
@@ -393,7 +441,17 @@ function isAuraApplicationElement(
 function usesAuraV3Durability(
   mode: AuraReactionEngineConfig["mode"]
 ): boolean {
-  return mode === "aura-v3" || mode === "aura-v4";
+  return (
+    mode === "aura-v3" ||
+    mode === "aura-v4" ||
+    mode === "aura-v5"
+  );
+}
+
+function usesBurningModel(
+  mode: AuraReactionEngineConfig["mode"]
+): boolean {
+  return mode === "aura-v4" || mode === "aura-v5";
 }
 
 function cleanGaugeUnits(value: number): number {
@@ -421,8 +479,10 @@ function remainingDecayFrames(
  * aura-v3 corrects the durability-to-U lifetime conversion, adds per-source
  * normal/Quicken slots, and implements Dendro, Quicken, Aggravate, and Spread.
  * aura-v4 adds fixed-reference Burning marker/Fuel decay, snapshot ownership,
- * tick cadence, and Burning-application ICD. Bloom/core entities, elemental
- * shields, and their special overlap modifiers remain future mechanics work.
+ * tick cadence, and Burning-application ICD.
+ * aura-v5 additionally resolves fixed-reference Bloom gauge ordering and emits
+ * one auditable core-spawn request per direct or Quicken-follow-up trigger.
+ * The core entity lifecycle is intentionally owned by the simulator layer.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -441,6 +501,15 @@ export class AuraEngine {
   private frozenGeneration = 0;
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
   private quickenGeneration = 0;
+  /**
+   * A generic Aura snapshot may advance the target clock through a queued
+   * Quicken boundary before the dedicated expiry event is dispatched. Keep
+   * the exact last-positive lifecycle state so that event can still emit one
+   * authoritative positive-to-zero audit without mutating the Aura twice.
+   */
+  private lastQuickenNaturalExpiryBoundary:
+    | QuickenNaturalExpiryBoundary
+    | null = null;
   private shatterDamageReadyFrame = -1;
   private readonly swirlDamageReadyFrames = new Map<
     SwirlReaction,
@@ -452,6 +521,10 @@ export class AuraEngine {
   private burningFuelSourceActorId: string | null = null;
   /** Fuel applied after the frame's Aura decay; its first decay is next frame-end. */
   private burningFuelAttachedFrame = -1;
+  /** Bloom may deplete Fuel after the frame's Burning check; purge on the next frame. */
+  private burningFuelDepletedFrame: number | null = null;
+  /** Effective decay retained for the one-frame Fuel-depleted purge boundary. */
+  private burningFuelDepletedDecayPerFrame: number | null = null;
   private burningNextTickFrame = -1;
   private burningNextTickIndex = 1;
   private lastBurningApplicationIcdDecision:
@@ -461,6 +534,7 @@ export class AuraEngine {
     fromGeneration: number;
     frame: number;
     reason: BurningStopReason;
+    quickenStateMutation: QuickenDecayMutationAudit;
   } | null = null;
   private currentFrame = 0;
   private mechanicsTruncation: TargetMechanicsTruncationAudit | null =
@@ -500,6 +574,20 @@ export class AuraEngine {
 
   getCurrentFrame(): number {
     return this.currentFrame;
+  }
+
+  getQuickenLifecycleState(): QuickenLifecycleState {
+    const quicken = this.auras.get("quicken");
+    const lifecycle = this.quickenEffectiveLifecycle();
+    return {
+      generation: this.quickenGeneration,
+      gaugeUnits: cleanGaugeUnits(
+        quicken?.gaugeUnits ?? 0
+      ),
+      decayPerFrame: lifecycle.decayPerFrame,
+      expiresAtFrame: lifecycle.expiresAtFrame,
+      endCause: lifecycle.endCause
+    };
   }
 
   getMechanicsTruncation(): TargetMechanicsTruncationAudit | null {
@@ -546,9 +634,13 @@ export class AuraEngine {
       startedAtFrame: frame,
       unsupportedReactions: [...unsupportedReactions],
       discardedAura,
-      reason: unsupportedReactions.includes(
-        "non-pyro-multi-reaction-order"
-      )
+      reason:
+        unsupportedReactions.includes(
+          "non-pyro-multi-reaction-order"
+        ) ||
+        unsupportedReactions.includes(
+          "legacy-multi-reaction-order"
+        )
         ? "UNSUPPORTED_REACTION_ORDER"
         : "UNSUPPORTED_DENDRO_REACTION"
     };
@@ -567,6 +659,7 @@ export class AuraEngine {
       );
     }
     this.auras.clear();
+    this.burningFuelDepletedFrame = null;
     this.electroChargedActive = false;
     this.electroChargedNextTickFrame = -1;
     return this.getMechanicsTruncation()!;
@@ -644,7 +737,7 @@ export class AuraEngine {
   }
 
   private mappedAuraGaugeUnits(element: AuraStateElement): number {
-    if (this.mode !== "aura-v4" || element !== "pyro") {
+    if (!usesBurningModel(this.mode) || element !== "pyro") {
       return this.auras.get(element)?.gaugeUnits ?? 0;
     }
     return Math.max(
@@ -662,7 +755,7 @@ export class AuraEngine {
     sourceMutations: AuraSourceGaugeMutation[];
   }> {
     const mappedElements =
-      this.mode === "aura-v4" && element === "pyro"
+      usesBurningModel(this.mode) && element === "pyro"
         ? (["pyro", "burning"] as const)
         : ([element] as const);
     const mutations = mappedElements
@@ -678,7 +771,7 @@ export class AuraEngine {
           mutation.consumedGaugeUnits > AURA_EPSILON
       );
     if (
-      this.mode === "aura-v4" &&
+      usesBurningModel(this.mode) &&
       element === "pyro" &&
       (this.auras.get("burning")?.gaugeUnits ?? 0) <=
         AURA_EPSILON &&
@@ -704,7 +797,7 @@ export class AuraEngine {
 
   private hasActiveBurning(): boolean {
     return (
-      this.mode === "aura-v4" &&
+      usesBurningModel(this.mode) &&
       this.burningGaugeUnits() > AURA_EPSILON &&
       this.burningFuelGaugeUnits() > AURA_EPSILON
     );
@@ -728,31 +821,49 @@ export class AuraEngine {
     );
   }
 
+  private burningFuelLifecycleExpiryFrame(): number | null {
+    const activeExpiry = this.burningFuelExpiryFrame();
+    if (activeExpiry !== null) return activeExpiry;
+    if (
+      this.burningFuelDepletedFrame !== null &&
+      this.burningGaugeUnits() > AURA_EPSILON
+    ) {
+      return this.burningFuelDepletedFrame + 1;
+    }
+    return null;
+  }
+
   private stopBurning(
     frame: number,
     reason: BurningStopReason,
-    removeDendroStates: boolean
-  ): void {
+    removeDendroStates: boolean,
+    quickenBefore: QuickenDecayStateCapture =
+      this.captureQuickenDecayState()
+  ): QuickenDecayMutationAudit {
     const fromGeneration = this.burningGeneration;
     this.auras.delete("burningFuel");
     if (removeDendroStates) {
       this.auras.delete("burning");
       this.auras.delete("dendro");
-      if (this.auras.delete("quicken")) {
-        this.quickenGeneration += 1;
-      }
+      this.auras.delete("quicken");
     }
+    const quickenStateMutation =
+      this.finalizeQuickenDecayMutation(quickenBefore);
     this.burningGeneration += 1;
     this.burningDamageSourceActorId = null;
     this.burningFuelSourceActorId = null;
     this.burningFuelAttachedFrame = -1;
+    this.burningFuelDepletedFrame = null;
+    this.burningFuelDepletedDecayPerFrame = null;
     this.burningNextTickFrame = -1;
     this.burningNextTickIndex = 1;
     this.lastBurningStop = {
       fromGeneration,
       frame,
-      reason
+      reason,
+      quickenStateMutation
     };
+    return quickenStateMutation;
   }
 
   private reduceAuraByDecay(
@@ -797,6 +908,40 @@ export class AuraEngine {
     }
   }
 
+  private advancePassiveDecayBy(elapsed: number): void {
+    if (elapsed <= 0) return;
+    for (const [element, aura] of this.auras) {
+      if (element === "frozen") continue;
+      this.reduceAuraByDecay(
+        aura,
+        aura.decayPerFrame * elapsed
+      );
+    }
+    this.advanceFrozenBy(elapsed);
+    this.currentFrame += elapsed;
+  }
+
+  private rememberNaturalQuickenExpiryBoundary(
+    frame: number,
+    lifecycleBefore: QuickenDecayStateCapture
+  ): void {
+    if (
+      lifecycleBefore.generation !==
+        this.quickenGeneration ||
+      lifecycleBefore.gaugeUnits <= AURA_EPSILON ||
+      lifecycleBefore.expiresAtFrame !== frame ||
+      lifecycleBefore.endCause !== "QUICKEN_DECAY" ||
+      this.quickenGaugeUnits() > AURA_EPSILON
+    ) {
+      return;
+    }
+    this.lastQuickenNaturalExpiryBoundary = {
+      generation: lifecycleBefore.generation,
+      frame,
+      lifecycleBefore
+    };
+  }
+
   private remainingFrozenFrames(): number | null {
     const frozen = this.auras.get("frozen");
     if (frozen === undefined || this.freezeResistance >= 1) {
@@ -821,7 +966,25 @@ export class AuraEngine {
     }
     const elapsed = frame - this.currentFrame;
     if (elapsed > 0) {
-      if (this.mode === "aura-v4" && this.hasActiveBurning()) {
+      if (
+        this.burningFuelDepletedFrame !== null &&
+        frame > this.burningFuelDepletedFrame
+      ) {
+        // Bloom can empty Fuel after the current frame's Burning check.
+        // Reactable purges the dependent marker/Dendro/Quicken state on the
+        // next frame. Route that purge through the normal lifecycle stop so
+        // already-queued Burning ticks and Quicken expiry checks carry an old
+        // generation and resolve as stale instead of logging a ghost expiry.
+        const quickenBeforeFuelPurge =
+          this.captureQuickenDecayState();
+        this.stopBurning(
+          this.currentFrame + 1,
+          "FUEL_EXPIRED",
+          true,
+          quickenBeforeFuelPurge
+        );
+      }
+      if (usesBurningModel(this.mode) && this.hasActiveBurning()) {
         for (
           let nextFrame = this.currentFrame + 1;
           nextFrame <= frame;
@@ -843,6 +1006,11 @@ export class AuraEngine {
 
           if (burningWasActive) {
             const fuel = this.auras.get("burningFuel");
+            const quickenBeforeFuelDecay = this.auras.has(
+              "quicken"
+            )
+              ? this.captureQuickenDecayState()
+              : null;
             if (
               fuel !== undefined &&
               nextFrame > this.burningFuelAttachedFrame + 1
@@ -859,7 +1027,9 @@ export class AuraEngine {
               this.stopBurning(
                 nextFrame,
                 "FUEL_EXPIRED",
-                true
+                true,
+                quickenBeforeFuelDecay ??
+                  this.captureQuickenDecayState()
               );
             } else {
               const fuelDecayPerFrame =
@@ -876,12 +1046,25 @@ export class AuraEngine {
                 );
               }
               const quicken = this.auras.get("quicken");
+              const quickenBeforeDecay =
+                quicken === undefined
+                  ? null
+                  : this.captureQuickenDecayState();
               if (quicken !== undefined) {
                 this.reduceAuraByDecay(
                   quicken,
                   fuelDecayPerFrame
                 );
               }
+              this.advanceFrozenBy(1);
+              this.currentFrame = nextFrame;
+              if (quickenBeforeDecay !== null) {
+                this.rememberNaturalQuickenExpiryBoundary(
+                  nextFrame,
+                  quickenBeforeDecay
+                );
+              }
+              continue;
             }
           } else {
             for (const element of [
@@ -901,15 +1084,33 @@ export class AuraEngine {
           this.currentFrame = nextFrame;
         }
       } else {
-        for (const [element, aura] of this.auras) {
-          if (element === "frozen") continue;
-          this.reduceAuraByDecay(
-            aura,
-            aura.decayPerFrame * elapsed
+        const quickenLifecycle =
+          this.captureQuickenDecayState();
+        const quickenExpiryFrame =
+          quickenLifecycle.endCause === "QUICKEN_DECAY"
+            ? quickenLifecycle.expiresAtFrame
+            : null;
+        if (
+          quickenExpiryFrame !== null &&
+          quickenExpiryFrame > this.currentFrame &&
+          quickenExpiryFrame <= frame
+        ) {
+          this.advancePassiveDecayBy(
+            quickenExpiryFrame - this.currentFrame - 1
           );
+          const quickenBeforeExpiry =
+            this.captureQuickenDecayState();
+          this.advancePassiveDecayBy(1);
+          this.rememberNaturalQuickenExpiryBoundary(
+            quickenExpiryFrame,
+            quickenBeforeExpiry
+          );
+          this.advancePassiveDecayBy(
+            frame - this.currentFrame
+          );
+        } else {
+          this.advancePassiveDecayBy(elapsed);
         }
-        this.advanceFrozenBy(elapsed);
-        this.currentFrame = frame;
       }
       if (
         this.electroChargedActive &&
@@ -933,23 +1134,20 @@ export class AuraEngine {
             ? this.burningFuelExpiryFrame()
             : aura.element === "frozen"
             ? this.frozenExpiryFrame()
-            : this.hasActiveBurning() &&
-                (aura.element === "dendro" ||
-                  aura.element === "quicken")
+            : aura.element === "quicken"
+              ? this.quickenExpiryFrame()
+              : this.hasActiveBurning() &&
+                  aura.element === "dendro"
               ? this.currentFrame +
                 Math.min(
                   remainingDecayFrames(
                     aura.gaugeUnits,
-                    aura.element === "dendro"
-                      ? Math.max(
-                          this.auras.get("burningFuel")
-                            ?.decayPerFrame ??
-                            BURNING_FUEL_MIN_DECAY_PER_FRAME,
-                          aura.decayPerFrame * 2
-                        )
-                      : this.auras.get("burningFuel")
-                          ?.decayPerFrame ??
-                          BURNING_FUEL_MIN_DECAY_PER_FRAME
+                    Math.max(
+                      this.auras.get("burningFuel")
+                        ?.decayPerFrame ??
+                        BURNING_FUEL_MIN_DECAY_PER_FRAME,
+                      aura.decayPerFrame * 2
+                    )
                   ),
                   (this.burningFuelExpiryFrame() ??
                     this.currentFrame) - this.currentFrame
@@ -1570,18 +1768,206 @@ export class AuraEngine {
     return this.auras.get("quicken")?.gaugeUnits ?? 0;
   }
 
-  private quickenExpiryFrame(): number | null {
+  private quickenEffectiveLifecycle(): {
+    decayPerFrame: number;
+    expiresAtFrame: number | null;
+    endCause: QuickenDecayEndCause;
+  } {
     const quicken = this.auras.get("quicken");
-    if (quicken === undefined || quicken.decayPerFrame <= 0) {
+    if (quicken === undefined || quicken.gaugeUnits <= AURA_EPSILON) {
+      return {
+        decayPerFrame: 0,
+        expiresAtFrame: null,
+        endCause: null
+      };
+    }
+
+    if (
+      usesBurningModel(this.mode) &&
+      this.burningFuelDepletedFrame !== null &&
+      this.burningGaugeUnits() > AURA_EPSILON
+    ) {
+      return {
+        decayPerFrame:
+          this.burningFuelDepletedDecayPerFrame ??
+          quicken.decayPerFrame,
+        expiresAtFrame:
+          this.burningFuelDepletedFrame + 1,
+        endCause: "BURNING_FUEL_EXPIRED"
+      };
+    }
+
+    const fuel = usesBurningModel(this.mode)
+      ? this.auras.get("burningFuel")
+      : undefined;
+    if (
+      fuel !== undefined &&
+      fuel.gaugeUnits > AURA_EPSILON &&
+      fuel.decayPerFrame > 0
+    ) {
+      const quickenDecayExpiryFrame =
+        this.currentFrame +
+        remainingDecayFrames(
+          quicken.gaugeUnits,
+          fuel.decayPerFrame
+        );
+      const fuelExpiryFrame = this.burningFuelExpiryFrame();
+      if (
+        fuelExpiryFrame !== null &&
+        fuelExpiryFrame <= quickenDecayExpiryFrame
+      ) {
+        return {
+          decayPerFrame: fuel.decayPerFrame,
+          expiresAtFrame: fuelExpiryFrame,
+          endCause: "BURNING_FUEL_EXPIRED"
+        };
+      }
+      return {
+        decayPerFrame: fuel.decayPerFrame,
+        expiresAtFrame: quickenDecayExpiryFrame,
+        endCause: "QUICKEN_DECAY"
+      };
+    }
+
+    if (quicken.decayPerFrame <= 0) {
+      return {
+        decayPerFrame: 0,
+        expiresAtFrame: null,
+        endCause: null
+      };
+    }
+    return {
+      decayPerFrame: quicken.decayPerFrame,
+      expiresAtFrame:
+        this.currentFrame +
+        remainingDecayFrames(
+          quicken.gaugeUnits,
+          quicken.decayPerFrame
+        ),
+      endCause: "QUICKEN_DECAY"
+    };
+  }
+
+  private quickenExpiryFrame(): number | null {
+    return this.quickenEffectiveLifecycle().expiresAtFrame;
+  }
+
+  private quickenAuraEntry(
+    expiresAtFrame: number | null
+  ): AuraStateEntry | null {
+    const quicken = this.auras.get("quicken");
+    if (quicken === undefined || quicken.gaugeUnits <= AURA_EPSILON) {
       return null;
     }
-    return (
-      this.currentFrame +
-      remainingDecayFrames(
-        quicken.gaugeUnits,
-        quicken.decayPerFrame
+    return {
+      element: "quicken",
+      gaugeUnits: cleanGaugeUnits(quicken.gaugeUnits),
+      expiresAtFrame,
+      ...(quicken.sourceSlots === undefined
+        ? {}
+        : {
+            sourceSlots: [...quicken.sourceSlots]
+              .filter(([, gaugeUnits]) => gaugeUnits > AURA_EPSILON)
+              .sort(([left], [right]) => left.localeCompare(right))
+              .map(([sourceActorId, gaugeUnits]) => ({
+                sourceActorId,
+                gaugeUnits: cleanGaugeUnits(gaugeUnits)
+              }))
+          })
+    };
+  }
+
+  private captureQuickenDecayState(): QuickenDecayStateCapture {
+    const lifecycle = this.quickenEffectiveLifecycle();
+    return {
+      generation: this.quickenGeneration,
+      gaugeUnits: cleanGaugeUnits(this.quickenGaugeUnits()),
+      decayPerFrame: lifecycle.decayPerFrame,
+      expiresAtFrame: lifecycle.expiresAtFrame,
+      endCause: lifecycle.endCause,
+      auraEntry: this.quickenAuraEntry(
+        lifecycle.expiresAtFrame
       )
+    };
+  }
+
+  private snapshotWithQuickenState(
+    baseSnapshot: AuraStateEntry[],
+    state: QuickenDecayStateCapture
+  ): AuraStateEntry[] {
+    const snapshot = baseSnapshot
+      .filter((entry) => entry.element !== "quicken")
+      .map((entry) => ({
+        ...entry,
+        ...(entry.sourceSlots === undefined
+          ? {}
+          : {
+              sourceSlots: entry.sourceSlots.map((slot) => ({
+                ...slot
+              }))
+            })
+      }));
+    if (state.auraEntry !== null) {
+      snapshot.push({
+        ...state.auraEntry,
+        ...(state.auraEntry.sourceSlots === undefined
+          ? {}
+          : {
+              sourceSlots: state.auraEntry.sourceSlots.map(
+                (slot) => ({ ...slot })
+              )
+            })
+      });
+    }
+    return snapshot.sort((left, right) =>
+      left.element.localeCompare(right.element)
     );
+  }
+
+  private finalizeQuickenDecayMutation(
+    before: QuickenDecayStateCapture
+  ): QuickenDecayMutationAudit {
+    let after = this.captureQuickenDecayState();
+    const beforeActive = before.gaugeUnits > AURA_EPSILON;
+    const afterActive = after.gaugeUnits > AURA_EPSILON;
+    const lifecycleChanged =
+      Math.abs(
+        after.decayPerFrame - before.decayPerFrame
+      ) > AURA_EPSILON ||
+      after.expiresAtFrame !== before.expiresAtFrame ||
+      after.endCause !== before.endCause;
+    const operation: QuickenDecayMutationAudit["operation"] =
+      beforeActive && !afterActive
+        ? "remove"
+        : beforeActive && afterActive && lifecycleChanged
+          ? "decay-rebase"
+          : "none";
+
+    if (operation !== "none") {
+      this.quickenGeneration += 1;
+      after = this.captureQuickenDecayState();
+    }
+
+    const baseSnapshot = this.snapshot();
+    const operationAuraBefore =
+      this.snapshotWithQuickenState(baseSnapshot, before);
+    const operationAuraAfter =
+      this.snapshotWithQuickenState(baseSnapshot, after);
+    return {
+      operation,
+      generationBefore: before.generation,
+      generationAfter: after.generation,
+      quickenGaugeUnitsBefore: before.gaugeUnits,
+      quickenGaugeUnitsAfter: after.gaugeUnits,
+      decayPerFrameBefore: before.decayPerFrame,
+      decayPerFrameAfter: after.decayPerFrame,
+      expiresAtFrameBefore: before.expiresAtFrame,
+      expiresAtFrameAfter: after.expiresAtFrame,
+      endCauseBefore: before.endCause,
+      endCauseAfter: after.endCause,
+      operationAuraBefore,
+      operationAuraAfter
+    };
   }
 
   private attachQuicken(
@@ -1592,9 +1978,17 @@ export class AuraEngine {
     generation: number;
     quickenGaugeUnitsBefore: number;
     quickenGaugeUnitsAfter: number;
+    decayPerFrameBefore: number;
     decayPerFrame: number;
+    expiresAtFrameBefore: number | null;
     expiresAtFrame: number | null;
+    endCauseBefore: QuickenDecayEndCause;
+    endCause: Exclude<QuickenDecayEndCause, null>;
+    operationAuraBefore: AuraStateEntry[];
+    operationAuraAfter: AuraStateEntry[];
   } {
+    const lifecycleBefore = this.captureQuickenDecayState();
+    const operationAuraBefore = this.snapshot();
     const quickenGaugeUnitsBefore = this.quickenGaugeUnits();
     const existing = this.auras.get("quicken");
     let operation: QuickenReactionAudit["operation"] = "unchanged";
@@ -1621,6 +2015,12 @@ export class AuraEngine {
       this.quickenGeneration += 1;
     }
     const quicken = this.auras.get("quicken");
+    const lifecycleAfter = this.captureQuickenDecayState();
+    if (lifecycleAfter.endCause === null) {
+      throw new Error(
+        "Active Quicken attachment requires a deterministic end cause."
+      );
+    }
     return {
       operation,
       generation: this.quickenGeneration,
@@ -1630,8 +2030,15 @@ export class AuraEngine {
       quickenGaugeUnitsAfter: cleanGaugeUnits(
         quicken?.gaugeUnits ?? 0
       ),
-      decayPerFrame: quicken?.decayPerFrame ?? 0,
-      expiresAtFrame: this.quickenExpiryFrame()
+      decayPerFrameBefore: lifecycleBefore.decayPerFrame,
+      decayPerFrame: lifecycleAfter.decayPerFrame,
+      expiresAtFrameBefore:
+        lifecycleBefore.expiresAtFrame,
+      expiresAtFrame: lifecycleAfter.expiresAtFrame,
+      endCauseBefore: lifecycleBefore.endCause,
+      endCause: lifecycleAfter.endCause,
+      operationAuraBefore,
+      operationAuraAfter: this.snapshot()
     };
   }
 
@@ -1639,24 +2046,112 @@ export class AuraEngine {
     frame: number,
     generation: number,
     expectedExpiryFrame: number
-  ): {
-    generation: number;
-    operation: "expire" | "stale";
-    frame: number;
-    auraBefore: AuraStateEntry[];
-    auraAfter: AuraStateEntry[];
-    expiresAtFrame: number | null;
-    reason: string;
-  } {
+  ): QuickenExpiryResult {
+    const cachedBoundary =
+      this.lastQuickenNaturalExpiryBoundary;
+    if (
+      cachedBoundary !== null &&
+      cachedBoundary.generation === generation &&
+      generation === this.quickenGeneration &&
+      cachedBoundary.frame === frame &&
+      frame === expectedExpiryFrame
+    ) {
+      const lifecycleBefore =
+        cachedBoundary.lifecycleBefore;
+      const lifecycleAfter =
+        this.captureQuickenDecayState();
+      const auraAfter = this.snapshot();
+      this.lastQuickenNaturalExpiryBoundary = null;
+      return {
+        generation,
+        operation: "expire",
+        frame,
+        quickenGaugeUnitsBefore:
+          lifecycleBefore.gaugeUnits,
+        quickenGaugeUnitsAfter:
+          lifecycleAfter.gaugeUnits,
+        decayPerFrameBefore:
+          lifecycleBefore.decayPerFrame,
+        decayPerFrameAfter:
+          lifecycleAfter.decayPerFrame,
+        expiresAtFrameBefore:
+          lifecycleBefore.expiresAtFrame,
+        expiresAtFrame: lifecycleAfter.expiresAtFrame,
+        endCauseBefore: lifecycleBefore.endCause,
+        endCauseAfter: lifecycleAfter.endCause,
+        auraBefore: this.snapshotWithQuickenState(
+          auraAfter,
+          lifecycleBefore
+        ),
+        auraAfter,
+        reason: "QUICKEN_DECAY_EXPIRED"
+      };
+    }
     const generationWasCurrent =
       generation === this.quickenGeneration;
+    const lifecycleAtDispatch =
+      this.captureQuickenDecayState();
+    if (
+      !generationWasCurrent ||
+      (lifecycleAtDispatch.expiresAtFrame !== null &&
+        lifecycleAtDispatch.expiresAtFrame !==
+          expectedExpiryFrame)
+    ) {
+      // A stale target-local event is an observation only. Advancing the Aura
+      // clock here could let an old Quicken event consume a same-frame Fuel
+      // boundary before the authoritative BurningFuelExpiry event records it.
+      const aura = this.snapshot();
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        quickenGaugeUnitsBefore:
+          lifecycleAtDispatch.gaugeUnits,
+        quickenGaugeUnitsAfter:
+          lifecycleAtDispatch.gaugeUnits,
+        decayPerFrameBefore:
+          lifecycleAtDispatch.decayPerFrame,
+        decayPerFrameAfter:
+          lifecycleAtDispatch.decayPerFrame,
+        expiresAtFrameBefore:
+          lifecycleAtDispatch.expiresAtFrame,
+        expiresAtFrame:
+          lifecycleAtDispatch.expiresAtFrame,
+        endCauseBefore: lifecycleAtDispatch.endCause,
+        endCauseAfter: lifecycleAtDispatch.endCause,
+        auraBefore: aura,
+        auraAfter: aura.map((entry) => ({
+          ...entry,
+          ...(entry.sourceSlots === undefined
+            ? {}
+            : {
+                sourceSlots: entry.sourceSlots.map((slot) => ({
+                  ...slot
+                }))
+              })
+        })),
+        reason: "STALE_QUICKEN_EXPIRY_CHECK"
+      };
+    }
     if (frame > this.currentFrame) {
       this.advanceTo(Math.max(this.currentFrame, frame - 1));
     }
+    const lifecycleBefore = this.captureQuickenDecayState();
     const auraBefore = this.snapshot();
     this.advanceTo(frame);
+    const lifecycleAfter = this.captureQuickenDecayState();
     const auraAfter = this.snapshot();
-    const currentExpiry = this.quickenExpiryFrame();
+    const currentExpiry = lifecycleAfter.expiresAtFrame;
+    const lifecycle = {
+      quickenGaugeUnitsBefore: lifecycleBefore.gaugeUnits,
+      quickenGaugeUnitsAfter: lifecycleAfter.gaugeUnits,
+      decayPerFrameBefore: lifecycleBefore.decayPerFrame,
+      decayPerFrameAfter: lifecycleAfter.decayPerFrame,
+      expiresAtFrameBefore:
+        lifecycleBefore.expiresAtFrame,
+      endCauseBefore: lifecycleBefore.endCause,
+      endCauseAfter: lifecycleAfter.endCause
+    };
     if (
       !generationWasCurrent ||
       generation !== this.quickenGeneration ||
@@ -1667,6 +2162,7 @@ export class AuraEngine {
         generation,
         operation: "stale",
         frame,
+        ...lifecycle,
         auraBefore,
         auraAfter,
         expiresAtFrame: currentExpiry,
@@ -1674,11 +2170,40 @@ export class AuraEngine {
       };
     }
     if (this.quickenGaugeUnits() <= AURA_EPSILON) {
+      if (lifecycleBefore.gaugeUnits <= AURA_EPSILON) {
+        return {
+          generation,
+          operation: "stale",
+          frame,
+          ...lifecycle,
+          auraBefore,
+          auraAfter,
+          expiresAtFrame: currentExpiry,
+          reason: "STALE_QUICKEN_EXPIRY_CHECK"
+        };
+      }
+      const operationAuraBefore =
+        this.snapshotWithQuickenState(
+          auraAfter,
+          lifecycleBefore
+        );
+      if (
+        this.lastQuickenNaturalExpiryBoundary
+          ?.generation === generation &&
+        this.lastQuickenNaturalExpiryBoundary.frame === frame
+      ) {
+        this.lastQuickenNaturalExpiryBoundary = null;
+      }
       return {
         generation,
         operation: "expire",
         frame,
-        auraBefore,
+        ...lifecycle,
+        // Time advancement may decay unrelated Aura slots on the same frame.
+        // The lifecycle operation snapshots isolate the actual Quicken
+        // removal boundary so strict consumers never attribute those ambient
+        // decays to the Quicken expiry operation itself.
+        auraBefore: operationAuraBefore,
         auraAfter,
         expiresAtFrame: null,
         reason: "QUICKEN_DECAY_EXPIRED"
@@ -1688,6 +2213,7 @@ export class AuraEngine {
       generation,
       operation: "stale",
       frame,
+      ...lifecycle,
       auraBefore,
       auraAfter,
       expiresAtFrame: currentExpiry,
@@ -1719,6 +2245,14 @@ export class AuraEngine {
     input: AuraHitInput,
     before: BurningStateCapture
   ): BurningReactionAudit {
+    const quickenStateMutation =
+      this.lastBurningStop?.fromGeneration ===
+        before.generation &&
+      this.lastBurningStop.frame === input.frame
+        ? this.lastBurningStop.quickenStateMutation
+        : this.finalizeQuickenDecayMutation(
+            this.captureQuickenDecayState()
+          );
     return {
       reaction: "burning",
       operation: "stop",
@@ -1745,6 +2279,7 @@ export class AuraEngine {
       ),
       fuelDecayPerFrame: before.fuelDecayPerFrame,
       fuelExpiresAtFrame: null,
+      quickenStateMutation,
       snapshotFrame: input.frame,
       clockModel: "target-local-no-hitlag",
       hitlagStatus: "unsupported-enemy-hitlag",
@@ -1773,6 +2308,8 @@ export class AuraEngine {
     });
     this.burningFuelSourceActorId = sourceActorId;
     this.burningFuelAttachedFrame = this.currentFrame;
+    this.burningFuelDepletedFrame = null;
+    this.burningFuelDepletedDecayPerFrame = null;
   }
 
   private startOrRefreshBurning(
@@ -1780,7 +2317,7 @@ export class AuraEngine {
     application: ElementalApplication
   ): BurningReactionAudit | null {
     if (
-      this.mode !== "aura-v4" ||
+      !usesBurningModel(this.mode) ||
       (input.element !== "pyro" &&
         input.element !== "dendro") ||
       application.gaugeUnits <= AURA_EPSILON
@@ -1791,6 +2328,7 @@ export class AuraEngine {
     const burningGaugeUnitsBefore = this.burningGaugeUnits();
     const fuelGaugeUnitsBefore =
       this.burningFuelGaugeUnits();
+    const quickenBefore = this.captureQuickenDecayState();
     const activeBefore = this.hasActiveBurning();
     const qualifies =
       input.element === "pyro"
@@ -1853,6 +2391,8 @@ export class AuraEngine {
       fuelOperation = "unchanged";
     }
     this.burningDamageSourceActorId = input.sourceActorId;
+    const quickenStateMutation =
+      this.finalizeQuickenDecayMutation(quickenBefore);
 
     return {
       reaction: "burning",
@@ -1888,6 +2428,7 @@ export class AuraEngine {
       fuelDecayPerFrame:
         this.auras.get("burningFuel")?.decayPerFrame ?? 0,
       fuelExpiresAtFrame: this.burningFuelExpiryFrame(),
+      quickenStateMutation,
       snapshotFrame: input.frame,
       clockModel: "target-local-no-hitlag",
       hitlagStatus: "unsupported-enemy-hitlag",
@@ -2012,6 +2553,68 @@ export class AuraEngine {
   ): BurningFuelExpiryResult {
     const generationWasCurrent =
       generation === this.burningGeneration;
+    const dispatchExpiry =
+      this.burningFuelLifecycleExpiryFrame();
+    if (
+      !generationWasCurrent ||
+      (dispatchExpiry !== null &&
+        dispatchExpiry !== expectedExpiryFrame)
+    ) {
+      // Like Quicken expiry, a superseded Fuel event must not advance target
+      // state. A newer same-frame event owns the actual Tick boundary.
+      const aura = this.snapshot();
+      const burningGaugeUnits = this.burningGaugeUnits();
+      const fuelGaugeUnits = this.burningFuelGaugeUnits();
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        damageSourceActorId:
+          this.burningDamageSourceActorId,
+        fuelSourceActorId: this.burningFuelSourceActorId,
+        burningGaugeUnitsBefore: cleanGaugeUnits(
+          burningGaugeUnits
+        ),
+        burningGaugeUnitsAfter: cleanGaugeUnits(
+          burningGaugeUnits
+        ),
+        fuelGaugeUnitsBefore: cleanGaugeUnits(
+          fuelGaugeUnits
+        ),
+        fuelGaugeUnitsAfter: cleanGaugeUnits(
+          fuelGaugeUnits
+        ),
+        fuelDecayPerFrame:
+          this.auras.get("burningFuel")?.decayPerFrame ??
+          this.burningFuelDepletedDecayPerFrame ??
+          0,
+        auraBefore: aura,
+        auraAfter: aura.map((entry) => ({
+          ...entry,
+          ...(entry.sourceSlots === undefined
+            ? {}
+            : {
+                sourceSlots: entry.sourceSlots.map((slot) => ({
+                  ...slot
+                }))
+              })
+        })),
+        nextTickFrame:
+          this.burningNextTickFrame < 0
+            ? null
+            : this.burningNextTickFrame,
+        fuelExpiresAtFrame: dispatchExpiry,
+        quickenStateMutation:
+          this.finalizeQuickenDecayMutation(
+            this.captureQuickenDecayState()
+          ),
+        selfDamageStatus:
+          "unsupported-player-damage-model",
+        reason: generationWasCurrent
+          ? "BURNING_REFRESHED_BEFORE_EXPIRY"
+          : "STALE_BURNING_FUEL_EXPIRY_CHECK"
+      };
+    }
     if (frame > this.currentFrame) {
       this.advanceTo(Math.max(this.currentFrame, frame - 1));
     }
@@ -2053,6 +2656,8 @@ export class AuraEngine {
         auraAfter,
         nextTickFrame: null,
         fuelExpiresAtFrame: null,
+        quickenStateMutation:
+          this.lastBurningStop!.quickenStateMutation,
         selfDamageStatus:
           "unsupported-player-damage-model",
         reason: "FUEL_EXPIRED"
@@ -2092,11 +2697,302 @@ export class AuraEngine {
           ? null
           : this.burningNextTickFrame,
       fuelExpiresAtFrame: currentExpiry,
+      quickenStateMutation:
+        this.finalizeQuickenDecayMutation(
+          this.captureQuickenDecayState()
+        ),
       selfDamageStatus:
         "unsupported-player-damage-model",
       reason: refreshed
         ? "BURNING_REFRESHED_BEFORE_EXPIRY"
         : "STALE_BURNING_FUEL_EXPIRY_CHECK"
+    };
+  }
+
+  private resolveBloom(
+    input: AuraHitInput,
+    incomingGaugeUnits: number,
+    runQuickenHydroFollowup: boolean,
+    auraConsumed: NonNullable<ReactionAudit["auraConsumed"]>
+  ): {
+    remainingIncomingGaugeUnits: number;
+    audits: BloomReactionAudit[];
+  } {
+    const isQuickenFollowupOnly =
+      input.element === "electro" &&
+      runQuickenHydroFollowup;
+    if (
+      this.mode !== "aura-v5" ||
+      (input.element !== "hydro" &&
+        input.element !== "dendro" &&
+        !isQuickenFollowupOnly)
+    ) {
+      return {
+        remainingIncomingGaugeUnits: incomingGaugeUnits,
+        audits: []
+      };
+    }
+
+    const fuelWasActive =
+      this.burningFuelGaugeUnits() > AURA_EPSILON;
+    const burningMarkerWasActive =
+      this.burningGaugeUnits() > AURA_EPSILON;
+    const result = resolveBloomGauge({
+      frame: input.frame,
+      // The pure resolver expresses this queued gauge operation as the
+      // Quicken-follow-up half of a Dendro Catalyze path. Electro Catalyze
+      // performs the same Quicken/Hydro operation; the public audit below
+      // retains Electro so reaction ownership remains truthful.
+      triggerElement:
+        input.element === "hydro" ? "hydro" : "dendro",
+      incomingGauge: incomingGaugeUnits,
+      gauges: {
+        dendro: this.auras.get("dendro")?.gaugeUnits ?? 0,
+        quicken: this.quickenGaugeUnits(),
+        burningFuel: this.burningFuelGaugeUnits(),
+        hydro: this.auras.get("hydro")?.gaugeUnits ?? 0
+      },
+      runQuickenHydroFollowup
+    });
+
+    const audits: BloomReactionAudit[] = [];
+    for (const resolution of result.resolutions) {
+      const quickenBefore =
+        this.captureQuickenDecayState();
+      const burningFuelGaugeUnitsBefore =
+        this.burningFuelGaugeUnits();
+      const burningFuelGeneration =
+        burningMarkerWasActive &&
+        (burningFuelGaugeUnitsBefore > AURA_EPSILON ||
+          this.burningFuelDepletedFrame !== null)
+          ? this.burningGeneration
+          : null;
+      const fuelDecayPerFrameBefore =
+        this.auras.get("burningFuel")?.decayPerFrame ??
+        this.burningFuelDepletedDecayPerFrame;
+      const burningFuelExpiresAtFrameBefore =
+        burningFuelGeneration === null
+          ? null
+          : this.burningFuelLifecycleExpiryFrame();
+      const consume = (
+        element:
+          | "dendro"
+          | "quicken"
+          | "burningFuel"
+          | "hydro",
+        expectedGaugeUnits: number
+      ): void => {
+        if (expectedGaugeUnits <= AURA_EPSILON) return;
+        const mutation = this.reduceAuraGauge(
+          element,
+          expectedGaugeUnits
+        );
+        if (
+          Math.abs(
+            mutation.consumedGaugeUnits -
+              expectedGaugeUnits
+          ) > AURA_EPSILON
+        ) {
+          throw new Error(
+            `Bloom ${element} gauge drift: resolver expected ${expectedGaugeUnits}U but AuraEngine consumed ${mutation.consumedGaugeUnits}U.`
+          );
+        }
+        auraConsumed.push({
+          element,
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : {
+                sourceMutations: mutation.sourceMutations
+              })
+        });
+      };
+
+      consume(
+        "dendro",
+        resolution.gaugeConsumedBySlot.dendro
+      );
+      consume(
+        "burningFuel",
+        resolution.gaugeConsumedBySlot.burningFuel
+      );
+      if (
+        fuelWasActive &&
+        burningMarkerWasActive &&
+        this.burningFuelGaugeUnits() <= AURA_EPSILON
+      ) {
+        this.burningFuelDepletedFrame = input.frame;
+        this.burningFuelDepletedDecayPerFrame =
+          fuelDecayPerFrameBefore;
+      }
+      const burningFuelGaugeUnitsAfter =
+        this.burningFuelGaugeUnits();
+      const burningFuelConsumed =
+        resolution.gaugeConsumedBySlot.burningFuel >
+        AURA_EPSILON;
+      const burningFuelStateMutation: BloomReactionAudit["burningFuelStateMutation"] =
+        {
+          operation:
+            burningFuelGeneration === null ||
+            !burningFuelConsumed
+              ? "none"
+              : burningFuelGaugeUnitsAfter >
+                    AURA_EPSILON
+                ? "expiry-rebase"
+                : "deplete-pending-purge",
+          generation: burningFuelGeneration,
+          decayPerFrame:
+            burningFuelGeneration === null
+              ? 0
+              : (fuelDecayPerFrameBefore ?? 0),
+          expiresAtFrameBefore:
+            burningFuelExpiresAtFrameBefore,
+          expiresAtFrameAfter:
+            burningFuelGeneration === null
+              ? null
+              : this.burningFuelLifecycleExpiryFrame()
+        };
+      consume(
+        "quicken",
+        resolution.gaugeConsumedBySlot.quicken
+      );
+      const quickenOperationBaseSnapshot = this.snapshot();
+      consume(
+        "hydro",
+        resolution.gaugeConsumedBySlot.hydro
+      );
+      const quickenConsumed =
+        resolution.gaugeConsumedBySlot.quicken >
+        AURA_EPSILON;
+      const quickenGaugeUnitsAfter =
+        this.quickenGaugeUnits();
+      let quickenAfter = this.captureQuickenDecayState();
+      const lifecycleChanged =
+        Math.abs(
+          quickenAfter.decayPerFrame -
+            quickenBefore.decayPerFrame
+        ) > AURA_EPSILON ||
+        quickenAfter.expiresAtFrame !==
+          quickenBefore.expiresAtFrame ||
+        quickenAfter.endCause !== quickenBefore.endCause;
+      const quickenMutationOperation: BloomReactionAudit["quickenStateMutation"]["operation"] =
+        quickenConsumed
+          ? quickenGaugeUnitsAfter > AURA_EPSILON
+            ? "partial-consume"
+            : "remove"
+          : lifecycleChanged
+            ? "decay-rebase"
+            : "none";
+      if (quickenMutationOperation !== "none") {
+        // Any Bloom Gauge or Fuel-lifetime mutation invalidates the previously
+        // scheduled Quicken boundary exactly once. The simulator can then
+        // schedule only QUICKEN_DECAY and leave Fuel-owned removal to Burning.
+        this.quickenGeneration += 1;
+        quickenAfter = this.captureQuickenDecayState();
+      }
+      const quickenStateMutation: BloomReactionAudit["quickenStateMutation"] =
+        {
+          operation: quickenMutationOperation,
+          generationBefore: quickenBefore.generation,
+          generationAfter: this.quickenGeneration,
+          decayPerFrameBefore:
+            quickenBefore.decayPerFrame,
+          decayPerFrameAfter:
+            quickenAfter.decayPerFrame,
+          expiresAtFrameBefore:
+            quickenBefore.expiresAtFrame,
+          expiresAtFrameAfter:
+            quickenAfter.expiresAtFrame,
+          endCauseBefore: quickenBefore.endCause,
+          endCauseAfter: quickenAfter.endCause,
+          operationAuraBefore:
+            this.snapshotWithQuickenState(
+              quickenOperationBaseSnapshot,
+              quickenBefore
+            ),
+          operationAuraAfter:
+            this.snapshotWithQuickenState(
+              quickenOperationBaseSnapshot,
+              quickenAfter
+            )
+        };
+
+      audits.push({
+        reaction: "bloom",
+        operation: resolution.kind,
+        triggerElement:
+          input.element === "hydro"
+            ? "hydro"
+            : input.element === "dendro"
+              ? "dendro"
+              : "electro",
+        sourceActorId: input.sourceActorId,
+        triggerFrame: input.frame,
+        sourceBudget:
+          resolution.driver.kind === "incoming"
+            ? "incoming-application"
+            : "quicken-state",
+        sourceGaugeUnitsBefore:
+          resolution.driver.gaugeBefore,
+        sourceGaugeUnitsSpent:
+          resolution.driver.consumedGauge,
+        sourceGaugeUnitsAfter:
+          resolution.driver.gaugeAfter,
+        hydroGaugeUnitsBefore:
+          resolution.gaugesBefore.hydro,
+        hydroConsumedGaugeUnits:
+          resolution.gaugeConsumedBySlot.hydro,
+        hydroGaugeUnitsAfter:
+          resolution.gaugesAfter.hydro,
+        dendroGaugeUnitsBefore:
+          resolution.gaugesBefore.dendro,
+        dendroConsumedGaugeUnits:
+          resolution.gaugeConsumedBySlot.dendro,
+        dendroGaugeUnitsAfter:
+          resolution.gaugesAfter.dendro,
+        quickenGaugeUnitsBefore:
+          resolution.gaugesBefore.quicken,
+        quickenConsumedGaugeUnits:
+          resolution.gaugeConsumedBySlot.quicken,
+        quickenGaugeUnitsAfter:
+          resolution.gaugesAfter.quicken,
+        quickenStateMutation,
+        burningFuelGaugeUnitsBefore:
+          resolution.gaugesBefore.burningFuel,
+        burningFuelConsumedGaugeUnits:
+          resolution.gaugeConsumedBySlot.burningFuel,
+        burningFuelGaugeUnitsAfter:
+          resolution.gaugesAfter.burningFuel,
+        burningFuelStateMutation,
+        scheduled: true,
+        coreSpawnFrame:
+          input.frame + BLOOM_CORE_SPAWN_DELAY_FRAMES,
+        coreSpawnDelayFrames:
+          BLOOM_CORE_SPAWN_DELAY_FRAMES,
+        blockedReason: null,
+        mechanicsDataStatus: "fixed-gcsim-provisional",
+        selfDamageStatus:
+          "unsupported-player-damage-model"
+      });
+    }
+
+    if (
+      fuelWasActive &&
+      burningMarkerWasActive &&
+      this.burningFuelGaugeUnits() <= AURA_EPSILON
+    ) {
+      // Fixed Reactable.Tick performs the dependent Burning/Dendro/Quicken
+      // purge on the next frame. Keep the marker visible to later same-frame
+      // reactions and cancel this pending purge if same-frame Dendro/Pyro
+      // refills Fuel.
+      this.burningFuelDepletedFrame = input.frame;
+      this.burningFuelDepletedDecayPerFrame ??=
+        BURNING_FUEL_MIN_DECAY_PER_FRAME;
+    }
+
+    return {
+      remainingIncomingGaugeUnits: result.incomingGaugeAfter,
+      audits
     };
   }
 
@@ -2277,7 +3173,7 @@ export class AuraEngine {
           auraConsumedGaugeUnits
         ),
         auraGaugeUnitsAfter: cleanGaugeUnits(
-          this.auras.get(auditConsumedAuraElement)?.gaugeUnits ?? 0
+          this.mappedAuraGaugeUnits(consumedAuraElement)
         ),
         propagatedGaugeUnits: cleanGaugeUnits(
           propagatedGaugeUnits
@@ -2371,6 +3267,7 @@ export class AuraEngine {
               burningBeforeReaction
             )
           : null,
+      bloomReactions: [],
       note:
         firstSwirl === null
           ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
@@ -2454,6 +3351,7 @@ export class AuraEngine {
         crystallizeReaction: null,
         catalyzeReaction: null,
         burningReaction: null,
+        bloomReactions: [],
         note:
           "岩元素附着通过 ICD；当前没有可结晶的火/水/冰/雷/冻元素 Aura。"
       };
@@ -2574,8 +3472,7 @@ export class AuraEngine {
         auraConsumedGaugeUnits
       ),
       auraGaugeUnitsAfter: cleanGaugeUnits(
-        this.auras.get(auditConsumedAuraElement)?.gaugeUnits ??
-          0
+        this.mappedAuraGaugeUnits(candidate.consumedAuraElement)
       ),
       scheduled,
       blockedReason: scheduled ? null : "REACTION_QUEUE_GCD",
@@ -2639,6 +3536,7 @@ export class AuraEngine {
               burningBeforeReaction
             )
           : null,
+      bloomReactions: [],
       note: scheduled
         ? `${candidate.crystallizedElement}结晶通过目标本地 60 帧共享队列；23 帧后生成碎片，触发后第 54 帧起可拾取。`
         : `${candidate.crystallizedElement}结晶被目标本地共享队列阻止；Aura 与岩元素预算均未消耗，第 ${nextAvailableFrame} 帧可再次触发。`
@@ -2678,6 +3576,7 @@ export class AuraEngine {
         crystallizeReaction: null,
         catalyzeReaction: null,
         burningReaction: null,
+        bloomReactions: [],
         note: `目标已于第 ${mechanicsTruncation.startedAtFrame} 帧进入机制截断；后续 Aura、ICD 与反应均冻结，本事件仅保留非反应伤害的潜在值。`
       };
     }
@@ -2719,6 +3618,7 @@ export class AuraEngine {
         crystallizeReaction: null,
         catalyzeReaction: null,
         burningReaction: null,
+        bloomReactions: [],
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -2756,6 +3656,7 @@ export class AuraEngine {
         crystallizeReaction: null,
         catalyzeReaction: null,
         burningReaction: null,
+        bloomReactions: [],
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -2791,6 +3692,7 @@ export class AuraEngine {
         crystallizeReaction: null,
         catalyzeReaction: null,
         burningReaction: null,
+        bloomReactions: [],
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -2903,21 +3805,55 @@ export class AuraEngine {
       this.mappedAuraGaugeUnits("pyro") <=
         AURA_EPSILON;
     const usesOrderedPyroPipeline =
-      this.mode === "aura-v4" && input.element === "pyro";
+      usesBurningModel(this.mode) &&
+      input.element === "pyro";
+    const usesOrderedHydroPipeline =
+      this.mode === "aura-v5" &&
+      input.element === "hydro";
+    const usesOrderedCryoPipeline =
+      this.mode === "aura-v5" &&
+      input.element === "cryo";
+    const usesElectroHydroDendroPipeline =
+      this.mode === "aura-v5" &&
+      input.element === "electro" &&
+      (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+        AURA_EPSILON &&
+      (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+        AURA_EPSILON &&
+      this.mappedAuraGaugeUnits("pyro") <= AURA_EPSILON &&
+      (this.auras.get("cryo")?.gaugeUnits ?? 0) <=
+        AURA_EPSILON &&
+      this.frozenGaugeUnits() <= AURA_EPSILON;
     let remainingPyroGaugeUnits = application.gaugeUnits;
+    let remainingHydroGaugeUnits = application.gaugeUnits;
+    let remainingCryoGaugeUnits = application.gaugeUnits;
     let remainingDendroGaugeUnits = application.gaugeUnits;
     const orderedPyroReactions: ReactionType[] = [];
+    const orderedHydroReactions: ReactionType[] = [];
+    const orderedCryoReactions: ReactionType[] = [];
+    const orderedElectroReactions: ReactionType[] = [];
     let orderedPyroTransformativeReaction:
       | OneShotTransformativeReaction
       | null = null;
     let orderedPyroAmplifyingReaction:
       | AmplifyingReaction
       | null = null;
+    let orderedHydroAmplifyingReaction:
+      | AmplifyingReaction
+      | null = null;
+    let orderedCryoTransformativeReaction:
+      | OneShotTransformativeReaction
+      | null = null;
+    let orderedCryoAmplifyingReaction:
+      | AmplifyingReaction
+      | null = null;
     const eligibleRules =
       frozenMelt ||
       frozenSuperconduct ||
       input.element === "dendro" ||
-      usesOrderedPyroPipeline
+      usesOrderedPyroPipeline ||
+      usesOrderedHydroPipeline ||
+      usesOrderedCryoPipeline
         ? []
         : REACTION_RULES[input.element].filter(
           (candidate) =>
@@ -2946,9 +3882,78 @@ export class AuraEngine {
             input.element === "electro"
           ? "dendro"
           : null;
+    // v2/v3 historically execute only eligibleRules[0]. If the remaining
+    // incoming budget can reach another consuming branch, preserve that
+    // compatibility result but fail closed instead of claiming completeness.
     if (
-      this.mode === "aura-v4" &&
+      (this.mode === "aura-v2" ||
+        this.mode === "aura-v3") &&
+      input.element !== "dendro"
+    ) {
+      const legacyReactionCandidates: readonly ReactionRule[] =
+        frozenMelt
+          ? [
+              {
+                auraElement: "cryo",
+                reaction: "melt",
+                consumptionFactor: 2
+              }
+            ]
+          : frozenSuperconduct
+            ? [
+                {
+                  auraElement: "cryo",
+                  reaction: "superconduct",
+                  consumptionFactor: 1
+                }
+              ]
+            : eligibleRules;
+      let remainingGaugeUnits = application.gaugeUnits;
+      let reachableConsumingReactionCount = 0;
+      for (const candidate of legacyReactionCandidates) {
+        if (remainingGaugeUnits <= AURA_EPSILON) break;
+        if (candidate.consumptionFactor <= 0) continue;
+        const consumedGaugeUnits = Math.min(
+          this.mappedAuraGaugeUnits(candidate.auraElement),
+          remainingGaugeUnits * candidate.consumptionFactor
+        );
+        if (consumedGaugeUnits <= AURA_EPSILON) continue;
+        reachableConsumingReactionCount += 1;
+        remainingGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingGaugeUnits -
+              consumedGaugeUnits / candidate.consumptionFactor
+          )
+        );
+      }
+      if (
+        this.mode === "aura-v3" &&
+        input.element === "electro" &&
+        remainingGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        reachableConsumingReactionCount += 1;
+      }
+      if (
+        reachableConsumingReactionCount > 1 &&
+        !unsupportedReactions.includes(
+          "legacy-multi-reaction-order"
+        )
+      ) {
+        unsupportedReactions.push(
+          "legacy-multi-reaction-order"
+        );
+      }
+    }
+    if (
+      (this.mode === "aura-v4" ||
+        this.mode === "aura-v5") &&
       !usesOrderedPyroPipeline &&
+      !usesOrderedHydroPipeline &&
+      !usesOrderedCryoPipeline &&
+      !usesElectroHydroDendroPipeline &&
       (input.element === "cryo" ||
         input.element === "hydro" ||
         input.element === "electro")
@@ -2986,9 +3991,12 @@ export class AuraEngine {
       }
     }
     let automaticReaction: ReactionType = "none";
-    const auraConsumed: ReactionAudit["auraConsumed"] = [];
+    const auraConsumed: NonNullable<
+      ReactionAudit["auraConsumed"]
+    > = [];
     const burningBeforeReaction = this.captureBurningState();
     let burningReaction: BurningReactionAudit | null = null;
+    let bloomReactions: BloomReactionAudit[] = [];
 
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
@@ -3128,6 +4136,492 @@ export class AuraEngine {
           input.sourceActorId
         );
       }
+    } else if (usesOrderedCryoPipeline) {
+      const consumeMappedAura = (
+        element: AuraStateElement,
+        consumptionFactor: number,
+        spendsIncomingGauge = true
+      ): number => {
+        if (
+          remainingCryoGaugeUnits <= AURA_EPSILON ||
+          this.mappedAuraGaugeUnits(element) <= AURA_EPSILON
+        ) {
+          return 0;
+        }
+        const mutations = this.reduceMappedAuraGauge(
+          element,
+          remainingCryoGaugeUnits * consumptionFactor
+        );
+        let maximumConsumedGaugeUnits = 0;
+        for (const mutation of mutations) {
+          maximumConsumedGaugeUnits = Math.max(
+            maximumConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
+        if (spendsIncomingGauge) {
+          remainingCryoGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingCryoGaugeUnits -
+                maximumConsumedGaugeUnits /
+                  consumptionFactor
+            )
+          );
+        }
+        return maximumConsumedGaugeUnits;
+      };
+
+      // Fixed gcsim Cryo order: Superconduct → Melt → Freeze. Preserve one
+      // shared incoming Gauge budget so a strong Cryo application can consume
+      // Electro first and still reach Hydro later in the same hit.
+      if (
+        !frozenPresent &&
+        consumeMappedAura("electro", 1) > AURA_EPSILON
+      ) {
+        orderedCryoReactions.push("superconduct");
+        orderedCryoTransformativeReaction = "superconduct";
+      }
+
+      // The fixed gcsim reference-code path (not asserted here as verified
+      // live-game truth) reduces Pyro in TryMelt but does not subtract its
+      // return value from incoming Cryo durability. Preserve that observable
+      // behavior so the same post-Superconduct budget reaches TryFreeze.
+      if (
+        consumeMappedAura("pyro", 0.5, false) >
+        AURA_EPSILON
+      ) {
+        orderedCryoReactions.push("reverseMelt");
+        orderedCryoAmplifyingReaction = "reverseMelt";
+      }
+
+      if (
+        remainingCryoGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        const mutation = this.reduceAuraGauge(
+          "hydro",
+          remainingCryoGaugeUnits
+        );
+        if (mutation.consumedGaugeUnits > AURA_EPSILON) {
+          // That reference TryFreeze Cryo branch likewise consumes Hydro and
+          // creates Frozen without subtracting the consumed value from incoming
+          // Cryo. The hit has reacted, so any residue is not attached afterward.
+          auraConsumed.push({
+            element: "hydro",
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+          const frozenBefore = this.frozenGaugeUnits();
+          const frozenAttachment = this.attachFrozen(
+            2 * mutation.consumedGaugeUnits
+          );
+          frozenReaction = {
+            generation: this.frozenGeneration,
+            operation: frozenAttachment.operation,
+            freezeResistance: this.freezeResistance,
+            generatedGaugeUnits: cleanGaugeUnits(
+              frozenAttachment.generatedGaugeUnits
+            ),
+            consumedGaugeUnits: 0,
+            frozenGaugeBefore: cleanGaugeUnits(frozenBefore),
+            frozenGaugeAfter: cleanGaugeUnits(
+              this.frozenGaugeUnits()
+            ),
+            decayRatePerFrame: this.frozenDecayRate,
+            expiresAtFrame: this.frozenExpiryFrame()
+          };
+          orderedCryoReactions.push("freeze");
+        }
+      }
+
+      automaticReaction =
+        orderedCryoAmplifyingReaction ??
+        orderedCryoTransformativeReaction ??
+        orderedCryoReactions[0] ??
+        "none";
+      if (
+        orderedCryoReactions.length === 0 &&
+        unsupportedReactions.length === 0
+      ) {
+        this.attachNormalAura(
+          input.element,
+          application.gaugeUnits,
+          input.sourceActorId
+        );
+      }
+    } else if (usesOrderedHydroPipeline) {
+      const consumeMappedAura = (
+        element: AuraStateElement,
+        consumptionFactor: number
+      ): number => {
+        if (
+          remainingHydroGaugeUnits <= AURA_EPSILON ||
+          this.mappedAuraGaugeUnits(element) <= AURA_EPSILON
+        ) {
+          return 0;
+        }
+        const mutations = this.reduceMappedAuraGauge(
+          element,
+          remainingHydroGaugeUnits * consumptionFactor
+        );
+        let maximumConsumedGaugeUnits = 0;
+        for (const mutation of mutations) {
+          maximumConsumedGaugeUnits = Math.max(
+            maximumConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
+        remainingHydroGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingHydroGaugeUnits -
+              maximumConsumedGaugeUnits / consumptionFactor
+          )
+        );
+        return maximumConsumedGaugeUnits;
+      };
+
+      if (consumeMappedAura("pyro", 2) > AURA_EPSILON) {
+        orderedHydroReactions.push("vaporize");
+        orderedHydroAmplifyingReaction = "vaporize";
+      }
+
+      if (
+        remainingHydroGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("cryo")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        const mutation = this.reduceAuraGauge(
+          "cryo",
+          remainingHydroGaugeUnits
+        );
+        if (mutation.consumedGaugeUnits > AURA_EPSILON) {
+          remainingHydroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingHydroGaugeUnits -
+                mutation.consumedGaugeUnits
+            )
+          );
+          auraConsumed.push({
+            element: "cryo",
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+          const frozenBefore = this.frozenGaugeUnits();
+          const frozenAttachment = this.attachFrozen(
+            2 * mutation.consumedGaugeUnits
+          );
+          frozenReaction = {
+            generation: this.frozenGeneration,
+            operation: frozenAttachment.operation,
+            freezeResistance: this.freezeResistance,
+            generatedGaugeUnits: cleanGaugeUnits(
+              frozenAttachment.generatedGaugeUnits
+            ),
+            consumedGaugeUnits: 0,
+            frozenGaugeBefore: cleanGaugeUnits(frozenBefore),
+            frozenGaugeAfter: cleanGaugeUnits(
+              this.frozenGaugeUnits()
+            ),
+            decayRatePerFrame: this.frozenDecayRate,
+            expiresAtFrame: this.frozenExpiryFrame()
+          };
+          orderedHydroReactions.push("freeze");
+        }
+      }
+
+      const bloom = this.resolveBloom(
+        input,
+        remainingHydroGaugeUnits,
+        false,
+        auraConsumed
+      );
+      remainingHydroGaugeUnits =
+        bloom.remainingIncomingGaugeUnits;
+      bloomReactions = bloom.audits;
+      if (bloomReactions.length > 0) {
+        orderedHydroReactions.push(
+          ...bloomReactions.map(() => "bloom" as const)
+        );
+      }
+
+      const reactedBeforeElectroCharged =
+        orderedHydroReactions.length > 0;
+      if (
+        remainingHydroGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("electro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        if (!reactedBeforeElectroCharged) {
+          this.attachNormalAura(
+            "hydro",
+            remainingHydroGaugeUnits,
+            input.sourceActorId
+          );
+        }
+        if (this.hasElectroChargedAuras()) {
+          const operation = this.electroChargedActive
+            ? "refresh"
+            : "start";
+          if (operation === "start") {
+            this.electroChargedGeneration += 1;
+            this.electroChargedActive = true;
+            this.electroChargedNextTickFrame =
+              input.frame +
+              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+          }
+          const coexistenceExpiresAtFrame =
+            this.electroChargedExpiryFrame();
+          if (coexistenceExpiresAtFrame === null) {
+            throw new Error(
+              "Electro-Charged was selected without coexisting Hydro and Electro aura."
+            );
+          }
+          periodicReaction = {
+            reaction: "electroCharged",
+            generation: this.electroChargedGeneration,
+            operation,
+            damageElement: "electro",
+            baseMultiplier:
+              ELECTRO_CHARGED_BASE_MULTIPLIER,
+            firstDamageFrame:
+              operation === "start"
+                ? input.frame +
+                  ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+                : null,
+            nextTickFrame:
+              this.electroChargedNextTickFrame,
+            tickIntervalFrames:
+              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+            waneDelayFrames:
+              ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+            waneGaugeUnits:
+              ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+            coexistenceExpiresAtFrame
+          };
+          orderedHydroReactions.push(
+            "electroCharged"
+          );
+        } else if (reactedBeforeElectroCharged) {
+          // Fixed TryAddEC still emits Electro-Charged and queues its +10f
+          // first damage when Hydro already reacted earlier in this hit. The
+          // remaining Hydro budget is not attached, so no continuing
+          // coexistence stream is created.
+          this.electroChargedGeneration += 1;
+          this.electroChargedActive = true;
+          this.electroChargedNextTickFrame =
+            input.frame +
+            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+          periodicReaction = {
+            reaction: "electroCharged",
+            generation: this.electroChargedGeneration,
+            operation: "start",
+            damageElement: "electro",
+            baseMultiplier:
+              ELECTRO_CHARGED_BASE_MULTIPLIER,
+            firstDamageFrame:
+              input.frame +
+              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES,
+            nextTickFrame:
+              this.electroChargedNextTickFrame,
+            tickIntervalFrames:
+              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+            waneDelayFrames:
+              ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+            waneGaugeUnits:
+              ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+            coexistenceExpiresAtFrame: null
+          };
+          orderedHydroReactions.push(
+            "electroCharged"
+          );
+        }
+      }
+
+      automaticReaction =
+        orderedHydroAmplifyingReaction ??
+        orderedHydroReactions[0] ??
+        "none";
+      if (
+        orderedHydroReactions.length === 0 &&
+        unsupportedReactions.length === 0
+      ) {
+        this.attachNormalAura(
+          input.element,
+          application.gaugeUnits,
+          input.sourceActorId
+        );
+      }
+    } else if (usesElectroHydroDendroPipeline) {
+      // Fixed gcsim order reaches TryAddEC before TryQuicken for incoming
+      // Electro. EC attaches the incoming Electro because no earlier
+      // consuming reaction fired, then Quicken consumes Dendro and queues the
+      // zero-delay Quicken→Hydro Bloom follow-up.
+      this.attachNormalAura(
+        "electro",
+        application.gaugeUnits,
+        input.sourceActorId
+      );
+      const electroChargedOperation =
+        this.electroChargedActive ? "refresh" : "start";
+      if (electroChargedOperation === "start") {
+        this.electroChargedGeneration += 1;
+        this.electroChargedActive = true;
+        this.electroChargedNextTickFrame =
+          input.frame +
+          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+      }
+      orderedElectroReactions.push("electroCharged");
+
+      const targetAura = this.auras.get("dendro");
+      if (targetAura === undefined) {
+        throw new Error(
+          "Electro Hydro+Dendro pipeline lost its Dendro Quicken candidate."
+        );
+      }
+      const auraGaugeUnitsBefore = targetAura.gaugeUnits;
+      const sourceGaugeUnitsBefore = application.gaugeUnits;
+      const sourceGaugeUnitsSpent = Math.min(
+        sourceGaugeUnitsBefore,
+        auraGaugeUnitsBefore
+      );
+      const sourceGaugeUnitsAfter = cleanGaugeUnits(
+        sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
+      );
+      const mutation = this.reduceAuraGauge(
+        "dendro",
+        sourceGaugeUnitsSpent
+      );
+      auraConsumed.push({
+        element: "dendro",
+        gaugeUnits: mutation.consumedGaugeUnits,
+        ...(mutation.sourceMutations.length === 0
+          ? {}
+          : { sourceMutations: mutation.sourceMutations })
+      });
+      const attachment = this.attachQuicken(
+        sourceGaugeUnitsSpent,
+        input.sourceActorId
+      );
+      const quickenReaction: QuickenReactionAudit = {
+        reaction: "quicken",
+        triggerElement: "electro",
+        consumedAuraElement: "dendro",
+        sourceGaugeUnitsBefore: cleanGaugeUnits(
+          sourceGaugeUnitsBefore
+        ),
+        sourceGaugeUnitsSpent: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        sourceGaugeUnitsAfter,
+        auraGaugeUnitsBefore: cleanGaugeUnits(
+          auraGaugeUnitsBefore
+        ),
+        auraConsumedGaugeUnits: cleanGaugeUnits(
+          mutation.consumedGaugeUnits
+        ),
+        auraGaugeUnitsAfter: cleanGaugeUnits(
+          this.auras.get("dendro")?.gaugeUnits ?? 0
+        ),
+        quickenGaugeUnitsBefore:
+          attachment.quickenGaugeUnitsBefore,
+        candidateGaugeUnits: cleanGaugeUnits(
+          sourceGaugeUnitsSpent
+        ),
+        quickenGaugeUnitsAfter:
+          attachment.quickenGaugeUnitsAfter,
+        operation: attachment.operation,
+        generation: attachment.generation,
+        decayPerFrameBefore:
+          attachment.decayPerFrameBefore,
+        decayPerFrame: attachment.decayPerFrame,
+        expiresAtFrameBefore:
+          attachment.expiresAtFrameBefore,
+        expiresAtFrame: attachment.expiresAtFrame,
+        endCauseBefore: attachment.endCauseBefore,
+        endCause: attachment.endCause,
+        operationAuraBefore:
+          attachment.operationAuraBefore,
+        operationAuraAfter:
+          attachment.operationAuraAfter,
+        pendingHydroBloomFollowup: true
+      };
+      catalyzeReaction = {
+        quicken: quickenReaction,
+        additive: additiveReaction
+      };
+      orderedElectroReactions.push("quicken");
+
+      const bloom = this.resolveBloom(
+        input,
+        0,
+        true,
+        auraConsumed
+      );
+      bloomReactions = bloom.audits;
+      orderedElectroReactions.push(
+        ...bloomReactions.map(() => "bloom" as const)
+      );
+
+      periodicReaction = {
+        reaction: "electroCharged",
+        generation: this.electroChargedGeneration,
+        operation: electroChargedOperation,
+        damageElement: "electro",
+        baseMultiplier: ELECTRO_CHARGED_BASE_MULTIPLIER,
+        firstDamageFrame:
+          electroChargedOperation === "start"
+            ? input.frame +
+              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+            : null,
+        nextTickFrame: this.electroChargedNextTickFrame,
+        tickIntervalFrames:
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+        waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+        // The queued Bloom may remove Hydro later in the same frame. The
+        // +10f EC damage remains scheduled, while a continuing coexistence
+        // stream exists only when Hydro survives that follow-up.
+        coexistenceExpiresAtFrame:
+          this.electroChargedExpiryFrame()
+      };
+      automaticReaction = "electroCharged";
     } else if (frozenMelt) {
       const cryoAura = this.auras.get("cryo");
       if (cryoAura !== undefined) {
@@ -3279,6 +4773,15 @@ export class AuraEngine {
             ? {}
             : { sourceMutations: mutation.sourceMutations })
         });
+        if (input.element === "hydro") {
+          remainingHydroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingHydroGaugeUnits -
+                mutation.consumedGaugeUnits
+            )
+          );
+        }
         const frozenBefore = this.frozenGaugeUnits();
         const frozenAttachment = this.attachFrozen(
           2 * mutation.consumedGaugeUnits
@@ -3309,7 +4812,12 @@ export class AuraEngine {
           rule.auraElement,
           application.gaugeUnits * rule.consumptionFactor
         );
+        let maximumConsumedGaugeUnits = 0;
         for (const mutation of mutations) {
+          maximumConsumedGaugeUnits = Math.max(
+            maximumConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
           auraConsumed.push({
             element: mutation.element,
             gaugeUnits: mutation.consumedGaugeUnits,
@@ -3318,8 +4826,21 @@ export class AuraEngine {
               : {
                   sourceMutations:
                     mutation.sourceMutations
-                })
+            })
           });
+        }
+        if (
+          input.element === "hydro" &&
+          rule.consumptionFactor > 0
+        ) {
+          remainingHydroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingHydroGaugeUnits -
+                maximumConsumedGaugeUnits /
+                  rule.consumptionFactor
+            )
+          );
         }
         automaticReaction = rule.reaction;
       }
@@ -3392,8 +4913,18 @@ export class AuraEngine {
           attachment.quickenGaugeUnitsAfter,
         operation: attachment.operation,
         generation: attachment.generation,
+        decayPerFrameBefore:
+          attachment.decayPerFrameBefore,
         decayPerFrame: attachment.decayPerFrame,
+        expiresAtFrameBefore:
+          attachment.expiresAtFrameBefore,
         expiresAtFrame: attachment.expiresAtFrame,
+        endCauseBefore: attachment.endCauseBefore,
+        endCause: attachment.endCause,
+        operationAuraBefore:
+          attachment.operationAuraBefore,
+        operationAuraAfter:
+          attachment.operationAuraAfter,
         pendingHydroBloomFollowup:
           (this.auras.get("hydro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
@@ -3403,7 +4934,15 @@ export class AuraEngine {
         additive: additiveReaction
       };
       automaticReaction = "quicken";
-    } else if (unsupportedReactions.length === 0) {
+    } else if (
+      unsupportedReactions.length === 0 &&
+      !(
+        this.mode === "aura-v5" &&
+        input.element === "dendro" &&
+        (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      )
+    ) {
       this.attachNormalAura(
         input.element,
         application.gaugeUnits,
@@ -3447,6 +4986,28 @@ export class AuraEngine {
       }
     }
 
+    if (
+      this.mode === "aura-v5" &&
+      input.element === "dendro"
+    ) {
+      const bloom = this.resolveBloom(
+        input,
+        remainingDendroGaugeUnits,
+        catalyzeReaction?.quicken
+          ?.pendingHydroBloomFollowup === true,
+        auraConsumed
+      );
+      remainingDendroGaugeUnits =
+        bloom.remainingIncomingGaugeUnits;
+      bloomReactions = bloom.audits;
+      if (
+        bloomReactions.length > 0 &&
+        automaticReaction === "none"
+      ) {
+        automaticReaction = "bloom";
+      }
+    }
+
     if (this.mode === "aura-v4") {
       const bloomAuraPresent =
         (this.auras.get("dendro")?.gaugeUnits ?? 0) >
@@ -3454,8 +5015,11 @@ export class AuraEngine {
         this.quickenGaugeUnits() > AURA_EPSILON ||
         this.burningFuelGaugeUnits() > AURA_EPSILON;
       if (
-        (input.element === "hydro" && bloomAuraPresent) ||
+        (input.element === "hydro" &&
+          remainingHydroGaugeUnits > AURA_EPSILON &&
+          bloomAuraPresent) ||
         (input.element === "dendro" &&
+          remainingDendroGaugeUnits > AURA_EPSILON &&
           (this.auras.get("hydro")?.gaugeUnits ?? 0) >
             AURA_EPSILON)
       ) {
@@ -3494,20 +5058,34 @@ export class AuraEngine {
         : [additiveReaction.reaction]),
       ...(usesOrderedPyroPipeline
         ? orderedPyroReactions
-        : automaticReaction === "none"
-          ? []
-          : [automaticReaction]),
+        : usesOrderedCryoPipeline
+          ? orderedCryoReactions
+          : usesOrderedHydroPipeline
+            ? orderedHydroReactions
+            : usesElectroHydroDendroPipeline
+              ? orderedElectroReactions
+          : automaticReaction === "none"
+            ? []
+            : [automaticReaction]),
       ...(burningReaction !== null &&
       burningReaction.operation !== "stop" &&
       (usesOrderedPyroPipeline ||
         automaticReaction !== "burning")
         ? (["burning"] as const)
+        : []),
+      ...(!usesOrderedCryoPipeline &&
+      !usesOrderedHydroPipeline &&
+      !usesElectroHydroDendroPipeline
+        ? bloomReactions
+            .slice(automaticReaction === "bloom" ? 1 : 0)
+            .map(() => "bloom" as const)
         : [])
     ];
     let transformativeReaction: ReactionAudit["transformativeReaction"] =
       null;
     const oneShotTransformativeReaction =
       orderedPyroTransformativeReaction ??
+      orderedCryoTransformativeReaction ??
       (isOneShotTransformativeReaction(automaticReaction)
         ? automaticReaction
         : null);
@@ -3580,6 +5158,17 @@ export class AuraEngine {
         nextTickFrame: null
       };
     }
+    if (
+      mechanicsTruncation !== null &&
+      bloomReactions.some((audit) => audit.scheduled)
+    ) {
+      bloomReactions = bloomReactions.map((audit) => ({
+        ...audit,
+        scheduled: false,
+        coreSpawnFrame: null,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      }));
+    }
 
     const reactionNote =
       catalyzeReaction?.additive !== null &&
@@ -3594,6 +5183,8 @@ export class AuraEngine {
             ? `原激化消耗 ${catalyzeReaction.quicken.auraConsumedGaugeUnits}U ${catalyzeReaction.quicken.consumedAuraElement} Aura，${catalyzeReaction.quicken.operation === "unchanged" ? "较弱激元素未覆盖既有状态" : `${catalyzeReaction.quicken.operation === "start" ? "生成" : "刷新"} ${catalyzeReaction.quicken.quickenGaugeUnitsAfter}U 激元素至 ${catalyzeReaction.quicken.expiresAtFrame ?? "未知"}f`}。`
       : automaticReaction === "none"
         ? "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        : automaticReaction === "bloom"
+          ? `绽放已按固定参考耐久顺序结算，并排队 ${bloomReactions.length} 个草原核生成请求。`
         : automaticReaction === "electroCharged"
           ? periodicReaction?.operation === "start"
             ? "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
@@ -3624,6 +5215,12 @@ export class AuraEngine {
               ) {
                 return "检测到非火入射在同一命中内仍可继续触发多个有序反应；该完整顺序尚未实现，因此目标已 fail-closed，后续 Aura 与伤害不得据此推断。";
               }
+              if (
+                candidate ===
+                "legacy-multi-reaction-order"
+              ) {
+                return "检测到 aura-v2/v3 的同一入射元素量仍可继续触发多个消费反应；旧版单分支流程无法完整结算该顺序，因此目标已 fail-closed，后续 Aura 与伤害不得据此推断。";
+              }
               return "检测到燃烧前提，但燃烧燃料、周期伤害和共存状态尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被燃烧处理的入射元素。";
             })
             .join("；");
@@ -3635,7 +5232,9 @@ export class AuraEngine {
           : reactionNote;
     const pendingBloomNote =
       catalyzeReaction?.quicken?.pendingHydroBloomFollowup === true
-        ? "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
+        ? this.mode === "aura-v5"
+          ? `同帧激元素→水绽放后续已结算；本次共排队 ${bloomReactions.length} 个草原核生成请求。`
+          : "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
         : null;
     return {
       model: "aura-engine",
@@ -3662,6 +5261,7 @@ export class AuraEngine {
       crystallizeReaction: null,
       catalyzeReaction,
       burningReaction,
+      bloomReactions,
       note: [baseNote, pendingBloomNote, unsupportedReactionNote]
         .filter((part): part is string => part !== null)
         .join("；")
@@ -3714,6 +5314,8 @@ export const AURA_ENGINE_CONSTANTS = {
   burningRadius: BURNING_RADIUS,
   burningApplicationGaugeUnits:
     BURNING_APPLICATION_GAUGE_UNITS,
+  bloomCoreSpawnDelayFrames:
+    BLOOM_CORE_SPAWN_DELAY_FRAMES,
   burningIcdResetFrames: BURNING_ICD_RESET_FRAMES,
   burningIcdSequence: BURNING_ICD_SEQUENCE,
   frozenBaseDecayPerFrame: FROZEN_BASE_DECAY_PER_FRAME,

@@ -138,6 +138,132 @@ describe("DendroCoreManager", () => {
     ]);
   });
 
+  it("rejects an invalid RNG roll without evicting or mutating active cores", () => {
+    const manager = new DendroCoreManager(
+      new SequenceRandom([0, 0, 0, 0, 0, 1, 0])
+    );
+    for (let frame = 0; frame < 5; frame += 1) {
+      spawnAt(manager, frame);
+    }
+    const reservation = reserveAt(manager, 5);
+    const before = manager.snapshots();
+
+    expect(() =>
+      manager.spawn({
+        reservation,
+        frame: reservation.spawnFrame,
+        targetPosition: { x: 10, y: 5 },
+        targetHitboxRadius: 1
+      })
+    ).toThrow(/random source/);
+    expect(manager.snapshots()).toEqual(before);
+
+    const retry = manager.spawn({
+      reservation,
+      frame: reservation.spawnFrame,
+      targetPosition: { x: 10, y: 5 },
+      targetHitboxRadius: 1
+    });
+    expect(retry.evicted.map((core) => core.coreId)).toEqual([0]);
+    expect(manager.snapshots().map((core) => core.coreId)).toEqual([
+      1, 2, 3, 4, 5
+    ]);
+  });
+
+  it("rejects replaying a reservation after its core expired", () => {
+    const manager = new DendroCoreManager(
+      new SequenceRandom([0, 0.25])
+    );
+    const reservation = reserveAt(manager, 0);
+    const spawned = manager.spawn({
+      reservation,
+      frame: reservation.spawnFrame,
+      targetPosition: { x: 10, y: 5 },
+      targetHitboxRadius: 1
+    }).spawned;
+    expect(
+      manager.expire(spawned.coreId, spawned.expiresAtFrame)
+    ).not.toBeNull();
+
+    expect(() =>
+      manager.spawn({
+        reservation,
+        frame: reservation.spawnFrame,
+        targetPosition: { x: 10, y: 5 },
+        targetHitboxRadius: 1
+      })
+    ).toThrow(/already been spawned/);
+    expect(manager.snapshots()).toEqual([]);
+  });
+
+  it("rejects replaying a reservation after its core was consumed", () => {
+    const manager = new DendroCoreManager(
+      new SequenceRandom([0, 0.25])
+    );
+    const reservation = reserveAt(manager, 0);
+    const spawned = manager.spawn({
+      reservation,
+      frame: reservation.spawnFrame,
+      targetPosition: { x: 10, y: 5 },
+      targetHitboxRadius: 1
+    }).spawned;
+    expect(
+      manager.consume(spawned.coreId, 100, "pyro")
+    ).not.toBeNull();
+
+    expect(() =>
+      manager.spawn({
+        reservation,
+        frame: reservation.spawnFrame,
+        targetPosition: { x: 10, y: 5 },
+        targetHitboxRadius: 1
+      })
+    ).toThrow(/already been spawned/);
+    expect(manager.snapshots()).toEqual([]);
+  });
+
+  it("rejects replaying a reservation after its core was evicted", () => {
+    const manager = new DendroCoreManager(
+      new SequenceRandom([0])
+    );
+    const reservation = reserveAt(manager, 0);
+    manager.spawn({
+      reservation,
+      frame: reservation.spawnFrame,
+      targetPosition: { x: 10, y: 5 },
+      targetHitboxRadius: 1
+    });
+    for (let frame = 1; frame <= 5; frame += 1) {
+      spawnAt(manager, frame);
+    }
+    expect(manager.get(reservation.coreId)).toBeNull();
+    const before = manager.snapshots();
+
+    expect(() =>
+      manager.spawn({
+        reservation,
+        frame: reservation.spawnFrame,
+        targetPosition: { x: 10, y: 5 },
+        targetHitboxRadius: 1
+      })
+    ).toThrow(/already been spawned/);
+    expect(manager.snapshots()).toEqual(before);
+  });
+
+  it("preserves deterministic spawn and eviction decisions for equal inputs", () => {
+    const left = new DendroCoreManager(
+      new SequenceRandom([0.125, 0.75])
+    );
+    const right = new DendroCoreManager(
+      new SequenceRandom([0.125, 0.75])
+    );
+
+    for (let frame = 0; frame < 6; frame += 1) {
+      expect(spawnAt(left, frame)).toEqual(spawnAt(right, frame));
+    }
+    expect(left.snapshots()).toEqual(right.snapshots());
+  });
+
   it("consumes active cores for Burgeon and Hyperbloom with fixed delays", () => {
     const manager = new DendroCoreManager(
       new SequenceRandom([0, 0.5])

@@ -8,5 +8,6 @@ export * from "./legal-timeline";
 export * from "./min-heap";
 export * from "./plugins";
 export * from "./reaction-a";
+export * from "./reaction-b";
 export * from "./simulator";
 export * from "./target-state-timeline";

@@ -312,6 +312,47 @@ describe("aura-v4 Burning mapped-Pyro and expiry boundaries", () => {
     );
   });
 
+  it("reports mapped Pyro durability after a partial Swirl consumption", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v4",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+    const swirl = engine.processHit({
+      frame: 1,
+      sourceActorId: "anemo",
+      element: "anemo",
+      application: noIcd()
+    });
+
+    expect(swirl.swirlReactions[0]).toMatchObject({
+      reaction: "swirlPyro",
+      auraGaugeUnitsBefore: 2,
+      auraConsumedGaugeUnits: 0.5,
+      auraGaugeUnitsAfter: 1.5
+    });
+    expect(swirl.auraAfter).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          element: "pyro"
+        }),
+        expect.objectContaining({
+          element: "burning",
+          gaugeUnits: 1.5
+        })
+      ])
+    );
+    expect(
+      swirl.auraAfter?.find((entry) => entry.element === "pyro")
+        ?.gaugeUnits
+    ).toBeCloseTo(0.298596491228, 12);
+  });
+
   it("reports the same 121f Fuel expiry in the start audit and Aura snapshot", () => {
     const audit = new AuraEngine({
       mode: "aura-v4",

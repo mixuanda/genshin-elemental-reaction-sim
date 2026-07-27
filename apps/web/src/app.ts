@@ -80,8 +80,10 @@ const REACTION_LABELS: Record<string, string> = {
   spread: "蔓激化",
   burning: "燃烧",
   "non-pyro-multi-reaction-order":
-    "非火多反应顺序未实现",
-  bloom: "绽放（未实现）"
+    "旧模式非火多反应顺序截断",
+  bloom: "绽放",
+  burgeon: "烈绽放",
+  hyperbloom: "超绽放"
 };
 
 const TIMELINE_COMMAND_LABELS: Record<string, string> = {
@@ -413,7 +415,8 @@ function renderMetrics(): void {
         result.config.reactionEngine?.mode === "aura-v1" ||
         result.config.reactionEngine?.mode === "aura-v2" ||
         result.config.reactionEngine?.mode === "aura-v3" ||
-        result.config.reactionEngine?.mode === "aura-v4"
+        result.config.reactionEngine?.mode === "aura-v4" ||
+        result.config.reactionEngine?.mode === "aura-v5"
           ? `${result.config.reactionEngine.mode} 自动判定`
           : result.compatibilityMode === "legacy-v0.1"
             ? "兼容手工标签"
@@ -1068,8 +1071,8 @@ function renderHitDetail(): void {
       );
       if (quicken.pendingHydroBloomFollowup) {
         factors.push([
-          "同帧绽放后续",
-          "检测到水元素，但当前版本仅审计此前置条件，未执行绽放或草原核。"
+          "同帧绽放兼容审计",
+          "这是固定参考兼容分支的审计标记；aura-v5 的实际绽放与草原核调度以 bloomReactions 和草原核结构化日志为准，本字段本身不代表另一次未执行伤害。"
         ]);
       }
     }
@@ -1260,7 +1263,7 @@ function renderHitDetail(): void {
   if (hit.reactionAudit.swirlDamageGroup !== null) {
     const group = hit.reactionAudit.swirlDamageGroup;
     factors.push([
-      "扩散 ReactionA 伤害 ICD",
+      "扩散独立伤害组 ICD",
       `窗口 ${group.windowStartFrame}f 起 ${group.resetFrames}f · 第 ${group.hitIndex + 1} 段 · ${group.damageAllowed ? "允许伤害" : `${group.blockedReason ?? "阻止伤害"}（附着仍处理）`}`
     ]);
   }

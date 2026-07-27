@@ -1,10 +1,13 @@
 /**
- * ReactionA is the target-local damage limiter used by Bloom-family
- * transformative reactions. It is intentionally independent from the event
- * queue and schemas so the simulator can record every allowed or blocked
- * attempt without delegating state ownership to the UI.
+ * ReactionA is the target-local damage limiter used by Shatter,
+ * Superconduct, and Bloom-family transformative reactions. It is
+ * intentionally independent from the event queue and schemas so the
+ * simulator can record every allowed or blocked attempt without delegating
+ * state ownership to the UI.
  */
 export const REACTION_A_TAGS = [
+  "shatter",
+  "superconduct",
   "bloom",
   "burgeon",
   "hyperbloom"

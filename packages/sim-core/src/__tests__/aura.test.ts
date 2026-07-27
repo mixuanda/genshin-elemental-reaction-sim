@@ -308,6 +308,72 @@ describe("AuraEngine Overload scheduling", () => {
   });
 });
 
+describe("AuraEngine legacy multi-reaction boundary", () => {
+  it.each(["aura-v2", "aura-v3"] as const)(
+    "fails closed in %s when one incoming budget reaches multiple consuming reactions",
+    (mode) => {
+      const audit = new AuraEngine({
+        mode,
+        initialAura: [
+          { element: "hydro", gaugeUnits: 1 },
+          { element: "electro", gaugeUnits: 1 }
+        ]
+      }).processHit({
+        frame: 0,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd(2)
+      });
+
+      expect(audit).toMatchObject({
+        reaction: "overload",
+        reactions: ["overload"],
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ],
+        mechanicsTruncation: {
+          operation: "trigger",
+          reason: "UNSUPPORTED_REACTION_ORDER",
+          unsupportedReactions: [
+            "legacy-multi-reaction-order"
+          ]
+        },
+        auraAfter: [],
+        transformativeReaction: {
+          reaction: "overload",
+          scheduled: false,
+          blockedReason: "TARGET_MECHANICS_TRUNCATION"
+        }
+      });
+    }
+  );
+
+  it.each(["aura-v2", "aura-v3"] as const)(
+    "keeps valid single-branch %s Overload authoritative",
+    (mode) => {
+      const audit = new AuraEngine({
+        mode,
+        initialAura: [{ element: "electro", gaugeUnits: 1 }]
+      }).processHit({
+        frame: 0,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd()
+      });
+
+      expect(audit).toMatchObject({
+        reaction: "overload",
+        unsupportedReactions: [],
+        mechanicsTruncation: null,
+        transformativeReaction: {
+          scheduled: true,
+          blockedReason: null
+        }
+      });
+    }
+  );
+});
+
 describe("AuraEngine Superconduct scheduling", () => {
   it("supports Cryo-on-Electro and Electro-on-Cryo with a target status", () => {
     const cryoIncoming = new AuraEngine({
@@ -360,11 +426,87 @@ describe("AuraEngine Superconduct scheduling", () => {
     }
   });
 
+  it("runs aura-v5 Cryo in fixed Superconduct → Melt → Freeze order with one shared Gauge budget", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v5",
+      initialAura: [
+        { element: "electro", gaugeUnits: 1 },
+        { element: "pyro", gaugeUnits: 1 },
+        { element: "hydro", gaugeUnits: 1 }
+      ]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd(2)
+    });
+
+    expect(audit).toMatchObject({
+      reaction: "reverseMelt",
+      reactions: ["superconduct", "reverseMelt", "freeze"],
+      unsupportedReactions: [],
+      mechanicsTruncation: null,
+      auraConsumed: [
+        { element: "electro", gaugeUnits: 0.8 },
+        { element: "pyro", gaugeUnits: 0.6 },
+        { element: "hydro", gaugeUnits: 0.8 }
+      ],
+      auraAfter: [
+        { element: "frozen", gaugeUnits: 1.6 },
+        { element: "pyro", gaugeUnits: 0.2 }
+      ],
+      transformativeReaction: {
+        reaction: "superconduct",
+        scheduled: true,
+        damageFrame: 1,
+        blockedReason: null
+      },
+      frozenReaction: {
+        operation: "start",
+        generatedGaugeUnits: 1.6,
+        frozenGaugeBefore: 0,
+        frozenGaugeAfter: 1.6
+      }
+    });
+  });
+
+  it("keeps aura-v4 Cryo multi-reaction fail-closed compatibility", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v4",
+      initialAura: [
+        { element: "hydro", gaugeUnits: 1 },
+        { element: "electro", gaugeUnits: 1 }
+      ]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd(2)
+    });
+
+    expect(audit).toMatchObject({
+      reaction: "superconduct",
+      reactions: ["superconduct"],
+      unsupportedReactions: [
+        "non-pyro-multi-reaction-order"
+      ],
+      mechanicsTruncation: {
+        reason: "UNSUPPORTED_REACTION_ORDER"
+      },
+      auraAfter: [],
+      transformativeReaction: {
+        reaction: "superconduct",
+        scheduled: false,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      }
+    });
+  });
+
   it("keeps Superconduct and Overload damage GCD streams independent", () => {
     const engine = new AuraEngine({
       mode: "aura-v2",
       initialAura: [
-        { element: "pyro", gaugeUnits: 1 },
+        { element: "pyro", gaugeUnits: 1.25 },
         { element: "cryo", gaugeUnits: 2 }
       ]
     });
@@ -547,7 +689,9 @@ describe("AuraEngine Electro-Charged streams", () => {
       frame: 20,
       sourceActorId: "pyro",
       element: "pyro",
-      application: noIcd()
+      application: noIcd(
+        0.8 - (0.8 / 426) * 20
+      )
     });
 
     expect(overload).toMatchObject({
@@ -1021,6 +1165,80 @@ describe("Aura engine simulation integration", () => {
       /manual reaction labels are forbidden in aura-v1/
     );
   });
+
+  it("rejects reaction none plus ampBase in a formal Aura run", () => {
+    const config = makeAuraTimelineConfig(false);
+    config.timeline!.abilities[0]!.hits![0]!.reaction = "none";
+    config.timeline!.abilities[0]!.hits![0]!.ampBase = 2;
+
+    expect(() => simulate(config)).toThrow(
+      /ampBase is a legacy\/debug-only override in Aura modes/
+    );
+  });
+
+  it("preserves ampBase for an explicitly enabled debug reaction override", () => {
+    const config = makeAuraTimelineConfig(false);
+    config.reactionEngine = {
+      mode: "aura-v1",
+      debugAllowReactionOverride: true
+    };
+    config.timeline!.abilities[0]!.hits![0]!.reactionOverride =
+      "melt";
+    config.timeline!.abilities[0]!.hits![0]!.ampBase = 2.5;
+
+    const result = simulate(config, { critMode: "noCrit" });
+
+    expect(result.damageEvents[0]).toMatchObject({
+      reaction: "melt",
+      reactionAudit: {
+        model: "manual-override"
+      },
+      damageFactors: {
+        reactionBase: 2.5
+      }
+    });
+  });
+
+  it.each(["aura-v2", "aura-v3"] as const)(
+    "marks a %s multi-consuming-reaction run partial",
+    (mode) => {
+      const config = makeAuraTimelineConfig(false);
+      config.reactionEngine = {
+        mode,
+        initialAura: [
+          { element: "hydro", gaugeUnits: 1 },
+          { element: "electro", gaugeUnits: 1 }
+        ]
+      };
+      config.timeline!.abilities[0]!.hits![0]!.application!.gaugeUnits = 2;
+
+      const result = simulate(config, { critMode: "noCrit" });
+
+      expect(result.mechanicsStatus).toBe("partial");
+      expect(result.targetMechanicsTruncationLog).toMatchObject([
+        {
+          frame: 0,
+          reason: "UNSUPPORTED_REACTION_ORDER",
+          unsupportedReactions: [
+            "legacy-multi-reaction-order"
+          ]
+        }
+      ]);
+      expect(result.damageEvents[0]?.reactionAudit).toMatchObject({
+        reaction: "overload",
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ]
+      });
+      expect(
+        result.damageEvents.some(
+          (event) =>
+            event.kind === "transformative-reaction" &&
+            event.reaction === "overload"
+        )
+      ).toBe(false);
+    }
+  );
 
   it("rejects undeclared custom ICD groups before simulation starts", () => {
     const config = makeAuraTimelineConfig(false);

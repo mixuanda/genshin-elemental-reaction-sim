@@ -4,6 +4,17 @@ import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
+function auraV2RetainedGauge(
+  frame: number,
+  consumedGaugeUnits = 0
+): number {
+  return (
+    0.8 -
+    (0.8 / 426) * frame -
+    consumedGaugeUnits
+  );
+}
+
 function makeElectroChargedConfig(): SimConfig {
   const base = makeConfig();
   const template = base.characters[0]!;
@@ -238,6 +249,8 @@ describe("Electro-Charged simulation integration", () => {
     config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
     config.timeline!.abilities[1]!.hits![0]!.label =
       "火触发超载并终止感电";
+    config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
+      auraV2RetainedGauge(20, 0.4);
 
     const result = simulate(config, { critMode: "noCrit" });
     const directHits = result.damageEvents.filter(
@@ -287,6 +300,8 @@ describe("Electro-Charged simulation integration", () => {
     config.characters[1]!.element = "pyro";
     config.timeline!.swapFrames = 1;
     config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
+    config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
+      auraV2RetainedGauge(5);
     config.timeline!.commands = [
       {
         type: "skill",
@@ -642,5 +657,238 @@ describe("Electro-Charged simulation integration", () => {
       "hydro-b"
     ]);
     expect(ticks.map((event) => event.frame)).toEqual([10, 70]);
+  });
+
+  it("keeps a blocked queued restart tick as zero damage inside the target-local ReactionB window", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    const electroStart = config.timeline!.abilities[0]!;
+    const pyroStop = config.timeline!.abilities[1]!;
+    pyroStop.id = "pyro-stop";
+    pyroStop.actorId = "electro-a";
+    pyroStop.name = "Pyro stop";
+    pyroStop.hits![0] = {
+      ...pyroStop.hits![0]!,
+      id: "pyro-stop-hit",
+      label: "火触发超载并终止第一条感电流",
+      element: "pyro",
+      application: {
+        gaugeUnits: auraV2RetainedGauge(5),
+        icdTag: "ec-stop",
+        icdGroup: "no-icd"
+      }
+    };
+    config.timeline!.abilities.push({
+      ...electroStart,
+      id: "electro-restart",
+      name: "Electro restart",
+      hits: electroStart.hits!.map((hit) => ({
+        ...hit,
+        id: "electro-restart-hit",
+        label: "雷重启感电",
+        application: {
+          gaugeUnits: 1,
+          icdTag: "ec-restart",
+          icdGroup: "no-icd"
+        }
+      }))
+    });
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      },
+      { type: "wait", frames: 4 },
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "pyro-stop"
+      },
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-restart"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const ticks = result.damageEvents.filter(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.reaction === "electroCharged"
+    );
+    const schedules = result.reactionDamageLog.filter(
+      (entry) => entry.reaction === "electroCharged"
+    );
+
+    expect(
+      result.periodicReactionLog
+        .filter((entry) => entry.operation === "tick")
+        .map((entry) => ({
+          frame: entry.frame,
+          generation: entry.generation,
+          sourceActorId: entry.sourceActorId,
+          reason: entry.reason
+        }))
+    ).toEqual([
+      {
+        frame: 10,
+        generation: 1,
+        sourceActorId: "electro-a",
+        reason: "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED"
+      },
+      {
+        frame: 16,
+        generation: 2,
+        sourceActorId: "electro-a",
+        reason: null
+      }
+    ]);
+    expect(
+      ticks.map((event) => ({
+        frame: event.frame,
+        sourceActorId: event.sourceActorId,
+        targetId: event.targetId,
+        finalDamage: event.finalDamage,
+        groupMultiplier: event.damageFactors.groupMultiplier
+      }))
+    ).toEqual([
+      {
+        frame: 10,
+        sourceActorId: "electro-a",
+        targetId: "enemy-0",
+        finalDamage: expect.any(Number),
+        groupMultiplier: 1
+      },
+      {
+        frame: 16,
+        sourceActorId: "electro-a",
+        targetId: "enemy-0",
+        finalDamage: 0,
+        groupMultiplier: 0
+      }
+    ]);
+    expect(ticks[0]?.finalDamage).toBeGreaterThan(0);
+    expect(ticks[1]).toMatchObject({
+      displayDamage: 0,
+      damageComposition: {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: 0
+      }
+    });
+    expect(schedules).toHaveLength(2);
+    expect(schedules[1]).toMatchObject({
+      damageFrame: 16,
+      damageGroupBlockedTargetIds: ["enemy-0"],
+      damageEventIds: [ticks[1]?.id],
+      damageGroupDecisions: [
+        {
+          reaction: "electroCharged",
+          sourceActorId: "electro-a",
+          targetId: "enemy-0",
+          windowStartFrame: 10,
+          hitIndex: 1,
+          resetFrames: 30,
+          sequence: [true, false],
+          damageAllowed: false,
+          blockedReason: "REACTION_B_DAMAGE_ICD"
+        }
+      ]
+    });
+  });
+
+  it("freezes trigger-frame live EM and reaction bonus for a queued action-snapshot tick", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const ability = config.timeline!.abilities[0]!;
+    const hit = ability.hits![0]!;
+    ability.cancelFrame = 11;
+    ability.animationEndFrame = 11;
+    ability.buffs = [
+      {
+        key: "ec-live-em",
+        label: "感电触发帧精通",
+        target: "self",
+        stat: "em",
+        value: 200,
+        startFrame: 5,
+        durationFrames: 6
+      },
+      {
+        key: "ec-live-reaction-bonus",
+        label: "感电触发帧反应增伤",
+        target: "self",
+        stat: "reactionBonus",
+        value: 0.3,
+        startFrame: 5,
+        durationFrames: 6
+      }
+    ];
+    ability.hits = [
+      {
+        ...hit,
+        frame: 10,
+        snapshot: "action"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const direct = result.damageEvents.find(
+      (event) => event.hitId === "electro-start-hit"
+    );
+    const tick = result.damageEvents.find(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.reaction === "electroCharged"
+    );
+    const expected = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: 300,
+      reactionBonus: 0.5,
+      baseMultiplier: 2,
+      effectiveResistance: 0.1
+    });
+
+    expect(direct).toMatchObject({
+      frame: 10,
+      snapshot: "action",
+      statsBeforeDamage: {
+        em: 100,
+        reactionBonus: 0.2
+      }
+    });
+    expect(tick).toMatchObject({
+      frame: 20,
+      sourceActorId: "electro-a",
+      snapshot: "hit",
+      statsBeforeDamage: {
+        em: 300,
+        reactionBonus: 0.5
+      },
+      transformativeReactionFactors: {
+        characterLevel: 90,
+        elementalMastery: 300,
+        reactionBonus: 0.5
+      }
+    });
+    expect(tick?.buffs).toEqual([
+      "感电触发帧精通",
+      "感电触发帧反应增伤"
+    ]);
+    expect(tick?.finalDamage).toBeCloseTo(
+      expected.finalDamage,
+      10
+    );
   });
 });

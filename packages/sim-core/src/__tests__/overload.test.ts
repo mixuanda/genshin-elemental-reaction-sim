@@ -351,6 +351,253 @@ describe("Overload simulation integration", () => {
     });
   });
 
+  it("applies ReactionB only to the first overlapping explosion per target in 30 frames", () => {
+    const base = makeConfig();
+    const sourceTargets = ["enemy-0", "source-1"];
+    const config: SimConfig = {
+      ...base,
+      duration: 1,
+      cycleLength: 1,
+      enemy: {
+        level: 90,
+        resistance: 0.1,
+        defReduction: 0,
+        targets: [
+          ...sourceTargets.map((id, index) => ({
+            id,
+            name: id,
+            position: { x: 0, y: index * 2 - 1 },
+            initialAura: [
+              { element: "electro" as const, gaugeUnits: 1 }
+            ]
+          })),
+          {
+            id: "shared-target",
+            name: "共同爆炸目标",
+            position: { x: 1, y: 0 }
+          }
+        ]
+      },
+      characters: [
+        {
+          ...base.characters[0]!,
+          id: "pyro",
+          name: "Pyro",
+          element: "pyro",
+          level: 90,
+          stats: {
+            ...neutralStats,
+            baseAtk: 1000,
+            em: 100,
+            reactionBonus: 0.2
+          }
+        }
+      ],
+      rotation: [],
+      reactionEngine: { mode: "aura-v2" },
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "pyro",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "overlapping-overloads",
+            actorId: "pyro",
+            name: "重叠超载",
+            kind: "skill",
+            cancelFrame: 7,
+            animationEndFrame: 7,
+            cooldownFrames: 0,
+            hits: sourceTargets.map((targetId, index) => ({
+              id: `overload-${index}`,
+              label: `超载 ${index}`,
+              frame: index * 6,
+              scaling: 1,
+              element: "pyro" as const,
+              targeting: {
+                targetId,
+                outcome: "landed" as const
+              },
+              application: {
+                gaugeUnits: 1,
+                icdTag: "overlap",
+                icdGroup: "no-icd" as const
+              }
+            }))
+          }
+        ],
+        commands: [
+          {
+            type: "skill",
+            actorId: "pyro",
+            abilityId: "overlapping-overloads"
+          }
+        ]
+      }
+    };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const sharedExplosions = result.damageEvents.filter(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.reaction === "overload" &&
+        event.targetId === "shared-target"
+    );
+    const sharedDecisions = result.reactionDamageLog.flatMap(
+      (entry) =>
+        entry.damageGroupDecisions.filter(
+          (decision) =>
+            decision.reaction === "overload" &&
+            decision.targetId === "shared-target"
+        )
+    );
+
+    expect(sharedExplosions).toHaveLength(2);
+    expect(
+      sharedExplosions.map((event) => ({
+        frame: event.frame,
+        finalDamage: event.finalDamage,
+        groupMultiplier: event.damageFactors.groupMultiplier
+      }))
+    ).toMatchObject([
+      {
+        frame: 1,
+        finalDamage: expect.any(Number),
+        groupMultiplier: 1
+      },
+      {
+        frame: 7,
+        finalDamage: 0,
+        groupMultiplier: 0
+      }
+    ]);
+    expect(sharedExplosions[0]?.finalDamage).toBeGreaterThan(0);
+    expect(sharedDecisions).toEqual([
+      {
+        reaction: "overload",
+        sourceActorId: "pyro",
+        targetId: "shared-target",
+        windowStartFrame: 1,
+        hitIndex: 0,
+        resetFrames: 30,
+        sequence: [true, false],
+        damageAllowed: true,
+        blockedReason: null
+      },
+      {
+        reaction: "overload",
+        sourceActorId: "pyro",
+        targetId: "shared-target",
+        windowStartFrame: 1,
+        hitIndex: 1,
+        resetFrames: 30,
+        sequence: [true, false],
+        damageAllowed: false,
+        blockedReason: "REACTION_B_DAMAGE_ICD"
+      }
+    ]);
+    const blockedLog = result.reactionDamageLog.find(
+      (entry) => entry.damageFrame === 7
+    );
+    expect(blockedLog?.damageGroupBlockedTargetIds).toContain(
+      "shared-target"
+    );
+    expect(blockedLog?.damageEventIds).toContain(
+      sharedExplosions[1]?.id
+    );
+    expect(sharedExplosions[1]).toMatchObject({
+      snapshot: "hit",
+      finalDamage: 0,
+      damageComposition: {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: 0
+      }
+    });
+  });
+
+  it("freezes trigger-frame live EM and reaction bonus for an action-snapshot Overload", () => {
+    const config = makeOverloadConfig();
+    config.enemy.targets = [config.enemy.targets![0]!];
+    config.enemy.targetPhases = [];
+    const ability = config.timeline!.abilities[0]!;
+    const hit = ability.hits![0]!;
+    ability.cancelFrame = 11;
+    ability.animationEndFrame = 11;
+    ability.buffs = [
+      {
+        key: "overload-live-em",
+        label: "超载触发帧精通",
+        target: "self",
+        stat: "em",
+        value: 200,
+        startFrame: 5,
+        durationFrames: 6
+      },
+      {
+        key: "overload-live-reaction-bonus",
+        label: "超载触发帧反应增伤",
+        target: "self",
+        stat: "reactionBonus",
+        value: 0.3,
+        startFrame: 5,
+        durationFrames: 6
+      }
+    ];
+    ability.hits = [
+      {
+        ...hit,
+        frame: 10,
+        snapshot: "action"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const direct = result.damageEvents.find(
+      (event) => event.hitId === "pyro-hit"
+    );
+    const reaction = result.damageEvents.find(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.targetId === "enemy-0"
+    );
+    const expected = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: 300,
+      reactionBonus: 0.5,
+      baseMultiplier: 2.75,
+      effectiveResistance: 0.1
+    });
+
+    expect(direct).toMatchObject({
+      frame: 10,
+      snapshot: "action",
+      statsBeforeDamage: {
+        em: 100,
+        reactionBonus: 0.2
+      }
+    });
+    expect(reaction).toMatchObject({
+      frame: 11,
+      snapshot: "hit",
+      statsBeforeDamage: {
+        em: 300,
+        reactionBonus: 0.5
+      },
+      transformativeReactionFactors: {
+        characterLevel: 90,
+        elementalMastery: 300,
+        reactionBonus: 0.5
+      }
+    });
+    expect(reaction?.finalDamage).toBeCloseTo(
+      expected.finalDamage,
+      10
+    );
+  });
+
   it("records a scheduled explosion that falls outside the simulation", () => {
     const config = makeOverloadConfig();
     config.timeline!.commands[0] = {

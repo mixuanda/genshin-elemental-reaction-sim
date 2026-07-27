@@ -1,6 +1,35 @@
 import { describe, expect, it } from "vitest";
+import {
+  createVersionedContentHash,
+  simulationRunManifestSchema
+} from "@genshin-dps-lab/schemas";
+import {
+  defineDamageModifierPlugin,
+  type DamageModifierPlugin,
+  type DamageModifierPluginRuntime
+} from "../plugins";
 import { simulate } from "../simulator";
 import { makeConfig } from "./fixtures";
+
+function makeTestPlugin(
+  id: string,
+  version: string,
+  contentIdentity: unknown,
+  createRuntime: () => DamageModifierPluginRuntime = () => ({
+    modifyDamage() {}
+  })
+): DamageModifierPlugin {
+  return defineDamageModifierPlugin(
+    {
+      id,
+      version,
+      kind: "code",
+      contentHash:
+        createVersionedContentHash(contentIdentity)
+    },
+    createRuntime
+  );
+}
 
 describe("deterministic event simulation", () => {
   it("applies a same-time buff before a hit", () => {
@@ -279,6 +308,348 @@ describe("deterministic event simulation", () => {
     const first = simulate(config);
     const second = simulate(config);
     expect(second).toEqual(first);
-    expect(first.reproducibilityKey).toMatch(/^gdl-[0-9a-f]{8}$/);
+    expect(first.reproducibilityKey).toMatch(
+      /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
+    );
+    expect(first.runManifest).toEqual(
+      simulationRunManifestSchema.parse(first.runManifest)
+    );
+    expect(first.resolvedRuntimeOptions).toBe(
+      first.runManifest.resolvedRuntimeOptions
+    );
+    expect(first.pluginManifest).toBe(
+      first.runManifest.plugins
+    );
+    expect(first.reproducibilityKey).toBe(
+      first.runManifest.reproducibilityKey
+    );
+  });
+
+  it("keys every resolved runtime option, including the effective seed", () => {
+    const config = makeConfig();
+    const base = simulate(config).reproducibilityKey;
+    const variants = [
+      simulate(config, { energyMode: "zero" }),
+      simulate(config, { energyMode: "full" }),
+      simulate(config, { critMode: "allCrit" }),
+      simulate(config, { critMode: "noCrit" }),
+      simulate(config, {
+        compatibilityMode: "legal-frame-v1"
+      }),
+      simulate(config, { randomSeed: "other-seed" })
+    ];
+
+    expect(
+      variants.map((result) => result.reproducibilityKey)
+    ).not.toContain(base);
+    expect(
+      new Set(
+        variants.map((result) => result.reproducibilityKey)
+      ).size
+    ).toBe(variants.length);
+    expect(
+      variants.at(-1)?.resolvedRuntimeOptions.randomSeed
+    ).toBe("other-seed");
+  });
+
+  it("binds the key to migrated config content and data version", () => {
+    const config = makeConfig();
+    const base = simulate(config);
+    const changedData = simulate({
+      ...config,
+      dataVersion: "test-vector-2"
+    });
+    const changedConfig = simulate({
+      ...config,
+      meta: {
+        ...config.meta,
+        name: "不同配置"
+      }
+    });
+
+    expect(changedData.reproducibilityKey).not.toBe(
+      base.reproducibilityKey
+    );
+    expect(changedConfig.reproducibilityKey).not.toBe(
+      base.reproducibilityKey
+    );
+    expect(changedData.runManifest.dataVersion).toBe(
+      "test-vector-2"
+    );
+  });
+
+  it("keys plugin version, declared content, and execution order", () => {
+    const config = makeConfig();
+    const first = makeTestPlugin("first", "1.0.0", {
+      behavior: 1
+    });
+    const firstVersion2 = makeTestPlugin(
+      "first",
+      "2.0.0",
+      { behavior: 1 }
+    );
+    const firstContent2 = makeTestPlugin(
+      "first",
+      "1.0.0",
+      { behavior: 2 }
+    );
+    const second = makeTestPlugin("second", "1.0.0", {
+      behavior: 1
+    });
+    const base = simulate(config, {
+      plugins: [first, second]
+    });
+
+    expect(
+      simulate(config, {
+        plugins: [firstVersion2, second]
+      }).reproducibilityKey
+    ).not.toBe(base.reproducibilityKey);
+    expect(
+      simulate(config, {
+        plugins: [firstContent2, second]
+      }).reproducibilityKey
+    ).not.toBe(base.reproducibilityKey);
+    expect(
+      simulate(config, {
+        plugins: [second, first]
+      }).reproducibilityKey
+    ).not.toBe(base.reproducibilityKey);
+    expect(base.pluginManifest.map((entry) => entry.id)).toEqual([
+      "first",
+      "second"
+    ]);
+    expect(
+      base.pluginManifest.map(({ order, index }) => ({
+        order,
+        index
+      }))
+    ).toEqual([
+      { order: 0, index: 0 },
+      { order: 1, index: 1 }
+    ]);
+  });
+
+  it("creates fresh plugin runtime state for consecutive simulations", () => {
+    let runtimeCount = 0;
+    const plugin = makeTestPlugin(
+      "stateful",
+      "1.0.0",
+      { behavior: "per-run-counter" },
+      () => {
+        runtimeCount += 1;
+        let hitCount = 0;
+        return {
+          modifyDamage(context) {
+            hitCount += 1;
+            return {
+              damageBonus:
+                context.damageInput.damageBonus +
+                hitCount / 100
+            };
+          }
+        };
+      }
+    );
+    const config = makeConfig({
+      rotation: [
+        {
+          id: "stateful-hit",
+          actorId: "a",
+          name: "状态隔离",
+          at: 0,
+          hits: [
+            {
+              id: "hit",
+              offset: 0,
+              scaling: 1,
+              element: "pyro"
+            }
+          ]
+        }
+      ]
+    });
+
+    const first = simulate(config, { plugins: [plugin] });
+    const second = simulate(config, { plugins: [plugin] });
+
+    expect(runtimeCount).toBe(2);
+    expect(second).toEqual(first);
+    expect(
+      first.damageEvents[0]?.damageFactors
+        .damageBonusMultiplier
+    ).toBeCloseTo(1.01, 12);
+  });
+
+  it("freezes a declared plugin identity against factory replacement", () => {
+    const plugin = makeTestPlugin(
+      "frozen-definition",
+      "1.0.0",
+      { behavior: "stable" },
+      () => ({
+        modifyDamage(context) {
+          return {
+            damageBonus:
+              context.damageInput.damageBonus + 0.01
+          };
+        }
+      })
+    );
+    const config = makeConfig();
+    const first = simulate(config, { plugins: [plugin] });
+
+    expect(Object.isFrozen(plugin)).toBe(true);
+    expect(Object.isFrozen(plugin.descriptor)).toBe(true);
+    expect(() => {
+      (
+        plugin as unknown as {
+          createRuntime: () => DamageModifierPluginRuntime;
+        }
+      ).createRuntime = () => ({
+        modifyDamage(context) {
+          return {
+            damageBonus:
+              context.damageInput.damageBonus + 100
+          };
+        }
+      });
+    }).toThrow(TypeError);
+
+    const second = simulate(config, { plugins: [plugin] });
+    expect(second.reproducibilityKey).toBe(
+      first.reproducibilityKey
+    );
+    expect(second).toEqual(first);
+  });
+
+  it("prevents one plugin factory from rewriting a later plugin", () => {
+    const victim = makeTestPlugin(
+      "cross-plugin-victim",
+      "1.0.0",
+      { behavior: "stable-victim" },
+      () => ({
+        modifyDamage(context) {
+          return {
+            damageBonus:
+              context.damageInput.damageBonus + 0.01
+          };
+        }
+      })
+    );
+    let mutationError: unknown;
+    const attacker = makeTestPlugin(
+      "cross-plugin-attacker",
+      "1.0.0",
+      { behavior: "attempt-rewrite" },
+      () => {
+        try {
+          (
+            victim as unknown as {
+              createRuntime: () => DamageModifierPluginRuntime;
+            }
+          ).createRuntime = () => ({
+            modifyDamage(context) {
+              return {
+                damageBonus:
+                  context.damageInput.damageBonus + 100
+              };
+            }
+          });
+        } catch (error) {
+          mutationError = error;
+        }
+        return {
+          modifyDamage() {}
+        };
+      }
+    );
+    const config = makeConfig();
+    const first = simulate(config, {
+      plugins: [attacker, victim]
+    });
+    const second = simulate(config, {
+      plugins: [attacker, victim]
+    });
+
+    expect(mutationError).toBeInstanceOf(TypeError);
+    expect(second.reproducibilityKey).toBe(
+      first.reproducibilityKey
+    );
+    expect(second).toEqual(first);
+  });
+
+  it("isolates legal-timeline prefix probes from the final plugin runtime", () => {
+    let runtimeCount = 0;
+    const plugin = makeTestPlugin(
+      "prefix-isolation",
+      "1.0.0",
+      { behavior: "prefix-isolation" },
+      () => {
+        runtimeCount += 1;
+        let hitCount = 0;
+        return {
+          modifyDamage(context) {
+            hitCount += 1;
+            return {
+              damageBonus:
+                context.damageInput.damageBonus +
+                hitCount / 100
+            };
+          }
+        };
+      }
+    );
+    const base = makeConfig();
+    const config = makeConfig({
+      duration: 2,
+      cycleLength: 2,
+      characters: [
+        {
+          ...base.characters[0]!,
+          initialEnergy: 60
+        }
+      ],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 1,
+        abilities: [
+          {
+            id: "burst",
+            actorId: "a",
+            name: "爆发",
+            kind: "burst",
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 60,
+            energyCost: 60,
+            hits: [
+              {
+                id: "burst-hit",
+                frame: 0,
+                scaling: 1,
+                element: "pyro"
+              }
+            ]
+          }
+        ],
+        commands: [
+          {
+            type: "burst",
+            actorId: "a",
+            abilityId: "burst"
+          }
+        ]
+      }
+    });
+    const result = simulate(config, { plugins: [plugin] });
+
+    expect(runtimeCount).toBe(2);
+    expect(
+      result.damageEvents[0]?.damageFactors
+        .damageBonusMultiplier
+    ).toBeCloseTo(1.01, 12);
   });
 });

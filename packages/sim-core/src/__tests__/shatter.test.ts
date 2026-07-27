@@ -182,6 +182,78 @@ function makeShatterConfig(options?: {
   };
 }
 
+function makeReactionAShatterConfig(): SimConfig {
+  const config = makeShatterConfig();
+  const crusherAbility = config.timeline!.abilities.find(
+    (ability) => ability.id === "crusher-skill"
+  )!;
+  const shatterHit = crusherAbility.hits![0]!;
+  crusherAbility.cancelFrame = 25;
+  crusherAbility.animationEndFrame = 25;
+  crusherAbility.hits = [
+    shatterHit,
+    {
+      id: "refreeze-cryo-2",
+      label: "第二次冻结冰附着",
+      frame: 3,
+      scaling: 1,
+      element: "cryo",
+      application: {
+        gaugeUnits: 1,
+        icdTag: "refreeze-cryo-2",
+        icdGroup: "no-icd"
+      }
+    },
+    {
+      id: "refreeze-hydro-2",
+      label: "第二次冻结水附着",
+      frame: 4,
+      scaling: 1,
+      element: "hydro",
+      application: {
+        gaugeUnits: 1,
+        icdTag: "refreeze-hydro-2",
+        icdGroup: "no-icd"
+      }
+    },
+    {
+      ...shatterHit,
+      id: "crusher-hit-2",
+      frame: 12
+    },
+    {
+      id: "refreeze-cryo-3",
+      label: "第三次冻结冰附着",
+      frame: 15,
+      scaling: 1,
+      element: "cryo",
+      application: {
+        gaugeUnits: 1,
+        icdTag: "refreeze-cryo-3",
+        icdGroup: "no-icd"
+      }
+    },
+    {
+      id: "refreeze-hydro-3",
+      label: "第三次冻结水附着",
+      frame: 16,
+      scaling: 1,
+      element: "hydro",
+      application: {
+        gaugeUnits: 1,
+        icdTag: "refreeze-hydro-3",
+        icdGroup: "no-icd"
+      }
+    },
+    {
+      ...shatterHit,
+      id: "crusher-hit-3",
+      frame: 24
+    }
+  ];
+  return config;
+}
+
 function makeOverloadShatterConfig(): SimConfig {
   const base = makeConfig();
   const template = base.characters[0]!;
@@ -401,6 +473,82 @@ describe("Shatter simulation integration", () => {
     ]);
   });
 
+  it("reads Shatter level, EM, and reaction bonus live at the trigger frame across an action-snapshot buff boundary", () => {
+    const config = makeShatterConfig();
+    const freezeAbility = config.timeline!.abilities.find(
+      (ability) => ability.id === "hydro-freeze"
+    )!;
+    const crusherHit = config.timeline!.abilities.find(
+      (ability) => ability.id === "crusher-skill"
+    )!.hits![0]!;
+    freezeAbility.buffs = [
+      {
+        key: "temporary-em",
+        label: "动作快照精通",
+        target: "crusher",
+        stat: "em",
+        value: 200,
+        startFrame: 0,
+        durationFrames: 10
+      },
+      {
+        key: "temporary-reaction-bonus",
+        label: "动作快照反应加成",
+        target: "crusher",
+        stat: "reactionBonus",
+        value: 0.3,
+        startFrame: 0,
+        durationFrames: 10
+      }
+    ];
+    crusherHit.frame = 20;
+    crusherHit.snapshot = "action";
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const trigger = result.damageEvents.find(
+      (event) =>
+        event.kind === "direct" &&
+        event.sourceActorId === "crusher"
+    );
+    const shatter = result.damageEvents.find(
+      (event) => event.reaction === "shatter"
+    );
+    const expected = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: 100,
+      reactionBonus: 0.2,
+      baseMultiplier: 3,
+      effectiveResistance: 0.25
+    });
+
+    expect(trigger).toMatchObject({
+      frame: 22,
+      snapshot: "action",
+      statsBeforeDamage: {
+        em: 300,
+        reactionBonus: 0.5
+      }
+    });
+    expect(shatter).toMatchObject({
+      frame: 22,
+      snapshot: "hit",
+      statsBeforeDamage: {
+        em: 100,
+        reactionBonus: 0.2
+      },
+      activeStatuses: [],
+      transformativeReactionFactors: {
+        characterLevel: 90,
+        elementalMastery: 100,
+        reactionBonus: 0.2
+      }
+    });
+    expect(shatter?.finalDamage).toBeCloseTo(
+      expected.finalDamage,
+      10
+    );
+  });
+
   it("lets Geo trigger Shatter without a blunt strike classification", () => {
     const result = simulate(
       makeShatterConfig({
@@ -507,6 +655,93 @@ describe("Shatter simulation integration", () => {
         (event) => event.reaction === "shatter"
       )
     ).toHaveLength(1);
+    expect(second).toEqual(first);
+  });
+
+  it("applies ReactionA first-two-in-30f after the independent 12-frame Shatter trigger GCD", () => {
+    const config = makeReactionAShatterConfig();
+    const first = simulate(config, { critMode: "noCrit" });
+    const second = simulate(config, { critMode: "noCrit" });
+    const shatterLogs = first.reactionDamageLog.filter(
+      (entry) => entry.reaction === "shatter"
+    );
+    const shatterEvents = first.damageEvents.filter(
+      (event) => event.reaction === "shatter"
+    );
+
+    expect(
+      shatterLogs.map((entry) => entry.triggerFrame)
+    ).toEqual([2, 14, 26]);
+    expect(
+      shatterLogs.map(
+        (entry) => entry.damageGroupDecisions[0]
+      )
+    ).toMatchObject([
+      {
+        reaction: "shatter",
+        sourceActorId: "crusher",
+        targetId: "enemy-0",
+        windowStartFrame: 2,
+        hitIndex: 0,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed: true,
+        blockedReason: null
+      },
+      {
+        reaction: "shatter",
+        sourceActorId: "crusher",
+        targetId: "enemy-0",
+        windowStartFrame: 2,
+        hitIndex: 1,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed: true,
+        blockedReason: null
+      },
+      {
+        reaction: "shatter",
+        sourceActorId: "crusher",
+        targetId: "enemy-0",
+        windowStartFrame: 2,
+        hitIndex: 2,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed: false,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      }
+    ]);
+    expect(
+      shatterLogs.map(
+        (entry) => entry.damageGroupBlockedTargetIds
+      )
+    ).toEqual([[], [], ["enemy-0"]]);
+    expect(shatterEvents.map((event) => event.frame)).toEqual([
+      2, 14, 26
+    ]);
+    expect(shatterEvents[2]).toMatchObject({
+      potentialDamage: 0,
+      finalDamage: 0,
+      displayDamage: 0,
+      damageFactors: {
+        groupMultiplier: 0
+      },
+      damageComposition: {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: 0
+      }
+    });
+    expect(shatterLogs[2]?.damageEventIds).toEqual([
+      shatterEvents[2]?.id
+    ]);
+    expect(
+      first.frozenStateLog
+        .filter(
+          (entry) => entry.operation === "shatter-consume"
+        )
+        .map((entry) => entry.frame)
+    ).toEqual([2, 14, 26]);
     expect(second).toEqual(first);
   });
 

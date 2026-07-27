@@ -194,8 +194,13 @@ describe("AuraEngine Swirl durability and scheduling", () => {
 });
 
 function makeSwirlSimulationConfig(
-  secondaryAura: "hydro" | "electro" | null = "hydro",
-  swirledAura: "pyro" | "hydro" = "pyro"
+  secondaryAura:
+    | "pyro"
+    | "hydro"
+    | "cryo"
+    | "electro"
+    | null = "hydro",
+  swirledAura: "pyro" | "hydro" | "cryo" = "pyro"
 ): SimConfig {
   const base = makeConfig();
   return {
@@ -295,6 +300,105 @@ function makeSwirlSimulationConfig(
       ]
     }
   };
+}
+
+interface NestedSwirlAmplifyingCase {
+  label: string;
+  swirledAura: "pyro" | "cryo";
+  secondaryAura: "hydro" | "pyro";
+  swirlReaction: "swirlPyro" | "swirlCryo";
+  amplifyingReaction: "reverseVaporize" | "reverseMelt";
+}
+
+const NESTED_SWIRL_AMPLIFYING_CASES: readonly NestedSwirlAmplifyingCase[] =
+  [
+    {
+      label: "Pyro Swirl into Hydro",
+      swirledAura: "pyro",
+      secondaryAura: "hydro",
+      swirlReaction: "swirlPyro",
+      amplifyingReaction: "reverseVaporize"
+    },
+    {
+      label: "Cryo Swirl into Pyro",
+      swirledAura: "cryo",
+      secondaryAura: "pyro",
+      swirlReaction: "swirlCryo",
+      amplifyingReaction: "reverseMelt"
+    }
+  ];
+
+type NestedBuffWindow = "active-f3-f8" | "expired-f0-f3";
+
+function makeNestedSwirlAmplifyingConfig(
+  vector: NestedSwirlAmplifyingCase,
+  buffWindow: NestedBuffWindow
+): SimConfig {
+  const config = makeSwirlSimulationConfig(
+    vector.secondaryAura,
+    vector.swirledAura
+  );
+  const source = config.characters[0]!;
+  config.characters = [
+    source,
+    {
+      ...source,
+      id: "scaling-proxy",
+      name: "Scaling Proxy",
+      stats: {
+        ...neutralStats,
+        baseAtk: 2000,
+        em: 900,
+        reactionBonus: 0.9
+      }
+    },
+    {
+      ...source,
+      id: "credit-proxy",
+      name: "Credit Proxy",
+      stats: {
+        ...neutralStats,
+        baseAtk: 3000,
+        em: 700,
+        reactionBonus: 0.7
+      }
+    }
+  ];
+  const ability = config.timeline!.abilities[0]!;
+  const hit = ability.hits![0]!;
+  const startFrame = buffWindow === "active-f3-f8" ? 3 : 0;
+  const durationFrames = buffWindow === "active-f3-f8" ? 5 : 3;
+  ability.cancelFrame = 8;
+  ability.animationEndFrame = 8;
+  ability.buffs = [
+    {
+      key: `nested-em-${buffWindow}`,
+      label: `Nested EM ${buffWindow}`,
+      target: "self",
+      stat: "em",
+      value: 400,
+      startFrame,
+      durationFrames
+    },
+    {
+      key: `nested-reaction-bonus-${buffWindow}`,
+      label: `Nested reaction bonus ${buffWindow}`,
+      target: "self",
+      stat: "reactionBonus",
+      value: 0.3,
+      startFrame,
+      durationFrames
+    }
+  ];
+  ability.hits = [
+    {
+      ...hit,
+      reactionBonus: 0.05,
+      scalingOwnerId: "scaling-proxy",
+      creditId: "credit-proxy"
+    }
+  ];
+  return config;
 }
 
 describe("Swirl simulation integration", () => {
@@ -465,6 +569,169 @@ describe("Swirl simulation integration", () => {
     ).toBeCloseTo(1.76, 10);
   });
 
+  it("uses trigger-frame live EM and reaction bonus for an action-snapshot Swirl", () => {
+    const config = makeSwirlSimulationConfig(null);
+    const ability = config.timeline!.abilities[0]!;
+    const hit = ability.hits![0]!;
+    ability.cancelFrame = 11;
+    ability.animationEndFrame = 11;
+    ability.buffs = [
+      {
+        key: "swirl-live-em",
+        label: "扩散命中帧精通",
+        target: "self",
+        stat: "em",
+        value: 200,
+        startFrame: 5,
+        durationFrames: 6
+      },
+      {
+        key: "swirl-live-reaction-bonus",
+        label: "扩散命中帧反应增伤",
+        target: "self",
+        stat: "reactionBonus",
+        value: 0.3,
+        startFrame: 5,
+        durationFrames: 6
+      }
+    ];
+    ability.hits = [
+      {
+        ...hit,
+        frame: 10,
+        snapshot: "action"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const direct = result.damageEvents.find(
+      (event) => event.hitId === "anemo-hit"
+    );
+    const self = result.damageEvents.find(
+      (event) =>
+        event.reaction === "swirlPyro" &&
+        event.frame === 11 &&
+        event.targetId === "enemy-0"
+    );
+    const expected = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: 300,
+      reactionBonus: 0.5,
+      baseMultiplier: 0.6,
+      effectiveResistance: 0.1
+    });
+
+    expect(direct?.statsBeforeDamage).toMatchObject({
+      em: 100,
+      reactionBonus: 0.2
+    });
+    expect(self).toMatchObject({
+      frame: 11,
+      statsBeforeDamage: {
+        em: 300,
+        reactionBonus: 0.5
+      },
+      transformativeReactionFactors: {
+        characterLevel: 90,
+        elementalMastery: 300,
+        reactionBonus: 0.5
+      },
+      damageFactors: {
+        critMultiplier: 1,
+        defenseMultiplier: 1
+      }
+    });
+    expect(self?.finalDamage).toBeCloseTo(expected.finalDamage, 10);
+  });
+
+  it.each(
+    NESTED_SWIRL_AMPLIFYING_CASES.flatMap((vector) =>
+      (["active-f3-f8", "expired-f0-f3"] as const).map(
+        (buffWindow) => ({
+          ...vector,
+          buffWindow
+        })
+      )
+    )
+  )(
+    "$label uses trigger-frame EM and F+5 live reaction bonus with $buffWindow",
+    (vector) => {
+      const config = makeNestedSwirlAmplifyingConfig(
+        vector,
+        vector.buffWindow
+      );
+      const first = simulate(config, { critMode: "noCrit" });
+      const repeated = simulate(config, { critMode: "noCrit" });
+      const direct = first.damageEvents.find(
+        (event) =>
+          event.kind === "direct" &&
+          event.hitId === "anemo-hit" &&
+          event.targetId === "enemy-0"
+      )!;
+      const propagation = first.damageEvents.find(
+        (event) =>
+          event.reaction === vector.swirlReaction &&
+          event.frame === 5 &&
+          event.targetId === "enemy-1"
+      )!;
+      const buffActiveAtTrigger =
+        vector.buffWindow === "expired-f0-f3";
+      const elementalMastery = buffActiveAtTrigger ? 500 : 100;
+      const transformativeReactionBonus =
+        (buffActiveAtTrigger ? 0.5 : 0.2) + 0.05;
+      const amplifyingReactionBonus =
+        (buffActiveAtTrigger ? 0.2 : 0.5) + 0.05;
+      const transformative = calcTransformativeReactionDamage({
+        characterLevel: 90,
+        elementalMastery,
+        reactionBonus: transformativeReactionBonus,
+        baseMultiplier: 0.6,
+        effectiveResistance: 0.1
+      });
+      const amplifying = calcAmplifyingReactionMultiplier({
+        reaction: vector.amplifyingReaction,
+        elementalMastery,
+        reactionBonus: amplifyingReactionBonus
+      });
+
+      expect(direct).toMatchObject({
+        sourceActorId: "anemo",
+        scalingOwnerId: "scaling-proxy",
+        creditOwnerId: "credit-proxy"
+      });
+      expect(propagation).toMatchObject({
+        sourceActorId: "anemo",
+        scalingOwnerId: "anemo",
+        creditOwnerId: "anemo",
+        parentDamageEventId: direct.id,
+        frame: 5,
+        reaction: vector.swirlReaction,
+        statsBeforeDamage: {
+          em: elementalMastery,
+          reactionBonus: buffActiveAtTrigger ? 0.5 : 0.2
+        },
+        reactionAudit: {
+          reaction: vector.amplifyingReaction
+        },
+        transformativeReactionFactors: {
+          elementalMastery,
+          reactionBonus: transformativeReactionBonus
+        },
+        damageFactors: {
+          amplifyingReactionMultiplier: amplifying.total
+        }
+      });
+      expect(propagation.finalDamage).toBe(
+        transformative.finalDamage * amplifying.total
+      );
+      expect(repeated.damageEvents).toEqual(first.damageEvents);
+      expect(repeated.totalDamage).toBe(first.totalDamage);
+      expect(repeated.reproducibilityKey).toBe(
+        first.reproducibilityKey
+      );
+    }
+  );
+
   it("applies ReactionA damage only to the first two target-local hits in 30 frames", () => {
     const base = makeConfig();
     const sourceTargets = ["enemy-0", "source-1", "source-2"];
@@ -597,5 +864,47 @@ describe("Swirl simulation integration", () => {
           entry.damageFrame === 17
       )?.damageGroupBlockedTargetIds
     ).toContain("shared-target");
+    const blockedLog = result.reactionDamageLog.find(
+      (entry) =>
+        entry.scheduleKind === "swirl-propagation" &&
+        entry.damageFrame === 17
+    );
+    const blockedEvent = sharedPropagation[2];
+    expect(blockedLog?.damageGroupDecisions).toEqual(
+      expect.arrayContaining([
+        {
+          reaction: "swirlPyro",
+          sourceActorId: "anemo",
+          targetId: "shared-target",
+          windowStartFrame: 5,
+          hitIndex: 2,
+          resetFrames: 30,
+          sequence: [true, true, false],
+          damageAllowed: false,
+          blockedReason: "REACTION_A_DAMAGE_ICD"
+        }
+      ])
+    );
+    expect(
+      blockedLog?.damageGroupDecisions.map(
+        (decision) => decision.targetId
+      )
+    ).toEqual(blockedLog?.hitTargetIds);
+    expect(blockedLog?.damageEventIds).toContain(blockedEvent?.id);
+    expect(
+      result.damageEvents.find(
+        (event) => event.id === blockedEvent?.id
+      )
+    ).toMatchObject({
+      finalDamage: 0,
+      damageComposition: {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: 0
+      },
+      damageFactors: {
+        groupMultiplier: 0
+      }
+    });
   });
 });

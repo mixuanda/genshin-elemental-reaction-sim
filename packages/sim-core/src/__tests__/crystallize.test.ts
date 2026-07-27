@@ -150,6 +150,48 @@ describe("AuraEngine Crystallize", () => {
       expect.objectContaining({ element: "hydro" })
     ]);
   });
+
+  it("reports mapped Pyro durability after partially consuming ordinary Pyro and Burning", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v4",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd(1)
+    });
+    const audit = engine.processHit({
+      frame: 1,
+      sourceActorId: "geo",
+      element: "geo",
+      application: noIcd(1)
+    });
+
+    expect(audit.crystallizeReaction).toMatchObject({
+      reaction: "crystallizePyro",
+      consumedAuraElement: "pyro",
+      auraGaugeUnitsBefore: 2,
+      auraConsumedGaugeUnits: 0.5,
+      auraGaugeUnitsAfter: 1.5
+    });
+    expect(audit.auraAfter).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          element: "pyro"
+        }),
+        expect.objectContaining({
+          element: "burning",
+          gaugeUnits: 1.5
+        })
+      ])
+    );
+    expect(
+      audit.auraAfter?.find((entry) => entry.element === "pyro")
+        ?.gaugeUnits
+    ).toBeCloseTo(0.298596491228, 12);
+  });
 });
 
 describe("Crystallize shield formula", () => {

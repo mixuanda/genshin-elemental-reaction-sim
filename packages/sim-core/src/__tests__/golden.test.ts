@@ -1,24 +1,46 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
-const LEGACY_REPRODUCIBILITY_KEY = "gdl-d1a42700";
-const LEGACY_PRE_TARGET_TIMELINE_SHA256 =
+const LEGACY_V130_REPRODUCIBILITY_KEY = "gdl-d1a42700";
+const LEGACY_V131_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-5a0c4085";
+const LEGACY_V130_COMPATIBILITY_SHA256 =
   "be150b9be5f33d18ef8942fbb13693aaef47b82a02712107ab04676dfcc24110";
 const LEGACY_DAMAGE_EVENTS_SHA256 =
   "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f";
-const BURNING_PRE_TARGET_TIMELINE_SHA256 =
+const BURNING_V130_COMPATIBILITY_SHA256 =
   "7235c3faf3a61305aef85b5a6144d1c98196f2a8d222b3d453851cb53a83b772";
 const BURNING_DAMAGE_EVENTS_SHA256 =
-  "173780f2e73094db7342db12777843fd9b327bb10e06ae54cc2124cdfa12e371";
+  "8e5c192e04f4599da093fc61f353aff3529a2d234aba19ef6dadd00bf89e1cf1";
 const BURNING_STATE_LOG_SHA256 =
   "ea975d86f541791d09d5d53310de61c5223b9be2fe8eef356fdfe38e8c0b2fd5";
+const BURNING_V131_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-2227b3cd";
 
+const EMPTY_DENDRO_ARRAY_FIELDS = new Set([
+  "bloomReactions",
+  "damageGroupDecisions"
+]);
+const NULL_DENDRO_REACTION_DAMAGE_FIELDS = new Set([
+  "triggerHitGroupId",
+  "sourceCoreId",
+  "sourceCoreLogId",
+  "selectionRadius",
+  "selectedTargetId",
+  "resolutionReason"
+]);
+
+/**
+ * Hash the pre-1.31 semantic surface. Empty Bloom arrays and nullable
+ * Dendro-core reaction-damage fields are additive wire fields, so legacy/v4
+ * regressions normalize only those empty values away while still failing if
+ * any Dendro-core behavior becomes active.
+ */
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map((entry) => canonicalize(entry));
@@ -28,6 +50,20 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.keys(record)
         .sort()
+        .filter((key) => {
+          const field = record[key];
+          if (
+            EMPTY_DENDRO_ARRAY_FIELDS.has(key) &&
+            Array.isArray(field) &&
+            field.length === 0
+          ) {
+            return false;
+          }
+          return !(
+            NULL_DENDRO_REACTION_DAMAGE_FIELDS.has(key) &&
+            field === null
+          );
+        })
         .map((key) => [key, canonicalize(record[key])])
     );
   }
@@ -40,14 +76,54 @@ function sha256(value: unknown): string {
     .digest("hex");
 }
 
-function preTargetTimelineResult(
-  result: ReturnType<typeof simulate>
+function stripV131QuickenLifecycleAudit(
+  value: unknown
+): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) =>
+      stripV131QuickenLifecycleAudit(entry)
+    );
+  }
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== "quickenStateMutation")
+        .map(([key, entry]) => [
+          key,
+          stripV131QuickenLifecycleAudit(entry)
+        ])
+    );
+  }
+  return value;
+}
+
+function v130CompatibilityResult(
+  result: ReturnType<typeof simulate>,
+  reproducibilityKey: string
 ): unknown {
   const {
     targetStateTimeline: _targetStateTimeline,
-    ...preTimelineResult
+    dendroCoreLog: _dendroCoreLog,
+    dendroCoreContactLog: _dendroCoreContactLog,
+    dendroCoreTimeline: _dendroCoreTimeline,
+    runManifest: _runManifest,
+    resolvedRuntimeOptions: _resolvedRuntimeOptions,
+    pluginManifest: _pluginManifest,
+    ...preDendroCoreResult
   } = result;
-  return preTimelineResult;
+  // Versions and the reproducibility key intentionally change after migration;
+  // restore only that envelope before comparing with the frozen 1.30 digest.
+  return stripV131QuickenLifecycleAudit({
+    ...preDendroCoreResult,
+    schemaVersion: "1.30.0",
+    engineVersion: "1.30.0-burning-reaction",
+    reproducibilityKey,
+    config: {
+      ...preDendroCoreResult.config,
+      schemaVersion: "1.30.0",
+      engineVersion: "1.30.0-burning-reaction"
+    }
+  });
 }
 
 function expectContiguousTargetStateTimelineIds(
@@ -64,10 +140,28 @@ function expectContiguousTargetStateTimelineIds(
   );
 }
 
-function makeBurningGoldenConfig(): SimConfig {
+function expectNoDendroCoreOutput(
+  result: ReturnType<typeof simulate>
+): void {
+  expect(result.dendroCoreLog).toEqual([]);
+  expect(result.dendroCoreContactLog).toEqual([]);
+  expect(result.dendroCoreTimeline).toEqual({
+    version: "1.0.0",
+    points: []
+  });
+  expect(
+    result.damageEvents.every(
+      (event) => event.reactionAudit.bloomReactions.length === 0
+    )
+  ).toBe(true);
+}
+
+function makeBurningGoldenConfig(): unknown {
   const base = makeConfig();
   return {
     ...base,
+    schemaVersion: burningGolden.config.schemaVersion,
+    engineVersion: burningGolden.config.engineVersion,
     dataVersion: "burning-fixed-gcsim-cross-check-1",
     randomSeed: "burning-aura-v4-golden-seed",
     meta: {
@@ -183,14 +277,44 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
     expect(result.reproducibilityKey).toBe(
-      LEGACY_REPRODUCIBILITY_KEY
+      LEGACY_V131_REPRODUCIBILITY_KEY
+    );
+    expect(result.runManifest).toMatchObject({
+      version: "1.0.0",
+      identityAlgorithm: "fnv1a32-v2",
+      configHash: expect.stringMatching(
+        /^fnv1a32:[0-9a-f]{8}$/
+      ),
+      resolvedRuntimeOptions: {
+        energyMode: "configured",
+        critMode: "average",
+        compatibilityMode: "legacy-v0.1",
+        randomSeed: golden.options.randomSeed
+      },
+      plugins: [],
+      reproducibilityKey:
+        LEGACY_V131_REPRODUCIBILITY_KEY
+    });
+    expect(result.resolvedRuntimeOptions).toBe(
+      result.runManifest.resolvedRuntimeOptions
+    );
+    expect(result.pluginManifest).toBe(
+      result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
       LEGACY_DAMAGE_EVENTS_SHA256
     );
-    expect(sha256(preTargetTimelineResult(result))).toBe(
-      LEGACY_PRE_TARGET_TIMELINE_SHA256
+    expect(
+      sha256(
+        v130CompatibilityResult(
+          result,
+          LEGACY_V130_REPRODUCIBILITY_KEY
+        )
+      )
+    ).toBe(
+      LEGACY_V130_COMPATIBILITY_SHA256
     );
+    expectNoDendroCoreOutput(result);
     expectContiguousTargetStateTimelineIds(result);
     expect(result.actorPoses).toEqual([]);
     expect(result.enemyTargets).toEqual([
@@ -360,29 +484,62 @@ describe("Burning aura-v4 provisional golden", () => {
       randomSeed: burningGolden.options.randomSeed
     };
     expect(burningGolden.options).toEqual(options);
-    const result = simulate(makeBurningGoldenConfig(), options);
+    const input = makeBurningGoldenConfig();
+    expect(input).toMatchObject({
+      schemaVersion: "1.30.0",
+      engineVersion: "1.30.0-burning-reaction",
+      reactionEngine: { mode: "aura-v4" }
+    });
+    const result = simulate(input, options);
 
-    expect(result.schemaVersion).toBe(
-      burningGolden.config.schemaVersion
+    expect(burningGolden.config.schemaVersion).toBe("1.30.0");
+    expect(burningGolden.config.engineVersion).toBe(
+      "1.30.0-burning-reaction"
     );
-    expect(result.engineVersion).toBe(
-      burningGolden.config.engineVersion
+    expect(result.schemaVersion).toBe("1.31.0");
+    expect(result.engineVersion).toBe("1.31.0-dendro-cores");
+    expect(result.config.schemaVersion).toBe("1.31.0");
+    expect(result.config.engineVersion).toBe(
+      "1.31.0-dendro-cores"
     );
+    expect(result.config.reactionEngine?.mode).toBe("aura-v4");
     expect(result.dataVersion).toBe(
       burningGolden.config.dataVersion
     );
-    expect(result.reproducibilityKey).toBe(
-      burningGolden.reproducibilityKey
+    expect(burningGolden.reproducibilityKey).toBe(
+      "gdl-37da25f5"
     );
+    expect(result.reproducibilityKey).toBe(
+      BURNING_V131_REPRODUCIBILITY_KEY
+    );
+    expect(result.runManifest).toMatchObject({
+      version: "1.0.0",
+      identityAlgorithm: "fnv1a32-v2",
+      configHash: expect.stringMatching(
+        /^fnv1a32:[0-9a-f]{8}$/
+      ),
+      resolvedRuntimeOptions: options,
+      plugins: [],
+      reproducibilityKey:
+        BURNING_V131_REPRODUCIBILITY_KEY
+    });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256
     );
     expect(sha256(result.burningStateLog)).toBe(
       BURNING_STATE_LOG_SHA256
     );
-    expect(sha256(preTargetTimelineResult(result))).toBe(
-      BURNING_PRE_TARGET_TIMELINE_SHA256
+    expect(
+      sha256(
+        v130CompatibilityResult(
+          result,
+          burningGolden.reproducibilityKey
+        )
+      )
+    ).toBe(
+      BURNING_V130_COMPATIBILITY_SHA256
     );
+    expectNoDendroCoreOutput(result);
     expectContiguousTargetStateTimelineIds(result);
     expectRelativeClose(
       result.totalDamage,

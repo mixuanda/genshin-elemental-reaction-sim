@@ -1,5 +1,15 @@
-export const CURRENT_SCHEMA_VERSION = "1.30.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.30.0-burning-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.31.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.31.0-dendro-cores" as const;
+export const SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
+/**
+ * This identity algorithm is intentionally versioned and non-cryptographic.
+ * It detects ordinary configuration drift; it is not an integrity signature.
+ */
+export const REPRODUCIBILITY_IDENTITY_ALGORITHM =
+  "fnv1a32-v2" as const;
+export const BURNING_REACTION_SCHEMA_VERSION = "1.30.0" as const;
+export const BURNING_REACTION_ENGINE_VERSION =
+  "1.30.0-burning-reaction" as const;
 export const CATALYZE_REACTION_SCHEMA_VERSION = "1.29.0" as const;
 export const CATALYZE_REACTION_ENGINE_VERSION =
   "1.29.0-catalyze-reaction" as const;
@@ -56,6 +66,10 @@ export type OneShotTransformativeReaction =
   | "superconduct";
 export type PeriodicTransformativeReaction = "electroCharged";
 export type BurningReaction = "burning";
+export type DendroCoreReaction =
+  | "bloom"
+  | "burgeon"
+  | "hyperbloom";
 export type ShatterReaction = "shatter";
 export type SwirlReaction =
   | "swirlPyro"
@@ -72,6 +86,7 @@ export type QuickenReaction = "quicken";
 export type UnsupportedMechanicsBranch =
   | "burning"
   | "bloom"
+  | "legacy-multi-reaction-order"
   | "non-pyro-multi-reaction-order";
 /** @deprecated Use UnsupportedMechanicsBranch for new integrations. */
 export type UnsupportedDendroReaction = UnsupportedMechanicsBranch;
@@ -84,7 +99,8 @@ export type TransformativeReaction =
   | PeriodicTransformativeReaction
   | BurningReaction
   | ShatterReaction
-  | SwirlReaction;
+  | SwirlReaction
+  | DendroCoreReaction;
 export type NonDamageReaction =
   | "freeze"
   | QuickenReaction
@@ -198,7 +214,12 @@ export interface IcdProfile {
 }
 
 export interface AuraReactionEngineConfig {
-  mode: "aura-v1" | "aura-v2" | "aura-v3" | "aura-v4";
+  mode:
+    | "aura-v1"
+    | "aura-v2"
+    | "aura-v3"
+    | "aura-v4"
+    | "aura-v5";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -329,6 +350,25 @@ export type HitGeometry =
   | SectorHitGeometry;
 
 export type GeometryCoordinateSpace = "world" | "actor-local";
+
+/**
+ * Actor-local geometry after the core has projected it into world space.
+ * Keeping this separate from input HitGeometry prevents result consumers from
+ * repeating pose transforms.
+ */
+export type ResolvedWorldHitGeometry =
+  | (Omit<CircleHitGeometry, "coordinateSpace"> & {
+      coordinateSpace: "world";
+    })
+  | (Omit<RectangleHitGeometry, "coordinateSpace"> & {
+      coordinateSpace: "world";
+    })
+  | (Omit<CapsuleHitGeometry, "coordinateSpace"> & {
+      coordinateSpace: "world";
+    })
+  | (Omit<SectorHitGeometry, "coordinateSpace"> & {
+      coordinateSpace: "world";
+    });
 
 export interface ActorPoseDefinition {
   actorId: string;
@@ -656,6 +696,49 @@ export interface SimulationOptions {
   randomSeed?: string;
 }
 
+export interface ResolvedSimulationRuntimeOptions {
+  energyMode: EnergyMode;
+  critMode: CritMode;
+  compatibilityMode: CompatibilityMode;
+  randomSeed: string;
+}
+
+export type DamagePluginKind = "code" | "declarative";
+
+/**
+ * Stable, author-declared identity for executable plugin code.
+ *
+ * Code-plugin hashes are trust declarations. Function source text is never
+ * serialized because bundlers and runtimes do not provide a stable encoding.
+ */
+export interface DamagePluginDescriptor {
+  id: string;
+  version: string;
+  kind: DamagePluginKind;
+  contentHash: string;
+}
+
+export interface DamagePluginManifestEntry
+  extends DamagePluginDescriptor {
+  /** Execution order. Plugin ordering is semantic and is never sorted. */
+  order: number;
+  /** Redundant array-position guard used by the strict runtime Schema. */
+  index: number;
+}
+
+export interface SimulationRunManifest {
+  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+  identityAlgorithm: typeof REPRODUCIBILITY_IDENTITY_ALGORITHM;
+  schemaVersion: typeof CURRENT_SCHEMA_VERSION;
+  engineVersion: typeof CURRENT_ENGINE_VERSION;
+  dataVersion: string;
+  /** Versioned, non-cryptographic fingerprint of the migrated config. */
+  configHash: string;
+  resolvedRuntimeOptions: ResolvedSimulationRuntimeOptions;
+  plugins: DamagePluginManifestEntry[];
+  reproducibilityKey: string;
+}
+
 export type SimulationEventType =
   | "action"
   | "buff"
@@ -670,6 +753,8 @@ export type SimulationEventType =
   | "periodicReactionExpiry"
   | "burningTick"
   | "burningFuelExpiry"
+  | "dendroCoreSpawn"
+  | "dendroCoreExpiry"
   | "frozenExpiry"
   | "quickenExpiry"
   | "crystallizeShardSpawn"
@@ -714,7 +799,7 @@ export interface AuraStateEntry {
   element: AuraStateElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
-  /** Present in aura-v3 and aura-v4; each owner keeps an independent slot. */
+  /** Present in aura-v3 through aura-v5; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -779,6 +864,8 @@ export interface ReactionAudit {
   catalyzeReaction: CatalyzeReactionAudit | null;
   /** Pyro/Dendro Burning marker, Fuel, snapshot, and tick scheduling. */
   burningReaction: BurningReactionAudit | null;
+  /** One hit may trigger both direct and same-frame Quicken-follow-up Bloom. */
+  bloomReactions: BloomReactionAudit[];
   note?: string;
 }
 
@@ -808,8 +895,15 @@ export interface QuickenReactionAudit {
   quickenGaugeUnitsAfter: number;
   operation: "start" | "refresh" | "unchanged";
   generation: number;
+  decayPerFrameBefore: number;
+  expiresAtFrameBefore: number | null;
+  endCauseBefore: QuickenDecayEndCause;
   decayPerFrame: number;
   expiresAtFrame: number | null;
+  endCause: Exclude<QuickenDecayEndCause, null>;
+  /** Aura state immediately around the Quicken modifier attach decision. */
+  operationAuraBefore: AuraStateEntry[];
+  operationAuraAfter: AuraStateEntry[];
   /** Fixed gcsim queues a same-frame Bloom follow-up when Hydro is present. */
   pendingHydroBloomFollowup: boolean;
 }
@@ -832,6 +926,33 @@ export type BurningReactionOperation =
   | "refresh-fuel"
   | "refresh-snapshot"
   | "stop";
+
+export type QuickenDecayEndCause =
+  | "QUICKEN_DECAY"
+  | "BURNING_FUEL_EXPIRED"
+  | null;
+
+/**
+ * Quicken lifetime change caused by a Burning/Fuel boundary.
+ *
+ * This is separate from Bloom's Gauge-consumption mutation because Burning
+ * may rebase decay and expiry while preserving the current Quicken Gauge.
+ */
+export interface QuickenDecayMutationAudit {
+  operation: "none" | "decay-rebase" | "remove";
+  generationBefore: number;
+  generationAfter: number;
+  quickenGaugeUnitsBefore: number;
+  quickenGaugeUnitsAfter: number;
+  decayPerFrameBefore: number;
+  decayPerFrameAfter: number;
+  expiresAtFrameBefore: number | null;
+  expiresAtFrameAfter: number | null;
+  endCauseBefore: QuickenDecayEndCause;
+  endCauseAfter: QuickenDecayEndCause;
+  operationAuraBefore: AuraStateEntry[];
+  operationAuraAfter: AuraStateEntry[];
+}
 
 /**
  * Audit emitted on the Pyro/Dendro hit that starts or refreshes Burning.
@@ -862,6 +983,8 @@ export interface BurningReactionAudit {
   fuelGaugeUnitsAfter: number;
   fuelDecayPerFrame: number;
   fuelExpiresAtFrame: number | null;
+  /** Explicit Quicken decay/end-cause mutation at this Burning boundary. */
+  quickenStateMutation: QuickenDecayMutationAudit;
   snapshotFrame: number;
   clockModel: "target-local-no-hitlag";
   hitlagStatus: "unsupported-enemy-hitlag";
@@ -873,6 +996,79 @@ export interface BurningReactionAudit {
   baseMultiplier: 0.25;
   radius: 1;
   applicationGaugeUnits: 1;
+  selfDamageStatus: "unsupported-player-damage-model";
+}
+
+/**
+ * Exact gauge accounting for one Bloom trigger. A single source hit may emit
+ * more than one record, so ReactionAudit owns an ordered array.
+ */
+export interface BloomQuickenStateMutationAudit {
+  operation:
+    | "none"
+    | "decay-rebase"
+    | "partial-consume"
+    | "remove";
+  generationBefore: number;
+  generationAfter: number;
+  decayPerFrameBefore: number;
+  decayPerFrameAfter: number;
+  expiresAtFrameBefore: number | null;
+  expiresAtFrameAfter: number | null;
+  endCauseBefore: QuickenDecayEndCause;
+  endCauseAfter: QuickenDecayEndCause;
+  /** Aura state immediately around this resolution's Quicken-slot mutation. */
+  operationAuraBefore: AuraStateEntry[];
+  operationAuraAfter: AuraStateEntry[];
+}
+
+/**
+ * Burning Fuel lifetime mutation caused by one Bloom Gauge resolution.
+ *
+ * Depletion deliberately retains the current Burning stream identity until
+ * Reactable.Tick purges the dependent state on the next frame.
+ */
+export interface BloomBurningFuelStateMutationAudit {
+  operation:
+    | "none"
+    | "expiry-rebase"
+    | "deplete-pending-purge";
+  generation: number | null;
+  decayPerFrame: number;
+  expiresAtFrameBefore: number | null;
+  expiresAtFrameAfter: number | null;
+}
+
+export interface BloomReactionAudit {
+  reaction: "bloom";
+  operation: "direct" | "quicken-followup";
+  triggerElement: "hydro" | "dendro" | "electro";
+  sourceActorId: string;
+  triggerFrame: number;
+  sourceBudget: "incoming-application" | "quicken-state";
+  sourceGaugeUnitsBefore: number;
+  sourceGaugeUnitsSpent: number;
+  sourceGaugeUnitsAfter: number;
+  hydroGaugeUnitsBefore: number;
+  hydroConsumedGaugeUnits: number;
+  hydroGaugeUnitsAfter: number;
+  dendroGaugeUnitsBefore: number;
+  dendroConsumedGaugeUnits: number;
+  dendroGaugeUnitsAfter: number;
+  quickenGaugeUnitsBefore: number;
+  quickenConsumedGaugeUnits: number;
+  quickenGaugeUnitsAfter: number;
+  /** Explicit Quicken lifecycle mutation; never inferred by the UI. */
+  quickenStateMutation: BloomQuickenStateMutationAudit;
+  burningFuelGaugeUnitsBefore: number;
+  burningFuelConsumedGaugeUnits: number;
+  burningFuelGaugeUnitsAfter: number;
+  burningFuelStateMutation: BloomBurningFuelStateMutationAudit;
+  scheduled: boolean;
+  coreSpawnFrame: number | null;
+  coreSpawnDelayFrames: 30;
+  blockedReason: "TARGET_MECHANICS_TRUNCATION" | null;
+  mechanicsDataStatus: "fixed-gcsim-provisional";
   selfDamageStatus: "unsupported-player-damage-model";
 }
 
@@ -1532,10 +1728,44 @@ export interface TargetMechanicsTruncationLogEntry {
     | "UNSUPPORTED_REACTION_ORDER";
 }
 
+export interface ReactionADamageGroupAudit {
+  reaction:
+    | SwirlReaction
+    | DendroCoreReaction
+    | "shatter"
+    | "superconduct";
+  sourceActorId: string;
+  targetId: TargetId;
+  windowStartFrame: number;
+  hitIndex: number;
+  resetFrames: 30;
+  sequence: readonly [true, true, false];
+  damageAllowed: boolean;
+  blockedReason: "REACTION_A_DAMAGE_ICD" | null;
+}
+
+export interface ReactionBDamageGroupAudit {
+  reaction: "overload" | "electroCharged";
+  sourceActorId: string;
+  targetId: TargetId;
+  windowStartFrame: number;
+  hitIndex: number;
+  resetFrames: 30;
+  sequence: readonly [true, false];
+  damageAllowed: boolean;
+  blockedReason: "REACTION_B_DAMAGE_ICD" | null;
+}
+
+export type ReactionDamageGroupAudit =
+  | ReactionADamageGroupAudit
+  | ReactionBDamageGroupAudit;
+
 export interface ReactionDamageLogEntry {
   id: number;
   reaction: TransformativeReaction;
-  triggerDamageEventId: number;
+  triggerDamageEventId: number | null;
+  /** Present for Dendro-core contacts; null for expiry-driven Bloom. */
+  triggerHitGroupId: string | null;
   sourceActorId: string;
   sourceTargetId: TargetId;
   triggerFrame: number;
@@ -1555,10 +1785,22 @@ export interface ReactionDamageLogEntry {
     | "periodic-tick"
     | "burning-tick"
     | "swirl-self"
-    | "swirl-propagation";
-  targetingMode: "radius" | "single-target";
+    | "swirl-propagation"
+    | "dendro-core-bloom"
+    | "dendro-core-burgeon"
+    | "dendro-core-hyperbloom";
+  targetingMode:
+    | "radius"
+    | "single-target"
+    | "nearest-target-radius";
   centerPosition: { x: number; y: number } | null;
   radius: number;
+  /** Dendro-core source and Hyperbloom selection audit. */
+  sourceCoreId: number | null;
+  sourceCoreLogId: number | null;
+  selectionRadius: number | null;
+  selectedTargetId: TargetId | null;
+  resolutionReason: "NO_TARGET_IN_RANGE" | null;
   applicationGaugeUnits: number | null;
   excludedTargetIds: TargetId[];
   checkedTargetIds: TargetId[];
@@ -1567,6 +1809,136 @@ export interface ReactionDamageLogEntry {
   damageGroupBlockedTargetIds: TargetId[];
   damageEventIds: number[];
   reactionStatusLogIds: number[];
+  damageGroupDecisions: ReactionDamageGroupAudit[];
+}
+
+export interface DendroCoreLogBase {
+  id: number;
+  coreId: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  sourceActorId: string;
+  sourceTargetId: TargetId;
+  originDamageEventId: number;
+  triggerFrame: number;
+  coreDurationFrames: 300;
+  hitboxRadius: 2;
+  maxActiveCores: 5;
+  clockModel: "global-frame-no-hitlag";
+  hitlagStatus: "unsupported-enemy-hitlag";
+  mechanicsDataStatus: "fixed-gcsim-provisional";
+  selfDamageStatus: "unsupported-player-damage-model";
+}
+
+export interface DendroCoreSpawnScheduledLogEntry
+  extends DendroCoreLogBase {
+  operation: "spawn-scheduled";
+  /** Bloom can originate from a direct hit or propagated reaction damage. */
+  eventType: "hit" | "reactionDamage";
+  bloomReactionIndex: number;
+  spawnFrame: number;
+  withinSimulation: boolean;
+  reason: "BLOOM_TRIGGERED";
+}
+
+export interface DendroCoreSpawnLogEntry extends DendroCoreLogBase {
+  operation: "spawn";
+  eventType: "dendroCoreSpawn";
+  spawnedAtFrame: number;
+  expiresAtFrame: number;
+  position: { x: number; y: number };
+  spawnRadius: number;
+  spawnAngleDegrees: number;
+  positionRandomRoll: number;
+  rngStream: "dendro-core-position-v1";
+  reason: "SPAWNED";
+}
+
+export interface DendroCoreRemovalLogEntry extends DendroCoreLogBase {
+  operation: "expire" | "evict" | "consume";
+  eventType:
+    | "dendroCoreExpiry"
+    | "dendroCoreSpawn"
+    | "hit"
+    | "reactionDamage";
+  reaction: DendroCoreReaction;
+  reactionDamageLogId: number;
+  contactLogId: number | null;
+  damageFrame: number;
+  withinSimulation: boolean;
+  reason:
+    | "NATURAL_EXPIRY"
+    | "ACTIVE_CORE_LIMIT"
+    | "BURGEON_CONTACT"
+    | "HYPERBLOOM_CONTACT";
+}
+
+export type DendroCoreLogEntry =
+  | DendroCoreSpawnScheduledLogEntry
+  | DendroCoreSpawnLogEntry
+  | DendroCoreRemovalLogEntry;
+
+export interface DendroCoreContactLogEntry {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventType: "hit" | "reactionDamage";
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  sourceActorId: string;
+  sourceActionId: string;
+  hitId: string;
+  hitGroupId: string;
+  /** Null for a direct hit; otherwise the queued reaction event owning this contact. */
+  triggerReactionDamageLogId: number | null;
+  triggerElement: "pyro" | "electro";
+  reaction: "burgeon" | "hyperbloom";
+  hitResolutionLogIds: number[];
+  triggerDamageEventIds: number[];
+  resolvedGeometry: ResolvedWorldHitGeometry | null;
+  checkedCoreIds: number[];
+  contactedCoreIds: number[];
+  removalLogIds: number[];
+  reactionDamageLogIds: number[];
+  blockedReason: "MISSING_EXPLICIT_GEOMETRY" | null;
+}
+
+export interface DendroCoreSnapshot {
+  coreId: number;
+  sourceActorId: string;
+  sourceTargetId: TargetId;
+  spawnedAtFrame: number;
+  expiresAtFrame: number;
+  position: { x: number; y: number };
+  hitboxRadius: 2;
+}
+
+export interface DendroCoreTimelinePoint {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventType:
+    | "dendroCoreSpawn"
+    | "dendroCoreExpiry"
+    | "hit"
+    | "reactionDamage";
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  operation: "spawn" | "expire" | "evict" | "consume";
+  dendroCoreLogId: number;
+  coreId: number;
+  /** Authoritative active-core state after this operation. */
+  activeCores: DendroCoreSnapshot[];
+}
+
+export interface DendroCoreTimeline {
+  version: "1.0.0";
+  points: DendroCoreTimelinePoint[];
 }
 
 export type PeriodicReactionOperation =
@@ -1639,6 +2011,9 @@ export type QuickenStateOperation =
   | "start"
   | "refresh"
   | "unchanged"
+  | "decay-rebase"
+  | "partial-consume"
+  | "remove"
   | "expire";
 
 export interface QuickenStateLogEntry {
@@ -1657,9 +2032,14 @@ export interface QuickenStateLogEntry {
   candidateGaugeUnits: number;
   quickenGaugeUnitsBefore: number;
   quickenGaugeUnitsAfter: number;
+  decayPerFrameBefore: number;
+  decayPerFrameAfter: number;
+  expiresAtFrameBefore: number | null;
   auraBefore: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
+  endCauseBefore: QuickenDecayEndCause;
+  endCauseAfter: QuickenDecayEndCause;
   reason: string | null;
 }
 
@@ -1921,6 +2301,12 @@ export interface SimulationResult {
   engineVersion: string;
   dataVersion: string;
   randomSeed: string;
+  /** Authoritative identity envelope for replaying this exact run. */
+  runManifest: SimulationRunManifest;
+  /** Convenience alias; must equal runManifest.resolvedRuntimeOptions. */
+  resolvedRuntimeOptions: ResolvedSimulationRuntimeOptions;
+  /** Convenience alias; must equal runManifest.plugins. */
+  pluginManifest: DamagePluginManifestEntry[];
   reproducibilityKey: string;
   compatibilityMode: CompatibilityMode;
   /** Partial only when this run actually crossed an unsupported mechanic. */
@@ -1948,6 +2334,12 @@ export interface SimulationResult {
   quickenStateLog: QuickenStateLogEntry[];
   /** Burning marker, Fuel, per-tick/skip, ICD, and stop lifecycle. */
   burningStateLog: BurningStateLogEntry[];
+  /** Bloom scheduling plus Dendro-core spawn/removal lifecycle. */
+  dendroCoreLog: DendroCoreLogEntry[];
+  /** Once-per-hit-group Pyro/Electro contacts with active Dendro cores. */
+  dendroCoreContactLog: DendroCoreContactLogEntry[];
+  /** Core-owned, versioned projection of active Dendro-core entities. */
+  dendroCoreTimeline: DendroCoreTimeline;
   /** Crystallize shard lifecycle, explicit pickup attempts, and evictions. */
   crystallizeShardLog: CrystallizeShardLogEntry[];
   /** Crystallize shield add/overwrite/expiry state transitions. */

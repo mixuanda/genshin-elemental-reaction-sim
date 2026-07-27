@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import {
   durinMeltPreset,
@@ -7,6 +8,12 @@ import type { SimConfig } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+function sha256(value: unknown): string {
+  return createHash("sha256")
+    .update(JSON.stringify(value))
+    .digest("hex");
+}
 
 function makeSustainedBurningPerformanceConfig(): SimConfig {
   const base = makeConfig();
@@ -172,9 +179,33 @@ describe("simulation performance", () => {
     );
     const targetStateTimelinePoints =
       probe.targetStateTimeline.points;
+    const sustainedOutputHash = sha256({
+      totalDamage: probe.totalDamage,
+      dps: probe.dps,
+      damageEvents: probe.damageEvents,
+      burningStateLog: probe.burningStateLog,
+      quickenStateLog: probe.quickenStateLog,
+      targetStateTimeline: probe.targetStateTimeline
+    });
 
-    expect(burningTicks.length).toBeGreaterThan(450);
-    expect(fuelRefreshes.length).toBeGreaterThan(100);
+    expect(burningTicks).toHaveLength(479);
+    expect(fuelRefreshes).toHaveLength(119);
+    expect(targetStateTimelinePoints).toHaveLength(1198);
+    expect(probe.quickenStateLog).toEqual([]);
+    expect(sustainedOutputHash).toBe(
+      "bf82080fbe7321f1a56e316cfe43380f0902aacf05c7a004096b18db6033d80f"
+    );
+    expect(
+      targetStateTimelinePoints.every(
+        (point) =>
+          point.auraBefore.every(
+            (entry) => entry.element !== "quicken"
+          ) &&
+          point.auraAfter.every(
+            (entry) => entry.element !== "quicken"
+          )
+      )
+    ).toBe(true);
     expect(probe.targetStateTimeline.version).toBe("1.0.0");
     expect(targetStateTimelinePoints.length).toBeGreaterThan(
       burningTicks.length
@@ -199,7 +230,7 @@ describe("simulation performance", () => {
       durations.length;
     const maximum = Math.max(...durations);
     console.info(
-      `120s sustained-Burning benchmark: ticks=${burningTicks.length} refreshes=${fuelRefreshes.length} targetStatePoints=${targetStateTimelinePoints.length} avg=${average.toFixed(3)}ms max=${maximum.toFixed(3)}ms runs=${durations.length}`
+      `120s sustained-Burning benchmark: ticks=${burningTicks.length} refreshes=${fuelRefreshes.length} targetStatePoints=${targetStateTimelinePoints.length} hash=${sustainedOutputHash} avg=${average.toFixed(3)}ms max=${maximum.toFixed(3)}ms runs=${durations.length}`
     );
     expect(maximum).toBeLessThan(100);
   });

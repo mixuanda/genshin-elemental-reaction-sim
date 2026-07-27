@@ -928,7 +928,7 @@ test("renders target-local mechanics truncation without counting later potential
   });
 
   await expect(page.locator("#notice")).toContainText("结果部分有效");
-  await expect(page.locator("#notice")).toContainText("绽放（未实现）");
+  await expect(page.locator("#notice")).toContainText("绽放：丢弃");
   await expect(page.locator("#metricGrid")).toContainText("部分有效");
   await expect(page.locator("#metricGrid")).toContainText(
     "1 段后续伤害未计入总伤"
@@ -1863,7 +1863,7 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
     "传播后的二次反应"
   );
   await expect(page.locator("#hitDetail")).toContainText(
-    "扩散 ReactionA 伤害 ICD"
+    "扩散独立伤害组 ICD"
   );
   await expect(page.locator("#hitDetail")).toContainText(
     "反向蒸发"

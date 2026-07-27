@@ -1,5 +1,9 @@
 import {
+  burningReactionAuditSchema,
   burningStateLogEntrySchema,
+  quickenDecayMutationAuditSchema,
+  quickenStateLogEntrySchema,
+  targetStateTimelineSchema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
@@ -198,6 +202,11 @@ describe("aura-v4 Burning lifecycle", () => {
           })
         ])
       );
+      expect(
+        burningReactionAuditSchema.parse(
+          audit.burningReaction
+        )
+      ).toEqual(audit.burningReaction);
     }
   );
 
@@ -332,6 +341,14 @@ describe("aura-v4 Burning lifecycle", () => {
       fuelGaugeUnitsAfter: 0.4,
       nextTickFrame: 165
     });
+    for (const audit of [
+      dendroRefresh.burningReaction,
+      pyroRefresh.burningReaction
+    ]) {
+      expect(
+        burningReactionAuditSchema.parse(audit)
+      ).toEqual(audit);
+    }
   });
 
   it("uses target-global Burning application ICD, clamps beyond the fixed sequence, and resets at 120f", () => {
@@ -504,7 +521,144 @@ describe("aura-v4 Burning lifecycle", () => {
         })
       ])
     );
+    expect(
+      burningReactionAuditSchema.parse(
+        stop.burningReaction
+      )
+    ).toEqual(stop.burningReaction);
   });
+
+  it.each([
+    {
+      label: "strictly before",
+      fuelFrameLead: 1
+    },
+    {
+      label: "on the same frame (Fuel wins the tie)",
+      fuelFrameLead: 0
+    }
+  ])(
+    "removes Quicken through Fuel when refreshed Fuel ends $label",
+    ({ fuelFrameLead }) => {
+      const engine = new AuraEngine({
+        mode: "aura-v5",
+        initialAura: [{ element: "electro", gaugeUnits: 1 }]
+      });
+      engine.processHit({
+        frame: 0,
+        sourceActorId: "dendro",
+        element: "dendro",
+        application: noIcd(1)
+      });
+      const burning = engine.processHit({
+        frame: 1,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd(1)
+      });
+      engine.processHit({
+        frame: 2,
+        sourceActorId: "physical",
+        element: "physical"
+      });
+
+      const beforeRefresh =
+        engine.getQuickenLifecycleState();
+      const quickenFrames = Math.ceil(
+        beforeRefresh.gaugeUnits /
+          beforeRefresh.decayPerFrame -
+          1e-9
+      );
+      const fuelFrames =
+        quickenFrames - 1 - fuelFrameLead;
+      const fuelGaugeUnits = fuelFrames / 150;
+      const refresh = engine.processHit({
+        frame: 2,
+        sourceActorId: "dendro-refresh",
+        element: "dendro",
+        application: noIcd(fuelGaugeUnits / 0.8)
+      });
+      const burningAudit = refresh.burningReaction!;
+      const mutation = burningAudit.quickenStateMutation;
+      const fuelExpiryFrame = 2 + 1 + fuelFrames;
+
+      expect(
+        burning.burningReaction?.quickenStateMutation
+      ).toMatchObject({
+        operation: "decay-rebase",
+        endCauseAfter: "QUICKEN_DECAY"
+      });
+      expect(
+        burningReactionAuditSchema.parse(
+          burning.burningReaction
+        )
+      ).toEqual(burning.burningReaction);
+      expect(burningAudit).toMatchObject({
+        operation: "refresh-fuel",
+        fuelExpiresAtFrame: fuelExpiryFrame,
+        quickenStateMutation: {
+          operation: "decay-rebase",
+          generationBefore: mutation.generationBefore,
+          generationAfter: mutation.generationBefore + 1,
+          quickenGaugeUnitsBefore:
+            beforeRefresh.gaugeUnits,
+          quickenGaugeUnitsAfter:
+            beforeRefresh.gaugeUnits,
+          expiresAtFrameBefore:
+            beforeRefresh.expiresAtFrame,
+          expiresAtFrameAfter: fuelExpiryFrame,
+          endCauseBefore: "QUICKEN_DECAY",
+          endCauseAfter: "BURNING_FUEL_EXPIRED"
+        }
+      });
+      expect(
+        burningReactionAuditSchema.parse(burningAudit)
+      ).toEqual(burningAudit);
+      if (fuelFrameLead === 0) {
+        expect(mutation.expiresAtFrameBefore).toBe(
+          mutation.expiresAtFrameAfter
+        );
+      } else {
+        expect(mutation.expiresAtFrameAfter).toBe(
+          mutation.expiresAtFrameBefore! - fuelFrameLead
+        );
+      }
+
+      const fuelExpiry = engine.expireBurningFuel(
+        fuelExpiryFrame,
+        burningAudit.generation,
+        fuelExpiryFrame
+      );
+      expect(fuelExpiry).toMatchObject({
+        operation: "expire",
+        reason: "FUEL_EXPIRED",
+        quickenStateMutation: {
+          operation: "remove",
+          generationBefore: mutation.generationAfter,
+          generationAfter: mutation.generationAfter + 1,
+          endCauseBefore: "BURNING_FUEL_EXPIRED",
+          endCauseAfter: null,
+          expiresAtFrameBefore: fuelExpiryFrame,
+          expiresAtFrameAfter: null
+        }
+      });
+      expect(
+        quickenDecayMutationAuditSchema.parse(
+          fuelExpiry.quickenStateMutation
+        )
+      ).toEqual(fuelExpiry.quickenStateMutation);
+      expect(
+        engine.expireQuicken(
+          mutation.expiresAtFrameBefore!,
+          mutation.generationBefore,
+          mutation.expiresAtFrameBefore!
+        )
+      ).toMatchObject({
+        operation: "stale",
+        expiresAtFrame: null
+      });
+    }
+  );
 });
 
 describe("Burning simulation integration", () => {
@@ -600,6 +754,309 @@ describe("Burning simulation integration", () => {
       expected.finalDamage * 8,
       10
     );
+  });
+
+  it("removes Quicken when Burning Fuel expires and leaves the old expiry stale", () => {
+    const config = makeBurningConfig({ duration: 10.1 });
+    const ability = config.timeline!.abilities[0]!;
+    const baseHit = ability.hits![0]!;
+    ability.cancelFrame = 3;
+    ability.animationEndFrame = 3;
+    ability.hits = [
+      {
+        ...baseHit,
+        id: "quicken-before-burning",
+        label: "先生成激元素",
+        frame: 0,
+        element: "electro",
+        application: noIcd()
+      },
+      {
+        ...baseHit,
+        id: "burning-removes-quicken",
+        label: "燃烧开始重排激元素衰减",
+        frame: 1,
+        element: "pyro",
+        application: noIcd()
+      },
+      {
+        ...baseHit,
+        id: "weak-dendro-shortens-fuel",
+        label: "弱草覆写燃料并先于激元素耗尽",
+        frame: 2,
+        element: "dendro",
+        application: noIcd(0.1)
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const quickenStart = result.quickenStateLog.find(
+      (entry) => entry.operation === "start"
+    )!;
+    const quickenRemoval = result.quickenStateLog.find(
+      (entry) => entry.operation === "remove"
+    )!;
+    const fuelExpiry = result.burningStateLog.find(
+      (entry) => entry.operation === "fuel-expire"
+    )!;
+    const fuelExpiryTimelinePoint =
+      result.targetStateTimeline.points.find(
+        (point) => point.cause === "burning-fuel-expiry"
+      )!;
+    const staleQuickenExpiryPoint =
+      result.targetStateTimeline.points.find(
+        (point) =>
+          point.cause === "quicken-expiry" &&
+          point.frame === quickenStart.expiresAtFrame
+      )!;
+
+    expect(quickenStart.expiresAtFrame).toBeGreaterThan(
+      fuelExpiry.frame
+    );
+    expect(
+      result.quickenStateLog.map((entry) => entry.operation)
+    ).toEqual([
+      "start",
+      "decay-rebase",
+      "decay-rebase",
+      "remove"
+    ]);
+    const rebases = result.quickenStateLog.filter(
+      (entry) => entry.operation === "decay-rebase"
+    );
+    expect(rebases).toHaveLength(2);
+    expect(rebases[0]).toMatchObject({
+      frame: 1,
+      generation: quickenStart.generation + 1,
+      sourceActorId: quickenStart.sourceActorId,
+      triggerDamageEventId:
+        quickenStart.triggerDamageEventId,
+      decayPerFrameBefore: quickenStart.decayPerFrameAfter,
+      decayPerFrameAfter: 1 / 150,
+      expiresAtFrameBefore: quickenStart.expiresAtFrame,
+      expiresAtFrame: 121,
+      endCauseBefore: "QUICKEN_DECAY",
+      endCauseAfter: "QUICKEN_DECAY",
+      reason: "BURNING_REBASED_QUICKEN_DECAY"
+    });
+    expect(rebases[1]).toMatchObject({
+      frame: 2,
+      generation: quickenStart.generation + 2,
+      sourceActorId: quickenStart.sourceActorId,
+      triggerDamageEventId:
+        quickenStart.triggerDamageEventId,
+      decayPerFrameBefore: 1 / 150,
+      decayPerFrameAfter: 1 / 150,
+      expiresAtFrameBefore: 121,
+      expiresAtFrame: fuelExpiry.frame,
+      endCauseBefore: "QUICKEN_DECAY",
+      endCauseAfter: "BURNING_FUEL_EXPIRED",
+      reason: "BURNING_REBASED_QUICKEN_DECAY"
+    });
+    for (const rebase of rebases) {
+      expect(
+        rebase.auraBefore.find(
+          (entry) => entry.element === "quicken"
+        )?.expiresAtFrame
+      ).toBe(rebase.expiresAtFrameBefore);
+      expect(
+        rebase.auraAfter.find(
+          (entry) => entry.element === "quicken"
+        )?.expiresAtFrame
+      ).toBe(rebase.expiresAtFrame);
+    }
+    expect(quickenRemoval).toMatchObject({
+      operation: "remove",
+      frame: fuelExpiry.frame,
+      targetId: "enemy-0",
+      sourceActorId: "pyro",
+      triggerDamageEventId:
+        quickenStart.triggerDamageEventId,
+      generation: quickenStart.generation + 3,
+      quickenGaugeUnitsBefore: expect.any(Number),
+      quickenGaugeUnitsAfter: 0,
+      decayPerFrameBefore: 1 / 150,
+      decayPerFrameAfter: 0,
+      expiresAtFrameBefore: fuelExpiry.frame,
+      expiresAtFrame: null,
+      endCauseBefore: "BURNING_FUEL_EXPIRED",
+      endCauseAfter: null,
+      reason: "BURNING_FUEL_EXPIRED"
+    });
+    expect(quickenRemoval.auraAfter).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ element: "quicken" })
+      ])
+    );
+    expect(fuelExpiryTimelinePoint.links).toEqual([
+      {
+        kind: "burning-state-log",
+        id: fuelExpiry.id
+      },
+      {
+        kind: "quicken-state-log",
+        id: quickenRemoval.id
+      }
+    ]);
+    expect(staleQuickenExpiryPoint).toMatchObject({
+      pointKind: "observation",
+      links: []
+    });
+    expect(
+      result.targetStateTimeline.points
+        .filter(
+          (point) =>
+            point.cause === "direct-hit-application" &&
+            (point.frame === 1 || point.frame === 2)
+        )
+        .map((point) => point.links)
+    ).toEqual([
+      [
+        { kind: "damage-event", id: 1 },
+        { kind: "quicken-state-log", id: rebases[0]!.id }
+      ],
+      [
+        { kind: "damage-event", id: 2 },
+        { kind: "quicken-state-log", id: rebases[1]!.id }
+      ]
+    ]);
+    expect(
+      result.quickenStateLog.some(
+        (entry) =>
+          entry.operation === "expire" &&
+          entry.frame === quickenStart.expiresAtFrame
+      )
+    ).toBe(false);
+    for (const entry of result.quickenStateLog) {
+      expect(quickenStateLogEntrySchema.parse(entry)).toEqual(
+        entry
+      );
+    }
+    expect(
+      targetStateTimelineSchema.parse(
+        result.targetStateTimeline
+      )
+    ).toEqual(result.targetStateTimeline);
+  });
+
+  it("lets the authoritative Fuel event win when an older Quicken expiry is queued first on the same frame", () => {
+    const config = makeBurningConfig({ duration: 10.1 });
+    const ability = config.timeline!.abilities[0]!;
+    const baseHit = ability.hits![0]!;
+    ability.cancelFrame = 3;
+    ability.animationEndFrame = 3;
+    ability.hits = [
+      {
+        ...baseHit,
+        id: "tie-quicken",
+        label: "生成激元素",
+        frame: 0,
+        element: "electro",
+        application: noIcd(1)
+      },
+      {
+        ...baseHit,
+        id: "tie-burning",
+        label: "燃烧把激元素自然到期重排至121帧",
+        frame: 1,
+        element: "pyro",
+        application: noIcd(1)
+      },
+      {
+        ...baseHit,
+        id: "tie-fuel-refresh",
+        label: "弱草把燃料到期也重排至121帧",
+        frame: 2,
+        element: "dendro",
+        application: noIcd((118 / 150) / 0.8)
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const frame121 = result.targetStateTimeline.points.filter(
+      (point) =>
+        point.frame === 121 &&
+        (point.cause === "quicken-expiry" ||
+          point.cause === "burning-fuel-expiry")
+    );
+    const staleOldFuel = result.targetStateTimeline.points.find(
+      (point) =>
+        point.frame === 122 &&
+        point.cause === "burning-fuel-expiry"
+    );
+    const fuelExpiry = result.burningStateLog.find(
+      (entry) =>
+        entry.operation === "fuel-expire" &&
+        entry.frame === 121
+    )!;
+    const quickenRemoval = result.quickenStateLog.find(
+      (entry) =>
+        entry.operation === "remove" &&
+        entry.frame === 121
+    )!;
+
+    expect(
+      result.quickenStateLog.map((entry) => ({
+        operation: entry.operation,
+        frame: entry.frame,
+        generation: entry.generation,
+        endCauseAfter: entry.endCauseAfter
+      }))
+    ).toEqual([
+      {
+        operation: "start",
+        frame: 0,
+        generation: 1,
+        endCauseAfter: "QUICKEN_DECAY"
+      },
+      {
+        operation: "decay-rebase",
+        frame: 1,
+        generation: 2,
+        endCauseAfter: "QUICKEN_DECAY"
+      },
+      {
+        operation: "decay-rebase",
+        frame: 2,
+        generation: 3,
+        endCauseAfter: "BURNING_FUEL_EXPIRED"
+      },
+      {
+        operation: "remove",
+        frame: 121,
+        generation: 4,
+        endCauseAfter: null
+      }
+    ]);
+    expect(frame121.map((point) => point.cause)).toEqual([
+      "quicken-expiry",
+      "burning-fuel-expiry"
+    ]);
+    expect(frame121[0]).toMatchObject({
+      pointKind: "observation",
+      links: []
+    });
+    expect(frame121[1]).toMatchObject({
+      pointKind: "mutation",
+      links: [
+        { kind: "burning-state-log", id: fuelExpiry.id },
+        { kind: "quicken-state-log", id: quickenRemoval.id }
+      ]
+    });
+    expect(staleOldFuel).toMatchObject({
+      pointKind: "observation",
+      links: []
+    });
+    expect(
+      result.burningStateLog.filter(
+        (entry) => entry.operation === "fuel-expire"
+      )
+    ).toHaveLength(1);
+    expect(
+      result.quickenStateLog.some(
+        (entry) => entry.operation === "expire"
+      )
+    ).toBe(false);
   });
 
   it("resolves each Burning tick independently on a nearby target", () => {

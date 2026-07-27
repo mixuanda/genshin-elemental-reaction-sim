@@ -141,6 +141,7 @@ function cloneEntity(
  */
 export class DendroCoreManager {
   private readonly active = new Map<number, DendroCoreEntity>();
+  private readonly usedReservationIds = new Set<number>();
   private nextCoreId = 0;
 
   constructor(private readonly random: DendroCoreRandomSource) {}
@@ -166,6 +167,31 @@ export class DendroCoreManager {
     input: Readonly<DendroCoreSpawnInput>
   ): Readonly<DendroCoreSpawnDecision> {
     assertFrame(input.frame, "frame");
+    assertFrame(input.reservation.coreId, "reservation.coreId");
+    assertNonEmpty(
+      input.reservation.sourceActorId,
+      "reservation.sourceActorId"
+    );
+    assertNonEmpty(
+      input.reservation.sourceTargetId,
+      "reservation.sourceTargetId"
+    );
+    assertFrame(
+      input.reservation.originDamageEventId,
+      "reservation.originDamageEventId"
+    );
+    assertFrame(
+      input.reservation.triggerFrame,
+      "reservation.triggerFrame"
+    );
+    assertFrame(
+      input.reservation.bloomReactionIndex,
+      "reservation.bloomReactionIndex"
+    );
+    assertFrame(
+      input.reservation.spawnFrame,
+      "reservation.spawnFrame"
+    );
     assertNonNegativeNumber(
       input.targetHitboxRadius,
       "targetHitboxRadius"
@@ -183,21 +209,10 @@ export class DendroCoreManager {
         "targetPosition must contain finite coordinates."
       );
     }
-    if (this.active.has(input.reservation.coreId)) {
+    if (this.usedReservationIds.has(input.reservation.coreId)) {
       throw new Error(
-        `Dendro core ${input.reservation.coreId} is already active.`
+        `Dendro core reservation ${input.reservation.coreId} has already been spawned.`
       );
-    }
-
-    const evicted: DendroCoreEntity[] = [];
-    while (
-      this.active.size >=
-      DENDRO_CORE_CONSTANTS.maxActiveCores
-    ) {
-      const oldest = this.oldestActive();
-      if (oldest === null) break;
-      this.active.delete(oldest.coreId);
-      evicted.push(oldest);
     }
 
     const positionRandomRoll = this.random.next();
@@ -240,7 +255,25 @@ export class DendroCoreManager {
       spawnAngleDegrees,
       positionRandomRoll
     };
+
+    const evicted: DendroCoreEntity[] = [];
+    while (
+      this.active.size - evicted.length >=
+      DENDRO_CORE_CONSTANTS.maxActiveCores
+    ) {
+      const excludedCoreIds = new Set(
+        evicted.map((core) => core.coreId)
+      );
+      const oldest = this.oldestActive(excludedCoreIds);
+      if (oldest === null) break;
+      evicted.push(oldest);
+    }
+
+    for (const core of evicted) {
+      this.active.delete(core.coreId);
+    }
     this.active.set(entity.coreId, entity);
+    this.usedReservationIds.add(entity.coreId);
     return Object.freeze({
       spawned: cloneEntity(entity),
       evicted: Object.freeze(evicted.map(cloneEntity))
@@ -330,9 +363,12 @@ export class DendroCoreManager {
     );
   }
 
-  private oldestActive(): DendroCoreEntity | null {
+  private oldestActive(
+    excludedCoreIds: ReadonlySet<number> = new Set()
+  ): DendroCoreEntity | null {
     let oldest: DendroCoreEntity | null = null;
     for (const core of this.active.values()) {
+      if (excludedCoreIds.has(core.coreId)) continue;
       if (
         oldest === null ||
         core.spawnedAtFrame < oldest.spawnedAtFrame ||

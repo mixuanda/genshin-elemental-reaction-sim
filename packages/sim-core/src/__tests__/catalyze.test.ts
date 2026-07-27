@@ -1,9 +1,39 @@
 import { describe, expect, it } from "vitest";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  createVersionedContentHash,
+  type SimConfig
+} from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
-import { calcAdditiveReactionDamage } from "../formulas";
+import {
+  calcAdditiveReactionDamage,
+  calcTransformativeReactionDamage
+} from "../formulas";
 import { simulate } from "../simulator";
+import {
+  defineDamageModifierPlugin,
+  type DamagePluginChanges,
+  type DamagePluginContext
+} from "../plugins";
 import { makeConfig, neutralStats } from "./fixtures";
+
+function testDamagePlugin(
+  id: string,
+  modifyDamage: (
+    context: DamagePluginContext
+  ) => DamagePluginChanges | void
+) {
+  return defineDamageModifierPlugin(
+    {
+      id,
+      version: "1.0.0-test",
+      kind: "code",
+      contentHash: createVersionedContentHash({
+        testPlugin: id
+      })
+    },
+    () => ({ modifyDamage })
+  );
+}
 
 function noIcd(gaugeUnits = 1) {
   return {
@@ -1406,16 +1436,16 @@ describe("Catalyze simulation integration", () => {
     const result = simulate(config, {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "legacy-flat-without-catalyze",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "legacy-flat-without-catalyze",
+          (context) => {
             if (context.hit.id === "aggravate-hit") {
               return {
                 flatDamage: context.damageInput.flatDamage + 37
               };
             }
           }
-        }
+        )
       ]
     });
     const secondHit = result.damageEvents.find(
@@ -1445,14 +1475,14 @@ describe("Catalyze simulation integration", () => {
       simulate(makeCatalyzeSimulationConfig(), {
         critMode: "allCrit",
         plugins: [
-          {
-            id: "ambiguous-catalyze-flat",
-            modifyDamage(context) {
+          testDamagePlugin(
+            "ambiguous-catalyze-flat",
+            (context) => {
               if (context.additiveReactionFactors !== null) {
                 return { flatDamage: 0 };
               }
             }
-          }
+          )
         ]
       })
     ).toThrowError(
@@ -1479,9 +1509,9 @@ describe("Catalyze simulation integration", () => {
     const result = simulate(config, {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "remove-only-catalyze",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "remove-only-catalyze",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
               observedComponents.push({
                 ...context.flatDamageComponents
@@ -1489,7 +1519,7 @@ describe("Catalyze simulation integration", () => {
               return { additiveReactionFlatDamage: 0 };
             }
           }
-        }
+        )
       ]
     });
     const aggravate = result.damageEvents.find(
@@ -1529,20 +1559,20 @@ describe("Catalyze simulation integration", () => {
     });
   });
 
-  it("modifies only ordinary flat without changing the Catalyze component", () => {
+  it("removes only ordinary flat without changing the Catalyze component", () => {
     const config = makeCatalyzeSimulationConfig();
     config.timeline!.abilities[0]!.hits![1]!.flat = 30;
     const result = simulate(config, {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "ordinary-flat-only",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "ordinary-flat-only",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
-              return { ordinaryFlatDamage: 200 };
+              return { ordinaryFlatDamage: 0 };
             }
           }
-        }
+        )
       ]
     });
     const aggravate = result.damageEvents.find(
@@ -1558,25 +1588,31 @@ describe("Catalyze simulation integration", () => {
       aggravate?.additiveReactionFactors?.appliedFlatDamage
     ).toBeCloseTo(additiveFlat, 10);
     expect(aggravate?.damageFactors.flatDamage).toBeCloseTo(
-      200 + additiveFlat,
+      additiveFlat,
       10
     );
     expect(aggravate?.damageComposition.direct).toBeCloseTo(
-      1200 * commonMultiplier,
+      1000 * commonMultiplier,
       10
     );
     expect(
       aggravate?.damageComposition.additiveReaction
     ).toBeCloseTo(additiveFlat * commonMultiplier, 10);
+    expect(
+      Object.values(aggravate?.damageComposition ?? {}).reduce(
+        (sum, value) => sum + value,
+        0
+      )
+    ).toBeCloseTo(aggravate?.finalDamage ?? 0, 10);
   });
 
   it("attributes a partially retained Catalyze component exactly", () => {
     const result = simulate(makeCatalyzeSimulationConfig(), {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "quarter-catalyze",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "quarter-catalyze",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
               return {
                 additiveReactionFlatDamage:
@@ -1585,7 +1621,7 @@ describe("Catalyze simulation integration", () => {
               };
             }
           }
-        }
+        )
       ]
     });
     const aggravate = result.damageEvents.find(
@@ -1614,9 +1650,9 @@ describe("Catalyze simulation integration", () => {
     const result = simulate(makeCatalyzeSimulationConfig(), {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "cancel-catalyze-with-ordinary-flat",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "cancel-catalyze-with-ordinary-flat",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
               return {
                 ordinaryFlatDamage:
@@ -1629,7 +1665,7 @@ describe("Catalyze simulation integration", () => {
               };
             }
           }
-        }
+        )
       ]
     });
     const aggravate = result.damageEvents.find(
@@ -1683,9 +1719,9 @@ describe("Catalyze simulation integration", () => {
     const result = simulate(makeCatalyzeSimulationConfig(), {
       critMode: "allCrit",
       plugins: [
-        {
-          id: "first-component-plugin",
-          modifyDamage(context) {
+        testDamagePlugin(
+          "first-component-plugin",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
               return {
                 ordinaryFlatDamage:
@@ -1697,10 +1733,10 @@ describe("Catalyze simulation integration", () => {
               };
             }
           }
-        },
-        {
-          id: "second-component-plugin",
-          modifyDamage(context) {
+        ),
+        testDamagePlugin(
+          "second-component-plugin",
+          (context) => {
             if (context.additiveReactionFactors !== null) {
               secondPluginObservations.push({
                 ...context.flatDamageComponents,
@@ -1720,7 +1756,7 @@ describe("Catalyze simulation integration", () => {
               };
             }
           }
-        }
+        )
       ]
     });
     const aggravate = result.damageEvents.find(
@@ -1835,6 +1871,7 @@ describe("Catalyze simulation integration", () => {
               frame: 0,
               scaling: 1,
               element: "anemo",
+              reactionBonus: 0.4,
               targeting: {
                 targetId: "enemy-0",
                 outcome: "landed"
@@ -1861,6 +1898,25 @@ describe("Catalyze simulation integration", () => {
     };
 
     const result = simulate(config, { critMode: "noCrit" });
+    const expectedTransformative =
+      calcTransformativeReactionDamage({
+        characterLevel: 90,
+        elementalMastery: 0,
+        reactionBonus: 0.5,
+        baseMultiplier: 0.6,
+        effectiveResistance: 0.1
+      });
+    const expectedAdditive = calcAdditiveReactionDamage({
+      reaction: "aggravate",
+      characterLevel: 90,
+      elementalMastery: 0,
+      reactionBonus: 0.5
+    });
+    const expectedAdditiveFinal =
+      expectedAdditive.flatDamage * 0.9;
+    const expectedFinalDamage =
+      expectedTransformative.finalDamage +
+      expectedAdditiveFinal;
     const propagation = result.damageEvents.find(
       (event) =>
         event.kind === "transformative-reaction" &&
@@ -1876,15 +1932,31 @@ describe("Catalyze simulation integration", () => {
       },
       additiveReactionFactors: {
         reaction: "aggravate",
-        sourceActorId: actorId
+        sourceActorId: actorId,
+        reactionBonus: 0.5,
+        flatDamage: expectedAdditive.flatDamage,
+        appliedFlatDamage: expectedAdditive.flatDamage
       }
     });
     expect(
-      propagation?.damageComposition.additiveReaction ?? 0
-    ).toBeGreaterThan(0);
+      propagation?.transformativeReactionFactors?.reactionBonus
+    ).toBeCloseTo(0.5, 10);
     expect(
-      propagation?.damageComposition.transformativeReaction ?? 0
-    ).toBeGreaterThan(0);
+      propagation?.damageComposition.direct
+    ).toBe(0);
+    expect(
+      propagation?.damageComposition.additiveReaction
+    ).toBeCloseTo(expectedAdditiveFinal, 10);
+    expect(
+      propagation?.damageComposition.transformativeReaction
+    ).toBeCloseTo(expectedTransformative.finalDamage, 10);
+    expect(propagation?.finalDamage).toBeCloseTo(
+      expectedFinalDamage,
+      10
+    );
+    expect(propagation?.displayDamage).toBe(
+      Math.round(expectedFinalDamage)
+    );
     expect(
       Object.values(propagation?.damageComposition ?? {}).reduce(
         (sum, value) => sum + value,

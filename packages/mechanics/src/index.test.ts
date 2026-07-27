@@ -47,7 +47,8 @@ describe("declarative damage plugin flat components", () => {
       }
     ]);
 
-    const changes = plugin.modifyDamage(makePluginContext());
+    const changes =
+      plugin.createRuntime().modifyDamage(makePluginContext());
 
     expect(changes).toMatchObject({
       ordinaryFlatDamage: 17,
@@ -66,8 +67,80 @@ describe("declarative damage plugin flat components", () => {
       }
     ]);
 
-    expect(plugin.modifyDamage(makePluginContext(0))).toEqual({
+    expect(
+      plugin.createRuntime().modifyDamage(makePluginContext(0))
+    ).toEqual({
       flatDamage: 17
     });
+  });
+
+  it("derives stable versioned descriptors from normalized effects", () => {
+    const first = createDeclarativeDamagePlugin([
+      {
+        id: "first",
+        when: { actionId: "action", hitId: "hit" },
+        add: { damageBonus: 0.1, defenseIgnore: 0.2 }
+      },
+      {
+        id: "second",
+        when: {},
+        multiplyGroupBy: 2
+      }
+    ]);
+    const same = createDeclarativeDamagePlugin([
+      {
+        id: "first",
+        when: { hitId: "hit", actionId: "action" },
+        add: { defenseIgnore: 0.2, damageBonus: 0.1 }
+      },
+      {
+        id: "second",
+        when: {},
+        multiplyGroupBy: 2
+      }
+    ]);
+    const reordered = createDeclarativeDamagePlugin([
+      {
+        id: "second",
+        when: {},
+        multiplyGroupBy: 2
+      },
+      {
+        id: "first",
+        when: { actionId: "action", hitId: "hit" },
+        add: { damageBonus: 0.1, defenseIgnore: 0.2 }
+      }
+    ]);
+
+    expect(first.descriptor).toEqual(same.descriptor);
+    expect(first.descriptor).toMatchObject({
+      id: "declarative:first,second",
+      version: "1.0.0",
+      kind: "declarative",
+      contentHash: expect.stringMatching(
+        /^fnv1a32:[0-9a-f]{8}$/
+      )
+    });
+    expect(reordered.descriptor.contentHash).not.toBe(
+      first.descriptor.contentHash
+    );
+  });
+
+  it("rejects duplicate effect ids and non-finite values", () => {
+    expect(() =>
+      createDeclarativeDamagePlugin([
+        { id: "duplicate", when: {} },
+        { id: "duplicate", when: {} }
+      ])
+    ).toThrow(/Duplicate declarative damage effect id/);
+    expect(() =>
+      createDeclarativeDamagePlugin([
+        {
+          id: "invalid",
+          when: {},
+          add: { damageBonus: Number.POSITIVE_INFINITY }
+        }
+      ])
+    ).toThrow(/non-finite damageBonus/);
   });
 });

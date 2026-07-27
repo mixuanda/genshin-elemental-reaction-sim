@@ -3,6 +3,7 @@ import type {
   AdditiveReactionFactors,
   CharacterProfile,
   CharacterStats,
+  DamagePluginDescriptor,
   EnemyStateBeforeHit,
   HitDefinition,
   ReactionAudit,
@@ -58,9 +59,30 @@ export interface DamagePluginContext {
   damageInput: Readonly<DamageCalculationInput>;
 }
 
-export interface DamageModifierPlugin {
-  id: string;
+export interface DamageModifierPluginRuntime {
   modifyDamage(
     context: DamagePluginContext
   ): DamagePluginChanges | void;
+}
+
+/**
+ * A plugin definition is immutable run metadata plus a runtime factory.
+ *
+ * The simulator calls createRuntime once for every internal simulation,
+ * including each legal-timeline prefix probe and the final run. Plugins must
+ * keep mutable state inside the returned runtime, never in this definition.
+ */
+export interface DamageModifierPlugin {
+  readonly descriptor: DamagePluginDescriptor;
+  readonly createRuntime: () => DamageModifierPluginRuntime;
+}
+
+export function defineDamageModifierPlugin(
+  descriptor: DamagePluginDescriptor,
+  createRuntime: () => DamageModifierPluginRuntime
+): DamageModifierPlugin {
+  return Object.freeze({
+    descriptor: Object.freeze({ ...descriptor }),
+    createRuntime
+  });
 }
