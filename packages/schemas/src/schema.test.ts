@@ -189,6 +189,42 @@ describe("target state timeline result contract", () => {
     );
   });
 
+  it("binds event point kinds to actual Aura changes and keeps reaction arrays coherent", () => {
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        pointKind: "observation"
+      })
+    ).toThrow(/observation points cannot apply, consume, or change Aura/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        pointKind: "mutation",
+        reaction: "none",
+        reactions: [],
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: validTargetStateTimeline.points[1]!.auraBefore
+      })
+    ).toThrow(/mutation points must apply, consume, or change Aura/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        reactions: []
+      })
+    ).toThrow(/reaction must equal the first reactions entry/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        reaction: "melt",
+        reactions: ["vaporize", "melt"]
+      })
+    ).toThrow(/reaction must equal the first reactions entry/);
+  });
+
   it("accepts only link-free, reaction-free natural Aura expiry derivations", () => {
     expect(
       targetStateTimelinePointSchema.parse(validTargetStateTimeline.points[2])
@@ -220,6 +256,40 @@ describe("target state timeline result contract", () => {
         links: [{ kind: "damage-event", id: 4 }]
       })
     ).toThrow(/cannot carry damage or log links|cannot claim a reaction/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        auraAfter: [
+          {
+            element: "hydro",
+            gaugeUnits: 0.8,
+            expiresAtFrame: 900
+          }
+        ]
+      })
+    ).toThrow(/may only decrease existing Aura/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        auraAfter: [
+          {
+            element: "pyro",
+            gaugeUnits: 0.3,
+            expiresAtFrame: 900
+          }
+        ]
+      })
+    ).toThrow(/cannot extend pyro expiry/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        frame: 569,
+        timeSeconds: 569 / 60
+      })
+    ).toThrow(/requires an Aura deadline at or before its frame/);
   });
 
   it("binds granular causes to the producing simulator event type", () => {
@@ -234,9 +304,41 @@ describe("target state timeline result contract", () => {
   it("validates output wire names without normalizing their bytes", () => {
     const parsed = targetStateTimelinePointSchema.parse({
       ...validTargetStateTimeline.points[1],
-      targetName: " Target "
+      targetName: " Target ",
+      auraBefore: [
+        {
+          ...validTargetStateTimeline.points[1]!.auraBefore[0]!,
+          sourceSlots: [
+            { sourceActorId: " aura owner ", gaugeUnits: 0.8 }
+          ]
+        }
+      ],
+      auraApplied: [
+        {
+          element: "hydro",
+          gaugeUnits: 1,
+          sourceActorId: " attack owner ",
+          sourceMutations: [
+            {
+              sourceActorId: " aura owner ",
+              gaugeUnitsBefore: 0.8,
+              consumedGaugeUnits: 0.4,
+              gaugeUnitsAfter: 0.4
+            }
+          ]
+        }
+      ]
     });
     expect(parsed.targetName).toBe(" Target ");
+    expect(parsed.auraBefore[0]?.sourceSlots?.[0]?.sourceActorId).toBe(
+      " aura owner "
+    );
+    expect(parsed.auraApplied[0]?.sourceActorId).toBe(
+      " attack owner "
+    );
+    expect(
+      parsed.auraApplied[0]?.sourceMutations?.[0]?.sourceActorId
+    ).toBe(" aura owner ");
     expect(() =>
       targetStateTimelinePointSchema.parse({
         ...validTargetStateTimeline.points[1],
@@ -290,6 +392,91 @@ describe("target state timeline result contract", () => {
         ]
       })
     ).toThrow(/must be ordered by priority, sequence, and intra-event sequence/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          { ...validTargetStateTimeline.points[0], id: 0 },
+          { ...validTargetStateTimeline.points[1], id: 1 },
+          {
+            ...validTargetStateTimeline.points[1],
+            id: 2,
+            pointKind: "observation",
+            reaction: "none",
+            reactions: [],
+            auraBefore: validTargetStateTimeline.points[1]!.auraAfter,
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: validTargetStateTimeline.points[1]!.auraAfter
+          },
+          { ...validTargetStateTimeline.points[3], id: 3 }
+        ]
+      })
+    ).toThrow(/must be ordered by priority, sequence, and intra-event sequence/);
+  });
+
+  it("requires one stable start/end boundary and continuous Aura state per target", () => {
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: []
+      })
+    ).toThrow();
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        ...validTargetStateTimeline,
+        points: validTargetStateTimeline.points.slice(0, -1)
+      })
+    ).toThrow(/exactly one simulation-end boundary/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        ...validTargetStateTimeline,
+        points: validTargetStateTimeline.points.map((point, index) =>
+          index === 1
+            ? { ...point, targetName: "Renamed Target" }
+            : point
+        )
+      })
+    ).toThrow(/targetName must remain stable/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        ...validTargetStateTimeline,
+        points: validTargetStateTimeline.points.map((point, index) =>
+          index === 1
+            ? {
+                ...point,
+                auraBefore: [
+                  {
+                    element: "pyro",
+                    gaugeUnits: 0.9,
+                    expiresAtFrame: 560
+                  }
+                ]
+              }
+            : point
+        )
+      })
+    ).toThrow(/target Aura timeline is discontinuous/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          { ...validTargetStateTimeline.points[0], id: 0 },
+          { ...validTargetStateTimeline.points[3], id: 1 },
+          {
+            ...validTargetStateTimeline.points[1],
+            id: 2,
+            frame: 601,
+            timeSeconds: 601 / 60
+          }
+        ]
+      })
+    ).toThrow(/cannot emit points after simulation-end/);
   });
 
   it("requires primary damage ids to have an exact typed link", () => {

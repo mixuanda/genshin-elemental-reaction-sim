@@ -1131,12 +1131,41 @@ function simulateConfig(
           continue;
         }
         const target = enemyTargets[targetIndex]!;
-        const currentFrame =
-          targetStateTimelineRecorder.latestFrame(target.id);
         const auraEngine = auraEngines.get(target.id);
         if (auraEngine === undefined) continue;
+        const auraEngineFrame = auraEngine.getCurrentFrame();
+        if (auraEngineFrame >= nextExpiryFrame) {
+          const auraBefore =
+            targetStateTimelineRecorder.latestAuraView(target.id);
+          const auraAfter =
+            auraEngine.getAuraStateAt(auraEngineFrame);
+          if (auraStateSnapshotsEqual(auraBefore, auraAfter)) {
+            targetStateTimelineRecorder.synchronize(
+              target.id,
+              auraEngineFrame,
+              auraAfter
+            );
+            continue;
+          }
+          targetStateTimelineRecorder.recordNaturalExpiry({
+            frame: nextExpiryFrame,
+            timeSeconds: nextExpiryFrame / 60,
+            targetId: target.id,
+            targetName: target.name,
+            auraBefore,
+            auraAfter
+          });
+          if (auraEngineFrame > nextExpiryFrame) {
+            targetStateTimelineRecorder.synchronize(
+              target.id,
+              auraEngineFrame,
+              auraAfter
+            );
+          }
+          continue;
+        }
         const beforeFrame = Math.max(
-          currentFrame,
+          auraEngineFrame,
           nextExpiryFrame - 1
         );
         const auraBefore = auraEngine.getAuraStateAt(beforeFrame);
@@ -3068,7 +3097,15 @@ function simulateConfig(
     if (!event) break;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
-    recordNaturalAuraExpiries(event.frame, false);
+    const preservesDedicatedAuraExpiryBoundary =
+      event.type === "frozenExpiry" ||
+      event.type === "quickenExpiry" ||
+      event.type === "periodicReactionExpiry" ||
+      event.type === "burningFuelExpiry";
+    recordNaturalAuraExpiries(
+      event.frame,
+      !preservesDedicatedAuraExpiryBoundary
+    );
     cleanup(timeSeconds);
     let intraEventSequence = 0;
     const nextIntraEventSequence = (): number =>
@@ -5079,15 +5116,19 @@ function simulateConfig(
         if (swirlDamageGroup?.damageAllowed === false) {
           reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
         }
-        const nestedShatterState =
+        const shatterCheckAllowed =
+          plan.landed &&
           reactionDamageAuraAllowed &&
-          !mechanicsTruncatedBefore
-            ? (targetAuraEngine?.processShatterHit({
+          !mechanicsTruncatedBefore &&
+          targetAuraEngine !== null;
+        const nestedShatterState =
+          shatterCheckAllowed
+            ? targetAuraEngine.processShatterHit({
                   frame: event.frame,
                   element: damageElement,
                   strikeType,
                   poiseDamage
-                }) ?? null)
+                })
             : null;
         nestedShatterState?.mutations.forEach((mutation) => {
           const shatterTriggered =
@@ -5125,6 +5166,17 @@ function simulateConfig(
             auraAfter: mutation.auraAfter
           });
         });
+        if (
+          shatterCheckAllowed &&
+          propagatedReactionAudit === null &&
+          (nestedShatterState?.mutations.length ?? 0) === 0
+        ) {
+          targetStateTimelineRecorder.synchronize(
+            plan.targetId,
+            event.frame,
+            targetAuraEngine.getAuraStateAt(event.frame)
+          );
+        }
         const damageAllowed =
           plan.landed &&
           activeTargetPhase?.effects.damage !== "immune";

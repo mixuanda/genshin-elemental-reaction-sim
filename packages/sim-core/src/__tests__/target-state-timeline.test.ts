@@ -202,6 +202,218 @@ function makeMultiTargetBurningConfig(): SimConfig {
   };
 }
 
+function makeMissedOverloadShatterConfig(): SimConfig {
+  const base = makeConfig();
+  const template = base.characters[0]!;
+  return {
+    ...base,
+    duration: 1,
+    cycleLength: 1,
+    enemy: {
+      level: 90,
+      resistance: 0.1,
+      defReduction: 0,
+      targets: [
+        {
+          id: "enemy-0",
+          name: "超载触发目标",
+          position: { x: 0, y: 0 },
+          initialAura: [{ element: "electro", gaugeUnits: 1 }]
+        },
+        {
+          id: "enemy-1",
+          name: "范围外冻结目标",
+          position: { x: 3.1, y: 0 },
+          initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+        }
+      ]
+    },
+    characters: [
+      {
+        ...template,
+        id: "hydro",
+        name: "Hydro",
+        element: "hydro",
+        stats: { ...neutralStats, baseAtk: 1000 }
+      },
+      {
+        ...template,
+        id: "pyro",
+        name: "Pyro",
+        element: "pyro",
+        stats: {
+          ...neutralStats,
+          baseAtk: 1000,
+          em: 100
+        }
+      }
+    ],
+    rotation: [],
+    reactionEngine: { mode: "aura-v2" },
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "hydro",
+      swapFrames: 1,
+      abilities: [
+        {
+          id: "freeze-neighbor",
+          actorId: "hydro",
+          name: "Freeze Neighbor",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: [
+            {
+              id: "freeze-neighbor-hit",
+              frame: 0,
+              scaling: 1,
+              element: "hydro",
+              targeting: {
+                targetId: "enemy-1",
+                outcome: "landed"
+              },
+              application: {
+                gaugeUnits: 1,
+                icdTag: "freeze-neighbor",
+                icdGroup: "no-icd"
+              }
+            }
+          ]
+        },
+        {
+          id: "trigger-overload",
+          actorId: "pyro",
+          name: "Trigger Overload",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: [
+            {
+              id: "trigger-overload-hit",
+              frame: 0,
+              scaling: 1,
+              element: "pyro",
+              targeting: {
+                targetId: "enemy-0",
+                outcome: "landed"
+              },
+              application: {
+                gaugeUnits: 1,
+                icdTag: "trigger-overload",
+                icdGroup: "no-icd"
+              }
+            }
+          ]
+        }
+      ],
+      commands: [
+        {
+          type: "skill",
+          actorId: "hydro",
+          abilityId: "freeze-neighbor"
+        },
+        { type: "swap", characterId: "pyro" },
+        {
+          type: "skill",
+          actorId: "pyro",
+          abilityId: "trigger-overload"
+        }
+      ]
+    }
+  };
+}
+
+function makeSameFrameExpiryReactionMissConfig(): SimConfig {
+  const base = makeConfig();
+  const template = base.characters[0]!;
+  return {
+    ...base,
+    duration: 571 / 60,
+    cycleLength: 571 / 60,
+    enemy: {
+      level: 90,
+      resistance: 0.1,
+      defReduction: 0,
+      targets: [
+        {
+          id: "enemy-0",
+          name: "超载触发目标",
+          position: { x: 0, y: 0 },
+          initialAura: [{ element: "electro", gaugeUnits: 1 }]
+        },
+        {
+          id: "enemy-1",
+          name: "同帧到期范围外目标",
+          position: { x: 10, y: 0 },
+          initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+        }
+      ]
+    },
+    characters: [
+      {
+        ...template,
+        id: "pyro",
+        name: "Pyro",
+        element: "pyro",
+        stats: {
+          ...neutralStats,
+          baseAtk: 1000,
+          em: 100
+        }
+      }
+    ],
+    rotation: [],
+    reactionEngine: { mode: "aura-v4" },
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "pyro",
+      swapFrames: 1,
+      abilities: [
+        {
+          id: "delayed-overload",
+          actorId: "pyro",
+          name: "Delayed Overload",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: [
+            {
+              id: "delayed-overload-hit",
+              frame: 0,
+              scaling: 1,
+              element: "pyro",
+              targeting: {
+                targetId: "enemy-0",
+                outcome: "landed"
+              },
+              application: {
+                gaugeUnits: 1,
+                icdTag: "delayed-overload",
+                icdGroup: "no-icd"
+              }
+            }
+          ]
+        }
+      ],
+      commands: [
+        { type: "wait", frames: 569 },
+        {
+          type: "skill",
+          actorId: "pyro",
+          abilityId: "delayed-overload"
+        }
+      ]
+    }
+  };
+}
+
 describe("core-owned target state timeline", () => {
   it("preserves the real direct-hit shatter sub-order before application", () => {
     const result = simulate(makeShatterOrderingConfig(), {
@@ -384,7 +596,7 @@ describe("core-owned target state timeline", () => {
     ).toEqual(result.targetStateTimeline);
   });
 
-  it("lets a real same-frame hit observe natural expiry without a duplicate derived point", () => {
+  it("records natural expiry before a real hit on the same frame", () => {
     const base = makeConfig();
     const config: SimConfig = {
       ...base,
@@ -451,6 +663,18 @@ describe("core-owned target state timeline", () => {
       }))
     ).toEqual([
       {
+        cause: "aura-natural-expiry",
+        pointKind: "derived",
+        eventType: null,
+        auraBefore: [
+          expect.objectContaining({
+            element: "dendro",
+            gaugeUnits: expect.any(Number)
+          })
+        ],
+        auraAfter: []
+      },
+      {
         cause: "direct-hit-application",
         pointKind: "observation",
         eventType: "hit",
@@ -459,9 +683,91 @@ describe("core-owned target state timeline", () => {
       }
     ]);
     expect(
-      result.targetStateTimeline.points.some(
+      result.targetStateTimeline.points.filter(
         (point) => point.cause === "aura-natural-expiry"
       )
-    ).toBe(false);
+    ).toHaveLength(1);
+  });
+
+  it("does not mutate or link a frozen target missed by reaction AoE", () => {
+    const result = simulate(makeMissedOverloadShatterConfig(), {
+      critMode: "noCrit"
+    });
+    const missedResolution = result.hitResolutionLog.find(
+      (entry) =>
+        entry.resolutionKind === "reaction-damage" &&
+        entry.targetId === "enemy-1"
+    );
+    const frozenEndState = result.auraEndStates.find(
+      (entry) => entry.targetId === "enemy-1"
+    );
+    const damageEventIds = new Set(
+      result.damageEvents.map((event) => event.id)
+    );
+
+    expect(missedResolution).toMatchObject({
+      landed: false,
+      damageEventId: null
+    });
+    expect(
+      result.targetStateTimeline.points.filter(
+        (point) =>
+          point.targetId === "enemy-1" &&
+          point.cause === "reaction-damage-shatter"
+      )
+    ).toEqual([]);
+    expect(frozenEndState?.aura).toEqual([
+      expect.objectContaining({
+        element: "frozen",
+        gaugeUnits: expect.any(Number)
+      })
+    ]);
+    for (const point of result.targetStateTimeline.points) {
+      for (const link of point.links) {
+        if (link.kind === "damage-event") {
+          expect(damageEventIds.has(link.id)).toBe(true);
+        }
+      }
+      if (point.primaryDamageEventId !== null) {
+        expect(damageEventIds.has(point.primaryDamageEventId)).toBe(
+          true
+        );
+      }
+    }
+  });
+
+  it("records natural expiry safely when missed reaction damage shares its frame", () => {
+    const result = simulate(
+      makeSameFrameExpiryReactionMissConfig(),
+      { critMode: "noCrit" }
+    );
+    const missedResolution = result.hitResolutionLog.find(
+      (entry) =>
+        entry.resolutionKind === "reaction-damage" &&
+        entry.targetId === "enemy-1"
+    );
+    const expiry = result.targetStateTimeline.points.find(
+      (point) =>
+        point.targetId === "enemy-1" &&
+        point.cause === "aura-natural-expiry"
+    );
+
+    expect(missedResolution).toMatchObject({
+      frame: 570,
+      landed: false,
+      damageEventId: null
+    });
+    expect(expiry).toMatchObject({
+      frame: 570,
+      targetId: "enemy-1",
+      pointKind: "derived",
+      auraAfter: []
+    });
+    expect(expiry?.auraBefore).toEqual([
+      expect.objectContaining({
+        element: "dendro",
+        gaugeUnits: expect.any(Number)
+      })
+    ]);
   });
 });

@@ -166,14 +166,14 @@ export const auraStateElementSchema = z.enum([
 
 export const auraSourceGaugeSlotSchema = z
   .object({
-    sourceActorId: idSchema,
+    sourceActorId: wireNonEmptyStringSchema,
     gaugeUnits: finiteNumber.nonnegative()
   })
   .strict();
 
 export const auraSourceGaugeMutationSchema = z
   .object({
-    sourceActorId: idSchema,
+    sourceActorId: wireNonEmptyStringSchema,
     gaugeUnitsBefore: finiteNumber.nonnegative(),
     consumedGaugeUnits: finiteNumber.nonnegative(),
     gaugeUnitsAfter: finiteNumber.nonnegative()
@@ -205,10 +205,96 @@ export const auraGaugeEntrySchema = z
       "geo"
     ]),
     gaugeUnits: finiteNumber.nonnegative(),
-    sourceActorId: idSchema.optional(),
+    sourceActorId: wireNonEmptyStringSchema.optional(),
     sourceMutations: z.array(auraSourceGaugeMutationSchema).optional()
   })
   .strict();
+
+type AuraStateWireEntry = z.infer<typeof auraStateEntrySchema>;
+
+function auraStateSnapshotsEqual(
+  left: readonly AuraStateWireEntry[],
+  right: readonly AuraStateWireEntry[]
+): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+/**
+ * Validate an Aura-only clock advance between two emitted observations.
+ *
+ * A clock advance may decay or expire existing state. It cannot create Aura,
+ * increase durability, extend a deadline, or add a source slot: each of those
+ * requires an explicit mutation point.
+ */
+function auraStateOnlyDecreases(
+  before: readonly AuraStateWireEntry[],
+  after: readonly AuraStateWireEntry[],
+  frame: number
+): string | null {
+  const beforeByElement = new Map(
+    before.map((entry) => [entry.element, entry] as const)
+  );
+  if (beforeByElement.size !== before.length) {
+    return "Aura snapshots cannot contain duplicate elements";
+  }
+  if (new Set(after.map((entry) => entry.element)).size !== after.length) {
+    return "Aura snapshots cannot contain duplicate elements";
+  }
+
+  for (const afterEntry of after) {
+    const beforeEntry = beforeByElement.get(afterEntry.element);
+    if (beforeEntry === undefined) {
+      return `Aura clock advance cannot add ${afterEntry.element}`;
+    }
+    if (afterEntry.gaugeUnits > beforeEntry.gaugeUnits) {
+      return `Aura clock advance cannot increase ${afterEntry.element} durability`;
+    }
+    if (
+      beforeEntry.expiresAtFrame !== null &&
+      (afterEntry.expiresAtFrame === null ||
+        afterEntry.expiresAtFrame > beforeEntry.expiresAtFrame)
+    ) {
+      return `Aura clock advance cannot extend ${afterEntry.element} expiry`;
+    }
+
+    const beforeSlots = new Map(
+      (beforeEntry.sourceSlots ?? []).map(
+        (slot) => [slot.sourceActorId, slot] as const
+      )
+    );
+    if (
+      beforeSlots.size !== (beforeEntry.sourceSlots ?? []).length ||
+      new Set(
+        (afterEntry.sourceSlots ?? []).map(
+          (slot) => slot.sourceActorId
+        )
+      ).size !== (afterEntry.sourceSlots ?? []).length
+    ) {
+      return `${afterEntry.element} source slots must be unique by actor`;
+    }
+    for (const afterSlot of afterEntry.sourceSlots ?? []) {
+      const beforeSlot = beforeSlots.get(afterSlot.sourceActorId);
+      if (beforeSlot === undefined) {
+        return `Aura clock advance cannot add ${afterEntry.element} source slot ${afterSlot.sourceActorId}`;
+      }
+      if (afterSlot.gaugeUnits > beforeSlot.gaugeUnits) {
+        return `Aura clock advance cannot increase ${afterEntry.element} source slot ${afterSlot.sourceActorId}`;
+      }
+    }
+  }
+
+  const afterElements = new Set(after.map((entry) => entry.element));
+  for (const beforeEntry of before) {
+    if (
+      !afterElements.has(beforeEntry.element) &&
+      (beforeEntry.expiresAtFrame === null ||
+        beforeEntry.expiresAtFrame > frame)
+    ) {
+      return `Aura clock advance cannot remove unexpired ${beforeEntry.element}`;
+    }
+  }
+  return null;
+}
 
 export const reactionTypeSchema = z.enum([
   "none",
@@ -364,6 +450,10 @@ export const targetStateTimelinePointSchema = z
       point.cause === "simulation-start" ||
       point.cause === "simulation-end";
     const derivedCause = point.cause === "aura-natural-expiry";
+    const hasAuraMutation =
+      point.auraApplied.length > 0 ||
+      point.auraConsumed.length > 0 ||
+      !auraStateSnapshotsEqual(point.auraBefore, point.auraAfter);
 
     if (point.pointKind === "boundary") {
       if (!eventTuple.every((value) => value === null)) {
@@ -378,7 +468,7 @@ export const targetStateTimelinePointSchema = z
           "boundary points require simulation-start or simulation-end"
         );
       }
-      if (JSON.stringify(point.auraBefore) !== JSON.stringify(point.auraAfter)) {
+      if (!auraStateSnapshotsEqual(point.auraBefore, point.auraAfter)) {
         issue(
           "auraAfter",
           "boundary points must preserve an exact Aura snapshot"
@@ -415,10 +505,33 @@ export const targetStateTimelinePointSchema = z
       if (!derivedCause) {
         issue("cause", "derived points require aura-natural-expiry");
       }
-      if (JSON.stringify(point.auraBefore) === JSON.stringify(point.auraAfter)) {
+      if (!hasAuraMutation) {
         issue(
           "auraAfter",
           "aura-natural-expiry must change the target Aura state"
+        );
+      }
+      const decreaseIssue = auraStateOnlyDecreases(
+        point.auraBefore,
+        point.auraAfter,
+        point.frame
+      );
+      if (decreaseIssue !== null) {
+        issue(
+          "auraAfter",
+          `aura-natural-expiry may only decrease existing Aura: ${decreaseIssue}`
+        );
+      }
+      if (
+        !point.auraBefore.some(
+          (entry) =>
+            entry.expiresAtFrame !== null &&
+            entry.expiresAtFrame <= point.frame
+        )
+      ) {
+        issue(
+          "auraBefore",
+          "aura-natural-expiry requires an Aura deadline at or before its frame"
         );
       }
       if (
@@ -467,6 +580,26 @@ export const targetStateTimelinePointSchema = z
           "aura-natural-expiry requires pointKind=derived"
         );
       }
+      if (point.pointKind === "observation" && hasAuraMutation) {
+        issue(
+          "pointKind",
+          "observation points cannot apply, consume, or change Aura"
+        );
+      }
+      if (point.pointKind === "mutation" && !hasAuraMutation) {
+        issue(
+          "pointKind",
+          "mutation points must apply, consume, or change Aura"
+        );
+      }
+    }
+
+    const primaryReaction = point.reactions[0] ?? "none";
+    if (point.reaction !== primaryReaction) {
+      issue(
+        "reaction",
+        "reaction must equal the first reactions entry, or none when reactions is empty"
+      );
     }
 
     if (
@@ -548,13 +681,24 @@ export const targetStateTimelinePointSchema = z
 export const targetStateTimelineSchema = z
   .object({
     version: z.literal("1.0.0"),
-    points: z.array(targetStateTimelinePointSchema)
+    points: z.array(targetStateTimelinePointSchema).min(1)
   })
   .strict()
   .superRefine((timeline, context) => {
     let previousFrame = -1;
     let eventTupleFrame = -1;
     let previousEventTuple: readonly [number, number, number] | null = null;
+    const targetTrackers = new Map<
+      string,
+      {
+        targetName: string;
+        firstPointIndex: number;
+        startCount: number;
+        endCount: number;
+        ended: boolean;
+        previousPoint: (typeof timeline.points)[number];
+      }
+    >();
 
     timeline.points.forEach((point, index) => {
       if (point.id !== index) {
@@ -572,6 +716,77 @@ export const targetStateTimelineSchema = z
         });
       }
       previousFrame = point.frame;
+
+      const existingTracker = targetTrackers.get(point.targetId);
+      if (existingTracker === undefined) {
+        targetTrackers.set(point.targetId, {
+          targetName: point.targetName,
+          firstPointIndex: index,
+          startCount: point.cause === "simulation-start" ? 1 : 0,
+          endCount: point.cause === "simulation-end" ? 1 : 0,
+          ended: point.cause === "simulation-end",
+          previousPoint: point
+        });
+        if (point.cause !== "simulation-start") {
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "cause"],
+            message:
+              "the first point for each target must be simulation-start"
+          });
+        }
+      } else {
+        if (point.targetName !== existingTracker.targetName) {
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "targetName"],
+            message: `targetName must remain stable for target "${point.targetId}"`
+          });
+        }
+        if (existingTracker.ended) {
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "cause"],
+            message: `target "${point.targetId}" cannot emit points after simulation-end`
+          });
+        }
+        if (point.cause === "simulation-start") {
+          existingTracker.startCount += 1;
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "cause"],
+            message: `target "${point.targetId}" must have exactly one simulation-start boundary`
+          });
+        }
+        if (point.cause === "simulation-end") {
+          existingTracker.endCount += 1;
+          existingTracker.ended = true;
+        }
+
+        if (point.frame >= existingTracker.previousPoint.frame) {
+          const continuityIssue =
+            point.frame === existingTracker.previousPoint.frame
+              ? auraStateSnapshotsEqual(
+                  existingTracker.previousPoint.auraAfter,
+                  point.auraBefore
+                )
+                ? null
+                : "same-frame auraBefore must exactly equal the previous auraAfter"
+              : auraStateOnlyDecreases(
+                  existingTracker.previousPoint.auraAfter,
+                  point.auraBefore,
+                  point.frame
+                );
+          if (continuityIssue !== null) {
+            context.addIssue({
+              code: "custom",
+              path: ["points", index, "auraBefore"],
+              message: `target Aura timeline is discontinuous: ${continuityIssue}`
+            });
+          }
+        }
+        existingTracker.previousPoint = point;
+      }
 
       if (point.frame !== eventTupleFrame) {
         eventTupleFrame = point.frame;
@@ -594,7 +809,7 @@ export const targetStateTimelineSchema = z
               tuple[1] < previousEventTuple[1]) ||
             (tuple[0] === previousEventTuple[0] &&
               tuple[1] === previousEventTuple[1] &&
-              tuple[2] < previousEventTuple[2]))
+              tuple[2] <= previousEventTuple[2]))
         ) {
           context.addIssue({
             code: "custom",
@@ -606,6 +821,23 @@ export const targetStateTimelineSchema = z
         previousEventTuple = tuple;
       }
     });
+
+    for (const [targetId, tracker] of targetTrackers) {
+      if (tracker.startCount !== 1) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", tracker.firstPointIndex, "cause"],
+          message: `target "${targetId}" must have exactly one simulation-start boundary`
+        });
+      }
+      if (tracker.endCount !== 1) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", tracker.firstPointIndex, "cause"],
+          message: `target "${targetId}" must have exactly one simulation-end boundary`
+        });
+      }
+    }
   });
 
 export const burningReactionAuditSchema = z

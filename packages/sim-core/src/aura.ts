@@ -498,6 +498,10 @@ export class AuraEngine {
     return this.mechanicsTruncation !== null;
   }
 
+  getCurrentFrame(): number {
+    return this.currentFrame;
+  }
+
   getMechanicsTruncation(): TargetMechanicsTruncationAudit | null {
     if (this.mechanicsTruncation === null) return null;
     return {
