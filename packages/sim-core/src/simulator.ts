@@ -78,12 +78,14 @@ export const EVENT_PRIORITY = {
   particleReceive: 2,
   hit: 3,
   periodicReactionExpiry: 2,
+  burningFuelExpiry: 2,
   frozenExpiry: 2,
   quickenExpiry: 2,
   crystallizeShardSpawn: 2,
   crystallizeShardExpiry: 2,
   crystallizeShieldExpiry: 2,
   periodicReactionTick: 4,
+  burningTick: 4,
   reactionDamage: 5,
   periodicReactionWane: 6,
   crystallizePickup: 7
@@ -462,6 +464,11 @@ interface ReactionDamageEventPayload {
     periodicReactionLogId: number;
     waneEligible: boolean;
   };
+  burningContext?: {
+    generation: number;
+    tickIndex: number;
+    burningStateLogId: number;
+  };
 }
 
 interface PeriodicReactionSourceSnapshot {
@@ -472,6 +479,26 @@ interface PeriodicReactionSourceSnapshot {
   triggerHitGroupId: string;
   triggerDamageEventId: number;
   triggerFrame: number;
+  stats: CharacterStats;
+  elementalMastery: number;
+  reactionBonus: number;
+  sourceBuffStatuses: ActiveStatusSnapshot[];
+  snapshot: DamageEvent["snapshot"];
+  cycle: number;
+}
+
+interface BurningSourceSnapshot {
+  generation: number;
+  actorId: string;
+  action: ActionDefinition;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  triggerDamageEventId: number;
+  triggerFrame: number;
+  triggerElement: "pyro" | "dendro";
+  fuelSourceActorId: string | null;
+  fuelDecayPerFrame: number;
+  fuelExpiresAtFrame: number | null;
   stats: CharacterStats;
   elementalMastery: number;
   reactionBonus: number;
@@ -515,6 +542,19 @@ interface PeriodicReactionWaneEventPayload {
 }
 
 interface PeriodicReactionExpiryEventPayload {
+  targetId: string;
+  generation: number;
+  expectedExpiryFrame: number;
+}
+
+interface BurningTickEventPayload {
+  targetId: string;
+  generation: number;
+  /** One-based counter from the fixed Burning task chain. */
+  tickIndex: number;
+}
+
+interface BurningFuelExpiryEventPayload {
   targetId: string;
   generation: number;
   expectedExpiryFrame: number;
@@ -597,6 +637,8 @@ type InternalEvent =
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
+  | SimulationEvent<BurningTickEventPayload>
+  | SimulationEvent<BurningFuelExpiryEventPayload>
   | SimulationEvent<FrozenExpiryEventPayload>
   | SimulationEvent<QuickenExpiryEventPayload>
   | SimulationEvent<CrystallizeShardSpawnEventPayload>
@@ -642,6 +684,7 @@ const TRANSFORMATIVE_REACTION_LABELS: Record<
   overload: "超载",
   superconduct: "超导",
   electroCharged: "感电",
+  burning: "燃烧",
   shatter: "碎冰",
   swirlPyro: "火扩散",
   swirlHydro: "水扩散",
@@ -898,6 +941,23 @@ function simulateConfig(
   const enemyTargetById = new Map(
     enemyTargets.map((target) => [target.id, target])
   );
+  const enemyTargetOrderById = new Map(
+    enemyTargets.map((target, index) => [target.id, index])
+  );
+  const burningAtomicPriorityStride =
+    1 / (enemyTargets.length * 2 + 1);
+  const burningTickPriorityForTarget = (
+    targetId: string
+  ): number =>
+    EVENT_PRIORITY.burningTick +
+    (enemyTargetOrderById.get(targetId) ?? 0) *
+      2 *
+      burningAtomicPriorityStride;
+  const burningDamagePriorityForTarget = (
+    targetId: string
+  ): number =>
+    burningTickPriorityForTarget(targetId) +
+    burningAtomicPriorityStride;
   const lastMotionPositionByTarget = new Map(
     enemyTargets.map((target) => [
       target.id,
@@ -965,7 +1025,8 @@ function simulateConfig(
   const auraEngines =
     config.reactionEngine?.mode === "aura-v1" ||
     config.reactionEngine?.mode === "aura-v2" ||
-    config.reactionEngine?.mode === "aura-v3"
+    config.reactionEngine?.mode === "aura-v3" ||
+    config.reactionEngine?.mode === "aura-v4"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -977,6 +1038,16 @@ function simulateConfig(
           ])
         )
       : null;
+  const auraInitialStates: SimulationResult["auraInitialStates"] =
+    enemyTargets.map((target) => ({
+      targetId: target.id,
+      targetName: target.name,
+      frame: 0,
+      timeSeconds: 0,
+      aura: deepClone(
+        auraEngines?.get(target.id)?.getAuraStateAt(0) ?? []
+      )
+    }));
   const characters = new Map(
     config.characters.map((character) => [character.id, character])
   );
@@ -1028,14 +1099,15 @@ function simulateConfig(
   const push = <TPayload>(
     timeSeconds: number,
     type: InternalEvent["type"],
-    payload: TPayload
+    payload: TPayload,
+    priorityOverride?: number
   ): void => {
     if (timeSeconds <= config.duration + 1e-9) {
       const frame = toFrame(timeSeconds);
       queue.push({
         timeSeconds: frameNative ? frame / 60 : timeSeconds,
         frame,
-        priority: EVENT_PRIORITY[type],
+        priority: priorityOverride ?? EVENT_PRIORITY[type],
         type,
         payload,
         sequence: sequence++
@@ -1097,6 +1169,7 @@ function simulateConfig(
     [];
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
   const quickenStateLog: SimulationResult["quickenStateLog"] = [];
+  const burningStateLog: SimulationResult["burningStateLog"] = [];
   const crystallizeShardLog: SimulationResult["crystallizeShardLog"] =
     [];
   const crystallizeShieldLog: SimulationResult["crystallizeShieldLog"] =
@@ -1115,6 +1188,11 @@ function simulateConfig(
     PeriodicReactionSourceSnapshot
   >();
   const periodicReactionExpiryScheduleKeys = new Set<string>();
+  const activeBurningSources = new Map<
+    string,
+    BurningSourceSnapshot
+  >();
+  const burningFuelExpiryScheduleKeys = new Set<string>();
   const activeFrozenStateSources = new Map<
     string,
     FrozenStateSource
@@ -1138,7 +1216,9 @@ function simulateConfig(
     hitId,
     triggerDamageEventId,
     frame,
-    timeSeconds
+    timeSeconds,
+    eventPriority,
+    eventSequence
   }: {
     audit: ReactionAudit;
     targetId: string;
@@ -1149,6 +1229,8 @@ function simulateConfig(
     triggerDamageEventId: number;
     frame: number;
     timeSeconds: number;
+    eventPriority: number;
+    eventSequence: number;
   }): void => {
     const truncation = audit.mechanicsTruncation;
     if (
@@ -1176,6 +1258,66 @@ function simulateConfig(
       discardedAura: deepClone(truncation.discardedAura),
       reason: truncation.reason
     });
+    const burningSource = activeBurningSources.get(targetId);
+    if (burningSource !== undefined) {
+      const burningGaugeUnitsBefore =
+        truncation.discardedAura.find(
+          (entry) => entry.element === "burning"
+        )?.gaugeUnits ?? 0;
+      const fuelGaugeUnitsBefore =
+        truncation.discardedAura.find(
+          (entry) => entry.element === "burningFuel"
+        )?.gaugeUnits ?? 0;
+      burningStateLog.push({
+        id: burningStateLog.length,
+        reaction: "burning",
+        generation: burningSource.generation,
+        operation: "stop",
+        frame,
+        timeSeconds,
+        eventPriority,
+        eventSequence,
+        targetId,
+        targetName,
+        triggerElement: null,
+        damageSourceActorId: burningSource.actorId,
+        fuelSourceActorId: burningSource.fuelSourceActorId,
+        triggerDamageEventId,
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        tickIndex: null,
+        tickSkipped: false,
+        skipReason: null,
+        damageAllowed: null,
+        burningGaugeUnitsBefore,
+        burningGaugeUnitsAfter: 0,
+        fuelGaugeUnitsBefore,
+        fuelGaugeUnitsAfter: 0,
+        fuelDecayPerFrame: burningSource.fuelDecayPerFrame,
+        fuelExpiresAtFrame: null,
+        auraBefore: deepClone(truncation.discardedAura),
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: [],
+        nextTickFrame: null,
+        clockModel: "target-local-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        icdGroup: "burning",
+        icdTag: "burning-application",
+        icdScope: "global-target",
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        icdResetFrames:
+          AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+        icdApplicationSequence:
+          AURA_ENGINE_CONSTANTS.burningIcdSequence,
+        applicationAllowed: null,
+        applicationBlockedReason: null,
+        selfDamageStatus: "unsupported-player-damage-model",
+        reason: "TARGET_MECHANICS_TRUNCATION"
+      });
+      activeBurningSources.delete(targetId);
+    }
     activePeriodicReactionSources.delete(targetId);
     activeFrozenStateSources.delete(targetId);
     activeQuickenStateSources.delete(targetId);
@@ -1230,6 +1372,22 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies PeriodicReactionExpiryEventPayload);
+  };
+
+  const scheduleBurningFuelExpiry = (
+    targetId: string,
+    generation: number,
+    expiryFrame: number | null
+  ): void => {
+    if (expiryFrame === null) return;
+    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    if (burningFuelExpiryScheduleKeys.has(scheduleKey)) return;
+    burningFuelExpiryScheduleKeys.add(scheduleKey);
+    push(expiryFrame / 60, "burningFuelExpiry", {
+      targetId,
+      generation,
+      expectedExpiryFrame: expiryFrame
+    } satisfies BurningFuelExpiryEventPayload);
   };
 
   const scheduleFrozenExpiry = (
@@ -1347,6 +1505,100 @@ function simulateConfig(
         waneEligible
       }
     } satisfies ReactionDamageEventPayload);
+  };
+
+  const scheduleBurningDamage = ({
+    frame,
+    targetId,
+    generation,
+    tickIndex,
+    source,
+    burningStateLogId,
+    nextTickFrame
+  }: {
+    frame: number;
+    targetId: string;
+    generation: number;
+    tickIndex: number;
+    source: BurningSourceSnapshot;
+    burningStateLogId: number;
+    nextTickFrame: number | null;
+  }): void => {
+    const reactionDamageLogId = reactionDamageLog.length;
+    const withinSimulation =
+      frame <= Math.round(config.duration * 60);
+    reactionDamageLog.push({
+      id: reactionDamageLogId,
+      reaction: "burning",
+      triggerDamageEventId: source.triggerDamageEventId,
+      sourceActorId: source.actorId,
+      sourceTargetId: targetId,
+      triggerFrame: source.triggerFrame,
+      damageFrame: frame,
+      scheduled: true,
+      withinSimulation,
+      blockedReason: null,
+      nextAvailableFrame: nextTickFrame,
+      scheduleKind: "burning-tick",
+      targetingMode: "radius",
+      centerPosition: resolveTargetPosition(targetId, frame),
+      radius: AURA_ENGINE_CONSTANTS.burningRadius,
+      applicationGaugeUnits:
+        AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits,
+      excludedTargetIds: [],
+      checkedTargetIds: [],
+      hitTargetIds: [],
+      unresolvedTargetIds: [],
+      damageGroupBlockedTargetIds: [],
+      damageEventIds: [],
+      reactionStatusLogIds: []
+    });
+    const burningLog = burningStateLog[burningStateLogId];
+    if (burningLog !== undefined) {
+      burningLog.reactionDamageLogId = reactionDamageLogId;
+    }
+    if (!withinSimulation) return;
+    push(
+      frame / 60,
+      "reactionDamage",
+      {
+        reaction: "burning",
+      damageElement: "pyro",
+      strikeType: "default",
+      poiseDamage: 0,
+      statusEffect: null,
+      actorId: source.actorId,
+      action: source.action,
+      triggerHitId: source.triggerHitId,
+      triggerHitGroupId: source.triggerHitGroupId,
+      triggerDamageEventId: source.triggerDamageEventId,
+      sourceTargetId: targetId,
+      targetingMode: "radius",
+      centerPosition: resolveTargetPosition(targetId, frame),
+      radius: AURA_ENGINE_CONSTANTS.burningRadius,
+      baseMultiplier:
+        AURA_ENGINE_CONSTANTS.burningBaseMultiplier,
+      stats: deepClone(source.stats),
+      elementalMastery: source.elementalMastery,
+      reactionBonus: source.reactionBonus,
+      sourceBuffStatuses: deepClone(source.sourceBuffStatuses),
+      snapshot: source.snapshot,
+      cycle: source.cycle,
+      reactionDamageLogId,
+      application: {
+        gaugeUnits:
+          AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits,
+        icdTag: "burning-application",
+        icdGroup: "burning"
+      },
+        burningContext: {
+          generation,
+          tickIndex,
+          burningStateLogId
+        }
+      } satisfies ReactionDamageEventPayload,
+      burningDamagePriorityForTarget(targetId)
+    );
   };
 
   const cleanup = (timeSeconds: number): void => {
@@ -1793,6 +2045,301 @@ function simulateConfig(
     } satisfies CrystallizeShardSpawnEventPayload);
   };
 
+  const processBurningConsequences = ({
+    audit,
+    damageEventId,
+    actorId,
+    action,
+    hitId,
+    hitGroupId,
+    targetId,
+    targetName,
+    stats,
+    reactionBonus,
+    sourceBuffStatuses,
+    snapshot,
+    cycle,
+    frame,
+    timeSeconds,
+    eventPriority,
+    eventSequence
+  }: {
+    audit: ReactionAudit;
+    damageEventId: number;
+    actorId: string;
+    action: ActionDefinition;
+    hitId: string;
+    hitGroupId: string;
+    targetId: string;
+    targetName: string;
+    stats: CharacterStats | undefined;
+    reactionBonus: number;
+    sourceBuffStatuses: ActiveStatusSnapshot[];
+    snapshot: DamageEvent["snapshot"];
+    cycle: number;
+    frame: number;
+    timeSeconds: number;
+    eventPriority: number;
+    eventSequence: number;
+  }): void => {
+    const burningReaction = audit.burningReaction;
+    if (burningReaction !== null) {
+      if (burningReaction.operation === "stop") {
+        const activeSource = activeBurningSources.get(targetId);
+        burningStateLog.push({
+          id: burningStateLog.length,
+          reaction: "burning",
+          generation:
+            activeSource?.generation ?? burningReaction.generation,
+          operation: "stop",
+          frame,
+          timeSeconds,
+          eventPriority,
+          eventSequence,
+          targetId,
+          targetName,
+          triggerElement: burningReaction.triggerElement,
+          damageSourceActorId:
+            activeSource?.actorId ??
+            burningReaction.damageSourceActorId,
+          fuelSourceActorId:
+            activeSource?.fuelSourceActorId ??
+            burningReaction.fuelSourceActorId,
+          triggerDamageEventId: damageEventId,
+          reactionDamageLogId: null,
+          damageEventIds: [],
+          tickIndex: null,
+          tickSkipped: false,
+          skipReason: null,
+          damageAllowed: null,
+          burningGaugeUnitsBefore:
+            burningReaction.burningGaugeUnitsBefore,
+          burningGaugeUnitsAfter:
+            burningReaction.burningGaugeUnitsAfter,
+          fuelGaugeUnitsBefore:
+            burningReaction.fuelGaugeUnitsBefore,
+          fuelGaugeUnitsAfter:
+            burningReaction.fuelGaugeUnitsAfter,
+          fuelDecayPerFrame:
+            burningReaction.fuelDecayPerFrame,
+          fuelExpiresAtFrame:
+            burningReaction.fuelExpiresAtFrame,
+          auraBefore: deepClone(audit.auraBefore ?? []),
+          auraApplied: deepClone(audit.auraApplied ?? []),
+          auraConsumed: deepClone(audit.auraConsumed ?? []),
+          auraAfter: deepClone(audit.auraAfter ?? []),
+          nextTickFrame: null,
+          clockModel: "target-local-no-hitlag",
+          hitlagStatus: "unsupported-enemy-hitlag",
+          icdGroup: "burning",
+          icdTag: "burning-application",
+          icdScope: "global-target",
+          icdWindowStartFrame: null,
+          icdHitIndex: null,
+          icdResetFrames:
+            AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+          icdApplicationSequence:
+            AURA_ENGINE_CONSTANTS.burningIcdSequence,
+          applicationAllowed: null,
+          applicationBlockedReason: null,
+          selfDamageStatus:
+            burningReaction.selfDamageStatus,
+          reason:
+            burningReaction.stopReason ??
+            "BURNING_AURA_CONSUMED"
+        });
+        activeBurningSources.delete(targetId);
+        return;
+      }
+      if (stats === undefined) {
+        throw new Error(
+          `Burning source stats for "${actorId}" could not be resolved.`
+        );
+      }
+      if (
+        burningReaction.triggerElement !== "pyro" &&
+        burningReaction.triggerElement !== "dendro"
+      ) {
+        throw new Error(
+          `Burning ${burningReaction.operation} requires a Pyro or Dendro trigger; got "${burningReaction.triggerElement}".`
+        );
+      }
+      const burningSource: BurningSourceSnapshot = {
+        generation: burningReaction.generation,
+        actorId,
+        action,
+        triggerHitId: hitId,
+        triggerHitGroupId: hitGroupId,
+        triggerDamageEventId: damageEventId,
+        triggerFrame: frame,
+        triggerElement: burningReaction.triggerElement,
+        fuelSourceActorId: burningReaction.fuelSourceActorId,
+        fuelDecayPerFrame: burningReaction.fuelDecayPerFrame,
+        fuelExpiresAtFrame: burningReaction.fuelExpiresAtFrame,
+        stats: deepClone(stats),
+        elementalMastery: stats.em,
+        reactionBonus,
+        sourceBuffStatuses: deepClone(sourceBuffStatuses),
+        // Burning always snapshots the triggering frame's live stats. It must
+        // not inherit an action-snapshot mode from the attack that started or
+        // refreshed the stream.
+        snapshot: "hit",
+        cycle
+      };
+      activeBurningSources.set(targetId, burningSource);
+      burningStateLog.push({
+        id: burningStateLog.length,
+        reaction: "burning",
+        generation: burningReaction.generation,
+        operation: burningReaction.operation,
+        frame,
+        timeSeconds,
+        eventPriority,
+        eventSequence,
+        targetId,
+        targetName,
+        triggerElement: burningReaction.triggerElement,
+        damageSourceActorId: actorId,
+        fuelSourceActorId: burningReaction.fuelSourceActorId,
+        triggerDamageEventId: damageEventId,
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        tickIndex: null,
+        tickSkipped: false,
+        skipReason: null,
+        damageAllowed: null,
+        burningGaugeUnitsBefore:
+          burningReaction.burningGaugeUnitsBefore,
+        burningGaugeUnitsAfter:
+          burningReaction.burningGaugeUnitsAfter,
+        fuelGaugeUnitsBefore:
+          burningReaction.fuelGaugeUnitsBefore,
+        fuelGaugeUnitsAfter:
+          burningReaction.fuelGaugeUnitsAfter,
+        fuelDecayPerFrame: burningReaction.fuelDecayPerFrame,
+        fuelExpiresAtFrame:
+          burningReaction.fuelExpiresAtFrame,
+        auraBefore: deepClone(audit.auraBefore ?? []),
+        auraApplied: deepClone(audit.auraApplied ?? []),
+        auraConsumed: deepClone(audit.auraConsumed ?? []),
+        auraAfter: deepClone(audit.auraAfter ?? []),
+        nextTickFrame: burningReaction.nextTickFrame,
+        clockModel: "target-local-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        icdGroup: "burning",
+        icdTag: "burning-application",
+        icdScope: "global-target",
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        icdResetFrames:
+          AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+        icdApplicationSequence:
+          AURA_ENGINE_CONSTANTS.burningIcdSequence,
+        // The application ICD belongs to the originating Burning tick and is
+        // recorded on that tick row (and the per-target reaction audit).
+        // Start/refresh rows only describe the resulting stream state.
+        applicationAllowed: null,
+        applicationBlockedReason: null,
+        selfDamageStatus:
+          burningReaction.selfDamageStatus,
+        reason: null
+      });
+      scheduleBurningFuelExpiry(
+        targetId,
+        burningReaction.generation,
+        burningReaction.fuelExpiresAtFrame
+      );
+      if (
+        burningReaction.operation === "start" &&
+        burningReaction.firstTickFrame !== null
+      ) {
+        push(
+          burningReaction.firstTickFrame / 60,
+          "burningTick",
+          {
+            targetId,
+            generation: burningReaction.generation,
+            tickIndex: 1
+          } satisfies BurningTickEventPayload,
+          burningTickPriorityForTarget(targetId)
+        );
+      }
+      return;
+    }
+
+    const activeSource = activeBurningSources.get(targetId);
+    if (activeSource === undefined) return;
+    const auraAfter = audit.auraAfter ?? [];
+    const burningStillPresent = auraAfter.some(
+      (entry) => entry.element === "burning"
+    );
+    const fuelStillPresent = auraAfter.some(
+      (entry) => entry.element === "burningFuel"
+    );
+    if (burningStillPresent && fuelStillPresent) return;
+
+    const auraBefore = audit.auraBefore ?? [];
+    burningStateLog.push({
+      id: burningStateLog.length,
+      reaction: "burning",
+      generation: activeSource.generation,
+      operation: "stop",
+      frame,
+      timeSeconds,
+      eventPriority,
+      eventSequence,
+      targetId,
+      targetName,
+      triggerElement: null,
+      damageSourceActorId: activeSource.actorId,
+      fuelSourceActorId: activeSource.fuelSourceActorId,
+      triggerDamageEventId: damageEventId,
+      reactionDamageLogId: null,
+      damageEventIds: [],
+      tickIndex: null,
+      tickSkipped: false,
+      skipReason: null,
+      damageAllowed: null,
+      burningGaugeUnitsBefore:
+        auraBefore.find((entry) => entry.element === "burning")
+          ?.gaugeUnits ?? 0,
+      burningGaugeUnitsAfter:
+        auraAfter.find((entry) => entry.element === "burning")
+          ?.gaugeUnits ?? 0,
+      fuelGaugeUnitsBefore:
+        auraBefore.find(
+          (entry) => entry.element === "burningFuel"
+        )?.gaugeUnits ?? 0,
+      fuelGaugeUnitsAfter:
+        auraAfter.find(
+          (entry) => entry.element === "burningFuel"
+        )?.gaugeUnits ?? 0,
+      fuelDecayPerFrame: activeSource.fuelDecayPerFrame,
+      fuelExpiresAtFrame: null,
+      auraBefore: deepClone(auraBefore),
+      auraApplied: deepClone(audit.auraApplied ?? []),
+      auraConsumed: deepClone(audit.auraConsumed ?? []),
+      auraAfter: deepClone(auraAfter),
+      nextTickFrame: null,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      icdGroup: "burning",
+      icdTag: "burning-application",
+      icdScope: "global-target",
+      icdWindowStartFrame: null,
+      icdHitIndex: null,
+      icdResetFrames:
+        AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+      icdApplicationSequence:
+        AURA_ENGINE_CONSTANTS.burningIcdSequence,
+      applicationAllowed: null,
+      applicationBlockedReason: null,
+      selfDamageStatus: "unsupported-player-damage-model",
+      reason: "BURNING_AURA_CONSUMED"
+    });
+    activeBurningSources.delete(targetId);
+  };
+
   const processNestedAuraReactionConsequences = ({
     audit,
     damageEventId,
@@ -1810,7 +2357,9 @@ function simulateConfig(
     cycle,
     frame,
     timeSeconds,
-    freezeResistance
+    freezeResistance,
+    eventPriority,
+    eventSequence
   }: {
     audit: ReactionAudit;
     damageEventId: number;
@@ -1829,7 +2378,35 @@ function simulateConfig(
     frame: number;
     timeSeconds: number;
     freezeResistance: number;
+    eventPriority: number;
+    eventSequence: number;
   }): void => {
+    const liveBurningStats =
+      audit.burningReaction !== null &&
+      audit.burningReaction.operation !== "stop"
+        ? (computeStats(actorId, timeSeconds) ?? stats)
+        : stats;
+    const burningReactionBonusDelta =
+      reactionBonus - stats.reactionBonus;
+    const liveBurningReactionBonus =
+      liveBurningStats.reactionBonus + burningReactionBonusDelta;
+    const liveBurningSourceBuffStatuses =
+      audit.burningReaction !== null &&
+      audit.burningReaction.operation !== "stop"
+        ? activeBuffs
+            .filter((buff) => buff.targetId === actorId)
+            .map((buff) => ({
+              key: buff.key,
+              kind: "buff" as const,
+              sourceActorId: buff.actorId,
+              targetId: buff.targetId,
+              stat: buff.stat,
+              value: buff.value,
+              startTimeSeconds: buff.start,
+              endTimeSeconds: buff.end,
+              label: buff.label
+            }))
+        : sourceBuffStatuses;
     recordQuickenState({
       audit,
       targetId,
@@ -1838,6 +2415,25 @@ function simulateConfig(
       triggerDamageEventId: damageEventId,
       frame,
       timeSeconds
+    });
+    processBurningConsequences({
+      audit,
+      damageEventId,
+      actorId,
+      action,
+      hitId,
+      hitGroupId,
+      targetId,
+      targetName,
+      stats: liveBurningStats,
+      reactionBonus: liveBurningReactionBonus,
+      sourceBuffStatuses: liveBurningSourceBuffStatuses,
+      snapshot: "hit",
+      cycle,
+      frame,
+      timeSeconds,
+      eventPriority,
+      eventSequence
     });
     const transformativeReaction = audit.transformativeReaction;
     if (transformativeReaction !== null) {
@@ -3467,6 +4063,270 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "burningFuelExpiry") {
+      const {
+        targetId,
+        generation,
+        expectedExpiryFrame
+      } = event.payload as BurningFuelExpiryEventPayload;
+      burningFuelExpiryScheduleKeys.delete(
+        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+      );
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (!auraEngine || !target) continue;
+      const result = auraEngine.expireBurningFuel(
+        event.frame,
+        generation,
+        expectedExpiryFrame
+      );
+      if (result.operation === "stale") continue;
+      const source = activeBurningSources.get(targetId);
+      const removedAura = result.auraBefore
+        .filter(
+          (before) =>
+            !result.auraAfter.some(
+              (after) => after.element === before.element
+            )
+        )
+        .map((entry) => ({
+          element: entry.element,
+          gaugeUnits: entry.gaugeUnits
+        }));
+      burningStateLog.push({
+        id: burningStateLog.length,
+        reaction: "burning",
+        generation,
+        operation: "fuel-expire",
+        frame: event.frame,
+        timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        targetId,
+        targetName: target.name,
+        triggerElement: null,
+        damageSourceActorId:
+          result.damageSourceActorId ?? source?.actorId ?? null,
+        fuelSourceActorId:
+          result.fuelSourceActorId ??
+          source?.fuelSourceActorId ??
+          null,
+        triggerDamageEventId:
+          source?.triggerDamageEventId ?? null,
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        tickIndex: null,
+        tickSkipped: false,
+        skipReason: null,
+        damageAllowed: null,
+        burningGaugeUnitsBefore:
+          result.burningGaugeUnitsBefore,
+        burningGaugeUnitsAfter:
+          result.burningGaugeUnitsAfter,
+        fuelGaugeUnitsBefore: result.fuelGaugeUnitsBefore,
+        fuelGaugeUnitsAfter: result.fuelGaugeUnitsAfter,
+        fuelDecayPerFrame: result.fuelDecayPerFrame,
+        fuelExpiresAtFrame: result.fuelExpiresAtFrame,
+        auraBefore: deepClone(result.auraBefore),
+        auraApplied: [],
+        auraConsumed: removedAura,
+        auraAfter: deepClone(result.auraAfter),
+        nextTickFrame: result.nextTickFrame,
+        clockModel: "target-local-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        icdGroup: "burning",
+        icdTag: "burning-application",
+        icdScope: "global-target",
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        icdResetFrames:
+          AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+        icdApplicationSequence:
+          AURA_ENGINE_CONSTANTS.burningIcdSequence,
+        applicationAllowed: null,
+        applicationBlockedReason: null,
+        selfDamageStatus: result.selfDamageStatus,
+        reason: "FUEL_EXPIRED"
+      });
+      if (source?.generation === generation) {
+        activeBurningSources.delete(targetId);
+      }
+      continue;
+    }
+
+    if (event.type === "burningTick") {
+      const {
+        targetId,
+        generation,
+        tickIndex
+      } = event.payload as BurningTickEventPayload;
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      const source = activeBurningSources.get(targetId);
+      if (
+        !auraEngine ||
+        !target ||
+        !source ||
+        source.generation !== generation ||
+        auraEngine.isMechanicsTruncated()
+      ) {
+        continue;
+      }
+      const prepared = auraEngine.prepareBurningTick(
+        event.frame,
+        generation,
+        tickIndex
+      );
+      if (prepared.operation === "stale") continue;
+      if (prepared.operation === "stop") {
+        burningStateLog.push({
+          id: burningStateLog.length,
+          reaction: "burning",
+          generation,
+          operation: "stop",
+          frame: event.frame,
+          timeSeconds,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          targetId,
+          targetName: target.name,
+          triggerElement: null,
+          damageSourceActorId:
+            prepared.damageSourceActorId ?? source.actorId,
+          fuelSourceActorId:
+            prepared.fuelSourceActorId ??
+            source.fuelSourceActorId,
+          triggerDamageEventId: source.triggerDamageEventId,
+          reactionDamageLogId: null,
+          damageEventIds: [],
+          tickIndex,
+          tickSkipped: false,
+          skipReason: null,
+          damageAllowed: null,
+          burningGaugeUnitsBefore:
+            prepared.burningGaugeUnitsBefore,
+          burningGaugeUnitsAfter:
+            prepared.burningGaugeUnitsAfter,
+          fuelGaugeUnitsBefore:
+            prepared.fuelGaugeUnitsBefore,
+          fuelGaugeUnitsAfter:
+            prepared.fuelGaugeUnitsAfter,
+          fuelDecayPerFrame: prepared.fuelDecayPerFrame,
+          fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
+          auraBefore: deepClone(prepared.auraBefore),
+          auraApplied: [],
+          auraConsumed: [],
+          auraAfter: deepClone(prepared.auraAfter),
+          nextTickFrame: null,
+          clockModel: "target-local-no-hitlag",
+          hitlagStatus: "unsupported-enemy-hitlag",
+          icdGroup: "burning",
+          icdTag: "burning-application",
+          icdScope: "global-target",
+          icdWindowStartFrame: null,
+          icdHitIndex: null,
+          icdResetFrames:
+            AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+          icdApplicationSequence:
+            AURA_ENGINE_CONSTANTS.burningIcdSequence,
+          applicationAllowed: null,
+          applicationBlockedReason: null,
+          selfDamageStatus: prepared.selfDamageStatus,
+          reason:
+            prepared.reason === "BURNING_AURA_CONSUMED"
+              ? "BURNING_AURA_CONSUMED"
+              : "FUEL_EXPIRED"
+        });
+        activeBurningSources.delete(targetId);
+        continue;
+      }
+
+      const burningStateLogId = burningStateLog.length;
+      burningStateLog.push({
+        id: burningStateLogId,
+        reaction: "burning",
+        generation,
+        operation: prepared.operation,
+        frame: event.frame,
+        timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        targetId,
+        targetName: target.name,
+        triggerElement: null,
+        damageSourceActorId: source.actorId,
+        fuelSourceActorId:
+          prepared.fuelSourceActorId ??
+          source.fuelSourceActorId,
+        triggerDamageEventId: source.triggerDamageEventId,
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        tickIndex,
+        tickSkipped: prepared.operation === "tick-skipped",
+        skipReason: prepared.skipReason,
+        damageAllowed: null,
+        burningGaugeUnitsBefore:
+          prepared.burningGaugeUnitsBefore,
+        burningGaugeUnitsAfter:
+          prepared.burningGaugeUnitsAfter,
+        fuelGaugeUnitsBefore:
+          prepared.fuelGaugeUnitsBefore,
+        fuelGaugeUnitsAfter:
+          prepared.fuelGaugeUnitsAfter,
+        fuelDecayPerFrame: prepared.fuelDecayPerFrame,
+        fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
+        auraBefore: deepClone(prepared.auraBefore),
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: deepClone(prepared.auraAfter),
+        nextTickFrame: prepared.nextTickFrame,
+        clockModel: "target-local-no-hitlag",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        icdGroup: "burning",
+        icdTag: "burning-application",
+        icdScope: "global-target",
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        icdResetFrames:
+          AURA_ENGINE_CONSTANTS.burningIcdResetFrames,
+        icdApplicationSequence:
+          AURA_ENGINE_CONSTANTS.burningIcdSequence,
+        applicationAllowed: null,
+        applicationBlockedReason: null,
+        selfDamageStatus: prepared.selfDamageStatus,
+        reason: null
+      });
+      if (prepared.operation === "tick") {
+        scheduleBurningDamage({
+          frame: event.frame,
+          targetId,
+          generation,
+          tickIndex,
+          source,
+          burningStateLogId,
+          nextTickFrame: prepared.nextTickFrame
+        });
+      }
+      if (prepared.nextTickFrame !== null) {
+        push(
+          prepared.nextTickFrame / 60,
+          "burningTick",
+          {
+            targetId,
+            generation,
+            tickIndex: tickIndex + 1
+          } satisfies BurningTickEventPayload,
+          burningTickPriorityForTarget(targetId)
+        );
+      }
+      scheduleBurningFuelExpiry(
+        targetId,
+        generation,
+        prepared.fuelExpiresAtFrame
+      );
+      continue;
+    }
+
     if (event.type === "periodicReactionTick") {
       const {
         targetId,
@@ -3719,6 +4579,7 @@ function simulateConfig(
         cycle,
         reactionDamageLogId,
         periodicContext,
+        burningContext,
         application,
         excludedTargetIds = [],
         swirlContext
@@ -3855,6 +4716,12 @@ function simulateConfig(
                     ? {}
                     : { application })
                 })
+            : null;
+        const burningApplicationIcdDecision =
+          application?.icdGroup === "burning" &&
+          propagatedReactionAudit?.icdGroup === "burning"
+            ? targetAuraEngine?.getLastBurningApplicationIcdDecision() ??
+              null
             : null;
         const swirlDamageGroup =
           plan.landed && swirlContext !== undefined
@@ -4158,7 +5025,8 @@ function simulateConfig(
             swirlReactions: [],
             swirlDamageGroup: null,
             crystallizeReaction: null,
-            catalyzeReaction: null
+            catalyzeReaction: null,
+            burningReaction: null
           }),
           shatterReaction: nestedShatterState?.audit ?? null,
           swirlDamageGroup,
@@ -4172,6 +5040,8 @@ function simulateConfig(
         damageEvents.push({
           id: damageEventId,
           kind: "transformative-reaction",
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
           parentDamageEventId: triggerDamageEventId,
           sourceActorId: actorId,
           scalingOwnerId: actorId,
@@ -4281,6 +5151,54 @@ function simulateConfig(
         targetResolution.potentialDamage = potentialDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
+        if (burningContext !== undefined) {
+          const burningLog =
+            burningStateLog[
+              burningContext.burningStateLogId
+            ];
+          if (burningLog !== undefined) {
+            burningLog.damageEventIds.push(damageEventId);
+            if (plan.targetId === sourceTargetId) {
+              burningLog.damageAllowed =
+                damageAllowed && !mechanicsTruncatedBefore;
+              if (
+                application?.icdGroup === "burning" &&
+                !reactionDamageAuraAllowed
+              ) {
+                burningLog.applicationAllowed = null;
+                burningLog.applicationBlockedReason =
+                  "TARGET_AURA_BLOCKED";
+                burningLog.icdWindowStartFrame = null;
+                burningLog.icdHitIndex = null;
+              }
+              if (propagatedReactionAudit !== null) {
+                burningLog.auraBefore = deepClone(
+                  propagatedReactionAudit.auraBefore ?? []
+                );
+                burningLog.auraApplied = deepClone(
+                  propagatedReactionAudit.auraApplied ?? []
+                );
+                burningLog.auraConsumed = deepClone(
+                  propagatedReactionAudit.auraConsumed ?? []
+                );
+                burningLog.auraAfter = deepClone(
+                  propagatedReactionAudit.auraAfter ?? []
+                );
+                burningLog.applicationAllowed =
+                  propagatedReactionAudit.icdAllowed;
+                burningLog.applicationBlockedReason =
+                  propagatedReactionAudit.icdAllowed === false
+                    ? "BURNING_APPLICATION_ICD"
+                    : null;
+                burningLog.icdWindowStartFrame =
+                  burningApplicationIcdDecision?.windowStartFrame ??
+                  null;
+                burningLog.icdHitIndex =
+                  burningApplicationIcdDecision?.hitIndex ?? null;
+              }
+            }
+          }
+        }
         recordTargetMechanicsTruncation({
           audit: reactionAudit,
           targetId: plan.targetId,
@@ -4290,7 +5208,9 @@ function simulateConfig(
           hitId: reactionHitId,
           triggerDamageEventId: damageEventId,
           frame: event.frame,
-          timeSeconds
+          timeSeconds,
+          eventPriority: event.priority,
+          eventSequence: event.sequence
         });
         if (
           reactionAudit.mechanicsTruncation === null &&
@@ -4345,7 +5265,9 @@ function simulateConfig(
             cycle,
             frame: event.frame,
             timeSeconds,
-            freezeResistance: targetProfile.freezeResistance
+            freezeResistance: targetProfile.freezeResistance,
+            eventPriority: event.priority,
+            eventSequence: event.sequence
           });
         }
         if (
@@ -4458,6 +5380,11 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type !== "hit") {
+      throw new Error(
+        `Unhandled simulation event type "${event.type}".`
+      );
+    }
     const {
       actorId,
       action,
@@ -4740,6 +5667,7 @@ function simulateConfig(
             swirlDamageGroup: null,
             crystallizeReaction: null,
             catalyzeReaction: null,
+            burningReaction: null,
             note:
               !auraAllowed
                 ? "目标效果策略阻止了本段附着与手工反应标签。"
@@ -4933,6 +5861,8 @@ function simulateConfig(
     damageEvents.push({
       id: damageEventId,
       kind: "direct",
+      eventPriority: event.priority,
+      eventSequence: event.sequence,
       parentDamageEventId: null,
       sourceActorId: actorId,
       scalingOwnerId,
@@ -5030,18 +5960,54 @@ function simulateConfig(
       hitId,
       triggerDamageEventId: damageEventId,
       frame: event.frame,
-      timeSeconds
+      timeSeconds,
+      eventPriority: event.priority,
+      eventSequence: event.sequence
     });
     if (reactionAudit.mechanicsTruncation === null) {
-    recordQuickenState({
-      audit: reactionAudit,
-      targetId,
-      targetName: targetProfile.name,
-      sourceActorId: actorId,
-      triggerDamageEventId: damageEventId,
-      frame: event.frame,
-      timeSeconds
-    });
+      recordQuickenState({
+        audit: reactionAudit,
+        targetId,
+        targetName: targetProfile.name,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        frame: event.frame,
+        timeSeconds
+      });
+      const burningSourceStats = computeStats(actorId, timeSeconds);
+      processBurningConsequences({
+        audit: reactionAudit,
+        damageEventId,
+        actorId,
+        action,
+        hitId,
+        hitGroupId,
+        targetId,
+        targetName: targetProfile.name,
+        stats: burningSourceStats,
+        reactionBonus:
+          (burningSourceStats?.reactionBonus ?? 0) +
+          safeNumber(hit.reactionBonus),
+        sourceBuffStatuses: activeBuffs
+          .filter((buff) => buff.targetId === actorId)
+          .map((buff) => ({
+            key: buff.key,
+            kind: "buff" as const,
+            sourceActorId: buff.actorId,
+            targetId: buff.targetId,
+            stat: buff.stat,
+            value: buff.value,
+            startTimeSeconds: buff.start,
+            endTimeSeconds: buff.end,
+            label: buff.label
+          })),
+        snapshot,
+        cycle,
+        frame: event.frame,
+        timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence
+      });
     if (shatterState !== null) {
       recordShatterFrozenState({
         result: shatterState,
@@ -5584,6 +6550,9 @@ function simulateConfig(
     additiveReaction: 0,
     transformativeReaction: 0
   };
+  const cumulativeByReaction: Partial<
+    Record<TransformativeReaction, number>
+  > = {};
   const damageCurve = damageEvents.map((event) => {
     cumulativeDamage += event.finalDamage;
     cumulativeByCharacter[event.creditOwnerId] =
@@ -5593,6 +6562,13 @@ function simulateConfig(
       event.damageComposition.additiveReaction;
     cumulativeByComponent.transformativeReaction +=
       event.damageComposition.transformativeReaction;
+    const transformativeReaction =
+      event.transformativeReactionFactors?.reaction;
+    if (transformativeReaction !== undefined) {
+      cumulativeByReaction[transformativeReaction] =
+        (cumulativeByReaction[transformativeReaction] ?? 0) +
+        event.damageComposition.transformativeReaction;
+    }
     return {
       damageEventId: event.id,
       targetId: event.targetId,
@@ -5604,7 +6580,8 @@ function simulateConfig(
       finalDamage: event.finalDamage,
       cumulativeDamage,
       cumulativeByCharacter: { ...cumulativeByCharacter },
-      cumulativeByComponent: { ...cumulativeByComponent }
+      cumulativeByComponent: { ...cumulativeByComponent },
+      cumulativeByReaction: { ...cumulativeByReaction }
     };
   });
   const auraTimeline: SimulationResult["auraTimeline"] = damageEvents.flatMap(
@@ -5621,6 +6598,8 @@ function simulateConfig(
       return [
         {
           damageEventId: event.id,
+          eventPriority: event.eventPriority,
+          eventSequence: event.eventSequence,
           targetId: event.targetId,
           targetName: event.targetName,
           frame: event.frame,
@@ -5645,6 +6624,18 @@ function simulateConfig(
       ];
     }
   );
+  const durationFrame = Math.round(config.duration * 60);
+  const auraEndStates: SimulationResult["auraEndStates"] =
+    enemyTargets.map((target) => ({
+      targetId: target.id,
+      targetName: target.name,
+      frame: durationFrame,
+      timeSeconds: durationFrame / 60,
+      aura: deepClone(
+        auraEngines?.get(target.id)?.getAuraStateAt(durationFrame) ??
+          []
+      )
+    }));
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -5673,6 +6664,7 @@ function simulateConfig(
     periodicReactionLog,
     frozenStateLog,
     quickenStateLog,
+    burningStateLog,
     crystallizeShardLog,
     crystallizeShieldLog,
     crystallizeShieldTimeline,
@@ -5699,6 +6691,8 @@ function simulateConfig(
     perSecond,
     damageCurve,
     auraTimeline,
+    auraInitialStates,
+    auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
 }

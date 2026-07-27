@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  burningReactionAuditSchema,
+  burningStateLogEntrySchema,
   ConfigMigrationError,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
@@ -1335,30 +1337,32 @@ describe("versioned config schema", () => {
   });
 
   it("does not allow custom profiles to replace built-in ICD semantics", () => {
-    expect(() =>
-      migrateConfig({
-        ...legacyConfig,
-        rotation: [],
-        reactionEngine: {
-          mode: "aura-v1",
-          icdProfiles: {
-            default: {
-              resetFrames: 1,
-              applicationSequence: [true]
+    for (const builtIn of ["default", "no-icd", "burning"]) {
+      expect(() =>
+        migrateConfig({
+          ...legacyConfig,
+          rotation: [],
+          reactionEngine: {
+            mode: "aura-v1",
+            icdProfiles: {
+              [builtIn]: {
+                resetFrames: 1,
+                applicationSequence: [true]
+              }
             }
+          },
+          timeline: {
+            mode: "legal-frame-v1",
+            fps: 60,
+            legalityMode: "strict",
+            initialActiveCharacterId: "a",
+            swapFrames: 12,
+            abilities: [],
+            commands: []
           }
-        },
-        timeline: {
-          mode: "legal-frame-v1",
-          fps: 60,
-          legalityMode: "strict",
-          initialActiveCharacterId: "a",
-          swapFrames: 12,
-          abilities: [],
-          commands: []
-        }
-      })
-    ).toThrow(/built-in ICD group/);
+        })
+      ).toThrow(new RegExp(`"${builtIn}" is a built-in ICD group`));
+    }
   });
 
   it("requires an explicit debug flag for reactionOverride", () => {
@@ -1887,7 +1891,372 @@ describe("versioned config schema", () => {
     expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   });
 
-  it("gates Dendro Aura and applications behind aura-v3", () => {
+  it("migrates the Catalyze schema without silently opting aura-v3 into Burning", () => {
+    const current = migrateConfig(legacyConfig);
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.29.0",
+      engineVersion: "1.29.0-catalyze-reaction",
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      },
+      reactionEngine: {
+        mode: "aura-v3",
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      }
+    });
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+    expect(migrated.reactionEngine).toEqual({
+      mode: "aura-v3",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+
+    for (const engineVersion of [
+      undefined,
+      "1.29.0-catalyze-reaction-unknown"
+    ]) {
+      expect(() =>
+        migrateConfig({
+          ...current,
+          schemaVersion: "1.29.0",
+          engineVersion
+        })
+      ).toThrow(
+        /schemaVersion "1\.29\.0" requires "1\.29\.0-catalyze-reaction"/
+      );
+    }
+
+    expect(() =>
+      migrateConfig({
+        ...current,
+        schemaVersion: "1.29.0",
+        engineVersion: "1.29.0-catalyze-reaction",
+        reactionEngine: {
+          mode: "aura-v4"
+        }
+      })
+    ).toThrow(
+      /reactionEngine\.mode: schemaVersion "1\.29\.0" does not support "aura-v4"/
+    );
+  });
+
+  it("strictly validates the Burning hit and lifecycle audit contracts", () => {
+    const burningAudit = {
+      reaction: "burning",
+      operation: "start",
+      reactionTriggered: true,
+      generation: 1,
+      triggerElement: "pyro",
+      fuelOperation: "start",
+      stopReason: null,
+      scheduled: true,
+      blockedReason: null,
+      damageSourceActorId: "pyro-owner",
+      fuelSourceActorId: "dendro-owner",
+      burningGaugeUnitsBefore: 0,
+      candidateBurningGaugeUnits: 2,
+      burningGaugeUnitsAfter: 2,
+      burningDecayPerFrame: 0,
+      burningExpiresAtFrame: null,
+      fuelGaugeUnitsBefore: 0,
+      candidateFuelGaugeUnits: 0.8,
+      fuelGaugeUnitsAfter: 0.8,
+      fuelDecayPerFrame: 1 / 150,
+      fuelExpiresAtFrame: 120,
+      snapshotFrame: 0,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      firstTickFrame: 15,
+      nextTickFrame: 15,
+      tickIntervalFrames: 15,
+      skippedTickIndex: 9,
+      damageElement: "pyro",
+      baseMultiplier: 0.25,
+      radius: 1,
+      applicationGaugeUnits: 1,
+      selfDamageStatus: "unsupported-player-damage-model"
+    };
+    expect(burningReactionAuditSchema.parse(burningAudit)).toEqual(
+      burningAudit
+    );
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...burningAudit,
+        tickIntervalFrames: 16
+      })
+    ).toThrow();
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...burningAudit,
+        inferredByUi: true
+      })
+    ).toThrow(/Unrecognized key/);
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...burningAudit,
+        reactionTriggered: false
+      })
+    ).toThrow(/start requires reactionTriggered=true/);
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...burningAudit,
+        nextTickFrame: null
+      })
+    ).toThrow(/start requires a retained Burning tick/);
+    const burningStop = {
+      ...burningAudit,
+      operation: "stop",
+      reactionTriggered: false,
+      triggerElement: "hydro",
+      fuelOperation: "remove",
+      stopReason: "BURNING_AURA_CONSUMED",
+      scheduled: false,
+      burningGaugeUnitsAfter: 0,
+      fuelGaugeUnitsAfter: 0,
+      fuelExpiresAtFrame: null,
+      firstTickFrame: null,
+      nextTickFrame: null
+    };
+    expect(burningReactionAuditSchema.parse(burningStop)).toEqual(
+      burningStop
+    );
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...burningStop,
+        nextTickFrame: 30
+      })
+    ).toThrow(/stop cannot retain a Burning tick/);
+    const truncatedBurning = {
+      ...burningAudit,
+      scheduled: false,
+      blockedReason: "TARGET_MECHANICS_TRUNCATION",
+      burningGaugeUnitsAfter: 0,
+      fuelGaugeUnitsAfter: 0,
+      fuelExpiresAtFrame: null,
+      firstTickFrame: null,
+      nextTickFrame: null
+    };
+    expect(
+      burningReactionAuditSchema.parse(truncatedBurning)
+    ).toEqual(truncatedBurning);
+    expect(() =>
+      burningReactionAuditSchema.parse({
+        ...truncatedBurning,
+        nextTickFrame: 15
+      })
+    ).toThrow(/truncated Burning stream cannot retain a tick/);
+
+    const burningLog = {
+      id: 1,
+      reaction: "burning",
+      generation: 1,
+      operation: "tick",
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 2,
+      eventSequence: 7,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      targetId: "enemy-0",
+      targetName: "测试目标",
+      triggerElement: null,
+      damageSourceActorId: "pyro-owner",
+      fuelSourceActorId: "dendro-owner",
+      triggerDamageEventId: 1,
+      reactionDamageLogId: 1,
+      damageEventIds: [2],
+      tickIndex: 1,
+      tickSkipped: false,
+      skipReason: null,
+      damageAllowed: true,
+      burningGaugeUnitsBefore: 2,
+      burningGaugeUnitsAfter: 2,
+      fuelGaugeUnitsBefore: 0.7,
+      fuelGaugeUnitsAfter: 0.7,
+      fuelDecayPerFrame: 1 / 150,
+      fuelExpiresAtFrame: 120,
+      auraBefore: [
+        { element: "burning", gaugeUnits: 2, expiresAtFrame: null }
+      ],
+      auraApplied: [
+        {
+          element: "pyro",
+          gaugeUnits: 1,
+          sourceActorId: "pyro-owner"
+        }
+      ],
+      auraConsumed: [],
+      auraAfter: [
+        { element: "burning", gaugeUnits: 2, expiresAtFrame: null }
+      ],
+      nextTickFrame: 30,
+      icdGroup: "burning",
+      icdTag: "burning-application",
+      icdScope: "global-target",
+      icdWindowStartFrame: 15,
+      icdHitIndex: 0,
+      icdResetFrames: 120,
+      icdApplicationSequence: [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      applicationAllowed: true,
+      applicationBlockedReason: null,
+      selfDamageStatus: "unsupported-player-damage-model",
+      reason: null
+    };
+    expect(burningStateLogEntrySchema.parse(burningLog)).toEqual(burningLog);
+    const damageBlockedBurningTick = {
+      ...burningLog,
+      damageAllowed: false
+    };
+    expect(
+      burningStateLogEntrySchema.parse(damageBlockedBurningTick)
+    ).toEqual(damageBlockedBurningTick);
+    const auraBlockedBurningTick = {
+      ...burningLog,
+      icdWindowStartFrame: null,
+      icdHitIndex: null,
+      applicationAllowed: null,
+      applicationBlockedReason: "TARGET_AURA_BLOCKED"
+    };
+    expect(
+      burningStateLogEntrySchema.parse(auraBlockedBurningTick)
+    ).toEqual(auraBlockedBurningTick);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...auraBlockedBurningTick,
+        icdWindowStartFrame: 15,
+        icdHitIndex: 0
+      })
+    ).toThrow(/Aura-blocked tick cannot consume a Burning ICD slot/);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...auraBlockedBurningTick,
+        applicationBlockedReason: null
+      })
+    ).toThrow(/tick without an ICD decision requires TARGET_AURA_BLOCKED/);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        applicationAllowed: false,
+        applicationBlockedReason: null
+      })
+    ).toThrow(/applicationAllowed=false requires BURNING_APPLICATION_ICD/);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        tickIndex: 0
+      })
+    ).toThrow();
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        icdResetFrames: 119
+      })
+    ).toThrow();
+    const skippedBurningTick = {
+      ...burningLog,
+      operation: "tick-skipped",
+      reactionDamageLogId: null,
+      damageEventIds: [],
+      tickIndex: 9,
+      tickSkipped: true,
+      skipReason: "COUNTER_9_SKIP",
+      damageAllowed: false,
+      icdWindowStartFrame: null,
+      icdHitIndex: null,
+      applicationAllowed: null,
+      applicationBlockedReason: null
+    };
+    expect(
+      burningStateLogEntrySchema.parse(skippedBurningTick)
+    ).toEqual(skippedBurningTick);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...skippedBurningTick,
+        damageEventIds: [2]
+      })
+    ).toThrow(/cannot link damage events/);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        applicationAllowed: true,
+        applicationBlockedReason: "BURNING_APPLICATION_ICD"
+      })
+    ).toThrow(/requires applicationAllowed=false/);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        operation: "start",
+        tickIndex: null,
+        tickSkipped: false,
+        skipReason: null,
+        damageAllowed: null,
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        applicationAllowed: null,
+        applicationBlockedReason: null,
+        triggerElement: null,
+        triggerDamageEventId: null
+      })
+    ).toThrow(/requires its triggering hit and element/);
+    const truncatedBurningStart = {
+      ...burningLog,
+      operation: "start",
+      tickIndex: null,
+      tickSkipped: false,
+      skipReason: null,
+      damageAllowed: null,
+      reactionDamageLogId: null,
+      damageEventIds: [],
+      icdWindowStartFrame: null,
+      icdHitIndex: null,
+      applicationAllowed: null,
+      applicationBlockedReason: null,
+      triggerElement: "dendro",
+      burningGaugeUnitsAfter: 0,
+      fuelGaugeUnitsAfter: 0,
+      fuelExpiresAtFrame: null,
+      nextTickFrame: null,
+      reason: "TARGET_MECHANICS_TRUNCATION"
+    };
+    expect(
+      burningStateLogEntrySchema.parse(truncatedBurningStart)
+    ).toEqual(truncatedBurningStart);
+    expect(() =>
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        operation: "refresh-snapshot",
+        reactionDamageLogId: null,
+        damageEventIds: [],
+        damageAllowed: null,
+        icdWindowStartFrame: null,
+        icdHitIndex: null,
+        applicationAllowed: null,
+        applicationBlockedReason: null
+      })
+    ).toThrow(/cannot claim a tickIndex/);
+  });
+
+  it("gates Dendro Aura and applications behind aura-v3 or aura-v4", () => {
     const current = migrateConfig(legacyConfig);
     const withDendroApplication = {
       ...current,
@@ -1947,7 +2316,9 @@ describe("versioned config schema", () => {
             abilities: []
           }
         })
-      ).toThrow(/dendro aura requires reactionEngine\.mode to be aura-v3/);
+      ).toThrow(
+        /dendro aura requires reactionEngine\.mode to be aura-v3 or aura-v4/
+      );
     }
 
     const parsed = migrateConfig({
@@ -1964,20 +2335,63 @@ describe("versioned config schema", () => {
     expect(parsed.timeline?.abilities[0]?.hits?.[0]?.element).toBe(
       "dendro"
     );
+
+    const burningOptIn = migrateConfig({
+      ...withDendroApplication,
+      reactionEngine: {
+        mode: "aura-v4",
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      },
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "燃烧测试目标",
+            initialAura: [{ element: "dendro", gaugeUnits: 2 }]
+          }
+        ]
+      }
+    });
+    expect(burningOptIn.reactionEngine).toEqual({
+      mode: "aura-v4",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+    expect(burningOptIn.enemy.targets?.[0]?.initialAura).toEqual([
+      { element: "dendro", gaugeUnits: 2 }
+    ]);
+
+    for (const internalAura of ["burning", "burningFuel"]) {
+      expect(() =>
+        migrateConfig({
+          ...withDendroApplication,
+          timeline: {
+            ...withDendroApplication.timeline,
+            abilities: []
+          },
+          reactionEngine: {
+            mode: "aura-v4",
+            initialAura: [{ element: internalAura, gaugeUnits: 1 }]
+          }
+        })
+      ).toThrow(/initialAura\.0\.element/);
+    }
   });
 
-  it("requires a legal frame timeline for aura-v3", () => {
+  it("requires a legal frame timeline for aura-v3 and aura-v4", () => {
     const current = migrateConfig(legacyConfig);
 
-    expect(() =>
-      migrateConfig({
-        ...current,
-        rotation: [],
-        reactionEngine: { mode: "aura-v3" }
-      })
-    ).toThrow(
-      /aura-v1, aura-v2, and aura-v3 currently require timeline\.mode legal-frame-v1/
-    );
+    for (const mode of ["aura-v3", "aura-v4"] as const) {
+      expect(() =>
+        migrateConfig({
+          ...current,
+          rotation: [],
+          reactionEngine: { mode }
+        })
+      ).toThrow(
+        /aura-v1, aura-v2, aura-v3, and aura-v4 currently require timeline\.mode legal-frame-v1/
+      );
+    }
   });
 
   it("applies Aura hit validation to aura-v3", () => {
@@ -2022,7 +2436,9 @@ describe("versioned config schema", () => {
           reaction: "melt"
         })
       )
-    ).toThrow(/manual reaction labels are forbidden in aura-v1, aura-v2, and aura-v3/);
+    ).toThrow(
+      /manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, and aura-v4/
+    );
 
     expect(() =>
       migrateConfig(

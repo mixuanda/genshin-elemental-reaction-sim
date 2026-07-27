@@ -4,6 +4,8 @@ import {
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
   CAPSULE_GEOMETRY_SCHEMA_VERSION,
+  CATALYZE_REACTION_ENGINE_VERSION,
+  CATALYZE_REACTION_SCHEMA_VERSION,
   CIRCLE_GEOMETRY_SCHEMA_VERSION,
   CRYSTALLIZE_REACTION_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
@@ -85,7 +87,7 @@ export const initialAuraApplicationSchema = z
 
 export const auraReactionEngineConfigSchema = z
   .object({
-    mode: z.enum(["aura-v1", "aura-v2", "aura-v3"]),
+    mode: z.enum(["aura-v1", "aura-v2", "aura-v3", "aura-v4"]),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
       .record(
@@ -108,14 +110,20 @@ export const auraReactionEngineConfigSchema = z
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
-          message: "electro aura requires reactionEngine.mode to be aura-v2 or aura-v3"
+          message:
+            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, or aura-v4"
         });
       }
-      if (engine.mode !== "aura-v3" && aura.element === "dendro") {
+      if (
+        engine.mode !== "aura-v3" &&
+        engine.mode !== "aura-v4" &&
+        aura.element === "dendro"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
-          message: "dendro aura requires reactionEngine.mode to be aura-v3"
+          message:
+            "dendro aura requires reactionEngine.mode to be aura-v3 or aura-v4"
         });
       }
       if (elements.has(aura.element)) {
@@ -127,7 +135,7 @@ export const auraReactionEngineConfigSchema = z
       }
       elements.add(aura.element);
     });
-    for (const builtIn of ["default", "no-icd"]) {
+    for (const builtIn of ["default", "no-icd", "burning"]) {
       if (engine.icdProfiles?.[builtIn] !== undefined) {
         context.addIssue({
           code: "custom",
@@ -135,6 +143,549 @@ export const auraReactionEngineConfigSchema = z
           message: `"${builtIn}" is a built-in ICD group and cannot be overridden`
         });
       }
+    }
+  });
+
+export const auraStateElementSchema = z.enum([
+  "pyro",
+  "cryo",
+  "hydro",
+  "electro",
+  "dendro",
+  "quicken",
+  "frozen",
+  "burning",
+  "burningFuel"
+]);
+
+export const auraSourceGaugeSlotSchema = z
+  .object({
+    sourceActorId: idSchema,
+    gaugeUnits: finiteNumber.nonnegative()
+  })
+  .strict();
+
+export const auraSourceGaugeMutationSchema = z
+  .object({
+    sourceActorId: idSchema,
+    gaugeUnitsBefore: finiteNumber.nonnegative(),
+    consumedGaugeUnits: finiteNumber.nonnegative(),
+    gaugeUnitsAfter: finiteNumber.nonnegative()
+  })
+  .strict();
+
+export const auraStateEntrySchema = z
+  .object({
+    element: auraStateElementSchema,
+    gaugeUnits: finiteNumber.nonnegative(),
+    expiresAtFrame: z.number().int().nonnegative().nullable(),
+    sourceSlots: z.array(auraSourceGaugeSlotSchema).optional()
+  })
+  .strict();
+
+export const auraGaugeEntrySchema = z
+  .object({
+    element: z.enum([
+      "pyro",
+      "cryo",
+      "hydro",
+      "electro",
+      "dendro",
+      "quicken",
+      "frozen",
+      "burning",
+      "burningFuel",
+      "anemo",
+      "geo"
+    ]),
+    gaugeUnits: finiteNumber.nonnegative(),
+    sourceActorId: idSchema.optional(),
+    sourceMutations: z.array(auraSourceGaugeMutationSchema).optional()
+  })
+  .strict();
+
+export const burningReactionAuditSchema = z
+  .object({
+    reaction: z.literal("burning"),
+    operation: z.enum([
+      "start",
+      "refresh-fuel",
+      "refresh-snapshot",
+      "stop"
+    ]),
+    reactionTriggered: z.boolean(),
+    generation: z.number().int().nonnegative(),
+    triggerElement: elementSchema,
+    fuelOperation: z.enum([
+      "start",
+      "overwrite",
+      "unchanged",
+      "remove"
+    ]),
+    stopReason: z.literal("BURNING_AURA_CONSUMED").nullable(),
+    scheduled: z.boolean(),
+    blockedReason: z
+      .literal("TARGET_MECHANICS_TRUNCATION")
+      .nullable(),
+    damageSourceActorId: idSchema,
+    fuelSourceActorId: idSchema.nullable(),
+    burningGaugeUnitsBefore: finiteNumber.nonnegative(),
+    candidateBurningGaugeUnits: finiteNumber.nonnegative(),
+    burningGaugeUnitsAfter: finiteNumber.nonnegative(),
+    burningDecayPerFrame: z.literal(0),
+    burningExpiresAtFrame: z.null(),
+    fuelGaugeUnitsBefore: finiteNumber.nonnegative(),
+    candidateFuelGaugeUnits: finiteNumber.nonnegative(),
+    fuelGaugeUnitsAfter: finiteNumber.nonnegative(),
+    fuelDecayPerFrame: finiteNumber.nonnegative(),
+    fuelExpiresAtFrame: z.number().int().nonnegative().nullable(),
+    snapshotFrame: z.number().int().nonnegative(),
+    clockModel: z.literal("target-local-no-hitlag"),
+    hitlagStatus: z.literal("unsupported-enemy-hitlag"),
+    firstTickFrame: z.number().int().nonnegative().nullable(),
+    nextTickFrame: z.number().int().nonnegative().nullable(),
+    tickIntervalFrames: z.literal(15),
+    skippedTickIndex: z.literal(9),
+    damageElement: z.literal("pyro"),
+    baseMultiplier: z.literal(0.25),
+    radius: z.literal(1),
+    applicationGaugeUnits: z.literal(1),
+    selfDamageStatus: z.literal("unsupported-player-damage-model")
+  })
+  .strict()
+  .superRefine((audit, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    const expectedFuelOperation = {
+      start: "start",
+      "refresh-fuel": "overwrite",
+      "refresh-snapshot": "unchanged",
+      stop: "remove"
+    } as const;
+    if (audit.fuelOperation !== expectedFuelOperation[audit.operation]) {
+      issue(
+        "fuelOperation",
+        `${audit.operation} requires fuelOperation=${expectedFuelOperation[audit.operation]}`
+      );
+    }
+    if (audit.operation === "stop") {
+      if (audit.reactionTriggered) {
+        issue(
+          "reactionTriggered",
+          "stop cannot report a newly triggered Burning reaction"
+        );
+      }
+      if (audit.stopReason !== "BURNING_AURA_CONSUMED") {
+        issue(
+          "stopReason",
+          "stop requires stopReason=BURNING_AURA_CONSUMED"
+        );
+      }
+      if (audit.burningGaugeUnitsAfter !== 0) {
+        issue("burningGaugeUnitsAfter", "stop requires a depleted marker");
+      }
+      if (audit.fuelGaugeUnitsAfter !== 0) {
+        issue("fuelGaugeUnitsAfter", "stop requires removed Fuel");
+      }
+      if (audit.fuelExpiresAtFrame !== null) {
+        issue("fuelExpiresAtFrame", "stop cannot retain a Fuel expiry");
+      }
+      if (audit.firstTickFrame !== null || audit.nextTickFrame !== null) {
+        issue("nextTickFrame", "stop cannot retain a Burning tick");
+      }
+      if (audit.scheduled || audit.blockedReason !== null) {
+        issue(
+          "scheduled",
+          "stop is a state removal and cannot schedule a Burning stream"
+        );
+      }
+      return;
+    }
+    if (audit.stopReason !== null) {
+      issue("stopReason", "only stop may declare a stopReason");
+    }
+    if (
+      audit.reactionTriggered !==
+      (audit.operation === "start")
+    ) {
+      issue(
+        "reactionTriggered",
+        `${audit.operation} requires reactionTriggered=${audit.operation === "start"}`
+      );
+    }
+    if (audit.triggerElement !== "pyro" && audit.triggerElement !== "dendro") {
+      issue(
+        "triggerElement",
+        `${audit.operation} requires a Pyro or Dendro trigger`
+      );
+    }
+    if (
+      audit.operation === "refresh-fuel" &&
+      audit.triggerElement !== "dendro"
+    ) {
+      issue("triggerElement", "refresh-fuel requires a Dendro trigger");
+    }
+    if (
+      audit.operation === "refresh-snapshot" &&
+      audit.triggerElement !== "pyro"
+    ) {
+      issue("triggerElement", "refresh-snapshot requires a Pyro trigger");
+    }
+    if (audit.blockedReason === "TARGET_MECHANICS_TRUNCATION") {
+      if (audit.scheduled) {
+        issue("scheduled", "a truncated Burning stream cannot be scheduled");
+      }
+      if (audit.firstTickFrame !== null || audit.nextTickFrame !== null) {
+        issue(
+          "nextTickFrame",
+          "a truncated Burning stream cannot retain a tick"
+        );
+      }
+      if (
+        audit.burningGaugeUnitsAfter !== 0 ||
+        audit.fuelGaugeUnitsAfter !== 0 ||
+        audit.fuelExpiresAtFrame !== null
+      ) {
+        issue(
+          "fuelGaugeUnitsAfter",
+          "a truncated Burning stream cannot retain marker or Fuel state"
+        );
+      }
+    } else if (!audit.scheduled) {
+      issue(
+        "scheduled",
+        `${audit.operation} must schedule or retain the Burning stream`
+      );
+    } else {
+      if (audit.burningGaugeUnitsAfter <= 0) {
+        issue(
+          "burningGaugeUnitsAfter",
+          `${audit.operation} requires an active Burning marker`
+        );
+      }
+      if (audit.fuelGaugeUnitsAfter <= 0) {
+        issue(
+          "fuelGaugeUnitsAfter",
+          `${audit.operation} requires active Burning Fuel`
+        );
+      }
+      if (audit.fuelExpiresAtFrame === null) {
+        issue(
+          "fuelExpiresAtFrame",
+          `${audit.operation} requires a Fuel expiry frame`
+        );
+      }
+      if (audit.nextTickFrame === null) {
+        issue(
+          "nextTickFrame",
+          `${audit.operation} requires a retained Burning tick`
+        );
+      }
+      if (audit.operation === "start") {
+        if (audit.firstTickFrame === null) {
+          issue(
+            "firstTickFrame",
+            "start requires its first Burning tick frame"
+          );
+        } else if (
+          audit.nextTickFrame !== audit.firstTickFrame
+        ) {
+          issue(
+            "nextTickFrame",
+            "start requires nextTickFrame to equal firstTickFrame"
+          );
+        }
+      } else if (audit.firstTickFrame !== null) {
+        issue(
+          "firstTickFrame",
+          `${audit.operation} cannot restart the first-tick cadence`
+        );
+      }
+    }
+  });
+
+const burningIcdApplicationSequenceSchema = z.tuple([
+  z.literal(true),
+  z.literal(false),
+  z.literal(false),
+  z.literal(false),
+  z.literal(false),
+  z.literal(false),
+  z.literal(false),
+  z.literal(false)
+]);
+
+export const burningStateLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: z.literal("burning"),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh-fuel",
+      "refresh-snapshot",
+      "tick",
+      "tick-skipped",
+      "stop",
+      "fuel-expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    clockModel: z.literal("target-local-no-hitlag"),
+    hitlagStatus: z.literal("unsupported-enemy-hitlag"),
+    targetId: idSchema,
+    targetName: idSchema,
+    triggerElement: elementSchema.nullable(),
+    damageSourceActorId: idSchema.nullable(),
+    fuelSourceActorId: idSchema.nullable(),
+    triggerDamageEventId: z.number().int().nonnegative().nullable(),
+    reactionDamageLogId: z.number().int().nonnegative().nullable(),
+    damageEventIds: z.array(z.number().int().nonnegative()),
+    tickIndex: z.number().int().positive().nullable(),
+    tickSkipped: z.boolean(),
+    skipReason: z.literal("COUNTER_9_SKIP").nullable(),
+    damageAllowed: z.boolean().nullable(),
+    burningGaugeUnitsBefore: finiteNumber.nonnegative(),
+    burningGaugeUnitsAfter: finiteNumber.nonnegative(),
+    fuelGaugeUnitsBefore: finiteNumber.nonnegative(),
+    fuelGaugeUnitsAfter: finiteNumber.nonnegative(),
+    fuelDecayPerFrame: finiteNumber.nonnegative(),
+    fuelExpiresAtFrame: z.number().int().nonnegative().nullable(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraApplied: z.array(auraGaugeEntrySchema),
+    auraConsumed: z.array(auraGaugeEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    nextTickFrame: z.number().int().nonnegative().nullable(),
+    icdGroup: z.literal("burning"),
+    icdTag: z.literal("burning-application"),
+    icdScope: z.literal("global-target"),
+    icdWindowStartFrame: z.number().int().nonnegative().nullable(),
+    icdHitIndex: z.number().int().nonnegative().nullable(),
+    icdResetFrames: z.literal(120),
+    icdApplicationSequence: burningIcdApplicationSequenceSchema,
+    applicationAllowed: z.boolean().nullable(),
+    applicationBlockedReason: z
+      .enum([
+        "BURNING_APPLICATION_ICD",
+        "TARGET_AURA_BLOCKED"
+      ])
+      .nullable(),
+    selfDamageStatus: z.literal("unsupported-player-damage-model"),
+    reason: z
+      .enum([
+        "FUEL_EXPIRED",
+        "BURNING_AURA_CONSUMED",
+        "TARGET_MECHANICS_TRUNCATION",
+        "SOURCE_CHANGED"
+      ])
+      .nullable()
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (entry.applicationAllowed === false) {
+      if (entry.applicationBlockedReason !== "BURNING_APPLICATION_ICD") {
+        issue(
+          "applicationBlockedReason",
+          "applicationAllowed=false requires BURNING_APPLICATION_ICD"
+        );
+      }
+    } else if (
+      entry.applicationAllowed === true &&
+      entry.applicationBlockedReason !== null
+    ) {
+      issue(
+        "applicationBlockedReason",
+        "applicationBlockedReason requires applicationAllowed=false"
+      );
+    } else if (
+      entry.applicationAllowed === null &&
+      entry.applicationBlockedReason !== null &&
+      entry.applicationBlockedReason !== "TARGET_AURA_BLOCKED"
+    ) {
+      issue(
+        "applicationBlockedReason",
+        "applicationAllowed=null only permits TARGET_AURA_BLOCKED"
+      );
+    }
+
+    if (entry.operation === "tick") {
+      if (entry.tickIndex === null) {
+        issue("tickIndex", "tick requires a one-based tickIndex");
+      }
+      if (entry.reactionDamageLogId === null) {
+        issue(
+          "reactionDamageLogId",
+          "tick requires a reaction-damage link"
+        );
+      }
+      if (entry.tickSkipped || entry.skipReason !== null) {
+        issue("tickSkipped", "tick cannot be marked skipped");
+      }
+      if (entry.damageAllowed === null) {
+        issue(
+          "damageAllowed",
+          "tick requires a target damage-policy decision"
+        );
+      }
+      if (entry.applicationAllowed === null) {
+        if (
+          entry.applicationBlockedReason !== "TARGET_AURA_BLOCKED"
+        ) {
+          issue(
+            "applicationAllowed",
+            "tick without an ICD decision requires TARGET_AURA_BLOCKED"
+          );
+        }
+        if (
+          entry.icdWindowStartFrame !== null ||
+          entry.icdHitIndex !== null
+        ) {
+          issue(
+            "icdWindowStartFrame",
+            "Aura-blocked tick cannot consume a Burning ICD slot"
+          );
+        }
+      } else if (
+        entry.icdWindowStartFrame === null ||
+        entry.icdHitIndex === null
+      ) {
+        issue(
+          "icdWindowStartFrame",
+          "tick requires its Burning application ICD window and hit index"
+        );
+      }
+    } else if (entry.operation === "tick-skipped") {
+      if (entry.tickIndex !== 9) {
+        issue(
+          "tickIndex",
+          "tick-skipped is reserved for one-based tickIndex 9"
+        );
+      }
+      if (!entry.tickSkipped || entry.skipReason !== "COUNTER_9_SKIP") {
+        issue(
+          "skipReason",
+          "tick-skipped requires COUNTER_9_SKIP"
+        );
+      }
+      if (entry.reactionDamageLogId !== null) {
+        issue(
+          "reactionDamageLogId",
+          "tick-skipped cannot queue reaction damage"
+        );
+      }
+      if (entry.damageEventIds.length !== 0) {
+        issue("damageEventIds", "tick-skipped cannot link damage events");
+      }
+      if (entry.damageAllowed !== false) {
+        issue("damageAllowed", "tick-skipped requires damageAllowed=false");
+      }
+      if (
+        entry.applicationAllowed !== null ||
+        entry.applicationBlockedReason !== null ||
+        entry.icdWindowStartFrame !== null ||
+        entry.icdHitIndex !== null
+      ) {
+        issue(
+          "applicationAllowed",
+          "tick-skipped cannot claim an application ICD decision"
+        );
+      }
+    } else {
+      if (entry.tickIndex !== null) {
+        issue("tickIndex", `${entry.operation} cannot claim a tickIndex`);
+      }
+      if (entry.tickSkipped || entry.skipReason !== null) {
+        issue("tickSkipped", `${entry.operation} cannot be marked skipped`);
+      }
+      if (entry.reactionDamageLogId !== null) {
+        issue(
+          "reactionDamageLogId",
+          `${entry.operation} cannot claim a reaction-damage link`
+        );
+      }
+      if (entry.damageEventIds.length !== 0) {
+        issue(
+          "damageEventIds",
+          `${entry.operation} cannot claim damage-event links`
+        );
+      }
+      if (entry.damageAllowed !== null) {
+        issue(
+          "damageAllowed",
+          `${entry.operation} cannot claim a tick damage decision`
+        );
+      }
+      if (
+        entry.applicationAllowed !== null ||
+        entry.applicationBlockedReason !== null ||
+        entry.icdWindowStartFrame !== null ||
+        entry.icdHitIndex !== null
+      ) {
+        issue(
+          "applicationAllowed",
+          `${entry.operation} cannot claim an application ICD decision`
+        );
+      }
+    }
+
+    if (
+      entry.operation === "start" ||
+      entry.operation === "refresh-fuel" ||
+      entry.operation === "refresh-snapshot"
+    ) {
+      if (
+        entry.triggerElement === null ||
+        entry.triggerDamageEventId === null
+      ) {
+        issue(
+          "triggerDamageEventId",
+          `${entry.operation} requires its triggering hit and element`
+        );
+      }
+      if (
+        entry.reason !== null &&
+        entry.reason !== "TARGET_MECHANICS_TRUNCATION"
+      ) {
+        issue(
+          "reason",
+          `${entry.operation} may only report target mechanics truncation`
+        );
+      }
+      if (entry.reason === "TARGET_MECHANICS_TRUNCATION") {
+        if (
+          entry.nextTickFrame !== null ||
+          entry.burningGaugeUnitsAfter !== 0 ||
+          entry.fuelGaugeUnitsAfter !== 0 ||
+          entry.fuelExpiresAtFrame !== null
+        ) {
+          issue(
+            "nextTickFrame",
+            "a truncated Burning start/refresh cannot establish a stream"
+          );
+        }
+      }
+    } else if (entry.operation === "fuel-expire") {
+      if (entry.reason !== "FUEL_EXPIRED") {
+        issue("reason", "fuel-expire requires FUEL_EXPIRED");
+      }
+    } else if (entry.operation === "stop") {
+      if (
+        entry.reason === null ||
+        entry.reason === "FUEL_EXPIRED"
+      ) {
+        issue(
+          "reason",
+          "stop requires a non-expiry Burning stop reason"
+        );
+      }
+    } else if (entry.reason !== null) {
+      issue("reason", `${entry.operation} cannot declare a stop reason`);
     }
   });
 
@@ -1141,20 +1692,22 @@ export const simConfigSchema = z
         target.initialAura !== undefined &&
         config.reactionEngine?.mode !== "aura-v1" &&
         config.reactionEngine?.mode !== "aura-v2" &&
-        config.reactionEngine?.mode !== "aura-v3"
+        config.reactionEngine?.mode !== "aura-v3" &&
+        config.reactionEngine?.mode !== "aura-v4"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
           message:
-            "requires reactionEngine.mode to be aura-v1, aura-v2, or aura-v3"
+            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, or aura-v4"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
         if (
           aura.element === "electro" &&
           config.reactionEngine?.mode !== "aura-v2" &&
-          config.reactionEngine?.mode !== "aura-v3"
+          config.reactionEngine?.mode !== "aura-v3" &&
+          config.reactionEngine?.mode !== "aura-v4"
         ) {
           context.addIssue({
             code: "custom",
@@ -1167,12 +1720,13 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2 or aura-v3"
+              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, or aura-v4"
           });
         }
         if (
           aura.element === "dendro" &&
-          config.reactionEngine?.mode !== "aura-v3"
+          config.reactionEngine?.mode !== "aura-v3" &&
+          config.reactionEngine?.mode !== "aura-v4"
         ) {
           context.addIssue({
             code: "custom",
@@ -1185,7 +1739,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "dendro aura requires reactionEngine.mode to be aura-v3"
+              "dendro aura requires reactionEngine.mode to be aura-v3 or aura-v4"
           });
         }
       });
@@ -1598,14 +2152,15 @@ export const simConfigSchema = z
     if (
       config.reactionEngine?.mode === "aura-v1" ||
       config.reactionEngine?.mode === "aura-v2" ||
-      config.reactionEngine?.mode === "aura-v3"
+      config.reactionEngine?.mode === "aura-v3" ||
+      config.reactionEngine?.mode === "aura-v4"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1, aura-v2, and aura-v3 currently require timeline.mode legal-frame-v1"
+            "aura-v1, aura-v2, aura-v3, and aura-v4 currently require timeline.mode legal-frame-v1"
         });
       }
       const validateAuraHit = (
@@ -1624,7 +2179,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1, aura-v2, and aura-v3; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, and aura-v4; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -1651,7 +2206,8 @@ export const simConfigSchema = z
                   "anemo",
                   "geo"
                 ]
-              : config.reactionEngine?.mode === "aura-v3"
+              : config.reactionEngine?.mode === "aura-v3" ||
+                  config.reactionEngine?.mode === "aura-v4"
                 ? [
                     "pyro",
                     "cryo",
@@ -1668,8 +2224,9 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "application"],
             message:
-              config.reactionEngine?.mode === "aura-v3"
-                ? "aura-v3 elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits"
+              config.reactionEngine?.mode === "aura-v3" ||
+              config.reactionEngine?.mode === "aura-v4"
+                ? `${config.reactionEngine.mode} elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits`
                 : config.reactionEngine?.mode === "aura-v2"
                   ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
                 : "aura-v1 elemental applications currently support only pyro, cryo, and hydro hits"
@@ -1677,7 +2234,9 @@ export const simConfigSchema = z
         }
         if (
           hit.application !== undefined &&
-          !["default", "no-icd"].includes(hit.application.icdGroup) &&
+          !["default", "no-icd", "burning"].includes(
+            hit.application.icdGroup
+          ) &&
           config.reactionEngine?.icdProfiles?.[
             hit.application.icdGroup
           ] === undefined
@@ -1832,6 +2391,31 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
+  }
+  if (version === CATALYZE_REACTION_SCHEMA_VERSION) {
+    if (input.engineVersion !== CATALYZE_REACTION_ENGINE_VERSION) {
+      const issue = `engineVersion: schemaVersion "${CATALYZE_REACTION_SCHEMA_VERSION}" requires "${CATALYZE_REACTION_ENGINE_VERSION}"`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    if (
+      isRecord(input.reactionEngine) &&
+      input.reactionEngine.mode === "aura-v4"
+    ) {
+      const issue =
+        'reactionEngine.mode: schemaVersion "1.29.0" does not support "aura-v4"';
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === CRYSTALLIZE_REACTION_SCHEMA_VERSION) {
     return parseSimConfig({

@@ -34,6 +34,8 @@ const ELEMENT_LABELS: Record<string, string> = {
   dendro: "草",
   quicken: "激元素",
   frozen: "冻元素",
+  burning: "燃烧标记",
+  burningFuel: "燃烧 Fuel",
   physical: "物理",
   neutral: "无色"
 };
@@ -48,6 +50,8 @@ const ELEMENT_COLORS: Record<string, string> = {
   dendro: "#9edc72",
   quicken: "#d4f06f",
   frozen: "#d6f1ff",
+  burning: "#ff7043",
+  burningFuel: "#c6dd57",
   physical: "#b9c0cb",
   neutral: "#d6d9df"
 };
@@ -74,7 +78,9 @@ const REACTION_LABELS: Record<string, string> = {
   quicken: "原激化",
   aggravate: "超激化",
   spread: "蔓激化",
-  burning: "燃烧（未实现）",
+  burning: "燃烧",
+  "non-pyro-multi-reaction-order":
+    "非火多反应顺序未实现",
   bloom: "绽放（未实现）"
 };
 
@@ -394,10 +400,10 @@ function renderMetrics(): void {
       formatNumber(result.totalDamage, 0)
     ],
     [
-      "机制完整性",
-      result.mechanicsStatus === "complete" ? "完整" : "部分有效",
+      "已实现分支状态",
+      result.mechanicsStatus === "complete" ? "未截断" : "部分有效",
       result.mechanicsStatus === "complete"
-        ? "未跨过已知未实现机制"
+        ? "未跨过已知未实现机制；不代表完整游戏机制"
         : `${result.targetMechanicsTruncationLog.length} 个目标截断 · ${truncatedDamageEvents} 段后续伤害未计入总伤`
     ],
     [
@@ -406,7 +412,8 @@ function renderMetrics(): void {
       `${result.reactedHits} 次反应触发 · ${
         result.config.reactionEngine?.mode === "aura-v1" ||
         result.config.reactionEngine?.mode === "aura-v2" ||
-        result.config.reactionEngine?.mode === "aura-v3"
+        result.config.reactionEngine?.mode === "aura-v3" ||
+        result.config.reactionEngine?.mode === "aura-v4"
           ? `${result.config.reactionEngine.mode} 自动判定`
           : result.compatibilityMode === "legacy-v0.1"
             ? "兼容手工标签"
@@ -1067,9 +1074,103 @@ function renderHitDetail(): void {
       }
     }
   }
+  if (hit.reactionAudit.burningReaction !== null) {
+    const burning = hit.reactionAudit.burningReaction;
+    const damageOwner =
+      lastResult.config.characters.find(
+        (character) => character.id === burning.damageSourceActorId
+      )?.name ?? burning.damageSourceActorId;
+    const fuelOwner =
+      burning.fuelSourceActorId === null
+        ? "—"
+        : lastResult.config.characters.find(
+            (character) => character.id === burning.fuelSourceActorId
+          )?.name ?? burning.fuelSourceActorId;
+    const operationLabel = {
+      start: "启动燃烧",
+      "refresh-fuel": "覆盖 Fuel 并刷新伤害快照",
+      "refresh-snapshot": "仅刷新伤害快照",
+      stop: "停止燃烧"
+    }[burning.operation];
+    factors.push(
+      [
+        "燃烧判定",
+        `${operationLabel} · gen ${burning.generation} · ${ELEMENT_LABELS[burning.triggerElement] ?? burning.triggerElement}触发 · ${burning.reactionTriggered ? "本段新触发反应" : burning.stopReason === null ? "沿用既有燃烧" : `停止原因 ${burning.stopReason}`}${burning.scheduled ? "" : burning.blockedReason === null ? "" : ` · ${burning.blockedReason}`}`
+      ],
+      [
+        "燃烧伤害 / Fuel 归属",
+        `${damageOwner} (${burning.damageSourceActorId}) / ${fuelOwner}${burning.fuelSourceActorId === null ? "" : ` (${burning.fuelSourceActorId})`}`
+      ],
+      [
+        "燃烧标记（前 / 候选 / 后）",
+        `${formatNumber(burning.burningGaugeUnitsBefore, 6)}U / ${formatNumber(burning.candidateBurningGaugeUnits, 6)}U / ${formatNumber(burning.burningGaugeUnitsAfter, 6)}U · 不自然衰减`
+      ],
+      [
+        "燃烧 Fuel（前 / 候选 / 后）",
+        `${formatNumber(burning.fuelGaugeUnitsBefore, 6)}U / ${formatNumber(burning.candidateFuelGaugeUnits, 6)}U / ${formatNumber(burning.fuelGaugeUnitsAfter, 6)}U · ${burning.fuelOperation}`
+      ],
+      [
+        "Fuel 衰减 / 到期",
+        `${formatNumber(burning.fuelDecayPerFrame, 8)}U/f · ${burning.fuelExpiresAtFrame === null ? "—" : `${burning.fuelExpiresAtFrame}f`}`
+      ],
+      [
+        "燃烧 Tick 调度",
+        `首次 ${burning.firstTickFrame === null ? "—" : `${burning.firstTickFrame}f`} · 下次 ${burning.nextTickFrame === null ? "—" : `${burning.nextTickFrame}f`} · 每 ${burning.tickIntervalFrames}f · 第 ${burning.skippedTickIndex} Tick 跳过`
+      ],
+      [
+        "燃烧伤害 / 附着常量",
+        `${ELEMENT_LABELS[burning.damageElement]}伤 · 等级基准 × ${burning.baseMultiplier.toFixed(2)} · 半径 ${burning.radius} · ${formatNumber(burning.applicationGaugeUnits, 2)}U`
+      ],
+      [
+        "燃烧时钟边界",
+        `${burning.clockModel}；${burning.hitlagStatus}：目标局部时钟，但尚未实现敌方 Hitlag 暂停，不代表完整 gcsim 时序`
+      ],
+      [
+        "燃烧玩家自伤",
+        "未模拟（玩家受击模型缺失）"
+      ]
+    );
+  }
+  const burningTickState = lastResult.burningStateLog.find(
+    (entry) =>
+      entry.operation === "tick" &&
+      entry.damageEventIds.includes(hit.id)
+  );
+  if (burningTickState !== undefined) {
+    const burningTickQueue = lastResult.reactionDamageLog.find(
+      (entry) =>
+        entry.id === burningTickState.reactionDamageLogId
+    );
+    factors.push(
+      [
+        "燃烧 Tick 状态",
+        `gen ${burningTickState.generation} · tick ${burningTickState.tickIndex ?? "—"} · 伤害${burningTickState.damageAllowed === false ? "被阻止" : "允许"}`
+      ],
+      [
+        "燃烧专用附着 ICD",
+        `${burningTickState.icdTag} / ${burningTickState.icdGroup} · 目标全局 · ${burningTickState.icdResetFrames}f · 第 ${burningTickState.icdHitIndex === null ? "—" : burningTickState.icdHitIndex + 1} 段 · ${burningTickState.applicationAllowed === null ? "未判定" : burningTickState.applicationAllowed ? "允许 1U 火附着" : `附着被 ${burningTickState.applicationBlockedReason ?? "ICD"} 阻止（伤害仍可结算）`}`
+      ],
+      [
+        "Tick Fuel / 标记",
+        `Fuel ${formatNumber(burningTickState.fuelGaugeUnitsBefore, 6)}U → ${formatNumber(burningTickState.fuelGaugeUnitsAfter, 6)}U · 标记 ${formatNumber(burningTickState.burningGaugeUnitsBefore, 6)}U → ${formatNumber(burningTickState.burningGaugeUnitsAfter, 6)}U`
+      ],
+      [
+        "燃烧 Tick 伤害 / 附着",
+        `等级基准 × ${transformative?.baseMultiplier.toFixed(2) ?? "—"} · ${ELEMENT_LABELS[hit.element] ?? hit.element}伤 · 半径 ${burningTickQueue === undefined ? "—" : formatNumber(burningTickQueue.radius, 2)} · ${burningTickQueue?.applicationGaugeUnits === null || burningTickQueue?.applicationGaugeUnits === undefined ? "无附着" : `${formatNumber(burningTickQueue.applicationGaugeUnits, 2)}U`}`
+      ],
+      [
+        "燃烧时钟边界",
+        "目标局部时钟；尚未实现敌方 Hitlag 暂停，不代表完整 gcsim 时序"
+      ],
+      [
+        "燃烧玩家自伤",
+        "未模拟（玩家受击模型缺失）"
+      ]
+    );
+  }
   if (hit.reactionAudit.unsupportedReactions.length > 0) {
     factors.push([
-      "未执行的草反应",
+      "未执行的机制分支",
       hit.reactionAudit.unsupportedReactions
         .map((reaction) => REACTION_LABELS[reaction] ?? reaction)
         .join("、")
@@ -1382,7 +1483,8 @@ function renderDamageCurve(): void {
   const plottedValues = points.flatMap((point) => [
     point.cumulativeDamage,
     ...Object.values(point.cumulativeByCharacter),
-    ...Object.values(point.cumulativeByComponent)
+    ...Object.values(point.cumulativeByComponent),
+    ...Object.values(point.cumulativeByReaction ?? {})
   ]);
   const minimum = Math.min(0, ...plottedValues);
   const maximum = Math.max(1, ...plottedValues);
@@ -1473,6 +1575,28 @@ function renderDamageCurve(): void {
       series.dash
     );
   });
+  const reactionSeries = [
+    {
+      key: "burning" as const,
+      label: "燃烧累计",
+      color: ELEMENT_COLORS.burning ?? "#ff7043",
+      dash: [4, 3]
+    }
+  ].filter((series) =>
+    points.some(
+      (point) =>
+        Math.abs(point.cumulativeByReaction?.[series.key] ?? 0) >
+        1e-9
+    )
+  );
+  reactionSeries.forEach((series) => {
+    drawCurve(
+      series.color,
+      (point) => point.cumulativeByReaction?.[series.key] ?? 0,
+      2,
+      series.dash
+    );
+  });
   characters.forEach((character) => {
     drawCurve(
       character.color,
@@ -1510,6 +1634,12 @@ function renderDamageCurve(): void {
   byId<HTMLElement>("curveLegend").innerHTML =
     `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>全队累计</span>` +
     componentSeries
+      .map(
+        (series) =>
+          `<span class="legend-item"><span class="dot" style="background:${series.color}"></span>${series.label}</span>`
+      )
+      .join("") +
+    reactionSeries
       .map(
         (series) =>
           `<span class="legend-item"><span class="dot" style="background:${series.color}"></span>${series.label}</span>`
@@ -2147,6 +2277,11 @@ function renderAuraTimeline(): void {
   const periodicReactionLog = lastResult.periodicReactionLog;
   const frozenStateLog = lastResult.frozenStateLog;
   const quickenStateLog = lastResult.quickenStateLog;
+  const burningStateLog = lastResult.burningStateLog;
+  const auraBoundaryStates = [
+    ...lastResult.auraInitialStates,
+    ...lastResult.auraEndStates
+  ].filter((state) => state.aura.length > 0);
   const crystallizeShardLog = lastResult.crystallizeShardLog;
   const crystallizeShieldLog = lastResult.crystallizeShieldLog;
   card.hidden =
@@ -2155,6 +2290,8 @@ function renderAuraTimeline(): void {
     periodicReactionLog.length === 0 &&
     frozenStateLog.length === 0 &&
     quickenStateLog.length === 0 &&
+    burningStateLog.length === 0 &&
+    auraBoundaryStates.length === 0 &&
     crystallizeShardLog.length === 0 &&
     crystallizeShieldLog.length === 0;
   renderCrystallizeAudit();
@@ -2174,14 +2311,17 @@ function renderAuraTimeline(): void {
             ? `<span class="badge warn">模拟结束后</span>`
             : entry.scheduleKind === "periodic-tick"
               ? `<span class="badge good">周期 Tick</span>`
+              : entry.scheduleKind === "burning-tick"
+                ? `<span class="badge good">燃烧 Tick</span>`
               : entry.scheduleKind === "swirl-self"
                 ? `<span class="badge good">扩散自身伤害</span>`
                 : entry.scheduleKind === "swirl-propagation"
                   ? `<span class="badge good">扩散范围传播</span>`
                   : `<span class="badge good">已结算</span>`;
         const scheduleDetail =
-          entry.scheduleKind === "periodic-tick"
-            ? `${status} <span class="muted">/ ${entry.nextAvailableFrame === null ? "无后续 Tick" : `下次 ${entry.nextAvailableFrame}f`}</span>`
+          entry.scheduleKind === "periodic-tick" ||
+          entry.scheduleKind === "burning-tick"
+            ? `${status} <span class="muted">/ ${entry.nextAvailableFrame === null ? "无后续 Tick" : `下次 ${entry.nextAvailableFrame}f`}${entry.scheduleKind === "burning-tick" ? " / 目标局部时钟，未实现敌方 Hitlag 暂停" : ""}</span>`
             : `${status}${entry.blockedReason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.blockedReason)} · ${entry.nextAvailableFrame}f 可用</span>`}`;
         const targetMode =
           entry.targetingMode === "single-target"
@@ -2324,6 +2464,91 @@ function renderAuraTimeline(): void {
       })
       .join("") ||
     `<tr><td colspan="8">没有激元素状态。</td></tr>`;
+  const burningOperationLabels: Record<string, string> = {
+    start: "启动",
+    "refresh-fuel": "覆盖 Fuel / 刷新快照",
+    "refresh-snapshot": "刷新伤害快照",
+    tick: "Tick",
+    "tick-skipped": "第 9 Tick 跳过",
+    stop: "停止",
+    "fuel-expire": "Fuel 到期"
+  };
+  byId<HTMLElement>("burningStateSummary").textContent =
+    burningStateLog.length === 0
+      ? "当前结果没有燃烧状态"
+      : `${burningStateLog.length} 条燃烧状态记录 · ${burningStateLog.filter((entry) => entry.operation === "start").length} 次启动 · ${burningStateLog.filter((entry) => entry.operation === "refresh-fuel" || entry.operation === "refresh-snapshot").length} 次刷新 · ${burningStateLog.filter((entry) => entry.operation === "tick").length} 次伤害 Tick · ${burningStateLog.filter((entry) => entry.operation === "tick-skipped").length} 次第 9 Tick 跳过 · 目标局部时钟（未实现敌方 Hitlag 暂停） · 玩家自伤未模拟（玩家受击模型缺失）`;
+  byId<HTMLTableSectionElement>("burningStateBody").innerHTML =
+    burningStateLog
+      .map((entry) => {
+        const linkedHitId =
+          entry.damageEventIds[0] ?? entry.triggerDamageEventId;
+        const link =
+          linkedHitId === null || linkedHitId === undefined
+            ? ""
+            : ` data-burning-hit-id="${linkedHitId}"`;
+        const damageOwner =
+          entry.damageSourceActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) =>
+                  character.id === entry.damageSourceActorId
+              )?.name ?? entry.damageSourceActorId;
+        const fuelOwner =
+          entry.fuelSourceActorId === null
+            ? "—"
+            : lastResult?.config.characters.find(
+                (character) =>
+                  character.id === entry.fuelSourceActorId
+              )?.name ?? entry.fuelSourceActorId;
+        const trigger =
+          entry.triggerElement === null
+            ? "—"
+            : ELEMENT_LABELS[entry.triggerElement] ??
+              entry.triggerElement;
+        const tick =
+          entry.tickIndex === null
+            ? `下次 ${entry.nextTickFrame === null ? "—" : `${entry.nextTickFrame}f`}`
+            : `tick ${entry.tickIndex}${entry.tickSkipped ? "（跳过）" : ""} · 下次 ${entry.nextTickFrame === null ? "—" : `${entry.nextTickFrame}f`}`;
+        const application =
+          entry.applicationBlockedReason === "TARGET_AURA_BLOCKED"
+            ? "目标阶段阻止 Aura 附着（未消耗 ICD）"
+            : entry.applicationAllowed === null
+            ? "附着未判定"
+            : entry.applicationAllowed
+              ? "允许 1U 火附着"
+              : `附着阻止：${entry.applicationBlockedReason ?? "BURNING_APPLICATION_ICD"}`;
+        const damage =
+          entry.damageAllowed === null
+            ? "伤害未判定"
+            : entry.damageAllowed
+              ? "伤害允许"
+              : "伤害阻止";
+        const links = [
+          entry.triggerDamageEventId === null
+            ? null
+            : `触发 #${entry.triggerDamageEventId}`,
+          entry.reactionDamageLogId === null
+            ? null
+            : `队列日志 #${entry.reactionDamageLogId}`,
+          ...entry.damageEventIds.map((id) => `伤害 #${id}`)
+        ]
+          .filter((value): value is string => value !== null)
+          .join(" / ");
+        return (
+          `<tr${link}>` +
+          `<td>${entry.timeSeconds.toFixed(3)}s / ${entry.frame}f <span class="muted">/ p${entry.eventPriority} · seq${entry.eventSequence}</span></td>` +
+          `<td>${escapeHtml(burningOperationLabels[entry.operation] ?? entry.operation)}</td>` +
+          `<td>${escapeHtml(entry.targetName)} <span class="muted">/ ${escapeHtml(entry.targetId)} · gen ${entry.generation}</span></td>` +
+          `<td>${escapeHtml(damageOwner)} <span class="muted">/ Fuel ${escapeHtml(fuelOwner)}</span></td>` +
+          `<td>${escapeHtml(trigger)}</td>` +
+          `<td>${formatNumber(entry.burningGaugeUnitsBefore, 6)}U → ${formatNumber(entry.burningGaugeUnitsAfter, 6)}U</td>` +
+          `<td>${formatNumber(entry.fuelGaugeUnitsBefore, 6)}U → ${formatNumber(entry.fuelGaugeUnitsAfter, 6)}U <span class="muted">/ ${formatNumber(entry.fuelDecayPerFrame, 8)}U/f / ${entry.fuelExpiresAtFrame === null ? "—" : `${entry.fuelExpiresAtFrame}f`}</span></td>` +
+          `<td>${escapeHtml(tick)} <span class="muted">/ ${entry.icdTag} · ${entry.icdResetFrames}f · ${entry.icdHitIndex === null ? "—" : `hit ${entry.icdHitIndex + 1}`} · ${escapeHtml(application)} · ${escapeHtml(damage)}</span></td>` +
+          `<td>${links === "" ? "—" : escapeHtml(links)}${entry.reason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.reason)}</span>`}<br><span class="muted">${escapeHtml(entry.selfDamageStatus)}：玩家自伤未模拟（玩家受击模型缺失）；${escapeHtml(entry.clockModel)} / ${escapeHtml(entry.hitlagStatus)}：目标局部时钟未含敌方 Hitlag 暂停</span></td></tr>`
+        );
+      })
+      .join("") ||
+    `<tr><td colspan="9">没有燃烧状态。</td></tr>`;
   const reactionStatusLog = lastResult.reactionStatusLog;
   byId<HTMLElement>("reactionStatusSummary").textContent =
     reactionStatusLog.length === 0
@@ -2401,6 +2626,20 @@ function renderAuraTimeline(): void {
     });
   document
     .querySelectorAll<HTMLTableRowElement>(
+      "#burningStateBody tr[data-burning-hit-id]"
+    )
+    .forEach((row) => {
+      row.addEventListener("click", () => {
+        selectedHitId = Number(row.dataset.burningHitId);
+        timelineSecondFilter = null;
+        currentPage = 1;
+        activateTab("hits");
+        renderHitTable();
+        renderHitDetail();
+      });
+    });
+  document
+    .querySelectorAll<HTMLTableRowElement>(
       "#reactionStatusBody tr[data-reaction-status-damage-id]"
     )
     .forEach((row) => {
@@ -2419,7 +2658,9 @@ function renderAuraTimeline(): void {
     allTimeline.length === 0 &&
     periodicReactionLog.length === 0 &&
     frozenStateLog.length === 0 &&
-    quickenStateLog.length === 0
+    quickenStateLog.length === 0 &&
+    burningStateLog.length === 0 &&
+    auraBoundaryStates.length === 0
   ) {
     return;
   }
@@ -2430,7 +2671,9 @@ function renderAuraTimeline(): void {
       ...allTimeline.map((point) => point.targetId),
       ...periodicReactionLog.map((point) => point.targetId),
       ...frozenStateLog.map((point) => point.targetId),
-      ...quickenStateLog.map((point) => point.targetId)
+      ...quickenStateLog.map((point) => point.targetId),
+      ...burningStateLog.map((point) => point.targetId),
+      ...auraBoundaryStates.map((state) => state.targetId)
     ]
   );
   const availableTargets = lastResult.enemyTargets.filter((target) =>
@@ -2452,9 +2695,28 @@ function renderAuraTimeline(): void {
   const selectedTarget = availableTargets.find(
     (target) => target.id === selectedTargetId
   );
+  const selectedAuraInitialState = lastResult.auraInitialStates.find(
+    (state) => state.targetId === selectedTargetId
+  );
+  const selectedAuraEndState = lastResult.auraEndStates.find(
+    (state) => state.targetId === selectedTargetId
+  );
+  const durationFrames = Math.round(lastResult.config.duration * 60);
   const timeline = allTimeline.filter(
     (point) => point.targetId === selectedTargetId
   );
+  const boundaryCurvePoints = [
+    {
+      frame: 0,
+      auraBefore: selectedAuraInitialState?.aura ?? [],
+      auraAfter: selectedAuraInitialState?.aura ?? [],
+      reaction: "none" as const,
+      damageEventId: null,
+      eventPriority: -1,
+      eventSequence: -1,
+      order: -10
+    }
+  ];
   const periodicCurvePoints = periodicReactionLog
     .filter(
       (point) =>
@@ -2470,6 +2732,8 @@ function renderAuraTimeline(): void {
       reaction: point.reaction,
       damageEventId:
         point.damageEventId ?? point.triggerDamageEventId,
+      eventPriority: point.operation === "stop" ? 3 : 6,
+      eventSequence: point.id,
       order: 1
     }));
   const frozenCurvePoints = frozenStateLog
@@ -2486,6 +2750,8 @@ function renderAuraTimeline(): void {
       auraAfter: point.auraAfter,
       reaction: point.reaction,
       damageEventId: point.triggerDamageEventId,
+      eventPriority: point.operation === "expire" ? 2 : 3,
+      eventSequence: point.id,
       order: -1
     }));
   const quickenCurvePoints = quickenStateLog
@@ -2500,23 +2766,45 @@ function renderAuraTimeline(): void {
       auraAfter: point.auraAfter,
       reaction: "none" as const,
       damageEventId: point.triggerDamageEventId,
+      eventPriority: 2,
+      eventSequence: point.id,
       order: -2
     }));
+  const burningCurvePoints = burningStateLog
+    .filter((point) => point.targetId === selectedTargetId)
+    .map((point) => ({
+      frame: point.frame,
+      auraBefore: point.auraBefore,
+      auraAfter: point.auraAfter,
+      reaction: point.reaction,
+      damageEventId:
+        point.damageEventIds[0] ?? point.triggerDamageEventId,
+      eventPriority: point.eventPriority,
+      eventSequence: point.eventSequence,
+      order: 2
+    }));
   const curveTimeline = [
+    ...boundaryCurvePoints,
     ...timeline.map((point) => ({
       frame: point.frame,
       auraBefore: point.auraBefore,
       auraAfter: point.auraAfter,
       reaction: point.reaction,
       damageEventId: point.damageEventId as number | null,
+      eventPriority: point.eventPriority,
+      eventSequence: point.eventSequence,
       order: 0
     })),
     ...periodicCurvePoints,
     ...frozenCurvePoints,
-    ...quickenCurvePoints
+    ...quickenCurvePoints,
+    ...burningCurvePoints
   ].sort(
     (left, right) =>
-      left.frame - right.frame || left.order - right.order
+      left.frame - right.frame ||
+      left.eventPriority - right.eventPriority ||
+      left.eventSequence - right.eventSequence ||
+      left.order - right.order
   );
   if (!curveTimeline.length) return;
 
@@ -2527,7 +2815,9 @@ function renderAuraTimeline(): void {
     "electro",
     "dendro",
     "quicken",
-    "frozen"
+    "frozen",
+    "burning",
+    "burningFuel"
   ] as const;
   const canvas = byId<HTMLCanvasElement>("auraTimelineCanvas");
   const context = canvas.getContext("2d");
@@ -2543,13 +2833,15 @@ function renderAuraTimeline(): void {
   const padding = { left: 58, right: 18, top: 18, bottom: 42 };
   const width = cssWidth - padding.left - padding.right;
   const height = cssHeight - padding.top - padding.bottom;
-  const durationFrames = Math.round(lastResult.config.duration * 60);
   const maximum = Math.max(
     1,
     ...curveTimeline.flatMap((point) => [
       ...point.auraBefore.map((aura) => aura.gaugeUnits),
       ...point.auraAfter.map((aura) => aura.gaugeUnits)
-    ])
+    ]),
+    ...(selectedAuraEndState?.aura.map(
+      (aura) => aura.gaugeUnits
+    ) ?? [])
   );
   const xAt = (frame: number) =>
     padding.left + (frame / Math.max(1, durationFrames)) * width;
@@ -2591,22 +2883,61 @@ function renderAuraTimeline(): void {
   elements.forEach((element) => {
     context.beginPath();
     context.moveTo(padding.left, yAt(0));
+    let previousAura: AuraStateEntry | undefined;
+    let previousFrame = 0;
     curveTimeline.forEach((point) => {
       const x = xAt(point.frame);
-      context.lineTo(x, yAt(valueFor(point.auraBefore, element)));
-      context.lineTo(x, yAt(valueFor(point.auraAfter, element)));
+      const auraBefore = point.auraBefore.find(
+        (aura) => aura.element === element
+      );
+      if (
+        previousAura !== undefined &&
+        auraBefore === undefined &&
+        previousAura.expiresAtFrame !== null &&
+        previousAura.expiresAtFrame > previousFrame &&
+        previousAura.expiresAtFrame < point.frame
+      ) {
+        context.lineTo(
+          xAt(previousAura.expiresAtFrame),
+          yAt(0)
+        );
+      }
+      context.lineTo(
+        x,
+        yAt(auraBefore?.gaugeUnits ?? 0)
+      );
+      const auraAfter = point.auraAfter.find(
+        (aura) => aura.element === element
+      );
+      context.lineTo(
+        x,
+        yAt(auraAfter?.gaugeUnits ?? 0)
+      );
+      previousAura = auraAfter;
+      previousFrame = point.frame;
     });
-    const finalPoint = curveTimeline[curveTimeline.length - 1];
-    const finalAura = finalPoint?.auraAfter.find(
+    const finalAura = selectedAuraEndState?.aura.find(
       (aura) => aura.element === element
     );
-    if (finalAura?.expiresAtFrame !== null && finalAura !== undefined) {
+    if (finalAura !== undefined) {
       context.lineTo(
-        xAt(Math.min(durationFrames, finalAura.expiresAtFrame)),
-        yAt(0)
+        xAt(durationFrames),
+        yAt(finalAura.gaugeUnits)
       );
+    } else {
+      if (
+        previousAura?.expiresAtFrame !== null &&
+        previousAura !== undefined &&
+        previousAura.expiresAtFrame > previousFrame &&
+        previousAura.expiresAtFrame <= durationFrames
+      ) {
+        context.lineTo(
+          xAt(previousAura.expiresAtFrame),
+          yAt(0)
+        );
+      }
+      context.lineTo(xAt(durationFrames), yAt(0));
     }
-    context.lineTo(xAt(durationFrames), yAt(0));
     context.strokeStyle = ELEMENT_COLORS[element] ?? "#fff";
     context.lineWidth = 2.2;
     context.stroke();
@@ -2633,12 +2964,20 @@ function renderAuraTimeline(): void {
         durationFrames
       )
     );
-    const nearest = curveTimeline.reduce((best, point) =>
-      Math.abs(point.frame - clickedFrame) < Math.abs(best.frame - clickedFrame)
+    const clickableTimeline = curveTimeline.filter(
+      (
+        point
+      ): point is (typeof curveTimeline)[number] & {
+        damageEventId: number;
+      } => point.damageEventId !== null
+    );
+    if (clickableTimeline.length === 0) return;
+    const nearest = clickableTimeline.reduce((best, point) =>
+      Math.abs(point.frame - clickedFrame) <
+      Math.abs(best.frame - clickedFrame)
         ? point
         : best
     );
-    if (nearest.damageEventId === null) return;
     selectedHitId = nearest.damageEventId;
     timelineSecondFilter = null;
     currentPage = 1;
@@ -2661,7 +3000,9 @@ function renderAuraTimeline(): void {
 
   byId<HTMLTableSectionElement>("auraTimelineBody").innerHTML = timeline
     .map((point) => {
-      const hit = lastResult?.damageEvents[point.damageEventId];
+      const hit = lastResult?.damageEvents.find(
+        (candidate) => candidate.id === point.damageEventId
+      );
       return (
         `<tr data-aura-hit-id="${point.damageEventId}">` +
         `<td>${point.timeSeconds.toFixed(3)}s / ${point.frame}f</td>` +

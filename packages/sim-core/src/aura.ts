@@ -6,6 +6,7 @@ import type {
   AuraSourceGaugeMutation,
   AuraStateElement,
   AuraStateEntry,
+  BurningReactionAudit,
   CatalyzeReactionAudit,
   CrystallizeReaction,
   CrystallizeReactionAudit,
@@ -70,9 +71,32 @@ const CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES = 23;
 const CRYSTALLIZE_EARLIEST_PICKUP_DELAY_FRAMES = 54;
 const CRYSTALLIZE_SHARD_DURATION_FRAMES = 15 * 60;
 const CRYSTALLIZE_MAX_ACTIVE_SHARDS = 3;
+const BURNING_MARKER_GAUGE_UNITS = 2;
+const BURNING_FUEL_INCOMING_DENDRO_RATIO = 0.8;
+const BURNING_FUEL_MIN_DECAY_PER_FRAME = 0.4 / 60;
+const BURNING_TICK_INTERVAL_FRAMES = 15;
+const BURNING_SKIPPED_TICK_INDEX = 9;
+const BURNING_BASE_MULTIPLIER = 0.25;
+const BURNING_RADIUS = 1;
+const BURNING_APPLICATION_GAUGE_UNITS = 1;
+const BURNING_ICD_RESET_FRAMES = 120;
+const BURNING_ICD_SEQUENCE = [
+  true,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+] as const;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
   applicationSequence: [...DEFAULT_ICD_SEQUENCE]
+};
+const BUILT_IN_BURNING_ICD_PROFILE: IcdProfile = {
+  resetFrames: BURNING_ICD_RESET_FRAMES,
+  applicationSequence: [...BURNING_ICD_SEQUENCE]
 };
 
 interface MutableAura {
@@ -86,6 +110,16 @@ interface MutableAura {
 interface IcdState {
   windowStartFrame: number;
   hitCount: number;
+}
+
+interface BurningStateCapture {
+  generation: number;
+  damageSourceActorId: string;
+  fuelSourceActorId: string | null;
+  burningGaugeUnits: number;
+  fuelGaugeUnits: number;
+  fuelDecayPerFrame: number;
+  fuelExpiresAtFrame: number | null;
 }
 
 interface ReactionRule {
@@ -151,7 +185,8 @@ function isTransformativeReaction(
     reaction === "swirlPyro" ||
     reaction === "swirlHydro" ||
     reaction === "swirlCryo" ||
-    reaction === "swirlElectro"
+    reaction === "swirlElectro" ||
+    reaction === "burning"
   );
 }
 
@@ -179,6 +214,66 @@ export interface FrozenStateResult {
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
   reason: string;
+}
+
+export type BurningStopReason =
+  | "FUEL_EXPIRED"
+  | "BURNING_AURA_CONSUMED"
+  | "TARGET_MECHANICS_TRUNCATION";
+
+export interface BurningTickResult {
+  generation: number;
+  tickIndex: number;
+  operation: "tick" | "tick-skipped" | "stop" | "stale";
+  frame: number;
+  damageSourceActorId: string | null;
+  fuelSourceActorId: string | null;
+  burningGaugeUnitsBefore: number;
+  burningGaugeUnitsAfter: number;
+  fuelGaugeUnitsBefore: number;
+  fuelGaugeUnitsAfter: number;
+  fuelDecayPerFrame: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+  fuelExpiresAtFrame: number | null;
+  selfDamageStatus: "unsupported-player-damage-model";
+  skipReason: "COUNTER_9_SKIP" | null;
+  reason:
+    | BurningStopReason
+    | "SUPERSEDED_STREAM"
+    | "UNEXPECTED_TICK_FRAME"
+    | "UNEXPECTED_TICK_INDEX"
+    | null;
+}
+
+export interface BurningFuelExpiryResult {
+  generation: number;
+  operation: "expire" | "stale";
+  frame: number;
+  damageSourceActorId: string | null;
+  fuelSourceActorId: string | null;
+  burningGaugeUnitsBefore: number;
+  burningGaugeUnitsAfter: number;
+  fuelGaugeUnitsBefore: number;
+  fuelGaugeUnitsAfter: number;
+  fuelDecayPerFrame: number;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+  fuelExpiresAtFrame: number | null;
+  selfDamageStatus: "unsupported-player-damage-model";
+  reason:
+    | "FUEL_EXPIRED"
+    | "STALE_BURNING_FUEL_EXPIRY_CHECK"
+    | "BURNING_REFRESHED_BEFORE_EXPIRY";
+}
+
+export interface BurningApplicationIcdDecision {
+  windowStartFrame: number;
+  /** Zero-based hit count inside the current window; it may exceed the fixed sequence length. */
+  hitIndex: number;
+  allowed: boolean;
 }
 
 export interface ShatterFrozenMutation {
@@ -290,8 +385,15 @@ function isAuraApplicationElement(
       (element === "electro" ||
         element === "anemo" ||
         element === "geo")) ||
-    (mode === "aura-v3" && element === "dendro")
+    ((mode === "aura-v3" || mode === "aura-v4") &&
+      element === "dendro")
   );
+}
+
+function usesAuraV3Durability(
+  mode: AuraReactionEngineConfig["mode"]
+): boolean {
+  return mode === "aura-v3" || mode === "aura-v4";
 }
 
 function cleanGaugeUnits(value: number): number {
@@ -318,8 +420,9 @@ function remainingDecayFrames(
  * periodic streams.
  * aura-v3 corrects the durability-to-U lifetime conversion, adds per-source
  * normal/Quicken slots, and implements Dendro, Quicken, Aggravate, and Spread.
- * Burning, Bloom/core entities, elemental shields, and their special overlap
- * modifiers remain future mechanics work.
+ * aura-v4 adds fixed-reference Burning marker/Fuel decay, snapshot ownership,
+ * tick cadence, and Burning-application ICD. Bloom/core entities, elemental
+ * shields, and their special overlap modifiers remain future mechanics work.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -344,6 +447,21 @@ export class AuraEngine {
     number
   >();
   private crystallizeReadyFrame = -1;
+  private burningGeneration = 0;
+  private burningDamageSourceActorId: string | null = null;
+  private burningFuelSourceActorId: string | null = null;
+  /** Fuel applied after the frame's Aura decay; its first decay is next frame-end. */
+  private burningFuelAttachedFrame = -1;
+  private burningNextTickFrame = -1;
+  private burningNextTickIndex = 1;
+  private lastBurningApplicationIcdDecision:
+    | BurningApplicationIcdDecision
+    | null = null;
+  private lastBurningStop: {
+    fromGeneration: number;
+    frame: number;
+    reason: BurningStopReason;
+  } | null = null;
   private currentFrame = 0;
   private mechanicsTruncation: TargetMechanicsTruncationAudit | null =
     null;
@@ -364,7 +482,8 @@ export class AuraEngine {
       config.debugAllowReactionOverride === true;
     this.icdProfiles = {
       default: BUILT_IN_DEFAULT_ICD_PROFILE,
-      ...(config.icdProfiles ?? {})
+      ...(config.icdProfiles ?? {}),
+      burning: BUILT_IN_BURNING_ICD_PROFILE
     };
     for (const initial of config.initialAura ?? []) {
       this.attachNormalAura(
@@ -401,6 +520,12 @@ export class AuraEngine {
     };
   }
 
+  getLastBurningApplicationIcdDecision(): BurningApplicationIcdDecision | null {
+    return this.lastBurningApplicationIcdDecision === null
+      ? null
+      : { ...this.lastBurningApplicationIcdDecision };
+  }
+
   private triggerMechanicsTruncation(
     frame: number,
     unsupportedReactions: TargetMechanicsTruncationAudit["unsupportedReactions"]
@@ -417,7 +542,11 @@ export class AuraEngine {
       startedAtFrame: frame,
       unsupportedReactions: [...unsupportedReactions],
       discardedAura,
-      reason: "UNSUPPORTED_DENDRO_REACTION"
+      reason: unsupportedReactions.includes(
+        "non-pyro-multi-reaction-order"
+      )
+        ? "UNSUPPORTED_REACTION_ORDER"
+        : "UNSUPPORTED_DENDRO_REACTION"
     };
     // Invalidate every target-local state event that may already be queued.
     // The target is now outside the implemented mechanics boundary, so a
@@ -426,6 +555,13 @@ export class AuraEngine {
     this.frozenGeneration += 1;
     this.electroChargedGeneration += 1;
     this.quickenGeneration += 1;
+    if (this.hasActiveBurning()) {
+      this.stopBurning(
+        frame,
+        "TARGET_MECHANICS_TRUNCATION",
+        false
+      );
+    }
     this.auras.clear();
     this.electroChargedActive = false;
     this.electroChargedNextTickFrame = -1;
@@ -503,6 +639,138 @@ export class AuraEngine {
     };
   }
 
+  private mappedAuraGaugeUnits(element: AuraStateElement): number {
+    if (this.mode !== "aura-v4" || element !== "pyro") {
+      return this.auras.get(element)?.gaugeUnits ?? 0;
+    }
+    return Math.max(
+      this.auras.get("pyro")?.gaugeUnits ?? 0,
+      this.auras.get("burning")?.gaugeUnits ?? 0
+    );
+  }
+
+  private reduceMappedAuraGauge(
+    element: AuraStateElement,
+    maximumGaugeUnits: number
+  ): Array<{
+    element: AuraStateElement;
+    consumedGaugeUnits: number;
+    sourceMutations: AuraSourceGaugeMutation[];
+  }> {
+    const mappedElements =
+      this.mode === "aura-v4" && element === "pyro"
+        ? (["pyro", "burning"] as const)
+        : ([element] as const);
+    const mutations = mappedElements
+      .map((mappedElement) => ({
+        element: mappedElement,
+        ...this.reduceAuraGauge(
+          mappedElement,
+          maximumGaugeUnits
+        )
+      }))
+      .filter(
+        (mutation) =>
+          mutation.consumedGaugeUnits > AURA_EPSILON
+      );
+    if (
+      this.mode === "aura-v4" &&
+      element === "pyro" &&
+      (this.auras.get("burning")?.gaugeUnits ?? 0) <=
+        AURA_EPSILON &&
+      (this.auras.get("burningFuel")?.gaugeUnits ?? 0) >
+        AURA_EPSILON
+    ) {
+      this.stopBurning(
+        this.currentFrame,
+        "BURNING_AURA_CONSUMED",
+        false
+      );
+    }
+    return mutations;
+  }
+
+  private burningGaugeUnits(): number {
+    return this.auras.get("burning")?.gaugeUnits ?? 0;
+  }
+
+  private burningFuelGaugeUnits(): number {
+    return this.auras.get("burningFuel")?.gaugeUnits ?? 0;
+  }
+
+  private hasActiveBurning(): boolean {
+    return (
+      this.mode === "aura-v4" &&
+      this.burningGaugeUnits() > AURA_EPSILON &&
+      this.burningFuelGaugeUnits() > AURA_EPSILON
+    );
+  }
+
+  private burningFuelExpiryFrame(): number | null {
+    const fuel = this.auras.get("burningFuel");
+    if (fuel === undefined || fuel.decayPerFrame <= 0) {
+      return null;
+    }
+    return (
+      this.currentFrame +
+      Math.max(
+        0,
+        this.burningFuelAttachedFrame + 1 - this.currentFrame
+      ) +
+      remainingDecayFrames(
+        fuel.gaugeUnits,
+        fuel.decayPerFrame
+      )
+    );
+  }
+
+  private stopBurning(
+    frame: number,
+    reason: BurningStopReason,
+    removeDendroStates: boolean
+  ): void {
+    const fromGeneration = this.burningGeneration;
+    this.auras.delete("burningFuel");
+    if (removeDendroStates) {
+      this.auras.delete("burning");
+      this.auras.delete("dendro");
+      if (this.auras.delete("quicken")) {
+        this.quickenGeneration += 1;
+      }
+    }
+    this.burningGeneration += 1;
+    this.burningDamageSourceActorId = null;
+    this.burningFuelSourceActorId = null;
+    this.burningFuelAttachedFrame = -1;
+    this.burningNextTickFrame = -1;
+    this.burningNextTickIndex = 1;
+    this.lastBurningStop = {
+      fromGeneration,
+      frame,
+      reason
+    };
+  }
+
+  private reduceAuraByDecay(
+    aura: MutableAura,
+    decayGaugeUnits: number
+  ): void {
+    if (aura.sourceSlots !== undefined) {
+      for (const [sourceActorId, gaugeUnits] of aura.sourceSlots) {
+        aura.sourceSlots.set(
+          sourceActorId,
+          gaugeUnits - decayGaugeUnits
+        );
+      }
+      this.syncAuraFromSourceSlots(aura);
+    } else {
+      aura.gaugeUnits -= decayGaugeUnits;
+    }
+    if (aura.gaugeUnits <= AURA_EPSILON) {
+      this.auras.delete(aura.element);
+    }
+  }
+
   private advanceFrozenBy(elapsed: number): void {
     for (let offset = 0; offset < elapsed; offset += 1) {
       const frozen = this.auras.get("frozen");
@@ -549,25 +817,96 @@ export class AuraEngine {
     }
     const elapsed = frame - this.currentFrame;
     if (elapsed > 0) {
-      for (const [element, aura] of this.auras) {
-        if (element === "frozen") continue;
-        if (aura.sourceSlots !== undefined) {
-          for (const [sourceActorId, gaugeUnits] of aura.sourceSlots) {
-            aura.sourceSlots.set(
-              sourceActorId,
-              gaugeUnits - aura.decayPerFrame * elapsed
-            );
+      if (this.mode === "aura-v4" && this.hasActiveBurning()) {
+        for (
+          let nextFrame = this.currentFrame + 1;
+          nextFrame <= frame;
+          nextFrame += 1
+        ) {
+          const burningWasActive = this.hasActiveBurning();
+          for (const [element, aura] of this.auras) {
+            if (
+              element === "frozen" ||
+              element === "dendro" ||
+              element === "quicken" ||
+              element === "burning" ||
+              element === "burningFuel"
+            ) {
+              continue;
+            }
+            this.reduceAuraByDecay(aura, aura.decayPerFrame);
           }
-          this.syncAuraFromSourceSlots(aura);
-        } else {
-          aura.gaugeUnits -= aura.decayPerFrame * elapsed;
+
+          if (burningWasActive) {
+            const fuel = this.auras.get("burningFuel");
+            if (
+              fuel !== undefined &&
+              nextFrame > this.burningFuelAttachedFrame + 1
+            ) {
+              this.reduceAuraByDecay(
+                fuel,
+                fuel.decayPerFrame
+              );
+            }
+            if (
+              this.burningFuelGaugeUnits() <= AURA_EPSILON
+            ) {
+              this.currentFrame = nextFrame;
+              this.stopBurning(
+                nextFrame,
+                "FUEL_EXPIRED",
+                true
+              );
+            } else {
+              const fuelDecayPerFrame =
+                this.auras.get("burningFuel")?.decayPerFrame ??
+                BURNING_FUEL_MIN_DECAY_PER_FRAME;
+              const dendro = this.auras.get("dendro");
+              if (dendro !== undefined) {
+                this.reduceAuraByDecay(
+                  dendro,
+                  Math.max(
+                    fuelDecayPerFrame,
+                    dendro.decayPerFrame * 2
+                  )
+                );
+              }
+              const quicken = this.auras.get("quicken");
+              if (quicken !== undefined) {
+                this.reduceAuraByDecay(
+                  quicken,
+                  fuelDecayPerFrame
+                );
+              }
+            }
+          } else {
+            for (const element of [
+              "dendro",
+              "quicken"
+            ] as const) {
+              const aura = this.auras.get(element);
+              if (aura !== undefined) {
+                this.reduceAuraByDecay(
+                  aura,
+                  aura.decayPerFrame
+                );
+              }
+            }
+          }
+          this.advanceFrozenBy(1);
+          this.currentFrame = nextFrame;
         }
-        if (aura.gaugeUnits <= AURA_EPSILON) {
-          this.auras.delete(element);
+      } else {
+        for (const [element, aura] of this.auras) {
+          if (element === "frozen") continue;
+          this.reduceAuraByDecay(
+            aura,
+            aura.decayPerFrame * elapsed
+          );
         }
+        this.advanceFrozenBy(elapsed);
+        this.currentFrame = frame;
       }
-      this.advanceFrozenBy(elapsed);
-      this.currentFrame = frame;
       if (
         this.electroChargedActive &&
         !this.hasElectroChargedAuras()
@@ -586,8 +925,31 @@ export class AuraEngine {
         element: aura.element,
         gaugeUnits: cleanGaugeUnits(aura.gaugeUnits),
         expiresAtFrame:
-          aura.element === "frozen"
+          aura.element === "burningFuel"
+            ? this.burningFuelExpiryFrame()
+            : aura.element === "frozen"
             ? this.frozenExpiryFrame()
+            : this.hasActiveBurning() &&
+                (aura.element === "dendro" ||
+                  aura.element === "quicken")
+              ? this.currentFrame +
+                Math.min(
+                  remainingDecayFrames(
+                    aura.gaugeUnits,
+                    aura.element === "dendro"
+                      ? Math.max(
+                          this.auras.get("burningFuel")
+                            ?.decayPerFrame ??
+                            BURNING_FUEL_MIN_DECAY_PER_FRAME,
+                          aura.decayPerFrame * 2
+                        )
+                      : this.auras.get("burningFuel")
+                          ?.decayPerFrame ??
+                          BURNING_FUEL_MIN_DECAY_PER_FRAME
+                  ),
+                  (this.burningFuelExpiryFrame() ??
+                    this.currentFrame) - this.currentFrame
+                )
             : aura.decayPerFrame > 0
               ? this.currentFrame +
                 remainingDecayFrames(
@@ -1132,7 +1494,7 @@ export class AuraEngine {
   ): void {
     const appliedGaugeUnits = NORMAL_AURA_RATIO * nominalGaugeUnits;
     const durationPerUnitFrames =
-      this.mode === "aura-v3"
+      usesAuraV3Durability(this.mode)
         ? AURA_V3_NORMAL_DURATION_PER_UNIT_FRAMES
         : NORMAL_AURA_DURATION_PER_UNIT_FRAMES;
     const durationFrames =
@@ -1146,7 +1508,7 @@ export class AuraEngine {
         element,
         gaugeUnits: appliedGaugeUnits,
         decayPerFrame: nextDecayPerFrame,
-        ...(this.mode === "aura-v3"
+        ...(usesAuraV3Durability(this.mode)
           ? {
               sourceSlots: new Map([
                 [sourceActorId, appliedGaugeUnits]
@@ -1157,7 +1519,7 @@ export class AuraEngine {
       return;
     }
 
-    if (this.mode === "aura-v3") {
+    if (usesAuraV3Durability(this.mode)) {
       const sourceSlots =
         existing.sourceSlots ??
         new Map([["__legacy__", existing.gaugeUnits]]);
@@ -1329,6 +1691,411 @@ export class AuraEngine {
     };
   }
 
+  private captureBurningState(): BurningStateCapture | null {
+    if (!this.hasActiveBurning()) return null;
+    return {
+      generation: this.burningGeneration,
+      damageSourceActorId:
+        this.burningDamageSourceActorId ??
+        "__unknown-burning-source__",
+      fuelSourceActorId: this.burningFuelSourceActorId,
+      burningGaugeUnits: cleanGaugeUnits(
+        this.burningGaugeUnits()
+      ),
+      fuelGaugeUnits: cleanGaugeUnits(
+        this.burningFuelGaugeUnits()
+      ),
+      fuelDecayPerFrame:
+        this.auras.get("burningFuel")?.decayPerFrame ?? 0,
+      fuelExpiresAtFrame: this.burningFuelExpiryFrame()
+    };
+  }
+
+  private makeBurningStopAudit(
+    input: AuraHitInput,
+    before: BurningStateCapture
+  ): BurningReactionAudit {
+    return {
+      reaction: "burning",
+      operation: "stop",
+      reactionTriggered: false,
+      generation: before.generation,
+      triggerElement: input.element,
+      fuelOperation: "remove",
+      stopReason: "BURNING_AURA_CONSUMED",
+      scheduled: false,
+      blockedReason: null,
+      damageSourceActorId: before.damageSourceActorId,
+      fuelSourceActorId: before.fuelSourceActorId,
+      burningGaugeUnitsBefore: before.burningGaugeUnits,
+      candidateBurningGaugeUnits: 0,
+      burningGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningGaugeUnits()
+      ),
+      burningDecayPerFrame: 0,
+      burningExpiresAtFrame: null,
+      fuelGaugeUnitsBefore: before.fuelGaugeUnits,
+      candidateFuelGaugeUnits: 0,
+      fuelGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningFuelGaugeUnits()
+      ),
+      fuelDecayPerFrame: before.fuelDecayPerFrame,
+      fuelExpiresAtFrame: null,
+      snapshotFrame: input.frame,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      firstTickFrame: null,
+      nextTickFrame: null,
+      tickIntervalFrames: BURNING_TICK_INTERVAL_FRAMES,
+      skippedTickIndex: BURNING_SKIPPED_TICK_INDEX,
+      damageElement: "pyro",
+      baseMultiplier: BURNING_BASE_MULTIPLIER,
+      radius: BURNING_RADIUS,
+      applicationGaugeUnits:
+        BURNING_APPLICATION_GAUGE_UNITS,
+      selfDamageStatus: "unsupported-player-damage-model"
+    };
+  }
+
+  private attachBurningFuel(
+    gaugeUnits: number,
+    sourceActorId: string
+  ): void {
+    this.auras.set("burningFuel", {
+      element: "burningFuel",
+      gaugeUnits,
+      decayPerFrame: BURNING_FUEL_MIN_DECAY_PER_FRAME,
+      sourceSlots: new Map([[sourceActorId, gaugeUnits]])
+    });
+    this.burningFuelSourceActorId = sourceActorId;
+    this.burningFuelAttachedFrame = this.currentFrame;
+  }
+
+  private startOrRefreshBurning(
+    input: AuraHitInput,
+    application: ElementalApplication
+  ): BurningReactionAudit | null {
+    if (
+      this.mode !== "aura-v4" ||
+      (input.element !== "pyro" &&
+        input.element !== "dendro") ||
+      application.gaugeUnits <= AURA_EPSILON
+    ) {
+      return null;
+    }
+
+    const burningGaugeUnitsBefore = this.burningGaugeUnits();
+    const fuelGaugeUnitsBefore =
+      this.burningFuelGaugeUnits();
+    const activeBefore = this.hasActiveBurning();
+    const qualifies =
+      input.element === "pyro"
+        ? (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+            AURA_EPSILON ||
+          this.quickenGaugeUnits() > AURA_EPSILON
+        : this.mappedAuraGaugeUnits("pyro") >
+          AURA_EPSILON;
+    if (!qualifies) return null;
+
+    const incomingDendroFuel =
+      input.element === "dendro"
+        ? BURNING_FUEL_INCOMING_DENDRO_RATIO *
+          application.gaugeUnits
+        : 0;
+    const candidateFuelGaugeUnits = activeBefore
+      ? input.element === "dendro"
+        ? incomingDendroFuel
+        : fuelGaugeUnitsBefore
+      : Math.max(
+          this.auras.get("dendro")?.gaugeUnits ?? 0,
+          this.quickenGaugeUnits(),
+          incomingDendroFuel
+        );
+    if (candidateFuelGaugeUnits <= AURA_EPSILON) {
+      return null;
+    }
+
+    let operation: BurningReactionAudit["operation"];
+    let fuelOperation: BurningReactionAudit["fuelOperation"];
+    if (!activeBefore) {
+      operation = "start";
+      fuelOperation = "start";
+      this.burningGeneration += 1;
+      this.auras.set("burning", {
+        element: "burning",
+        gaugeUnits: BURNING_MARKER_GAUGE_UNITS,
+        decayPerFrame: 0,
+        sourceSlots: new Map([
+          [input.sourceActorId, BURNING_MARKER_GAUGE_UNITS]
+        ])
+      });
+      this.attachBurningFuel(
+        candidateFuelGaugeUnits,
+        input.sourceActorId
+      );
+      this.burningNextTickFrame =
+        input.frame + BURNING_TICK_INTERVAL_FRAMES;
+      this.burningNextTickIndex = 1;
+      this.lastBurningStop = null;
+    } else if (input.element === "dendro") {
+      operation = "refresh-fuel";
+      fuelOperation = "overwrite";
+      this.attachBurningFuel(
+        candidateFuelGaugeUnits,
+        input.sourceActorId
+      );
+    } else {
+      operation = "refresh-snapshot";
+      fuelOperation = "unchanged";
+    }
+    this.burningDamageSourceActorId = input.sourceActorId;
+
+    return {
+      reaction: "burning",
+      operation,
+      reactionTriggered: operation === "start",
+      generation: this.burningGeneration,
+      triggerElement: input.element,
+      fuelOperation,
+      stopReason: null,
+      scheduled: true,
+      blockedReason: null,
+      damageSourceActorId: input.sourceActorId,
+      fuelSourceActorId: this.burningFuelSourceActorId,
+      burningGaugeUnitsBefore: cleanGaugeUnits(
+        burningGaugeUnitsBefore
+      ),
+      candidateBurningGaugeUnits:
+        BURNING_MARKER_GAUGE_UNITS,
+      burningGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningGaugeUnits()
+      ),
+      burningDecayPerFrame: 0,
+      burningExpiresAtFrame: null,
+      fuelGaugeUnitsBefore: cleanGaugeUnits(
+        fuelGaugeUnitsBefore
+      ),
+      candidateFuelGaugeUnits: cleanGaugeUnits(
+        candidateFuelGaugeUnits
+      ),
+      fuelGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningFuelGaugeUnits()
+      ),
+      fuelDecayPerFrame:
+        this.auras.get("burningFuel")?.decayPerFrame ?? 0,
+      fuelExpiresAtFrame: this.burningFuelExpiryFrame(),
+      snapshotFrame: input.frame,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      firstTickFrame:
+        operation === "start"
+          ? input.frame + BURNING_TICK_INTERVAL_FRAMES
+          : null,
+      nextTickFrame:
+        this.burningNextTickFrame < 0
+          ? null
+          : this.burningNextTickFrame,
+      tickIntervalFrames: BURNING_TICK_INTERVAL_FRAMES,
+      skippedTickIndex: BURNING_SKIPPED_TICK_INDEX,
+      damageElement: "pyro",
+      baseMultiplier: BURNING_BASE_MULTIPLIER,
+      radius: BURNING_RADIUS,
+      applicationGaugeUnits:
+        BURNING_APPLICATION_GAUGE_UNITS,
+      selfDamageStatus: "unsupported-player-damage-model"
+    };
+  }
+
+  prepareBurningTick(
+    frame: number,
+    generation: number,
+    tickIndex: number
+  ): BurningTickResult {
+    const generationWasCurrent =
+      generation === this.burningGeneration;
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    const burningGaugeUnits = this.burningGaugeUnits();
+    const fuelGaugeUnits = this.burningFuelGaugeUnits();
+    const base = {
+      generation,
+      tickIndex,
+      frame,
+      damageSourceActorId:
+        this.burningDamageSourceActorId,
+      fuelSourceActorId: this.burningFuelSourceActorId,
+      burningGaugeUnitsBefore: cleanGaugeUnits(
+        burningGaugeUnits
+      ),
+      burningGaugeUnitsAfter: cleanGaugeUnits(
+        burningGaugeUnits
+      ),
+      fuelGaugeUnitsBefore: cleanGaugeUnits(fuelGaugeUnits),
+      fuelGaugeUnitsAfter: cleanGaugeUnits(fuelGaugeUnits),
+      fuelDecayPerFrame:
+        this.auras.get("burningFuel")?.decayPerFrame ?? 0,
+      auraBefore,
+      auraAfter: this.snapshot(),
+      fuelExpiresAtFrame: this.burningFuelExpiryFrame(),
+      selfDamageStatus:
+        "unsupported-player-damage-model" as const
+    };
+    if (
+      !generationWasCurrent ||
+      generation !== this.burningGeneration
+    ) {
+      const stoppedThisFrame =
+        generationWasCurrent &&
+        this.lastBurningStop?.fromGeneration === generation &&
+        this.lastBurningStop.frame === frame;
+      return {
+        ...base,
+        operation: stoppedThisFrame ? "stop" : "stale",
+        nextTickFrame: null,
+        skipReason: null,
+        reason: stoppedThisFrame
+          ? this.lastBurningStop!.reason
+          : "SUPERSEDED_STREAM"
+      };
+    }
+    if (!this.hasActiveBurning()) {
+      return {
+        ...base,
+        operation: "stop",
+        nextTickFrame: null,
+        skipReason: null,
+        reason: "FUEL_EXPIRED"
+      };
+    }
+    if (frame !== this.burningNextTickFrame) {
+      return {
+        ...base,
+        operation: "stale",
+        nextTickFrame: this.burningNextTickFrame,
+        skipReason: null,
+        reason: "UNEXPECTED_TICK_FRAME"
+      };
+    }
+    if (tickIndex !== this.burningNextTickIndex) {
+      return {
+        ...base,
+        operation: "stale",
+        nextTickFrame: this.burningNextTickFrame,
+        skipReason: null,
+        reason: "UNEXPECTED_TICK_INDEX"
+      };
+    }
+
+    this.burningNextTickFrame =
+      frame + BURNING_TICK_INTERVAL_FRAMES;
+    this.burningNextTickIndex += 1;
+    const skipped =
+      tickIndex === BURNING_SKIPPED_TICK_INDEX;
+    return {
+      ...base,
+      operation: skipped ? "tick-skipped" : "tick",
+      auraAfter: this.snapshot(),
+      nextTickFrame: this.burningNextTickFrame,
+      skipReason: skipped ? "COUNTER_9_SKIP" : null,
+      reason: null
+    };
+  }
+
+  expireBurningFuel(
+    frame: number,
+    generation: number,
+    expectedExpiryFrame: number
+  ): BurningFuelExpiryResult {
+    const generationWasCurrent =
+      generation === this.burningGeneration;
+    if (frame > this.currentFrame) {
+      this.advanceTo(Math.max(this.currentFrame, frame - 1));
+    }
+    const damageSourceActorId =
+      this.burningDamageSourceActorId;
+    const fuelSourceActorId = this.burningFuelSourceActorId;
+    const auraBefore = this.snapshot();
+    const burningGaugeUnitsBefore =
+      this.burningGaugeUnits();
+    const fuelGaugeUnitsBefore =
+      this.burningFuelGaugeUnits();
+    const fuelDecayPerFrame =
+      this.auras.get("burningFuel")?.decayPerFrame ?? 0;
+    this.advanceTo(frame);
+    const auraAfter = this.snapshot();
+    const currentExpiry = this.burningFuelExpiryFrame();
+    const expiredThisFrame =
+      generationWasCurrent &&
+      this.lastBurningStop?.fromGeneration === generation &&
+      this.lastBurningStop.frame === frame &&
+      this.lastBurningStop.reason === "FUEL_EXPIRED";
+    if (expiredThisFrame) {
+      return {
+        generation,
+        operation: "expire",
+        frame,
+        damageSourceActorId,
+        fuelSourceActorId,
+        burningGaugeUnitsBefore: cleanGaugeUnits(
+          burningGaugeUnitsBefore
+        ),
+        burningGaugeUnitsAfter: 0,
+        fuelGaugeUnitsBefore: cleanGaugeUnits(
+          fuelGaugeUnitsBefore
+        ),
+        fuelGaugeUnitsAfter: 0,
+        fuelDecayPerFrame,
+        auraBefore,
+        auraAfter,
+        nextTickFrame: null,
+        fuelExpiresAtFrame: null,
+        selfDamageStatus:
+          "unsupported-player-damage-model",
+        reason: "FUEL_EXPIRED"
+      };
+    }
+    const refreshed =
+      generationWasCurrent &&
+      generation === this.burningGeneration &&
+      currentExpiry !== null &&
+      currentExpiry !== expectedExpiryFrame;
+    return {
+      generation,
+      operation: "stale",
+      frame,
+      damageSourceActorId:
+        this.burningDamageSourceActorId,
+      fuelSourceActorId: this.burningFuelSourceActorId,
+      burningGaugeUnitsBefore: cleanGaugeUnits(
+        burningGaugeUnitsBefore
+      ),
+      burningGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningGaugeUnits()
+      ),
+      fuelGaugeUnitsBefore: cleanGaugeUnits(
+        fuelGaugeUnitsBefore
+      ),
+      fuelGaugeUnitsAfter: cleanGaugeUnits(
+        this.burningFuelGaugeUnits()
+      ),
+      fuelDecayPerFrame:
+        this.auras.get("burningFuel")?.decayPerFrame ??
+        fuelDecayPerFrame,
+      auraBefore,
+      auraAfter,
+      nextTickFrame:
+        this.burningNextTickFrame < 0
+          ? null
+          : this.burningNextTickFrame,
+      fuelExpiresAtFrame: currentExpiry,
+      selfDamageStatus:
+        "unsupported-player-damage-model",
+      reason: refreshed
+        ? "BURNING_REFRESHED_BEFORE_EXPIRY"
+        : "STALE_BURNING_FUEL_EXPIRY_CHECK"
+    };
+  }
+
   private willApply(
     frame: number,
     sourceActorId: string,
@@ -1341,17 +2108,33 @@ export class AuraEngine {
         `Unknown ICD profile "${application.icdGroup}"; declare it in reactionEngine.icdProfiles.`
       );
     }
-    const key = `${sourceActorId}\u0000${application.icdTag}\u0000${application.icdGroup}`;
+    const key =
+      application.icdGroup === "burning"
+        ? "__target__\u0000burning"
+        : `${sourceActorId}\u0000${application.icdTag}\u0000${application.icdGroup}`;
     const existing = this.icdStates.get(key);
     const state =
       existing === undefined ||
       frame - existing.windowStartFrame >= profile.resetFrames
         ? { windowStartFrame: frame, hitCount: 0 }
         : existing;
+    const applicationSequenceIndex =
+      application.icdGroup === "burning"
+        ? Math.min(
+            state.hitCount,
+            profile.applicationSequence.length - 1
+          )
+        : state.hitCount % profile.applicationSequence.length;
     const allowed =
-      profile.applicationSequence[
-        state.hitCount % profile.applicationSequence.length
-      ] ?? false;
+      profile.applicationSequence[applicationSequenceIndex] ??
+      false;
+    if (application.icdGroup === "burning") {
+      this.lastBurningApplicationIcdDecision = {
+        windowStartFrame: state.windowStartFrame,
+        hitIndex: state.hitCount,
+        allowed
+      };
+    }
     state.hitCount += 1;
     this.icdStates.set(key, state);
     return allowed;
@@ -1368,7 +2151,7 @@ export class AuraEngine {
       {
         element: "anemo",
         gaugeUnits: application.gaugeUnits,
-        ...(this.mode === "aura-v3"
+        ...(usesAuraV3Durability(this.mode)
           ? { sourceActorId: input.sourceActorId }
           : {})
       }
@@ -1376,6 +2159,7 @@ export class AuraEngine {
     const auraConsumed: NonNullable<ReactionAudit["auraConsumed"]> = [];
     const swirlReactions: SwirlReactionAudit[] = [];
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
+    const burningBeforeReaction = this.captureBurningState();
 
     const trySwirl = (
       consumedAuraElement: AuraStateElement,
@@ -1383,13 +2167,29 @@ export class AuraEngine {
       reaction: SwirlReaction
     ): boolean => {
       if (remainingSourceGaugeUnits <= AURA_EPSILON) return false;
-      const aura = this.auras.get(consumedAuraElement);
-      if (aura === undefined || aura.gaugeUnits <= AURA_EPSILON) {
+      // Fixed gcsim only enters TrySwirlPyro when ordinary Pyro is
+      // present. Once entered, reduceMappedAuraGauge still consumes the
+      // ordinary Pyro and Burning marker together.
+      if (
+        consumedAuraElement === "pyro" &&
+        (this.auras.get("pyro")?.gaugeUnits ?? 0) <= AURA_EPSILON
+      ) {
         return false;
       }
+      const auraGaugeUnitsBefore =
+        this.mappedAuraGaugeUnits(consumedAuraElement);
+      if (auraGaugeUnitsBefore <= AURA_EPSILON) {
+        return false;
+      }
+      const auditConsumedAuraElement =
+        consumedAuraElement === "pyro" &&
+        (this.auras.get("pyro")?.gaugeUnits ?? 0) <=
+          AURA_EPSILON &&
+        this.burningGaugeUnits() > AURA_EPSILON
+          ? ("burning" as const)
+          : consumedAuraElement;
 
       const sourceGaugeUnitsBefore = remainingSourceGaugeUnits;
-      const auraGaugeUnitsBefore = aura.gaugeUnits;
       const auraConsumedGaugeUnits = Math.min(
         auraGaugeUnitsBefore,
         sourceGaugeUnitsBefore * SWIRL_AURA_CONSUMPTION_FACTOR
@@ -1399,17 +2199,21 @@ export class AuraEngine {
       remainingSourceGaugeUnits = cleanGaugeUnits(
         Math.max(0, remainingSourceGaugeUnits - sourceGaugeUnitsSpent)
       );
-      const mutation = this.reduceAuraGauge(
+      const mutations = this.reduceMappedAuraGauge(
         consumedAuraElement,
         auraConsumedGaugeUnits
       );
-      auraConsumed.push({
-        element: consumedAuraElement,
-        gaugeUnits: mutation.consumedGaugeUnits,
-        ...(mutation.sourceMutations.length === 0
-          ? {}
-          : { sourceMutations: mutation.sourceMutations })
-      });
+      for (const mutation of mutations) {
+        auraConsumed.push({
+          element: mutation.element,
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : {
+                sourceMutations: mutation.sourceMutations
+              })
+        });
+      }
 
       // Exact U-space conversion of fixed gcsim's internal durability formula:
       // 1.25 * (0.5 * consumed - 1) + 25, or
@@ -1429,7 +2233,7 @@ export class AuraEngine {
         this.swirlDamageReadyFrames.set(reaction, nextAvailableFrame);
       }
 
-      if (consumedAuraElement === "frozen") {
+      if (auditConsumedAuraElement === "frozen") {
         const frozenGaugeAfter = this.frozenGaugeUnits();
         this.frozenGeneration += 1;
         frozenReaction = {
@@ -1452,7 +2256,7 @@ export class AuraEngine {
       swirlReactions.push({
         reaction,
         swirledElement,
-        consumedAuraElement,
+        consumedAuraElement: auditConsumedAuraElement,
         sourceGaugeUnitsBefore: cleanGaugeUnits(
           sourceGaugeUnitsBefore
         ),
@@ -1469,7 +2273,7 @@ export class AuraEngine {
           auraConsumedGaugeUnits
         ),
         auraGaugeUnitsAfter: cleanGaugeUnits(
-          this.auras.get(consumedAuraElement)?.gaugeUnits ?? 0
+          this.auras.get(auditConsumedAuraElement)?.gaugeUnits ?? 0
         ),
         propagatedGaugeUnits: cleanGaugeUnits(
           propagatedGaugeUnits
@@ -1551,6 +2355,18 @@ export class AuraEngine {
       swirlDamageGroup: null,
       crystallizeReaction: null,
       catalyzeReaction: null,
+      burningReaction:
+        burningBeforeReaction !== null &&
+        this.lastBurningStop?.fromGeneration ===
+          burningBeforeReaction.generation &&
+        this.lastBurningStop.frame === input.frame &&
+        this.lastBurningStop.reason ===
+          "BURNING_AURA_CONSUMED"
+          ? this.makeBurningStopAudit(
+              input,
+              burningBeforeReaction
+            )
+          : null,
       note:
         firstSwirl === null
           ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
@@ -1597,14 +2413,14 @@ export class AuraEngine {
     ];
     const candidate = candidates.find(
       ({ consumedAuraElement }) =>
-        (this.auras.get(consumedAuraElement)?.gaugeUnits ?? 0) >
+        this.mappedAuraGaugeUnits(consumedAuraElement) >
         AURA_EPSILON
     );
     const auraApplied: NonNullable<ReactionAudit["auraApplied"]> = [
       {
         element: "geo",
         gaugeUnits: application.gaugeUnits,
-        ...(this.mode === "aura-v3"
+        ...(usesAuraV3Durability(this.mode)
           ? { sourceActorId: input.sourceActorId }
           : {})
       }
@@ -1633,17 +2449,24 @@ export class AuraEngine {
         swirlDamageGroup: null,
         crystallizeReaction: null,
         catalyzeReaction: null,
+        burningReaction: null,
         note:
           "岩元素附着通过 ICD；当前没有可结晶的火/水/冰/雷/冻元素 Aura。"
       };
     }
 
-    const aura = this.auras.get(candidate.consumedAuraElement);
-    if (aura === undefined) {
-      throw new Error("Crystallize candidate disappeared before processing.");
-    }
     const sourceGaugeUnitsBefore = application.gaugeUnits;
-    const auraGaugeUnitsBefore = aura.gaugeUnits;
+    const auditConsumedAuraElement =
+      candidate.consumedAuraElement === "pyro" &&
+      (this.auras.get("pyro")?.gaugeUnits ?? 0) <=
+        AURA_EPSILON &&
+      this.burningGaugeUnits() > AURA_EPSILON
+        ? ("burning" as const)
+        : candidate.consumedAuraElement;
+    const auraGaugeUnitsBefore = this.mappedAuraGaugeUnits(
+      candidate.consumedAuraElement
+    );
+    const burningBeforeReaction = this.captureBurningState();
     const scheduled =
       this.crystallizeReadyFrame < 0 ||
       input.frame >= this.crystallizeReadyFrame;
@@ -1653,6 +2476,11 @@ export class AuraEngine {
     let sourceGaugeUnitsSpent = 0;
     let auraConsumedGaugeUnits = 0;
     let auraSourceMutations: AuraSourceGaugeMutation[] = [];
+    let mappedAuraMutations: Array<{
+      element: AuraStateElement;
+      consumedGaugeUnits: number;
+      sourceMutations: AuraSourceGaugeMutation[];
+    }> = [];
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
 
@@ -1666,12 +2494,21 @@ export class AuraEngine {
       sourceGaugeUnitsSpent =
         auraConsumedGaugeUnits /
         CRYSTALLIZE_AURA_CONSUMPTION_FACTOR;
-      const mutation = this.reduceAuraGauge(
+      mappedAuraMutations = this.reduceMappedAuraGauge(
         candidate.consumedAuraElement,
         auraConsumedGaugeUnits
       );
-      auraConsumedGaugeUnits = mutation.consumedGaugeUnits;
-      auraSourceMutations = mutation.sourceMutations;
+      auraConsumedGaugeUnits = Math.max(
+        0,
+        ...mappedAuraMutations.map(
+          (mutation) => mutation.consumedGaugeUnits
+        )
+      );
+      auraSourceMutations =
+        mappedAuraMutations.find(
+          (mutation) =>
+            mutation.element === auditConsumedAuraElement
+        )?.sourceMutations ?? [];
 
       if (candidate.consumedAuraElement === "frozen") {
         const frozenGaugeAfter = this.frozenGaugeUnits();
@@ -1718,7 +2555,7 @@ export class AuraEngine {
     const crystallizeReaction: CrystallizeReactionAudit = {
       reaction: candidate.reaction,
       crystallizedElement: candidate.crystallizedElement,
-      consumedAuraElement: candidate.consumedAuraElement,
+      consumedAuraElement: auditConsumedAuraElement,
       sourceGaugeUnitsBefore: cleanGaugeUnits(
         sourceGaugeUnitsBefore
       ),
@@ -1733,7 +2570,7 @@ export class AuraEngine {
         auraConsumedGaugeUnits
       ),
       auraGaugeUnitsAfter: cleanGaugeUnits(
-        this.auras.get(candidate.consumedAuraElement)?.gaugeUnits ??
+        this.auras.get(auditConsumedAuraElement)?.gaugeUnits ??
           0
       ),
       scheduled,
@@ -1764,17 +2601,18 @@ export class AuraEngine {
       auraBefore,
       auraApplied,
       auraConsumed: scheduled
-        ? [
-            {
-              element: candidate.consumedAuraElement,
-              gaugeUnits: cleanGaugeUnits(
-                auraConsumedGaugeUnits
-              ),
-              ...(auraSourceMutations.length === 0
-                ? {}
-                : { sourceMutations: auraSourceMutations })
-            }
-          ]
+        ? mappedAuraMutations.map((mutation) => ({
+            element: mutation.element,
+            gaugeUnits: cleanGaugeUnits(
+              mutation.consumedGaugeUnits
+            ),
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          }))
         : [],
       auraAfter: this.snapshot(),
       transformativeReaction: null,
@@ -1785,6 +2623,18 @@ export class AuraEngine {
       swirlDamageGroup: null,
       crystallizeReaction,
       catalyzeReaction: null,
+      burningReaction:
+        burningBeforeReaction !== null &&
+        this.lastBurningStop?.fromGeneration ===
+          burningBeforeReaction.generation &&
+        this.lastBurningStop.frame === input.frame &&
+        this.lastBurningStop.reason ===
+          "BURNING_AURA_CONSUMED"
+          ? this.makeBurningStopAudit(
+              input,
+              burningBeforeReaction
+            )
+          : null,
       note: scheduled
         ? `${candidate.crystallizedElement}结晶通过目标本地 60 帧共享队列；23 帧后生成碎片，触发后第 54 帧起可拾取。`
         : `${candidate.crystallizedElement}结晶被目标本地共享队列阻止；Aura 与岩元素预算均未消耗，第 ${nextAvailableFrame} 帧可再次触发。`
@@ -1823,6 +2673,7 @@ export class AuraEngine {
         swirlDamageGroup: null,
         crystallizeReaction: null,
         catalyzeReaction: null,
+        burningReaction: null,
         note: `目标已于第 ${mechanicsTruncation.startedAtFrame} 帧进入机制截断；后续 Aura、ICD 与反应均冻结，本事件仅保留非反应伤害的潜在值。`
       };
     }
@@ -1863,6 +2714,7 @@ export class AuraEngine {
         swirlDamageGroup: null,
         crystallizeReaction: null,
         catalyzeReaction: null,
+        burningReaction: null,
         note:
           override === "none"
             ? "该命中未配置元素附着；Aura 状态未改变。"
@@ -1899,6 +2751,7 @@ export class AuraEngine {
         swirlDamageGroup: null,
         crystallizeReaction: null,
         catalyzeReaction: null,
+        burningReaction: null,
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
       };
     }
@@ -1933,6 +2786,7 @@ export class AuraEngine {
         swirlDamageGroup: null,
         crystallizeReaction: null,
         catalyzeReaction: null,
+        burningReaction: null,
         note:
           "调试模式 reactionOverride 绕过自动反应并保持 Aura 不变。"
       };
@@ -1995,7 +2849,7 @@ export class AuraEngine {
 
     const quickenBefore = this.quickenGaugeUnits();
     const additiveReaction: AdditiveReactionAudit | null =
-      this.mode === "aura-v3" &&
+      usesAuraV3Durability(this.mode) &&
       quickenBefore > AURA_EPSILON &&
       (input.element === "electro" ||
         input.element === "dendro")
@@ -2025,7 +2879,7 @@ export class AuraEngine {
       {
         element: input.element,
         gaugeUnits: application.gaugeUnits,
-        ...(this.mode === "aura-v3"
+        ...(usesAuraV3Durability(this.mode)
           ? { sourceActorId: input.sourceActorId }
           : {})
       }
@@ -2042,12 +2896,26 @@ export class AuraEngine {
       this.mode !== "aura-v1" &&
       input.element === "electro" &&
       frozenPresent &&
-      (this.auras.get("pyro")?.gaugeUnits ?? 0) <=
+      this.mappedAuraGaugeUnits("pyro") <=
         AURA_EPSILON;
-    const rule = frozenMelt || frozenSuperconduct ||
-      input.element === "dendro"
-      ? undefined
-      : REACTION_RULES[input.element].find(
+    const usesOrderedPyroPipeline =
+      this.mode === "aura-v4" && input.element === "pyro";
+    let remainingPyroGaugeUnits = application.gaugeUnits;
+    let remainingDendroGaugeUnits = application.gaugeUnits;
+    const orderedPyroReactions: ReactionType[] = [];
+    let orderedPyroTransformativeReaction:
+      | OneShotTransformativeReaction
+      | null = null;
+    let orderedPyroAmplifyingReaction:
+      | AmplifyingReaction
+      | null = null;
+    const eligibleRules =
+      frozenMelt ||
+      frozenSuperconduct ||
+      input.element === "dendro" ||
+      usesOrderedPyroPipeline
+        ? []
+        : REACTION_RULES[input.element].filter(
           (candidate) =>
             (this.mode !== "aura-v1" ||
               !requiresAuraV2(candidate.reaction)) &&
@@ -2063,22 +2931,200 @@ export class AuraEngine {
               candidate.reaction === "electroCharged" &&
               unsupportedReactions.includes("bloom")
             ) &&
-            (this.auras.get(candidate.auraElement)?.gaugeUnits ?? 0) >
+            this.mappedAuraGaugeUnits(candidate.auraElement) >
               AURA_EPSILON
-        );
+          );
+    const rule = eligibleRules[0];
     const quickenConsumedAuraElement =
-      this.mode === "aura-v3" && input.element === "dendro"
+      usesAuraV3Durability(this.mode) && input.element === "dendro"
         ? "electro"
-        : this.mode === "aura-v3" &&
+        : usesAuraV3Durability(this.mode) &&
             input.element === "electro"
           ? "dendro"
           : null;
+    if (
+      this.mode === "aura-v4" &&
+      !usesOrderedPyroPipeline &&
+      (input.element === "cryo" ||
+        input.element === "hydro" ||
+        input.element === "electro")
+    ) {
+      let remainingGaugeUnits = application.gaugeUnits;
+      let reachableReactionCount = 0;
+      for (const candidate of eligibleRules) {
+        if (remainingGaugeUnits <= AURA_EPSILON) break;
+        reachableReactionCount += 1;
+        if (candidate.consumptionFactor <= 0) continue;
+        const consumedGaugeUnits = Math.min(
+          this.mappedAuraGaugeUnits(candidate.auraElement),
+          remainingGaugeUnits * candidate.consumptionFactor
+        );
+        remainingGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingGaugeUnits -
+              consumedGaugeUnits / candidate.consumptionFactor
+          )
+        );
+      }
+      if (
+        input.element === "electro" &&
+        remainingGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        reachableReactionCount += 1;
+      }
+      if (reachableReactionCount > 1) {
+        unsupportedReactions.push(
+          "non-pyro-multi-reaction-order"
+        );
+      }
+    }
     let automaticReaction: ReactionType = "none";
     const auraConsumed: ReactionAudit["auraConsumed"] = [];
+    const burningBeforeReaction = this.captureBurningState();
+    let burningReaction: BurningReactionAudit | null = null;
 
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
-    if (frozenMelt) {
+    if (usesOrderedPyroPipeline) {
+      const consumeMappedAura = (
+        element: AuraStateElement,
+        consumptionFactor: number
+      ): number => {
+        if (
+          remainingPyroGaugeUnits <= AURA_EPSILON ||
+          this.mappedAuraGaugeUnits(element) <= AURA_EPSILON
+        ) {
+          return 0;
+        }
+        const mutations = this.reduceMappedAuraGauge(
+          element,
+          remainingPyroGaugeUnits * consumptionFactor
+        );
+        let maximumConsumedGaugeUnits = 0;
+        for (const mutation of mutations) {
+          maximumConsumedGaugeUnits = Math.max(
+            maximumConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
+        remainingPyroGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingPyroGaugeUnits -
+              maximumConsumedGaugeUnits / consumptionFactor
+          )
+        );
+        return maximumConsumedGaugeUnits;
+      };
+
+      if (consumeMappedAura("electro", 1) > AURA_EPSILON) {
+        orderedPyroReactions.push("overload");
+        orderedPyroTransformativeReaction = "overload";
+      }
+
+      if (
+        this.frozenGaugeUnits() <= AURA_EPSILON &&
+        consumeMappedAura("hydro", 0.5) > AURA_EPSILON
+      ) {
+        orderedPyroReactions.push("reverseVaporize");
+        orderedPyroAmplifyingReaction = "reverseVaporize";
+      }
+
+      if (remainingPyroGaugeUnits > AURA_EPSILON) {
+        const frozenGaugeUnitsBefore = this.frozenGaugeUnits();
+        const cryoMutations = this.reduceMappedAuraGauge(
+          "cryo",
+          remainingPyroGaugeUnits * 2
+        );
+        let maximumMeltConsumedGaugeUnits = 0;
+        for (const mutation of cryoMutations) {
+          maximumMeltConsumedGaugeUnits = Math.max(
+            maximumMeltConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
+        const frozenMutation = this.reduceAuraGauge(
+          "frozen",
+          remainingPyroGaugeUnits * 2
+        );
+        if (frozenMutation.consumedGaugeUnits > AURA_EPSILON) {
+          maximumMeltConsumedGaugeUnits = Math.max(
+            maximumMeltConsumedGaugeUnits,
+            frozenMutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: "frozen",
+            gaugeUnits: frozenMutation.consumedGaugeUnits
+          });
+          this.frozenGeneration += 1;
+          frozenReaction = {
+            generation: this.frozenGeneration,
+            operation: "consume",
+            freezeResistance: this.freezeResistance,
+            generatedGaugeUnits: 0,
+            consumedGaugeUnits:
+              frozenMutation.consumedGaugeUnits,
+            frozenGaugeBefore: cleanGaugeUnits(
+              frozenGaugeUnitsBefore
+            ),
+            frozenGaugeAfter: cleanGaugeUnits(
+              this.frozenGaugeUnits()
+            ),
+            decayRatePerFrame: this.frozenDecayRate,
+            expiresAtFrame: this.frozenExpiryFrame()
+          };
+        }
+        if (maximumMeltConsumedGaugeUnits > AURA_EPSILON) {
+          remainingPyroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingPyroGaugeUnits -
+                maximumMeltConsumedGaugeUnits / 2
+            )
+          );
+          orderedPyroReactions.push("melt");
+          orderedPyroAmplifyingReaction = "melt";
+        }
+      }
+
+      automaticReaction =
+        orderedPyroAmplifyingReaction ??
+        orderedPyroTransformativeReaction ??
+        "none";
+      if (
+        orderedPyroReactions.length === 0 &&
+        unsupportedReactions.length === 0
+      ) {
+        this.attachNormalAura(
+          input.element,
+          application.gaugeUnits,
+          input.sourceActorId
+        );
+      }
+    } else if (frozenMelt) {
       const cryoAura = this.auras.get("cryo");
       if (cryoAura !== undefined) {
         const mutation = this.reduceAuraGauge(
@@ -2251,19 +3297,26 @@ export class AuraEngine {
         };
       }
     } else if (rule) {
-      const targetAura = this.auras.get(rule.auraElement);
-      if (targetAura) {
-        const mutation = this.reduceAuraGauge(
+      if (
+        this.mappedAuraGaugeUnits(rule.auraElement) >
+        AURA_EPSILON
+      ) {
+        const mutations = this.reduceMappedAuraGauge(
           rule.auraElement,
           application.gaugeUnits * rule.consumptionFactor
         );
-        auraConsumed.push({
-          element: rule.auraElement,
-          gaugeUnits: mutation.consumedGaugeUnits,
-          ...(mutation.sourceMutations.length === 0
-            ? {}
-            : { sourceMutations: mutation.sourceMutations })
-        });
+        for (const mutation of mutations) {
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
         automaticReaction = rule.reaction;
       }
     } else if (
@@ -2284,6 +3337,9 @@ export class AuraEngine {
       const sourceGaugeUnitsSpent = Math.min(
         sourceGaugeUnitsBefore,
         auraGaugeUnitsBefore
+      );
+      remainingDendroGaugeUnits = cleanGaugeUnits(
+        sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
       );
       const mutation = this.reduceAuraGauge(
         quickenConsumedAuraElement,
@@ -2311,7 +3367,7 @@ export class AuraEngine {
           sourceGaugeUnitsSpent
         ),
         sourceGaugeUnitsAfter: cleanGaugeUnits(
-          sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
+          remainingDendroGaugeUnits
         ),
         auraGaugeUnitsBefore: cleanGaugeUnits(
           auraGaugeUnitsBefore
@@ -2352,6 +3408,58 @@ export class AuraEngine {
     }
 
     if (
+      burningBeforeReaction !== null &&
+      this.lastBurningStop?.fromGeneration ===
+        burningBeforeReaction.generation &&
+      this.lastBurningStop.frame === input.frame &&
+      this.lastBurningStop.reason ===
+        "BURNING_AURA_CONSUMED"
+    ) {
+      burningReaction = this.makeBurningStopAudit(
+        input,
+        burningBeforeReaction
+      );
+    }
+
+    const burningApplication = usesOrderedPyroPipeline
+      ? {
+          ...application,
+          gaugeUnits: remainingPyroGaugeUnits
+        }
+      : input.element === "dendro"
+        ? {
+            ...application,
+            gaugeUnits: remainingDendroGaugeUnits
+          }
+        : application;
+    const burningStartOrRefresh = this.startOrRefreshBurning(
+      input,
+      burningApplication
+    );
+    if (burningStartOrRefresh !== null) {
+      burningReaction = burningStartOrRefresh;
+      if (automaticReaction === "none") {
+        automaticReaction = "burning";
+      }
+    }
+
+    if (this.mode === "aura-v4") {
+      const bloomAuraPresent =
+        (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON ||
+        this.quickenGaugeUnits() > AURA_EPSILON ||
+        this.burningFuelGaugeUnits() > AURA_EPSILON;
+      if (
+        (input.element === "hydro" && bloomAuraPresent) ||
+        (input.element === "dendro" &&
+          (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+            AURA_EPSILON)
+      ) {
+        unsupportedReactions.push("bloom");
+      }
+    }
+
+    if (
       periodicReaction === null &&
       electroChargedWasActive &&
       !this.hasElectroChargedAuras()
@@ -2380,19 +3488,34 @@ export class AuraEngine {
       ...(additiveReaction === null
         ? []
         : [additiveReaction.reaction]),
-      ...(automaticReaction === "none"
-        ? []
-        : [automaticReaction])
+      ...(usesOrderedPyroPipeline
+        ? orderedPyroReactions
+        : automaticReaction === "none"
+          ? []
+          : [automaticReaction]),
+      ...(burningReaction !== null &&
+      burningReaction.operation !== "stop" &&
+      (usesOrderedPyroPipeline ||
+        automaticReaction !== "burning")
+        ? (["burning"] as const)
+        : [])
     ];
     let transformativeReaction: ReactionAudit["transformativeReaction"] =
       null;
-    if (
-      isOneShotTransformativeReaction(automaticReaction)
-    ) {
+    const oneShotTransformativeReaction =
+      orderedPyroTransformativeReaction ??
+      (isOneShotTransformativeReaction(automaticReaction)
+        ? automaticReaction
+        : null);
+    if (oneShotTransformativeReaction !== null) {
       const definition =
-        TRANSFORMATIVE_REACTION_DEFINITIONS[automaticReaction];
+        TRANSFORMATIVE_REACTION_DEFINITIONS[
+          oneShotTransformativeReaction
+        ];
       const previousReadyFrame =
-        this.reactionDamageReadyFrames.get(automaticReaction) ?? -1;
+        this.reactionDamageReadyFrames.get(
+          oneShotTransformativeReaction
+        ) ?? -1;
       const scheduled =
         previousReadyFrame < 0 ||
         input.frame >= previousReadyFrame;
@@ -2401,12 +3524,12 @@ export class AuraEngine {
         : previousReadyFrame;
       if (scheduled) {
         this.reactionDamageReadyFrames.set(
-          automaticReaction,
+          oneShotTransformativeReaction,
           nextAvailableFrame
         );
       }
       transformativeReaction = {
-        reaction: automaticReaction,
+        reaction: oneShotTransformativeReaction,
         damageElement: definition.damageElement,
         scheduled,
         damageFrame: input.frame + definition.damageDelayFrames,
@@ -2436,6 +3559,21 @@ export class AuraEngine {
         ...transformativeReaction,
         scheduled: false,
         blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      };
+    }
+    if (
+      mechanicsTruncation !== null &&
+      burningReaction?.scheduled === true
+    ) {
+      burningReaction = {
+        ...burningReaction,
+        scheduled: false,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION",
+        burningGaugeUnitsAfter: 0,
+        fuelGaugeUnitsAfter: 0,
+        fuelExpiresAtFrame: null,
+        firstTickFrame: null,
+        nextTickFrame: null
       };
     }
 
@@ -2468,15 +3606,22 @@ export class AuraEngine {
                 ? `${automaticReaction === "overload" ? "超载" : "超导"}已按反应顺序识别并消耗 Aura；同一命中随后进入目标机制截断，独立反应伤害未排队。`
                 : `${automaticReaction === "overload" ? "超载" : "超导"}已触发并消耗 Aura；独立反应伤害被同目标 6 帧 GCD 阻止。`
             : "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。";
-    const unsupportedDendroReaction =
+    const unsupportedReactionNote =
       unsupportedReactions.length === 0
         ? null
         : unsupportedReactions
-            .map((candidate) =>
-              candidate === "bloom"
-                ? "检测到绽放前提，但草原核实体尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被绽放处理的入射元素，不得据此推断后续 Aura 或伤害。"
-                : "检测到燃烧前提，但燃烧燃料、周期伤害和共存状态尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被燃烧处理的入射元素。"
-            )
+            .map((candidate) => {
+              if (candidate === "bloom") {
+                return "检测到绽放前提，但草原核实体尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被绽放处理的入射元素，不得据此推断后续 Aura 或伤害。";
+              }
+              if (
+                candidate ===
+                "non-pyro-multi-reaction-order"
+              ) {
+                return "检测到非火入射在同一命中内仍可继续触发多个有序反应；该完整顺序尚未实现，因此目标已 fail-closed，后续 Aura 与伤害不得据此推断。";
+              }
+              return "检测到燃烧前提，但燃烧燃料、周期伤害和共存状态尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被燃烧处理的入射元素。";
+            })
             .join("；");
     const baseNote =
       periodicReaction?.operation === "stop"
@@ -2512,7 +3657,8 @@ export class AuraEngine {
       swirlDamageGroup: null,
       crystallizeReaction: null,
       catalyzeReaction,
-      note: [baseNote, pendingBloomNote, unsupportedDendroReaction]
+      burningReaction,
+      note: [baseNote, pendingBloomNote, unsupportedReactionNote]
         .filter((part): part is string => part !== null)
         .join("；")
     };
@@ -2553,6 +3699,19 @@ export const AURA_ENGINE_CONSTANTS = {
     ELECTRO_CHARGED_WANE_GAUGE_UNITS,
   electroChargedBaseMultiplier:
     ELECTRO_CHARGED_BASE_MULTIPLIER,
+  burningMarkerGaugeUnits: BURNING_MARKER_GAUGE_UNITS,
+  burningFuelIncomingDendroRatio:
+    BURNING_FUEL_INCOMING_DENDRO_RATIO,
+  burningFuelMinDecayPerFrame:
+    BURNING_FUEL_MIN_DECAY_PER_FRAME,
+  burningTickIntervalFrames: BURNING_TICK_INTERVAL_FRAMES,
+  burningSkippedTickIndex: BURNING_SKIPPED_TICK_INDEX,
+  burningBaseMultiplier: BURNING_BASE_MULTIPLIER,
+  burningRadius: BURNING_RADIUS,
+  burningApplicationGaugeUnits:
+    BURNING_APPLICATION_GAUGE_UNITS,
+  burningIcdResetFrames: BURNING_ICD_RESET_FRAMES,
+  burningIcdSequence: BURNING_ICD_SEQUENCE,
   frozenBaseDecayPerFrame: FROZEN_BASE_DECAY_PER_FRAME,
   frozenDecayAccelerationPerFrame:
     FROZEN_DECAY_ACCELERATION_PER_FRAME,

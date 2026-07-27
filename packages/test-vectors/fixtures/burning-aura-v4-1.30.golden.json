@@ -1,0 +1,211 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Provisional aura-v4 Burning lifecycle cross-check with a 2U initial Dendro aura, including the fixed tick-9 skip and natural Fuel expiry.",
+  "provenance": {
+    "source": "genshinsim/gcsim reaction implementation at b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "capturedAt": "2026-07-27",
+    "verificationStatus": "provisional",
+    "crossCheckStatus": "fixed-gcsim-code-cross-check",
+    "note": "Regression fixture for the checked-in implementation only. It is not official game data and does not claim complete gcsim parity. Enemy hitlag pause, Burning self-damage, OnBurning-before-snapshot hooks, and Nahida C2 reaction crit are not modeled."
+  },
+  "config": {
+    "schemaVersion": "1.30.0",
+    "engineVersion": "1.30.0-burning-reaction",
+    "dataVersion": "burning-fixed-gcsim-cross-check-1",
+    "duration": 4.1,
+    "initialDendroGaugeUnits": 2,
+    "characterLevel": 90,
+    "elementalMastery": 100,
+    "reactionBonus": 0.2,
+    "enemyResistance": 0.1
+  },
+  "options": {
+    "energyMode": "configured",
+    "critMode": "noCrit",
+    "compatibilityMode": "legal-frame-v1",
+    "randomSeed": "burning-aura-v4-golden-seed"
+  },
+  "reproducibilityKey": "gdl-37da25f5",
+  "totalDamage": 9580.237103571431,
+  "dps": 2336.6431959930324,
+  "hitCount": 16,
+  "reactedHits": 1,
+  "burningDamageEventCount": 15,
+  "burningDamagePerTick": 638.6824735714285,
+  "cadence": {
+    "tickIntervalFrames": 15,
+    "skippedTickIndex": 9,
+    "tickFrames": [
+      15,
+      30,
+      45,
+      60,
+      75,
+      90,
+      105,
+      120,
+      150,
+      165,
+      180,
+      195,
+      210,
+      225,
+      240
+    ],
+    "skippedFrames": [
+      135
+    ],
+    "operationFrames": [
+      {
+        "frame": 0,
+        "operation": "start"
+      },
+      {
+        "frame": 15,
+        "operation": "tick"
+      },
+      {
+        "frame": 15,
+        "operation": "refresh-snapshot"
+      },
+      {
+        "frame": 30,
+        "operation": "tick"
+      },
+      {
+        "frame": 45,
+        "operation": "tick"
+      },
+      {
+        "frame": 60,
+        "operation": "tick"
+      },
+      {
+        "frame": 75,
+        "operation": "tick"
+      },
+      {
+        "frame": 90,
+        "operation": "tick"
+      },
+      {
+        "frame": 105,
+        "operation": "tick"
+      },
+      {
+        "frame": 120,
+        "operation": "tick"
+      },
+      {
+        "frame": 135,
+        "operation": "tick-skipped"
+      },
+      {
+        "frame": 150,
+        "operation": "tick"
+      },
+      {
+        "frame": 150,
+        "operation": "refresh-snapshot"
+      },
+      {
+        "frame": 165,
+        "operation": "tick"
+      },
+      {
+        "frame": 180,
+        "operation": "tick"
+      },
+      {
+        "frame": 195,
+        "operation": "tick"
+      },
+      {
+        "frame": 210,
+        "operation": "tick"
+      },
+      {
+        "frame": 225,
+        "operation": "tick"
+      },
+      {
+        "frame": 240,
+        "operation": "tick"
+      },
+      {
+        "frame": 241,
+        "operation": "fuel-expire"
+      }
+    ]
+  },
+  "owners": {
+    "triggerActorId": "pyro",
+    "damageSourceActorId": "pyro",
+    "fuelSourceActorId": "pyro",
+    "creditOwnerId": "pyro"
+  },
+  "fuel": {
+    "startGaugeUnits": 1.6,
+    "expiresAtFrame": 241,
+    "skippedTickGaugeUnitsAfter": 0.706666666667,
+    "finalTickGaugeUnitsAfter": 0.006666666667,
+    "expiryGaugeUnitsBefore": 0.006666666667,
+    "expiryGaugeUnitsAfter": 0,
+    "tickGaugeUnitsAfter": [
+      1.506666666667,
+      1.406666666667,
+      1.306666666667,
+      1.206666666667,
+      1.106666666667,
+      1.006666666667,
+      0.906666666667,
+      0.806666666667,
+      0.606666666667,
+      0.506666666667,
+      0.406666666667,
+      0.306666666667,
+      0.206666666667,
+      0.106666666667,
+      0.006666666667
+    ]
+  },
+  "byCharacter": {
+    "pyro": 9580.237103571431
+  },
+  "bySkill": [
+    {
+      "creditId": "pyro",
+      "actionName": "Pyro Golden Skill · 燃烧",
+      "damage": 9580.237103571431,
+      "hits": 15
+    },
+    {
+      "creditId": "pyro",
+      "actionName": "Pyro Golden Skill",
+      "damage": 0,
+      "hits": 1
+    }
+  ],
+  "byTarget": [
+    {
+      "targetId": "enemy-0",
+      "targetName": "燃烧基线目标",
+      "damage": 9580.237103571431,
+      "potentialDamage": 9580.237103571431,
+      "damageEvents": 16,
+      "landedChecks": 16,
+      "missedChecks": 0,
+      "immuneDamageEvents": 0
+    }
+  ],
+  "curve": {
+    "lastFrame": 240,
+    "lastTimeSeconds": 4,
+    "lastDamage": 638.6824735714285,
+    "cumulativeDamage": 9580.237103571431,
+    "cumulativeDirect": 0,
+    "cumulativeAdditiveReaction": 0,
+    "cumulativeTransformativeReaction": 9580.237103571431,
+    "cumulativeBurning": 9580.237103571431
+  }
+}

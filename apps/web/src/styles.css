@@ -89,6 +89,7 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 #periodicReactionBody tr[data-periodic-hit-id],
 #frozenStateBody tr[data-frozen-hit-id],
 #quickenStateBody tr[data-quicken-hit-id],
+#burningStateBody tr[data-burning-hit-id],
 #reactionStatusBody tr[data-reaction-status-damage-id] { cursor: pointer; }
 .particle-event-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .particle-event { border: 1px solid var(--border); background: var(--panel-2); border-radius: 9px; padding: 7px 9px; color: var(--muted); font-size: 12px; }

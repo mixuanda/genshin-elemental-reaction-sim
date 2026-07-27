@@ -301,6 +301,222 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await expect(page.locator("#hitDetail")).toContainText(
     "m3-pyro-multihit / default"
   );
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  const auraCanvas = page.locator("#auraTimelineCanvas");
+  const auraCanvasBox = await auraCanvas.boundingBox();
+  expect(auraCanvasBox).not.toBeNull();
+  await auraCanvas.click({
+    position: {
+      x: auraCanvasBox!.width - 20,
+      y: auraCanvasBox!.height / 2
+    }
+  });
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText(
+    "Aura / ICD 引擎"
+  );
+});
+
+test("renders an initial enemy Aura even when the run has no hits or state events", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "仅初始敌方附着 · 浏览器验收"
+  };
+  config.duration = 1;
+  config.cycleLength = 1;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "仅附着目标",
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.reactionEngine = { mode: "aura-v4" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [],
+    commands: []
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "initial-aura-only-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#auraTimelineCard")).toBeVisible();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "草 Aura"
+  );
+  await expect(page.locator("#auraTimelineBody tr")).toHaveCount(0);
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      damageEvents: result?.damageEvents.length,
+      auraTimeline: result?.auraTimeline.length,
+      initial:
+        result?.auraInitialStates.find(
+          (state) => state.targetId === "enemy-0"
+        )?.aura ?? [],
+      end:
+        result?.auraEndStates.find(
+          (state) => state.targetId === "enemy-0"
+        )?.aura ?? []
+    };
+  });
+  expect(audit.damageEvents).toBe(0);
+  expect(audit.auraTimeline).toBe(0);
+  expect(audit.initial).toEqual([
+    {
+      element: "dendro",
+      gaugeUnits: 0.8,
+      expiresAtFrame: 570,
+      sourceSlots: [
+        {
+          sourceActorId: "__initial__",
+          gaugeUnits: 0.8
+        }
+      ]
+    }
+  ]);
+  expect(audit.end).toEqual([
+    {
+      element: "dendro",
+      gaugeUnits: 0.715789473684,
+      expiresAtFrame: 570,
+      sourceSlots: [
+        {
+          sourceActorId: "__initial__",
+          gaugeUnits: 0.715789473684
+        }
+      ]
+    }
+  ]);
+
+  const rightEdgeDendroPixels = await page
+    .locator("#auraTimelineCanvas")
+    .evaluate((node) => {
+      const canvas = node as HTMLCanvasElement;
+      const context = canvas.getContext("2d");
+      if (context === null) return 0;
+      const ratio = window.devicePixelRatio || 1;
+      const startX = Math.max(
+        0,
+        Math.floor((canvas.clientWidth - 24) * ratio)
+      );
+      const endX = Math.min(
+        canvas.width - 1,
+        Math.ceil((canvas.clientWidth - 16) * ratio)
+      );
+      const pixels = context.getImageData(
+        startX,
+        0,
+        endX - startX + 1,
+        canvas.height
+      ).data;
+      let count = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (
+          (pixels[index + 3] ?? 0) >= 160 &&
+          Math.abs((pixels[index] ?? 0) - 158) <= 16 &&
+          Math.abs((pixels[index + 1] ?? 0) - 220) <= 16 &&
+          Math.abs((pixels[index + 2] ?? 0) - 114) <= 16
+        ) {
+          count += 1;
+        }
+      }
+      return count;
+    });
+  expect(rightEdgeDendroPixels).toBeGreaterThan(2);
+
+  config.duration = 10;
+  config.cycleLength = 10;
+  await page.locator("#importInput").setInputFiles({
+    name: "initial-aura-expiry-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  const expiredAudit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    return {
+      end:
+        result?.auraEndStates.find(
+          (state) => state.targetId === "enemy-0"
+        )?.aura ?? []
+    };
+  });
+  expect(expiredAudit.end).toEqual([]);
+
+  const expiredRaster = await page
+    .locator("#auraTimelineCanvas")
+    .evaluate((node) => {
+      const canvas = node as HTMLCanvasElement;
+      const context = canvas.getContext("2d");
+      if (context === null) {
+        return { totalDendro: 0, dendroAfter580AboveAxis: 0 };
+      }
+      const ratio = window.devicePixelRatio || 1;
+      const plotWidth = canvas.clientWidth - 58 - 18;
+      const after580X = Math.floor(
+        (58 + (580 / 600) * plotWidth) * ratio
+      );
+      const aboveAxisHeight = Math.max(
+        1,
+        Math.floor((300 - 42 - 4) * ratio)
+      );
+      const allPixels = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      ).data;
+      const tailPixels = context.getImageData(
+        after580X,
+        0,
+        canvas.width - after580X,
+        aboveAxisHeight
+      ).data;
+      const countDendro = (pixels: Uint8ClampedArray) => {
+        let count = 0;
+        for (let index = 0; index < pixels.length; index += 4) {
+          if (
+            (pixels[index + 3] ?? 0) >= 160 &&
+            Math.abs((pixels[index] ?? 0) - 158) <= 16 &&
+            Math.abs((pixels[index + 1] ?? 0) - 220) <= 16 &&
+            Math.abs((pixels[index + 2] ?? 0) - 114) <= 16
+          ) {
+            count += 1;
+          }
+        }
+        return count;
+      };
+      return {
+        totalDendro: countDendro(allPixels),
+        dendroAfter580AboveAxis: countDendro(tailPixels)
+      };
+    });
+  expect(expiredRaster.totalDendro).toBeGreaterThan(8);
+  expect(expiredRaster.dendroAfter580AboveAxis).toBe(0);
 });
 
 test("renders Dendro Catalyze, per-hit composition, Quicken state, and component curves", async ({
@@ -615,6 +831,9 @@ test("renders target-local mechanics truncation without counting later potential
   await expect(page.locator("#hitDetail")).toContainText(
     "Aura / ICD / 反应不再推演"
   );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "未执行的机制分支"
+  );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -729,7 +948,7 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
   });
 
   await expect(page.locator("#notice")).toContainText("结果部分有效");
-  await expect(page.locator("#notice")).toContainText("燃烧（未实现）");
+  await expect(page.locator("#notice")).toContainText("燃烧");
   await page.getByRole("button", { name: "逐段伤害" }).click();
   const triggerRow = page
     .locator("#hitTableBody tr")
@@ -779,6 +998,439 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
     reactionLogs: [],
     childEvents: []
   });
+});
+
+test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned curves", async ({
+  page
+}) => {
+  const config = structuredClone(legalTimelineDemoPreset);
+  const character = config.characters[0]!;
+  config.meta = {
+    ...config.meta,
+    name: "燃烧状态机 · 浏览器验收"
+  };
+  config.duration = 2.6;
+  config.cycleLength = 2.6;
+  config.enemy = {
+    level: 90,
+    resistance: 0.1,
+    defReduction: 0,
+    targets: [
+      {
+        id: "enemy-0",
+        name: "燃烧浏览器目标",
+        position: { x: 0, y: 0 },
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      }
+    ]
+  };
+  config.characters = [
+    {
+      ...character,
+      level: 90,
+      stats: {
+        ...character.stats,
+        baseAtk: 1000,
+        atkPct: 0,
+        flatAtk: 0,
+        em: 200,
+        critRate: 0,
+        critDmg: 0.5,
+        dmgBonus: 0,
+        reactionBonus: 0.1
+      }
+    }
+  ];
+  config.reactionEngine = { mode: "aura-v4" };
+  config.rotation = [];
+  config.timeline = {
+    mode: "legal-frame-v1",
+    fps: 60,
+    legalityMode: "strict",
+    initialActiveCharacterId: character.id,
+    swapFrames: 12,
+    abilities: [
+      {
+        id: "burning-browser",
+        actorId: character.id,
+        name: "燃烧启动与 Fuel 覆盖",
+        kind: "skill",
+        cancelFrame: 31,
+        animationEndFrame: 31,
+        cooldownFrames: 0,
+        hits: [
+          {
+            id: "burning-browser-start",
+            label: "火元素启动燃烧",
+            frame: 0,
+            scaling: 1,
+            element: "pyro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: "burning-browser-start",
+              icdGroup: "no-icd"
+            }
+          },
+          {
+            id: "burning-browser-refresh",
+            label: "草元素覆盖 Fuel",
+            frame: 30,
+            scaling: 1,
+            element: "dendro",
+            targeting: {
+              targetId: "enemy-0",
+              outcome: "landed"
+            },
+            application: {
+              gaugeUnits: 2,
+              icdTag: "burning-browser-refresh",
+              icdGroup: "no-icd"
+            }
+          }
+        ]
+      }
+    ],
+    commands: [
+      {
+        type: "skill",
+        actorId: character.id,
+        abilityId: "burning-browser"
+      }
+    ]
+  };
+
+  await page.goto("/");
+  await page.locator("#importInput").setInputFiles({
+    name: "burning-browser-vector.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v4 自动判定"
+  );
+  await expect(page.locator("#metricGrid")).toContainText("未截断");
+  await page.getByRole("button", { name: "时间轴" }).click();
+  await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#burningStateSummary")).toContainText(
+    "次启动"
+  );
+  await expect(page.locator("#burningStateSummary")).toContainText(
+    "次第 9 Tick 跳过"
+  );
+  await expect(page.locator("#burningStateSummary")).toContainText(
+    "未实现敌方 Hitlag 暂停"
+  );
+  await expect(page.locator("#burningStateSummary")).toContainText(
+    "玩家自伤未模拟（玩家受击模型缺失）"
+  );
+  await expect(page.locator("#burningStateBody")).toContainText(
+    "覆盖 Fuel / 刷新快照"
+  );
+  await expect(page.locator("#burningStateBody")).toContainText(
+    "第 9 Tick 跳过"
+  );
+  await expect(page.locator("#burningStateBody")).toContainText(
+    "burning-application"
+  );
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "燃烧标记 Aura"
+  );
+  await expect(page.locator("#auraTimelineLegend")).toContainText(
+    "燃烧 Fuel Aura"
+  );
+  await expect(page.locator("#curveLegend")).toContainText("燃烧累计");
+  await expect(page.locator("#reactionDamageBody")).toContainText(
+    "燃烧 Tick"
+  );
+  const canvasExpectations = [
+    {
+      canvasId: "#auraTimelineCanvas",
+      colors: {
+        burning: [255, 112, 67],
+        fuel: [198, 221, 87]
+      }
+    },
+    {
+      canvasId: "#damageCurveCanvas",
+      colors: {
+        burning: [255, 112, 67]
+      }
+    }
+  ];
+  for (const { canvasId, colors } of canvasExpectations) {
+    const raster = await page
+      .locator(canvasId)
+      .evaluate((node, expectedColors) => {
+        const canvas = node as HTMLCanvasElement;
+        const context = canvas.getContext("2d");
+        if (context === null) {
+          return {
+            opaquePixels: 0,
+            distinctColors: 0,
+            seriesPixels: {}
+          };
+        }
+        const pixels = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        ).data;
+        let opaquePixels = 0;
+        const colors = new Set<string>();
+        const seriesPixels = Object.fromEntries(
+          Object.keys(expectedColors).map((key) => [key, 0])
+        ) as Record<string, number>;
+        for (let index = 0; index < pixels.length; index += 4) {
+          const alpha = pixels[index + 3] ?? 0;
+          if (alpha === 0) continue;
+          opaquePixels += 1;
+          if (colors.size < 64) {
+            colors.add(
+              `${pixels[index] ?? 0},${pixels[index + 1] ?? 0},${pixels[index + 2] ?? 0},${alpha}`
+            );
+          }
+          if (alpha >= 160) {
+            for (const [key, expected] of Object.entries(
+              expectedColors
+            )) {
+              if (
+                Math.abs((pixels[index] ?? 0) - expected[0]!) <=
+                  16 &&
+                Math.abs(
+                  (pixels[index + 1] ?? 0) - expected[1]!
+                ) <= 16 &&
+                Math.abs(
+                  (pixels[index + 2] ?? 0) - expected[2]!
+                ) <= 16
+              ) {
+                seriesPixels[key] =
+                  (seriesPixels[key] ?? 0) + 1;
+              }
+            }
+          }
+        }
+        return {
+          opaquePixels,
+          distinctColors: colors.size,
+          seriesPixels
+        };
+      }, colors);
+    expect(raster.opaquePixels).toBeGreaterThan(100);
+    expect(raster.distinctColors).toBeGreaterThan(2);
+    for (const count of Object.values(raster.seriesPixels)) {
+      expect(count).toBeGreaterThan(8);
+    }
+  }
+  const activeAuraRightEdge = await page
+    .locator("#auraTimelineCanvas")
+    .evaluate((node) => {
+      const canvas = node as HTMLCanvasElement;
+      const context = canvas.getContext("2d");
+      if (context === null) {
+        return { burning: 0, fuel: 0 };
+      }
+      const ratio = window.devicePixelRatio || 1;
+      const startX = Math.max(
+        0,
+        Math.floor((canvas.clientWidth - 24) * ratio)
+      );
+      const endX = Math.min(
+        canvas.width - 1,
+        Math.ceil((canvas.clientWidth - 16) * ratio)
+      );
+      const pixels = context.getImageData(
+        startX,
+        0,
+        endX - startX + 1,
+        canvas.height
+      ).data;
+      const counts = { burning: 0, fuel: 0 };
+      const expected = {
+        burning: [255, 112, 67],
+        fuel: [198, 221, 87]
+      };
+      for (let index = 0; index < pixels.length; index += 4) {
+        if ((pixels[index + 3] ?? 0) < 160) continue;
+        for (const [key, color] of Object.entries(expected)) {
+          if (
+            Math.abs((pixels[index] ?? 0) - color[0]!) <= 16 &&
+            Math.abs((pixels[index + 1] ?? 0) - color[1]!) <=
+              16 &&
+            Math.abs((pixels[index + 2] ?? 0) - color[2]!) <=
+              16
+          ) {
+            counts[key as keyof typeof counts] += 1;
+          }
+        }
+      }
+      return counts;
+    });
+  expect(activeAuraRightEdge.burning).toBeGreaterThan(2);
+  expect(activeAuraRightEdge.fuel).toBeGreaterThan(2);
+
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const burningState = result?.burningStateLog ?? [];
+    const tickState = burningState.filter(
+      (entry) =>
+        entry.operation === "tick" ||
+        entry.operation === "tick-skipped"
+    );
+    const burningDamageEvents =
+      result?.damageEvents.filter(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reaction === "burning"
+      ) ?? [];
+    const lastCurve = result?.damageCurve.at(-1);
+    return {
+      mechanicsStatus: result?.mechanicsStatus,
+      unsupported:
+        result?.damageEvents.flatMap(
+          (event) => event.reactionAudit.unsupportedReactions
+        ) ?? [],
+      tickFrames: tickState.map((entry) => entry.frame),
+      tickIndices: tickState.map((entry) => entry.tickIndex),
+      skipped: tickState
+        .filter((entry) => entry.operation === "tick-skipped")
+        .map((entry) => ({
+          frame: entry.frame,
+          tickIndex: entry.tickIndex,
+          reason: entry.skipReason
+        })),
+      startFuelExpiry: burningState.find(
+        (entry) => entry.operation === "start"
+      )?.fuelExpiresAtFrame,
+      refreshFuelExpiry: burningState.find(
+        (entry) => entry.operation === "refresh-fuel"
+      )?.fuelExpiresAtFrame,
+      burningDamageFrames: burningDamageEvents.map(
+        (event) => event.frame
+      ),
+      integerDisplays: result?.damageEvents.every(
+        (event) => Number.isInteger(event.displayDamage)
+      ),
+      compositionConserves: result?.damageEvents.every(
+        (event) =>
+          Math.abs(
+            Object.values(event.damageComposition).reduce(
+              (sum, value) => sum + value,
+              0
+            ) - event.finalDamage
+          ) < 1e-8
+      ),
+      burningDamage: burningDamageEvents.reduce(
+        (sum, event) => sum + event.finalDamage,
+        0
+      ),
+      burningCurve:
+        lastCurve?.cumulativeByReaction.burning ?? 0,
+      auraEnd:
+        result?.auraEndStates.find(
+          (state) => state.targetId === "enemy-0"
+        )?.aura ?? [],
+      frame30Priorities: {
+        damage: result?.auraTimeline
+          .filter((point) => point.frame === 30)
+          .map((point) => point.eventPriority),
+        burningState: burningState
+          .filter((entry) => entry.frame === 30)
+          .map((entry) => entry.eventPriority)
+      }
+    };
+  });
+
+  expect(audit.mechanicsStatus).toBe("complete");
+  expect(audit.unsupported).toEqual([]);
+  expect(audit.tickFrames).toEqual([
+    15, 30, 45, 60, 75, 90, 105, 120, 135, 150
+  ]);
+  expect(audit.tickIndices).toEqual([
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+  ]);
+  expect(audit.skipped).toEqual([
+    {
+      frame: 135,
+      tickIndex: 9,
+      reason: "COUNTER_9_SKIP"
+    }
+  ]);
+  expect(audit.startFuelExpiry).toBe(121);
+  expect(audit.refreshFuelExpiry).toBe(271);
+  expect(audit.burningDamageFrames).toEqual([
+    15, 30, 45, 60, 75, 90, 105, 120, 150
+  ]);
+  expect(audit.integerDisplays).toBe(true);
+  expect(audit.compositionConserves).toBe(true);
+  expect(audit.burningCurve).toBeCloseTo(
+    audit.burningDamage,
+    8
+  );
+  expect(audit.auraEnd).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        element: "burning",
+        gaugeUnits: 2
+      }),
+      expect.objectContaining({
+        element: "burningFuel",
+        gaugeUnits: expect.any(Number)
+      })
+    ])
+  );
+  expect(
+    audit.auraEnd.find(
+      (entry) => entry.element === "burningFuel"
+    )?.gaugeUnits
+  ).toBeGreaterThan(0);
+  expect(audit.frame30Priorities.damage).toEqual([
+    3,
+    expect.any(Number)
+  ]);
+  expect(audit.frame30Priorities.damage?.[1]).toBeGreaterThan(4);
+  expect(audit.frame30Priorities.burningState).toEqual(
+    expect.arrayContaining([3, 4, expect.any(Number)])
+  );
+
+  const startRow = page
+    .locator("#burningStateBody tr[data-burning-hit-id]")
+    .filter({ hasText: "启动" })
+    .first();
+  await startRow.click();
+  await expect(page.locator("#hitDetail")).toContainText("燃烧判定");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "等级基准 × 0.25"
+  );
+  await expect(page.locator("#hitDetail")).toContainText("半径 1");
+  await expect(page.locator("#hitDetail")).toContainText("1U");
+  await expect(page.locator("#hitDetail")).toContainText(
+    "玩家自伤未模拟（玩家受击模型缺失）"
+  );
+
+  await page.getByRole("button", { name: "时间轴" }).click();
+  const tickRow = page
+    .locator("#burningStateBody tr[data-burning-hit-id]")
+    .filter({ hasText: "Tick" })
+    .first();
+  await tickRow.click();
+  await expect(page.locator("#hitDetail")).toContainText(
+    "燃烧专用附着 ICD"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "敌方 Aura（命中前）"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "敌方 Aura（命中后）"
+  );
+  await expect(page.locator("#hitDetail")).toContainText(
+    "未实现敌方 Hitlag 暂停"
+  );
 });
 
 test("renders Swirl self damage, propagation, secondary reaction, Aura, and curve events", async ({

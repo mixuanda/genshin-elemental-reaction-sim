@@ -1,5 +1,8 @@
-export const CURRENT_SCHEMA_VERSION = "1.29.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.29.0-catalyze-reaction" as const;
+export const CURRENT_SCHEMA_VERSION = "1.30.0" as const;
+export const CURRENT_ENGINE_VERSION = "1.30.0-burning-reaction" as const;
+export const CATALYZE_REACTION_SCHEMA_VERSION = "1.29.0" as const;
+export const CATALYZE_REACTION_ENGINE_VERSION =
+  "1.29.0-catalyze-reaction" as const;
 export const CRYSTALLIZE_REACTION_SCHEMA_VERSION = "1.28.0" as const;
 export const SWIRL_REACTION_SCHEMA_VERSION = "1.27.0" as const;
 export const SHATTER_REACTION_SCHEMA_VERSION = "1.26.0" as const;
@@ -52,6 +55,7 @@ export type OneShotTransformativeReaction =
   | "overload"
   | "superconduct";
 export type PeriodicTransformativeReaction = "electroCharged";
+export type BurningReaction = "burning";
 export type ShatterReaction = "shatter";
 export type SwirlReaction =
   | "swirlPyro"
@@ -65,7 +69,12 @@ export type CrystallizeReaction =
   | "crystallizeElectro";
 export type AdditiveReaction = "aggravate" | "spread";
 export type QuickenReaction = "quicken";
-export type UnsupportedDendroReaction = "burning" | "bloom";
+export type UnsupportedMechanicsBranch =
+  | "burning"
+  | "bloom"
+  | "non-pyro-multi-reaction-order";
+/** @deprecated Use UnsupportedMechanicsBranch for new integrations. */
+export type UnsupportedDendroReaction = UnsupportedMechanicsBranch;
 export type MechanicsResolutionStatus =
   | "authoritative"
   | "mechanics-truncated";
@@ -73,6 +82,7 @@ export type SimulationMechanicsStatus = "complete" | "partial";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
   | PeriodicTransformativeReaction
+  | BurningReaction
   | ShatterReaction
   | SwirlReaction;
 export type NonDamageReaction =
@@ -107,7 +117,9 @@ export type PersistentAuraElement = AuraElement | "dendro";
 export type AuraStateElement =
   | PersistentAuraElement
   | "quicken"
-  | "frozen";
+  | "frozen"
+  | "burning"
+  | "burningFuel";
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
@@ -177,12 +189,16 @@ export interface InitialAuraApplication {
 export interface IcdProfile {
   /** Time-based reset boundary for the sequence, in 60 FPS frames. */
   resetFrames: number;
-  /** Per-hit elemental application permission sequence, repeated by index. */
+  /**
+   * Per-hit elemental application permission sequence. User/default profiles
+   * repeat by index; the engine-owned Burning profile clamps beyond its final
+   * slot until the window resets.
+   */
   applicationSequence: boolean[];
 }
 
 export interface AuraReactionEngineConfig {
-  mode: "aura-v1" | "aura-v2" | "aura-v3";
+  mode: "aura-v1" | "aura-v2" | "aura-v3" | "aura-v4";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -652,6 +668,8 @@ export type SimulationEventType =
   | "periodicReactionTick"
   | "periodicReactionWane"
   | "periodicReactionExpiry"
+  | "burningTick"
+  | "burningFuelExpiry"
   | "frozenExpiry"
   | "quickenExpiry"
   | "crystallizeShardSpawn"
@@ -696,7 +714,7 @@ export interface AuraStateEntry {
   element: AuraStateElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
-  /** Present in aura-v3; each application owner keeps an independent slot. */
+  /** Present in aura-v3 and aura-v4; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -759,6 +777,8 @@ export interface ReactionAudit {
   crystallizeReaction: CrystallizeReactionAudit | null;
   /** Dendro/Electro Quicken state and optional additive hit reaction. */
   catalyzeReaction: CatalyzeReactionAudit | null;
+  /** Pyro/Dendro Burning marker, Fuel, snapshot, and tick scheduling. */
+  burningReaction: BurningReactionAudit | null;
   note?: string;
 }
 
@@ -768,7 +788,9 @@ export interface TargetMechanicsTruncationAudit {
   unsupportedReactions: UnsupportedDendroReaction[];
   /** Aura state discarded when the unsupported branch was first reached. */
   discardedAura: AuraStateEntry[];
-  reason: "UNSUPPORTED_DENDRO_REACTION";
+  reason:
+    | "UNSUPPORTED_DENDRO_REACTION"
+    | "UNSUPPORTED_REACTION_ORDER";
 }
 
 export interface QuickenReactionAudit {
@@ -803,6 +825,55 @@ export interface AdditiveReactionAudit {
 export interface CatalyzeReactionAudit {
   quicken: QuickenReactionAudit | null;
   additive: AdditiveReactionAudit | null;
+}
+
+export type BurningReactionOperation =
+  | "start"
+  | "refresh-fuel"
+  | "refresh-snapshot"
+  | "stop";
+
+/**
+ * Audit emitted on the Pyro/Dendro hit that starts or refreshes Burning.
+ *
+ * Literal mechanics constants make an accidental drift from the fixed gcsim
+ * reference visible to TypeScript consumers. Player self-damage is deliberately
+ * explicit because the simulator does not model player HP yet.
+ */
+export interface BurningReactionAudit {
+  reaction: BurningReaction;
+  operation: BurningReactionOperation;
+  reactionTriggered: boolean;
+  generation: number;
+  triggerElement: Element;
+  fuelOperation: "start" | "overwrite" | "unchanged" | "remove";
+  stopReason: "BURNING_AURA_CONSUMED" | null;
+  scheduled: boolean;
+  blockedReason: "TARGET_MECHANICS_TRUNCATION" | null;
+  damageSourceActorId: string;
+  fuelSourceActorId: string | null;
+  burningGaugeUnitsBefore: number;
+  candidateBurningGaugeUnits: number;
+  burningGaugeUnitsAfter: number;
+  burningDecayPerFrame: 0;
+  burningExpiresAtFrame: null;
+  fuelGaugeUnitsBefore: number;
+  candidateFuelGaugeUnits: number;
+  fuelGaugeUnitsAfter: number;
+  fuelDecayPerFrame: number;
+  fuelExpiresAtFrame: number | null;
+  snapshotFrame: number;
+  clockModel: "target-local-no-hitlag";
+  hitlagStatus: "unsupported-enemy-hitlag";
+  firstTickFrame: number | null;
+  nextTickFrame: number | null;
+  tickIntervalFrames: 15;
+  skippedTickIndex: 9;
+  damageElement: "pyro";
+  baseMultiplier: 0.25;
+  radius: 1;
+  applicationGaugeUnits: 1;
+  selfDamageStatus: "unsupported-player-damage-model";
 }
 
 export interface TransformativeReactionAudit {
@@ -1010,6 +1081,9 @@ export interface DamageComposition {
 export interface DamageEvent {
   id: number;
   kind: "direct" | "transformative-reaction";
+  /** Authoritative event-queue ordering used by result timelines. */
+  eventPriority: number;
+  eventSequence: number;
   parentDamageEventId: number | null;
   sourceActorId: string;
   scalingOwnerId: string;
@@ -1335,10 +1409,15 @@ export interface DamageCurvePoint {
   cumulativeDamage: number;
   cumulativeByCharacter: Record<string, number>;
   cumulativeByComponent: DamageComposition;
+  /** Core-owned reaction series; the UI must not reconstruct these totals. */
+  cumulativeByReaction: Partial<Record<TransformativeReaction, number>>;
 }
 
 export interface AuraTimelinePoint {
   damageEventId: number;
+  /** Copied from the originating DamageEvent; the UI must not infer it. */
+  eventPriority: number;
+  eventSequence: number;
   targetId: TargetId;
   targetName: string;
   frame: number;
@@ -1358,6 +1437,14 @@ export interface AuraTimelinePoint {
   auraAfter: AuraStateEntry[];
 }
 
+export interface AuraEndState {
+  targetId: TargetId;
+  targetName: string;
+  frame: number;
+  timeSeconds: number;
+  aura: AuraStateEntry[];
+}
+
 export interface TargetMechanicsTruncationLogEntry {
   id: number;
   targetId: TargetId;
@@ -1370,7 +1457,9 @@ export interface TargetMechanicsTruncationLogEntry {
   triggerDamageEventId: number;
   unsupportedReactions: UnsupportedDendroReaction[];
   discardedAura: AuraStateEntry[];
-  reason: "UNSUPPORTED_DENDRO_REACTION";
+  reason:
+    | "UNSUPPORTED_DENDRO_REACTION"
+    | "UNSUPPORTED_REACTION_ORDER";
 }
 
 export interface ReactionDamageLogEntry {
@@ -1394,6 +1483,7 @@ export interface ReactionDamageLogEntry {
   scheduleKind:
     | "one-shot"
     | "periodic-tick"
+    | "burning-tick"
     | "swirl-self"
     | "swirl-propagation";
   targetingMode: "radius" | "single-target";
@@ -1501,6 +1591,90 @@ export interface QuickenStateLogEntry {
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
   reason: string | null;
+}
+
+export type BurningStateOperation =
+  | "start"
+  | "refresh-fuel"
+  | "refresh-snapshot"
+  | "tick"
+  | "tick-skipped"
+  | "stop"
+  | "fuel-expire";
+
+export type BurningStopReason =
+  | "FUEL_EXPIRED"
+  | "BURNING_AURA_CONSUMED"
+  | "TARGET_MECHANICS_TRUNCATION"
+  | "SOURCE_CHANGED"
+  | null;
+
+/**
+ * Target-local Burning lifecycle log.
+ *
+ * Tick rows link the owning hit, queued reaction damage, and resulting damage
+ * events. They also preserve the Burning-specific application ICD decision so
+ * the UI never has to infer Aura or damage behavior from the final total.
+ */
+export interface BurningStateLogEntry {
+  id: number;
+  reaction: BurningReaction;
+  generation: number;
+  operation: BurningStateOperation;
+  frame: number;
+  timeSeconds: number;
+  /** Stable same-frame ordering copied from the scheduled simulator event. */
+  eventPriority: number;
+  eventSequence: number;
+  clockModel: "target-local-no-hitlag";
+  hitlagStatus: "unsupported-enemy-hitlag";
+  targetId: TargetId;
+  targetName: string;
+  triggerElement: Element | null;
+  damageSourceActorId: string | null;
+  fuelSourceActorId: string | null;
+  triggerDamageEventId: number | null;
+  reactionDamageLogId: number | null;
+  damageEventIds: number[];
+  /** One-based for tick and tick-skipped operations. */
+  tickIndex: number | null;
+  tickSkipped: boolean;
+  skipReason: "COUNTER_9_SKIP" | null;
+  damageAllowed: boolean | null;
+  burningGaugeUnitsBefore: number;
+  burningGaugeUnitsAfter: number;
+  fuelGaugeUnitsBefore: number;
+  fuelGaugeUnitsAfter: number;
+  fuelDecayPerFrame: number;
+  fuelExpiresAtFrame: number | null;
+  auraBefore: AuraStateEntry[];
+  auraApplied: AuraGaugeEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+  icdGroup: "burning";
+  icdTag: "burning-application";
+  icdScope: "global-target";
+  icdWindowStartFrame: number | null;
+  icdHitIndex: number | null;
+  icdResetFrames: 120;
+  icdApplicationSequence: readonly [
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ];
+  applicationAllowed: boolean | null;
+  applicationBlockedReason:
+    | "BURNING_APPLICATION_ICD"
+    | "TARGET_AURA_BLOCKED"
+    | null;
+  selfDamageStatus: "unsupported-player-damage-model";
+  reason: BurningStopReason;
 }
 
 export type CrystallizeShardOperation =
@@ -1702,6 +1876,8 @@ export interface SimulationResult {
   frozenStateLog: FrozenStateLogEntry[];
   /** Quicken state starts, refreshes, weaker no-ops, and exact expiry. */
   quickenStateLog: QuickenStateLogEntry[];
+  /** Burning marker, Fuel, per-tick/skip, ICD, and stop lifecycle. */
+  burningStateLog: BurningStateLogEntry[];
   /** Crystallize shard lifecycle, explicit pickup attempts, and evictions. */
   crystallizeShardLog: CrystallizeShardLogEntry[];
   /** Crystallize shield add/overwrite/expiry state transitions. */
@@ -1729,5 +1905,9 @@ export interface SimulationResult {
   perSecond: Array<Record<string, number>>;
   damageCurve: DamageCurvePoint[];
   auraTimeline: AuraTimelinePoint[];
+  /** Exact target Aura snapshots before the first simulation frame. */
+  auraInitialStates: AuraEndState[];
+  /** Exact target Aura snapshots after advancing every engine to the run end. */
+  auraEndStates: AuraEndState[];
   timelineExecution?: TimelineExecution;
 }
