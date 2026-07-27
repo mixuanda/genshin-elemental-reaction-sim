@@ -37,7 +37,7 @@ npm run check
 只验证 1.30 Burning 与兼容 Golden 时可运行：
 
 ```bash
-npx vitest run packages/schemas/src/schema.test.ts packages/sim-core/src/__tests__/burning.test.ts packages/sim-core/src/__tests__/burning-order.test.ts packages/sim-core/src/__tests__/golden.test.ts packages/sim-core/src/__tests__/performance.test.ts
+npx vitest run packages/schemas/src/schema.test.ts packages/sim-core/src/__tests__/target-state-timeline.test.ts packages/sim-core/src/__tests__/burning.test.ts packages/sim-core/src/__tests__/burning-order.test.ts packages/sim-core/src/__tests__/golden.test.ts packages/sim-core/src/__tests__/performance.test.ts
 npx playwright test apps/web/e2e/simulator.spec.ts --project=chromium
 ```
 
@@ -63,13 +63,14 @@ npx playwright install chromium
 - 角色无关的行动状态支持进入、刷新、前置要求、消耗、无前置清除和到期；状态在边界帧先失效，每次实际变更都进入结构化日志。
 - 输入配置含 `schemaVersion`、`engineVersion`、`dataVersion` 和 `randomSeed`。
 - Zod 严格校验、字段路径错误，以及 v0.1–1.29.0 配置迁移；当前 Schema 为 `1.30.0`、引擎为 `1.30.0-burning-reaction`。
-- 输出侧已为 `BurningReactionAudit` 与 `BurningStateLogEntry` 提供严格 Zod Schema，并用真实模拟结果做运行时解析回归；整个 `SimulationResult` 目前仍只有 TypeScript 契约，尚未具备覆盖所有结果字段的顶层运行时 Zod Schema。
+- 输出侧已为 `BurningReactionAudit`、`BurningStateLogEntry` 与 `TargetStateTimeline` 提供严格 Zod Schema，并用真实模拟结果做运行时解析回归；整个 `SimulationResult` 目前仍只有 TypeScript 契约，尚未具备覆盖所有结果字段的顶层运行时 Zod Schema。
 - `aura-v1` 支持火/冰/水普通 Aura、可扩展元素量、衰减、默认三击/2.5秒 ICD、No ICD、独立的角色/Tag/Group 流和显式声明的角色特有 ICD Profile。
 - `aura-v2` 在保持上述语义的基础上加入雷普通 Aura，以及超载/超导的双向触发。反应本体与独立伤害分开记录；两者的独立伤害都延迟 1 帧、同一触发目标具有各自独立的 6 帧伤害 GCD，并以触发目标命中时的位置为圆心对半径 3 内的注册目标逐一求交。
 - `aura-v3` 保留 v1/v2 回放语义，另按固定 gcsim 提交的 `25 durability = 1U` 换算修正普通 Aura：标称 `1U` 初始为 `0.8U`，自然寿命为 `570f`。火/冰/水/雷/草普通 Aura 与激元素均保存逐来源槽；同一次反应从每个来源槽扣除相同预算，状态最大值、共享衰减与变更来源进入逐击审计。旧 `aura-v1/v2` 的历史寿命不被静默改写。
 - `aura-v4` 在保留 v1–v3 回放语义的基础上加入燃烧纵向切片。启动时建立不自然衰减的 `2U` Burning Marker 和独立 Fuel；Fuel 至少以 `0.4/60 U/f` 衰减，燃烧期间普通草 Aura 与激元素按固定参考路径调整衰减。首次 Tick 在启动后 15 帧，之后每 15 帧检查一次，固定跳过索引 9；实际伤害使用 `0.25 × 等级基准 × (1 + 转化精通加成 + 燃烧增伤)`、火抗、无防御且不普通暴击，并以半径 1 扇出。
 - 每次燃烧 Tick 都携带 `1U` 火附着，使用目标局部、队伍全局的内置 120 帧 ICD 序列 `[允许, 阻止 × 7]`。草命中会把 Fuel 覆盖为剩余来袭草量的 `0.8` 倍并刷新后续 Tick 归属/实时面板快照；火命中只刷新后续伤害归属/快照，不补 Fuel，也不重置 Tick 节奏。Marker 被蒸发、融化、超载、火扩散或火结晶消耗时，周期流立即停止；Fuel 自然耗尽则同时移除 Marker、普通草 Aura 和激元素。
-- `ReactionAudit.burningReaction` 与 `burningStateLog` 记录启动、Fuel 覆盖、快照刷新、Tick、固定跳过、附着 ICD、自然到期和 Marker 消耗停止。核心另返回带真实事件优先级/序号的 `auraTimeline`，以及运行首帧/尾帧精确 `auraInitialStates`、`auraEndStates`；网页直接读取逐击事件、燃烧状态表、Aura/Fuel 曲线与 `cumulativeByReaction.burning` 伤害曲线，不自行计算伤害、猜测同帧排序或重算无命中场景的敌方附着。
+- `ReactionAudit.burningReaction` 与 `burningStateLog` 记录启动、Fuel 覆盖、快照刷新、Tick、固定跳过、附着 ICD、自然到期和 Marker 消耗停止。旧 `auraTimeline`、各状态日志及 `auraInitialStates` / `auraEndStates` 继续作为兼容输出保留。
+- 核心新增输出侧独立版本 `targetStateTimeline.version = "1.0.0"`：按实际 AuraEngine 调用点记录初始/结束边界、普通 Aura 自然到期、直接命中与独立反应伤害的附着/碎冰子阶段，以及冻元素、激元素、感电和燃烧的 Tick、削减与到期。事件点携带真实 `eventPriority / eventSequence / intraEventSequence`，自然衰减点不会伪造队列事件；数组顺序和连续 `id` 是权威顺序。网页 Aura/Fuel 曲线只按这些核心点的原序绘制，并通过 `primaryDamageEventId` 回链逐击，不再合并旧日志、手写优先级或自行排序。
 - 草与雷双向触发原激化；典型 `1U` 与 `1U` 生成 `0.8U` 激元素，并按 `360 + 300 × 激元素U` 帧衰减。较弱候选不覆盖，等强/更强候选按来源槽刷新。雷命中激元素触发超激化，草命中触发蔓激化；两者不消耗激元素，分别把 `1.15` / `1.25 × 等级基准 × (1 + 精通加成 + 反应增伤)` 作为加算基础伤害，再进入本段增伤、防御、抗性、暴击、增幅与目标策略。激化精通在命中帧读取，即使技能倍率采用行动快照。
 - 正向/反向融化、正向/反向蒸发由核心根据命中元素、敌方 Aura、元素量和 ICD 自动判断。
 - 超载伤害使用角色等级基准、`2.75` 基础倍率、转化反应元素精通加成、反应增伤和目标火抗；不暴击、忽略防御，不施加 Aura，也不触发普通命中回调。触发、GCD、范围目标、未解析坐标和生成的伤害事件均进入 `reactionDamageLog`。
@@ -140,6 +141,7 @@ npx playwright install chromium
 - 固定参考实现的每次 Burning Tick 还会对玩家排入自伤。本项目没有玩家 HP/受击模型，因此只返回 `selfDamageStatus: "unsupported-player-damage-model"`，不会把缺失的玩家自伤伪装成 0 伤害事件。
 - 角色专属 `OnBurning` hook-before-snapshot 尚未进入通用事件阶段；纳西妲 C2 对燃烧等转化反应的特殊暴击也未实现。当前燃烧 Tick 不应被用于验证这些角色特有机制。
 - 绽放、草原核实体、烈绽放和超绽放仍未实现。命中满足这些前提时继续走目标级 fail-closed 截断：保留触发当击可证明的直接伤害/激化加算，后续潜在伤害不计入总伤/DPS，未知 Aura 状态被清空并锁定，其他目标继续独立模拟。
+- `targetStateTimeline` 只把当前已经实现的目标 Aura 状态变化按核心真实顺序暴露给消费者；它没有实现或补全绽放系反应、草原核、敌人 Hitlag、玩家 HP/受击或任何缺失的角色机制。
 - 火元素来袭已实现 `超载 → 反向蒸发 → 融化 → 燃烧` 的剩余量顺序；冰/水/雷来袭若同一元素量仍可到达两个以上消费反应，当前会以 `non-pyro-multi-reaction-order` / `UNSUPPORTED_REACTION_ORDER` 目标级 fail-closed，而不会把单分支结果标成权威。其完整多反应流水线、草原核实体上限/归属/范围、绽放系伤害与角色特有修正仍未完成。当前超载、超导、感电、碎冰、四元素扩散和燃烧已进入独立伤害/传播管线；冻结、结晶和原激化本身是无独立伤害的状态反应。
 - 扩散只覆盖固定 gcsim 提交中的目标 Aura 消耗、1f/5f 双攻击、二维半径 5、源目标排除、传播附着、二次反应和 ReactionA 伤害 ICD。尚未实现三维高度、风场吸附/聚怪、扩散对物件/召唤物/玩家目标的命中、扩散攻击的真实视觉/飞行路径、按来源 Aura overlap 数组或任何角色特有扩散修正。当前二维圆心在触发帧冻结，目标位置在传播帧读取，与固定提交 `NewCircleHitOnTarget` 创建静态圆形的行为一致。
 - 结晶碎片位置使用独立固定种子，在生成帧目标圆形碰撞体半径外 `0.5m` 取确定性角度；固定 gcsim 同样把碎片简化为随机圆周点，但本项目没有复刻其全局 RNG 调用序列。显式拾取命令与参考实现的 `pick_up_crystallize` 一样不检查角色到碎片的距离；尚无角色移动拾取、自动吸附、敌方对玩家伤害、护盾受击/破裂、护盾强效 Buff、磐岩套/角色被动回调、碎片被攻击、月结晶或真实视觉实体。因此当前护盾曲线只表示生成、覆盖和到期的理论吸收量，不是完整生存模拟。

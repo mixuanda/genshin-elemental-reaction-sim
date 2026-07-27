@@ -6,3 +6,4 @@ export * from "./legal-timeline";
 export * from "./min-heap";
 export * from "./plugins";
 export * from "./simulator";
+export * from "./target-state-timeline";

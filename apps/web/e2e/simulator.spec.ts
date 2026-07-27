@@ -373,6 +373,24 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     return {
       damageEvents: result?.damageEvents.length,
       auraTimeline: result?.auraTimeline.length,
+      targetStateTimelineVersion:
+        result?.targetStateTimeline.version,
+      targetStatePoints:
+        result?.targetStateTimeline.points
+          .filter((point) => point.targetId === "enemy-0")
+          .map((point) => ({
+            id: point.id,
+            frame: point.frame,
+            pointKind: point.pointKind,
+            cause: point.cause,
+            eventType: point.eventType,
+            eventPriority: point.eventPriority,
+            eventSequence: point.eventSequence,
+            intraEventSequence: point.intraEventSequence,
+            primaryDamageEventId: point.primaryDamageEventId,
+            auraBefore: point.auraBefore,
+            auraAfter: point.auraAfter
+          })) ?? [],
       initial:
         result?.auraInitialStates.find(
           (state) => state.targetId === "enemy-0"
@@ -385,6 +403,45 @@ test("renders an initial enemy Aura even when the run has no hits or state event
   });
   expect(audit.damageEvents).toBe(0);
   expect(audit.auraTimeline).toBe(0);
+  expect(audit.targetStateTimelineVersion).toBe("1.0.0");
+  expect(audit.targetStatePoints).toEqual([
+    expect.objectContaining({
+      id: 0,
+      frame: 0,
+      pointKind: "boundary",
+      cause: "simulation-start",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      primaryDamageEventId: null,
+      auraAfter: [
+        expect.objectContaining({
+          element: "dendro",
+          gaugeUnits: 0.8,
+          expiresAtFrame: 570
+        })
+      ]
+    }),
+    expect.objectContaining({
+      id: 1,
+      frame: 60,
+      pointKind: "boundary",
+      cause: "simulation-end",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      primaryDamageEventId: null,
+      auraAfter: [
+        expect.objectContaining({
+          element: "dendro",
+          gaugeUnits: 0.715789473684,
+          expiresAtFrame: 570
+        })
+      ]
+    })
+  ]);
   expect(audit.initial).toEqual([
     {
       element: "dendro",
@@ -459,6 +516,22 @@ test("renders an initial enemy Aura even when the run has no hits or state event
   const expiredAudit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     return {
+      points:
+        result?.targetStateTimeline.points
+          .filter((point) => point.targetId === "enemy-0")
+          .map((point) => ({
+            id: point.id,
+            frame: point.frame,
+            pointKind: point.pointKind,
+            cause: point.cause,
+            eventType: point.eventType,
+            eventPriority: point.eventPriority,
+            eventSequence: point.eventSequence,
+            intraEventSequence: point.intraEventSequence,
+            primaryDamageEventId: point.primaryDamageEventId,
+            auraBefore: point.auraBefore,
+            auraAfter: point.auraAfter
+          })) ?? [],
       end:
         result?.auraEndStates.find(
           (state) => state.targetId === "enemy-0"
@@ -466,6 +539,49 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     };
   });
   expect(expiredAudit.end).toEqual([]);
+  expect(expiredAudit.points).toHaveLength(3);
+  expect(expiredAudit.points[0]).toEqual(
+    expect.objectContaining({
+      id: 0,
+      frame: 0,
+      pointKind: "boundary",
+      cause: "simulation-start"
+    })
+  );
+  expect(expiredAudit.points[1]).toEqual(
+    expect.objectContaining({
+      id: 1,
+      frame: 570,
+      pointKind: "derived",
+      cause: "aura-natural-expiry",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      primaryDamageEventId: null,
+      auraAfter: []
+    })
+  );
+  expect(
+    expiredAudit.points[1]?.auraBefore.find(
+      (aura) => aura.element === "dendro"
+    )?.gaugeUnits
+  ).toBeGreaterThan(0);
+  expect(expiredAudit.points[2]).toEqual(
+    expect.objectContaining({
+      id: 2,
+      frame: 600,
+      pointKind: "boundary",
+      cause: "simulation-end",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      primaryDamageEventId: null,
+      auraBefore: [],
+      auraAfter: []
+    })
+  );
 
   const expiredRaster = await page
     .locator("#auraTimelineCanvas")
@@ -1335,6 +1451,36 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         result?.auraEndStates.find(
           (state) => state.targetId === "enemy-0"
         )?.aura ?? [],
+      frame30TargetState:
+        result?.targetStateTimeline.points
+          .filter(
+            (point) =>
+              point.targetId === "enemy-0" &&
+              point.frame === 30
+          )
+          .map((point) => ({
+            id: point.id,
+            cause: point.cause,
+            eventType: point.eventType,
+            eventPriority: point.eventPriority,
+            eventSequence: point.eventSequence,
+            intraEventSequence: point.intraEventSequence,
+            primaryDamageEventId: point.primaryDamageEventId
+          })) ?? [],
+      frame15ClickablePoint:
+        result?.targetStateTimeline.points
+          .filter(
+            (point) =>
+              point.targetId === "enemy-0" &&
+              point.frame === 15 &&
+              point.primaryDamageEventId !== null
+          )
+          .map((point) => ({
+            id: point.id,
+            cause: point.cause,
+            eventPriority: point.eventPriority,
+            primaryDamageEventId: point.primaryDamageEventId
+          })) ?? [],
       frame30Priorities: {
         damage: result?.auraTimeline
           .filter((point) => point.frame === 30)
@@ -1397,6 +1543,86 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
   expect(audit.frame30Priorities.burningState).toEqual(
     expect.arrayContaining([3, 4, expect.any(Number)])
   );
+  expect(
+    audit.frame30TargetState.map((point) => ({
+      cause: point.cause,
+      eventType: point.eventType,
+      eventPriority: point.eventPriority
+    }))
+  ).toEqual([
+    {
+      cause: "direct-hit-application",
+      eventType: "hit",
+      eventPriority: 3
+    },
+    {
+      cause: "burning-tick",
+      eventType: "burningTick",
+      eventPriority: 4
+    },
+    {
+      cause: "reaction-damage-application",
+      eventType: "reactionDamage",
+      eventPriority: 4 + 1 / 3
+    }
+  ]);
+  expect(
+    audit.frame30TargetState.map((point) => point.id)
+  ).toEqual(
+    [...audit.frame30TargetState]
+      .map((point) => point.id)
+      .sort((left, right) => left - right)
+  );
+  for (
+    let index = 1;
+    index < audit.frame30TargetState.length;
+    index += 1
+  ) {
+    const previous = audit.frame30TargetState[index - 1]!;
+    const current = audit.frame30TargetState[index]!;
+    expect([
+      current.eventPriority!,
+      current.eventSequence!,
+      current.intraEventSequence!
+    ]).not.toEqual([
+      previous.eventPriority!,
+      previous.eventSequence!,
+      previous.intraEventSequence!
+    ]);
+  }
+  expect(audit.frame15ClickablePoint).toEqual([
+    expect.objectContaining({
+      cause: "reaction-damage-application",
+      eventPriority: 4 + 1 / 3,
+      primaryDamageEventId: expect.any(Number)
+    })
+  ]);
+  const expectedCanvasDamageEventId =
+    audit.frame15ClickablePoint[0]?.primaryDamageEventId;
+  expect(expectedCanvasDamageEventId).toEqual(expect.any(Number));
+
+  const targetStateCanvas = page.locator("#auraTimelineCanvas");
+  const targetStateCanvasBox = await targetStateCanvas.boundingBox();
+  expect(targetStateCanvasBox).not.toBeNull();
+  const targetStatePlotWidth =
+    targetStateCanvasBox!.width - 58 - 18;
+  await targetStateCanvas.click({
+    position: {
+      x:
+        58 +
+        (15 / Math.round(config.duration * 60)) *
+          targetStatePlotWidth,
+      y: targetStateCanvasBox!.height / 2
+    }
+  });
+  await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(
+    page.locator("#hitTableBody tr.selected")
+  ).toHaveAttribute(
+    "data-hit-id",
+    String(expectedCanvasDamageEventId)
+  );
+  await page.getByRole("button", { name: "时间轴" }).click();
 
   const startRow = page
     .locator("#burningStateBody tr[data-burning-hit-id]")

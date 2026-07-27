@@ -38,6 +38,12 @@ import {
 } from "./types";
 
 const idSchema = z.string().trim().min(1);
+const wireNonEmptyStringSchema = z
+  .string()
+  .min(1)
+  .refine((value) => value.trim().length > 0, {
+    message: "must not be blank"
+  });
 const finiteNumber = z.number().finite();
 const spatialCoordinateSchema = finiteNumber.min(-10_000).max(10_000);
 const geometryCoordinateSpaceSchema = z.enum(["world", "actor-local"]);
@@ -203,6 +209,404 @@ export const auraGaugeEntrySchema = z
     sourceMutations: z.array(auraSourceGaugeMutationSchema).optional()
   })
   .strict();
+
+export const reactionTypeSchema = z.enum([
+  "none",
+  "melt",
+  "reverseMelt",
+  "vaporize",
+  "reverseVaporize",
+  "overload",
+  "superconduct",
+  "electroCharged",
+  "burning",
+  "shatter",
+  "swirlPyro",
+  "swirlHydro",
+  "swirlCryo",
+  "swirlElectro",
+  "freeze",
+  "quicken",
+  "crystallizePyro",
+  "crystallizeHydro",
+  "crystallizeCryo",
+  "crystallizeElectro",
+  "aggravate",
+  "spread"
+]);
+
+export const simulationEventTypeSchema = z.enum([
+  "action",
+  "buff",
+  "debuff",
+  "energy",
+  "particleSpawn",
+  "particleReceive",
+  "hit",
+  "reactionDamage",
+  "periodicReactionTick",
+  "periodicReactionWane",
+  "periodicReactionExpiry",
+  "burningTick",
+  "burningFuelExpiry",
+  "frozenExpiry",
+  "quickenExpiry",
+  "crystallizeShardSpawn",
+  "crystallizeShardExpiry",
+  "crystallizePickup",
+  "crystallizeShieldExpiry"
+]);
+
+export const targetStateTimelineLinkSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("damage-event"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("reaction-damage-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("periodic-reaction-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("frozen-state-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("quicken-state-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("burning-state-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("target-mechanics-truncation-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict()
+]);
+
+export const targetStateTimelinePointKindSchema = z.enum([
+  "boundary",
+  "derived",
+  "observation",
+  "mutation"
+]);
+
+export const targetStateTimelineCauseSchema = z.enum([
+  "simulation-start",
+  "simulation-end",
+  "aura-natural-expiry",
+  "direct-hit-shatter",
+  "direct-hit-application",
+  "reaction-damage-application",
+  "reaction-damage-shatter",
+  "frozen-expiry",
+  "quicken-expiry",
+  "electro-charged-expiry",
+  "electro-charged-tick",
+  "electro-charged-wane",
+  "burning-fuel-expiry",
+  "burning-tick",
+  "target-mechanics-truncation"
+]);
+
+export const targetStateTimelinePointSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    pointKind: targetStateTimelinePointKindSchema,
+    cause: targetStateTimelineCauseSchema,
+    eventType: simulationEventTypeSchema.nullable(),
+    eventPriority: finiteNumber.nonnegative().nullable(),
+    eventSequence: z.number().int().nonnegative().nullable(),
+    intraEventSequence: z.number().int().nonnegative().nullable(),
+    reaction: reactionTypeSchema,
+    reactions: z.array(reactionTypeSchema),
+    primaryDamageEventId: z.number().int().nonnegative().nullable(),
+    links: z.array(targetStateTimelineLinkSchema),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraApplied: z.array(auraGaugeEntrySchema),
+    auraConsumed: z.array(auraGaugeEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema)
+  })
+  .strict()
+  .superRefine((point, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    const eventTuple = [
+      point.eventType,
+      point.eventPriority,
+      point.eventSequence,
+      point.intraEventSequence
+    ];
+    const boundaryCause =
+      point.cause === "simulation-start" ||
+      point.cause === "simulation-end";
+    const derivedCause = point.cause === "aura-natural-expiry";
+
+    if (point.pointKind === "boundary") {
+      if (!eventTuple.every((value) => value === null)) {
+        issue(
+          "eventType",
+          "boundary points must not carry an event ordering tuple"
+        );
+      }
+      if (!boundaryCause) {
+        issue(
+          "cause",
+          "boundary points require simulation-start or simulation-end"
+        );
+      }
+      if (JSON.stringify(point.auraBefore) !== JSON.stringify(point.auraAfter)) {
+        issue(
+          "auraAfter",
+          "boundary points must preserve an exact Aura snapshot"
+        );
+      }
+      if (
+        point.auraApplied.length !== 0 ||
+        point.auraConsumed.length !== 0
+      ) {
+        issue(
+          "auraApplied",
+          "boundary points cannot claim an application or consumption"
+        );
+      }
+      if (
+        point.reaction !== "none" ||
+        point.reactions.length !== 0
+      ) {
+        issue("reaction", "boundary points cannot claim a reaction");
+      }
+      if (
+        point.primaryDamageEventId !== null ||
+        point.links.length !== 0
+      ) {
+        issue("links", "boundary points cannot carry damage or log links");
+      }
+    } else if (point.pointKind === "derived") {
+      if (!eventTuple.every((value) => value === null)) {
+        issue(
+          "eventType",
+          "derived points must not carry an event ordering tuple"
+        );
+      }
+      if (!derivedCause) {
+        issue("cause", "derived points require aura-natural-expiry");
+      }
+      if (JSON.stringify(point.auraBefore) === JSON.stringify(point.auraAfter)) {
+        issue(
+          "auraAfter",
+          "aura-natural-expiry must change the target Aura state"
+        );
+      }
+      if (
+        point.primaryDamageEventId !== null ||
+        point.links.length !== 0
+      ) {
+        issue(
+          "links",
+          "aura-natural-expiry cannot carry damage or log links"
+        );
+      }
+      if (
+        point.reaction !== "none" ||
+        point.reactions.length !== 0
+      ) {
+        issue(
+          "reaction",
+          "aura-natural-expiry cannot claim a reaction"
+        );
+      }
+      if (
+        point.auraApplied.length !== 0 ||
+        point.auraConsumed.length !== 0
+      ) {
+        issue(
+          "auraApplied",
+          "aura-natural-expiry cannot claim an application or consumption"
+        );
+      }
+    } else {
+      if (eventTuple.some((value) => value === null)) {
+        issue(
+          "eventType",
+          "event points require eventType, priority, sequence, and intra-event sequence"
+        );
+      }
+      if (boundaryCause) {
+        issue(
+          "cause",
+          "simulation boundary causes require pointKind=boundary"
+        );
+      }
+      if (derivedCause) {
+        issue(
+          "cause",
+          "aura-natural-expiry requires pointKind=derived"
+        );
+      }
+    }
+
+    if (
+      point.cause === "simulation-start" &&
+      (point.frame !== 0 || point.timeSeconds !== 0)
+    ) {
+      issue(
+        "frame",
+        "simulation-start must be recorded at frame 0 and time 0"
+      );
+    }
+
+    const requiredEventTypeByCause = {
+      "direct-hit-shatter": "hit",
+      "direct-hit-application": "hit",
+      "reaction-damage-application": "reactionDamage",
+      "reaction-damage-shatter": "reactionDamage",
+      "frozen-expiry": "frozenExpiry",
+      "quicken-expiry": "quickenExpiry",
+      "electro-charged-expiry": "periodicReactionExpiry",
+      "electro-charged-tick": "periodicReactionTick",
+      "electro-charged-wane": "periodicReactionWane",
+      "burning-fuel-expiry": "burningFuelExpiry",
+      "burning-tick": "burningTick"
+    } as const;
+    if (
+      point.cause in requiredEventTypeByCause &&
+      point.eventType !==
+        requiredEventTypeByCause[
+          point.cause as keyof typeof requiredEventTypeByCause
+        ]
+    ) {
+      issue(
+        "eventType",
+        `${point.cause} requires eventType=${requiredEventTypeByCause[
+          point.cause as keyof typeof requiredEventTypeByCause
+        ]}`
+      );
+    }
+    if (
+      point.cause === "target-mechanics-truncation" &&
+      point.eventType !== "hit" &&
+      point.eventType !== "reactionDamage"
+    ) {
+      issue(
+        "eventType",
+        "target-mechanics-truncation requires a hit or reactionDamage event"
+      );
+    }
+
+    const linkKeys = new Set<string>();
+    for (const [index, link] of point.links.entries()) {
+      const key = `${link.kind}:${link.id}`;
+      if (linkKeys.has(key)) {
+        context.addIssue({
+          code: "custom",
+          path: ["links", index],
+          message: `duplicate timeline link "${key}"`
+        });
+      }
+      linkKeys.add(key);
+    }
+
+    if (
+      point.primaryDamageEventId !== null &&
+      !point.links.some(
+        (link) =>
+          link.kind === "damage-event" &&
+          link.id === point.primaryDamageEventId
+      )
+    ) {
+      issue(
+        "primaryDamageEventId",
+        "primaryDamageEventId requires a matching damage-event link"
+      );
+    }
+  });
+
+export const targetStateTimelineSchema = z
+  .object({
+    version: z.literal("1.0.0"),
+    points: z.array(targetStateTimelinePointSchema)
+  })
+  .strict()
+  .superRefine((timeline, context) => {
+    let previousFrame = -1;
+    let eventTupleFrame = -1;
+    let previousEventTuple: readonly [number, number, number] | null = null;
+
+    timeline.points.forEach((point, index) => {
+      if (point.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", index, "id"],
+          message: `timeline point ids must be zero-based and contiguous; expected ${index}`
+        });
+      }
+      if (point.frame < previousFrame) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", index, "frame"],
+          message: `timeline frames must be nondecreasing; previous frame was ${previousFrame}`
+        });
+      }
+      previousFrame = point.frame;
+
+      if (point.frame !== eventTupleFrame) {
+        eventTupleFrame = point.frame;
+        previousEventTuple = null;
+      }
+      if (
+        point.eventPriority !== null &&
+        point.eventSequence !== null &&
+        point.intraEventSequence !== null
+      ) {
+        const tuple = [
+          point.eventPriority,
+          point.eventSequence,
+          point.intraEventSequence
+        ] as const;
+        if (
+          previousEventTuple !== null &&
+          (tuple[0] < previousEventTuple[0] ||
+            (tuple[0] === previousEventTuple[0] &&
+              tuple[1] < previousEventTuple[1]) ||
+            (tuple[0] === previousEventTuple[0] &&
+              tuple[1] === previousEventTuple[1] &&
+              tuple[2] < previousEventTuple[2]))
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "eventPriority"],
+            message:
+              "same-frame event points must be ordered by priority, sequence, and intra-event sequence"
+          });
+        }
+        previousEventTuple = tuple;
+      }
+    });
+  });
 
 export const burningReactionAuditSchema = z
   .object({

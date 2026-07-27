@@ -5,7 +5,10 @@ import {
   ConfigMigrationError,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
-  migrateConfig
+  migrateConfig,
+  targetStateTimelinePointSchema,
+  targetStateTimelineSchema,
+  type TargetStateTimeline
 } from "./index";
 
 const legacyConfig = {
@@ -27,6 +30,317 @@ const legacyConfig = {
   ],
   rotation: []
 };
+
+const validTargetStateTimeline = {
+  version: "1.0.0",
+  points: [
+    {
+      id: 0,
+      frame: 0,
+      timeSeconds: 0,
+      targetId: "enemy-0",
+      targetName: "Target",
+      pointKind: "boundary",
+      cause: "simulation-start",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      reaction: "none",
+      reactions: [],
+      primaryDamageEventId: null,
+      links: [],
+      auraBefore: [
+        {
+          element: "pyro",
+          gaugeUnits: 0.8,
+          expiresAtFrame: 560
+        }
+      ],
+      auraApplied: [],
+      auraConsumed: [],
+      auraAfter: [
+        {
+          element: "pyro",
+          gaugeUnits: 0.8,
+          expiresAtFrame: 560
+        }
+      ]
+    },
+    {
+      id: 1,
+      frame: 30,
+      timeSeconds: 0.5,
+      targetId: "enemy-0",
+      targetName: "Target",
+      pointKind: "mutation",
+      cause: "direct-hit-application",
+      eventType: "hit",
+      eventPriority: 3.25,
+      eventSequence: 12,
+      intraEventSequence: 0,
+      reaction: "vaporize",
+      reactions: ["vaporize"],
+      primaryDamageEventId: 4,
+      links: [{ kind: "damage-event", id: 4 }],
+      auraBefore: [
+        {
+          element: "pyro",
+          gaugeUnits: 0.8,
+          expiresAtFrame: 560
+        }
+      ],
+      auraApplied: [{ element: "hydro", gaugeUnits: 1 }],
+      auraConsumed: [{ element: "pyro", gaugeUnits: 0.4 }],
+      auraAfter: [
+        {
+          element: "pyro",
+          gaugeUnits: 0.4,
+          expiresAtFrame: 570
+        }
+      ]
+    },
+    {
+      id: 2,
+      frame: 570,
+      timeSeconds: 9.5,
+      targetId: "enemy-0",
+      targetName: "Target",
+      pointKind: "derived",
+      cause: "aura-natural-expiry",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      reaction: "none",
+      reactions: [],
+      primaryDamageEventId: null,
+      links: [],
+      auraBefore: [
+        {
+          element: "pyro",
+          gaugeUnits: 0.4,
+          expiresAtFrame: 570
+        }
+      ],
+      auraApplied: [],
+      auraConsumed: [],
+      auraAfter: []
+    },
+    {
+      id: 3,
+      frame: 600,
+      timeSeconds: 10,
+      targetId: "enemy-0",
+      targetName: "Target",
+      pointKind: "boundary",
+      cause: "simulation-end",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      reaction: "none",
+      reactions: [],
+      primaryDamageEventId: null,
+      links: [],
+      auraBefore: [],
+      auraApplied: [],
+      auraConsumed: [],
+      auraAfter: []
+    }
+  ]
+} satisfies TargetStateTimeline;
+
+describe("target state timeline result contract", () => {
+  it("accepts strict boundaries, fractional event priorities, and typed links", () => {
+    expect(targetStateTimelineSchema.parse(validTargetStateTimeline)).toEqual(
+      validTargetStateTimeline
+    );
+  });
+
+  it("requires a complete event tuple for event points and none for boundaries", () => {
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[0],
+        eventType: "hit",
+        eventPriority: 3,
+        eventSequence: 1,
+        intraEventSequence: 0
+      })
+    ).toThrow(/boundary points must not carry an event ordering tuple/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        eventSequence: null
+      })
+    ).toThrow(
+      /event points require eventType, priority, sequence, and intra-event sequence/
+    );
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[0],
+        auraBefore: [],
+        auraApplied: [{ element: "pyro", gaugeUnits: 1 }]
+      })
+    ).toThrow(
+      /boundary points must preserve an exact Aura snapshot|cannot claim an application/
+    );
+  });
+
+  it("accepts only link-free, reaction-free natural Aura expiry derivations", () => {
+    expect(
+      targetStateTimelinePointSchema.parse(validTargetStateTimeline.points[2])
+    ).toEqual(validTargetStateTimeline.points[2]);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        eventType: "hit",
+        eventPriority: 3,
+        eventSequence: 1,
+        intraEventSequence: 0
+      })
+    ).toThrow(/derived points must not carry an event ordering tuple/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        auraAfter: validTargetStateTimeline.points[2]!.auraBefore
+      })
+    ).toThrow(/must change the target Aura state/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[2],
+        reaction: "burning",
+        reactions: ["burning"],
+        primaryDamageEventId: 4,
+        links: [{ kind: "damage-event", id: 4 }]
+      })
+    ).toThrow(/cannot carry damage or log links|cannot claim a reaction/);
+  });
+
+  it("binds granular causes to the producing simulator event type", () => {
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        cause: "frozen-expiry"
+      })
+    ).toThrow(/frozen-expiry requires eventType=frozenExpiry/);
+  });
+
+  it("validates output wire names without normalizing their bytes", () => {
+    const parsed = targetStateTimelinePointSchema.parse({
+      ...validTargetStateTimeline.points[1],
+      targetName: " Target "
+    });
+    expect(parsed.targetName).toBe(" Target ");
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        targetName: "   "
+      })
+    ).toThrow(/must not be blank/);
+  });
+
+  it("requires zero-based contiguous point ids", () => {
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        ...validTargetStateTimeline,
+        points: validTargetStateTimeline.points.map((point, index) =>
+          index === 1 ? { ...point, id: 7 } : point
+        )
+      })
+    ).toThrow(/expected 1/);
+  });
+
+  it("requires chronological frames and scheduler order within each frame", () => {
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          { ...validTargetStateTimeline.points[1], id: 0, frame: 31 },
+          { ...validTargetStateTimeline.points[1], id: 1, frame: 30 }
+        ]
+      })
+    ).toThrow(/timeline frames must be nondecreasing/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          {
+            ...validTargetStateTimeline.points[1],
+            id: 0,
+            frame: 30,
+            eventPriority: 4,
+            eventSequence: 12,
+            intraEventSequence: 0
+          },
+          {
+            ...validTargetStateTimeline.points[1],
+            id: 1,
+            frame: 30,
+            eventPriority: 3,
+            eventSequence: 12,
+            intraEventSequence: 1
+          }
+        ]
+      })
+    ).toThrow(/must be ordered by priority, sequence, and intra-event sequence/);
+  });
+
+  it("requires primary damage ids to have an exact typed link", () => {
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        links: [{ kind: "reaction-damage-log", id: 4 }]
+      })
+    ).toThrow(/primaryDamageEventId requires a matching damage-event link/);
+  });
+
+  it("rejects duplicate links, unknown fields, and non-finite values", () => {
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        links: [
+          { kind: "damage-event", id: 4 },
+          { kind: "damage-event", id: 4 }
+        ]
+      })
+    ).toThrow(/duplicate timeline link/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        unexpected: true
+      })
+    ).toThrow(/Unrecognized key/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        links: [{ kind: "damage-event", id: 4, unexpected: true }]
+      })
+    ).toThrow(/Unrecognized key/);
+
+    expect(() =>
+      targetStateTimelineSchema.parse({
+        ...validTargetStateTimeline,
+        unexpected: true
+      })
+    ).toThrow(/Unrecognized key/);
+
+    expect(() =>
+      targetStateTimelinePointSchema.parse({
+        ...validTargetStateTimeline.points[1],
+        eventPriority: Number.POSITIVE_INFINITY
+      })
+    ).toThrow();
+  });
+});
 
 describe("versioned config schema", () => {
   it("migrates a legacy config and fills required versions/default stats", () => {

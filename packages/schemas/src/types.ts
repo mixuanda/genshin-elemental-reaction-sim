@@ -1437,6 +1437,76 @@ export interface AuraTimelinePoint {
   auraAfter: AuraStateEntry[];
 }
 
+/**
+ * Versioned, core-owned projection of every target-local Aura observation and
+ * mutation. Consumers must preserve the emitted point order and links instead
+ * of joining the legacy state logs heuristically.
+ */
+export type TargetStateTimelinePointKind =
+  | "boundary"
+  | "derived"
+  | "observation"
+  | "mutation";
+
+export type TargetStateTimelineCause =
+  | "simulation-start"
+  | "simulation-end"
+  | "aura-natural-expiry"
+  | "direct-hit-shatter"
+  | "direct-hit-application"
+  | "reaction-damage-application"
+  | "reaction-damage-shatter"
+  | "frozen-expiry"
+  | "quicken-expiry"
+  | "electro-charged-expiry"
+  | "electro-charged-tick"
+  | "electro-charged-wane"
+  | "burning-fuel-expiry"
+  | "burning-tick"
+  | "target-mechanics-truncation";
+
+export type TargetStateTimelineLink =
+  | { kind: "damage-event"; id: number }
+  | { kind: "reaction-damage-log"; id: number }
+  | { kind: "periodic-reaction-log"; id: number }
+  | { kind: "frozen-state-log"; id: number }
+  | { kind: "quicken-state-log"; id: number }
+  | { kind: "burning-state-log"; id: number }
+  | { kind: "target-mechanics-truncation-log"; id: number };
+
+export interface TargetStateTimelinePoint {
+  /** Zero-based, contiguous id equal to this point's emitted array index. */
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  pointKind: TargetStateTimelinePointKind;
+  cause: TargetStateTimelineCause;
+  /**
+   * Boundary and derived points have no event tuple. Observation and mutation
+   * points carry the complete queue tuple plus a stable sequence within that
+   * event.
+   */
+  eventType: SimulationEventType | null;
+  eventPriority: number | null;
+  eventSequence: number | null;
+  intraEventSequence: number | null;
+  reaction: ReactionType;
+  reactions: ReactionType[];
+  primaryDamageEventId: number | null;
+  links: TargetStateTimelineLink[];
+  auraBefore: AuraStateEntry[];
+  auraApplied: AuraGaugeEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+}
+
+export interface TargetStateTimeline {
+  version: "1.0.0";
+  points: TargetStateTimelinePoint[];
+}
+
 export interface AuraEndState {
   targetId: TargetId;
   targetName: string;
@@ -1905,6 +1975,8 @@ export interface SimulationResult {
   perSecond: Array<Record<string, number>>;
   damageCurve: DamageCurvePoint[];
   auraTimeline: AuraTimelinePoint[];
+  /** Unified, deterministically ordered target Aura observations/mutations. */
+  targetStateTimeline: TargetStateTimeline;
   /** Exact target Aura snapshots before the first simulation frame. */
   auraInitialStates: AuraEndState[];
   /** Exact target Aura snapshots after advancing every engine to the run end. */

@@ -2278,10 +2278,14 @@ function renderAuraTimeline(): void {
   const frozenStateLog = lastResult.frozenStateLog;
   const quickenStateLog = lastResult.quickenStateLog;
   const burningStateLog = lastResult.burningStateLog;
-  const auraBoundaryStates = [
-    ...lastResult.auraInitialStates,
-    ...lastResult.auraEndStates
-  ].filter((state) => state.aura.length > 0);
+  const targetStatePoints = lastResult.targetStateTimeline.points;
+  const targetStatePointsWithAura = targetStatePoints.filter(
+    (point) =>
+      point.auraBefore.length > 0 ||
+      point.auraApplied.length > 0 ||
+      point.auraConsumed.length > 0 ||
+      point.auraAfter.length > 0
+  );
   const crystallizeShardLog = lastResult.crystallizeShardLog;
   const crystallizeShieldLog = lastResult.crystallizeShieldLog;
   card.hidden =
@@ -2291,7 +2295,7 @@ function renderAuraTimeline(): void {
     frozenStateLog.length === 0 &&
     quickenStateLog.length === 0 &&
     burningStateLog.length === 0 &&
-    auraBoundaryStates.length === 0 &&
+    targetStatePointsWithAura.length === 0 &&
     crystallizeShardLog.length === 0 &&
     crystallizeShieldLog.length === 0;
   renderCrystallizeAudit();
@@ -2660,21 +2664,14 @@ function renderAuraTimeline(): void {
     frozenStateLog.length === 0 &&
     quickenStateLog.length === 0 &&
     burningStateLog.length === 0 &&
-    auraBoundaryStates.length === 0
+    targetStatePointsWithAura.length === 0
   ) {
     return;
   }
 
   const targetFilter = byId<HTMLSelectElement>("auraTargetFilter");
   const targetIdsWithAura = new Set(
-    [
-      ...allTimeline.map((point) => point.targetId),
-      ...periodicReactionLog.map((point) => point.targetId),
-      ...frozenStateLog.map((point) => point.targetId),
-      ...quickenStateLog.map((point) => point.targetId),
-      ...burningStateLog.map((point) => point.targetId),
-      ...auraBoundaryStates.map((state) => state.targetId)
-    ]
+    targetStatePointsWithAura.map((point) => point.targetId)
   );
   const availableTargets = lastResult.enemyTargets.filter((target) =>
     targetIdsWithAura.has(target.id)
@@ -2695,116 +2692,12 @@ function renderAuraTimeline(): void {
   const selectedTarget = availableTargets.find(
     (target) => target.id === selectedTargetId
   );
-  const selectedAuraInitialState = lastResult.auraInitialStates.find(
-    (state) => state.targetId === selectedTargetId
-  );
-  const selectedAuraEndState = lastResult.auraEndStates.find(
-    (state) => state.targetId === selectedTargetId
-  );
   const durationFrames = Math.round(lastResult.config.duration * 60);
   const timeline = allTimeline.filter(
     (point) => point.targetId === selectedTargetId
   );
-  const boundaryCurvePoints = [
-    {
-      frame: 0,
-      auraBefore: selectedAuraInitialState?.aura ?? [],
-      auraAfter: selectedAuraInitialState?.aura ?? [],
-      reaction: "none" as const,
-      damageEventId: null,
-      eventPriority: -1,
-      eventSequence: -1,
-      order: -10
-    }
-  ];
-  const periodicCurvePoints = periodicReactionLog
-    .filter(
-      (point) =>
-        point.targetId === selectedTargetId &&
-        (point.operation === "wane" ||
-          point.operation === "wane-skipped" ||
-          point.operation === "stop")
-    )
-    .map((point) => ({
-      frame: point.frame,
-      auraBefore: point.auraBefore,
-      auraAfter: point.auraAfter,
-      reaction: point.reaction,
-      damageEventId:
-        point.damageEventId ?? point.triggerDamageEventId,
-      eventPriority: point.operation === "stop" ? 3 : 6,
-      eventSequence: point.id,
-      order: 1
-    }));
-  const frozenCurvePoints = frozenStateLog
-    .filter(
-      (point) =>
-        point.targetId === selectedTargetId &&
-        (point.operation === "expire" ||
-          point.operation === "poise-consume" ||
-          point.operation === "shatter-consume")
-    )
-    .map((point) => ({
-      frame: point.frame,
-      auraBefore: point.auraBefore,
-      auraAfter: point.auraAfter,
-      reaction: point.reaction,
-      damageEventId: point.triggerDamageEventId,
-      eventPriority: point.operation === "expire" ? 2 : 3,
-      eventSequence: point.id,
-      order: -1
-    }));
-  const quickenCurvePoints = quickenStateLog
-    .filter(
-      (point) =>
-        point.targetId === selectedTargetId &&
-        point.operation === "expire"
-    )
-    .map((point) => ({
-      frame: point.frame,
-      auraBefore: point.auraBefore,
-      auraAfter: point.auraAfter,
-      reaction: "none" as const,
-      damageEventId: point.triggerDamageEventId,
-      eventPriority: 2,
-      eventSequence: point.id,
-      order: -2
-    }));
-  const burningCurvePoints = burningStateLog
-    .filter((point) => point.targetId === selectedTargetId)
-    .map((point) => ({
-      frame: point.frame,
-      auraBefore: point.auraBefore,
-      auraAfter: point.auraAfter,
-      reaction: point.reaction,
-      damageEventId:
-        point.damageEventIds[0] ?? point.triggerDamageEventId,
-      eventPriority: point.eventPriority,
-      eventSequence: point.eventSequence,
-      order: 2
-    }));
-  const curveTimeline = [
-    ...boundaryCurvePoints,
-    ...timeline.map((point) => ({
-      frame: point.frame,
-      auraBefore: point.auraBefore,
-      auraAfter: point.auraAfter,
-      reaction: point.reaction,
-      damageEventId: point.damageEventId as number | null,
-      eventPriority: point.eventPriority,
-      eventSequence: point.eventSequence,
-      order: 0
-    })),
-    ...periodicCurvePoints,
-    ...frozenCurvePoints,
-    ...quickenCurvePoints,
-    ...burningCurvePoints
-  ].sort(
-    (left, right) =>
-      left.frame - right.frame ||
-      left.eventPriority - right.eventPriority ||
-      left.eventSequence - right.eventSequence ||
-      left.order - right.order
+  const curveTimeline = targetStatePoints.filter(
+    (point) => point.targetId === selectedTargetId
   );
   if (!curveTimeline.length) return;
 
@@ -2838,10 +2731,7 @@ function renderAuraTimeline(): void {
     ...curveTimeline.flatMap((point) => [
       ...point.auraBefore.map((aura) => aura.gaugeUnits),
       ...point.auraAfter.map((aura) => aura.gaugeUnits)
-    ]),
-    ...(selectedAuraEndState?.aura.map(
-      (aura) => aura.gaugeUnits
-    ) ?? [])
+    ])
   );
   const xAt = (frame: number) =>
     padding.left + (frame / Math.max(1, durationFrames)) * width;
@@ -2882,62 +2772,16 @@ function renderAuraTimeline(): void {
   ) => auras.find((aura) => aura.element === element)?.gaugeUnits ?? 0;
   elements.forEach((element) => {
     context.beginPath();
-    context.moveTo(padding.left, yAt(0));
-    let previousAura: AuraStateEntry | undefined;
-    let previousFrame = 0;
+    const firstPoint = curveTimeline[0]!;
+    context.moveTo(
+      xAt(firstPoint.frame),
+      yAt(valueFor(firstPoint.auraBefore, element))
+    );
     curveTimeline.forEach((point) => {
       const x = xAt(point.frame);
-      const auraBefore = point.auraBefore.find(
-        (aura) => aura.element === element
-      );
-      if (
-        previousAura !== undefined &&
-        auraBefore === undefined &&
-        previousAura.expiresAtFrame !== null &&
-        previousAura.expiresAtFrame > previousFrame &&
-        previousAura.expiresAtFrame < point.frame
-      ) {
-        context.lineTo(
-          xAt(previousAura.expiresAtFrame),
-          yAt(0)
-        );
-      }
-      context.lineTo(
-        x,
-        yAt(auraBefore?.gaugeUnits ?? 0)
-      );
-      const auraAfter = point.auraAfter.find(
-        (aura) => aura.element === element
-      );
-      context.lineTo(
-        x,
-        yAt(auraAfter?.gaugeUnits ?? 0)
-      );
-      previousAura = auraAfter;
-      previousFrame = point.frame;
+      context.lineTo(x, yAt(valueFor(point.auraBefore, element)));
+      context.lineTo(x, yAt(valueFor(point.auraAfter, element)));
     });
-    const finalAura = selectedAuraEndState?.aura.find(
-      (aura) => aura.element === element
-    );
-    if (finalAura !== undefined) {
-      context.lineTo(
-        xAt(durationFrames),
-        yAt(finalAura.gaugeUnits)
-      );
-    } else {
-      if (
-        previousAura?.expiresAtFrame !== null &&
-        previousAura !== undefined &&
-        previousAura.expiresAtFrame > previousFrame &&
-        previousAura.expiresAtFrame <= durationFrames
-      ) {
-        context.lineTo(
-          xAt(previousAura.expiresAtFrame),
-          yAt(0)
-        );
-      }
-      context.lineTo(xAt(durationFrames), yAt(0));
-    }
     context.strokeStyle = ELEMENT_COLORS[element] ?? "#fff";
     context.lineWidth = 2.2;
     context.stroke();
@@ -2968,8 +2812,8 @@ function renderAuraTimeline(): void {
       (
         point
       ): point is (typeof curveTimeline)[number] & {
-        damageEventId: number;
-      } => point.damageEventId !== null
+        primaryDamageEventId: number;
+      } => point.primaryDamageEventId !== null
     );
     if (clickableTimeline.length === 0) return;
     const nearest = clickableTimeline.reduce((best, point) =>
@@ -2978,7 +2822,7 @@ function renderAuraTimeline(): void {
         ? point
         : best
     );
-    selectedHitId = nearest.damageEventId;
+    selectedHitId = nearest.primaryDamageEventId;
     timelineSecondFilter = null;
     currentPage = 1;
     activateTab("hits");
@@ -2996,7 +2840,7 @@ function renderAuraTimeline(): void {
       )
       .join("") +
     `<span class="legend-item"><span class="dot" style="background:#f2f6ff"></span>自动反应触发</span>` +
-    `<span class="muted">普通附着初始 Aura = 标称元素量 × 0.8；点击曲线定位逐击记录。</span>`;
+    `<span class="muted">普通附着初始 Aura = 标称元素量 × 0.8；曲线严格读取核心状态点顺序，点击通过 primaryDamageEventId 定位逐击记录。</span>`;
 
   byId<HTMLTableSectionElement>("auraTimelineBody").innerHTML = timeline
     .map((point) => {

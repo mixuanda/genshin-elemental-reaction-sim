@@ -170,9 +170,23 @@ describe("simulation performance", () => {
     const fuelRefreshes = probe.burningStateLog.filter(
       (entry) => entry.operation === "refresh-fuel"
     );
+    const targetStateTimelinePoints =
+      probe.targetStateTimeline.points;
 
     expect(burningTicks.length).toBeGreaterThan(450);
     expect(fuelRefreshes.length).toBeGreaterThan(100);
+    expect(probe.targetStateTimeline.version).toBe("1.0.0");
+    expect(targetStateTimelinePoints.length).toBeGreaterThan(
+      burningTicks.length
+    );
+    expect(
+      targetStateTimelinePoints.map((point) => point.id)
+    ).toEqual(
+      Array.from(
+        { length: targetStateTimelinePoints.length },
+        (_, index) => index
+      )
+    );
 
     const durations: number[] = [];
     for (let index = 0; index < 20; index += 1) {
@@ -185,7 +199,7 @@ describe("simulation performance", () => {
       durations.length;
     const maximum = Math.max(...durations);
     console.info(
-      `120s sustained-Burning benchmark: ticks=${burningTicks.length} refreshes=${fuelRefreshes.length} avg=${average.toFixed(3)}ms max=${maximum.toFixed(3)}ms runs=${durations.length}`
+      `120s sustained-Burning benchmark: ticks=${burningTicks.length} refreshes=${fuelRefreshes.length} targetStatePoints=${targetStateTimelinePoints.length} avg=${average.toFixed(3)}ms max=${maximum.toFixed(3)}ms runs=${durations.length}`
     );
     expect(maximum).toBeLessThan(100);
   });

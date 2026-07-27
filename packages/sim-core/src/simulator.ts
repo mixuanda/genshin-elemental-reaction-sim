@@ -68,6 +68,10 @@ import {
   CRYSTALLIZE_CONSTANTS,
   type CrystallizeShieldCalculation
 } from "./crystallize";
+import {
+  auraStateSnapshotsEqual,
+  TargetStateTimelineRecorder
+} from "./target-state-timeline";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -1048,6 +1052,114 @@ function simulateConfig(
         auraEngines?.get(target.id)?.getAuraStateAt(0) ?? []
       )
     }));
+  const targetStateTimelineRecorder =
+    new TargetStateTimelineRecorder();
+  for (const initialState of auraInitialStates) {
+    targetStateTimelineRecorder.recordBoundary({
+      frame: initialState.frame,
+      timeSeconds: initialState.timeSeconds,
+      targetId: initialState.targetId,
+      targetName: initialState.targetName,
+      cause: "simulation-start",
+      aura: initialState.aura
+    });
+  }
+  const ordinaryAuraElements = new Set([
+    "pyro",
+    "hydro",
+    "cryo",
+    "electro",
+    "dendro"
+  ]);
+  const ordinaryExpiryFrameScratch = new Array<number>(
+    enemyTargets.length
+  ).fill(Number.POSITIVE_INFINITY);
+  const recordNaturalAuraExpiries = (
+    limitFrame: number,
+    includeLimit: boolean
+  ): void => {
+    if (auraEngines === null) return;
+    while (true) {
+      let nextExpiryFrame = Number.POSITIVE_INFINITY;
+      ordinaryExpiryFrameScratch.fill(
+        Number.POSITIVE_INFINITY
+      );
+      for (
+        let targetIndex = 0;
+        targetIndex < enemyTargets.length;
+        targetIndex += 1
+      ) {
+        const target = enemyTargets[targetIndex]!;
+        const currentFrame =
+          targetStateTimelineRecorder.latestFrame(target.id);
+        let targetExpiryFrame = Number.POSITIVE_INFINITY;
+        for (const aura of targetStateTimelineRecorder.latestAuraView(
+          target.id
+        )) {
+          const expiryFrame = aura.expiresAtFrame;
+          if (
+            !ordinaryAuraElements.has(aura.element) ||
+            expiryFrame === null ||
+            expiryFrame <= currentFrame ||
+            (includeLimit
+              ? expiryFrame > limitFrame
+              : expiryFrame >= limitFrame)
+          ) {
+            continue;
+          }
+          targetExpiryFrame = Math.min(
+            targetExpiryFrame,
+            expiryFrame
+          );
+        }
+        if (!Number.isFinite(targetExpiryFrame)) continue;
+        ordinaryExpiryFrameScratch[targetIndex] =
+          targetExpiryFrame;
+        nextExpiryFrame = Math.min(
+          nextExpiryFrame,
+          targetExpiryFrame
+        );
+      }
+      if (!Number.isFinite(nextExpiryFrame)) return;
+
+      for (
+        let targetIndex = 0;
+        targetIndex < enemyTargets.length;
+        targetIndex += 1
+      ) {
+        if (ordinaryExpiryFrameScratch[targetIndex] !== nextExpiryFrame) {
+          continue;
+        }
+        const target = enemyTargets[targetIndex]!;
+        const currentFrame =
+          targetStateTimelineRecorder.latestFrame(target.id);
+        const auraEngine = auraEngines.get(target.id);
+        if (auraEngine === undefined) continue;
+        const beforeFrame = Math.max(
+          currentFrame,
+          nextExpiryFrame - 1
+        );
+        const auraBefore = auraEngine.getAuraStateAt(beforeFrame);
+        const auraAfter = auraEngine.getAuraStateAt(nextExpiryFrame);
+        if (auraStateSnapshotsEqual(auraBefore, auraAfter)) {
+          targetStateTimelineRecorder.synchronize(
+            target.id,
+            nextExpiryFrame,
+            auraAfter
+          );
+          continue;
+        }
+        targetStateTimelineRecorder.recordNaturalExpiry({
+          frame: nextExpiryFrame,
+          timeSeconds: nextExpiryFrame / 60,
+          targetId: target.id,
+          targetName: target.name,
+          auraBefore,
+          auraAfter
+        });
+      }
+    }
+  };
   const characters = new Map(
     config.characters.map((character) => [character.id, character])
   );
@@ -2956,7 +3068,11 @@ function simulateConfig(
     if (!event) break;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
+    recordNaturalAuraExpiries(event.frame, false);
     cleanup(timeSeconds);
+    let intraEventSequence = 0;
+    const nextIntraEventSequence = (): number =>
+      intraEventSequence++;
 
     if (event.type === "action") {
       const { action, cycle } = event.payload as ActionEventPayload;
@@ -3937,6 +4053,29 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "frozen-expiry",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        primaryDamageEventId: null,
+        links:
+          result.operation === "stale"
+            ? []
+            : [
+                {
+                  kind: "frozen-state-log",
+                  id: frozenStateLog.length
+                }
+              ],
+        auraBefore: result.auraBefore,
+        auraAfter: result.auraAfter
+      });
       if (result.operation === "stale") continue;
       const source = activeFrozenStateSources.get(targetId);
       frozenStateLog.push({
@@ -3982,6 +4121,29 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "quicken-expiry",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        primaryDamageEventId: null,
+        links:
+          result.operation === "stale"
+            ? []
+            : [
+                {
+                  kind: "quicken-state-log",
+                  id: quickenStateLog.length
+                }
+              ],
+        auraBefore: result.auraBefore,
+        auraAfter: result.auraAfter
+      });
       if (result.operation === "stale") continue;
       const source = activeQuickenStateSources.get(targetId);
       quickenStateLog.push({
@@ -4032,6 +4194,32 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "electro-charged-expiry",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "electroCharged",
+        reactions: ["electroCharged"],
+        primaryDamageEventId: null,
+        links:
+          result.operation === "stale"
+            ? []
+            : [
+                {
+                  kind: "periodic-reaction-log",
+                  id: periodicReactionLog.length
+                }
+              ],
+        auraBefore: result.auraBefore,
+        auraConsumed: result.auraConsumed,
+        auraAfter: result.auraAfter
+      });
       if (result.operation === "stale") continue;
       const source = activePeriodicReactionSources.get(targetId);
       periodicReactionLog.push({
@@ -4080,6 +4268,31 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "burning-fuel-expiry",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "burning",
+        reactions: ["burning"],
+        primaryDamageEventId: null,
+        links:
+          result.operation === "stale"
+            ? []
+            : [
+                {
+                  kind: "burning-state-log",
+                  id: burningStateLog.length
+                }
+              ],
+        auraBefore: result.auraBefore,
+        auraAfter: result.auraAfter
+      });
       if (result.operation === "stale") continue;
       const source = activeBurningSources.get(targetId);
       const removedAura = result.auraBefore
@@ -4177,6 +4390,31 @@ function simulateConfig(
         generation,
         tickIndex
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "burning-tick",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "burning",
+        reactions: ["burning"],
+        primaryDamageEventId: null,
+        links:
+          prepared.operation === "stale"
+            ? []
+            : [
+                {
+                  kind: "burning-state-log",
+                  id: burningStateLog.length
+                }
+              ],
+        auraBefore: prepared.auraBefore,
+        auraAfter: prepared.auraAfter
+      });
       if (prepared.operation === "stale") continue;
       if (prepared.operation === "stop") {
         burningStateLog.push({
@@ -4357,6 +4595,31 @@ function simulateConfig(
         const auraState = auraEngine.getAuraStateAt(event.frame);
         auraBefore = auraState;
         auraAfter = deepClone(auraState);
+        targetStateTimelineRecorder.recordEvent({
+          frame: event.frame,
+          timeSeconds,
+          targetId,
+          targetName: target.name,
+          cause: "electro-charged-tick",
+          eventType: event.type,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence(),
+          reaction: "electroCharged",
+          reactions: ["electroCharged"],
+          primaryDamageEventId: null,
+          links:
+            source === undefined
+              ? []
+              : [
+                  {
+                    kind: "periodic-reaction-log",
+                    id: periodicReactionLog.length
+                  }
+                ],
+          auraBefore,
+          auraAfter
+        });
         const activeSource =
           activePeriodicReactionSources.get(targetId);
         const coexistencePresent =
@@ -4399,6 +4662,32 @@ function simulateConfig(
           event.frame,
           generation
         );
+        targetStateTimelineRecorder.recordEvent({
+          frame: event.frame,
+          timeSeconds,
+          targetId,
+          targetName: target.name,
+          cause: "electro-charged-tick",
+          eventType: event.type,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence(),
+          reaction: "electroCharged",
+          reactions: ["electroCharged"],
+          primaryDamageEventId: null,
+          links:
+            prepared.operation === "stale"
+              ? []
+              : [
+                  {
+                    kind: "periodic-reaction-log",
+                    id: periodicReactionLog.length
+                  }
+                ],
+          auraBefore: prepared.auraBefore,
+          auraConsumed: prepared.auraConsumed,
+          auraAfter: prepared.auraAfter
+        });
         if (prepared.operation === "stale") continue;
         if (prepared.operation === "stop") {
           periodicReactionLog.push({
@@ -4511,6 +4800,30 @@ function simulateConfig(
         event.frame,
         damageApplied
       );
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "electro-charged-wane",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "electroCharged",
+        reactions: ["electroCharged"],
+        primaryDamageEventId: damageEventId,
+        links: [
+          { kind: "damage-event", id: damageEventId },
+          {
+            kind: "periodic-reaction-log",
+            id: periodicReactionLog.length
+          }
+        ],
+        auraBefore: result.auraBefore,
+        auraConsumed: result.auraConsumed,
+        auraAfter: result.auraAfter
+      });
       periodicReactionLog.push({
         id: periodicReactionLog.length,
         reaction: "electroCharged",
@@ -4717,6 +5030,37 @@ function simulateConfig(
                     : { application })
                 })
             : null;
+        const pendingReactionDamageEventId = damageEvents.length;
+        if (propagatedReactionAudit !== null) {
+          targetStateTimelineRecorder.recordEvent({
+            frame: event.frame,
+            timeSeconds,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            cause: "reaction-damage-application",
+            eventType: event.type,
+            eventPriority: event.priority,
+            eventSequence: event.sequence,
+            intraEventSequence: nextIntraEventSequence(),
+            reaction: propagatedReactionAudit.reaction,
+            reactions: propagatedReactionAudit.reactions,
+            primaryDamageEventId: pendingReactionDamageEventId,
+            links: [
+              {
+                kind: "damage-event",
+                id: pendingReactionDamageEventId
+              },
+              {
+                kind: "reaction-damage-log",
+                id: reactionDamageLogId
+              }
+            ],
+            auraBefore: propagatedReactionAudit.auraBefore ?? [],
+            auraApplied: propagatedReactionAudit.auraApplied ?? [],
+            auraConsumed: propagatedReactionAudit.auraConsumed ?? [],
+            auraAfter: propagatedReactionAudit.auraAfter ?? []
+          });
+        }
         const burningApplicationIcdDecision =
           application?.icdGroup === "burning" &&
           propagatedReactionAudit?.icdGroup === "burning"
@@ -4745,6 +5089,42 @@ function simulateConfig(
                   poiseDamage
                 }) ?? null)
             : null;
+        nestedShatterState?.mutations.forEach((mutation) => {
+          const shatterTriggered =
+            mutation.operation === "shatter-consume";
+          targetStateTimelineRecorder.recordEvent({
+            frame: event.frame,
+            timeSeconds,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            cause: "reaction-damage-shatter",
+            eventType: event.type,
+            eventPriority: event.priority,
+            eventSequence: event.sequence,
+            intraEventSequence: nextIntraEventSequence(),
+            reaction: shatterTriggered ? "shatter" : "none",
+            reactions: shatterTriggered ? ["shatter"] : [],
+            primaryDamageEventId: pendingReactionDamageEventId,
+            links: [
+              {
+                kind: "damage-event",
+                id: pendingReactionDamageEventId
+              },
+              {
+                kind: "reaction-damage-log",
+                id: reactionDamageLogId
+              }
+            ],
+            auraBefore: mutation.auraBefore,
+            auraConsumed: [
+              {
+                element: "frozen",
+                gaugeUnits: mutation.consumedGaugeUnits
+              }
+            ],
+            auraAfter: mutation.auraAfter
+          });
+        });
         const damageAllowed =
           plan.landed &&
           activeTargetPhase?.effects.damage !== "immune";
@@ -5624,6 +6004,7 @@ function simulateConfig(
       baseDefenseReduction: targetProfile.defReduction,
       effectiveDefenseReduction
     };
+    const pendingDirectDamageEventId = damageEvents.length;
     const shatterState =
       auraEngine !== null &&
       auraAllowed &&
@@ -5639,6 +6020,38 @@ function simulateConfig(
               : { poiseDamage: hit.poiseDamage })
           })
         : null;
+    shatterState?.mutations.forEach((mutation) => {
+      const shatterTriggered =
+        mutation.operation === "shatter-consume";
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: targetProfile.name,
+        cause: "direct-hit-shatter",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: shatterTriggered ? "shatter" : "none",
+        reactions: shatterTriggered ? ["shatter"] : [],
+        primaryDamageEventId: pendingDirectDamageEventId,
+        links: [
+          {
+            kind: "damage-event",
+            id: pendingDirectDamageEventId
+          }
+        ],
+        auraBefore: mutation.auraBefore,
+        auraConsumed: [
+          {
+            element: "frozen",
+            gaugeUnits: mutation.consumedGaugeUnits
+          }
+        ],
+        auraAfter: mutation.auraAfter
+      });
+    });
     const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
     const reactionAudit: ReactionAudit =
       auraEngine === null
@@ -5696,6 +6109,32 @@ function simulateConfig(
               note:
                 "目标效果策略阻止了本段元素附着与反应；Aura 仅按当前帧衰减。"
             };
+    if (auraEngine !== null) {
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: targetProfile.name,
+        cause: "direct-hit-application",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: reactionAudit.reaction,
+        reactions: reactionAudit.reactions,
+        primaryDamageEventId: pendingDirectDamageEventId,
+        links: [
+          {
+            kind: "damage-event",
+            id: pendingDirectDamageEventId
+          }
+        ],
+        auraBefore: reactionAudit.auraBefore ?? [],
+        auraApplied: reactionAudit.auraApplied ?? [],
+        auraConsumed: reactionAudit.auraConsumed ?? [],
+        auraAfter: reactionAudit.auraAfter ?? []
+      });
+    }
     reactionAudit.shatterReaction =
       shatterState?.audit ?? null;
     if (
@@ -6625,6 +7064,7 @@ function simulateConfig(
     }
   );
   const durationFrame = Math.round(config.duration * 60);
+  recordNaturalAuraExpiries(durationFrame, true);
   const auraEndStates: SimulationResult["auraEndStates"] =
     enemyTargets.map((target) => ({
       targetId: target.id,
@@ -6636,6 +7076,17 @@ function simulateConfig(
           []
       )
     }));
+  for (const endState of auraEndStates) {
+    targetStateTimelineRecorder.recordBoundary({
+      frame: endState.frame,
+      timeSeconds: endState.timeSeconds,
+      targetId: endState.targetId,
+      targetName: endState.targetName,
+      cause: "simulation-end",
+      aura: endState.aura
+    });
+  }
+  const targetStateTimeline = targetStateTimelineRecorder.result();
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -6691,6 +7142,7 @@ function simulateConfig(
     perSecond,
     damageCurve,
     auraTimeline,
+    targetStateTimeline,
     auraInitialStates,
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })

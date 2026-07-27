@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { SimConfig } from "@genshin-dps-lab/schemas";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
@@ -5,6 +6,63 @@ import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.g
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
+
+const LEGACY_REPRODUCIBILITY_KEY = "gdl-d1a42700";
+const LEGACY_PRE_TARGET_TIMELINE_SHA256 =
+  "be150b9be5f33d18ef8942fbb13693aaef47b82a02712107ab04676dfcc24110";
+const LEGACY_DAMAGE_EVENTS_SHA256 =
+  "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f";
+const BURNING_PRE_TARGET_TIMELINE_SHA256 =
+  "7235c3faf3a61305aef85b5a6144d1c98196f2a8d222b3d453851cb53a83b772";
+const BURNING_DAMAGE_EVENTS_SHA256 =
+  "173780f2e73094db7342db12777843fd9b327bb10e06ae54cc2124cdfa12e371";
+const BURNING_STATE_LOG_SHA256 =
+  "ea975d86f541791d09d5d53310de61c5223b9be2fe8eef356fdfe38e8c0b2fd5";
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => canonicalize(entry));
+  }
+  if (value !== null && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.keys(record)
+        .sort()
+        .map((key) => [key, canonicalize(record[key])])
+    );
+  }
+  return value;
+}
+
+function sha256(value: unknown): string {
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
+}
+
+function preTargetTimelineResult(
+  result: ReturnType<typeof simulate>
+): unknown {
+  const {
+    targetStateTimeline: _targetStateTimeline,
+    ...preTimelineResult
+  } = result;
+  return preTimelineResult;
+}
+
+function expectContiguousTargetStateTimelineIds(
+  result: ReturnType<typeof simulate>
+): void {
+  expect(result.targetStateTimeline.version).toBe("1.0.0");
+  expect(
+    result.targetStateTimeline.points.map((point) => point.id)
+  ).toEqual(
+    Array.from(
+      { length: result.targetStateTimeline.points.length },
+      (_, index) => index
+    )
+  );
+}
 
 function makeBurningGoldenConfig(): SimConfig {
   const base = makeConfig();
@@ -124,6 +182,16 @@ describe("Vanilla v0.1 golden compatibility", () => {
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
+    expect(result.reproducibilityKey).toBe(
+      LEGACY_REPRODUCIBILITY_KEY
+    );
+    expect(sha256(result.damageEvents)).toBe(
+      LEGACY_DAMAGE_EVENTS_SHA256
+    );
+    expect(sha256(preTargetTimelineResult(result))).toBe(
+      LEGACY_PRE_TARGET_TIMELINE_SHA256
+    );
+    expectContiguousTargetStateTimelineIds(result);
     expect(result.actorPoses).toEqual([]);
     expect(result.enemyTargets).toEqual([
       {
@@ -265,6 +333,21 @@ describe("Vanilla v0.1 golden compatibility", () => {
         })
       )
     ).toEqual(golden.skippedActions);
+
+    const repeated = simulate(durinMeltPreset, {
+      energyMode: "configured",
+      critMode: "average",
+      compatibilityMode: "legacy-v0.1",
+      randomSeed: golden.options.randomSeed
+    });
+    expect(repeated.reproducibilityKey).toBe(
+      result.reproducibilityKey
+    );
+    expect(repeated.damageEvents).toEqual(result.damageEvents);
+    expect(repeated.targetStateTimeline).toEqual(
+      result.targetStateTimeline
+    );
+    expectContiguousTargetStateTimelineIds(repeated);
   });
 });
 
@@ -291,6 +374,16 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(result.reproducibilityKey).toBe(
       burningGolden.reproducibilityKey
     );
+    expect(sha256(result.damageEvents)).toBe(
+      BURNING_DAMAGE_EVENTS_SHA256
+    );
+    expect(sha256(result.burningStateLog)).toBe(
+      BURNING_STATE_LOG_SHA256
+    );
+    expect(sha256(preTargetTimelineResult(result))).toBe(
+      BURNING_PRE_TARGET_TIMELINE_SHA256
+    );
+    expectContiguousTargetStateTimelineIds(result);
     expectRelativeClose(
       result.totalDamage,
       burningGolden.totalDamage
@@ -526,5 +619,9 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(repeated.burningStateLog).toEqual(
       result.burningStateLog
     );
+    expect(repeated.targetStateTimeline).toEqual(
+      result.targetStateTimeline
+    );
+    expectContiguousTargetStateTimelineIds(repeated);
   });
 });
