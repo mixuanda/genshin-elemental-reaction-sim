@@ -92,6 +92,15 @@ import {
   type DendroCoreRemovalDecision,
   type DendroCoreReservation
 } from "./dendro-core";
+import {
+  absorbPlayerDamageWithCrystallizeShield,
+  applyPlayerHpDamage,
+  calcPlayerMaxHp,
+  calcPlayerReactionSelfDamage,
+  PLAYER_REACTION_SELF_DAMAGE_RADII,
+  resolveCircularPlayerHit,
+  type PlayerReactionSelfDamageKind
+} from "./player-damage";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -705,7 +714,20 @@ interface ActiveCrystallizeShield {
   sourceCharacterLevel: number;
   sourceElementalMastery: number;
   calculation: CrystallizeShieldCalculation;
+  currentBaseHp: number;
   expiresAtFrame: number;
+}
+
+interface PlayerHpRuntimeState {
+  actorId: string;
+  maxHp: number;
+  initialHp: number;
+  currentHp: number;
+  totalIncomingDamage: number;
+  totalAbsorbedDamage: number;
+  totalHpDamage: number;
+  hitCount: number;
+  zeroHpReached: boolean;
 }
 
 type InternalEvent =
@@ -1430,6 +1452,98 @@ function simulateConfig(
     [];
   const crystallizeShieldTimeline: SimulationResult["crystallizeShieldTimeline"] =
     [];
+  const playerHitResolutionLog: SimulationResult["playerHitResolutionLog"] =
+    [];
+  const playerDamageEvents: SimulationResult["playerDamageEvents"] =
+    [];
+  const playerHpTimeline: SimulationResult["playerHpTimeline"] = {
+    version: "1.0.0",
+    points: []
+  };
+  const enabledPlayerDamageModel =
+    config.playerDamageModel.mode === "reaction-self-v1"
+      ? config.playerDamageModel
+      : null;
+  const playerSelfDamageStatus =
+    enabledPlayerDamageModel === null
+      ? ("unsupported-player-damage-model" as const)
+      : ("modeled-player-reaction-damage" as const);
+  const projectPlayerSelfDamageStatus = (
+    audit: ReactionAudit
+  ): ReactionAudit => ({
+    ...audit,
+    burningReaction:
+      audit.burningReaction === null
+        ? null
+        : {
+            ...audit.burningReaction,
+            selfDamageStatus: playerSelfDamageStatus
+          },
+    bloomReactions: audit.bloomReactions.map((reaction) => ({
+      ...reaction,
+      selfDamageStatus: playerSelfDamageStatus
+    }))
+  });
+  const configuredPlayerStateByActorId = new Map(
+    (enabledPlayerDamageModel?.characters ?? []).map((state) => [
+      state.actorId,
+      state
+    ])
+  );
+  const playerHpStateByActorId = new Map<
+    string,
+    PlayerHpRuntimeState
+  >();
+  if (enabledPlayerDamageModel !== null) {
+    for (const character of config.characters) {
+      const configuredState = configuredPlayerStateByActorId.get(
+        character.id
+      );
+      if (configuredState === undefined) {
+        throw new Error(
+          `Missing player damage state for character "${character.id}".`
+        );
+      }
+      const maxHpCalculation = calcPlayerMaxHp({
+        baseHp: character.stats.baseHp,
+        hpPct: character.stats.hpPct,
+        flatHp: character.stats.flatHp
+      });
+      if (maxHpCalculation.maxHp <= 0) {
+        throw new Error(
+          `Player reaction self-damage requires positive Max HP for character "${character.id}".`
+        );
+      }
+      const initialHp =
+        maxHpCalculation.maxHp * configuredState.initialHpRatio;
+      playerHpStateByActorId.set(character.id, {
+        actorId: character.id,
+        maxHp: maxHpCalculation.maxHp,
+        initialHp,
+        currentHp: initialHp,
+        totalIncomingDamage: 0,
+        totalAbsorbedDamage: 0,
+        totalHpDamage: 0,
+        hitCount: 0,
+        zeroHpReached: initialHp === 0
+      });
+      playerHpTimeline.points.push({
+        id: playerHpTimeline.points.length,
+        frame: 0,
+        timeSeconds: 0,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        operation: "initial",
+        actorId: character.id,
+        playerDamageEventId: null,
+        maxHp: maxHpCalculation.maxHp,
+        hpBefore: initialHp,
+        hpAfter: initialHp,
+        hpRatioAfter: initialHp / maxHpCalculation.maxHp
+      });
+    }
+  }
   const activeCrystallizeShards = new Map<
     number,
     ActiveCrystallizeShard
@@ -1462,6 +1576,8 @@ function simulateConfig(
     SwirlDamageIcdState
   >();
   const dendroCoreReactionALimiter = new ReactionALimiter();
+  const playerDendroCoreReactionALimiter =
+    new ReactionALimiter();
   const shatterReactionALimiter = new ReactionALimiter();
   const superconductReactionALimiter = new ReactionALimiter();
   const overloadAndElectroChargedReactionBLimiter =
@@ -1544,6 +1660,8 @@ function simulateConfig(
         triggerDamageEventId,
         reactionDamageLogId: null,
         damageEventIds: [],
+        playerHitResolutionLogId: null,
+        playerDamageEventId: null,
         tickIndex: null,
         tickSkipped: false,
         skipReason: null,
@@ -1572,7 +1690,7 @@ function simulateConfig(
           AURA_ENGINE_CONSTANTS.burningIcdSequence,
         applicationAllowed: null,
         applicationBlockedReason: null,
-        selfDamageStatus: "unsupported-player-damage-model",
+        selfDamageStatus: playerSelfDamageStatus,
         reason: "TARGET_MECHANICS_TRUNCATION"
       });
       activeBurningSources.delete(targetId);
@@ -1732,6 +1850,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      playerHitResolutionLogIds: [],
+      playerDamageEventIds: [],
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
@@ -1823,6 +1943,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      playerHitResolutionLogIds: [],
+      playerDamageEventIds: [],
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
@@ -1920,6 +2042,384 @@ function simulateConfig(
     stats.critRate = clamp(stats.critRate, 0, 1);
     stats.defIgnore = clamp(stats.defIgnore, 0, 1);
     return stats;
+  };
+
+  const resolvePlayerReactionSelfDamage = ({
+    reaction,
+    damageElement,
+    sourceActorId,
+    sourceTargetId,
+    reactionDamageLogId,
+    burningStateLogId,
+    dendroCoreRemovalLogId,
+    damageCenter,
+    sourcePreResistanceDamage,
+    frame,
+    timeSeconds,
+    eventPriority,
+    eventSequence,
+    nextIntraEventSequence
+  }: {
+    reaction: PlayerReactionSelfDamageKind;
+    damageElement: Element;
+    sourceActorId: string;
+    sourceTargetId: string;
+    reactionDamageLogId: number;
+    burningStateLogId: number | null;
+    dendroCoreRemovalLogId: number | null;
+    damageCenter: { x: number; y: number };
+    sourcePreResistanceDamage: number;
+    frame: number;
+    timeSeconds: number;
+    eventPriority: number;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): void => {
+    if (enabledPlayerDamageModel === null) return;
+    if (activeCharacterId === null) {
+      throw new Error(
+        `Player reaction self-damage at frame ${frame} has no active character.`
+      );
+    }
+    const targetActorId = activeCharacterId;
+    const configuredState =
+      configuredPlayerStateByActorId.get(targetActorId);
+    const hpState = playerHpStateByActorId.get(targetActorId);
+    const reactionLog =
+      reactionDamageLog[reactionDamageLogId];
+    if (
+      configuredState === undefined ||
+      hpState === undefined ||
+      reactionLog === undefined
+    ) {
+      throw new Error(
+        `Player reaction self-damage could not resolve state for active character "${targetActorId}".`
+      );
+    }
+
+    const damageRadius =
+      PLAYER_REACTION_SELF_DAMAGE_RADII[reaction];
+    const geometry = resolveCircularPlayerHit({
+      damageCenter,
+      damageRadius,
+      playerCenter: enabledPlayerDamageModel.position,
+      playerRadius: enabledPlayerDamageModel.hitboxRadius
+    });
+    const playerHitResolutionLogId =
+      playerHitResolutionLog.length;
+    const playerHit: SimulationResult["playerHitResolutionLog"][number] =
+      {
+        id: playerHitResolutionLogId,
+        frame,
+        timeSeconds,
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction,
+        element: damageElement,
+        sourceActorId,
+        sourceTargetId,
+        targetActorId,
+        reactionDamageLogId,
+        burningStateLogId,
+        dendroCoreRemovalLogId,
+        damageCenter: deepClone(damageCenter),
+        damageRadius,
+        playerCenter: deepClone(
+          enabledPlayerDamageModel.position
+        ),
+        playerRadius: enabledPlayerDamageModel.hitboxRadius,
+        distance: geometry.distance,
+        distanceSquared: geometry.distanceSquared,
+        combinedRadius: geometry.combinedRadius,
+        combinedRadiusSquared: geometry.combinedRadiusSquared,
+        outcome: geometry.hit ? "landed" : "miss",
+        blockedReason: geometry.hit ? null : "OUT_OF_RANGE",
+        playerDamageEventId: null
+      };
+    playerHitResolutionLog.push(playerHit);
+    reactionLog.playerHitResolutionLogIds.push(
+      playerHitResolutionLogId
+    );
+
+    const burningLog =
+      burningStateLogId === null
+        ? undefined
+        : burningStateLog[burningStateLogId];
+    if (burningLog !== undefined) {
+      burningLog.playerHitResolutionLogId =
+        playerHitResolutionLogId;
+    }
+    const coreRemovalLog =
+      dendroCoreRemovalLogId === null
+        ? undefined
+        : dendroCoreLog[dendroCoreRemovalLogId];
+    if (
+      coreRemovalLog !== undefined &&
+      (coreRemovalLog.operation === "expire" ||
+        coreRemovalLog.operation === "evict" ||
+        coreRemovalLog.operation === "consume")
+    ) {
+      coreRemovalLog.playerHitResolutionLogId =
+        playerHitResolutionLogId;
+    }
+    if (!geometry.hit) return;
+
+    const playerReactionA =
+      reaction === "burning"
+        ? null
+        : playerDendroCoreReactionALimiter.decide({
+            targetId: "player-avatar",
+            actorId: sourceActorId,
+            reactionTag: reaction,
+            frame
+          });
+    const damageGroupDecision:
+      | ReactionADamageGroupAudit
+      | null =
+      playerReactionA === null
+        ? null
+        : {
+            reaction: playerReactionA.reactionTag,
+            sourceActorId,
+            targetId: "player-avatar",
+            windowStartFrame:
+              playerReactionA.windowStartFrame,
+            hitIndex: playerReactionA.hitIndex,
+            resetFrames: 30,
+            sequence: [true, true, false],
+            damageAllowed: playerReactionA.damageAllowed,
+            blockedReason: playerReactionA.blockedReason
+          };
+    const damageGroupMultiplier =
+      damageGroupDecision?.damageAllowed === false
+        ? (0 as const)
+        : (1 as const);
+    const baseDamageFactors =
+      calcPlayerReactionSelfDamage({
+        reaction,
+        sourcePreResistanceDamage,
+        effectiveResistance:
+          configuredState.resistances[damageElement]
+      });
+    const incomingDamage =
+      baseDamageFactors.finalDamage *
+      damageGroupMultiplier;
+    const damageFactors: SimulationResult["playerDamageEvents"][number]["damageFactors"] =
+      {
+        ...baseDamageFactors,
+        damageGroupMultiplier,
+        damageGroupDecision,
+        finalDamage: incomingDamage
+      };
+    const playerDamageEventId = playerDamageEvents.length;
+    const shieldAtHit = activeCrystallizeShield;
+    let shieldResolution: SimulationResult["playerDamageEvents"][number]["shieldResolution"];
+    if (shieldAtHit === null) {
+      shieldResolution = {
+        mode: "crystallize-v1",
+        shieldId: null,
+        shieldElement: null,
+        incomingDamage,
+        incomingElement: damageElement,
+        elementalMasteryBonus: 0,
+        shieldStrengthBonus: 0,
+        absorptionMultiplier: 1,
+        effectiveAbsorptionMultiplier: 1,
+        baseHpBefore: 0,
+        baseHpConsumed: 0,
+        baseHpAfter: 0,
+        absorptionCapacity: 0,
+        absorbedDamage: 0,
+        damageAfterShield: incomingDamage,
+        shieldBroken: false
+      };
+    } else {
+      const absorption =
+        absorbPlayerDamageWithCrystallizeShield({
+          incomingDamage,
+          incomingElement: damageElement,
+          shieldElement: shieldAtHit.element,
+          currentBaseHp: shieldAtHit.currentBaseHp,
+          elementalMasteryBonus:
+            shieldAtHit.calculation.elementalMasteryBonus
+        });
+      shieldResolution = {
+        mode: "crystallize-v1",
+        shieldId: shieldAtHit.id,
+        shieldElement: shieldAtHit.element,
+        incomingDamage,
+        incomingElement: damageElement,
+        elementalMasteryBonus:
+          absorption.elementalMasteryBonus,
+        shieldStrengthBonus:
+          absorption.shieldStrengthBonus,
+        absorptionMultiplier:
+          absorption.absorptionMultiplier,
+        effectiveAbsorptionMultiplier:
+          absorption.effectiveAbsorptionMultiplier,
+        baseHpBefore: absorption.baseHpBefore,
+        baseHpConsumed: absorption.baseHpConsumed,
+        baseHpAfter: absorption.baseHpAfter,
+        absorptionCapacity: absorption.absorptionCapacity,
+        absorbedDamage: absorption.absorbedDamage,
+        damageAfterShield: absorption.damageAfterShield,
+        shieldBroken: absorption.shieldBroken
+      };
+      if (incomingDamage > 0) {
+        shieldAtHit.currentBaseHp = absorption.baseHpAfter;
+        const shieldOperation = absorption.shieldBroken
+          ? ("break" as const)
+          : ("absorb" as const);
+        crystallizeShieldLog.push({
+          id: crystallizeShieldLog.length,
+          operation: shieldOperation,
+          frame,
+          timeSeconds,
+          eventPriority,
+          eventSequence,
+          intraEventSequence: nextIntraEventSequence(),
+          shieldId: shieldAtHit.id,
+          shardId: shieldAtHit.shardId,
+          element: shieldAtHit.element,
+          sourceActorId: shieldAtHit.sourceActorId,
+          pickedUpByActorId:
+            shieldAtHit.pickedUpByActorId,
+          sourceCharacterLevel:
+            shieldAtHit.sourceCharacterLevel,
+          sourceElementalMastery:
+            shieldAtHit.sourceElementalMastery,
+          baseHp: shieldAtHit.calculation.baseHp,
+          elementalMasteryBonus:
+            shieldAtHit.calculation.elementalMasteryBonus,
+          generalAbsorption:
+            shieldAtHit.calculation.generalAbsorption,
+          matchingElementAbsorption:
+            shieldAtHit.calculation.matchingElementAbsorption,
+          geoDamageAbsorption:
+            shieldAtHit.calculation.geoDamageAbsorption,
+          currentBaseHp: absorption.baseHpAfter,
+          expiresAtFrame: shieldAtHit.expiresAtFrame,
+          previousShieldId: null,
+          playerDamageEventId,
+          incomingElement: damageElement,
+          baseHpBeforeAbsorption: absorption.baseHpBefore,
+          baseHpConsumed: absorption.baseHpConsumed,
+          baseHpAfterAbsorption: absorption.baseHpAfter,
+          absorbedDamage: absorption.absorbedDamage,
+          damageAfterShield: absorption.damageAfterShield
+        });
+        const remainingGeneralAbsorption =
+          absorption.baseHpAfter *
+          (1 +
+            shieldAtHit.calculation
+              .elementalMasteryBonus);
+        crystallizeShieldTimeline.push({
+          id: crystallizeShieldTimeline.length,
+          frame,
+          timeSeconds,
+          eventPriority,
+          eventSequence,
+          intraEventSequence: nextIntraEventSequence(),
+          operation: shieldOperation,
+          shieldId: absorption.shieldBroken
+            ? null
+            : shieldAtHit.id,
+          element: absorption.shieldBroken
+            ? null
+            : shieldAtHit.element,
+          generalAbsorption: absorption.shieldBroken
+            ? 0
+            : remainingGeneralAbsorption,
+          expiresAtFrame: absorption.shieldBroken
+            ? null
+            : shieldAtHit.expiresAtFrame,
+          playerDamageEventId,
+          baseHpBeforeAbsorption: absorption.baseHpBefore,
+          baseHpAfterAbsorption: absorption.baseHpAfter,
+          absorbedDamage: absorption.absorbedDamage,
+          damageAfterShield: absorption.damageAfterShield
+        });
+        if (absorption.shieldBroken) {
+          activeCrystallizeShield = null;
+        }
+      }
+    }
+
+    const hpResolutionBase = applyPlayerHpDamage({
+      currentHp: hpState.currentHp,
+      maxHp: hpState.maxHp,
+      incomingDamage: shieldResolution.damageAfterShield
+    });
+    const hpResolution: SimulationResult["playerDamageEvents"][number]["hpResolution"] =
+      {
+        zeroHpPolicy: "clamp-and-continue",
+        ...hpResolutionBase
+      };
+    const playerDamageEvent: SimulationResult["playerDamageEvents"][number] =
+      {
+        id: playerDamageEventId,
+        frame,
+        timeSeconds,
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction,
+        element: damageElement,
+        sourceActorId,
+        sourceTargetId,
+        targetActorId,
+        reactionDamageLogId,
+        playerHitResolutionLogId,
+        burningStateLogId,
+        dendroCoreRemovalLogId,
+        damageFactors,
+        shieldResolution,
+        hpResolution,
+        finalDamage: hpResolution.actualLoss,
+        displayDamage: Math.round(hpResolution.actualLoss)
+      };
+    playerDamageEvents.push(playerDamageEvent);
+    playerHit.playerDamageEventId = playerDamageEventId;
+    reactionLog.playerDamageEventIds.push(
+      playerDamageEventId
+    );
+    if (burningLog !== undefined) {
+      burningLog.playerDamageEventId =
+        playerDamageEventId;
+    }
+    if (
+      coreRemovalLog !== undefined &&
+      (coreRemovalLog.operation === "expire" ||
+        coreRemovalLog.operation === "evict" ||
+        coreRemovalLog.operation === "consume")
+    ) {
+      coreRemovalLog.playerDamageEventId =
+        playerDamageEventId;
+    }
+
+    hpState.currentHp = hpResolution.currentHpAfter;
+    hpState.totalIncomingDamage += incomingDamage;
+    hpState.totalAbsorbedDamage +=
+      shieldResolution.absorbedDamage;
+    hpState.totalHpDamage += hpResolution.actualLoss;
+    hpState.hitCount += 1;
+    hpState.zeroHpReached ||= hpResolution.currentHpAfter === 0;
+    playerHpTimeline.points.push({
+      id: playerHpTimeline.points.length,
+      frame,
+      timeSeconds,
+      eventPriority,
+      eventSequence,
+      intraEventSequence: nextIntraEventSequence(),
+      operation: "damage",
+      actorId: targetActorId,
+      playerDamageEventId,
+      maxHp: hpState.maxHp,
+      hpBefore: hpResolution.currentHpBefore,
+      hpAfter: hpResolution.currentHpAfter,
+      hpRatioAfter: hpResolution.hpRatioAfter
+    });
   };
 
   const dendroCoreSnapshots =
@@ -2050,9 +2550,11 @@ function simulateConfig(
       hitlagStatus: "unsupported-enemy-hitlag",
       mechanicsDataStatus:
         DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
-      selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+      selfDamageStatus: playerSelfDamageStatus,
       reaction: decision.reaction,
       reactionDamageLogId,
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       contactLogId,
       damageFrame: decision.damageFrame,
       withinSimulation,
@@ -2106,6 +2608,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      playerHitResolutionLogIds: [],
+      playerDamageEventIds: [],
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
@@ -2231,7 +2735,7 @@ function simulateConfig(
         hitlagStatus: "unsupported-enemy-hitlag",
         mechanicsDataStatus:
           DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
-        selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+        selfDamageStatus: playerSelfDamageStatus,
         bloomReactionIndex,
         spawnFrame: reservation.spawnFrame,
         withinSimulation,
@@ -2631,6 +3135,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      playerHitResolutionLogIds: [],
+      playerDamageEventIds: [],
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
@@ -2789,6 +3295,8 @@ function simulateConfig(
           unresolvedTargetIds: [],
           damageGroupBlockedTargetIds: [],
           damageEventIds: [],
+          playerHitResolutionLogIds: [],
+          playerDamageEventIds: [],
           reactionStatusLogIds: [],
           damageGroupDecisions: []
         });
@@ -2926,6 +3434,8 @@ function simulateConfig(
           triggerDamageEventId: damageEventId,
           reactionDamageLogId: null,
           damageEventIds: [],
+          playerHitResolutionLogId: null,
+          playerDamageEventId: null,
           tickIndex: null,
           tickSkipped: false,
           skipReason: null,
@@ -2960,8 +3470,7 @@ function simulateConfig(
             AURA_ENGINE_CONSTANTS.burningIcdSequence,
           applicationAllowed: null,
           applicationBlockedReason: null,
-          selfDamageStatus:
-            burningReaction.selfDamageStatus,
+          selfDamageStatus: playerSelfDamageStatus,
           reason:
             burningReaction.stopReason ??
             "BURNING_AURA_CONSUMED"
@@ -3022,6 +3531,8 @@ function simulateConfig(
         triggerDamageEventId: damageEventId,
         reactionDamageLogId: null,
         damageEventIds: [],
+        playerHitResolutionLogId: null,
+        playerDamageEventId: null,
         tickIndex: null,
         tickSkipped: false,
         skipReason: null,
@@ -3058,8 +3569,7 @@ function simulateConfig(
         // Start/refresh rows only describe the resulting stream state.
         applicationAllowed: null,
         applicationBlockedReason: null,
-        selfDamageStatus:
-          burningReaction.selfDamageStatus,
+        selfDamageStatus: playerSelfDamageStatus,
         reason: null
       });
       scheduleBurningFuelExpiry(
@@ -3114,6 +3624,8 @@ function simulateConfig(
       triggerDamageEventId: damageEventId,
       reactionDamageLogId: null,
       damageEventIds: [],
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       tickIndex: null,
       tickSkipped: false,
       skipReason: null,
@@ -3152,7 +3664,7 @@ function simulateConfig(
         AURA_ENGINE_CONSTANTS.burningIcdSequence,
       applicationAllowed: null,
       applicationBlockedReason: null,
-      selfDamageStatus: "unsupported-player-damage-model",
+      selfDamageStatus: playerSelfDamageStatus,
       reason: "BURNING_AURA_CONSUMED"
     });
     activeBurningSources.delete(targetId);
@@ -3340,6 +3852,8 @@ function simulateConfig(
         unresolvedTargetIds: [],
         damageGroupBlockedTargetIds: [],
         damageEventIds: [],
+        playerHitResolutionLogIds: [],
+        playerDamageEventIds: [],
         reactionStatusLogIds: [],
         damageGroupDecisions: []
       });
@@ -4454,7 +4968,7 @@ function simulateConfig(
         hitlagStatus: "unsupported-enemy-hitlag",
         mechanicsDataStatus:
           DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
-        selfDamageStatus: DENDRO_CORE_CONSTANTS.selfDamageStatus,
+        selfDamageStatus: playerSelfDamageStatus,
         spawnedAtFrame: spawnDecision.spawned.spawnedAtFrame,
         expiresAtFrame: spawnDecision.spawned.expiresAtFrame,
         position: deepClone(spawnDecision.spawned.position),
@@ -4757,6 +5271,7 @@ function simulateConfig(
           sourceElementalMastery:
             shard.sourceElementalMastery,
           calculation,
+          currentBaseHp: calculation.baseHp,
           expiresAtFrame:
             event.frame +
             CRYSTALLIZE_CONSTANTS.shieldDurationFrames
@@ -4769,6 +5284,9 @@ function simulateConfig(
             previousShieldId === null ? "add" : "overwrite",
           frame: event.frame,
           timeSeconds,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence(),
           shieldId: shield.id,
           shardId: shield.shardId,
           element: shield.element,
@@ -4786,18 +5304,33 @@ function simulateConfig(
           geoDamageAbsorption: calculation.geoDamageAbsorption,
           currentBaseHp: calculation.baseHp,
           expiresAtFrame: shield.expiresAtFrame,
-          previousShieldId
+          previousShieldId,
+          playerDamageEventId: null,
+          incomingElement: null,
+          baseHpBeforeAbsorption: 0,
+          baseHpConsumed: 0,
+          baseHpAfterAbsorption: 0,
+          absorbedDamage: 0,
+          damageAfterShield: 0
         });
         crystallizeShieldTimeline.push({
           id: crystallizeShieldTimeline.length,
           frame: event.frame,
           timeSeconds,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: nextIntraEventSequence(),
           operation:
             previousShieldId === null ? "add" : "overwrite",
           shieldId: shield.id,
           element: shield.element,
           generalAbsorption: calculation.generalAbsorption,
-          expiresAtFrame: shield.expiresAtFrame
+          expiresAtFrame: shield.expiresAtFrame,
+          playerDamageEventId: null,
+          baseHpBeforeAbsorption: 0,
+          baseHpAfterAbsorption: 0,
+          absorbedDamage: 0,
+          damageAfterShield: 0
         });
         crystallizeShardLog.push({
           id: crystallizeShardLog.length,
@@ -4884,6 +5417,9 @@ function simulateConfig(
         operation: "expire",
         frame: event.frame,
         timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
         shieldId: shield.id,
         shardId: shield.shardId,
         element: shield.element,
@@ -4901,17 +5437,32 @@ function simulateConfig(
           shield.calculation.geoDamageAbsorption,
         currentBaseHp: 0,
         expiresAtFrame: shield.expiresAtFrame,
-        previousShieldId: null
+        previousShieldId: null,
+        playerDamageEventId: null,
+        incomingElement: null,
+        baseHpBeforeAbsorption: 0,
+        baseHpConsumed: 0,
+        baseHpAfterAbsorption: 0,
+        absorbedDamage: 0,
+        damageAfterShield: 0
       });
       crystallizeShieldTimeline.push({
         id: crystallizeShieldTimeline.length,
         frame: event.frame,
         timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
         operation: "expire",
         shieldId: null,
         element: null,
         generalAbsorption: 0,
-        expiresAtFrame: null
+        expiresAtFrame: null,
+        playerDamageEventId: null,
+        baseHpBeforeAbsorption: 0,
+        baseHpAfterAbsorption: 0,
+        absorbedDamage: 0,
+        damageAfterShield: 0
       });
       activeCrystallizeShield = null;
       continue;
@@ -5534,6 +6085,8 @@ function simulateConfig(
           source?.triggerDamageEventId ?? null,
         reactionDamageLogId: null,
         damageEventIds: [],
+        playerHitResolutionLogId: null,
+        playerDamageEventId: null,
         tickIndex: null,
         tickSkipped: false,
         skipReason: null,
@@ -5564,7 +6117,7 @@ function simulateConfig(
           AURA_ENGINE_CONSTANTS.burningIcdSequence,
         applicationAllowed: null,
         applicationBlockedReason: null,
-        selfDamageStatus: result.selfDamageStatus,
+        selfDamageStatus: playerSelfDamageStatus,
         reason: "FUEL_EXPIRED"
       });
       if (quickenWasRemoved) {
@@ -5682,6 +6235,8 @@ function simulateConfig(
           triggerDamageEventId: source.triggerDamageEventId,
           reactionDamageLogId: null,
           damageEventIds: [],
+          playerHitResolutionLogId: null,
+          playerDamageEventId: null,
           tickIndex,
           tickSkipped: false,
           skipReason: null,
@@ -5714,7 +6269,7 @@ function simulateConfig(
             AURA_ENGINE_CONSTANTS.burningIcdSequence,
           applicationAllowed: null,
           applicationBlockedReason: null,
-          selfDamageStatus: prepared.selfDamageStatus,
+          selfDamageStatus: playerSelfDamageStatus,
           reason:
             prepared.reason === "BURNING_AURA_CONSUMED"
               ? "BURNING_AURA_CONSUMED"
@@ -5744,10 +6299,13 @@ function simulateConfig(
         triggerDamageEventId: source.triggerDamageEventId,
         reactionDamageLogId: null,
         damageEventIds: [],
+        playerHitResolutionLogId: null,
+        playerDamageEventId: null,
         tickIndex,
         tickSkipped: prepared.operation === "tick-skipped",
         skipReason: prepared.skipReason,
-        damageAllowed: null,
+        damageAllowed:
+          prepared.operation === "tick-skipped" ? false : null,
         burningGaugeUnitsBefore:
           prepared.burningGaugeUnitsBefore,
         burningGaugeUnitsAfter:
@@ -5776,7 +6334,7 @@ function simulateConfig(
           AURA_ENGINE_CONSTANTS.burningIcdSequence,
         applicationAllowed: null,
         applicationBlockedReason: null,
-        selfDamageStatus: prepared.selfDamageStatus,
+        selfDamageStatus: playerSelfDamageStatus,
         reason: null
       });
       if (prepared.operation === "tick") {
@@ -6210,7 +6768,8 @@ function simulateConfig(
           centerPosition,
           enemyTargets.map((target) => ({
             targetId: target.id,
-            position: resolveTargetPosition(target.id, event.frame)
+            position: resolveTargetPosition(target.id, event.frame),
+            hitboxRadius: target.hitboxRadius
           })),
           DENDRO_CORE_CONSTANTS.hyperbloomSelectionRadius
         );
@@ -6346,7 +6905,8 @@ function simulateConfig(
           reactionDamageAuraAllowed &&
           targetAuraEngine !== null &&
           (application !== undefined || mechanicsTruncatedBefore)
-            ? targetAuraEngine.processHit({
+            ? projectPlayerSelfDamageStatus(
+                targetAuraEngine.processHit({
                   frame: event.frame,
                   sourceActorId: actorId,
                   element: damageElement,
@@ -6354,6 +6914,7 @@ function simulateConfig(
                     ? {}
                     : { application })
                 })
+              )
             : null;
         const pendingReactionDamageEventId = damageEvents.length;
         if (propagatedReactionAudit !== null) {
@@ -7292,6 +7853,51 @@ function simulateConfig(
           );
         }
       });
+      const playerSelfDamageReaction:
+        | PlayerReactionSelfDamageKind
+        | null =
+        reaction === "burning" ||
+        reaction === "bloom" ||
+        reaction === "burgeon" ||
+        reaction === "hyperbloom"
+          ? reaction
+          : null;
+      if (
+        enabledPlayerDamageModel !== null &&
+        playerSelfDamageReaction !== null
+      ) {
+        if (resolvedReactionCenterPosition === null) {
+          throw new Error(
+            `${playerSelfDamageReaction} player self-damage at frame ${event.frame} requires an explicit damage center.`
+          );
+        }
+        const playerSourceDamage =
+          calcTransformativeReactionDamage({
+            characterLevel: sourceActor.level,
+            elementalMastery,
+            reactionBonus,
+            baseMultiplier,
+            effectiveResistance: 0
+          }).preResistanceDamage;
+        resolvePlayerReactionSelfDamage({
+          reaction: playerSelfDamageReaction,
+          damageElement,
+          sourceActorId: actorId,
+          sourceTargetId,
+          reactionDamageLogId,
+          burningStateLogId:
+            burningContext?.burningStateLogId ?? null,
+          dendroCoreRemovalLogId:
+            dendroCoreContext?.removalLogId ?? null,
+          damageCenter: resolvedReactionCenterPosition,
+          sourcePreResistanceDamage: playerSourceDamage,
+          frame: event.frame,
+          timeSeconds,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          nextIntraEventSequence
+        });
+      }
       if (config.reactionEngine?.mode === "aura-v5") {
         processDendroCoreContacts({
           actorId,
@@ -7671,7 +8277,7 @@ function simulateConfig(
       });
     });
     const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
-    const reactionAudit: ReactionAudit =
+    const rawReactionAudit: ReactionAudit =
       auraEngine === null
         ? {
             model:
@@ -7728,6 +8334,8 @@ function simulateConfig(
               note:
                 "目标效果策略阻止了本段元素附着与反应；Aura 仅按当前帧衰减。"
             };
+    const reactionAudit =
+      projectPlayerSelfDamageStatus(rawReactionAudit);
     if (auraEngine !== null) {
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
@@ -8276,6 +8884,8 @@ function simulateConfig(
         unresolvedTargetIds: [],
         damageGroupBlockedTargetIds: [],
         damageEventIds: [],
+        playerHitResolutionLogIds: [],
+        playerDamageEventIds: [],
         reactionStatusLogIds: [],
         damageGroupDecisions: []
       });
@@ -8746,6 +9356,53 @@ function simulateConfig(
     }
   );
   const durationFrame = Math.round(config.duration * 60);
+  const playerHpSummaries: SimulationResult["playerHpSummaries"] =
+    [];
+  if (enabledPlayerDamageModel !== null) {
+    for (const character of config.characters) {
+      const hpState = playerHpStateByActorId.get(character.id);
+      if (hpState === undefined) {
+        throw new Error(
+          `Missing final player HP state for character "${character.id}".`
+        );
+      }
+      playerHpTimeline.points.push({
+        id: playerHpTimeline.points.length,
+        frame: durationFrame,
+        timeSeconds: durationFrame / 60,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        operation: "simulation-end",
+        actorId: character.id,
+        playerDamageEventId: null,
+        maxHp: hpState.maxHp,
+        hpBefore: hpState.currentHp,
+        hpAfter: hpState.currentHp,
+        hpRatioAfter: hpState.currentHp / hpState.maxHp
+      });
+      playerHpSummaries.push({
+        actorId: character.id,
+        maxHp: hpState.maxHp,
+        initialHp: hpState.initialHp,
+        finalHp: hpState.currentHp,
+        totalIncomingDamage:
+          hpState.totalIncomingDamage,
+        totalAbsorbedDamage:
+          hpState.totalAbsorbedDamage,
+        totalHpDamage: hpState.totalHpDamage,
+        hitCount: hpState.hitCount,
+        zeroHpReached: hpState.currentHp === 0
+      });
+    }
+  }
+  const totalPlayerDamageTaken = playerDamageEvents.reduce(
+    (sum, playerDamageEvent) =>
+      sum + playerDamageEvent.finalDamage,
+    0
+  );
+  const totalReactionSelfDamageTaken =
+    totalPlayerDamageTaken;
   recordNaturalAuraExpiries(durationFrame, true);
   const auraEndStates: SimulationResult["auraEndStates"] =
     enemyTargets.map((target) => ({
@@ -8804,6 +9461,13 @@ function simulateConfig(
     crystallizeShardLog,
     crystallizeShieldLog,
     crystallizeShieldTimeline,
+    playerHitResolutionLog,
+    playerDamageEvents,
+    playerHpTimeline,
+    playerHpSummaries,
+    playerSelfDamageStatus,
+    totalPlayerDamageTaken,
+    totalReactionSelfDamageTaken,
     targetPhaseTimeline,
     targetMotionTimeline,
     skippedActions,

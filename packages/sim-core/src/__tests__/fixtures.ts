@@ -27,6 +27,10 @@ export const neutralStats: CharacterStats = {
 export function makeConfig(
   overrides: Partial<SimConfig> = {}
 ): SimConfig {
+  const playerDamageModel = overrides.playerDamageModel ?? {
+    mode: "disabled" as const
+  };
+
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: CURRENT_ENGINE_VERSION,
@@ -57,6 +61,7 @@ export function makeConfig(
       }
     ],
     rotation: [],
-    ...overrides
+    ...overrides,
+    playerDamageModel
   };
 }

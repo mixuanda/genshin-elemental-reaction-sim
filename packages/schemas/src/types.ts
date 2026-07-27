@@ -1,5 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.31.0" as const;
-export const CURRENT_ENGINE_VERSION = "1.31.0-dendro-cores" as const;
+export const CURRENT_SCHEMA_VERSION = "1.32.0" as const;
+export const CURRENT_ENGINE_VERSION =
+  "1.32.0-player-reaction-damage" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
 /**
  * This identity algorithm is intentionally versioned and non-cryptographic.
@@ -10,6 +11,9 @@ export const REPRODUCIBILITY_IDENTITY_ALGORITHM =
 export const BURNING_REACTION_SCHEMA_VERSION = "1.30.0" as const;
 export const BURNING_REACTION_ENGINE_VERSION =
   "1.30.0-burning-reaction" as const;
+export const DENDRO_CORE_SCHEMA_VERSION = "1.31.0" as const;
+export const DENDRO_CORE_ENGINE_VERSION =
+  "1.31.0-dendro-cores" as const;
 export const CATALYZE_REACTION_SCHEMA_VERSION = "1.29.0" as const;
 export const CATALYZE_REACTION_ENGINE_VERSION =
   "1.29.0-catalyze-reaction" as const;
@@ -144,6 +148,48 @@ export type TargetHitOutcome = "landed" | "miss";
 export type TargetDamagePolicy = "normal" | "immune";
 export type TargetAuraPolicy = "normal" | "blocked";
 export type TargetHitConfirmPolicy = "normal" | "blocked";
+export type PlayerReactionSelfDamageKind =
+  | "burning"
+  | "bloom"
+  | "burgeon"
+  | "hyperbloom";
+export type PlayerSelfDamageStatus =
+  | "unsupported-player-damage-model"
+  | "modeled-player-reaction-damage";
+
+export interface PlayerElementalResistances {
+  pyro: number;
+  cryo: number;
+  hydro: number;
+  electro: number;
+  anemo: number;
+  geo: number;
+  dendro: number;
+  physical: number;
+}
+
+export interface PlayerReactionSelfCharacterState {
+  actorId: string;
+  initialHpRatio: number;
+  resistances: PlayerElementalResistances;
+}
+
+export interface DisabledPlayerDamageModel {
+  mode: "disabled";
+}
+
+export interface ReactionSelfPlayerDamageModel {
+  mode: "reaction-self-v1";
+  position: { x: number; y: number };
+  hitboxRadius: number;
+  shieldMode: "crystallize-v1";
+  zeroHpPolicy: "clamp-and-continue";
+  characters: PlayerReactionSelfCharacterState[];
+}
+
+export type PlayerDamageModel =
+  | DisabledPlayerDamageModel
+  | ReactionSelfPlayerDamageModel;
 
 export interface TargetEffectPolicy {
   damage: TargetDamagePolicy;
@@ -687,6 +733,8 @@ export interface SimConfig {
   rotation: RotationCommand[];
   timeline?: LegalTimelineConfig;
   reactionEngine?: AuraReactionEngineConfig;
+  /** Explicitly versioned player self-damage boundary. */
+  playerDamageModel: PlayerDamageModel;
 }
 
 export interface SimulationOptions {
@@ -958,8 +1006,9 @@ export interface QuickenDecayMutationAudit {
  * Audit emitted on the Pyro/Dendro hit that starts or refreshes Burning.
  *
  * Literal mechanics constants make an accidental drift from the fixed gcsim
- * reference visible to TypeScript consumers. Player self-damage is deliberately
- * explicit because the simulator does not model player HP yet.
+ * reference visible to TypeScript consumers. Player self-damage status is
+ * explicit because it is opt-in and historical configurations migrate with
+ * the player-damage model disabled.
  */
 export interface BurningReactionAudit {
   reaction: BurningReaction;
@@ -996,7 +1045,7 @@ export interface BurningReactionAudit {
   baseMultiplier: 0.25;
   radius: 1;
   applicationGaugeUnits: 1;
-  selfDamageStatus: "unsupported-player-damage-model";
+  selfDamageStatus: PlayerSelfDamageStatus;
 }
 
 /**
@@ -1069,7 +1118,7 @@ export interface BloomReactionAudit {
   coreSpawnDelayFrames: 30;
   blockedReason: "TARGET_MECHANICS_TRUNCATION" | null;
   mechanicsDataStatus: "fixed-gcsim-provisional";
-  selfDamageStatus: "unsupported-player-damage-model";
+  selfDamageStatus: PlayerSelfDamageStatus;
 }
 
 export interface TransformativeReactionAudit {
@@ -1808,6 +1857,10 @@ export interface ReactionDamageLogEntry {
   unresolvedTargetIds: TargetId[];
   damageGroupBlockedTargetIds: TargetId[];
   damageEventIds: number[];
+  /** Player-side target checks produced by this reaction damage event. */
+  playerHitResolutionLogIds: number[];
+  /** Player HP damage events produced by this reaction damage event. */
+  playerDamageEventIds: number[];
   reactionStatusLogIds: number[];
   damageGroupDecisions: ReactionDamageGroupAudit[];
 }
@@ -1830,7 +1883,7 @@ export interface DendroCoreLogBase {
   clockModel: "global-frame-no-hitlag";
   hitlagStatus: "unsupported-enemy-hitlag";
   mechanicsDataStatus: "fixed-gcsim-provisional";
-  selfDamageStatus: "unsupported-player-damage-model";
+  selfDamageStatus: PlayerSelfDamageStatus;
 }
 
 export interface DendroCoreSpawnScheduledLogEntry
@@ -1866,6 +1919,8 @@ export interface DendroCoreRemovalLogEntry extends DendroCoreLogBase {
     | "reactionDamage";
   reaction: DendroCoreReaction;
   reactionDamageLogId: number;
+  playerHitResolutionLogId: number | null;
+  playerDamageEventId: number | null;
   contactLogId: number | null;
   damageFrame: number;
   withinSimulation: boolean;
@@ -2086,6 +2141,8 @@ export interface BurningStateLogEntry {
   triggerDamageEventId: number | null;
   reactionDamageLogId: number | null;
   damageEventIds: number[];
+  playerHitResolutionLogId: number | null;
+  playerDamageEventId: number | null;
   /** One-based for tick and tick-skipped operations. */
   tickIndex: number | null;
   tickSkipped: boolean;
@@ -2123,8 +2180,154 @@ export interface BurningStateLogEntry {
     | "BURNING_APPLICATION_ICD"
     | "TARGET_AURA_BLOCKED"
     | null;
-  selfDamageStatus: "unsupported-player-damage-model";
+  selfDamageStatus: PlayerSelfDamageStatus;
   reason: BurningStopReason;
+}
+
+export type PlayerHitOutcome = "landed" | "miss";
+
+/**
+ * One player-side spatial check owned by a queued reaction-damage event.
+ * IDs and provenance are intentionally explicit so consumers never infer
+ * player self-damage by joining on a frame alone.
+ */
+export interface PlayerHitResolutionLogEntry {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  reaction: PlayerReactionSelfDamageKind;
+  element: Element;
+  sourceActorId: string;
+  sourceTargetId: TargetId;
+  targetActorId: string;
+  reactionDamageLogId: number;
+  burningStateLogId: number | null;
+  dendroCoreRemovalLogId: number | null;
+  damageCenter: { x: number; y: number };
+  damageRadius: number;
+  playerCenter: { x: number; y: number };
+  playerRadius: number;
+  distance: number;
+  distanceSquared: number;
+  combinedRadius: number;
+  combinedRadiusSquared: number;
+  outcome: PlayerHitOutcome;
+  blockedReason: "OUT_OF_RANGE" | null;
+  playerDamageEventId: number | null;
+}
+
+export interface PlayerReactionSelfDamageFactors {
+  reaction: PlayerReactionSelfDamageKind;
+  sourcePreResistanceDamage: number;
+  selfDamageMultiplier: number;
+  preResistanceDamage: number;
+  effectiveResistance: number;
+  resistanceMultiplier: number;
+  /** Reaction self-damage bypasses the enemy/player defense formula. */
+  ignoreDefense: 1;
+  defenseMultiplier: 1;
+  /** Player-avatar ReactionA result; Burning is outside ReactionA. */
+  damageGroupMultiplier: 0 | 1;
+  damageGroupDecision: ReactionADamageGroupAudit | null;
+  /** Player incoming damage after resistance and damage-group gating. */
+  finalDamage: number;
+}
+
+export interface PlayerCrystallizeShieldResolution {
+  mode: "crystallize-v1";
+  shieldId: number | null;
+  shieldElement: AuraElement | null;
+  incomingDamage: number;
+  incomingElement: Element;
+  elementalMasteryBonus: number;
+  shieldStrengthBonus: number;
+  absorptionMultiplier: number;
+  effectiveAbsorptionMultiplier: number;
+  baseHpBefore: number;
+  baseHpConsumed: number;
+  baseHpAfter: number;
+  absorptionCapacity: number;
+  absorbedDamage: number;
+  damageAfterShield: number;
+  shieldBroken: boolean;
+}
+
+export interface PlayerHpDamageResolution {
+  zeroHpPolicy: "clamp-and-continue";
+  inputCurrentHp: number;
+  currentHpBefore: number;
+  currentHpAfter: number;
+  maxHp: number;
+  attemptedLoss: number;
+  actualLoss: number;
+  overkill: number;
+  hpRatioBefore: number;
+  hpRatioAfter: number;
+}
+
+export interface PlayerDamageEvent {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  reaction: PlayerReactionSelfDamageKind;
+  element: Element;
+  sourceActorId: string;
+  sourceTargetId: TargetId;
+  targetActorId: string;
+  reactionDamageLogId: number;
+  playerHitResolutionLogId: number;
+  burningStateLogId: number | null;
+  dendroCoreRemovalLogId: number | null;
+  damageFactors: PlayerReactionSelfDamageFactors;
+  shieldResolution: PlayerCrystallizeShieldResolution;
+  hpResolution: PlayerHpDamageResolution;
+  /** Actual HP removed after shield absorption and zero-HP clamping. */
+  finalDamage: number;
+  displayDamage: number;
+}
+
+export type PlayerHpTimelineOperation =
+  | "initial"
+  | "damage"
+  | "simulation-end";
+
+export interface PlayerHpTimelinePoint {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number | null;
+  eventSequence: number | null;
+  intraEventSequence: number | null;
+  operation: PlayerHpTimelineOperation;
+  actorId: string;
+  playerDamageEventId: number | null;
+  maxHp: number;
+  hpBefore: number;
+  hpAfter: number;
+  hpRatioAfter: number;
+}
+
+export interface PlayerHpTimeline {
+  version: "1.0.0";
+  points: PlayerHpTimelinePoint[];
+}
+
+export interface PlayerHpSummary {
+  actorId: string;
+  maxHp: number;
+  initialHp: number;
+  finalHp: number;
+  totalIncomingDamage: number;
+  totalAbsorbedDamage: number;
+  totalHpDamage: number;
+  hitCount: number;
+  zeroHpReached: boolean;
 }
 
 export type CrystallizeShardOperation =
@@ -2171,6 +2374,8 @@ export interface CrystallizeShardLogEntry {
 export type CrystallizeShieldOperation =
   | "add"
   | "overwrite"
+  | "absorb"
+  | "break"
   | "expire";
 
 export interface CrystallizeShieldLogEntry {
@@ -2178,6 +2383,9 @@ export interface CrystallizeShieldLogEntry {
   operation: CrystallizeShieldOperation;
   frame: number;
   timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
   shieldId: number;
   shardId: number;
   element: AuraElement;
@@ -2193,17 +2401,33 @@ export interface CrystallizeShieldLogEntry {
   currentBaseHp: number;
   expiresAtFrame: number;
   previousShieldId: number | null;
+  /** Non-null only for absorb/break rows caused by player self-damage. */
+  playerDamageEventId: number | null;
+  incomingElement: Element | null;
+  baseHpBeforeAbsorption: number;
+  baseHpConsumed: number;
+  baseHpAfterAbsorption: number;
+  absorbedDamage: number;
+  damageAfterShield: number;
 }
 
 export interface CrystallizeShieldTimelinePoint {
   id: number;
   frame: number;
   timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
   operation: CrystallizeShieldOperation;
   shieldId: number | null;
   element: AuraElement | null;
   generalAbsorption: number;
   expiresAtFrame: number | null;
+  playerDamageEventId: number | null;
+  baseHpBeforeAbsorption: number;
+  baseHpAfterAbsorption: number;
+  absorbedDamage: number;
+  damageAfterShield: number;
 }
 
 export interface ReactionStatusLogEntry {
@@ -2346,6 +2570,20 @@ export interface SimulationResult {
   crystallizeShieldLog: CrystallizeShieldLogEntry[];
   /** Core-produced step points for shield visualization. */
   crystallizeShieldTimeline: CrystallizeShieldTimelinePoint[];
+  /** Player-side reaction self-damage geometry checks. */
+  playerHitResolutionLog: PlayerHitResolutionLogEntry[];
+  /** Player-side HP damage events after resistance and shields. */
+  playerDamageEvents: PlayerDamageEvent[];
+  /** Core-owned, versioned player HP state projection. */
+  playerHpTimeline: PlayerHpTimeline;
+  /** Per-character player HP aggregates. */
+  playerHpSummaries: PlayerHpSummary[];
+  /** Whether player-side reaction damage was disabled or modeled. */
+  playerSelfDamageStatus: PlayerSelfDamageStatus;
+  /** All player HP damage taken in this run. */
+  totalPlayerDamageTaken: number;
+  /** Reaction self-damage subset of total player HP damage. */
+  totalReactionSelfDamageTaken: number;
   /** Core-resolved, half-open target phase windows consumed by the hit resolver. */
   targetPhaseTimeline: TargetPhaseTimelineEntry[];
   /** Core-resolved linear target movement segments consumed by geometry checks. */

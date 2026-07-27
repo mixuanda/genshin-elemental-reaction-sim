@@ -68,6 +68,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
     resistance: 0.1,
     defReduction: 0
   },
+  playerDamageModel: { mode: "disabled" },
   characters: [
     {
       id: "durin",
@@ -332,6 +333,7 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
     resistance: 0.1,
     defReduction: 0
   },
+  playerDamageModel: { mode: "disabled" },
   characters: [
     {
       id: "durin",

@@ -23,6 +23,8 @@ export const DENDRO_CORE_CONSTANTS = Object.freeze({
   burgeonMultiplier: 3,
   hyperbloomMultiplier: 3,
   mechanicsDataStatus: "fixed-gcsim-provisional",
+  // Raw entity-layer default. simulate() projects the configured player
+  // damage capability into public audits and Dendro-core logs.
   selfDamageStatus: "unsupported-player-damage-model"
 } as const);
 
@@ -92,6 +94,7 @@ export interface DendroCoreRemovalDecision {
 export interface DendroCoreTargetCandidate {
   targetId: string;
   position: { x: number; y: number } | null;
+  hitboxRadius: number;
 }
 
 export interface DendroCoreTargetSelection {
@@ -384,7 +387,9 @@ export class DendroCoreManager {
 
 /**
  * Hyperbloom chooses by enemy-center distance at the actual impact frame.
- * Candidate array order is the deterministic tie-break.
+ * The selection circle intersects the enemy hurtbox, so a target is eligible
+ * when its center distance is within selectionRadius + hitboxRadius.
+ * Candidate array order is the deterministic equal-distance tie-break.
  */
 export function selectNearestDendroCoreTarget(
   corePosition: Readonly<{ x: number; y: number }>,
@@ -395,6 +400,10 @@ export function selectNearestDendroCoreTarget(
   let selected: DendroCoreTargetCandidate | null = null;
   let selectedDistance = Number.POSITIVE_INFINITY;
   for (const candidate of candidates) {
+    assertNonNegativeNumber(
+      candidate.hitboxRadius,
+      "candidate.hitboxRadius"
+    );
     if (candidate.position === null) continue;
     assertNonEmpty(candidate.targetId, "targetId");
     const distance = Math.hypot(
@@ -402,7 +411,8 @@ export function selectNearestDendroCoreTarget(
       candidate.position.y - corePosition.y
     );
     if (
-      distance <= selectionRadius + 1e-9 &&
+      distance <=
+        selectionRadius + candidate.hitboxRadius + 1e-9 &&
       distance < selectedDistance - 1e-9
     ) {
       selected = candidate;

@@ -14,6 +14,8 @@ import {
   type TargetMotionDefinition
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
+import { DENDRO_CORE_CONSTANTS } from "../dendro-core";
+import { SeededRandom } from "../energy";
 import { calcTransformativeReactionDamage } from "../formulas";
 import {
   EVENT_PRIORITY,
@@ -1319,6 +1321,92 @@ describe("aura-v5 Dendro-core integration", () => {
     );
     validateCoreResult(result);
   });
+
+  it.each([
+    {
+      targetId: "hurtbox-boundary",
+      targetDistance: 15.5,
+      selected: true
+    },
+    {
+      targetId: "outside-hurtbox",
+      targetDistance: 15.500001,
+      selected: false
+    }
+  ])(
+    "uses target hurtbox overlap at the Hyperbloom 15-unit selection boundary ($targetId)",
+    ({ targetId, targetDistance, selected }) => {
+      const randomSeed = "bloom-integration-seed";
+      const coreRoll = new SeededRandom(
+        `${randomSeed}:dendro-core-position-v1`
+      ).next();
+      const coreAngle = coreRoll * Math.PI * 2;
+      const corePosition = {
+        x:
+          Math.cos(coreAngle) *
+          DENDRO_CORE_CONSTANTS.spawnRadiusOffset,
+        y:
+          Math.sin(coreAngle) *
+          DENDRO_CORE_CONSTANTS.spawnRadiusOffset
+      };
+      const targetPosition = {
+        x: corePosition.x + targetDistance,
+        y: corePosition.y
+      };
+      const result = simulate(
+        makeCoreScenario({
+          coreCount: 1,
+          durationFrames: 120,
+          contact: "electro",
+          randomSeed,
+          targets: [
+            {
+              id: "enemy-0",
+              name: "Moving source",
+              position: { x: 0, y: 0 },
+              hitboxRadius: 0
+            },
+            {
+              id: targetId,
+              name: "Selection boundary target",
+              position: targetPosition,
+              hitboxRadius: 0.5
+            }
+          ],
+          targetMotions: [
+            {
+              id: "move-source-away",
+              label: "Move source away before Hyperbloom",
+              targetId: "enemy-0",
+              startFrame: 40,
+              endFrame: 41,
+              endPosition: { x: 30, y: 0 }
+            }
+          ]
+        })
+      );
+      const log = result.reactionDamageLog.find(
+        (entry) => entry.reaction === "hyperbloom"
+      );
+
+      expect(log).toMatchObject(
+        selected
+          ? {
+              selectedTargetId: targetId,
+              resolutionReason: null,
+              centerPosition: targetPosition,
+              hitTargetIds: [targetId]
+            }
+          : {
+              selectedTargetId: null,
+              resolutionReason: "NO_TARGET_IN_RANGE",
+              centerPosition: null,
+              hitTargetIds: []
+            }
+      );
+      validateCoreResult(result);
+    }
+  );
 
   it("consumes a Hyperbloom core without inventing damage when no target is in range", () => {
     const result = simulate(

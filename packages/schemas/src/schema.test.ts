@@ -9,8 +9,12 @@ import {
   createSimulationConfigHash,
   createSimulationRunManifest,
   createVersionedContentHash,
+  crystallizeShieldLogEntrySchema,
+  crystallizeShieldTimelinePointSchema,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DENDRO_CORE_ENGINE_VERSION,
+  DENDRO_CORE_SCHEMA_VERSION,
   dendroCoreContactLogEntrySchema,
   dendroCoreContactLogSchema,
   dendroCoreLogEntrySchema,
@@ -20,6 +24,13 @@ import {
   dendroCoreTimelineSchema,
   migrateConfig,
   parseSimulationRunManifestForConfig,
+  playerDamageEventSchema,
+  playerDamageModelSchema,
+  playerDamageResultReferencesSchema,
+  playerCrystallizeShieldResolutionSchema,
+  playerHitResolutionLogEntrySchema,
+  playerHpTimelineSchema,
+  playerReactionSelfDamageFactorsSchema,
   quickenDecayMutationAuditSchema,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
@@ -590,6 +601,960 @@ describe("target state timeline result contract", () => {
         eventPriority: Number.POSITIVE_INFINITY
       })
     ).toThrow();
+  });
+});
+
+describe("1.32 player reaction self-damage contract", () => {
+  const resistances = {
+    pyro: 0.1,
+    cryo: 0.1,
+    hydro: 0.1,
+    electro: 0.1,
+    anemo: 0.1,
+    geo: 0.1,
+    dendro: 0.1,
+    physical: 0.1
+  };
+
+  const makeEnabledConfig = () => {
+    const current = migrateConfig(legacyConfig);
+    return migrateConfig({
+      ...current,
+      duration: 1,
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Player damage target",
+            position: { x: 0, y: 0 }
+          }
+        ]
+      },
+      characters: current.characters.map((character) => ({
+        ...character,
+        stats: {
+          ...character.stats,
+          baseHp: 1_000,
+          hpPct: 0,
+          flatHp: 0
+        }
+      })),
+      playerDamageModel: {
+        mode: "reaction-self-v1",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0.5,
+        shieldMode: "crystallize-v1",
+        zeroHpPolicy: "clamp-and-continue",
+        characters: [
+          {
+            actorId: "a",
+            initialHpRatio: 1,
+            resistances
+          }
+        ]
+      }
+    });
+  };
+
+  it("freezes the 1.31 historical pair and migrates it to explicit disabled mode", () => {
+    const current = migrateConfig(legacyConfig);
+    const historical = {
+      ...current,
+      schemaVersion: DENDRO_CORE_SCHEMA_VERSION,
+      engineVersion: DENDRO_CORE_ENGINE_VERSION
+    };
+    expect(migrateConfig(historical).playerDamageModel).toEqual({
+      mode: "disabled"
+    });
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.31.0-forged"
+      })
+    ).toThrow(/requires "1\.31\.0-dendro-cores"/);
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        playerDamageModel: {
+          mode: "reaction-self-v1"
+        }
+      })
+    ).toThrow(/does not support player reaction self-damage/);
+
+    const missingModel = { ...current } as Record<string, unknown>;
+    delete missingModel.playerDamageModel;
+    expect(() => migrateConfig(missingModel)).toThrow(
+      /playerDamageModel/
+    );
+  });
+
+  it("requires one complete player state per character and positive base/max HP", () => {
+    const enabled = makeEnabledConfig();
+    expect(enabled.playerDamageModel.mode).toBe(
+      "reaction-self-v1"
+    );
+    expect(() =>
+      playerDamageModelSchema.parse({
+        ...enabled.playerDamageModel,
+        extra: true
+      })
+    ).toThrow(/Unrecognized key/);
+
+    const model = enabled.playerDamageModel;
+    if (model.mode !== "reaction-self-v1") {
+      throw new Error("expected enabled player model");
+    }
+    expect(() =>
+      migrateConfig({
+        ...enabled,
+        playerDamageModel: {
+          ...model,
+          characters: [
+            model.characters[0],
+            model.characters[0]
+          ]
+        }
+      })
+    ).toThrow(/duplicate player damage state/);
+    expect(() =>
+      migrateConfig({
+        ...enabled,
+        playerDamageModel: {
+          ...model,
+          characters: [
+            {
+              ...model.characters[0],
+              actorId: "unknown"
+            }
+          ]
+        }
+      })
+    ).toThrow(/unknown character id|missing player damage state/);
+    expect(() =>
+      migrateConfig({
+        ...enabled,
+        characters: enabled.characters.map((character) => ({
+          ...character,
+          stats: { ...character.stats, baseHp: 0 }
+        }))
+      })
+    ).toThrow(/requires baseHp > 0/);
+    expect(() =>
+      playerDamageModelSchema.parse({
+        ...model,
+        characters: [
+          {
+            actorId: "a",
+            initialHpRatio: 1,
+            resistances: {
+              ...resistances,
+              physical: undefined
+            }
+          }
+        ]
+      })
+    ).toThrow(/physical/);
+    expect(() =>
+      migrateConfig({
+        ...enabled,
+        enemy: {
+          ...enabled.enemy,
+          targets: enabled.enemy.targets?.map((target) => {
+            const { position: _position, ...withoutPosition } = target;
+            return withoutPosition;
+          })
+        }
+      })
+    ).toThrow(/target position/);
+  });
+
+  it("allows deterministic same-frame HP boundaries for multiple party members", () => {
+    const boundary = (
+      id: number,
+      frame: number,
+      operation: "initial" | "simulation-end",
+      actorId: string
+    ) => ({
+      id,
+      frame,
+      timeSeconds: frame / 60,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      operation,
+      actorId,
+      playerDamageEventId: null,
+      maxHp: 1_000,
+      hpBefore: 1_000,
+      hpAfter: 1_000,
+      hpRatioAfter: 1
+    });
+    expect(() =>
+      playerHpTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          boundary(0, 0, "initial", "a"),
+          boundary(1, 0, "initial", "b"),
+          boundary(2, 60, "simulation-end", "a"),
+          boundary(3, 60, "simulation-end", "b")
+        ]
+      })
+    ).not.toThrow();
+  });
+
+  it("strictly validates player formulas, spatial outcomes, and shield absorption", () => {
+    const factors = {
+      reaction: "burning",
+      sourcePreResistanceDamage: 100,
+      selfDamageMultiplier: 1,
+      preResistanceDamage: 100,
+      effectiveResistance: 0.1,
+      resistanceMultiplier: 0.9,
+      ignoreDefense: 1,
+      defenseMultiplier: 1,
+      damageGroupMultiplier: 1,
+      damageGroupDecision: null,
+      finalDamage: 90
+    };
+    expect(
+      playerReactionSelfDamageFactorsSchema.parse(factors)
+    ).toEqual(factors);
+    expect(
+      playerReactionSelfDamageFactorsSchema.parse({
+        ...factors,
+        effectiveResistance: -0.2,
+        resistanceMultiplier: 1.1,
+        finalDamage: 110
+      }).resistanceMultiplier
+    ).toBe(1.1);
+    expect(
+      playerReactionSelfDamageFactorsSchema.parse({
+        ...factors,
+        effectiveResistance: 0.75,
+        resistanceMultiplier: 0.25,
+        finalDamage: 25
+      }).resistanceMultiplier
+    ).toBe(0.25);
+    expect(() =>
+      playerReactionSelfDamageFactorsSchema.parse({
+        ...factors,
+        selfDamageMultiplier: 0.5,
+        preResistanceDamage: 50,
+        finalDamage: 45
+      })
+    ).toThrow(/authoritative player self-damage multiplier/);
+    expect(() =>
+      playerReactionSelfDamageFactorsSchema.parse({
+        ...factors,
+        resistanceMultiplier: 0.8,
+        finalDamage: 80
+      })
+    ).toThrow(/three-branch resistance formula/);
+    expect(() =>
+      playerReactionSelfDamageFactorsSchema.parse({
+        ...factors,
+        reaction: "bloom",
+        selfDamageMultiplier: 0.02,
+        preResistanceDamage: 2,
+        finalDamage: 1.8
+      })
+    ).toThrow(/player-avatar ReactionA/);
+
+    const miss = {
+      id: 0,
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 5,
+      eventSequence: 7,
+      intraEventSequence: 0,
+      reaction: "burning",
+      element: "pyro",
+      sourceActorId: "a",
+      sourceTargetId: "enemy-0",
+      targetActorId: "a",
+      reactionDamageLogId: 0,
+      burningStateLogId: 0,
+      dendroCoreRemovalLogId: null,
+      damageCenter: { x: 3, y: 0 },
+      damageRadius: 1,
+      playerCenter: { x: 0, y: 0 },
+      playerRadius: 0.5,
+      distance: 3,
+      distanceSquared: 9,
+      combinedRadius: 1.5,
+      combinedRadiusSquared: 2.25,
+      outcome: "miss",
+      blockedReason: "OUT_OF_RANGE",
+      playerDamageEventId: null
+    };
+    expect(
+      playerHitResolutionLogEntrySchema.parse(miss)
+    ).toEqual(miss);
+    expect(() =>
+      playerHitResolutionLogEntrySchema.parse({
+        ...miss,
+        damageRadius: 2,
+        combinedRadius: 2.5,
+        combinedRadiusSquared: 6.25
+      })
+    ).toThrow(/authoritative reaction mapping/);
+    expect(() =>
+      playerHitResolutionLogEntrySchema.parse({
+        ...miss,
+        outcome: "landed",
+        blockedReason: null
+      })
+    ).toThrow(/circular-overlap boundary|require one damage event/);
+
+    const shieldAbsorb = {
+      id: 0,
+      operation: "absorb",
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 5,
+      eventSequence: 7,
+      intraEventSequence: 2,
+      shieldId: 3,
+      shardId: 4,
+      element: "pyro",
+      sourceActorId: "a",
+      pickedUpByActorId: "a",
+      sourceCharacterLevel: 90,
+      sourceElementalMastery: 0,
+      baseHp: 100,
+      elementalMasteryBonus: 0,
+      generalAbsorption: 100,
+      matchingElementAbsorption: 250,
+      geoDamageAbsorption: 150,
+      currentBaseHp: 64,
+      expiresAtFrame: 600,
+      previousShieldId: null,
+      playerDamageEventId: 0,
+      incomingElement: "pyro",
+      baseHpBeforeAbsorption: 100,
+      baseHpConsumed: 36,
+      baseHpAfterAbsorption: 64,
+      absorbedDamage: 90,
+      damageAfterShield: 0
+    };
+    expect(
+      crystallizeShieldLogEntrySchema.parse(shieldAbsorb)
+    ).toEqual(shieldAbsorb);
+    const shieldResolution = {
+      mode: "crystallize-v1",
+      shieldId: 3,
+      shieldElement: "pyro",
+      incomingDamage: 90,
+      incomingElement: "pyro",
+      elementalMasteryBonus: 0,
+      shieldStrengthBonus: 0,
+      absorptionMultiplier: 2.5,
+      effectiveAbsorptionMultiplier: 2.5,
+      baseHpBefore: 100,
+      baseHpConsumed: 36,
+      baseHpAfter: 64,
+      absorptionCapacity: 250,
+      absorbedDamage: 90,
+      damageAfterShield: 0,
+      shieldBroken: false
+    } as const;
+    expect(
+      playerCrystallizeShieldResolutionSchema.parse(
+        shieldResolution
+      )
+    ).toEqual(shieldResolution);
+    expect(() =>
+      playerCrystallizeShieldResolutionSchema.parse({
+        ...shieldResolution,
+        baseHpConsumed: 32,
+        baseHpAfter: 68,
+        absorbedDamage: 80,
+        damageAfterShield: 10
+      })
+    ).toThrow(/min\(incomingDamage, absorptionCapacity\)/);
+    const exactBreak = {
+      ...shieldResolution,
+      incomingDamage: 250,
+      baseHpConsumed: 100,
+      baseHpAfter: 0,
+      absorbedDamage: 250,
+      shieldBroken: true
+    };
+    expect(
+      playerCrystallizeShieldResolutionSchema.parse(exactBreak)
+        .shieldBroken
+    ).toBe(true);
+    expect(() =>
+      playerCrystallizeShieldResolutionSchema.parse({
+        ...exactBreak,
+        shieldBroken: false
+      })
+    ).toThrow(/breaks exactly/);
+    const noShield = {
+      ...shieldResolution,
+      shieldId: null,
+      shieldElement: null,
+      elementalMasteryBonus: 0,
+      shieldStrengthBonus: 0,
+      absorptionMultiplier: 1,
+      effectiveAbsorptionMultiplier: 1,
+      baseHpBefore: 0,
+      baseHpConsumed: 0,
+      baseHpAfter: 0,
+      absorptionCapacity: 0,
+      absorbedDamage: 0,
+      damageAfterShield: 90,
+      shieldBroken: false
+    };
+    expect(
+      playerCrystallizeShieldResolutionSchema.parse(noShield)
+        .shieldBroken
+    ).toBe(false);
+    expect(() =>
+      playerCrystallizeShieldResolutionSchema.parse({
+        ...noShield,
+        shieldBroken: true
+      })
+    ).toThrow(/absent shield/);
+    expect(
+      crystallizeShieldTimelinePointSchema.parse({
+        id: 0,
+        frame: 15,
+        timeSeconds: 0.25,
+        eventPriority: 5,
+        eventSequence: 7,
+        intraEventSequence: 3,
+        operation: "absorb",
+        shieldId: 3,
+        element: "pyro",
+        generalAbsorption: 64,
+        expiresAtFrame: 600,
+        playerDamageEventId: 0,
+        baseHpBeforeAbsorption: 100,
+        baseHpAfterAbsorption: 64,
+        absorbedDamage: 90,
+        damageAfterShield: 0
+      }).operation
+    ).toBe("absorb");
+  });
+
+  it("enforces reciprocal player links, HP state continuity, summaries, and totals", () => {
+    const config = makeEnabledConfig();
+    const reactionDamage = {
+      id: 0,
+      reaction: "burning",
+      triggerDamageEventId: null,
+      triggerHitGroupId: null,
+      sourceActorId: "a",
+      sourceTargetId: "enemy-0",
+      triggerFrame: 15,
+      damageFrame: 15,
+      scheduled: true,
+      withinSimulation: true,
+      blockedReason: null,
+      nextAvailableFrame: null,
+      scheduleKind: "burning-tick",
+      targetingMode: "radius",
+      centerPosition: { x: 0, y: 0 },
+      radius: 1,
+      sourceCoreId: null,
+      sourceCoreLogId: null,
+      selectionRadius: null,
+      selectedTargetId: null,
+      resolutionReason: null,
+      applicationGaugeUnits: 1,
+      excludedTargetIds: [],
+      checkedTargetIds: [],
+      hitTargetIds: [],
+      unresolvedTargetIds: [],
+      damageGroupBlockedTargetIds: [],
+      damageEventIds: [],
+      playerHitResolutionLogIds: [0],
+      playerDamageEventIds: [0],
+      reactionStatusLogIds: [],
+      damageGroupDecisions: []
+    };
+    const burning = {
+      id: 0,
+      reaction: "burning",
+      generation: 1,
+      operation: "tick",
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 4,
+      eventSequence: 7,
+      clockModel: "target-local-no-hitlag",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      targetId: "enemy-0",
+      targetName: "Target",
+      triggerElement: null,
+      damageSourceActorId: "a",
+      fuelSourceActorId: "a",
+      triggerDamageEventId: null,
+      reactionDamageLogId: 0,
+      damageEventIds: [],
+      playerHitResolutionLogId: 0,
+      playerDamageEventId: 0,
+      tickIndex: 1,
+      tickSkipped: false,
+      skipReason: null,
+      damageAllowed: true,
+      burningGaugeUnitsBefore: 2,
+      burningGaugeUnitsAfter: 2,
+      fuelGaugeUnitsBefore: 0.7,
+      fuelGaugeUnitsAfter: 0.7,
+      fuelDecayPerFrame: 1 / 150,
+      fuelExpiresAtFrame: 120,
+      auraBefore: [],
+      auraApplied: [],
+      auraConsumed: [],
+      auraAfter: [],
+      nextTickFrame: 30,
+      icdGroup: "burning",
+      icdTag: "burning-application",
+      icdScope: "global-target",
+      icdWindowStartFrame: 15,
+      icdHitIndex: 0,
+      icdResetFrames: 120,
+      icdApplicationSequence: [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      applicationAllowed: true,
+      applicationBlockedReason: null,
+      selfDamageStatus: "modeled-player-reaction-damage",
+      reason: null
+    };
+    const hit = {
+      id: 0,
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 5,
+      eventSequence: 7,
+      intraEventSequence: 0,
+      reaction: "burning",
+      element: "pyro",
+      sourceActorId: "a",
+      sourceTargetId: "enemy-0",
+      targetActorId: "a",
+      reactionDamageLogId: 0,
+      burningStateLogId: 0,
+      dendroCoreRemovalLogId: null,
+      damageCenter: { x: 0, y: 0 },
+      damageRadius: 1,
+      playerCenter: { x: 0, y: 0 },
+      playerRadius: 0.5,
+      distance: 0,
+      distanceSquared: 0,
+      combinedRadius: 1.5,
+      combinedRadiusSquared: 2.25,
+      outcome: "landed",
+      blockedReason: null,
+      playerDamageEventId: 0
+    };
+    const event = {
+      id: 0,
+      frame: 15,
+      timeSeconds: 0.25,
+      eventPriority: 5,
+      eventSequence: 7,
+      intraEventSequence: 1,
+      reaction: "burning",
+      element: "pyro",
+      sourceActorId: "a",
+      sourceTargetId: "enemy-0",
+      targetActorId: "a",
+      reactionDamageLogId: 0,
+      playerHitResolutionLogId: 0,
+      burningStateLogId: 0,
+      dendroCoreRemovalLogId: null,
+      damageFactors: {
+        reaction: "burning",
+        sourcePreResistanceDamage: 100,
+        selfDamageMultiplier: 1,
+        preResistanceDamage: 100,
+        effectiveResistance: 0.1,
+        resistanceMultiplier: 0.9,
+        ignoreDefense: 1,
+        defenseMultiplier: 1,
+        damageGroupMultiplier: 1,
+        damageGroupDecision: null,
+        finalDamage: 90
+      },
+      shieldResolution: {
+        mode: "crystallize-v1",
+        shieldId: null,
+        shieldElement: null,
+        incomingDamage: 90,
+        incomingElement: "pyro",
+        elementalMasteryBonus: 0,
+        shieldStrengthBonus: 0,
+        absorptionMultiplier: 1,
+        effectiveAbsorptionMultiplier: 1,
+        baseHpBefore: 0,
+        baseHpConsumed: 0,
+        baseHpAfter: 0,
+        absorptionCapacity: 0,
+        absorbedDamage: 0,
+        damageAfterShield: 90,
+        shieldBroken: false
+      },
+      hpResolution: {
+        zeroHpPolicy: "clamp-and-continue",
+        inputCurrentHp: 1_000,
+        currentHpBefore: 1_000,
+        currentHpAfter: 910,
+        maxHp: 1_000,
+        attemptedLoss: 90,
+        actualLoss: 90,
+        overkill: 0,
+        hpRatioBefore: 1,
+        hpRatioAfter: 0.91
+      },
+      finalDamage: 90,
+      displayDamage: 90
+    };
+    const bloomEvent = {
+      ...event,
+      reaction: "bloom",
+      element: "dendro",
+      burningStateLogId: null,
+      dendroCoreRemovalLogId: 0,
+      damageFactors: {
+        reaction: "bloom",
+        sourcePreResistanceDamage: 100,
+        selfDamageMultiplier: 0.02,
+        preResistanceDamage: 2,
+        effectiveResistance: 0.1,
+        resistanceMultiplier: 0.9,
+        ignoreDefense: 1,
+        defenseMultiplier: 1,
+        damageGroupMultiplier: 1,
+        damageGroupDecision: {
+          reaction: "bloom",
+          sourceActorId: "a",
+          targetId: "player-avatar",
+          windowStartFrame: 15,
+          hitIndex: 0,
+          resetFrames: 30,
+          sequence: [true, true, false],
+          damageAllowed: true,
+          blockedReason: null
+        },
+        finalDamage: 1.8
+      },
+      shieldResolution: {
+        ...event.shieldResolution,
+        incomingDamage: 1.8,
+        incomingElement: "dendro",
+        damageAfterShield: 1.8
+      },
+      hpResolution: {
+        ...event.hpResolution,
+        currentHpAfter: 998.2,
+        attemptedLoss: 1.8,
+        actualLoss: 1.8,
+        overkill: 0,
+        hpRatioAfter: 0.9982
+      },
+      finalDamage: 1.8,
+      displayDamage: 2
+    } as const;
+    expect(() =>
+      playerDamageEventSchema.parse(bloomEvent)
+    ).not.toThrow();
+    expect(() =>
+      playerDamageEventSchema.parse({
+        ...bloomEvent,
+        damageFactors: {
+          ...bloomEvent.damageFactors,
+          damageGroupDecision: {
+            ...bloomEvent.damageFactors.damageGroupDecision,
+            sourceActorId: "forged-source"
+          }
+        }
+      })
+    ).toThrow(/bind the event source actor/);
+    expect(() =>
+      playerDamageEventSchema.parse({
+        ...bloomEvent,
+        element: "pyro",
+        shieldResolution: {
+          ...bloomEvent.shieldResolution,
+          incomingElement: "pyro"
+        }
+      })
+    ).toThrow(/event reaction and element/);
+    const result = {
+      config,
+      damageEvents: [
+        {
+          id: 0,
+          reactionAudit: {
+            burningReaction: {
+              selfDamageStatus:
+                "modeled-player-reaction-damage"
+            },
+            bloomReactions: [
+              {
+                selfDamageStatus:
+                  "modeled-player-reaction-damage"
+              }
+            ]
+          }
+        }
+      ],
+      reactionDamageLog: [reactionDamage],
+      burningStateLog: [burning],
+      dendroCoreLog: [],
+      playerHitResolutionLog: [hit],
+      playerDamageEvents: [event],
+      playerHpTimeline: {
+        version: "1.0.0",
+        points: [
+          {
+            id: 0,
+            frame: 0,
+            timeSeconds: 0,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            operation: "initial",
+            actorId: "a",
+            playerDamageEventId: null,
+            maxHp: 1_000,
+            hpBefore: 1_000,
+            hpAfter: 1_000,
+            hpRatioAfter: 1
+          },
+          {
+            id: 1,
+            frame: 15,
+            timeSeconds: 0.25,
+            eventPriority: 5,
+            eventSequence: 7,
+            intraEventSequence: 2,
+            operation: "damage",
+            actorId: "a",
+            playerDamageEventId: 0,
+            maxHp: 1_000,
+            hpBefore: 1_000,
+            hpAfter: 910,
+            hpRatioAfter: 0.91
+          },
+          {
+            id: 2,
+            frame: 60,
+            timeSeconds: 1,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            operation: "simulation-end",
+            actorId: "a",
+            playerDamageEventId: null,
+            maxHp: 1_000,
+            hpBefore: 910,
+            hpAfter: 910,
+            hpRatioAfter: 0.91
+          }
+        ]
+      },
+      playerHpSummaries: [
+        {
+          actorId: "a",
+          maxHp: 1_000,
+          initialHp: 1_000,
+          finalHp: 910,
+          totalIncomingDamage: 90,
+          totalAbsorbedDamage: 0,
+          totalHpDamage: 90,
+          hitCount: 1,
+          zeroHpReached: false
+        }
+      ],
+      crystallizeShieldLog: [],
+      crystallizeShieldTimeline: [],
+      playerSelfDamageStatus: "modeled-player-reaction-damage",
+      totalPlayerDamageTaken: 90,
+      totalReactionSelfDamageTaken: 90
+    };
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(result)
+    ).not.toThrow();
+    const enabledBurningStatusTamper =
+      structuredClone(result);
+    enabledBurningStatusTamper.damageEvents[0]!.reactionAudit
+      .burningReaction!.selfDamageStatus =
+      "unsupported-player-damage-model";
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        enabledBurningStatusTamper
+      )
+    ).toThrow(/Burning reaction-audit selfDamageStatus/);
+    const enabledBloomStatusTamper = structuredClone(result);
+    enabledBloomStatusTamper.damageEvents[0]!.reactionAudit
+      .bloomReactions[0]!.selfDamageStatus =
+      "unsupported-player-damage-model";
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        enabledBloomStatusTamper
+      )
+    ).toThrow(/Bloom reaction-audit selfDamageStatus/);
+    const disabledResult = {
+      ...result,
+      config: {
+        ...config,
+        playerDamageModel: { mode: "disabled" as const }
+      },
+      damageEvents: [
+        {
+          id: 0,
+          reactionAudit: {
+            burningReaction: {
+              selfDamageStatus:
+                "unsupported-player-damage-model"
+            },
+            bloomReactions: [
+              {
+                selfDamageStatus:
+                  "unsupported-player-damage-model"
+              }
+            ]
+          }
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...reactionDamage,
+          playerHitResolutionLogIds: [],
+          playerDamageEventIds: []
+        }
+      ],
+      burningStateLog: [
+        {
+          ...burning,
+          playerHitResolutionLogId: null,
+          playerDamageEventId: null,
+          selfDamageStatus:
+            "unsupported-player-damage-model"
+        }
+      ],
+      playerHitResolutionLog: [],
+      playerDamageEvents: [],
+      playerHpTimeline: {
+        version: "1.0.0" as const,
+        points: []
+      },
+      playerHpSummaries: [],
+      playerSelfDamageStatus:
+        "unsupported-player-damage-model",
+      totalPlayerDamageTaken: 0,
+      totalReactionSelfDamageTaken: 0
+    };
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(disabledResult)
+    ).not.toThrow();
+    const disabledBurningStatusTamper =
+      structuredClone(disabledResult);
+    disabledBurningStatusTamper.damageEvents[0]!.reactionAudit
+      .burningReaction!.selfDamageStatus =
+      "modeled-player-reaction-damage";
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        disabledBurningStatusTamper
+      )
+    ).toThrow(/Burning reaction-audit selfDamageStatus/);
+    const disabledBloomStatusTamper =
+      structuredClone(disabledResult);
+    disabledBloomStatusTamper.damageEvents[0]!.reactionAudit
+      .bloomReactions[0]!.selfDamageStatus =
+      "modeled-player-reaction-damage";
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        disabledBloomStatusTamper
+      )
+    ).toThrow(/Bloom reaction-audit selfDamageStatus/);
+    const resistanceTamper = structuredClone(result);
+    if (
+      resistanceTamper.config.playerDamageModel.mode !==
+      "reaction-self-v1"
+    ) {
+      throw new Error("expected enabled player model");
+    }
+    resistanceTamper.config.playerDamageModel.characters[0]!
+      .resistances.pyro = 0.2;
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        resistanceTamper
+      )
+    ).toThrow(/configured target actor resistance/);
+    const playerCenterTamper = structuredClone(result);
+    if (
+      playerCenterTamper.config.playerDamageModel.mode !==
+      "reaction-self-v1"
+    ) {
+      throw new Error("expected enabled player model");
+    }
+    playerCenterTamper.config.playerDamageModel.position.x =
+      0.25;
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        playerCenterTamper
+      )
+    ).toThrow(/center and radius must match/);
+    const hitboxRadiusTamper = structuredClone(result);
+    if (
+      hitboxRadiusTamper.config.playerDamageModel.mode !==
+      "reaction-self-v1"
+    ) {
+      throw new Error("expected enabled player model");
+    }
+    hitboxRadiusTamper.config.playerDamageModel.hitboxRadius =
+      0.75;
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        hitboxRadiusTamper
+      )
+    ).toThrow(/center and radius must match/);
+    const damageCenterTamper = structuredClone(result);
+    damageCenterTamper.reactionDamageLog[0]!.centerPosition = {
+      x: 0.25,
+      y: 0
+    };
+    expect(() =>
+      playerDamageResultReferencesSchema.parse(
+        damageCenterTamper
+      )
+    ).toThrow(/damageCenter must match/);
+    expect(playerDamageEventSchema.parse(event)).toEqual(event);
+    expect(
+      playerHpTimelineSchema.parse(result.playerHpTimeline)
+        .points
+    ).toHaveLength(3);
+    expect(() =>
+      playerDamageResultReferencesSchema.parse({
+        ...result,
+        totalPlayerDamageTaken: 89
+      })
+    ).toThrow(/totals|sum/);
+    expect(() =>
+      playerDamageResultReferencesSchema.parse({
+        ...result,
+        reactionDamageLog: [
+          {
+            ...reactionDamage,
+            playerDamageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/exactly project|back-references/);
   });
 });
 
@@ -3859,6 +4824,8 @@ describe("versioned config schema", () => {
       eventType: "dendroCoreExpiry",
       reaction: "bloom",
       reactionDamageLogId: 4,
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       contactLogId: null,
       damageFrame: 341,
       withinSimulation: true,
@@ -3911,6 +4878,8 @@ describe("versioned config schema", () => {
       eventType: "hit",
       reaction: "burgeon",
       reactionDamageLogId: 4,
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       contactLogId: 0,
       damageFrame: 51,
       withinSimulation: true,
@@ -4466,6 +5435,8 @@ describe("versioned config schema", () => {
       eventType: "dendroCoreExpiry",
       reaction: "bloom",
       reactionDamageLogId: 0,
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       contactLogId: null,
       damageFrame: 341,
       withinSimulation: true,
@@ -4509,6 +5480,8 @@ describe("versioned config schema", () => {
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [1],
+      playerHitResolutionLogIds: [],
+      playerDamageEventIds: [],
       reactionStatusLogIds: [],
       damageGroupDecisions: [
         {
@@ -5057,6 +6030,8 @@ describe("versioned config schema", () => {
       triggerDamageEventId: 1,
       reactionDamageLogId: 1,
       damageEventIds: [2],
+      playerHitResolutionLogId: null,
+      playerDamageEventId: null,
       tickIndex: 1,
       tickSkipped: false,
       skipReason: null,

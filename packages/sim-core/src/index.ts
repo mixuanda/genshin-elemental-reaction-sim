@@ -6,6 +6,7 @@ export * from "./energy";
 export * from "./formulas";
 export * from "./legal-timeline";
 export * from "./min-heap";
+export * from "./player-damage";
 export * from "./plugins";
 export * from "./reaction-a";
 export * from "./reaction-b";

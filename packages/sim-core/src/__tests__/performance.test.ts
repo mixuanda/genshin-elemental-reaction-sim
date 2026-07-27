@@ -193,7 +193,7 @@ describe("simulation performance", () => {
     expect(targetStateTimelinePoints).toHaveLength(1198);
     expect(probe.quickenStateLog).toEqual([]);
     expect(sustainedOutputHash).toBe(
-      "bf82080fbe7321f1a56e316cfe43380f0902aacf05c7a004096b18db6033d80f"
+      "d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65"
     );
     expect(
       targetStateTimelinePoints.every(

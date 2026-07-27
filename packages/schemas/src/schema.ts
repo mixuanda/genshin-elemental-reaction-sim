@@ -12,6 +12,8 @@ import {
   CRYSTALLIZE_REACTION_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DENDRO_CORE_ENGINE_VERSION,
+  DENDRO_CORE_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
   FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
@@ -170,6 +172,56 @@ export const point2DSchema = z
     y: spatialCoordinateSchema
   })
   .strict();
+
+export const playerElementalResistancesSchema = z
+  .object({
+    pyro: finiteNumber.min(-10).max(10),
+    cryo: finiteNumber.min(-10).max(10),
+    hydro: finiteNumber.min(-10).max(10),
+    electro: finiteNumber.min(-10).max(10),
+    anemo: finiteNumber.min(-10).max(10),
+    geo: finiteNumber.min(-10).max(10),
+    dendro: finiteNumber.min(-10).max(10),
+    physical: finiteNumber.min(-10).max(10)
+  })
+  .strict();
+
+export const playerReactionSelfCharacterStateSchema = z
+  .object({
+    actorId: idSchema,
+    initialHpRatio: finiteNumber.min(0).max(1),
+    resistances: playerElementalResistancesSchema
+  })
+  .strict();
+
+export const playerDamageModelSchema = z.discriminatedUnion(
+  "mode",
+  [
+    z
+      .object({
+        mode: z.literal("disabled")
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal("reaction-self-v1"),
+        position: point2DSchema,
+        hitboxRadius: finiteNumber.positive().max(1_000),
+        shieldMode: z.literal("crystallize-v1"),
+        zeroHpPolicy: z.literal("clamp-and-continue"),
+        characters: z
+          .array(playerReactionSelfCharacterStateSchema)
+          .min(1)
+          .max(4)
+      })
+      .strict()
+  ]
+);
+
+export const playerSelfDamageStatusSchema = z.enum([
+  "unsupported-player-damage-model",
+  "modeled-player-reaction-damage"
+]);
 
 const derivedPoint2DSchema = z
   .object({
@@ -1329,7 +1381,7 @@ export const burningReactionAuditSchema = z
     baseMultiplier: z.literal(0.25),
     radius: z.literal(1),
     applicationGaugeUnits: z.literal(1),
-    selfDamageStatus: z.literal("unsupported-player-damage-model")
+    selfDamageStatus: playerSelfDamageStatusSchema
   })
   .strict()
   .superRefine((audit, context) => {
@@ -2382,7 +2434,7 @@ export const bloomReactionAuditSchema = z
       .literal("TARGET_MECHANICS_TRUNCATION")
       .nullable(),
     mechanicsDataStatus: z.literal("fixed-gcsim-provisional"),
-    selfDamageStatus: z.literal("unsupported-player-damage-model")
+    selfDamageStatus: playerSelfDamageStatusSchema
   })
   .strict()
   .superRefine((audit, context) => {
@@ -3245,7 +3297,7 @@ const dendroCoreLogBaseShape = {
   clockModel: z.literal("global-frame-no-hitlag"),
   hitlagStatus: z.literal("unsupported-enemy-hitlag"),
   mechanicsDataStatus: z.literal("fixed-gcsim-provisional"),
-  selfDamageStatus: z.literal("unsupported-player-damage-model")
+  selfDamageStatus: playerSelfDamageStatusSchema
 };
 
 const validateLogTime = (
@@ -3362,6 +3414,12 @@ export const dendroCoreSpawnLogEntrySchema = z
 const dendroCoreRemovalBaseShape = {
   ...dendroCoreLogBaseShape,
   reactionDamageLogId: z.number().int().nonnegative(),
+  playerHitResolutionLogId: z
+    .number()
+    .int()
+    .nonnegative()
+    .nullable(),
+  playerDamageEventId: z.number().int().nonnegative().nullable(),
   damageFrame: z.number().int().nonnegative(),
   withinSimulation: z.boolean()
 };
@@ -4282,12 +4340,44 @@ const dendroCoreReactionDamageReferenceSchema = z
       wireNonEmptyStringSchema
     ),
     damageEventIds: z.array(z.number().int().nonnegative()),
+    playerHitResolutionLogIds: z.array(
+      z.number().int().nonnegative()
+    ),
+    playerDamageEventIds: z.array(
+      z.number().int().nonnegative()
+    ),
     reactionStatusLogIds: z.array(
       z.number().int().nonnegative()
     ),
     damageGroupDecisions: z.array(
       reactionDamageGroupAuditSchema
     )
+  })
+  .passthrough();
+
+const playerSelfDamageAuditStatusReferenceSchema = z
+  .object({
+    selfDamageStatus: playerSelfDamageStatusSchema
+  })
+  .passthrough();
+
+/**
+ * Minimal DamageEvent projection used only to bind reaction-audit player
+ * status to the top-level player damage model. The complete DamageEvent
+ * contract remains owned by sim-core.
+ */
+const playerSelfDamageDamageEventReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reactionAudit: z
+      .object({
+        burningReaction:
+          playerSelfDamageAuditStatusReferenceSchema.nullable(),
+        bloomReactions: z.array(
+          playerSelfDamageAuditStatusReferenceSchema
+        )
+      })
+      .passthrough()
   })
   .passthrough();
 
@@ -5171,6 +5261,12 @@ export const burningStateLogEntrySchema = z
     triggerDamageEventId: z.number().int().nonnegative().nullable(),
     reactionDamageLogId: z.number().int().nonnegative().nullable(),
     damageEventIds: z.array(z.number().int().nonnegative()),
+    playerHitResolutionLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    playerDamageEventId: z.number().int().nonnegative().nullable(),
     tickIndex: z.number().int().positive().nullable(),
     tickSkipped: z.boolean(),
     skipReason: z.literal("COUNTER_9_SKIP").nullable(),
@@ -5200,7 +5296,7 @@ export const burningStateLogEntrySchema = z
         "TARGET_AURA_BLOCKED"
       ])
       .nullable(),
-    selfDamageStatus: z.literal("unsupported-player-damage-model"),
+    selfDamageStatus: playerSelfDamageStatusSchema,
     reason: z
       .enum([
         "FUEL_EXPIRED",
@@ -5413,6 +5509,1058 @@ export const burningStateLogEntrySchema = z
       }
     } else if (entry.reason !== null) {
       issue("reason", `${entry.operation} cannot declare a stop reason`);
+    }
+
+    if (
+      entry.selfDamageStatus ===
+      "unsupported-player-damage-model"
+    ) {
+      if (
+        entry.playerHitResolutionLogId !== null ||
+        entry.playerDamageEventId !== null
+      ) {
+        issue(
+          "playerHitResolutionLogId",
+          "unsupported player damage cannot retain player-side references"
+        );
+      }
+    } else if (entry.operation === "tick") {
+      if (entry.playerHitResolutionLogId === null) {
+        issue(
+          "playerHitResolutionLogId",
+          "a modeled Burning tick requires a player hit-resolution link"
+        );
+      }
+    } else if (
+      entry.playerHitResolutionLogId !== null ||
+      entry.playerDamageEventId !== null
+    ) {
+      issue(
+        "playerHitResolutionLogId",
+        `${entry.operation} cannot retain player-side damage references`
+      );
+    }
+    if (
+      entry.playerDamageEventId !== null &&
+      entry.playerHitResolutionLogId === null
+    ) {
+      issue(
+        "playerDamageEventId",
+        "a player damage event requires a player hit-resolution link"
+      );
+    }
+  });
+
+const playerReactionSelfDamageKindSchema = z.enum([
+  "burning",
+  "bloom",
+  "burgeon",
+  "hyperbloom"
+]);
+
+const playerReactionSelfDamageAuthorities = {
+  burning: {
+    element: "pyro",
+    selfDamageMultiplier: 1,
+    damageRadius: 1
+  },
+  bloom: {
+    element: "dendro",
+    selfDamageMultiplier: 0.02,
+    damageRadius: 5
+  },
+  burgeon: {
+    element: "dendro",
+    selfDamageMultiplier: 0.02,
+    damageRadius: 5
+  },
+  hyperbloom: {
+    element: "dendro",
+    selfDamageMultiplier: 0.02,
+    damageRadius: 1
+  }
+} as const;
+
+const expectedPlayerResistanceMultiplier = (
+  resistance: number
+): number => {
+  if (resistance < 0) return 1 - resistance / 2;
+  if (resistance < 0.75) return 1 - resistance;
+  return 1 / (4 * resistance + 1);
+};
+
+export const playerHitResolutionLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    reaction: playerReactionSelfDamageKindSchema,
+    element: elementSchema,
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceTargetId: wireNonEmptyStringSchema,
+    targetActorId: wireNonEmptyStringSchema,
+    reactionDamageLogId: z.number().int().nonnegative(),
+    burningStateLogId: z.number().int().nonnegative().nullable(),
+    dendroCoreRemovalLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    damageCenter: derivedPoint2DSchema,
+    damageRadius: finiteNumber.nonnegative(),
+    playerCenter: derivedPoint2DSchema,
+    playerRadius: finiteNumber.positive(),
+    distance: finiteNumber.nonnegative(),
+    distanceSquared: finiteNumber.nonnegative(),
+    combinedRadius: finiteNumber.positive(),
+    combinedRadiusSquared: finiteNumber.positive(),
+    outcome: z.enum(["landed", "miss"]),
+    blockedReason: z.literal("OUT_OF_RANGE").nullable(),
+    playerDamageEventId: z.number().int().nonnegative().nullable()
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    validateLogTime(entry, context);
+    const authority =
+      playerReactionSelfDamageAuthorities[entry.reaction];
+    if (
+      entry.element !== authority.element ||
+      !approximatelyEqual(
+        entry.damageRadius,
+        authority.damageRadius
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["damageRadius"],
+        message:
+          "player hit element and damage radius must match the authoritative reaction mapping"
+      });
+    }
+    const approximatelyEqualGeometry = (
+      left: number,
+      right: number
+    ): boolean =>
+      Math.abs(left - right) <=
+      1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+    const expectedDistanceSquared =
+      (entry.damageCenter.x - entry.playerCenter.x) ** 2 +
+      (entry.damageCenter.y - entry.playerCenter.y) ** 2;
+    const expectedCombinedRadius =
+      entry.damageRadius + entry.playerRadius;
+    if (
+      !approximatelyEqualGeometry(
+        entry.distanceSquared,
+        expectedDistanceSquared
+      ) ||
+      !approximatelyEqualGeometry(
+        entry.distance,
+        Math.sqrt(expectedDistanceSquared)
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["distance"],
+        message:
+          "distance and distanceSquared must match the recorded centers"
+      });
+    }
+    if (
+      !approximatelyEqualGeometry(
+        entry.combinedRadius,
+        expectedCombinedRadius
+      ) ||
+      !approximatelyEqualGeometry(
+        entry.combinedRadiusSquared,
+        expectedCombinedRadius ** 2
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["combinedRadius"],
+        message:
+          "combined radius values must equal damageRadius + playerRadius"
+      });
+    }
+    const expectedLanded =
+      expectedDistanceSquared <= expectedCombinedRadius ** 2;
+    if (
+      entry.outcome !== (expectedLanded ? "landed" : "miss") ||
+      entry.blockedReason !==
+        (expectedLanded ? null : "OUT_OF_RANGE")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["outcome"],
+        message:
+          "player hit outcome must follow the inclusive circular-overlap boundary"
+      });
+    }
+    if (
+      (entry.outcome === "landed") !==
+      (entry.playerDamageEventId !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["playerDamageEventId"],
+        message:
+          "landed player hits require one damage event and misses require none"
+      });
+    }
+    if (
+      entry.reaction === "burning" &&
+      entry.burningStateLogId === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["burningStateLogId"],
+        message: "Burning player hits require a Burning-state link"
+      });
+    }
+    if (
+      entry.reaction !== "burning" &&
+      entry.burningStateLogId !== null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["burningStateLogId"],
+        message:
+          "non-Burning player hits cannot link a Burning-state row"
+      });
+    }
+    const isCoreReaction = entry.reaction !== "burning";
+    if (
+      isCoreReaction !==
+      (entry.dendroCoreRemovalLogId !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["dendroCoreRemovalLogId"],
+        message:
+          "Bloom-family player hits require exactly one Dendro-core removal link"
+      });
+    }
+  });
+
+export const playerReactionSelfDamageFactorsSchema = z
+  .object({
+    reaction: playerReactionSelfDamageKindSchema,
+    sourcePreResistanceDamage: finiteNumber.nonnegative(),
+    selfDamageMultiplier: finiteNumber.nonnegative(),
+    preResistanceDamage: finiteNumber.nonnegative(),
+    effectiveResistance: finiteNumber,
+    resistanceMultiplier: finiteNumber.nonnegative(),
+    ignoreDefense: z.literal(1),
+    defenseMultiplier: z.literal(1),
+    damageGroupMultiplier: z.union([
+      z.literal(0),
+      z.literal(1)
+    ]),
+    damageGroupDecision:
+      reactionADamageGroupAuditSchema.nullable(),
+    finalDamage: finiteNumber.nonnegative()
+  })
+  .strict()
+  .superRefine((factors, context) => {
+    const authority =
+      playerReactionSelfDamageAuthorities[factors.reaction];
+    const expectedPreResistance =
+      factors.sourcePreResistanceDamage *
+      factors.selfDamageMultiplier;
+    const expectedResistance =
+      expectedPlayerResistanceMultiplier(
+        factors.effectiveResistance
+      );
+    const expectedFinal =
+      factors.preResistanceDamage *
+      factors.resistanceMultiplier *
+      factors.damageGroupMultiplier;
+    if (
+      !approximatelyEqual(
+        factors.selfDamageMultiplier,
+        authority.selfDamageMultiplier
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["selfDamageMultiplier"],
+        message:
+          "must match the authoritative player self-damage multiplier for the reaction"
+      });
+    }
+    if (
+      !approximatelyEqual(
+        factors.resistanceMultiplier,
+        expectedResistance
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["resistanceMultiplier"],
+        message:
+          "must be recomputed from effectiveResistance using the three-branch resistance formula"
+      });
+    }
+    if (
+      !approximatelyEqual(
+        factors.preResistanceDamage,
+        expectedPreResistance
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["preResistanceDamage"],
+        message:
+          "must equal sourcePreResistanceDamage * selfDamageMultiplier"
+      });
+    }
+    if (
+      !approximatelyEqual(factors.finalDamage, expectedFinal)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["finalDamage"],
+        message:
+          "must equal preResistanceDamage * resistanceMultiplier"
+      });
+    }
+    if (factors.reaction === "burning") {
+      if (
+        factors.damageGroupMultiplier !== 1 ||
+        factors.damageGroupDecision !== null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["damageGroupDecision"],
+          message:
+            "Burning requires multiplier 1 and no ReactionA decision"
+        });
+      }
+    } else {
+      const decision = factors.damageGroupDecision;
+      if (
+        decision === null ||
+        decision.reaction !== factors.reaction ||
+        decision.targetId !== "player-avatar" ||
+        decision.damageAllowed !==
+          (factors.damageGroupMultiplier === 1)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["damageGroupDecision"],
+          message:
+            "Bloom-family player damage requires a matching player-avatar ReactionA decision"
+        });
+      }
+    }
+  });
+
+export const playerCrystallizeShieldResolutionSchema = z
+  .object({
+    mode: z.literal("crystallize-v1"),
+    shieldId: z.number().int().nonnegative().nullable(),
+    shieldElement: z
+      .enum(["pyro", "cryo", "hydro", "electro"])
+      .nullable(),
+    incomingDamage: finiteNumber.nonnegative(),
+    incomingElement: elementSchema,
+    elementalMasteryBonus: finiteNumber,
+    shieldStrengthBonus: finiteNumber,
+    absorptionMultiplier: z.union([
+      z.literal(1),
+      z.literal(1.5),
+      z.literal(2.5)
+    ]),
+    effectiveAbsorptionMultiplier: finiteNumber.positive(),
+    baseHpBefore: finiteNumber.nonnegative(),
+    baseHpConsumed: finiteNumber.nonnegative(),
+    baseHpAfter: finiteNumber.nonnegative(),
+    absorptionCapacity: finiteNumber.nonnegative(),
+    absorbedDamage: finiteNumber.nonnegative(),
+    damageAfterShield: finiteNumber.nonnegative(),
+    shieldBroken: z.boolean()
+  })
+  .strict()
+  .superRefine((resolution, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (
+      !approximatelyEqual(
+        resolution.baseHpAfter,
+        resolution.baseHpBefore -
+          resolution.baseHpConsumed
+      )
+    ) {
+      issue(
+        "baseHpAfter",
+        "must equal baseHpBefore - baseHpConsumed"
+      );
+    }
+    if (
+      resolution.shieldId === null ||
+      resolution.shieldElement === null
+    ) {
+      if (
+        resolution.shieldId !== null ||
+        resolution.shieldElement !== null ||
+        resolution.baseHpBefore !== 0 ||
+        resolution.baseHpConsumed !== 0 ||
+        resolution.baseHpAfter !== 0 ||
+        resolution.absorptionCapacity !== 0 ||
+        resolution.absorbedDamage !== 0 ||
+        resolution.elementalMasteryBonus !== 0 ||
+        resolution.shieldStrengthBonus !== 0 ||
+        resolution.absorptionMultiplier !== 1 ||
+        resolution.effectiveAbsorptionMultiplier !== 1 ||
+        !approximatelyEqual(
+          resolution.damageAfterShield,
+          resolution.incomingDamage
+        ) ||
+        resolution.shieldBroken
+      ) {
+        issue(
+          "shieldId",
+          "an absent shield requires null identity and zero absorption state"
+        );
+      }
+    } else {
+      const expectedAbsorptionMultiplier =
+        resolution.incomingElement === resolution.shieldElement
+          ? 2.5
+          : resolution.incomingElement === "geo"
+            ? 1.5
+            : 1;
+      const expectedEffectiveMultiplier =
+        expectedAbsorptionMultiplier *
+        (1 +
+          resolution.elementalMasteryBonus +
+          resolution.shieldStrengthBonus);
+      if (
+        resolution.absorptionMultiplier !==
+          expectedAbsorptionMultiplier ||
+        !approximatelyEqual(
+          resolution.effectiveAbsorptionMultiplier,
+          expectedEffectiveMultiplier
+        )
+      ) {
+        issue(
+          "effectiveAbsorptionMultiplier",
+          "must apply matching-element/Geo absorption and recorded shield bonuses"
+        );
+      }
+      const expectedCapacity =
+        resolution.baseHpBefore *
+        resolution.effectiveAbsorptionMultiplier;
+      if (
+        !approximatelyEqual(
+          resolution.absorptionCapacity,
+          expectedCapacity
+        )
+      ) {
+        issue(
+          "absorptionCapacity",
+          "must equal baseHpBefore * effectiveAbsorptionMultiplier"
+        );
+      }
+      if (
+        !approximatelyEqual(
+          resolution.baseHpConsumed,
+          resolution.absorbedDamage /
+            resolution.effectiveAbsorptionMultiplier
+        )
+      ) {
+        issue(
+          "baseHpConsumed",
+          "must reproduce absorbed damage through the effective absorption multiplier"
+        );
+      }
+      const expectedAbsorbedDamage = Math.min(
+        resolution.incomingDamage,
+        resolution.absorptionCapacity
+      );
+      const expectedShieldBroken =
+        resolution.incomingDamage >=
+        resolution.absorptionCapacity;
+      if (
+        !approximatelyEqual(
+          resolution.absorbedDamage,
+          expectedAbsorbedDamage
+        )
+      ) {
+        issue(
+          "absorbedDamage",
+          "must equal min(incomingDamage, absorptionCapacity)"
+        );
+      }
+      if (resolution.shieldBroken !== expectedShieldBroken) {
+        issue(
+          "shieldBroken",
+          "a present shield breaks exactly when incomingDamage >= absorptionCapacity"
+        );
+      }
+    }
+    if (
+      resolution.absorbedDamage >
+      resolution.absorptionCapacity + 1e-9
+    ) {
+      issue(
+        "absorbedDamage",
+        "cannot exceed the available absorption capacity"
+      );
+    }
+    if (
+      !approximatelyEqual(
+        resolution.incomingDamage,
+        resolution.absorbedDamage +
+          resolution.damageAfterShield
+      )
+    ) {
+      issue(
+        "damageAfterShield",
+        "incoming damage must equal absorbed damage + damageAfterShield"
+      );
+    }
+  });
+
+export const playerHpDamageResolutionSchema = z
+  .object({
+    zeroHpPolicy: z.literal("clamp-and-continue"),
+    inputCurrentHp: finiteNumber.nonnegative(),
+    currentHpBefore: finiteNumber.nonnegative(),
+    currentHpAfter: finiteNumber.nonnegative(),
+    maxHp: finiteNumber.positive(),
+    attemptedLoss: finiteNumber.nonnegative(),
+    actualLoss: finiteNumber.nonnegative(),
+    overkill: finiteNumber.nonnegative(),
+    hpRatioBefore: finiteNumber.min(0).max(1),
+    hpRatioAfter: finiteNumber.min(0).max(1)
+  })
+  .strict()
+  .superRefine((resolution, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (
+      !approximatelyEqual(
+        resolution.currentHpBefore,
+        Math.min(resolution.inputCurrentHp, resolution.maxHp)
+      ) ||
+      !approximatelyEqual(
+        resolution.actualLoss,
+        Math.min(
+          resolution.currentHpBefore,
+          resolution.attemptedLoss
+        )
+      ) ||
+      !approximatelyEqual(
+        resolution.currentHpAfter,
+        resolution.currentHpBefore - resolution.actualLoss
+      ) ||
+      !approximatelyEqual(
+        resolution.overkill,
+        resolution.attemptedLoss - resolution.actualLoss
+      )
+    ) {
+      issue(
+        "currentHpAfter",
+        "HP loss must clamp at zero and conserve attempted loss and overkill"
+      );
+    }
+    if (
+      !approximatelyEqual(
+        resolution.hpRatioBefore,
+        resolution.currentHpBefore / resolution.maxHp
+      ) ||
+      !approximatelyEqual(
+        resolution.hpRatioAfter,
+        resolution.currentHpAfter / resolution.maxHp
+      )
+    ) {
+      issue(
+        "hpRatioAfter",
+        "HP ratios must match current HP divided by max HP"
+      );
+    }
+  });
+
+export const playerDamageEventSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    reaction: playerReactionSelfDamageKindSchema,
+    element: elementSchema,
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceTargetId: wireNonEmptyStringSchema,
+    targetActorId: wireNonEmptyStringSchema,
+    reactionDamageLogId: z.number().int().nonnegative(),
+    playerHitResolutionLogId: z.number().int().nonnegative(),
+    burningStateLogId: z.number().int().nonnegative().nullable(),
+    dendroCoreRemovalLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    damageFactors: playerReactionSelfDamageFactorsSchema,
+    shieldResolution:
+      playerCrystallizeShieldResolutionSchema,
+    hpResolution: playerHpDamageResolutionSchema,
+    finalDamage: finiteNumber.nonnegative(),
+    displayDamage: z.number().int().nonnegative()
+  })
+  .strict()
+  .superRefine((event, context) => {
+    validateLogTime(event, context);
+    const authority =
+      playerReactionSelfDamageAuthorities[event.reaction];
+    if (
+      event.damageFactors.reaction !== event.reaction ||
+      event.shieldResolution.incomingElement !== event.element ||
+      event.element !== authority.element
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["damageFactors", "reaction"],
+        message:
+          "nested damage and shield audits must match the event reaction and element"
+      });
+    }
+    const damageGroupDecision =
+      event.damageFactors.damageGroupDecision;
+    if (
+      event.reaction !== "burning" &&
+      (damageGroupDecision === null ||
+        damageGroupDecision.sourceActorId !==
+          event.sourceActorId ||
+        damageGroupDecision.reaction !== event.reaction ||
+        damageGroupDecision.targetId !== "player-avatar")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["damageFactors", "damageGroupDecision"],
+        message:
+          "player ReactionA decision must bind the event source actor, reaction, and player-avatar target"
+      });
+    }
+    if (
+      !approximatelyEqual(
+        event.hpResolution.attemptedLoss,
+        event.shieldResolution.damageAfterShield
+      ) ||
+      !approximatelyEqual(
+        event.shieldResolution.incomingDamage,
+        event.damageFactors.finalDamage
+      ) ||
+      !approximatelyEqual(
+        event.finalDamage,
+        event.hpResolution.actualLoss
+      ) ||
+      event.displayDamage !== Math.round(event.finalDamage)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["finalDamage"],
+        message:
+          "finalDamage must equal actual HP loss and displayDamage its nearest integer"
+      });
+    }
+    if (
+      event.reaction === "burning" &&
+      event.burningStateLogId === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["burningStateLogId"],
+        message: "Burning damage requires a Burning-state link"
+      });
+    }
+    if (
+      event.reaction !== "burning" &&
+      event.burningStateLogId !== null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["burningStateLogId"],
+        message:
+          "non-Burning player damage cannot link a Burning-state row"
+      });
+    }
+    if (
+      (event.reaction !== "burning") !==
+      (event.dendroCoreRemovalLogId !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["dendroCoreRemovalLogId"],
+        message:
+          "Bloom-family player damage requires exactly one core-removal link"
+      });
+    }
+  });
+
+export const crystallizeShieldLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    operation: z.enum([
+      "add",
+      "overwrite",
+      "absorb",
+      "break",
+      "expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    shieldId: z.number().int().nonnegative(),
+    shardId: z.number().int().nonnegative(),
+    element: z.enum(["pyro", "cryo", "hydro", "electro"]),
+    sourceActorId: wireNonEmptyStringSchema,
+    pickedUpByActorId: wireNonEmptyStringSchema,
+    sourceCharacterLevel: z.number().int().positive(),
+    sourceElementalMastery: finiteNumber.nonnegative(),
+    baseHp: finiteNumber.nonnegative(),
+    elementalMasteryBonus: finiteNumber.nonnegative(),
+    generalAbsorption: finiteNumber.nonnegative(),
+    matchingElementAbsorption: finiteNumber.nonnegative(),
+    geoDamageAbsorption: finiteNumber.nonnegative(),
+    currentBaseHp: finiteNumber.nonnegative(),
+    expiresAtFrame: z.number().int().nonnegative(),
+    previousShieldId: z.number().int().nonnegative().nullable(),
+    playerDamageEventId: z.number().int().nonnegative().nullable(),
+    incomingElement: elementSchema.nullable(),
+    baseHpBeforeAbsorption: finiteNumber.nonnegative(),
+    baseHpConsumed: finiteNumber.nonnegative(),
+    baseHpAfterAbsorption: finiteNumber.nonnegative(),
+    absorbedDamage: finiteNumber.nonnegative(),
+    damageAfterShield: finiteNumber.nonnegative()
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    validateLogTime(entry, context);
+    const absorptionOperation =
+      entry.operation === "absorb" ||
+      entry.operation === "break";
+    if (!absorptionOperation) {
+      if (
+        entry.playerDamageEventId !== null ||
+        entry.incomingElement !== null ||
+        entry.baseHpBeforeAbsorption !== 0 ||
+        entry.baseHpConsumed !== 0 ||
+        entry.baseHpAfterAbsorption !== 0 ||
+        entry.absorbedDamage !== 0 ||
+        entry.damageAfterShield !== 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["playerDamageEventId"],
+          message:
+            "add/overwrite/expire shield rows require null player link and zero absorption audit fields"
+        });
+      }
+      return;
+    }
+    if (
+      entry.playerDamageEventId === null ||
+      entry.incomingElement === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["playerDamageEventId"],
+        message:
+          "absorb/break shield rows require player damage and incoming-element provenance"
+      });
+    }
+    if (
+      !approximatelyEqual(
+        entry.baseHpAfterAbsorption,
+        entry.baseHpBeforeAbsorption -
+          entry.baseHpConsumed
+      ) ||
+      !approximatelyEqual(
+        entry.currentBaseHp,
+        entry.baseHpAfterAbsorption
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["baseHpAfterAbsorption"],
+        message:
+          "shield base HP must conserve the absorption and equal currentBaseHp"
+      });
+    }
+    if (
+      entry.operation === "break" !==
+      approximatelyEqual(entry.baseHpAfterAbsorption, 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["operation"],
+        message:
+          "break requires zero remaining base HP; absorb requires a surviving shield"
+      });
+    }
+  });
+
+export const crystallizeShieldTimelinePointSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    operation: z.enum([
+      "add",
+      "overwrite",
+      "absorb",
+      "break",
+      "expire"
+    ]),
+    shieldId: z.number().int().nonnegative().nullable(),
+    element: z
+      .enum(["pyro", "cryo", "hydro", "electro"])
+      .nullable(),
+    generalAbsorption: finiteNumber.nonnegative(),
+    expiresAtFrame: z.number().int().nonnegative().nullable(),
+    playerDamageEventId: z.number().int().nonnegative().nullable(),
+    baseHpBeforeAbsorption: finiteNumber.nonnegative(),
+    baseHpAfterAbsorption: finiteNumber.nonnegative(),
+    absorbedDamage: finiteNumber.nonnegative(),
+    damageAfterShield: finiteNumber.nonnegative()
+  })
+  .strict()
+  .superRefine((point, context) => {
+    validateLogTime(point, context);
+    const absorptionOperation =
+      point.operation === "absorb" ||
+      point.operation === "break";
+    if (!absorptionOperation) {
+      if (
+        point.playerDamageEventId !== null ||
+        point.baseHpBeforeAbsorption !== 0 ||
+        point.baseHpAfterAbsorption !== 0 ||
+        point.absorbedDamage !== 0 ||
+        point.damageAfterShield !== 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["playerDamageEventId"],
+          message:
+            "non-absorption timeline points require null player link and zero absorption audit fields"
+        });
+      }
+    } else if (
+      point.playerDamageEventId === null ||
+      (point.operation === "absorb" && point.shieldId === null) ||
+      (point.operation === "break" && point.shieldId !== null) ||
+      (point.operation === "break") !==
+        approximatelyEqual(point.baseHpAfterAbsorption, 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["playerDamageEventId"],
+        message:
+          "absorb/break timeline points require a player link and coherent post-operation shield state"
+      });
+    }
+  });
+
+export const playerHpTimelinePointSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative().nullable(),
+    eventSequence: z.number().int().nonnegative().nullable(),
+    intraEventSequence: z.number().int().nonnegative().nullable(),
+    operation: z.enum([
+      "initial",
+      "damage",
+      "simulation-end"
+    ]),
+    actorId: wireNonEmptyStringSchema,
+    playerDamageEventId: z.number().int().nonnegative().nullable(),
+    maxHp: finiteNumber.positive(),
+    hpBefore: finiteNumber.nonnegative(),
+    hpAfter: finiteNumber.nonnegative(),
+    hpRatioAfter: finiteNumber.min(0).max(1)
+  })
+  .strict()
+  .superRefine((point, context) => {
+    validateLogTime(point, context);
+    if (
+      !approximatelyEqual(
+        point.hpRatioAfter,
+        point.hpAfter / point.maxHp
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["hpRatioAfter"],
+        message: "must equal hpAfter / maxHp"
+      });
+    }
+    if (
+      point.operation === "damage" &&
+      point.playerDamageEventId === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["playerDamageEventId"],
+        message: "damage timeline points require a damage-event link"
+      });
+    }
+    if (
+      point.operation !== "damage" &&
+      (point.playerDamageEventId !== null ||
+        point.eventPriority !== null ||
+        point.eventSequence !== null ||
+        point.intraEventSequence !== null ||
+        !approximatelyEqual(point.hpBefore, point.hpAfter))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["playerDamageEventId"],
+        message:
+          "boundary HP points cannot link damage or mutate current HP"
+      });
+    } else if (
+      point.operation === "damage" &&
+      (point.eventPriority === null ||
+        point.eventSequence === null ||
+        point.intraEventSequence === null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["eventPriority"],
+        message: "damage HP points require a complete event tuple"
+      });
+    }
+  });
+
+export const playerHpTimelineSchema = z
+  .object({
+    version: z.literal("1.0.0"),
+    points: z.array(playerHpTimelinePointSchema)
+  })
+  .strict()
+  .superRefine((timeline, context) => {
+    let previousFrame = -1;
+    let previousTuple:
+      | readonly [number, number, number]
+      | null = null;
+    let previousOperation:
+      | "initial"
+      | "damage"
+      | "simulation-end"
+      | null = null;
+    timeline.points.forEach((point, index) => {
+      if (point.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", index, "id"],
+          message: `expected contiguous timeline id ${index}`
+        });
+      }
+      if (point.frame < previousFrame) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", index, "frame"],
+          message: "HP timeline frames must be non-decreasing"
+        });
+      }
+      const tuple = [
+        point.operation === "initial"
+          ? -1
+          : point.operation === "simulation-end"
+            ? Number.POSITIVE_INFINITY
+            : point.eventPriority!,
+        point.eventSequence ?? 0,
+        point.intraEventSequence ?? 0
+      ] as const;
+      if (point.frame !== previousFrame) {
+        previousTuple = null;
+        previousOperation = null;
+      }
+      const sameTuple =
+        previousTuple !== null &&
+        tuple[0] === previousTuple[0] &&
+        tuple[1] === previousTuple[1] &&
+        tuple[2] === previousTuple[2];
+      const repeatedBoundary =
+        sameTuple &&
+        point.operation !== "damage" &&
+        previousOperation === point.operation;
+      if (
+        previousTuple !== null &&
+        (tuple[0] < previousTuple[0] ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] < previousTuple[1]) ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] === previousTuple[1] &&
+            tuple[2] <= previousTuple[2] &&
+            !repeatedBoundary))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["points", index, "eventPriority"],
+          message:
+            "same-frame HP points must follow priority, sequence, and intra-event order"
+        });
+      }
+      previousFrame = point.frame;
+      previousTuple = tuple;
+      previousOperation = point.operation;
+    });
+  });
+
+export const playerHpSummarySchema = z
+  .object({
+    actorId: wireNonEmptyStringSchema,
+    maxHp: finiteNumber.positive(),
+    initialHp: finiteNumber.nonnegative(),
+    finalHp: finiteNumber.nonnegative(),
+    totalIncomingDamage: finiteNumber.nonnegative(),
+    totalAbsorbedDamage: finiteNumber.nonnegative(),
+    totalHpDamage: finiteNumber.nonnegative(),
+    hitCount: z.number().int().nonnegative(),
+    zeroHpReached: z.boolean()
+  })
+  .strict()
+  .superRefine((summary, context) => {
+    if (
+      summary.initialHp > summary.maxHp + 1e-9 ||
+      summary.finalHp > summary.maxHp + 1e-9 ||
+      !approximatelyEqual(
+        summary.totalHpDamage,
+        summary.initialHp - summary.finalHp
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["totalHpDamage"],
+        message:
+          "summary HP values must stay within max HP and conserve total HP damage"
+      });
+    }
+    if (
+      summary.zeroHpReached !==
+      approximatelyEqual(summary.finalHp, 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["zeroHpReached"],
+        message: "must reflect whether final HP reached zero"
+      });
     }
   });
 
@@ -6343,10 +7491,114 @@ export const simConfigSchema = z
     actorPoses: z.array(actorPoseDefinitionSchema).max(4).optional(),
     rotation: z.array(actionDefinitionSchema),
     timeline: legalTimelineConfigSchema.optional(),
-    reactionEngine: auraReactionEngineConfigSchema.optional()
+    reactionEngine: auraReactionEngineConfigSchema.optional(),
+    playerDamageModel: playerDamageModelSchema
   })
   .strict()
   .superRefine((config, context) => {
+    if (config.playerDamageModel.mode === "reaction-self-v1") {
+      if (
+        config.enemy.targets === undefined ||
+        config.enemy.targets.length === 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["enemy", "targets"],
+          message:
+            "player reaction self-damage requires explicit positioned enemy targets"
+        });
+      } else {
+        config.enemy.targets.forEach((target, targetIndex) => {
+          if (target.position === undefined) {
+            context.addIssue({
+              code: "custom",
+              path: [
+                "enemy",
+                "targets",
+                targetIndex,
+                "position"
+              ],
+              message:
+                "player reaction self-damage requires a target position for spatial self-hit resolution"
+            });
+          }
+        });
+      }
+      const characterIds = new Set(
+        config.characters.map((character) => character.id)
+      );
+      const stateByActorId = new Map<string, number>();
+      config.playerDamageModel.characters.forEach(
+        (state, stateIndex) => {
+          if (!characterIds.has(state.actorId)) {
+            context.addIssue({
+              code: "custom",
+              path: [
+                "playerDamageModel",
+                "characters",
+                stateIndex,
+                "actorId"
+              ],
+              message: `unknown character id "${state.actorId}"`
+            });
+          }
+          const previousIndex = stateByActorId.get(state.actorId);
+          if (previousIndex !== undefined) {
+            context.addIssue({
+              code: "custom",
+              path: [
+                "playerDamageModel",
+                "characters",
+                stateIndex,
+                "actorId"
+              ],
+              message: `duplicate player damage state for character "${state.actorId}" (first declared at index ${previousIndex})`
+            });
+          } else {
+            stateByActorId.set(state.actorId, stateIndex);
+          }
+        }
+      );
+      config.characters.forEach((character, characterIndex) => {
+        if (!stateByActorId.has(character.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["playerDamageModel", "characters"],
+            message: `missing player damage state for character "${character.id}"`
+          });
+        }
+        const maxHp =
+          character.stats.baseHp *
+            (1 + character.stats.hpPct) +
+          character.stats.flatHp;
+        if (character.stats.baseHp <= 0) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "characters",
+              characterIndex,
+              "stats",
+              "baseHp"
+            ],
+            message:
+              "player reaction self-damage requires baseHp > 0"
+          });
+        }
+        if (!Number.isFinite(maxHp) || maxHp <= 0) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "characters",
+              characterIndex,
+              "stats",
+              "baseHp"
+            ],
+            message:
+              "player reaction self-damage requires baseHp * (1 + hpPct) + flatHp > 0"
+          });
+        }
+      });
+    }
     const enemyTargetIds = new Set(
       (config.enemy.targets ?? [{ id: "enemy-0" }]).map(
         (target) => target.id
@@ -7073,6 +8325,882 @@ export const simConfigSchema = z
     }
   });
 
+/**
+ * Strict player-reaction-damage output boundary plus cross-log integrity.
+ *
+ * Like the Dendro-core projection, this intentionally accepts unrelated
+ * SimulationResult fields while parsing every player-owned structure strictly.
+ */
+export const playerDamageResultReferencesSchema = z
+  .object({
+    config: simConfigSchema,
+    damageEvents: z.array(
+      playerSelfDamageDamageEventReferenceSchema
+    ),
+    reactionDamageLog: z.array(
+      dendroCoreReactionDamageReferenceSchema
+    ),
+    burningStateLog: z.array(burningStateLogEntrySchema),
+    dendroCoreLog: dendroCoreLogSchema,
+    playerHitResolutionLog: z.array(
+      playerHitResolutionLogEntrySchema
+    ),
+    playerDamageEvents: z.array(playerDamageEventSchema),
+    playerHpTimeline: playerHpTimelineSchema,
+    playerHpSummaries: z.array(playerHpSummarySchema),
+    crystallizeShieldLog: z.array(
+      crystallizeShieldLogEntrySchema
+    ),
+    crystallizeShieldTimeline: z.array(
+      crystallizeShieldTimelinePointSchema
+    ),
+    playerSelfDamageStatus: playerSelfDamageStatusSchema,
+    totalPlayerDamageTaken: finiteNumber.nonnegative(),
+    totalReactionSelfDamageTaken: finiteNumber.nonnegative()
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const reactionDamageById = new Map(
+      result.reactionDamageLog.map((entry) => [entry.id, entry])
+    );
+    const burningById = new Map(
+      result.burningStateLog.map((entry) => [entry.id, entry])
+    );
+    const coreById = new Map(
+      result.dendroCoreLog.map((entry) => [entry.id, entry])
+    );
+    const hitById = new Map(
+      result.playerHitResolutionLog.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+    const damageById = new Map(
+      result.playerDamageEvents.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    (
+      [
+        ["reactionDamageLog", result.reactionDamageLog],
+        ["burningStateLog", result.burningStateLog],
+        ["playerHitResolutionLog", result.playerHitResolutionLog],
+        ["playerDamageEvents", result.playerDamageEvents]
+      ] as const
+    ).forEach(([name, entries]) => {
+      addDuplicateIdIssues(
+        entries.map((entry) => entry.id),
+        name,
+        context
+      );
+      entries.forEach((entry, index) => {
+        if (entry.id !== index) {
+          issue(
+            [name, index, "id"],
+            `${name} requires contiguous id ${index}`
+          );
+        }
+      });
+    });
+
+    const disabled =
+      result.config.playerDamageModel.mode === "disabled";
+    if (disabled) {
+      if (
+        result.playerHitResolutionLog.length !== 0 ||
+        result.playerDamageEvents.length !== 0 ||
+        result.playerHpTimeline.points.length !== 0 ||
+        result.playerHpSummaries.length !== 0 ||
+        result.playerSelfDamageStatus !==
+          "unsupported-player-damage-model" ||
+        result.totalPlayerDamageTaken !== 0 ||
+        result.totalReactionSelfDamageTaken !== 0
+      ) {
+        issue(
+          ["config", "playerDamageModel", "mode"],
+          "disabled player damage requires empty player logs, HP timeline, and summaries"
+        );
+      }
+    } else if (
+      result.playerSelfDamageStatus !==
+      "modeled-player-reaction-damage"
+    ) {
+      issue(
+        ["playerSelfDamageStatus"],
+        "reaction-self-v1 requires modeled-player-reaction-damage status"
+      );
+    }
+    result.damageEvents.forEach((event, eventIndex) => {
+      const burningStatus =
+        event.reactionAudit.burningReaction
+          ?.selfDamageStatus;
+      if (
+        burningStatus !== undefined &&
+        burningStatus !== result.playerSelfDamageStatus
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "burningReaction",
+            "selfDamageStatus"
+          ],
+          "Burning reaction-audit selfDamageStatus must match the top-level playerSelfDamageStatus"
+        );
+      }
+      event.reactionAudit.bloomReactions.forEach(
+        (bloomAudit, bloomIndex) => {
+          if (
+            bloomAudit.selfDamageStatus !==
+            result.playerSelfDamageStatus
+          ) {
+            issue(
+              [
+                "damageEvents",
+                eventIndex,
+                "reactionAudit",
+                "bloomReactions",
+                bloomIndex,
+                "selfDamageStatus"
+              ],
+              "Bloom reaction-audit selfDamageStatus must match the top-level playerSelfDamageStatus"
+            );
+          }
+        }
+      );
+    });
+
+    result.reactionDamageLog.forEach((entry, index) => {
+      addDuplicateIdIssues(
+        entry.playerHitResolutionLogIds,
+        "playerHitResolutionLogIds",
+        context
+      );
+      addDuplicateIdIssues(
+        entry.playerDamageEventIds,
+        "playerDamageEventIds",
+        context
+      );
+      if (
+        disabled &&
+        (entry.playerHitResolutionLogIds.length !== 0 ||
+          entry.playerDamageEventIds.length !== 0)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            index,
+            "playerHitResolutionLogIds"
+          ],
+          "disabled player damage requires empty reaction-damage back-references"
+        );
+      }
+      const isPlayerSelfDamageReaction = [
+        "burning",
+        "bloom",
+        "burgeon",
+        "hyperbloom"
+      ].includes(entry.reaction);
+      const shouldResolvePlayerHit =
+        !disabled &&
+        isPlayerSelfDamageReaction &&
+        entry.scheduled &&
+        entry.withinSimulation &&
+        entry.blockedReason === null &&
+        entry.resolutionReason === null;
+      if (
+        entry.playerHitResolutionLogIds.length !==
+          (shouldResolvePlayerHit ? 1 : 0) ||
+        (!shouldResolvePlayerHit &&
+          entry.playerDamageEventIds.length !== 0)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            index,
+            "playerHitResolutionLogIds"
+          ],
+          "reaction-damage player references must contain exactly one spatial check for each in-duration Burning/Bloom-family explosion"
+        );
+      }
+      entry.playerHitResolutionLogIds.forEach(
+        (hitId, referenceIndex) => {
+          const hit = hitById.get(hitId);
+          if (
+            hit === undefined ||
+            hit.reactionDamageLogId !== entry.id
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                index,
+                "playerHitResolutionLogIds",
+                referenceIndex
+              ],
+              `missing reciprocal player hit-resolution ${hitId}`
+            );
+          }
+        }
+      );
+      entry.playerDamageEventIds.forEach(
+        (damageId, referenceIndex) => {
+          const damage = damageById.get(damageId);
+          if (
+            damage === undefined ||
+            damage.reactionDamageLogId !== entry.id
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                index,
+                "playerDamageEventIds",
+                referenceIndex
+              ],
+              `missing reciprocal player damage event ${damageId}`
+            );
+          }
+        }
+      );
+      if (shouldResolvePlayerHit) {
+        const hit = hitById.get(
+          entry.playerHitResolutionLogIds[0]!
+        );
+        const expectedDamageIds =
+          hit?.playerDamageEventId === null ||
+          hit?.playerDamageEventId === undefined
+            ? []
+            : [hit.playerDamageEventId];
+        if (
+          entry.playerDamageEventIds.length !==
+            expectedDamageIds.length ||
+          entry.playerDamageEventIds.some(
+            (id, damageIndex) =>
+              id !== expectedDamageIds[damageIndex]
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              index,
+              "playerDamageEventIds"
+            ],
+            "reaction-damage player damage IDs must exactly project its landed player hit"
+          );
+        }
+      }
+    });
+
+    result.playerHitResolutionLog.forEach((hit, index) => {
+      const reactionDamage = reactionDamageById.get(
+        hit.reactionDamageLogId
+      );
+      if (
+        reactionDamage === undefined ||
+        reactionDamage.reaction !== hit.reaction ||
+        reactionDamage.damageFrame !== hit.frame ||
+        reactionDamage.sourceActorId !== hit.sourceActorId ||
+        reactionDamage.sourceTargetId !== hit.sourceTargetId ||
+        !reactionDamage.playerHitResolutionLogIds.includes(hit.id)
+      ) {
+        issue(
+          [
+            "playerHitResolutionLog",
+            index,
+            "reactionDamageLogId"
+          ],
+          "player hit resolution does not match its reciprocal reaction-damage provenance"
+        );
+      }
+      if (
+        reactionDamage === undefined ||
+        reactionDamage.centerPosition === null ||
+        !approximatelyEqual(
+          hit.damageCenter.x,
+          reactionDamage.centerPosition.x
+        ) ||
+        !approximatelyEqual(
+          hit.damageCenter.y,
+          reactionDamage.centerPosition.y
+        )
+      ) {
+        issue(
+          [
+            "playerHitResolutionLog",
+            index,
+            "damageCenter"
+          ],
+          "player hit damageCenter must match its reaction-damage centerPosition"
+        );
+      }
+      const playerDamageModel =
+        result.config.playerDamageModel;
+      if (
+        playerDamageModel.mode === "reaction-self-v1" &&
+        (!approximatelyEqual(
+          hit.playerCenter.x,
+          playerDamageModel.position.x
+        ) ||
+          !approximatelyEqual(
+            hit.playerCenter.y,
+            playerDamageModel.position.y
+          ) ||
+          !approximatelyEqual(
+            hit.playerRadius,
+            playerDamageModel.hitboxRadius
+          ))
+      ) {
+        issue(
+          [
+            "playerHitResolutionLog",
+            index,
+            "playerCenter"
+          ],
+          "player hit center and radius must match the configured player damage model"
+        );
+      }
+      const damage =
+        hit.playerDamageEventId === null
+          ? undefined
+          : damageById.get(hit.playerDamageEventId);
+      if (
+        hit.playerDamageEventId !== null &&
+        (damage === undefined ||
+          damage.playerHitResolutionLogId !== hit.id ||
+          damage.eventPriority !== hit.eventPriority ||
+          damage.eventSequence !== hit.eventSequence ||
+          damage.intraEventSequence <=
+            hit.intraEventSequence)
+      ) {
+        issue(
+          [
+            "playerHitResolutionLog",
+            index,
+            "playerDamageEventId"
+          ],
+          "player hit resolution does not resolve to its reciprocal damage event"
+        );
+      }
+    });
+
+    result.playerDamageEvents.forEach((event, index) => {
+      const hit = hitById.get(event.playerHitResolutionLogId);
+      const reactionDamage = reactionDamageById.get(
+        event.reactionDamageLogId
+      );
+      if (
+        hit === undefined ||
+        hit.playerDamageEventId !== event.id ||
+        hit.reactionDamageLogId !== event.reactionDamageLogId ||
+        hit.reaction !== event.reaction ||
+        hit.element !== event.element ||
+        hit.sourceActorId !== event.sourceActorId ||
+        hit.sourceTargetId !== event.sourceTargetId ||
+        hit.targetActorId !== event.targetActorId ||
+        hit.frame !== event.frame
+      ) {
+        issue(
+          [
+            "playerDamageEvents",
+            index,
+            "playerHitResolutionLogId"
+          ],
+          "player damage event does not match its reciprocal landed hit"
+        );
+      }
+      if (
+        reactionDamage === undefined ||
+        !reactionDamage.playerDamageEventIds.includes(event.id)
+      ) {
+        issue(
+          [
+            "playerDamageEvents",
+            index,
+            "reactionDamageLogId"
+          ],
+          "player damage event is missing from its reaction-damage back-references"
+        );
+      }
+      const playerDamageModel =
+        result.config.playerDamageModel;
+      if (playerDamageModel.mode === "reaction-self-v1") {
+        const configuredState =
+          playerDamageModel.characters.find(
+            (state) =>
+              state.actorId === event.targetActorId
+          );
+        const configuredResistance =
+          configuredState?.resistances[event.element];
+        if (
+          configuredResistance === undefined ||
+          !approximatelyEqual(
+            event.damageFactors.effectiveResistance,
+            configuredResistance
+          )
+        ) {
+          issue(
+            [
+              "playerDamageEvents",
+              index,
+              "damageFactors",
+              "effectiveResistance"
+            ],
+            "effectiveResistance must equal the configured target actor resistance for the event element"
+          );
+        }
+      }
+      if (
+        !approximatelyEqual(
+          event.damageFactors.finalDamage,
+          event.shieldResolution.absorbedDamage +
+            event.shieldResolution.damageAfterShield
+        )
+      ) {
+        issue(
+          [
+            "playerDamageEvents",
+            index,
+            "shieldResolution",
+            "damageAfterShield"
+          ],
+          "shield absorption and post-shield damage must conserve incoming player damage"
+        );
+      }
+    });
+
+    result.crystallizeShieldLog.forEach((entry, index) => {
+      if (
+        entry.operation !== "absorb" &&
+        entry.operation !== "break"
+      ) {
+        return;
+      }
+      const event =
+        entry.playerDamageEventId === null
+          ? undefined
+          : damageById.get(entry.playerDamageEventId);
+      if (
+        event === undefined ||
+        event.frame !== entry.frame ||
+        event.eventPriority !== entry.eventPriority ||
+        event.eventSequence !== entry.eventSequence ||
+        event.shieldResolution.shieldId !== entry.shieldId ||
+        event.shieldResolution.incomingElement !==
+          entry.incomingElement ||
+        !approximatelyEqual(
+          event.shieldResolution.baseHpBefore,
+          entry.baseHpBeforeAbsorption
+        ) ||
+        !approximatelyEqual(
+          event.shieldResolution.baseHpConsumed,
+          entry.baseHpConsumed
+        ) ||
+        !approximatelyEqual(
+          event.shieldResolution.baseHpAfter,
+          entry.baseHpAfterAbsorption
+        ) ||
+        !approximatelyEqual(
+          event.shieldResolution.absorbedDamage,
+          entry.absorbedDamage
+        ) ||
+        !approximatelyEqual(
+          event.shieldResolution.damageAfterShield,
+          entry.damageAfterShield
+        )
+      ) {
+        issue(
+          [
+            "crystallizeShieldLog",
+            index,
+            "playerDamageEventId"
+          ],
+          "shield absorption row does not match its player damage event"
+        );
+      }
+    });
+    result.crystallizeShieldTimeline.forEach(
+      (point, index) => {
+        if (
+          point.operation !== "absorb" &&
+          point.operation !== "break"
+        ) {
+          return;
+        }
+        const log = result.crystallizeShieldLog.find(
+          (entry) =>
+            entry.frame === point.frame &&
+            entry.operation === point.operation &&
+            entry.playerDamageEventId ===
+              point.playerDamageEventId
+        );
+        if (
+          log === undefined ||
+          !approximatelyEqual(
+            log.baseHpBeforeAbsorption,
+            point.baseHpBeforeAbsorption
+          ) ||
+          !approximatelyEqual(
+            log.baseHpAfterAbsorption,
+            point.baseHpAfterAbsorption
+          ) ||
+          !approximatelyEqual(
+            log.absorbedDamage,
+            point.absorbedDamage
+          ) ||
+          !approximatelyEqual(
+            log.damageAfterShield,
+            point.damageAfterShield
+          )
+        ) {
+          issue(
+            [
+              "crystallizeShieldTimeline",
+              index,
+              "playerDamageEventId"
+            ],
+            "shield timeline absorption point does not match a shield log row"
+          );
+        }
+      }
+    );
+
+    result.burningStateLog.forEach((entry, index) => {
+      if (
+        disabled &&
+        (entry.playerHitResolutionLogId !== null ||
+          entry.playerDamageEventId !== null ||
+          entry.selfDamageStatus !==
+            "unsupported-player-damage-model")
+      ) {
+        issue(
+          [
+            "burningStateLog",
+            index,
+            "playerHitResolutionLogId"
+          ],
+          "disabled player damage requires null Burning player references and unsupported status"
+        );
+      }
+      if (entry.playerHitResolutionLogId !== null) {
+        const hit = hitById.get(entry.playerHitResolutionLogId);
+        if (
+          hit === undefined ||
+          hit.burningStateLogId !== entry.id ||
+          hit.reactionDamageLogId !== entry.reactionDamageLogId
+        ) {
+          issue(
+            [
+              "burningStateLog",
+              index,
+              "playerHitResolutionLogId"
+            ],
+            "Burning player hit link is not reciprocal"
+          );
+        }
+      }
+      if (entry.playerDamageEventId !== null) {
+        const damage = damageById.get(entry.playerDamageEventId);
+        if (
+          damage === undefined ||
+          damage.burningStateLogId !== entry.id
+        ) {
+          issue(
+            [
+              "burningStateLog",
+              index,
+              "playerDamageEventId"
+            ],
+            "Burning player damage link is not reciprocal"
+          );
+        }
+      }
+    });
+
+    result.dendroCoreLog.forEach((entry, index) => {
+      if (
+        entry.operation !== "expire" &&
+        entry.operation !== "evict" &&
+        entry.operation !== "consume"
+      ) {
+        return;
+      }
+      if (
+        disabled &&
+        (entry.playerHitResolutionLogId !== null ||
+          entry.playerDamageEventId !== null ||
+          entry.selfDamageStatus !==
+            "unsupported-player-damage-model")
+      ) {
+        issue(
+          [
+            "dendroCoreLog",
+            index,
+            "playerHitResolutionLogId"
+          ],
+          "disabled player damage requires null core-removal player references and unsupported status"
+        );
+      }
+      if (entry.playerHitResolutionLogId !== null) {
+        const hit = hitById.get(entry.playerHitResolutionLogId);
+        if (
+          hit === undefined ||
+          hit.dendroCoreRemovalLogId !== entry.id ||
+          hit.reactionDamageLogId !==
+            entry.reactionDamageLogId
+        ) {
+          issue(
+            [
+              "dendroCoreLog",
+              index,
+              "playerHitResolutionLogId"
+            ],
+            "core-removal player hit link is not reciprocal"
+          );
+        }
+      }
+      if (entry.playerDamageEventId !== null) {
+        const damage = damageById.get(entry.playerDamageEventId);
+        if (
+          damage === undefined ||
+          damage.dendroCoreRemovalLogId !== entry.id
+        ) {
+          issue(
+            [
+              "dendroCoreLog",
+              index,
+              "playerDamageEventId"
+            ],
+            "core-removal player damage link is not reciprocal"
+          );
+        }
+      }
+    });
+
+    if (disabled) return;
+
+    const enabledPlayerDamageModel =
+      result.config.playerDamageModel;
+    if (
+      enabledPlayerDamageModel.mode !== "reaction-self-v1"
+    ) {
+      return;
+    }
+    const expectedReactionDamageTaken =
+      result.playerDamageEvents.reduce(
+        (sum, event) => sum + event.finalDamage,
+        0
+      );
+    if (
+      !approximatelyEqual(
+        result.totalReactionSelfDamageTaken,
+        expectedReactionDamageTaken
+      ) ||
+      !approximatelyEqual(
+        result.totalPlayerDamageTaken,
+        expectedReactionDamageTaken
+      )
+    ) {
+      issue(
+        ["totalPlayerDamageTaken"],
+        "1.32 totals must equal the sum of player reaction self-damage HP loss"
+      );
+    }
+
+    const configuredStates = new Map(
+      enabledPlayerDamageModel.characters.map((state) => [
+        state.actorId,
+        state
+      ])
+    );
+    const timelineByActor = new Map<
+      string,
+      typeof result.playerHpTimeline.points
+    >();
+    result.playerHpTimeline.points.forEach((point, index) => {
+      const points = timelineByActor.get(point.actorId) ?? [];
+      points.push(point);
+      timelineByActor.set(point.actorId, points);
+      if (point.operation === "damage") {
+        const event =
+          point.playerDamageEventId === null
+            ? undefined
+            : damageById.get(point.playerDamageEventId);
+        if (
+          event === undefined ||
+          event.targetActorId !== point.actorId ||
+          event.frame !== point.frame ||
+          event.eventPriority !== point.eventPriority ||
+          event.eventSequence !== point.eventSequence ||
+          point.intraEventSequence === null ||
+          point.intraEventSequence <=
+            event.intraEventSequence ||
+          !approximatelyEqual(
+            event.hpResolution.currentHpBefore,
+            point.hpBefore
+          ) ||
+          !approximatelyEqual(
+            event.hpResolution.currentHpAfter,
+            point.hpAfter
+          )
+        ) {
+          issue(
+            [
+              "playerHpTimeline",
+              "points",
+              index,
+              "playerDamageEventId"
+            ],
+            "HP timeline damage point does not match its player damage event"
+          );
+        }
+      }
+    });
+    result.config.characters.forEach((character) => {
+      const maxHp =
+        character.stats.baseHp *
+          (1 + character.stats.hpPct) +
+        character.stats.flatHp;
+      const state = configuredStates.get(character.id)!;
+      const expectedInitialHp = maxHp * state.initialHpRatio;
+      const points = timelineByActor.get(character.id) ?? [];
+      const initial = points.filter(
+        (point) => point.operation === "initial"
+      );
+      const end = points.filter(
+        (point) => point.operation === "simulation-end"
+      );
+      const actorDamageEvents = result.playerDamageEvents.filter(
+        (event) => event.targetActorId === character.id
+      );
+      const damagePoints = points.filter(
+        (point) => point.operation === "damage"
+      );
+      if (
+        initial.length !== 1 ||
+        end.length !== 1 ||
+        points[0]?.operation !== "initial" ||
+        points.at(-1)?.operation !== "simulation-end" ||
+        initial[0]!.frame !== 0 ||
+        !approximatelyEqual(initial[0]!.maxHp, maxHp) ||
+        !approximatelyEqual(
+          initial[0]!.hpAfter,
+          expectedInitialHp
+        ) ||
+        end[0]!.frame !==
+          Math.round(result.config.duration * 60) ||
+        damagePoints.length !== actorDamageEvents.length
+      ) {
+        issue(
+          ["playerHpTimeline", "points"],
+          `character "${character.id}" requires exact initial and simulation-end HP boundaries`
+        );
+      }
+      points.forEach((point, pointIndex) => {
+        if (
+          pointIndex > 0 &&
+          !approximatelyEqual(
+            point.hpBefore,
+            points[pointIndex - 1]!.hpAfter
+          )
+        ) {
+          issue(
+            ["playerHpTimeline", "points"],
+            `character "${character.id}" HP timeline must form a continuous state chain`
+          );
+        }
+      });
+      const eventIds = damagePoints.map(
+        (point) => point.playerDamageEventId
+      );
+      if (
+        new Set(eventIds).size !== eventIds.length ||
+        actorDamageEvents.some(
+          (event) => !eventIds.includes(event.id)
+        )
+      ) {
+        issue(
+          ["playerHpTimeline", "points"],
+          `character "${character.id}" requires exactly one HP point per player damage event`
+        );
+      }
+    });
+
+    const summariesByActor = new Map(
+      result.playerHpSummaries.map((summary) => [
+        summary.actorId,
+        summary
+      ])
+    );
+    if (
+      summariesByActor.size !== result.playerHpSummaries.length ||
+      result.playerHpSummaries.length !==
+        result.config.characters.length
+    ) {
+      issue(
+        ["playerHpSummaries"],
+        "enabled player damage requires exactly one summary per character"
+      );
+    }
+    result.config.characters.forEach((character) => {
+      const summary = summariesByActor.get(character.id);
+      const actorEvents = result.playerDamageEvents.filter(
+        (event) => event.targetActorId === character.id
+      );
+      const points = timelineByActor.get(character.id) ?? [];
+      const initial = points.find(
+        (point) => point.operation === "initial"
+      );
+      const end = points.find(
+        (point) => point.operation === "simulation-end"
+      );
+      const totalIncoming = actorEvents.reduce(
+        (sum, event) =>
+          sum + event.damageFactors.finalDamage,
+        0
+      );
+      const totalAbsorbed = actorEvents.reduce(
+        (sum, event) =>
+          sum + event.shieldResolution.absorbedDamage,
+        0
+      );
+      const totalHpDamage = actorEvents.reduce(
+        (sum, event) => sum + event.finalDamage,
+        0
+      );
+      if (
+        summary === undefined ||
+        initial === undefined ||
+        end === undefined ||
+        !approximatelyEqual(summary.maxHp, initial.maxHp) ||
+        !approximatelyEqual(summary.initialHp, initial.hpAfter) ||
+        !approximatelyEqual(summary.finalHp, end.hpAfter) ||
+        !approximatelyEqual(
+          summary.totalIncomingDamage,
+          totalIncoming
+        ) ||
+        !approximatelyEqual(
+          summary.totalAbsorbedDamage,
+          totalAbsorbed
+        ) ||
+        !approximatelyEqual(
+          summary.totalHpDamage,
+          totalHpDamage
+        ) ||
+        summary.hitCount !== actorEvents.length
+      ) {
+        issue(
+          ["playerHpSummaries"],
+          `summary for character "${character.id}" does not match HP timeline and damage events`
+        );
+      }
+    });
+  });
+
 export class ConfigMigrationError extends Error {
   readonly issues: string[];
 
@@ -7154,7 +9282,8 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     characters: Array.isArray(input.characters)
       ? input.characters.map(normalizeLegacyCharacter)
       : [],
-    rotation: Array.isArray(input.rotation) ? input.rotation : []
+    rotation: Array.isArray(input.rotation) ? input.rotation : [],
+    playerDamageModel: { mode: "disabled" }
   };
 }
 
@@ -7181,7 +9310,8 @@ type HistoricalAuraMode =
   | "aura-v1"
   | "aura-v2"
   | "aura-v3"
-  | "aura-v4";
+  | "aura-v4"
+  | "aura-v5";
 
 interface HistoricalSchemaContract {
   engineVersion: string;
@@ -7193,7 +9323,14 @@ const HISTORICAL_AURA_MODES = {
   v1: ["aura-v1"] as const,
   v2: ["aura-v1", "aura-v2"] as const,
   v3: ["aura-v1", "aura-v2", "aura-v3"] as const,
-  v4: ["aura-v1", "aura-v2", "aura-v3", "aura-v4"] as const
+  v4: ["aura-v1", "aura-v2", "aura-v3", "aura-v4"] as const,
+  v5: [
+    "aura-v1",
+    "aura-v2",
+    "aura-v3",
+    "aura-v4",
+    "aura-v5"
+  ] as const
 } satisfies Record<string, readonly HistoricalAuraMode[]>;
 
 /**
@@ -7325,6 +9462,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [BURNING_REACTION_SCHEMA_VERSION]: {
     engineVersion: BURNING_REACTION_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v4
+  },
+  [DENDRO_CORE_SCHEMA_VERSION]: {
+    engineVersion: DENDRO_CORE_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v5
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -7361,14 +9502,16 @@ function validateHistoricalSchemaContract(
   }
 }
 
-export function migrateConfig(input: unknown): SimConfig {
-  if (!isRecord(input)) {
+export function migrateConfig(rawInput: unknown): SimConfig {
+  if (!isRecord(rawInput)) {
     throw new ConfigMigrationError("配置校验失败：<root>: expected an object");
   }
+  let input: Record<string, unknown> = rawInput;
 
   const version = input.schemaVersion;
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== DENDRO_CORE_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
   ) {
@@ -7377,6 +9520,25 @@ export function migrateConfig(input: unknown): SimConfig {
         ? LEGACY_SCHEMA_VERSION
         : String(version);
     const issue = `reactionEngine.mode: schemaVersion "${historicalVersion}" does not support "aura-v5"`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
+    input.playerDamageModel !== undefined &&
+    !(
+      isRecord(input.playerDamageModel) &&
+      input.playerDamageModel.mode === "disabled" &&
+      Object.keys(input.playerDamageModel).length === 1
+    )
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `playerDamageModel: schemaVersion "${historicalVersion}" does not support player reaction self-damage configuration`;
     throw new ConfigMigrationError(
       `配置校验失败：\n- ${issue}`,
       [issue]
@@ -7394,6 +9556,18 @@ export function migrateConfig(input: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  input = {
+    ...input,
+    playerDamageModel: { mode: "disabled" }
+  };
+  if (version === DENDRO_CORE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      playerDamageModel: { mode: "disabled" }
+    });
   }
   if (version === BURNING_REACTION_SCHEMA_VERSION) {
     if (input.engineVersion !== BURNING_REACTION_ENGINE_VERSION) {

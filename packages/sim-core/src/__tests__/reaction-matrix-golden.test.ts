@@ -9,6 +9,7 @@ import {
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
   reactionDamageGroupAuditSchema,
+  playerDamageResultReferencesSchema,
   simConfigSchema,
   simulationRunManifestSchema,
   targetStateTimelineSchema,
@@ -21,14 +22,15 @@ import {
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
-import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
+import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
+import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const FIXED_GCSIM_COMMIT =
   "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541";
 const DATA_VERSION =
-  "reaction-matrix-fixed-gcsim-cross-check-1";
+  "reaction-matrix-fixed-gcsim-cross-check-2";
 const OPTIONS = {
   energyMode: "configured" as const,
   critMode: "noCrit" as const,
@@ -344,13 +346,13 @@ function makeMatrixConfig(
   return {
     ...base,
     meta: {
-      name: `Reaction matrix 1.31 · ${scenarioId}`,
-      version: "1.31.0",
+      name: `Reaction matrix 1.32 · ${scenarioId}`,
+      version: "1.32.0",
       verificationStatus: "provisional",
       note: `Fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; not official game truth.`
     },
     dataVersion: DATA_VERSION,
-    randomSeed: `reaction-matrix-1.31:${scenarioId}`,
+    randomSeed: `reaction-matrix-1.32:${scenarioId}`,
     duration,
     cycleLength: Math.max(1, duration),
     enemy: {
@@ -382,6 +384,29 @@ function makeMatrixConfig(
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v5" },
+    playerDamageModel: {
+      mode: "reaction-self-v1",
+      position: { x: 0, y: 0 },
+      hitboxRadius: 0.5,
+      shieldMode: "crystallize-v1",
+      zeroHpPolicy: "clamp-and-continue",
+      characters: [
+        {
+          actorId: "matrix",
+          initialHpRatio: 1,
+          resistances: {
+            pyro: 0.1,
+            cryo: 0.1,
+            hydro: 0.1,
+            electro: 0.1,
+            anemo: 0.1,
+            geo: 0.1,
+            dendro: 0.1,
+            physical: 0.1
+          }
+        }
+      ]
+    },
     timeline: {
       mode: "legal-frame-v1",
       fps: 60,
@@ -450,7 +475,14 @@ function compactEvent(event: SimulationResult["damageEvents"][number]) {
     parentDamageEventId: event.parentDamageEventId,
     finalDamage: event.finalDamage,
     displayDamage: event.displayDamage,
-    composition: event.damageComposition
+    composition: event.damageComposition,
+    burningSelfDamageStatus:
+      event.reactionAudit.burningReaction?.selfDamageStatus ??
+      null,
+    bloomSelfDamageStatuses:
+      event.reactionAudit.bloomReactions.map(
+        (reaction) => reaction.selfDamageStatus
+      )
   };
 }
 
@@ -462,6 +494,7 @@ function compactResult(result: SimulationResult) {
   return {
     config: {
       durationFrames: Math.round(result.config.duration * 60),
+      playerDamageModel: result.config.playerDamageModel,
       targets: (result.config.enemy.targets ?? []).map((target) => ({
         id: target.id,
         position: target.position,
@@ -491,11 +524,32 @@ function compactResult(result: SimulationResult) {
         triggerFrame: entry.triggerFrame,
         damageFrame: entry.damageFrame,
         scheduleKind: entry.scheduleKind,
+        selectionRadius: entry.selectionRadius,
+        selectedTargetId: entry.selectedTargetId,
+        resolutionReason: entry.resolutionReason,
         hitTargetIds: entry.hitTargetIds,
         damageEventIds: entry.damageEventIds,
-        damageGroupAllowed: entry.damageGroupDecisions.map(
-          (decision) => decision.damageAllowed
-        )
+        damageGroupAllowed: entry.damageGroupDecisions
+          .filter(
+            (decision) => decision.targetId !== "player-avatar"
+          )
+          .map((decision) => decision.damageAllowed),
+        playerHitResolutionLogIds:
+          entry.playerHitResolutionLogIds,
+        playerDamageEventIds: entry.playerDamageEventIds,
+        playerDamageGroupDecisions:
+          entry.damageGroupDecisions
+            .filter(
+              (decision) => decision.targetId === "player-avatar"
+            )
+            .map((decision) => ({
+              targetId: decision.targetId,
+              sourceActorId: decision.sourceActorId,
+              reaction: decision.reaction,
+              hitIndex: decision.hitIndex,
+              damageAllowed: decision.damageAllowed,
+              blockedReason: decision.blockedReason
+            }))
       })),
       periodic: result.periodicReactionLog.map((entry) => ({
         id: entry.id,
@@ -518,7 +572,11 @@ function compactResult(result: SimulationResult) {
         id: entry.id,
         operation: entry.operation,
         frame: entry.frame,
-        tickIndex: entry.tickIndex
+        tickIndex: entry.tickIndex,
+        selfDamageStatus: entry.selfDamageStatus,
+        playerHitResolutionLogId:
+          entry.playerHitResolutionLogId,
+        playerDamageEventId: entry.playerDamageEventId
       })),
       dendroCores: result.dendroCoreLog.map((entry) => ({
         id: entry.id,
@@ -529,7 +587,16 @@ function compactResult(result: SimulationResult) {
           entry.operation === "spawn-scheduled" ||
           entry.operation === "spawn"
             ? null
-            : entry.reaction
+            : entry.reaction,
+        selfDamageStatus: entry.selfDamageStatus,
+        playerHitResolutionLogId:
+          "playerHitResolutionLogId" in entry
+            ? entry.playerHitResolutionLogId
+            : null,
+        playerDamageEventId:
+          "playerDamageEventId" in entry
+            ? entry.playerDamageEventId
+            : null
       })),
       coreContacts: result.dendroCoreContactLog.map((entry) => ({
         id: entry.id,
@@ -546,6 +613,57 @@ function compactResult(result: SimulationResult) {
           element: entry.element
         })
       )
+    },
+    player: {
+      status: result.playerSelfDamageStatus,
+      totalDamageTaken: result.totalPlayerDamageTaken,
+      totalReactionSelfDamageTaken:
+        result.totalReactionSelfDamageTaken,
+      hitResolutions: result.playerHitResolutionLog.map(
+        (entry) => ({
+          id: entry.id,
+          frame: entry.frame,
+          reaction: entry.reaction,
+          sourceActorId: entry.sourceActorId,
+          sourceTargetId: entry.sourceTargetId,
+          targetActorId: entry.targetActorId,
+          reactionDamageLogId: entry.reactionDamageLogId,
+          burningStateLogId: entry.burningStateLogId,
+          dendroCoreRemovalLogId:
+            entry.dendroCoreRemovalLogId,
+          damageCenter: entry.damageCenter,
+          damageRadius: entry.damageRadius,
+          playerCenter: entry.playerCenter,
+          playerRadius: entry.playerRadius,
+          distance: entry.distance,
+          combinedRadius: entry.combinedRadius,
+          outcome: entry.outcome,
+          blockedReason: entry.blockedReason,
+          playerDamageEventId: entry.playerDamageEventId
+        })
+      ),
+      damageEvents: result.playerDamageEvents.map((entry) => ({
+        id: entry.id,
+        frame: entry.frame,
+        reaction: entry.reaction,
+        element: entry.element,
+        sourceActorId: entry.sourceActorId,
+        sourceTargetId: entry.sourceTargetId,
+        targetActorId: entry.targetActorId,
+        reactionDamageLogId: entry.reactionDamageLogId,
+        playerHitResolutionLogId:
+          entry.playerHitResolutionLogId,
+        burningStateLogId: entry.burningStateLogId,
+        dendroCoreRemovalLogId:
+          entry.dendroCoreRemovalLogId,
+        damageFactors: entry.damageFactors,
+        shieldResolution: entry.shieldResolution,
+        hpResolution: entry.hpResolution,
+        finalDamage: entry.finalDamage,
+        displayDamage: entry.displayDamage
+      })),
+      hpTimeline: result.playerHpTimeline,
+      hpSummaries: result.playerHpSummaries
     },
     hashes: {
       config: sha256(result.config),
@@ -572,7 +690,17 @@ function compactResult(result: SimulationResult) {
         initial: result.auraInitialStates,
         end: result.auraEndStates
       }),
-      damageCurve: sha256(result.damageCurve)
+      damageCurve: sha256(result.damageCurve),
+      player: sha256({
+        playerHitResolutionLog: result.playerHitResolutionLog,
+        playerDamageEvents: result.playerDamageEvents,
+        playerHpTimeline: result.playerHpTimeline,
+        playerHpSummaries: result.playerHpSummaries,
+        playerSelfDamageStatus: result.playerSelfDamageStatus,
+        totalPlayerDamageTaken: result.totalPlayerDamageTaken,
+        totalReactionSelfDamageTaken:
+          result.totalReactionSelfDamageTaken
+      })
     }
   };
 }
@@ -921,6 +1049,9 @@ function validateResultSchemas(result: SimulationResult): void {
   expectContiguousIds(result.crystallizeShardLog);
   expectContiguousIds(result.crystallizeShieldLog);
   expectContiguousIds(result.crystallizeShieldTimeline);
+  expectContiguousIds(result.playerHitResolutionLog);
+  expectContiguousIds(result.playerDamageEvents);
+  expectContiguousIds(result.playerHpTimeline.points);
   expectContiguousIds(result.particleEvents);
   expectContiguousIds(result.particleTriggerLog);
   expectContiguousIds(result.targetStateTimeline.points);
@@ -947,7 +1078,18 @@ const REQUIRED_REACTIONS = [
   "hyperbloom"
 ] as const satisfies readonly ReactionType[];
 
-describe("1.31 provisional reaction-matrix Golden", () => {
+describe("1.32 provisional reaction-matrix Golden", () => {
+  it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
+    expect(historicalMatrixGolden.config).toMatchObject({
+      schemaVersion: "1.31.0",
+      engineVersion: "1.31.0-dendro-cores",
+      dataVersion: "reaction-matrix-fixed-gcsim-cross-check-1"
+    });
+    expect(Object.keys(historicalMatrixGolden.vectors)).toHaveLength(
+      14
+    );
+  });
+
   it("freezes every baseline reaction vector, strict projection, and run identity", () => {
     const actualVectors: Record<string, unknown> = {};
     const observedReactions = new Set<ReactionType>();
@@ -969,6 +1111,9 @@ describe("1.31 provisional reaction-matrix Golden", () => {
       expect(result.timelineExecution?.failures).toEqual([]);
       expect(result.mechanicsStatus).toBe("complete");
       validateResultSchemas(result);
+      expect(
+        playerDamageResultReferencesSchema.parse(result)
+      ).toEqual(result);
       if (
         result.dendroCoreLog.length > 0 ||
         result.dendroCoreContactLog.length > 0
@@ -978,6 +1123,21 @@ describe("1.31 provisional reaction-matrix Golden", () => {
         ).toEqual(result);
       }
       expect(repeated).toEqual(result);
+      expect(result.playerHpTimeline.points).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            operation: "initial",
+            actorId: "matrix",
+            frame: 0,
+            hpAfter: 10_000
+          }),
+          expect.objectContaining({
+            operation: "simulation-end",
+            actorId: "matrix",
+            frame: Math.round(result.config.duration * 60)
+          })
+        ])
+      );
       if (scenarioId === "swirl") {
         const propagation = result.damageEvents.find(
           (event) =>
@@ -1014,12 +1174,78 @@ describe("1.31 provisional reaction-matrix Golden", () => {
           }
         }
       }
-      actualVectors[scenarioId] = compactResult(result);
+      const compact = compactResult(result);
+      const historicalVector = (
+        historicalMatrixGolden.vectors as Record<
+          string,
+          Record<string, unknown>
+        >
+      )[scenarioId]!;
+      const {
+        runManifest: _historicalRunManifest,
+        hashes: _historicalHashes,
+        ...historicalEnemySemantics
+      } = historicalVector;
+      expect(compact).toMatchObject(historicalEnemySemantics);
+      actualVectors[scenarioId] = compact;
     }
 
     expect([...REQUIRED_REACTIONS].filter(
       (reaction) => !observedReactions.has(reaction)
     )).toEqual([]);
+    for (const reaction of [
+      "burning",
+      "bloom",
+      "burgeon",
+      "hyperbloom"
+    ] as const) {
+      const vector = actualVectors[reaction] as ReturnType<
+        typeof compactResult
+      >;
+      expect(
+        vector.player.hitResolutions.some(
+          (entry) =>
+            entry.reaction === reaction &&
+            entry.outcome === "landed"
+        )
+      ).toBe(true);
+      expect(
+        vector.player.damageEvents.some(
+          (entry) => entry.reaction === reaction
+        )
+      ).toBe(true);
+      expect(vector.player.totalDamageTaken).toBeGreaterThan(0);
+    }
+    const burningVector = actualVectors.burning as ReturnType<
+      typeof compactResult
+    >;
+    expect(
+      burningVector.events
+        .map((event) => event.burningSelfDamageStatus)
+        .filter((status) => status !== null)
+    ).toEqual([
+      "modeled-player-reaction-damage",
+      "modeled-player-reaction-damage"
+    ]);
+    const bloomVector = actualVectors.bloom as ReturnType<
+      typeof compactResult
+    >;
+    expect(
+      bloomVector.events.flatMap(
+        (event) => event.bloomSelfDamageStatuses
+      )
+    ).toEqual(["modeled-player-reaction-damage"]);
+    const hyperbloomVector =
+      actualVectors.hyperbloom as ReturnType<
+        typeof compactResult
+      >;
+    expect(
+      hyperbloomVector.logs.reactionDamage[0]
+    ).toMatchObject({
+      selectionRadius: 15,
+      selectedTargetId: "enemy-0",
+      resolutionReason: null
+    });
 
     if (
       process.env.PRINT_REACTION_MATRIX_GOLDEN === "1"

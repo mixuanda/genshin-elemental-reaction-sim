@@ -308,9 +308,21 @@ describe("DendroCoreManager", () => {
     const selection = selectNearestDendroCoreTarget(
       { x: 0, y: 0 },
       [
-        { targetId: "enemy-b", position: { x: 3, y: 4 } },
-        { targetId: "enemy-a", position: { x: -3, y: -4 } },
-        { targetId: "outside", position: { x: 15.000001, y: 0 } }
+        {
+          targetId: "enemy-b",
+          position: { x: 3, y: 4 },
+          hitboxRadius: 0
+        },
+        {
+          targetId: "enemy-a",
+          position: { x: -3, y: -4 },
+          hitboxRadius: 0
+        },
+        {
+          targetId: "outside",
+          position: { x: 15.000001, y: 0 },
+          hitboxRadius: 0
+        }
       ]
     );
     expect(selection).toEqual({
@@ -325,13 +337,49 @@ describe("DendroCoreManager", () => {
         [
           {
             targetId: "boundary",
-            position: { x: 15, y: 0 }
+            position: { x: 15, y: 0 },
+            hitboxRadius: 0
           }
         ]
       )
     ).toMatchObject({
       selectedTargetId: "boundary",
       distance: 15
+    });
+    expect(
+      selectNearestDendroCoreTarget(
+        { x: 0, y: 0 },
+        [
+          {
+            targetId: "hurtbox-boundary",
+            position: { x: 15.5, y: 0 },
+            hitboxRadius: 0.5
+          },
+          {
+            targetId: "larger-hurtbox-farther-center",
+            position: { x: 15.75, y: 0 },
+            hitboxRadius: 1
+          }
+        ]
+      )
+    ).toMatchObject({
+      selectedTargetId: "hurtbox-boundary",
+      distance: 15.5
+    });
+    expect(
+      selectNearestDendroCoreTarget(
+        { x: 0, y: 0 },
+        [
+          {
+            targetId: "outside-hurtbox",
+            position: { x: 15.500001, y: 0 },
+            hitboxRadius: 0.5
+          }
+        ]
+      )
+    ).toMatchObject({
+      selectedTargetId: null,
+      reason: "NO_TARGET_IN_RANGE"
     });
   });
 
@@ -340,10 +388,15 @@ describe("DendroCoreManager", () => {
       selectNearestDendroCoreTarget(
         { x: 0, y: 0 },
         [
-          { targetId: "unknown", position: null },
+          {
+            targetId: "unknown",
+            position: null,
+            hitboxRadius: 0
+          },
           {
             targetId: "outside",
-            position: { x: 15.000001, y: 0 }
+            position: { x: 15.000001, y: 0 },
+            hitboxRadius: 0
           }
         ]
       )
