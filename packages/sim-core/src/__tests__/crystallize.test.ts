@@ -55,6 +55,37 @@ describe("AuraEngine Crystallize", () => {
     });
   });
 
+  it("emits literal crystallizeHydro and schedules a Hydro shard without independent damage", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v2",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "geo",
+      element: "geo",
+      application: noIcd(1)
+    });
+
+    expect(audit).toMatchObject({
+      triggered: true,
+      reaction: "crystallizeHydro",
+      reactions: ["crystallizeHydro"],
+      auraConsumed: [{ element: "hydro", gaugeUnits: 0.5 }],
+      crystallizeReaction: {
+        reaction: "crystallizeHydro",
+        crystallizedElement: "hydro",
+        consumedAuraElement: "hydro",
+        scheduled: true,
+        shardSpawnFrame: 23,
+        earliestPickupFrame: 54,
+        shardExpiresAtFrame: 923
+      }
+    });
+    expect(audit.transformativeReaction).toBeNull();
+    expect(audit.periodicReaction).toBeNull();
+    expect(audit.frozenReaction).toBeNull();
+  });
+
   it("uses Electro → Hydro → Cryo → Pyro → Frozen priority and a shared 60-frame GCD", () => {
     const engine = new AuraEngine({
       mode: "aura-v2",

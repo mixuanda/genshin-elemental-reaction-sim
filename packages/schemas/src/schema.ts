@@ -40,6 +40,8 @@ import {
   TARGET_MOTION_SCHEMA_VERSION,
   TARGET_EFFECT_POLICY_SCHEMA_VERSION,
   TARGET_HIT_RESOLUTION_SCHEMA_VERSION,
+  TARGET_LOCAL_HITLAG_ENGINE_VERSION,
+  TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   TARGET_PHASE_TIMELINE_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig,
@@ -326,7 +328,8 @@ export const auraReactionEngineConfigSchema = z
       "aura-v2",
       "aura-v3",
       "aura-v4",
-      "aura-v5"
+      "aura-v5",
+      "aura-v6"
     ]),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
@@ -351,20 +354,21 @@ export const auraReactionEngineConfigSchema = z
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, or aura-v5"
+            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
         });
       }
       if (
         engine.mode !== "aura-v3" &&
         engine.mode !== "aura-v4" &&
         engine.mode !== "aura-v5" &&
+        engine.mode !== "aura-v6" &&
         aura.element === "dendro"
       ) {
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, or aura-v5"
+            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, or aura-v6"
         });
       }
       if (elements.has(aura.element)) {
@@ -5184,6 +5188,61 @@ const playerSelfDamageAuditStatusReferenceSchema = z
   })
   .passthrough();
 
+const reactionStatusEffectDefinitionSchema = z
+  .object({
+    key: wireNonEmptyStringSchema,
+    label: wireNonEmptyStringSchema,
+    element: z.union([elementSchema, z.literal("all")]),
+    resShred: finiteNumber,
+    durationFrames: z.number().int().positive()
+  })
+  .strict();
+
+export const transformativeReactionAuditSchema = z
+  .object({
+    reaction: z.enum(["overload", "superconduct"]),
+    damageElement: elementSchema,
+    scheduled: z.boolean(),
+    damageFrame: z.number().int().nonnegative(),
+    radius: finiteNumber.nonnegative(),
+    baseMultiplier: finiteNumber.positive(),
+    blockedReason: z
+      .enum([
+        "REACTION_DAMAGE_GCD",
+        "TARGET_MECHANICS_TRUNCATION"
+      ])
+      .nullable(),
+    nextAvailableFrame: z.number().int().nonnegative(),
+    statusEffect:
+      reactionStatusEffectDefinitionSchema.nullable()
+  })
+  .strict()
+  .superRefine((audit, context) => {
+    if (audit.scheduled !== (audit.blockedReason === null)) {
+      context.addIssue({
+        code: "custom",
+        path: ["blockedReason"],
+        message:
+          "scheduled transformative reactions require a null blockedReason and blocked reactions require an explicit reason"
+      });
+    }
+    if (
+      (audit.reaction === "overload" &&
+        (audit.damageElement !== "pyro" ||
+          audit.statusEffect !== null)) ||
+      (audit.reaction === "superconduct" &&
+        (audit.damageElement !== "cryo" ||
+          audit.statusEffect?.element !== "physical"))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reaction"],
+        message:
+          "transformative reaction damage element and status effect must match the reaction contract"
+      });
+    }
+  });
+
 /**
  * Minimal DamageEvent projection used only to bind reaction-audit player
  * status to the top-level player damage model. The complete DamageEvent
@@ -5194,6 +5253,13 @@ const playerSelfDamageDamageEventReferenceSchema = z
     id: z.number().int().nonnegative(),
     reactionAudit: z
       .object({
+        reactions: z.array(reactionTypeSchema).optional(),
+        transformativeReaction:
+          transformativeReactionAuditSchema.nullable().optional(),
+        transformativeReactions: z
+          .array(transformativeReactionAuditSchema)
+          .max(2)
+          .optional(),
         burningReaction:
           playerSelfDamageAuditStatusReferenceSchema.nullable(),
         bloomReactions: z.array(
@@ -5201,6 +5267,57 @@ const playerSelfDamageDamageEventReferenceSchema = z
         )
       })
       .passthrough()
+      .superRefine((audit, context) => {
+        if (audit.transformativeReactions === undefined) {
+          return;
+        }
+        const first =
+          audit.transformativeReactions[0] ?? null;
+        if (
+          JSON.stringify(first) !==
+          JSON.stringify(audit.transformativeReaction)
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["transformativeReaction"],
+            message:
+              "the singular transformative reaction must equal the first ordered reaction"
+          });
+        }
+        if (
+          new Set(
+            audit.transformativeReactions.map(
+              (entry) => entry.reaction
+            )
+          ).size !== audit.transformativeReactions.length
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["transformativeReactions"],
+            message:
+              "one elemental application cannot repeat an ordered transformative reaction"
+          });
+        }
+        if (audit.reactions !== undefined) {
+          let previousIndex = -1;
+          for (const entry of audit.transformativeReactions) {
+            const reactionIndex = audit.reactions.indexOf(
+              entry.reaction,
+              previousIndex + 1
+            );
+            if (reactionIndex < 0) {
+              context.addIssue({
+                code: "custom",
+                path: ["transformativeReactions"],
+                message:
+                  "ordered transformative reactions must be an in-order subsequence of reactions"
+              });
+              break;
+            }
+            previousIndex = reactionIndex;
+          }
+        }
+      })
   })
   .passthrough();
 
@@ -8643,13 +8760,14 @@ export const simConfigSchema = z
         config.reactionEngine?.mode !== "aura-v2" &&
         config.reactionEngine?.mode !== "aura-v3" &&
         config.reactionEngine?.mode !== "aura-v4" &&
-        config.reactionEngine?.mode !== "aura-v5"
+        config.reactionEngine?.mode !== "aura-v5" &&
+        config.reactionEngine?.mode !== "aura-v6"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
           message:
-            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, or aura-v5"
+            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
@@ -8658,7 +8776,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v2" &&
           config.reactionEngine?.mode !== "aura-v3" &&
           config.reactionEngine?.mode !== "aura-v4" &&
-          config.reactionEngine?.mode !== "aura-v5"
+          config.reactionEngine?.mode !== "aura-v5" &&
+          config.reactionEngine?.mode !== "aura-v6"
         ) {
           context.addIssue({
             code: "custom",
@@ -8671,14 +8790,15 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, or aura-v5"
+              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
           });
         }
         if (
           aura.element === "dendro" &&
           config.reactionEngine?.mode !== "aura-v3" &&
           config.reactionEngine?.mode !== "aura-v4" &&
-          config.reactionEngine?.mode !== "aura-v5"
+          config.reactionEngine?.mode !== "aura-v5" &&
+          config.reactionEngine?.mode !== "aura-v6"
         ) {
           context.addIssue({
             code: "custom",
@@ -8691,7 +8811,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, or aura-v5"
+              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, or aura-v6"
           });
         }
       });
@@ -9106,23 +9226,27 @@ export const simConfigSchema = z
       config.reactionEngine?.mode === "aura-v2" ||
       config.reactionEngine?.mode === "aura-v3" ||
       config.reactionEngine?.mode === "aura-v4" ||
-      config.reactionEngine?.mode === "aura-v5"
+      config.reactionEngine?.mode === "aura-v5" ||
+      config.reactionEngine?.mode === "aura-v6"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1, aura-v2, aura-v3, aura-v4, and aura-v5 currently require timeline.mode legal-frame-v1"
+            "aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6 currently require timeline.mode legal-frame-v1"
         });
       }
-      if (config.reactionEngine.mode === "aura-v5") {
+      if (
+        config.reactionEngine.mode === "aura-v5" ||
+        config.reactionEngine.mode === "aura-v6"
+      ) {
+        const coreContactMode = config.reactionEngine.mode;
         if (config.enemy.targets === undefined) {
           context.addIssue({
             code: "custom",
             path: ["enemy", "targets"],
-            message:
-              "aura-v5 requires enemy.targets and a position for every registered target"
+            message: `${coreContactMode} requires enemy.targets and a position for every registered target`
           });
         } else {
           config.enemy.targets.forEach((target, targetIndex) => {
@@ -9135,8 +9259,7 @@ export const simConfigSchema = z
                   targetIndex,
                   "position"
                 ],
-                message:
-                  "aura-v5 requires a position for every registered target"
+                message: `${coreContactMode} requires a position for every registered target`
               });
             }
           });
@@ -9168,7 +9291,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, and aura-v5; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -9212,7 +9335,8 @@ export const simConfigSchema = z
                 ]
               : config.reactionEngine?.mode === "aura-v3" ||
                   config.reactionEngine?.mode === "aura-v4" ||
-                  config.reactionEngine?.mode === "aura-v5"
+                  config.reactionEngine?.mode === "aura-v5" ||
+                  config.reactionEngine?.mode === "aura-v6"
                 ? [
                     "pyro",
                     "cryo",
@@ -9231,7 +9355,8 @@ export const simConfigSchema = z
             message:
               config.reactionEngine?.mode === "aura-v3" ||
               config.reactionEngine?.mode === "aura-v4" ||
-              config.reactionEngine?.mode === "aura-v5"
+              config.reactionEngine?.mode === "aura-v5" ||
+              config.reactionEngine?.mode === "aura-v6"
                 ? `${config.reactionEngine.mode} elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits`
                 : config.reactionEngine?.mode === "aura-v2"
                   ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
@@ -9239,7 +9364,8 @@ export const simConfigSchema = z
           });
         }
         if (
-          config.reactionEngine?.mode === "aura-v5" &&
+          (config.reactionEngine?.mode === "aura-v5" ||
+            config.reactionEngine?.mode === "aura-v6") &&
           hit.application !== undefined &&
           (resolvedElement === "pyro" ||
             resolvedElement === "electro") &&
@@ -9248,8 +9374,7 @@ export const simConfigSchema = z
           context.addIssue({
             code: "custom",
             path: [...path, "geometry"],
-            message:
-              "aura-v5 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks"
+            message: `${config.reactionEngine.mode} Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks`
           });
         }
         if (
@@ -9926,6 +10051,20 @@ export const playerDamageResultReferencesSchema = z
       );
     }
     result.damageEvents.forEach((event, eventIndex) => {
+      if (
+        event.reactionAudit.transformativeReactions !== undefined &&
+        result.config.reactionEngine?.mode !== "aura-v6"
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "transformativeReactions"
+          ],
+          "ordered transformative-reaction arrays are versioned to reactionEngine.mode aura-v6"
+        );
+      }
       const burningStatus =
         event.reactionAudit.burningReaction
           ?.selfDamageStatus;
@@ -10961,6 +11100,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [PLAYER_REACTION_DAMAGE_SCHEMA_VERSION]: {
     engineVersion: PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v5
+  },
+  [TARGET_LOCAL_HITLAG_SCHEMA_VERSION]: {
+    engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v5
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -11008,6 +11151,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== DENDRO_CORE_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
+    version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
   ) {
@@ -11023,7 +11167,23 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    isRecord(input.reactionEngine) &&
+    input.reactionEngine.mode === "aura-v6"
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionEngine.mode: schemaVersion "${historicalVersion}" does not support "aura-v6"`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
+    version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
     !(
       isRecord(input.playerDamageModel) &&
@@ -11043,6 +11203,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
     !(
       isRecord(input.targetClockModel) &&
@@ -11072,6 +11233,13 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === TARGET_LOCAL_HITLAG_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === PLAYER_REACTION_DAMAGE_SCHEMA_VERSION) {
     return parseSimConfig({

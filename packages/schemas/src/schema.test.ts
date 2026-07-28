@@ -47,8 +47,11 @@ import {
   targetHitlagDefinitionSchema,
   targetHitlagLogEntrySchema,
   targetHitlagLogSchema,
+  TARGET_LOCAL_HITLAG_ENGINE_VERSION,
+  TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   targetStateTimelinePointSchema,
   targetStateTimelineSchema,
+  transformativeReactionAuditSchema,
   type TargetClockLogEntry,
   type TargetHitlagLogEntry,
   type TargetStateTimeline
@@ -1867,6 +1870,88 @@ describe("1.33 target-local Hitlag contract", () => {
     targetHitlagLog: [appliedHitlag]
   });
 
+  it("preserves the exact 1.33 player, target-clock, and Aura contracts when migrating to 1.34", () => {
+    const targetClockConfig = makeTargetClockConfig();
+    const resistances = {
+      pyro: 0.1,
+      cryo: 0.1,
+      hydro: 0.1,
+      electro: 0.1,
+      anemo: 0.1,
+      geo: 0.1,
+      dendro: 0.1,
+      physical: 0.1
+    };
+    const current = migrateConfig({
+      ...targetClockConfig,
+      characters: targetClockConfig.characters.map(
+        (character) => ({
+          ...character,
+          stats: {
+            ...character.stats,
+            baseHp: 1_000,
+            hpPct: 0,
+            flatHp: 0
+          }
+        })
+      ),
+      playerDamageModel: {
+        mode: "reaction-self-v1",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0.5,
+        shieldMode: "crystallize-v1",
+        zeroHpPolicy: "clamp-and-continue",
+        characters: [
+          {
+            actorId: "a",
+            initialHpRatio: 1,
+            resistances
+          }
+        ]
+      },
+      reactionEngine: {
+        mode: "aura-v5",
+        initialAura: [
+          { element: "dendro", gaugeUnits: 1 }
+        ]
+      }
+    });
+    const historical = {
+      ...current,
+      schemaVersion: TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
+      engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION
+    };
+    const migrated = migrateConfig(historical);
+
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+    expect(migrated.playerDamageModel).toEqual(
+      current.playerDamageModel
+    );
+    expect(migrated.targetClockModel).toEqual(
+      current.targetClockModel
+    );
+    expect(migrated.reactionEngine).toEqual(
+      current.reactionEngine
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.33.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.33\.0" requires "1\.33\.0-target-local-hitlag"/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        reactionEngine: { mode: "aura-v6" }
+      })
+    ).toThrow(
+      /schemaVersion "1\.33\.0" does not support "aura-v6"/
+    );
+  });
+
   it("requires an explicit mode, gates it to legal-frame execution, and keeps Hitlag input atomic", () => {
     const current = migrateConfig(legacyConfig);
     const missingMode = {
@@ -2210,6 +2295,217 @@ describe("1.33 target-local Hitlag contract", () => {
         }
       })
     ).toThrow(/require targetFrame to equal frame/);
+  });
+});
+
+describe("1.34 general reaction order contract", () => {
+  const makeAuraV6Config = () => {
+    const current = migrateConfig(legacyConfig);
+    const ability = {
+      id: "v6-pyro-application",
+      actorId: "a",
+      name: "v6 Pyro application",
+      kind: "skill" as const,
+      cancelFrame: 1,
+      animationEndFrame: 1,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "v6-pyro-application-hit",
+          frame: 0,
+          scaling: 1,
+          element: "pyro" as const,
+          application: {
+            gaugeUnits: 1,
+            icdTag: "v6-pyro",
+            icdGroup: "no-icd"
+          },
+          geometry: {
+            kind: "circle" as const,
+            coordinateSpace: "world" as const,
+            origin: { x: 0, y: 0 },
+            radius: 3
+          }
+        }
+      ]
+    };
+    return {
+      ...current,
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Positioned v6 target",
+            position: { x: 0, y: 0 }
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [ability],
+        commands: []
+      },
+      reactionEngine: { mode: "aura-v6" as const }
+    };
+  };
+
+  it("strictly accepts aura-v6 only under the current schema/engine pair", () => {
+    const config = makeAuraV6Config();
+    const parsed = migrateConfig(config);
+    expect(parsed.schemaVersion).toBe("1.34.0");
+    expect(parsed.engineVersion).toBe(
+      "1.34.0-general-reaction-order"
+    );
+    expect(parsed.reactionEngine?.mode).toBe("aura-v6");
+
+    expect(() =>
+      migrateConfig({
+        ...config,
+        reactionEngine: {
+          mode: "aura-v6",
+          unversionedOrder: true
+        }
+      })
+    ).toThrow(/Unrecognized key/);
+    expect(() =>
+      migrateConfig({
+        ...config,
+        engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION
+      })
+    ).toThrow(/engineVersion/);
+
+    for (const historical of [
+      {
+        schemaVersion: TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
+        engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION
+      },
+      {
+        schemaVersion: PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
+        engineVersion: PLAYER_REACTION_DAMAGE_ENGINE_VERSION
+      },
+      {
+        schemaVersion: "1.0.0",
+        engineVersion: "1.0.0-compat"
+      }
+    ] as const) {
+      expect(() =>
+        migrateConfig({
+          ...config,
+          ...historical
+        })
+      ).toThrow(
+        new RegExp(
+          `schemaVersion "${historical.schemaVersion.replaceAll(".", "\\.")}" does not support "aura-v6"`
+        )
+      );
+    }
+  });
+
+  it("inherits aura-v5 legal-frame, target-position, and geometry boundaries", () => {
+    const config = makeAuraV6Config();
+    expect(() =>
+      migrateConfig({ ...config, timeline: undefined })
+    ).toThrow(/require timeline\.mode legal-frame-v1/);
+    expect(() =>
+      migrateConfig({
+        ...config,
+        enemy: { ...config.enemy, targets: undefined }
+      })
+    ).toThrow(/aura-v6 requires enemy\.targets/);
+    expect(() =>
+      migrateConfig({
+        ...config,
+        enemy: {
+          ...config.enemy,
+          targets: [
+            { id: "enemy-0", name: "Unpositioned v6 target" }
+          ]
+        }
+      })
+    ).toThrow(/aura-v6 requires a position/);
+
+    const ability = config.timeline.abilities[0]!;
+    expect(() =>
+      migrateConfig({
+        ...config,
+        timeline: {
+          ...config.timeline,
+          abilities: [
+            {
+              ...ability,
+              hits: ability.hits.map((hit) => ({
+                ...hit,
+                geometry: undefined
+              }))
+            }
+          ]
+        }
+      })
+    ).toThrow(
+      /aura-v6 Pyro\/Electro elemental applications require explicit geometry/
+    );
+  });
+
+  it("strictly validates each ordered transformative-reaction audit", () => {
+    const overload = {
+      reaction: "overload",
+      damageElement: "pyro",
+      scheduled: true,
+      damageFrame: 1,
+      radius: 3,
+      baseMultiplier: 2.75,
+      blockedReason: null,
+      nextAvailableFrame: 6,
+      statusEffect: null
+    } as const;
+    const superconduct = {
+      reaction: "superconduct",
+      damageElement: "cryo",
+      scheduled: true,
+      damageFrame: 1,
+      radius: 3,
+      baseMultiplier: 1.5,
+      blockedReason: null,
+      nextAvailableFrame: 6,
+      statusEffect: {
+        key: "superconduct-physical-resistance",
+        label: "Superconduct physical resistance",
+        element: "physical",
+        resShred: 0.4,
+        durationFrames: 720
+      }
+    } as const;
+
+    expect(transformativeReactionAuditSchema.parse(overload)).toEqual(
+      overload
+    );
+    expect(
+      transformativeReactionAuditSchema.parse(superconduct)
+    ).toEqual(superconduct);
+    expect(() =>
+      transformativeReactionAuditSchema.parse({
+        ...overload,
+        scheduled: false
+      })
+    ).toThrow(/require an explicit reason/);
+    expect(() =>
+      transformativeReactionAuditSchema.parse({
+        ...superconduct,
+        damageElement: "electro"
+      })
+    ).toThrow(/must match the reaction contract/);
+    expect(() =>
+      transformativeReactionAuditSchema.parse({
+        ...overload,
+        unversionedField: true
+      })
+    ).toThrow(/Unrecognized key/);
   });
 });
 
@@ -2867,6 +3163,12 @@ describe("versioned config schema", () => {
         engineVersion: "1.30.0-burning-reaction",
         allowedMode: "aura-v4",
         futureMode: "aura-v5"
+      },
+      {
+        schemaVersion: TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
+        engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION,
+        allowedMode: "aura-v5",
+        futureMode: "aura-v6"
       }
     ] as const;
 
@@ -2890,6 +3192,20 @@ describe("versioned config schema", () => {
         ...current,
         schemaVersion: contract.schemaVersion,
         engineVersion: contract.engineVersion,
+        ...(contract.allowedMode === "aura-v5"
+          ? {
+              enemy: {
+                ...current.enemy,
+                targets: [
+                  {
+                    id: "enemy-0",
+                    name: "Positioned historical target",
+                    position: { x: 0, y: 0 }
+                  }
+                ]
+              }
+            }
+          : {}),
         rotation: [],
         timeline: legalTimeline,
         ...(contract.allowedMode === null
@@ -6903,7 +7219,7 @@ describe("versioned config schema", () => {
     ).toThrow(/cannot claim a tickIndex/);
   });
 
-  it("gates Dendro Aura and applications behind aura-v3, aura-v4, or aura-v5", () => {
+  it("gates Dendro Aura and applications behind aura-v3 through aura-v6", () => {
     const current = migrateConfig(legacyConfig);
     const withDendroApplication = {
       ...current,
@@ -6964,7 +7280,7 @@ describe("versioned config schema", () => {
           }
         })
       ).toThrow(
-        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, or aura-v5/
+        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, or aura-v6/
       );
     }
 
@@ -7036,7 +7352,7 @@ describe("versioned config schema", () => {
           reactionEngine: { mode }
         })
       ).toThrow(
-        /aura-v1, aura-v2, aura-v3, aura-v4, and aura-v5 currently require timeline\.mode legal-frame-v1/
+        /aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6 currently require timeline\.mode legal-frame-v1/
       );
     }
   });
@@ -7084,7 +7400,7 @@ describe("versioned config schema", () => {
         })
       )
     ).toThrow(
-      /manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, and aura-v5/
+      /manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6/
     );
 
     expect(() =>

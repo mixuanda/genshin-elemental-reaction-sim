@@ -543,6 +543,84 @@ describe("Swirl simulation integration", () => {
     });
   });
 
+  it("schedules every aura-v6 transformative reaction caused by an Electro propagation", () => {
+    const config = makeSwirlSimulationConfig(null);
+    const targets = config.enemy.targets!;
+    targets[0]!.initialAura = [
+      { element: "electro", gaugeUnits: 1 }
+    ];
+    targets[1]!.initialAura = [
+      { element: "pyro", gaugeUnits: 1 },
+      { element: "cryo", gaugeUnits: 1 }
+    ];
+    config.reactionEngine = { mode: "aura-v6" };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const propagation = result.damageEvents.find(
+      (event) =>
+        event.reaction === "swirlElectro" &&
+        event.frame === 5 &&
+        event.targetId === "enemy-1"
+    )!;
+    const nested = result.damageEvents.filter(
+      (event) =>
+        event.parentDamageEventId === propagation.id &&
+        event.frame === 6 &&
+        event.targetId === "enemy-1"
+    );
+
+    expect(propagation.reactionAudit).toMatchObject({
+      reaction: "overload",
+      reactions: ["overload", "superconduct"],
+      transformativeReactions: [
+        {
+          reaction: "overload",
+          damageFrame: 6,
+          scheduled: true
+        },
+        {
+          reaction: "superconduct",
+          damageFrame: 6,
+          scheduled: true
+        }
+      ],
+      unsupportedReactions: [],
+      mechanicsTruncation: null
+    });
+    expect(
+      nested.map(({ reaction, element, targetId }) => ({
+        reaction,
+        element,
+        targetId
+      }))
+    ).toEqual([
+      {
+        reaction: "overload",
+        element: "pyro",
+        targetId: "enemy-1"
+      },
+      {
+        reaction: "superconduct",
+        element: "cryo",
+        targetId: "enemy-1"
+      }
+    ]);
+    expect(
+      result.reactionDamageLog
+        .filter(
+          (entry) =>
+            entry.triggerDamageEventId === propagation.id
+        )
+        .map(({ reaction, damageFrame }) => ({
+          reaction,
+          damageFrame
+        }))
+    ).toEqual([
+      { reaction: "overload", damageFrame: 6 },
+      { reaction: "superconduct", damageFrame: 6 }
+    ]);
+  });
+
   it("retains Hydro propagation as an auditable zero-damage application event", () => {
     const result = simulate(
       makeSwirlSimulationConfig(null, "hydro"),

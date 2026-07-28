@@ -1292,7 +1292,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v2" ||
     config.reactionEngine?.mode === "aura-v3" ||
     config.reactionEngine?.mode === "aura-v4" ||
-    config.reactionEngine?.mode === "aura-v5"
+    config.reactionEngine?.mode === "aura-v5" ||
+    config.reactionEngine?.mode === "aura-v6"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -4426,8 +4427,12 @@ function simulateConfig(
       eventPriority,
       eventSequence
     });
-    const transformativeReaction = audit.transformativeReaction;
-    if (transformativeReaction !== null) {
+    const transformativeReactions =
+      audit.transformativeReactions ??
+      (audit.transformativeReaction === null
+        ? []
+        : [audit.transformativeReaction]);
+    for (const transformativeReaction of transformativeReactions) {
       const liveReactionStats = computeStats(
         actorId,
         timeSeconds
@@ -4542,6 +4547,9 @@ function simulateConfig(
 
     const frozenReaction = audit.frozenReaction;
     if (frozenReaction !== null) {
+      const consumedBySuperconduct =
+        frozenReaction.operation === "consume" &&
+        audit.reactions.includes("superconduct");
       const frozenConsumptionExtent =
         frozenReaction.frozenGaugeAfter <= 0
           ? "FROZEN_CONSUMED"
@@ -4563,7 +4571,7 @@ function simulateConfig(
         reaction:
           audit.reaction === "melt"
             ? "melt"
-            : audit.reaction === "superconduct"
+            : consumedBySuperconduct
               ? "superconduct"
               : audit.reaction === "swirlCryo"
                 ? "swirlCryo"
@@ -4993,7 +5001,8 @@ function simulateConfig(
     nextIntraEventSequence: () => number;
   }): void => {
     if (
-      config.reactionEngine?.mode !== "aura-v5" ||
+      (config.reactionEngine?.mode !== "aura-v5" &&
+        config.reactionEngine?.mode !== "aura-v6") ||
       (element !== "pyro" && element !== "electro") ||
       application === undefined ||
       application.gaugeUnits <= 0
@@ -5182,7 +5191,10 @@ function simulateConfig(
       landed: aggregate.landed,
       hitConfirmAllowed: aggregate.confirmedTargetIds.length > 0
     });
-    if (config.reactionEngine?.mode === "aura-v5") {
+    if (
+      config.reactionEngine?.mode === "aura-v5" ||
+      config.reactionEngine?.mode === "aura-v6"
+    ) {
       processDendroCoreContacts({
         actorId,
         action,
@@ -8670,7 +8682,10 @@ function simulateConfig(
           nextIntraEventSequence
         });
       }
-      if (config.reactionEngine?.mode === "aura-v5") {
+      if (
+        config.reactionEngine?.mode === "aura-v5" ||
+        config.reactionEngine?.mode === "aura-v6"
+      ) {
         processDendroCoreContacts({
           actorId,
           action,
@@ -9613,9 +9628,12 @@ function simulateConfig(
         triggerFrame: event.frame
       });
     }
-    const transformativeReaction =
-      reactionAudit.transformativeReaction;
-    if (transformativeReaction !== null) {
+    const transformativeReactions =
+      reactionAudit.transformativeReactions ??
+      (reactionAudit.transformativeReaction === null
+        ? []
+        : [reactionAudit.transformativeReaction]);
+    for (const transformativeReaction of transformativeReactions) {
       const reactionSourceStats = computeStats(
         actorId,
         timeSeconds
@@ -9725,6 +9743,9 @@ function simulateConfig(
     const frozenReaction = reactionAudit.frozenReaction;
     if (frozenReaction !== null) {
       const operation = frozenReaction.operation;
+      const consumedBySuperconduct =
+        operation === "consume" &&
+        reactionAudit.reactions.includes("superconduct");
       const frozenConsumptionReaction =
         reaction === "melt"
           ? "MELT"
@@ -9748,7 +9769,7 @@ function simulateConfig(
         reaction:
           reaction === "melt"
             ? "melt"
-            : reaction === "superconduct"
+            : consumedBySuperconduct
               ? "superconduct"
               : reaction === "swirlCryo"
                 ? "swirlCryo"

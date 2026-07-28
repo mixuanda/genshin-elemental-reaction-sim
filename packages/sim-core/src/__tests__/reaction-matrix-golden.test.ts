@@ -24,7 +24,8 @@ import {
 import { describe, expect, it } from "vitest";
 import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
 import playerDamageMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
-import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.33.golden.json";
+import targetClockMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.33.golden.json";
+import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.34.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -51,6 +52,7 @@ interface MatrixScenario {
   targets?: MatrixTarget[];
   hits: FrameHitDefinition[];
   buffs?: FrameBuffDefinition[];
+  reactionMode?: "aura-v5" | "aura-v6";
 }
 
 function applicationHit({
@@ -313,6 +315,21 @@ const SCENARIOS = {
         gaugeUnits: 2
       })
     ]
+  },
+  electroOrdered: {
+    durationFrames: 10,
+    initialAura: [
+      { element: "pyro", gaugeUnits: 1 },
+      { element: "cryo", gaugeUnits: 1 }
+    ],
+    hits: [
+      applicationHit({
+        id: "electro-ordered-multi-reaction",
+        element: "electro",
+        gaugeUnits: 2
+      })
+    ],
+    reactionMode: "aura-v6"
   }
 } as const satisfies Record<string, MatrixScenario>;
 
@@ -347,8 +364,8 @@ function makeMatrixConfig(
   return {
     ...base,
     meta: {
-      name: `Reaction matrix 1.33 · ${scenarioId}`,
-      version: "1.33.0",
+      name: `Reaction matrix 1.34 · ${scenarioId}`,
+      version: "1.34.0",
       verificationStatus: "provisional",
       note: `Fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; not official game truth.`
     },
@@ -386,7 +403,9 @@ function makeMatrixConfig(
       }
     ],
     rotation: [],
-    reactionEngine: { mode: "aura-v5" },
+    reactionEngine: {
+      mode: scenario.reactionMode ?? "aura-v5"
+    },
     playerDamageModel: {
       mode: "reaction-self-v1",
       position: { x: 0, y: 0 },
@@ -1087,7 +1106,21 @@ const REQUIRED_REACTIONS = [
   "hyperbloom"
 ] as const satisfies readonly ReactionType[];
 
-describe("1.33 provisional reaction-matrix Golden", () => {
+const V133_FROZEN_SCENARIO_IDS = Object.keys(
+  targetClockMatrixGolden.vectors
+);
+const V133_SEMANTIC_HASH_FIELDS = [
+  "damageEvents",
+  "hitResolutionLog",
+  "reactionDamageLog",
+  "stateLogs",
+  "targetStateTimeline",
+  "auraBoundaries",
+  "damageCurve",
+  "player"
+] as const;
+
+describe("1.34 provisional reaction-matrix Golden", () => {
   it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
     expect(historicalMatrixGolden.config).toMatchObject({
       schemaVersion: "1.31.0",
@@ -1105,11 +1138,22 @@ describe("1.33 provisional reaction-matrix Golden", () => {
     expect(
       Object.keys(playerDamageMatrixGolden.vectors)
     ).toHaveLength(14);
-    expect(matrixGolden.config).toMatchObject({
+    expect(targetClockMatrixGolden.config).toMatchObject({
       schemaVersion: "1.33.0",
       engineVersion: "1.33.0-target-local-hitlag",
       targetClockModel: "disabled"
     });
+    expect(
+      Object.keys(targetClockMatrixGolden.vectors)
+    ).toHaveLength(14);
+    expect(matrixGolden.config).toMatchObject({
+      schemaVersion: "1.34.0",
+      engineVersion: "1.34.0-general-reaction-order",
+      baselineReactionEngineMode: "aura-v5",
+      orderedElectroReactionEngineMode: "aura-v6",
+      targetClockModel: "disabled"
+    });
+    expect(Object.keys(matrixGolden.vectors)).toHaveLength(15);
   });
 
   it("freezes every baseline reaction vector, strict projection, and run identity", () => {
@@ -1185,6 +1229,84 @@ describe("1.33 provisional reaction-matrix Golden", () => {
             .amplifyingReactionMultiplier
         ).toBeCloseTo(2.528, 10);
       }
+      if (scenarioId === "electroOrdered") {
+        const directEvent = result.damageEvents.find(
+          (event) => event.kind === "direct"
+        );
+        expect(result.config.reactionEngine).toEqual({
+          mode: "aura-v6"
+        });
+        expect(directEvent?.reactionAudit).toMatchObject({
+          reaction: "overload",
+          reactions: ["overload", "superconduct"],
+          unsupportedReactions: [],
+          mechanicsTruncation: null
+        });
+        expect(
+          directEvent?.reactionAudit.transformativeReactions?.map(
+            ({
+              reaction,
+              damageElement,
+              damageFrame,
+              scheduled
+            }) => ({
+              reaction,
+              damageElement,
+              damageFrame,
+              scheduled
+            })
+          )
+        ).toEqual([
+          {
+            reaction: "overload",
+            damageElement: "pyro",
+            damageFrame: 1,
+            scheduled: true
+          },
+          {
+            reaction: "superconduct",
+            damageElement: "cryo",
+            damageFrame: 1,
+            scheduled: true
+          }
+        ]);
+        expect(
+          result.reactionDamageLog.map(
+            ({ reaction, triggerFrame, damageFrame }) => ({
+              reaction,
+              triggerFrame,
+              damageFrame
+            })
+          )
+        ).toEqual([
+          {
+            reaction: "overload",
+            triggerFrame: 0,
+            damageFrame: 1
+          },
+          {
+            reaction: "superconduct",
+            triggerFrame: 0,
+            damageFrame: 1
+          }
+        ]);
+        expect(
+          result.damageEvents
+            .filter(
+              (event) =>
+                event.kind === "transformative-reaction"
+            )
+            .map(({ reaction, frame }) => ({
+              reaction,
+              frame
+            }))
+        ).toEqual([
+          { reaction: "overload", frame: 1 },
+          { reaction: "superconduct", frame: 1 }
+        ]);
+        expect(result.mechanicsStatus).toBe("complete");
+        expect(result.targetMechanicsTruncationLog).toEqual([]);
+      }
 
       for (const event of result.damageEvents) {
         if (event.reaction !== "none") {
@@ -1208,38 +1330,64 @@ describe("1.33 provisional reaction-matrix Golden", () => {
       });
       expect(result.targetClockLog).toEqual([]);
       expect(result.targetHitlagLog).toEqual([]);
-      const historicalVector = (
-        historicalMatrixGolden.vectors as Record<
-          string,
-          Record<string, unknown>
-        >
-      )[scenarioId]!;
-      const {
-        runManifest: _historicalRunManifest,
-        hashes: _historicalHashes,
-        ...historicalEnemySemantics
-      } = historicalVector;
-      expect(compact).toMatchObject(historicalEnemySemantics);
-      const playerDamageVector = (
-        playerDamageMatrixGolden.vectors as Record<
-          string,
-          Record<string, unknown>
-        >
-      )[scenarioId]!;
-      const {
-        runManifest: _playerDamageRunManifest,
-        hashes: playerDamageHashes,
-        ...playerDamageSemantics
-      } = playerDamageVector;
-      expect(compact).toMatchObject(playerDamageSemantics);
-      const {
-        config: _playerDamageConfigHash,
-        runManifest: _playerDamageRunManifestHash,
-        ...playerDamageSemanticHashes
-      } = playerDamageHashes as Record<string, string>;
-      expect(compact.hashes).toMatchObject(
-        playerDamageSemanticHashes
-      );
+      if (V133_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
+        const historicalVector = (
+          historicalMatrixGolden.vectors as Record<
+            string,
+            Record<string, unknown>
+          >
+        )[scenarioId]!;
+        const {
+          runManifest: _historicalRunManifest,
+          hashes: _historicalHashes,
+          ...historicalEnemySemantics
+        } = historicalVector;
+        expect(compact).toMatchObject(
+          historicalEnemySemantics
+        );
+        const playerDamageVector = (
+          playerDamageMatrixGolden.vectors as Record<
+            string,
+            Record<string, unknown>
+          >
+        )[scenarioId]!;
+        const {
+          runManifest: _playerDamageRunManifest,
+          hashes: playerDamageHashes,
+          ...playerDamageSemantics
+        } = playerDamageVector;
+        expect(compact).toMatchObject(playerDamageSemantics);
+        const {
+          config: _playerDamageConfigHash,
+          runManifest: _playerDamageRunManifestHash,
+          ...playerDamageSemanticHashes
+        } = playerDamageHashes as Record<string, string>;
+        expect(compact.hashes).toMatchObject(
+          playerDamageSemanticHashes
+        );
+
+        const targetClockVector = (
+          targetClockMatrixGolden.vectors as unknown as Record<
+            string,
+            { hashes: Record<string, string> }
+          >
+        )[scenarioId]!;
+        expect(compact.targetClock).toEqual({
+          audit: {
+            version: "1.0.0",
+            mode: "disabled",
+            hitlagStatus: "unsupported-enemy-hitlag",
+            targets: []
+          },
+          clockLog: [],
+          hitlagLog: []
+        });
+        for (const field of V133_SEMANTIC_HASH_FIELDS) {
+          expect(compact.hashes[field]).toBe(
+            targetClockVector.hashes[field]
+          );
+        }
+      }
       actualVectors[scenarioId] = compact;
     }
 

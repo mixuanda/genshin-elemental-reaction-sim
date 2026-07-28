@@ -1,0 +1,5132 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Provisional 1.34 legal-frame reaction matrix preserving the 14 frozen aura-v5 compatibility vectors and adding an aura-v6 ordered Electro multi-reaction vector.",
+  "provenance": {
+    "source": "genshinsim/gcsim reaction implementation at b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "capturedAt": "2026-07-28",
+    "verificationStatus": "provisional",
+    "crossCheckStatus": "fixed-gcsim-code-cross-check",
+    "notes": [
+      "This is a deterministic regression fixture for the checked-in implementation, not official game data or a claim of complete gcsim parity.",
+      "The first 14 vectors keep aura-v5 and the frozen 1.32 random seeds; their damage, hit-resolution, reaction-damage, state, target-timeline, aura-boundary, damage-curve, and player hashes remain identical to 1.33 while only versioned config and run identities change.",
+      "electroOrdered uses aura-v6 and freezes one 2U Electro hit against coexisting Pyro and Cryo as ordered Overload then Superconduct, with two separately scheduled F+1 transformative damage events and no mechanics truncation.",
+      "All vectors explicitly keep targetClockModel disabled; target-local enemy Hitlag remains covered by separate 1.33 unit and integration fixtures.",
+      "The aura-v6 ordering follows the fixed reference implementation provisionally; it is not asserted as independently verified live-game truth.",
+      "Player Burning, Bloom, Burgeon, and Hyperbloom self-damage is modeled against an explicit 10% resistance vector with auditable spatial checks, HP transitions, damage groups, and reverse references.",
+      "Burning preserves the frozen 1.30 compatibility phase difference (F+121 and hit-before-tick ordering).",
+      "The 300-frame Dendro-core lifetime remains provisional.",
+      "Lunar reactions, complete Aura source overlap, per-element enemy resistance, character ICD databases, particles, action frames, reaction hooks, and complete character/weapon databases remain outside this fixture."
+    ]
+  },
+  "config": {
+    "schemaVersion": "1.34.0",
+    "engineVersion": "1.34.0-general-reaction-order",
+    "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+    "baselineReactionEngineMode": "aura-v5",
+    "orderedElectroReactionEngineMode": "aura-v6",
+    "timelineMode": "legal-frame-v1",
+    "targetClockModel": "disabled",
+    "characterLevel": 90,
+    "elementalMastery": 100,
+    "reactionBonus": 0.2,
+    "enemyResistance": 0.1,
+    "playerResistance": 0.1
+  },
+  "vectors": {
+    "melt": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "cryo",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "melt-pyro",
+            "frame": 0,
+            "element": "pyro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:e0b1f28e",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:melt"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-aaeee576"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 1246.8,
+      "dps": 1246.8,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "pyro",
+          "reaction": "melt",
+          "orderedReactions": [
+            "melt"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 1246.8,
+          "displayDamage": 1247,
+          "composition": {
+            "direct": 1246.8,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "b05194adfbc2049ccda972ed4a01ba599391189597e930be3c8b5a1571aa082e",
+        "runManifest": "372c6a999b889842b8ec5af1a23add09adb1ac51934668e35bd548ec90c53b46",
+        "damageEvents": "4fea51f666052ecbad9a266f071976c60d922a583b465420d71370f0ae5ba972",
+        "hitResolutionLog": "dc586ba82af2c54249e24484845f2c4f76ee107b8410d33944254903af5b1916",
+        "reactionDamageLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stateLogs": "bcdb09f384846611407812f8fccad3485a0dbf21da465d5923da63b07c0daa95",
+        "targetStateTimeline": "854f7256e16bcb16ed1cfd5633c5bd16b75b8c79a663a01c629b3ee42ca7a4ea",
+        "auraBoundaries": "fe8dd7b65df5b0f76db11d6d0844d1d3722e29c8d4e8551f836639e8d99f8845",
+        "damageCurve": "cbd0996fea9840637e81a5a136b2ae547015aea02f72f6cd25e389a82e8db6b7",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "vaporize": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "vaporize-hydro",
+            "frame": 0,
+            "element": "hydro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:4b092867",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:vaporize"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-e786ee0b"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 1246.8,
+      "dps": 1246.8,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "hydro",
+          "reaction": "vaporize",
+          "orderedReactions": [
+            "vaporize"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 1246.8,
+          "displayDamage": 1247,
+          "composition": {
+            "direct": 1246.8,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "584b7b577d9efd15df66cf5c805f82b245342fe748891d246357caf02cb612e1",
+        "runManifest": "721a7931095848fbca65cb3abf987f83de827bd485a8dde80ebc411cc7072049",
+        "damageEvents": "27332fc274115818c76cdaaf547857e93631d6c13b507e4a9fe77fd6d55dcdd7",
+        "hitResolutionLog": "0919a9a5ce95fc8f73626fc3250ac781223ff264091df6b812217d8e5bcac81a",
+        "reactionDamageLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stateLogs": "bcdb09f384846611407812f8fccad3485a0dbf21da465d5923da63b07c0daa95",
+        "targetStateTimeline": "61dbd9257c864f011d8e1606fc667f3afaa9cdb9d3e8cdbfcf2c07cce7adbcc8",
+        "auraBoundaries": "39c2d0449550b94b5d4e19d98f9dbef208b59453cad4eb19345ee18217a12638",
+        "damageCurve": "e6769b526228dfd8c1ad38ae49b435a3a24a6622adb9c801a775d9473f6be1e8",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "overload": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "electro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "overload-pyro",
+            "frame": 0,
+            "element": "pyro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:fe6f3d93",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:overload"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-f2dccc33"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 7475.5072092857135,
+      "dps": 7475.5072092857135,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "pyro",
+          "reaction": "overload",
+          "orderedReactions": [
+            "overload"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "overload",
+          "orderedReactions": [
+            "overload"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7025.5072092857135
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "overload",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "6d90465149540215123d003049c21d162f7305da27a97d510198aef0cf72cde8",
+        "runManifest": "8df47c157f722de9583ced6dfec2ac25e6bc7476b316a1e378b6a5af28638bee",
+        "damageEvents": "485ca6223bc2072779094d670f74aaff786ea395efdd7ff0c36a4898020288b5",
+        "hitResolutionLog": "d9a58a9491fa604a58b606345013278ca042b0c4a294b1fe178f85b56cd99c75",
+        "reactionDamageLog": "c82f14108a70d7832bebfd80cfc76f4270eb25475a768f49f93977d8edb84e9e",
+        "stateLogs": "bcdb09f384846611407812f8fccad3485a0dbf21da465d5923da63b07c0daa95",
+        "targetStateTimeline": "d44c7bc5b71c22756f3a846713da64129215e88c07cd2c2531f057f628d46f84",
+        "auraBoundaries": "843c5efbca85f52a32a4a847ad05abbdae34a35aa772f04f9764ada5ec53b57e",
+        "damageCurve": "0296c3e00ddf8e910cc7beccb2ed3b4c046246b864ec461a85e827e18f6f1e91",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "superconduct": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "electro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "superconduct-cryo",
+            "frame": 0,
+            "element": "cryo",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:46428b1c",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:superconduct"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-c08c3cb0"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 4282.09484142857,
+      "dps": 4282.09484142857,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "cryo",
+          "reaction": "superconduct",
+          "orderedReactions": [
+            "superconduct"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "cryo",
+          "reaction": "superconduct",
+          "orderedReactions": [
+            "superconduct"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 3832.094841428571,
+          "displayDamage": 3832,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 3832.094841428571
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "superconduct",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "226004eecfcd7c10b50551947ddf81dadffdf938fa2aefc86ba3d41a26ba8e5e",
+        "runManifest": "a98c157a6745594244da46c48525e11bf107d7d718f3296b554d6cdcc43e6bdc",
+        "damageEvents": "bf2a9f79bfddc44786bfedc99351d198f8939f763b0703717b071002277a1d87",
+        "hitResolutionLog": "21fc961fb3225696e17cb1edc9983c54a96183a86735716788b6f221ccad4902",
+        "reactionDamageLog": "40432b761d93a40e42a1462adb585bf664005fc37b4b6e2e31e6548035e42616",
+        "stateLogs": "5e469bcdc07156e335acf300d3b730e6be9757717e46b1b19f96dbf1198163f8",
+        "targetStateTimeline": "deb95fbddd3fad73fa9f007fe5e81e759ddc4cdf2581c03afbcd0c9e3f30e61e",
+        "auraBoundaries": "078ec7e4298083d86d68ba5df7d2c117bc82470a8d050b2b6b4e83b3b7036949",
+        "damageCurve": "360e16a45c18c06d5ab7b8b9cb4854797c736755e0205d2291fa0832164cd422",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "electroCharged": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "electro-charged-electro",
+            "frame": 0,
+            "element": "electro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:16ba0a66",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:electroCharged"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-e75db6ee"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 5559.459788571428,
+      "dps": 5559.459788571428,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "electro",
+          "reaction": "electroCharged",
+          "orderedReactions": [
+            "electroCharged"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 10,
+          "kind": "transformative-reaction",
+          "element": "electro",
+          "reaction": "electroCharged",
+          "orderedReactions": [
+            "electroCharged"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 5109.459788571428,
+          "displayDamage": 5109,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 5109.459788571428
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "electroCharged",
+            "triggerFrame": 0,
+            "damageFrame": 10,
+            "scheduleKind": "periodic-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 0,
+            "reaction": "electroCharged"
+          },
+          {
+            "id": 1,
+            "operation": "tick",
+            "frame": 10,
+            "reaction": "electroCharged"
+          },
+          {
+            "id": 2,
+            "operation": "wane",
+            "frame": 16,
+            "reaction": "electroCharged"
+          }
+        ],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "a19357f357a4ddf1714521c35beadae15e0f83cdfa492120df4f379883824c2a",
+        "runManifest": "10fb416f737a3dc360bc962f307057784d153e52e1ecf21aec6ebb5065239193",
+        "damageEvents": "798d5c5b5c9b59a0787f4159ef4c8d994c1488b2bbd8d699d3ecc16d3d88eec7",
+        "hitResolutionLog": "8a4fae41b32108c7d32b2eb0e8692535275e9e2b6e0714913af1953ce16b8a60",
+        "reactionDamageLog": "442f23beed123d7f9602a035ddd1787c16a77e35a3758af58e469413b05ab497",
+        "stateLogs": "8000a6263d2588ae42a2f7dfa5beee6f008522407cbd768d659cd06af480e8dd",
+        "targetStateTimeline": "5085b85b4c4c7e4a64043944b2d4a389993452efcf6c99024db5483c94bfec03",
+        "auraBoundaries": "8017754d07ce56531bc366bbc2c571d88b0499af1568303f3344b54cb8657418",
+        "damageCurve": "6590ee617047cd168c4f4d8259b2d2070c71aaeef56fcdb77f67c754a7707fa2",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "freezeShatter": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "freeze-cryo",
+            "frame": 0,
+            "element": "cryo",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          },
+          {
+            "id": "shatter-blunt",
+            "frame": 12,
+            "element": "physical",
+            "scaling": 1,
+            "gaugeUnits": null,
+            "strikeType": "blunt",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:2c1cd2fe",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:freezeShatter"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-6d38ac65"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 8564.18968285714,
+      "dps": 8564.18968285714,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "cryo",
+          "reaction": "freeze",
+          "orderedReactions": [
+            "freeze"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 12,
+          "kind": "direct",
+          "element": "physical",
+          "reaction": "none",
+          "orderedReactions": [],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 12,
+          "kind": "transformative-reaction",
+          "element": "physical",
+          "reaction": "shatter",
+          "orderedReactions": [
+            "shatter"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 7664.189682857142,
+          "displayDamage": 7664,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7664.189682857142
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "shatter",
+            "triggerFrame": 12,
+            "damageFrame": 12,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 0
+          },
+          {
+            "id": 1,
+            "operation": "shatter-consume",
+            "frame": 12
+          }
+        ],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "486ccc6071ffe01aac833c598ee89a0632815f0aa293cf0bdfb47e738c760110",
+        "runManifest": "24b48c40970be943301dfaba614f2fe80d6559388c2691a0fb2e3c324d442fb1",
+        "damageEvents": "a30ad78fd3b5a071ae18e4669d58121e58b98f7d1a6b70e67cb6393656b9b01b",
+        "hitResolutionLog": "ad5c6074d3dd2a7bdf7bcd2ae11292723a350a8428a5fc23073196e80d68ffa7",
+        "reactionDamageLog": "9d176dc72a5eb492ab169687a74285e90610efa13c4caafbb29b073816122d52",
+        "stateLogs": "c6042b6a7158888bcc37a3c83fd7b80dbe7fe14b97ed31296617735a9e8eed07",
+        "targetStateTimeline": "050dea774e51bd8c389f55de878e6e49c8e07eeb7b78fa4d1efcbbdcdd6c7c1f",
+        "auraBoundaries": "9a9257d554a0168d5ec1153eaed097c333c5ec5d9e62defd7737bf72c6299568",
+        "damageCurve": "04b70a03f682a1fd4f54c108621c5af91d847e51063996ef051a607206f3f55a",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "swirl": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1
+              }
+            ]
+          },
+          {
+            "id": "enemy-1",
+            "position": {
+              "x": 1,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "swirl-anemo",
+            "frame": 0,
+            "element": "anemo",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": [
+          {
+            "key": "swirl-live-reaction-bonus",
+            "stat": "reactionBonus",
+            "value": 0.3,
+            "startFrame": 3,
+            "durationFrames": 5
+          }
+        ]
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:661c07d3",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:swirl"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-83ad2762"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 5857.852240224,
+      "dps": 5857.852240224,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "anemo",
+          "reaction": "swirlPyro",
+          "orderedReactions": [
+            "swirlPyro"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "swirlPyro",
+          "orderedReactions": [
+            "swirlPyro"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 1532.8379365714284,
+          "displayDamage": 1533,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 1532.8379365714284
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 5,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "swirlPyro",
+          "orderedReactions": [
+            "reverseVaporize"
+          ],
+          "targetId": "enemy-1",
+          "parentDamageEventId": 0,
+          "finalDamage": 3875.014303652571,
+          "displayDamage": 3875,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 3875.014303652571
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "swirlPyro",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "swirl-self",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 1,
+            "reaction": "swirlPyro",
+            "triggerFrame": 0,
+            "damageFrame": 5,
+            "scheduleKind": "swirl-propagation",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-1"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "b9f35a20a55aee325b595664637545035ea068026abd1d3b41bf84fe97a9bbb9",
+        "runManifest": "4d951c1ddfe2e7a094aa0903d2936fd718f5a5f72022b306bec49f4223b0ab81",
+        "damageEvents": "aa28c1ae76015bbe08b137ae88a3a78de47f1f3b97622cec102ecea3f622ebd1",
+        "hitResolutionLog": "514e38d2bb0ff727c3b54994a5c74b9241fcd9d9f13786d6b292145008833bf2",
+        "reactionDamageLog": "88c4dec55e81ce101cdb8f42e37443d643879ab3a267af34a91cc96515183e6d",
+        "stateLogs": "bcdb09f384846611407812f8fccad3485a0dbf21da465d5923da63b07c0daa95",
+        "targetStateTimeline": "6ec8991475b074b0ed0971d46bac0205b75312ae08c4028039be1ac3d7ceb8a1",
+        "auraBoundaries": "68c1e6b3b5f871b7b67bece5fc6a843a20e5b14a24d4cc8ac6933a1b86133d13",
+        "damageCurve": "cb6791f213822bf42cf8371c2fdfb9858f5565964a87ce21a11f29c3304f4c60",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "crystallize": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "crystallize-geo",
+            "frame": 0,
+            "element": "geo",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:f99e1aed",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:crystallize"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-a776e421"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 450,
+      "dps": 450,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "geo",
+          "reaction": "crystallizePyro",
+          "orderedReactions": [
+            "crystallizePyro"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": [
+          {
+            "id": 0,
+            "operation": "spawn",
+            "frame": 23,
+            "element": "pyro"
+          }
+        ]
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "3c71ccaa42ddac3170e62b67b24d05f61614f76f9db1189bcf94499ab0560f02",
+        "runManifest": "ddb5b1267e27ce67ebdffa7e95e0ee950b002203ebd3df198aefb53050e7de10",
+        "damageEvents": "35f88bbefad57bdd3ff50caf0a3e8ae7a1f56cf1f0ae667cf285829756db7455",
+        "hitResolutionLog": "e8c99c03892cd5b93a40502838daf200da1e25399e951bcc629f5b538765b0bf",
+        "reactionDamageLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stateLogs": "4639bf92446926de2bdd54f07f31eca916d051f5de500f8c8c6080874db7449d",
+        "targetStateTimeline": "59cdd130c7ebd41727bac2aac76662946b3588218b2c3825355c571d0ae61388",
+        "auraBoundaries": "3d3d8fe25172e8e0b2a52f4813468b9cc1291ca47188ee2dad4b6e14f9416875",
+        "damageCurve": "b9012885c9714bd70ce3f4dc5841b0201a26e91cfd401be011bc1564f193fba1",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "catalyze": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 2
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "quicken-electro",
+            "frame": 0,
+            "element": "electro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          },
+          {
+            "id": "aggravate-electro",
+            "frame": 12,
+            "element": "electro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          },
+          {
+            "id": "spread-dendro",
+            "frame": 24,
+            "element": "dendro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:958bbd96",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:catalyze"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-93de8cc3"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 3826.1228206153846,
+      "dps": 3826.1228206153846,
+      "reactedHits": 3,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "electro",
+          "reaction": "quicken",
+          "orderedReactions": [
+            "quicken"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 12,
+          "kind": "direct",
+          "element": "electro",
+          "reaction": "aggravate",
+          "orderedReactions": [
+            "aggravate",
+            "quicken"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 1636.4755182115382,
+          "displayDamage": 1636,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 1186.4755182115382,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 24,
+          "kind": "direct",
+          "element": "dendro",
+          "reaction": "spread",
+          "orderedReactions": [
+            "spread"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 1739.6473024038462,
+          "displayDamage": 1740,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 1289.6473024038462,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 0,
+            "generation": 1
+          },
+          {
+            "id": 1,
+            "operation": "unchanged",
+            "frame": 12,
+            "generation": 1
+          }
+        ],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "cf0ba79000037e8b7773c40d17a40b81372ea096b46b1269d6dc12783dc6d196",
+        "runManifest": "5acb0b27670e7fcd626c60c1e84d111d54c1f9de0d00597d2c82d5aa489e78cd",
+        "damageEvents": "247ee2ddcbf4d19980d319dd590202c6bf82052b160fc32ce47cb59765effc6c",
+        "hitResolutionLog": "605da3fdb777448f4ae6e33c4195997911a4cddc4068638c9b04115436bf4aa3",
+        "reactionDamageLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stateLogs": "01d369770a9fa2d302272ea327e37f61dc750038d53b36019dcc3e59a4f1c9c8",
+        "targetStateTimeline": "fbfde96c5a14eed87c28300be9df7dbf106f4c651ecf02628055c1c5233d8687",
+        "auraBoundaries": "9fd6b493b81716841eb033743639ab39e0245ff6ebf610b1aa7341c7e5c34d66",
+        "damageCurve": "5715757681a3c5bcfea7cb47e799e9a0a6dc2b2278773486f1e95a7e23ebb522",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "burning": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 2
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "burning-pyro",
+            "frame": 0,
+            "element": "pyro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:10b8df2d",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:burning"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-497ee4cb"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 3004.729894285714,
+      "dps": 3004.729894285714,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [
+            "burning"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": "modeled-player-reaction-damage",
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 15,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [
+            "burning"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": "modeled-player-reaction-damage",
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 30,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 3,
+          "frame": 45,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 4,
+          "frame": 60,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "burning",
+            "triggerFrame": 0,
+            "damageFrame": 15,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              0
+            ],
+            "playerDamageEventIds": [
+              0
+            ],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 1,
+            "reaction": "burning",
+            "triggerFrame": 15,
+            "damageFrame": 30,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              1
+            ],
+            "playerDamageEventIds": [
+              1
+            ],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 2,
+            "reaction": "burning",
+            "triggerFrame": 15,
+            "damageFrame": 45,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              3
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              2
+            ],
+            "playerDamageEventIds": [
+              2
+            ],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 3,
+            "reaction": "burning",
+            "triggerFrame": 15,
+            "damageFrame": 60,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              4
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              3
+            ],
+            "playerDamageEventIds": [
+              3
+            ],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 0,
+            "tickIndex": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 1,
+            "operation": "tick",
+            "frame": 15,
+            "tickIndex": 1,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 0,
+            "playerDamageEventId": 0
+          },
+          {
+            "id": 2,
+            "operation": "refresh-snapshot",
+            "frame": 15,
+            "tickIndex": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 3,
+            "operation": "tick",
+            "frame": 30,
+            "tickIndex": 2,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 1,
+            "playerDamageEventId": 1
+          },
+          {
+            "id": 4,
+            "operation": "tick",
+            "frame": 45,
+            "tickIndex": 3,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 2,
+            "playerDamageEventId": 2
+          },
+          {
+            "id": 5,
+            "operation": "tick",
+            "frame": 60,
+            "tickIndex": 4,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 3,
+            "playerDamageEventId": 3
+          }
+        ],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 2554.729894285714,
+        "totalReactionSelfDamageTaken": 2554.729894285714,
+        "hitResolutions": [
+          {
+            "id": 0,
+            "frame": 15,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "burningStateLogId": 1,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 0
+          },
+          {
+            "id": 1,
+            "frame": 30,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 1,
+            "burningStateLogId": 3,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 1
+          },
+          {
+            "id": 2,
+            "frame": 45,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 2,
+            "burningStateLogId": 4,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 2
+          },
+          {
+            "id": 3,
+            "frame": 60,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 3,
+            "burningStateLogId": 5,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 3
+          }
+        ],
+        "damageEvents": [
+          {
+            "id": 0,
+            "frame": 15,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "playerHitResolutionLogId": 0,
+            "burningStateLogId": 1,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 10000,
+              "currentHpBefore": 10000,
+              "currentHpAfter": 9361.317526428571,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 1,
+              "hpRatioAfter": 0.9361317526428571
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          {
+            "id": 1,
+            "frame": 30,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 1,
+            "playerHitResolutionLogId": 1,
+            "burningStateLogId": 3,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 9361.317526428571,
+              "currentHpBefore": 9361.317526428571,
+              "currentHpAfter": 8722.635052857142,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 0.9361317526428571,
+              "hpRatioAfter": 0.8722635052857142
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          {
+            "id": 2,
+            "frame": 45,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 2,
+            "playerHitResolutionLogId": 2,
+            "burningStateLogId": 4,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 8722.635052857142,
+              "currentHpBefore": 8722.635052857142,
+              "currentHpAfter": 8083.952579285713,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 0.8722635052857142,
+              "hpRatioAfter": 0.8083952579285713
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          {
+            "id": 3,
+            "frame": 60,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 3,
+            "playerHitResolutionLogId": 3,
+            "burningStateLogId": 5,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 8083.952579285713,
+              "currentHpBefore": 8083.952579285713,
+              "currentHpAfter": 7445.270105714284,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 0.8083952579285713,
+              "hpRatioAfter": 0.7445270105714284
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          }
+        ],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 15,
+              "timeSeconds": 0.25,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 3,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 0,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 9361.317526428571,
+              "hpRatioAfter": 0.9361317526428571
+            },
+            {
+              "id": 2,
+              "frame": 30,
+              "timeSeconds": 0.5,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 5,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 1,
+              "maxHp": 10000,
+              "hpBefore": 9361.317526428571,
+              "hpAfter": 8722.635052857142,
+              "hpRatioAfter": 0.8722635052857142
+            },
+            {
+              "id": 3,
+              "frame": 45,
+              "timeSeconds": 0.75,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 7,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 2,
+              "maxHp": 10000,
+              "hpBefore": 8722.635052857142,
+              "hpAfter": 8083.952579285713,
+              "hpRatioAfter": 0.8083952579285713
+            },
+            {
+              "id": 4,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 9,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 3,
+              "maxHp": 10000,
+              "hpBefore": 8083.952579285713,
+              "hpAfter": 7445.270105714284,
+              "hpRatioAfter": 0.7445270105714284
+            },
+            {
+              "id": 5,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 7445.270105714284,
+              "hpAfter": 7445.270105714284,
+              "hpRatioAfter": 0.7445270105714284
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 7445.270105714284,
+            "totalIncomingDamage": 2554.729894285714,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 2554.729894285714,
+            "hitCount": 4,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "98f0f0d6607448461a5293715fa6eb68fced2018600ae9dd6ead5e6e33d69884",
+        "runManifest": "d7998ec4dfd8e9dcb8c7cb1c4aaa9019f7a67dacaf500653fbcd53e5b5c305da",
+        "damageEvents": "c9744318934de4ec4a52c4745e136b92d7a8b418ea94284482c3340affc19fcd",
+        "hitResolutionLog": "824d7bb6445df786071d73a955d36eb3847d7123843ee4afa8918ea27c2f16d3",
+        "reactionDamageLog": "ff275b8932de0a57b01a726acbaaf8b12cf3227ca2a05a81d171ac407ea6e24a",
+        "stateLogs": "1e750825a5be07942e3b59d6d3c50a04739ace5f29a7d387d482744a83137f59",
+        "targetStateTimeline": "f85742f6c009bb8f02cb845d2a2957de36fe2d0e9feca5d1a365a3159a6d606e",
+        "auraBoundaries": "0008bac9c77c6ef4c4f4732de90d31418401155d6dc8163d728ac3c9d45e7b15",
+        "damageCurve": "c1ed519dbc11c4206c356fca15391cbd0d064ca5ac2a8beebf25c87e21ef3b78",
+        "player": "12cca9b0f70869ae3c4007d04dffcb307860e113338456061e3d46f4b9da344f"
+      }
+    },
+    "bloom": {
+      "config": {
+        "durationFrames": 360,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "bloom-hydro",
+            "frame": 0,
+            "element": "hydro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:5ff47498",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:bloom"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-aa70fbbf"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 5559.459788571428,
+      "dps": 926.5766314285714,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "hydro",
+          "reaction": "bloom",
+          "orderedReactions": [
+            "bloom"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": [
+            "modeled-player-reaction-damage"
+          ]
+        },
+        {
+          "id": 1,
+          "frame": 331,
+          "kind": "transformative-reaction",
+          "element": "dendro",
+          "reaction": "bloom",
+          "orderedReactions": [
+            "bloom"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 5109.459788571428,
+          "displayDamage": 5109,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 5109.459788571428
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "bloom",
+            "triggerFrame": 330,
+            "damageFrame": 331,
+            "scheduleKind": "dendro-core-bloom",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [
+              0
+            ],
+            "playerDamageEventIds": [
+              0
+            ],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [
+          {
+            "id": 0,
+            "coreId": 0,
+            "operation": "spawn-scheduled",
+            "frame": 0,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 1,
+            "coreId": 0,
+            "operation": "spawn",
+            "frame": 30,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 2,
+            "coreId": 0,
+            "operation": "expire",
+            "frame": 330,
+            "reaction": "bloom",
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 0,
+            "playerDamageEventId": 0
+          }
+        ],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 102.18919577142857,
+        "totalReactionSelfDamageTaken": 102.18919577142857,
+        "hitResolutions": [
+          {
+            "id": 0,
+            "frame": 331,
+            "reaction": "bloom",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageCenter": {
+              "x": -0.2873118139085807,
+              "y": 0.40920889725000004
+            },
+            "damageRadius": 5,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0.5,
+            "combinedRadius": 5.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 0
+          }
+        ],
+        "damageEvents": [
+          {
+            "id": 0,
+            "frame": 331,
+            "reaction": "bloom",
+            "element": "dendro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "playerHitResolutionLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageFactors": {
+              "reaction": "bloom",
+              "sourcePreResistanceDamage": 5677.177542857143,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 0.02,
+              "preResistanceDamage": 113.54355085714286,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 102.18919577142857,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": {
+                "reaction": "bloom",
+                "sourceActorId": "matrix",
+                "targetId": "player-avatar",
+                "windowStartFrame": 331,
+                "hitIndex": 0,
+                "resetFrames": 30,
+                "sequence": [
+                  true,
+                  true,
+                  false
+                ],
+                "damageAllowed": true,
+                "blockedReason": null
+              }
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 102.18919577142857,
+              "incomingElement": "dendro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 102.18919577142857,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 10000,
+              "currentHpBefore": 10000,
+              "currentHpAfter": 9897.810804228571,
+              "maxHp": 10000,
+              "attemptedLoss": 102.18919577142857,
+              "actualLoss": 102.18919577142857,
+              "overkill": 0,
+              "hpRatioBefore": 1,
+              "hpRatioAfter": 0.9897810804228572
+            },
+            "finalDamage": 102.18919577142857,
+            "displayDamage": 102
+          }
+        ],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 331,
+              "timeSeconds": 5.516666666666667,
+              "eventPriority": 5,
+              "eventSequence": 4,
+              "intraEventSequence": 2,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 0,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 9897.810804228571,
+              "hpRatioAfter": 0.9897810804228572
+            },
+            {
+              "id": 2,
+              "frame": 360,
+              "timeSeconds": 6,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 9897.810804228571,
+              "hpAfter": 9897.810804228571,
+              "hpRatioAfter": 0.9897810804228572
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 9897.810804228571,
+            "totalIncomingDamage": 102.18919577142857,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 102.18919577142857,
+            "hitCount": 1,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "77043bcd33f47a92d0bd3c6e6fac415fae3d666bc78b38bd41740fa1fe37af10",
+        "runManifest": "745aa8e0e31d592a09fe58c8001bcb724e98e5c9b2659621f74c40f7fd2c6aed",
+        "damageEvents": "2d995af4166808dde55e25844c8075511d39d26ebc9326f41aaa030b2a28165f",
+        "hitResolutionLog": "711f1f525c405aa8ee5aa342333416e0b17b9320923e4b5d650caab45c319cd6",
+        "reactionDamageLog": "ee9c807c971942924bc90a4813791522201adc5176950d6cd6b26cac2250129c",
+        "stateLogs": "1ae34c3747ec60ef5b75f4be4a7d29a76cd378f6b9a4e990bc7761582a598fd4",
+        "targetStateTimeline": "bae7310b32bd88e28f1986249cee5082f52078b5341396ae6c9ef1154a478c3b",
+        "auraBoundaries": "7886db9760abf85792fad2952b14a81dc4beaae178ddfead13bf71207352cce5",
+        "damageCurve": "435944632a9908348f14efbef32527d43943deb029990ab88c67348ecd652aa1",
+        "player": "bc9fa1dbc585cd5f7c6d61c945c410276d7397cb8323787b158b699d07590f6a"
+      }
+    },
+    "burgeon": {
+      "config": {
+        "durationFrames": 120,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "burgeon-bloom-hydro",
+            "frame": 0,
+            "element": "hydro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          },
+          {
+            "id": "burgeon-pyro-contact",
+            "frame": 31,
+            "element": "pyro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:8d53a6e1",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:burgeon"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-c3a48952"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 9841.554629999999,
+      "dps": 4920.777314999999,
+      "reactedHits": 2,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "hydro",
+          "reaction": "bloom",
+          "orderedReactions": [
+            "bloom"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": [
+            "modeled-player-reaction-damage"
+          ]
+        },
+        {
+          "id": 1,
+          "frame": 31,
+          "kind": "direct",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [
+            "burning"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": "modeled-player-reaction-damage",
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 32,
+          "kind": "transformative-reaction",
+          "element": "dendro",
+          "reaction": "burgeon",
+          "orderedReactions": [
+            "burgeon"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 7664.189682857142,
+          "displayDamage": 7664,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7664.189682857142
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 3,
+          "frame": 46,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [
+            "burning"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": "modeled-player-reaction-damage",
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 4,
+          "frame": 61,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "burning",
+          "orderedReactions": [],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 3,
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "burgeon",
+            "triggerFrame": 31,
+            "damageFrame": 32,
+            "scheduleKind": "dendro-core-burgeon",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [
+              0
+            ],
+            "playerDamageEventIds": [
+              0
+            ],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 1,
+            "reaction": "burning",
+            "triggerFrame": 31,
+            "damageFrame": 46,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              3
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              1
+            ],
+            "playerDamageEventIds": [
+              1
+            ],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 2,
+            "reaction": "burning",
+            "triggerFrame": 46,
+            "damageFrame": 61,
+            "scheduleKind": "burning-tick",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              4
+            ],
+            "damageGroupAllowed": [],
+            "playerHitResolutionLogIds": [
+              2
+            ],
+            "playerDamageEventIds": [
+              2
+            ],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 31,
+            "tickIndex": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 1,
+            "operation": "tick",
+            "frame": 46,
+            "tickIndex": 1,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 1,
+            "playerDamageEventId": 1
+          },
+          {
+            "id": 2,
+            "operation": "refresh-snapshot",
+            "frame": 46,
+            "tickIndex": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 3,
+            "operation": "tick",
+            "frame": 61,
+            "tickIndex": 2,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 2,
+            "playerDamageEventId": 2
+          },
+          {
+            "id": 4,
+            "operation": "fuel-expire",
+            "frame": 71,
+            "tickIndex": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          }
+        ],
+        "dendroCores": [
+          {
+            "id": 0,
+            "coreId": 0,
+            "operation": "spawn-scheduled",
+            "frame": 0,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 1,
+            "coreId": 0,
+            "operation": "spawn",
+            "frame": 30,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 2,
+            "coreId": 0,
+            "operation": "consume",
+            "frame": 31,
+            "reaction": "burgeon",
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 0,
+            "playerDamageEventId": 0
+          }
+        ],
+        "coreContacts": [
+          {
+            "id": 0,
+            "frame": 31,
+            "eventType": "hit",
+            "reaction": "burgeon",
+            "contactedCoreIds": [
+              0
+            ]
+          }
+        ],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 1430.6487407999998,
+        "totalReactionSelfDamageTaken": 1430.6487407999998,
+        "hitResolutions": [
+          {
+            "id": 0,
+            "frame": 32,
+            "reaction": "burgeon",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageCenter": {
+              "x": -0.30214074121898077,
+              "y": 0.39838545718392493
+            },
+            "damageRadius": 5,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0.5,
+            "combinedRadius": 5.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 0
+          },
+          {
+            "id": 1,
+            "frame": 46,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 1,
+            "burningStateLogId": 1,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 1
+          },
+          {
+            "id": 2,
+            "frame": 61,
+            "reaction": "burning",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 2,
+            "burningStateLogId": 3,
+            "dendroCoreRemovalLogId": null,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 2
+          }
+        ],
+        "damageEvents": [
+          {
+            "id": 0,
+            "frame": 32,
+            "reaction": "burgeon",
+            "element": "dendro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "playerHitResolutionLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageFactors": {
+              "reaction": "burgeon",
+              "sourcePreResistanceDamage": 8515.766314285713,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 0.02,
+              "preResistanceDamage": 170.31532628571426,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 153.28379365714284,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": {
+                "reaction": "burgeon",
+                "sourceActorId": "matrix",
+                "targetId": "player-avatar",
+                "windowStartFrame": 32,
+                "hitIndex": 0,
+                "resetFrames": 30,
+                "sequence": [
+                  true,
+                  true,
+                  false
+                ],
+                "damageAllowed": true,
+                "blockedReason": null
+              }
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 153.28379365714284,
+              "incomingElement": "dendro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 153.28379365714284,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 10000,
+              "currentHpBefore": 10000,
+              "currentHpAfter": 9846.716206342857,
+              "maxHp": 10000,
+              "attemptedLoss": 153.28379365714284,
+              "actualLoss": 153.28379365714284,
+              "overkill": 0,
+              "hpRatioBefore": 1,
+              "hpRatioAfter": 0.9846716206342857
+            },
+            "finalDamage": 153.28379365714284,
+            "displayDamage": 153
+          },
+          {
+            "id": 1,
+            "frame": 46,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 1,
+            "playerHitResolutionLogId": 1,
+            "burningStateLogId": 1,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 9846.716206342857,
+              "currentHpBefore": 9846.716206342857,
+              "currentHpAfter": 9208.033732771428,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 0.9846716206342857,
+              "hpRatioAfter": 0.9208033732771428
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          {
+            "id": 2,
+            "frame": 61,
+            "reaction": "burning",
+            "element": "pyro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 2,
+            "playerHitResolutionLogId": 2,
+            "burningStateLogId": 3,
+            "dendroCoreRemovalLogId": null,
+            "damageFactors": {
+              "reaction": "burning",
+              "sourcePreResistanceDamage": 709.6471928571428,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 1,
+              "preResistanceDamage": 709.6471928571428,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 638.6824735714285,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": null
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 638.6824735714285,
+              "incomingElement": "pyro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 638.6824735714285,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 9208.033732771428,
+              "currentHpBefore": 9208.033732771428,
+              "currentHpAfter": 8569.351259199999,
+              "maxHp": 10000,
+              "attemptedLoss": 638.6824735714285,
+              "actualLoss": 638.6824735714285,
+              "overkill": 0,
+              "hpRatioBefore": 0.9208033732771428,
+              "hpRatioAfter": 0.8569351259199999
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          }
+        ],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 32,
+              "timeSeconds": 0.5333333333333333,
+              "eventPriority": 5,
+              "eventSequence": 6,
+              "intraEventSequence": 2,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 0,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 9846.716206342857,
+              "hpRatioAfter": 0.9846716206342857
+            },
+            {
+              "id": 2,
+              "frame": 46,
+              "timeSeconds": 0.7666666666666667,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 7,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 1,
+              "maxHp": 10000,
+              "hpBefore": 9846.716206342857,
+              "hpAfter": 9208.033732771428,
+              "hpRatioAfter": 0.9208033732771428
+            },
+            {
+              "id": 3,
+              "frame": 61,
+              "timeSeconds": 1.0166666666666666,
+              "eventPriority": 4.333333333333333,
+              "eventSequence": 9,
+              "intraEventSequence": 3,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 2,
+              "maxHp": 10000,
+              "hpBefore": 9208.033732771428,
+              "hpAfter": 8569.351259199999,
+              "hpRatioAfter": 0.8569351259199999
+            },
+            {
+              "id": 4,
+              "frame": 120,
+              "timeSeconds": 2,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 8569.351259199999,
+              "hpAfter": 8569.351259199999,
+              "hpRatioAfter": 0.8569351259199999
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 8569.351259199999,
+            "totalIncomingDamage": 1430.6487407999998,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 1430.6487407999998,
+            "hitCount": 3,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "0a275e93dd789e7e75e7a0fd174739e2402538319ff60578b98668084d704808",
+        "runManifest": "d5d96961adc6d2cd58738e23341b9ceb86048129f4ce16292d8e6faecc974039",
+        "damageEvents": "b034de4d85144a4126a92f359af1e884673f178cea180f5e9af358fdec596f09",
+        "hitResolutionLog": "8fdcfa15fd4844754e1c45b9893f979a4e4b3193201873c345548cd66eb7cb0d",
+        "reactionDamageLog": "4a2e06a7de65671c818512687025c403b368a1698f74eda09ae68ba7d090377c",
+        "stateLogs": "1d007a7d5926b4c0fb4dab2171023fb6cd82da9c2cf8bb2cf8505b10fcd82bf0",
+        "targetStateTimeline": "7bc05af1455c73aa1b49a6e539e1ed2854c9e8c71f6e0bcfcbbbecbb7e6bcba9",
+        "auraBoundaries": "557ef15be5f26513b5a10f375251b760ced13d01c7002412625231856adcc3b8",
+        "damageCurve": "f75eed9052f75b8be9760dee1dfece9fc47abaf23662ed586792c2bc49ab515f",
+        "player": "656bc8a79b6d81ce2505fefed17e53e4d87262d204724c415c2ae75a115d9c45"
+      }
+    },
+    "hyperbloom": {
+      "config": {
+        "durationFrames": 140,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "hyperbloom-bloom-hydro",
+            "frame": 0,
+            "element": "hydro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          },
+          {
+            "id": "hyperbloom-electro-contact",
+            "frame": 31,
+            "element": "electro",
+            "scaling": 1,
+            "gaugeUnits": 1,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:b1ef89db",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:hyperbloom"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-7e2d909d"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 8564.18968285714,
+      "dps": 3670.3670069387745,
+      "reactedHits": 2,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "hydro",
+          "reaction": "bloom",
+          "orderedReactions": [
+            "bloom"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": [
+            "modeled-player-reaction-damage"
+          ]
+        },
+        {
+          "id": 1,
+          "frame": 31,
+          "kind": "direct",
+          "element": "electro",
+          "reaction": "quicken",
+          "orderedReactions": [
+            "quicken"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 91,
+          "kind": "transformative-reaction",
+          "element": "dendro",
+          "reaction": "hyperbloom",
+          "orderedReactions": [
+            "hyperbloom"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 1,
+          "finalDamage": 7664.189682857142,
+          "displayDamage": 7664,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7664.189682857142
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "hyperbloom",
+            "triggerFrame": 31,
+            "damageFrame": 91,
+            "scheduleKind": "dendro-core-hyperbloom",
+            "selectionRadius": 15,
+            "selectedTargetId": "enemy-0",
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [
+              0
+            ],
+            "playerDamageEventIds": [
+              0
+            ],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 31,
+            "generation": 1
+          }
+        ],
+        "burning": [],
+        "dendroCores": [
+          {
+            "id": 0,
+            "coreId": 0,
+            "operation": "spawn-scheduled",
+            "frame": 0,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 1,
+            "coreId": 0,
+            "operation": "spawn",
+            "frame": 30,
+            "reaction": null,
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": null,
+            "playerDamageEventId": null
+          },
+          {
+            "id": 2,
+            "coreId": 0,
+            "operation": "consume",
+            "frame": 31,
+            "reaction": "hyperbloom",
+            "selfDamageStatus": "modeled-player-reaction-damage",
+            "playerHitResolutionLogId": 0,
+            "playerDamageEventId": 0
+          }
+        ],
+        "coreContacts": [
+          {
+            "id": 0,
+            "frame": 31,
+            "eventType": "hit",
+            "reaction": "hyperbloom",
+            "contactedCoreIds": [
+              0
+            ]
+          }
+        ],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 153.28379365714284,
+        "totalReactionSelfDamageTaken": 153.28379365714284,
+        "hitResolutions": [
+          {
+            "id": 0,
+            "frame": 91,
+            "reaction": "hyperbloom",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "damageRadius": 1,
+            "playerCenter": {
+              "x": 0,
+              "y": 0
+            },
+            "playerRadius": 0.5,
+            "distance": 0,
+            "combinedRadius": 1.5,
+            "outcome": "landed",
+            "blockedReason": null,
+            "playerDamageEventId": 0
+          }
+        ],
+        "damageEvents": [
+          {
+            "id": 0,
+            "frame": 91,
+            "reaction": "hyperbloom",
+            "element": "dendro",
+            "sourceActorId": "matrix",
+            "sourceTargetId": "enemy-0",
+            "targetActorId": "matrix",
+            "reactionDamageLogId": 0,
+            "playerHitResolutionLogId": 0,
+            "burningStateLogId": null,
+            "dendroCoreRemovalLogId": 2,
+            "damageFactors": {
+              "reaction": "hyperbloom",
+              "sourcePreResistanceDamage": 8515.766314285713,
+              "effectiveResistance": 0.1,
+              "selfDamageMultiplier": 0.02,
+              "preResistanceDamage": 170.31532628571426,
+              "resistanceMultiplier": 0.9,
+              "ignoreDefense": 1,
+              "defenseMultiplier": 1,
+              "finalDamage": 153.28379365714284,
+              "damageGroupMultiplier": 1,
+              "damageGroupDecision": {
+                "reaction": "hyperbloom",
+                "sourceActorId": "matrix",
+                "targetId": "player-avatar",
+                "windowStartFrame": 91,
+                "hitIndex": 0,
+                "resetFrames": 30,
+                "sequence": [
+                  true,
+                  true,
+                  false
+                ],
+                "damageAllowed": true,
+                "blockedReason": null
+              }
+            },
+            "shieldResolution": {
+              "mode": "crystallize-v1",
+              "shieldId": null,
+              "shieldElement": null,
+              "incomingDamage": 153.28379365714284,
+              "incomingElement": "dendro",
+              "elementalMasteryBonus": 0,
+              "shieldStrengthBonus": 0,
+              "absorptionMultiplier": 1,
+              "effectiveAbsorptionMultiplier": 1,
+              "baseHpBefore": 0,
+              "baseHpConsumed": 0,
+              "baseHpAfter": 0,
+              "absorptionCapacity": 0,
+              "absorbedDamage": 0,
+              "damageAfterShield": 153.28379365714284,
+              "shieldBroken": false
+            },
+            "hpResolution": {
+              "zeroHpPolicy": "clamp-and-continue",
+              "inputCurrentHp": 10000,
+              "currentHpBefore": 10000,
+              "currentHpAfter": 9846.716206342857,
+              "maxHp": 10000,
+              "attemptedLoss": 153.28379365714284,
+              "actualLoss": 153.28379365714284,
+              "overkill": 0,
+              "hpRatioBefore": 1,
+              "hpRatioAfter": 0.9846716206342857
+            },
+            "finalDamage": 153.28379365714284,
+            "displayDamage": 153
+          }
+        ],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 91,
+              "timeSeconds": 1.5166666666666666,
+              "eventPriority": 5,
+              "eventSequence": 4,
+              "intraEventSequence": 2,
+              "operation": "damage",
+              "actorId": "matrix",
+              "playerDamageEventId": 0,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 9846.716206342857,
+              "hpRatioAfter": 0.9846716206342857
+            },
+            {
+              "id": 2,
+              "frame": 140,
+              "timeSeconds": 2.3333333333333335,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 9846.716206342857,
+              "hpAfter": 9846.716206342857,
+              "hpRatioAfter": 0.9846716206342857
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 9846.716206342857,
+            "totalIncomingDamage": 153.28379365714284,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 153.28379365714284,
+            "hitCount": 1,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "66718ec40fa83316782108abd69910dba6e968aa875f63e92500b70b1ce8e951",
+        "runManifest": "e6416c8a24404d291599a94a7474152826be565aab63ee2598554d5bb7b12356",
+        "damageEvents": "f70d3d3548e9c6965ca0761b796886e9bc3f360c8e8b817f4213d775d9c7062f",
+        "hitResolutionLog": "e49ccc0090da85efe4ee853d8e3b28f4fffb3f0fa1894fe46dd1b5a71434409a",
+        "reactionDamageLog": "bdb50135825989e4fe7da82de106f71d53fa62f95536baa8adaa805a232c3a15",
+        "stateLogs": "7a44cf9d6693e32ea491c0dd3f6141a6715f7e9b474b150d7b0e2edf7eac7299",
+        "targetStateTimeline": "e1e23e33725c3bc71d57144ea83fe70e026e7daae7c565b6288d88a6f2ef5219",
+        "auraBoundaries": "61f866277479c46f0b4348c0e1466b03f049c59425ba90d112d8d18eb285065f",
+        "damageCurve": "3908bfa6b6f08e68922c2c11223bc3b13db6ecd9de694445e78d073b54fa7603",
+        "player": "574dd53557117df2fa87ae048c9b8bf17cf79291ee36f7218aa99bec458c0523"
+      }
+    },
+    "cryoMultiReaction": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "electro",
+                "gaugeUnits": 1
+              },
+              {
+                "element": "pyro",
+                "gaugeUnits": 1
+              },
+              {
+                "element": "hydro",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "cryo-multi-reaction",
+            "frame": 0,
+            "element": "cryo",
+            "scaling": 1,
+            "gaugeUnits": 2,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": null
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:3fd15361",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:cryoMultiReaction"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-77c82209"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 4767.194841428571,
+      "dps": 4767.194841428571,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "cryo",
+          "reaction": "reverseMelt",
+          "orderedReactions": [
+            "superconduct",
+            "reverseMelt",
+            "freeze"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 935.0999999999999,
+          "displayDamage": 935,
+          "composition": {
+            "direct": 935.0999999999999,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "cryo",
+          "reaction": "superconduct",
+          "orderedReactions": [
+            "superconduct"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 3832.094841428571,
+          "displayDamage": 3832,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 3832.094841428571
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "superconduct",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [
+          {
+            "id": 0,
+            "operation": "start",
+            "frame": 0
+          }
+        ],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "a08c9278cdadf46fb34daaabb413e1878fd8e5d282bceebd1c0587e0225e54ec",
+        "runManifest": "7fdb6d7c5c306600bc9ea67091fc1bc12cc865a1c6af3f4f0d7de05d4e90fbd9",
+        "damageEvents": "32becb20eeb0f22700cbc17a6608303ffb9d61dc67df8d7f10b24d1ba7db76fd",
+        "hitResolutionLog": "90c6acea4055915b9de4293a0f86e58457619ec9e943c8e0d13309e822abfa2c",
+        "reactionDamageLog": "40432b761d93a40e42a1462adb585bf664005fc37b4b6e2e31e6548035e42616",
+        "stateLogs": "1623f8f44b40965ae46bdec4525ccc40df83c22d476ceeabb60277eb69695275",
+        "targetStateTimeline": "3b7507cd0d248ccc580bb4eeabbf84ac5e0ea1d2e3dbb7148268fda06b2530d3",
+        "auraBoundaries": "175649df919f02c085a702607c05c4a0102d7a892336fdd78ca07d2aba7624dd",
+        "damageCurve": "407863836b5074cff56094685ebac9fae6d6306376d0ebbf39098aa0468b748e",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    },
+    "electroOrdered": {
+      "config": {
+        "durationFrames": 60,
+        "playerDamageModel": {
+          "mode": "reaction-self-v1",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0.5,
+          "shieldMode": "crystallize-v1",
+          "zeroHpPolicy": "clamp-and-continue",
+          "characters": [
+            {
+              "actorId": "matrix",
+              "initialHpRatio": 1,
+              "resistances": {
+                "pyro": 0.1,
+                "cryo": 0.1,
+                "hydro": 0.1,
+                "electro": 0.1,
+                "anemo": 0.1,
+                "geo": 0.1,
+                "dendro": 0.1,
+                "physical": 0.1
+              }
+            }
+          ]
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "targets": [
+          {
+            "id": "enemy-0",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "initialAura": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1
+              },
+              {
+                "element": "cryo",
+                "gaugeUnits": 1
+              }
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "electro-ordered-multi-reaction",
+            "frame": 0,
+            "element": "electro",
+            "scaling": 1,
+            "gaugeUnits": 2,
+            "strikeType": "default",
+            "poiseDamage": 0,
+            "geometry": "circle"
+          }
+        ],
+        "buffs": []
+      },
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.34.0",
+        "engineVersion": "1.34.0-general-reaction-order",
+        "dataVersion": "reaction-matrix-fixed-gcsim-cross-check-2",
+        "configHash": "fnv1a32:34120428",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "reaction-matrix-1.32:electroOrdered"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-4bb7bccc"
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "clockLog": [],
+        "hitlagLog": []
+      },
+      "totalDamage": 11307.602050714284,
+      "dps": 11307.602050714284,
+      "reactedHits": 1,
+      "mechanicsStatus": "complete",
+      "events": [
+        {
+          "id": 0,
+          "frame": 0,
+          "kind": "direct",
+          "element": "electro",
+          "reaction": "overload",
+          "orderedReactions": [
+            "overload",
+            "superconduct"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": null,
+          "finalDamage": 450,
+          "displayDamage": 450,
+          "composition": {
+            "direct": 450,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 1,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "pyro",
+          "reaction": "overload",
+          "orderedReactions": [
+            "overload"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7025.5072092857135
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        },
+        {
+          "id": 2,
+          "frame": 1,
+          "kind": "transformative-reaction",
+          "element": "cryo",
+          "reaction": "superconduct",
+          "orderedReactions": [
+            "superconduct"
+          ],
+          "targetId": "enemy-0",
+          "parentDamageEventId": 0,
+          "finalDamage": 3832.094841428571,
+          "displayDamage": 3832,
+          "composition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 3832.094841428571
+          },
+          "burningSelfDamageStatus": null,
+          "bloomSelfDamageStatuses": []
+        }
+      ],
+      "logs": {
+        "reactionDamage": [
+          {
+            "id": 0,
+            "reaction": "overload",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              1
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          },
+          {
+            "id": 1,
+            "reaction": "superconduct",
+            "triggerFrame": 0,
+            "damageFrame": 1,
+            "scheduleKind": "one-shot",
+            "selectionRadius": null,
+            "selectedTargetId": null,
+            "resolutionReason": null,
+            "hitTargetIds": [
+              "enemy-0"
+            ],
+            "damageEventIds": [
+              2
+            ],
+            "damageGroupAllowed": [
+              true
+            ],
+            "playerHitResolutionLogIds": [],
+            "playerDamageEventIds": [],
+            "playerDamageGroupDecisions": []
+          }
+        ],
+        "periodic": [],
+        "frozen": [],
+        "quicken": [],
+        "burning": [],
+        "dendroCores": [],
+        "coreContacts": [],
+        "crystallizeShards": []
+      },
+      "player": {
+        "status": "modeled-player-reaction-damage",
+        "totalDamageTaken": 0,
+        "totalReactionSelfDamageTaken": 0,
+        "hitResolutions": [],
+        "damageEvents": [],
+        "hpTimeline": {
+          "version": "1.0.0",
+          "points": [
+            {
+              "id": 0,
+              "frame": 0,
+              "timeSeconds": 0,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "initial",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            },
+            {
+              "id": 1,
+              "frame": 60,
+              "timeSeconds": 1,
+              "eventPriority": null,
+              "eventSequence": null,
+              "intraEventSequence": null,
+              "operation": "simulation-end",
+              "actorId": "matrix",
+              "playerDamageEventId": null,
+              "maxHp": 10000,
+              "hpBefore": 10000,
+              "hpAfter": 10000,
+              "hpRatioAfter": 1
+            }
+          ]
+        },
+        "hpSummaries": [
+          {
+            "actorId": "matrix",
+            "maxHp": 10000,
+            "initialHp": 10000,
+            "finalHp": 10000,
+            "totalIncomingDamage": 0,
+            "totalAbsorbedDamage": 0,
+            "totalHpDamage": 0,
+            "hitCount": 0,
+            "zeroHpReached": false
+          }
+        ]
+      },
+      "hashes": {
+        "config": "b5e0beb3a56b1e14058fa2a9a96dc56420207232c3b14fc565841fd9ba0c9bbf",
+        "runManifest": "b865fd030cc03e1223e95b34cccc600a8f55180916e7fb39801b797def541abe",
+        "damageEvents": "75e648b36a95ed512a56b7716dfbab39973d9deeaf5a012ff630174904e2293c",
+        "hitResolutionLog": "28d8bd787cff55f35fd720afa6fe805301052d328d3f76d822a7cd17c4542699",
+        "reactionDamageLog": "6e28d84e2157dada23e8db957b5613bd5949cd146251cc6b05d3166eb76230f8",
+        "stateLogs": "0e35407742891d9ed73883e60c08e79d920c070c06b5a393589b8fc2567f1467",
+        "targetStateTimeline": "29d610a51b03f0c390997eca5c47939df487a1d455e3fa0e0989751418340d0e",
+        "auraBoundaries": "ffa3c3f91f8b4e9047217000bbc63f3f614008ce52e84aebefeafa23f2af71c3",
+        "damageCurve": "a125dad11671baf2eebffc0376f2e8a7564d7bfaf6e57e3ab9daddd45e830ce5",
+        "player": "689dd630ebc8943e8c5fb0073ccb6c36f5089440af7104e2d5840c7506b9adfc"
+      }
+    }
+  }
+}

@@ -444,7 +444,8 @@ function isAuraApplicationElement(
         element === "geo")) ||
     ((mode === "aura-v3" ||
       mode === "aura-v4" ||
-      mode === "aura-v5") &&
+      mode === "aura-v5" ||
+      mode === "aura-v6") &&
       element === "dendro")
   );
 }
@@ -455,14 +456,19 @@ function usesAuraV3Durability(
   return (
     mode === "aura-v3" ||
     mode === "aura-v4" ||
-    mode === "aura-v5"
+    mode === "aura-v5" ||
+    mode === "aura-v6"
   );
 }
 
 function usesBurningModel(
   mode: AuraReactionEngineConfig["mode"]
 ): boolean {
-  return mode === "aura-v4" || mode === "aura-v5";
+  return (
+    mode === "aura-v4" ||
+    mode === "aura-v5" ||
+    mode === "aura-v6"
+  );
 }
 
 function cleanGaugeUnits(value: number): number {
@@ -494,6 +500,8 @@ function remainingDecayFrames(
  * aura-v5 additionally resolves fixed-reference Bloom gauge ordering and emits
  * one auditable core-spawn request per direct or Quicken-follow-up trigger.
  * The core entity lifecycle is intentionally owned by the simulator layer.
+ * aura-v6 inherits all aura-v5 state semantics and adds the fixed-reference
+ * incoming-Electro ordered chain with one shared application Gauge budget.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -3081,7 +3089,8 @@ export class AuraEngine {
       input.element === "electro" &&
       runQuickenHydroFollowup;
     if (
-      this.mode !== "aura-v5" ||
+      (this.mode !== "aura-v5" &&
+        this.mode !== "aura-v6") ||
       (input.element !== "hydro" &&
         input.element !== "dendro" &&
         !isQuickenFollowupOnly)
@@ -4167,11 +4176,16 @@ export class AuraEngine {
       usesBurningModel(this.mode) &&
       input.element === "pyro";
     const usesOrderedHydroPipeline =
-      this.mode === "aura-v5" &&
+      (this.mode === "aura-v5" ||
+        this.mode === "aura-v6") &&
       input.element === "hydro";
     const usesOrderedCryoPipeline =
-      this.mode === "aura-v5" &&
+      (this.mode === "aura-v5" ||
+        this.mode === "aura-v6") &&
       input.element === "cryo";
+    const usesOrderedElectroPipeline =
+      this.mode === "aura-v6" &&
+      input.element === "electro";
     const usesElectroHydroDendroPipeline =
       this.mode === "aura-v5" &&
       input.element === "electro" &&
@@ -4187,6 +4201,7 @@ export class AuraEngine {
     let remainingHydroGaugeUnits = application.gaugeUnits;
     let remainingCryoGaugeUnits = application.gaugeUnits;
     let remainingDendroGaugeUnits = application.gaugeUnits;
+    let remainingElectroGaugeUnits = application.gaugeUnits;
     const orderedPyroReactions: ReactionType[] = [];
     const orderedHydroReactions: ReactionType[] = [];
     const orderedCryoReactions: ReactionType[] = [];
@@ -4206,13 +4221,16 @@ export class AuraEngine {
     let orderedCryoAmplifyingReaction:
       | AmplifyingReaction
       | null = null;
+    const orderedElectroTransformativeReactions:
+      OneShotTransformativeReaction[] = [];
     const eligibleRules =
       frozenMelt ||
       frozenSuperconduct ||
       input.element === "dendro" ||
       usesOrderedPyroPipeline ||
       usesOrderedHydroPipeline ||
-      usesOrderedCryoPipeline
+      usesOrderedCryoPipeline ||
+      usesOrderedElectroPipeline
         ? []
         : REACTION_RULES[input.element].filter(
           (candidate) =>
@@ -4846,6 +4864,340 @@ export class AuraEngine {
           input.sourceActorId
         );
       }
+    } else if (usesOrderedElectroPipeline) {
+      const consumeMappedAura = (
+        element: AuraStateElement,
+        consumptionFactor: number
+      ): number => {
+        if (
+          remainingElectroGaugeUnits <= AURA_EPSILON ||
+          this.mappedAuraGaugeUnits(element) <= AURA_EPSILON
+        ) {
+          return 0;
+        }
+        const mutations = this.reduceMappedAuraGauge(
+          element,
+          remainingElectroGaugeUnits * consumptionFactor
+        );
+        let maximumConsumedGaugeUnits = 0;
+        for (const mutation of mutations) {
+          maximumConsumedGaugeUnits = Math.max(
+            maximumConsumedGaugeUnits,
+            mutation.consumedGaugeUnits
+          );
+          auraConsumed.push({
+            element: mutation.element,
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+        }
+        remainingElectroGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingElectroGaugeUnits -
+              maximumConsumedGaugeUnits / consumptionFactor
+          )
+        );
+        return maximumConsumedGaugeUnits;
+      };
+
+      // Fixed gcsim incoming-Electro order:
+      // Aggravate (captured above, non-consuming) → Overload → EC →
+      // Frozen Superconduct → ordinary Superconduct → Quicken.
+      if (consumeMappedAura("pyro", 1) > AURA_EPSILON) {
+        orderedElectroReactions.push("overload");
+        orderedElectroTransformativeReactions.push(
+          "overload"
+        );
+      }
+
+      let electroChargedOperation:
+        | "start"
+        | "refresh"
+        | null = null;
+      if (
+        remainingElectroGaugeUnits > AURA_EPSILON &&
+        this.frozenGaugeUnits() <= AURA_EPSILON &&
+        (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        // TryAddEC attaches Electro only when an earlier consuming reaction
+        // has not marked this hit as reacted. Aggravate is non-consuming.
+        if (orderedElectroReactions.length === 0) {
+          this.attachNormalAura(
+            "electro",
+            remainingElectroGaugeUnits,
+            input.sourceActorId
+          );
+        }
+        electroChargedOperation =
+          this.electroChargedActive ? "refresh" : "start";
+        if (electroChargedOperation === "start") {
+          this.electroChargedGeneration += 1;
+          this.electroChargedActive = true;
+          this.electroChargedNextTickFrame =
+            input.frame +
+            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+        }
+        orderedElectroReactions.push(
+          "electroCharged"
+        );
+      }
+
+      if (
+        remainingElectroGaugeUnits > AURA_EPSILON &&
+        this.frozenGaugeUnits() > AURA_EPSILON
+      ) {
+        const frozenGaugeUnitsBefore =
+          this.frozenGaugeUnits();
+        const cryoMutation = this.reduceAuraGauge(
+          "cryo",
+          remainingElectroGaugeUnits
+        );
+        if (cryoMutation.consumedGaugeUnits > AURA_EPSILON) {
+          remainingElectroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingElectroGaugeUnits -
+                cryoMutation.consumedGaugeUnits
+            )
+          );
+          auraConsumed.push({
+            element: "cryo",
+            gaugeUnits: cryoMutation.consumedGaugeUnits,
+            ...(cryoMutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    cryoMutation.sourceMutations
+                })
+          });
+        }
+        const frozenMutation = this.reduceAuraGauge(
+          "frozen",
+          remainingElectroGaugeUnits
+        );
+        if (
+          frozenMutation.consumedGaugeUnits >
+          AURA_EPSILON
+        ) {
+          auraConsumed.push({
+            element: "frozen",
+            gaugeUnits:
+              frozenMutation.consumedGaugeUnits
+          });
+          this.frozenGeneration += 1;
+          frozenReaction = {
+            generation: this.frozenGeneration,
+            operation: "consume",
+            freezeResistance: this.freezeResistance,
+            generatedGaugeUnits: 0,
+            consumedGaugeUnits:
+              frozenMutation.consumedGaugeUnits,
+            frozenGaugeBefore: cleanGaugeUnits(
+              frozenGaugeUnitsBefore
+            ),
+            frozenGaugeAfter: cleanGaugeUnits(
+              this.frozenGaugeUnits()
+            ),
+            decayRatePerFrame: this.frozenDecayRate,
+            expiresAtFrame: this.frozenExpiryFrame()
+          };
+        }
+        // Fixed TryFrozenSuperconduct discards the whole residual incoming
+        // budget after reducing ordinary Cryo and then Frozen.
+        remainingElectroGaugeUnits = 0;
+        orderedElectroReactions.push("superconduct");
+        orderedElectroTransformativeReactions.push(
+          "superconduct"
+        );
+      } else if (
+        remainingElectroGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("cryo")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        const mutation = this.reduceAuraGauge(
+          "cryo",
+          remainingElectroGaugeUnits
+        );
+        if (mutation.consumedGaugeUnits > AURA_EPSILON) {
+          remainingElectroGaugeUnits = cleanGaugeUnits(
+            Math.max(
+              0,
+              remainingElectroGaugeUnits -
+                mutation.consumedGaugeUnits
+            )
+          );
+          auraConsumed.push({
+            element: "cryo",
+            gaugeUnits: mutation.consumedGaugeUnits,
+            ...(mutation.sourceMutations.length === 0
+              ? {}
+              : {
+                  sourceMutations:
+                    mutation.sourceMutations
+                })
+          });
+          orderedElectroReactions.push(
+            "superconduct"
+          );
+          orderedElectroTransformativeReactions.push(
+            "superconduct"
+          );
+        }
+      }
+
+      if (
+        remainingElectroGaugeUnits > AURA_EPSILON &&
+        (this.auras.get("dendro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON
+      ) {
+        const targetAura = this.auras.get("dendro");
+        if (targetAura === undefined) {
+          throw new Error(
+            "Ordered Electro pipeline lost its Dendro Quicken candidate."
+          );
+        }
+        const auraGaugeUnitsBefore =
+          targetAura.gaugeUnits;
+        const sourceGaugeUnitsBefore =
+          remainingElectroGaugeUnits;
+        const sourceGaugeUnitsSpent = Math.min(
+          sourceGaugeUnitsBefore,
+          auraGaugeUnitsBefore
+        );
+        remainingElectroGaugeUnits = cleanGaugeUnits(
+          sourceGaugeUnitsBefore - sourceGaugeUnitsSpent
+        );
+        const mutation = this.reduceAuraGauge(
+          "dendro",
+          sourceGaugeUnitsSpent
+        );
+        auraConsumed.push({
+          element: "dendro",
+          gaugeUnits: mutation.consumedGaugeUnits,
+          ...(mutation.sourceMutations.length === 0
+            ? {}
+            : {
+                sourceMutations:
+                  mutation.sourceMutations
+              })
+        });
+        const attachment = this.attachQuicken(
+          sourceGaugeUnitsSpent,
+          input.sourceActorId
+        );
+        const pendingHydroBloomFollowup =
+          (this.auras.get("hydro")?.gaugeUnits ?? 0) >
+          AURA_EPSILON;
+        const quickenReaction: QuickenReactionAudit = {
+          reaction: "quicken",
+          triggerElement: "electro",
+          consumedAuraElement: "dendro",
+          sourceGaugeUnitsBefore: cleanGaugeUnits(
+            sourceGaugeUnitsBefore
+          ),
+          sourceGaugeUnitsSpent: cleanGaugeUnits(
+            sourceGaugeUnitsSpent
+          ),
+          sourceGaugeUnitsAfter: cleanGaugeUnits(
+            remainingElectroGaugeUnits
+          ),
+          auraGaugeUnitsBefore: cleanGaugeUnits(
+            auraGaugeUnitsBefore
+          ),
+          auraConsumedGaugeUnits:
+            mutation.consumedGaugeUnits,
+          auraGaugeUnitsAfter: cleanGaugeUnits(
+            this.auras.get("dendro")?.gaugeUnits ?? 0
+          ),
+          quickenGaugeUnitsBefore:
+            attachment.quickenGaugeUnitsBefore,
+          candidateGaugeUnits: cleanGaugeUnits(
+            sourceGaugeUnitsSpent
+          ),
+          quickenGaugeUnitsAfter:
+            attachment.quickenGaugeUnitsAfter,
+          operation: attachment.operation,
+          generation: attachment.generation,
+          decayPerFrameBefore:
+            attachment.decayPerFrameBefore,
+          decayPerFrame: attachment.decayPerFrame,
+          expiresAtFrameBefore:
+            attachment.expiresAtFrameBefore,
+          expiresAtFrame: attachment.expiresAtFrame,
+          endCauseBefore: attachment.endCauseBefore,
+          endCause: attachment.endCause,
+          operationAuraBefore:
+            attachment.operationAuraBefore,
+          operationAuraAfter:
+            attachment.operationAuraAfter,
+          pendingHydroBloomFollowup
+        };
+        catalyzeReaction = {
+          quicken: quickenReaction,
+          additive: additiveReaction
+        };
+        orderedElectroReactions.push("quicken");
+
+        const bloom = this.resolveBloom(
+          input,
+          0,
+          pendingHydroBloomFollowup,
+          auraConsumed
+        );
+        bloomReactions = bloom.audits;
+        orderedElectroReactions.push(
+          ...bloomReactions.map(
+            () => "bloom" as const
+          )
+        );
+      }
+
+      if (electroChargedOperation !== null) {
+        periodicReaction = {
+          reaction: "electroCharged",
+          generation: this.electroChargedGeneration,
+          operation: electroChargedOperation,
+          damageElement: "electro",
+          baseMultiplier:
+            ELECTRO_CHARGED_BASE_MULTIPLIER,
+          firstDamageFrame:
+            electroChargedOperation === "start"
+              ? input.frame +
+                ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+              : null,
+          nextTickFrame:
+            this.electroChargedNextTickFrame,
+          tickIntervalFrames:
+            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+          waneDelayFrames:
+            ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+          waneGaugeUnits:
+            ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+          coexistenceExpiresAtFrame:
+            this.electroChargedExpiryFrame()
+        };
+      }
+
+      automaticReaction =
+        orderedElectroReactions[0] ?? "none";
+      if (
+        orderedElectroReactions.length === 0 &&
+        unsupportedReactions.length === 0
+      ) {
+        this.attachNormalAura(
+          input.element,
+          application.gaugeUnits,
+          input.sourceActorId
+        );
+      }
     } else if (usesElectroHydroDendroPipeline) {
       // Fixed gcsim order reaches TryAddEC before TryQuicken for incoming
       // Electro. EC attaches the incoming Electro because no earlier
@@ -5296,7 +5648,8 @@ export class AuraEngine {
     } else if (
       unsupportedReactions.length === 0 &&
       !(
-        this.mode === "aura-v5" &&
+        (this.mode === "aura-v5" ||
+          this.mode === "aura-v6") &&
         input.element === "dendro" &&
         (this.auras.get("hydro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
@@ -5346,7 +5699,8 @@ export class AuraEngine {
     }
 
     if (
-      this.mode === "aura-v5" &&
+      (this.mode === "aura-v5" ||
+        this.mode === "aura-v6") &&
       input.element === "dendro"
     ) {
       const bloom = this.resolveBloom(
@@ -5421,11 +5775,13 @@ export class AuraEngine {
           ? orderedCryoReactions
           : usesOrderedHydroPipeline
             ? orderedHydroReactions
+            : usesOrderedElectroPipeline
+              ? orderedElectroReactions
             : usesElectroHydroDendroPipeline
               ? orderedElectroReactions
-          : automaticReaction === "none"
-            ? []
-            : [automaticReaction]),
+              : automaticReaction === "none"
+                ? []
+                : [automaticReaction]),
       ...(burningReaction !== null &&
       burningReaction.operation !== "stop" &&
       (usesOrderedPyroPipeline ||
@@ -5434,28 +5790,36 @@ export class AuraEngine {
         : []),
       ...(!usesOrderedCryoPipeline &&
       !usesOrderedHydroPipeline &&
+      !usesOrderedElectroPipeline &&
       !usesElectroHydroDendroPipeline
         ? bloomReactions
             .slice(automaticReaction === "bloom" ? 1 : 0)
             .map(() => "bloom" as const)
         : [])
     ];
-    let transformativeReaction: ReactionAudit["transformativeReaction"] =
-      null;
     const oneShotTransformativeReaction =
       orderedPyroTransformativeReaction ??
       orderedCryoTransformativeReaction ??
       (isOneShotTransformativeReaction(automaticReaction)
         ? automaticReaction
         : null);
-    if (oneShotTransformativeReaction !== null) {
+    const oneShotTransformativeReactions =
+      usesOrderedElectroPipeline
+        ? orderedElectroTransformativeReactions
+        : oneShotTransformativeReaction === null
+          ? []
+          : [oneShotTransformativeReaction];
+    let transformativeReactions: NonNullable<
+      ReactionAudit["transformativeReactions"]
+    > = oneShotTransformativeReactions.map(
+      (candidate) => {
       const definition =
         TRANSFORMATIVE_REACTION_DEFINITIONS[
-          oneShotTransformativeReaction
+          candidate
         ];
       const previousReadyFrame =
         this.reactionDamageReadyFrames.get(
-          oneShotTransformativeReaction
+          candidate
         ) ?? -1;
       const scheduled =
         previousReadyFrame < 0 ||
@@ -5465,12 +5829,12 @@ export class AuraEngine {
         : previousReadyFrame;
       if (scheduled) {
         this.reactionDamageReadyFrames.set(
-          oneShotTransformativeReaction,
+          candidate,
           nextAvailableFrame
         );
       }
-      transformativeReaction = {
-        reaction: oneShotTransformativeReaction,
+      return {
+        reaction: candidate,
         damageElement: definition.damageElement,
         scheduled,
         damageFrame: input.frame + definition.damageDelayFrames,
@@ -5483,7 +5847,10 @@ export class AuraEngine {
             ? null
             : { ...definition.statusEffect }
       };
-    }
+      }
+    );
+    let transformativeReaction: ReactionAudit["transformativeReaction"] =
+      transformativeReactions[0] ?? null;
 
     const mechanicsTruncation =
       unsupportedReactions.length === 0
@@ -5494,13 +5861,23 @@ export class AuraEngine {
           );
     if (
       mechanicsTruncation !== null &&
-      transformativeReaction?.scheduled === true
+      transformativeReactions.some(
+        (audit) => audit.scheduled
+      )
     ) {
-      transformativeReaction = {
-        ...transformativeReaction,
-        scheduled: false,
-        blockedReason: "TARGET_MECHANICS_TRUNCATION"
-      };
+      transformativeReactions =
+        transformativeReactions.map((audit) =>
+          audit.scheduled
+            ? {
+                ...audit,
+                scheduled: false,
+                blockedReason:
+                  "TARGET_MECHANICS_TRUNCATION" as const
+              }
+            : audit
+        );
+      transformativeReaction =
+        transformativeReactions[0] ?? null;
     }
     if (
       mechanicsTruncation !== null &&
@@ -5591,7 +5968,8 @@ export class AuraEngine {
           : reactionNote;
     const pendingBloomNote =
       catalyzeReaction?.quicken?.pendingHydroBloomFollowup === true
-        ? this.mode === "aura-v5"
+        ? this.mode === "aura-v5" ||
+          this.mode === "aura-v6"
           ? `同帧激元素→水绽放后续已结算；本次共排队 ${bloomReactions.length} 个草原核生成请求。`
           : "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
         : null;
@@ -5612,6 +5990,9 @@ export class AuraEngine {
       auraAfter:
         mechanicsTruncation === null ? this.snapshot() : [],
       transformativeReaction,
+      ...(usesOrderedElectroPipeline
+        ? { transformativeReactions }
+        : {}),
       periodicReaction,
       frozenReaction,
       shatterReaction: null,

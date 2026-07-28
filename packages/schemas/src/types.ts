@@ -1,5 +1,8 @@
-export const CURRENT_SCHEMA_VERSION = "1.33.0" as const;
+export const CURRENT_SCHEMA_VERSION = "1.34.0" as const;
 export const CURRENT_ENGINE_VERSION =
+  "1.34.0-general-reaction-order" as const;
+export const TARGET_LOCAL_HITLAG_SCHEMA_VERSION = "1.33.0" as const;
+export const TARGET_LOCAL_HITLAG_ENGINE_VERSION =
   "1.33.0-target-local-hitlag" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
 /**
@@ -269,7 +272,8 @@ export interface AuraReactionEngineConfig {
     | "aura-v2"
     | "aura-v3"
     | "aura-v4"
-    | "aura-v5";
+    | "aura-v5"
+    | "aura-v6";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -879,7 +883,7 @@ export interface AuraStateEntry {
    * disabled output omits it and retains expiresAtFrame byte-for-byte.
    */
   expiresAtTargetFrame?: number | null;
-  /** Present in aura-v3 through aura-v5; each owner keeps an independent slot. */
+  /** Present in aura-v3 through aura-v6; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -930,6 +934,12 @@ export interface ReactionAudit {
   /** Actual remaining aura durability removed by this hit. */
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
+  /**
+   * aura-v6 ordered, independently auditable transformative reactions for one
+   * elemental application. The legacy singular field remains the first-item
+   * compatibility projection.
+   */
+  transformativeReactions?: TransformativeReactionAudit[];
   transformativeReaction: TransformativeReactionAudit | null;
   periodicReaction: PeriodicReactionAudit | null;
   frozenReaction: FrozenReactionAudit | null;
