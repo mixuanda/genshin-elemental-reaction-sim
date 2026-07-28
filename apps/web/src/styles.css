@@ -21,7 +21,10 @@ button, .file-button { border: 1px solid var(--border); background: var(--panel-
 button:hover, .file-button:hover { border-color: var(--accent); transform: translateY(-1px); }
 button.primary { background: var(--accent); color: #08111f; border-color: transparent; font-weight: 700; }
 input, select, textarea { width: 100%; border: 1px solid var(--border); background: #0d121b; color: var(--text); border-radius: 9px; padding: 9px 10px; }
+input:disabled { cursor: not-allowed; opacity: .58; }
 label { color: var(--muted); font-size: 13px; display: grid; gap: 7px; }
+.control-hint { min-height: 2.8em; color: var(--muted); font-size: 11px; line-height: 1.4; }
+#resControl.inactive-mode .control-hint { color: var(--warn); }
 .app-shell { max-width: 1480px; margin: 0 auto; padding: 28px; }
 .topbar { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 20px; }
 .eyebrow { color: var(--accent); font-size: 12px; letter-spacing: .16em; font-weight: 800; }

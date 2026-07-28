@@ -14,6 +14,7 @@ import {
   simulationRunManifestSchema,
   targetStateTimelineSchema,
   type Element,
+  type EnemyElementalResistances,
   type FrameBuffDefinition,
   type FrameHitDefinition,
   type InitialAuraApplication,
@@ -25,7 +26,8 @@ import { describe, expect, it } from "vitest";
 import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
 import playerDamageMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
 import targetClockMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.33.golden.json";
-import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.34.golden.json";
+import matrixV134Golden from "../../../test-vectors/fixtures/reaction-matrix-1.34.golden.json";
+import matrixV135Golden from "../../../test-vectors/fixtures/reaction-matrix-1.35.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -53,6 +55,7 @@ interface MatrixScenario {
   hits: FrameHitDefinition[];
   buffs?: FrameBuffDefinition[];
   reactionMode?: "aura-v5" | "aura-v6";
+  enemyResistances?: EnemyElementalResistances;
 }
 
 function applicationHit({
@@ -330,6 +333,48 @@ const SCENARIOS = {
       })
     ],
     reactionMode: "aura-v6"
+  },
+  elementalResistance: {
+    durationFrames: 10,
+    initialAura: [
+      { element: "pyro", gaugeUnits: 1 },
+      { element: "cryo", gaugeUnits: 1 }
+    ],
+    hits: [
+      applicationHit({
+        id: "elemental-resistance-ordered-reaction",
+        element: "electro",
+        gaugeUnits: 2
+      })
+    ],
+    reactionMode: "aura-v6",
+    enemyResistances: {
+      pyro: 0.3,
+      cryo: 0.4,
+      hydro: 0.1,
+      electro: 0.2,
+      anemo: 0.1,
+      geo: 0.1,
+      dendro: 0.1,
+      physical: 0.1
+    }
+  },
+  hydroFrozenEcGuard: {
+    durationFrames: 31,
+    initialAura: [
+      { element: "pyro", gaugeUnits: 1 },
+      { element: "cryo", gaugeUnits: 1 },
+      { element: "dendro", gaugeUnits: 1 },
+      { element: "electro", gaugeUnits: 1 }
+    ],
+    hits: [
+      applicationHit({
+        id: "hydro-frozen-ec-guard",
+        element: "hydro",
+        gaugeUnits: 3
+      })
+    ],
+    reactionMode: "aura-v6"
   }
 } as const satisfies Record<string, MatrixScenario>;
 
@@ -364,8 +409,8 @@ function makeMatrixConfig(
   return {
     ...base,
     meta: {
-      name: `Reaction matrix 1.34 · ${scenarioId}`,
-      version: "1.34.0",
+      name: `Reaction matrix 1.35 · ${scenarioId}`,
+      version: "1.35.0",
       verificationStatus: "provisional",
       note: `Fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; not official game truth.`
     },
@@ -378,6 +423,13 @@ function makeMatrixConfig(
     enemy: {
       level: 90,
       resistance: 0.1,
+      ...(scenario.enemyResistances === undefined
+        ? {}
+        : {
+            resistances: {
+              ...scenario.enemyResistances
+            }
+          }),
       defReduction: 0,
       targets: targets.map((target) => ({
         ...target,
@@ -518,6 +570,11 @@ function compactResult(result: SimulationResult) {
       durationFrames: Math.round(result.config.duration * 60),
       playerDamageModel: result.config.playerDamageModel,
       targetClockModel: result.config.targetClockModel,
+      ...(result.config.enemy.resistances === undefined
+        ? {}
+        : {
+            enemyResistances: result.config.enemy.resistances
+          }),
       targets: (result.config.enemy.targets ?? []).map((target) => ({
         id: target.id,
         position: target.position,
@@ -545,6 +602,22 @@ function compactResult(result: SimulationResult) {
     reactedHits: result.reactedHits,
     mechanicsStatus: result.mechanicsStatus,
     events: result.damageEvents.map(compactEvent),
+    ...(result.config.enemy.resistances === undefined
+      ? {}
+      : {
+          resistanceAudit: result.damageEvents.map((event) => ({
+            damageEventId: event.id,
+            element: event.element,
+            baseResistance:
+              event.enemyStateBeforeHit.baseResistance,
+            resistanceShred:
+              event.enemyStateBeforeHit.resistanceShred,
+            effectiveResistance:
+              event.enemyStateBeforeHit.effectiveResistance,
+            resistanceMultiplier:
+              event.damageFactors.resistanceMultiplier
+          }))
+        }),
     logs: {
       reactionDamage: result.reactionDamageLog.map((entry) => ({
         id: entry.id,
@@ -1109,7 +1182,10 @@ const REQUIRED_REACTIONS = [
 const V133_FROZEN_SCENARIO_IDS = Object.keys(
   targetClockMatrixGolden.vectors
 );
-const V133_SEMANTIC_HASH_FIELDS = [
+const V134_FROZEN_SCENARIO_IDS = Object.keys(
+  matrixV134Golden.vectors
+);
+const SEMANTIC_HASH_FIELDS = [
   "damageEvents",
   "hitResolutionLog",
   "reactionDamageLog",
@@ -1120,7 +1196,7 @@ const V133_SEMANTIC_HASH_FIELDS = [
   "player"
 ] as const;
 
-describe("1.34 provisional reaction-matrix Golden", () => {
+describe("1.35 provisional reaction-matrix Golden", () => {
   it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
     expect(historicalMatrixGolden.config).toMatchObject({
       schemaVersion: "1.31.0",
@@ -1146,14 +1222,24 @@ describe("1.34 provisional reaction-matrix Golden", () => {
     expect(
       Object.keys(targetClockMatrixGolden.vectors)
     ).toHaveLength(14);
-    expect(matrixGolden.config).toMatchObject({
+    expect(matrixV134Golden.config).toMatchObject({
       schemaVersion: "1.34.0",
       engineVersion: "1.34.0-general-reaction-order",
       baselineReactionEngineMode: "aura-v5",
       orderedElectroReactionEngineMode: "aura-v6",
       targetClockModel: "disabled"
     });
-    expect(Object.keys(matrixGolden.vectors)).toHaveLength(15);
+    expect(Object.keys(matrixV134Golden.vectors)).toHaveLength(15);
+    expect(matrixV135Golden.config).toMatchObject({
+      schemaVersion: "1.35.0",
+      engineVersion: "1.35.0-elemental-enemy-resistance",
+      baselineReactionEngineMode: "aura-v5",
+      orderedElectroReactionEngineMode: "aura-v6",
+      elementalResistanceReactionEngineMode: "aura-v6",
+      hydroFrozenEcGuardReactionEngineMode: "aura-v6",
+      targetClockModel: "disabled"
+    });
+    expect(Object.keys(matrixV135Golden.vectors)).toHaveLength(17);
   });
 
   it("freezes every baseline reaction vector, strict projection, and run identity", () => {
@@ -1307,6 +1393,136 @@ describe("1.34 provisional reaction-matrix Golden", () => {
         expect(result.mechanicsStatus).toBe("complete");
         expect(result.targetMechanicsTruncationLog).toEqual([]);
       }
+      if (scenarioId === "elementalResistance") {
+        expect(result.enemyTargets).toEqual([
+          expect.objectContaining({
+            id: "enemy-0",
+            resistance: 0.1,
+            resistances: scenario.enemyResistances
+          })
+        ]);
+        expect(
+          result.damageEvents.map((event) => ({
+            id: event.id,
+            element: event.element,
+            reaction: event.reaction,
+            baseResistance:
+              event.enemyStateBeforeHit.baseResistance,
+            effectiveResistance:
+              event.enemyStateBeforeHit.effectiveResistance,
+            resistanceMultiplier:
+              event.damageFactors.resistanceMultiplier,
+            finalDamage: event.finalDamage,
+            displayDamage: event.displayDamage
+          }))
+        ).toEqual([
+          {
+            id: 0,
+            element: "electro",
+            reaction: "overload",
+            baseResistance: 0.2,
+            effectiveResistance: 0.2,
+            resistanceMultiplier: 0.8,
+            finalDamage: 400,
+            displayDamage: 400
+          },
+          {
+            id: 1,
+            element: "pyro",
+            reaction: "overload",
+            baseResistance: 0.3,
+            effectiveResistance: 0.3,
+            resistanceMultiplier: 0.7,
+            finalDamage: 5464.283385,
+            displayDamage: 5464
+          },
+          {
+            id: 2,
+            element: "cryo",
+            reaction: "superconduct",
+            baseResistance: 0.4,
+            effectiveResistance: 0.4,
+            resistanceMultiplier: 0.6,
+            finalDamage: 2554.7298942857137,
+            displayDamage: 2555
+          }
+        ]);
+        expect(result.totalDamage).toBe(8419.013279285713);
+      }
+      if (scenarioId === "hydroFrozenEcGuard") {
+        const directEvent = result.damageEvents.find(
+          (event) => event.kind === "direct"
+        );
+        expect(directEvent?.reactionAudit).toMatchObject({
+          reaction: "vaporize",
+          reactions: ["vaporize", "freeze", "bloom"],
+          periodicReaction: null,
+          unsupportedReactions: [],
+          mechanicsTruncation: null
+        });
+        expect(
+          result.damageEvents.map(
+            ({ frame, kind, reaction, finalDamage }) => ({
+              frame,
+              kind,
+              reaction,
+              finalDamage
+            })
+          )
+        ).toEqual([
+          {
+            frame: 0,
+            kind: "direct",
+            reaction: "vaporize",
+            finalDamage: 1246.8
+          }
+        ]);
+        expect(
+          result.damageEvents.filter(
+            (event) =>
+              event.frame === 10 ||
+              event.reaction === "electroCharged"
+          )
+        ).toEqual([]);
+        expect(
+          result.reactionDamageLog.filter(
+            (entry) => entry.reaction === "electroCharged"
+          )
+        ).toEqual([]);
+        expect(
+          result.periodicReactionLog.filter(
+            (entry) => entry.reaction === "electroCharged"
+          )
+        ).toEqual([]);
+        expect(
+          result.dendroCoreLog
+            .filter(
+              (entry) =>
+                entry.operation === "spawn-scheduled" ||
+                entry.operation === "spawn"
+            )
+            .map((entry) => ({
+              operation: entry.operation,
+              frame: entry.frame,
+              spawnFrame:
+                entry.operation === "spawn-scheduled"
+                  ? entry.spawnFrame
+                  : entry.spawnedAtFrame
+            }))
+        ).toEqual([
+          {
+            operation: "spawn-scheduled",
+            frame: 0,
+            spawnFrame: 30
+          },
+          {
+            operation: "spawn",
+            frame: 30,
+            spawnFrame: 30
+          }
+        ]);
+        expect(result.totalDamage).toBe(1246.8);
+      }
 
       for (const event of result.damageEvents) {
         if (event.reaction !== "none") {
@@ -1382,9 +1598,22 @@ describe("1.34 provisional reaction-matrix Golden", () => {
           clockLog: [],
           hitlagLog: []
         });
-        for (const field of V133_SEMANTIC_HASH_FIELDS) {
+        for (const field of SEMANTIC_HASH_FIELDS) {
           expect(compact.hashes[field]).toBe(
             targetClockVector.hashes[field]
+          );
+        }
+      }
+      if (V134_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
+        const v134Vector = (
+          matrixV134Golden.vectors as unknown as Record<
+            string,
+            { hashes: Record<string, string> }
+          >
+        )[scenarioId]!;
+        for (const field of SEMANTIC_HASH_FIELDS) {
+          expect(compact.hashes[field]).toBe(
+            v134Vector.hashes[field]
           );
         }
       }
@@ -1455,7 +1684,7 @@ describe("1.34 provisional reaction-matrix Golden", () => {
       return;
     }
     expect(actualVectors).toEqual(
-      matrixGolden.vectors as Record<string, unknown>
+      matrixV135Golden.vectors as Record<string, unknown>
     );
   });
 });

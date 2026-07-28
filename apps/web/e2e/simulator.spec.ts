@@ -65,6 +65,187 @@ test("shows a field path for an invalid config", async ({ page }) => {
   await expect(page.locator("#jsonError")).toContainText("enemy.level");
 });
 
+test("locks the scalar resistance control when an elemental table is active", async ({
+  page
+}) => {
+  await page.goto("/");
+  const config = await page.evaluate(() => {
+    const nextConfig = structuredClone(window.GenshinDpsLab.getConfig());
+    nextConfig.meta = {
+      ...nextConfig.meta,
+      name: "逐元素敌方抗性 · 浏览器验收"
+    };
+    nextConfig.enemy.resistances = {
+      pyro: 0.47,
+      cryo: -0.2,
+      hydro: 0.12,
+      electro: 0.18,
+      anemo: 0.24,
+      geo: 0.3,
+      dendro: 0.36,
+      physical: 0.42
+    };
+    return nextConfig;
+  });
+
+  await page.locator("#importInput").setInputFiles({
+    name: "elemental-enemy-resistance.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(config))
+  });
+
+  const resistanceInput = page.locator("#resInput");
+  await expect(resistanceInput).toBeDisabled();
+  await expect(resistanceInput).toHaveAttribute(
+    "title",
+    "逐元素抗性由 enemy.resistances JSON 配置控制"
+  );
+  await expect(page.locator("#resModeHint")).toContainText(
+    "逐元素抗性表已启用"
+  );
+  await expect(page.locator("#notice")).toContainText("schema 1.35.0");
+  await expect(page.locator("#notice")).toContainText(
+    "engine 1.35.0-elemental-enemy-resistance"
+  );
+
+  await page.getByRole("button", { name: "运行模拟" }).click();
+  const audit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const pyroHit = result?.damageEvents.find(
+      (event) => event.element === "pyro"
+    );
+    const cryoHit = result?.damageEvents.find(
+      (event) => event.element === "cryo"
+    );
+    return result
+      ? {
+          scalarFallback: result.config.enemy.resistance,
+          table: result.config.enemy.resistances,
+          pyroBaseResistance:
+            pyroHit?.enemyStateBeforeHit.baseResistance ?? null,
+          cryoBaseResistance:
+            cryoHit?.enemyStateBeforeHit.baseResistance ?? null
+        }
+      : null;
+  });
+
+  expect(audit).toEqual({
+    scalarFallback: 0.1,
+    table: {
+      pyro: 0.47,
+      cryo: -0.2,
+      hydro: 0.12,
+      electro: 0.18,
+      anemo: 0.24,
+      geo: 0.3,
+      dendro: 0.36,
+      physical: 0.42
+    },
+    pyroBaseResistance: 0.47,
+    cryoBaseResistance: -0.2
+  });
+
+  await page.locator("#presetSelect").selectOption({ index: 1 });
+  await expect(resistanceInput).toBeEnabled();
+  await expect(page.locator("#resModeHint")).toContainText(
+    "当前作用于：敌人 0"
+  );
+});
+
+test("disables an unused shared scalar for target-level resistance tables and identifies mixed consumers", async ({
+  page
+}) => {
+  await page.goto("/");
+  const targetTableConfig = await page.evaluate(() => {
+    const nextConfig = structuredClone(window.GenshinDpsLab.getConfig());
+    delete nextConfig.enemy.resistances;
+    nextConfig.meta = {
+      ...nextConfig.meta,
+      name: "目标级逐元素抗性 · 浏览器验收"
+    };
+    nextConfig.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "目标表敌人",
+        resistances: {
+          pyro: 0.47,
+          cryo: -0.2,
+          hydro: 0.12,
+          electro: 0.18,
+          anemo: 0.24,
+          geo: 0.3,
+          dendro: 0.36,
+          physical: 0.42
+        }
+      }
+    ];
+    return nextConfig;
+  });
+
+  await page.locator("#importInput").setInputFiles({
+    name: "target-elemental-enemy-resistance.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(targetTableConfig))
+  });
+
+  const resistanceInput = page.locator("#resInput");
+  await expect(resistanceInput).toBeDisabled();
+  await expect(resistanceInput).toHaveAttribute(
+    "title",
+    "所有目标已有目标级抗性覆盖；共享标量当前不参与伤害"
+  );
+  await expect(page.locator("#resModeHint")).toContainText(
+    "共享标量当前不参与伤害"
+  );
+
+  await page.getByRole("button", { name: "运行模拟" }).click();
+  const targetAudit = await page.evaluate(() => {
+    const result = window.GenshinDpsLab.getLastResult();
+    const pyroHit = result?.damageEvents.find(
+      (event) => event.element === "pyro"
+    );
+    const cryoHit = result?.damageEvents.find(
+      (event) => event.element === "cryo"
+    );
+    return result
+      ? {
+          resolvedTable: result.enemyTargets[0]?.resistances,
+          pyroBaseResistance:
+            pyroHit?.enemyStateBeforeHit.baseResistance ?? null,
+          cryoBaseResistance:
+            cryoHit?.enemyStateBeforeHit.baseResistance ?? null
+        }
+      : null;
+  });
+  expect(targetAudit).toEqual({
+    resolvedTable:
+      targetTableConfig.enemy.targets?.[0]?.resistances,
+    pyroBaseResistance: 0.47,
+    cryoBaseResistance: -0.2
+  });
+
+  const mixedConfig = structuredClone(targetTableConfig);
+  mixedConfig.enemy.targets = [
+    ...targetTableConfig.enemy.targets!,
+    {
+      id: "enemy-1",
+      name: "继承共享标量的敌人"
+    }
+  ];
+  await page.locator("#importInput").setInputFiles({
+    name: "mixed-enemy-resistance.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(mixedConfig))
+  });
+  await expect(resistanceInput).toBeEnabled();
+  await expect(page.locator("#resModeHint")).toContainText(
+    "共享标量当前作用于：继承共享标量的敌人"
+  );
+  await expect(page.locator("#resModeHint")).toContainText(
+    "目标级抗性覆盖不受影响"
+  );
+});
+
 test("renders the legal frame action queue and traces hits to commands", async ({
   page
 }) => {

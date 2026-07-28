@@ -22,6 +22,10 @@ import {
   dendroCoreResultReferencesSchema,
   dendroCoreTimelinePointSchema,
   dendroCoreTimelineSchema,
+  enemyTargetProfileSchema,
+  enemyTargetsResultReferencesSchema,
+  GENERAL_REACTION_ORDER_ENGINE_VERSION,
+  GENERAL_REACTION_ORDER_SCHEMA_VERSION,
   migrateConfig,
   parseSimulationRunManifestForConfig,
   PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
@@ -39,6 +43,7 @@ import {
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
   reactionDamageGroupAuditSchema,
+  resolvedEnemyTargetProfileSchema,
   resolvedWorldHitGeometrySchema,
   simulationRunManifestSchema,
   targetClockAuditSchema,
@@ -52,6 +57,7 @@ import {
   targetStateTimelinePointSchema,
   targetStateTimelineSchema,
   transformativeReactionAuditSchema,
+  type EnemyTargetProfile,
   type TargetClockLogEntry,
   type TargetHitlagLogEntry,
   type TargetStateTimeline
@@ -1818,6 +1824,20 @@ describe("1.33 target-local Hitlag contract", () => {
 
   const makeResultReferences = () => ({
     config: makeTargetClockConfig(),
+    enemyTargets: [
+      {
+        id: "enemy-0",
+        name: "Target",
+        level: 110,
+        resistance: 0.1,
+        defReduction: 0,
+        freezeResistance: 0,
+        initialAura: [],
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0
+      }
+    ],
+    damageEvents: [],
     hitResolutionLog: [
       {
         id: 0,
@@ -2258,6 +2278,20 @@ describe("1.33 target-local Hitlag contract", () => {
     const config = migrateConfig(legacyConfig);
     const disabled = {
       config,
+      enemyTargets: [
+        {
+          id: "enemy-0",
+          name: "敌人 0",
+          level: config.enemy.level,
+          resistance: config.enemy.resistance,
+          defReduction: config.enemy.defReduction,
+          freezeResistance: 0,
+          initialAura: [],
+          position: null,
+          hitboxRadius: 0
+        }
+      ],
+      damageEvents: [],
       hitResolutionLog: [],
       reactionStatusLog: [],
       targetStateTimeline: validTargetStateTimeline,
@@ -2355,12 +2389,12 @@ describe("1.34 general reaction order contract", () => {
     };
   };
 
-  it("strictly accepts aura-v6 only under the current schema/engine pair", () => {
+  it("strictly accepts aura-v6 under the current schema/engine pair", () => {
     const config = makeAuraV6Config();
     const parsed = migrateConfig(config);
-    expect(parsed.schemaVersion).toBe("1.34.0");
+    expect(parsed.schemaVersion).toBe("1.35.0");
     expect(parsed.engineVersion).toBe(
-      "1.34.0-general-reaction-order"
+      "1.35.0-elemental-enemy-resistance"
     );
     expect(parsed.reactionEngine?.mode).toBe("aura-v6");
 
@@ -2405,6 +2439,82 @@ describe("1.34 general reaction order contract", () => {
         )
       );
     }
+  });
+
+  it("migrates the frozen 1.34 player, target-clock, scalar-resistance, and aura-v6 contracts unchanged", () => {
+    const current = makeAuraV6Config();
+    const playerDamageModel = {
+      mode: "reaction-self-v1" as const,
+      position: { x: 0, y: 0 },
+      hitboxRadius: 0.5,
+      shieldMode: "crystallize-v1" as const,
+      zeroHpPolicy: "clamp-and-continue" as const,
+      characters: [
+        {
+          actorId: "a",
+          initialHpRatio: 1,
+          resistances: {
+            pyro: 0.1,
+            cryo: 0.1,
+            hydro: 0.1,
+            electro: 0.1,
+            anemo: 0.1,
+            geo: 0.1,
+            dendro: 0.1,
+            physical: 0.1
+          }
+        }
+      ]
+    };
+    const targetClockModel = {
+      mode: "target-local-hitlag-v1" as const
+    };
+    const historical = {
+      ...current,
+      schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
+      engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION,
+      characters: current.characters.map((character) => ({
+        ...character,
+        stats: {
+          ...character.stats,
+          baseHp: 1_000
+        }
+      })),
+      enemy: {
+        ...current.enemy,
+        targets: current.enemy.targets.map((target) => ({
+          ...target,
+          resistance: 0.35
+        }))
+      },
+      playerDamageModel,
+      targetClockModel
+    };
+    const migrated = migrateConfig(historical);
+
+    expect(migrated).toMatchObject({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      enemy: {
+        resistance: historical.enemy.resistance,
+        targets: [{ resistance: 0.35 }]
+      },
+      reactionEngine: { mode: "aura-v6" },
+      playerDamageModel,
+      targetClockModel
+    });
+    expect("resistances" in migrated.enemy).toBe(false);
+    expect(
+      "resistances" in (migrated.enemy.targets?.[0] ?? {})
+    ).toBe(false);
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.34.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.34\.0" requires "1\.34\.0-general-reaction-order"/
+    );
   });
 
   it("inherits aura-v5 legal-frame, target-position, and geometry boundaries", () => {
@@ -2506,6 +2616,345 @@ describe("1.34 general reaction order contract", () => {
         unversionedField: true
       })
     ).toThrow(/Unrecognized key/);
+  });
+});
+
+describe("1.35 per-element enemy resistance schema", () => {
+  const resistances = {
+    pyro: 20,
+    cryo: -12,
+    hydro: 0.3,
+    electro: 0.4,
+    anemo: 0.5,
+    geo: 0.6,
+    dendro: 0.7,
+    physical: 0.8
+  };
+
+  it("accepts exact shared and target eight-element tables without player resistance bounds", () => {
+    const current = migrateConfig(legacyConfig);
+    const targetResistances = {
+      ...resistances,
+      pyro: -20,
+      physical: 12
+    };
+    const parsed = migrateConfig({
+      ...current,
+      enemy: {
+        ...current.enemy,
+        resistances,
+        targets: [
+          { id: "enemy-0", name: "Shared table target" },
+          {
+            id: "enemy-1",
+            name: "Target table override",
+            resistances: targetResistances
+          }
+        ]
+      }
+    });
+
+    expect(parsed.enemy.resistances).toEqual(resistances);
+    expect(parsed.enemy.targets?.[1]?.resistances).toEqual(
+      targetResistances
+    );
+  });
+
+  it("keeps scalar and table target overrides mutually exclusive in TypeScript and Zod", () => {
+    type AmbiguousTarget = {
+      id: "enemy-0";
+      name: "Ambiguous";
+      resistance: 0.2;
+      resistances: typeof resistances;
+    };
+    type AmbiguousTargetIsAssignable =
+      AmbiguousTarget extends EnemyTargetProfile ? true : false;
+    const ambiguousTargetIsAssignable: AmbiguousTargetIsAssignable =
+      false;
+    const scalarTarget: EnemyTargetProfile = {
+      id: "enemy-0",
+      name: "Scalar",
+      resistance: 0.2
+    };
+    const tableTarget: EnemyTargetProfile = {
+      id: "enemy-0",
+      name: "Table",
+      resistances
+    };
+
+    expect(ambiguousTargetIsAssignable).toBe(false);
+    expect(enemyTargetProfileSchema.parse(scalarTarget)).toEqual(
+      scalarTarget
+    );
+    expect(enemyTargetProfileSchema.parse(tableTarget)).toEqual(
+      tableTarget
+    );
+    expect(() =>
+      enemyTargetProfileSchema.parse({
+        id: "enemy-0",
+        name: "Ambiguous",
+        resistance: 0.2,
+        resistances
+      })
+    ).toThrow(
+      /cannot be combined with the scalar resistance override/
+    );
+  });
+
+  it("strictly parses scalar resolved targets without adding a table field", () => {
+    const config = migrateConfig(legacyConfig);
+    const projection = {
+      config,
+      enemyTargets: [
+        {
+          id: "enemy-0",
+          name: "敌人 0",
+          level: config.enemy.level,
+          resistance: config.enemy.resistance,
+          defReduction: config.enemy.defReduction,
+          freezeResistance: 0,
+          initialAura: [],
+          position: null,
+          hitboxRadius: 0
+        }
+      ],
+      damageEvents: [],
+      unrelatedResultField: "preserved"
+    };
+    const parsed =
+      enemyTargetsResultReferencesSchema.parse(projection);
+
+    expect(parsed).toEqual(projection);
+    expect(parsed.enemyTargets[0]).not.toHaveProperty(
+      "resistances"
+    );
+    expect(
+      resolvedEnemyTargetProfileSchema.parse(
+        projection.enemyTargets[0]
+      )
+    ).toEqual(projection.enemyTargets[0]);
+    expect(() =>
+      resolvedEnemyTargetProfileSchema.parse({
+        ...projection.enemyTargets[0],
+        unexpected: true
+      })
+    ).toThrow(/Unrecognized key/);
+  });
+
+  it("validates resolved table inheritance, scalar suppression, and the compatibility fallback", () => {
+    const current = migrateConfig(legacyConfig);
+    const config = migrateConfig({
+      ...current,
+      enemy: {
+        ...current.enemy,
+        resistance: 0.15,
+        resistances,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Shared table",
+            position: { x: 1, y: 2 }
+          },
+          {
+            id: "scalar-target",
+            name: "Scalar override",
+            resistance: 0.45
+          }
+        ]
+      }
+    });
+    const projection = {
+      config,
+      enemyTargets: [
+        {
+          id: "enemy-0",
+          name: "Shared table",
+          level: config.enemy.level,
+          resistance: 0.15,
+          resistances,
+          defReduction: config.enemy.defReduction,
+          freezeResistance: 0,
+          initialAura: [],
+          position: { x: 1, y: 2 },
+          hitboxRadius: 0
+        },
+        {
+          id: "scalar-target",
+          name: "Scalar override",
+          level: config.enemy.level,
+          resistance: 0.45,
+          defReduction: config.enemy.defReduction,
+          freezeResistance: 0,
+          initialAura: [],
+          position: null,
+          hitboxRadius: 0
+        }
+      ],
+      damageEvents: []
+    };
+
+    expect(
+      enemyTargetsResultReferencesSchema.parse(projection)
+    ).toEqual(projection);
+
+    const missingPhysical = structuredClone(projection);
+    delete (
+      missingPhysical.enemyTargets[0]!.resistances as Partial<
+        typeof resistances
+      >
+    ).physical;
+    expect(() =>
+      enemyTargetsResultReferencesSchema.parse(missingPhysical)
+    ).toThrow(/physical/);
+
+    const wrongFallback = structuredClone(projection);
+    wrongFallback.enemyTargets[0]!.resistance = 0.2;
+    expect(() =>
+      enemyTargetsResultReferencesSchema.parse(wrongFallback)
+    ).toThrow(/scalar compatibility fallback/);
+
+    const leakedSharedTable = {
+      ...projection,
+      enemyTargets: projection.enemyTargets.map((target, index) =>
+        index === 1 ? { ...target, resistances } : target
+      )
+    };
+    expect(() =>
+      enemyTargetsResultReferencesSchema.parse(leakedSharedTable)
+    ).toThrow(/must be omitted/);
+  });
+
+  it.each([
+    [
+      "missing key",
+      (() => {
+        const { physical: _physical, ...missingPhysical } =
+          resistances;
+        return missingPhysical;
+      })(),
+      /physical/
+    ],
+    [
+      "unknown key",
+      { ...resistances, all: 0.1 },
+      /Unrecognized key/
+    ],
+    [
+      "NaN",
+      { ...resistances, electro: Number.NaN },
+      /electro/
+    ]
+  ])("rejects a %s", (_label, invalidResistances, expected) => {
+    const current = migrateConfig(legacyConfig);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        enemy: {
+          ...current.enemy,
+          resistances: invalidResistances
+        }
+      })
+    ).toThrow(expected);
+  });
+
+  it("rejects simultaneous scalar and per-element target overrides", () => {
+    const current = migrateConfig(legacyConfig);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        enemy: {
+          ...current.enemy,
+          targets: [
+            {
+              id: "enemy-0",
+              name: "Ambiguous resistance target",
+              resistance: 0.2,
+              resistances
+            }
+          ]
+        }
+      })
+    ).toThrow(
+      /cannot be combined with the scalar resistance override/
+    );
+  });
+
+  it("fails closed when a frozen 1.34 wire config carries shared or target per-element resistance", () => {
+    const current = migrateConfig(legacyConfig);
+    const historical = {
+      ...current,
+      schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
+      engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        enemy: {
+          ...historical.enemy,
+          resistances
+        }
+      })
+    ).toThrow(
+      /enemy\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        enemy: {
+          ...historical.enemy,
+          targets: [
+            {
+              id: "enemy-0",
+              name: "Historical smuggled target",
+              resistances
+            }
+          ]
+        }
+      })
+    ).toThrow(
+      /enemy\.targets\.0\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+    );
+  });
+
+  it("fails closed when a non-JSON 1.34 object inherits per-element resistance from its prototype", () => {
+    const current = migrateConfig(legacyConfig);
+    const historical = {
+      ...current,
+      schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
+      engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION
+    };
+    const inheritedSharedEnemy = Object.assign(
+      Object.create({ resistances }),
+      historical.enemy
+    );
+    const inheritedTarget = Object.assign(
+      Object.create({ resistances }),
+      {
+        id: "enemy-0",
+        name: "Inherited historical target"
+      }
+    );
+
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        enemy: inheritedSharedEnemy
+      })
+    ).toThrow(
+      /enemy\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        enemy: {
+          ...historical.enemy,
+          targets: [inheritedTarget]
+        }
+      })
+    ).toThrow(
+      /enemy\.targets\.0\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+    );
   });
 });
 

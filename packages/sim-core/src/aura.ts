@@ -4759,6 +4759,8 @@ export class AuraEngine {
         orderedHydroReactions.length > 0;
       if (
         remainingHydroGaugeUnits > AURA_EPSILON &&
+        (this.mode === "aura-v5" ||
+          this.frozenGaugeUnits() <= AURA_EPSILON) &&
         (this.auras.get("electro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
       ) {

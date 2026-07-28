@@ -962,6 +962,382 @@ describe("aura-v5 Dendro-core integration", () => {
     validateCoreResult(result);
   });
 
+  it.each([
+    {
+      label: "Overload",
+      contact: "pyro" as const,
+      initialAuraElement: "electro" as const,
+      reaction: "overload" as const,
+      damageFrame: 32
+    },
+    {
+      label: "Superconduct",
+      contact: "electro" as const,
+      initialAuraElement: "cryo" as const,
+      reaction: "superconduct" as const,
+      damageFrame: 32
+    },
+    {
+      label: "Electro-Charged",
+      contact: "electro" as const,
+      initialAuraElement: "hydro" as const,
+      reaction: "electroCharged" as const,
+      damageFrame: 41
+    }
+  ])(
+    "does not let $label reaction damage consume a nearby Dendro core without positive application Gauge",
+    ({
+      contact,
+      initialAuraElement,
+      reaction,
+      damageFrame
+    }) => {
+      const reactionCenter = { x: 4, y: 0 };
+      const result = simulate(
+        makeCoreScenario({
+          coreCount: 1,
+          durationFrames: 60,
+          contact,
+          contactFrame: 31,
+          contactGeometry: {
+            kind: "circle",
+            coordinateSpace: "world",
+            origin: reactionCenter,
+            radius: 0.000001
+          },
+          targets: [
+            {
+              id: "enemy-0",
+              name: "Core source",
+              position: { x: 0, y: 0 },
+              hitboxRadius: 0
+            },
+            {
+              id: "enemy-1",
+              name: `${reaction} source`,
+              position: reactionCenter,
+              hitboxRadius: 0,
+              initialAura: [
+                {
+                  element: initialAuraElement,
+                  gaugeUnits: 1
+                }
+              ]
+            }
+          ]
+        }),
+        { critMode: "noCrit" }
+      );
+      const spawn = result.dendroCoreLog.find(
+        (entry) => entry.operation === "spawn"
+      );
+      if (spawn?.operation !== "spawn") {
+        throw new Error("Expected one active Dendro core.");
+      }
+      const reactionLog = result.reactionDamageLog.find(
+        (entry) =>
+          entry.reaction === reaction &&
+          entry.damageFrame === damageFrame
+      );
+      expect(reactionLog).toMatchObject({
+        reaction,
+        damageFrame,
+        applicationGaugeUnits: null
+      });
+      expect(
+        result.damageEvents.find(
+          (event) =>
+            event.reaction === reaction &&
+            event.frame === damageFrame
+        )
+      ).toBeDefined();
+
+      if (reaction !== "electroCharged") {
+        expect(
+          Math.hypot(
+            spawn.position.x - reactionCenter.x,
+            spawn.position.y - reactionCenter.y
+          )
+        ).toBeLessThanOrEqual(
+          (reactionLog?.radius ?? 0) + spawn.hitboxRadius
+        );
+      }
+      expect(result.dendroCoreContactLog).toMatchObject([
+        {
+          eventType: "hit",
+          contactedCoreIds: []
+        }
+      ]);
+      expect(
+        result.dendroCoreContactLog.filter(
+          (entry) => entry.eventType === "reactionDamage"
+        )
+      ).toEqual([]);
+      expect(
+        result.dendroCoreLog.filter(
+          (entry) => entry.operation === "consume"
+        )
+      ).toEqual([]);
+      expect(
+        result.dendroCoreTimeline.points
+          .at(-1)
+          ?.activeCores.map((core) => core.coreId)
+      ).toEqual([0]);
+      validateCoreResult(result);
+    }
+  );
+
+  it("does not let natural Bloom damage recursively consume a nearby active core", () => {
+    const config = makeCoreScenario({
+      coreCount: 2,
+      durationFrames: 340,
+      targets: [
+        {
+          id: "enemy-0",
+          name: "Early core source",
+          position: { x: 0, y: 0 },
+          hitboxRadius: 0
+        },
+        {
+          id: "enemy-1",
+          name: "Late core source",
+          position: { x: 0, y: 0 },
+          hitboxRadius: 0,
+          initialAura: [
+            { element: "dendro", gaugeUnits: 0.625 }
+          ]
+        }
+      ]
+    });
+    const hydroAbility = config.timeline?.abilities.find(
+      (ability) => ability.id === "hydro-core-generator"
+    );
+    if (hydroAbility?.hits === undefined) {
+      throw new Error("Expected the Hydro core generator.");
+    }
+    hydroAbility.animationEndFrame = 91;
+    hydroAbility.hits[1] = {
+      ...hydroAbility.hits[1]!,
+      frame: 90,
+      targeting: {
+        targetId: "enemy-1",
+        outcome: "landed"
+      }
+    };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const spawns = result.dendroCoreLog.filter(
+      (entry) => entry.operation === "spawn"
+    );
+    const firstSpawn = spawns[0];
+    const secondSpawn = spawns[1];
+    if (
+      firstSpawn?.operation !== "spawn" ||
+      secondSpawn?.operation !== "spawn"
+    ) {
+      throw new Error("Expected two staggered Dendro cores.");
+    }
+    expect(
+      Math.hypot(
+        firstSpawn.position.x - secondSpawn.position.x,
+        firstSpawn.position.y - secondSpawn.position.y
+      )
+    ).toBeLessThanOrEqual(DENDRO_CORE_CONSTANTS.bloomRadius);
+    expect(
+      result.reactionDamageLog.find(
+        (entry) =>
+          entry.scheduleKind === "dendro-core-bloom" &&
+          entry.sourceCoreId === 0
+      )
+    ).toMatchObject({
+      damageFrame: 331,
+      applicationGaugeUnits: null
+    });
+    expect(result.dendroCoreContactLog).toEqual([]);
+    expect(
+      result.dendroCoreLog.filter(
+        (entry) => entry.operation === "consume"
+      )
+    ).toEqual([]);
+    expect(
+      result.dendroCoreTimeline.points
+        .at(-1)
+        ?.activeCores.map((core) => core.coreId)
+    ).toEqual([1]);
+    validateCoreResult(result);
+  });
+
+  it.each([
+    {
+      contact: "pyro" as const,
+      reaction: "burgeon" as const,
+      damageFrame: 32,
+      durationFrames: 60
+    },
+    {
+      contact: "electro" as const,
+      reaction: "hyperbloom" as const,
+      damageFrame: 91,
+      durationFrames: 100
+    }
+  ])(
+    "does not let $reaction damage recursively consume an overlapping active core",
+    ({ contact, reaction, damageFrame, durationFrames }) => {
+      const randomSeed = `non-recursive-${reaction}-seed`;
+      const random = new SeededRandom(
+        `${randomSeed}:dendro-core-position-v1`
+      );
+      const firstAngle = random.next() * Math.PI * 2;
+      const secondAngle = random.next() * Math.PI * 2;
+      const firstCorePosition = {
+        x:
+          Math.cos(firstAngle) *
+          DENDRO_CORE_CONSTANTS.spawnRadiusOffset,
+        y:
+          Math.sin(firstAngle) *
+          DENDRO_CORE_CONSTANTS.spawnRadiusOffset
+      };
+      const desiredSecondCorePosition = {
+        x: firstCorePosition.x + 2.5,
+        y: firstCorePosition.y
+      };
+      const secondTargetPosition = {
+        x:
+          desiredSecondCorePosition.x -
+          Math.cos(secondAngle) *
+            DENDRO_CORE_CONSTANTS.spawnRadiusOffset,
+        y:
+          desiredSecondCorePosition.y -
+          Math.sin(secondAngle) *
+            DENDRO_CORE_CONSTANTS.spawnRadiusOffset
+      };
+      const config = makeCoreScenario({
+        coreCount: 2,
+        durationFrames,
+        contact,
+        contactFrame: 31,
+        contactGeometry: {
+          kind: "circle",
+          coordinateSpace: "world",
+          origin: firstCorePosition,
+          radius: 0.000001
+        },
+        randomSeed,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "First core source",
+            position: { x: 0, y: 0 },
+            hitboxRadius: 0
+          },
+          {
+            id: "enemy-1",
+            name: "Second core source",
+            position: secondTargetPosition,
+            hitboxRadius: 0,
+            initialAura: [
+              { element: "dendro", gaugeUnits: 0.625 }
+            ]
+          }
+        ]
+      });
+      const hydroAbility = config.timeline?.abilities.find(
+        (ability) => ability.id === "hydro-core-generator"
+      );
+      if (hydroAbility?.hits === undefined) {
+        throw new Error("Expected the Hydro core generator.");
+      }
+      hydroAbility.hits[1] = {
+        ...hydroAbility.hits[1]!,
+        targeting: {
+          targetId: "enemy-1",
+          outcome: "landed"
+        }
+      };
+
+      const result = simulate(config, { critMode: "noCrit" });
+      const spawns = result.dendroCoreLog.filter(
+        (entry) => entry.operation === "spawn"
+      );
+      const firstSpawn = spawns[0];
+      const secondSpawn = spawns[1];
+      if (
+        firstSpawn?.operation !== "spawn" ||
+        secondSpawn?.operation !== "spawn"
+      ) {
+        throw new Error("Expected two active Dendro cores.");
+      }
+      expect(firstSpawn.position.x).toBeCloseTo(
+        firstCorePosition.x,
+        12
+      );
+      expect(firstSpawn.position.y).toBeCloseTo(
+        firstCorePosition.y,
+        12
+      );
+      expect(secondSpawn.position.x).toBeCloseTo(
+        desiredSecondCorePosition.x,
+        12
+      );
+      expect(secondSpawn.position.y).toBeCloseTo(
+        desiredSecondCorePosition.y,
+        12
+      );
+
+      const reactionLog = result.reactionDamageLog.find(
+        (entry) =>
+          entry.reaction === reaction &&
+          entry.sourceCoreId === 0
+      );
+      expect(reactionLog).toMatchObject({
+        reaction,
+        damageFrame,
+        applicationGaugeUnits: null
+      });
+      if (
+        reactionLog === undefined ||
+        reactionLog.centerPosition === null
+      ) {
+        throw new Error(
+          `Expected ${reaction} to resolve an explicit damage center.`
+        );
+      }
+      expect(
+        Math.hypot(
+          secondSpawn.position.x -
+            reactionLog.centerPosition.x,
+          secondSpawn.position.y -
+            reactionLog.centerPosition.y
+        )
+      ).toBeLessThanOrEqual(
+        reactionLog.radius + secondSpawn.hitboxRadius
+      );
+      expect(result.dendroCoreContactLog).toMatchObject([
+        {
+          eventType: "hit",
+          checkedCoreIds: [0, 1],
+          contactedCoreIds: [0]
+        }
+      ]);
+      expect(
+        result.dendroCoreContactLog.filter(
+          (entry) => entry.eventType === "reactionDamage"
+        )
+      ).toEqual([]);
+      expect(
+        result.dendroCoreLog
+          .filter((entry) => entry.operation === "consume")
+          .map((entry) => entry.coreId)
+      ).toEqual([0]);
+      expect(
+        result.dendroCoreTimeline.points
+          .at(-1)
+          ?.activeCores.map((core) => core.coreId)
+      ).toEqual([1]);
+      validateCoreResult(result);
+    }
+  );
+
   it("lets a raw Burning-tick application contact a core even when target Aura ICD blocks that application", () => {
     const result = simulate(
       makeCoreScenario({
@@ -1116,17 +1492,24 @@ describe("aura-v5 Dendro-core integration", () => {
   it.each([
     {
       auraElement: "pyro" as const,
+      swirlReaction: "swirlPyro" as const,
       reaction: "burgeon" as const,
       damageFrame: 37
     },
     {
       auraElement: "electro" as const,
+      swirlReaction: "swirlElectro" as const,
       reaction: "hyperbloom" as const,
       damageFrame: 96
     }
   ])(
     "lets $auraElement Swirl propagation contact a core as $reaction",
-    ({ auraElement, reaction, damageFrame }) => {
+    ({
+      auraElement,
+      swirlReaction,
+      reaction,
+      damageFrame
+    }) => {
       const config = makeCoreScenario({
         coreCount: 1,
         durationFrames: 120,
@@ -1202,6 +1585,17 @@ describe("aura-v5 Dendro-core integration", () => {
         }
       );
       const result = simulate(config, { critMode: "noCrit" });
+      const selfDamageLog = result.reactionDamageLog.find(
+        (entry) =>
+          entry.reaction === swirlReaction &&
+          entry.scheduleKind === "swirl-self"
+      );
+      const propagationDamageLog =
+        result.reactionDamageLog.find(
+          (entry) =>
+            entry.reaction === swirlReaction &&
+            entry.scheduleKind === "swirl-propagation"
+        );
 
       expect(result.dendroCoreContactLog).toHaveLength(1);
       expect(result.dendroCoreContactLog[0]).toMatchObject({
@@ -1218,6 +1612,25 @@ describe("aura-v5 Dendro-core integration", () => {
         contactedCoreIds: [0],
         blockedReason: null
       });
+      expect(selfDamageLog).toMatchObject({
+        scheduleKind: "swirl-self",
+        applicationGaugeUnits: null
+      });
+      expect(propagationDamageLog).toMatchObject({
+        scheduleKind: "swirl-propagation",
+        applicationGaugeUnits: expect.any(Number)
+      });
+      expect(
+        result.dendroCoreContactLog[0]!
+          .triggerReactionDamageLogId
+      ).toBe(propagationDamageLog?.id);
+      expect(
+        result.dendroCoreContactLog.some(
+          (entry) =>
+            entry.triggerReactionDamageLogId ===
+            selfDamageLog?.id
+        )
+      ).toBe(false);
       expect(
         result.dendroCoreLog.find(
           (entry) => entry.operation === "consume"

@@ -1,0 +1,89 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Compact 1.35 identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.",
+  "provenance": {
+    "source": "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.34 identity fixture",
+    "capturedAt": "2026-07-28",
+    "verificationStatus": "provisional",
+    "note": "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.35 engine identity changes while the complete 269-event damage digest and aggregate semantics remain frozen to 1.34."
+  },
+  "schemaVersion": "1.35.0",
+  "engineVersion": "1.35.0-elemental-enemy-resistance",
+  "configHash": "fnv1a32:cdbc3848",
+  "reproducibilityKey": "gdl-v2-fnv1a32-463ccabe",
+  "options": {
+    "energyMode": "configured",
+    "critMode": "average",
+    "compatibilityMode": "legacy-v0.1",
+    "randomSeed": "legacy-default"
+  },
+  "totalDamage": 41410555.13728799,
+  "dps": 345087.9594773999,
+  "hitCount": 269,
+  "reactedHits": 129,
+  "skippedActionCount": 3,
+  "byCharacter": {
+    "nicole": 740338.5919263127,
+    "citlali": 77244.84267655843,
+    "durin": 38779268.124040276,
+    "lohen": 1813703.5786448019
+  },
+  "bySkill": [
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 Q",
+      "damage": 33960210.24410402,
+      "hits": 103
+    },
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 E",
+      "damage": 3173673.996688688,
+      "hits": 18
+    },
+    {
+      "creditId": "lohen",
+      "actionName": "洛恩站场输出",
+      "damage": 1813703.5786448019,
+      "hits": 78
+    },
+    {
+      "creditId": "durin",
+      "actionName": "尼可 Q",
+      "damage": 1645383.8832475687,
+      "hits": 10
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 Q",
+      "damage": 577890.9248479266,
+      "hits": 3
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 E",
+      "damage": 162447.66707838603,
+      "hits": 6
+    },
+    {
+      "creditId": "citlali",
+      "actionName": "茜特菈莉 E",
+      "damage": 77244.84267655843,
+      "hits": 51
+    }
+  ],
+  "legacyDamageEventsSha256": "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f",
+  "targetClock": {
+    "config": {
+      "mode": "disabled"
+    },
+    "audit": {
+      "version": "1.0.0",
+      "mode": "disabled",
+      "hitlagStatus": "unsupported-enemy-hitlag",
+      "targets": []
+    },
+    "clockLog": [],
+    "hitlagLog": []
+  }
+}

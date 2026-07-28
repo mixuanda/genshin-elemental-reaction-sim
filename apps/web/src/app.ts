@@ -259,9 +259,50 @@ function syncControlsFromConfig(): void {
   byId<HTMLInputElement>("enemyLevelInput").value = String(
     currentConfig.enemy.level
   );
-  byId<HTMLInputElement>("resInput").value = String(
+  const resistanceInput = byId<HTMLInputElement>("resInput");
+  const resistanceControl = byId<HTMLElement>("resControl");
+  const resistanceModeHint = byId<HTMLElement>("resModeHint");
+  const configuredTargets = currentConfig.enemy.targets;
+  const scalarConsumerNames =
+    currentConfig.enemy.resistances !== undefined
+      ? []
+      : configuredTargets === undefined
+        ? ["敌人 0"]
+        : configuredTargets
+            .filter(
+              (target) =>
+                target.resistance === undefined &&
+                target.resistances === undefined
+            )
+            .map((target) => target.name);
+  const targetOverrideCount =
+    configuredTargets === undefined
+      ? 0
+      : configuredTargets.length - scalarConsumerNames.length;
+  const scalarResistanceIsUnused =
+    scalarConsumerNames.length === 0;
+  const usesSharedElementalResistanceTable =
+    currentConfig.enemy.resistances !== undefined;
+  resistanceInput.value = String(
     round(currentConfig.enemy.resistance * 100, 2)
   );
+  resistanceInput.disabled = scalarResistanceIsUnused;
+  resistanceInput.title = usesSharedElementalResistanceTable
+    ? "逐元素抗性由 enemy.resistances JSON 配置控制"
+    : scalarResistanceIsUnused
+      ? "所有目标已有目标级抗性覆盖；共享标量当前不参与伤害"
+      : `全元素共享的兼容抗性；当前作用于：${scalarConsumerNames.join("、")}`;
+  resistanceControl.classList.toggle(
+    "inactive-mode",
+    scalarResistanceIsUnused
+  );
+  resistanceModeHint.textContent = usesSharedElementalResistanceTable
+    ? "逐元素抗性表已启用；请在高级配置 JSON 中编辑。"
+    : scalarResistanceIsUnused
+      ? "所有目标均使用目标级抗性覆盖；共享标量当前不参与伤害，请在高级配置 JSON 中编辑目标抗性。"
+      : targetOverrideCount > 0
+        ? `共享标量当前作用于：${scalarConsumerNames.join("、")}；其余目标的目标级抗性覆盖不受影响。`
+        : `全元素共享的兼容抗性（当前作用于：${scalarConsumerNames.join("、")}）。`;
   byId<HTMLTextAreaElement>("jsonEditor").value = JSON.stringify(
     currentConfig,
     null,
@@ -285,7 +326,9 @@ function syncConfigFromControls(): void {
     1,
     200
   );
-  currentConfig.enemy.resistance = numericInput("resInput", 10) / 100;
+  if (!byId<HTMLInputElement>("resInput").disabled) {
+    currentConfig.enemy.resistance = numericInput("resInput", 10) / 100;
+  }
 }
 
 function runSimulation(): void {
@@ -363,6 +406,8 @@ function renderAll(): void {
     `<strong>${escapeHtml(lastResult.config.meta.name)}</strong> ` +
     `<span class="badge warn">${escapeHtml(status)}</span> · ` +
     `<span class="badge">${escapeHtml(lastResult.compatibilityMode)}</span> · ` +
+    `<span class="badge">schema ${escapeHtml(lastResult.config.schemaVersion)}</span> · ` +
+    `<span class="badge">engine ${escapeHtml(lastResult.config.engineVersion)}</span> · ` +
     `${escapeHtml(lastResult.config.meta.note ?? "")}` +
     (auditDisclosure === null
       ? ""

@@ -1,5 +1,8 @@
-export const CURRENT_SCHEMA_VERSION = "1.34.0" as const;
+export const CURRENT_SCHEMA_VERSION = "1.35.0" as const;
 export const CURRENT_ENGINE_VERSION =
+  "1.35.0-elemental-enemy-resistance" as const;
+export const GENERAL_REACTION_ORDER_SCHEMA_VERSION = "1.34.0" as const;
+export const GENERAL_REACTION_ORDER_ENGINE_VERSION =
   "1.34.0-general-reaction-order" as const;
 export const TARGET_LOCAL_HITLAG_SCHEMA_VERSION = "1.33.0" as const;
 export const TARGET_LOCAL_HITLAG_ENGINE_VERSION =
@@ -175,6 +178,17 @@ export interface PlayerElementalResistances {
   physical: number;
 }
 
+export interface EnemyElementalResistances {
+  pyro: number;
+  cryo: number;
+  hydro: number;
+  electro: number;
+  anemo: number;
+  geo: number;
+  dendro: number;
+  physical: number;
+}
+
 export interface PlayerReactionSelfCharacterState {
   actorId: string;
   initialHpRatio: number;
@@ -327,6 +341,8 @@ export interface CharacterProfile {
 export interface EnemyProfile {
   level: number;
   resistance: number;
+  /** Optional exact per-element base resistance table. */
+  resistances?: EnemyElementalResistances;
   defReduction: number;
   /** 0 = normal Frozen decay; 1 = immune to Frozen durability. */
   freezeResistance?: number;
@@ -347,11 +363,10 @@ export interface EnemyProfile {
   targetMotions?: TargetMotionDefinition[];
 }
 
-export interface EnemyTargetProfile {
+export interface EnemyTargetProfileBase {
   id: TargetId;
   name: string;
   level?: number;
-  resistance?: number;
   defReduction?: number;
   /** Overrides the shared enemy Frozen resistance. */
   freezeResistance?: number;
@@ -361,11 +376,31 @@ export interface EnemyTargetProfile {
   hitboxRadius?: number;
 }
 
+export type EnemyTargetProfile = EnemyTargetProfileBase &
+  (
+    | {
+        /** Overrides every element with one scalar value. */
+        resistance?: number;
+        resistances?: never;
+      }
+    | {
+        resistance?: never;
+        /** Exact eight-element override; mutually exclusive with resistance. */
+        resistances: EnemyElementalResistances;
+      }
+  );
+
 export interface ResolvedEnemyTargetProfile {
   id: TargetId;
   name: string;
   level: number;
+  /**
+   * Compatibility scalar fallback. When resistances is present, damage uses
+   * that table and this value remains only for legacy consumers.
+   */
   resistance: number;
+  /** Present only when this target resolves to per-element base resistance. */
+  resistances?: EnemyElementalResistances;
   defReduction: number;
   freezeResistance: number;
   initialAura: InitialAuraApplication[];

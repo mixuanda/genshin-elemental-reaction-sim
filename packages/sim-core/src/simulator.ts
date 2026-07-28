@@ -163,6 +163,13 @@ export function projectBloomBurningFuelExpiry(
 
 const GEOMETRY_EPSILON = 1e-9;
 
+function resolveEnemyBaseResistance(
+  target: SimulationResult["enemyTargets"][number],
+  element: Element
+): number {
+  return target.resistances?.[element] ?? target.resistance;
+}
+
 function distancePointToSegment(
   point: { x: number; y: number },
   start: { x: number; y: number },
@@ -1071,22 +1078,34 @@ function simulateConfig(
         name: "敌人 0"
       }
     ]
-  ).map((target) => ({
-    id: target.id,
-    name: target.name,
-    level: target.level ?? config.enemy.level,
-    resistance: target.resistance ?? config.enemy.resistance,
-    defReduction: target.defReduction ?? config.enemy.defReduction,
-    freezeResistance:
-      target.freezeResistance ??
-      config.enemy.freezeResistance ??
-      0,
-    initialAura: deepClone(
-      target.initialAura ?? config.reactionEngine?.initialAura ?? []
-    ),
-    position: target.position === undefined ? null : deepClone(target.position),
-    hitboxRadius: target.hitboxRadius ?? 0
-  }));
+  ).map((target) => {
+    const resolvedResistances =
+      target.resistance !== undefined
+        ? undefined
+        : target.resistances ?? config.enemy.resistances;
+    return {
+      id: target.id,
+      name: target.name,
+      level: target.level ?? config.enemy.level,
+      resistance: target.resistance ?? config.enemy.resistance,
+      ...(resolvedResistances === undefined
+        ? {}
+        : { resistances: deepClone(resolvedResistances) }),
+      defReduction: target.defReduction ?? config.enemy.defReduction,
+      freezeResistance:
+        target.freezeResistance ??
+        config.enemy.freezeResistance ??
+        0,
+      initialAura: deepClone(
+        target.initialAura ?? config.reactionEngine?.initialAura ?? []
+      ),
+      position:
+        target.position === undefined
+          ? null
+          : deepClone(target.position),
+      hitboxRadius: target.hitboxRadius ?? 0
+    };
+  });
   const enemyTargetById = new Map(
     enemyTargets.map((target) => [target.id, target])
   );
@@ -8068,8 +8087,12 @@ function simulateConfig(
           targetProfile.defReduction,
           plan.targetId
         );
+        const baseResistance = resolveEnemyBaseResistance(
+          targetProfile,
+          damageElement
+        );
         const effectiveResistance =
-          targetProfile.resistance - debuffState.resShred;
+          baseResistance - debuffState.resShred;
         const effectiveDefenseReduction = clamp(
           debuffState.defReduction,
           -1,
@@ -8329,7 +8352,7 @@ function simulateConfig(
           activeStatuses,
           enemyStateBeforeHit: {
             level: targetProfile.level,
-            baseResistance: targetProfile.resistance,
+            baseResistance,
             resistanceShred: debuffState.resShred,
             effectiveResistance,
             baseDefenseReduction: targetProfile.defReduction,
@@ -8973,8 +8996,12 @@ function simulateConfig(
       targetProfile.defReduction,
       targetId
     );
+    const baseResistance = resolveEnemyBaseResistance(
+      targetProfile,
+      element
+    );
     const effectiveResistance =
-      targetProfile.resistance -
+      baseResistance -
       debuffState.resShred -
       safeNumber(hit.resShred);
     const effectiveDefenseReduction = clamp(
@@ -9013,7 +9040,7 @@ function simulateConfig(
     ];
     const enemyStateBeforeHit = {
       level: targetProfile.level,
-      baseResistance: targetProfile.resistance,
+      baseResistance,
       resistanceShred: debuffState.resShred + safeNumber(hit.resShred),
       effectiveResistance,
       baseDefenseReduction: targetProfile.defReduction,

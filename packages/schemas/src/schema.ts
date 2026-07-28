@@ -18,6 +18,8 @@ import {
   FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
+  GENERAL_REACTION_ORDER_ENGINE_VERSION,
+  GENERAL_REACTION_ORDER_SCHEMA_VERSION,
   HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
@@ -187,6 +189,19 @@ export const playerElementalResistancesSchema = z
     geo: finiteNumber.min(-10).max(10),
     dendro: finiteNumber.min(-10).max(10),
     physical: finiteNumber.min(-10).max(10)
+  })
+  .strict();
+
+export const enemyElementalResistancesSchema = z
+  .object({
+    pyro: finiteNumber,
+    cryo: finiteNumber,
+    hydro: finiteNumber,
+    electro: finiteNumber,
+    anemo: finiteNumber,
+    geo: finiteNumber,
+    dendro: finiteNumber,
+    physical: finiteNumber
   })
   .strict();
 
@@ -7716,11 +7731,44 @@ export const enemyTargetProfileSchema = z
     name: idSchema,
     level: z.number().int().min(1).max(200).optional(),
     resistance: finiteNumber.optional(),
+    resistances: enemyElementalResistancesSchema.optional(),
     defReduction: finiteNumber.optional(),
     freezeResistance: finiteNumber.min(0).max(1).optional(),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     position: point2DSchema.optional(),
     hitboxRadius: finiteNumber.min(0).max(1_000).optional()
+  })
+  .strict()
+  .superRefine((target, context) => {
+    if (
+      target.resistance !== undefined &&
+      target.resistances !== undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["resistances"],
+        message:
+          "cannot be combined with the scalar resistance override"
+      });
+    }
+  });
+
+export const resolvedEnemyTargetProfileSchema = z
+  .object({
+    id: idSchema,
+    name: idSchema,
+    level: z.number().int().min(1).max(200),
+    resistance: finiteNumber.describe(
+      "Compatibility scalar fallback; resistances takes precedence when present"
+    ),
+    resistances: enemyElementalResistancesSchema
+      .describe("Exact per-element base resistance table")
+      .optional(),
+    defReduction: finiteNumber,
+    freezeResistance: finiteNumber.min(0).max(1),
+    initialAura: z.array(initialAuraApplicationSchema).max(5),
+    position: point2DSchema.nullable(),
+    hitboxRadius: finiteNumber.min(0).max(1_000)
   })
   .strict();
 
@@ -7728,6 +7776,7 @@ export const enemyProfileSchema = z
   .object({
     level: z.number().int().min(1).max(200),
     resistance: finiteNumber,
+    resistances: enemyElementalResistancesSchema.optional(),
     defReduction: finiteNumber,
     freezeResistance: finiteNumber.min(0).max(1).optional(),
     targets: z.array(enemyTargetProfileSchema).min(1).max(32).optional(),
@@ -9420,6 +9469,227 @@ export const simConfigSchema = z
     }
   });
 
+const enemyResistanceDamageEventReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    element: elementSchema,
+    enemyStateBeforeHit: z
+      .object({
+        baseResistance: finiteNumber
+      })
+      .passthrough()
+  })
+  .passthrough();
+
+const enemyTargetsResultReferencesBaseSchema = z
+  .object({
+    config: simConfigSchema,
+    enemyTargets: z
+      .array(resolvedEnemyTargetProfileSchema)
+      .min(1)
+      .max(32),
+    damageEvents: z.array(
+      enemyResistanceDamageEventReferenceSchema
+    )
+  })
+  .passthrough();
+
+type EnemyTargetsResultReferencesProjection = z.infer<
+  typeof enemyTargetsResultReferencesBaseSchema
+>;
+
+function validateEnemyTargetsResultReferences(
+  result: EnemyTargetsResultReferencesProjection,
+  context: z.RefinementCtx
+): void {
+  const configuredTargets = result.config.enemy.targets ?? [
+    {
+      id: "enemy-0",
+      name: "敌人 0"
+    }
+  ];
+  if (result.enemyTargets.length !== configuredTargets.length) {
+    context.addIssue({
+      code: "custom",
+      path: ["enemyTargets"],
+      message:
+        "must contain exactly one resolved row for each configured target"
+    });
+    return;
+  }
+
+  const resistanceElements = [
+    "pyro",
+    "cryo",
+    "hydro",
+    "electro",
+    "anemo",
+    "geo",
+    "dendro",
+    "physical"
+  ] as const;
+  for (const [
+    index,
+    configuredTarget
+  ] of configuredTargets.entries()) {
+    const resolvedTarget = result.enemyTargets[index];
+    if (resolvedTarget === undefined) continue;
+    const issue = (field: string, message: string): void => {
+      context.addIssue({
+        code: "custom",
+        path: ["enemyTargets", index, field],
+        message
+      });
+    };
+    const expectedScalarResistance =
+      configuredTarget.resistance ??
+      result.config.enemy.resistance;
+    const expectedResistances =
+      configuredTarget.resistance !== undefined
+        ? undefined
+        : configuredTarget.resistances ??
+          result.config.enemy.resistances;
+    const expectedInitialAura =
+      configuredTarget.initialAura ??
+      result.config.reactionEngine?.initialAura ??
+      [];
+    const expectedPosition = configuredTarget.position ?? null;
+
+    if (resolvedTarget.id !== configuredTarget.id) {
+      issue("id", "must preserve configured target order and id");
+    }
+    if (resolvedTarget.name !== configuredTarget.name) {
+      issue("name", "must equal the configured target name");
+    }
+    if (
+      resolvedTarget.level !==
+      (configuredTarget.level ?? result.config.enemy.level)
+    ) {
+      issue("level", "must resolve the target/shared enemy level");
+    }
+    if (resolvedTarget.resistance !== expectedScalarResistance) {
+      issue(
+        "resistance",
+        "must preserve the target/shared scalar compatibility fallback"
+      );
+    }
+    if (expectedResistances === undefined) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          resolvedTarget,
+          "resistances"
+        )
+      ) {
+        issue(
+          "resistances",
+          "must be omitted when this target resolves to scalar resistance"
+        );
+      }
+    } else if (
+      resolvedTarget.resistances === undefined ||
+      resistanceElements.some(
+        (element) =>
+          resolvedTarget.resistances?.[element] !==
+          expectedResistances[element]
+      )
+    ) {
+      issue(
+        "resistances",
+        "must equal the exact target/shared per-element resistance table"
+      );
+    }
+    if (
+      resolvedTarget.defReduction !==
+      (configuredTarget.defReduction ??
+        result.config.enemy.defReduction)
+    ) {
+      issue(
+        "defReduction",
+        "must resolve the target/shared defense reduction"
+      );
+    }
+    if (
+      resolvedTarget.freezeResistance !==
+      (configuredTarget.freezeResistance ??
+        result.config.enemy.freezeResistance ??
+        0)
+    ) {
+      issue(
+        "freezeResistance",
+        "must resolve the target/shared Frozen resistance"
+      );
+    }
+    if (
+      JSON.stringify(resolvedTarget.initialAura) !==
+      JSON.stringify(expectedInitialAura)
+    ) {
+      issue(
+        "initialAura",
+        "must resolve the target/shared initial Aura"
+      );
+    }
+    if (
+      JSON.stringify(resolvedTarget.position) !==
+      JSON.stringify(expectedPosition)
+    ) {
+      issue(
+        "position",
+        "must resolve the configured target position or null"
+      );
+    }
+    if (
+      resolvedTarget.hitboxRadius !==
+      (configuredTarget.hitboxRadius ?? 0)
+    ) {
+      issue(
+        "hitboxRadius",
+        "must resolve the configured hitbox radius or zero"
+      );
+    }
+  }
+
+  const resolvedTargetById = new Map(
+    result.enemyTargets.map((target) => [target.id, target])
+  );
+  result.damageEvents.forEach((event, eventIndex) => {
+    const resolvedTarget = resolvedTargetById.get(event.targetId);
+    if (resolvedTarget === undefined) {
+      context.addIssue({
+        code: "custom",
+        path: ["damageEvents", eventIndex, "targetId"],
+        message:
+          "must reference one of the resolved enemy targets"
+      });
+      return;
+    }
+    const expectedBaseResistance =
+      resolvedTarget.resistances?.[event.element] ??
+      resolvedTarget.resistance;
+    if (
+      event.enemyStateBeforeHit.baseResistance !==
+      expectedBaseResistance
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: [
+          "damageEvents",
+          eventIndex,
+          "enemyStateBeforeHit",
+          "baseResistance"
+        ],
+        message:
+          "must equal the resolved target resistance for this damage element"
+      });
+    }
+  });
+}
+
+export const enemyTargetsResultReferencesSchema =
+  enemyTargetsResultReferencesBaseSchema.superRefine(
+    validateEnemyTargetsResultReferences
+  );
+
 const targetClockHitResolutionReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
@@ -9496,14 +9766,22 @@ const targetClockReactionStatusReferenceSchema = z
   });
 
 /**
- * Strict target-clock projection over a complete SimulationResult.
+ * Strict target-clock and enemy-resistance projection over a complete
+ * SimulationResult.
  *
- * Unrelated result fields are accepted, but every target-clock-owned field is
- * parsed strictly and all forward/back references are checked here.
+ * Unrelated result fields are accepted, but every target-clock-owned field and
+ * the resolved per-hit base resistance are parsed and cross-checked here.
  */
 export const targetClockResultReferencesSchema = z
   .object({
     config: simConfigSchema,
+    enemyTargets: z
+      .array(resolvedEnemyTargetProfileSchema)
+      .min(1)
+      .max(32),
+    damageEvents: z.array(
+      enemyResistanceDamageEventReferenceSchema
+    ),
     hitResolutionLog: z.array(
       targetClockHitResolutionReferenceSchema
     ),
@@ -9517,6 +9795,7 @@ export const targetClockResultReferencesSchema = z
   })
   .passthrough()
   .superRefine((result, context) => {
+    validateEnemyTargetsResultReferences(result, context);
     const issue = (
       path: Array<string | number>,
       message: string
@@ -10941,7 +11220,8 @@ type HistoricalAuraMode =
   | "aura-v2"
   | "aura-v3"
   | "aura-v4"
-  | "aura-v5";
+  | "aura-v5"
+  | "aura-v6";
 
 interface HistoricalSchemaContract {
   engineVersion: string;
@@ -10960,6 +11240,14 @@ const HISTORICAL_AURA_MODES = {
     "aura-v3",
     "aura-v4",
     "aura-v5"
+  ] as const,
+  v6: [
+    "aura-v1",
+    "aura-v2",
+    "aura-v3",
+    "aura-v4",
+    "aura-v5",
+    "aura-v6"
   ] as const
 } satisfies Record<string, readonly HistoricalAuraMode[]>;
 
@@ -11104,6 +11392,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [TARGET_LOCAL_HITLAG_SCHEMA_VERSION]: {
     engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v5
+  },
+  [GENERAL_REACTION_ORDER_SCHEMA_VERSION]: {
+    engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v6
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -11140,6 +11432,24 @@ function validateHistoricalSchemaContract(
   }
 }
 
+function findEnemyElementalResistancesPath(
+  input: Record<string, unknown>
+): string | null {
+  if (!isRecord(input.enemy)) return null;
+  // Historical configs are a wire contract. Reject inherited fields too so a
+  // non-JSON object cannot smuggle current semantics through its prototype.
+  if ("resistances" in input.enemy) {
+    return "enemy.resistances";
+  }
+  if (!Array.isArray(input.enemy.targets)) return null;
+  for (const [index, target] of input.enemy.targets.entries()) {
+    if (isRecord(target) && "resistances" in target) {
+      return `enemy.targets.${index}.resistances`;
+    }
+  }
+  return null;
+}
+
 export function migrateConfig(rawInput: unknown): SimConfig {
   if (!isRecord(rawInput)) {
     throw new ConfigMigrationError("配置校验失败：<root>: expected an object");
@@ -11147,8 +11457,24 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   let input: Record<string, unknown> = rawInput;
 
   const version = input.schemaVersion;
+  const historicalEnemyElementalResistancesPath =
+    version === CURRENT_SCHEMA_VERSION
+      ? null
+      : findEnemyElementalResistancesPath(input);
+  if (historicalEnemyElementalResistancesPath !== null) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `${historicalEnemyElementalResistancesPath}: schemaVersion "${historicalVersion}" does not support per-element enemy resistance configuration`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== DENDRO_CORE_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
@@ -11167,6 +11493,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v6"
   ) {
@@ -11182,6 +11509,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
@@ -11203,6 +11531,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
     !(
@@ -11233,6 +11562,13 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === GENERAL_REACTION_ORDER_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_LOCAL_HITLAG_SCHEMA_VERSION) {
     return parseSimConfig({
