@@ -29,6 +29,12 @@ import type {
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 import { resolveBloomGauge } from "./bloom-gauge";
+import {
+  TargetLocalClock,
+  type TargetHitlagAudit,
+  type TargetHitlagInput,
+  type TargetLocalClockState
+} from "./target-clock";
 
 const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
@@ -312,6 +318,11 @@ export interface ShatterStateResult {
 
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
   freezeResistance?: number;
+  /**
+   * Optional simulator-owned target clock. Historical/disabled runs omit it
+   * and retain the frozen pre-1.33 global-frame behavior byte-for-byte.
+   */
+  targetClock?: TargetLocalClock;
 }
 
 export interface QuickenLifecycleState {
@@ -491,6 +502,7 @@ export class AuraEngine {
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
   private readonly freezeResistance: number;
+  private readonly targetClock: TargetLocalClock | null;
   private readonly reactionDamageReadyFrames = new Map<
     OneShotTransformativeReaction,
     number
@@ -519,13 +531,19 @@ export class AuraEngine {
   private burningGeneration = 0;
   private burningDamageSourceActorId: string | null = null;
   private burningFuelSourceActorId: string | null = null;
-  /** Fuel applied after the frame's Aura decay; its first decay is next frame-end. */
+  /**
+   * Target-clock frame at which Fuel was applied after Aura decay. In legacy
+   * runs target and global frames are identical.
+   */
   private burningFuelAttachedFrame = -1;
-  /** Bloom may deplete Fuel after the frame's Burning check; purge on the next frame. */
+  /**
+   * Target-clock frame at which Bloom depleted Fuel after the Burning check;
+   * the dependent state is purged on the next active target tick.
+   */
   private burningFuelDepletedFrame: number | null = null;
   /** Effective decay retained for the one-frame Fuel-depleted purge boundary. */
   private burningFuelDepletedDecayPerFrame: number | null = null;
-  private burningNextTickFrame = -1;
+  private burningNextTickTargetFrame = -1;
   private burningNextTickIndex = 1;
   private lastBurningApplicationIcdDecision:
     | BurningApplicationIcdDecision
@@ -537,11 +555,18 @@ export class AuraEngine {
     quickenStateMutation: QuickenDecayMutationAudit;
   } | null = null;
   private currentFrame = 0;
+  /**
+   * During a running target Tick the shared clock has already advanced, while
+   * Aura durability still represents the previous target frame. This override
+   * preserves the fixed queue-before-decay boundary for expiry projections.
+   */
+  private targetFrameProjectionOverride: number | null = null;
   private mechanicsTruncation: TargetMechanicsTruncationAudit | null =
     null;
 
   constructor(config: AuraEngineConfig) {
     this.mode = config.mode;
+    this.targetClock = config.targetClock ?? null;
     this.freezeResistance = config.freezeResistance ?? 0;
     if (
       !Number.isFinite(this.freezeResistance) ||
@@ -574,6 +599,65 @@ export class AuraEngine {
 
   getCurrentFrame(): number {
     return this.currentFrame;
+  }
+
+  getCurrentTargetFrame(): number {
+    return this.targetClock?.getState().localFrame ?? this.currentFrame;
+  }
+
+  getTargetClockState(): Readonly<TargetLocalClockState> | null {
+    return this.targetClock?.getState() ?? null;
+  }
+
+  applyTargetHitlag(
+    input: Readonly<TargetHitlagInput>
+  ): Readonly<TargetHitlagAudit> {
+    if (this.targetClock === null) {
+      throw new Error(
+        "Enemy hitlag requires an enabled target-local clock."
+      );
+    }
+    this.advanceTo(input.globalFrame);
+    return this.targetClock.applyHitlag(input);
+  }
+
+  projectTargetFrame(targetFrame: number): number {
+    if (!Number.isSafeInteger(targetFrame) || targetFrame < 0) {
+      throw new Error(
+        `Target frame must be a non-negative safe integer; got ${targetFrame}`
+      );
+    }
+    return this.targetClock === null
+      ? targetFrame
+      : this.targetClock.projectGlobalFrameForLocalDeadline(
+          targetFrame
+        );
+  }
+
+  projectTargetDelay(delayFrames: number): number {
+    if (!Number.isSafeInteger(delayFrames) || delayFrames < 0) {
+      throw new Error(
+        `Target-local delay must be a non-negative safe integer; got ${delayFrames}`
+      );
+    }
+    return this.projectTargetFrame(
+      this.getCurrentTargetFrame() + delayFrames
+    );
+  }
+
+  private clockFrame(): number {
+    return (
+      this.targetFrameProjectionOverride ??
+      this.getCurrentTargetFrame()
+    );
+  }
+
+  private clockDeadline(delayFrames: number): number {
+    return this.clockFrame() + delayFrames;
+  }
+
+  private projectClockDeadline(clockDeadline: number): number {
+    return this.projectTargetFrame(clockDeadline);
   }
 
   getQuickenLifecycleState(): QuickenLifecycleState {
@@ -808,11 +892,12 @@ export class AuraEngine {
     if (fuel === undefined || fuel.decayPerFrame <= 0) {
       return null;
     }
-    return (
-      this.currentFrame +
+    const currentClockFrame = this.clockFrame();
+    return this.projectClockDeadline(
+      currentClockFrame +
       Math.max(
         0,
-        this.burningFuelAttachedFrame + 1 - this.currentFrame
+        this.burningFuelAttachedFrame + 1 - currentClockFrame
       ) +
       remainingDecayFrames(
         fuel.gaugeUnits,
@@ -828,7 +913,9 @@ export class AuraEngine {
       this.burningFuelDepletedFrame !== null &&
       this.burningGaugeUnits() > AURA_EPSILON
     ) {
-      return this.burningFuelDepletedFrame + 1;
+      return this.projectClockDeadline(
+        this.burningFuelDepletedFrame + 1
+      );
     }
     return null;
   }
@@ -855,7 +942,7 @@ export class AuraEngine {
     this.burningFuelAttachedFrame = -1;
     this.burningFuelDepletedFrame = null;
     this.burningFuelDepletedDecayPerFrame = null;
-    this.burningNextTickFrame = -1;
+    this.burningNextTickTargetFrame = -1;
     this.burningNextTickIndex = 1;
     this.lastBurningStop = {
       fromGeneration,
@@ -921,6 +1008,162 @@ export class AuraEngine {
     this.currentFrame += elapsed;
   }
 
+  /**
+   * Advance one non-frozen enemy Tick while retaining the actual global frame
+   * for result timestamps. The target-local clock has already advanced by one
+   * before this method runs.
+   */
+  private advanceOneClockedTargetTick(globalFrame: number): void {
+    this.currentFrame = globalFrame;
+    const targetFrame = this.getCurrentTargetFrame();
+    const previousTargetFrame = targetFrame - 1;
+    this.targetFrameProjectionOverride = previousTargetFrame;
+
+    try {
+      if (
+        this.burningFuelDepletedFrame !== null &&
+        targetFrame > this.burningFuelDepletedFrame
+      ) {
+        const quickenBeforeFuelPurge =
+          this.captureQuickenDecayState();
+        this.targetFrameProjectionOverride = targetFrame;
+        this.stopBurning(
+          globalFrame,
+          "FUEL_EXPIRED",
+          true,
+          quickenBeforeFuelPurge
+        );
+      }
+
+      if (usesBurningModel(this.mode) && this.hasActiveBurning()) {
+        const burningWasActive = this.hasActiveBurning();
+        for (const [element, aura] of this.auras) {
+          if (
+            element === "frozen" ||
+            element === "dendro" ||
+            element === "quicken" ||
+            element === "burning" ||
+            element === "burningFuel"
+          ) {
+            continue;
+          }
+          this.reduceAuraByDecay(aura, aura.decayPerFrame);
+        }
+
+        if (burningWasActive) {
+          const fuel = this.auras.get("burningFuel");
+          const quickenBeforeFuelDecay = this.auras.has(
+            "quicken"
+          )
+            ? this.captureQuickenDecayState()
+            : null;
+          if (
+            fuel !== undefined &&
+            targetFrame > this.burningFuelAttachedFrame + 1
+          ) {
+            this.reduceAuraByDecay(fuel, fuel.decayPerFrame);
+          }
+          if (this.burningFuelGaugeUnits() <= AURA_EPSILON) {
+            this.targetFrameProjectionOverride = targetFrame;
+            this.stopBurning(
+              globalFrame,
+              "FUEL_EXPIRED",
+              true,
+              quickenBeforeFuelDecay ??
+                this.captureQuickenDecayState()
+            );
+          } else {
+            const fuelDecayPerFrame =
+              this.auras.get("burningFuel")?.decayPerFrame ??
+              BURNING_FUEL_MIN_DECAY_PER_FRAME;
+            const dendro = this.auras.get("dendro");
+            if (dendro !== undefined) {
+              this.reduceAuraByDecay(
+                dendro,
+                Math.max(
+                  fuelDecayPerFrame,
+                  dendro.decayPerFrame * 2
+                )
+              );
+            }
+            const quicken = this.auras.get("quicken");
+            const quickenBeforeDecay =
+              quicken === undefined
+                ? null
+                : this.captureQuickenDecayState();
+            if (quicken !== undefined) {
+              this.reduceAuraByDecay(
+                quicken,
+                fuelDecayPerFrame
+              );
+            }
+            this.advanceFrozenBy(1);
+            this.targetFrameProjectionOverride = targetFrame;
+            if (quickenBeforeDecay !== null) {
+              this.rememberNaturalQuickenExpiryBoundary(
+                globalFrame,
+                quickenBeforeDecay
+              );
+            }
+            return;
+          }
+        }
+      } else {
+        const quickenBeforeDecay =
+          this.captureQuickenDecayState();
+        for (const [element, aura] of this.auras) {
+          if (element === "frozen") continue;
+          this.reduceAuraByDecay(aura, aura.decayPerFrame);
+        }
+        this.advanceFrozenBy(1);
+        this.targetFrameProjectionOverride = targetFrame;
+        this.rememberNaturalQuickenExpiryBoundary(
+          globalFrame,
+          quickenBeforeDecay
+        );
+        return;
+      }
+
+      this.targetFrameProjectionOverride = targetFrame;
+      this.advanceFrozenBy(1);
+    } finally {
+      this.targetFrameProjectionOverride = null;
+    }
+  }
+
+  private advanceToWithTargetClock(frame: number): void {
+    if (this.targetClock === null) {
+      throw new Error(
+        "advanceToWithTargetClock requires a target clock."
+      );
+    }
+    if (!Number.isInteger(frame) || frame < this.currentFrame) {
+      throw new Error(
+        `AuraEngine global frames must be non-decreasing integers; got ${frame} after ${this.currentFrame}`
+      );
+    }
+    const clockState = this.targetClock.getState();
+    if (clockState.globalFrame !== this.currentFrame) {
+      throw new Error(
+        `AuraEngine/target-clock drift: Aura is at global frame ${this.currentFrame}, clock is at ${clockState.globalFrame}.`
+      );
+    }
+    for (
+      let nextGlobalFrame = this.currentFrame + 1;
+      nextGlobalFrame <= frame;
+      nextGlobalFrame += 1
+    ) {
+      const localBefore =
+        this.targetClock.getState().localFrame;
+      const localAfter =
+        this.targetClock.advanceTo(nextGlobalFrame).localFrame;
+      this.currentFrame = nextGlobalFrame;
+      if (localAfter > localBefore) {
+        this.advanceOneClockedTargetTick(nextGlobalFrame);
+      }
+    }
+  }
+
   private rememberNaturalQuickenExpiryBoundary(
     frame: number,
     lifecycleBefore: QuickenDecayStateCapture
@@ -959,6 +1202,10 @@ export class AuraEngine {
   }
 
   private advanceTo(frame: number): void {
+    if (this.targetClock !== null) {
+      this.advanceToWithTargetClock(frame);
+      return;
+    }
     if (!Number.isInteger(frame) || frame < this.currentFrame) {
       throw new Error(
         `AuraEngine frames must be non-decreasing integers; got ${frame} after ${this.currentFrame}`
@@ -1126,51 +1373,91 @@ export class AuraEngine {
     return [...this.auras.values()]
       .filter((aura) => aura.gaugeUnits > AURA_EPSILON)
       .sort((left, right) => left.element.localeCompare(right.element))
-      .map((aura) => ({
-        element: aura.element,
-        gaugeUnits: cleanGaugeUnits(aura.gaugeUnits),
-        expiresAtFrame:
+      .map((aura) => {
+        const expiresAtFrame =
           aura.element === "burningFuel"
             ? this.burningFuelExpiryFrame()
             : aura.element === "frozen"
-            ? this.frozenExpiryFrame()
-            : aura.element === "quicken"
-              ? this.quickenExpiryFrame()
-              : this.hasActiveBurning() &&
-                  aura.element === "dendro"
-              ? this.currentFrame +
-                Math.min(
-                  remainingDecayFrames(
-                    aura.gaugeUnits,
-                    Math.max(
-                      this.auras.get("burningFuel")
-                        ?.decayPerFrame ??
-                        BURNING_FUEL_MIN_DECAY_PER_FRAME,
-                      aura.decayPerFrame * 2
+              ? this.frozenExpiryFrame()
+              : aura.element === "quicken"
+                ? this.quickenExpiryFrame()
+                : this.hasActiveBurning() &&
+                    aura.element === "dendro"
+                  ? this.projectTargetDelay(
+                      Math.min(
+                        remainingDecayFrames(
+                          aura.gaugeUnits,
+                          Math.max(
+                            this.auras.get("burningFuel")
+                              ?.decayPerFrame ??
+                              BURNING_FUEL_MIN_DECAY_PER_FRAME,
+                            aura.decayPerFrame * 2
+                          )
+                        ),
+                        (() => {
+                          const fuel =
+                            this.auras.get("burningFuel");
+                          if (
+                            fuel === undefined ||
+                            fuel.decayPerFrame <= 0
+                          ) {
+                            return 0;
+                          }
+                          return (
+                            Math.max(
+                              0,
+                              this.burningFuelAttachedFrame +
+                                1 -
+                                this.clockFrame()
+                            ) +
+                            remainingDecayFrames(
+                              fuel.gaugeUnits,
+                              fuel.decayPerFrame
+                            )
+                          );
+                        })()
+                      )
                     )
-                  ),
-                  (this.burningFuelExpiryFrame() ??
-                    this.currentFrame) - this.currentFrame
-                )
-            : aura.decayPerFrame > 0
-              ? this.currentFrame +
-                remainingDecayFrames(
-                  aura.gaugeUnits,
-                  aura.decayPerFrame
-                )
-              : null,
-        ...(aura.sourceSlots === undefined
-          ? {}
-          : {
-              sourceSlots: [...aura.sourceSlots]
-                .filter(([, gaugeUnits]) => gaugeUnits > AURA_EPSILON)
-                .sort(([left], [right]) => left.localeCompare(right))
-                .map(([sourceActorId, gaugeUnits]) => ({
-                  sourceActorId,
-                  gaugeUnits: cleanGaugeUnits(gaugeUnits)
-                }))
-            })
-      }));
+                  : aura.decayPerFrame > 0
+                    ? this.projectTargetDelay(
+                        remainingDecayFrames(
+                          aura.gaugeUnits,
+                          aura.decayPerFrame
+                        )
+                      )
+                    : null;
+        return {
+          element: aura.element,
+          gaugeUnits: cleanGaugeUnits(aura.gaugeUnits),
+          expiresAtFrame,
+          ...(this.targetClock === null
+            ? {}
+            : {
+                expiresAtTargetFrame:
+                  expiresAtFrame === null
+                    ? null
+                    : this.targetClock.projectLocalFrameAtGlobalFrame(
+                        expiresAtFrame
+                      )
+              }),
+          ...(aura.sourceSlots === undefined
+            ? {}
+            : {
+                sourceSlots: [...aura.sourceSlots]
+                  .filter(
+                    ([, gaugeUnits]) =>
+                      gaugeUnits > AURA_EPSILON
+                  )
+                  .sort(([left], [right]) =>
+                    left.localeCompare(right)
+                  )
+                  .map(([sourceActorId, gaugeUnits]) => ({
+                    sourceActorId,
+                    gaugeUnits: cleanGaugeUnits(gaugeUnits)
+                  }))
+              })
+        };
+      });
   }
 
   private hasElectroChargedAuras(): boolean {
@@ -1189,10 +1476,11 @@ export class AuraEngine {
     if (!hydro || !electro) return null;
     const expiryFrames = [hydro, electro].map((aura) =>
       aura.decayPerFrame > 0
-        ? this.currentFrame +
-          remainingDecayFrames(
-            aura.gaugeUnits,
-            aura.decayPerFrame
+        ? this.projectTargetDelay(
+            remainingDecayFrames(
+              aura.gaugeUnits,
+              aura.decayPerFrame
+            )
           )
         : Number.POSITIVE_INFINITY
     );
@@ -1208,7 +1496,7 @@ export class AuraEngine {
     const remainingFrames = this.remainingFrozenFrames();
     return remainingFrames === null
       ? null
-      : this.currentFrame + remainingFrames;
+      : this.projectTargetDelay(remainingFrames);
   }
 
   private attachFrozen(gaugeUnits: number): {
@@ -1791,8 +2079,9 @@ export class AuraEngine {
         decayPerFrame:
           this.burningFuelDepletedDecayPerFrame ??
           quicken.decayPerFrame,
-        expiresAtFrame:
-          this.burningFuelDepletedFrame + 1,
+        expiresAtFrame: this.projectClockDeadline(
+          this.burningFuelDepletedFrame + 1
+        ),
         endCause: "BURNING_FUEL_EXPIRED"
       };
     }
@@ -1806,10 +2095,11 @@ export class AuraEngine {
       fuel.decayPerFrame > 0
     ) {
       const quickenDecayExpiryFrame =
-        this.currentFrame +
+        this.projectTargetDelay(
         remainingDecayFrames(
           quicken.gaugeUnits,
           fuel.decayPerFrame
+        )
         );
       const fuelExpiryFrame = this.burningFuelExpiryFrame();
       if (
@@ -1839,10 +2129,11 @@ export class AuraEngine {
     return {
       decayPerFrame: quicken.decayPerFrame,
       expiresAtFrame:
-        this.currentFrame +
+        this.projectTargetDelay(
         remainingDecayFrames(
           quicken.gaugeUnits,
           quicken.decayPerFrame
+        )
         ),
       endCause: "QUICKEN_DECAY"
     };
@@ -1863,6 +2154,16 @@ export class AuraEngine {
       element: "quicken",
       gaugeUnits: cleanGaugeUnits(quicken.gaugeUnits),
       expiresAtFrame,
+      ...(this.targetClock === null
+        ? {}
+        : {
+            expiresAtTargetFrame:
+              expiresAtFrame === null
+                ? null
+                : this.targetClock.projectLocalFrameAtGlobalFrame(
+                    expiresAtFrame
+                  )
+          }),
       ...(quicken.sourceSlots === undefined
         ? {}
         : {
@@ -2279,10 +2580,24 @@ export class AuraEngine {
       ),
       fuelDecayPerFrame: before.fuelDecayPerFrame,
       fuelExpiresAtFrame: null,
+      ...(this.targetClock === null
+        ? {}
+        : {
+            fuelExpiresAtTargetFrame: null,
+            snapshotTargetFrame: this.clockFrame(),
+            firstTickTargetFrame: null,
+            nextTickTargetFrame: null
+          }),
       quickenStateMutation,
       snapshotFrame: input.frame,
-      clockModel: "target-local-no-hitlag",
-      hitlagStatus: "unsupported-enemy-hitlag",
+      clockModel:
+        this.targetClock === null
+          ? "target-local-no-hitlag"
+          : "target-local-hitlag-v1",
+      hitlagStatus:
+        this.targetClock === null
+          ? "unsupported-enemy-hitlag"
+          : "modeled-enemy-hitlag",
       firstTickFrame: null,
       nextTickFrame: null,
       tickIntervalFrames: BURNING_TICK_INTERVAL_FRAMES,
@@ -2307,7 +2622,7 @@ export class AuraEngine {
       sourceSlots: new Map([[sourceActorId, gaugeUnits]])
     });
     this.burningFuelSourceActorId = sourceActorId;
-    this.burningFuelAttachedFrame = this.currentFrame;
+    this.burningFuelAttachedFrame = this.clockFrame();
     this.burningFuelDepletedFrame = null;
     this.burningFuelDepletedDecayPerFrame = null;
   }
@@ -2375,8 +2690,8 @@ export class AuraEngine {
         candidateFuelGaugeUnits,
         input.sourceActorId
       );
-      this.burningNextTickFrame =
-        input.frame + BURNING_TICK_INTERVAL_FRAMES;
+      this.burningNextTickTargetFrame =
+        this.clockDeadline(BURNING_TICK_INTERVAL_FRAMES);
       this.burningNextTickIndex = 1;
       this.lastBurningStop = null;
     } else if (input.element === "dendro") {
@@ -2393,6 +2708,20 @@ export class AuraEngine {
     this.burningDamageSourceActorId = input.sourceActorId;
     const quickenStateMutation =
       this.finalizeQuickenDecayMutation(quickenBefore);
+    const fuelExpiresAtFrame =
+      this.burningFuelExpiryFrame();
+    const firstTickFrame =
+      operation === "start"
+        ? this.projectClockDeadline(
+            this.burningNextTickTargetFrame
+          )
+        : null;
+    const nextTickFrame =
+      this.burningNextTickTargetFrame < 0
+        ? null
+        : this.projectClockDeadline(
+            this.burningNextTickTargetFrame
+          );
 
     return {
       reaction: "burning",
@@ -2427,19 +2756,38 @@ export class AuraEngine {
       ),
       fuelDecayPerFrame:
         this.auras.get("burningFuel")?.decayPerFrame ?? 0,
-      fuelExpiresAtFrame: this.burningFuelExpiryFrame(),
+      fuelExpiresAtFrame,
+      ...(this.targetClock === null
+        ? {}
+        : {
+            fuelExpiresAtTargetFrame:
+              fuelExpiresAtFrame === null
+                ? null
+                : this.targetClock.projectLocalFrameAtGlobalFrame(
+                    fuelExpiresAtFrame
+                  ),
+            snapshotTargetFrame: this.clockFrame(),
+            firstTickTargetFrame:
+              operation === "start"
+                ? this.burningNextTickTargetFrame
+                : null,
+            nextTickTargetFrame:
+              this.burningNextTickTargetFrame < 0
+                ? null
+                : this.burningNextTickTargetFrame
+          }),
       quickenStateMutation,
       snapshotFrame: input.frame,
-      clockModel: "target-local-no-hitlag",
-      hitlagStatus: "unsupported-enemy-hitlag",
-      firstTickFrame:
-        operation === "start"
-          ? input.frame + BURNING_TICK_INTERVAL_FRAMES
-          : null,
-      nextTickFrame:
-        this.burningNextTickFrame < 0
-          ? null
-          : this.burningNextTickFrame,
+      clockModel:
+        this.targetClock === null
+          ? "target-local-no-hitlag"
+          : "target-local-hitlag-v1",
+      hitlagStatus:
+        this.targetClock === null
+          ? "unsupported-enemy-hitlag"
+          : "modeled-enemy-hitlag",
+      firstTickFrame,
+      nextTickFrame,
       tickIntervalFrames: BURNING_TICK_INTERVAL_FRAMES,
       skippedTickIndex: BURNING_SKIPPED_TICK_INDEX,
       damageElement: "pyro",
@@ -2512,11 +2860,14 @@ export class AuraEngine {
         reason: "FUEL_EXPIRED"
       };
     }
-    if (frame !== this.burningNextTickFrame) {
+    const currentTargetFrame = this.clockFrame();
+    if (currentTargetFrame !== this.burningNextTickTargetFrame) {
       return {
         ...base,
         operation: "stale",
-        nextTickFrame: this.burningNextTickFrame,
+        nextTickFrame: this.projectClockDeadline(
+          this.burningNextTickTargetFrame
+        ),
         skipReason: null,
         reason: "UNEXPECTED_TICK_FRAME"
       };
@@ -2525,14 +2876,16 @@ export class AuraEngine {
       return {
         ...base,
         operation: "stale",
-        nextTickFrame: this.burningNextTickFrame,
+        nextTickFrame: this.projectClockDeadline(
+          this.burningNextTickTargetFrame
+        ),
         skipReason: null,
         reason: "UNEXPECTED_TICK_INDEX"
       };
     }
 
-    this.burningNextTickFrame =
-      frame + BURNING_TICK_INTERVAL_FRAMES;
+    this.burningNextTickTargetFrame =
+      currentTargetFrame + BURNING_TICK_INTERVAL_FRAMES;
     this.burningNextTickIndex += 1;
     const skipped =
       tickIndex === BURNING_SKIPPED_TICK_INDEX;
@@ -2540,7 +2893,9 @@ export class AuraEngine {
       ...base,
       operation: skipped ? "tick-skipped" : "tick",
       auraAfter: this.snapshot(),
-      nextTickFrame: this.burningNextTickFrame,
+      nextTickFrame: this.projectClockDeadline(
+        this.burningNextTickTargetFrame
+      ),
       skipReason: skipped ? "COUNTER_9_SKIP" : null,
       reason: null
     };
@@ -2600,9 +2955,11 @@ export class AuraEngine {
               })
         })),
         nextTickFrame:
-          this.burningNextTickFrame < 0
+          this.burningNextTickTargetFrame < 0
             ? null
-            : this.burningNextTickFrame,
+            : this.projectClockDeadline(
+                this.burningNextTickTargetFrame
+              ),
         fuelExpiresAtFrame: dispatchExpiry,
         quickenStateMutation:
           this.finalizeQuickenDecayMutation(
@@ -2693,9 +3050,11 @@ export class AuraEngine {
       auraBefore,
       auraAfter,
       nextTickFrame:
-        this.burningNextTickFrame < 0
+        this.burningNextTickTargetFrame < 0
           ? null
-          : this.burningNextTickFrame,
+          : this.projectClockDeadline(
+              this.burningNextTickTargetFrame
+            ),
       fuelExpiresAtFrame: currentExpiry,
       quickenStateMutation:
         this.finalizeQuickenDecayMutation(
@@ -2821,7 +3180,7 @@ export class AuraEngine {
         burningMarkerWasActive &&
         this.burningFuelGaugeUnits() <= AURA_EPSILON
       ) {
-        this.burningFuelDepletedFrame = input.frame;
+        this.burningFuelDepletedFrame = this.clockFrame();
         this.burningFuelDepletedDecayPerFrame =
           fuelDecayPerFrameBefore;
       }
@@ -2985,7 +3344,7 @@ export class AuraEngine {
       // purge on the next frame. Keep the marker visible to later same-frame
       // reactions and cancel this pending purge if same-frame Dendro/Pyro
       // refills Fuel.
-      this.burningFuelDepletedFrame = input.frame;
+      this.burningFuelDepletedFrame = this.clockFrame();
       this.burningFuelDepletedDecayPerFrame ??=
         BURNING_FUEL_MIN_DECAY_PER_FRAME;
     }

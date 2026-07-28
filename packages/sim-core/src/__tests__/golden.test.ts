@@ -3,25 +3,23 @@ import { describe, expect, it } from "vitest";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import { playerDamageResultReferencesSchema } from "@genshin-dps-lab/schemas";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
+import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const LEGACY_V130_REPRODUCIBILITY_KEY = "gdl-d1a42700";
-const LEGACY_V132_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-1c8d1772";
 const LEGACY_V130_COMPATIBILITY_SHA256 =
   "be150b9be5f33d18ef8942fbb13693aaef47b82a02712107ab04676dfcc24110";
-const LEGACY_DAMAGE_EVENTS_SHA256 =
-  "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f";
 const BURNING_V130_COMPATIBILITY_SHA256 =
   "7235c3faf3a61305aef85b5a6144d1c98196f2a8d222b3d453851cb53a83b772";
 const BURNING_DAMAGE_EVENTS_SHA256 =
   "8e5c192e04f4599da093fc61f353aff3529a2d234aba19ef6dadd00bf89e1cf1";
 const BURNING_STATE_LOG_SHA256 =
   "aedd0ba94477979a5c688e7496f925d073f36a0513ad3e274d38fbf0bff8b0b4";
-const BURNING_V132_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-0ed897b9";
+const BURNING_V133_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-3a27f7cf";
+const BURNING_V133_CONFIG_HASH = "fnv1a32:06c4fd97";
 
 const EMPTY_COMPATIBILITY_ARRAY_FIELDS = new Set([
   "bloomReactions",
@@ -42,9 +40,10 @@ const NULL_COMPATIBILITY_REFERENCE_FIELDS = new Set([
 
 /**
  * Hash the frozen pre-1.31 semantic surface. Empty Bloom arrays, 1.32 player
- * back-reference arrays, and nullable Dendro/player references are additive
- * wire fields, so legacy/v4 regressions normalize only those empty values
- * away while still failing if any new behavior becomes active.
+ * back-reference arrays, nullable Dendro/player references, and the disabled
+ * 1.33 target-clock envelope are additive wire fields. Legacy/v4 regressions
+ * normalize only those empty values away while still failing if any new
+ * behavior becomes active.
  */
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -149,6 +148,9 @@ function v130CompatibilityResult(
     totalPlayerDamageTaken: _totalPlayerDamageTaken,
     totalReactionSelfDamageTaken:
       _totalReactionSelfDamageTaken,
+    targetClockAudit: _targetClockAudit,
+    targetClockLog: _targetClockLog,
+    targetHitlagLog: _targetHitlagLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -165,7 +167,9 @@ function v130CompatibilityResult(
       config: {
         ...Object.fromEntries(
           Object.entries(preDendroCoreResult.config).filter(
-            ([key]) => key !== "playerDamageModel"
+            ([key]) =>
+              key !== "playerDamageModel" &&
+              key !== "targetClockModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -328,9 +332,21 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
-    expect(result.reproducibilityKey).toBe(
-      LEGACY_V132_REPRODUCIBILITY_KEY
+    expect(result.schemaVersion).toBe(goldenV133.schemaVersion);
+    expect(result.engineVersion).toBe(goldenV133.engineVersion);
+    expect(result.config.schemaVersion).toBe(
+      goldenV133.schemaVersion
     );
+    expect(result.config.engineVersion).toBe(
+      goldenV133.engineVersion
+    );
+    expect(result.runManifest.configHash).toBe(
+      goldenV133.configHash
+    );
+    expect(result.reproducibilityKey).toBe(
+      goldenV133.reproducibilityKey
+    );
+    expect(goldenV133.options).toEqual(golden.options);
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
       identityAlgorithm: "fnv1a32-v2",
@@ -345,7 +361,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       },
       plugins: [],
       reproducibilityKey:
-        LEGACY_V132_REPRODUCIBILITY_KEY
+        goldenV133.reproducibilityKey
     });
     expect(result.resolvedRuntimeOptions).toBe(
       result.runManifest.resolvedRuntimeOptions
@@ -354,7 +370,22 @@ describe("Vanilla v0.1 golden compatibility", () => {
       result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
-      LEGACY_DAMAGE_EVENTS_SHA256
+      goldenV133.legacyDamageEventsSha256
+    );
+    expect(result.config.targetClockModel).toEqual(
+      { mode: "disabled" }
+    );
+    expect(result.targetClockAudit).toEqual({
+      version: "1.0.0",
+      mode: "disabled",
+      hitlagStatus: "unsupported-enemy-hitlag",
+      targets: []
+    });
+    expect(result.targetClockLog).toEqual(
+      goldenV133.targetClock.clockLog
+    );
+    expect(result.targetHitlagLog).toEqual(
+      goldenV133.targetClock.hitlagLog
     );
     expect(
       sha256(
@@ -462,6 +493,28 @@ describe("Vanilla v0.1 golden compatibility", () => {
     ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
+    expectRelativeClose(result.totalDamage, goldenV133.totalDamage);
+    expectRelativeClose(result.dps, goldenV133.dps);
+    expect(result.damageEvents).toHaveLength(
+      goldenV133.hitCount
+    );
+    expect(result.reactedHits).toBe(goldenV133.reactedHits);
+    expect(result.skippedActions).toHaveLength(
+      goldenV133.skippedActionCount
+    );
+    expect(result.byCharacter).toEqual(
+      goldenV133.byCharacter
+    );
+    expect(
+      result.bySkill.map(
+        ({ creditId, actionName, damage, hits }) => ({
+          creditId,
+          actionName,
+          damage,
+          hits
+        })
+      )
+    ).toEqual(goldenV133.bySkill);
     expect(result.burningStateLog).toEqual([]);
     expect(
       result.damageEvents.filter(
@@ -546,20 +599,31 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
+    expect(result.runManifest.configHash).toBe(
+      BURNING_V133_CONFIG_HASH
+    );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
     expect(burningGolden.config.engineVersion).toBe(
       "1.30.0-burning-reaction"
     );
-    expect(result.schemaVersion).toBe("1.32.0");
+    expect(result.schemaVersion).toBe("1.33.0");
     expect(result.engineVersion).toBe(
-      "1.32.0-player-reaction-damage"
+      "1.33.0-target-local-hitlag"
     );
-    expect(result.config.schemaVersion).toBe("1.32.0");
+    expect(result.config.schemaVersion).toBe("1.33.0");
     expect(result.config.engineVersion).toBe(
-      "1.32.0-player-reaction-damage"
+      "1.33.0-target-local-hitlag"
     );
     expect(result.config.reactionEngine?.mode).toBe("aura-v4");
+    expect(result.config.targetClockModel).toEqual(
+      goldenV133.targetClock.config
+    );
+    expect(result.targetClockAudit).toEqual(
+      goldenV133.targetClock.audit
+    );
+    expect(result.targetClockLog).toEqual([]);
+    expect(result.targetHitlagLog).toEqual([]);
     expect(result.dataVersion).toBe(
       burningGolden.config.dataVersion
     );
@@ -567,7 +631,7 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V132_REPRODUCIBILITY_KEY
+      BURNING_V133_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
@@ -578,7 +642,7 @@ describe("Burning aura-v4 provisional golden", () => {
       resolvedRuntimeOptions: options,
       plugins: [],
       reproducibilityKey:
-        BURNING_V132_REPRODUCIBILITY_KEY
+        BURNING_V133_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

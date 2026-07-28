@@ -1,6 +1,6 @@
-export const CURRENT_SCHEMA_VERSION = "1.32.0" as const;
+export const CURRENT_SCHEMA_VERSION = "1.33.0" as const;
 export const CURRENT_ENGINE_VERSION =
-  "1.32.0-player-reaction-damage" as const;
+  "1.33.0-target-local-hitlag" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
 /**
  * This identity algorithm is intentionally versioned and non-cryptographic.
@@ -14,6 +14,10 @@ export const BURNING_REACTION_ENGINE_VERSION =
 export const DENDRO_CORE_SCHEMA_VERSION = "1.31.0" as const;
 export const DENDRO_CORE_ENGINE_VERSION =
   "1.31.0-dendro-cores" as const;
+export const PLAYER_REACTION_DAMAGE_SCHEMA_VERSION =
+  "1.32.0" as const;
+export const PLAYER_REACTION_DAMAGE_ENGINE_VERSION =
+  "1.32.0-player-reaction-damage" as const;
 export const CATALYZE_REACTION_SCHEMA_VERSION = "1.29.0" as const;
 export const CATALYZE_REACTION_ENGINE_VERSION =
   "1.29.0-catalyze-reaction" as const;
@@ -276,6 +280,15 @@ export interface AuraReactionEngineConfig {
   debugAllowReactionOverride?: boolean;
 }
 
+/**
+ * Enemy target-local time is an independent mechanics boundary. It is not an
+ * Aura-engine revision because Hitlag can pause target state without changing
+ * the reaction rule set.
+ */
+export type TargetClockModel =
+  | { mode: "disabled" }
+  | { mode: "target-local-hitlag-v1" };
+
 export interface CharacterStats {
   baseAtk: number;
   atkPct: number;
@@ -437,6 +450,16 @@ export interface FlatDamageSource {
   multiplier: number;
 }
 
+export interface TargetHitlagDefinition {
+  /**
+   * Fixed-reference halt duration before the engine-owned nested-ceil
+   * calculation. Fractional values are valid.
+   */
+  haltFrames: number;
+  /** Enemy Hitlag factor in the inclusive range [0, 1]. */
+  factor: number;
+}
+
 export interface HitDefinition {
   id?: string;
   offset: number;
@@ -451,6 +474,8 @@ export interface HitDefinition {
   strikeType?: StrikeType;
   /** gcsim poise damage; only valid for blunt hits and used to reduce Frozen. */
   poiseDamage?: number;
+  /** Atomic enemy-target Hitlag input; defense-halt bonuses are not public. */
+  targetHitlag?: TargetHitlagDefinition;
   targeting?: HitTargetingConfig;
   geometry?: HitGeometry;
   application?: ElementalApplication;
@@ -735,6 +760,8 @@ export interface SimConfig {
   reactionEngine?: AuraReactionEngineConfig;
   /** Explicitly versioned player self-damage boundary. */
   playerDamageModel: PlayerDamageModel;
+  /** Explicit opt-in; every pre-1.33 configuration migrates to disabled. */
+  targetClockModel: TargetClockModel;
 }
 
 export interface SimulationOptions {
@@ -847,6 +874,11 @@ export interface AuraStateEntry {
   element: AuraStateElement;
   gaugeUnits: number;
   expiresAtFrame: number | null;
+  /**
+   * Explicit target-clock deadline for Hitlag-aware output. Historical and
+   * disabled output omits it and retains expiresAtFrame byte-for-byte.
+   */
+  expiresAtTargetFrame?: number | null;
   /** Present in aura-v3 through aura-v5; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
@@ -1032,13 +1064,21 @@ export interface BurningReactionAudit {
   fuelGaugeUnitsAfter: number;
   fuelDecayPerFrame: number;
   fuelExpiresAtFrame: number | null;
+  fuelExpiresAtTargetFrame?: number | null;
   /** Explicit Quicken decay/end-cause mutation at this Burning boundary. */
   quickenStateMutation: QuickenDecayMutationAudit;
   snapshotFrame: number;
-  clockModel: "target-local-no-hitlag";
-  hitlagStatus: "unsupported-enemy-hitlag";
+  snapshotTargetFrame?: number;
+  clockModel:
+    | "target-local-no-hitlag"
+    | "target-local-hitlag-v1";
+  hitlagStatus:
+    | "unsupported-enemy-hitlag"
+    | "modeled-enemy-hitlag";
   firstTickFrame: number | null;
   nextTickFrame: number | null;
+  firstTickTargetFrame?: number | null;
+  nextTickTargetFrame?: number | null;
   tickIntervalFrames: 15;
   skippedTickIndex: 9;
   damageElement: "pyro";
@@ -1723,6 +1763,8 @@ export interface TargetStateTimelinePoint {
   /** Zero-based, contiguous id equal to this point's emitted array index. */
   id: number;
   frame: number;
+  /** Required for Hitlag-aware output; omitted by frozen legacy output. */
+  targetFrame?: number;
   timeSeconds: number;
   targetId: TargetId;
   targetName: string;
@@ -1880,8 +1922,12 @@ export interface DendroCoreLogBase {
   coreDurationFrames: 300;
   hitboxRadius: 2;
   maxActiveCores: 5;
-  clockModel: "global-frame-no-hitlag";
-  hitlagStatus: "unsupported-enemy-hitlag";
+  clockModel:
+    | "global-frame-no-hitlag"
+    | "global-frame-gadget-v1";
+  hitlagStatus:
+    | "unsupported-enemy-hitlag"
+    | "not-affected-by-enemy-hitlag";
   mechanicsDataStatus: "fixed-gcsim-provisional";
   selfDamageStatus: PlayerSelfDamageStatus;
 }
@@ -2048,6 +2094,7 @@ export interface FrozenStateLogEntry {
   generation: number;
   operation: FrozenStateOperation;
   frame: number;
+  targetFrame?: number;
   timeSeconds: number;
   targetId: TargetId;
   targetName: string;
@@ -2059,6 +2106,7 @@ export interface FrozenStateLogEntry {
   auraBefore: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
+  expiresAtTargetFrame?: number | null;
   reason: string | null;
 }
 
@@ -2077,6 +2125,7 @@ export interface QuickenStateLogEntry {
   generation: number;
   operation: QuickenStateOperation;
   frame: number;
+  targetFrame?: number;
   timeSeconds: number;
   targetId: TargetId;
   targetName: string;
@@ -2090,9 +2139,11 @@ export interface QuickenStateLogEntry {
   decayPerFrameBefore: number;
   decayPerFrameAfter: number;
   expiresAtFrameBefore: number | null;
+  expiresAtTargetFrameBefore?: number | null;
   auraBefore: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   expiresAtFrame: number | null;
+  expiresAtTargetFrame?: number | null;
   endCauseBefore: QuickenDecayEndCause;
   endCauseAfter: QuickenDecayEndCause;
   reason: string | null;
@@ -2127,12 +2178,17 @@ export interface BurningStateLogEntry {
   generation: number;
   operation: BurningStateOperation;
   frame: number;
+  targetFrame?: number;
   timeSeconds: number;
   /** Stable same-frame ordering copied from the scheduled simulator event. */
   eventPriority: number;
   eventSequence: number;
-  clockModel: "target-local-no-hitlag";
-  hitlagStatus: "unsupported-enemy-hitlag";
+  clockModel:
+    | "target-local-no-hitlag"
+    | "target-local-hitlag-v1";
+  hitlagStatus:
+    | "unsupported-enemy-hitlag"
+    | "modeled-enemy-hitlag";
   targetId: TargetId;
   targetName: string;
   triggerElement: Element | null;
@@ -2154,11 +2210,13 @@ export interface BurningStateLogEntry {
   fuelGaugeUnitsAfter: number;
   fuelDecayPerFrame: number;
   fuelExpiresAtFrame: number | null;
+  fuelExpiresAtTargetFrame?: number | null;
   auraBefore: AuraStateEntry[];
   auraApplied: AuraGaugeEntry[];
   auraConsumed: AuraGaugeEntry[];
   auraAfter: AuraStateEntry[];
   nextTickFrame: number | null;
+  nextTickTargetFrame?: number | null;
   icdGroup: "burning";
   icdTag: "burning-application";
   icdScope: "global-target";
@@ -2520,6 +2578,92 @@ export interface TimelineExecution {
   stateLog: TimelineStateLogEntry[];
 }
 
+export interface TargetClockSummary {
+  targetId: TargetId;
+  targetName: string;
+  finalGlobalFrame: number;
+  finalTargetFrame: number;
+  frozenFramesConsumed: number;
+  frozenFramesRemaining: number;
+  hitlagApplications: number;
+  totalExtensionFrames: number;
+}
+
+export type TargetClockAudit =
+  | {
+      version: "1.0.0";
+      mode: "disabled";
+      hitlagStatus: "unsupported-enemy-hitlag";
+      targets: [];
+    }
+  | {
+      version: "1.0.0";
+      mode: "target-local-hitlag-v1";
+      hitlagStatus: "modeled-enemy-hitlag";
+      roundingModel: "ceil-ceil-v1";
+      applicationOrder: "after-current-target-tick";
+      mechanicsDataStatus: "fixed-gcsim-provisional";
+      targets: TargetClockSummary[];
+    };
+
+/**
+ * One configured target check, including misses and zero-extension checks.
+ * The linked hit-resolution row remains authoritative for landed/miss state.
+ */
+export interface TargetHitlagLogEntry {
+  id: number;
+  globalFrame: number;
+  timeSeconds: number;
+  targetFrame: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  targetId: TargetId;
+  targetName: string;
+  sourceActorId: string;
+  sourceActionId: string;
+  hitId: string;
+  hitGroupId: string;
+  hitResolutionLogId: number;
+  haltFrames: number;
+  factor: number;
+  roundedHaltFrames: number;
+  extensionFrames: number;
+  frozenFramesBefore: number;
+  frozenFramesAfter: number;
+  pausedGlobalFrameStart: number | null;
+  nextTargetAdvanceGlobalFrame: number | null;
+  applied: boolean;
+  blockedReason: "TARGET_MISS" | "ZERO_EXTENSION" | null;
+  /**
+   * Active, Hitlag-affected reaction modifiers whose end frames were extended
+   * by this application (currently Superconduct resistance shred).
+   */
+  extendedReactionStatusLogIds: number[];
+  mechanicsDataStatus: "fixed-gcsim-provisional";
+}
+
+/**
+ * Compact replay log for a single enemy clock. It records jumps and Hitlag
+ * mutations rather than one row per global frame.
+ */
+export interface TargetClockLogEntry {
+  id: number;
+  targetId: TargetId;
+  targetName: string;
+  operation: "advance" | "apply-hitlag";
+  globalFrameBefore: number;
+  globalFrameAfter: number;
+  targetFrameBefore: number;
+  targetFrameAfter: number;
+  frozenFramesBefore: number;
+  consumedFrozenFrames: number;
+  addedFrozenFrames: number;
+  frozenFramesAfter: number;
+  targetHitlagLogId: number | null;
+  cause: "hit" | "target-local-task" | "simulation-end";
+}
+
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: string;
@@ -2544,6 +2688,12 @@ export interface SimulationResult {
   hitEvents: DamageEvent[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
+  /** Versioned target-clock mode and per-target final state. */
+  targetClockAudit: TargetClockAudit;
+  /** Compact, replayable target-clock transitions. */
+  targetClockLog: TargetClockLogEntry[];
+  /** Every configured target Hitlag check, including blocked rows. */
+  targetHitlagLog: TargetHitlagLogEntry[];
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */

@@ -4,6 +4,10 @@ import {
   createSimulationRunManifest,
   migrateConfig,
   simulationRunManifestSchema,
+  targetClockAuditSchema,
+  targetClockLogSchema,
+  targetClockResultReferencesSchema,
+  targetHitlagLogSchema,
   type AdditiveReactionFactors,
   type AmplifyingReaction,
   type ActionDefinition,
@@ -42,6 +46,9 @@ import {
   type SimulationEvent,
   type SimulationOptions,
   type SimulationResult,
+  type TargetClockLogEntry,
+  type TargetClockSummary,
+  type TargetHitlagLogEntry,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import {
@@ -101,6 +108,11 @@ import {
   resolveCircularPlayerHit,
   type PlayerReactionSelfDamageKind
 } from "./player-damage";
+import {
+  calculateEnemyHitlagExtension,
+  TargetLocalClock,
+  type TargetLocalClockState
+} from "./target-clock";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -730,7 +742,7 @@ interface PlayerHpRuntimeState {
   zeroHpReached: boolean;
 }
 
-type InternalEvent =
+type InternalEventBase =
   | SimulationEvent<ActionEventPayload>
   | SimulationEvent<BuffEventPayload>
   | SimulationEvent<DebuffEventPayload>
@@ -752,6 +764,19 @@ type InternalEvent =
   | SimulationEvent<CrystallizeShardExpiryEventPayload>
   | SimulationEvent<CrystallizePickupEventPayload>
   | SimulationEvent<CrystallizeShieldExpiryEventPayload>;
+
+interface TargetLocalTaskDeadline {
+  targetId: string;
+  targetFrame: number;
+}
+
+type InternalEvent = InternalEventBase & {
+  /**
+   * Immutable target-local deadline for the logical task. `frame` is only the
+   * current global wake-up projection and may move after later Hitlag.
+   */
+  targetLocalDeadline?: TargetLocalTaskDeadline;
+};
 
 interface ActiveBuff {
   key: string;
@@ -1146,6 +1171,122 @@ function simulateConfig(
     }
     return deepClone(position);
   };
+  const targetClockEnabled =
+    config.targetClockModel.mode ===
+    "target-local-hitlag-v1";
+  const targetClocks = targetClockEnabled
+    ? new Map(
+        enemyTargets.map((target) => [
+          target.id,
+          new TargetLocalClock()
+        ])
+      )
+    : null;
+  const burningClockModel = targetClockEnabled
+    ? ("target-local-hitlag-v1" as const)
+    : ("target-local-no-hitlag" as const);
+  const enemyHitlagStatus = targetClockEnabled
+    ? ("modeled-enemy-hitlag" as const)
+    : ("unsupported-enemy-hitlag" as const);
+  const dendroCoreClockModel = targetClockEnabled
+    ? ("global-frame-gadget-v1" as const)
+    : ("global-frame-no-hitlag" as const);
+  const dendroCoreHitlagStatus = targetClockEnabled
+    ? ("not-affected-by-enemy-hitlag" as const)
+    : ("unsupported-enemy-hitlag" as const);
+  const projectedTargetDeadline = (
+    targetId: string,
+    globalDeadline: number | null
+  ): number | null | undefined => {
+    const clock = targetClocks?.get(targetId);
+    if (clock === undefined) return undefined;
+    return globalDeadline === null
+      ? null
+      : clock.projectLocalFrameAtGlobalFrame(globalDeadline);
+  };
+  const targetLifecycleFields = (
+    targetId: string,
+    globalFrame: number,
+    expiresAtFrame: number | null
+  ):
+    | {
+        targetFrame: number;
+        expiresAtTargetFrame: number | null;
+      }
+    | Record<string, never> =>
+    targetClocks === null
+      ? {}
+      : {
+          targetFrame:
+            targetClocks
+              .get(targetId)!
+              .projectLocalFrameAtGlobalFrame(globalFrame),
+          expiresAtTargetFrame:
+            projectedTargetDeadline(
+              targetId,
+              expiresAtFrame
+            ) ?? null
+        };
+  const targetQuickenLifecycleFields = (
+    targetId: string,
+    globalFrame: number,
+    expiresAtFrameBefore: number | null,
+    expiresAtFrameAfter: number | null
+  ):
+    | {
+        targetFrame: number;
+        expiresAtTargetFrameBefore: number | null;
+        expiresAtTargetFrame: number | null;
+      }
+    | Record<string, never> =>
+    targetClocks === null
+      ? {}
+      : {
+          targetFrame:
+            targetClocks
+              .get(targetId)!
+              .projectLocalFrameAtGlobalFrame(globalFrame),
+          expiresAtTargetFrameBefore:
+            projectedTargetDeadline(
+              targetId,
+              expiresAtFrameBefore
+            ) ?? null,
+          expiresAtTargetFrame:
+            projectedTargetDeadline(
+              targetId,
+              expiresAtFrameAfter
+            ) ?? null
+        };
+  const targetBurningLifecycleFields = (
+    targetId: string,
+    globalFrame: number,
+    fuelExpiresAtFrame: number | null,
+    nextTickFrame: number | null
+  ):
+    | {
+        targetFrame: number;
+        fuelExpiresAtTargetFrame: number | null;
+        nextTickTargetFrame: number | null;
+      }
+    | Record<string, never> =>
+    targetClocks === null
+      ? {}
+      : {
+          targetFrame:
+            targetClocks
+              .get(targetId)!
+              .projectLocalFrameAtGlobalFrame(globalFrame),
+          fuelExpiresAtTargetFrame:
+            projectedTargetDeadline(
+              targetId,
+              fuelExpiresAtFrame
+            ) ?? null,
+          nextTickTargetFrame:
+            projectedTargetDeadline(
+              targetId,
+              nextTickFrame
+            ) ?? null
+        };
   const auraEngines =
     config.reactionEngine?.mode === "aura-v1" ||
     config.reactionEngine?.mode === "aura-v2" ||
@@ -1158,7 +1299,12 @@ function simulateConfig(
             new AuraEngine({
               ...config.reactionEngine!,
               initialAura: deepClone(target.initialAura),
-              freezeResistance: target.freezeResistance
+              freezeResistance: target.freezeResistance,
+              ...(targetClocks?.get(target.id) === undefined
+                ? {}
+                : {
+                    targetClock: targetClocks.get(target.id)!
+                  })
             })
           ])
         )
@@ -1172,9 +1318,23 @@ function simulateConfig(
       aura: deepClone(
         auraEngines?.get(target.id)?.getAuraStateAt(0) ?? []
       )
-    }));
+  }));
   const targetStateTimelineRecorder =
-    new TargetStateTimelineRecorder();
+    new TargetStateTimelineRecorder(
+      targetClocks === null
+        ? undefined
+        : (targetId, globalFrame) => {
+            const clock = targetClocks.get(targetId);
+            if (clock === undefined) {
+              throw new Error(
+                `Missing target clock for target-state point "${targetId}".`
+              );
+            }
+            return clock.projectLocalFrameAtGlobalFrame(
+              globalFrame
+            );
+          }
+    );
   for (const initialState of auraInitialStates) {
     targetStateTimelineRecorder.recordBoundary({
       frame: initialState.frame,
@@ -1379,6 +1539,52 @@ function simulateConfig(
       } as InternalEvent);
     }
   };
+  const pushTargetLocal = <TPayload>(
+    projectedGlobalFrame: number,
+    type:
+      | "periodicReactionExpiry"
+      | "burningFuelExpiry"
+      | "frozenExpiry"
+      | "quickenExpiry"
+      | "burningTick",
+    payload: TPayload,
+    targetLocalDeadline: TargetLocalTaskDeadline,
+    priorityOverride?: number
+  ): void => {
+    if (
+      projectedGlobalFrame >
+      Math.round(config.duration * 60)
+    ) {
+      return;
+    }
+    queue.push({
+      timeSeconds: projectedGlobalFrame / 60,
+      frame: projectedGlobalFrame,
+      priority: priorityOverride ?? EVENT_PRIORITY[type],
+      type,
+      payload,
+      sequence: sequence++,
+      targetLocalDeadline
+    } as InternalEvent);
+  };
+  const requeueTargetLocalEvent = (
+    event: InternalEvent,
+    projectedGlobalFrame: number,
+    payload: unknown = event.payload
+  ): void => {
+    if (
+      projectedGlobalFrame >
+      Math.round(config.duration * 60)
+    ) {
+      return;
+    }
+    queue.push({
+      ...event,
+      frame: projectedGlobalFrame,
+      timeSeconds: projectedGlobalFrame / 60,
+      payload
+    } as InternalEvent);
+  };
 
   const cycleCount = Math.ceil(config.duration / config.cycleLength);
   for (let cycle = 0; cycle < cycleCount; cycle += 1) {
@@ -1426,6 +1632,25 @@ function simulateConfig(
   const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
+  const targetClockLog: SimulationResult["targetClockLog"] = [];
+  const targetHitlagLog: SimulationResult["targetHitlagLog"] = [];
+  const lastLoggedTargetClockState = new Map<
+    string,
+    TargetLocalClockState
+  >(
+    enemyTargets.map((target) => [
+      target.id,
+      {
+        globalFrame: 0,
+        localFrame: 0,
+        frozenFrames: 0,
+        isFrozen: false,
+        nextLocalAdvanceGlobalFrame: 1
+      }
+    ])
+  );
+  const totalTargetHitlagExtensionById = new Map<string, number>();
+  const targetHitlagApplicationCountById = new Map<string, number>();
   const targetMechanicsTruncationLog: SimulationResult["targetMechanicsTruncationLog"] =
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
@@ -1649,6 +1874,12 @@ function simulateConfig(
         generation: burningSource.generation,
         operation: "stop",
         frame,
+        ...targetBurningLifecycleFields(
+          targetId,
+          frame,
+          null,
+          null
+        ),
         timeSeconds,
         eventPriority,
         eventSequence,
@@ -1677,8 +1908,8 @@ function simulateConfig(
         auraConsumed: [],
         auraAfter: [],
         nextTickFrame: null,
-        clockModel: "target-local-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: burningClockModel,
+        hitlagStatus: enemyHitlagStatus,
         icdGroup: "burning",
         icdTag: "burning-application",
         icdScope: "global-target",
@@ -1735,20 +1966,62 @@ function simulateConfig(
   };
   recordEnergyCurve(0, 0, "initial", null, "initial-energy");
 
+  const resolveTargetLocalTaskDeadline = (
+    targetId: string,
+    projectedGlobalFrame: number
+  ): TargetLocalTaskDeadline | null => {
+    const clock = targetClocks?.get(targetId);
+    if (clock === undefined) return null;
+    return {
+      targetId,
+      targetFrame:
+        clock.projectLocalFrameAtGlobalFrame(
+          projectedGlobalFrame
+        )
+    };
+  };
+  const lifecycleScheduleKey = (
+    targetId: string,
+    generation: number,
+    projectedGlobalFrame: number,
+    targetLocalDeadline: TargetLocalTaskDeadline | null
+  ): string =>
+    `${targetId}\u0000${generation}\u0000${
+      targetLocalDeadline?.targetFrame ??
+      projectedGlobalFrame
+    }`;
+
   const schedulePeriodicReactionExpiry = (
     targetId: string,
     generation: number,
     expiryFrame: number | null
   ): void => {
     if (expiryFrame === null) return;
-    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    const targetLocalDeadline =
+      resolveTargetLocalTaskDeadline(targetId, expiryFrame);
+    const scheduleKey = lifecycleScheduleKey(
+      targetId,
+      generation,
+      expiryFrame,
+      targetLocalDeadline
+    );
     if (periodicReactionExpiryScheduleKeys.has(scheduleKey)) return;
     periodicReactionExpiryScheduleKeys.add(scheduleKey);
-    push(expiryFrame / 60, "periodicReactionExpiry", {
+    const payload = {
       targetId,
       generation,
       expectedExpiryFrame: expiryFrame
-    } satisfies PeriodicReactionExpiryEventPayload);
+    } satisfies PeriodicReactionExpiryEventPayload;
+    if (targetLocalDeadline === null) {
+      push(expiryFrame / 60, "periodicReactionExpiry", payload);
+    } else {
+      pushTargetLocal(
+        expiryFrame,
+        "periodicReactionExpiry",
+        payload,
+        targetLocalDeadline
+      );
+    }
   };
 
   const scheduleBurningFuelExpiry = (
@@ -1757,14 +2030,31 @@ function simulateConfig(
     expiryFrame: number | null
   ): void => {
     if (expiryFrame === null) return;
-    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    const targetLocalDeadline =
+      resolveTargetLocalTaskDeadline(targetId, expiryFrame);
+    const scheduleKey = lifecycleScheduleKey(
+      targetId,
+      generation,
+      expiryFrame,
+      targetLocalDeadline
+    );
     if (burningFuelExpiryScheduleKeys.has(scheduleKey)) return;
     burningFuelExpiryScheduleKeys.add(scheduleKey);
-    push(expiryFrame / 60, "burningFuelExpiry", {
+    const payload = {
       targetId,
       generation,
       expectedExpiryFrame: expiryFrame
-    } satisfies BurningFuelExpiryEventPayload);
+    } satisfies BurningFuelExpiryEventPayload;
+    if (targetLocalDeadline === null) {
+      push(expiryFrame / 60, "burningFuelExpiry", payload);
+    } else {
+      pushTargetLocal(
+        expiryFrame,
+        "burningFuelExpiry",
+        payload,
+        targetLocalDeadline
+      );
+    }
   };
 
   const scheduleFrozenExpiry = (
@@ -1773,14 +2063,31 @@ function simulateConfig(
     expiryFrame: number | null
   ): void => {
     if (expiryFrame === null) return;
-    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    const targetLocalDeadline =
+      resolveTargetLocalTaskDeadline(targetId, expiryFrame);
+    const scheduleKey = lifecycleScheduleKey(
+      targetId,
+      generation,
+      expiryFrame,
+      targetLocalDeadline
+    );
     if (frozenExpiryScheduleKeys.has(scheduleKey)) return;
     frozenExpiryScheduleKeys.add(scheduleKey);
-    push(expiryFrame / 60, "frozenExpiry", {
+    const payload = {
       targetId,
       generation,
       expectedExpiryFrame: expiryFrame
-    } satisfies FrozenExpiryEventPayload);
+    } satisfies FrozenExpiryEventPayload;
+    if (targetLocalDeadline === null) {
+      push(expiryFrame / 60, "frozenExpiry", payload);
+    } else {
+      pushTargetLocal(
+        expiryFrame,
+        "frozenExpiry",
+        payload,
+        targetLocalDeadline
+      );
+    }
   };
 
   const scheduleQuickenExpiry = (
@@ -1789,14 +2096,65 @@ function simulateConfig(
     expiryFrame: number | null
   ): void => {
     if (expiryFrame === null) return;
-    const scheduleKey = `${targetId}\u0000${generation}\u0000${expiryFrame}`;
+    const targetLocalDeadline =
+      resolveTargetLocalTaskDeadline(targetId, expiryFrame);
+    const scheduleKey = lifecycleScheduleKey(
+      targetId,
+      generation,
+      expiryFrame,
+      targetLocalDeadline
+    );
     if (quickenExpiryScheduleKeys.has(scheduleKey)) return;
     quickenExpiryScheduleKeys.add(scheduleKey);
-    push(expiryFrame / 60, "quickenExpiry", {
+    const payload = {
       targetId,
       generation,
       expectedExpiryFrame: expiryFrame
-    } satisfies QuickenExpiryEventPayload);
+    } satisfies QuickenExpiryEventPayload;
+    if (targetLocalDeadline === null) {
+      push(expiryFrame / 60, "quickenExpiry", payload);
+    } else {
+      pushTargetLocal(
+        expiryFrame,
+        "quickenExpiry",
+        payload,
+        targetLocalDeadline
+      );
+    }
+  };
+
+  const scheduleBurningTickEvent = (
+    targetId: string,
+    generation: number,
+    tickIndex: number,
+    projectedGlobalFrame: number
+  ): void => {
+    const payload = {
+      targetId,
+      generation,
+      tickIndex
+    } satisfies BurningTickEventPayload;
+    const targetLocalDeadline =
+      resolveTargetLocalTaskDeadline(
+        targetId,
+        projectedGlobalFrame
+      );
+    if (targetLocalDeadline === null) {
+      push(
+        projectedGlobalFrame / 60,
+        "burningTick",
+        payload,
+        burningTickPriorityForTarget(targetId)
+      );
+    } else {
+      pushTargetLocal(
+        projectedGlobalFrame,
+        "burningTick",
+        payload,
+        targetLocalDeadline,
+        burningTickPriorityForTarget(targetId)
+      );
+    }
   };
 
   const scheduleElectroChargedDamage = ({
@@ -2022,6 +2380,248 @@ function simulateConfig(
         activeTargetDebuffs.splice(index, 1);
       }
     }
+  };
+
+  const recordTargetClockAdvance = (
+    targetId: string,
+    cause: Extract<
+      TargetClockLogEntry["cause"],
+      "target-local-task" | "simulation-end"
+    >
+  ): void => {
+    const clock = targetClocks?.get(targetId);
+    if (clock === undefined) return;
+    const before = lastLoggedTargetClockState.get(targetId);
+    const after = clock.getState();
+    if (before === undefined) {
+      throw new Error(
+        `Missing target clock replay state for "${targetId}".`
+      );
+    }
+    const globalDelta =
+      after.globalFrame - before.globalFrame;
+    if (globalDelta === 0) return;
+    const consumedFrozenFrames = Math.min(
+      globalDelta,
+      before.frozenFrames
+    );
+    const entry: TargetClockLogEntry = {
+      id: targetClockLog.length,
+      targetId,
+      targetName:
+        enemyTargetById.get(targetId)?.name ?? targetId,
+      operation: "advance",
+      globalFrameBefore: before.globalFrame,
+      globalFrameAfter: after.globalFrame,
+      targetFrameBefore: before.localFrame,
+      targetFrameAfter: after.localFrame,
+      frozenFramesBefore: before.frozenFrames,
+      consumedFrozenFrames,
+      addedFrozenFrames: 0,
+      frozenFramesAfter: after.frozenFrames,
+      targetHitlagLogId: null,
+      cause
+    };
+    targetClockLog.push(entry);
+    lastLoggedTargetClockState.set(targetId, {
+      ...after
+    });
+  };
+
+  const extendHitlagAffectedReactionStatuses = (
+    targetId: string,
+    frame: number,
+    extensionFrames: number
+  ): number[] => {
+    if (extensionFrames <= 0) return [];
+    const extendedLogIds: number[] = [];
+    for (const debuff of activeTargetDebuffs) {
+      if (
+        debuff.targetId !== targetId ||
+        debuff.key !== "superconduct-phys-shred" ||
+        debuff.reaction !== "superconduct" ||
+        debuff.endFrame <= frame
+      ) {
+        continue;
+      }
+      debuff.endFrame += extensionFrames;
+      debuff.end = debuff.endFrame / 60;
+      const statusLog =
+        reactionStatusLog[debuff.reactionStatusLogId];
+      if (statusLog === undefined) {
+        throw new Error(
+          `Missing reaction status log ${debuff.reactionStatusLogId} for active target debuff.`
+        );
+      }
+      statusLog.endFrame = debuff.endFrame;
+      statusLog.endTimeSeconds = debuff.end;
+      extendedLogIds.push(debuff.reactionStatusLogId);
+    }
+    return extendedLogIds;
+  };
+
+  const applyConfiguredTargetHitlag = ({
+    targetId,
+    targetName,
+    actorId,
+    actionId,
+    hit,
+    hitId,
+    hitGroupId,
+    hitResolutionLogId,
+    frame,
+    landed,
+    eventPriority,
+    eventSequence,
+    intraEventSequence
+  }: {
+    targetId: string;
+    targetName: string;
+    actorId: string;
+    actionId: string;
+    hit: HitDefinition;
+    hitId: string;
+    hitGroupId: string;
+    hitResolutionLogId: number;
+    frame: number;
+    landed: boolean;
+    eventPriority: number;
+    eventSequence: number;
+    intraEventSequence: number;
+  }): void => {
+    const definition = hit.targetHitlag;
+    if (definition === undefined) return;
+    const clock = targetClocks?.get(targetId);
+    if (clock === undefined) {
+      throw new Error(
+        `Hit "${hitId}" configured target Hitlag while target clock is disabled.`
+      );
+    }
+
+    const auraEngine = auraEngines?.get(targetId);
+    if (auraEngine === undefined) {
+      clock.advanceTo(frame);
+    } else {
+      auraEngine.getAuraStateAt(frame);
+    }
+    recordTargetClockAdvance(
+      targetId,
+      "target-local-task"
+    );
+
+    const stateBefore = clock.getState();
+    const roundedHaltFrames = Math.ceil(
+      definition.haltFrames
+    );
+    const extensionFrames =
+      calculateEnemyHitlagExtension(
+        definition.haltFrames,
+        definition.factor
+      );
+    const targetHitlagLogId = targetHitlagLog.length;
+
+    let stateAfter = stateBefore;
+    let pausedGlobalFrameStart: number | null = null;
+    let nextTargetAdvanceGlobalFrame: number | null = null;
+    let extendedReactionStatusLogIds: number[] = [];
+    const applied = landed && extensionFrames > 0;
+    if (applied) {
+      const audit =
+        auraEngine === undefined
+          ? clock.applyHitlag({
+              globalFrame: frame,
+              haltFrames: definition.haltFrames,
+              factor: definition.factor
+            })
+          : auraEngine.applyTargetHitlag({
+              globalFrame: frame,
+              haltFrames: definition.haltFrames,
+              factor: definition.factor
+            });
+      stateAfter = clock.getState();
+      pausedGlobalFrameStart =
+        audit.pausedGlobalFrameStart;
+      nextTargetAdvanceGlobalFrame =
+        audit.projectedResumeGlobalFrame;
+      extendedReactionStatusLogIds =
+        extendHitlagAffectedReactionStatuses(
+          targetId,
+          frame,
+          extensionFrames
+        );
+      if (auraEngine !== undefined) {
+        targetStateTimelineRecorder.synchronize(
+          targetId,
+          frame,
+          auraEngine.getAuraStateAt(frame)
+        );
+      }
+    }
+
+    const hitlagEntry: TargetHitlagLogEntry = {
+      id: targetHitlagLogId,
+      globalFrame: frame,
+      timeSeconds: frame / 60,
+      targetFrame: stateBefore.localFrame,
+      eventPriority,
+      eventSequence,
+      intraEventSequence,
+      targetId,
+      targetName,
+      sourceActorId: actorId,
+      sourceActionId: actionId,
+      hitId,
+      hitGroupId,
+      hitResolutionLogId,
+      haltFrames: definition.haltFrames,
+      factor: definition.factor,
+      roundedHaltFrames,
+      extensionFrames,
+      frozenFramesBefore: stateBefore.frozenFrames,
+      frozenFramesAfter: stateAfter.frozenFrames,
+      pausedGlobalFrameStart,
+      nextTargetAdvanceGlobalFrame,
+      applied,
+      blockedReason: applied
+        ? null
+        : landed
+          ? "ZERO_EXTENSION"
+          : "TARGET_MISS",
+      extendedReactionStatusLogIds,
+      mechanicsDataStatus: "fixed-gcsim-provisional"
+    };
+    targetHitlagLog.push(hitlagEntry);
+
+    if (!applied) return;
+    targetClockLog.push({
+      id: targetClockLog.length,
+      targetId,
+      targetName,
+      operation: "apply-hitlag",
+      globalFrameBefore: stateBefore.globalFrame,
+      globalFrameAfter: stateAfter.globalFrame,
+      targetFrameBefore: stateBefore.localFrame,
+      targetFrameAfter: stateAfter.localFrame,
+      frozenFramesBefore: stateBefore.frozenFrames,
+      consumedFrozenFrames: 0,
+      addedFrozenFrames: extensionFrames,
+      frozenFramesAfter: stateAfter.frozenFrames,
+      targetHitlagLogId,
+      cause: "hit"
+    });
+    lastLoggedTargetClockState.set(targetId, {
+      ...stateAfter
+    });
+    totalTargetHitlagExtensionById.set(
+      targetId,
+      (totalTargetHitlagExtensionById.get(targetId) ?? 0) +
+        extensionFrames
+    );
+    targetHitlagApplicationCountById.set(
+      targetId,
+      (targetHitlagApplicationCountById.get(targetId) ?? 0) +
+        1
+    );
   };
 
   const computeStats = (
@@ -2546,8 +3146,8 @@ function simulateConfig(
       coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
       hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
       maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
-      clockModel: "global-frame-no-hitlag",
-      hitlagStatus: "unsupported-enemy-hitlag",
+      clockModel: dendroCoreClockModel,
+      hitlagStatus: dendroCoreHitlagStatus,
       mechanicsDataStatus:
         DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
       selfDamageStatus: playerSelfDamageStatus,
@@ -2731,8 +3331,8 @@ function simulateConfig(
         coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
         hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
         maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
-        clockModel: "global-frame-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: dendroCoreClockModel,
+        hitlagStatus: dendroCoreHitlagStatus,
         mechanicsDataStatus:
           DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
         selfDamageStatus: playerSelfDamageStatus,
@@ -2775,6 +3375,11 @@ function simulateConfig(
         generation: result.audit.generation,
         operation: mutation.operation,
         frame,
+        ...targetLifecycleFields(
+          targetId,
+          frame,
+          result.audit.expiresAtFrame
+        ),
         timeSeconds,
         targetId,
         targetName,
@@ -2834,6 +3439,12 @@ function simulateConfig(
         generation: quicken.generation,
         operation: quicken.operation,
         frame,
+        ...targetQuickenLifecycleFields(
+          targetId,
+          frame,
+          quicken.expiresAtFrameBefore,
+          quicken.expiresAtFrame
+        ),
         timeSeconds,
         targetId,
         targetName,
@@ -2903,6 +3514,12 @@ function simulateConfig(
         generation: mutation.generationAfter,
         operation: mutation.operation,
         frame,
+        ...targetQuickenLifecycleFields(
+          targetId,
+          frame,
+          mutation.expiresAtFrameBefore,
+          mutation.expiresAtFrameAfter
+        ),
         timeSeconds,
         targetId,
         targetName,
@@ -3026,6 +3643,12 @@ function simulateConfig(
       generation: mutation.generationAfter,
       operation: mutation.operation,
       frame,
+      ...targetQuickenLifecycleFields(
+        targetId,
+        frame,
+        mutation.expiresAtFrameBefore,
+        mutation.expiresAtFrameAfter
+      ),
       timeSeconds,
       targetId,
       targetName,
@@ -3419,6 +4042,12 @@ function simulateConfig(
             activeSource?.generation ?? burningReaction.generation,
           operation: "stop",
           frame,
+          ...targetBurningLifecycleFields(
+            targetId,
+            frame,
+            burningReaction.fuelExpiresAtFrame,
+            null
+          ),
           timeSeconds,
           eventPriority,
           eventSequence,
@@ -3457,8 +4086,8 @@ function simulateConfig(
           auraConsumed: deepClone(audit.auraConsumed ?? []),
           auraAfter: deepClone(audit.auraAfter ?? []),
           nextTickFrame: null,
-          clockModel: "target-local-no-hitlag",
-          hitlagStatus: "unsupported-enemy-hitlag",
+          clockModel: burningClockModel,
+          hitlagStatus: enemyHitlagStatus,
           icdGroup: "burning",
           icdTag: "burning-application",
           icdScope: "global-target",
@@ -3520,6 +4149,12 @@ function simulateConfig(
         generation: burningReaction.generation,
         operation: burningReaction.operation,
         frame,
+        ...targetBurningLifecycleFields(
+          targetId,
+          frame,
+          burningReaction.fuelExpiresAtFrame,
+          burningReaction.nextTickFrame
+        ),
         timeSeconds,
         eventPriority,
         eventSequence,
@@ -3553,8 +4188,8 @@ function simulateConfig(
         auraConsumed: deepClone(audit.auraConsumed ?? []),
         auraAfter: deepClone(audit.auraAfter ?? []),
         nextTickFrame: burningReaction.nextTickFrame,
-        clockModel: "target-local-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: burningClockModel,
+        hitlagStatus: enemyHitlagStatus,
         icdGroup: "burning",
         icdTag: "burning-application",
         icdScope: "global-target",
@@ -3581,15 +4216,11 @@ function simulateConfig(
         burningReaction.operation === "start" &&
         burningReaction.firstTickFrame !== null
       ) {
-        push(
-          burningReaction.firstTickFrame / 60,
-          "burningTick",
-          {
-            targetId,
-            generation: burningReaction.generation,
-            tickIndex: 1
-          } satisfies BurningTickEventPayload,
-          burningTickPriorityForTarget(targetId)
+        scheduleBurningTickEvent(
+          targetId,
+          burningReaction.generation,
+          1,
+          burningReaction.firstTickFrame
         );
       }
       return;
@@ -3613,6 +4244,12 @@ function simulateConfig(
       generation: activeSource.generation,
       operation: "stop",
       frame,
+      ...targetBurningLifecycleFields(
+        targetId,
+        frame,
+        null,
+        null
+      ),
       timeSeconds,
       eventPriority,
       eventSequence,
@@ -3651,8 +4288,8 @@ function simulateConfig(
       auraConsumed: deepClone(audit.auraConsumed ?? []),
       auraAfter: deepClone(auraAfter),
       nextTickFrame: null,
-      clockModel: "target-local-no-hitlag",
-      hitlagStatus: "unsupported-enemy-hitlag",
+      clockModel: burningClockModel,
+      hitlagStatus: enemyHitlagStatus,
       icdGroup: "burning",
       icdTag: "burning-application",
       icdScope: "global-target",
@@ -3934,6 +4571,11 @@ function simulateConfig(
         generation: frozenReaction.generation,
         operation: frozenReaction.operation,
         frame,
+        ...targetLifecycleFields(
+          targetId,
+          frame,
+          frozenReaction.expiresAtFrame
+        ),
         timeSeconds,
         targetId,
         targetName,
@@ -4490,6 +5132,24 @@ function simulateConfig(
     eventSequence: number;
     nextIntraEventSequence: () => number;
   }): void => {
+    if (hit.targetHitlag !== undefined) {
+      applyConfiguredTargetHitlag({
+        targetId,
+        targetName:
+          enemyTargetById.get(targetId)?.name ?? targetId,
+        actorId,
+        actionId: action.id,
+        hit,
+        hitId,
+        hitGroupId,
+        hitResolutionLogId: targetResolutionId,
+        frame,
+        landed,
+        eventPriority: EVENT_PRIORITY.hit,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence()
+      });
+    }
     const aggregate = hitCallbackAggregates.get(hitGroupId) ?? {
       checkedTargetIds: [],
       confirmedTargetIds: [],
@@ -4569,6 +5229,54 @@ function simulateConfig(
       event.frame,
       includeCurrentFrameNaturalAuraExpiry
     );
+    const targetLocalDeadline = event.targetLocalDeadline;
+    if (targetLocalDeadline !== undefined) {
+      const clock = targetClocks?.get(
+        targetLocalDeadline.targetId
+      );
+      if (clock === undefined) {
+        throw new Error(
+          `Target-local event "${event.type}" has no clock for target "${targetLocalDeadline.targetId}".`
+        );
+      }
+      const targetFrameAtWake =
+        clock.projectLocalFrameAtGlobalFrame(event.frame);
+      if (
+        targetFrameAtWake <
+        targetLocalDeadline.targetFrame
+      ) {
+        const nextProjectedGlobalFrame =
+          clock.projectGlobalFrameForLocalDeadline(
+            targetLocalDeadline.targetFrame
+          );
+        if (nextProjectedGlobalFrame <= event.frame) {
+          throw new Error(
+            `Target-local event "${event.type}" failed to move beyond stale wake-up frame ${event.frame}.`
+          );
+        }
+        const reprojectedPayload =
+          event.type === "periodicReactionExpiry" ||
+          event.type === "burningFuelExpiry" ||
+          event.type === "frozenExpiry" ||
+          event.type === "quickenExpiry"
+            ? {
+                ...(event.payload as {
+                  targetId: string;
+                  generation: number;
+                  expectedExpiryFrame: number;
+                }),
+                expectedExpiryFrame:
+                  nextProjectedGlobalFrame
+              }
+            : event.payload;
+        requeueTargetLocalEvent(
+          event,
+          nextProjectedGlobalFrame,
+          reprojectedPayload
+        );
+        continue;
+      }
+    }
     cleanup(timeSeconds);
     let intraEventSequence = 0;
     const nextIntraEventSequence = (): number =>
@@ -4964,8 +5672,8 @@ function simulateConfig(
         coreDurationFrames: DENDRO_CORE_CONSTANTS.durationFrames,
         hitboxRadius: DENDRO_CORE_CONSTANTS.hitboxRadius,
         maxActiveCores: DENDRO_CORE_CONSTANTS.maxActiveCores,
-        clockModel: "global-frame-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: dendroCoreClockModel,
+        hitlagStatus: dendroCoreHitlagStatus,
         mechanicsDataStatus:
           DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
         selfDamageStatus: playerSelfDamageStatus,
@@ -5769,7 +6477,12 @@ function simulateConfig(
         expectedExpiryFrame
       } = event.payload as FrozenExpiryEventPayload;
       frozenExpiryScheduleKeys.delete(
-        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+        lifecycleScheduleKey(
+          targetId,
+          generation,
+          expectedExpiryFrame,
+          event.targetLocalDeadline ?? null
+        )
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
@@ -5810,6 +6523,11 @@ function simulateConfig(
         generation,
         operation: "expire",
         frame: event.frame,
+        ...targetLifecycleFields(
+          targetId,
+          event.frame,
+          null
+        ),
         timeSeconds,
         targetId,
         targetName: target.name,
@@ -5837,7 +6555,12 @@ function simulateConfig(
         expectedExpiryFrame
       } = event.payload as QuickenExpiryEventPayload;
       quickenExpiryScheduleKeys.delete(
-        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+        lifecycleScheduleKey(
+          targetId,
+          generation,
+          expectedExpiryFrame,
+          event.targetLocalDeadline ?? null
+        )
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
@@ -5884,6 +6607,12 @@ function simulateConfig(
         generation,
         operation: "expire",
         frame: event.frame,
+        ...targetQuickenLifecycleFields(
+          targetId,
+          event.frame,
+          result.expiresAtFrameBefore,
+          result.expiresAtFrame
+        ),
         timeSeconds,
         targetId,
         targetName: target.name,
@@ -5922,7 +6651,12 @@ function simulateConfig(
         expectedExpiryFrame
       } = event.payload as PeriodicReactionExpiryEventPayload;
       periodicReactionExpiryScheduleKeys.delete(
-        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+        lifecycleScheduleKey(
+          targetId,
+          generation,
+          expectedExpiryFrame,
+          event.targetLocalDeadline ?? null
+        )
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
@@ -5996,7 +6730,12 @@ function simulateConfig(
         expectedExpiryFrame
       } = event.payload as BurningFuelExpiryEventPayload;
       burningFuelExpiryScheduleKeys.delete(
-        `${targetId}\u0000${generation}\u0000${expectedExpiryFrame}`
+        lifecycleScheduleKey(
+          targetId,
+          generation,
+          expectedExpiryFrame,
+          event.targetLocalDeadline ?? null
+        )
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
@@ -6069,6 +6808,12 @@ function simulateConfig(
         generation,
         operation: "fuel-expire",
         frame: event.frame,
+        ...targetBurningLifecycleFields(
+          targetId,
+          event.frame,
+          result.fuelExpiresAtFrame,
+          result.nextTickFrame
+        ),
         timeSeconds,
         eventPriority: event.priority,
         eventSequence: event.sequence,
@@ -6104,8 +6849,8 @@ function simulateConfig(
         auraConsumed: removedAura,
         auraAfter: deepClone(result.auraAfter),
         nextTickFrame: result.nextTickFrame,
-        clockModel: "target-local-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: burningClockModel,
+        hitlagStatus: enemyHitlagStatus,
         icdGroup: "burning",
         icdTag: "burning-application",
         icdScope: "global-target",
@@ -6127,6 +6872,12 @@ function simulateConfig(
           generation: quickenMutation.generationAfter,
           operation: "remove",
           frame: event.frame,
+          ...targetQuickenLifecycleFields(
+            targetId,
+            event.frame,
+            quickenMutation.expiresAtFrameBefore,
+            null
+          ),
           timeSeconds,
           targetId,
           targetName: target.name,
@@ -6188,6 +6939,19 @@ function simulateConfig(
         generation,
         tickIndex
       );
+      if (
+        targetClockEnabled &&
+        prepared.operation === "stale" &&
+        prepared.reason === "UNEXPECTED_TICK_FRAME" &&
+        prepared.nextTickFrame !== null &&
+        prepared.nextTickFrame > event.frame
+      ) {
+        requeueTargetLocalEvent(
+          event,
+          prepared.nextTickFrame
+        );
+        continue;
+      }
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -6221,6 +6985,12 @@ function simulateConfig(
           generation,
           operation: "stop",
           frame: event.frame,
+          ...targetBurningLifecycleFields(
+            targetId,
+            event.frame,
+            prepared.fuelExpiresAtFrame,
+            null
+          ),
           timeSeconds,
           eventPriority: event.priority,
           eventSequence: event.sequence,
@@ -6256,8 +7026,8 @@ function simulateConfig(
           auraConsumed: [],
           auraAfter: deepClone(prepared.auraAfter),
           nextTickFrame: null,
-          clockModel: "target-local-no-hitlag",
-          hitlagStatus: "unsupported-enemy-hitlag",
+          clockModel: burningClockModel,
+          hitlagStatus: enemyHitlagStatus,
           icdGroup: "burning",
           icdTag: "burning-application",
           icdScope: "global-target",
@@ -6286,6 +7056,12 @@ function simulateConfig(
         generation,
         operation: prepared.operation,
         frame: event.frame,
+        ...targetBurningLifecycleFields(
+          targetId,
+          event.frame,
+          prepared.fuelExpiresAtFrame,
+          prepared.nextTickFrame
+        ),
         timeSeconds,
         eventPriority: event.priority,
         eventSequence: event.sequence,
@@ -6321,8 +7097,8 @@ function simulateConfig(
         auraConsumed: [],
         auraAfter: deepClone(prepared.auraAfter),
         nextTickFrame: prepared.nextTickFrame,
-        clockModel: "target-local-no-hitlag",
-        hitlagStatus: "unsupported-enemy-hitlag",
+        clockModel: burningClockModel,
+        hitlagStatus: enemyHitlagStatus,
         icdGroup: "burning",
         icdTag: "burning-application",
         icdScope: "global-target",
@@ -6349,15 +7125,11 @@ function simulateConfig(
         });
       }
       if (prepared.nextTickFrame !== null) {
-        push(
-          prepared.nextTickFrame / 60,
-          "burningTick",
-          {
-            targetId,
-            generation,
-            tickIndex: tickIndex + 1
-          } satisfies BurningTickEventPayload,
-          burningTickPriorityForTarget(targetId)
+        scheduleBurningTickEvent(
+          targetId,
+          generation,
+          tickIndex + 1,
+          prepared.nextTickFrame
         );
       }
       scheduleBurningFuelExpiry(
@@ -8148,7 +8920,11 @@ function simulateConfig(
               computeStats(scalingOwnerId, timeSeconds)
           )
         : computeStats(scalingOwnerId, timeSeconds);
-    if (!stats) continue;
+    if (!stats) {
+      throw new Error(
+        `Resolved scaling owner "${scalingOwnerId}" has no runtime stats for hit "${hitId}".`
+      );
+    }
 
     const scalingStat = hit.scalingStat ?? "atk";
     const scalingValue = calcTotalStat(stats, scalingStat);
@@ -8982,6 +9758,11 @@ function simulateConfig(
         generation: frozenReaction.generation,
         operation,
         frame: event.frame,
+        ...targetLifecycleFields(
+          targetId,
+          event.frame,
+          frozenReaction.expiresAtFrame
+        ),
         timeSeconds,
         targetId,
         targetName: targetProfile.name,
@@ -9413,8 +10194,25 @@ function simulateConfig(
       aura: deepClone(
         auraEngines?.get(target.id)?.getAuraStateAt(durationFrame) ??
           []
-      )
+        )
     }));
+  if (targetClocks !== null) {
+    for (const target of enemyTargets) {
+      const clock = targetClocks.get(target.id);
+      if (clock === undefined) {
+        throw new Error(
+          `Missing final target clock for "${target.id}".`
+        );
+      }
+      if (auraEngines?.get(target.id) === undefined) {
+        clock.advanceTo(durationFrame);
+      }
+      recordTargetClockAdvance(
+        target.id,
+        "simulation-end"
+      );
+    }
+  }
   for (const endState of auraEndStates) {
     targetStateTimelineRecorder.recordBoundary({
       frame: endState.frame,
@@ -9426,8 +10224,55 @@ function simulateConfig(
     });
   }
   const targetStateTimeline = targetStateTimelineRecorder.result();
+  const targetClockSummaries: TargetClockSummary[] =
+    targetClocks === null
+      ? []
+      : enemyTargets.map((target) => {
+          const state = targetClocks
+            .get(target.id)!
+            .getState();
+          const totalExtensionFrames =
+            totalTargetHitlagExtensionById.get(target.id) ?? 0;
+          const frozenFramesConsumed =
+            state.globalFrame - state.localFrame;
+          return {
+            targetId: target.id,
+            targetName: target.name,
+            finalGlobalFrame: state.globalFrame,
+            finalTargetFrame: state.localFrame,
+            frozenFramesConsumed,
+            frozenFramesRemaining: state.frozenFrames,
+            hitlagApplications:
+              targetHitlagApplicationCountById.get(
+                target.id
+              ) ?? 0,
+            totalExtensionFrames
+          };
+        });
+  const targetClockAudit = targetClockAuditSchema.parse(
+    targetClocks === null
+      ? {
+          version: "1.0.0",
+          mode: "disabled",
+          hitlagStatus: "unsupported-enemy-hitlag",
+          targets: []
+        }
+      : {
+          version: "1.0.0",
+          mode: "target-local-hitlag-v1",
+          hitlagStatus: "modeled-enemy-hitlag",
+          roundingModel: "ceil-ceil-v1",
+          applicationOrder: "after-current-target-tick",
+          mechanicsDataStatus: "fixed-gcsim-provisional",
+          targets: targetClockSummaries
+        }
+  );
+  const parsedTargetClockLog =
+    targetClockLogSchema.parse(targetClockLog);
+  const parsedTargetHitlagLog =
+    targetHitlagLogSchema.parse(targetHitlagLog);
 
-  return {
+  const simulationResult: SimulationResult = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: config.engineVersion,
     dataVersion: config.dataVersion,
@@ -9448,6 +10293,9 @@ function simulateConfig(
     damageEvents,
     hitEvents: damageEvents,
     hitResolutionLog,
+    targetClockAudit,
+    targetClockLog: parsedTargetClockLog,
+    targetHitlagLog: parsedTargetHitlagLog,
     targetMechanicsTruncationLog,
     reactionDamageLog,
     reactionStatusLog,
@@ -9496,6 +10344,8 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+  targetClockResultReferencesSchema.parse(simulationResult);
+  return simulationResult;
 }
 
 function simulateLegalTimeline(

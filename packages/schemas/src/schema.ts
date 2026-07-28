@@ -27,6 +27,8 @@ import {
   OVERLOAD_REACTION_SCHEMA_VERSION,
   ORIENTED_RECTANGLE_SCHEMA_VERSION,
   PARTICLE_SCHEMA_VERSION,
+  PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
+  PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
@@ -385,6 +387,19 @@ export const auraReactionEngineConfigSchema = z
     }
   });
 
+export const targetClockModelSchema = z.discriminatedUnion("mode", [
+  z
+    .object({
+      mode: z.literal("disabled")
+    })
+    .strict(),
+  z
+    .object({
+      mode: z.literal("target-local-hitlag-v1")
+    })
+    .strict()
+]);
+
 export const auraStateElementSchema = z.enum([
   "pyro",
   "cryo",
@@ -418,9 +433,41 @@ export const auraStateEntrySchema = z
     element: auraStateElementSchema,
     gaugeUnits: finiteNumber.nonnegative(),
     expiresAtFrame: z.number().int().nonnegative().nullable(),
+    expiresAtTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     sourceSlots: z.array(auraSourceGaugeSlotSchema).optional()
   })
-  .strict();
+  .strict()
+  .superRefine((entry, context) => {
+    if (
+      entry.expiresAtTargetFrame !== undefined &&
+      (entry.expiresAtTargetFrame === null) !==
+        (entry.expiresAtFrame === null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["expiresAtTargetFrame"],
+        message:
+          "must share nullability with expiresAtFrame when present"
+      });
+    }
+    if (
+      entry.expiresAtTargetFrame !== undefined &&
+      entry.expiresAtTargetFrame !== null &&
+      entry.expiresAtFrame !== null &&
+      entry.expiresAtTargetFrame > entry.expiresAtFrame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["expiresAtTargetFrame"],
+        message: "cannot exceed expiresAtFrame"
+      });
+    }
+  });
 
 export const auraGaugeEntrySchema = z
   .object({
@@ -449,7 +496,34 @@ function auraStateSnapshotsEqual(
   left: readonly AuraStateWireEntry[],
   right: readonly AuraStateWireEntry[]
 ): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
+  if (left.length !== right.length) return false;
+  return left.every((leftEntry, index) => {
+    const rightEntry = right[index];
+    if (rightEntry === undefined) return false;
+    if (
+      leftEntry.element !== rightEntry.element ||
+      leftEntry.gaugeUnits !== rightEntry.gaugeUnits ||
+      JSON.stringify(leftEntry.sourceSlots) !==
+        JSON.stringify(rightEntry.sourceSlots)
+    ) {
+      return false;
+    }
+
+    const bothUseTargetDeadline =
+      leftEntry.expiresAtTargetFrame !== undefined &&
+      rightEntry.expiresAtTargetFrame !== undefined;
+    if (bothUseTargetDeadline) {
+      return (
+        leftEntry.expiresAtTargetFrame ===
+        rightEntry.expiresAtTargetFrame
+      );
+    }
+    return (
+      leftEntry.expiresAtFrame === rightEntry.expiresAtFrame &&
+      leftEntry.expiresAtTargetFrame ===
+        rightEntry.expiresAtTargetFrame
+    );
+  });
 }
 
 /**
@@ -482,10 +556,16 @@ function auraStateOnlyDecreases(
     if (afterEntry.gaugeUnits > beforeEntry.gaugeUnits) {
       return `Aura clock advance cannot increase ${afterEntry.element} durability`;
     }
+    const beforeExpiryFrame =
+      beforeEntry.expiresAtTargetFrame ??
+      beforeEntry.expiresAtFrame;
+    const afterExpiryFrame =
+      afterEntry.expiresAtTargetFrame ??
+      afterEntry.expiresAtFrame;
     if (
-      beforeEntry.expiresAtFrame !== null &&
-      (afterEntry.expiresAtFrame === null ||
-        afterEntry.expiresAtFrame > beforeEntry.expiresAtFrame)
+      beforeExpiryFrame !== null &&
+      (afterExpiryFrame === null ||
+        afterExpiryFrame > beforeExpiryFrame)
     ) {
       return `Aura clock advance cannot extend ${afterEntry.element} expiry`;
     }
@@ -518,10 +598,13 @@ function auraStateOnlyDecreases(
 
   const afterElements = new Set(after.map((entry) => entry.element));
   for (const beforeEntry of before) {
+    const beforeExpiryFrame =
+      beforeEntry.expiresAtTargetFrame ??
+      beforeEntry.expiresAtFrame;
     if (
       !afterElements.has(beforeEntry.element) &&
-      (beforeEntry.expiresAtFrame === null ||
-        beforeEntry.expiresAtFrame > frame)
+      (beforeExpiryFrame === null ||
+        beforeExpiryFrame > frame)
     ) {
       return `Aura clock advance cannot remove unexpired ${beforeEntry.element}`;
     }
@@ -662,6 +745,7 @@ export const targetStateTimelinePointSchema = z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
     timeSeconds: finiteNumber.nonnegative(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema,
@@ -695,6 +779,16 @@ export const targetStateTimelinePointSchema = z
       point.cause === "simulation-start" ||
       point.cause === "simulation-end";
     const derivedCause = point.cause === "aura-natural-expiry";
+    const pointClockFrame = point.targetFrame ?? point.frame;
+    if (
+      point.targetFrame !== undefined &&
+      point.targetFrame > point.frame
+    ) {
+      issue(
+        "targetFrame",
+        "targetFrame cannot exceed the global frame"
+      );
+    }
     const hasAuraMutation =
       point.auraApplied.length > 0 ||
       point.auraConsumed.length > 0 ||
@@ -759,7 +853,7 @@ export const targetStateTimelinePointSchema = z
       const decreaseIssue = auraStateOnlyDecreases(
         point.auraBefore,
         point.auraAfter,
-        point.frame
+        pointClockFrame
       );
       if (decreaseIssue !== null) {
         issue(
@@ -769,9 +863,15 @@ export const targetStateTimelinePointSchema = z
       }
       if (
         !point.auraBefore.some(
-          (entry) =>
-            entry.expiresAtFrame !== null &&
-            entry.expiresAtFrame <= point.frame
+          (entry) => {
+            const expiryFrame =
+              entry.expiresAtTargetFrame ??
+              entry.expiresAtFrame;
+            return (
+              expiryFrame !== null &&
+              expiryFrame <= pointClockFrame
+            );
+          }
         )
       ) {
         issue(
@@ -1022,9 +1122,21 @@ export const targetStateTimelineSchema = z
           existingTracker.ended = true;
         }
 
+        const previousClockFrame =
+          existingTracker.previousPoint.targetFrame ??
+          existingTracker.previousPoint.frame;
+        const currentClockFrame =
+          point.targetFrame ?? point.frame;
+        if (currentClockFrame < previousClockFrame) {
+          context.addIssue({
+            code: "custom",
+            path: ["points", index, "targetFrame"],
+            message: `target frames must be nondecreasing for target "${point.targetId}"`
+          });
+        }
         if (point.frame >= existingTracker.previousPoint.frame) {
           const continuityIssue =
-            point.frame === existingTracker.previousPoint.frame
+            currentClockFrame === previousClockFrame
               ? auraStateSnapshotsEqual(
                   existingTracker.previousPoint.auraAfter,
                   point.auraBefore
@@ -1034,7 +1146,7 @@ export const targetStateTimelineSchema = z
               : auraStateOnlyDecreases(
                   existingTracker.previousPoint.auraAfter,
                   point.auraBefore,
-                  point.frame
+                  currentClockFrame
                 );
           if (continuityIssue !== null) {
             context.addIssue({
@@ -1097,6 +1209,518 @@ export const targetStateTimelineSchema = z
         });
       }
     }
+  });
+
+export const targetClockSummarySchema = z
+  .object({
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    finalGlobalFrame: z.number().int().nonnegative(),
+    finalTargetFrame: z.number().int().nonnegative(),
+    frozenFramesConsumed: z.number().int().nonnegative(),
+    frozenFramesRemaining: z.number().int().nonnegative(),
+    hitlagApplications: z.number().int().nonnegative(),
+    totalExtensionFrames: z.number().int().nonnegative()
+  })
+  .strict()
+  .superRefine((summary, context) => {
+    if (summary.finalTargetFrame > summary.finalGlobalFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["finalTargetFrame"],
+        message: "cannot exceed finalGlobalFrame"
+      });
+    }
+    if (
+      summary.finalTargetFrame +
+        summary.frozenFramesConsumed !==
+      summary.finalGlobalFrame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["frozenFramesConsumed"],
+        message:
+          "finalTargetFrame + frozenFramesConsumed must equal finalGlobalFrame"
+      });
+    }
+    if (
+      summary.frozenFramesConsumed +
+        summary.frozenFramesRemaining !==
+      summary.totalExtensionFrames
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["totalExtensionFrames"],
+        message:
+          "must equal frozenFramesConsumed + frozenFramesRemaining"
+      });
+    }
+  });
+
+export const targetClockAuditSchema = z
+  .discriminatedUnion("mode", [
+    z
+      .object({
+        version: z.literal("1.0.0"),
+        mode: z.literal("disabled"),
+        hitlagStatus: z.literal(
+          "unsupported-enemy-hitlag"
+        ),
+        targets: z.tuple([])
+      })
+      .strict(),
+    z
+      .object({
+        version: z.literal("1.0.0"),
+        mode: z.literal("target-local-hitlag-v1"),
+        hitlagStatus: z.literal("modeled-enemy-hitlag"),
+        roundingModel: z.literal("ceil-ceil-v1"),
+        applicationOrder: z.literal(
+          "after-current-target-tick"
+        ),
+        mechanicsDataStatus: z.literal(
+          "fixed-gcsim-provisional"
+        ),
+        targets: z.array(targetClockSummarySchema)
+      })
+      .strict()
+  ])
+  .superRefine((audit, context) => {
+    if (audit.mode === "disabled") return;
+    const targetIds = new Set<string>();
+    audit.targets.forEach((target, index) => {
+      if (targetIds.has(target.targetId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["targets", index, "targetId"],
+          message: `duplicate target clock summary for "${target.targetId}"`
+        });
+      }
+      targetIds.add(target.targetId);
+    });
+  });
+
+export const targetHitlagLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    globalFrame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetFrame: z.number().int().nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceActionId: wireNonEmptyStringSchema,
+    hitId: wireNonEmptyStringSchema,
+    hitGroupId: wireNonEmptyStringSchema,
+    hitResolutionLogId: z.number().int().nonnegative(),
+    haltFrames: finiteNumber.nonnegative().max(600),
+    factor: finiteNumber.min(0).max(1),
+    roundedHaltFrames: z.number().int().nonnegative(),
+    extensionFrames: z.number().int().nonnegative(),
+    frozenFramesBefore: z.number().int().nonnegative(),
+    frozenFramesAfter: z.number().int().nonnegative(),
+    pausedGlobalFrameStart: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    nextTargetAdvanceGlobalFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    applied: z.boolean(),
+    blockedReason: z
+      .enum(["TARGET_MISS", "ZERO_EXTENSION"])
+      .nullable(),
+    extendedReactionStatusLogIds: z.array(
+      z.number().int().nonnegative()
+    ),
+    mechanicsDataStatus: z.literal(
+      "fixed-gcsim-provisional"
+    )
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (
+      Math.abs(
+        entry.timeSeconds - entry.globalFrame / 60
+      ) > 1e-9
+    ) {
+      issue("timeSeconds", "must equal globalFrame / 60");
+    }
+    if (entry.targetFrame > entry.globalFrame) {
+      issue("targetFrame", "cannot exceed globalFrame");
+    }
+    if (
+      entry.roundedHaltFrames !==
+      Math.ceil(entry.haltFrames)
+    ) {
+      issue(
+        "roundedHaltFrames",
+        "must equal ceil(haltFrames)"
+      );
+    }
+    const expectedExtension = Math.ceil(
+      entry.roundedHaltFrames * (1 - entry.factor)
+    );
+    if (entry.extensionFrames !== expectedExtension) {
+      issue(
+        "extensionFrames",
+        "must equal ceil(roundedHaltFrames * (1 - factor))"
+      );
+    }
+    if (
+      new Set(entry.extendedReactionStatusLogIds).size !==
+      entry.extendedReactionStatusLogIds.length
+    ) {
+      issue(
+        "extendedReactionStatusLogIds",
+        "must not contain duplicate ids"
+      );
+    }
+    if (entry.applied) {
+      if (entry.extensionFrames <= 0) {
+        issue(
+          "applied",
+          "applied Hitlag requires a positive extension"
+        );
+      }
+      if (entry.blockedReason !== null) {
+        issue(
+          "blockedReason",
+          "applied Hitlag cannot have a blocked reason"
+        );
+      }
+      if (
+        entry.frozenFramesAfter !==
+        entry.frozenFramesBefore +
+          entry.extensionFrames
+      ) {
+        issue(
+          "frozenFramesAfter",
+          "must equal frozenFramesBefore + extensionFrames"
+        );
+      }
+      if (
+        entry.pausedGlobalFrameStart !==
+        entry.globalFrame + 1
+      ) {
+        issue(
+          "pausedGlobalFrameStart",
+          "applied Hitlag must begin on the next global frame"
+        );
+      }
+      if (
+        entry.nextTargetAdvanceGlobalFrame !==
+        entry.globalFrame + entry.frozenFramesAfter + 1
+      ) {
+        issue(
+          "nextTargetAdvanceGlobalFrame",
+          "must account for all stacked frozen frames"
+        );
+      }
+    } else {
+      if (
+        entry.blockedReason === null ||
+        (entry.extensionFrames > 0 &&
+          entry.blockedReason !== "TARGET_MISS")
+      ) {
+        issue(
+          "blockedReason",
+          entry.extensionFrames > 0
+            ? "non-applied positive Hitlag requires TARGET_MISS"
+            : "non-applied zero-extension Hitlag requires TARGET_MISS or ZERO_EXTENSION"
+        );
+      }
+      if (
+        entry.frozenFramesAfter !==
+        entry.frozenFramesBefore
+      ) {
+        issue(
+          "frozenFramesAfter",
+          "blocked Hitlag cannot mutate frozen frames"
+        );
+      }
+      if (
+        entry.pausedGlobalFrameStart !== null ||
+        entry.nextTargetAdvanceGlobalFrame !== null
+      ) {
+        issue(
+          "pausedGlobalFrameStart",
+          "blocked Hitlag cannot claim pause boundaries"
+        );
+      }
+      if (entry.extendedReactionStatusLogIds.length !== 0) {
+        issue(
+          "extendedReactionStatusLogIds",
+          "blocked Hitlag cannot extend reaction statuses"
+        );
+      }
+    }
+  });
+
+export const targetHitlagLogSchema = z
+  .array(targetHitlagLogEntrySchema)
+  .superRefine((entries, context) => {
+    let previousTuple:
+      | readonly [number, number, number, number]
+      | null = null;
+    const hitResolutionLogIds = new Set<number>();
+    entries.forEach((entry, index) => {
+      if (entry.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "id"],
+          message: `target Hitlag log ids must be contiguous; expected ${index}`
+        });
+      }
+      if (hitResolutionLogIds.has(entry.hitResolutionLogId)) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "hitResolutionLogId"],
+          message: `duplicate target Hitlag reference to hit-resolution ${entry.hitResolutionLogId}`
+        });
+      }
+      hitResolutionLogIds.add(entry.hitResolutionLogId);
+      const tuple = [
+        entry.globalFrame,
+        entry.eventPriority,
+        entry.eventSequence,
+        entry.intraEventSequence
+      ] as const;
+      if (
+        previousTuple !== null &&
+        (tuple[0] < previousTuple[0] ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] < previousTuple[1]) ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] === previousTuple[1] &&
+            tuple[2] < previousTuple[2]) ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] === previousTuple[1] &&
+            tuple[2] === previousTuple[2] &&
+            tuple[3] <= previousTuple[3]))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "eventPriority"],
+          message:
+            "target Hitlag rows must follow global event order"
+        });
+      }
+      previousTuple = tuple;
+    });
+  });
+
+export const targetClockLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    operation: z.enum(["advance", "apply-hitlag"]),
+    globalFrameBefore: z.number().int().nonnegative(),
+    globalFrameAfter: z.number().int().nonnegative(),
+    targetFrameBefore: z.number().int().nonnegative(),
+    targetFrameAfter: z.number().int().nonnegative(),
+    frozenFramesBefore: z.number().int().nonnegative(),
+    consumedFrozenFrames: z.number().int().nonnegative(),
+    addedFrozenFrames: z.number().int().nonnegative(),
+    frozenFramesAfter: z.number().int().nonnegative(),
+    targetHitlagLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    cause: z.enum([
+      "hit",
+      "target-local-task",
+      "simulation-end"
+    ])
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (
+      entry.targetFrameBefore > entry.globalFrameBefore ||
+      entry.targetFrameAfter > entry.globalFrameAfter
+    ) {
+      issue(
+        "targetFrameAfter",
+        "target frames cannot exceed their global frames"
+      );
+    }
+    if (
+      entry.globalFrameAfter < entry.globalFrameBefore ||
+      entry.targetFrameAfter < entry.targetFrameBefore
+    ) {
+      issue(
+        "globalFrameAfter",
+        "clock frames must be nondecreasing"
+      );
+    }
+    if (entry.operation === "advance") {
+      const globalDelta =
+        entry.globalFrameAfter - entry.globalFrameBefore;
+      const expectedConsumed = Math.min(
+        globalDelta,
+        entry.frozenFramesBefore
+      );
+      if (globalDelta <= 0) {
+        issue(
+          "globalFrameAfter",
+          "advance requires a positive global-frame delta"
+        );
+      }
+      if (
+        entry.consumedFrozenFrames !== expectedConsumed
+      ) {
+        issue(
+          "consumedFrozenFrames",
+          "must consume the smaller of elapsed and frozen frames"
+        );
+      }
+      if (
+        entry.targetFrameAfter !==
+        entry.targetFrameBefore +
+          globalDelta -
+          expectedConsumed
+      ) {
+        issue(
+          "targetFrameAfter",
+          "does not match the target-clock advance"
+        );
+      }
+      if (
+        entry.frozenFramesAfter !==
+        entry.frozenFramesBefore - expectedConsumed
+      ) {
+        issue(
+          "frozenFramesAfter",
+          "does not match consumed frozen frames"
+        );
+      }
+      if (
+        entry.addedFrozenFrames !== 0 ||
+        entry.targetHitlagLogId !== null
+      ) {
+        issue(
+          "addedFrozenFrames",
+          "advance cannot add or link Hitlag"
+        );
+      }
+      if (entry.cause === "hit") {
+        issue(
+          "cause",
+          "advance must use target-local-task or simulation-end"
+        );
+      }
+    } else {
+      if (
+        entry.globalFrameAfter !==
+          entry.globalFrameBefore ||
+        entry.targetFrameAfter !== entry.targetFrameBefore
+      ) {
+        issue(
+          "globalFrameAfter",
+          "apply-hitlag cannot advance either clock"
+        );
+      }
+      if (
+        entry.consumedFrozenFrames !== 0 ||
+        entry.addedFrozenFrames <= 0
+      ) {
+        issue(
+          "addedFrozenFrames",
+          "apply-hitlag requires a positive added duration and consumes no frames"
+        );
+      }
+      if (
+        entry.frozenFramesAfter !==
+        entry.frozenFramesBefore +
+          entry.addedFrozenFrames
+      ) {
+        issue(
+          "frozenFramesAfter",
+          "must include the added Hitlag duration"
+        );
+      }
+      if (
+        entry.targetHitlagLogId === null ||
+        entry.cause !== "hit"
+      ) {
+        issue(
+          "targetHitlagLogId",
+          "apply-hitlag requires a hit cause and Hitlag-log link"
+        );
+      }
+    }
+  });
+
+export const targetClockLogSchema = z
+  .array(targetClockLogEntrySchema)
+  .superRefine((entries, context) => {
+    const previousByTarget = new Map<
+      string,
+      (typeof entries)[number]
+    >();
+    entries.forEach((entry, index) => {
+      if (entry.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "id"],
+          message: `target clock log ids must be contiguous; expected ${index}`
+        });
+      }
+      const previous = previousByTarget.get(entry.targetId);
+      if (previous === undefined) {
+        if (
+          entry.globalFrameBefore !== 0 ||
+          entry.targetFrameBefore !== 0 ||
+          entry.frozenFramesBefore !== 0
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "globalFrameBefore"],
+            message:
+              "the first clock transition for a target must start at zero"
+          });
+        }
+      } else {
+        if (entry.targetName !== previous.targetName) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "targetName"],
+            message:
+              "targetName must remain stable within a target clock"
+          });
+        }
+        if (
+          entry.globalFrameBefore !==
+            previous.globalFrameAfter ||
+          entry.targetFrameBefore !==
+            previous.targetFrameAfter ||
+          entry.frozenFramesBefore !==
+            previous.frozenFramesAfter
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "globalFrameBefore"],
+            message:
+              "target clock transitions must form a continuous replay chain"
+          });
+        }
+      }
+      previousByTarget.set(entry.targetId, entry);
+    });
   });
 
 const quickenDecayMutationEpsilon = 1e-9;
@@ -1369,12 +1993,41 @@ export const burningReactionAuditSchema = z
     fuelGaugeUnitsAfter: finiteNumber.nonnegative(),
     fuelDecayPerFrame: finiteNumber.nonnegative(),
     fuelExpiresAtFrame: z.number().int().nonnegative().nullable(),
+    fuelExpiresAtTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     quickenStateMutation: quickenDecayMutationAuditSchema,
     snapshotFrame: z.number().int().nonnegative(),
-    clockModel: z.literal("target-local-no-hitlag"),
-    hitlagStatus: z.literal("unsupported-enemy-hitlag"),
+    snapshotTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
+    clockModel: z.enum([
+      "target-local-no-hitlag",
+      "target-local-hitlag-v1"
+    ]),
+    hitlagStatus: z.enum([
+      "unsupported-enemy-hitlag",
+      "modeled-enemy-hitlag"
+    ]),
     firstTickFrame: z.number().int().nonnegative().nullable(),
     nextTickFrame: z.number().int().nonnegative().nullable(),
+    firstTickTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    nextTickTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     tickIntervalFrames: z.literal(15),
     skippedTickIndex: z.literal(9),
     damageElement: z.literal("pyro"),
@@ -1394,6 +2047,85 @@ export const burningReactionAuditSchema = z
       "refresh-snapshot": "unchanged",
       stop: "remove"
     } as const;
+    const hitlagAware =
+      audit.clockModel === "target-local-hitlag-v1";
+    if (
+      hitlagAware !==
+      (audit.hitlagStatus === "modeled-enemy-hitlag")
+    ) {
+      issue(
+        "hitlagStatus",
+        "clockModel and hitlagStatus must describe the same Hitlag mode"
+      );
+    }
+    for (const [
+      path,
+      value
+    ] of [
+      ["snapshotTargetFrame", audit.snapshotTargetFrame],
+      [
+        "fuelExpiresAtTargetFrame",
+        audit.fuelExpiresAtTargetFrame
+      ],
+      ["firstTickTargetFrame", audit.firstTickTargetFrame],
+      ["nextTickTargetFrame", audit.nextTickTargetFrame]
+    ] as const) {
+      if (hitlagAware && value === undefined) {
+        issue(
+          path,
+          "is required for target-local-hitlag-v1 output"
+        );
+      }
+      if (!hitlagAware && value !== undefined) {
+        issue(
+          path,
+          "must be omitted for target-local-no-hitlag output"
+        );
+      }
+    }
+    if (
+      audit.snapshotTargetFrame !== undefined &&
+      audit.snapshotTargetFrame > audit.snapshotFrame
+    ) {
+      issue(
+        "snapshotTargetFrame",
+        "cannot exceed snapshotFrame"
+      );
+    }
+    if (hitlagAware) {
+      for (const [
+        path,
+        globalDeadline,
+        targetDeadline
+      ] of [
+        [
+          "fuelExpiresAtTargetFrame",
+          audit.fuelExpiresAtFrame,
+          audit.fuelExpiresAtTargetFrame
+        ],
+        [
+          "firstTickTargetFrame",
+          audit.firstTickFrame,
+          audit.firstTickTargetFrame
+        ],
+        [
+          "nextTickTargetFrame",
+          audit.nextTickFrame,
+          audit.nextTickTargetFrame
+        ]
+      ] as const) {
+        if (
+          targetDeadline !== undefined &&
+          (globalDeadline === null) !==
+            (targetDeadline === null)
+        ) {
+          issue(
+            path,
+            "must share nullability with its projected global deadline"
+          );
+        }
+      }
+    }
     if (audit.fuelOperation !== expectedFuelOperation[audit.operation]) {
       issue(
         "fuelOperation",
@@ -2101,6 +2833,7 @@ export const quickenStateLogEntrySchema = z
       "expire"
     ]),
     frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
     timeSeconds: finiteNumber.nonnegative(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema,
@@ -2124,15 +2857,66 @@ export const quickenStateLogEntrySchema = z
       .int()
       .nonnegative()
       .nullable(),
+    expiresAtTargetFrameBefore: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     auraBefore: z.array(auraStateEntrySchema),
     auraAfter: z.array(auraStateEntrySchema),
     expiresAtFrame: z.number().int().nonnegative().nullable(),
+    expiresAtTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     endCauseBefore: quickenDecayEndCauseSchema,
     endCauseAfter: quickenDecayEndCauseSchema,
     reason: z.string().min(1).nullable()
   })
   .strict()
   .superRefine((entry, context) => {
+    if (
+      entry.targetFrame !== undefined &&
+      entry.targetFrame > entry.frame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetFrame"],
+        message: "cannot exceed frame"
+      });
+    }
+    for (const [
+      path,
+      globalDeadline,
+      targetDeadline
+    ] of [
+      [
+        "expiresAtTargetFrameBefore",
+        entry.expiresAtFrameBefore,
+        entry.expiresAtTargetFrameBefore
+      ],
+      [
+        "expiresAtTargetFrame",
+        entry.expiresAtFrame,
+        entry.expiresAtTargetFrame
+      ]
+    ] as const) {
+      if (
+        targetDeadline !== undefined &&
+        (globalDeadline === null) !==
+          (targetDeadline === null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [path],
+          message:
+            "must share nullability with its projected global deadline"
+        });
+      }
+    }
     if (
       Math.abs(entry.timeSeconds - entry.frame / 60) >
       bloomGaugeEpsilon
@@ -3294,14 +4078,23 @@ const dendroCoreLogBaseShape = {
   coreDurationFrames: z.literal(300),
   hitboxRadius: z.literal(2),
   maxActiveCores: z.literal(5),
-  clockModel: z.literal("global-frame-no-hitlag"),
-  hitlagStatus: z.literal("unsupported-enemy-hitlag"),
+  clockModel: z.enum([
+    "global-frame-no-hitlag",
+    "global-frame-gadget-v1"
+  ]),
+  hitlagStatus: z.enum([
+    "unsupported-enemy-hitlag",
+    "not-affected-by-enemy-hitlag"
+  ]),
   mechanicsDataStatus: z.literal("fixed-gcsim-provisional"),
   selfDamageStatus: playerSelfDamageStatusSchema
 };
 
 const validateLogTime = (
-  entry: { frame: number; timeSeconds: number },
+  entry: {
+    frame: number;
+    timeSeconds: number;
+  },
   context: z.RefinementCtx
 ): void => {
   if (
@@ -3312,6 +4105,31 @@ const validateLogTime = (
       code: "custom",
       path: ["timeSeconds"],
       message: "must equal frame / 60"
+    });
+  }
+};
+
+const validateDendroCoreClockModel = (
+  entry: {
+    clockModel:
+      | "global-frame-no-hitlag"
+      | "global-frame-gadget-v1";
+    hitlagStatus:
+      | "unsupported-enemy-hitlag"
+      | "not-affected-by-enemy-hitlag";
+  },
+  context: z.RefinementCtx
+): void => {
+  const expectedHitlagStatus =
+    entry.clockModel === "global-frame-no-hitlag"
+      ? "unsupported-enemy-hitlag"
+      : "not-affected-by-enemy-hitlag";
+  if (entry.hitlagStatus !== expectedHitlagStatus) {
+    context.addIssue({
+      code: "custom",
+      path: ["hitlagStatus"],
+      message:
+        "clockModel and hitlagStatus must describe the same Dendro-core clock domain"
     });
   }
 };
@@ -3329,6 +4147,7 @@ export const dendroCoreSpawnScheduledLogEntrySchema = z
   .strict()
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
+    validateDendroCoreClockModel(entry, context);
     if (entry.frame !== entry.triggerFrame) {
       context.addIssue({
         code: "custom",
@@ -3377,6 +4196,7 @@ export const dendroCoreSpawnLogEntrySchema = z
   .strict()
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
+    validateDendroCoreClockModel(entry, context);
     if (
       entry.frame !== entry.spawnedAtFrame ||
       entry.expiresAtFrame !==
@@ -3436,6 +4256,7 @@ export const dendroCoreExpiryLogEntrySchema = z
   .strict()
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
+    validateDendroCoreClockModel(entry, context);
     if (entry.eventPriority !== 2) {
       context.addIssue({
         code: "custom",
@@ -3464,6 +4285,7 @@ export const dendroCoreEvictionLogEntrySchema = z
   .strict()
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
+    validateDendroCoreClockModel(entry, context);
     if (entry.eventPriority !== 2) {
       context.addIssue({
         code: "custom",
@@ -3496,6 +4318,7 @@ export const dendroCoreConsumeLogEntrySchema = z
   .strict()
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
+    validateDendroCoreClockModel(entry, context);
     if (
       (entry.eventType === "hit" &&
         entry.eventPriority !== 3) ||
@@ -5248,11 +6071,18 @@ export const burningStateLogEntrySchema = z
       "fuel-expire"
     ]),
     frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
     timeSeconds: finiteNumber.nonnegative(),
     eventPriority: finiteNumber.nonnegative(),
     eventSequence: z.number().int().nonnegative(),
-    clockModel: z.literal("target-local-no-hitlag"),
-    hitlagStatus: z.literal("unsupported-enemy-hitlag"),
+    clockModel: z.enum([
+      "target-local-no-hitlag",
+      "target-local-hitlag-v1"
+    ]),
+    hitlagStatus: z.enum([
+      "unsupported-enemy-hitlag",
+      "modeled-enemy-hitlag"
+    ]),
     targetId: idSchema,
     targetName: idSchema,
     triggerElement: elementSchema.nullable(),
@@ -5277,11 +6107,23 @@ export const burningStateLogEntrySchema = z
     fuelGaugeUnitsAfter: finiteNumber.nonnegative(),
     fuelDecayPerFrame: finiteNumber.nonnegative(),
     fuelExpiresAtFrame: z.number().int().nonnegative().nullable(),
+    fuelExpiresAtTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     auraBefore: z.array(auraStateEntrySchema),
     auraApplied: z.array(auraGaugeEntrySchema),
     auraConsumed: z.array(auraGaugeEntrySchema),
     auraAfter: z.array(auraStateEntrySchema),
     nextTickFrame: z.number().int().nonnegative().nullable(),
+    nextTickTargetFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     icdGroup: z.literal("burning"),
     icdTag: z.literal("burning-application"),
     icdScope: z.literal("global-target"),
@@ -5311,6 +6153,73 @@ export const burningStateLogEntrySchema = z
     const issue = (path: string, message: string): void => {
       context.addIssue({ code: "custom", path: [path], message });
     };
+    const hitlagAware =
+      entry.clockModel === "target-local-hitlag-v1";
+    if (
+      hitlagAware !==
+      (entry.hitlagStatus === "modeled-enemy-hitlag")
+    ) {
+      issue(
+        "hitlagStatus",
+        "clockModel and hitlagStatus must describe the same Hitlag mode"
+      );
+    }
+    for (const [path, value] of [
+      ["targetFrame", entry.targetFrame],
+      [
+        "fuelExpiresAtTargetFrame",
+        entry.fuelExpiresAtTargetFrame
+      ],
+      ["nextTickTargetFrame", entry.nextTickTargetFrame]
+    ] as const) {
+      if (hitlagAware && value === undefined) {
+        issue(
+          path,
+          "is required for target-local-hitlag-v1 output"
+        );
+      }
+      if (!hitlagAware && value !== undefined) {
+        issue(
+          path,
+          "must be omitted for target-local-no-hitlag output"
+        );
+      }
+    }
+    if (
+      entry.targetFrame !== undefined &&
+      entry.targetFrame > entry.frame
+    ) {
+      issue("targetFrame", "cannot exceed frame");
+    }
+    if (hitlagAware) {
+      for (const [
+        path,
+        globalDeadline,
+        targetDeadline
+      ] of [
+        [
+          "fuelExpiresAtTargetFrame",
+          entry.fuelExpiresAtFrame,
+          entry.fuelExpiresAtTargetFrame
+        ],
+        [
+          "nextTickTargetFrame",
+          entry.nextTickFrame,
+          entry.nextTickTargetFrame
+        ]
+      ] as const) {
+        if (
+          targetDeadline !== undefined &&
+          (globalDeadline === null) !==
+            (targetDeadline === null)
+        ) {
+          issue(
+            path,
+            "must share nullability with its projected global deadline"
+          );
+        }
+      }
+    }
     if (entry.applicationAllowed === false) {
       if (entry.applicationBlockedReason !== "BURNING_APPLICATION_ICD") {
         issue(
@@ -6926,6 +7835,13 @@ export const hitGeometrySchema = z.discriminatedUnion("kind", [
   sectorHitGeometrySchema
 ]);
 
+export const targetHitlagDefinitionSchema = z
+  .object({
+    haltFrames: finiteNumber.nonnegative().max(600),
+    factor: finiteNumber.min(0).max(1)
+  })
+  .strict();
+
 const hitDefinitionObjectSchema = z
   .object({
     id: idSchema.optional(),
@@ -6936,6 +7852,7 @@ const hitDefinitionObjectSchema = z
     element: elementSchema.optional(),
     strikeType: z.enum(["default", "blunt"]).optional(),
     poiseDamage: finiteNumber.min(0).optional(),
+    targetHitlag: targetHitlagDefinitionSchema.optional(),
     targeting: hitTargetingConfigSchema.optional(),
     geometry: hitGeometrySchema.optional(),
     application: elementalApplicationSchema.optional(),
@@ -7492,10 +8409,63 @@ export const simConfigSchema = z
     rotation: z.array(actionDefinitionSchema),
     timeline: legalTimelineConfigSchema.optional(),
     reactionEngine: auraReactionEngineConfigSchema.optional(),
-    playerDamageModel: playerDamageModelSchema
+    playerDamageModel: playerDamageModelSchema,
+    targetClockModel: targetClockModelSchema
   })
   .strict()
   .superRefine((config, context) => {
+    if (
+      config.targetClockModel.mode ===
+        "target-local-hitlag-v1" &&
+      config.timeline === undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetClockModel"],
+        message:
+          "target-local-hitlag-v1 currently requires timeline.mode legal-frame-v1"
+      });
+    }
+    const validateTargetHitlagMode = (
+      hit: { targetHitlag?: unknown },
+      path: Array<string | number>
+    ): void => {
+      if (
+        hit.targetHitlag !== undefined &&
+        config.targetClockModel.mode !==
+          "target-local-hitlag-v1"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "targetHitlag"],
+          message:
+            "targetHitlag requires targetClockModel.mode target-local-hitlag-v1"
+        });
+      }
+    };
+    config.rotation.forEach((action, actionIndex) => {
+      action.hits?.forEach((hit, hitIndex) => {
+        validateTargetHitlagMode(hit, [
+          "rotation",
+          actionIndex,
+          "hits",
+          hitIndex
+        ]);
+      });
+    });
+    config.timeline?.abilities.forEach(
+      (ability, abilityIndex) => {
+        ability.hits?.forEach((hit, hitIndex) => {
+          validateTargetHitlagMode(hit, [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex
+          ]);
+        });
+      }
+    );
     if (config.playerDamageModel.mode === "reaction-self-v1") {
       if (
         config.enemy.targets === undefined ||
@@ -8323,6 +9293,526 @@ export const simConfigSchema = z
         });
       });
     }
+  });
+
+const targetClockHitResolutionReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceActionId: wireNonEmptyStringSchema,
+    hitId: wireNonEmptyStringSchema,
+    hitGroupId: wireNonEmptyStringSchema,
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    landed: z.boolean()
+  })
+  .passthrough();
+
+const targetClockReactionStatusReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: wireNonEmptyStringSchema,
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    startFrame: z.number().int().nonnegative(),
+    endFrame: z.number().int().nonnegative(),
+    startTimeSeconds: finiteNumber.nonnegative(),
+    endTimeSeconds: finiteNumber.nonnegative(),
+    supersededAtFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+  })
+  .passthrough()
+  .superRefine((entry, context) => {
+    if (
+      Math.abs(entry.startTimeSeconds - entry.startFrame / 60) >
+      1e-9
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["startTimeSeconds"],
+        message: "must equal startFrame / 60"
+      });
+    }
+    if (
+      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) >
+      1e-9
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["endTimeSeconds"],
+        message: "must equal endFrame / 60"
+      });
+    }
+    if (entry.endFrame <= entry.startFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["endFrame"],
+        message:
+          "Superconduct status uses a non-empty half-open frame interval"
+      });
+    }
+    if (
+      entry.supersededAtFrame !== null &&
+      (entry.supersededAtFrame < entry.startFrame ||
+        entry.supersededAtFrame > entry.endFrame)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["supersededAtFrame"],
+        message:
+          "must remain within the recorded status interval"
+      });
+    }
+  });
+
+/**
+ * Strict target-clock projection over a complete SimulationResult.
+ *
+ * Unrelated result fields are accepted, but every target-clock-owned field is
+ * parsed strictly and all forward/back references are checked here.
+ */
+export const targetClockResultReferencesSchema = z
+  .object({
+    config: simConfigSchema,
+    hitResolutionLog: z.array(
+      targetClockHitResolutionReferenceSchema
+    ),
+    reactionStatusLog: z.array(
+      targetClockReactionStatusReferenceSchema
+    ),
+    targetStateTimeline: targetStateTimelineSchema,
+    targetClockAudit: targetClockAuditSchema,
+    targetClockLog: targetClockLogSchema,
+    targetHitlagLog: targetHitlagLogSchema
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    const enabled =
+      result.config.targetClockModel.mode ===
+      "target-local-hitlag-v1";
+
+    if (result.targetClockAudit.mode !==
+      result.config.targetClockModel.mode) {
+      issue(
+        ["targetClockAudit", "mode"],
+        "target clock audit mode must match config.targetClockModel"
+      );
+    }
+
+    result.targetStateTimeline.points.forEach(
+      (point, pointIndex) => {
+        if (enabled && point.targetFrame === undefined) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "targetFrame"
+            ],
+            "enabled target-local clocks require targetFrame on every state point"
+          );
+        }
+        if (
+          !enabled &&
+          point.targetFrame !== undefined &&
+          point.targetFrame !== point.frame
+        ) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "targetFrame"
+            ],
+            "disabled target-local clocks require targetFrame to equal frame when present"
+          );
+        }
+      }
+    );
+
+    if (!enabled) {
+      if (
+        result.targetClockLog.length !== 0 ||
+        result.targetHitlagLog.length !== 0
+      ) {
+        issue(
+          ["targetClockLog"],
+          "disabled target-local clocks require empty clock and Hitlag logs"
+        );
+      }
+      return;
+    }
+    if (result.targetClockAudit.mode !==
+      "target-local-hitlag-v1") {
+      return;
+    }
+
+    const expectedTargets =
+      result.config.enemy.targets ??
+      [{ id: "enemy-0", name: "敌人 0" }];
+    const expectedTargetById = new Map(
+      expectedTargets.map((target) => [target.id, target])
+    );
+    const summaryByTargetId = new Map(
+      result.targetClockAudit.targets.map((summary) => [
+        summary.targetId,
+        summary
+      ])
+    );
+    if (
+      result.targetClockAudit.targets.length !==
+        expectedTargets.length ||
+      summaryByTargetId.size !== expectedTargets.length
+    ) {
+      issue(
+        ["targetClockAudit", "targets"],
+        "enabled target-local clocks require exactly one summary per configured enemy target"
+      );
+    }
+    expectedTargets.forEach((target) => {
+      const summary = summaryByTargetId.get(target.id);
+      if (
+        summary === undefined ||
+        summary.targetName !== target.name
+      ) {
+        issue(
+          ["targetClockAudit", "targets"],
+          `missing exact target-clock summary for "${target.id}"`
+        );
+      }
+    });
+
+    const hitResolutionById = new Map(
+      result.hitResolutionLog.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+    if (
+      hitResolutionById.size !==
+      result.hitResolutionLog.length
+    ) {
+      issue(
+        ["hitResolutionLog"],
+        "hit-resolution ids must be unique for target-clock references"
+      );
+    }
+    const statusById = new Map(
+      result.reactionStatusLog.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+    if (
+      statusById.size !== result.reactionStatusLog.length
+    ) {
+      issue(
+        ["reactionStatusLog"],
+        "reaction-status ids must be unique for target-clock references"
+      );
+    }
+    const clockEntriesByTargetId = new Map<
+      string,
+      typeof result.targetClockLog
+    >();
+    result.targetClockLog.forEach((entry) => {
+      const entries =
+        clockEntriesByTargetId.get(entry.targetId) ?? [];
+      entries.push(entry);
+      clockEntriesByTargetId.set(entry.targetId, entries);
+    });
+    const replayTargetFrame = (
+      targetId: string,
+      globalFrame: number
+    ): number | undefined => {
+      if (globalFrame === 0) return 0;
+      const entries = clockEntriesByTargetId.get(targetId);
+      if (entries === undefined) return undefined;
+      for (const entry of entries) {
+        if (globalFrame < entry.globalFrameBefore) break;
+        if (
+          entry.operation === "advance" &&
+          globalFrame <= entry.globalFrameAfter
+        ) {
+          const elapsed =
+            globalFrame - entry.globalFrameBefore;
+          return (
+            entry.targetFrameBefore +
+            elapsed -
+            Math.min(elapsed, entry.frozenFramesBefore)
+          );
+        }
+        if (globalFrame === entry.globalFrameBefore) {
+          return entry.targetFrameBefore;
+        }
+      }
+      return undefined;
+    };
+    result.targetStateTimeline.points.forEach(
+      (point, pointIndex) => {
+        const replayedTargetFrame = replayTargetFrame(
+          point.targetId,
+          point.frame
+        );
+        if (
+          replayedTargetFrame === undefined ||
+          point.targetFrame !== replayedTargetFrame
+        ) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "targetFrame"
+            ],
+            "targetFrame must exactly match the target-clock replay at this global frame"
+          );
+        }
+      }
+    );
+
+    const extensionFramesByStatusId = new Map<number, number>();
+    result.targetHitlagLog.forEach((entry, index) => {
+      const hit = hitResolutionById.get(
+        entry.hitResolutionLogId
+      );
+      if (
+        hit === undefined ||
+        hit.frame !== entry.globalFrame ||
+        hit.targetId !== entry.targetId ||
+        hit.targetName !== entry.targetName ||
+        hit.sourceActorId !== entry.sourceActorId ||
+        hit.sourceActionId !== entry.sourceActionId ||
+        hit.hitId !== entry.hitId ||
+        hit.hitGroupId !== entry.hitGroupId
+      ) {
+        issue(
+          [
+            "targetHitlagLog",
+            index,
+            "hitResolutionLogId"
+          ],
+          "target Hitlag row must match its hit-resolution provenance"
+        );
+      }
+      if (hit !== undefined) {
+        const shouldApply =
+          hit.landed && entry.extensionFrames > 0;
+        const expectedBlockedReason = hit.landed
+          ? entry.extensionFrames === 0
+            ? "ZERO_EXTENSION"
+            : null
+          : "TARGET_MISS";
+        if (
+          entry.applied !== shouldApply ||
+          entry.blockedReason !== expectedBlockedReason
+        ) {
+          issue(
+            ["targetHitlagLog", index, "blockedReason"],
+            "landed/miss state and extension must determine Hitlag application and blocked reason"
+          );
+        }
+      }
+      if (!expectedTargetById.has(entry.targetId)) {
+        issue(
+          ["targetHitlagLog", index, "targetId"],
+          `unknown target-clock target "${entry.targetId}"`
+        );
+      }
+      entry.extendedReactionStatusLogIds.forEach(
+        (statusId, statusIndex) => {
+          const status = statusById.get(statusId);
+          extensionFramesByStatusId.set(
+            statusId,
+            (extensionFramesByStatusId.get(statusId) ?? 0) +
+              entry.extensionFrames
+          );
+          const activeEnd =
+            status?.supersededAtFrame ?? status?.endFrame;
+          if (
+            status === undefined ||
+            status.reaction !== "superconduct" ||
+            status.targetId !== entry.targetId ||
+            status.targetName !== entry.targetName ||
+            status.startFrame > entry.globalFrame ||
+            activeEnd === undefined ||
+            activeEnd <= entry.globalFrame
+          ) {
+            issue(
+              [
+                "targetHitlagLog",
+                index,
+                "extendedReactionStatusLogIds",
+                statusIndex
+              ],
+              `missing active reciprocal Superconduct status ${statusId}`
+            );
+          }
+        }
+      );
+    });
+    const superconductStatusDurationFrames = 720;
+    result.reactionStatusLog.forEach((status, statusIndex) => {
+      if (status.reaction !== "superconduct") return;
+      const projectedNaturalEndFrame =
+        status.startFrame +
+        superconductStatusDurationFrames +
+        (extensionFramesByStatusId.get(status.id) ?? 0);
+      if (status.supersededAtFrame === null) {
+        if (status.endFrame !== projectedNaturalEndFrame) {
+          issue(
+            ["reactionStatusLog", statusIndex, "endFrame"],
+            "active Superconduct status endFrame must equal startFrame + 720 + reciprocal Hitlag extensions"
+          );
+        }
+        return;
+      }
+      if (
+        status.endFrame !== status.supersededAtFrame ||
+        status.supersededAtFrame >= projectedNaturalEndFrame
+      ) {
+        issue(
+          ["reactionStatusLog", statusIndex, "endFrame"],
+          "superseded Superconduct status must end exactly at its superseding frame before its extended natural expiry"
+        );
+      }
+    });
+
+    const clockReferenceCountByHitlagId = new Map<
+      number,
+      number
+    >();
+    result.targetClockLog.forEach((entry, index) => {
+      if (!expectedTargetById.has(entry.targetId)) {
+        issue(
+          ["targetClockLog", index, "targetId"],
+          `unknown target-clock target "${entry.targetId}"`
+        );
+      }
+      if (entry.operation !== "apply-hitlag") return;
+      const hitlagId = entry.targetHitlagLogId;
+      const hitlag =
+        hitlagId === null
+          ? undefined
+          : result.targetHitlagLog[hitlagId];
+      if (
+        hitlagId === null ||
+        hitlag === undefined ||
+        hitlag.id !== hitlagId ||
+        !hitlag.applied ||
+        hitlag.targetId !== entry.targetId ||
+        hitlag.targetName !== entry.targetName ||
+        hitlag.globalFrame !== entry.globalFrameBefore ||
+        hitlag.targetFrame !== entry.targetFrameBefore ||
+        hitlag.frozenFramesBefore !==
+          entry.frozenFramesBefore ||
+        hitlag.frozenFramesAfter !==
+          entry.frozenFramesAfter ||
+        hitlag.extensionFrames !== entry.addedFrozenFrames
+      ) {
+        issue(
+          [
+            "targetClockLog",
+            index,
+            "targetHitlagLogId"
+          ],
+          "apply-hitlag transition must exactly replay one applied Hitlag row"
+        );
+      }
+      if (hitlagId !== null) {
+        clockReferenceCountByHitlagId.set(
+          hitlagId,
+          (clockReferenceCountByHitlagId.get(hitlagId) ?? 0) +
+            1
+        );
+      }
+    });
+    result.targetHitlagLog.forEach((entry, index) => {
+      const referenceCount =
+        clockReferenceCountByHitlagId.get(entry.id) ?? 0;
+      if (
+        referenceCount !== (entry.applied ? 1 : 0)
+      ) {
+        issue(
+          ["targetHitlagLog", index, "id"],
+          entry.applied
+            ? "applied Hitlag requires exactly one reciprocal clock transition"
+            : "blocked Hitlag cannot have a clock transition"
+        );
+      }
+    });
+
+    const simulationEndFrame = Math.round(
+      result.config.duration * 60
+    );
+    result.targetClockAudit.targets.forEach(
+      (summary, summaryIndex) => {
+        const hitlagEntries =
+          result.targetHitlagLog.filter(
+            (entry) =>
+              entry.targetId === summary.targetId &&
+              entry.applied
+          );
+        const clockEntries = result.targetClockLog.filter(
+          (entry) => entry.targetId === summary.targetId
+        );
+        const lastClockEntry = clockEntries.at(-1);
+        const simulationEndPoint =
+          result.targetStateTimeline.points.find(
+            (point) =>
+              point.targetId === summary.targetId &&
+              point.cause === "simulation-end"
+          );
+        const totalExtensionFrames = hitlagEntries.reduce(
+          (sum, entry) => sum + entry.extensionFrames,
+          0
+        );
+        const frozenFramesConsumed = clockEntries.reduce(
+          (sum, entry) =>
+            sum + entry.consumedFrozenFrames,
+          0
+        );
+        if (
+          summary.finalGlobalFrame !== simulationEndFrame ||
+          summary.hitlagApplications !==
+            hitlagEntries.length ||
+          summary.totalExtensionFrames !==
+            totalExtensionFrames ||
+          summary.frozenFramesConsumed !==
+            frozenFramesConsumed ||
+          lastClockEntry === undefined ||
+          lastClockEntry.globalFrameAfter !==
+            summary.finalGlobalFrame ||
+          lastClockEntry.targetFrameAfter !==
+            summary.finalTargetFrame ||
+          lastClockEntry.frozenFramesAfter !==
+            summary.frozenFramesRemaining ||
+          simulationEndPoint === undefined ||
+          simulationEndPoint.frame !==
+            summary.finalGlobalFrame ||
+          simulationEndPoint.targetFrame !==
+            summary.finalTargetFrame
+        ) {
+          issue(
+            [
+              "targetClockAudit",
+              "targets",
+              summaryIndex
+            ],
+            "target-clock summary must exactly project its Hitlag and replay logs through simulation end"
+          );
+        }
+      }
+    );
   });
 
 /**
@@ -9283,7 +10773,8 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
       ? input.characters.map(normalizeLegacyCharacter)
       : [],
     rotation: Array.isArray(input.rotation) ? input.rotation : [],
-    playerDamageModel: { mode: "disabled" }
+    playerDamageModel: { mode: "disabled" },
+    targetClockModel: { mode: "disabled" }
   };
 }
 
@@ -9466,6 +10957,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [DENDRO_CORE_SCHEMA_VERSION]: {
     engineVersion: DENDRO_CORE_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v5
+  },
+  [PLAYER_REACTION_DAMAGE_SCHEMA_VERSION]: {
+    engineVersion: PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v5
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -9512,6 +11007,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (
     version !== CURRENT_SCHEMA_VERSION &&
     version !== DENDRO_CORE_SCHEMA_VERSION &&
+    version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
   ) {
@@ -9527,6 +11023,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
     !(
       isRecord(input.playerDamageModel) &&
@@ -9545,6 +11042,25 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     );
   }
   if (
+    version !== CURRENT_SCHEMA_VERSION &&
+    input.targetClockModel !== undefined &&
+    !(
+      isRecord(input.targetClockModel) &&
+      input.targetClockModel.mode === "disabled" &&
+      Object.keys(input.targetClockModel).length === 1
+    )
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `targetClockModel: schemaVersion "${historicalVersion}" does not support target-local Hitlag configuration`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
     version === undefined ||
     version === LEGACY_SCHEMA_VERSION ||
     version === "0.1.0-demo"
@@ -9557,16 +11073,26 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
   }
+  if (version === PLAYER_REACTION_DAMAGE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      targetClockModel: { mode: "disabled" }
+    });
+  }
   input = {
     ...input,
-    playerDamageModel: { mode: "disabled" }
+    playerDamageModel: { mode: "disabled" },
+    targetClockModel: { mode: "disabled" }
   };
   if (version === DENDRO_CORE_SCHEMA_VERSION) {
     return parseSimConfig({
       ...input,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      playerDamageModel: { mode: "disabled" }
+      playerDamageModel: { mode: "disabled" },
+      targetClockModel: { mode: "disabled" }
     });
   }
   if (version === BURNING_REACTION_SCHEMA_VERSION) {

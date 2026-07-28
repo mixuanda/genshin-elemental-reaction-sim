@@ -431,6 +431,7 @@ export function createDurinBlackSkillAuditConfig(
       defReduction: 0
     },
     playerDamageModel: { mode: "disabled" },
+    targetClockModel: { mode: "disabled" },
     characters: [
       {
         id: "durin",
@@ -535,6 +536,7 @@ export function createDurinWhiteSkillAuditConfig(
       defReduction: 0
     },
     playerDamageModel: { mode: "disabled" },
+    targetClockModel: { mode: "disabled" },
     characters: [
       {
         id: "durin",

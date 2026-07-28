@@ -30,6 +30,9 @@ export function makeConfig(
   const playerDamageModel = overrides.playerDamageModel ?? {
     mode: "disabled" as const
   };
+  const targetClockModel = overrides.targetClockModel ?? {
+    mode: "disabled" as const
+  };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -62,6 +65,7 @@ export function makeConfig(
     ],
     rotation: [],
     ...overrides,
-    playerDamageModel
+    playerDamageModel,
+    targetClockModel
   };
 }

@@ -24,6 +24,8 @@ import {
   dendroCoreTimelineSchema,
   migrateConfig,
   parseSimulationRunManifestForConfig,
+  PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
+  PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
   playerDamageEventSchema,
   playerDamageModelSchema,
   playerDamageResultReferencesSchema,
@@ -39,8 +41,16 @@ import {
   reactionDamageGroupAuditSchema,
   resolvedWorldHitGeometrySchema,
   simulationRunManifestSchema,
+  targetClockAuditSchema,
+  targetClockLogSchema,
+  targetClockResultReferencesSchema,
+  targetHitlagDefinitionSchema,
+  targetHitlagLogEntrySchema,
+  targetHitlagLogSchema,
   targetStateTimelinePointSchema,
   targetStateTimelineSchema,
+  type TargetClockLogEntry,
+  type TargetHitlagLogEntry,
   type TargetStateTimeline
 } from "./index";
 
@@ -554,6 +564,48 @@ describe("target state timeline result contract", () => {
     ).toThrow(/cannot emit points after simulation-end/);
   });
 
+  it("treats a target-local Aura deadline as authoritative across Hitlag reprojection", () => {
+    const startAura = [
+      {
+        element: "pyro" as const,
+        gaugeUnits: 1,
+        expiresAtFrame: 600,
+        expiresAtTargetFrame: 500
+      }
+    ];
+    const reprojectedAura = [
+      {
+        ...startAura[0]!,
+        expiresAtFrame: 605
+      }
+    ];
+    expect(
+      targetStateTimelineSchema.parse({
+        version: "1.0.0",
+        points: [
+          {
+            ...validTargetStateTimeline.points[0],
+            id: 0,
+            frame: 0,
+            targetFrame: 0,
+            timeSeconds: 0,
+            auraBefore: startAura,
+            auraAfter: startAura
+          },
+          {
+            ...validTargetStateTimeline.points[3],
+            id: 1,
+            frame: 5,
+            targetFrame: 0,
+            timeSeconds: 5 / 60,
+            auraBefore: reprojectedAura,
+            auraAfter: reprojectedAura
+          }
+        ]
+      }).points
+    ).toHaveLength(2);
+  });
+
   it("requires primary damage ids to have an exact typed link", () => {
     expect(() =>
       targetStateTimelinePointSchema.parse({
@@ -667,6 +719,9 @@ describe("1.32 player reaction self-damage contract", () => {
     expect(migrateConfig(historical).playerDamageModel).toEqual({
       mode: "disabled"
     });
+    expect(migrateConfig(historical).targetClockModel).toEqual({
+      mode: "disabled"
+    });
     expect(() =>
       migrateConfig({
         ...historical,
@@ -687,6 +742,42 @@ describe("1.32 player reaction self-damage contract", () => {
     expect(() => migrateConfig(missingModel)).toThrow(
       /playerDamageModel/
     );
+  });
+
+  it("preserves the exact 1.32 player model while injecting the disabled 1.33 target clock", () => {
+    const current = makeEnabledConfig();
+    const {
+      targetClockModel: _targetClockModel,
+      ...wire132
+    } = current;
+    const historical = {
+      ...wire132,
+      schemaVersion: PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
+      engineVersion: PLAYER_REACTION_DAMAGE_ENGINE_VERSION
+    };
+    const migrated = migrateConfig(historical);
+    expect(migrated.playerDamageModel).toEqual(
+      current.playerDamageModel
+    );
+    expect(migrated.targetClockModel).toEqual({
+      mode: "disabled"
+    });
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.32.0-forged"
+      })
+    ).toThrow(
+      /requires "1\.32\.0-player-reaction-damage"/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        targetClockModel: {
+          mode: "target-local-hitlag-v1"
+        }
+      })
+    ).toThrow(/does not support target-local Hitlag/);
   });
 
   it("requires one complete player state per character and positive base/max HP", () => {
@@ -1555,6 +1646,570 @@ describe("1.32 player reaction self-damage contract", () => {
         ]
       })
     ).toThrow(/exactly project|back-references/);
+  });
+});
+
+describe("1.33 target-local Hitlag contract", () => {
+  const makeTargetClockConfig = () => {
+    const current = migrateConfig(legacyConfig);
+    return migrateConfig({
+      ...current,
+      duration: 1,
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Target",
+            position: { x: 0, y: 0 }
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      },
+      targetClockModel: {
+        mode: "target-local-hitlag-v1"
+      }
+    });
+  };
+
+  const makeTargetStateTimeline = (
+    finalTargetFrame = 57
+  ) => ({
+    version: "1.0.0",
+    points: [
+      {
+        id: 0,
+        frame: 0,
+        targetFrame: 0,
+        timeSeconds: 0,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "boundary",
+        cause: "simulation-start",
+        eventType: null,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [],
+        auraBefore: [],
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: []
+      },
+      {
+        id: 1,
+        frame: 60,
+        targetFrame: finalTargetFrame,
+        timeSeconds: 1,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "boundary",
+        cause: "simulation-end",
+        eventType: null,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [],
+        auraBefore: [],
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: []
+      }
+    ]
+  });
+
+  const appliedHitlag: TargetHitlagLogEntry = {
+    id: 0,
+    globalFrame: 10,
+    timeSeconds: 10 / 60,
+    targetFrame: 10,
+    eventPriority: 3,
+    eventSequence: 4,
+    intraEventSequence: 0,
+    targetId: "enemy-0",
+    targetName: "Target",
+    sourceActorId: "a",
+    sourceActionId: "skill",
+    hitId: "skill-hit",
+    hitGroupId: "skill-hit@10",
+    hitResolutionLogId: 0,
+    haltFrames: 3.2,
+    factor: 0.25,
+    roundedHaltFrames: 4,
+    extensionFrames: 3,
+    frozenFramesBefore: 0,
+    frozenFramesAfter: 3,
+    pausedGlobalFrameStart: 11,
+    nextTargetAdvanceGlobalFrame: 14,
+    applied: true,
+    blockedReason: null,
+    extendedReactionStatusLogIds: [0],
+    mechanicsDataStatus: "fixed-gcsim-provisional"
+  };
+
+  const appliedClockLog: TargetClockLogEntry[] = [
+    {
+      id: 0,
+      targetId: "enemy-0",
+      targetName: "Target",
+      operation: "advance",
+      globalFrameBefore: 0,
+      globalFrameAfter: 10,
+      targetFrameBefore: 0,
+      targetFrameAfter: 10,
+      frozenFramesBefore: 0,
+      consumedFrozenFrames: 0,
+      addedFrozenFrames: 0,
+      frozenFramesAfter: 0,
+      targetHitlagLogId: null,
+      cause: "target-local-task"
+    },
+    {
+      id: 1,
+      targetId: "enemy-0",
+      targetName: "Target",
+      operation: "apply-hitlag",
+      globalFrameBefore: 10,
+      globalFrameAfter: 10,
+      targetFrameBefore: 10,
+      targetFrameAfter: 10,
+      frozenFramesBefore: 0,
+      consumedFrozenFrames: 0,
+      addedFrozenFrames: 3,
+      frozenFramesAfter: 3,
+      targetHitlagLogId: 0,
+      cause: "hit"
+    },
+    {
+      id: 2,
+      targetId: "enemy-0",
+      targetName: "Target",
+      operation: "advance",
+      globalFrameBefore: 10,
+      globalFrameAfter: 60,
+      targetFrameBefore: 10,
+      targetFrameAfter: 57,
+      frozenFramesBefore: 3,
+      consumedFrozenFrames: 3,
+      addedFrozenFrames: 0,
+      frozenFramesAfter: 0,
+      targetHitlagLogId: null,
+      cause: "simulation-end"
+    }
+  ];
+
+  const makeResultReferences = () => ({
+    config: makeTargetClockConfig(),
+    hitResolutionLog: [
+      {
+        id: 0,
+        frame: 10,
+        timeSeconds: 10 / 60,
+        sourceActorId: "a",
+        sourceActionId: "skill",
+        hitId: "skill-hit",
+        hitGroupId: "skill-hit@10",
+        targetId: "enemy-0",
+        targetName: "Target",
+        landed: true
+      }
+    ],
+    reactionStatusLog: [
+      {
+        id: 0,
+        reaction: "superconduct",
+        targetId: "enemy-0",
+        targetName: "Target",
+        startFrame: 0,
+        endFrame: 723,
+        startTimeSeconds: 0,
+        endTimeSeconds: 723 / 60,
+        supersededAtFrame: null as number | null
+      }
+    ],
+    targetStateTimeline: makeTargetStateTimeline(),
+    targetClockAudit: {
+      version: "1.0.0",
+      mode: "target-local-hitlag-v1",
+      hitlagStatus: "modeled-enemy-hitlag",
+      roundingModel: "ceil-ceil-v1",
+      applicationOrder: "after-current-target-tick",
+      mechanicsDataStatus: "fixed-gcsim-provisional",
+      targets: [
+        {
+          targetId: "enemy-0",
+          targetName: "Target",
+          finalGlobalFrame: 60,
+          finalTargetFrame: 57,
+          frozenFramesConsumed: 3,
+          frozenFramesRemaining: 0,
+          hitlagApplications: 1,
+          totalExtensionFrames: 3
+        }
+      ]
+    },
+    targetClockLog: appliedClockLog,
+    targetHitlagLog: [appliedHitlag]
+  });
+
+  it("requires an explicit mode, gates it to legal-frame execution, and keeps Hitlag input atomic", () => {
+    const current = migrateConfig(legacyConfig);
+    const missingMode = {
+      ...current
+    } as Record<string, unknown>;
+    delete missingMode.targetClockModel;
+    expect(() => migrateConfig(missingMode)).toThrow(
+      /targetClockModel/
+    );
+    expect(() =>
+      migrateConfig({
+        ...current,
+        targetClockModel: {
+          mode: "target-local-hitlag-v1"
+        }
+      })
+    ).toThrow(/requires timeline\.mode legal-frame-v1/);
+
+    const targetHitlag = {
+      haltFrames: 3.2,
+      factor: 0.25
+    };
+    expect(
+      targetHitlagDefinitionSchema.parse(targetHitlag)
+    ).toEqual(targetHitlag);
+    expect(
+      targetHitlagDefinitionSchema.parse({
+        haltFrames: 0,
+        factor: 0
+      })
+    ).toEqual({ haltFrames: 0, factor: 0 });
+    expect(() =>
+      targetHitlagDefinitionSchema.parse({
+        ...targetHitlag,
+        preRoundBonus: 1
+      })
+    ).toThrow(/Unrecognized key/);
+
+    const enabled = makeTargetClockConfig();
+    const ability = {
+      id: "skill",
+      actorId: "a",
+      name: "Skill",
+      kind: "skill",
+      cancelFrame: 1,
+      animationEndFrame: 1,
+      cooldownFrames: 0,
+      hits: [
+        {
+          id: "skill-hit",
+          frame: 0,
+          scaling: 1,
+          targetHitlag
+        }
+      ]
+    };
+    expect(
+      migrateConfig({
+        ...enabled,
+        timeline: {
+          ...enabled.timeline!,
+          abilities: [ability]
+        }
+      }).targetClockModel.mode
+    ).toBe("target-local-hitlag-v1");
+    expect(() =>
+      migrateConfig({
+        ...enabled,
+        targetClockModel: { mode: "disabled" },
+        timeline: {
+          ...enabled.timeline!,
+          abilities: [ability]
+        }
+      })
+    ).toThrow(/targetHitlag requires targetClockModel/);
+  });
+
+  it("strictly validates ceil-ceil Hitlag, replay logs, and Superconduct extension references", () => {
+    const result = makeResultReferences();
+    expect(
+      targetHitlagLogEntrySchema.parse(appliedHitlag)
+    ).toEqual(appliedHitlag);
+    expect(targetHitlagLogSchema.parse([appliedHitlag])).toEqual([
+      appliedHitlag
+    ]);
+    expect(targetClockLogSchema.parse(appliedClockLog)).toEqual(
+      appliedClockLog
+    );
+    expect(
+      targetClockAuditSchema.parse(result.targetClockAudit)
+    ).toEqual(result.targetClockAudit);
+    expect(
+      targetClockResultReferencesSchema.parse(result)
+    ).toEqual(result);
+
+    expect(() =>
+      targetHitlagLogEntrySchema.parse({
+        ...appliedHitlag,
+        extensionFrames: 2
+      })
+    ).toThrow(/ceil/);
+    expect(() =>
+      targetHitlagLogEntrySchema.parse({
+        ...appliedHitlag,
+        extendedReactionStatusLogIds: [0, 0]
+      })
+    ).toThrow(/duplicate/);
+
+    const badStatusReference = structuredClone(result);
+    badStatusReference.targetHitlagLog[0]!
+      .extendedReactionStatusLogIds = [99];
+    expect(() =>
+      targetClockResultReferencesSchema.parse(
+        badStatusReference
+      )
+    ).toThrow(/Superconduct status 99/);
+
+    const badClockReference = structuredClone(result);
+    badClockReference.targetClockLog[1]!.addedFrozenFrames =
+      2;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(
+        badClockReference
+      )
+    ).toThrow(/added duration|exactly replay/);
+
+    const duplicateHitReference = structuredClone(result);
+    duplicateHitReference.targetHitlagLog.push({
+      ...duplicateHitReference.targetHitlagLog[0]!,
+      id: 1,
+      eventSequence: 5
+    });
+    expect(() =>
+      targetClockResultReferencesSchema.parse(
+        duplicateHitReference
+      )
+    ).toThrow(/duplicate target Hitlag reference to hit-resolution 0/);
+
+    const badTimelineReplay = structuredClone(result);
+    badTimelineReplay.targetStateTimeline.points[1]!.targetFrame =
+      56;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(
+        badTimelineReplay
+      )
+    ).toThrow(/target-clock replay|summary/);
+
+    const badStatusEnd = structuredClone(result);
+    badStatusEnd.reactionStatusLog[0]!.endFrame = 724;
+    badStatusEnd.reactionStatusLog[0]!.endTimeSeconds =
+      724 / 60;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(badStatusEnd)
+    ).toThrow(/startFrame \+ 720 \+ reciprocal Hitlag extensions/);
+
+    const badStatusTime = structuredClone(result);
+    badStatusTime.reactionStatusLog[0]!.endTimeSeconds +=
+      1 / 60;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(badStatusTime)
+    ).toThrow(/endFrame \/ 60/);
+
+    const superseded = structuredClone(result);
+    superseded.reactionStatusLog[0]!.endFrame = 20;
+    superseded.reactionStatusLog[0]!.endTimeSeconds = 20 / 60;
+    superseded.reactionStatusLog[0]!.supersededAtFrame = 20;
+    expect(
+      targetClockResultReferencesSchema.parse(superseded)
+        .reactionStatusLog[0]
+    ).toMatchObject({
+      endFrame: 20,
+      supersededAtFrame: 20
+    });
+
+    const badSupersededEnd = structuredClone(superseded);
+    badSupersededEnd.reactionStatusLog[0]!.endFrame = 21;
+    badSupersededEnd.reactionStatusLog[0]!.endTimeSeconds =
+      21 / 60;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(
+        badSupersededEnd
+      )
+    ).toThrow(/end exactly at its superseding frame/);
+  });
+
+  it("sums same-frame Hitlag extensions into one exact Superconduct deadline", () => {
+    const result = makeResultReferences();
+    result.hitResolutionLog.push({
+      ...result.hitResolutionLog[0]!,
+      id: 1,
+      hitId: "skill-hit-2",
+      hitGroupId: "skill-hit-2@10"
+    });
+    result.targetHitlagLog.push({
+      ...result.targetHitlagLog[0]!,
+      id: 1,
+      intraEventSequence: 1,
+      hitId: "skill-hit-2",
+      hitGroupId: "skill-hit-2@10",
+      hitResolutionLogId: 1,
+      frozenFramesBefore: 3,
+      frozenFramesAfter: 6,
+      nextTargetAdvanceGlobalFrame: 17
+    });
+    result.targetClockLog = [
+      result.targetClockLog[0]!,
+      result.targetClockLog[1]!,
+      {
+        ...result.targetClockLog[1]!,
+        id: 2,
+        frozenFramesBefore: 3,
+        frozenFramesAfter: 6,
+        targetHitlagLogId: 1
+      },
+      {
+        ...result.targetClockLog[2]!,
+        id: 3,
+        targetFrameAfter: 54,
+        frozenFramesBefore: 6,
+        consumedFrozenFrames: 6
+      }
+    ];
+    result.targetClockAudit.targets[0] = {
+      ...result.targetClockAudit.targets[0]!,
+      finalTargetFrame: 54,
+      frozenFramesConsumed: 6,
+      hitlagApplications: 2,
+      totalExtensionFrames: 6
+    };
+    result.targetStateTimeline = makeTargetStateTimeline(54);
+    result.reactionStatusLog[0]!.endFrame = 726;
+    result.reactionStatusLog[0]!.endTimeSeconds = 726 / 60;
+
+    expect(
+      targetClockResultReferencesSchema.parse(result)
+        .reactionStatusLog[0]!.endFrame
+    ).toBe(726);
+
+    const oneFrameTooLong = structuredClone(result);
+    oneFrameTooLong.reactionStatusLog[0]!.endFrame = 727;
+    oneFrameTooLong.reactionStatusLog[0]!.endTimeSeconds =
+      727 / 60;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(oneFrameTooLong)
+    ).toThrow(/startFrame \+ 720 \+ reciprocal Hitlag extensions/);
+  });
+
+  it("records a miss before zero-extension semantics when factor is one", () => {
+    const result = makeResultReferences();
+    result.hitResolutionLog[0]!.landed = false;
+    result.targetHitlagLog = [
+      {
+        ...appliedHitlag,
+        factor: 1,
+        extensionFrames: 0,
+        frozenFramesAfter: 0,
+        pausedGlobalFrameStart: null,
+        nextTargetAdvanceGlobalFrame: null,
+        applied: false,
+        blockedReason: "TARGET_MISS",
+        extendedReactionStatusLogIds: []
+      }
+    ];
+    result.targetClockLog = [
+      {
+        ...appliedClockLog[0]!,
+        id: 0,
+        globalFrameAfter: 60,
+        targetFrameAfter: 60,
+        cause: "simulation-end"
+      }
+    ];
+    result.targetClockAudit.targets[0] = {
+      ...result.targetClockAudit.targets[0]!,
+      finalTargetFrame: 60,
+      frozenFramesConsumed: 0,
+      hitlagApplications: 0,
+      totalExtensionFrames: 0
+    };
+    result.targetStateTimeline =
+      makeTargetStateTimeline(60);
+    result.reactionStatusLog[0]!.endFrame = 720;
+    result.reactionStatusLog[0]!.endTimeSeconds = 720 / 60;
+
+    expect(
+      targetHitlagLogEntrySchema.parse(
+        result.targetHitlagLog[0]
+      ).blockedReason
+    ).toBe("TARGET_MISS");
+    expect(
+      targetClockResultReferencesSchema.parse(result)
+        .targetHitlagLog[0]!.blockedReason
+    ).toBe("TARGET_MISS");
+
+    const wrongPriority = structuredClone(result);
+    wrongPriority.targetHitlagLog[0]!.blockedReason =
+      "ZERO_EXTENSION";
+    expect(() =>
+      targetClockResultReferencesSchema.parse(wrongPriority)
+    ).toThrow(/landed\/miss state/);
+  });
+
+  it("keeps legacy/disabled target-state frames compatible and rejects output drift", () => {
+    const config = migrateConfig(legacyConfig);
+    const disabled = {
+      config,
+      hitResolutionLog: [],
+      reactionStatusLog: [],
+      targetStateTimeline: validTargetStateTimeline,
+      targetClockAudit: {
+        version: "1.0.0",
+        mode: "disabled",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        targets: []
+      },
+      targetClockLog: [],
+      targetHitlagLog: []
+    };
+    expect(
+      targetClockResultReferencesSchema.parse(disabled)
+        .targetClockAudit.mode
+    ).toBe("disabled");
+    expect(() =>
+      targetClockAuditSchema.parse({
+        ...disabled.targetClockAudit,
+        unexpected: true
+      })
+    ).toThrow(/Unrecognized key/);
+    expect(() =>
+      targetClockResultReferencesSchema.parse({
+        ...disabled,
+        targetStateTimeline: {
+          ...validTargetStateTimeline,
+          points: validTargetStateTimeline.points.map(
+            (point, index) => ({
+              ...point,
+              targetFrame:
+                index === 0 ? point.frame : point.frame - 1
+            })
+          )
+        }
+      })
+    ).toThrow(/require targetFrame to equal frame/);
   });
 });
 
@@ -4839,6 +5494,19 @@ describe("versioned config schema", () => {
     expect(
       dendroCoreLogEntrySchema.parse({
         ...scheduled,
+        clockModel: "global-frame-gadget-v1",
+        hitlagStatus: "not-affected-by-enemy-hitlag"
+      }).clockModel
+    ).toBe("global-frame-gadget-v1");
+    expect(() =>
+      dendroCoreLogEntrySchema.parse({
+        ...scheduled,
+        clockModel: "global-frame-gadget-v1"
+      })
+    ).toThrow(/same Dendro-core clock domain/);
+    expect(
+      dendroCoreLogEntrySchema.parse({
+        ...scheduled,
         eventType: "reactionDamage",
         eventPriority: 5
       }).eventType
@@ -5682,6 +6350,17 @@ describe("versioned config schema", () => {
     expect(burningReactionAuditSchema.parse(burningAudit)).toEqual(
       burningAudit
     );
+    expect(
+      burningReactionAuditSchema.parse({
+        ...burningAudit,
+        snapshotTargetFrame: 0,
+        fuelExpiresAtTargetFrame: 120,
+        firstTickTargetFrame: 15,
+        nextTickTargetFrame: 15,
+        clockModel: "target-local-hitlag-v1",
+        hitlagStatus: "modeled-enemy-hitlag"
+      }).clockModel
+    ).toBe("target-local-hitlag-v1");
     const rebasedQuicken = {
       operation: "decay-rebase",
       generationBefore: 1,
@@ -6079,6 +6758,16 @@ describe("versioned config schema", () => {
       reason: null
     };
     expect(burningStateLogEntrySchema.parse(burningLog)).toEqual(burningLog);
+    expect(
+      burningStateLogEntrySchema.parse({
+        ...burningLog,
+        targetFrame: 15,
+        fuelExpiresAtTargetFrame: 120,
+        nextTickTargetFrame: 30,
+        clockModel: "target-local-hitlag-v1",
+        hitlagStatus: "modeled-enemy-hitlag"
+      }).clockModel
+    ).toBe("target-local-hitlag-v1");
     const damageBlockedBurningTick = {
       ...burningLog,
       damageAllowed: false

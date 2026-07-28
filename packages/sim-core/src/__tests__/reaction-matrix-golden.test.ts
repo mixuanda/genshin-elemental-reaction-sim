@@ -23,7 +23,8 @@ import {
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
-import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
+import playerDamageMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
+import matrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.33.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -346,12 +347,14 @@ function makeMatrixConfig(
   return {
     ...base,
     meta: {
-      name: `Reaction matrix 1.32 · ${scenarioId}`,
-      version: "1.32.0",
+      name: `Reaction matrix 1.33 · ${scenarioId}`,
+      version: "1.33.0",
       verificationStatus: "provisional",
       note: `Fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; not official game truth.`
     },
     dataVersion: DATA_VERSION,
+    // Keep the frozen 1.32 random stream so 1.33 only changes the
+    // versioned clock envelope, not deterministic core positions.
     randomSeed: `reaction-matrix-1.32:${scenarioId}`,
     duration,
     cycleLength: Math.max(1, duration),
@@ -495,6 +498,7 @@ function compactResult(result: SimulationResult) {
     config: {
       durationFrames: Math.round(result.config.duration * 60),
       playerDamageModel: result.config.playerDamageModel,
+      targetClockModel: result.config.targetClockModel,
       targets: (result.config.enemy.targets ?? []).map((target) => ({
         id: target.id,
         position: target.position,
@@ -512,6 +516,11 @@ function compactResult(result: SimulationResult) {
         })) ?? []
     },
     runManifest: result.runManifest,
+    targetClock: {
+      audit: result.targetClockAudit,
+      clockLog: result.targetClockLog,
+      hitlagLog: result.targetHitlagLog
+    },
     totalDamage: result.totalDamage,
     dps: result.dps,
     reactedHits: result.reactedHits,
@@ -1078,7 +1087,7 @@ const REQUIRED_REACTIONS = [
   "hyperbloom"
 ] as const satisfies readonly ReactionType[];
 
-describe("1.32 provisional reaction-matrix Golden", () => {
+describe("1.33 provisional reaction-matrix Golden", () => {
   it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
     expect(historicalMatrixGolden.config).toMatchObject({
       schemaVersion: "1.31.0",
@@ -1088,6 +1097,19 @@ describe("1.32 provisional reaction-matrix Golden", () => {
     expect(Object.keys(historicalMatrixGolden.vectors)).toHaveLength(
       14
     );
+    expect(playerDamageMatrixGolden.config).toMatchObject({
+      schemaVersion: "1.32.0",
+      engineVersion: "1.32.0-player-reaction-damage",
+      dataVersion: "reaction-matrix-fixed-gcsim-cross-check-2"
+    });
+    expect(
+      Object.keys(playerDamageMatrixGolden.vectors)
+    ).toHaveLength(14);
+    expect(matrixGolden.config).toMatchObject({
+      schemaVersion: "1.33.0",
+      engineVersion: "1.33.0-target-local-hitlag",
+      targetClockModel: "disabled"
+    });
   });
 
   it("freezes every baseline reaction vector, strict projection, and run identity", () => {
@@ -1175,6 +1197,17 @@ describe("1.32 provisional reaction-matrix Golden", () => {
         }
       }
       const compact = compactResult(result);
+      expect(result.config.targetClockModel).toEqual({
+        mode: "disabled"
+      });
+      expect(result.targetClockAudit).toEqual({
+        version: "1.0.0",
+        mode: "disabled",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        targets: []
+      });
+      expect(result.targetClockLog).toEqual([]);
+      expect(result.targetHitlagLog).toEqual([]);
       const historicalVector = (
         historicalMatrixGolden.vectors as Record<
           string,
@@ -1187,6 +1220,26 @@ describe("1.32 provisional reaction-matrix Golden", () => {
         ...historicalEnemySemantics
       } = historicalVector;
       expect(compact).toMatchObject(historicalEnemySemantics);
+      const playerDamageVector = (
+        playerDamageMatrixGolden.vectors as Record<
+          string,
+          Record<string, unknown>
+        >
+      )[scenarioId]!;
+      const {
+        runManifest: _playerDamageRunManifest,
+        hashes: playerDamageHashes,
+        ...playerDamageSemantics
+      } = playerDamageVector;
+      expect(compact).toMatchObject(playerDamageSemantics);
+      const {
+        config: _playerDamageConfigHash,
+        runManifest: _playerDamageRunManifestHash,
+        ...playerDamageSemanticHashes
+      } = playerDamageHashes as Record<string, string>;
+      expect(compact.hashes).toMatchObject(
+        playerDamageSemanticHashes
+      );
       actualVectors[scenarioId] = compact;
     }
 

@@ -14,6 +14,11 @@ function cloneAuraState(entry: AuraStateEntry): AuraStateEntry {
     element: entry.element,
     gaugeUnits: entry.gaugeUnits,
     expiresAtFrame: entry.expiresAtFrame,
+    ...(entry.expiresAtTargetFrame === undefined
+      ? {}
+      : {
+          expiresAtTargetFrame: entry.expiresAtTargetFrame
+        }),
     ...(entry.sourceSlots === undefined
       ? {}
       : {
@@ -64,11 +69,19 @@ export function auraStateSnapshotsEqual(
   if (left.length !== right.length) return false;
   return left.every((leftEntry, index) => {
     const rightEntry = right[index];
+    const bothUseTargetClockDeadline =
+      leftEntry.expiresAtTargetFrame !== undefined &&
+      rightEntry?.expiresAtTargetFrame !== undefined;
     if (
       rightEntry === undefined ||
       leftEntry.element !== rightEntry.element ||
       leftEntry.gaugeUnits !== rightEntry.gaugeUnits ||
-      leftEntry.expiresAtFrame !== rightEntry.expiresAtFrame
+      (bothUseTargetClockDeadline
+        ? leftEntry.expiresAtTargetFrame !==
+          rightEntry.expiresAtTargetFrame
+        : leftEntry.expiresAtFrame !==
+            rightEntry.expiresAtFrame ||
+          leftEntry.expiresAtTargetFrame !== rightEntry.expiresAtTargetFrame)
     ) {
       return false;
     }
@@ -149,9 +162,20 @@ export class TargetStateTimelineRecorder {
   >();
   private readonly latestFrameByTarget = new Map<string, number>();
 
+  constructor(
+    private readonly resolveTargetFrame?: (
+      targetId: string,
+      globalFrame: number
+    ) => number
+  ) {}
+
   private append(point: Omit<TargetStateTimelinePoint, "id">): void {
+    const targetFrame =
+      point.targetFrame ??
+      this.resolveTargetFrame?.(point.targetId, point.frame);
     const emitted = {
       ...point,
+      ...(targetFrame === undefined ? {} : { targetFrame }),
       id: this.points.length
     } satisfies TargetStateTimelinePoint;
     this.points.push(emitted);

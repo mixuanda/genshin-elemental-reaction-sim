@@ -25,6 +25,7 @@ export const durinMeltPreset: SimConfig = {
   cycleLength: 21.5,
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       id: "durin",
@@ -466,6 +467,7 @@ export const blankPreset: SimConfig = {
   cycleLength: 20,
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       id: "a",
@@ -559,6 +561,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   cycleLength: 10,
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       id: "frame-a",
@@ -733,6 +736,7 @@ export const auraReactionDemoPreset: SimConfig = {
   cycleLength: 4,
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -829,6 +833,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   cycleLength: 4,
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

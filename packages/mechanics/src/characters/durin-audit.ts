@@ -69,6 +69,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
     defReduction: 0
   },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       id: "durin",
@@ -334,6 +335,7 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
     defReduction: 0
   },
   playerDamageModel: { mode: "disabled" },
+  targetClockModel: { mode: "disabled" },
   characters: [
     {
       id: "durin",
