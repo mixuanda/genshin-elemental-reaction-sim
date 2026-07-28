@@ -2,7 +2,9 @@ import {
   CURRENT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
+  dendroCoreResultReferencesSchema,
   migrateConfig,
+  playerDamageResultReferencesSchema,
   simulationRunManifestSchema,
   targetClockAuditSchema,
   targetClockLogSchema,
@@ -122,6 +124,7 @@ export const EVENT_PRIORITY = {
   particleSpawn: 2,
   particleReceive: 2,
   hit: 3,
+  quickenBloomFollowup: 3,
   periodicReactionExpiry: 2,
   burningFuelExpiry: 2,
   frozenExpiry: 2,
@@ -506,6 +509,21 @@ interface HitEventPayload {
   cycle: number;
 }
 
+interface QuickenBloomFollowupEventPayload {
+  targetId: string;
+  sourceActorId: string;
+  action: ActionDefinition;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  triggerDamageEventId: number;
+  triggerElement: "dendro" | "electro";
+  reactionBonusDelta: number;
+  cycle: number;
+  triggerEventType: "hit" | "reactionDamage";
+  triggerEventPriority: number;
+  triggerEventSequence: number;
+}
+
 interface ReactionDamageEventPayload {
   reaction: TransformativeReaction;
   damageElement: Element;
@@ -757,6 +775,7 @@ type InternalEventBase =
   | SimulationEvent<ParticleSpawnEventPayload>
   | SimulationEvent<ParticleReceiveEventPayload>
   | SimulationEvent<HitEventPayload>
+  | SimulationEvent<QuickenBloomFollowupEventPayload>
   | SimulationEvent<ReactionDamageEventPayload>
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
@@ -1312,7 +1331,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v3" ||
     config.reactionEngine?.mode === "aura-v4" ||
     config.reactionEngine?.mode === "aura-v5" ||
-    config.reactionEngine?.mode === "aura-v6"
+    config.reactionEngine?.mode === "aura-v6" ||
+    config.reactionEngine?.mode === "aura-v7"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -1546,18 +1566,21 @@ function simulateConfig(
     type: InternalEvent["type"],
     payload: TPayload,
     priorityOverride?: number
-  ): void => {
+  ): number | null => {
     if (timeSeconds <= config.duration + 1e-9) {
       const frame = toFrame(timeSeconds);
+      const eventSequence = sequence++;
       queue.push({
         timeSeconds: frameNative ? frame / 60 : timeSeconds,
         frame,
         priority: priorityOverride ?? EVENT_PRIORITY[type],
         type,
         payload,
-        sequence: sequence++
+        sequence: eventSequence
       } as InternalEvent);
+      return eventSequence;
     }
+    return null;
   };
   const pushTargetLocal = <TPayload>(
     projectedGlobalFrame: number,
@@ -1674,6 +1697,7 @@ function simulateConfig(
   const targetMechanicsTruncationLog: SimulationResult["targetMechanicsTruncationLog"] =
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
+  const reactionTaskLog: SimulationResult["reactionTaskLog"] = [];
   const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
@@ -3293,6 +3317,7 @@ function simulateConfig(
     eventType,
     eventPriority,
     eventSequence,
+    reactionTaskLogId,
     nextIntraEventSequence
   }: {
     audits: readonly BloomReactionAudit[];
@@ -3304,11 +3329,20 @@ function simulateConfig(
     sourceTargetId: string;
     reactionBonusDelta: number;
     cycle: number;
-    eventType: "hit" | "reactionDamage";
+    eventType:
+      | "hit"
+      | "reactionDamage"
+      | "quickenBloomFollowup";
     eventPriority: number;
     eventSequence: number;
+    reactionTaskLogId?: number;
     nextIntraEventSequence: () => number;
-  }): void => {
+  }): {
+    dendroCoreLogIds: number[];
+    dendroCoreIds: number[];
+  } => {
+    const dendroCoreLogIds: number[] = [];
+    const dendroCoreIds: number[] = [];
     audits.forEach((audit, bloomReactionIndex) => {
       if (!audit.scheduled || audit.coreSpawnFrame === null) return;
       const reservation = dendroCoreManager.reserve({
@@ -3334,8 +3368,9 @@ function simulateConfig(
       const withinSimulation =
         reservation.spawnFrame <=
         Math.round(config.duration * 60);
+      const dendroCoreLogId = dendroCoreLog.length;
       dendroCoreLog.push({
-        id: dendroCoreLog.length,
+        id: dendroCoreLogId,
         coreId: reservation.coreId,
         operation: "spawn-scheduled",
         eventType,
@@ -3356,17 +3391,80 @@ function simulateConfig(
         mechanicsDataStatus:
           DENDRO_CORE_CONSTANTS.mechanicsDataStatus,
         selfDamageStatus: playerSelfDamageStatus,
+        ...(reactionTaskLogId === undefined
+          ? {}
+          : { reactionTaskLogId }),
         bloomReactionIndex,
         spawnFrame: reservation.spawnFrame,
         withinSimulation,
         reason: "BLOOM_TRIGGERED"
       });
+      dendroCoreLogIds.push(dendroCoreLogId);
+      dendroCoreIds.push(reservation.coreId);
       if (withinSimulation) {
         push(reservation.spawnFrame / 60, "dendroCoreSpawn", {
           reservation
         } satisfies DendroCoreSpawnEventPayload);
       }
     });
+    return { dendroCoreLogIds, dendroCoreIds };
+  };
+
+  const scheduleQuickenBloomFollowup = ({
+    audit,
+    actorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    triggerDamageEventId,
+    sourceTargetId,
+    reactionBonusDelta,
+    cycle,
+    frame,
+    triggerEventType,
+    triggerEventPriority,
+    triggerEventSequence
+  }: {
+    audit: ReactionAudit;
+    actorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    triggerDamageEventId: number;
+    sourceTargetId: string;
+    reactionBonusDelta: number;
+    cycle: number;
+    frame: number;
+    triggerEventType: "hit" | "reactionDamage";
+    triggerEventPriority: number;
+    triggerEventSequence: number;
+  }): void => {
+    const quicken = audit.catalyzeReaction?.quicken;
+    if (
+      config.reactionEngine?.mode !== "aura-v7" ||
+      quicken?.pendingHydroBloomFollowup !== true
+    ) {
+      return;
+    }
+    push(
+      frame / 60,
+      "quickenBloomFollowup",
+      {
+        targetId: sourceTargetId,
+        sourceActorId: actorId,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        triggerDamageEventId,
+        triggerElement: quicken.triggerElement,
+        reactionBonusDelta,
+        cycle,
+        triggerEventType,
+        triggerEventPriority,
+        triggerEventSequence
+      } satisfies QuickenBloomFollowupEventPayload,
+      triggerEventPriority
+    );
   };
 
   const recordShatterFrozenState = ({
@@ -3443,18 +3541,23 @@ function simulateConfig(
     frame,
     timeSeconds
   }: {
-    audit: ReactionAudit;
+    audit: Pick<
+      ReactionAudit,
+      "catalyzeReaction" | "bloomReactions"
+    >;
     targetId: string;
     targetName: string;
     sourceActorId: string;
     triggerDamageEventId: number;
     frame: number;
     timeSeconds: number;
-  }): void => {
+  }): number[] => {
+    const recordedLogIds: number[] = [];
     const quicken = audit.catalyzeReaction?.quicken;
     if (quicken !== null && quicken !== undefined) {
+      const quickenStateLogId = quickenStateLog.length;
       quickenStateLog.push({
-        id: quickenStateLog.length,
+        id: quickenStateLogId,
         reaction: "quicken",
         generation: quicken.generation,
         operation: quicken.operation,
@@ -3492,6 +3595,7 @@ function simulateConfig(
               ? "QUICKEN_STARTED"
               : "QUICKEN_REFRESHED"
       });
+      recordedLogIds.push(quickenStateLogId);
       if (
         quicken.operation === "start" ||
         quicken.operation === "refresh"
@@ -3528,8 +3632,9 @@ function simulateConfig(
         activeQuickenStateSources.get(targetId);
       const lifecycleSourceActorId =
         existingSource?.actorId ?? sourceActorId;
+      const quickenStateLogId = quickenStateLog.length;
       quickenStateLog.push({
-        id: quickenStateLog.length,
+        id: quickenStateLogId,
         reaction: "quicken",
         generation: mutation.generationAfter,
         operation: mutation.operation,
@@ -3567,6 +3672,7 @@ function simulateConfig(
               ? "BLOOM_REBASED_QUICKEN_DECAY"
               : "BLOOM_REMOVED_QUICKEN"
       });
+      recordedLogIds.push(quickenStateLogId);
       if (
         mutation.operation === "partial-consume" ||
         mutation.operation === "decay-rebase"
@@ -3593,6 +3699,7 @@ function simulateConfig(
         activeQuickenStateSources.delete(targetId);
       }
     }
+    return recordedLogIds;
   };
 
   const projectedQuickenDecayRebaseLogIds = (
@@ -4410,6 +4517,21 @@ function simulateConfig(
         timeSeconds
       });
     }
+    scheduleQuickenBloomFollowup({
+      audit,
+      actorId,
+      action,
+      triggerHitId: hitId,
+      triggerHitGroupId: hitGroupId,
+      triggerDamageEventId: damageEventId,
+      sourceTargetId: targetId,
+      reactionBonusDelta: reactionBonus - stats.reactionBonus,
+      cycle,
+      frame,
+      triggerEventType: "reactionDamage",
+      triggerEventPriority: eventPriority,
+      triggerEventSequence: eventSequence
+    });
     if (audit.bloomReactions.length > 0) {
       scheduleBloomCoreSpawns({
         audits: audit.bloomReactions,
@@ -5021,7 +5143,8 @@ function simulateConfig(
   }): void => {
     if (
       (config.reactionEngine?.mode !== "aura-v5" &&
-        config.reactionEngine?.mode !== "aura-v6") ||
+        config.reactionEngine?.mode !== "aura-v6" &&
+        config.reactionEngine?.mode !== "aura-v7") ||
       (element !== "pyro" && element !== "electro") ||
       application === undefined ||
       application.gaugeUnits <= 0
@@ -5213,6 +5336,7 @@ function simulateConfig(
     if (
       config.reactionEngine?.mode === "aura-v5" ||
       config.reactionEngine?.mode === "aura-v6"
+      || config.reactionEngine?.mode === "aura-v7"
     ) {
       processDendroCoreContacts({
         actorId,
@@ -5602,6 +5726,141 @@ function simulateConfig(
             cycle
           });
         });
+      });
+      continue;
+    }
+
+    if (event.type === "quickenBloomFollowup") {
+      const {
+        targetId,
+        sourceActorId,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        triggerDamageEventId,
+        triggerElement,
+        reactionBonusDelta,
+        cycle,
+        triggerEventType,
+        triggerEventPriority,
+        triggerEventSequence
+      } = event.payload as QuickenBloomFollowupEventPayload;
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      if (auraEngine === undefined || target === undefined) {
+        throw new Error(
+          `Quicken→Bloom task could not resolve target "${targetId}".`
+        );
+      }
+      const taskResult = auraEngine.processQuickenBloomFollowup({
+        frame: event.frame,
+        sourceActorId,
+        triggerElement
+      });
+      const bloomReaction =
+        taskResult.bloomReaction === null
+          ? null
+          : {
+              ...taskResult.bloomReaction,
+              selfDamageStatus: playerSelfDamageStatus
+            };
+      const reactionTaskLogId = reactionTaskLog.length;
+      const taskIntraEventSequence =
+        nextIntraEventSequence();
+      const quickenStateLogIds =
+        bloomReaction === null
+          ? []
+          : recordQuickenState({
+              audit: {
+                catalyzeReaction: null,
+                bloomReactions: [bloomReaction]
+              },
+              targetId,
+              targetName: target.name,
+              sourceActorId,
+              triggerDamageEventId,
+              frame: event.frame,
+              timeSeconds
+            });
+      const coreReferences =
+        bloomReaction === null
+          ? { dendroCoreLogIds: [], dendroCoreIds: [] }
+          : scheduleBloomCoreSpawns({
+              audits: [bloomReaction],
+              actorId: sourceActorId,
+              action,
+              triggerHitId,
+              triggerHitGroupId,
+              triggerDamageEventId,
+              sourceTargetId: targetId,
+              reactionBonusDelta,
+              cycle,
+              eventType: "quickenBloomFollowup",
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              reactionTaskLogId,
+              nextIntraEventSequence
+            });
+      reactionTaskLog.push({
+        id: reactionTaskLogId,
+        kind: "quicken-bloom-followup",
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        sourceActorId,
+        sourceActionId: action.id,
+        triggerHitId,
+        triggerHitGroupId,
+        triggerDamageEventId,
+        triggerElement,
+        triggerEventType,
+        triggerEventPriority,
+        triggerEventSequence,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: taskIntraEventSequence,
+        status: taskResult.status,
+        blockedReason: taskResult.blockedReason,
+        auraBefore: deepClone(taskResult.auraBefore),
+        auraConsumed: deepClone(taskResult.auraConsumed),
+        auraAfter: deepClone(taskResult.auraAfter),
+        bloomReaction:
+          bloomReaction === null ? null : deepClone(bloomReaction),
+        quickenStateLogIds,
+        dendroCoreLogIds: coreReferences.dendroCoreLogIds,
+        dendroCoreIds: coreReferences.dendroCoreIds,
+        mechanicsDataStatus: "fixed-gcsim-provisional"
+      });
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: target.name,
+        cause: "quicken-bloom-followup",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction:
+          taskResult.status === "triggered" ? "bloom" : "none",
+        reactions:
+          taskResult.status === "triggered" ? ["bloom"] : [],
+        primaryDamageEventId: triggerDamageEventId,
+        links: [
+          { kind: "damage-event", id: triggerDamageEventId },
+          {
+            kind: "reaction-task-log",
+            id: reactionTaskLogId
+          },
+          ...quickenStateLogIds.map((id) => ({
+            kind: "quicken-state-log" as const,
+            id
+          }))
+        ],
+        auraBefore: taskResult.auraBefore,
+        auraConsumed: taskResult.auraConsumed,
+        auraAfter: taskResult.auraAfter
       });
       continue;
     }
@@ -8708,6 +8967,7 @@ function simulateConfig(
       if (
         config.reactionEngine?.mode === "aura-v5" ||
         config.reactionEngine?.mode === "aura-v6"
+        || config.reactionEngine?.mode === "aura-v7"
       ) {
         processDendroCoreContacts({
           actorId,
@@ -9520,6 +9780,21 @@ function simulateConfig(
           timeSeconds
         });
       }
+      scheduleQuickenBloomFollowup({
+        audit: reactionAudit,
+        actorId,
+        action,
+        triggerHitId: hitId,
+        triggerHitGroupId: hitGroupId,
+        triggerDamageEventId: damageEventId,
+        sourceTargetId: targetId,
+        reactionBonusDelta: safeNumber(hit.reactionBonus),
+        cycle,
+        frame: event.frame,
+        triggerEventType: "hit",
+        triggerEventPriority: event.priority,
+        triggerEventSequence: event.sequence
+      });
       const burningSourceStats = computeStats(actorId, timeSeconds);
       processBurningConsequences({
         audit: reactionAudit,
@@ -10346,6 +10621,7 @@ function simulateConfig(
     targetHitlagLog: parsedTargetHitlagLog,
     targetMechanicsTruncationLog,
     reactionDamageLog,
+    reactionTaskLog,
     reactionStatusLog,
     periodicReactionLog,
     frozenStateLog,
@@ -10392,6 +10668,8 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+  dendroCoreResultReferencesSchema.parse(simulationResult);
+  playerDamageResultReferencesSchema.parse(simulationResult);
   targetClockResultReferencesSchema.parse(simulationResult);
   return simulationResult;
 }

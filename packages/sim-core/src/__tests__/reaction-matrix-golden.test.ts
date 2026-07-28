@@ -4,6 +4,8 @@ import {
   burningReactionAuditSchema,
   burningStateLogEntrySchema,
   canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   dendroCoreResultReferencesSchema,
   parseSimulationRunManifestForConfig,
   quickenReactionAuditSchema,
@@ -54,7 +56,7 @@ interface MatrixScenario {
   targets?: MatrixTarget[];
   hits: FrameHitDefinition[];
   buffs?: FrameBuffDefinition[];
-  reactionMode?: "aura-v5" | "aura-v6";
+  reactionMode?: "aura-v5" | "aura-v6" | "aura-v7";
   enemyResistances?: EnemyElementalResistances;
 }
 
@@ -381,7 +383,7 @@ const SCENARIOS = {
 type ScenarioId = keyof typeof SCENARIOS;
 
 function makeMatrixConfig(
-  scenarioId: ScenarioId,
+  scenarioId: string,
   scenario: MatrixScenario
 ): SimConfig {
   const base = makeConfig();
@@ -1020,6 +1022,9 @@ function validateCrossLinks(result: SimulationResult): void {
     "frozen-state-log": frozenStateLogIds,
     "quicken-state-log": quickenStateLogIds,
     "burning-state-log": burningStateLogIds,
+    "reaction-task-log": new Set(
+      result.reactionTaskLog.map((entry) => entry.id)
+    ),
     "target-mechanics-truncation-log": new Set(
       result.targetMechanicsTruncationLog.map(
         (entry) => entry.id
@@ -1161,6 +1166,7 @@ function validateResultSchemas(result: SimulationResult): void {
 
 const REQUIRED_REACTIONS = [
   "melt",
+  "reverseMelt",
   "vaporize",
   "reverseVaporize",
   "overload",
@@ -1169,7 +1175,13 @@ const REQUIRED_REACTIONS = [
   "freeze",
   "shatter",
   "swirlPyro",
+  "swirlHydro",
+  "swirlCryo",
+  "swirlElectro",
   "crystallizePyro",
+  "crystallizeHydro",
+  "crystallizeCryo",
+  "crystallizeElectro",
   "quicken",
   "aggravate",
   "spread",
@@ -1178,6 +1190,93 @@ const REQUIRED_REACTIONS = [
   "burgeon",
   "hyperbloom"
 ] as const satisfies readonly ReactionType[];
+
+const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
+  reverseMelt: {
+    durationFrames: 10,
+    initialAura: [{ element: "pyro", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "reverse-melt-cryo",
+        element: "cryo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  swirlHydro: {
+    durationFrames: 10,
+    initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "swirl-hydro-anemo",
+        element: "anemo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  swirlCryo: {
+    durationFrames: 10,
+    initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "swirl-cryo-anemo",
+        element: "anemo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  swirlElectro: {
+    durationFrames: 10,
+    initialAura: [{ element: "electro", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "swirl-electro-anemo",
+        element: "anemo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  crystallizeHydro: {
+    durationFrames: 10,
+    initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "crystallize-hydro-geo",
+        element: "geo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  crystallizeCryo: {
+    durationFrames: 10,
+    initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "crystallize-cryo-geo",
+        element: "geo",
+        gaugeUnits: 1
+      })
+    ]
+  },
+  crystallizeElectro: {
+    durationFrames: 10,
+    initialAura: [{ element: "electro", gaugeUnits: 1 }],
+    hits: [
+      applicationHit({
+        id: "crystallize-electro-geo",
+        element: "geo",
+        gaugeUnits: 1
+      })
+    ]
+  }
+} as const satisfies Record<string, MatrixScenario>;
+
+const EXPECTED_V7_BURNING_PROJECTION_DAMAGE_EVENT_IDS: Partial<
+  Record<ScenarioId, readonly number[]>
+> = {
+  burning: [1],
+  burgeon: [3]
+};
 
 const V133_FROZEN_SCENARIO_IDS = Object.keys(
   targetClockMatrixGolden.vectors
@@ -1195,6 +1294,145 @@ const SEMANTIC_HASH_FIELDS = [
   "damageCurve",
   "player"
 ] as const;
+
+function withoutVersionIdentity(
+  vectors: Record<string, unknown>
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([scenarioId, value]) => {
+      const vector = value as {
+        runManifest: unknown;
+        hashes: Record<string, unknown>;
+        [key: string]: unknown;
+      };
+      const {
+        runManifest: _runManifest,
+        hashes,
+        ...semanticVector
+      } = vector;
+      const {
+        config: _configHash,
+        runManifest: _runManifestHash,
+        ...semanticHashes
+      } = hashes;
+      return [
+        scenarioId,
+        {
+          ...semanticVector,
+          hashes: semanticHashes
+        }
+      ];
+    })
+  );
+}
+
+function withoutSingleVersionIdentity(
+  vector: ReturnType<typeof compactResult>
+) {
+  const {
+    runManifest: _runManifest,
+    hashes,
+    ...semanticVector
+  } = vector;
+  const {
+    config: _configHash,
+    runManifest: _runManifestHash,
+    ...semanticHashes
+  } = hashes;
+  return {
+    ...semanticVector,
+    hashes: semanticHashes
+  };
+}
+
+function collectObservedReactions(
+  result: SimulationResult,
+  observedReactions: Set<ReactionType>
+): void {
+  for (const event of result.damageEvents) {
+    if (event.reaction !== "none") {
+      observedReactions.add(event.reaction);
+    }
+    for (const reaction of event.reactionAudit.reactions) {
+      if (reaction !== "none") {
+        observedReactions.add(reaction);
+      }
+    }
+  }
+}
+
+function normalizeBurningPeriodicDamageEvents(
+  result: SimulationResult
+): SimulationResult["damageEvents"] {
+  return result.damageEvents.map((event) =>
+    event.kind === "transformative-reaction" &&
+    event.reaction === "burning"
+      ? {
+          ...event,
+          reactionAudit: {
+            ...event.reactionAudit,
+            reaction: "none",
+            triggered: false,
+            reactions: []
+          }
+        }
+      : event
+  );
+}
+
+function normalizeBurningPeriodicTargetTimeline(
+  result: SimulationResult
+): SimulationResult["targetStateTimeline"] {
+  const periodicBurningDamageEventIds = new Set(
+    result.damageEvents
+      .filter(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reaction === "burning"
+      )
+      .map((event) => event.id)
+  );
+  return {
+    ...result.targetStateTimeline,
+    points: result.targetStateTimeline.points.map((point) =>
+      point.cause === "reaction-damage-application" &&
+      point.primaryDamageEventId !== null &&
+      periodicBurningDamageEventIds.has(point.primaryDamageEventId)
+        ? {
+            ...point,
+            reaction: "none" as const,
+            reactions: []
+          }
+        : point
+    )
+  };
+}
+
+function withoutBurningProjectionIdentity(
+  result: SimulationResult
+) {
+  const compact = withoutSingleVersionIdentity(
+    compactResult(result)
+  );
+  const {
+    damageEvents: _damageEventsHash,
+    targetStateTimeline: _targetStateTimelineHash,
+    ...stableHashes
+  } = compact.hashes;
+  return {
+    ...compact,
+    events: compact.events.map((event) =>
+      event.kind === "transformative-reaction" &&
+      event.reaction === "burning"
+        ? {
+            ...event,
+            orderedReactions: []
+          }
+        : event
+    ),
+    hashes: stableHashes
+  };
+}
 
 describe("1.35 provisional reaction-matrix Golden", () => {
   it("retains the frozen 1.31 fixture as an enemy-side semantic baseline", () => {
@@ -1242,6 +1480,168 @@ describe("1.35 provisional reaction-matrix Golden", () => {
     expect(Object.keys(matrixV135Golden.vectors)).toHaveLength(17);
   });
 
+  it("keeps all 17 frozen classic vectors at aura-v6 parity in aura-v7 except the explicit Burning projection fix", () => {
+    expect(Object.keys(SCENARIOS)).toEqual(
+      Object.keys(matrixV135Golden.vectors)
+    );
+
+    for (const [scenarioId, scenario] of Object.entries(
+      SCENARIOS
+    ) as [ScenarioId, MatrixScenario][]) {
+      const v6Config = makeMatrixConfig(scenarioId, scenario);
+      v6Config.reactionEngine = { mode: "aura-v6" };
+      const v7Config = makeMatrixConfig(scenarioId, scenario);
+      v7Config.reactionEngine = { mode: "aura-v7" };
+      const options = {
+        ...OPTIONS,
+        randomSeed: v6Config.randomSeed
+      };
+      const v6Result = simulate(v6Config, options);
+      const v7Result = simulate(v7Config, options);
+
+      expect(v6Result.config.reactionEngine).toEqual({
+        mode: "aura-v6"
+      });
+      expect(v7Result.config.reactionEngine).toEqual({
+        mode: "aura-v7"
+      });
+      for (const result of [v6Result, v7Result]) {
+        expect(result.runManifest).toMatchObject({
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          engineVersion: CURRENT_ENGINE_VERSION,
+          dataVersion: DATA_VERSION,
+          resolvedRuntimeOptions: options
+        });
+        expect(result.mechanicsStatus).toBe("complete");
+        expect(result.targetMechanicsTruncationLog).toEqual([]);
+        validateResultSchemas(result);
+      }
+      expect(v7Result.runManifest.configHash).not.toBe(
+        v6Result.runManifest.configHash
+      );
+      expect(v7Result.reproducibilityKey).not.toBe(
+        v6Result.reproducibilityKey
+      );
+      const expectedBurningProjectionDamageEventIds =
+        EXPECTED_V7_BURNING_PROJECTION_DAMAGE_EVENT_IDS[
+          scenarioId
+        ];
+      if (expectedBurningProjectionDamageEventIds !== undefined) {
+        const damageEventProjectionDeltas =
+          v6Result.damageEvents
+            .map((event, index) => ({
+              id: event.id,
+              frame: event.frame,
+              kind: event.kind,
+              reaction: event.reaction,
+              v6AuditReaction: event.reactionAudit.reaction,
+              v7AuditReaction:
+                v7Result.damageEvents[index]?.reactionAudit
+                  .reaction,
+              v6Triggered: event.reactionAudit.triggered,
+              v7Triggered:
+                v7Result.damageEvents[index]?.reactionAudit
+                  .triggered,
+              v6Reactions: event.reactionAudit.reactions,
+              v7Reactions:
+                v7Result.damageEvents[index]?.reactionAudit
+                  .reactions
+            }))
+            .filter(
+              ({
+                v6AuditReaction,
+                v7AuditReaction,
+                v6Triggered,
+                v7Triggered,
+                v6Reactions,
+                v7Reactions
+              }) =>
+                v6AuditReaction !== v7AuditReaction ||
+                v6Triggered !== v7Triggered ||
+                canonicalStringify(v6Reactions) !==
+                canonicalStringify(v7Reactions)
+            );
+        expect(
+          damageEventProjectionDeltas.map(({ id }) => id)
+        ).toEqual(expectedBurningProjectionDamageEventIds);
+        for (const delta of damageEventProjectionDeltas) {
+          expect(delta).toMatchObject({
+            kind: "transformative-reaction",
+            reaction: "burning",
+            v6AuditReaction: "burning",
+            v7AuditReaction: "none",
+            v6Triggered: true,
+            v7Triggered: false,
+            v6Reactions: ["burning"],
+            v7Reactions: []
+          });
+        }
+        const targetTimelineProjectionDeltas =
+          v6Result.targetStateTimeline.points
+            .map((point, index) => ({
+              id: point.id,
+              frame: point.frame,
+              cause: point.cause,
+              primaryDamageEventId: point.primaryDamageEventId,
+              v6Reaction: point.reaction,
+              v6Reactions: point.reactions,
+              v7Reaction:
+                v7Result.targetStateTimeline.points[index]
+                  ?.reaction,
+              v7Reactions:
+                v7Result.targetStateTimeline.points[index]
+                  ?.reactions
+            }))
+            .filter(
+              ({
+                v6Reaction,
+                v6Reactions,
+                v7Reaction,
+                v7Reactions
+              }) =>
+                v6Reaction !== v7Reaction ||
+                canonicalStringify(v6Reactions) !==
+                  canonicalStringify(v7Reactions)
+            );
+        expect(
+          targetTimelineProjectionDeltas.map(
+            ({ primaryDamageEventId }) => primaryDamageEventId
+          )
+        ).toEqual(expectedBurningProjectionDamageEventIds);
+        for (const delta of targetTimelineProjectionDeltas) {
+          expect(delta).toMatchObject({
+            frame: v6Result.damageEvents[
+              delta.primaryDamageEventId ?? -1
+            ]?.frame,
+            cause: "reaction-damage-application",
+            v6Reaction: "burning",
+            v6Reactions: ["burning"],
+            v7Reaction: "none",
+            v7Reactions: []
+          });
+        }
+        expect(v7Result.reactedHits).toBe(v6Result.reactedHits);
+        expect(
+          normalizeBurningPeriodicDamageEvents(v7Result)
+        ).toEqual(normalizeBurningPeriodicDamageEvents(v6Result));
+        expect(
+          normalizeBurningPeriodicTargetTimeline(v7Result)
+        ).toEqual(
+          normalizeBurningPeriodicTargetTimeline(v6Result)
+        );
+        expect(
+          withoutBurningProjectionIdentity(v7Result)
+        ).toEqual(withoutBurningProjectionIdentity(v6Result));
+      } else {
+        expect(
+          withoutSingleVersionIdentity(compactResult(v7Result))
+        ).toEqual(
+          withoutSingleVersionIdentity(compactResult(v6Result))
+        );
+      }
+    }
+  });
+
   it("freezes every baseline reaction vector, strict projection, and run identity", () => {
     const actualVectors: Record<string, unknown> = {};
     const observedReactions = new Set<ReactionType>();
@@ -1260,6 +1660,18 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         options
       );
 
+      expect(result.runManifest).toMatchObject({
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
+        dataVersion: DATA_VERSION,
+        resolvedRuntimeOptions: options,
+        configHash: expect.stringMatching(
+          /^fnv1a32:[0-9a-f]{8}$/
+        ),
+        reproducibilityKey: expect.stringMatching(
+          /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
+        )
+      });
       expect(result.timelineExecution?.failures).toEqual([]);
       expect(result.mechanicsStatus).toBe("complete");
       validateResultSchemas(result);
@@ -1524,16 +1936,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         expect(result.totalDamage).toBe(1246.8);
       }
 
-      for (const event of result.damageEvents) {
-        if (event.reaction !== "none") {
-          observedReactions.add(event.reaction);
-        }
-        for (const reaction of event.reactionAudit.reactions) {
-          if (reaction !== "none") {
-            observedReactions.add(reaction);
-          }
-        }
-      }
+      collectObservedReactions(result, observedReactions);
       const compact = compactResult(result);
       expect(result.config.targetClockModel).toEqual({
         mode: "disabled"
@@ -1620,6 +2023,41 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       actualVectors[scenarioId] = compact;
     }
 
+    for (const [reaction, scenario] of Object.entries(
+      SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS
+    )) {
+      const config = makeMatrixConfig(reaction, scenario);
+      config.reactionEngine = { mode: "aura-v7" };
+      const options = {
+        ...OPTIONS,
+        randomSeed: config.randomSeed
+      };
+      const result = simulate(config, options);
+      const repeated = simulate(
+        makeMatrixConfig(reaction, {
+          ...scenario,
+          reactionMode: "aura-v7"
+        }),
+        options
+      );
+
+      expect(result.mechanicsStatus).toBe("complete");
+      expect(result.targetMechanicsTruncationLog).toEqual([]);
+      expect(result.timelineExecution?.failures).toEqual([]);
+      expect(repeated).toEqual(result);
+      validateResultSchemas(result);
+      collectObservedReactions(result, observedReactions);
+      expect(
+        result.damageEvents.some(
+          (event) =>
+            event.reaction === reaction ||
+            event.reactionAudit.reactions.includes(
+              reaction as ReactionType
+            )
+        )
+      ).toBe(true);
+    }
+
     expect([...REQUIRED_REACTIONS].filter(
       (reaction) => !observedReactions.has(reaction)
     )).toEqual([]);
@@ -1683,8 +2121,10 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       console.log(JSON.stringify(actualVectors, null, 2));
       return;
     }
-    expect(actualVectors).toEqual(
-      matrixV135Golden.vectors as Record<string, unknown>
+    expect(withoutVersionIdentity(actualVectors)).toEqual(
+      withoutVersionIdentity(
+        matrixV135Golden.vectors as Record<string, unknown>
+      )
     );
   });
 });

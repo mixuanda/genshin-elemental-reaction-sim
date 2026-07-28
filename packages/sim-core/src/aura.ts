@@ -19,6 +19,7 @@ import type {
   QuickenDecayEndCause,
   QuickenDecayMutationAudit,
   QuickenReactionAudit,
+  ReactionTaskBlockedReason,
   ReactionType,
   ReactionAudit,
   ShatterReactionAudit,
@@ -358,6 +359,21 @@ export interface AuraHitInput {
   reactionOverride?: AmplifyingReaction;
 }
 
+export interface QuickenBloomFollowupInput {
+  frame: number;
+  sourceActorId: string;
+  triggerElement: "dendro" | "electro";
+}
+
+export interface QuickenBloomFollowupResult {
+  status: "triggered" | "skipped";
+  blockedReason: ReactionTaskBlockedReason | null;
+  auraBefore: AuraStateEntry[];
+  auraConsumed: NonNullable<ReactionAudit["auraConsumed"]>;
+  auraAfter: AuraStateEntry[];
+  bloomReaction: BloomReactionAudit | null;
+}
+
 const REACTION_RULES: Record<AuraElement, readonly ReactionRule[]> = {
   // Fixed gcsim reference order for incoming Pyro: Overload, Vaporize, Melt.
   pyro: [
@@ -445,7 +461,8 @@ function isAuraApplicationElement(
     ((mode === "aura-v3" ||
       mode === "aura-v4" ||
       mode === "aura-v5" ||
-      mode === "aura-v6") &&
+      mode === "aura-v6" ||
+      mode === "aura-v7") &&
       element === "dendro")
   );
 }
@@ -457,7 +474,8 @@ function usesAuraV3Durability(
     mode === "aura-v3" ||
     mode === "aura-v4" ||
     mode === "aura-v5" ||
-    mode === "aura-v6"
+    mode === "aura-v6" ||
+    mode === "aura-v7"
   );
 }
 
@@ -467,7 +485,8 @@ function usesBurningModel(
   return (
     mode === "aura-v4" ||
     mode === "aura-v5" ||
-    mode === "aura-v6"
+    mode === "aura-v6" ||
+    mode === "aura-v7"
   );
 }
 
@@ -502,6 +521,8 @@ function remainingDecayFrames(
  * The core entity lifecycle is intentionally owned by the simulator layer.
  * aura-v6 inherits all aura-v5 state semantics and adds the fixed-reference
  * incoming-Electro ordered chain with one shared application Gauge budget.
+ * aura-v7 defers Quicken→Hydro Bloom to a live-Aura zero-delay simulator task
+ * and stops counting Burning snapshot/Fuel refreshes as new reactions.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -3090,7 +3111,8 @@ export class AuraEngine {
       runQuickenHydroFollowup;
     if (
       (this.mode !== "aura-v5" &&
-        this.mode !== "aura-v6") ||
+        this.mode !== "aura-v6" &&
+        this.mode !== "aura-v7") ||
       (input.element !== "hydro" &&
         input.element !== "dendro" &&
         !isQuickenFollowupOnly)
@@ -3361,6 +3383,71 @@ export class AuraEngine {
     return {
       remainingIncomingGaugeUnits: result.incomingGaugeAfter,
       audits
+    };
+  }
+
+  processQuickenBloomFollowup(
+    input: QuickenBloomFollowupInput
+  ): QuickenBloomFollowupResult {
+    if (this.mode !== "aura-v7") {
+      throw new Error(
+        "Quicken→Bloom follow-up tasks require reactionEngine.mode aura-v7."
+      );
+    }
+    this.advanceTo(input.frame);
+    const auraBefore = this.snapshot();
+    const skipped = (
+      blockedReason: ReactionTaskBlockedReason
+    ): QuickenBloomFollowupResult => ({
+      status: "skipped",
+      blockedReason,
+      auraBefore,
+      auraConsumed: [],
+      auraAfter: this.snapshot(),
+      bloomReaction: null
+    });
+    if (this.mechanicsTruncation !== null) {
+      return skipped("TARGET_MECHANICS_TRUNCATION");
+    }
+    if (this.quickenGaugeUnits() <= AURA_EPSILON) {
+      return skipped("MISSING_QUICKEN");
+    }
+    if (
+      (this.auras.get("hydro")?.gaugeUnits ?? 0) <=
+      AURA_EPSILON
+    ) {
+      return skipped("MISSING_HYDRO");
+    }
+
+    const auraConsumed: NonNullable<
+      ReactionAudit["auraConsumed"]
+    > = [];
+    const resolution = this.resolveBloom(
+      {
+        frame: input.frame,
+        sourceActorId: input.sourceActorId,
+        element: input.triggerElement
+      },
+      0,
+      true,
+      auraConsumed
+    );
+    const bloomReaction = resolution.audits[0] ?? null;
+    if (
+      resolution.audits.length !== 1 ||
+      bloomReaction?.operation !== "quicken-followup"
+    ) {
+      throw new Error(
+        "Quicken→Bloom follow-up passed its live Aura guards without producing exactly one follow-up audit."
+      );
+    }
+    return {
+      status: "triggered",
+      blockedReason: null,
+      auraBefore,
+      auraConsumed,
+      auraAfter: this.snapshot(),
+      bloomReaction
     };
   }
 
@@ -4177,14 +4264,17 @@ export class AuraEngine {
       input.element === "pyro";
     const usesOrderedHydroPipeline =
       (this.mode === "aura-v5" ||
-        this.mode === "aura-v6") &&
+        this.mode === "aura-v6" ||
+        this.mode === "aura-v7") &&
       input.element === "hydro";
     const usesOrderedCryoPipeline =
       (this.mode === "aura-v5" ||
-        this.mode === "aura-v6") &&
+        this.mode === "aura-v6" ||
+        this.mode === "aura-v7") &&
       input.element === "cryo";
     const usesOrderedElectroPipeline =
-      this.mode === "aura-v6" &&
+      (this.mode === "aura-v6" ||
+        this.mode === "aura-v7") &&
       input.element === "electro";
     const usesElectroHydroDendroPipeline =
       this.mode === "aura-v5" &&
@@ -5151,7 +5241,9 @@ export class AuraEngine {
         const bloom = this.resolveBloom(
           input,
           0,
-          pendingHydroBloomFollowup,
+          this.mode === "aura-v7"
+            ? false
+            : pendingHydroBloomFollowup,
           auraConsumed
         );
         bloomReactions = bloom.audits;
@@ -5651,7 +5743,8 @@ export class AuraEngine {
       unsupportedReactions.length === 0 &&
       !(
         (this.mode === "aura-v5" ||
-          this.mode === "aura-v6") &&
+          this.mode === "aura-v6" ||
+          this.mode === "aura-v7") &&
         input.element === "dendro" &&
         (this.auras.get("hydro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
@@ -5695,21 +5788,28 @@ export class AuraEngine {
     );
     if (burningStartOrRefresh !== null) {
       burningReaction = burningStartOrRefresh;
-      if (automaticReaction === "none") {
+      if (
+        automaticReaction === "none" &&
+        (this.mode !== "aura-v7" ||
+          burningStartOrRefresh.reactionTriggered)
+      ) {
         automaticReaction = "burning";
       }
     }
 
     if (
       (this.mode === "aura-v5" ||
-        this.mode === "aura-v6") &&
+        this.mode === "aura-v6" ||
+        this.mode === "aura-v7") &&
       input.element === "dendro"
     ) {
       const bloom = this.resolveBloom(
         input,
         remainingDendroGaugeUnits,
-        catalyzeReaction?.quicken
-          ?.pendingHydroBloomFollowup === true,
+        this.mode === "aura-v7"
+          ? false
+          : catalyzeReaction?.quicken
+              ?.pendingHydroBloomFollowup === true,
         auraConsumed
       );
       remainingDendroGaugeUnits =
@@ -5786,6 +5886,8 @@ export class AuraEngine {
                 : [automaticReaction]),
       ...(burningReaction !== null &&
       burningReaction.operation !== "stop" &&
+      (this.mode !== "aura-v7" ||
+        burningReaction.reactionTriggered) &&
       (usesOrderedPyroPipeline ||
         automaticReaction !== "burning")
         ? (["burning"] as const)
@@ -5973,6 +6075,8 @@ export class AuraEngine {
         ? this.mode === "aura-v5" ||
           this.mode === "aura-v6"
           ? `同帧激元素→水绽放后续已结算；本次共排队 ${bloomReactions.length} 个草原核生成请求。`
+          : this.mode === "aura-v7"
+            ? "同帧激元素→水绽放后续已进入零延迟任务队列；该任务会在执行时重新读取目标 Aura。"
           : "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
         : null;
     return {

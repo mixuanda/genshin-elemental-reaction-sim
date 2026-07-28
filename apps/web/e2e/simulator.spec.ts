@@ -103,9 +103,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.35.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.36.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.35.0-elemental-enemy-resistance"
+    "engine 1.36.0-quicken-bloom-task"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

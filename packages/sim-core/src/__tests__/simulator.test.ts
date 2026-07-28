@@ -282,6 +282,55 @@ describe("deterministic event simulation", () => {
     });
   });
 
+  it("replays the explicit legacy ampBase multiplier without inventing a reaction", () => {
+    const baseHit = {
+      id: "legacy-explicit-base",
+      offset: 0,
+      scaling: 1,
+      element: "pyro" as const,
+      reaction: "none" as const
+    };
+    const withoutOverride = simulate(
+      makeConfig({
+        rotation: [
+          {
+            id: "legacy-base",
+            actorId: "a",
+            name: "Legacy base",
+            at: 0,
+            hits: [baseHit]
+          }
+        ]
+      }),
+      { critMode: "noCrit" }
+    ).damageEvents[0]!;
+    const withOverride = simulate(
+      makeConfig({
+        rotation: [
+          {
+            id: "legacy-explicit",
+            actorId: "a",
+            name: "Legacy explicit base",
+            at: 0,
+            hits: [{ ...baseHit, ampBase: 2 }]
+          }
+        ]
+      }),
+      { critMode: "noCrit" }
+    ).damageEvents[0]!;
+
+    expect(withOverride.finalDamage).toBeCloseTo(
+      withoutOverride.finalDamage * 2,
+      12
+    );
+    expect(withOverride.reactionAudit).toMatchObject({
+      model: "none",
+      triggered: false,
+      reaction: "none",
+      reactions: []
+    });
+  });
+
   it("truncates hits after the configured duration", () => {
     const config = makeConfig({
       duration: 1,

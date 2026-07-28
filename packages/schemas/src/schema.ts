@@ -14,6 +14,8 @@ import {
   CURRENT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
+  ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
+  ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
   FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
@@ -344,7 +346,8 @@ export const auraReactionEngineConfigSchema = z
       "aura-v3",
       "aura-v4",
       "aura-v5",
-      "aura-v6"
+      "aura-v6",
+      "aura-v7"
     ]),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
@@ -369,7 +372,7 @@ export const auraReactionEngineConfigSchema = z
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
+            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
         });
       }
       if (
@@ -377,13 +380,14 @@ export const auraReactionEngineConfigSchema = z
         engine.mode !== "aura-v4" &&
         engine.mode !== "aura-v5" &&
         engine.mode !== "aura-v6" &&
+        engine.mode !== "aura-v7" &&
         aura.element === "dendro"
       ) {
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, or aura-v6"
+            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
         });
       }
       if (elements.has(aura.element)) {
@@ -674,6 +678,7 @@ export const simulationEventTypeSchema = z.enum([
   "particleSpawn",
   "particleReceive",
   "hit",
+  "quickenBloomFollowup",
   "reactionDamage",
   "periodicReactionTick",
   "periodicReactionWane",
@@ -694,6 +699,12 @@ export const targetStateTimelineLinkSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("damage-event"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("reaction-task-log"),
       id: z.number().int().nonnegative()
     })
     .strict(),
@@ -748,6 +759,7 @@ export const targetStateTimelineCauseSchema = z.enum([
   "aura-natural-expiry",
   "direct-hit-shatter",
   "direct-hit-application",
+  "quicken-bloom-followup",
   "reaction-damage-application",
   "reaction-damage-shatter",
   "frozen-expiry",
@@ -993,6 +1005,7 @@ export const targetStateTimelinePointSchema = z
     const requiredEventTypeByCause = {
       "direct-hit-shatter": "hit",
       "direct-hit-application": "hit",
+      "quicken-bloom-followup": "quickenBloomFollowup",
       "reaction-damage-application": "reactionDamage",
       "reaction-damage-shatter": "reactionDamage",
       "frozen-expiry": "frozenExpiry",
@@ -3980,6 +3993,226 @@ export const bloomReactionAuditSchema = z
     }
   });
 
+export const reactionTaskBlockedReasonSchema = z.enum([
+  "MISSING_QUICKEN",
+  "MISSING_HYDRO",
+  "TARGET_MECHANICS_TRUNCATION"
+]);
+
+export const quickenBloomFollowupTaskLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    kind: z.literal("quicken-bloom-followup"),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceActionId: wireNonEmptyStringSchema,
+    triggerHitId: wireNonEmptyStringSchema,
+    triggerHitGroupId: wireNonEmptyStringSchema,
+    triggerDamageEventId: z.number().int().nonnegative(),
+    triggerElement: z.enum(["dendro", "electro"]),
+    triggerEventType: z.enum(["hit", "reactionDamage"]),
+    triggerEventPriority: finiteNumber.nonnegative(),
+    triggerEventSequence: z.number().int().nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    status: z.enum(["triggered", "skipped"]),
+    blockedReason: reactionTaskBlockedReasonSchema.nullable(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraConsumed: z.array(auraGaugeEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    bloomReaction: bloomReactionAuditSchema.nullable(),
+    quickenStateLogIds: z.array(
+      z.number().int().nonnegative()
+    ),
+    dendroCoreLogIds: z.array(
+      z.number().int().nonnegative()
+    ),
+    dendroCoreIds: z.array(z.number().int().nonnegative()),
+    mechanicsDataStatus: z.literal(
+      "fixed-gcsim-provisional"
+    )
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string): void => {
+      context.addIssue({ code: "custom", path: [path], message });
+    };
+    if (
+      !approximatelyEqual(
+        entry.timeSeconds,
+        entry.frame / 60
+      )
+    ) {
+      issue("timeSeconds", "must equal frame / 60");
+    }
+    if (
+      entry.eventPriority !== entry.triggerEventPriority ||
+      entry.eventSequence <= entry.triggerEventSequence
+    ) {
+      issue(
+        "eventSequence",
+        "the zero-delay task must inherit trigger priority and execute at a later queue sequence"
+      );
+    }
+    if (
+      new Set(entry.quickenStateLogIds).size !==
+        entry.quickenStateLogIds.length ||
+      new Set(entry.dendroCoreLogIds).size !==
+        entry.dendroCoreLogIds.length ||
+      new Set(entry.dendroCoreIds).size !==
+        entry.dendroCoreIds.length
+    ) {
+      issue("dendroCoreLogIds", "task references must be unique");
+    }
+    if (entry.status === "skipped") {
+      if (
+        entry.blockedReason === null ||
+        entry.bloomReaction !== null ||
+        entry.auraConsumed.length !== 0 ||
+        entry.quickenStateLogIds.length !== 0 ||
+        entry.dendroCoreLogIds.length !== 0 ||
+        entry.dendroCoreIds.length !== 0 ||
+        !auraStateSnapshotsEqual(
+          entry.auraBefore,
+          entry.auraAfter
+        )
+      ) {
+        issue(
+          "status",
+          "a skipped task requires a reason, no Bloom/core/Quicken mutation references, and unchanged Aura"
+        );
+      }
+      const hasQuicken = entry.auraBefore.some(
+        (aura) =>
+          aura.element === "quicken" &&
+          aura.gaugeUnits > bloomGaugeEpsilon
+      );
+      const hasHydro = entry.auraBefore.some(
+        (aura) =>
+          aura.element === "hydro" &&
+          aura.gaugeUnits > bloomGaugeEpsilon
+      );
+      if (
+        (entry.blockedReason === "MISSING_QUICKEN" &&
+          hasQuicken) ||
+        (entry.blockedReason === "MISSING_HYDRO" &&
+          (!hasQuicken || hasHydro))
+      ) {
+        issue(
+          "blockedReason",
+          "live Aura must justify the ordered MISSING_QUICKEN then MISSING_HYDRO guard"
+        );
+      }
+      return;
+    }
+
+    const bloom = entry.bloomReaction;
+    if (
+      entry.blockedReason !== null ||
+      bloom === null ||
+      entry.quickenStateLogIds.length !== 1 ||
+      entry.dendroCoreLogIds.length !== 1 ||
+      entry.dendroCoreIds.length !== 1
+    ) {
+      issue(
+        "status",
+        "a triggered task requires one Bloom, Quicken mutation, and Dendro-core schedule"
+      );
+      return;
+    }
+    if (
+      bloom.operation !== "quicken-followup" ||
+      bloom.sourceBudget !== "quicken-state" ||
+      bloom.sourceActorId !== entry.sourceActorId ||
+      bloom.triggerElement !== entry.triggerElement ||
+      bloom.triggerFrame !== entry.frame ||
+      !bloom.scheduled ||
+      bloom.blockedReason !== null ||
+      bloom.hydroConsumedGaugeUnits <= bloomGaugeEpsilon ||
+      bloom.quickenConsumedGaugeUnits <= bloomGaugeEpsilon ||
+      bloom.dendroConsumedGaugeUnits !== 0 ||
+      bloom.burningFuelConsumedGaugeUnits !== 0
+    ) {
+      issue(
+        "bloomReaction",
+        "triggered task Bloom must be a scheduled live Quicken/Hydro follow-up owned by this task"
+      );
+    }
+    const consumedHydro = entry.auraConsumed
+      .filter((aura) => aura.element === "hydro")
+      .reduce((sum, aura) => sum + aura.gaugeUnits, 0);
+    const consumedQuicken = entry.auraConsumed
+      .filter((aura) => aura.element === "quicken")
+      .reduce((sum, aura) => sum + aura.gaugeUnits, 0);
+    if (
+      !approximatelyEqual(
+        consumedHydro,
+        bloom.hydroConsumedGaugeUnits
+      ) ||
+      !approximatelyEqual(
+        consumedQuicken,
+        bloom.quickenConsumedGaugeUnits
+      )
+    ) {
+      issue(
+        "auraConsumed",
+        "task Aura consumption must exactly project the inline Bloom audit"
+      );
+    }
+  });
+
+export const reactionTaskLogSchema = z
+  .array(quickenBloomFollowupTaskLogEntrySchema)
+  .superRefine((entries, context) => {
+    let previousFrame = -1;
+    let previousTuple: readonly [number, number, number] | null =
+      null;
+    entries.forEach((entry, index) => {
+      if (entry.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "id"],
+          message: `expected contiguous task id ${index}`
+        });
+      }
+      if (entry.frame < previousFrame) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "frame"],
+          message: "reaction task frames must be non-decreasing"
+        });
+      }
+      if (entry.frame !== previousFrame) previousTuple = null;
+      const tuple = [
+        entry.eventPriority,
+        entry.eventSequence,
+        entry.intraEventSequence
+      ] as const;
+      if (
+        previousTuple !== null &&
+        (tuple[0] < previousTuple[0] ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] < previousTuple[1]) ||
+          (tuple[0] === previousTuple[0] &&
+            tuple[1] === previousTuple[1] &&
+            tuple[2] <= previousTuple[2]))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "eventPriority"],
+          message:
+            "same-frame reaction tasks must follow priority, sequence, and intra-event order"
+        });
+      }
+      previousFrame = entry.frame;
+      previousTuple = tuple;
+    });
+  });
+
 const reactionASequenceSchema = z.tuple([
   z.literal(true),
   z.literal(true),
@@ -4157,7 +4390,16 @@ export const dendroCoreSpawnScheduledLogEntrySchema = z
   .object({
     ...dendroCoreLogBaseShape,
     operation: z.literal("spawn-scheduled"),
-    eventType: z.enum(["hit", "reactionDamage"]),
+    eventType: z.enum([
+      "hit",
+      "reactionDamage",
+      "quickenBloomFollowup"
+    ]),
+    reactionTaskLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
     bloomReactionIndex: z.number().int().nonnegative(),
     spawnFrame: z.number().int().nonnegative(),
     withinSimulation: z.boolean(),
@@ -4174,13 +4416,42 @@ export const dendroCoreSpawnScheduledLogEntrySchema = z
         message: "spawn scheduling must be logged on the trigger frame"
       });
     }
-    const expectedPriority =
-      entry.eventType === "hit" ? 3 : 5;
-    if (entry.eventPriority !== expectedPriority) {
+    const validPriority =
+      entry.eventType === "hit"
+        ? entry.eventPriority === 3
+        : entry.eventType === "reactionDamage"
+          ? entry.eventPriority > 4 &&
+            entry.eventPriority <= 5
+          : entry.eventPriority >= 3 &&
+            entry.eventPriority <= 5;
+    if (!validPriority) {
       context.addIssue({
         code: "custom",
         path: ["eventPriority"],
-        message: `${entry.eventType} Bloom scheduling requires priority ${expectedPriority}`
+        message:
+          "Bloom scheduling requires hit priority 3, reactionDamage priority in (4, 5], or an inherited follow-up priority in [3, 5]"
+      });
+    }
+    if (
+      (entry.eventType === "quickenBloomFollowup") !==
+      (entry.reactionTaskLogId !== undefined)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionTaskLogId"],
+        message:
+          "only a quickenBloomFollowup schedule may reference its owning reaction task"
+      });
+    }
+    if (
+      entry.eventType === "quickenBloomFollowup" &&
+      entry.bloomReactionIndex !== 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["bloomReactionIndex"],
+        message:
+          "a Quicken→Bloom task owns exactly one Bloom at index 0"
       });
     }
     if (entry.spawnFrame !== entry.triggerFrame + 30) {
@@ -4876,6 +5147,15 @@ export const dendroCoreTimelineSchema = z
       number,
       { spawnedAtFrame: number; expiresAtFrame: number }
     >();
+    const expiryPointIndexByCoreId = new Map<number, number>();
+    timeline.points.forEach((point, index) => {
+      if (
+        point.operation === "expire" &&
+        !expiryPointIndexByCoreId.has(point.coreId)
+      ) {
+        expiryPointIndexByCoreId.set(point.coreId, index);
+      }
+    });
 
     timeline.points.forEach((point, index) => {
       if (point.id !== index) {
@@ -5021,9 +5301,26 @@ export const dendroCoreTimelineSchema = z
         });
       }
       point.activeCores.forEach((snapshot, snapshotIndex) => {
+        const queuedExpiryIndex = expiryPointIndexByCoreId.get(
+          snapshot.coreId
+        );
+        const queuedExpiryPoint =
+          queuedExpiryIndex === undefined
+            ? undefined
+            : timeline.points[queuedExpiryIndex];
+        // Equal-frame expiry events are serialized by queue sequence. A
+        // post-operation snapshot can therefore carry a sibling whose own
+        // expiry event is a later microstep at the same frame.
+        const awaitingLaterSameFrameExpiry =
+          point.operation === "expire" &&
+          point.frame === snapshot.expiresAtFrame &&
+          queuedExpiryIndex !== undefined &&
+          queuedExpiryIndex > index &&
+          queuedExpiryPoint?.frame === point.frame;
         if (
           point.frame < snapshot.spawnedAtFrame ||
-          point.frame >= snapshot.expiresAtFrame
+          (point.frame >= snapshot.expiresAtFrame &&
+            !awaitingLaterSameFrameExpiry)
         ) {
           context.addIssue({
             code: "custom",
@@ -5064,12 +5361,17 @@ const dendroCoreDamageEventReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
     kind: z.enum(["direct", "transformative-reaction"]),
+    eventPriority: finiteNumber.nonnegative().optional(),
+    eventSequence: z.number().int().nonnegative().optional(),
     parentDamageEventId: z.number().int().nonnegative().nullable(),
     sourceActorId: wireNonEmptyStringSchema,
     scalingOwnerId: wireNonEmptyStringSchema,
     creditOwnerId: wireNonEmptyStringSchema,
+    actionId: wireNonEmptyStringSchema.optional(),
+    hitId: wireNonEmptyStringSchema.optional(),
     hitGroupId: wireNonEmptyStringSchema,
     targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema.optional(),
     frame: z.number().int().nonnegative(),
     element: z.enum([
       "pyro",
@@ -5084,6 +5386,19 @@ const dendroCoreDamageEventReferenceSchema = z
     reaction: wireNonEmptyStringSchema,
     reactionAudit: z
       .object({
+        catalyzeReaction: z
+          .object({
+            quicken: z
+              .object({
+                triggerElement: z.enum(["dendro", "electro"]),
+                pendingHydroBloomFollowup: z.boolean()
+              })
+              .passthrough()
+              .nullable()
+          })
+          .passthrough()
+          .nullable()
+          .optional(),
         bloomReactions: z.array(
           z
             .object({
@@ -5357,9 +5672,22 @@ const addMissingReferenceIssue = (
  */
 export const dendroCoreResultReferencesSchema = z
   .object({
+    config: z
+      .object({
+        reactionEngine: auraReactionEngineConfigSchema.optional()
+      })
+      .passthrough()
+      .optional()
+      .default({}),
     dendroCoreLog: dendroCoreLogSchema,
     dendroCoreContactLog: dendroCoreContactLogSchema,
     dendroCoreTimeline: dendroCoreTimelineSchema,
+    reactionTaskLog: reactionTaskLogSchema.optional().default([]),
+    quickenStateLog: z
+      .array(quickenStateLogEntrySchema)
+      .optional()
+      .default([]),
+    targetStateTimeline: targetStateTimelineSchema.optional(),
     hitResolutionLog: z.array(
       dendroCoreHitResolutionReferenceSchema
     ),
@@ -5388,6 +5716,29 @@ export const dendroCoreResultReferencesSchema = z
     const damageEventById = new Map(
       result.damageEvents.map((entry) => [entry.id, entry])
     );
+    const reactionTaskById = new Map(
+      result.reactionTaskLog.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+    const quickenStateById = new Map(
+      result.quickenStateLog.map((entry) => [
+        entry.id,
+        entry
+      ])
+    );
+
+    if (
+      result.reactionTaskLog.length > 0 &&
+      result.config.reactionEngine?.mode !== "aura-v7"
+    ) {
+      addMissingReferenceIssue(
+        context,
+        ["reactionTaskLog"],
+        "reaction tasks require reactionEngine.mode aura-v7"
+      );
+    }
 
     addDuplicateIdIssues(
       result.hitResolutionLog.map((entry) => entry.id),
@@ -5426,6 +5777,11 @@ export const dendroCoreResultReferencesSchema = z
       const origin = damageEventById.get(
         entry.originDamageEventId
       );
+      const owningTask =
+        entry.operation === "spawn-scheduled" &&
+        entry.reactionTaskLogId !== undefined
+          ? reactionTaskById.get(entry.reactionTaskLogId)
+          : undefined;
       if (origin === undefined) {
         addMissingReferenceIssue(
           context,
@@ -5438,7 +5794,11 @@ export const dendroCoreResultReferencesSchema = z
         origin.targetId !== entry.sourceTargetId ||
         (entry.operation === "spawn-scheduled" &&
           entry.eventType !==
-            (origin.kind === "direct" ? "hit" : "reactionDamage"))
+            (owningTask === undefined
+              ? origin.kind === "direct"
+                ? "hit"
+                : "reactionDamage"
+              : "quickenBloomFollowup"))
       ) {
         addMissingReferenceIssue(
           context,
@@ -5449,6 +5809,7 @@ export const dendroCoreResultReferencesSchema = z
 
       if (entry.operation === "spawn-scheduled") {
         const bloomAudit =
+          owningTask?.bloomReaction ??
           origin?.reactionAudit.bloomReactions[
             entry.bloomReactionIndex
           ];
@@ -5460,7 +5821,7 @@ export const dendroCoreResultReferencesSchema = z
               index,
               "bloomReactionIndex"
             ],
-            `missing Bloom audit ${entry.bloomReactionIndex} on damage event ${entry.originDamageEventId}`
+            `missing Bloom audit ${entry.bloomReactionIndex} for core schedule ${entry.id}`
           );
         } else if (
           !bloomAudit.scheduled ||
@@ -5476,6 +5837,28 @@ export const dendroCoreResultReferencesSchema = z
               "bloomReactionIndex"
             ],
             "spawn schedule does not match its referenced Bloom audit"
+          );
+        }
+        if (
+          entry.reactionTaskLogId !== undefined &&
+          (owningTask === undefined ||
+            owningTask.status !== "triggered" ||
+            owningTask.triggerDamageEventId !==
+              entry.originDamageEventId ||
+            owningTask.sourceActorId !== entry.sourceActorId ||
+            owningTask.targetId !== entry.sourceTargetId ||
+            owningTask.frame !== entry.triggerFrame ||
+            !owningTask.dendroCoreLogIds.includes(entry.id) ||
+            !owningTask.dendroCoreIds.includes(entry.coreId))
+        ) {
+          addMissingReferenceIssue(
+            context,
+            [
+              "dendroCoreLog",
+              index,
+              "reactionTaskLogId"
+            ],
+            "task-owned core schedule does not match its reciprocal reaction task"
           );
         }
         return;
@@ -5665,6 +6048,291 @@ export const dendroCoreResultReferencesSchema = z
         }
       }
     });
+
+    result.targetStateTimeline?.points.forEach(
+      (point, pointIndex) => {
+        point.links.forEach((link, linkIndex) => {
+          if (
+            link.kind === "reaction-task-log" &&
+            !reactionTaskById.has(link.id)
+          ) {
+            addMissingReferenceIssue(
+              context,
+              [
+                "targetStateTimeline",
+                "points",
+                pointIndex,
+                "links",
+                linkIndex,
+                "id"
+              ],
+              `missing reaction-task log ${link.id}`
+            );
+          }
+        });
+      }
+    );
+
+    result.reactionTaskLog.forEach((task, taskIndex) => {
+      const origin = damageEventById.get(
+        task.triggerDamageEventId
+      );
+      const originQuicken =
+        origin?.reactionAudit.catalyzeReaction?.quicken;
+      const expectedTriggerEventType =
+        origin?.kind === "direct"
+          ? "hit"
+          : "reactionDamage";
+      if (
+        origin === undefined ||
+        originQuicken?.pendingHydroBloomFollowup !== true ||
+        origin.frame !== task.frame ||
+        origin.sourceActorId !== task.sourceActorId ||
+        origin.actionId !== task.sourceActionId ||
+        origin.hitId !== task.triggerHitId ||
+        origin.hitGroupId !== task.triggerHitGroupId ||
+        origin.targetId !== task.targetId ||
+        (origin.targetName !== undefined &&
+          origin.targetName !== task.targetName) ||
+        origin.element !== task.triggerElement ||
+        originQuicken?.triggerElement !== task.triggerElement ||
+        expectedTriggerEventType !== task.triggerEventType ||
+        origin.eventPriority !== task.triggerEventPriority ||
+        origin.eventSequence !== task.triggerEventSequence
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "triggerDamageEventId"
+          ],
+          "reaction task does not match a pending Quicken origin damage event"
+        );
+      }
+
+      if (task.status === "triggered") {
+        const bloom = task.bloomReaction!;
+        const mutation = bloom.quickenStateMutation;
+        const quickenState = quickenStateById.get(
+          task.quickenStateLogIds[0]!
+        );
+        if (
+          quickenState === undefined ||
+          quickenState.frame !== task.frame ||
+          quickenState.targetId !== task.targetId ||
+          quickenState.targetName !== task.targetName ||
+          quickenState.triggerDamageEventId !==
+            task.triggerDamageEventId ||
+          quickenState.operation !== mutation.operation ||
+          quickenState.generation !== mutation.generationAfter ||
+          !approximatelyEqual(
+            quickenState.quickenGaugeUnitsBefore,
+            bloom.quickenGaugeUnitsBefore
+          ) ||
+          !approximatelyEqual(
+            quickenState.quickenGaugeUnitsAfter,
+            bloom.quickenGaugeUnitsAfter
+          ) ||
+          !approximatelyEqual(
+            quickenState.decayPerFrameBefore,
+            mutation.decayPerFrameBefore
+          ) ||
+          !approximatelyEqual(
+            quickenState.decayPerFrameAfter,
+            mutation.decayPerFrameAfter
+          ) ||
+          quickenState.expiresAtFrameBefore !==
+            mutation.expiresAtFrameBefore ||
+          quickenState.expiresAtFrame !==
+            mutation.expiresAtFrameAfter ||
+          quickenState.endCauseBefore !== mutation.endCauseBefore ||
+          quickenState.endCauseAfter !== mutation.endCauseAfter ||
+          !auraStateSnapshotsEqual(
+            quickenState.auraBefore,
+            mutation.operationAuraBefore
+          ) ||
+          !auraStateSnapshotsEqual(
+            quickenState.auraAfter,
+            mutation.operationAuraAfter
+          )
+        ) {
+          addMissingReferenceIssue(
+            context,
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "quickenStateLogIds"
+            ],
+            "triggered task does not match its reciprocal Quicken lifecycle mutation"
+          );
+        }
+
+        const schedule = lifecycleById.get(
+          task.dendroCoreLogIds[0]!
+        );
+        const reciprocalSchedules =
+          result.dendroCoreLog.filter(
+            (entry) =>
+              entry.operation === "spawn-scheduled" &&
+              entry.reactionTaskLogId === task.id
+          );
+        if (
+          schedule === undefined ||
+          schedule.operation !== "spawn-scheduled" ||
+          reciprocalSchedules.length !== 1 ||
+          reciprocalSchedules[0]?.id !== schedule.id ||
+          schedule.reactionTaskLogId !== task.id ||
+          schedule.coreId !== task.dendroCoreIds[0] ||
+          schedule.originDamageEventId !==
+            task.triggerDamageEventId ||
+          schedule.sourceActorId !== task.sourceActorId ||
+          schedule.sourceTargetId !== task.targetId ||
+          schedule.frame !== task.frame ||
+          schedule.triggerFrame !== task.frame ||
+          schedule.eventType !== "quickenBloomFollowup" ||
+          schedule.eventPriority !== task.eventPriority ||
+          schedule.eventSequence !== task.eventSequence ||
+          schedule.intraEventSequence <=
+            task.intraEventSequence ||
+          schedule.bloomReactionIndex !== 0 ||
+          schedule.spawnFrame !== bloom.coreSpawnFrame ||
+          schedule.selfDamageStatus !== bloom.selfDamageStatus
+        ) {
+          addMissingReferenceIssue(
+            context,
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "dendroCoreLogIds"
+            ],
+            "triggered task does not match exactly one reciprocal Dendro-core schedule"
+          );
+        }
+      }
+
+      const taskTimelinePoints =
+        result.targetStateTimeline?.points.filter((point) =>
+          point.links.some(
+            (link) =>
+              link.kind === "reaction-task-log" &&
+              link.id === task.id
+          )
+        ) ?? [];
+      const timelinePoint = taskTimelinePoints[0];
+      const expectedLinks = [
+        `damage-event:${task.triggerDamageEventId}`,
+        `reaction-task-log:${task.id}`,
+        ...task.quickenStateLogIds.map(
+          (id) => `quicken-state-log:${id}`
+        )
+      ].sort();
+      const actualLinks =
+        timelinePoint?.links
+          .map((link) => `${link.kind}:${link.id}`)
+          .sort() ?? [];
+      const expectedTriggered = task.status === "triggered";
+      if (
+        taskTimelinePoints.length !== 1 ||
+        timelinePoint === undefined ||
+        timelinePoint.frame !== task.frame ||
+        !approximatelyEqual(
+          timelinePoint.timeSeconds,
+          task.timeSeconds
+        ) ||
+        timelinePoint.targetId !== task.targetId ||
+        timelinePoint.targetName !== task.targetName ||
+        timelinePoint.pointKind !==
+          (expectedTriggered ? "mutation" : "observation") ||
+        timelinePoint.cause !== "quicken-bloom-followup" ||
+        timelinePoint.eventType !== "quickenBloomFollowup" ||
+        timelinePoint.eventPriority !== task.eventPriority ||
+        timelinePoint.eventSequence !== task.eventSequence ||
+        timelinePoint.intraEventSequence === null ||
+        timelinePoint.intraEventSequence <=
+          task.intraEventSequence ||
+        timelinePoint.reaction !==
+          (expectedTriggered ? "bloom" : "none") ||
+        JSON.stringify(timelinePoint.reactions) !==
+          JSON.stringify(expectedTriggered ? ["bloom"] : []) ||
+        timelinePoint.primaryDamageEventId !==
+          task.triggerDamageEventId ||
+        JSON.stringify(actualLinks) !==
+          JSON.stringify(expectedLinks) ||
+        !auraStateSnapshotsEqual(
+          timelinePoint.auraBefore,
+          task.auraBefore
+        ) ||
+        timelinePoint.auraApplied.length !== 0 ||
+        JSON.stringify(timelinePoint.auraConsumed) !==
+          JSON.stringify(task.auraConsumed) ||
+        !auraStateSnapshotsEqual(
+          timelinePoint.auraAfter,
+          task.auraAfter
+        )
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "eventSequence"
+          ],
+          "reaction task does not match exactly one reciprocal target-state timeline point"
+        );
+      }
+      if (
+        task.blockedReason ===
+          "TARGET_MECHANICS_TRUNCATION" &&
+        (timelinePoint === undefined ||
+          result.targetStateTimeline?.points
+            .slice(0, timelinePoint.id)
+            .some(
+              (point) =>
+                point.targetId === task.targetId &&
+                point.cause ===
+                  "target-mechanics-truncation"
+            ) !== true)
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "blockedReason"
+          ],
+          "TARGET_MECHANICS_TRUNCATION requires an earlier truncation point for the same target"
+        );
+      }
+    });
+
+    if (result.config.reactionEngine?.mode === "aura-v7") {
+      result.damageEvents.forEach((origin, originIndex) => {
+        if (
+          origin.reactionAudit.catalyzeReaction?.quicken
+            ?.pendingHydroBloomFollowup !== true
+        ) {
+          return;
+        }
+        const tasks = result.reactionTaskLog.filter(
+          (task) => task.triggerDamageEventId === origin.id
+        );
+        if (tasks.length !== 1) {
+          addMissingReferenceIssue(
+            context,
+            [
+              "damageEvents",
+              originIndex,
+              "reactionAudit",
+              "catalyzeReaction",
+              "quicken",
+              "pendingHydroBloomFollowup"
+            ],
+            "each aura-v7 pending Quicken follow-up requires exactly one reaction task"
+          );
+        }
+      });
+    }
 
     result.dendroCoreContactLog.forEach((contact, index) => {
       const reactionDamageSuffix =
@@ -8036,7 +8704,7 @@ const hitDefinitionObjectSchema = z
     critRate: finiteNumber.optional(),
     critDmg: finiteNumber.optional(),
     reactionBonus: finiteNumber.optional(),
-    ampBase: finiteNumber.optional(),
+    ampBase: finiteNumber.positive().optional(),
     groupMultiplier: finiteNumber.optional()
   })
   .strict();
@@ -8810,13 +9478,14 @@ export const simConfigSchema = z
         config.reactionEngine?.mode !== "aura-v3" &&
         config.reactionEngine?.mode !== "aura-v4" &&
         config.reactionEngine?.mode !== "aura-v5" &&
-        config.reactionEngine?.mode !== "aura-v6"
+        config.reactionEngine?.mode !== "aura-v6" &&
+        config.reactionEngine?.mode !== "aura-v7"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
           message:
-            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
+            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
@@ -8826,7 +9495,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v3" &&
           config.reactionEngine?.mode !== "aura-v4" &&
           config.reactionEngine?.mode !== "aura-v5" &&
-          config.reactionEngine?.mode !== "aura-v6"
+          config.reactionEngine?.mode !== "aura-v6" &&
+          config.reactionEngine?.mode !== "aura-v7"
         ) {
           context.addIssue({
             code: "custom",
@@ -8839,7 +9509,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, or aura-v6"
+              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
           });
         }
         if (
@@ -8847,7 +9517,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v3" &&
           config.reactionEngine?.mode !== "aura-v4" &&
           config.reactionEngine?.mode !== "aura-v5" &&
-          config.reactionEngine?.mode !== "aura-v6"
+          config.reactionEngine?.mode !== "aura-v6" &&
+          config.reactionEngine?.mode !== "aura-v7"
         ) {
           context.addIssue({
             code: "custom",
@@ -8860,7 +9531,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, or aura-v6"
+              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
           });
         }
       });
@@ -9276,19 +9947,21 @@ export const simConfigSchema = z
       config.reactionEngine?.mode === "aura-v3" ||
       config.reactionEngine?.mode === "aura-v4" ||
       config.reactionEngine?.mode === "aura-v5" ||
-      config.reactionEngine?.mode === "aura-v6"
+      config.reactionEngine?.mode === "aura-v6" ||
+      config.reactionEngine?.mode === "aura-v7"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6 currently require timeline.mode legal-frame-v1"
+            "aura-v1 through aura-v7 currently require timeline.mode legal-frame-v1"
         });
       }
       if (
         config.reactionEngine.mode === "aura-v5" ||
-        config.reactionEngine.mode === "aura-v6"
+        config.reactionEngine.mode === "aura-v6" ||
+        config.reactionEngine.mode === "aura-v7"
       ) {
         const coreContactMode = config.reactionEngine.mode;
         if (config.enemy.targets === undefined) {
@@ -9340,7 +10013,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1 through aura-v7; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -9385,7 +10058,8 @@ export const simConfigSchema = z
               : config.reactionEngine?.mode === "aura-v3" ||
                   config.reactionEngine?.mode === "aura-v4" ||
                   config.reactionEngine?.mode === "aura-v5" ||
-                  config.reactionEngine?.mode === "aura-v6"
+                  config.reactionEngine?.mode === "aura-v6" ||
+                  config.reactionEngine?.mode === "aura-v7"
                 ? [
                     "pyro",
                     "cryo",
@@ -9405,7 +10079,8 @@ export const simConfigSchema = z
               config.reactionEngine?.mode === "aura-v3" ||
               config.reactionEngine?.mode === "aura-v4" ||
               config.reactionEngine?.mode === "aura-v5" ||
-              config.reactionEngine?.mode === "aura-v6"
+              config.reactionEngine?.mode === "aura-v6" ||
+              config.reactionEngine?.mode === "aura-v7"
                 ? `${config.reactionEngine.mode} elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits`
                 : config.reactionEngine?.mode === "aura-v2"
                   ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
@@ -9414,7 +10089,8 @@ export const simConfigSchema = z
         }
         if (
           (config.reactionEngine?.mode === "aura-v5" ||
-            config.reactionEngine?.mode === "aura-v6") &&
+            config.reactionEngine?.mode === "aura-v6" ||
+            config.reactionEngine?.mode === "aura-v7") &&
           hit.application !== undefined &&
           (resolvedElement === "pyro" ||
             resolvedElement === "electro") &&
@@ -9788,6 +10464,7 @@ export const targetClockResultReferencesSchema = z
     reactionStatusLog: z.array(
       targetClockReactionStatusReferenceSchema
     ),
+    reactionTaskLog: reactionTaskLogSchema.optional(),
     targetStateTimeline: targetStateTimelineSchema,
     targetClockAudit: targetClockAuditSchema,
     targetClockLog: targetClockLogSchema,
@@ -9803,6 +10480,9 @@ export const targetClockResultReferencesSchema = z
     const enabled =
       result.config.targetClockModel.mode ===
       "target-local-hitlag-v1";
+    const reactionTaskIds = new Set(
+      (result.reactionTaskLog ?? []).map((task) => task.id)
+    );
 
     if (result.targetClockAudit.mode !==
       result.config.targetClockModel.mode) {
@@ -9814,6 +10494,24 @@ export const targetClockResultReferencesSchema = z
 
     result.targetStateTimeline.points.forEach(
       (point, pointIndex) => {
+        point.links.forEach((link, linkIndex) => {
+          if (
+            link.kind === "reaction-task-log" &&
+            !reactionTaskIds.has(link.id)
+          ) {
+            issue(
+              [
+                "targetStateTimeline",
+                "points",
+                pointIndex,
+                "links",
+                linkIndex,
+                "id"
+              ],
+              `missing reaction-task log ${link.id}`
+            );
+          }
+        });
         if (enabled && point.targetFrame === undefined) {
           issue(
             [
@@ -10234,6 +10932,8 @@ export const playerDamageResultReferencesSchema = z
     reactionDamageLog: z.array(
       dendroCoreReactionDamageReferenceSchema
     ),
+    reactionTaskLog: reactionTaskLogSchema.optional().default([]),
+    targetStateTimeline: targetStateTimelineSchema.optional(),
     burningStateLog: z.array(burningStateLogEntrySchema),
     dendroCoreLog: dendroCoreLogSchema,
     playerHitResolutionLog: z.array(
@@ -10332,7 +11032,8 @@ export const playerDamageResultReferencesSchema = z
     result.damageEvents.forEach((event, eventIndex) => {
       if (
         event.reactionAudit.transformativeReactions !== undefined &&
-        result.config.reactionEngine?.mode !== "aura-v6"
+        result.config.reactionEngine?.mode !== "aura-v6" &&
+        result.config.reactionEngine?.mode !== "aura-v7"
       ) {
         issue(
           [
@@ -10341,7 +11042,7 @@ export const playerDamageResultReferencesSchema = z
             "reactionAudit",
             "transformativeReactions"
           ],
-          "ordered transformative-reaction arrays are versioned to reactionEngine.mode aura-v6"
+          "ordered transformative-reaction arrays require reactionEngine.mode aura-v6 or aura-v7"
         );
       }
       const burningStatus =
@@ -10382,6 +11083,75 @@ export const playerDamageResultReferencesSchema = z
           }
         }
       );
+    });
+
+    result.reactionTaskLog.forEach((task, taskIndex) => {
+      if (
+        task.status === "triggered" &&
+        task.bloomReaction?.selfDamageStatus !==
+          result.playerSelfDamageStatus
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "bloomReaction",
+            "selfDamageStatus"
+          ],
+          "task-owned Bloom selfDamageStatus must match the top-level playerSelfDamageStatus"
+        );
+      }
+    });
+    const reactionTaskIds = new Set(
+      result.reactionTaskLog.map((task) => task.id)
+    );
+    result.targetStateTimeline?.points.forEach(
+      (point, pointIndex) => {
+        point.links.forEach((link, linkIndex) => {
+          if (
+            link.kind === "reaction-task-log" &&
+            !reactionTaskIds.has(link.id)
+          ) {
+            issue(
+              [
+                "targetStateTimeline",
+                "points",
+                pointIndex,
+                "links",
+                linkIndex,
+                "id"
+              ],
+              `missing reaction-task log ${link.id}`
+            );
+          }
+        });
+      }
+    );
+    result.burningStateLog.forEach((entry, index) => {
+      if (
+        entry.selfDamageStatus !==
+        result.playerSelfDamageStatus
+      ) {
+        issue(
+          [
+            "burningStateLog",
+            index,
+            "selfDamageStatus"
+          ],
+          "Burning lifecycle selfDamageStatus must match the top-level playerSelfDamageStatus"
+        );
+      }
+    });
+    result.dendroCoreLog.forEach((entry, index) => {
+      if (
+        entry.selfDamageStatus !==
+        result.playerSelfDamageStatus
+      ) {
+        issue(
+          ["dendroCoreLog", index, "selfDamageStatus"],
+          "Dendro-core lifecycle selfDamageStatus must match the top-level playerSelfDamageStatus"
+        );
+      }
     });
 
     result.reactionDamageLog.forEach((entry, index) => {
@@ -11396,6 +12166,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [GENERAL_REACTION_ORDER_SCHEMA_VERSION]: {
     engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v6
+  },
+  [ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION]: {
+    engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v6
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -11458,7 +12232,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
 
   const version = input.schemaVersion;
   const historicalEnemyElementalResistancesPath =
-    version === CURRENT_SCHEMA_VERSION
+    version === CURRENT_SCHEMA_VERSION ||
+    version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION
       ? null
       : findEnemyElementalResistancesPath(input);
   if (historicalEnemyElementalResistancesPath !== null) {
@@ -11478,6 +12253,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== DENDRO_CORE_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
+    version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
   ) {
@@ -11494,6 +12270,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
+    version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v6"
   ) {
@@ -11509,9 +12286,25 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    isRecord(input.reactionEngine) &&
+    input.reactionEngine.mode === "aura-v7"
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionEngine.mode: schemaVersion "${historicalVersion}" does not support "aura-v7"`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
+    version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
     !(
       isRecord(input.playerDamageModel) &&
@@ -11533,6 +12326,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
+    version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
     !(
       isRecord(input.targetClockModel) &&
@@ -11562,6 +12356,13 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === GENERAL_REACTION_ORDER_SCHEMA_VERSION) {
     return parseSimConfig({

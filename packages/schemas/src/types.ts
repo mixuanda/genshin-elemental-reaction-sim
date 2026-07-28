@@ -1,5 +1,9 @@
-export const CURRENT_SCHEMA_VERSION = "1.35.0" as const;
+export const CURRENT_SCHEMA_VERSION = "1.36.0" as const;
 export const CURRENT_ENGINE_VERSION =
+  "1.36.0-quicken-bloom-task" as const;
+export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
+  "1.35.0" as const;
+export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
 export const GENERAL_REACTION_ORDER_SCHEMA_VERSION = "1.34.0" as const;
 export const GENERAL_REACTION_ORDER_ENGINE_VERSION =
@@ -287,7 +291,8 @@ export interface AuraReactionEngineConfig {
     | "aura-v3"
     | "aura-v4"
     | "aura-v5"
-    | "aura-v6";
+    | "aura-v6"
+    | "aura-v7";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -861,6 +866,7 @@ export type SimulationEventType =
   | "particleSpawn"
   | "particleReceive"
   | "hit"
+  | "quickenBloomFollowup"
   | "reactionDamage"
   | "periodicReactionTick"
   | "periodicReactionWane"
@@ -918,7 +924,7 @@ export interface AuraStateEntry {
    * disabled output omits it and retains expiresAtFrame byte-for-byte.
    */
   expiresAtTargetFrame?: number | null;
-  /** Present in aura-v3 through aura-v6; each owner keeps an independent slot. */
+  /** Present in aura-v3 through aura-v7; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -970,9 +976,9 @@ export interface ReactionAudit {
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
   /**
-   * aura-v6 ordered, independently auditable transformative reactions for one
-   * elemental application. The legacy singular field remains the first-item
-   * compatibility projection.
+   * aura-v6/aura-v7 ordered, independently auditable transformative reactions
+   * for one elemental application. The legacy singular field remains the
+   * first-item compatibility projection.
    */
   transformativeReactions?: TransformativeReactionAudit[];
   transformativeReaction: TransformativeReactionAudit | null;
@@ -1205,6 +1211,51 @@ export interface BloomReactionAudit {
   mechanicsDataStatus: "fixed-gcsim-provisional";
   selfDamageStatus: PlayerSelfDamageStatus;
 }
+
+export type ReactionTaskBlockedReason =
+  | "MISSING_QUICKEN"
+  | "MISSING_HYDRO"
+  | "TARGET_MECHANICS_TRUNCATION";
+
+/**
+ * Fixed-reference zero-delay work emitted after Quicken is created while
+ * Hydro remains. The task owns its live Aura mutation; the originating damage
+ * event stays an immutable record of the direct hit.
+ */
+export interface QuickenBloomFollowupTaskLogEntry {
+  /** Zero-based, contiguous id equal to the emitted array index. */
+  id: number;
+  kind: "quicken-bloom-followup";
+  frame: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  sourceActorId: string;
+  sourceActionId: string;
+  triggerHitId: string;
+  triggerHitGroupId: string;
+  triggerDamageEventId: number;
+  triggerElement: "dendro" | "electro";
+  triggerEventType: "hit" | "reactionDamage";
+  triggerEventPriority: number;
+  triggerEventSequence: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  status: "triggered" | "skipped";
+  blockedReason: ReactionTaskBlockedReason | null;
+  auraBefore: AuraStateEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+  bloomReaction: BloomReactionAudit | null;
+  quickenStateLogIds: number[];
+  dendroCoreLogIds: number[];
+  dendroCoreIds: number[];
+  mechanicsDataStatus: "fixed-gcsim-provisional";
+}
+
+export type ReactionTaskLogEntry =
+  QuickenBloomFollowupTaskLogEntry;
 
 export interface TransformativeReactionAudit {
   reaction: OneShotTransformativeReaction;
@@ -1784,6 +1835,7 @@ export type TargetStateTimelineCause =
   | "aura-natural-expiry"
   | "direct-hit-shatter"
   | "direct-hit-application"
+  | "quicken-bloom-followup"
   | "reaction-damage-application"
   | "reaction-damage-shatter"
   | "frozen-expiry"
@@ -1797,6 +1849,7 @@ export type TargetStateTimelineCause =
 
 export type TargetStateTimelineLink =
   | { kind: "damage-event"; id: number }
+  | { kind: "reaction-task-log"; id: number }
   | { kind: "reaction-damage-log"; id: number }
   | { kind: "periodic-reaction-log"; id: number }
   | { kind: "frozen-state-log"; id: number }
@@ -1980,8 +2033,13 @@ export interface DendroCoreLogBase {
 export interface DendroCoreSpawnScheduledLogEntry
   extends DendroCoreLogBase {
   operation: "spawn-scheduled";
-  /** Bloom can originate from a direct hit or propagated reaction damage. */
-  eventType: "hit" | "reactionDamage";
+  /** Bloom can originate from a direct hit, propagation, or queued follow-up. */
+  eventType:
+    | "hit"
+    | "reactionDamage"
+    | "quickenBloomFollowup";
+  /** Present only when the Bloom audit is owned by reactionTaskLog. */
+  reactionTaskLogId?: number;
   bloomReactionIndex: number;
   spawnFrame: number;
   withinSimulation: boolean;
@@ -2743,6 +2801,8 @@ export interface SimulationResult {
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
   reactionDamageLog: ReactionDamageLogEntry[];
+  /** Deferred live-Aura reaction operations in execution order. */
+  reactionTaskLog: ReactionTaskLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
   reactionStatusLog: ReactionStatusLogEntry[];
   /** Periodic reaction stream starts, refreshes, ticks, wanes, and stops. */

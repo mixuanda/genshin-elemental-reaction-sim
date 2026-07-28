@@ -94,6 +94,69 @@ describe("damage formula primitives", () => {
     expect(reverseMelt.total).toBe(1.5);
   });
 
+  it("supports positive explicit bases for manual and legacy compatibility multipliers", () => {
+    expect(
+      calcAmplifyingReactionMultiplier({
+        reaction: "melt",
+        elementalMastery: 0,
+        explicitBase: 2.5
+      })
+    ).toEqual({
+      base: 2.5,
+      elementalMasteryBonus: 0,
+      reactionBonus: 0,
+      total: 2.5
+    });
+
+    expect(
+      calcAmplifyingReactionMultiplier({
+        reaction: "none",
+        elementalMastery: 0,
+        explicitBase: 2
+      })
+    ).toEqual({
+      base: 2,
+      elementalMasteryBonus: 0,
+      reactionBonus: 0,
+      total: 2
+    });
+  });
+
+  it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+    "rejects non-positive or non-finite explicit base %s",
+    (explicitBase) => {
+      expect(() =>
+        calcAmplifyingReactionMultiplier({
+          reaction: "melt",
+          elementalMastery: 0,
+          explicitBase
+        })
+      ).toThrow(/must be a finite positive number/);
+    }
+  );
+
+  it("rejects invalid amplifying reactions and non-finite inputs", () => {
+    expect(() =>
+      calcAmplifyingReactionMultiplier({
+        reaction: "burning" as never,
+        elementalMastery: 0
+      })
+    ).toThrow(/supported amplifying reaction/);
+    expect(() =>
+      calcAmplifyingReactionMultiplier({
+        reaction: "melt",
+        elementalMastery: Number.NaN
+      })
+    ).toThrow(/elementalMastery must be finite/);
+    expect(() =>
+      calcAmplifyingReactionMultiplier({
+        reaction: "melt",
+        elementalMastery: 0,
+        reactionBonus: Number.POSITIVE_INFINITY
+      })
+    ).toThrow(/reactionBonus must be finite/);
+  });
+
   it("returns an auditable naked-damage factor breakdown", () => {
     const result = calcDamage({
       scaling: 2,
@@ -147,6 +210,115 @@ describe("damage formula primitives", () => {
     expect(TRANSFORMATIVE_REACTION_LEVEL_BASE[99]).toBe(1674.8092);
   });
 
+  it.each([0, 101, 90.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    "rejects invalid transformative reaction character level %s",
+    (characterLevel) => {
+      expect(() =>
+        calcTransformativeReactionDamage({
+          characterLevel,
+          elementalMastery: 0,
+          reactionBonus: 0,
+          baseMultiplier: 1,
+          effectiveResistance: 0
+        })
+      ).toThrow(/characterLevel must be an integer from 1 to 100/);
+    }
+  );
+
+  it("keeps a zero-multiplier transformative event auditable", () => {
+    expect(
+      calcTransformativeReactionDamage({
+        characterLevel: 90,
+        elementalMastery: 100,
+        reactionBonus: 0.2,
+        baseMultiplier: 0,
+        effectiveResistance: 0.1
+      })
+    ).toMatchObject({
+      preResistanceDamage: 0,
+      finalDamage: 0
+    });
+  });
+
+  it.each([
+    -1,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY
+  ])(
+    "rejects invalid transformative reaction base multiplier %s",
+    (baseMultiplier) => {
+      expect(() =>
+        calcTransformativeReactionDamage({
+          characterLevel: 90,
+          elementalMastery: 0,
+          reactionBonus: 0,
+          baseMultiplier,
+          effectiveResistance: 0
+        })
+      ).toThrow(/baseMultiplier must be a finite non-negative number/);
+    }
+  );
+
+  it.each([
+    ["elementalMastery", Number.NaN],
+    ["elementalMastery", Number.POSITIVE_INFINITY],
+    ["reactionBonus", Number.NaN],
+    ["reactionBonus", Number.NEGATIVE_INFINITY],
+    ["effectiveResistance", Number.NaN],
+    ["effectiveResistance", Number.POSITIVE_INFINITY]
+  ] as const)(
+    "rejects non-finite transformative reaction %s",
+    (field, invalidValue) => {
+      expect(() =>
+        calcTransformativeReactionDamage({
+          characterLevel: 90,
+          elementalMastery: 0,
+          reactionBonus: 0,
+          baseMultiplier: 1,
+          effectiveResistance: 0,
+          [field]: invalidValue
+        })
+      ).toThrow(new RegExp(`${field} must be finite`));
+    }
+  );
+
+  it("rejects non-finite transformative reaction results", () => {
+    expect(() =>
+      calcTransformativeReactionDamage({
+        characterLevel: 100,
+        elementalMastery: 0,
+        reactionBonus: Number.MAX_VALUE,
+        baseMultiplier: Number.MAX_VALUE,
+        effectiveResistance: 0
+      })
+    ).toThrow(
+      /transformative reaction damage produced a non-finite result/
+    );
+  });
+
+  it("preserves finite negative EM and bonus clamping", () => {
+    const transformative = calcTransformativeReactionDamage({
+      characterLevel: 90,
+      elementalMastery: -1,
+      reactionBonus: -1,
+      baseMultiplier: 1,
+      effectiveResistance: -0.2
+    });
+    const additive = calcAdditiveReactionDamage({
+      reaction: "aggravate",
+      characterLevel: 90,
+      elementalMastery: -1,
+      reactionBonus: -1
+    });
+
+    expect(transformative.elementalMasteryBonus).toBe(0);
+    expect(transformative.reactionBonus).toBe(0);
+    expect(transformative.resistanceMultiplier).toBe(1.1);
+    expect(additive.elementalMasteryBonus).toBe(0);
+    expect(additive.reactionBonus).toBe(0);
+  });
+
   it("calculates Aggravate and Spread as additive flat damage", () => {
     const aggravate = calcAdditiveReactionDamage({
       reaction: "aggravate",
@@ -173,6 +345,64 @@ describe("damage formula primitives", () => {
     expect(spread.flatDamage).toBeCloseTo(
       1446.8535 * 1.25 * (1 + 500 / 1300 + 0.2),
       10
+    );
+  });
+
+  it("rejects invalid additive reaction identifiers", () => {
+    expect(() =>
+      calcAdditiveReactionDamage({
+        reaction: "invalid" as never,
+        characterLevel: 90,
+        elementalMastery: 0,
+        reactionBonus: 0
+      })
+    ).toThrow(/reaction must be either "aggravate" or "spread"/);
+  });
+
+  it.each([0, 101, 90.5, Number.NaN, Number.NEGATIVE_INFINITY])(
+    "rejects invalid additive reaction character level %s",
+    (characterLevel) => {
+      expect(() =>
+        calcAdditiveReactionDamage({
+          reaction: "aggravate",
+          characterLevel,
+          elementalMastery: 0,
+          reactionBonus: 0
+        })
+      ).toThrow(/characterLevel must be an integer from 1 to 100/);
+    }
+  );
+
+  it.each([
+    ["elementalMastery", Number.NaN],
+    ["elementalMastery", Number.POSITIVE_INFINITY],
+    ["reactionBonus", Number.NaN],
+    ["reactionBonus", Number.NEGATIVE_INFINITY]
+  ] as const)(
+    "rejects non-finite additive reaction %s",
+    (field, invalidValue) => {
+      expect(() =>
+        calcAdditiveReactionDamage({
+          reaction: "spread",
+          characterLevel: 90,
+          elementalMastery: 0,
+          reactionBonus: 0,
+          [field]: invalidValue
+        })
+      ).toThrow(new RegExp(`${field} must be finite`));
+    }
+  );
+
+  it("rejects non-finite additive reaction results", () => {
+    expect(() =>
+      calcAdditiveReactionDamage({
+        reaction: "spread",
+        characterLevel: 100,
+        elementalMastery: 0,
+        reactionBonus: Number.MAX_VALUE
+      })
+    ).toThrow(
+      /additive reaction damage produced a non-finite result/
     );
   });
 });

@@ -201,6 +201,47 @@ export interface AdditiveReactionDamageResult {
   flatDamage: number;
 }
 
+function resolveReactionLevelBase(characterLevel: number): number {
+  if (
+    !Number.isInteger(characterLevel) ||
+    characterLevel < 1 ||
+    characterLevel > TRANSFORMATIVE_REACTION_LEVEL_BASE.length
+  ) {
+    throw new RangeError(
+      `characterLevel must be an integer from 1 to ${TRANSFORMATIVE_REACTION_LEVEL_BASE.length}`
+    );
+  }
+  const levelBaseDamage =
+    TRANSFORMATIVE_REACTION_LEVEL_BASE[characterLevel - 1];
+  if (
+    levelBaseDamage === undefined ||
+    !Number.isFinite(levelBaseDamage) ||
+    levelBaseDamage <= 0
+  ) {
+    throw new RangeError(
+      "characterLevel must resolve to a finite positive reaction level base"
+    );
+  }
+  return levelBaseDamage;
+}
+
+function requireFinite(value: number, field: string): void {
+  if (!Number.isFinite(value)) {
+    throw new RangeError(`${field} must be finite`);
+  }
+}
+
+function requireFiniteResult(
+  value: number,
+  calculation: string
+): void {
+  if (!Number.isFinite(value)) {
+    throw new RangeError(
+      `${calculation} produced a non-finite result`
+    );
+  }
+}
+
 export function clamp(value: number, minimum: number, maximum: number): number {
   return Math.max(minimum, Math.min(maximum, value));
 }
@@ -246,10 +287,20 @@ export function calcCritMultiplier(input: CritMultiplierInput): number {
 export function calcTransformativeReactionDamage(
   input: TransformativeReactionDamageInput
 ): TransformativeReactionDamageResult {
-  const levelIndex = clamp(Math.trunc(input.characterLevel), 1, 100) - 1;
-  const levelBaseDamage =
-    TRANSFORMATIVE_REACTION_LEVEL_BASE[levelIndex] ??
-    TRANSFORMATIVE_REACTION_LEVEL_BASE[0];
+  const levelBaseDamage = resolveReactionLevelBase(
+    input.characterLevel
+  );
+  requireFinite(input.elementalMastery, "elementalMastery");
+  requireFinite(input.reactionBonus, "reactionBonus");
+  requireFinite(input.effectiveResistance, "effectiveResistance");
+  if (
+    !Number.isFinite(input.baseMultiplier) ||
+    input.baseMultiplier < 0
+  ) {
+    throw new RangeError(
+      "baseMultiplier must be a finite non-negative number"
+    );
+  }
   const elementalMastery = Math.max(0, input.elementalMastery);
   const elementalMasteryBonus =
     (16 * elementalMastery) / (2000 + elementalMastery);
@@ -261,8 +312,22 @@ export function calcTransformativeReactionDamage(
   const resistanceMultiplier = calcResistanceMultiplier(
     input.effectiveResistance
   );
+  const finalDamage =
+    preResistanceDamage * resistanceMultiplier;
+  requireFiniteResult(
+    preResistanceDamage,
+    "transformative reaction damage"
+  );
+  requireFiniteResult(
+    resistanceMultiplier,
+    "transformative reaction resistance multiplier"
+  );
+  requireFiniteResult(
+    finalDamage,
+    "transformative reaction damage"
+  );
   return {
-    finalDamage: preResistanceDamage * resistanceMultiplier,
+    finalDamage,
     levelBaseDamage,
     elementalMasteryBonus,
     reactionBonus,
@@ -274,10 +339,19 @@ export function calcTransformativeReactionDamage(
 export function calcAdditiveReactionDamage(
   input: AdditiveReactionDamageInput
 ): AdditiveReactionDamageResult {
-  const levelIndex = clamp(Math.trunc(input.characterLevel), 1, 100) - 1;
-  const levelBaseDamage =
-    TRANSFORMATIVE_REACTION_LEVEL_BASE[levelIndex] ??
-    TRANSFORMATIVE_REACTION_LEVEL_BASE[0];
+  if (
+    input.reaction !== "aggravate" &&
+    input.reaction !== "spread"
+  ) {
+    throw new TypeError(
+      'reaction must be either "aggravate" or "spread"'
+    );
+  }
+  const levelBaseDamage = resolveReactionLevelBase(
+    input.characterLevel
+  );
+  requireFinite(input.elementalMastery, "elementalMastery");
+  requireFinite(input.reactionBonus, "reactionBonus");
   const elementalMastery = Math.max(0, input.elementalMastery);
   const elementalMasteryBonus =
     (5 * elementalMastery) / (1200 + elementalMastery);
@@ -287,6 +361,7 @@ export function calcAdditiveReactionDamage(
     levelBaseDamage *
     baseMultiplier *
     (1 + elementalMasteryBonus + reactionBonus);
+  requireFiniteResult(flatDamage, "additive reaction damage");
   return {
     reaction: input.reaction,
     levelBaseDamage,
@@ -305,6 +380,31 @@ export function calcAmplifyingReactionMultiplier(
   reactionBonus: number;
   total: number;
 } {
+  if (
+    input.reaction !== "none" &&
+    input.reaction !== "melt" &&
+    input.reaction !== "reverseMelt" &&
+    input.reaction !== "vaporize" &&
+    input.reaction !== "reverseVaporize"
+  ) {
+    throw new TypeError(
+      "reaction must be a supported amplifying reaction"
+    );
+  }
+  requireFinite(input.elementalMastery, "elementalMastery");
+  if (input.reactionBonus !== undefined) {
+    requireFinite(input.reactionBonus, "reactionBonus");
+  }
+  if (input.explicitBase !== undefined) {
+    if (
+      !Number.isFinite(input.explicitBase) ||
+      input.explicitBase <= 0
+    ) {
+      throw new RangeError(
+        "explicitBase must be a finite positive number"
+      );
+    }
+  }
   const base =
     input.explicitBase ?? AMPLIFYING_REACTION_BASE[input.reaction] ?? 1;
   if (base === 1) {
@@ -319,11 +419,14 @@ export function calcAmplifyingReactionMultiplier(
   const elementalMasteryBonus =
     (2.78 * elementalMastery) / (1400 + elementalMastery);
   const reactionBonus = Math.max(0, input.reactionBonus ?? 0);
+  const total =
+    base * (1 + elementalMasteryBonus + reactionBonus);
+  requireFiniteResult(total, "amplifying reaction multiplier");
   return {
     base,
     elementalMasteryBonus,
     reactionBonus,
-    total: base * (1 + elementalMasteryBonus + reactionBonus)
+    total
   };
 }
 

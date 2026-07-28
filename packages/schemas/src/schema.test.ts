@@ -22,6 +22,8 @@ import {
   dendroCoreResultReferencesSchema,
   dendroCoreTimelinePointSchema,
   dendroCoreTimelineSchema,
+  ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
+  ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
   enemyTargetProfileSchema,
   enemyTargetsResultReferencesSchema,
   GENERAL_REACTION_ORDER_ENGINE_VERSION,
@@ -2392,10 +2394,8 @@ describe("1.34 general reaction order contract", () => {
   it("strictly accepts aura-v6 under the current schema/engine pair", () => {
     const config = makeAuraV6Config();
     const parsed = migrateConfig(config);
-    expect(parsed.schemaVersion).toBe("1.35.0");
-    expect(parsed.engineVersion).toBe(
-      "1.35.0-elemental-enemy-resistance"
-    );
+    expect(parsed.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(parsed.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(parsed.reactionEngine?.mode).toBe("aura-v6");
 
     expect(() =>
@@ -2439,6 +2439,140 @@ describe("1.34 general reaction order contract", () => {
         )
       );
     }
+  });
+
+  it("migrates the frozen 1.35 aura-v6, per-element resistance, player, and target-clock contracts exactly", () => {
+    const current = makeAuraV6Config();
+    const sharedResistances = {
+      pyro: 0.1,
+      cryo: 0.2,
+      hydro: 0.3,
+      electro: 0.4,
+      anemo: 0.5,
+      geo: 0.6,
+      dendro: 0.7,
+      physical: 0.8
+    };
+    const targetResistances = {
+      ...sharedResistances,
+      dendro: -0.15,
+      physical: 1.2
+    };
+    const playerDamageModel = {
+      mode: "reaction-self-v1" as const,
+      position: { x: 0, y: 0 },
+      hitboxRadius: 0.5,
+      shieldMode: "crystallize-v1" as const,
+      zeroHpPolicy: "clamp-and-continue" as const,
+      characters: [
+        {
+          actorId: "a",
+          initialHpRatio: 0.75,
+          resistances: {
+            pyro: 0.11,
+            cryo: 0.12,
+            hydro: 0.13,
+            electro: 0.14,
+            anemo: 0.15,
+            geo: 0.16,
+            dendro: 0.17,
+            physical: 0.18
+          }
+        }
+      ]
+    };
+    const targetClockModel = {
+      mode: "target-local-hitlag-v1" as const
+    };
+    const historical = {
+      ...current,
+      schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
+      characters: current.characters.map((character) => ({
+        ...character,
+        stats: {
+          ...character.stats,
+          baseHp: 12_345
+        }
+      })),
+      enemy: {
+        ...current.enemy,
+        resistances: sharedResistances,
+        targets: current.enemy.targets.map((target) => ({
+          ...target,
+          resistances: targetResistances
+        }))
+      },
+      reactionEngine: { mode: "aura-v6" as const },
+      playerDamageModel,
+      targetClockModel
+    };
+
+    expect(migrateConfig(historical)).toEqual({
+      ...historical,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  });
+
+  it("preserves the frozen compatibility ampBase multiplier across 1.35 to 1.36", () => {
+    const current = migrateConfig({
+      ...legacyConfig,
+      rotation: [
+        {
+          id: "legacy-amp-base",
+          actorId: "a",
+          name: "Legacy ampBase compatibility",
+          at: 0,
+          hits: [
+            {
+              offset: 0,
+              scaling: 1,
+              element: "pyro",
+              reaction: "none",
+              ampBase: 2
+            }
+          ]
+        }
+      ]
+    });
+    const historical = {
+      ...current,
+      schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
+    };
+
+    expect(migrateConfig(historical)).toEqual({
+      ...historical,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  });
+
+  it("fails closed on aura-v7 or a forged engine under the frozen 1.35 identity", () => {
+    const current = makeAuraV6Config();
+    const historical = {
+      ...current,
+      schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        reactionEngine: { mode: "aura-v7" }
+      })
+    ).toThrow(
+      /reactionEngine\.mode: schemaVersion "1\.35\.0" does not support "aura-v7"/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.35.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.35\.0" requires "1\.35\.0-elemental-enemy-resistance"/
+    );
   });
 
   it("migrates the frozen 1.34 player, target-clock, scalar-resistance, and aura-v6 contracts unchanged", () => {
@@ -6637,6 +6771,74 @@ describe("versioned config schema", () => {
     ).toThrow(/cannot be reused after removal/);
   });
 
+  it("allows only queued siblings in serialized same-frame Dendro-core expiry snapshots", () => {
+    const snapshots = Array.from({ length: 3 }, (_, coreId) => ({
+      coreId,
+      sourceActorId: "hydro-owner",
+      sourceTargetId: "enemy-0",
+      spawnedAtFrame: 30,
+      expiresAtFrame: 330,
+      position: { x: coreId, y: 0 },
+      hitboxRadius: 2
+    }));
+    const points = [
+      ...snapshots.map((snapshot, index) => ({
+        id: index,
+        frame: 30,
+        timeSeconds: 0.5,
+        eventType: "dendroCoreSpawn",
+        eventPriority: 2,
+        eventSequence: index,
+        intraEventSequence: 0,
+        operation: "spawn",
+        dendroCoreLogId: index,
+        coreId: snapshot.coreId,
+        activeCores: snapshots.slice(0, index + 1)
+      })),
+      ...snapshots.map((snapshot, index) => ({
+        id: snapshots.length + index,
+        frame: 330,
+        timeSeconds: 5.5,
+        eventType: "dendroCoreExpiry",
+        eventPriority: 2,
+        eventSequence: snapshots.length + index,
+        intraEventSequence: 0,
+        operation: "expire",
+        dendroCoreLogId: snapshots.length + index,
+        coreId: snapshot.coreId,
+        activeCores: snapshots.slice(index + 1)
+      }))
+    ];
+    const timeline = {
+      version: "1.0.0",
+      points
+    };
+
+    expect(dendroCoreTimelineSchema.parse(timeline)).toEqual(
+      timeline
+    );
+    expect(() =>
+      dendroCoreTimelineSchema.parse({
+        ...timeline,
+        points: points.slice(0, -1)
+      })
+    ).toThrow(/half-open lifetime/);
+    expect(() =>
+      dendroCoreTimelineSchema.parse({
+        ...timeline,
+        points: points.map((point, index) =>
+          index === points.length - 1
+            ? {
+                ...point,
+                frame: 331,
+                timeSeconds: 331 / 60
+              }
+            : point
+        )
+      })
+    ).toThrow(/half-open lifetime/);
+  });
+
   it("validates Dendro-core result references without claiming a full result schema", () => {
     const scheduled = {
       id: 0,
@@ -7668,7 +7870,7 @@ describe("versioned config schema", () => {
     ).toThrow(/cannot claim a tickIndex/);
   });
 
-  it("gates Dendro Aura and applications behind aura-v3 through aura-v6", () => {
+  it("gates Dendro Aura and applications behind aura-v3 through aura-v7", () => {
     const current = migrateConfig(legacyConfig);
     const withDendroApplication = {
       ...current,
@@ -7729,7 +7931,7 @@ describe("versioned config schema", () => {
           }
         })
       ).toThrow(
-        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, or aura-v6/
+        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7/
       );
     }
 
@@ -7801,7 +8003,7 @@ describe("versioned config schema", () => {
           reactionEngine: { mode }
         })
       ).toThrow(
-        /aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6 currently require timeline\.mode legal-frame-v1/
+        /aura-v1 through aura-v7 currently require timeline\.mode legal-frame-v1/
       );
     }
   });
@@ -7849,7 +8051,7 @@ describe("versioned config schema", () => {
         })
       )
     ).toThrow(
-      /manual reaction labels are forbidden in aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, and aura-v6/
+      /manual reaction labels are forbidden in aura-v1 through aura-v7/
     );
 
     expect(() =>
@@ -7922,7 +8124,7 @@ describe("versioned config schema", () => {
     ).toBe("melt");
     expect(parsed.timeline?.abilities[0]?.hits?.[0]?.ampBase).toBe(2);
 
-    const legacyParsed = migrateConfig({
+    const legacyAmpBaseConfig = {
       ...legacyConfig,
       rotation: [
         {
@@ -7934,13 +8136,29 @@ describe("versioned config schema", () => {
             {
               offset: 0,
               scaling: 1,
-              element: "pyro",
-              reaction: "none",
+              element: "pyro" as const,
+              reaction: "none" as const,
               ampBase: 2
             }
           ]
         }
       ]
+    };
+    const legacyAmpBaseParsed = migrateConfig(legacyAmpBaseConfig);
+    expect(legacyAmpBaseParsed.rotation[0]?.hits?.[0]).toMatchObject({
+      reaction: "none",
+      ampBase: 2
+    });
+
+    const legacyParsed = migrateConfig({
+      ...legacyAmpBaseConfig,
+      rotation: legacyAmpBaseConfig.rotation.map((action) => ({
+        ...action,
+        hits: action.hits.map((hit) => ({
+          ...hit,
+          reaction: "melt" as const
+        }))
+      }))
     });
     expect(legacyParsed.rotation[0]?.hits?.[0]?.ampBase).toBe(2);
   });
