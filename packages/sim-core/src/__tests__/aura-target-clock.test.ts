@@ -215,6 +215,57 @@ describe("AuraEngine with an enabled target-local clock", () => {
     });
   });
 
+  it("checks a reprojected Burning target task before the resumed target-frame decay", () => {
+    const clock = new TargetLocalClock();
+    const engine = new AuraEngine({
+      mode: "aura-v4",
+      targetClock: clock,
+      initialAura: [
+        { element: "dendro", gaugeUnits: 7 / 60 }
+      ]
+    });
+    const start = engine.processHit({
+      frame: 0,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+    clock.applyHitlag({
+      globalFrame: 0,
+      haltFrames: 5,
+      factor: 0
+    });
+
+    expect(start.burningReaction).toMatchObject({
+      generation: 1,
+      firstTickFrame: 15,
+      fuelExpiresAtFrame: 15
+    });
+    const callback =
+      engine.prepareBurningTickBeforeDecay(20, 1, 1);
+    expect(callback).toMatchObject({
+      operation: "tick",
+      frame: 20,
+      tickIndex: 1,
+      fuelGaugeUnitsBefore: expect.closeTo(1 / 150, 12),
+      nextTickFrame: 35
+    });
+    expect(clock.getState()).toMatchObject({
+      globalFrame: 19,
+      localFrame: 14
+    });
+    expect(engine.getAuraStateAt(20)).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ element: "burning" }),
+        expect.objectContaining({ element: "burningFuel" })
+      ])
+    );
+    expect(clock.getState()).toMatchObject({
+      globalFrame: 20,
+      localFrame: 15
+    });
+  });
+
   it("allows same-global-frame and hitlag-period hits to mutate Aura at one target frame", () => {
     const clock = new TargetLocalClock();
     const engine = new AuraEngine({

@@ -47,15 +47,23 @@ import {
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
   reactionDamageGroupAuditSchema,
+  QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+  QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   resolvedEnemyTargetProfileSchema,
   resolvedWorldHitGeometrySchema,
   simulationRunManifestSchema,
+  TARGET_TASK_PHASE_ENGINE_VERSION,
+  TARGET_TASK_PHASE_SCHEMA_VERSION,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
   targetHitlagDefinitionSchema,
   targetHitlagLogEntrySchema,
   targetHitlagLogSchema,
+  targetTaskPhaseLogEntrySchema,
+  targetTaskPhaseLogSchema,
+  targetTaskPhaseResultReferencesSchema,
+  targetTaskModelSchema,
   TARGET_LOCAL_HITLAG_ENGINE_VERSION,
   TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   targetStateTimelinePointSchema,
@@ -64,6 +72,7 @@ import {
   type EnemyTargetProfile,
   type TargetClockLogEntry,
   type TargetHitlagLogEntry,
+  type TargetTaskPhaseLogEntry,
   type TargetStateTimeline
 } from "./index";
 
@@ -2841,6 +2850,1033 @@ describe("1.34 general reaction order contract", () => {
         unversionedField: true
       })
     ).toThrow(/Unrecognized key/);
+  });
+});
+
+describe("1.37 target task phase config contract", () => {
+  const makeAuraV7Config = () => {
+    const current = migrateConfig(legacyConfig);
+    return {
+      ...current,
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Target task phase target",
+            position: { x: 0, y: 0 }
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      },
+      reactionEngine: { mode: "aura-v7" as const }
+    };
+  };
+
+  const burningPhase: TargetTaskPhaseLogEntry = {
+    id: 0,
+    targetId: "enemy-0",
+    targetName: "First target",
+    globalFrame: 10,
+    timeSeconds: 10 / 60,
+    targetFrame: 8,
+    targetOrder: 0,
+    wakeKind: "burning-tick",
+    eventType: "burningTick",
+    eventPriority: 0.5,
+    eventSequence: 4,
+    intraEventSequence: 0,
+    auraBeforeTasks: [],
+    auraAfterTasks: [],
+    auraAfterDecay: [],
+    burningStateLogIds: [1, 3],
+    hitResolutionLogIds: [2, 5],
+    reactionTaskLogIds: [0, 4]
+  };
+
+  const incomingPhase: TargetTaskPhaseLogEntry = {
+    id: 1,
+    targetId: "enemy-1",
+    targetName: "Second target",
+    globalFrame: 10,
+    timeSeconds: 10 / 60,
+    targetFrame: 10,
+    targetOrder: 1,
+    wakeKind: "incoming",
+    eventType: "hit",
+    eventPriority: 3,
+    eventSequence: 5,
+    intraEventSequence: 0,
+    auraBeforeTasks: [],
+    auraAfterTasks: [],
+    auraAfterDecay: [],
+    burningStateLogIds: [],
+    hitResolutionLogIds: [6],
+    reactionTaskLogIds: []
+  };
+
+  const laterFirstTargetPhase: TargetTaskPhaseLogEntry = {
+    ...incomingPhase,
+    id: 2,
+    targetId: "enemy-0",
+    targetName: "First target",
+    globalFrame: 15,
+    timeSeconds: 15 / 60,
+    targetFrame: 8,
+    targetOrder: 0,
+    eventType: "reactionDamage",
+    eventPriority: 5,
+    eventSequence: 9,
+    hitResolutionLogIds: [],
+    reactionTaskLogIds: [7]
+  };
+
+  it("migrates the frozen 1.36 pair and all legacy inputs to the legacy event heap", () => {
+    const {
+      targetTaskModel: _targetTaskModel,
+      ...wire136
+    } = makeAuraV7Config();
+    const historical = {
+      ...wire136,
+      schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+      engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION
+    };
+
+    for (const mode of [
+      "aura-v1",
+      "aura-v2",
+      "aura-v3",
+      "aura-v4",
+      "aura-v5",
+      "aura-v6",
+      "aura-v7"
+    ] as const) {
+      const versioned = {
+        ...historical,
+        reactionEngine: { mode }
+      };
+      expect(migrateConfig(versioned)).toEqual({
+        ...versioned,
+        schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+        targetTaskModel: { mode: "legacy-event-heap-v1" }
+      });
+    }
+
+    const current = migrateConfig(legacyConfig);
+    const {
+      targetTaskModel: _currentTargetTaskModel,
+      ...historicalWire
+    } = current;
+    for (const identity of [
+      {
+        schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
+      },
+      {
+        schemaVersion: TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
+        engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION
+      },
+      {
+        schemaVersion: "1.0.0",
+        engineVersion: "1.0.0-compat"
+      }
+    ] as const) {
+      expect(
+        migrateConfig({ ...historicalWire, ...identity })
+          .targetTaskModel
+      ).toEqual({ mode: "legacy-event-heap-v1" });
+    }
+    expect(migrateConfig(legacyConfig).targetTaskModel).toEqual({
+      mode: "legacy-event-heap-v1"
+    });
+  });
+
+  it("rejects a forged 1.36 engine and historical target-phase opt-in", () => {
+    const current = migrateConfig(legacyConfig);
+    const historical = {
+      ...current,
+      schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+      engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION
+    };
+
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.36.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.36\.0" requires "1\.36\.0-quicken-bloom-task"/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        targetTaskModel: { mode: "target-phase-v1" }
+      })
+    ).toThrow(
+      /schemaVersion "1\.36\.0" does not support target-phase task scheduling/
+    );
+  });
+
+  it("requires the target task model field under the current identity", () => {
+    const current = migrateConfig(legacyConfig);
+    const missingModel = {
+      ...current
+    } as Record<string, unknown>;
+    delete missingModel.targetTaskModel;
+
+    expect(() => migrateConfig(missingModel)).toThrow(
+      /targetTaskModel/
+    );
+  });
+
+  it("strictly accepts both current modes and binds Aura target phases to aura-v7", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.37.0");
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.37.0-target-task-phase"
+    );
+    expect(
+      targetTaskModelSchema.parse({
+        mode: "legacy-event-heap-v1"
+      })
+    ).toEqual({ mode: "legacy-event-heap-v1" });
+    expect(() =>
+      targetTaskModelSchema.parse({
+        mode: "target-phase-v1",
+        unversionedField: true
+      })
+    ).toThrow(/Unrecognized key/);
+
+    const rotationOnly = migrateConfig({
+      ...migrateConfig(legacyConfig),
+      targetTaskModel: { mode: "target-phase-v1" }
+    });
+    expect(rotationOnly.timeline).toBeUndefined();
+    expect(rotationOnly.targetTaskModel).toEqual({
+      mode: "target-phase-v1"
+    });
+
+    const auraV7 = migrateConfig({
+      ...makeAuraV7Config(),
+      targetTaskModel: { mode: "target-phase-v1" }
+    });
+    expect(auraV7.targetTaskModel.mode).toBe("target-phase-v1");
+    expect(auraV7.reactionEngine?.mode).toBe("aura-v7");
+
+    expect(() =>
+      migrateConfig({
+        ...makeAuraV7Config(),
+        reactionEngine: { mode: "aura-v6" },
+        targetTaskModel: { mode: "target-phase-v1" }
+      })
+    ).toThrow(
+      /target-phase-v1 requires reactionEngine\.mode aura-v7/
+    );
+  });
+
+  it("strictly validates target task phase entries and their wake discriminant", () => {
+    expect(
+      targetTaskPhaseLogEntrySchema.parse(burningPhase)
+    ).toEqual(burningPhase);
+    expect(
+      targetTaskPhaseLogEntrySchema.parse(incomingPhase)
+    ).toEqual(incomingPhase);
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...burningPhase,
+        eventType: "hit"
+      })
+    ).toThrow();
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...incomingPhase,
+        eventType: "burningTick"
+      })
+    ).toThrow();
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...incomingPhase,
+        eventPriority: 1
+      })
+    ).toThrow(/hit priority 3/);
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...laterFirstTargetPhase,
+        eventPriority: 4
+      })
+    ).toThrow(/reactionDamage priority/);
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...burningPhase,
+        unversionedField: true
+      })
+    ).toThrow(/Unrecognized key/);
+  });
+
+  it("binds phase time and target clocks and requires increasing referenced ids", () => {
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...burningPhase,
+        timeSeconds: 0
+      })
+    ).toThrow(/globalFrame \/ 60/);
+    expect(() =>
+      targetTaskPhaseLogEntrySchema.parse({
+        ...burningPhase,
+        targetFrame: 11
+      })
+    ).toThrow(/cannot exceed globalFrame/);
+
+    for (const field of [
+      "burningStateLogIds",
+      "hitResolutionLogIds",
+      "reactionTaskLogIds"
+    ] as const) {
+      expect(() =>
+        targetTaskPhaseLogEntrySchema.parse({
+          ...burningPhase,
+          [field]: [3, 3]
+        })
+      ).toThrow(/strictly increasing/);
+      expect(() =>
+        targetTaskPhaseLogEntrySchema.parse({
+          ...burningPhase,
+          [field]: [3, 2]
+        })
+      ).toThrow(/strictly increasing/);
+    }
+  });
+
+  it("validates deterministic array order and per-target clock progression", () => {
+    expect(
+      targetTaskPhaseLogSchema.parse([
+        burningPhase,
+        incomingPhase,
+        laterFirstTargetPhase
+      ])
+    ).toEqual([
+      burningPhase,
+      incomingPhase,
+      laterFirstTargetPhase
+    ]);
+
+    expect(() =>
+      targetTaskPhaseLogSchema.parse([
+        burningPhase,
+        { ...incomingPhase, id: 2 }
+      ])
+    ).toThrow(/ids must be contiguous/);
+    expect(() =>
+      targetTaskPhaseLogSchema.parse([
+        { ...burningPhase, targetOrder: 1 },
+        { ...incomingPhase, targetOrder: 0 }
+      ])
+    ).toThrow(/sorted by \(globalFrame, targetOrder\)/);
+    expect(() =>
+      targetTaskPhaseLogSchema.parse([
+        burningPhase,
+        {
+          ...incomingPhase,
+          targetId: burningPhase.targetId,
+          targetName: burningPhase.targetName
+        }
+      ])
+    ).toThrow(/unique by \(globalFrame, targetId\)/);
+    expect(() =>
+      targetTaskPhaseLogSchema.parse([
+        burningPhase,
+        {
+          ...laterFirstTargetPhase,
+          id: 1,
+          targetFrame: burningPhase.targetFrame - 1
+        }
+      ])
+    ).toThrow(/targetFrame must be nondecreasing/);
+    expect(() =>
+      targetTaskPhaseLogSchema.parse([
+        {
+          ...burningPhase,
+          globalFrame: 15,
+          timeSeconds: 15 / 60
+        },
+        {
+          ...laterFirstTargetPhase,
+          id: 1,
+          globalFrame: 10,
+          timeSeconds: 10 / 60
+        }
+      ])
+    ).toThrow(/globalFrame must strictly increase/);
+  });
+});
+
+describe("1.37 target task phase result references", () => {
+  type TargetTaskPhaseReferenceFixture = {
+    schemaVersion: string;
+    engineVersion: string;
+    config: {
+      schemaVersion: string;
+      engineVersion: string;
+      targetTaskModel: {
+        mode: "target-phase-v1" | "legacy-event-heap-v1";
+      };
+      targetClockModel: {
+        mode: "disabled" | "target-local-hitlag-v1";
+      };
+      reactionEngine: { mode: string };
+    };
+    enemyTargets: Array<{ id: string; name: string }>;
+    targetClockAudit: {
+      mode: "disabled" | "target-local-hitlag-v1";
+    };
+    targetClockLog: TargetClockLogEntry[];
+    targetTaskPhaseLog: TargetTaskPhaseLogEntry[];
+    burningStateLog: Array<{
+      id: number;
+      operation:
+        | "start"
+        | "refresh-fuel"
+        | "refresh-snapshot"
+        | "tick"
+        | "tick-skipped"
+        | "stop"
+        | "fuel-expire";
+      frame: number;
+      targetFrame?: number;
+      timeSeconds: number;
+      eventPriority: number;
+      eventSequence: number;
+      targetId: string;
+      targetName: string;
+      auraBefore: TargetTaskPhaseLogEntry["auraBeforeTasks"];
+      auraAfter: TargetTaskPhaseLogEntry["auraAfterTasks"];
+    }>;
+    hitResolutionLog: Array<{
+      id: number;
+      frame: number;
+      timeSeconds: number;
+      eventPriority?: number;
+      eventSequence?: number;
+      intraEventSequence?: number;
+      targetId: string;
+      targetName: string;
+      resolutionKind: "direct" | "reaction-damage";
+      landed: boolean;
+      damageEventId: number | null;
+    }>;
+    reactionTaskLog: Array<{
+      id: number;
+      frame: number;
+      timeSeconds: number;
+      targetId: string;
+      targetName: string;
+      eventPriority: number;
+      eventSequence: number;
+      intraEventSequence: number;
+      auraBefore: TargetTaskPhaseLogEntry["auraBeforeTasks"];
+      auraAfter: TargetTaskPhaseLogEntry["auraAfterTasks"];
+    }>;
+    targetStateTimeline: TargetStateTimeline;
+  };
+
+  const makeReferenceResult =
+    (): TargetTaskPhaseReferenceFixture => ({
+    schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+    engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+    config: {
+      schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v1" as const },
+      targetClockModel: { mode: "disabled" as const },
+      reactionEngine: { mode: "aura-v7" }
+    },
+    enemyTargets: [{ id: "enemy-0", name: "Target" }],
+    targetClockAudit: { mode: "disabled" as const },
+    targetClockLog: [],
+    targetTaskPhaseLog: [
+      {
+        id: 0,
+        targetId: "enemy-0",
+        targetName: "Target",
+        globalFrame: 15,
+        timeSeconds: 15 / 60,
+        targetFrame: 15,
+        targetOrder: 0,
+        wakeKind: "incoming" as const,
+        eventType: "hit" as const,
+        eventPriority: 3,
+        eventSequence: 10,
+        intraEventSequence: 0,
+        auraBeforeTasks: [],
+        auraAfterTasks: [],
+        auraAfterDecay: [],
+        burningStateLogIds: [],
+        hitResolutionLogIds: [0],
+        reactionTaskLogIds: []
+      }
+    ],
+    burningStateLog: [],
+    hitResolutionLog: [
+      {
+        id: 0,
+        frame: 15,
+        timeSeconds: 15 / 60,
+        eventPriority: 3,
+        eventSequence: 10,
+        intraEventSequence: 1,
+        targetId: "enemy-0",
+        targetName: "Target",
+        resolutionKind: "direct" as const,
+        landed: true,
+        damageEventId: 0
+      }
+    ],
+    reactionTaskLog: [],
+    targetStateTimeline: {
+      version: "1.0.0" as const,
+      points: [
+        {
+          id: 0,
+          frame: 0,
+          targetFrame: 0,
+          timeSeconds: 0,
+          targetId: "enemy-0",
+          targetName: "Target",
+          pointKind: "boundary" as const,
+          cause: "simulation-start" as const,
+          eventType: null,
+          eventPriority: null,
+          eventSequence: null,
+          intraEventSequence: null,
+          reaction: "none" as const,
+          reactions: [],
+          primaryDamageEventId: null,
+          links: [],
+          auraBefore: [],
+          auraApplied: [],
+          auraConsumed: [],
+          auraAfter: []
+        },
+        {
+          id: 1,
+          frame: 15,
+          targetFrame: 15,
+          timeSeconds: 15 / 60,
+          targetId: "enemy-0",
+          targetName: "Target",
+          pointKind: "observation" as const,
+          cause: "direct-hit-application" as const,
+          eventType: "hit" as const,
+          eventPriority: 3,
+          eventSequence: 10,
+          intraEventSequence: 1,
+          reaction: "none" as const,
+          reactions: [],
+          primaryDamageEventId: 0,
+          links: [
+            { kind: "damage-event" as const, id: 0 }
+          ],
+          auraBefore: [],
+          auraApplied: [],
+          auraConsumed: [],
+          auraAfter: []
+        },
+        {
+          id: 2,
+          frame: 60,
+          targetFrame: 60,
+          timeSeconds: 1,
+          targetId: "enemy-0",
+          targetName: "Target",
+          pointKind: "boundary" as const,
+          cause: "simulation-end" as const,
+          eventType: null,
+          eventPriority: null,
+          eventSequence: null,
+          intraEventSequence: null,
+          reaction: "none" as const,
+          reactions: [],
+          primaryDamageEventId: null,
+          links: [],
+          auraBefore: [],
+          auraApplied: [],
+          auraConsumed: [],
+          auraAfter: []
+        }
+      ]
+    }
+  });
+
+  const makeBurningReferenceResult = () => {
+    const result = makeReferenceResult();
+    return {
+      ...result,
+      targetTaskPhaseLog: [
+        {
+          ...result.targetTaskPhaseLog[0]!,
+          wakeKind: "burning-tick" as const,
+          eventType: "burningTick" as const,
+          eventPriority: 0.5,
+          eventSequence: 5,
+          burningStateLogIds: [0],
+          hitResolutionLogIds: []
+        }
+      ],
+      burningStateLog: [
+        {
+          id: 0,
+          operation: "tick" as const,
+          frame: 15,
+          targetFrame: 15,
+          timeSeconds: 15 / 60,
+          eventPriority: 0.5,
+          eventSequence: 5,
+          targetId: "enemy-0",
+          targetName: "Target",
+          auraBefore: [],
+          auraAfter: []
+        }
+      ],
+      hitResolutionLog: [],
+      targetStateTimeline: {
+        ...result.targetStateTimeline,
+        points: [
+          result.targetStateTimeline.points[0]!,
+          {
+            ...result.targetStateTimeline.points[1]!,
+            cause: "burning-tick" as const,
+            eventType: "burningTick" as const,
+            eventPriority: 0.5,
+            eventSequence: 5,
+            primaryDamageEventId: null,
+            links: [
+              { kind: "burning-state-log" as const, id: 0 }
+            ]
+          },
+          result.targetStateTimeline.points[2]!
+        ]
+      }
+    };
+  };
+
+  it("accepts a complete target-phase projection and historical empty legacy output", () => {
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        makeReferenceResult()
+      )
+    ).not.toThrow();
+
+    const currentLegacy = makeReferenceResult();
+    currentLegacy.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    currentLegacy.targetTaskPhaseLog = [];
+    delete currentLegacy.hitResolutionLog[0]!.eventPriority;
+    delete currentLegacy.hitResolutionLog[0]!.eventSequence;
+    delete currentLegacy.hitResolutionLog[0]!
+      .intraEventSequence;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        currentLegacy
+      )
+    ).not.toThrow();
+
+    const historical = makeReferenceResult();
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse({
+        ...historical,
+        schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+        engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+        config: {
+          schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+          engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION
+        },
+        targetTaskPhaseLog: []
+      })
+    ).not.toThrow();
+  });
+
+  it("rejects missing current fields, legacy rows, and incomplete target-phase projections", () => {
+    const missingModel = makeReferenceResult();
+    delete (
+      missingModel.config as Partial<
+        typeof missingModel.config
+      >
+    ).targetTaskModel;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(missingModel)
+    ).toThrow(/requires config\.targetTaskModel/);
+
+    const legacyRows = makeReferenceResult();
+    legacyRows.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(legacyRows)
+    ).toThrow(/requires an empty target task phase log/);
+
+    const splitLegacyTopEngine = makeReferenceResult();
+    splitLegacyTopEngine.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    splitLegacyTopEngine.targetTaskPhaseLog = [];
+    splitLegacyTopEngine.engineVersion =
+      QUICKEN_BLOOM_TASK_ENGINE_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        splitLegacyTopEngine
+      )
+    ).toThrow(/engineVersion must match/);
+
+    const splitLegacyConfigEngine = makeReferenceResult();
+    splitLegacyConfigEngine.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    splitLegacyConfigEngine.targetTaskPhaseLog = [];
+    splitLegacyConfigEngine.config.engineVersion =
+      QUICKEN_BLOOM_TASK_ENGINE_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        splitLegacyConfigEngine
+      )
+    ).toThrow(/engineVersion must match/);
+
+    const forgedHistoricalTargetPhase = makeReferenceResult();
+    forgedHistoricalTargetPhase.schemaVersion =
+      QUICKEN_BLOOM_TASK_SCHEMA_VERSION;
+    forgedHistoricalTargetPhase.config.schemaVersion =
+      QUICKEN_BLOOM_TASK_SCHEMA_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        forgedHistoricalTargetPhase
+      )
+    ).toThrow(
+      /historical target-task output cannot enable target-phase-v1/
+    );
+
+    const splitTopIdentity = makeReferenceResult();
+    splitTopIdentity.schemaVersion =
+      QUICKEN_BLOOM_TASK_SCHEMA_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        splitTopIdentity
+      )
+    ).toThrow(/schemaVersion must match|must both use/);
+
+    const splitConfigIdentity = makeReferenceResult();
+    splitConfigIdentity.config.schemaVersion =
+      QUICKEN_BLOOM_TASK_SCHEMA_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        splitConfigIdentity
+      )
+    ).toThrow(/schemaVersion must match|must both use/);
+
+    const forgedEngineIdentity = makeReferenceResult();
+    forgedEngineIdentity.config.engineVersion =
+      QUICKEN_BLOOM_TASK_ENGINE_VERSION;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        forgedEngineIdentity
+      )
+    ).toThrow(/must both use the current target-task engine identity/);
+
+    const wrongClockMode = makeReferenceResult();
+    wrongClockMode.config.targetClockModel.mode =
+      "target-local-hitlag-v1";
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongClockMode)
+    ).toThrow(/targetClockModel\.mode must match/);
+
+    const wrongAuraMode = makeReferenceResult();
+    wrongAuraMode.config.reactionEngine.mode = "aura-v6";
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongAuraMode)
+    ).toThrow(/require reactionEngine\.mode aura-v7/);
+
+    const missingTimeline = makeReferenceResult();
+    delete (
+      missingTimeline as Partial<typeof missingTimeline>
+    ).targetStateTimeline;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        missingTimeline
+      )
+    ).toThrow(/requires targetStateTimeline/);
+  });
+
+  it("binds target identity, order, and target-clock replay", () => {
+    const wrongName = makeReferenceResult();
+    wrongName.targetTaskPhaseLog[0]!.targetName = "Forged";
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongName)
+    ).toThrow(/targetName must match enemyTargets/);
+
+    const wrongOrder = makeReferenceResult();
+    wrongOrder.targetTaskPhaseLog[0]!.targetOrder = 1;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongOrder)
+    ).toThrow(/targetOrder must equal/);
+
+    const wrongClock = makeReferenceResult();
+    wrongClock.targetTaskPhaseLog[0]!.targetFrame = 14;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongClock)
+    ).toThrow(/target-clock replay/);
+  });
+
+  it("enforces direct-hit ownership and preserves later reaction-damage ownership", () => {
+    const missingDirectOwner = makeReferenceResult();
+    missingDirectOwner.targetTaskPhaseLog[0]!.hitResolutionLogIds =
+      [];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        missingDirectOwner
+      )
+    ).toThrow(/direct hit-resolution log 0 requires exactly one/);
+
+    const wrongWakeType = makeReferenceResult();
+    wrongWakeType.hitResolutionLog[0]!.resolutionKind =
+      "reaction-damage";
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(wrongWakeType)
+    ).toThrow(/wake type/);
+
+    const laterReactionDamage = makeReferenceResult();
+    laterReactionDamage.hitResolutionLog = [
+      ...laterReactionDamage.hitResolutionLog,
+      {
+        ...laterReactionDamage.hitResolutionLog[0]!,
+        id: 1,
+        resolutionKind: "reaction-damage" as const,
+        damageEventId: 1
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        laterReactionDamage
+      )
+    ).not.toThrow();
+
+    const forgedWakeTuple = makeReferenceResult();
+    forgedWakeTuple.targetTaskPhaseLog[0]!.eventSequence = 999;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        forgedWakeTuple
+      )
+    ).toThrow(/first reciprocal target timeline event tuple/);
+  });
+
+  it("binds incoming event tuples for no-Aura landed hits and misses", () => {
+    const noAuraLanded = makeReferenceResult();
+    delete (
+      noAuraLanded.config as Partial<
+        typeof noAuraLanded.config
+      >
+    ).reactionEngine;
+    noAuraLanded.targetStateTimeline.points = [
+      noAuraLanded.targetStateTimeline.points[0]!,
+      {
+        ...noAuraLanded.targetStateTimeline.points[2]!,
+        id: 1
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        noAuraLanded
+      )
+    ).not.toThrow();
+    noAuraLanded.targetTaskPhaseLog[0]!.eventSequence = 999;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        noAuraLanded
+      )
+    ).toThrow(/wake hit-resolution event tuple/);
+
+    const missed = makeReferenceResult();
+    missed.hitResolutionLog[0]!.landed = false;
+    missed.hitResolutionLog[0]!.damageEventId = null;
+    missed.targetStateTimeline.points = [
+      missed.targetStateTimeline.points[0]!,
+      {
+        ...missed.targetStateTimeline.points[2]!,
+        id: 1
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(missed)
+    ).not.toThrow();
+    missed.targetTaskPhaseLog[0]!.intraEventSequence = 999;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(missed)
+    ).toThrow(/wake hit-resolution event tuple/);
+  });
+
+  it("requires an event tuple on every same-frame target-phase hit", () => {
+    const multiHit = makeReferenceResult();
+    multiHit.targetTaskPhaseLog[0]!.hitResolutionLogIds = [
+      0,
+      1
+    ];
+    multiHit.hitResolutionLog.push({
+      ...multiHit.hitResolutionLog[0]!,
+      id: 1,
+      intraEventSequence: 2,
+      damageEventId: 1
+    });
+    multiHit.targetStateTimeline.points = [
+      multiHit.targetStateTimeline.points[0]!,
+      multiHit.targetStateTimeline.points[1]!,
+      {
+        ...multiHit.targetStateTimeline.points[1]!,
+        id: 2,
+        intraEventSequence: 2,
+        primaryDamageEventId: 1,
+        links: [
+          { kind: "damage-event" as const, id: 1 }
+        ]
+      },
+      {
+        ...multiHit.targetStateTimeline.points[2]!,
+        id: 3
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(multiHit)
+    ).not.toThrow();
+
+    delete multiHit.hitResolutionLog[1]!.eventSequence;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(multiHit)
+    ).toThrow(
+      /target-phase-v1 hit-resolution log 1 requires eventSequence/
+    );
+  });
+
+  it("requires reaction-task ownership and a reciprocal timeline point", () => {
+    const result = makeReferenceResult();
+    result.targetTaskPhaseLog[0]!.reactionTaskLogIds = [0];
+    result.reactionTaskLog = [
+      {
+        id: 0,
+        frame: 15,
+        timeSeconds: 15 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        eventPriority: 3,
+        eventSequence: 11,
+        intraEventSequence: 0,
+        auraBefore: [],
+        auraAfter: []
+      }
+    ];
+    result.targetStateTimeline.points = [
+      result.targetStateTimeline.points[0]!,
+      result.targetStateTimeline.points[1]!,
+      {
+        ...result.targetStateTimeline.points[1]!,
+        id: 2,
+        cause: "quicken-bloom-followup",
+        eventType: "quickenBloomFollowup",
+        eventSequence: 11,
+        primaryDamageEventId: null,
+        links: [
+          { kind: "reaction-task-log" as const, id: 0 }
+        ]
+      },
+      {
+        ...result.targetStateTimeline.points[2]!,
+        id: 3
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(result)
+    ).not.toThrow();
+
+    result.targetStateTimeline.points[2]!.links = [];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(result)
+    ).toThrow(/reciprocal target timeline point/);
+
+    const missingOwner = makeReferenceResult();
+    missingOwner.reactionTaskLog = result.reactionTaskLog;
+    missingOwner.targetStateTimeline =
+      result.targetStateTimeline;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(missingOwner)
+    ).toThrow(/requires exactly one target phase reference/);
+  });
+
+  it("enforces Aura phase boundaries and reciprocal Burning timeline links", () => {
+    const incomingMutation = makeReferenceResult();
+    incomingMutation.targetTaskPhaseLog[0]!.auraAfterTasks = [
+      {
+        element: "pyro",
+        gaugeUnits: 0.8,
+        expiresAtFrame: 100
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        incomingMutation
+      )
+    ).toThrow(/incoming wake cannot mutate Aura/);
+
+    const forgedDecay = makeReferenceResult();
+    forgedDecay.targetTaskPhaseLog[0]!.auraAfterDecay = [
+      {
+        element: "pyro",
+        gaugeUnits: 0.8,
+        expiresAtFrame: 100
+      }
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(forgedDecay)
+    ).toThrow(/decay may only decrease existing Aura/);
+
+    const burning = makeBurningReferenceResult();
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(burning)
+    ).not.toThrow();
+    burning.targetStateTimeline.points[1]!.links = [];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(burning)
+    ).toThrow(/reciprocal timeline link/);
+
+    const orphanedTick = makeBurningReferenceResult();
+    orphanedTick.targetTaskPhaseLog[0]!.burningStateLogIds =
+      [];
+    orphanedTick.burningStateLog[0]!.eventPriority = 0.600001;
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(orphanedTick)
+    ).toThrow(/requires exactly one phase reference/);
+
+    const forgedPrePhaseAura = makeReferenceResult();
+    const fabricatedPyro = {
+      element: "pyro" as const,
+      gaugeUnits: 0.8,
+      expiresAtFrame: 15
+    };
+    forgedPrePhaseAura.targetTaskPhaseLog[0]!.auraBeforeTasks = [
+      fabricatedPyro
+    ];
+    forgedPrePhaseAura.targetTaskPhaseLog[0]!.auraAfterTasks = [
+      fabricatedPyro
+    ];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        forgedPrePhaseAura
+      )
+    ).toThrow(/pre-task Aura must descend/);
   });
 });
 

@@ -1,11 +1,15 @@
+export const TARGET_TASK_PHASE_SCHEMA_VERSION =
+  "1.37.0" as const;
+export const TARGET_TASK_PHASE_ENGINE_VERSION =
+  "1.37.0-target-task-phase" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  QUICKEN_BLOOM_TASK_SCHEMA_VERSION;
+  TARGET_TASK_PHASE_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  QUICKEN_BLOOM_TASK_ENGINE_VERSION;
+  TARGET_TASK_PHASE_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -316,6 +320,14 @@ export interface AuraReactionEngineConfig {
 export type TargetClockModel =
   | { mode: "disabled" }
   | { mode: "target-local-hitlag-v1" };
+
+/**
+ * Selects how target-owned tasks share the simulator's ordering boundary.
+ * Historical configurations preserve the global event-heap behavior.
+ */
+export type TargetTaskModel =
+  | { mode: "legacy-event-heap-v1" }
+  | { mode: "target-phase-v1" };
 
 export interface CharacterStats {
   baseAtk: number;
@@ -811,6 +823,8 @@ export interface SimConfig {
   playerDamageModel: PlayerDamageModel;
   /** Explicit opt-in; every pre-1.33 configuration migrates to disabled. */
   targetClockModel: TargetClockModel;
+  /** Every pre-1.37 configuration migrates to the legacy event heap. */
+  targetTaskModel: TargetTaskModel;
 }
 
 export interface SimulationOptions {
@@ -1642,6 +1656,12 @@ export interface HitResolutionLogEntry {
   id: number;
   frame: number;
   timeSeconds: number;
+  /** Present when targetTaskModel.mode is target-phase-v1. */
+  eventPriority?: number;
+  /** Present when targetTaskModel.mode is target-phase-v1. */
+  eventSequence?: number;
+  /** Present when targetTaskModel.mode is target-phase-v1. */
+  intraEventSequence?: number;
   cycle: number;
   sourceActorId: string;
   sourceActionId: string;
@@ -2772,6 +2792,42 @@ export interface TargetClockLogEntry {
   cause: "hit" | "target-local-task" | "simulation-end";
 }
 
+interface TargetTaskPhaseLogEntryBase {
+  id: number;
+  targetId: TargetId;
+  targetName: string;
+  globalFrame: number;
+  timeSeconds: number;
+  targetFrame: number;
+  targetOrder: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  auraBeforeTasks: AuraStateEntry[];
+  auraAfterTasks: AuraStateEntry[];
+  auraAfterDecay: AuraStateEntry[];
+  burningStateLogIds: number[];
+  hitResolutionLogIds: number[];
+  reactionTaskLogIds: number[];
+}
+
+/**
+ * One target-owned phase at a global-frame boundary. The discriminant records
+ * whether the phase was woken by a target callback or by incoming work.
+ */
+export type TargetTaskPhaseLogEntry =
+  TargetTaskPhaseLogEntryBase &
+    (
+      | {
+          wakeKind: "burning-tick";
+          eventType: "burningTick";
+        }
+      | {
+          wakeKind: "incoming";
+          eventType: "hit" | "reactionDamage";
+        }
+    );
+
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: string;
@@ -2802,6 +2858,8 @@ export interface SimulationResult {
   targetClockLog: TargetClockLogEntry[];
   /** Every configured target Hitlag check, including blocked rows. */
   targetHitlagLog: TargetHitlagLogEntry[];
+  /** Replayable target-owned task and Aura-decay phase boundaries. */
+  targetTaskPhaseLog: TargetTaskPhaseLogEntry[];
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */

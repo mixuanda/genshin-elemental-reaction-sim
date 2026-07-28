@@ -26,6 +26,7 @@ export const durinMeltPreset: SimConfig = {
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       id: "durin",
@@ -468,6 +469,7 @@ export const blankPreset: SimConfig = {
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       id: "a",
@@ -562,6 +564,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       id: "frame-a",
@@ -737,6 +740,7 @@ export const auraReactionDemoPreset: SimConfig = {
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -834,6 +838,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   enemy: { level: 110, resistance: 0.1, defReduction: 0 },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

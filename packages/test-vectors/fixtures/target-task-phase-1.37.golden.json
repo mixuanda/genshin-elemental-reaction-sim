@@ -1,0 +1,482 @@
+{
+  "fixtureVersion": "target-task-phase-1.37",
+  "provenance": {
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "referenceProject": "genshinsim/gcsim",
+    "referenceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "officialServerTruth": false,
+    "completeGcsimParity": false,
+    "scope": "Provisional target-owned task ordering vectors only: target callback, Aura decay, then incoming/core work."
+  },
+  "projectionFormat": {
+    "auraTuple": [
+      "element",
+      "gaugeUnits",
+      "expiresAtFrame",
+      "expiresAtTargetFrame"
+    ],
+    "keyEventOrderTuple": [
+      "kind",
+      "referenceId",
+      "targetId",
+      "eventType",
+      "eventPriority",
+      "eventSequence",
+      "intraEventSequence",
+      "targetOrder"
+    ],
+    "targetClockTransitionTuple": [
+      "id",
+      "targetId",
+      "operation",
+      "globalFrameBefore",
+      "globalFrameAfter",
+      "targetFrameBefore",
+      "targetFrameAfter",
+      "consumedFrozenFrames",
+      "addedFrozenFrames",
+      "frozenFramesAfter",
+      "targetHitlagLogId",
+      "cause"
+    ],
+    "targetHitlagTuple": [
+      "id",
+      "globalFrame",
+      "targetFrame",
+      "targetId",
+      "hitResolutionLogId",
+      "extensionFrames",
+      "frozenFramesBefore",
+      "frozenFramesAfter",
+      "pausedGlobalFrameStart",
+      "nextTargetAdvanceGlobalFrame",
+      "applied"
+    ]
+  },
+  "commonConfig": {
+    "schemaVersion": "1.37.0",
+    "engineVersion": "1.37.0-target-task-phase",
+    "targetTaskModel": {
+      "mode": "target-phase-v1"
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60
+    }
+  },
+  "scenarios": {
+    "lowFuelPreDecay": {
+      "identity": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "targetTaskModel": { "mode": "target-phase-v1" },
+        "targetClockModel": { "mode": "disabled" },
+        "reactionEngine": { "mode": "aura-v7" },
+        "timeline": { "mode": "legal-frame-v1", "fps": 60 }
+      },
+      "boundaryFrame": 15,
+      "phases": [
+        {
+          "id": 1,
+          "targetId": "enemy-0",
+          "targetName": "First target-phase target",
+          "frame": {
+            "global": 15,
+            "timeSeconds": 0.25,
+            "target": 15
+          },
+          "targetOrder": 0,
+          "wake": ["burning-tick", "burningTick"],
+          "eventOrder": [0.5, 3, 0],
+          "aura": {
+            "beforeTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterDecay": [
+              ["pyro", 0.778947368421, 570, null]
+            ]
+          },
+          "refs": {
+            "burning": [1],
+            "hits": [],
+            "reactionTasks": []
+          }
+        }
+      ],
+      "referencedLogs": {
+        "burning": [
+          {
+            "id": 1,
+            "op": "tick",
+            "frame": 15,
+            "targetFrame": null,
+            "target": "enemy-0",
+            "order": [0.5, 3],
+            "tick": 1,
+            "fuel": [0.006666666667, 0.006666666667],
+            "nextTick": 30,
+            "reactionDamage": 0,
+            "damage": [1]
+          }
+        ],
+        "hits": [],
+        "reactionTasks": []
+      },
+      "keyEventOrder": [
+        ["target-task", 1, "enemy-0", "burningTick", 0.5, 3, 0, 0],
+        ["reaction-damage", 1, "enemy-0", "burning", 5, 4, null, 0]
+      ],
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      }
+    },
+    "hitlagReprojection": {
+      "identity": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "targetTaskModel": { "mode": "target-phase-v1" },
+        "targetClockModel": { "mode": "target-local-hitlag-v1" },
+        "reactionEngine": { "mode": "aura-v7" },
+        "timeline": { "mode": "legal-frame-v1", "fps": 60 }
+      },
+      "boundaryFrame": 20,
+      "phases": [
+        {
+          "id": 1,
+          "targetId": "enemy-0",
+          "targetName": "First target-phase target",
+          "frame": {
+            "global": 20,
+            "timeSeconds": 0.3333333333333333,
+            "target": 15
+          },
+          "targetOrder": 0,
+          "wake": ["burning-tick", "burningTick"],
+          "eventOrder": [0.5, 4, 0],
+          "aura": {
+            "beforeTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 20, 15],
+              ["pyro", 0.780350877193, 575, 570]
+            ],
+            "afterTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 20, 15],
+              ["pyro", 0.780350877193, 575, 570]
+            ],
+            "afterDecay": [
+              ["pyro", 0.778947368421, 575, 570]
+            ]
+          },
+          "refs": {
+            "burning": [1],
+            "hits": [1],
+            "reactionTasks": []
+          }
+        }
+      ],
+      "referencedLogs": {
+        "burning": [
+          {
+            "id": 1,
+            "op": "tick",
+            "frame": 20,
+            "targetFrame": 15,
+            "target": "enemy-0",
+            "order": [0.5, 4],
+            "tick": 1,
+            "fuel": [0.006666666667, 0.006666666667],
+            "nextTick": 35,
+            "reactionDamage": 0,
+            "damage": [2]
+          }
+        ],
+        "hits": [
+          {
+            "id": 1,
+            "frame": 20,
+            "target": "enemy-0",
+            "hit": "same-frame-incoming",
+            "resolution": "direct",
+            "landed": true,
+            "damage": 1
+          }
+        ],
+        "reactionTasks": []
+      },
+      "keyEventOrder": [
+        ["target-task", 1, "enemy-0", "burningTick", 0.5, 4, 0, 0],
+        [
+          "direct-damage",
+          1,
+          "enemy-0",
+          "same-frame-incoming",
+          3,
+          2,
+          null,
+          0
+        ],
+        ["reaction-damage", 2, "enemy-0", "burning", 5, 5, null, 0]
+      ],
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "target-local-hitlag-v1",
+          "hitlagStatus": "modeled-enemy-hitlag",
+          "roundingModel": "ceil-ceil-v1",
+          "applicationOrder": "after-current-target-tick",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "targets": [
+            {
+              "targetId": "enemy-0",
+              "targetName": "First target-phase target",
+              "finalGlobalFrame": 60,
+              "finalTargetFrame": 55,
+              "frozenFramesConsumed": 5,
+              "frozenFramesRemaining": 0,
+              "hitlagApplications": 1,
+              "totalExtensionFrames": 5
+            }
+          ]
+        },
+        "transitions": [
+          [0, "enemy-0", "apply-hitlag", 0, 0, 0, 0, 0, 5, 5, 0, "hit"],
+          [
+            1,
+            "enemy-0",
+            "advance",
+            0,
+            60,
+            0,
+            55,
+            5,
+            0,
+            0,
+            null,
+            "simulation-end"
+          ]
+        ],
+        "hitlag": [
+          [0, 0, 0, "enemy-0", 0, 5, 0, 5, 1, 6, true]
+        ]
+      }
+    },
+    "multiTargetOrder": {
+      "identity": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "targetTaskModel": { "mode": "target-phase-v1" },
+        "targetClockModel": { "mode": "disabled" },
+        "reactionEngine": { "mode": "aura-v7" },
+        "timeline": { "mode": "legal-frame-v1", "fps": 60 }
+      },
+      "boundaryFrame": 15,
+      "phases": [
+        {
+          "id": 2,
+          "targetId": "enemy-0",
+          "targetName": "First target-phase target",
+          "frame": {
+            "global": 15,
+            "timeSeconds": 0.25,
+            "target": 15
+          },
+          "targetOrder": 0,
+          "wake": ["burning-tick", "burningTick"],
+          "eventOrder": [0.5, 6, 0],
+          "aura": {
+            "beforeTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterDecay": [
+              ["pyro", 0.778947368421, 570, null]
+            ]
+          },
+          "refs": {
+            "burning": [2],
+            "hits": [2],
+            "reactionTasks": []
+          }
+        },
+        {
+          "id": 3,
+          "targetId": "enemy-1",
+          "targetName": "Second target-phase target",
+          "frame": {
+            "global": 15,
+            "timeSeconds": 0.25,
+            "target": 15
+          },
+          "targetOrder": 1,
+          "wake": ["burning-tick", "burningTick"],
+          "eventOrder": [0.6666666666666666, 8, 0],
+          "aura": {
+            "beforeTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterTasks": [
+              ["burning", 2, null, null],
+              ["burningFuel", 0.006666666667, 15, null],
+              ["pyro", 0.780350877193, 570, null]
+            ],
+            "afterDecay": [
+              ["pyro", 0.778947368421, 570, null]
+            ]
+          },
+          "refs": {
+            "burning": [3],
+            "hits": [3],
+            "reactionTasks": []
+          }
+        }
+      ],
+      "referencedLogs": {
+        "burning": [
+          {
+            "id": 2,
+            "op": "tick",
+            "frame": 15,
+            "targetFrame": null,
+            "target": "enemy-0",
+            "order": [0.5, 6],
+            "tick": 1,
+            "fuel": [0.006666666667, 0.006666666667],
+            "nextTick": 30,
+            "reactionDamage": 0,
+            "damage": [4, 5]
+          },
+          {
+            "id": 3,
+            "op": "tick",
+            "frame": 15,
+            "targetFrame": null,
+            "target": "enemy-1",
+            "order": [0.6666666666666666, 8],
+            "tick": 1,
+            "fuel": [0.006666666667, 0.006666666667],
+            "nextTick": 30,
+            "reactionDamage": 1,
+            "damage": [6, 7]
+          }
+        ],
+        "hits": [
+          {
+            "id": 2,
+            "frame": 15,
+            "target": "enemy-0",
+            "hit": "same-frame-incoming",
+            "resolution": "direct",
+            "landed": true,
+            "damage": 2
+          },
+          {
+            "id": 3,
+            "frame": 15,
+            "target": "enemy-1",
+            "hit": "same-frame-incoming",
+            "resolution": "direct",
+            "landed": true,
+            "damage": 3
+          }
+        ],
+        "reactionTasks": []
+      },
+      "keyEventOrder": [
+        ["target-task", 2, "enemy-0", "burningTick", 0.5, 6, 0, 0],
+        [
+          "target-task",
+          3,
+          "enemy-1",
+          "burningTick",
+          0.6666666666666666,
+          8,
+          0,
+          1
+        ],
+        [
+          "direct-damage",
+          2,
+          "enemy-0",
+          "same-frame-incoming",
+          3,
+          3,
+          null,
+          0
+        ],
+        [
+          "direct-damage",
+          3,
+          "enemy-1",
+          "same-frame-incoming",
+          3,
+          4,
+          null,
+          1
+        ],
+        ["reaction-damage", 4, "enemy-0", "burning", 5, 9, null, 0],
+        ["reaction-damage", 5, "enemy-1", "burning", 5, 9, null, 1],
+        [
+          "reaction-damage",
+          6,
+          "enemy-0",
+          "burning",
+          5.166666666666667,
+          11,
+          null,
+          0
+        ],
+        [
+          "reaction-damage",
+          7,
+          "enemy-1",
+          "burning",
+          5.166666666666667,
+          11,
+          null,
+          1
+        ]
+      ],
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      }
+    }
+  },
+  "hashes": {
+    "lowFuelPreDecay": "560ad154ff2425ff3d954364a8d6a596eae8f3ff5e1739714238452860c3488e",
+    "hitlagReprojection": "d4efb95a679ecc31a7d57951636249ccef91ffbe1d7a9b3e6573f4417245fb66",
+    "multiTargetOrder": "ffde21246086d60cf3e3d9fabb3b5b5ccb7e7fc8b74417fdb648e21ba228297e"
+  }
+}

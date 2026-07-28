@@ -36,8 +36,6 @@ const GAUGES = [0.125, 0.5, 1, 2, 3] as const;
 const INITIAL_CHOICE_COUNT = GAUGES.length + 1;
 const INITIAL_ASSIGNMENT_COUNT =
   INITIAL_CHOICE_COUNT ** PERSISTENT_ELEMENTS.length;
-const COVERING_VECTOR_COUNT =
-  INITIAL_ASSIGNMENT_COUNT * INCOMING_ELEMENTS.length;
 const EPSILON = 1e-9;
 
 interface PublicVector {
@@ -431,39 +429,40 @@ function initialAuraForAssignment(
 }
 
 describe("aura-v7 public mixed-gauge covering grid", () => {
-  it("is finite, non-negative, conservative, deterministic, and initial-order independent", () => {
-    /**
-     * Full cross product:
-     *   6^5 public initial-Aura assignments
-     *   × 8 incoming elements
-     *   × 5 incoming gauges
-     *   = 311,040 vectors.
-     *
-     * The default regression keeps every one of the 7,776 mixed-gauge
-     * initial assignments and every incoming element, while selecting the
-     * incoming gauge cyclically. Thus all five incoming gauges occur for
-     * every incoming element without multiplying wall time by five:
-     * 62,208 covering vectors. Each vector is evaluated three times on fresh
-     * engines: original, exact repeat, and reversed initial-Aura order.
-     */
-    let executed = 0;
-    for (
-      let assignment = 0;
-      assignment < INITIAL_ASSIGNMENT_COUNT;
-      assignment += 1
-    ) {
-      const initialAura =
-        initialAuraForAssignment(assignment);
+  for (const [
+    incomingIndex,
+    incomingElement
+  ] of INCOMING_ELEMENTS.entries()) {
+    it(`is finite, conservative, deterministic, and order-independent for incoming ${incomingElement}`, () => {
+      /**
+       * Full cross product:
+       *   6^5 public initial-Aura assignments
+       *   × 8 incoming elements
+       *   × 5 incoming gauges
+       *   = 311,040 vectors.
+       *
+       * The default regression keeps every one of the 7,776 mixed-gauge
+       * initial assignments and every incoming element, while selecting the
+       * incoming gauge cyclically. Thus all five incoming gauges occur for
+       * every incoming element without multiplying wall time by five:
+       * 62,208 covering vectors across the eight test cases below. Splitting
+       * by incoming element preserves the exact vector set while keeping each
+       * independent regression below Vitest's per-test timeout. Every vector
+       * is evaluated three times on fresh engines: original, exact repeat, and
+       * reversed initial-Aura order.
+       */
+      let executed = 0;
       for (
-        let incomingIndex = 0;
-        incomingIndex < INCOMING_ELEMENTS.length;
-        incomingIndex += 1
+        let assignment = 0;
+        assignment < INITIAL_ASSIGNMENT_COUNT;
+        assignment += 1
       ) {
+        const initialAura =
+          initialAuraForAssignment(assignment);
         const vector: PublicVector = {
           assignment,
           initialAura,
-          incomingElement:
-            INCOMING_ELEMENTS[incomingIndex]!,
+          incomingElement,
           incomingGauge:
             GAUGES[
               (assignment + incomingIndex) %
@@ -491,8 +490,8 @@ describe("aura-v7 public mixed-gauge covering grid", () => {
         inspectAudit(original, vector);
         executed += 1;
       }
-    }
 
-    expect(executed).toBe(COVERING_VECTOR_COUNT);
-  });
+      expect(executed).toBe(INITIAL_ASSIGNMENT_COUNT);
+    });
+  }
 });

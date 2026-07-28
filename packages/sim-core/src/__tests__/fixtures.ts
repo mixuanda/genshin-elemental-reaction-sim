@@ -33,6 +33,9 @@ export function makeConfig(
   const targetClockModel = overrides.targetClockModel ?? {
     mode: "disabled" as const
   };
+  const targetTaskModel = overrides.targetTaskModel ?? {
+    mode: "legacy-event-heap-v1" as const
+  };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -66,6 +69,7 @@ export function makeConfig(
     rotation: [],
     ...overrides,
     playerDamageModel,
-    targetClockModel
+    targetClockModel,
+    targetTaskModel
   };
 }

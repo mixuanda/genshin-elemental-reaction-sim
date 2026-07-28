@@ -70,6 +70,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       id: "durin",
@@ -336,6 +337,7 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
   },
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
+  targetTaskModel: { mode: "legacy-event-heap-v1" },
   characters: [
     {
       id: "durin",

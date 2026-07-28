@@ -34,6 +34,8 @@ import {
   PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
   PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
   PREVIOUS_SCHEMA_VERSION,
+  QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+  QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
   SHATTER_REACTION_SCHEMA_VERSION,
@@ -47,6 +49,8 @@ import {
   TARGET_LOCAL_HITLAG_ENGINE_VERSION,
   TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   TARGET_PHASE_TIMELINE_SCHEMA_VERSION,
+  TARGET_TASK_PHASE_ENGINE_VERSION,
+  TARGET_TASK_PHASE_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig,
   type SimulationRunManifest
@@ -423,6 +427,19 @@ export const targetClockModelSchema = z.discriminatedUnion("mode", [
     .strict()
 ]);
 
+export const targetTaskModelSchema = z.discriminatedUnion("mode", [
+  z
+    .object({
+      mode: z.literal("legacy-event-heap-v1")
+    })
+    .strict(),
+  z
+    .object({
+      mode: z.literal("target-phase-v1")
+    })
+    .strict()
+]);
+
 export const auraStateElementSchema = z.enum([
   "pyro",
   "cryo",
@@ -524,18 +541,31 @@ export const auraStateEntrySchema = z
       });
     }
     if (entry.sourceSlots !== undefined) {
-      const sourceActorIds = new Set<string>();
       let maximumSourceGaugeUnits = 0;
-      for (const [index, slot] of entry.sourceSlots.entries()) {
-        if (sourceActorIds.has(slot.sourceActorId)) {
-          context.addIssue({
-            code: "custom",
-            path: ["sourceSlots", index, "sourceActorId"],
-            message:
-              "sourceSlots must be unique by sourceActorId"
-          });
+      for (
+        let index = 0;
+        index < entry.sourceSlots.length;
+        index += 1
+      ) {
+        const slot = entry.sourceSlots[index]!;
+        for (
+          let priorIndex = 0;
+          priorIndex < index;
+          priorIndex += 1
+        ) {
+          if (
+            entry.sourceSlots[priorIndex]!.sourceActorId ===
+            slot.sourceActorId
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["sourceSlots", index, "sourceActorId"],
+              message:
+                "sourceSlots must be unique by sourceActorId"
+            });
+            break;
+          }
         }
-        sourceActorIds.add(slot.sourceActorId);
         maximumSourceGaugeUnits = Math.max(
           maximumSourceGaugeUnits,
           slot.gaugeUnits
@@ -584,34 +614,66 @@ function auraStateSnapshotsEqual(
   left: readonly AuraStateWireEntry[],
   right: readonly AuraStateWireEntry[]
 ): boolean {
+  if (left === right) return true;
   if (left.length !== right.length) return false;
-  return left.every((leftEntry, index) => {
+  for (let index = 0; index < left.length; index += 1) {
+    const leftEntry = left[index]!;
     const rightEntry = right[index];
     if (rightEntry === undefined) return false;
     if (
       leftEntry.element !== rightEntry.element ||
-      leftEntry.gaugeUnits !== rightEntry.gaugeUnits ||
-      JSON.stringify(leftEntry.sourceSlots) !==
-        JSON.stringify(rightEntry.sourceSlots)
+      leftEntry.gaugeUnits !== rightEntry.gaugeUnits
     ) {
       return false;
+    }
+
+    const leftSourceSlots = leftEntry.sourceSlots;
+    const rightSourceSlots = rightEntry.sourceSlots;
+    if (leftSourceSlots !== rightSourceSlots) {
+      if (
+        leftSourceSlots === undefined ||
+        rightSourceSlots === undefined ||
+        leftSourceSlots.length !== rightSourceSlots.length
+      ) {
+        return false;
+      }
+      for (
+        let slotIndex = 0;
+        slotIndex < leftSourceSlots.length;
+        slotIndex += 1
+      ) {
+        const leftSlot = leftSourceSlots[slotIndex]!;
+        const rightSlot = rightSourceSlots[slotIndex]!;
+        if (
+          leftSlot.sourceActorId !== rightSlot.sourceActorId ||
+          leftSlot.gaugeUnits !== rightSlot.gaugeUnits
+        ) {
+          return false;
+        }
+      }
     }
 
     const bothUseTargetDeadline =
       leftEntry.expiresAtTargetFrame !== undefined &&
       rightEntry.expiresAtTargetFrame !== undefined;
     if (bothUseTargetDeadline) {
-      return (
+      if (
         leftEntry.expiresAtTargetFrame ===
         rightEntry.expiresAtTargetFrame
-      );
+      ) {
+        continue;
+      }
+      return false;
     }
-    return (
-      leftEntry.expiresAtFrame === rightEntry.expiresAtFrame &&
-      leftEntry.expiresAtTargetFrame ===
+    if (
+      leftEntry.expiresAtFrame !== rightEntry.expiresAtFrame ||
+      leftEntry.expiresAtTargetFrame !==
         rightEntry.expiresAtTargetFrame
-    );
-  });
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -626,18 +688,39 @@ function auraStateOnlyDecreases(
   after: readonly AuraStateWireEntry[],
   frame: number
 ): string | null {
-  const beforeByElement = new Map(
-    before.map((entry) => [entry.element, entry] as const)
-  );
-  if (beforeByElement.size !== before.length) {
-    return "Aura snapshots cannot contain duplicate elements";
+  for (let index = 0; index < before.length; index += 1) {
+    for (
+      let priorIndex = 0;
+      priorIndex < index;
+      priorIndex += 1
+    ) {
+      if (
+        before[priorIndex]!.element === before[index]!.element
+      ) {
+        return "Aura snapshots cannot contain duplicate elements";
+      }
+    }
   }
-  if (new Set(after.map((entry) => entry.element)).size !== after.length) {
-    return "Aura snapshots cannot contain duplicate elements";
+  for (let index = 0; index < after.length; index += 1) {
+    for (
+      let priorIndex = 0;
+      priorIndex < index;
+      priorIndex += 1
+    ) {
+      if (after[priorIndex]!.element === after[index]!.element) {
+        return "Aura snapshots cannot contain duplicate elements";
+      }
+    }
   }
 
   for (const afterEntry of after) {
-    const beforeEntry = beforeByElement.get(afterEntry.element);
+    let beforeEntry: AuraStateWireEntry | undefined;
+    for (const candidate of before) {
+      if (candidate.element === afterEntry.element) {
+        beforeEntry = candidate;
+        break;
+      }
+    }
     if (beforeEntry === undefined) {
       return `Aura clock advance cannot add ${afterEntry.element}`;
     }
@@ -658,23 +741,46 @@ function auraStateOnlyDecreases(
       return `Aura clock advance cannot extend ${afterEntry.element} expiry`;
     }
 
-    const beforeSlots = new Map(
-      (beforeEntry.sourceSlots ?? []).map(
-        (slot) => [slot.sourceActorId, slot] as const
-      )
-    );
-    if (
-      beforeSlots.size !== (beforeEntry.sourceSlots ?? []).length ||
-      new Set(
-        (afterEntry.sourceSlots ?? []).map(
-          (slot) => slot.sourceActorId
-        )
-      ).size !== (afterEntry.sourceSlots ?? []).length
-    ) {
-      return `${afterEntry.element} source slots must be unique by actor`;
+    const beforeSlots = beforeEntry.sourceSlots ?? [];
+    const afterSlots = afterEntry.sourceSlots ?? [];
+    for (let index = 0; index < beforeSlots.length; index += 1) {
+      for (
+        let priorIndex = 0;
+        priorIndex < index;
+        priorIndex += 1
+      ) {
+        if (
+          beforeSlots[priorIndex]!.sourceActorId ===
+          beforeSlots[index]!.sourceActorId
+        ) {
+          return `${afterEntry.element} source slots must be unique by actor`;
+        }
+      }
     }
-    for (const afterSlot of afterEntry.sourceSlots ?? []) {
-      const beforeSlot = beforeSlots.get(afterSlot.sourceActorId);
+    for (let index = 0; index < afterSlots.length; index += 1) {
+      for (
+        let priorIndex = 0;
+        priorIndex < index;
+        priorIndex += 1
+      ) {
+        if (
+          afterSlots[priorIndex]!.sourceActorId ===
+          afterSlots[index]!.sourceActorId
+        ) {
+          return `${afterEntry.element} source slots must be unique by actor`;
+        }
+      }
+    }
+    for (const afterSlot of afterSlots) {
+      let beforeSlot:
+        | (typeof beforeSlots)[number]
+        | undefined;
+      for (const candidate of beforeSlots) {
+        if (candidate.sourceActorId === afterSlot.sourceActorId) {
+          beforeSlot = candidate;
+          break;
+        }
+      }
       if (beforeSlot === undefined) {
         return `Aura clock advance cannot add ${afterEntry.element} source slot ${afterSlot.sourceActorId}`;
       }
@@ -684,13 +790,19 @@ function auraStateOnlyDecreases(
     }
   }
 
-  const afterElements = new Set(after.map((entry) => entry.element));
   for (const beforeEntry of before) {
     const beforeExpiryFrame =
       beforeEntry.expiresAtTargetFrame ??
       beforeEntry.expiresAtFrame;
+    let remainsAfterAdvance = false;
+    for (const afterEntry of after) {
+      if (afterEntry.element === beforeEntry.element) {
+        remainsAfterAdvance = true;
+        break;
+      }
+    }
     if (
-      !afterElements.has(beforeEntry.element) &&
+      !remainsAfterAdvance &&
       (beforeExpiryFrame === null ||
         beforeExpiryFrame > frame)
     ) {
@@ -1817,6 +1929,171 @@ export const targetClockLogSchema = z
         }
       }
       previousByTarget.set(entry.targetId, entry);
+    });
+  });
+
+const targetTaskPhaseLogEntryBaseShape = {
+  id: z.number().int().nonnegative(),
+  targetId: wireNonEmptyStringSchema,
+  targetName: wireNonEmptyStringSchema,
+  globalFrame: z.number().int().nonnegative(),
+  timeSeconds: finiteNumber.nonnegative(),
+  targetFrame: z.number().int().nonnegative(),
+  targetOrder: z.number().int().nonnegative(),
+  eventPriority: finiteNumber.nonnegative(),
+  eventSequence: z.number().int().nonnegative(),
+  intraEventSequence: z.number().int().nonnegative(),
+  auraBeforeTasks: z.array(auraStateEntrySchema),
+  auraAfterTasks: z.array(auraStateEntrySchema),
+  auraAfterDecay: z.array(auraStateEntrySchema),
+  burningStateLogIds: z.array(z.number().int().nonnegative()),
+  hitResolutionLogIds: z.array(z.number().int().nonnegative()),
+  reactionTaskLogIds: z.array(z.number().int().nonnegative())
+};
+
+export const targetTaskPhaseLogEntrySchema = z
+  .discriminatedUnion("wakeKind", [
+    z
+      .object({
+        ...targetTaskPhaseLogEntryBaseShape,
+        wakeKind: z.literal("burning-tick"),
+        eventType: z.literal("burningTick")
+      })
+      .strict(),
+    z
+      .object({
+        ...targetTaskPhaseLogEntryBaseShape,
+        wakeKind: z.literal("incoming"),
+        eventType: z.enum(["hit", "reactionDamage"])
+      })
+      .strict()
+  ])
+  .superRefine((entry, context) => {
+    if (
+      Math.abs(
+        entry.timeSeconds - entry.globalFrame / 60
+      ) > 1e-9
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["timeSeconds"],
+        message: "must equal globalFrame / 60"
+      });
+    }
+    if (entry.targetFrame > entry.globalFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetFrame"],
+        message: "cannot exceed globalFrame"
+      });
+    }
+    if (entry.wakeKind === "incoming") {
+      const validPriority =
+        entry.eventType === "hit"
+          ? entry.eventPriority === 3
+          : entry.eventPriority > 4 &&
+            entry.eventPriority < 5.5;
+      if (!validPriority) {
+        context.addIssue({
+          code: "custom",
+          path: ["eventPriority"],
+          message:
+            "incoming target phases require hit priority 3 or reactionDamage priority in (4, 5.5)"
+        });
+      }
+    }
+    for (const [field, ids] of [
+      ["burningStateLogIds", entry.burningStateLogIds],
+      ["hitResolutionLogIds", entry.hitResolutionLogIds],
+      ["reactionTaskLogIds", entry.reactionTaskLogIds]
+    ] as const) {
+      for (let index = 1; index < ids.length; index += 1) {
+        if (ids[index]! <= ids[index - 1]!) {
+          context.addIssue({
+            code: "custom",
+            path: [field, index],
+            message: `${field} must be strictly increasing`
+          });
+        }
+      }
+    }
+  });
+
+export const targetTaskPhaseLogSchema = z
+  .array(targetTaskPhaseLogEntrySchema)
+  .superRefine((entries, context) => {
+    let previousEntry: (typeof entries)[number] | undefined;
+    const targetIdsByGlobalFrame = new Map<
+      number,
+      Set<string>
+    >();
+    const previousEntryByTarget = new Map<
+      string,
+      (typeof entries)[number]
+    >();
+
+    entries.forEach((entry, index) => {
+      if (entry.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "id"],
+          message: `target task phase log ids must be contiguous; expected ${index}`
+        });
+      }
+
+      if (
+        previousEntry !== undefined &&
+        (entry.globalFrame < previousEntry.globalFrame ||
+          (entry.globalFrame === previousEntry.globalFrame &&
+            entry.targetOrder < previousEntry.targetOrder))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "targetOrder"],
+          message:
+            "target task phase rows must be sorted by (globalFrame, targetOrder)"
+        });
+      }
+      previousEntry = entry;
+
+      const targetIdsAtFrame =
+        targetIdsByGlobalFrame.get(entry.globalFrame) ??
+        new Set<string>();
+      if (targetIdsAtFrame.has(entry.targetId)) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "targetId"],
+          message:
+            "target task phase rows must be unique by (globalFrame, targetId)"
+        });
+      }
+      targetIdsAtFrame.add(entry.targetId);
+      targetIdsByGlobalFrame.set(
+        entry.globalFrame,
+        targetIdsAtFrame
+      );
+
+      const previousTargetEntry =
+        previousEntryByTarget.get(entry.targetId);
+      if (previousTargetEntry !== undefined) {
+        if (entry.globalFrame <= previousTargetEntry.globalFrame) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "globalFrame"],
+            message:
+              "globalFrame must strictly increase for the same target"
+          });
+        }
+        if (entry.targetFrame < previousTargetEntry.targetFrame) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "targetFrame"],
+            message:
+              "targetFrame must be nondecreasing for the same target"
+          });
+        }
+      }
+      previousEntryByTarget.set(entry.targetId, entry);
     });
   });
 
@@ -9309,10 +9586,23 @@ export const simConfigSchema = z
     timeline: legalTimelineConfigSchema.optional(),
     reactionEngine: auraReactionEngineConfigSchema.optional(),
     playerDamageModel: playerDamageModelSchema,
-    targetClockModel: targetClockModelSchema
+    targetClockModel: targetClockModelSchema,
+    targetTaskModel: targetTaskModelSchema
   })
   .strict()
   .superRefine((config, context) => {
+    if (
+      config.targetTaskModel.mode === "target-phase-v1" &&
+      config.reactionEngine !== undefined &&
+      config.reactionEngine.mode !== "aura-v7"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetTaskModel"],
+        message:
+          "target-phase-v1 requires reactionEngine.mode aura-v7 when reactionEngine is configured"
+      });
+    }
     if (
       config.targetClockModel.mode ===
         "target-local-hitlag-v1" &&
@@ -10982,6 +11272,982 @@ export const targetClockResultReferencesSchema = z
     );
   });
 
+const targetTaskPhaseConfigReferenceSchema = z
+  .object({
+    schemaVersion: z.string().optional(),
+    engineVersion: z.string().optional(),
+    targetTaskModel: targetTaskModelSchema.optional(),
+    targetClockModel: z
+      .object({
+        mode: z.enum(["disabled", "target-local-hitlag-v1"])
+      })
+      .passthrough()
+      .optional(),
+    reactionEngine: z
+      .object({
+        mode: z.string()
+      })
+      .passthrough()
+      .optional()
+  })
+  .passthrough();
+
+const targetTaskPhaseTargetReferenceSchema = z
+  .object({
+    id: wireNonEmptyStringSchema,
+    name: wireNonEmptyStringSchema
+  })
+  .passthrough();
+
+const targetTaskPhaseClockAuditReferenceSchema = z
+  .object({
+    mode: z.enum(["disabled", "target-local-hitlag-v1"])
+  })
+  .passthrough();
+
+const targetTaskPhaseBurningReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh-fuel",
+      "refresh-snapshot",
+      "tick",
+      "tick-skipped",
+      "stop",
+      "fuel-expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema)
+  })
+  .passthrough();
+
+const targetTaskPhaseHitReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative().optional(),
+    eventSequence: z.number().int().nonnegative().optional(),
+    intraEventSequence:
+      z.number().int().nonnegative().optional(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    resolutionKind: z.enum(["direct", "reaction-damage"]),
+    landed: z.boolean(),
+    damageEventId: z.number().int().nonnegative().nullable()
+  })
+  .passthrough();
+
+const targetTaskPhaseReactionTaskReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema)
+  })
+  .passthrough();
+
+/**
+ * Cross-log integrity projection for the 1.37 target-owned task boundary.
+ *
+ * Historical results may omit the new model and phase log. In that case they
+ * are treated as legacy output and are not reinterpreted. Current target-phase
+ * output must provide every owned projection used below.
+ */
+export const targetTaskPhaseResultReferencesSchema = z
+  .object({
+    schemaVersion: z.string().optional(),
+    engineVersion: z.string().optional(),
+    config: targetTaskPhaseConfigReferenceSchema,
+    enemyTargets: z
+      .array(targetTaskPhaseTargetReferenceSchema)
+      .optional(),
+    targetClockAudit:
+      targetTaskPhaseClockAuditReferenceSchema.optional(),
+    targetClockLog: targetClockLogSchema.optional(),
+    targetTaskPhaseLog: targetTaskPhaseLogSchema.optional(),
+    burningStateLog: z
+      .array(targetTaskPhaseBurningReferenceSchema)
+      .optional(),
+    hitResolutionLog: z
+      .array(targetTaskPhaseHitReferenceSchema)
+      .optional(),
+    reactionTaskLog: z
+      .array(targetTaskPhaseReactionTaskReferenceSchema)
+      .optional(),
+    targetStateTimeline: targetStateTimelineSchema.optional()
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    const mode =
+      result.config.targetTaskModel?.mode ??
+      "legacy-event-heap-v1";
+    const phases = result.targetTaskPhaseLog ?? [];
+    const currentIdentity =
+      result.schemaVersion === TARGET_TASK_PHASE_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        TARGET_TASK_PHASE_SCHEMA_VERSION;
+    if (
+      result.schemaVersion !== undefined &&
+      result.config.schemaVersion !== undefined &&
+      result.schemaVersion !== result.config.schemaVersion
+    ) {
+      issue(
+        ["config", "schemaVersion"],
+        "result and config schemaVersion must match"
+      );
+    }
+    if (
+      result.engineVersion !== undefined &&
+      result.config.engineVersion !== undefined &&
+      result.engineVersion !== result.config.engineVersion
+    ) {
+      issue(
+        ["config", "engineVersion"],
+        "result and config engineVersion must match"
+      );
+    }
+
+    if (
+      currentIdentity &&
+      result.config.targetTaskModel === undefined
+    ) {
+      issue(
+        ["config", "targetTaskModel"],
+        "current target-task output requires config.targetTaskModel"
+      );
+    }
+    if (
+      currentIdentity &&
+      result.targetTaskPhaseLog === undefined
+    ) {
+      issue(
+        ["targetTaskPhaseLog"],
+        "current target-task output requires targetTaskPhaseLog"
+      );
+    }
+    if (
+      !currentIdentity &&
+      mode === "target-phase-v1"
+    ) {
+      issue(
+        ["config", "targetTaskModel", "mode"],
+        "historical target-task output cannot enable target-phase-v1"
+      );
+      return;
+    }
+    if (mode === "target-phase-v1") {
+      if (
+        result.schemaVersion !==
+          TARGET_TASK_PHASE_SCHEMA_VERSION ||
+        result.config.schemaVersion !==
+          TARGET_TASK_PHASE_SCHEMA_VERSION
+      ) {
+        issue(
+          ["config", "schemaVersion"],
+          "target-phase-v1 result and config must both use the current target-task schema identity"
+        );
+      }
+      if (
+        result.engineVersion !==
+          TARGET_TASK_PHASE_ENGINE_VERSION ||
+        result.config.engineVersion !==
+          TARGET_TASK_PHASE_ENGINE_VERSION
+      ) {
+        issue(
+          ["config", "engineVersion"],
+          "target-phase-v1 result and config must both use the current target-task engine identity"
+        );
+      }
+    }
+
+    if (mode === "legacy-event-heap-v1") {
+      if (phases.length !== 0) {
+        issue(
+          ["targetTaskPhaseLog"],
+          "legacy-event-heap-v1 requires an empty target task phase log"
+        );
+      }
+      return;
+    }
+
+    const requiredFields = [
+      "enemyTargets",
+      "targetClockAudit",
+      "targetClockLog",
+      "targetTaskPhaseLog",
+      "burningStateLog",
+      "hitResolutionLog",
+      "reactionTaskLog",
+      "targetStateTimeline"
+    ] as const;
+    let missingRequiredField = false;
+    for (const field of requiredFields) {
+      if (result[field] === undefined) {
+        missingRequiredField = true;
+        issue(
+          [field],
+          `target-phase-v1 requires ${field}`
+        );
+      }
+    }
+    if (missingRequiredField) return;
+
+    const enemyTargets = result.enemyTargets!;
+    const targetClockAudit = result.targetClockAudit!;
+    const targetClockLog = result.targetClockLog!;
+    const burningStateLog = result.burningStateLog!;
+    const hitResolutionLog = result.hitResolutionLog!;
+    const reactionTaskLog = result.reactionTaskLog!;
+    const targetStateTimeline = result.targetStateTimeline!;
+    hitResolutionLog.forEach((entry, index) => {
+      const requiredTupleFields = [
+        "eventPriority",
+        "eventSequence",
+        "intraEventSequence"
+      ] as const;
+      requiredTupleFields.forEach((field) => {
+        if (entry[field] === undefined) {
+          issue(
+            ["hitResolutionLog", index, field],
+            `target-phase-v1 hit-resolution log ${entry.id} requires ${field}`
+          );
+        }
+      });
+    });
+    if (
+      result.config.targetClockModel?.mode !==
+      targetClockAudit.mode
+    ) {
+      issue(
+        ["config", "targetClockModel", "mode"],
+        "targetClockModel.mode must match targetClockAudit.mode"
+      );
+    }
+    if (
+      result.config.reactionEngine !== undefined &&
+      result.config.reactionEngine.mode !== "aura-v7"
+    ) {
+      issue(
+        ["config", "reactionEngine", "mode"],
+        "target-phase-v1 result references require reactionEngine.mode aura-v7 when an Aura engine is configured"
+      );
+    }
+    const targetById = new Map<
+      string,
+      { index: number; name: string }
+    >();
+    enemyTargets.forEach((target, index) => {
+      if (targetById.has(target.id)) {
+        issue(
+          ["enemyTargets", index, "id"],
+          `duplicate target "${target.id}" in target task phase projection`
+        );
+      } else {
+        targetById.set(target.id, {
+          index,
+          name: target.name
+        });
+      }
+    });
+
+    const buildUniqueIdMap = <
+      TEntry extends { id: number }
+    >(
+      entries: TEntry[],
+      field: string
+    ): Map<number, TEntry> => {
+      const byId = new Map<number, TEntry>();
+      entries.forEach((entry, index) => {
+        if (byId.has(entry.id)) {
+          issue(
+            [field, index, "id"],
+            `duplicate ${field} id ${entry.id}`
+          );
+        } else {
+          byId.set(entry.id, entry);
+        }
+      });
+      return byId;
+    };
+    const burningById = buildUniqueIdMap(
+      burningStateLog,
+      "burningStateLog"
+    );
+    const hitById = buildUniqueIdMap(
+      hitResolutionLog,
+      "hitResolutionLog"
+    );
+    const taskById = buildUniqueIdMap(
+      reactionTaskLog,
+      "reactionTaskLog"
+    );
+    const phaseByKey = new Map<
+      string,
+      (typeof phases)[number]
+    >(
+      phases.map((phase) => [
+        `${phase.globalFrame}\u0000${phase.targetId}`,
+        phase
+      ])
+    );
+
+    const clockEntriesByTarget = new Map<
+      string,
+      typeof targetClockLog
+    >();
+    targetClockLog.forEach((entry) => {
+      const entries =
+        clockEntriesByTarget.get(entry.targetId) ?? [];
+      entries.push(entry);
+      clockEntriesByTarget.set(entry.targetId, entries);
+    });
+    const replayTargetFrame = (
+      targetId: string,
+      globalFrame: number
+    ): number | undefined => {
+      if (globalFrame === 0) return 0;
+      const entries = clockEntriesByTarget.get(targetId);
+      if (entries === undefined) return undefined;
+      for (const entry of entries) {
+        if (globalFrame < entry.globalFrameBefore) break;
+        if (
+          entry.operation === "advance" &&
+          globalFrame <= entry.globalFrameAfter
+        ) {
+          const elapsed =
+            globalFrame - entry.globalFrameBefore;
+          return (
+            entry.targetFrameBefore +
+            elapsed -
+            Math.min(elapsed, entry.frozenFramesBefore)
+          );
+        }
+        if (globalFrame === entry.globalFrameBefore) {
+          return entry.targetFrameBefore;
+        }
+      }
+      return undefined;
+    };
+
+    const burningOwnerById = new Map<number, number>();
+    const hitOwnerById = new Map<number, number>();
+    const taskOwnerById = new Map<number, number>();
+    const claimReference = (
+      ownerById: Map<number, number>,
+      id: number,
+      phaseIndex: number,
+      path: Array<string | number>,
+      family: string
+    ): void => {
+      const previousOwner = ownerById.get(id);
+      if (previousOwner !== undefined) {
+        issue(
+          path,
+          `${family} ${id} is referenced by both target task phases ${previousOwner} and ${phaseIndex}`
+        );
+      } else {
+        ownerById.set(id, phaseIndex);
+      }
+    };
+    const auraMode =
+      result.config.reactionEngine?.mode === "aura-v7";
+
+    phases.forEach((phase, phaseIndex) => {
+      const target = targetById.get(phase.targetId);
+      if (target === undefined) {
+        issue(
+          ["targetTaskPhaseLog", phaseIndex, "targetId"],
+          `unknown target task phase target "${phase.targetId}"`
+        );
+      } else {
+        if (phase.targetName !== target.name) {
+          issue(
+            ["targetTaskPhaseLog", phaseIndex, "targetName"],
+            "target task phase targetName must match enemyTargets"
+          );
+        }
+        if (phase.targetOrder !== target.index) {
+          issue(
+            ["targetTaskPhaseLog", phaseIndex, "targetOrder"],
+            "targetOrder must equal the resolved enemyTargets index"
+          );
+        }
+      }
+
+      const expectedTargetFrame =
+        targetClockAudit.mode === "disabled"
+          ? phase.globalFrame
+          : replayTargetFrame(
+              phase.targetId,
+              phase.globalFrame
+            );
+      if (
+        expectedTargetFrame === undefined ||
+        phase.targetFrame !== expectedTargetFrame
+      ) {
+        issue(
+          ["targetTaskPhaseLog", phaseIndex, "targetFrame"],
+          "targetFrame must exactly match the target-clock replay"
+        );
+      }
+
+      let previousTimelinePoint:
+        | (typeof targetStateTimeline.points)[number]
+        | undefined;
+      for (
+        let pointIndex =
+          targetStateTimeline.points.length - 1;
+        pointIndex >= 0;
+        pointIndex -= 1
+      ) {
+        const point =
+          targetStateTimeline.points[pointIndex]!;
+        if (
+          point.targetId === phase.targetId &&
+          (point.frame < phase.globalFrame ||
+            (phase.globalFrame === 0 &&
+              point.frame === 0 &&
+              point.cause === "simulation-start"))
+        ) {
+          previousTimelinePoint = point;
+          break;
+        }
+      }
+      if (previousTimelinePoint === undefined) {
+        issue(
+          ["targetTaskPhaseLog", phaseIndex, "auraBeforeTasks"],
+          "target task phase requires a preceding authoritative target-state point"
+        );
+      } else {
+        const prePhaseIssue = auraStateOnlyDecreases(
+          previousTimelinePoint.auraAfter,
+          phase.auraBeforeTasks,
+          Math.max(0, phase.targetFrame - 1)
+        );
+        if (prePhaseIssue !== null) {
+          issue(
+            [
+              "targetTaskPhaseLog",
+              phaseIndex,
+              "auraBeforeTasks"
+            ],
+            `target phase pre-task Aura must descend from the previous target state: ${prePhaseIssue}`
+          );
+        }
+      }
+
+      if (
+        phase.wakeKind === "incoming" &&
+        !auraStateSnapshotsEqual(
+          phase.auraBeforeTasks,
+          phase.auraAfterTasks
+        )
+      ) {
+        issue(
+          ["targetTaskPhaseLog", phaseIndex, "auraAfterTasks"],
+          "an incoming wake cannot mutate Aura during the target-task phase"
+        );
+      }
+      const burningFuelExpiredAtBoundary =
+        phase.auraAfterTasks.some((entry) => {
+          const expiry =
+            entry.expiresAtTargetFrame ??
+            entry.expiresAtFrame;
+          return (
+            entry.element === "burningFuel" &&
+            expiry !== null &&
+            expiry <= phase.targetFrame &&
+            !phase.auraAfterDecay.some(
+              (after) => after.element === "burningFuel"
+            )
+          );
+        });
+      const decayInput = burningFuelExpiredAtBoundary
+        ? phase.auraAfterTasks.filter(
+            (entry) =>
+              entry.element !== "burning" &&
+              entry.element !== "quicken"
+          )
+        : phase.auraAfterTasks;
+      const decayIssue = auraStateOnlyDecreases(
+        decayInput,
+        phase.auraAfterDecay,
+        phase.targetFrame
+      );
+      if (decayIssue !== null) {
+        issue(
+          ["targetTaskPhaseLog", phaseIndex, "auraAfterDecay"],
+          `target phase decay may only decrease existing Aura: ${decayIssue}`
+        );
+      }
+
+      if (
+        phase.wakeKind === "burning-tick" &&
+        target !== undefined
+      ) {
+        const expectedPriority =
+          0.5 +
+          target.index *
+            (0.5 / (enemyTargets.length + 1));
+        if (
+          !approximatelyEqual(
+            phase.eventPriority,
+            expectedPriority
+          )
+        ) {
+          issue(
+            [
+              "targetTaskPhaseLog",
+              phaseIndex,
+              "eventPriority"
+            ],
+            "Burning target-task priority must encode resolved target order"
+          );
+        }
+      }
+
+      phase.burningStateLogIds.forEach(
+        (id, referenceIndex) => {
+          const entry = burningById.get(id);
+          const path = [
+            "targetTaskPhaseLog",
+            phaseIndex,
+            "burningStateLogIds",
+            referenceIndex
+          ];
+          claimReference(
+            burningOwnerById,
+            id,
+            phaseIndex,
+            path,
+            "burning-state log"
+          );
+          if (entry === undefined) {
+            issue(
+              path,
+              `missing burning-state log ${id}`
+            );
+            return;
+          }
+          if (
+            phase.wakeKind !== "burning-tick" ||
+            entry.targetId !== phase.targetId ||
+            entry.targetName !== phase.targetName ||
+            entry.frame !== phase.globalFrame ||
+            !approximatelyEqual(
+              entry.timeSeconds,
+              phase.timeSeconds
+            ) ||
+            entry.eventPriority !== phase.eventPriority ||
+            entry.eventSequence !== phase.eventSequence ||
+            (entry.operation !== "tick" &&
+              entry.operation !== "tick-skipped" &&
+              entry.operation !== "stop") ||
+            (targetClockAudit.mode ===
+              "target-local-hitlag-v1" &&
+              entry.targetFrame !== phase.targetFrame)
+          ) {
+            issue(
+              path,
+              `burning-state log ${id} does not match its target-owned phase provenance`
+            );
+          }
+          // A Burning state row is enriched later when its queued
+          // reaction-damage event applies Pyro. Its final auraBefore/auraAfter
+          // snapshots therefore describe the damage application, not the
+          // earlier target-owned callback boundary. The immutable callback
+          // boundary is verified against the reciprocal timeline point below.
+        }
+      );
+
+      const expectedHitKind =
+        phase.wakeKind === "incoming" &&
+        phase.eventType === "reactionDamage"
+          ? "reaction-damage"
+          : "direct";
+      const referencedHits =
+        phase.hitResolutionLogIds.flatMap((id) => {
+          const entry = hitById.get(id);
+          return entry === undefined ? [] : [entry];
+        });
+      if (phase.wakeKind === "incoming") {
+        const wakeHit = referencedHits[0];
+        if (wakeHit === undefined) {
+          issue(
+            [
+              "targetTaskPhaseLog",
+              phaseIndex,
+              "hitResolutionLogIds"
+            ],
+            "incoming target phase requires its wake hit-resolution reference"
+          );
+        } else if (
+          wakeHit.eventPriority === undefined ||
+          wakeHit.eventSequence === undefined ||
+          wakeHit.intraEventSequence === undefined ||
+          wakeHit.eventPriority !== phase.eventPriority ||
+          wakeHit.eventSequence !== phase.eventSequence ||
+          wakeHit.intraEventSequence <=
+            phase.intraEventSequence
+        ) {
+          issue(
+            ["targetTaskPhaseLog", phaseIndex],
+            "incoming target phase must match its wake hit-resolution event tuple"
+          );
+        }
+      }
+      phase.hitResolutionLogIds.forEach(
+        (id, referenceIndex) => {
+          const entry = hitById.get(id);
+          const path = [
+            "targetTaskPhaseLog",
+            phaseIndex,
+            "hitResolutionLogIds",
+            referenceIndex
+          ];
+          claimReference(
+            hitOwnerById,
+            id,
+            phaseIndex,
+            path,
+            "hit-resolution log"
+          );
+          if (
+            entry === undefined ||
+            entry.targetId !== phase.targetId ||
+            entry.targetName !== phase.targetName ||
+            entry.frame !== phase.globalFrame ||
+            !approximatelyEqual(
+              entry.timeSeconds,
+              phase.timeSeconds
+            ) ||
+            entry.resolutionKind !== expectedHitKind
+          ) {
+            issue(
+              path,
+              `hit-resolution log ${id} does not match its target phase, frame, or wake type`
+            );
+          }
+        }
+      );
+
+      phase.reactionTaskLogIds.forEach(
+        (id, referenceIndex) => {
+          const entry = taskById.get(id);
+          const path = [
+            "targetTaskPhaseLog",
+            phaseIndex,
+            "reactionTaskLogIds",
+            referenceIndex
+          ];
+          claimReference(
+            taskOwnerById,
+            id,
+            phaseIndex,
+            path,
+            "reaction-task log"
+          );
+          if (
+            entry === undefined ||
+            entry.targetId !== phase.targetId ||
+            entry.targetName !== phase.targetName ||
+            entry.frame !== phase.globalFrame ||
+            !approximatelyEqual(
+              entry.timeSeconds,
+              phase.timeSeconds
+            )
+          ) {
+            issue(
+              path,
+              `reaction-task log ${id} must share its target and frame with the owning phase`
+            );
+          }
+        }
+      );
+
+      const phaseTimelinePoints =
+        targetStateTimeline.points.filter(
+          (point) =>
+            point.targetId === phase.targetId &&
+            point.frame === phase.globalFrame
+        );
+      if (phase.wakeKind === "burning-tick") {
+        const burningPoints = phaseTimelinePoints.filter(
+          (point) =>
+            point.cause === "burning-tick" &&
+            point.eventType === "burningTick" &&
+            point.eventPriority === phase.eventPriority &&
+            point.eventSequence === phase.eventSequence
+        );
+        if (
+          burningPoints.length !== 1 ||
+          burningPoints[0]!.targetName !== phase.targetName ||
+          (burningPoints[0]!.targetFrame ??
+            burningPoints[0]!.frame) !== phase.targetFrame ||
+          burningPoints[0]!.intraEventSequence === null ||
+          burningPoints[0]!.intraEventSequence <=
+            phase.intraEventSequence ||
+          !auraStateSnapshotsEqual(
+            burningPoints[0]!.auraBefore,
+            phase.auraBeforeTasks
+          ) ||
+          !auraStateSnapshotsEqual(
+            burningPoints[0]!.auraAfter,
+            phase.auraAfterDecay
+          )
+        ) {
+          issue(
+            ["targetTaskPhaseLog", phaseIndex],
+            "Burning phase must have one reciprocal target timeline boundary"
+          );
+        } else {
+          phase.burningStateLogIds.forEach(
+            (burningId, referenceIndex) => {
+              const matchingLinks = burningPoints[0]!.links.filter(
+                (link) =>
+                  link.kind === "burning-state-log" &&
+                  link.id === burningId
+              );
+              if (matchingLinks.length !== 1) {
+                issue(
+                  [
+                    "targetTaskPhaseLog",
+                    phaseIndex,
+                    "burningStateLogIds",
+                    referenceIndex
+                  ],
+                  `burning-state log ${burningId} requires one reciprocal timeline link`
+                );
+              }
+            }
+          );
+        }
+      }
+
+      phase.reactionTaskLogIds.forEach(
+        (taskId, referenceIndex) => {
+          const task = taskById.get(taskId);
+          if (task === undefined) return;
+          const points = phaseTimelinePoints.filter((point) =>
+            point.links.some(
+              (link) =>
+                link.kind === "reaction-task-log" &&
+                link.id === taskId
+            )
+          );
+          if (
+            points.length !== 1 ||
+            points[0]!.targetName !== phase.targetName ||
+            points[0]!.eventPriority !== task.eventPriority ||
+            points[0]!.eventSequence !== task.eventSequence ||
+            points[0]!.intraEventSequence === null ||
+            points[0]!.intraEventSequence <=
+              task.intraEventSequence ||
+            !auraStateSnapshotsEqual(
+              points[0]!.auraBefore,
+              task.auraBefore
+            ) ||
+            !auraStateSnapshotsEqual(
+              points[0]!.auraAfter,
+              task.auraAfter
+            )
+          ) {
+            issue(
+              [
+                "targetTaskPhaseLog",
+                phaseIndex,
+                "reactionTaskLogIds",
+                referenceIndex
+              ],
+              `reaction-task log ${taskId} requires one reciprocal target timeline point`
+            );
+          }
+        }
+      );
+
+      if (auraMode) {
+        const landedHits = referencedHits.filter(
+          (entry) =>
+            entry.landed && entry.damageEventId !== null
+        );
+        const wakeHit = referencedHits[0];
+        if (
+          phase.wakeKind === "incoming" &&
+          wakeHit?.landed === true &&
+          wakeHit.damageEventId !== null
+        ) {
+          const reciprocalWakePoint =
+            phaseTimelinePoints.find(
+              (point) =>
+                point.primaryDamageEventId ===
+                  wakeHit.damageEventId &&
+                point.eventType === phase.eventType
+            );
+          if (
+            reciprocalWakePoint === undefined ||
+            reciprocalWakePoint.eventPriority !==
+              phase.eventPriority ||
+            reciprocalWakePoint.eventSequence !==
+              phase.eventSequence ||
+            reciprocalWakePoint.intraEventSequence === null ||
+            reciprocalWakePoint.intraEventSequence <=
+              phase.intraEventSequence
+          ) {
+            issue(
+              ["targetTaskPhaseLog", phaseIndex],
+              "landed incoming phase must match its first reciprocal target timeline event tuple"
+            );
+          }
+        }
+        landedHits.forEach((entry, referenceIndex) => {
+          const expectedEventType =
+            entry.resolutionKind === "direct"
+              ? "hit"
+              : "reactionDamage";
+          const points = phaseTimelinePoints.filter(
+            (point) =>
+              point.primaryDamageEventId ===
+                entry.damageEventId &&
+              point.eventType === expectedEventType
+          );
+          if (points.length === 0) {
+            issue(
+              [
+                "targetTaskPhaseLog",
+                phaseIndex,
+                "hitResolutionLogIds",
+                referenceIndex
+              ],
+              `landed hit-resolution log ${entry.id} requires a target timeline point`
+            );
+          }
+        });
+        const firstLanded = landedHits[0];
+        if (firstLanded !== undefined) {
+          const expectedEventType =
+            firstLanded.resolutionKind === "direct"
+              ? "hit"
+              : "reactionDamage";
+          const firstPoint = phaseTimelinePoints.find(
+            (point) =>
+              point.primaryDamageEventId ===
+                firstLanded.damageEventId &&
+              point.eventType === expectedEventType
+          );
+          if (
+            firstPoint !== undefined &&
+            !auraStateSnapshotsEqual(
+              firstPoint.auraBefore,
+              phase.auraAfterDecay
+            )
+          ) {
+            issue(
+              [
+                "targetTaskPhaseLog",
+                phaseIndex,
+                "auraAfterDecay"
+              ],
+              "the first landed incoming hit must start from phase auraAfterDecay"
+            );
+          }
+        }
+      }
+    });
+
+    hitResolutionLog.forEach((entry, index) => {
+      const owner = hitOwnerById.get(entry.id);
+      const phase = phaseByKey.get(
+        `${entry.frame}\u0000${entry.targetId}`
+      );
+      if (entry.resolutionKind === "direct") {
+        if (owner === undefined) {
+          issue(
+            ["hitResolutionLog", index, "id"],
+            `direct hit-resolution log ${entry.id} requires exactly one target phase reference`
+          );
+        }
+        return;
+      }
+      const phaseOwnsReactionDamage =
+        phase?.wakeKind === "incoming" &&
+        phase.eventType === "reactionDamage";
+      if (
+        phaseOwnsReactionDamage !== (owner !== undefined)
+      ) {
+        issue(
+          ["hitResolutionLog", index, "id"],
+          phaseOwnsReactionDamage
+            ? `reaction-damage hit-resolution log ${entry.id} requires its incoming phase reference`
+            : `reaction-damage hit-resolution log ${entry.id} must remain outside an earlier target phase`
+        );
+      }
+    });
+
+    burningStateLog.forEach((entry, index) => {
+      const target = targetById.get(entry.targetId);
+      if (target === undefined) return;
+      const expectedPriority =
+        0.5 +
+        target.index *
+          (0.5 / (enemyTargets.length + 1));
+      const targetOwnedCallback =
+        entry.operation === "tick" ||
+        entry.operation === "tick-skipped" ||
+        (entry.operation === "stop" &&
+          (approximatelyEqual(
+            entry.eventPriority,
+            expectedPriority
+          ) ||
+            targetStateTimeline.points.some(
+              (point) =>
+                point.cause === "burning-tick" &&
+                point.eventType === "burningTick" &&
+                point.links.some(
+                  (link) =>
+                    link.kind === "burning-state-log" &&
+                    link.id === entry.id
+                )
+            )));
+      if (
+        targetOwnedCallback &&
+        burningOwnerById.get(entry.id) === undefined
+      ) {
+        issue(
+          ["burningStateLog", index, "id"],
+          `target-owned burning-state log ${entry.id} requires exactly one phase reference`
+        );
+      }
+    });
+
+    reactionTaskLog.forEach((entry, index) => {
+      if (taskOwnerById.get(entry.id) === undefined) {
+        issue(
+          ["reactionTaskLog", index, "id"],
+          `reaction-task log ${entry.id} requires exactly one target phase reference`
+        );
+      }
+    });
+  });
+
 /**
  * Strict player-reaction-damage output boundary plus cross-log integrity.
  *
@@ -12027,7 +13293,8 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
       : [],
     rotation: Array.isArray(input.rotation) ? input.rotation : [],
     playerDamageModel: { mode: "disabled" },
-    targetClockModel: { mode: "disabled" }
+    targetClockModel: { mode: "disabled" },
+    targetTaskModel: { mode: "legacy-event-heap-v1" }
   };
 }
 
@@ -12056,7 +13323,8 @@ type HistoricalAuraMode =
   | "aura-v3"
   | "aura-v4"
   | "aura-v5"
-  | "aura-v6";
+  | "aura-v6"
+  | "aura-v7";
 
 interface HistoricalSchemaContract {
   engineVersion: string;
@@ -12083,6 +13351,15 @@ const HISTORICAL_AURA_MODES = {
     "aura-v4",
     "aura-v5",
     "aura-v6"
+  ] as const,
+  v7: [
+    "aura-v1",
+    "aura-v2",
+    "aura-v3",
+    "aura-v4",
+    "aura-v5",
+    "aura-v6",
+    "aura-v7"
   ] as const
 } satisfies Record<string, readonly HistoricalAuraMode[]>;
 
@@ -12235,6 +13512,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION]: {
     engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v6
+  },
+  [QUICKEN_BLOOM_TASK_SCHEMA_VERSION]: {
+    engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v7
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -12298,6 +13579,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   const version = input.schemaVersion;
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === QUICKEN_BLOOM_TASK_SCHEMA_VERSION ||
     version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION
       ? null
       : findEnemyElementalResistancesPath(input);
@@ -12319,6 +13601,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
   ) {
@@ -12336,6 +13619,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v6"
   ) {
@@ -12351,6 +13635,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v7"
   ) {
@@ -12370,6 +13655,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
     !(
       isRecord(input.playerDamageModel) &&
@@ -12392,6 +13678,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
     !(
       isRecord(input.targetClockModel) &&
@@ -12410,6 +13697,25 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     );
   }
   if (
+    version !== CURRENT_SCHEMA_VERSION &&
+    input.targetTaskModel !== undefined &&
+    !(
+      isRecord(input.targetTaskModel) &&
+      input.targetTaskModel.mode === "legacy-event-heap-v1" &&
+      Object.keys(input.targetTaskModel).length === 1
+    )
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `targetTaskModel: schemaVersion "${historicalVersion}" does not support target-phase task scheduling`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
     version === undefined ||
     version === LEGACY_SCHEMA_VERSION ||
     version === "0.1.0-demo"
@@ -12421,6 +13727,17 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  input = {
+    ...input,
+    targetTaskModel: { mode: "legacy-event-heap-v1" }
+  };
+  if (version === QUICKEN_BLOOM_TASK_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION) {
     return parseSimConfig({

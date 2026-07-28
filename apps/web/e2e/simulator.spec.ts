@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import {
   durinMeltPreset,
@@ -25,6 +26,12 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     buffer: Buffer.from(JSON.stringify(durinMeltPreset))
   });
   await expect(page.locator("#notice")).toContainText("黑杜林融化");
+  const importedTargetTaskModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().targetTaskModel
+  );
+  expect(importedTargetTaskModel).toEqual({
+    mode: "legacy-event-heap-v1"
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -48,6 +55,16 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await page.getByRole("button", { name: "导出 JSON" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/\.json$/);
+  const downloadedPath = await download.path();
+  expect(downloadedPath).not.toBeNull();
+  const exportedConfig = JSON.parse(
+    await readFile(downloadedPath!, "utf8")
+  ) as {
+    targetTaskModel?: unknown;
+  };
+  expect(exportedConfig.targetTaskModel).toEqual(
+    importedTargetTaskModel
+  );
 });
 
 test("shows a field path for an invalid config", async ({ page }) => {
@@ -103,9 +120,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.36.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.37.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.36.0-quicken-bloom-task"
+    "engine 1.37.0-target-task-phase"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -496,6 +513,54 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
   await expect(page.locator("#hitDetail")).toContainText(
     "Aura / ICD 引擎"
+  );
+
+  const auraV7Config = await page.evaluate(() => {
+    const nextConfig = structuredClone(
+      window.GenshinDpsLab.getConfig()
+    );
+    nextConfig.reactionEngine = { mode: "aura-v7" };
+    nextConfig.enemy.targets = [
+      {
+        id: "enemy-0",
+        name: "Aura v7 browser target",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0.5
+      }
+    ];
+    for (const ability of nextConfig.timeline?.abilities ?? []) {
+      for (const hit of ability.hits ?? []) {
+        if (
+          hit.application !== undefined &&
+          (hit.element === "pyro" ||
+            hit.element === "electro")
+        ) {
+          hit.geometry = {
+            kind: "circle",
+            coordinateSpace: "world",
+            origin: { x: 0, y: 0 },
+            radius: 1
+          };
+        }
+      }
+    }
+    return nextConfig;
+  });
+  await page.locator("#importInput").setInputFiles({
+    name: "aura-v7-browser-label.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(auraV7Config))
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
+      )
+    )
+    .toBe("aura-v7");
+  await page.getByRole("button", { name: "运行模拟" }).click();
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v7 自动判定"
   );
 });
 

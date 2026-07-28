@@ -265,6 +265,64 @@ describe("aura-v4 Burning lifecycle", () => {
     );
   });
 
+  it("can evaluate a target-task Burning callback before the current-frame Fuel decay", () => {
+    const makeEngine = () =>
+      new AuraEngine({
+        mode: "aura-v4",
+        // 0.8 × 7/60U leaves exactly fourteen 1/150U Fuel decay
+        // steps after Burning's attachment-frame grace. Fuel therefore
+        // reaches zero on the same F15 target Tick as the first callback.
+        initialAura: [
+          { element: "dendro" as const, gaugeUnits: 7 / 60 }
+        ]
+      });
+    const legacyEngine = makeEngine();
+    const legacyStart = legacyEngine.processHit({
+      frame: 0,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+    const phasedEngine = makeEngine();
+    const phasedStart = phasedEngine.processHit({
+      frame: 0,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd()
+    });
+
+    expect(legacyStart.burningReaction).toMatchObject({
+      generation: 1,
+      firstTickFrame: 15,
+      fuelExpiresAtFrame: 15
+    });
+    expect(
+      legacyEngine.prepareBurningTick(15, 1, 1)
+    ).toMatchObject({
+      operation: "stop",
+      reason: "FUEL_EXPIRED"
+    });
+
+    const callback =
+      phasedEngine.prepareBurningTickBeforeDecay(15, 1, 1);
+    expect(callback).toMatchObject({
+      operation: "tick",
+      frame: 15,
+      tickIndex: 1,
+      fuelGaugeUnitsBefore: expect.closeTo(1 / 150, 12),
+      nextTickFrame: 30,
+      reason: null
+    });
+    expect(
+      phasedEngine.getAuraStateAt(15)
+    ).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ element: "burning" }),
+        expect.objectContaining({ element: "burningFuel" })
+      ])
+    );
+  });
+
   it("skips only slot 9, resumes slot 10, and keeps cadence across both refresh forms", () => {
     const engine = new AuraEngine({
       mode: "aura-v4",

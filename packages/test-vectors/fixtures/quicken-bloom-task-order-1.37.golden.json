@@ -1,0 +1,424 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Provisional 1.37 identity fixture for the frozen queued Quicken-to-Bloom core-task ordering.",
+  "provenance": {
+    "source": "Identity-only projection of quicken-bloom-task-order-1.36.golden.json under the 1.37 schema/engine envelope.",
+    "capturedAt": "2026-07-28",
+    "verificationStatus": "provisional",
+    "notes": [
+      "This fixture is a deterministic regression vector, not official game data or a claim of complete gcsim parity.",
+      "aura-v7 queues the Quicken-to-Bloom Hydro follow-up at zero delay and re-reads live Aura after already-enqueued same-frame hits.",
+      "aura-v6 remains frozen as the synchronous compatibility mode.",
+      "1.37 keeps this Quicken-to-Bloom follow-up in the zero-delay core queue; target-phase-v1 does not reclassify it as a target-owned callback."
+    ]
+  },
+  "config": {
+    "schemaVersion": "1.37.0",
+    "engineVersion": "1.37.0-target-task-phase",
+    "dataVersion": "quicken-bloom-task-order-provisional-1",
+    "timelineMode": "legal-frame-v1",
+    "queuedReactionEngineMode": "aura-v7",
+    "compatibilityReactionEngineMode": "aura-v6",
+    "targetTaskModelMode": "legacy-event-heap-v1"
+  },
+  "vectors": {
+    "fifo": {
+      "version": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "dataVersion": "quicken-bloom-task-order-provisional-1",
+        "randomSeed": "quicken-bloom-task-order-aura-v7-fifo",
+        "reactionEngineMode": "aura-v7",
+        "timelineMode": "legal-frame-v1",
+        "targetTaskModelMode": "legacy-event-heap-v1"
+      },
+      "directDamageEvents": [
+        {
+          "id": 0,
+          "order": "P3/S1",
+          "frame": 0,
+          "hitId": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "reactions": [
+            "quicken"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": true,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 1,
+          "order": "P3/S2",
+          "frame": 0,
+          "hitId": "electro-followup",
+          "element": "electro",
+          "reaction": "aggravate",
+          "reactions": [
+            "aggravate",
+            "electroCharged"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 748.7466862499999,
+          "displayDamage": 749
+        }
+      ],
+      "reactionTasks": [
+        {
+          "id": 0,
+          "kind": "quicken-bloom-followup",
+          "frame": 0,
+          "triggerHitId": "dendro-quicken",
+          "triggerDamageEventId": 0,
+          "triggerOrder": "P3/S1",
+          "taskOrder": "P3/S3/I0",
+          "status": "triggered",
+          "blockedReason": null,
+          "auraBefore": [
+            "electro:0.64@540",
+            "hydro:0.8@570",
+            "quicken:0.8@600"
+          ],
+          "auraConsumed": [
+            "quicken:0.4",
+            "hydro:0.8"
+          ],
+          "auraAfter": [
+            "electro:0.64@540",
+            "quicken:0.4@300"
+          ],
+          "bloomReaction": {
+            "operation": "quicken-followup",
+            "triggerElement": "dendro",
+            "sourceBudget": "quicken-state",
+            "hydro": {
+              "before": 0.8,
+              "consumed": 0.8,
+              "after": 0
+            },
+            "quicken": {
+              "before": 0.8,
+              "consumed": 0.4,
+              "after": 0.4
+            },
+            "quickenMutation": {
+              "operation": "partial-consume",
+              "generationBefore": 1,
+              "generationAfter": 2,
+              "expiresAtFrameBefore": 600,
+              "expiresAtFrameAfter": 300
+            },
+            "coreSpawnFrame": 30
+          },
+          "quickenStateLogIds": [
+            1
+          ],
+          "dendroCoreLogIds": [
+            0
+          ],
+          "dendroCoreIds": [
+            0
+          ]
+        }
+      ],
+      "quickenStateOrder": [
+        "#0:F0:start:G1:0>0.8:X600:D0:QUICKEN_STARTED",
+        "#1:F0:partial-consume:G2:0.8>0.4:X300:D0:BLOOM_PARTIALLY_CONSUMED_QUICKEN"
+      ],
+      "dendroCoreOrder": [
+        "#0/C0:F0:P3/S3/I1:quickenBloomFollowup:spawn-scheduled:D0:T0:spawnF30",
+        "#1/C0:F30:P2/S5/I0:dendroCoreSpawn:spawn:D0:spawnedF30:expireF330"
+      ],
+      "targetTimelineOrder": [
+        "#0:F0:boundary:simulation-start:none:Pnone/Snone/Inone:none:Dnone:no-links",
+        "#1:F0:mutation:direct-hit-application:hit:P3/S1/I0:quicken:D0:damage-event#0",
+        "#2:F0:mutation:direct-hit-application:hit:P3/S2/I0:aggravate+electroCharged:D1:damage-event#1",
+        "#3:F0:mutation:quicken-bloom-followup:quickenBloomFollowup:P3/S3/I2:bloom:D0:damage-event#0+reaction-task-log#0+quicken-state-log#1",
+        "#4:F10:observation:electro-charged-tick:periodicReactionTick:P4/S4/I0:electroCharged:Dnone:periodic-reaction-log#1",
+        "#5:F60:boundary:simulation-end:none:Pnone/Snone/Inone:none:Dnone:no-links"
+      ],
+      "totalDamage": 3353.08298625,
+      "reactedHits": 2,
+      "targetTaskPhaseLog": []
+    },
+    "missingQuicken": {
+      "version": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "dataVersion": "quicken-bloom-task-order-provisional-1",
+        "randomSeed": "quicken-bloom-task-order-aura-v7-hydro-removes-quicken",
+        "reactionEngineMode": "aura-v7",
+        "timelineMode": "legal-frame-v1",
+        "targetTaskModelMode": "legacy-event-heap-v1"
+      },
+      "directDamageEvents": [
+        {
+          "id": 0,
+          "order": "P3/S1",
+          "frame": 0,
+          "hitId": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "reactions": [
+            "quicken"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": true,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 1,
+          "order": "P3/S2",
+          "frame": 0,
+          "hitId": "hydro-removes-quicken",
+          "element": "hydro",
+          "reaction": "bloom",
+          "reactions": [
+            "bloom"
+          ],
+          "bloomOperations": [
+            "direct"
+          ],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 2,
+          "order": "P3/S3",
+          "frame": 0,
+          "hitId": "electro-followup",
+          "element": "electro",
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 0,
+          "displayDamage": 0
+        }
+      ],
+      "reactionTasks": [
+        {
+          "id": 0,
+          "kind": "quicken-bloom-followup",
+          "frame": 0,
+          "triggerHitId": "dendro-quicken",
+          "triggerDamageEventId": 0,
+          "triggerOrder": "P3/S1",
+          "taskOrder": "P3/S4/I0",
+          "status": "skipped",
+          "blockedReason": "MISSING_QUICKEN",
+          "auraBefore": [
+            "electro:0.64@540",
+            "hydro:0.8@570"
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            "electro:0.64@540",
+            "hydro:0.8@570"
+          ],
+          "bloomReaction": null,
+          "quickenStateLogIds": [],
+          "dendroCoreLogIds": [],
+          "dendroCoreIds": []
+        }
+      ],
+      "quickenStateOrder": [
+        "#0:F0:start:G1:0>0.8:X600:D0:QUICKEN_STARTED",
+        "#1:F0:remove:G2:0.8>0:Xnone:D1:BLOOM_REMOVED_QUICKEN"
+      ],
+      "dendroCoreOrder": [
+        "#0/C0:F0:P3/S2/I1:hit:spawn-scheduled:D1:Tnone:spawnF30",
+        "#1/C0:F30:P2/S5/I0:dendroCoreSpawn:spawn:D1:spawnedF30:expireF330"
+      ],
+      "targetTimelineOrder": [
+        "#0:F0:boundary:simulation-start:none:Pnone/Snone/Inone:none:Dnone:no-links",
+        "#1:F0:mutation:direct-hit-application:hit:P3/S1/I0:quicken:D0:damage-event#0",
+        "#2:F0:mutation:direct-hit-application:hit:P3/S2/I0:bloom:D1:damage-event#1",
+        "#3:F0:mutation:direct-hit-application:hit:P3/S3/I0:electroCharged:D2:damage-event#2",
+        "#4:F0:observation:quicken-bloom-followup:quickenBloomFollowup:P3/S4/I1:none:D0:damage-event#0+reaction-task-log#0",
+        "#5:F10:observation:electro-charged-tick:periodicReactionTick:P4/S6/I0:electroCharged:Dnone:periodic-reaction-log#1",
+        "#6:F16:mutation:electro-charged-wane:periodicReactionWane:P6/S8/I0:electroCharged:D3:damage-event#3+periodic-reaction-log#2",
+        "#7:F60:boundary:simulation-end:none:Pnone/Snone/Inone:none:Dnone:no-links"
+      ],
+      "totalDamage": 2604.3363,
+      "reactedHits": 3,
+      "targetTaskPhaseLog": []
+    },
+    "missingHydro": {
+      "version": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "dataVersion": "quicken-bloom-task-order-provisional-1",
+        "randomSeed": "quicken-bloom-task-order-aura-v7-cryo-removes-hydro",
+        "reactionEngineMode": "aura-v7",
+        "timelineMode": "legal-frame-v1",
+        "targetTaskModelMode": "legacy-event-heap-v1"
+      },
+      "directDamageEvents": [
+        {
+          "id": 0,
+          "order": "P3/S1",
+          "frame": 0,
+          "hitId": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "reactions": [
+            "quicken"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": true,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 1,
+          "order": "P3/S2",
+          "frame": 0,
+          "hitId": "cryo-removes-hydro",
+          "element": "cryo",
+          "reaction": "freeze",
+          "reactions": [
+            "freeze"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 2,
+          "order": "P3/S3",
+          "frame": 0,
+          "hitId": "electro-followup",
+          "element": "electro",
+          "reaction": "aggravate",
+          "reactions": [
+            "aggravate",
+            "superconduct"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 748.7466862499999,
+          "displayDamage": 749
+        }
+      ],
+      "reactionTasks": [
+        {
+          "id": 0,
+          "kind": "quicken-bloom-followup",
+          "frame": 0,
+          "triggerHitId": "dendro-quicken",
+          "triggerDamageEventId": 0,
+          "triggerOrder": "P3/S1",
+          "taskOrder": "P3/S4/I0",
+          "status": "skipped",
+          "blockedReason": "MISSING_HYDRO",
+          "auraBefore": [
+            "frozen:0.8@100",
+            "quicken:0.8@600"
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            "frozen:0.8@100",
+            "quicken:0.8@600"
+          ],
+          "bloomReaction": null,
+          "quickenStateLogIds": [],
+          "dendroCoreLogIds": [],
+          "dendroCoreIds": []
+        }
+      ],
+      "quickenStateOrder": [
+        "#0:F0:start:G1:0>0.8:X600:D0:QUICKEN_STARTED"
+      ],
+      "dendroCoreOrder": [],
+      "targetTimelineOrder": [
+        "#0:F0:boundary:simulation-start:none:Pnone/Snone/Inone:none:Dnone:no-links",
+        "#1:F0:mutation:direct-hit-application:hit:P3/S1/I0:quicken:D0:damage-event#0",
+        "#2:F0:mutation:direct-hit-application:hit:P3/S2/I0:freeze:D1:damage-event#1",
+        "#3:F0:mutation:direct-hit-application:hit:P3/S3/I0:aggravate+superconduct:D2:damage-event#2",
+        "#4:F0:observation:quicken-bloom-followup:quickenBloomFollowup:P3/S4/I1:none:D0:damage-event#0+reaction-task-log#0",
+        "#5:F60:boundary:simulation-end:none:Pnone/Snone/Inone:none:Dnone:no-links"
+      ],
+      "totalDamage": 2701.9989112499998,
+      "reactedHits": 3,
+      "targetTaskPhaseLog": []
+    },
+    "auraV6Compatibility": {
+      "version": {
+        "schemaVersion": "1.37.0",
+        "engineVersion": "1.37.0-target-task-phase",
+        "dataVersion": "quicken-bloom-task-order-provisional-1",
+        "randomSeed": "quicken-bloom-task-order-aura-v6-fifo",
+        "reactionEngineMode": "aura-v6",
+        "timelineMode": "legal-frame-v1",
+        "targetTaskModelMode": "legacy-event-heap-v1"
+      },
+      "directDamageEvents": [
+        {
+          "id": 0,
+          "order": "P3/S1",
+          "frame": 0,
+          "hitId": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "reactions": [
+            "quicken",
+            "bloom"
+          ],
+          "bloomOperations": [
+            "quicken-followup"
+          ],
+          "pendingHydroBloomFollowup": true,
+          "finalDamage": 0,
+          "displayDamage": 0
+        },
+        {
+          "id": 1,
+          "order": "P3/S2",
+          "frame": 0,
+          "hitId": "electro-followup",
+          "element": "electro",
+          "reaction": "aggravate",
+          "reactions": [
+            "aggravate"
+          ],
+          "bloomOperations": [],
+          "pendingHydroBloomFollowup": false,
+          "finalDamage": 748.7466862499999,
+          "displayDamage": 749
+        }
+      ],
+      "reactionTasks": [],
+      "quickenStateOrder": [
+        "#0:F0:start:G1:0>0.8:X600:D0:QUICKEN_STARTED",
+        "#1:F0:partial-consume:G2:0.8>0.4:X300:D0:BLOOM_PARTIALLY_CONSUMED_QUICKEN"
+      ],
+      "dendroCoreOrder": [
+        "#0/C0:F0:P3/S1/I1:hit:spawn-scheduled:D0:Tnone:spawnF30",
+        "#1/C0:F30:P2/S3/I0:dendroCoreSpawn:spawn:D0:spawnedF30:expireF330"
+      ],
+      "targetTimelineOrder": [
+        "#0:F0:boundary:simulation-start:none:Pnone/Snone/Inone:none:Dnone:no-links",
+        "#1:F0:mutation:direct-hit-application:hit:P3/S1/I0:quicken+bloom:D0:damage-event#0",
+        "#2:F0:mutation:direct-hit-application:hit:P3/S2/I0:aggravate:D1:damage-event#1",
+        "#3:F60:boundary:simulation-end:none:Pnone/Snone/Inone:none:Dnone:no-links"
+      ],
+      "totalDamage": 748.7466862499999,
+      "reactedHits": 2,
+      "targetTaskPhaseLog": []
+    }
+  },
+  "hashes": {
+    "fifo": "dc1935ade737897bef14df09607074576bbf5329209e09cd5f1ec43312bea85a",
+    "missingQuicken": "9cecebbff87dc9b83966d5082f14203c1cf8bab72ebfbcc82ac5782567d75cd4",
+    "missingHydro": "d8d56478f441f2cee77f3167dde598299d26d63c0245dad71e7391dc2d56633f",
+    "auraV6Compatibility": "6864c809d3287027f88e785372787604abe6739696a00f695e38d49ae2c6a2fc"
+  }
+}

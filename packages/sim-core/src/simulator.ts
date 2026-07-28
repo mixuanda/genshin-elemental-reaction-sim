@@ -10,6 +10,8 @@ import {
   targetClockLogSchema,
   targetClockResultReferencesSchema,
   targetHitlagLogSchema,
+  targetTaskPhaseLogSchema,
+  targetTaskPhaseResultReferencesSchema,
   type AdditiveReactionFactors,
   type AmplifyingReaction,
   type ActionDefinition,
@@ -118,6 +120,7 @@ import {
 
 export const EVENT_PRIORITY = {
   action: 0,
+  targetTask: 0.5,
   buff: 1,
   debuff: 1,
   energy: 2,
@@ -1059,9 +1062,20 @@ function simulateConfig(
     critMode: runtimeOptions.critMode ?? "average",
     compatibilityMode:
       runtimeOptions.compatibilityMode ??
-      (timelineExecution ? "legal-frame-v1" : "legacy-v0.1"),
+      (timelineExecution ||
+      config.targetTaskModel.mode === "target-phase-v1"
+        ? "legal-frame-v1"
+        : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   };
+  if (
+    config.targetTaskModel.mode === "target-phase-v1" &&
+    options.compatibilityMode !== "legal-frame-v1"
+  ) {
+    throw new Error(
+      "targetTaskModel target-phase-v1 requires compatibilityMode legal-frame-v1."
+    );
+  }
   const pluginDefinitions = runtimeOptions.plugins ?? [];
   const pluginManifest = createPluginManifest(
     pluginDefinitions
@@ -1131,20 +1145,32 @@ function simulateConfig(
   const enemyTargetOrderById = new Map(
     enemyTargets.map((target, index) => [target.id, index])
   );
+  const targetPhaseEnabled =
+    config.targetTaskModel.mode === "target-phase-v1";
   const burningAtomicPriorityStride =
     1 / (enemyTargets.length * 2 + 1);
+  const targetPhasePriorityStride =
+    0.5 / (enemyTargets.length + 1);
   const burningTickPriorityForTarget = (
     targetId: string
   ): number =>
-    EVENT_PRIORITY.burningTick +
-    (enemyTargetOrderById.get(targetId) ?? 0) *
-      2 *
-      burningAtomicPriorityStride;
+    targetPhaseEnabled
+      ? EVENT_PRIORITY.targetTask +
+        (enemyTargetOrderById.get(targetId) ?? 0) *
+          targetPhasePriorityStride
+      : EVENT_PRIORITY.burningTick +
+        (enemyTargetOrderById.get(targetId) ?? 0) *
+          2 *
+          burningAtomicPriorityStride;
   const burningDamagePriorityForTarget = (
     targetId: string
   ): number =>
-    burningTickPriorityForTarget(targetId) +
-    burningAtomicPriorityStride;
+    targetPhaseEnabled
+      ? EVENT_PRIORITY.reactionDamage +
+        (enemyTargetOrderById.get(targetId) ?? 0) *
+          targetPhasePriorityStride
+      : burningTickPriorityForTarget(targetId) +
+        burningAtomicPriorityStride;
   const lastMotionPositionByTarget = new Map(
     enemyTargets.map((target) => [
       target.id,
@@ -1397,7 +1423,8 @@ function simulateConfig(
   ).fill(Number.POSITIVE_INFINITY);
   const recordNaturalAuraExpiries = (
     limitFrame: number,
-    includeLimit: boolean
+    includeLimit: boolean,
+    targetOrderExclusive = enemyTargets.length
   ): void => {
     if (auraEngines === null) return;
     while (true) {
@@ -1407,7 +1434,7 @@ function simulateConfig(
       );
       for (
         let targetIndex = 0;
-        targetIndex < enemyTargets.length;
+        targetIndex < targetOrderExclusive;
         targetIndex += 1
       ) {
         const target = enemyTargets[targetIndex]!;
@@ -1445,7 +1472,7 @@ function simulateConfig(
 
       for (
         let targetIndex = 0;
-        targetIndex < enemyTargets.length;
+        targetIndex < targetOrderExclusive;
         targetIndex += 1
       ) {
         if (ordinaryExpiryFrameScratch[targetIndex] !== nextExpiryFrame) {
@@ -1677,6 +1704,166 @@ function simulateConfig(
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
   const targetClockLog: SimulationResult["targetClockLog"] = [];
   const targetHitlagLog: SimulationResult["targetHitlagLog"] = [];
+  const targetTaskPhaseLog: SimulationResult["targetTaskPhaseLog"] =
+    [];
+  const targetTaskPhaseByKey = new Map<
+    string,
+    SimulationResult["targetTaskPhaseLog"][number]
+  >();
+  let targetTaskPhaseSnapshotFrame: number | null = null;
+  const targetTaskPhaseAuraBeforeByTarget = new Map<
+    string,
+    SimulationResult["targetTaskPhaseLog"][number]["auraBeforeTasks"]
+  >();
+  const targetTaskPhaseKey = (
+    globalFrame: number,
+    targetId: string
+  ): string => `${globalFrame}\u0000${targetId}`;
+  const captureTargetTaskPhaseAuraBefore = (
+    globalFrame: number
+  ): void => {
+    if (
+      !targetPhaseEnabled ||
+      targetTaskPhaseSnapshotFrame === globalFrame
+    ) {
+      return;
+    }
+    targetTaskPhaseSnapshotFrame = globalFrame;
+    targetTaskPhaseAuraBeforeByTarget.clear();
+    for (const target of enemyTargets) {
+      const auraEngine = auraEngines?.get(target.id);
+      const auraBefore =
+        auraEngine === undefined
+          ? []
+          : auraEngine.getAuraStateAt(
+              Math.max(0, globalFrame - 1)
+            );
+      if (auraEngine !== undefined) {
+        targetStateTimelineRecorder.synchronize(
+          target.id,
+          Math.max(0, globalFrame - 1),
+          auraBefore
+        );
+      }
+      targetTaskPhaseAuraBeforeByTarget.set(
+        target.id,
+        deepClone(auraBefore)
+      );
+    }
+  };
+  const ensureTargetTaskPhase = (
+    input:
+      | {
+          targetId: string;
+          globalFrame: number;
+          wakeKind: "burning-tick";
+          eventType: "burningTick";
+          eventPriority: number;
+          eventSequence: number;
+          intraEventSequence: number;
+          auraBeforeTasks: SimulationResult["targetTaskPhaseLog"][number]["auraBeforeTasks"];
+          auraAfterTasks: SimulationResult["targetTaskPhaseLog"][number]["auraAfterTasks"];
+          auraAfterDecay: SimulationResult["targetTaskPhaseLog"][number]["auraAfterDecay"];
+        }
+      | {
+          targetId: string;
+          globalFrame: number;
+          wakeKind: "incoming";
+          eventType: "hit" | "reactionDamage";
+          eventPriority: number;
+          eventSequence: number;
+          intraEventSequence: number;
+        }
+  ): SimulationResult["targetTaskPhaseLog"][number] | null => {
+    if (!targetPhaseEnabled) return null;
+    const key = targetTaskPhaseKey(
+      input.globalFrame,
+      input.targetId
+    );
+    const existing = targetTaskPhaseByKey.get(key);
+    if (existing !== undefined) return existing;
+
+    const target = enemyTargetById.get(input.targetId);
+    if (target === undefined) {
+      throw new Error(
+        `Target task phase could not resolve target "${input.targetId}".`
+      );
+    }
+    const auraEngine = auraEngines?.get(input.targetId);
+    const auraBeforeTasks =
+      input.wakeKind === "burning-tick"
+        ? input.auraBeforeTasks
+        : targetTaskPhaseAuraBeforeByTarget.get(
+            input.targetId
+          ) ??
+          (auraEngine === undefined
+            ? []
+            : auraEngine.getAuraStateAt(
+                Math.max(0, input.globalFrame - 1)
+              ));
+    const auraAfterTasks =
+      input.wakeKind === "burning-tick"
+        ? input.auraAfterTasks
+        : auraBeforeTasks;
+    const auraAfterDecay =
+      input.wakeKind === "burning-tick"
+        ? input.auraAfterDecay
+        : auraEngine === undefined
+          ? []
+          : auraEngine.getAuraStateAt(input.globalFrame);
+    const targetFrame =
+      targetClocks
+        ?.get(input.targetId)
+        ?.projectLocalFrameAtGlobalFrame(
+          input.globalFrame
+        ) ?? input.globalFrame;
+    const base = {
+      id: targetTaskPhaseLog.length,
+      targetId: input.targetId,
+      targetName: target.name,
+      globalFrame: input.globalFrame,
+      timeSeconds: input.globalFrame / 60,
+      targetFrame,
+      targetOrder:
+        enemyTargetOrderById.get(input.targetId) ?? 0,
+      eventPriority: input.eventPriority,
+      eventSequence: input.eventSequence,
+      intraEventSequence: input.intraEventSequence,
+      auraBeforeTasks: deepClone(auraBeforeTasks),
+      auraAfterTasks: deepClone(auraAfterTasks),
+      auraAfterDecay: deepClone(auraAfterDecay),
+      burningStateLogIds: [],
+      hitResolutionLogIds: [],
+      reactionTaskLogIds: []
+    };
+    const entry: SimulationResult["targetTaskPhaseLog"][number] =
+      input.wakeKind === "burning-tick"
+        ? {
+            ...base,
+            wakeKind: "burning-tick",
+            eventType: "burningTick"
+          }
+        : {
+            ...base,
+            wakeKind: "incoming",
+            eventType: input.eventType
+          };
+    targetTaskPhaseLog.push(entry);
+    targetTaskPhaseByKey.set(key, entry);
+    return entry;
+  };
+  const appendTargetTaskPhaseReference = (
+    entry: SimulationResult["targetTaskPhaseLog"][number] | null,
+    field:
+      | "burningStateLogIds"
+      | "hitResolutionLogIds"
+      | "reactionTaskLogIds",
+    id: number
+  ): void => {
+    if (entry === null) return;
+    const ids = entry[field];
+    if (ids[ids.length - 1] !== id) ids.push(id);
+  };
   const lastLoggedTargetClockState = new Map<
     string,
     TargetLocalClockState
@@ -5361,11 +5548,71 @@ function simulateConfig(
     hitCallbackAggregates.delete(hitGroupId);
   };
 
+  const reprojectStaleTargetLocalEvent = (
+    event: InternalEvent
+  ): boolean => {
+    const targetLocalDeadline = event.targetLocalDeadline;
+    if (targetLocalDeadline === undefined) return false;
+    const clock = targetClocks?.get(
+      targetLocalDeadline.targetId
+    );
+    if (clock === undefined) {
+      throw new Error(
+        `Target-local event "${event.type}" has no clock for target "${targetLocalDeadline.targetId}".`
+      );
+    }
+    const targetFrameAtWake =
+      clock.projectLocalFrameAtGlobalFrame(event.frame);
+    if (
+      targetFrameAtWake >= targetLocalDeadline.targetFrame
+    ) {
+      return false;
+    }
+    const nextProjectedGlobalFrame =
+      clock.projectGlobalFrameForLocalDeadline(
+        targetLocalDeadline.targetFrame
+      );
+    if (nextProjectedGlobalFrame <= event.frame) {
+      throw new Error(
+        `Target-local event "${event.type}" failed to move beyond stale wake-up frame ${event.frame}.`
+      );
+    }
+    const reprojectedPayload =
+      event.type === "periodicReactionExpiry" ||
+      event.type === "burningFuelExpiry" ||
+      event.type === "frozenExpiry" ||
+      event.type === "quickenExpiry"
+        ? {
+            ...(event.payload as {
+              targetId: string;
+              generation: number;
+              expectedExpiryFrame: number;
+            }),
+            expectedExpiryFrame: nextProjectedGlobalFrame
+          }
+        : event.payload;
+    requeueTargetLocalEvent(
+      event,
+      nextProjectedGlobalFrame,
+      reprojectedPayload
+    );
+    return true;
+  };
+
   while (queue.size > 0) {
     const event = queue.pop();
     if (!event) break;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
+    // The fixed-reference target phase checks a target-local wake before
+    // advancing Aura. A stale wake must be reprojected without consuming a
+    // target frame or triggering an Aura expiry on the abandoned frame.
+    if (
+      targetPhaseEnabled &&
+      reprojectStaleTargetLocalEvent(event)
+    ) {
+      continue;
+    }
     const preservesDedicatedAuraExpiryBoundary =
       event.type === "frozenExpiry" ||
       event.type === "quickenExpiry" ||
@@ -5380,57 +5627,45 @@ function simulateConfig(
     const includeCurrentFrameNaturalAuraExpiry =
       !preservesDedicatedAuraExpiryBoundary &&
       event.priority > EVENT_PRIORITY.quickenExpiry;
-    recordNaturalAuraExpiries(
-      event.frame,
-      includeCurrentFrameNaturalAuraExpiry
-    );
-    const targetLocalDeadline = event.targetLocalDeadline;
-    if (targetLocalDeadline !== undefined) {
-      const clock = targetClocks?.get(
-        targetLocalDeadline.targetId
-      );
-      if (clock === undefined) {
-        throw new Error(
-          `Target-local event "${event.type}" has no clock for target "${targetLocalDeadline.targetId}".`
-        );
-      }
-      const targetFrameAtWake =
-        clock.projectLocalFrameAtGlobalFrame(event.frame);
-      if (
-        targetFrameAtWake <
-        targetLocalDeadline.targetFrame
-      ) {
-        const nextProjectedGlobalFrame =
-          clock.projectGlobalFrameForLocalDeadline(
-            targetLocalDeadline.targetFrame
-          );
-        if (nextProjectedGlobalFrame <= event.frame) {
+    if (targetPhaseEnabled) {
+      // First settle every target through the previous frame so the replay
+      // row can preserve the exact pre-task/pre-decay state. Current-frame
+      // decay is still delayed until after target-owned priority work.
+      recordNaturalAuraExpiries(event.frame, false);
+      captureTargetTaskPhaseAuraBefore(event.frame);
+      if (event.type === "burningTick") {
+        const { targetId } =
+          event.payload as BurningTickEventPayload;
+        const targetOrder =
+          enemyTargetOrderById.get(targetId);
+        if (targetOrder === undefined) {
           throw new Error(
-            `Target-local event "${event.type}" failed to move beyond stale wake-up frame ${event.frame}.`
+            `Burning target task could not resolve target order for "${targetId}".`
           );
         }
-        const reprojectedPayload =
-          event.type === "periodicReactionExpiry" ||
-          event.type === "burningFuelExpiry" ||
-          event.type === "frozenExpiry" ||
-          event.type === "quickenExpiry"
-            ? {
-                ...(event.payload as {
-                  targetId: string;
-                  generation: number;
-                  expectedExpiryFrame: number;
-                }),
-                expectedExpiryFrame:
-                  nextProjectedGlobalFrame
-              }
-            : event.payload;
-        requeueTargetLocalEvent(
-          event,
-          nextProjectedGlobalFrame,
-          reprojectedPayload
+        // Before target N runs its owned callback, targets 0..N-1 have
+        // already completed the current-frame Aura-decay portion of their
+        // phases. The current target itself is advanced only after its
+        // callback has inspected the pre-decay state.
+        recordNaturalAuraExpiries(
+          event.frame,
+          true,
+          targetOrder
         );
-        continue;
+      } else if (includeCurrentFrameNaturalAuraExpiry) {
+        recordNaturalAuraExpiries(event.frame, true);
       }
+    } else {
+      recordNaturalAuraExpiries(
+        event.frame,
+        includeCurrentFrameNaturalAuraExpiry
+      );
+    }
+    if (
+      !targetPhaseEnabled &&
+      reprojectStaleTargetLocalEvent(event)
+    ) {
+      continue;
     }
     cleanup(timeSeconds);
     let intraEventSequence = 0;
@@ -5832,6 +6067,13 @@ function simulateConfig(
         dendroCoreIds: coreReferences.dendroCoreIds,
         mechanicsDataStatus: "fixed-gcsim-provisional"
       });
+      appendTargetTaskPhaseReference(
+        targetTaskPhaseByKey.get(
+          targetTaskPhaseKey(event.frame, targetId)
+        ) ?? null,
+        "reactionTaskLogIds",
+        reactionTaskLogId
+      );
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7224,11 +7466,17 @@ function simulateConfig(
       ) {
         continue;
       }
-      const prepared = auraEngine.prepareBurningTick(
-        event.frame,
-        generation,
-        tickIndex
-      );
+      const prepared = targetPhaseEnabled
+        ? auraEngine.prepareBurningTickBeforeDecay(
+            event.frame,
+            generation,
+            tickIndex
+          )
+        : auraEngine.prepareBurningTick(
+            event.frame,
+            generation,
+            tickIndex
+          );
       if (
         targetClockEnabled &&
         prepared.operation === "stale" &&
@@ -7242,6 +7490,26 @@ function simulateConfig(
         );
         continue;
       }
+      // Enemy-owned tasks run before Reactable.Tick in the fixed reference.
+      // The callback above decides whether to queue Burning damage from the
+      // previous-frame state; only then may current-frame Aura decay run.
+      const auraAfterTargetDecay = targetPhaseEnabled
+        ? auraEngine.getAuraStateAt(event.frame)
+        : prepared.auraAfter;
+      const targetTaskPhaseEntry = ensureTargetTaskPhase({
+        targetId,
+        globalFrame: event.frame,
+        wakeKind: "burning-tick",
+        eventType: "burningTick",
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: targetPhaseEnabled
+          ? nextIntraEventSequence()
+          : 0,
+        auraBeforeTasks: prepared.auraBefore,
+        auraAfterTasks: prepared.auraAfter,
+        auraAfterDecay: auraAfterTargetDecay
+      });
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7265,12 +7533,13 @@ function simulateConfig(
                 }
               ],
         auraBefore: prepared.auraBefore,
-        auraAfter: prepared.auraAfter
+        auraAfter: auraAfterTargetDecay
       });
       if (prepared.operation === "stale") continue;
       if (prepared.operation === "stop") {
+        const burningStateLogId = burningStateLog.length;
         burningStateLog.push({
-          id: burningStateLog.length,
+          id: burningStateLogId,
           reaction: "burning",
           generation,
           operation: "stop",
@@ -7335,6 +7604,11 @@ function simulateConfig(
               ? "BURNING_AURA_CONSUMED"
               : "FUEL_EXPIRED"
         });
+        appendTargetTaskPhaseReference(
+          targetTaskPhaseEntry,
+          "burningStateLogIds",
+          burningStateLogId
+        );
         activeBurningSources.delete(targetId);
         continue;
       }
@@ -7403,6 +7677,11 @@ function simulateConfig(
         selfDamageStatus: playerSelfDamageStatus,
         reason: null
       });
+      appendTargetTaskPhaseReference(
+        targetTaskPhaseEntry,
+        "burningStateLogIds",
+        burningStateLogId
+      );
       if (prepared.operation === "tick") {
         scheduleBurningDamage({
           frame: event.frame,
@@ -7945,6 +8224,17 @@ function simulateConfig(
         if (!targetProfile) return;
         const targetAuraEngine =
           auraEngines?.get(plan.targetId) ?? null;
+        const targetTaskPhaseEntry = ensureTargetTaskPhase({
+          targetId: plan.targetId,
+          globalFrame: event.frame,
+          wakeKind: "incoming",
+          eventType: "reactionDamage",
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: targetPhaseEnabled
+            ? nextIntraEventSequence()
+            : 0
+        });
         const mechanicsTruncatedBefore =
           targetAuraEngine?.isMechanicsTruncated() ?? false;
         const mechanicsStatus: DamageEvent["mechanicsStatus"] =
@@ -8016,6 +8306,45 @@ function simulateConfig(
             auraApplied: propagatedReactionAudit.auraApplied ?? [],
             auraConsumed: propagatedReactionAudit.auraConsumed ?? [],
             auraAfter: propagatedReactionAudit.auraAfter ?? []
+          });
+        } else if (
+          targetPhaseEnabled &&
+          plan.landed &&
+          targetAuraEngine !== null
+        ) {
+          // A target phase is still observable when a scheduled reaction
+          // attack deals damage without applying Aura (for example an
+          // Electro-Charged tick). Emit an explicit no-op state point so the
+          // incoming damage, phase boundary, and target-state replay remain
+          // mutually auditable instead of relying on a silent synchronize.
+          const aura = targetAuraEngine.getAuraStateAt(
+            event.frame
+          );
+          targetStateTimelineRecorder.recordEvent({
+            frame: event.frame,
+            timeSeconds,
+            targetId: plan.targetId,
+            targetName: targetProfile.name,
+            cause: "reaction-damage-application",
+            eventType: event.type,
+            eventPriority: event.priority,
+            eventSequence: event.sequence,
+            intraEventSequence: nextIntraEventSequence(),
+            reaction: "none",
+            reactions: [],
+            primaryDamageEventId: pendingReactionDamageEventId,
+            links: [
+              {
+                kind: "damage-event",
+                id: pendingReactionDamageEventId
+              },
+              {
+                kind: "reaction-damage-log",
+                id: reactionDamageLogId
+              }
+            ],
+            auraBefore: aura,
+            auraAfter: aura
           });
         }
         const burningApplicationIcdDecision =
@@ -8261,6 +8590,13 @@ function simulateConfig(
             id: targetResolutionId,
             frame: event.frame,
             timeSeconds,
+            ...(targetPhaseEnabled
+              ? {
+                  eventPriority: event.priority,
+                  eventSequence: event.sequence,
+                  intraEventSequence
+                }
+              : {}),
             cycle,
             sourceActorId: actorId,
             sourceActionId: action.id,
@@ -8338,6 +8674,16 @@ function simulateConfig(
           };
         hitResolutionLog.push(targetResolution);
         reactionHitResolutionLogIds.push(targetResolutionId);
+        if (
+          targetTaskPhaseEntry?.wakeKind === "incoming" &&
+          targetTaskPhaseEntry.eventType === "reactionDamage"
+        ) {
+          appendTargetTaskPhaseReference(
+            targetTaskPhaseEntry,
+            "hitResolutionLogIds",
+            targetResolutionId
+          );
+        }
         if (!plan.landed) return;
 
         const debuffState = getDebuffState(
@@ -9097,6 +9443,17 @@ function simulateConfig(
       );
     }
     const auraEngine = auraEngines?.get(targetId) ?? null;
+    const targetTaskPhaseEntry = ensureTargetTaskPhase({
+      targetId,
+      globalFrame: event.frame,
+      wakeKind: "incoming",
+      eventType: "hit",
+      eventPriority: event.priority,
+      eventSequence: event.sequence,
+      intraEventSequence: targetPhaseEnabled
+        ? nextIntraEventSequence()
+        : 0
+    });
     const mechanicsTruncatedBefore =
       auraEngine?.isMechanicsTruncated() ?? false;
     const mechanicsStatus: DamageEvent["mechanicsStatus"] =
@@ -9131,6 +9488,13 @@ function simulateConfig(
       id: targetResolutionId,
       frame: event.frame,
       timeSeconds,
+      ...(targetPhaseEnabled
+        ? {
+            eventPriority: event.priority,
+            eventSequence: event.sequence,
+            intraEventSequence
+          }
+        : {}),
       cycle,
       sourceActorId: actorId,
       sourceActionId: action.id,
@@ -9186,6 +9550,11 @@ function simulateConfig(
         : { sourceAbilityId: action.sourceAbilityId })
     };
     hitResolutionLog.push(targetResolution);
+    appendTargetTaskPhaseReference(
+      targetTaskPhaseEntry,
+      "hitResolutionLogIds",
+      targetResolutionId
+    );
     if (!targetResolution.landed) {
       completeHitTarget({
         actorId,
@@ -10594,6 +10963,18 @@ function simulateConfig(
     targetClockLogSchema.parse(targetClockLog);
   const parsedTargetHitlagLog =
     targetHitlagLogSchema.parse(targetHitlagLog);
+  targetTaskPhaseLog.sort(
+    (left, right) =>
+      left.globalFrame - right.globalFrame ||
+      left.targetOrder - right.targetOrder ||
+      left.eventPriority - right.eventPriority ||
+      left.eventSequence - right.eventSequence
+  );
+  targetTaskPhaseLog.forEach((entry, index) => {
+    entry.id = index;
+  });
+  targetTaskPhaseLogSchema.parse(targetTaskPhaseLog);
+  const parsedTargetTaskPhaseLog = targetTaskPhaseLog;
 
   const simulationResult: SimulationResult = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -10619,6 +11000,7 @@ function simulateConfig(
     targetClockAudit,
     targetClockLog: parsedTargetClockLog,
     targetHitlagLog: parsedTargetHitlagLog,
+    targetTaskPhaseLog: parsedTargetTaskPhaseLog,
     targetMechanicsTruncationLog,
     reactionDamageLog,
     reactionTaskLog,
@@ -10671,6 +11053,24 @@ function simulateConfig(
   dendroCoreResultReferencesSchema.parse(simulationResult);
   playerDamageResultReferencesSchema.parse(simulationResult);
   targetClockResultReferencesSchema.parse(simulationResult);
+  targetTaskPhaseResultReferencesSchema.parse(
+    targetPhaseEnabled
+      ? simulationResult
+      : {
+          schemaVersion: simulationResult.schemaVersion,
+          engineVersion: simulationResult.engineVersion,
+          config: {
+            schemaVersion:
+              simulationResult.config.schemaVersion,
+            engineVersion:
+              simulationResult.config.engineVersion,
+            targetTaskModel:
+              simulationResult.config.targetTaskModel
+          },
+          targetTaskPhaseLog:
+            simulationResult.targetTaskPhaseLog
+        }
+  );
   return simulationResult;
 }
 
@@ -10764,6 +11164,14 @@ export function simulate(
   runtimeOptions: SimulationRuntimeOptions = {}
 ): SimulationResult {
   const config = migrateConfig(rawConfig);
+  if (
+    config.targetTaskModel.mode === "target-phase-v1" &&
+    runtimeOptions.compatibilityMode === "legacy-v0.1"
+  ) {
+    throw new Error(
+      "targetTaskModel target-phase-v1 requires compatibilityMode legal-frame-v1."
+    );
+  }
   if (!config.timeline) {
     return simulateConfig(config, runtimeOptions);
   }

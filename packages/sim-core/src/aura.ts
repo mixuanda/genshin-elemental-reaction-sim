@@ -2828,14 +2828,24 @@ export class AuraEngine {
     };
   }
 
-  prepareBurningTick(
+  private prepareBurningTickForPhase(
     frame: number,
     generation: number,
-    tickIndex: number
+    tickIndex: number,
+    phase: "after-decay" | "before-decay"
   ): BurningTickResult {
     const generationWasCurrent =
       generation === this.burningGeneration;
-    this.advanceTo(frame);
+    if (phase === "before-decay") {
+      if (frame <= this.currentFrame) {
+        throw new Error(
+          `A pre-decay Burning task for frame ${frame} must run before Aura reaches that frame; Aura is already at ${this.currentFrame}.`
+        );
+      }
+      this.advanceTo(frame - 1);
+    } else {
+      this.advanceTo(frame);
+    }
     const auraBefore = this.snapshot();
     const burningGaugeUnits = this.burningGaugeUnits();
     const fuelGaugeUnits = this.burningFuelGaugeUnits();
@@ -2889,7 +2899,12 @@ export class AuraEngine {
         reason: "FUEL_EXPIRED"
       };
     }
-    const currentTargetFrame = this.clockFrame();
+    const currentTargetFrame =
+      phase === "before-decay"
+        ? this.targetClock === null
+          ? frame
+          : this.targetClock.projectLocalFrameAtGlobalFrame(frame)
+        : this.clockFrame();
     if (currentTargetFrame !== this.burningNextTickTargetFrame) {
       return {
         ...base,
@@ -2928,6 +2943,42 @@ export class AuraEngine {
       skipReason: skipped ? "COUNTER_9_SKIP" : null,
       reason: null
     };
+  }
+
+  /**
+   * Historical event-heap behavior: advance Aura through the current target
+   * frame before evaluating the queued Burning callback.
+   */
+  prepareBurningTick(
+    frame: number,
+    generation: number,
+    tickIndex: number
+  ): BurningTickResult {
+    return this.prepareBurningTickForPhase(
+      frame,
+      generation,
+      tickIndex,
+      "after-decay"
+    );
+  }
+
+  /**
+   * Fixed-reference target-task behavior: evaluate the queued Burning
+   * callback against the state at the end of the previous target frame. The
+   * caller must advance Aura through `frame` immediately afterwards, before
+   * applying incoming attacks for the same frame.
+   */
+  prepareBurningTickBeforeDecay(
+    frame: number,
+    generation: number,
+    tickIndex: number
+  ): BurningTickResult {
+    return this.prepareBurningTickForPhase(
+      frame,
+      generation,
+      tickIndex,
+      "before-decay"
+    );
   }
 
   expireBurningFuel(

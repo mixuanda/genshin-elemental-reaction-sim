@@ -415,12 +415,32 @@ describe("deterministic event simulation", () => {
         name: "不同配置"
       }
     });
+    const legalCompatibility = {
+      compatibilityMode: "legal-frame-v1" as const
+    };
+    const legacyTargetTasks = simulate(
+      config,
+      legalCompatibility
+    );
+    const phasedTargetTasks = simulate(
+      {
+        ...config,
+        targetTaskModel: { mode: "target-phase-v1" }
+      },
+      legalCompatibility
+    );
 
     expect(changedData.reproducibilityKey).not.toBe(
       base.reproducibilityKey
     );
     expect(changedConfig.reproducibilityKey).not.toBe(
       base.reproducibilityKey
+    );
+    expect(
+      phasedTargetTasks.runManifest.configHash
+    ).not.toBe(legacyTargetTasks.runManifest.configHash);
+    expect(phasedTargetTasks.reproducibilityKey).not.toBe(
+      legacyTargetTasks.reproducibilityKey
     );
     expect(changedData.runManifest.dataVersion).toBe(
       "test-vector-2"

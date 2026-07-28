@@ -3,13 +3,16 @@ import {
   canonicalStringify,
   QUICKEN_BLOOM_TASK_ENGINE_VERSION,
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+  TARGET_TASK_PHASE_ENGINE_VERSION,
+  TARGET_TASK_PHASE_SCHEMA_VERSION,
   type AuraReactionEngineConfig,
   type FrameHitDefinition,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
-import taskOrderGoldenJson from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.36.golden.json";
+import taskOrderGoldenV136Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.36.golden.json";
+import taskOrderGoldenV137Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.37.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -47,7 +50,9 @@ function applicationHit(
 
 function makeTaskOrderConfig(
   mode: ReactionMode,
-  interveningHit?: FrameHitDefinition
+  interveningHit?: FrameHitDefinition,
+  targetTaskMode: SimConfig["targetTaskModel"]["mode"] =
+    "legacy-event-heap-v1"
 ): SimConfig {
   const base = makeConfig();
   const hits = [
@@ -103,6 +108,7 @@ function makeTaskOrderConfig(
     ],
     rotation: [],
     reactionEngine: { mode },
+    targetTaskModel: { mode: targetTaskMode },
     timeline: {
       mode: "legal-frame-v1",
       fps: 60,
@@ -168,7 +174,8 @@ function projectTaskOrderResult(result: SimulationResult) {
       randomSeed: result.config.randomSeed,
       reactionEngineMode:
         result.config.reactionEngine?.mode ?? null,
-      timelineMode: result.config.timeline?.mode ?? null
+      timelineMode: result.config.timeline?.mode ?? null,
+      targetTaskModelMode: result.config.targetTaskModel.mode
     },
     directDamageEvents: result.damageEvents
       .filter((event) => event.kind === "direct")
@@ -283,6 +290,7 @@ function projectTaskOrderResult(result: SimulationResult) {
             .join("+") || "no-links"
         }`
     ),
+    targetTaskPhaseLog: result.targetTaskPhaseLog,
     totalDamage: result.totalDamage,
     reactedHits: result.reactedHits
   };
@@ -306,6 +314,7 @@ interface TaskOrderGoldenFixture {
     timelineMode: string;
     queuedReactionEngineMode: string;
     compatibilityReactionEngineMode: string;
+    targetTaskModelMode?: string;
   };
   vectors: Record<
     TaskOrderScenarioId,
@@ -314,8 +323,10 @@ interface TaskOrderGoldenFixture {
   hashes: Record<TaskOrderScenarioId, string>;
 }
 
-const taskOrderGolden =
-  taskOrderGoldenJson as unknown as TaskOrderGoldenFixture;
+const taskOrderGoldenV136 =
+  taskOrderGoldenV136Json as unknown as TaskOrderGoldenFixture;
+const taskOrderGoldenV137 =
+  taskOrderGoldenV137Json as unknown as TaskOrderGoldenFixture;
 
 function semanticHash(value: unknown): string {
   return createHash("sha256")
@@ -367,8 +378,38 @@ function projectAllTaskOrderVectors(): Record<
   };
 }
 
+function normalizeCurrentVectorsToV136(
+  vectors: Record<TaskOrderScenarioId, TaskOrderProjection>
+): Record<TaskOrderScenarioId, unknown> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([id, vector]) => {
+      const {
+        targetTaskPhaseLog: _targetTaskPhaseLog,
+        ...historicalVector
+      } = vector;
+      const {
+        targetTaskModelMode: _targetTaskModelMode,
+        ...historicalVersion
+      } = historicalVector.version;
+      return [
+        id,
+        {
+          ...historicalVector,
+          version: {
+            ...historicalVersion,
+            schemaVersion:
+              QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+            engineVersion:
+              QUICKEN_BLOOM_TASK_ENGINE_VERSION
+          }
+        }
+      ];
+    })
+  ) as Record<TaskOrderScenarioId, unknown>;
+}
+
 describe("aura-v7 queued Quicken to Bloom follow-up", () => {
-  it("matches the frozen 1.36 task-order Golden projection and hashes", () => {
+  it("matches the current 1.37 identity and normalizes exactly to the frozen 1.36 task-order Golden", () => {
     const vectors = projectAllTaskOrderVectors();
     const hashes = Object.fromEntries(
       Object.entries(vectors).map(([id, vector]) => [
@@ -377,8 +418,8 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       ])
     );
 
-    expect(taskOrderGolden.fixtureVersion).toBe("1.0.0");
-    expect(taskOrderGolden.config).toEqual({
+    expect(taskOrderGoldenV136.fixtureVersion).toBe("1.0.0");
+    expect(taskOrderGoldenV136.config).toEqual({
       schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
       engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
       dataVersion:
@@ -387,8 +428,125 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       queuedReactionEngineMode: "aura-v7",
       compatibilityReactionEngineMode: "aura-v6"
     });
-    expect(vectors).toEqual(taskOrderGolden.vectors);
-    expect(hashes).toEqual(taskOrderGolden.hashes);
+    expect(taskOrderGoldenV137.fixtureVersion).toBe("1.0.0");
+    expect(taskOrderGoldenV137.config).toEqual({
+      schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+      dataVersion:
+        "quicken-bloom-task-order-provisional-1",
+      timelineMode: "legal-frame-v1",
+      queuedReactionEngineMode: "aura-v7",
+      compatibilityReactionEngineMode: "aura-v6",
+      targetTaskModelMode: "legacy-event-heap-v1"
+    });
+    expect(vectors).toEqual(taskOrderGoldenV137.vectors);
+    expect(hashes).toEqual(taskOrderGoldenV137.hashes);
+
+    const normalized =
+      normalizeCurrentVectorsToV136(vectors);
+    expect(normalized).toEqual(taskOrderGoldenV136.vectors);
+    expect(
+      Object.fromEntries(
+        Object.entries(normalized).map(([id, vector]) => [
+          id,
+          semanticHash(vector)
+        ])
+      )
+    ).toEqual(taskOrderGoldenV136.hashes);
+    expect(
+      Object.values(vectors).every(
+        (vector) =>
+          vector.version.targetTaskModelMode ===
+            "legacy-event-heap-v1" &&
+          vector.targetTaskPhaseLog.length === 0
+      )
+    ).toBe(true);
+  });
+
+  it("keeps non-Burning Quicken to Bloom semantics identical when target phase is enabled", () => {
+    const scenarios: Array<
+      [string, FrameHitDefinition | undefined]
+    > = [
+      ["fifo", undefined],
+      [
+        "missing-quicken",
+        applicationHit(
+          "hydro-removes-quicken",
+          "hydro",
+          2
+        )
+      ],
+      [
+        "missing-hydro",
+        applicationHit(
+          "cryo-removes-hydro",
+          "cryo",
+          0.8
+        )
+      ]
+    ];
+    const omitIntraEventSequence = <
+      TEntry extends { intraEventSequence: number }
+    >(
+      entries: readonly TEntry[]
+    ) =>
+      entries.map(
+        ({
+          intraEventSequence: _intraEventSequence,
+          ...entry
+        }) => entry
+      );
+
+    for (const [scenario, interveningHit] of scenarios) {
+      const legacy = simulate(
+        makeTaskOrderConfig(
+          "aura-v7",
+          interveningHit,
+          "legacy-event-heap-v1"
+        ),
+        { critMode: "noCrit" }
+      );
+      const phased = simulate(
+        makeTaskOrderConfig(
+          "aura-v7",
+          interveningHit,
+          "target-phase-v1"
+        ),
+        { critMode: "noCrit" }
+      );
+
+      expect(
+        phased.targetTaskPhaseLog.length,
+        `${scenario} should expose target phases`
+      ).toBeGreaterThan(0);
+      expect(phased.totalDamage, scenario).toBe(
+        legacy.totalDamage
+      );
+      expect(phased.reactedHits, scenario).toBe(
+        legacy.reactedHits
+      );
+      expect(phased.damageEvents, scenario).toEqual(
+        legacy.damageEvents
+      );
+      expect(phased.quickenStateLog, scenario).toEqual(
+        legacy.quickenStateLog
+      );
+      expect(
+        omitIntraEventSequence(phased.reactionTaskLog),
+        scenario
+      ).toEqual(
+        omitIntraEventSequence(legacy.reactionTaskLog)
+      );
+      expect(
+        omitIntraEventSequence(phased.dendroCoreLog),
+        scenario
+      ).toEqual(
+        omitIntraEventSequence(legacy.dendroCoreLog)
+      );
+      expect(phased.auraEndStates, scenario).toEqual(
+        legacy.auraEndStates
+      );
+    }
   });
 
   it("runs after an already-enqueued same-frame Electro hit in FIFO order", () => {

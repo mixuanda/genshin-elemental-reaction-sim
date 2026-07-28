@@ -1941,6 +1941,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       expect(result.config.targetClockModel).toEqual({
         mode: "disabled"
       });
+      expect(result.config.targetTaskModel).toEqual({
+        mode: "legacy-event-heap-v1"
+      });
       expect(result.targetClockAudit).toEqual({
         version: "1.0.0",
         mode: "disabled",
@@ -1949,6 +1952,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       });
       expect(result.targetClockLog).toEqual([]);
       expect(result.targetHitlagLog).toEqual([]);
+      expect(result.targetTaskPhaseLog).toEqual([]);
       if (V133_FROZEN_SCENARIO_IDS.includes(scenarioId)) {
         const historicalVector = (
           historicalMatrixGolden.vectors as Record<

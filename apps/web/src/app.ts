@@ -462,7 +462,8 @@ function renderMetrics(): void {
         result.config.reactionEngine?.mode === "aura-v3" ||
         result.config.reactionEngine?.mode === "aura-v4" ||
         result.config.reactionEngine?.mode === "aura-v5" ||
-        result.config.reactionEngine?.mode === "aura-v6"
+        result.config.reactionEngine?.mode === "aura-v6" ||
+        result.config.reactionEngine?.mode === "aura-v7"
           ? `${result.config.reactionEngine.mode} 自动判定`
           : result.compatibilityMode === "legacy-v0.1"
             ? "兼容手工标签"
