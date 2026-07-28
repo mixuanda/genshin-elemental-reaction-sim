@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import {
   canonicalStringify,
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
+  QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+  QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   type AuraReactionEngineConfig,
   type FrameHitDefinition,
   type SimConfig,
@@ -379,8 +379,8 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
 
     expect(taskOrderGolden.fixtureVersion).toBe("1.0.0");
     expect(taskOrderGolden.config).toEqual({
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
+      schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+      engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
       dataVersion:
         "quicken-bloom-task-order-provisional-1",
       timelineMode: "legal-frame-v1",

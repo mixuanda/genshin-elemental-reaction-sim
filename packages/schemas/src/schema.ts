@@ -442,6 +442,13 @@ export const auraSourceGaugeSlotSchema = z
   })
   .strict();
 
+const auraSourceSlotGaugeTolerance = 1e-9;
+const auraSourceSlotGaugeMatches = (
+  left: number,
+  right: number
+): boolean =>
+  Math.abs(left - right) <= auraSourceSlotGaugeTolerance;
+
 export const auraSourceGaugeMutationSchema = z
   .object({
     sourceActorId: wireNonEmptyStringSchema,
@@ -449,7 +456,33 @@ export const auraSourceGaugeMutationSchema = z
     consumedGaugeUnits: finiteNumber.nonnegative(),
     gaugeUnitsAfter: finiteNumber.nonnegative()
   })
-  .strict();
+  .strict()
+  .superRefine((mutation, context) => {
+    if (
+      mutation.consumedGaugeUnits >
+      mutation.gaugeUnitsBefore + auraSourceSlotGaugeTolerance
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["consumedGaugeUnits"],
+        message: "cannot exceed gaugeUnitsBefore"
+      });
+    }
+    if (
+      !auraSourceSlotGaugeMatches(
+        mutation.gaugeUnitsBefore -
+          mutation.consumedGaugeUnits,
+        mutation.gaugeUnitsAfter
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["gaugeUnitsAfter"],
+        message:
+          "must equal gaugeUnitsBefore - consumedGaugeUnits within 1e-9"
+      });
+    }
+  });
 
 export const auraStateEntrySchema = z
   .object({
@@ -489,6 +522,38 @@ export const auraStateEntrySchema = z
         path: ["expiresAtTargetFrame"],
         message: "cannot exceed expiresAtFrame"
       });
+    }
+    if (entry.sourceSlots !== undefined) {
+      const sourceActorIds = new Set<string>();
+      let maximumSourceGaugeUnits = 0;
+      for (const [index, slot] of entry.sourceSlots.entries()) {
+        if (sourceActorIds.has(slot.sourceActorId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["sourceSlots", index, "sourceActorId"],
+            message:
+              "sourceSlots must be unique by sourceActorId"
+          });
+        }
+        sourceActorIds.add(slot.sourceActorId);
+        maximumSourceGaugeUnits = Math.max(
+          maximumSourceGaugeUnits,
+          slot.gaugeUnits
+        );
+      }
+      if (
+        !auraSourceSlotGaugeMatches(
+          entry.gaugeUnits,
+          maximumSourceGaugeUnits
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["gaugeUnits"],
+          message:
+            "must equal the maximum sourceSlots gaugeUnits within 1e-9"
+        });
+      }
     }
   });
 

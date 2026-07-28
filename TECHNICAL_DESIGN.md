@@ -369,6 +369,10 @@ icdProfiles: {
 
 当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura、独立冻元素耐久，并为感电保留同目标水雷共存；`aura-v3` 再加入草普通 Aura、激元素和普通 Aura/激元素的逐来源槽；`aura-v4` 增加目标级 Burning Marker/Fuel、周期代次、归属和内置燃烧附着 ICD；`aura-v5` 增加有序基础反应矩阵、Bloom 审计和草原核管理器；`aura-v6` 增加雷来袭有序链及水来袭 Frozen→EC guard；`aura-v7` 再增加 Quicken→Bloom 实时 Aura 任务和 Burning refresh 计数修正。同一角色/Tag/Group、感电流、燃烧流、冻元素/激元素代次、碎冰 GCD、ReactionA/B、扩散元素队列 GCD、草原核与周期调度在不同目标或各自作用域内确定性隔离。v1/v2 为兼容回放继续使用聚合状态；v3–v7 普通 Aura 的同来源重挂取较强值、不同来源保留独立槽，所有槽共享当前最大值决定的衰减，反应消耗从每个来源槽扣同一预算。一般化特殊 Aura overlap、更多 Hitlag 属性、完整目标任务相位和角色回调顺序仍未实现；自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
+基础发布门把 `aura-v7` 的公开输入面拆成两层验证。第一层用精确断言固定火、水、冰、雷、草、风、岩的代表性高信息量链，以及固定参考中 Frozen 阻止火蒸发、F150 ICD 重置和 Aura 精确到期。第二层穷举五种普通初始 Aura 的全部 `6^5` 组“缺席或 `0.125/0.5/1/2/3U`”赋值，再为八种来袭元素按确定性循环各选取五档元素量中的一档，形成 62,208 个 covering 向量；每个向量用原顺序、全新重放和反转初始数组三次执行，共 186,624 次。门禁检查所有数值有限、Gauge 非负、Aura 元素唯一且稳定排序、聚合 Gauge 等于最大来源槽、逐槽 `before - consumed = after`、Bloom 各预算守恒，以及输出不依赖初始数组插入顺序。结果 Zod Schema 同样在 `sourceSlots` 存在时强制来源唯一和最大槽一致，并对每条 `sourceMutation` 强制守恒；没有来源槽的历史投影继续接受。
+
+这不是特殊状态全排列证明。公开 `initialAura` 只能直接表达普通五元素，组合门不会直接注入 Frozen、Quicken、Burning Marker/Fuel，也不会执行后续 Tick、草原核或目标任务；这些状态继续由各自的顺序、生命周期、Golden 和交叉引用测试负责。固定 gcsim 提交的 Reactable 顺序附近仍有 TODO，因此精确链只能标为 `fixed-gcsim-provisional`，不是官服验证真值。
+
 目标本地时钟暂停普通五元素 Aura 的被动衰减/自然到期、Frozen 与 Quicken 的衰减/到期、Burning Fuel/依赖的草与激元素衰减以及每 15 个目标帧的 Burning Tick 链。感电的 `+10/+60` 伤害 Tick 和 `+6` Wane 仍是全局任务，只有水雷 Aura 共存的自然到期跟随目标时钟。附着 ICD、Overload/Superconduct/Shatter/Swirl/Crystallize 队列与 GCD、ReactionA/B、所有独立反应伤害、草原核生成/寿命/爆炸、结晶实体、行动/Buff/能量/粒子、目标 movement/phase 和玩家侧状态也仍按全局帧推进。
 
 #### 6.1.0 aura-v6 雷元素有序多反应链
@@ -387,7 +391,7 @@ icdProfiles: {
 
 顺序来自固定 gcsim 提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 Reactable 路径；项目将其标记为 `fixed-gcsim-provisional`。参考源码自身在该顺序附近保留 TODO，因此这里仅冻结一个可复现的固定代码路径，不宣称它是官服全部版本和全部复合附着的真值。除非该步骤的参考语义明确为非消费，前一步消费后的余额才进入后一步；余额不会为每个分支重置，也不能由 UI 重新推导。
 
-一次雷命中可以同时触发超载与超导等多个转化反应。`ReactionAudit.transformativeReactions` 按上述顺序保存每个反应自己的 GCD、排队帧和状态定义；模拟器遍历整个数组，为所有已排队项分别生成独立 `DamageEvent`。旧的 `transformativeReaction` 必须等于数组首项，仅用于兼容只认识单值字段的旧消费者。v1–v5 继续省略数组字段。当前仍未实现其他来袭元素的完整有序组合、所有多 Aura 排列或 Lunar 反应；1.35 的逐元素敌方抗性只是明确的伤害公式输入，不会补齐这些 Aura 分支。因此这不是一般化反应求解器，更不代表完整 gcsim 精度。
+一次雷命中可以同时触发超载与超导等多个转化反应。`ReactionAudit.transformativeReactions` 按上述顺序保存每个反应自己的 GCD、排队帧和状态定义；模拟器遍历整个数组，为所有已排队项分别生成独立 `DamageEvent`。旧的 `transformativeReaction` 必须等于数组首项，仅用于兼容只认识单值字段的旧消费者。v1–v5 继续省略数组字段。当前七种来袭元素已有代表性有序链和公开普通初态 covering gate，但尚未证明所有特殊 Aura 可达排列、全部来源 overlap、后续任务相位或 Lunar 反应；1.35 的逐元素敌方抗性只是明确的伤害公式输入，不会补齐这些分支。因此这不是一般化反应求解器，更不代表完整 gcsim 精度。
 
 #### 6.1.0a aura-v7 Quicken→Bloom 零延迟任务
 
@@ -792,7 +796,7 @@ Vitest 当前覆盖：
 - 有序不重叠的目标阶段 Schema、半开边界、相邻阶段切换、活动阶段来源日志和逐击覆盖优先级。
 - 120 秒末端截断语义。
 - 相同配置、Schema/引擎/数据版本、解析后运行选项、随机种子和有序插件身份的可复现性；配置哈希、插件顺序/内容哈希、重复插件 ID 拒绝、状态型插件实例隔离和 `runManifest` 运行时 Schema。
-- 默认 120 秒 Golden Fixture、1.30 Burning Golden、1.31–1.33 的 14 个历史基础反应/状态/草原核向量、1.34 的 15 个历史反应向量、1.35 的 17 个反应矩阵向量，以及 1.36 的兼容身份和 Quicken→Bloom 任务 Golden；目标时钟、`aura-v6` 雷多反应链、`aura-v7` FIFO/live-Aura/跳过路径另有模拟器集成向量。
+- 默认 120 秒 Golden Fixture、1.30 Burning Golden、1.31–1.33 的 14 个历史基础反应/状态/草原核向量、1.34 的 15 个历史反应向量、1.35 的 17 个反应矩阵向量，以及 1.36 的兼容身份和 Quicken→Bloom 任务 Golden；目标时钟、`aura-v6` 雷多反应链、`aura-v7` FIFO/live-Aura/跳过路径另有模拟器集成向量，七元素复合链和 62,208 个公开初态 covering 向量另有基础发布门。
 - 整数帧行动、切人、命中追踪、显式冲刺/跳跃占用、按后续普攻/重击/战技/爆发/冲刺/跳跃/切人选择取消帧、未声明路径回退与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。

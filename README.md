@@ -41,6 +41,14 @@ npx vitest run packages/schemas/src/schema.test.ts packages/sim-core/src/__tests
 npx playwright test apps/web/e2e/simulator.spec.ts --project=chromium
 ```
 
+`aura-v7` 的基础反应发布门另外固定运行：
+
+```bash
+npx vitest run packages/sim-core/src/__tests__/aura-v7-order-release.test.ts packages/sim-core/src/__tests__/aura-v7-public-grid.test.ts
+```
+
+前者逐项断言火、水、冰、雷、草、风、岩的高信息量有序链、Frozen 对火蒸发的固定参考 guard、F150 ICD 重置和 F426 小元素量精确到期；后者覆盖 `6^5` 组公开初始普通 Aura 赋值，并对八种来袭元素使用确定性 mixed-gauge covering grid，共执行 62,208 个向量、186,624 次独立引擎运行。它检查 finite、非负、来源槽最大值、逐槽消费守恒、重复可复现和初始数组顺序无关。该门只证明当前 `aura-v7` 的公开普通初态和单次命中闭包，不证明特殊 Aura 全排列、后续周期任务或官服真值。
+
 数据目录由固定的 `genshin-db@5.2.12` npm 包和固定 Enka 数字互操作快照生成：
 
 ```bash
@@ -152,7 +160,7 @@ npx playwright install chromium
 
 - `legacy-default-120s.golden.json` 继续冻结 Vanilla 的原始浮点结果；1.33–1.35 的版本化 Fixture 保留各自历史投影，`legacy-default-120s-1.36.golden.json` 冻结当前 1.36 兼容身份与不变的数值基线，Quicken→Bloom 任务另由 1.36 专用 Golden 冻结。
 - `burning-aura-v4-1.30.golden.json` 冻结 1.30 Burning 兼容切片；1.34 及更早身份继续作为历史证据保留，1.35 当前身份以新 Fixture 为准。
-- `reaction-matrix-1.31.golden.json`、`reaction-matrix-1.32.golden.json` 与 `reaction-matrix-1.33.golden.json` 保留历史 14 个 `legal-frame-v1 + aura-v5` 向量；`reaction-matrix-1.34.golden.json` 保留 1.34 的 15 个历史向量；`reaction-matrix-1.35.golden.json` 冻结当前 17 个向量，其中新增 `elementalResistance` 覆盖逐元素抗性，新增 `hydroFrozenEcGuard` 冻结 `aura-v6` 的“本击先生成 Frozen 后必须阻断感电”边界。该 guard 以 F0 的 `3U` 水命中各 `1U` 火/冰/草/雷，结果只能依序为 `vaporize → freeze → bloom`，不得启动感电或生成 F+10 Tick，草原核在 F+30 生成；独立的 `hydro-order.test.ts` 同时锁定 `aura-v5` 的历史 post-Freeze EC 行为。兼容向量继续保持 `targetClockModel: disabled`，Hitlag 与 `aura-v6` 雷多反应链也继续由独立单元/集成向量冻结。
+- `reaction-matrix-1.31.golden.json`、`reaction-matrix-1.32.golden.json` 与 `reaction-matrix-1.33.golden.json` 保留历史 14 个 `legal-frame-v1 + aura-v5` 向量；`reaction-matrix-1.34.golden.json` 保留 1.34 的 15 个历史向量；`reaction-matrix-1.35.golden.json` 冻结当前 17 个向量，其中新增 `elementalResistance` 覆盖逐元素抗性，新增 `hydroFrozenEcGuard` 冻结 `aura-v6` 的“本击先生成 Frozen 后必须阻断感电”边界。该 guard 以 F0 的 `3U` 水命中各 `1U` 火/冰/草/雷，结果只能依序为 `vaporize → freeze → bloom`，不得启动感电或生成 F+10 Tick，草原核在 F+30 生成；独立的 `hydro-order.test.ts` 同时锁定 `aura-v5` 的历史 post-Freeze EC 行为。`aura-v7-order-release.test.ts` 再锁定七种来袭元素的复合有序链，包括固定 `vaporize.go` 中“Frozen 存在时火蒸发必须被拒绝、随后融化消耗 Frozen”的相反方向边界；62,208 向量的公开初态 covering grid 则验证普通 Aura/来源槽的有限性、非负性、守恒和确定性。兼容向量继续保持 `targetClockModel: disabled`，Hitlag 与 `aura-v6` 雷多反应链也继续由独立单元/集成向量冻结。
 - 1.32 增加显式 `playerDamageModel`，1.33 增加显式 `targetClockModel`，1.34 增加显式 opt-in `aura-v6`，1.35 增加可选的完整敌方八项抗性表，1.36 增加显式 opt-in `aura-v7` 与 `reactionTaskLog`。1.35→1.36 只更新版本身份，不自动启用 v7；`legacy-default-120s-1.36.golden.json` 冻结当前兼容身份和原始浮点基线，`quicken-bloom-task-order-1.36.golden.json` 则冻结 v6 同步兼容路径与 v7 同帧 FIFO/live-Aura 任务、触发和两种跳过边界。1.35 的 17 向量反应矩阵继续作为语义 Golden 复用，历史 v1–v6 Fixture 均不重写。所有 Fixture 都是回归证据，不是官方数值认证或完整 gcsim parity 报告；其中测试抗性、草原核寿命和默认杜林预设的示例魔法数都仍是 provisional。
 
 ## 当前精度边界
@@ -167,12 +175,12 @@ npx playwright install chromium
 - 角色专属 `OnBurning` hook-before-snapshot 尚未进入通用事件阶段；纳西妲 C2 对燃烧等转化反应的特殊暴击也未实现。当前燃烧 Tick 不应被用于验证这些角色特有机制。
 - `aura-v5/v6/v7` 已实现上述绽放、草原核、烈绽放和超绽放纵向切片，并可在 `reaction-self-v1` 中结算其玩家自伤；v7 只增加列明的 Quicken→Bloom 零延迟任务顺序，不代表完整目标任务调度。草原核 `300f` 寿命、简化二维位置/范围和最近目标选择仍是 provisional，丰穰之核、卡维强制迸发、角色专属核心修正和完整三维碰撞仍未实现。旧 `aura-v3/v4` 对绽放系继续保持历史 fail-closed。
 - `targetStateTimeline`、草原核时间线和玩家 HP 时间线只把当前已经实现的状态变化按核心真实顺序暴露给消费者；启用目标时钟时目标状态点同时携带 `targetFrame`，但它们不会补全玩家 Aura/被敌攻击触发的反应、敌方攻击、治疗、死亡/复活、任意 Aura 来源重叠、角色回调或其他缺失机制。
-- 火元素、水元素、冰来袭 `超导 → 融化 → 冻结` 链，以及 v6 雷来袭 `超激化 → 超载 → 感电 → 冻结底超导 → 普通超导 → 原激化 → 绽放` 链已有显式顺序测试。v6 只完成这个来袭元素方向，不等于其他来袭元素、所有 Aura 来源组合或所有同击多反应排列均已实现；未覆盖分支仍应 fail-closed 或作为新引擎版本实现。该雷顺序固定为 `fixed-gcsim-provisional`，参考源码自身的顺序 TODO 也禁止把它外推为官服真值。
+- 火、水、冰、雷、草、风、岩七种来袭元素的代表性高信息量链已有 `aura-v7` 精确顺序测试；公开可配置的五种普通初始 Aura 又通过 62,208 个 mixed-gauge covering 向量检查 finite、非负、来源槽/消费守恒、确定性与输入数组换序。该门仍不覆盖 Frozen、Quicken、Burning/Fuel 等特殊 Aura 的全部可达排列，也不执行后续 Tick、Core、ReactionA/B 或目标任务相位；未覆盖分支仍应 fail-closed 或作为新引擎版本实现。所有固定顺序只标记为 `fixed-gcsim-provisional`，参考源码自身的顺序 TODO 也禁止把它外推为官服真值。
 - 扩散只覆盖固定 gcsim 提交中的目标 Aura 消耗、1f/5f 双攻击、二维半径 5、源目标排除、传播附着、二次反应和 ReactionA 伤害 ICD。尚未实现三维高度、风场吸附/聚怪、扩散对物件/召唤物/玩家目标的命中、扩散攻击的真实视觉/飞行路径、按来源 Aura overlap 数组或任何角色特有扩散修正。当前二维圆心在触发帧冻结，目标位置在传播帧读取，与固定提交 `NewCircleHitOnTarget` 创建静态圆形的行为一致。
 - 结晶碎片位置使用独立固定种子，在生成帧目标圆形碰撞体半径外 `0.5m` 取确定性角度；固定 gcsim 同样把碎片简化为随机圆周点，但本项目没有复刻其全局 RNG 调用序列。显式拾取命令与参考实现的 `pick_up_crystallize` 一样不检查角色到碎片的距离；1.32 只让已实现的四类玩家反应自伤消耗结晶盾并记录吸收/破裂，尚无角色移动拾取、自动吸附、一般敌方攻击、非结晶盾、护盾强效 Buff、磐岩套/角色被动回调、碎片被攻击、月结晶或真实视觉实体。因此当前护盾/HP 结果不是完整生存模拟。
 - 超载/超导尚未模拟击退、完整敌人韧性条、爆炸高度/三维碰撞、物件/召唤物/玩家自身受击或真实敌方移动；半径 3 求交依赖场景显式提供的二维目标坐标与圆形碰撞半径。当前韧性数值只用于固定 gcsim 的“钝击先削冻”局部规则，不是通用韧性系统。启用目标时钟时，已经存在的超导减物抗状态会受 Hitlag 延长；防御 Halt Bonus 尚未成为公共配置，其他敌方状态的 Hitlag 属性也未一般化。冻结状态不会自动停止声明式目标移动，也未实现冻结气泡破裂或冻结抗性的敌人数据库。碎冰伤害在本引擎的结构化事件数组中稳定排在同帧触发伤害之后；固定 gcsim 的递归攻击会先应用碎冰伤害，这一无状态副作用的日志顺序差异已明确保留，后续若加入伤害回调需升级事件语义。等级基准和反应常数来自固定 gcsim 提交的交叉校验，不代表整个 Aura/反应系统已达到 gcsim 精度。
 - 感电当前严格跟随固定 gcsim 提交的单目标 Tick 语义；每个敌人独立维护共存 Aura 和周期流，不会凭距离自动向附近潮湿目标连锁。`aura-v6` 中冻元素会阻止新感电，包括同一水命中刚生成 Frozen 的边界；`aura-v5` 仍保留旧 post-Freeze EC 结果用于兼容回放。扩散已覆盖水雷共存的雷→水递归多扩散，但按来源 Aura overlap 的全部组合和真实游戏是否存在额外目标传导仍未实现或未验证。
-- `aura-v3/v4/v5/v6/v7` 普通 Aura 与激元素已有逐来源槽、共享衰减和逐槽消耗；`aura-v1/v2` 仍保留旧聚合状态。v4–v7 已有单目标 Burning Marker/Fuel 来源与归属；目标本地 Hitlag 时钟已有 opt-in v1，但一般化特殊 Aura overlap、更多 Hitlag 属性和角色回调顺序仍未完成。
+- `aura-v3/v4/v5/v6/v7` 普通 Aura 与激元素已有逐来源槽、共享衰减和逐槽消耗；`aura-v1/v2` 仍保留旧聚合状态。结果 Schema 现在在 `sourceSlots` 存在时强制来源唯一、聚合 Gauge 等于最大槽，并对每条 `sourceMutation` 强制 `before - consumed = after`；无来源槽的历史投影继续兼容。v4–v7 已有单目标 Burning Marker/Fuel 来源与归属；目标本地 Hitlag 时钟已有 opt-in v1，但一般化特殊 Aura overlap、更多 Hitlag 属性和角色回调顺序仍未完成。
 - 全角色的特有 ICD Group 数据库；引擎已经支持声明式 Profile，但当前只有 DurinSkill 的 18 帧 / `[允许, 阻止, 阻止]` 审计映射。
 - 经过来源核验的逐技能产球数量/概率/飞行帧，以及敌人掉球、击杀掉球、白球来源、拾取路径和多目标粒子。
 - 粒子目前按一次定义聚合为同一到达事件；其飞行不读取命中几何或静态角色姿态，也没有角色移动、拾取碰撞或逐个粒子的独立飞行轨迹。

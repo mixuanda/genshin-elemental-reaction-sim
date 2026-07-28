@@ -264,11 +264,14 @@ Lohen        1813703.5786448019
 
 技能基线保存在 `packages/test-vectors/fixtures/legacy-default-120s.golden.json`。1.30–1.35 的历史升级继续按原契约保留；1.36 新增显式 opt-in `aura-v7` 和反应任务日志。1.35→1.36 是 identity-only 迁移，必须保留 v6、玩家模型、目标时钟和逐元素抗性，绝不能自动启用 v7。`legacy-default-120s-1.36.golden.json` 锁定当前 Schema/引擎兼容投影和原始浮点基线；`reaction-matrix-1.35.golden.json` 的 17 个向量继续作为 1.36 的语义回归证据；`quicken-bloom-task-order-1.36.golden.json` 锁定 v6 同步路径、v7 同帧 FIFO/live-Aura 执行，以及缺水/缺激元素的任务跳过。Golden 相等只证明迁移兼容和当前结构化结果没有漂移，不证明测试抗性、杜林预设中的手工反应、装备系数或其他示例魔法数是正式游戏数据，它们必须继续标记 `provisional`。
 
+1.36 还保留独立的 `QUICKEN_BLOOM_TASK_*` 历史版本常量，专用 Golden 不再依赖未来会变化的 `CURRENT_*` 名称。基础反应发布门由 `aura-v7-order-release.test.ts` 和 `aura-v7-public-grid.test.ts` 补强：前者锁定七种来袭元素的代表性多 Aura 顺序、Frozen 火蒸发 guard、F150 ICD 与 F426 小元素量到期；后者覆盖全部 `6^5` 公开初始普通 Aura 赋值，并以 62,208 个 covering 向量、186,624 次独立执行检查有限性、非负性、来源槽与消费守恒、重放确定性和输入数组换序。该门不等于特殊 Aura 全排列或完整 gcsim parity。
+
 当前验证命令：
 
 ```bash
 npm run typecheck
 npx vitest run packages/schemas/src/schema.test.ts packages/sim-core/src/__tests__/formulas.test.ts packages/sim-core/src/__tests__/amplifying.test.ts packages/sim-core/src/__tests__/reaction-a.test.ts packages/sim-core/src/__tests__/reaction-b.test.ts packages/sim-core/src/__tests__/bloom-gauge.test.ts packages/sim-core/src/__tests__/bloom-aura.test.ts packages/sim-core/src/__tests__/bloom-integration.test.ts packages/sim-core/src/__tests__/dendro-core.test.ts packages/sim-core/src/__tests__/aura-v6-electro.test.ts packages/sim-core/src/__tests__/aura-v6-simulator.test.ts packages/sim-core/src/__tests__/hydro-order.test.ts packages/sim-core/src/__tests__/quicken-bloom-task-order.test.ts packages/sim-core/src/__tests__/burning-v7-refresh.test.ts packages/sim-core/src/__tests__/enemy-elemental-resistance.test.ts packages/sim-core/src/__tests__/crystallize.test.ts packages/sim-core/src/__tests__/player-damage.test.ts packages/sim-core/src/__tests__/player-reaction-damage.test.ts packages/sim-core/src/__tests__/target-clock.test.ts packages/sim-core/src/__tests__/aura-target-clock.test.ts packages/sim-core/src/__tests__/target-clock-integration.test.ts packages/sim-core/src/__tests__/target-hitlag-status.test.ts packages/sim-core/src/__tests__/reaction-matrix-golden.test.ts packages/sim-core/src/__tests__/golden.test.ts packages/sim-core/src/__tests__/performance.test.ts
+npx vitest run packages/sim-core/src/__tests__/aura-v7-order-release.test.ts packages/sim-core/src/__tests__/aura-v7-public-grid.test.ts
 npm test
 npm run check
 npx playwright test apps/web/e2e/simulator.spec.ts --project=chromium
@@ -298,7 +301,7 @@ SimulationResult
 ```
 
 3. 使用 Zod 校验输入JSON并提供字段路径错误。
-   当前还为 `SimulationRunManifest`、Burning/Quicken/Bloom 审计、`reactionTaskLog` 及其到命中/Quicken/草原核/目标时间线的双向引用、ReactionA/B 伤害组、草原核生命周期/接触/时间线、玩家伤害/HP/结晶盾引用、目标时钟/Hitlag 日志及回放守恒、`TargetStateTimeline` 等关键输出提供严格 Zod 校验，并以模拟器真实日志做回归；完整 `SimulationResult` 的顶层运行时 Zod Schema 尚未完成，不得把这些关键契约外推为“全部结果均已运行时校验”。
+   当前还为 `SimulationRunManifest`、Burning/Quicken/Bloom 审计、`reactionTaskLog` 及其到命中/Quicken/草原核/目标时间线的双向引用、ReactionA/B 伤害组、草原核生命周期/接触/时间线、玩家伤害/HP/结晶盾引用、目标时钟/Hitlag 日志及回放守恒、`TargetStateTimeline` 等关键输出提供严格 Zod 校验，并以模拟器真实日志做回归。Aura 结果在来源槽存在时还强制 actor 唯一、聚合 Gauge 等于最大槽、逐条 mutation 守恒；无来源槽的历史投影继续兼容。完整 `SimulationResult` 的顶层运行时 Zod Schema 尚未完成，不得把这些关键契约外推为“全部结果均已运行时校验”。
 4. 加入 Schema 迁移系统，例如：
 
 ```ts

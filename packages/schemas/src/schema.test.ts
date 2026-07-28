@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  auraSourceGaugeMutationSchema,
+  auraStateEntrySchema,
   bloomReactionAuditSchema,
   BURNING_REACTION_ENGINE_VERSION,
   BURNING_REACTION_SCHEMA_VERSION,
@@ -204,6 +206,95 @@ const validTargetStateTimeline = {
     }
   ]
 } satisfies TargetStateTimeline;
+
+describe("Aura source-slot result contract", () => {
+  it("validates optional source-slot ownership without rejecting legacy projections", () => {
+    expect(
+      auraStateEntrySchema.parse({
+        element: "dendro",
+        gaugeUnits: 1.2,
+        expiresAtFrame: 600,
+        sourceSlots: [
+          { sourceActorId: "dendro-a", gaugeUnits: 0.4 },
+          {
+            sourceActorId: "dendro-b",
+            gaugeUnits: 1.2 + 5e-10
+          }
+        ]
+      })
+    ).toMatchObject({
+      gaugeUnits: 1.2,
+      sourceSlots: [
+        { sourceActorId: "dendro-a", gaugeUnits: 0.4 },
+        { sourceActorId: "dendro-b" }
+      ]
+    });
+    expect(
+      auraStateEntrySchema.parse({
+        element: "pyro",
+        gaugeUnits: 0.8,
+        expiresAtFrame: 560
+      })
+    ).not.toHaveProperty("sourceSlots");
+
+    expect(() =>
+      auraStateEntrySchema.parse({
+        element: "dendro",
+        gaugeUnits: 1.2,
+        expiresAtFrame: 600,
+        sourceSlots: [
+          { sourceActorId: "same-owner", gaugeUnits: 1.2 },
+          { sourceActorId: "same-owner", gaugeUnits: 0.4 }
+        ]
+      })
+    ).toThrow(/sourceSlots must be unique by sourceActorId/);
+    expect(() =>
+      auraStateEntrySchema.parse({
+        element: "dendro",
+        gaugeUnits: 1.1,
+        expiresAtFrame: 600,
+        sourceSlots: [
+          { sourceActorId: "dendro-a", gaugeUnits: 0.4 },
+          { sourceActorId: "dendro-b", gaugeUnits: 1.2 }
+        ]
+      })
+    ).toThrow(/maximum sourceSlots gaugeUnits/);
+  });
+
+  it("requires every source mutation to conserve its own Gauge budget", () => {
+    expect(
+      auraSourceGaugeMutationSchema.parse({
+        sourceActorId: "dendro-a",
+        gaugeUnitsBefore: 0.8,
+        consumedGaugeUnits: 0.3,
+        gaugeUnitsAfter: 0.5
+      })
+    ).toEqual({
+      sourceActorId: "dendro-a",
+      gaugeUnitsBefore: 0.8,
+      consumedGaugeUnits: 0.3,
+      gaugeUnitsAfter: 0.5
+    });
+    expect(() =>
+      auraSourceGaugeMutationSchema.parse({
+        sourceActorId: "dendro-a",
+        gaugeUnitsBefore: 0.8,
+        consumedGaugeUnits: 0.9,
+        gaugeUnitsAfter: 0
+      })
+    ).toThrow(/cannot exceed gaugeUnitsBefore/);
+    expect(() =>
+      auraSourceGaugeMutationSchema.parse({
+        sourceActorId: "dendro-a",
+        gaugeUnitsBefore: 0.8,
+        consumedGaugeUnits: 0.3,
+        gaugeUnitsAfter: 0.6
+      })
+    ).toThrow(
+      /must equal gaugeUnitsBefore - consumedGaugeUnits/
+    );
+  });
+});
 
 describe("target state timeline result contract", () => {
   it("accepts strict boundaries, fractional event priorities, and typed links", () => {
