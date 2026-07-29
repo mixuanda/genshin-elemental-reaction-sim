@@ -147,6 +147,14 @@ export interface TargetStateNaturalExpiryInput {
   auraAfter: readonly AuraStateEntry[];
 }
 
+export interface TargetReactableTickDecayInput {
+  frame: number;
+  timeSeconds: number;
+  targetId: string;
+  targetName: string;
+  aura: readonly AuraStateEntry[];
+}
+
 /**
  * Append-only recorder for the core-owned target state timeline.
  *
@@ -260,6 +268,31 @@ export class TargetStateTimelineRecorder {
       auraApplied: [],
       auraConsumed: [],
       auraAfter: cloneAuraStates(input.auraAfter)
+    });
+  }
+
+  recordReactableTickDecay(
+    input: TargetReactableTickDecayInput
+  ): void {
+    this.append({
+      frame: input.frame,
+      timeSeconds: input.timeSeconds,
+      targetId: input.targetId,
+      targetName: input.targetName,
+      pointKind: "derived",
+      cause: "target-reactable-tick-decay",
+      eventType: null,
+      eventPriority: null,
+      eventSequence: null,
+      intraEventSequence: null,
+      reaction: "none",
+      reactions: [],
+      primaryDamageEventId: null,
+      links: [],
+      auraBefore: cloneAuraStates(input.aura),
+      auraApplied: [],
+      auraConsumed: [],
+      auraAfter: cloneAuraStates(input.aura)
     });
   }
 

@@ -6,6 +6,8 @@ import type {
 } from "@genshin-dps-lab/schemas";
 import {
   canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
@@ -438,6 +440,19 @@ type TargetTaskPhaseGoldenScenario = ReturnType<
   typeof projectTargetTaskPhaseScenario
 >;
 
+function normalizeIdentityForFrozenV137(
+  scenario: TargetTaskPhaseGoldenScenario
+) {
+  return {
+    ...scenario,
+    identity: {
+      ...scenario.identity,
+      schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION
+    }
+  };
+}
+
 interface TargetTaskPhaseGoldenFixture {
   fixtureVersion: "target-task-phase-1.37";
   provenance: {
@@ -801,11 +816,26 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.38.0");
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.38.0-target-reactable-phase"
+    );
+
     for (const scenarioId of scenarioIds) {
-      expect(scenarios[scenarioId]).toStrictEqual(
+      const currentScenario = scenarios[scenarioId];
+      expect(currentScenario.identity.schemaVersion).toBe(
+        CURRENT_SCHEMA_VERSION
+      );
+      expect(currentScenario.identity.engineVersion).toBe(
+        CURRENT_ENGINE_VERSION
+      );
+
+      const frozenComparableScenario =
+        normalizeIdentityForFrozenV137(currentScenario);
+      expect(frozenComparableScenario).toStrictEqual(
         targetTaskPhaseGolden.scenarios[scenarioId]
       );
-      expect(sha256(scenarios[scenarioId])).toBe(
+      expect(sha256(frozenComparableScenario)).toBe(
         targetTaskPhaseGolden.hashes[scenarioId]
       );
       expect(

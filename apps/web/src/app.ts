@@ -454,7 +454,7 @@ function renderMetrics(): void {
         : `${result.targetMechanicsTruncationLog.length} 个目标截断 · ${truncatedDamageEvents} 段后续伤害未计入总伤`
     ],
     [
-      "权威 / 全部伤害段",
+      "模型内有效 / 全部伤害段",
       `${formatNumber(authoritativeDamageEvents, 0)} / ${formatNumber(result.damageEvents.length, 0)}`,
       `${result.reactedHits} 次反应触发 · ${
         result.config.reactionEngine?.mode === "aura-v1" ||
@@ -929,7 +929,7 @@ function renderHitDetail(): void {
     [
       "机制完整性",
       mechanicsTruncation === null
-        ? "本段权威"
+        ? "本段未截断"
         : mechanicsTruncation.operation === "trigger"
           ? `本段触发 ${mechanicsTruncation.unsupportedReactions.map((reaction) => REACTION_LABELS[reaction] ?? reaction).join(" / ")} 未实现分支；本段已支持的直接伤害与激化加算保留（若有），目标后续从第 ${mechanicsTruncation.startedAtFrame} 帧起截断`
           : `继承第 ${mechanicsTruncation.startedAtFrame} 帧的 ${mechanicsTruncation.unsupportedReactions.map((reaction) => REACTION_LABELS[reaction] ?? reaction).join(" / ")} 截断；Aura / ICD / 反应不再推演`

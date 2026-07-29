@@ -49,6 +49,8 @@ import {
   TARGET_LOCAL_HITLAG_ENGINE_VERSION,
   TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   TARGET_PHASE_TIMELINE_SCHEMA_VERSION,
+  TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+  TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
@@ -360,7 +362,8 @@ export const auraReactionEngineConfigSchema = z
         z
           .object({
             resetFrames: z.number().int().positive().max(36_000),
-            applicationSequence: z.array(z.boolean()).min(1).max(128)
+            applicationSequence: z.array(z.boolean()).min(1).max(128),
+            tailPolicy: z.enum(["repeat", "clamp"]).optional()
           })
           .strict()
       )
@@ -436,6 +439,11 @@ export const targetTaskModelSchema = z.discriminatedUnion("mode", [
   z
     .object({
       mode: z.literal("target-phase-v1")
+    })
+    .strict(),
+  z
+    .object({
+      mode: z.literal("target-phase-v2")
     })
     .strict()
 ]);
@@ -812,6 +820,207 @@ function auraStateOnlyDecreases(
   return null;
 }
 
+/**
+ * Ordinary Reactable durability loss cannot own element lifecycle removal.
+ * Elements remain until a typed transition. Source owners may decay to zero
+ * and disappear, but ordinary decay cannot add an owner or increase its Gauge.
+ */
+function auraStateOnlyGaugesDecrease(
+  before: readonly AuraStateWireEntry[],
+  after: readonly AuraStateWireEntry[],
+  frame: number
+): string | null {
+  for (const afterEntry of after) {
+    if (
+      !before.some(
+        (beforeEntry) =>
+          beforeEntry.element === afterEntry.element
+      )
+    ) {
+      return `ordinary Aura decay cannot add ${afterEntry.element} without a typed lifecycle transition`;
+    }
+  }
+  for (const beforeEntry of before) {
+    if (
+      !after.some(
+        (afterEntry) =>
+          afterEntry.element === beforeEntry.element
+      )
+    ) {
+      return `ordinary Aura decay cannot remove ${beforeEntry.element} without a typed lifecycle transition`;
+    }
+  }
+  if (before.length !== after.length) {
+    return "ordinary Aura decay must preserve the element set until a typed lifecycle transition";
+  }
+  for (const beforeEntry of before) {
+    const afterEntry = after.find(
+      (candidate) =>
+        candidate.element === beforeEntry.element
+    );
+    if (afterEntry === undefined) {
+      return `ordinary Aura decay cannot remove ${beforeEntry.element} without a typed lifecycle transition`;
+    }
+    const beforeOwners = (beforeEntry.sourceSlots ?? [])
+      .map((slot) => slot.sourceActorId)
+      .sort();
+    const afterOwners = (afterEntry.sourceSlots ?? [])
+      .map((slot) => slot.sourceActorId)
+      .sort();
+    const addedOwner = afterOwners.find(
+      (owner) => !beforeOwners.includes(owner)
+    );
+    if (addedOwner !== undefined) {
+      return `ordinary Aura decay cannot add ${beforeEntry.element} source owner ${addedOwner}`;
+    }
+  }
+  return auraStateOnlyDecreases(before, after, frame);
+}
+
+const ordinaryAuraStateElements = new Set<
+  AuraStateWireEntry["element"]
+>(["pyro", "hydro", "cryo", "electro", "dendro"]);
+
+function auraEntryDeadline(
+  entry: AuraStateWireEntry
+): number | null {
+  return (
+    entry.expiresAtTargetFrame ??
+    entry.expiresAtFrame
+  );
+}
+
+/**
+ * A typed Reactable lifecycle point owns only its named state family. Required
+ * elements must be present before and absent after; optional dependent
+ * elements may either be preserved exactly or removed by the same boundary.
+ */
+function typedLifecycleAuraMutationIssue(
+  before: readonly AuraStateWireEntry[],
+  after: readonly AuraStateWireEntry[],
+  ownedElements: ReadonlySet<AuraStateWireEntry["element"]>,
+  requiredRemovedElements: ReadonlySet<
+    AuraStateWireEntry["element"]
+  >
+): string | null {
+  for (const afterEntry of after) {
+    const beforeEntry = before.find(
+      (candidate) =>
+        candidate.element === afterEntry.element
+    );
+    if (beforeEntry === undefined) {
+      return `typed lifecycle cannot add ${afterEntry.element}`;
+    }
+    if (
+      !ownedElements.has(afterEntry.element) &&
+      !auraStateSnapshotsEqual([beforeEntry], [afterEntry])
+    ) {
+      return `typed lifecycle cannot change unrelated ${afterEntry.element}`;
+    }
+    if (
+      ownedElements.has(afterEntry.element) &&
+      !auraStateSnapshotsEqual([beforeEntry], [afterEntry])
+    ) {
+      return `typed lifecycle may only preserve or remove owned ${afterEntry.element}`;
+    }
+  }
+  for (const beforeEntry of before) {
+    const afterEntry = after.find(
+      (candidate) =>
+        candidate.element === beforeEntry.element
+    );
+    if (!ownedElements.has(beforeEntry.element)) {
+      if (
+        afterEntry === undefined ||
+        !auraStateSnapshotsEqual([beforeEntry], [afterEntry])
+      ) {
+        return `typed lifecycle cannot remove or change unrelated ${beforeEntry.element}`;
+      }
+      continue;
+    }
+    if (
+      requiredRemovedElements.has(beforeEntry.element) &&
+      afterEntry !== undefined
+    ) {
+      return `typed lifecycle must remove ${beforeEntry.element}`;
+    }
+  }
+  for (const requiredElement of requiredRemovedElements) {
+    if (
+      !before.some(
+        (entry) => entry.element === requiredElement
+      )
+    ) {
+      return `typed lifecycle requires active ${requiredElement} before removal`;
+    }
+    if (
+      after.some(
+        (entry) => entry.element === requiredElement
+      )
+    ) {
+      return `typed lifecycle must remove ${requiredElement}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * A natural-expiry transition must actually remove at least one ordinary Aura
+ * whose target-local deadline is this boundary. Other ordinary Aura may
+ * continue its passive Gauge decay; Reactable-only state is preserved exactly.
+ */
+function naturalAuraExpiryMutationIssue(
+  before: readonly AuraStateWireEntry[],
+  after: readonly AuraStateWireEntry[],
+  deadlineTargetFrame: number
+): string | null {
+  const decreaseIssue = auraStateOnlyDecreases(
+    before,
+    after,
+    deadlineTargetFrame
+  );
+  if (decreaseIssue !== null) return decreaseIssue;
+
+  for (const beforeEntry of before) {
+    if (ordinaryAuraStateElements.has(beforeEntry.element)) {
+      continue;
+    }
+    const afterEntry = after.find(
+      (candidate) =>
+        candidate.element === beforeEntry.element
+    );
+    if (
+      afterEntry === undefined ||
+      !auraStateSnapshotsEqual([beforeEntry], [afterEntry])
+    ) {
+      return `natural Aura expiry cannot remove or change Reactable state ${beforeEntry.element}`;
+    }
+  }
+
+  const removed = before.filter(
+    (beforeEntry) =>
+      !after.some(
+        (afterEntry) =>
+          afterEntry.element === beforeEntry.element
+      )
+  );
+  if (removed.length === 0) {
+    return "natural Aura expiry must remove an ordinary Aura";
+  }
+  for (const removedEntry of removed) {
+    if (!ordinaryAuraStateElements.has(removedEntry.element)) {
+      return `natural Aura expiry cannot remove Reactable state ${removedEntry.element}`;
+    }
+    if (
+      auraEntryDeadline(removedEntry) !==
+      deadlineTargetFrame
+    ) {
+      return `natural Aura expiry removed ${removedEntry.element} outside its exact target-local deadline`;
+    }
+  }
+  return null;
+}
+
 export const reactionTypeSchema = z.enum([
   "none",
   "melt",
@@ -920,6 +1129,12 @@ export const targetStateTimelineLinkSchema = z.discriminatedUnion("kind", [
       kind: z.literal("target-mechanics-truncation-log"),
       id: z.number().int().nonnegative()
     })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("target-phase-log"),
+      id: z.number().int().nonnegative()
+    })
     .strict()
 ]);
 
@@ -934,6 +1149,7 @@ export const targetStateTimelineCauseSchema = z.enum([
   "simulation-start",
   "simulation-end",
   "aura-natural-expiry",
+  "target-reactable-tick-decay",
   "direct-hit-shatter",
   "direct-hit-application",
   "quicken-bloom-followup",
@@ -986,7 +1202,9 @@ export const targetStateTimelinePointSchema = z
     const boundaryCause =
       point.cause === "simulation-start" ||
       point.cause === "simulation-end";
-    const derivedCause = point.cause === "aura-natural-expiry";
+    const derivedCause =
+      point.cause === "aura-natural-expiry" ||
+      point.cause === "target-reactable-tick-decay";
     const pointClockFrame = point.targetFrame ?? point.frame;
     if (
       point.targetFrame !== undefined &&
@@ -1050,26 +1268,45 @@ export const targetStateTimelinePointSchema = z
         );
       }
       if (!derivedCause) {
-        issue("cause", "derived points require aura-natural-expiry");
+        issue(
+          "cause",
+          "derived points require aura-natural-expiry or target-reactable-tick-decay"
+        );
       }
-      if (!hasAuraMutation) {
+      if (
+        point.cause === "aura-natural-expiry" &&
+        !hasAuraMutation
+      ) {
         issue(
           "auraAfter",
           "aura-natural-expiry must change the target Aura state"
         );
       }
-      const decreaseIssue = auraStateOnlyDecreases(
-        point.auraBefore,
-        point.auraAfter,
-        pointClockFrame
-      );
+      if (
+        point.cause === "target-reactable-tick-decay" &&
+        hasAuraMutation
+      ) {
+        issue(
+          "auraAfter",
+          "target-reactable-tick-decay is a post-decay observation; its phase bridge owns the ordinary Gauge decrease"
+        );
+      }
+      const decreaseIssue =
+        point.cause === "aura-natural-expiry"
+          ? auraStateOnlyDecreases(
+              point.auraBefore,
+              point.auraAfter,
+              pointClockFrame
+            )
+          : null;
       if (decreaseIssue !== null) {
         issue(
           "auraAfter",
-          `aura-natural-expiry may only decrease existing Aura: ${decreaseIssue}`
+          `${point.cause} may only decrease existing Aura: ${decreaseIssue}`
         );
       }
       if (
+        point.cause === "aura-natural-expiry" &&
         !point.auraBefore.some(
           (entry) => {
             const expiryFrame =
@@ -1089,11 +1326,18 @@ export const targetStateTimelinePointSchema = z
       }
       if (
         point.primaryDamageEventId !== null ||
-        point.links.length !== 0
+        (point.cause === "target-reactable-tick-decay"
+          ? point.links.length !== 1 ||
+            point.links[0]?.kind !== "target-phase-log"
+          : point.links.some(
+              (link) => link.kind !== "target-phase-log"
+            ))
       ) {
         issue(
           "links",
-          "aura-natural-expiry cannot carry damage or log links"
+          point.cause === "target-reactable-tick-decay"
+            ? "target-reactable-tick-decay requires exactly one target-phase-log link and no damage link"
+            : "aura-natural-expiry cannot carry damage or non-phase log links"
         );
       }
       if (
@@ -1102,7 +1346,7 @@ export const targetStateTimelinePointSchema = z
       ) {
         issue(
           "reaction",
-          "aura-natural-expiry cannot claim a reaction"
+          "derived Aura points cannot claim a reaction"
         );
       }
       if (
@@ -1111,7 +1355,7 @@ export const targetStateTimelinePointSchema = z
       ) {
         issue(
           "auraApplied",
-          "aura-natural-expiry cannot claim an application or consumption"
+          "derived Aura points cannot claim an application or consumption"
         );
       }
     } else {
@@ -1130,7 +1374,7 @@ export const targetStateTimelinePointSchema = z
       if (derivedCause) {
         issue(
           "cause",
-          "aura-natural-expiry requires pointKind=derived"
+          "derived Aura causes require pointKind=derived"
         );
       }
       if (point.pointKind === "observation" && hasAuraMutation) {
@@ -1219,6 +1463,7 @@ export const targetStateTimelinePointSchema = z
     }
 
     const linkKeys = new Set<string>();
+    let targetPhaseBridgeCount = 0;
     for (const [index, link] of point.links.entries()) {
       const key = `${link.kind}:${link.id}`;
       if (linkKeys.has(key)) {
@@ -1229,6 +1474,15 @@ export const targetStateTimelinePointSchema = z
         });
       }
       linkKeys.add(key);
+      if (link.kind === "target-phase-log") {
+        targetPhaseBridgeCount += 1;
+      }
+    }
+    if (targetPhaseBridgeCount > 1) {
+      issue(
+        "links",
+        "one timeline point can carry at most one target-phase-log bridge"
+      );
     }
 
     if (
@@ -1344,6 +1598,9 @@ export const targetStateTimelineSchema = z
           });
         }
         if (point.frame >= existingTracker.previousPoint.frame) {
+          const targetPhaseBridgeCount = point.links.filter(
+            (link) => link.kind === "target-phase-log"
+          ).length;
           const continuityIssue =
             currentClockFrame === previousClockFrame
               ? auraStateSnapshotsEqual(
@@ -1351,7 +1608,9 @@ export const targetStateTimelineSchema = z
                   point.auraBefore
                 )
                 ? null
-                : "same-frame auraBefore must exactly equal the previous auraAfter"
+                : targetPhaseBridgeCount === 1
+                  ? null
+                  : "same-frame auraBefore must exactly equal the previous auraAfter or carry one target-phase-log bridge"
               : auraStateOnlyDecreases(
                   existingTracker.previousPoint.auraAfter,
                   point.auraBefore,
@@ -2094,6 +2353,471 @@ export const targetTaskPhaseLogSchema = z
         }
       }
       previousEntryByTarget.set(entry.targetId, entry);
+    });
+  });
+
+export const targetPhaseV2TargetTaskSchema = z
+  .object({
+    stage: z.literal("target-task"),
+    kind: z.literal("burning-tick"),
+    order: z.number().int().nonnegative(),
+    eventType: z.literal("burningTick"),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    generation: z.number().int().nonnegative(),
+    tickIndex: z.number().int().positive(),
+    deadlineTargetFrame: z.number().int().nonnegative(),
+    status: z.enum(["applied", "stale"]),
+    burningStateLogId: z.number().int().nonnegative().nullable(),
+    targetStateTimelinePointId: z.number().int().nonnegative()
+  })
+  .strict()
+  .superRefine((task, context) => {
+    if (
+      (task.status === "applied") !==
+      (task.burningStateLogId !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["burningStateLogId"],
+        message:
+          "applied Burning target tasks require one lifecycle log; stale tasks require null"
+      });
+    }
+  });
+
+const targetPhaseV2TransitionBaseShape = {
+  stage: z.literal("reactable-tick"),
+  order: z.number().int().nonnegative(),
+  deadlineTargetFrame: z.number().int().nonnegative(),
+  targetStateTimelinePointId: z.number().int().nonnegative()
+};
+
+export const targetLifecycleTransitionSchema =
+  z.discriminatedUnion("kind", [
+    z
+      .object({
+        ...targetPhaseV2TransitionBaseShape,
+        kind: z.literal("aura-natural-expiry")
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV2TransitionBaseShape,
+        kind: z.literal("frozen-expiry"),
+        generation: z.number().int().nonnegative(),
+        frozenStateLogId: z.number().int().nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV2TransitionBaseShape,
+        kind: z.literal("quicken-expiry"),
+        generation: z.number().int().nonnegative(),
+        quickenStateLogId: z.number().int().nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV2TransitionBaseShape,
+        kind: z.literal("burning-fuel-expiry"),
+        generation: z.number().int().nonnegative(),
+        burningStateLogId: z.number().int().nonnegative(),
+        quickenStateLogIds: z
+          .array(z.number().int().nonnegative())
+          .max(1)
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV2TransitionBaseShape,
+        kind: z.literal("electro-charged-expiry"),
+        generation: z.number().int().nonnegative(),
+        periodicReactionLogId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict()
+  ]);
+
+const validateStrictlyIncreasingIds = (
+  ids: number[],
+  field: string,
+  context: z.RefinementCtx
+): void => {
+  for (let index = 1; index < ids.length; index += 1) {
+    if (ids[index]! <= ids[index - 1]!) {
+      context.addIssue({
+        code: "custom",
+        path: [field, index],
+        message: `${field} must be strictly increasing`
+      });
+    }
+  }
+};
+
+export const targetPhaseV2LogEntrySchema = z
+  .object({
+    model: z.literal("target-phase-v2"),
+    id: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    globalFrame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetFrame: z.number().int().nonnegative(),
+    targetOrder: z.number().int().nonnegative(),
+    auraBeforeTargetTasks: z.array(auraStateEntrySchema),
+    targetTasks: z.array(targetPhaseV2TargetTaskSchema),
+    auraAfterTargetTasks: z.array(auraStateEntrySchema),
+    reactableTick: z
+      .object({
+        fromTargetFrame: z.number().int().nonnegative(),
+        toTargetFrame: z.number().int().nonnegative(),
+        auraBefore: z.array(auraStateEntrySchema),
+        transitions: z.array(targetLifecycleTransitionSchema),
+        auraAfter: z.array(auraStateEntrySchema)
+      })
+      .strict(),
+    hitResolutionLogIds: z.array(z.number().int().nonnegative()),
+    reactionTaskLogIds: z.array(z.number().int().nonnegative())
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (
+      !approximatelyEqual(
+        entry.timeSeconds,
+        entry.globalFrame / 60
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["timeSeconds"],
+        message: "must equal globalFrame / 60"
+      });
+    }
+    if (entry.targetFrame > entry.globalFrame) {
+      context.addIssue({
+        code: "custom",
+        path: ["targetFrame"],
+        message: "cannot exceed globalFrame"
+      });
+    }
+    if (
+      entry.reactableTick.fromTargetFrame >
+        entry.reactableTick.toTargetFrame ||
+      entry.reactableTick.toTargetFrame !== entry.targetFrame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactableTick", "toTargetFrame"],
+        message:
+          "Reactable.Tick must advance from a non-later frame exactly to targetFrame"
+      });
+    }
+    const ordinaryDecayIssue = auraStateOnlyGaugesDecrease(
+      entry.auraAfterTargetTasks,
+      entry.reactableTick.auraBefore,
+      entry.reactableTick.toTargetFrame
+    );
+    if (ordinaryDecayIssue !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactableTick", "auraBefore"],
+        message:
+          `ordinary Reactable.Tick decay may only decrease target-task Aura: ${ordinaryDecayIssue}`
+      });
+    }
+    const timelinePointIds = new Set<number>();
+    let previousTaskPointId = -1;
+    let previousTaskTuple:
+      | readonly [number, number, number]
+      | undefined;
+    entry.targetTasks.forEach((task, index) => {
+      if (task.order !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetTasks", index, "order"],
+          message: `target task order must be contiguous; expected ${index}`
+        });
+      }
+      if (task.deadlineTargetFrame > entry.targetFrame) {
+        context.addIssue({
+          code: "custom",
+          path: [
+            "targetTasks",
+            index,
+            "deadlineTargetFrame"
+          ],
+          message:
+            "a target task cannot execute before its target-local deadline"
+        });
+      }
+      const tuple = [
+        task.eventPriority,
+        task.eventSequence,
+        task.intraEventSequence
+      ] as const;
+      if (
+        previousTaskTuple !== undefined &&
+        (tuple[0] < previousTaskTuple[0] ||
+          (tuple[0] === previousTaskTuple[0] &&
+            tuple[1] < previousTaskTuple[1]) ||
+          (tuple[0] === previousTaskTuple[0] &&
+            tuple[1] === previousTaskTuple[1] &&
+            tuple[2] <= previousTaskTuple[2]))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetTasks", index, "eventPriority"],
+          message:
+            "target tasks must follow priority, sequence, and intra-event order"
+        });
+      }
+      previousTaskTuple = tuple;
+      if (
+        task.targetStateTimelinePointId <=
+        previousTaskPointId
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [
+            "targetTasks",
+            index,
+            "targetStateTimelinePointId"
+          ],
+          message:
+            "target tasks must follow target timeline order"
+        });
+      }
+      previousTaskPointId =
+        task.targetStateTimelinePointId;
+      if (timelinePointIds.has(task.targetStateTimelinePointId)) {
+        context.addIssue({
+          code: "custom",
+          path: [
+            "targetTasks",
+            index,
+            "targetStateTimelinePointId"
+          ],
+          message:
+            "one target phase cannot reuse a target timeline point"
+        });
+      }
+      timelinePointIds.add(task.targetStateTimelinePointId);
+    });
+    let previousTransitionPointId = -1;
+    let previousTransitionKindRank = -1;
+    const transitionKindRank = {
+      "aura-natural-expiry": 0,
+      "burning-fuel-expiry": 1,
+      "quicken-expiry": 2,
+      "frozen-expiry": 3,
+      "electro-charged-expiry": 4
+    } as const;
+    const seenTransitionKinds = new Set<string>();
+    entry.reactableTick.transitions.forEach(
+      (transition, index) => {
+        if (transition.order !== index) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactableTick",
+              "transitions",
+              index,
+              "order"
+            ],
+            message:
+              `Reactable.Tick transition order must be contiguous; expected ${index}`
+          });
+        }
+        if (
+          transition.deadlineTargetFrame !==
+          entry.reactableTick.toTargetFrame
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactableTick",
+              "transitions",
+              index,
+              "deadlineTargetFrame"
+            ],
+            message:
+              "Reactable.Tick lifecycle deadline must exactly equal its target-local frame"
+          });
+        }
+        if (
+          transition.targetStateTimelinePointId <=
+          previousTransitionPointId
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactableTick",
+              "transitions",
+              index,
+              "targetStateTimelinePointId"
+            ],
+            message:
+              "Reactable.Tick transitions must follow target timeline order"
+          });
+        }
+        previousTransitionPointId =
+          transition.targetStateTimelinePointId;
+        const kindRank = transitionKindRank[transition.kind];
+        if (
+          seenTransitionKinds.has(transition.kind) ||
+          kindRank <= previousTransitionKindRank
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactableTick",
+              "transitions",
+              index,
+              "kind"
+            ],
+            message:
+              "Reactable.Tick transitions must be unique and follow natural Aura, Burning Fuel, Quicken, Frozen, then Electro-Charged order"
+          });
+        }
+        seenTransitionKinds.add(transition.kind);
+        previousTransitionKindRank = kindRank;
+        if (
+          timelinePointIds.has(
+            transition.targetStateTimelinePointId
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactableTick",
+              "transitions",
+              index,
+              "targetStateTimelinePointId"
+            ],
+            message:
+              "one target phase cannot reuse a target timeline point"
+          });
+        }
+        timelinePointIds.add(
+          transition.targetStateTimelinePointId
+        );
+      }
+    );
+    const lastTaskPointId =
+      entry.targetTasks.at(-1)?.targetStateTimelinePointId;
+    const firstTransitionPointId =
+      entry.reactableTick.transitions[0]
+        ?.targetStateTimelinePointId;
+    if (
+      lastTaskPointId !== undefined &&
+      firstTransitionPointId !== undefined &&
+      lastTaskPointId >= firstTransitionPointId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactableTick", "transitions", 0],
+        message:
+          "target tasks must precede Reactable.Tick transitions in the target timeline"
+      });
+    }
+    validateStrictlyIncreasingIds(
+      entry.hitResolutionLogIds,
+      "hitResolutionLogIds",
+      context
+    );
+    validateStrictlyIncreasingIds(
+      entry.reactionTaskLogIds,
+      "reactionTaskLogIds",
+      context
+    );
+  });
+
+export const targetPhaseV2LogSchema = z
+  .array(targetPhaseV2LogEntrySchema)
+  .superRefine((entries, context) => {
+    let previousEntry: (typeof entries)[number] | undefined;
+    const seenFrameTargets = new Set<string>();
+    const previousByTarget = new Map<
+      string,
+      (typeof entries)[number]
+    >();
+    entries.forEach((entry, index) => {
+      if (entry.id !== index) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "id"],
+          message: `target-phase-v2 ids must be contiguous; expected ${index}`
+        });
+      }
+      if (
+        previousEntry !== undefined &&
+        (entry.globalFrame < previousEntry.globalFrame ||
+          (entry.globalFrame === previousEntry.globalFrame &&
+            entry.targetOrder <= previousEntry.targetOrder))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "targetOrder"],
+          message:
+            "target-phase-v2 rows must be sorted by (globalFrame, targetOrder)"
+        });
+      }
+      previousEntry = entry;
+      const frameTargetKey =
+        `${entry.globalFrame}\u0000${entry.targetId}`;
+      if (seenFrameTargets.has(frameTargetKey)) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "targetId"],
+          message:
+            "target-phase-v2 rows must be unique by (globalFrame, targetId)"
+        });
+      }
+      seenFrameTargets.add(frameTargetKey);
+      const previousTarget = previousByTarget.get(entry.targetId);
+      if (previousTarget === undefined) {
+        if (entry.reactableTick.fromTargetFrame !== 0) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              index,
+              "reactableTick",
+              "fromTargetFrame"
+            ],
+            message:
+              "the first target phase must advance from target frame zero"
+          });
+        }
+      } else {
+        if (entry.globalFrame <= previousTarget.globalFrame) {
+          context.addIssue({
+            code: "custom",
+            path: [index, "globalFrame"],
+            message:
+              "globalFrame must strictly increase for the same target"
+          });
+        }
+        if (
+          entry.reactableTick.fromTargetFrame !==
+          previousTarget.reactableTick.toTargetFrame
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              index,
+              "reactableTick",
+              "fromTargetFrame"
+            ],
+            message:
+              "Reactable.Tick target-frame ranges must form a continuous chain"
+          });
+        }
+      }
+      previousByTarget.set(entry.targetId, entry);
     });
   });
 
@@ -7255,6 +7979,12 @@ export const burningStateLogEntrySchema = z
       .nonnegative()
       .nullable()
       .optional(),
+    callbackAuraBefore: z
+      .array(auraStateEntrySchema)
+      .optional(),
+    callbackAuraAfter: z
+      .array(auraStateEntrySchema)
+      .optional(),
     auraBefore: z.array(auraStateEntrySchema),
     auraApplied: z.array(auraGaugeEntrySchema),
     auraConsumed: z.array(auraGaugeEntrySchema),
@@ -7320,7 +8050,11 @@ export const burningStateLogEntrySchema = z
           "is required for target-local-hitlag-v1 output"
         );
       }
-      if (!hitlagAware && value !== undefined) {
+      if (
+        !hitlagAware &&
+        path !== "targetFrame" &&
+        value !== undefined
+      ) {
         issue(
           path,
           "must be omitted for target-local-no-hitlag output"
@@ -7332,6 +8066,16 @@ export const burningStateLogEntrySchema = z
       entry.targetFrame > entry.frame
     ) {
       issue("targetFrame", "cannot exceed frame");
+    }
+    if (
+      !hitlagAware &&
+      entry.targetFrame !== undefined &&
+      entry.targetFrame !== entry.frame
+    ) {
+      issue(
+        "targetFrame",
+        "target-local-no-hitlag targetFrame must equal frame when present"
+      );
     }
     if (hitlagAware) {
       for (const [
@@ -9603,6 +10347,24 @@ export const simConfigSchema = z
           "target-phase-v1 requires reactionEngine.mode aura-v7 when reactionEngine is configured"
       });
     }
+    if (config.targetTaskModel.mode === "target-phase-v2") {
+      if (config.timeline === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["targetTaskModel"],
+          message:
+            "target-phase-v2 requires timeline.mode legal-frame-v1 at 60 FPS"
+        });
+      }
+      if (config.reactionEngine?.mode !== "aura-v7") {
+        context.addIssue({
+          code: "custom",
+          path: ["targetTaskModel"],
+          message:
+            "target-phase-v2 requires reactionEngine.mode aura-v7"
+        });
+      }
+    }
     if (
       config.targetClockModel.mode ===
         "target-local-hitlag-v1" &&
@@ -11283,6 +12045,13 @@ const targetTaskPhaseConfigReferenceSchema = z
       })
       .passthrough()
       .optional(),
+    timeline: z
+      .object({
+        mode: z.literal("legal-frame-v1"),
+        fps: z.literal(60)
+      })
+      .passthrough()
+      .optional(),
     reactionEngine: z
       .object({
         mode: z.string()
@@ -11324,6 +12093,12 @@ const targetTaskPhaseBurningReferenceSchema = z
     eventSequence: z.number().int().nonnegative(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema,
+    callbackAuraBefore: z
+      .array(auraStateEntrySchema)
+      .optional(),
+    callbackAuraAfter: z
+      .array(auraStateEntrySchema)
+      .optional(),
     auraBefore: z.array(auraStateEntrySchema),
     auraAfter: z.array(auraStateEntrySchema)
   })
@@ -11401,10 +12176,13 @@ export const targetTaskPhaseResultReferencesSchema = z
       result.config.targetTaskModel?.mode ??
       "legacy-event-heap-v1";
     const phases = result.targetTaskPhaseLog ?? [];
-    const currentIdentity =
+    const targetTaskIdentity =
       result.schemaVersion === TARGET_TASK_PHASE_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        TARGET_TASK_PHASE_SCHEMA_VERSION;
+        TARGET_TASK_PHASE_SCHEMA_VERSION ||
+      result.schemaVersion === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -11427,7 +12205,7 @@ export const targetTaskPhaseResultReferencesSchema = z
     }
 
     if (
-      currentIdentity &&
+      targetTaskIdentity &&
       result.config.targetTaskModel === undefined
     ) {
       issue(
@@ -11436,7 +12214,7 @@ export const targetTaskPhaseResultReferencesSchema = z
       );
     }
     if (
-      currentIdentity &&
+      targetTaskIdentity &&
       result.targetTaskPhaseLog === undefined
     ) {
       issue(
@@ -11445,7 +12223,7 @@ export const targetTaskPhaseResultReferencesSchema = z
       );
     }
     if (
-      !currentIdentity &&
+      !targetTaskIdentity &&
       mode === "target-phase-v1"
     ) {
       issue(
@@ -11455,28 +12233,67 @@ export const targetTaskPhaseResultReferencesSchema = z
       return;
     }
     if (mode === "target-phase-v1") {
+      const frozenV1Identity =
+        result.schemaVersion ===
+          TARGET_TASK_PHASE_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          TARGET_TASK_PHASE_SCHEMA_VERSION &&
+        result.engineVersion ===
+          TARGET_TASK_PHASE_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          TARGET_TASK_PHASE_ENGINE_VERSION;
+      const migratedCurrentIdentity =
+        result.schemaVersion ===
+          TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
+        result.engineVersion ===
+          TARGET_REACTABLE_PHASE_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          TARGET_REACTABLE_PHASE_ENGINE_VERSION;
       if (
-        result.schemaVersion !==
-          TARGET_TASK_PHASE_SCHEMA_VERSION ||
-        result.config.schemaVersion !==
-          TARGET_TASK_PHASE_SCHEMA_VERSION
+        !frozenV1Identity &&
+        !migratedCurrentIdentity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must both use the current target-task schema identity"
+          "target-phase-v1 result and config must use either the frozen 1.37 identity or the migrated current identity"
         );
       }
-      if (
-        result.engineVersion !==
-          TARGET_TASK_PHASE_ENGINE_VERSION ||
-        result.config.engineVersion !==
-          TARGET_TASK_PHASE_ENGINE_VERSION
-      ) {
-        issue(
-          ["config", "engineVersion"],
-          "target-phase-v1 result and config must both use the current target-task engine identity"
-        );
-      }
+    }
+
+    if (mode !== "target-phase-v2") {
+      result.targetStateTimeline?.points.forEach(
+        (point, pointIndex) => {
+          point.links.forEach((link, linkIndex) => {
+            if (link.kind === "target-phase-log") {
+              issue(
+                [
+                  "targetStateTimeline",
+                  "points",
+                  pointIndex,
+                  "links",
+                  linkIndex
+                ],
+                `${mode} cannot carry target-phase-v2 timeline bridges`
+              );
+            }
+          });
+        }
+      );
+      result.burningStateLog?.forEach(
+        (entry, entryIndex) => {
+          if (
+            entry.callbackAuraBefore !== undefined ||
+            entry.callbackAuraAfter !== undefined
+          ) {
+            issue(
+              ["burningStateLog", entryIndex],
+              `${mode} cannot carry target-phase-v2 Burning callback Aura snapshots`
+            );
+          }
+        }
+      );
     }
 
     if (mode === "legacy-event-heap-v1") {
@@ -11484,6 +12301,15 @@ export const targetTaskPhaseResultReferencesSchema = z
         issue(
           ["targetTaskPhaseLog"],
           "legacy-event-heap-v1 requires an empty target task phase log"
+        );
+      }
+      return;
+    }
+    if (mode === "target-phase-v2") {
+      if (phases.length !== 0) {
+        issue(
+          ["targetTaskPhaseLog"],
+          "target-phase-v2 requires an empty targetTaskPhaseLog"
         );
       }
       return;
@@ -12248,6 +13074,1783 @@ export const targetTaskPhaseResultReferencesSchema = z
     });
   });
 
+const targetPhaseV2FrozenReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh",
+      "immune",
+      "consume",
+      "poise-consume",
+      "shatter-consume",
+      "expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    reason: z.string().min(1).nullable()
+  })
+  .passthrough();
+
+const targetPhaseV2QuickenReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh",
+      "unchanged",
+      "decay-rebase",
+      "partial-consume",
+      "remove",
+      "expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    reason: z.string().min(1).nullable()
+  })
+  .passthrough();
+
+const targetPhaseV2BurningReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh-fuel",
+      "refresh-snapshot",
+      "tick",
+      "tick-skipped",
+      "stop",
+      "fuel-expire"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    tickIndex: z.number().int().positive().nullable(),
+    callbackAuraBefore: z
+      .array(auraStateEntrySchema)
+      .optional(),
+    callbackAuraAfter: z
+      .array(auraStateEntrySchema)
+      .optional(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    reason: z.string().min(1).nullable()
+  })
+  .passthrough();
+
+const targetPhaseV2PeriodicReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: z.literal("electroCharged"),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh",
+      "tick",
+      "wane",
+      "wane-skipped",
+      "stop"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    reason: z.string().min(1).nullable()
+  })
+  .passthrough();
+
+const targetPhaseV2ReactionTaskReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    kind: z.literal("quicken-bloom-followup"),
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    intraEventSequence: z.number().int().nonnegative(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema)
+  })
+  .passthrough();
+
+/**
+ * Cross-log proof boundary for the 1.38 target-local queue then
+ * Reactable.Tick model. The frozen 1.37 projection remains owned by
+ * targetTaskPhaseResultReferencesSchema; this validator only adds the v2
+ * lifecycle boundary and the mutual-exclusion contract between both logs.
+ */
+export const targetPhaseV2ResultReferencesSchema = z
+  .object({
+    schemaVersion: z.string().optional(),
+    engineVersion: z.string().optional(),
+    config: targetTaskPhaseConfigReferenceSchema,
+    enemyTargets: z
+      .array(targetTaskPhaseTargetReferenceSchema)
+      .optional(),
+    targetClockAudit:
+      targetTaskPhaseClockAuditReferenceSchema.optional(),
+    targetClockLog: targetClockLogSchema.optional(),
+    targetTaskPhaseLog: targetTaskPhaseLogSchema.optional(),
+    targetPhaseLog: targetPhaseV2LogSchema.optional(),
+    burningStateLog: z
+      .array(targetPhaseV2BurningReferenceSchema)
+      .optional(),
+    frozenStateLog: z
+      .array(targetPhaseV2FrozenReferenceSchema)
+      .optional(),
+    quickenStateLog: z
+      .array(targetPhaseV2QuickenReferenceSchema)
+      .optional(),
+    periodicReactionLog: z
+      .array(targetPhaseV2PeriodicReferenceSchema)
+      .optional(),
+    hitResolutionLog: z
+      .array(targetTaskPhaseHitReferenceSchema)
+      .optional(),
+    reactionTaskLog: z
+      .array(targetPhaseV2ReactionTaskReferenceSchema)
+      .optional(),
+    targetStateTimeline: targetStateTimelineSchema.optional()
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    const mode =
+      result.config.targetTaskModel?.mode ??
+      "legacy-event-heap-v1";
+    const oldPhases = result.targetTaskPhaseLog ?? [];
+    const phases = result.targetPhaseLog ?? [];
+    const topAndConfigSchemaMatch =
+      result.schemaVersion === undefined ||
+      result.config.schemaVersion === undefined ||
+      result.schemaVersion === result.config.schemaVersion;
+    const topAndConfigEngineMatch =
+      result.engineVersion === undefined ||
+      result.config.engineVersion === undefined ||
+      result.engineVersion === result.config.engineVersion;
+    if (!topAndConfigSchemaMatch) {
+      issue(
+        ["config", "schemaVersion"],
+        "result and config schemaVersion must match"
+      );
+    }
+    if (!topAndConfigEngineMatch) {
+      issue(
+        ["config", "engineVersion"],
+        "result and config engineVersion must match"
+      );
+    }
+
+    const currentIdentity =
+      result.schemaVersion === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
+    if (
+      currentIdentity &&
+      result.config.targetTaskModel === undefined
+    ) {
+      issue(
+        ["config", "targetTaskModel"],
+        "current target-phase output requires config.targetTaskModel"
+      );
+    }
+    if (currentIdentity && result.targetPhaseLog === undefined) {
+      issue(
+        ["targetPhaseLog"],
+        "current target-phase output requires targetPhaseLog"
+      );
+    }
+    if (
+      currentIdentity &&
+      result.targetTaskPhaseLog === undefined
+    ) {
+      issue(
+        ["targetTaskPhaseLog"],
+        "current target-phase output requires targetTaskPhaseLog"
+      );
+    }
+    if (mode === "target-phase-v2") {
+      if (
+        result.schemaVersion !==
+          TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+        result.config.schemaVersion !==
+          TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+        result.engineVersion !==
+          TARGET_REACTABLE_PHASE_ENGINE_VERSION ||
+        result.config.engineVersion !==
+          TARGET_REACTABLE_PHASE_ENGINE_VERSION
+      ) {
+        issue(
+          ["config", "schemaVersion"],
+          "target-phase-v2 result and config require the exact 1.38 schema and engine identity"
+        );
+      }
+      if (
+        result.config.timeline?.mode !== "legal-frame-v1" ||
+        result.config.timeline.fps !== 60
+      ) {
+        issue(
+          ["config", "timeline"],
+          "target-phase-v2 requires legal-frame-v1 at 60 FPS"
+        );
+      }
+      if (result.config.reactionEngine?.mode !== "aura-v7") {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "target-phase-v2 requires reactionEngine.mode aura-v7"
+        );
+      }
+      if (oldPhases.length !== 0) {
+        issue(
+          ["targetTaskPhaseLog"],
+          "target-phase-v2 requires an empty targetTaskPhaseLog"
+        );
+      }
+    } else {
+      result.targetStateTimeline?.points.forEach(
+        (point, pointIndex) => {
+          point.links.forEach((link, linkIndex) => {
+            if (link.kind === "target-phase-log") {
+              issue(
+                [
+                  "targetStateTimeline",
+                  "points",
+                  pointIndex,
+                  "links",
+                  linkIndex
+                ],
+                `${mode} cannot carry target-phase-v2 timeline bridges`
+              );
+            }
+          });
+        }
+      );
+      result.burningStateLog?.forEach((entry, entryIndex) => {
+        if (
+          entry.callbackAuraBefore !== undefined ||
+          entry.callbackAuraAfter !== undefined
+        ) {
+          issue(
+            ["burningStateLog", entryIndex],
+            `${mode} cannot carry target-phase-v2 Burning callback Aura snapshots`
+          );
+        }
+      });
+      if (phases.length !== 0) {
+        issue(
+          ["targetPhaseLog"],
+          `${mode} requires an empty targetPhaseLog`
+        );
+      }
+      return;
+    }
+
+    const requiredFields = [
+      "enemyTargets",
+      "targetClockAudit",
+      "targetClockLog",
+      "targetTaskPhaseLog",
+      "targetPhaseLog",
+      "burningStateLog",
+      "frozenStateLog",
+      "quickenStateLog",
+      "periodicReactionLog",
+      "hitResolutionLog",
+      "reactionTaskLog",
+      "targetStateTimeline"
+    ] as const;
+    let missingRequiredField = false;
+    for (const field of requiredFields) {
+      if (result[field] === undefined) {
+        missingRequiredField = true;
+        issue([field], `target-phase-v2 requires ${field}`);
+      }
+    }
+    if (missingRequiredField) return;
+
+    const enemyTargets = result.enemyTargets!;
+    const targetClockAudit = result.targetClockAudit!;
+    const targetClockLog = result.targetClockLog!;
+    const burningStateLog = result.burningStateLog!;
+    const frozenStateLog = result.frozenStateLog!;
+    const quickenStateLog = result.quickenStateLog!;
+    const periodicReactionLog = result.periodicReactionLog!;
+    const hitResolutionLog = result.hitResolutionLog!;
+    const reactionTaskLog = result.reactionTaskLog!;
+    const targetStateTimeline = result.targetStateTimeline!;
+    if (
+      result.config.targetClockModel?.mode !==
+      targetClockAudit.mode
+    ) {
+      issue(
+        ["config", "targetClockModel", "mode"],
+        "targetClockModel.mode must match targetClockAudit.mode"
+      );
+    }
+
+    const targetById = new Map<
+      string,
+      { index: number; name: string }
+    >();
+    enemyTargets.forEach((target, index) => {
+      if (targetById.has(target.id)) {
+        issue(
+          ["enemyTargets", index, "id"],
+          `duplicate target "${target.id}" in target-phase-v2 projection`
+        );
+      } else {
+        targetById.set(target.id, {
+          index,
+          name: target.name
+        });
+      }
+    });
+    const buildUniqueIdMap = <
+      TEntry extends { id: number }
+    >(
+      entries: TEntry[],
+      field: string
+    ): Map<number, TEntry> => {
+      const byId = new Map<number, TEntry>();
+      entries.forEach((entry, index) => {
+        if (entry.id !== index) {
+          issue(
+            [field, index, "id"],
+            `${field} requires contiguous id ${index}`
+          );
+        }
+        if (byId.has(entry.id)) {
+          issue(
+            [field, index, "id"],
+            `duplicate ${field} id ${entry.id}`
+          );
+        } else {
+          byId.set(entry.id, entry);
+        }
+      });
+      return byId;
+    };
+    const burningById = buildUniqueIdMap(
+      burningStateLog,
+      "burningStateLog"
+    );
+    const frozenById = buildUniqueIdMap(
+      frozenStateLog,
+      "frozenStateLog"
+    );
+    const quickenById = buildUniqueIdMap(
+      quickenStateLog,
+      "quickenStateLog"
+    );
+    const periodicById = buildUniqueIdMap(
+      periodicReactionLog,
+      "periodicReactionLog"
+    );
+    const hitById = buildUniqueIdMap(
+      hitResolutionLog,
+      "hitResolutionLog"
+    );
+    const reactionTaskById = buildUniqueIdMap(
+      reactionTaskLog,
+      "reactionTaskLog"
+    );
+    const timelinePointById = new Map(
+      targetStateTimeline.points.map((point) => [
+        point.id,
+        point
+      ])
+    );
+
+    const clockEntriesByTarget = new Map<
+      string,
+      typeof targetClockLog
+    >();
+    targetClockLog.forEach((entry) => {
+      const entries =
+        clockEntriesByTarget.get(entry.targetId) ?? [];
+      entries.push(entry);
+      clockEntriesByTarget.set(entry.targetId, entries);
+    });
+    const replayTargetFrame = (
+      targetId: string,
+      globalFrame: number
+    ): number | undefined => {
+      if (targetClockAudit.mode === "disabled") {
+        return globalFrame;
+      }
+      if (globalFrame === 0) return 0;
+      const entries = clockEntriesByTarget.get(targetId);
+      if (entries === undefined) return undefined;
+      for (const entry of entries) {
+        if (globalFrame < entry.globalFrameBefore) break;
+        if (
+          entry.operation === "advance" &&
+          globalFrame <= entry.globalFrameAfter
+        ) {
+          const elapsed =
+            globalFrame - entry.globalFrameBefore;
+          return (
+            entry.targetFrameBefore +
+            elapsed -
+            Math.min(elapsed, entry.frozenFramesBefore)
+          );
+        }
+        if (globalFrame === entry.globalFrameBefore) {
+          return entry.targetFrameBefore;
+        }
+      }
+      return undefined;
+    };
+
+    const burningTaskOwnerById = new Map<number, number>();
+    const frozenOwnerById = new Map<number, number>();
+    const quickenOwnerById = new Map<number, number>();
+    const burningFuelOwnerById = new Map<number, number>();
+    const periodicOwnerById = new Map<number, number>();
+    const hitOwnerById = new Map<number, number>();
+    const reactionTaskOwnerById = new Map<number, number>();
+    const lifecycleTimelineOwnerById = new Map<
+      number,
+      { phaseIndex: number; transitionIndex: number }
+    >();
+    const claimReference = (
+      owners: Map<number, number>,
+      id: number,
+      phaseIndex: number,
+      path: Array<string | number>,
+      family: string
+    ): void => {
+      const previousOwner = owners.get(id);
+      if (previousOwner !== undefined) {
+        issue(
+          path,
+          `${family} ${id} is owned by both target phases ${previousOwner} and ${phaseIndex}`
+        );
+      } else {
+        owners.set(id, phaseIndex);
+      }
+    };
+    const exactLinks = (
+      actual: Array<{ kind: string; id: number }>,
+      expected: Array<{ kind: string; id: number }>
+    ): boolean =>
+      actual.length === expected.length &&
+      actual.every(
+        (link, index) =>
+          link.kind === expected[index]?.kind &&
+          link.id === expected[index]?.id
+      );
+    const exactLifecycleLinks = (
+      actual: Array<{ kind: string; id: number }>,
+      expected: Array<{ kind: string; id: number }>
+    ): boolean =>
+      exactLinks(
+        actual.filter(
+          (link) => link.kind !== "target-phase-log"
+        ),
+        expected
+      );
+    const validatePointBoundary = (
+      phase: (typeof phases)[number],
+      pointId: number,
+      phaseIndex: number,
+      path: Array<string | number>
+    ) => {
+      const point = timelinePointById.get(pointId);
+      if (
+        point === undefined ||
+        point.targetId !== phase.targetId ||
+        point.targetName !== phase.targetName ||
+        point.frame !== phase.globalFrame ||
+        point.targetFrame !== phase.targetFrame ||
+        !approximatelyEqual(
+          point.timeSeconds,
+          phase.timeSeconds
+        )
+      ) {
+        issue(
+          path,
+          `target timeline point ${pointId} does not match its target phase identity, frame, or clock`
+        );
+      }
+      return point;
+    };
+
+    phases.forEach((phase, phaseIndex) => {
+      const target = targetById.get(phase.targetId);
+      if (target === undefined) {
+        issue(
+          ["targetPhaseLog", phaseIndex, "targetId"],
+          `unknown target-phase-v2 target "${phase.targetId}"`
+        );
+      } else {
+        if (phase.targetName !== target.name) {
+          issue(
+            ["targetPhaseLog", phaseIndex, "targetName"],
+            "target phase targetName must match enemyTargets"
+          );
+        }
+        if (phase.targetOrder !== target.index) {
+          issue(
+            ["targetPhaseLog", phaseIndex, "targetOrder"],
+            "targetOrder must equal the resolved enemyTargets index"
+          );
+        }
+      }
+      const expectedTargetFrame = replayTargetFrame(
+        phase.targetId,
+        phase.globalFrame
+      );
+      if (
+        expectedTargetFrame === undefined ||
+        phase.targetFrame !== expectedTargetFrame
+      ) {
+        issue(
+          ["targetPhaseLog", phaseIndex, "targetFrame"],
+          "targetFrame must exactly match the target-clock replay"
+        );
+      }
+
+      const ownedPointIds = [
+        ...phase.targetTasks.map(
+          (task) => task.targetStateTimelinePointId
+        ),
+        ...phase.reactableTick.transitions.map(
+          (transition) =>
+            transition.targetStateTimelinePointId
+        )
+      ];
+      const firstOwnedPointId =
+        ownedPointIds.length === 0
+          ? Number.POSITIVE_INFINITY
+          : Math.min(...ownedPointIds);
+      let previousTimelinePoint:
+        | (typeof targetStateTimeline.points)[number]
+        | undefined;
+      for (
+        let pointIndex =
+          targetStateTimeline.points.length - 1;
+        pointIndex >= 0;
+        pointIndex -= 1
+      ) {
+        const point =
+          targetStateTimeline.points[pointIndex]!;
+        if (
+          point.targetId === phase.targetId &&
+          point.id < firstOwnedPointId &&
+          (point.frame < phase.globalFrame ||
+            (phase.globalFrame === 0 &&
+              point.frame === 0 &&
+              point.cause === "simulation-start"))
+        ) {
+          previousTimelinePoint = point;
+          break;
+        }
+      }
+      if (previousTimelinePoint === undefined) {
+        issue(
+          [
+            "targetPhaseLog",
+            phaseIndex,
+            "auraBeforeTargetTasks"
+          ],
+          "target phase requires a preceding authoritative target-state point"
+        );
+      } else {
+        const sparseDecayIssue = auraStateOnlyDecreases(
+          previousTimelinePoint.auraAfter,
+          phase.auraBeforeTargetTasks,
+          phase.reactableTick.fromTargetFrame
+        );
+        if (sparseDecayIssue !== null) {
+          issue(
+            [
+              "targetPhaseLog",
+              phaseIndex,
+              "auraBeforeTargetTasks"
+            ],
+            `target phase sparse clock advance may only decrease the preceding target Aura: ${sparseDecayIssue}`
+          );
+        }
+      }
+
+      const phaseTargetPoints =
+        targetStateTimeline.points.filter(
+          (point) => point.targetId === phase.targetId
+        );
+      let previousTaskPointPosition = -1;
+      let taskAuraCursor = phase.auraBeforeTargetTasks;
+      phase.targetTasks.forEach((task, taskIndex) => {
+        const taskPath = [
+          "targetPhaseLog",
+          phaseIndex,
+          "targetTasks",
+          taskIndex
+        ];
+        const point = validatePointBoundary(
+          phase,
+          task.targetStateTimelinePointId,
+          phaseIndex,
+          [...taskPath, "targetStateTimelinePointId"]
+        );
+        const taskPointPosition =
+          phaseTargetPoints.findIndex(
+            (candidate) =>
+              candidate.id ===
+              task.targetStateTimelinePointId
+          );
+        if (
+          previousTaskPointPosition >= 0 &&
+          taskPointPosition !==
+            previousTaskPointPosition + 1
+        ) {
+          issue(
+            [
+              ...taskPath,
+              "targetStateTimelinePointId"
+            ],
+            "target task points must be adjacent and ordered on the target timeline"
+          );
+        }
+        if (taskPointPosition >= 0) {
+          previousTaskPointPosition = taskPointPosition;
+        }
+        const expectedPriority =
+          target === undefined
+            ? task.eventPriority
+            : 0.5 +
+              target.index *
+                (0.5 / (enemyTargets.length + 1));
+        if (
+          !approximatelyEqual(
+            task.eventPriority,
+            expectedPriority
+          )
+        ) {
+          issue(
+            [...taskPath, "eventPriority"],
+            "Burning target-task priority must encode resolved target order"
+          );
+        }
+        if (
+          point === undefined ||
+          point.cause !== "burning-tick" ||
+          point.eventType !== "burningTick" ||
+          point.eventPriority !== task.eventPriority ||
+          point.eventSequence !== task.eventSequence ||
+          point.intraEventSequence !==
+            task.intraEventSequence ||
+          !auraStateSnapshotsEqual(
+            point.auraBefore,
+            taskAuraCursor
+          )
+        ) {
+          issue(
+            taskPath,
+            "Burning target task requires a reciprocal ordered target timeline point"
+          );
+        }
+        if (point !== undefined) {
+          taskAuraCursor = point.auraAfter;
+        }
+        if (task.status === "stale") {
+          if (
+            point !== undefined &&
+            (point.links.length !== 0 ||
+              !auraStateSnapshotsEqual(
+                point.auraBefore,
+                point.auraAfter
+              ))
+          ) {
+            issue(
+              taskPath,
+              "stale Burning target tasks require a link-free, unchanged observation"
+            );
+          }
+          return;
+        }
+        const burningId = task.burningStateLogId;
+        if (burningId === null) return;
+        claimReference(
+          burningTaskOwnerById,
+          burningId,
+          phaseIndex,
+          [...taskPath, "burningStateLogId"],
+          "Burning target-task log"
+        );
+        const log = burningById.get(burningId);
+        if (
+          log === undefined ||
+          log.targetId !== phase.targetId ||
+          log.targetName !== phase.targetName ||
+          log.frame !== phase.globalFrame ||
+          log.targetFrame !== phase.targetFrame ||
+          log.generation !== task.generation ||
+          log.tickIndex !== task.tickIndex ||
+          (log.operation !== "tick" &&
+            log.operation !== "tick-skipped" &&
+            log.operation !== "stop") ||
+          log.eventPriority !== task.eventPriority ||
+          log.eventSequence !== task.eventSequence ||
+          log.callbackAuraBefore === undefined ||
+          log.callbackAuraAfter === undefined ||
+          !auraStateSnapshotsEqual(
+            log.callbackAuraBefore,
+            point?.auraBefore ?? []
+          ) ||
+          !auraStateSnapshotsEqual(
+            log.callbackAuraAfter,
+            point?.auraAfter ?? []
+          )
+        ) {
+          issue(
+            [...taskPath, "burningStateLogId"],
+            `Burning lifecycle log ${burningId} does not match its target task`
+          );
+        }
+        if (
+          point === undefined ||
+          !exactLinks(point.links, [
+            { kind: "burning-state-log", id: burningId }
+          ])
+        ) {
+          issue(
+            [...taskPath, "targetStateTimelinePointId"],
+            "applied Burning target task requires one reciprocal burning-state timeline link"
+          );
+        }
+      });
+      if (
+        !auraStateSnapshotsEqual(
+          taskAuraCursor,
+          phase.auraAfterTargetTasks
+        )
+      ) {
+        issue(
+          [
+            "targetPhaseLog",
+            phaseIndex,
+            "auraAfterTargetTasks"
+          ],
+          "target task timeline points must form a continuous Aura chain"
+        );
+      }
+      const ordinaryDecayIssue = auraStateOnlyGaugesDecrease(
+        phase.auraAfterTargetTasks,
+        phase.reactableTick.auraBefore,
+        phase.targetFrame
+      );
+      if (ordinaryDecayIssue !== null) {
+        issue(
+          [
+            "targetPhaseLog",
+            phaseIndex,
+            "reactableTick",
+            "auraBefore"
+          ],
+          `ordinary Reactable.Tick decay may only decrease target-task Aura: ${ordinaryDecayIssue}`
+        );
+      }
+
+      let transitionAuraCursor =
+        phase.reactableTick.auraBefore;
+      let previousTargetPointPosition =
+        previousTaskPointPosition;
+      const targetPoints = phaseTargetPoints;
+      phase.reactableTick.transitions.forEach(
+        (transition, transitionIndex) => {
+          const transitionPath = [
+            "targetPhaseLog",
+            phaseIndex,
+            "reactableTick",
+            "transitions",
+            transitionIndex
+          ];
+          const previousLifecycleOwner =
+            lifecycleTimelineOwnerById.get(
+              transition.targetStateTimelinePointId
+            );
+          if (previousLifecycleOwner !== undefined) {
+            issue(
+              [
+                ...transitionPath,
+                "targetStateTimelinePointId"
+              ],
+              `target lifecycle timeline point ${transition.targetStateTimelinePointId} is claimed by both target phase ${previousLifecycleOwner.phaseIndex} transition ${previousLifecycleOwner.transitionIndex} and target phase ${phaseIndex} transition ${transitionIndex}`
+            );
+          } else {
+            lifecycleTimelineOwnerById.set(
+              transition.targetStateTimelinePointId,
+              { phaseIndex, transitionIndex }
+            );
+          }
+          const point = validatePointBoundary(
+            phase,
+            transition.targetStateTimelinePointId,
+            phaseIndex,
+            [
+              ...transitionPath,
+              "targetStateTimelinePointId"
+            ]
+          );
+          const targetPointPosition = targetPoints.findIndex(
+            (candidate) =>
+              candidate.id ===
+              transition.targetStateTimelinePointId
+          );
+          if (
+            previousTargetPointPosition >= 0 &&
+            targetPointPosition !==
+              previousTargetPointPosition + 1
+          ) {
+            issue(
+              [
+                ...transitionPath,
+                "targetStateTimelinePointId"
+              ],
+              "Reactable.Tick transition points must be adjacent on the target timeline"
+            );
+          }
+          previousTargetPointPosition = targetPointPosition;
+          if (
+            point === undefined ||
+            !auraStateSnapshotsEqual(
+              point.auraBefore,
+              transitionAuraCursor
+            )
+          ) {
+            issue(
+              transitionPath,
+              "Reactable.Tick transitions must form a continuous Aura-before chain"
+            );
+          }
+          if (point !== undefined) {
+            transitionAuraCursor = point.auraAfter;
+          }
+
+          if (transition.kind === "aura-natural-expiry") {
+            if (
+              point === undefined ||
+              point.pointKind !== "derived" ||
+              point.cause !== "aura-natural-expiry" ||
+              point.links.some(
+                (link) => link.kind !== "target-phase-log"
+              )
+            ) {
+              issue(
+                transitionPath,
+                "natural Aura expiry requires one derived timeline point with only an optional reciprocal phase bridge"
+              );
+            }
+            if (point !== undefined) {
+              const mutationIssue =
+                naturalAuraExpiryMutationIssue(
+                  point.auraBefore,
+                  point.auraAfter,
+                  transition.deadlineTargetFrame
+                );
+              if (mutationIssue !== null) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "targetStateTimelinePointId"
+                  ],
+                  `natural Aura expiry transition is not an exact ordinary-Aura expiry: ${mutationIssue}`
+                );
+              }
+            }
+            return;
+          }
+          if (transition.kind === "frozen-expiry") {
+            claimReference(
+              frozenOwnerById,
+              transition.frozenStateLogId,
+              phaseIndex,
+              [...transitionPath, "frozenStateLogId"],
+              "Frozen lifecycle log"
+            );
+            const log = frozenById.get(
+              transition.frozenStateLogId
+            );
+            if (
+              log === undefined ||
+              log.operation !== "expire" ||
+              log.reason !== "FROZEN_DECAY_EXPIRED" ||
+              log.generation !== transition.generation ||
+              log.targetId !== phase.targetId ||
+              log.targetName !== phase.targetName ||
+              log.frame !== phase.globalFrame ||
+              log.targetFrame !== phase.targetFrame ||
+              !auraStateSnapshotsEqual(
+                log.auraBefore,
+                point?.auraBefore ?? []
+              ) ||
+              !auraStateSnapshotsEqual(
+                log.auraAfter,
+                point?.auraAfter ?? []
+              )
+            ) {
+              issue(
+                [...transitionPath, "frozenStateLogId"],
+                "Frozen expiry transition does not match its typed lifecycle log"
+              );
+            }
+            if (
+              point === undefined ||
+              point.pointKind !== "mutation" ||
+              point.cause !== "frozen-expiry" ||
+              !exactLifecycleLinks(point.links, [
+                {
+                  kind: "frozen-state-log",
+                  id: transition.frozenStateLogId
+                }
+              ])
+            ) {
+              issue(
+                [
+                  ...transitionPath,
+                  "targetStateTimelinePointId"
+                ],
+                "Frozen expiry requires one reciprocal typed timeline point"
+              );
+            }
+            if (point !== undefined) {
+              const mutationIssue =
+                typedLifecycleAuraMutationIssue(
+                  point.auraBefore,
+                  point.auraAfter,
+                  new Set(["frozen"]),
+                  new Set(["frozen"])
+                );
+              const frozenBefore = point.auraBefore.find(
+                (entry) => entry.element === "frozen"
+              );
+              if (
+                mutationIssue !== null ||
+                frozenBefore === undefined ||
+                auraEntryDeadline(frozenBefore) !==
+                  transition.deadlineTargetFrame
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "targetStateTimelinePointId"
+                  ],
+                  mutationIssue === null
+                    ? "Frozen expiry must remove Frozen at its exact target-local deadline"
+                    : `Frozen expiry may only remove Frozen: ${mutationIssue}`
+                );
+              }
+            }
+            return;
+          }
+          if (transition.kind === "quicken-expiry") {
+            claimReference(
+              quickenOwnerById,
+              transition.quickenStateLogId,
+              phaseIndex,
+              [...transitionPath, "quickenStateLogId"],
+              "Quicken lifecycle log"
+            );
+            const log = quickenById.get(
+              transition.quickenStateLogId
+            );
+            if (
+              log === undefined ||
+              log.operation !== "expire" ||
+              log.reason !== "QUICKEN_DECAY_EXPIRED" ||
+              log.generation !== transition.generation ||
+              log.targetId !== phase.targetId ||
+              log.targetName !== phase.targetName ||
+              log.frame !== phase.globalFrame ||
+              log.targetFrame !== phase.targetFrame ||
+              !auraStateSnapshotsEqual(
+                log.auraBefore,
+                point?.auraBefore ?? []
+              ) ||
+              !auraStateSnapshotsEqual(
+                log.auraAfter,
+                point?.auraAfter ?? []
+              )
+            ) {
+              issue(
+                [...transitionPath, "quickenStateLogId"],
+                "Quicken expiry transition does not match its typed lifecycle log"
+              );
+            }
+            if (
+              point === undefined ||
+              point.pointKind !== "mutation" ||
+              point.cause !== "quicken-expiry" ||
+              !exactLifecycleLinks(point.links, [
+                {
+                  kind: "quicken-state-log",
+                  id: transition.quickenStateLogId
+                }
+              ])
+            ) {
+              issue(
+                [
+                  ...transitionPath,
+                  "targetStateTimelinePointId"
+                ],
+                "Quicken expiry requires one reciprocal typed timeline point"
+              );
+            }
+            if (point !== undefined) {
+              const mutationIssue =
+                typedLifecycleAuraMutationIssue(
+                  point.auraBefore,
+                  point.auraAfter,
+                  new Set(["quicken"]),
+                  new Set(["quicken"])
+                );
+              const quickenBefore = point.auraBefore.find(
+                (entry) => entry.element === "quicken"
+              );
+              if (
+                mutationIssue !== null ||
+                quickenBefore === undefined ||
+                auraEntryDeadline(quickenBefore) !==
+                  transition.deadlineTargetFrame
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "targetStateTimelinePointId"
+                  ],
+                  mutationIssue === null
+                    ? "Quicken expiry must remove Quicken at its exact target-local deadline"
+                    : `Quicken expiry may only remove Quicken: ${mutationIssue}`
+                );
+              }
+            }
+            return;
+          }
+          if (
+            transition.kind === "burning-fuel-expiry"
+          ) {
+            claimReference(
+              burningFuelOwnerById,
+              transition.burningStateLogId,
+              phaseIndex,
+              [...transitionPath, "burningStateLogId"],
+              "Burning Fuel lifecycle log"
+            );
+            const burningLog = burningById.get(
+              transition.burningStateLogId
+            );
+            if (
+              burningLog === undefined ||
+              burningLog.operation !== "fuel-expire" ||
+              burningLog.reason !== "FUEL_EXPIRED" ||
+              burningLog.generation !== transition.generation ||
+              burningLog.targetId !== phase.targetId ||
+              burningLog.targetName !== phase.targetName ||
+              burningLog.frame !== phase.globalFrame ||
+              burningLog.targetFrame !== phase.targetFrame ||
+              !auraStateSnapshotsEqual(
+                burningLog.auraBefore,
+                point?.auraBefore ?? []
+              ) ||
+              !auraStateSnapshotsEqual(
+                burningLog.auraAfter,
+                point?.auraAfter ?? []
+              )
+            ) {
+              issue(
+                [...transitionPath, "burningStateLogId"],
+                "Burning Fuel expiry transition does not match its typed lifecycle log"
+              );
+            }
+            const expectedLinks: Array<{
+              kind: string;
+              id: number;
+            }> = [
+              {
+                kind: "burning-state-log",
+                id: transition.burningStateLogId
+              }
+            ];
+            transition.quickenStateLogIds.forEach(
+              (quickenId, referenceIndex) => {
+                claimReference(
+                  quickenOwnerById,
+                  quickenId,
+                  phaseIndex,
+                  [
+                    ...transitionPath,
+                    "quickenStateLogIds",
+                    referenceIndex
+                  ],
+                  "Burning-dependent Quicken lifecycle log"
+                );
+                const quickenLog = quickenById.get(quickenId);
+                if (
+                  quickenLog === undefined ||
+                  quickenLog.operation !== "remove" ||
+                  quickenLog.reason !==
+                    "BURNING_FUEL_EXPIRED" ||
+                  quickenLog.targetId !== phase.targetId ||
+                  quickenLog.targetName !== phase.targetName ||
+                  quickenLog.frame !== phase.globalFrame ||
+                  quickenLog.targetFrame !==
+                    phase.targetFrame ||
+                  !auraStateSnapshotsEqual(
+                    quickenLog.auraBefore,
+                    point?.auraBefore ?? []
+                  ) ||
+                  !auraStateSnapshotsEqual(
+                    quickenLog.auraAfter,
+                    point?.auraAfter ?? []
+                  )
+                ) {
+                  issue(
+                    [
+                      ...transitionPath,
+                      "quickenStateLogIds",
+                      referenceIndex
+                    ],
+                    "Burning-dependent Quicken cleanup does not match its typed lifecycle log"
+                  );
+                }
+                expectedLinks.push({
+                  kind: "quicken-state-log",
+                  id: quickenId
+                });
+              }
+            );
+            if (
+              point === undefined ||
+              point.pointKind !== "mutation" ||
+              point.cause !== "burning-fuel-expiry" ||
+              !exactLifecycleLinks(point.links, expectedLinks)
+            ) {
+              issue(
+                [
+                  ...transitionPath,
+                  "targetStateTimelinePointId"
+                ],
+                "Burning Fuel expiry requires exact reciprocal Burning and dependent Quicken timeline links"
+              );
+            }
+            if (point !== undefined) {
+              const mutationIssue =
+                typedLifecycleAuraMutationIssue(
+                  point.auraBefore,
+                  point.auraAfter,
+                  new Set([
+                    "burning",
+                    "burningFuel",
+                    "dendro",
+                    "quicken"
+                  ]),
+                  new Set(["burning", "burningFuel"])
+                );
+              const fuelBefore = point.auraBefore.find(
+                (entry) => entry.element === "burningFuel"
+              );
+              const removedQuicken =
+                point.auraBefore.some(
+                  (entry) => entry.element === "quicken"
+                ) &&
+                !point.auraAfter.some(
+                  (entry) => entry.element === "quicken"
+                );
+              if (
+                removedQuicken !==
+                (transition.quickenStateLogIds.length === 1)
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "quickenStateLogIds"
+                  ],
+                  "Burning Fuel expiry must report exactly one Quicken lifecycle log iff it removes Quicken"
+                );
+              }
+              if (
+                mutationIssue !== null ||
+                fuelBefore === undefined ||
+                auraEntryDeadline(fuelBefore) !==
+                  transition.deadlineTargetFrame
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "targetStateTimelinePointId"
+                  ],
+                  mutationIssue === null
+                    ? "Burning Fuel expiry must remove Fuel at its exact target-local deadline"
+                    : `Burning Fuel expiry may only remove its Burning/Fuel/dependent state: ${mutationIssue}`
+                );
+              }
+            }
+            return;
+          }
+
+          claimReference(
+            periodicOwnerById,
+            transition.periodicReactionLogId,
+            phaseIndex,
+            [...transitionPath, "periodicReactionLogId"],
+            "Electro-Charged lifecycle log"
+          );
+          const periodicLog = periodicById.get(
+            transition.periodicReactionLogId
+          );
+          if (
+            periodicLog === undefined ||
+            periodicLog.operation !== "stop" ||
+            periodicLog.reason !== "AURA_DECAY_EXPIRED" ||
+            periodicLog.generation !== transition.generation ||
+            periodicLog.targetId !== phase.targetId ||
+            periodicLog.targetName !== phase.targetName ||
+            periodicLog.frame !== phase.globalFrame ||
+            periodicLog.targetFrame !== phase.targetFrame ||
+            !auraStateSnapshotsEqual(
+              periodicLog.auraBefore,
+              point?.auraBefore ?? []
+            ) ||
+            !auraStateSnapshotsEqual(
+              periodicLog.auraAfter,
+              point?.auraAfter ?? []
+            )
+          ) {
+            issue(
+              [...transitionPath, "periodicReactionLogId"],
+              "Electro-Charged expiry transition does not match its typed lifecycle log"
+            );
+          }
+          if (
+            point === undefined ||
+            (point.pointKind !== "mutation" &&
+              (point.pointKind !== "observation" ||
+                !auraStateSnapshotsEqual(
+                  point.auraBefore,
+                  point.auraAfter
+                ))) ||
+            point.cause !== "electro-charged-expiry" ||
+            !exactLifecycleLinks(point.links, [
+              {
+                kind: "periodic-reaction-log",
+                id: transition.periodicReactionLogId
+              }
+            ])
+          ) {
+            issue(
+              [
+                ...transitionPath,
+                "targetStateTimelinePointId"
+              ],
+              "Electro-Charged expiry requires one reciprocal typed mutation or unchanged observation point"
+            );
+          }
+          if (
+            point !== undefined &&
+            !auraStateSnapshotsEqual(
+              point.auraBefore,
+              point.auraAfter
+            )
+          ) {
+            issue(
+              [
+                ...transitionPath,
+                "targetStateTimelinePointId"
+              ],
+              "Electro-Charged expiry may only stop the periodic stream after ordinary Hydro/Electro expiry"
+            );
+          }
+          const precedingCoexistenceExpiry =
+            phase.reactableTick.transitions
+              .slice(0, transitionIndex)
+              .filter(
+                (candidate) =>
+                  candidate.kind === "aura-natural-expiry" &&
+                  candidate.deadlineTargetFrame ===
+                    transition.deadlineTargetFrame
+              )
+              .map((candidate) =>
+                timelinePointById.get(
+                  candidate.targetStateTimelinePointId
+                )
+              )
+              .find(
+                (candidate) =>
+                  candidate !== undefined &&
+                  candidate.auraBefore.some(
+                    (entry) => entry.element === "hydro"
+                  ) &&
+                  candidate.auraBefore.some(
+                    (entry) => entry.element === "electro"
+                  ) &&
+                  (!candidate.auraAfter.some(
+                    (entry) => entry.element === "hydro"
+                  ) ||
+                    !candidate.auraAfter.some(
+                      (entry) => entry.element === "electro"
+                    ))
+              );
+          if (precedingCoexistenceExpiry === undefined) {
+            issue(
+              [
+                ...transitionPath,
+                "targetStateTimelinePointId"
+              ],
+              "Electro-Charged expiry requires a preceding same-deadline ordinary Hydro/Electro coexistence expiry"
+            );
+          }
+        }
+      );
+      if (
+        !auraStateSnapshotsEqual(
+          transitionAuraCursor,
+          phase.reactableTick.auraAfter
+        )
+      ) {
+        issue(
+          [
+            "targetPhaseLog",
+            phaseIndex,
+            "reactableTick",
+            "auraAfter"
+          ],
+          "Reactable.Tick transition points must end at auraAfter"
+        );
+      }
+
+      phase.hitResolutionLogIds.forEach(
+        (id, referenceIndex) => {
+          const path = [
+            "targetPhaseLog",
+            phaseIndex,
+            "hitResolutionLogIds",
+            referenceIndex
+          ];
+          claimReference(
+            hitOwnerById,
+            id,
+            phaseIndex,
+            path,
+            "hit-resolution log"
+          );
+          const hit = hitById.get(id);
+          if (
+            hit === undefined ||
+            hit.targetId !== phase.targetId ||
+            hit.targetName !== phase.targetName ||
+            hit.frame !== phase.globalFrame ||
+            hit.eventPriority === undefined ||
+            hit.eventSequence === undefined ||
+            hit.intraEventSequence === undefined
+          ) {
+            issue(
+              path,
+              `hit-resolution log ${id} does not match its owning target phase`
+            );
+          }
+        }
+      );
+      phase.reactionTaskLogIds.forEach(
+        (id, referenceIndex) => {
+          const path = [
+            "targetPhaseLog",
+            phaseIndex,
+            "reactionTaskLogIds",
+            referenceIndex
+          ];
+          claimReference(
+            reactionTaskOwnerById,
+            id,
+            phaseIndex,
+            path,
+            "reaction-task log"
+          );
+          const task = reactionTaskById.get(id);
+          if (
+            task === undefined ||
+            task.targetId !== phase.targetId ||
+            task.targetName !== phase.targetName ||
+            task.frame !== phase.globalFrame
+          ) {
+            issue(
+              path,
+              `reaction-task log ${id} does not match its owning target phase`
+            );
+          }
+        }
+      );
+    });
+
+    const targetPhaseBridgeOwnerById = new Map<
+      number,
+      number
+    >();
+    targetStateTimeline.points.forEach(
+      (point, pointIndex) => {
+        if (
+          point.cause === "aura-natural-expiry" ||
+          point.cause === "frozen-expiry" ||
+          point.cause === "quicken-expiry" ||
+          point.cause === "burning-fuel-expiry" ||
+          point.cause === "electro-charged-expiry"
+        ) {
+          if (
+            lifecycleTimelineOwnerById.get(point.id) === undefined
+          ) {
+            issue(
+              [
+                "targetStateTimeline",
+                "points",
+                pointIndex,
+                "id"
+              ],
+              `target lifecycle timeline point ${point.id} (${point.cause}) requires exactly one Reactable.Tick transition`
+            );
+          }
+        }
+        point.links.forEach((link, linkIndex) => {
+          if (link.kind !== "target-phase-log") return;
+          const path = [
+            "targetStateTimeline",
+            "points",
+            pointIndex,
+            "links",
+            linkIndex
+          ];
+          const phase = phases[link.id];
+          if (phase === undefined || phase.id !== link.id) {
+            issue(
+              [...path, "id"],
+              `missing target phase ${link.id} for timeline bridge`
+            );
+            return;
+          }
+          const previousOwner =
+            targetPhaseBridgeOwnerById.get(link.id);
+          if (previousOwner !== undefined) {
+            issue(
+              path,
+              `target phase ${link.id} is bridged by both timeline points ${previousOwner} and ${point.id}`
+            );
+          } else {
+            targetPhaseBridgeOwnerById.set(
+              link.id,
+              point.id
+            );
+          }
+          if (
+            point.targetId !== phase.targetId ||
+            point.targetName !== phase.targetName ||
+            point.frame !== phase.globalFrame ||
+            point.targetFrame !== phase.targetFrame ||
+            !approximatelyEqual(
+              point.timeSeconds,
+              phase.timeSeconds
+            )
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge must match its phase target, global frame, and target frame"
+            );
+          }
+
+          let previousTargetPoint:
+            | (typeof targetStateTimeline.points)[number]
+            | undefined;
+          for (
+            let priorIndex = pointIndex - 1;
+            priorIndex >= 0;
+            priorIndex -= 1
+          ) {
+            const candidate =
+              targetStateTimeline.points[priorIndex]!;
+            if (candidate.targetId === point.targetId) {
+              previousTargetPoint = candidate;
+              break;
+            }
+          }
+          if (previousTargetPoint === undefined) {
+            issue(
+              path,
+              "target-phase timeline bridge requires a preceding point for the same target"
+            );
+            return;
+          }
+          if (
+            (previousTargetPoint.targetFrame ??
+              previousTargetPoint.frame) !==
+              phase.targetFrame ||
+            (point.targetFrame ?? point.frame) !==
+              phase.targetFrame
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge may only explain a same-target-frame Aura gap"
+            );
+          }
+          if (
+            auraStateSnapshotsEqual(
+              previousTargetPoint.auraAfter,
+              point.auraBefore
+            )
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge requires an actual Aura continuity gap"
+            );
+          }
+          if (
+            !auraStateSnapshotsEqual(
+              previousTargetPoint.auraAfter,
+              phase.auraAfterTargetTasks
+            )
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge left endpoint must equal auraAfterTargetTasks"
+            );
+          }
+
+          const firstTransition =
+            phase.reactableTick.transitions[0];
+          if (
+            firstTransition !== undefined &&
+            firstTransition.targetStateTimelinePointId !==
+              point.id
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge must be carried by the first Reactable.Tick transition"
+            );
+          }
+          if (firstTransition === undefined) {
+            const taskPointIds = new Set(
+              phase.targetTasks.map(
+                (task) =>
+                  task.targetStateTimelinePointId
+              )
+            );
+            const lastTaskPointId =
+              taskPointIds.size === 0
+                ? -1
+                : Math.max(...taskPointIds);
+            const firstPostPhasePoint =
+              targetStateTimeline.points.find(
+                (candidate) =>
+                  candidate.targetId === phase.targetId &&
+                  candidate.frame === phase.globalFrame &&
+                  (candidate.targetFrame ??
+                    candidate.frame) ===
+                    phase.targetFrame &&
+                  candidate.id > lastTaskPointId &&
+                  !taskPointIds.has(candidate.id)
+              );
+            if (firstPostPhasePoint?.id !== point.id) {
+              issue(
+                path,
+                "target-phase timeline bridge must be carried by the first post-Reactable point"
+              );
+            }
+          }
+          const expectedRightEndpoint =
+            firstTransition === undefined
+              ? phase.reactableTick.auraAfter
+              : phase.reactableTick.auraBefore;
+          if (
+            !auraStateSnapshotsEqual(
+              point.auraBefore,
+              expectedRightEndpoint
+            )
+          ) {
+            issue(
+              path,
+              "target-phase timeline bridge right endpoint must equal the post-decay Reactable.Tick Aura"
+            );
+          }
+          const bridgeDecayIssue =
+            auraStateOnlyGaugesDecrease(
+              previousTargetPoint.auraAfter,
+              point.auraBefore,
+              phase.targetFrame
+            );
+          if (bridgeDecayIssue !== null) {
+            issue(
+              path,
+              `target-phase timeline bridge may only prove ordinary Aura decay: ${bridgeDecayIssue}`
+            );
+          }
+        });
+      }
+    );
+
+    phases.forEach((phase, phaseIndex) => {
+      const hasOrdinaryDecayGap =
+        !auraStateSnapshotsEqual(
+          phase.auraAfterTargetTasks,
+          phase.reactableTick.auraBefore
+        );
+      const bridgePointId =
+        targetPhaseBridgeOwnerById.get(phase.id);
+      if (hasOrdinaryDecayGap && bridgePointId === undefined) {
+        issue(
+          [
+            "targetPhaseLog",
+            phaseIndex,
+            "reactableTick",
+            "auraBefore"
+          ],
+          "a target phase ordinary-decay gap requires exactly one reciprocal target-phase timeline bridge"
+        );
+      }
+      if (!hasOrdinaryDecayGap && bridgePointId !== undefined) {
+        issue(
+          ["targetPhaseLog", phaseIndex, "id"],
+          "a target phase without an ordinary-decay gap cannot claim a target-phase timeline bridge"
+        );
+      }
+    });
+
+    hitResolutionLog.forEach((entry, index) => {
+      if (hitOwnerById.get(entry.id) === undefined) {
+        issue(
+          ["hitResolutionLog", index, "id"],
+          `target-phase-v2 hit-resolution log ${entry.id} requires exactly one phase reference`
+        );
+      }
+    });
+    reactionTaskLog.forEach((entry, index) => {
+      if (reactionTaskOwnerById.get(entry.id) === undefined) {
+        issue(
+          ["reactionTaskLog", index, "id"],
+          `target-phase-v2 reaction-task log ${entry.id} requires exactly one phase reference`
+        );
+      }
+    });
+    burningStateLog.forEach((entry, index) => {
+      const taskOwner = burningTaskOwnerById.get(entry.id);
+      if (
+        taskOwner === undefined &&
+        (entry.callbackAuraBefore !== undefined ||
+          entry.callbackAuraAfter !== undefined)
+      ) {
+        issue(
+          ["burningStateLog", index],
+          `Burning callback Aura snapshots require exactly one target task`
+        );
+      }
+      const taskLifecycle =
+        entry.operation === "tick" ||
+        entry.operation === "tick-skipped" ||
+        (entry.operation === "stop" &&
+          targetStateTimeline.points.some(
+            (point) =>
+              point.cause === "burning-tick" &&
+              point.links.some(
+                (link) =>
+                  link.kind === "burning-state-log" &&
+                  link.id === entry.id
+              )
+          ));
+      if (
+        taskLifecycle &&
+        taskOwner === undefined
+      ) {
+        issue(
+          ["burningStateLog", index, "id"],
+          `Burning target-task lifecycle log ${entry.id} requires exactly one target task`
+        );
+      }
+      if (
+        entry.operation === "fuel-expire" &&
+        entry.reason === "FUEL_EXPIRED" &&
+        burningFuelOwnerById.get(entry.id) === undefined
+      ) {
+        issue(
+          ["burningStateLog", index, "id"],
+          `Burning Fuel expiry log ${entry.id} requires exactly one Reactable.Tick transition`
+        );
+      }
+    });
+    frozenStateLog.forEach((entry, index) => {
+      if (
+        entry.operation === "expire" &&
+        entry.reason === "FROZEN_DECAY_EXPIRED" &&
+        frozenOwnerById.get(entry.id) === undefined
+      ) {
+        issue(
+          ["frozenStateLog", index, "id"],
+          `Frozen expiry log ${entry.id} requires exactly one Reactable.Tick transition`
+        );
+      }
+    });
+    quickenStateLog.forEach((entry, index) => {
+      const targetOwnedExpiry =
+        (entry.operation === "expire" &&
+          entry.reason === "QUICKEN_DECAY_EXPIRED") ||
+        (entry.operation === "remove" &&
+          entry.reason === "BURNING_FUEL_EXPIRED");
+      if (
+        targetOwnedExpiry &&
+        quickenOwnerById.get(entry.id) === undefined
+      ) {
+        issue(
+          ["quickenStateLog", index, "id"],
+          `Quicken lifecycle log ${entry.id} requires exactly one Reactable.Tick transition`
+        );
+      }
+    });
+    periodicReactionLog.forEach((entry, index) => {
+      const owner = periodicOwnerById.get(entry.id);
+      if (
+        entry.operation === "stop" &&
+        entry.reason === "AURA_DECAY_EXPIRED" &&
+        owner === undefined
+      ) {
+        issue(
+          ["periodicReactionLog", index, "id"],
+          `Electro-Charged expiry log ${entry.id} requires exactly one Reactable.Tick transition`
+        );
+      }
+      if (
+        (owner !== undefined) !==
+        (entry.targetFrame !== undefined)
+      ) {
+        issue(
+          ["periodicReactionLog", index, "targetFrame"],
+          owner === undefined
+            ? "non-Reactable.Tick Electro-Charged rows must omit targetFrame"
+            : "Reactable.Tick Electro-Charged expiry rows require targetFrame"
+        );
+      }
+    });
+  });
+
 /**
  * Strict player-reaction-damage output boundary plus cross-log integrity.
  *
@@ -12459,6 +15062,28 @@ export const playerDamageResultReferencesSchema = z
       }
     );
     result.burningStateLog.forEach((entry, index) => {
+      if (
+        result.config.targetTaskModel.mode !==
+          "target-phase-v2" &&
+        (entry.callbackAuraBefore !== undefined ||
+          entry.callbackAuraAfter !== undefined)
+      ) {
+        issue(
+          ["burningStateLog", index],
+          "legacy and target-phase-v1 Burning rows must omit callback Aura snapshots"
+        );
+      }
+      if (
+        result.config.targetTaskModel.mode !==
+          "target-phase-v2" &&
+        entry.clockModel === "target-local-no-hitlag" &&
+        entry.targetFrame !== undefined
+      ) {
+        issue(
+          ["burningStateLog", index, "targetFrame"],
+          "legacy and target-phase-v1 no-Hitlag Burning rows must omit targetFrame"
+        );
+      }
       if (
         entry.selfDamageStatus !==
         result.playerSelfDamageStatus
@@ -13516,6 +16141,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [QUICKEN_BLOOM_TASK_SCHEMA_VERSION]: {
     engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v7
+  },
+  [TARGET_TASK_PHASE_SCHEMA_VERSION]: {
+    engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v7
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -13579,6 +16208,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   const version = input.schemaVersion;
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === TARGET_TASK_PHASE_SCHEMA_VERSION ||
     version === QUICKEN_BLOOM_TASK_SCHEMA_VERSION ||
     version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION
       ? null
@@ -13601,6 +16231,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v5"
@@ -13619,6 +16250,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v6"
@@ -13635,6 +16267,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v7"
@@ -13655,6 +16288,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
     !(
@@ -13678,6 +16312,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
     !(
@@ -13696,14 +16331,31 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       [issue]
     );
   }
+  const historicalTargetTaskModelIsLegacy =
+    isRecord(input.targetTaskModel) &&
+    input.targetTaskModel.mode === "legacy-event-heap-v1" &&
+    Object.keys(input.targetTaskModel).length === 1;
+  const historicalTargetTaskModelIsV1 =
+    isRecord(input.targetTaskModel) &&
+    input.targetTaskModel.mode === "target-phase-v1" &&
+    Object.keys(input.targetTaskModel).length === 1;
+  if (
+    version === TARGET_TASK_PHASE_SCHEMA_VERSION &&
+    !historicalTargetTaskModelIsLegacy &&
+    !historicalTargetTaskModelIsV1
+  ) {
+    const issue =
+      `targetTaskModel: schemaVersion "${TARGET_TASK_PHASE_SCHEMA_VERSION}" requires an explicit legacy-event-heap-v1 or target-phase-v1 model`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     input.targetTaskModel !== undefined &&
-    !(
-      isRecord(input.targetTaskModel) &&
-      input.targetTaskModel.mode === "legacy-event-heap-v1" &&
-      Object.keys(input.targetTaskModel).length === 1
-    )
+    !historicalTargetTaskModelIsLegacy
   ) {
     const historicalVersion =
       version === undefined
@@ -13727,6 +16379,13 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === TARGET_TASK_PHASE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   input = {
     ...input,

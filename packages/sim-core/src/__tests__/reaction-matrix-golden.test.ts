@@ -1025,6 +1025,9 @@ function validateCrossLinks(result: SimulationResult): void {
     "reaction-task-log": new Set(
       result.reactionTaskLog.map((entry) => entry.id)
     ),
+    "target-phase-log": new Set(
+      result.targetPhaseLog.map((entry) => entry.id)
+    ),
     "target-mechanics-truncation-log": new Set(
       result.targetMechanicsTruncationLog.map(
         (entry) => entry.id

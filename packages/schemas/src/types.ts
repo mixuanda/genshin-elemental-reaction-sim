@@ -2,14 +2,18 @@ export const TARGET_TASK_PHASE_SCHEMA_VERSION =
   "1.37.0" as const;
 export const TARGET_TASK_PHASE_ENGINE_VERSION =
   "1.37.0-target-task-phase" as const;
+export const TARGET_REACTABLE_PHASE_SCHEMA_VERSION =
+  "1.38.0" as const;
+export const TARGET_REACTABLE_PHASE_ENGINE_VERSION =
+  "1.38.0-target-reactable-phase" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  TARGET_TASK_PHASE_SCHEMA_VERSION;
+  TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  TARGET_TASK_PHASE_ENGINE_VERSION;
+  TARGET_REACTABLE_PHASE_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -282,15 +286,21 @@ export interface InitialAuraApplication {
   gaugeUnits: number;
 }
 
+export type IcdSequenceTailPolicy = "repeat" | "clamp";
+
 export interface IcdProfile {
   /** Time-based reset boundary for the sequence, in 60 FPS frames. */
   resetFrames: number;
   /**
-   * Per-hit elemental application permission sequence. User/default profiles
-   * repeat by index; the engine-owned Burning profile clamps beyond its final
-   * slot until the window resets.
+   * Per-hit elemental application permission sequence inside one reset
+   * window.
    */
   applicationSequence: boolean[];
+  /**
+   * Behavior after applicationSequence is exhausted. Historical and custom
+   * profiles that omit this field retain the pre-1.38 repeat behavior.
+   */
+  tailPolicy?: IcdSequenceTailPolicy;
 }
 
 export interface AuraReactionEngineConfig {
@@ -327,7 +337,8 @@ export type TargetClockModel =
  */
 export type TargetTaskModel =
   | { mode: "legacy-event-heap-v1" }
-  | { mode: "target-phase-v1" };
+  | { mode: "target-phase-v1" }
+  | { mode: "target-phase-v2" };
 
 export interface CharacterStats {
   baseAtk: number;
@@ -1858,6 +1869,7 @@ export type TargetStateTimelineCause =
   | "simulation-start"
   | "simulation-end"
   | "aura-natural-expiry"
+  | "target-reactable-tick-decay"
   | "direct-hit-shatter"
   | "direct-hit-application"
   | "quicken-bloom-followup"
@@ -1880,6 +1892,11 @@ export type TargetStateTimelineLink =
   | { kind: "frozen-state-log"; id: number }
   | { kind: "quicken-state-log"; id: number }
   | { kind: "burning-state-log"; id: number }
+  /**
+   * target-phase-v2-only bridge from the post-Reactable timeline point back
+   * to its owning complete target phase.
+   */
+  | { kind: "target-phase-log"; id: number }
   | { kind: "target-mechanics-truncation-log"; id: number };
 
 export interface TargetStateTimelinePoint {
@@ -2184,6 +2201,12 @@ export interface PeriodicReactionLogEntry {
   generation: number;
   operation: PeriodicReactionOperation;
   frame: number;
+  /**
+   * Present only on a target-phase-v2 natural coexistence-expiry `stop`
+   * row materialized by Reactable.Tick. Electro-Charged damage ticks and
+   * post-damage wane rows remain global/core work and omit this field.
+   */
+  targetFrame?: number;
   timeSeconds: number;
   targetId: TargetId;
   targetName: string;
@@ -2339,6 +2362,14 @@ export interface BurningStateLogEntry {
   fuelDecayPerFrame: number;
   fuelExpiresAtFrame: number | null;
   fuelExpiresAtTargetFrame?: number | null;
+  /**
+   * target-phase-v2-only Aura snapshots taken immediately around the
+   * target-local Burning callback. Legacy and target-phase-v1 omit them.
+   * The existing auraBefore/auraApplied/auraConsumed/auraAfter fields remain
+   * available for the later global elemental-application result.
+   */
+  callbackAuraBefore?: AuraStateEntry[];
+  callbackAuraAfter?: AuraStateEntry[];
   auraBefore: AuraStateEntry[];
   auraApplied: AuraGaugeEntry[];
   auraConsumed: AuraGaugeEntry[];
@@ -2828,6 +2859,109 @@ export type TargetTaskPhaseLogEntry =
         }
     );
 
+/**
+ * One Burning callback executed by the target-local task queue before the
+ * target's Reactable.Tick boundary. Other lifecycle changes belong to
+ * TargetLifecycleTransition instead of this task list.
+ */
+export interface TargetPhaseV2TargetTask {
+  stage: "target-task";
+  kind: "burning-tick";
+  /** Zero-based, contiguous order within this target phase. */
+  order: number;
+  eventType: "burningTick";
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  generation: number;
+  tickIndex: number;
+  /** Immutable target-local deadline owned by the queued callback. */
+  deadlineTargetFrame: number;
+  status: "applied" | "stale";
+  burningStateLogId: number | null;
+  targetStateTimelinePointId: number;
+}
+
+/**
+ * An authoritative target-state mutation produced by Reactable.Tick after all
+ * target-local callbacks for this target and global frame have run.
+ */
+export type TargetLifecycleTransition =
+  | {
+      stage: "reactable-tick";
+      kind: "aura-natural-expiry";
+      /** Zero-based, contiguous order within reactableTick.transitions. */
+      order: number;
+      deadlineTargetFrame: number;
+      targetStateTimelinePointId: number;
+    }
+  | {
+      stage: "reactable-tick";
+      kind: "frozen-expiry";
+      order: number;
+      generation: number;
+      deadlineTargetFrame: number;
+      frozenStateLogId: number;
+      targetStateTimelinePointId: number;
+    }
+  | {
+      stage: "reactable-tick";
+      kind: "quicken-expiry";
+      order: number;
+      generation: number;
+      deadlineTargetFrame: number;
+      quickenStateLogId: number;
+      targetStateTimelinePointId: number;
+    }
+  | {
+      stage: "reactable-tick";
+      kind: "burning-fuel-expiry";
+      order: number;
+      generation: number;
+      deadlineTargetFrame: number;
+      burningStateLogId: number;
+      /** Zero or one Quicken removal owned by the Fuel expiry boundary. */
+      quickenStateLogIds: number[];
+      targetStateTimelinePointId: number;
+    }
+  | {
+      stage: "reactable-tick";
+      kind: "electro-charged-expiry";
+      order: number;
+      generation: number;
+      deadlineTargetFrame: number;
+      periodicReactionLogId: number;
+      targetStateTimelinePointId: number;
+    };
+
+/**
+ * One complete target-local phase at a `(globalFrame, targetId)` boundary:
+ * QueueEnemyTask callbacks run first, then Reactable.Tick lifecycle changes.
+ * Incoming/core work is referenced separately and follows this boundary.
+ */
+export interface TargetPhaseV2LogEntry {
+  model: "target-phase-v2";
+  id: number;
+  targetId: TargetId;
+  targetName: string;
+  globalFrame: number;
+  timeSeconds: number;
+  targetFrame: number;
+  targetOrder: number;
+  auraBeforeTargetTasks: AuraStateEntry[];
+  targetTasks: TargetPhaseV2TargetTask[];
+  auraAfterTargetTasks: AuraStateEntry[];
+  reactableTick: {
+    fromTargetFrame: number;
+    toTargetFrame: number;
+    auraBefore: AuraStateEntry[];
+    transitions: TargetLifecycleTransition[];
+    auraAfter: AuraStateEntry[];
+  };
+  hitResolutionLogIds: number[];
+  reactionTaskLogIds: number[];
+}
+
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: string;
@@ -2860,6 +2994,8 @@ export interface SimulationResult {
   targetHitlagLog: TargetHitlagLogEntry[];
   /** Replayable target-owned task and Aura-decay phase boundaries. */
   targetTaskPhaseLog: TargetTaskPhaseLogEntry[];
+  /** Target-local QueueEnemyTask then Reactable.Tick boundaries for v2. */
+  targetPhaseLog: TargetPhaseV2LogEntry[];
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */

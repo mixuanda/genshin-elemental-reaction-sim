@@ -52,6 +52,8 @@ import {
   resolvedEnemyTargetProfileSchema,
   resolvedWorldHitGeometrySchema,
   simulationRunManifestSchema,
+  TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+  TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION,
   targetClockAuditSchema,
@@ -64,6 +66,11 @@ import {
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
   targetTaskModelSchema,
+  targetLifecycleTransitionSchema,
+  targetPhaseV2LogEntrySchema,
+  targetPhaseV2LogSchema,
+  targetPhaseV2ResultReferencesSchema,
+  targetPhaseV2TargetTaskSchema,
   TARGET_LOCAL_HITLAG_ENGINE_VERSION,
   TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   targetStateTimelinePointSchema,
@@ -72,6 +79,7 @@ import {
   type EnemyTargetProfile,
   type TargetClockLogEntry,
   type TargetHitlagLogEntry,
+  type TargetPhaseV2LogEntry,
   type TargetTaskPhaseLogEntry,
   type TargetStateTimeline
 } from "./index";
@@ -2853,7 +2861,7 @@ describe("1.34 general reaction order contract", () => {
   });
 });
 
-describe("1.37 target task phase config contract", () => {
+describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   const makeAuraV7Config = () => {
     const current = migrateConfig(legacyConfig);
     return {
@@ -2966,8 +2974,8 @@ describe("1.37 target task phase config contract", () => {
       };
       expect(migrateConfig(versioned)).toEqual({
         ...versioned,
-        schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
-        engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
         targetTaskModel: { mode: "legacy-event-heap-v1" }
       });
     }
@@ -3027,6 +3035,48 @@ describe("1.37 target task phase config contract", () => {
     );
   });
 
+  it("strictly preserves the frozen 1.37 legacy/v1 mode and rejects missing, v2, or forged wires", () => {
+    const current = makeAuraV7Config();
+    const historicalBase = {
+      ...current,
+      schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION
+    };
+    for (const mode of [
+      "legacy-event-heap-v1",
+      "target-phase-v1"
+    ] as const) {
+      expect(
+        migrateConfig({
+          ...historicalBase,
+          targetTaskModel: { mode }
+        }).targetTaskModel
+      ).toEqual({ mode });
+    }
+    expect(() =>
+      migrateConfig({
+        ...historicalBase,
+        engineVersion: "1.37.0-forged",
+        targetTaskModel: { mode: "target-phase-v1" }
+      })
+    ).toThrow(/schemaVersion "1\.37\.0" requires/);
+    const missingModel = {
+      ...historicalBase
+    } as Record<string, unknown>;
+    delete missingModel.targetTaskModel;
+    expect(() => migrateConfig(missingModel)).toThrow(
+      /requires an explicit legacy-event-heap-v1 or target-phase-v1/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historicalBase,
+        targetTaskModel: { mode: "target-phase-v2" }
+      })
+    ).toThrow(
+      /requires an explicit legacy-event-heap-v1 or target-phase-v1/
+    );
+  });
+
   it("requires the target task model field under the current identity", () => {
     const current = migrateConfig(legacyConfig);
     const missingModel = {
@@ -3039,9 +3089,13 @@ describe("1.37 target task phase config contract", () => {
     );
   });
 
-  it("strictly accepts both current modes and binds Aura target phases to aura-v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.37.0");
+  it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.38.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.38.0-target-reactable-phase"
+    );
+    expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
+    expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
       "1.37.0-target-task-phase"
     );
     expect(
@@ -3081,6 +3135,27 @@ describe("1.37 target task phase config contract", () => {
     ).toThrow(
       /target-phase-v1 requires reactionEngine\.mode aura-v7/
     );
+
+    expect(
+      migrateConfig({
+        ...makeAuraV7Config(),
+        targetTaskModel: { mode: "target-phase-v2" }
+      }).targetTaskModel
+    ).toEqual({ mode: "target-phase-v2" });
+    expect(() =>
+      migrateConfig({
+        ...makeAuraV7Config(),
+        timeline: undefined,
+        targetTaskModel: { mode: "target-phase-v2" }
+      })
+    ).toThrow(/requires timeline\.mode legal-frame-v1/);
+    expect(() =>
+      migrateConfig({
+        ...makeAuraV7Config(),
+        reactionEngine: { mode: "aura-v6" },
+        targetTaskModel: { mode: "target-phase-v2" }
+      })
+    ).toThrow(/target-phase-v2 requires reactionEngine\.mode aura-v7/);
   });
 
   it("strictly validates target task phase entries and their wake discriminant", () => {
@@ -3588,7 +3663,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/must both use the current target-task engine identity/);
+    ).toThrow(/frozen 1\.37 identity or the migrated current identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -3877,6 +3952,1627 @@ describe("1.37 target task phase result references", () => {
         forgedPrePhaseAura
       )
     ).toThrow(/pre-task Aura must descend/);
+  });
+});
+
+describe("1.38 target Reactable phase schema and references", () => {
+  const expiringFrozenAura = [
+    {
+      element: "frozen" as const,
+      gaugeUnits: 0.01,
+      expiresAtFrame: 10,
+      expiresAtTargetFrame: 10
+    }
+  ];
+
+  const makeFrozenV2ReferenceResult = () => {
+    const phase: TargetPhaseV2LogEntry = {
+      model: "target-phase-v2",
+      id: 0,
+      targetId: "enemy-0",
+      targetName: "Target",
+      globalFrame: 10,
+      timeSeconds: 10 / 60,
+      targetFrame: 10,
+      targetOrder: 0,
+      auraBeforeTargetTasks: expiringFrozenAura,
+      targetTasks: [],
+      auraAfterTargetTasks: expiringFrozenAura,
+      reactableTick: {
+        fromTargetFrame: 0,
+        toTargetFrame: 10,
+        auraBefore: expiringFrozenAura,
+        transitions: [
+          {
+            stage: "reactable-tick",
+            kind: "frozen-expiry",
+            order: 0,
+            generation: 1,
+            deadlineTargetFrame: 10,
+            frozenStateLogId: 0,
+            targetStateTimelinePointId: 1
+          }
+        ],
+        auraAfter: []
+      },
+      hitResolutionLogIds: [],
+      reactionTaskLogIds: []
+    };
+    return {
+      schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+      config: {
+        schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+        targetTaskModel: { mode: "target-phase-v2" as const },
+        targetClockModel: { mode: "disabled" as const },
+        timeline: {
+          mode: "legal-frame-v1" as const,
+          fps: 60 as const
+        },
+        reactionEngine: { mode: "aura-v7" }
+      },
+      enemyTargets: [{ id: "enemy-0", name: "Target" }],
+      targetClockAudit: { mode: "disabled" as const },
+      targetClockLog: [],
+      targetTaskPhaseLog: [],
+      targetPhaseLog: [phase],
+      burningStateLog: [],
+      frozenStateLog: [
+        {
+          id: 0,
+          generation: 1,
+          operation: "expire" as const,
+          frame: 10,
+          targetFrame: 10,
+          timeSeconds: 10 / 60,
+          targetId: "enemy-0",
+          targetName: "Target",
+          auraBefore: expiringFrozenAura,
+          auraAfter: [],
+          reason: "FROZEN_DECAY_EXPIRED"
+        }
+      ],
+      quickenStateLog: [],
+      periodicReactionLog: [],
+      hitResolutionLog: [],
+      reactionTaskLog: [],
+      targetStateTimeline: {
+        version: "1.0.0" as const,
+        points: [
+          {
+            id: 0,
+            frame: 0,
+            targetFrame: 0,
+            timeSeconds: 0,
+            targetId: "enemy-0",
+            targetName: "Target",
+            pointKind: "boundary" as const,
+            cause: "simulation-start" as const,
+            eventType: null,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            reaction: "none" as const,
+            reactions: [],
+            primaryDamageEventId: null,
+            links: [],
+            auraBefore: expiringFrozenAura,
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: expiringFrozenAura
+          },
+          {
+            id: 1,
+            frame: 10,
+            targetFrame: 10,
+            timeSeconds: 10 / 60,
+            targetId: "enemy-0",
+            targetName: "Target",
+            pointKind: "mutation" as const,
+            cause: "frozen-expiry" as const,
+            eventType: "frozenExpiry" as const,
+            eventPriority: 0.5,
+            eventSequence: 1,
+            intraEventSequence: 0,
+            reaction: "none" as const,
+            reactions: [],
+            primaryDamageEventId: null,
+            links: [
+              { kind: "frozen-state-log" as const, id: 0 }
+            ],
+            auraBefore: expiringFrozenAura,
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: []
+          },
+          {
+            id: 2,
+            frame: 60,
+            targetFrame: 60,
+            timeSeconds: 1,
+            targetId: "enemy-0",
+            targetName: "Target",
+            pointKind: "boundary" as const,
+            cause: "simulation-end" as const,
+            eventType: null,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            reaction: "none" as const,
+            reactions: [],
+            primaryDamageEventId: null,
+            links: [],
+            auraBefore: [],
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: []
+          }
+        ]
+      }
+    };
+  };
+
+  const makeLifecycleFixture = (
+    kind:
+      | "aura-natural-expiry"
+      | "quicken-expiry"
+      | "burning-fuel-expiry"
+      | "electro-charged-expiry"
+  ): any => {
+    const result: any = structuredClone(
+      makeFrozenV2ReferenceResult()
+    );
+    const phase = result.targetPhaseLog[0];
+    const point = result.targetStateTimeline.points[1];
+    result.frozenStateLog = [];
+    const setLifecycleAura = (aura: any[]): void => {
+      const snapshot = structuredClone(aura);
+      result.targetStateTimeline.points[0].auraBefore =
+        structuredClone(snapshot);
+      result.targetStateTimeline.points[0].auraAfter =
+        structuredClone(snapshot);
+      phase.auraBeforeTargetTasks = structuredClone(snapshot);
+      phase.auraAfterTargetTasks = structuredClone(snapshot);
+      phase.reactableTick.auraBefore =
+        structuredClone(snapshot);
+      phase.reactableTick.auraAfter = [];
+      point.auraBefore = structuredClone(snapshot);
+      point.auraAfter = [];
+    };
+    if (kind === "aura-natural-expiry") {
+      const aura = [
+        {
+          element: "pyro",
+          gaugeUnits: 0.01,
+          expiresAtFrame: 10,
+          expiresAtTargetFrame: 10
+        }
+      ];
+      setLifecycleAura(aura);
+      phase.reactableTick.transitions = [
+        {
+          stage: "reactable-tick",
+          kind,
+          order: 0,
+          deadlineTargetFrame: 10,
+          targetStateTimelinePointId: 1
+        }
+      ];
+      point.pointKind = "derived";
+      point.cause = "aura-natural-expiry";
+      point.eventType = null;
+      point.eventPriority = null;
+      point.eventSequence = null;
+      point.intraEventSequence = null;
+      point.links = [];
+      return result;
+    }
+    if (kind === "quicken-expiry") {
+      const aura = [
+        {
+          element: "quicken",
+          gaugeUnits: 0.01,
+          expiresAtFrame: 10,
+          expiresAtTargetFrame: 10
+        }
+      ];
+      setLifecycleAura(aura);
+      phase.reactableTick.transitions = [
+        {
+          stage: "reactable-tick",
+          kind,
+          order: 0,
+          generation: 3,
+          deadlineTargetFrame: 10,
+          quickenStateLogId: 0,
+          targetStateTimelinePointId: 1
+        }
+      ];
+      point.cause = "quicken-expiry";
+      point.eventType = "quickenExpiry";
+      point.links = [{ kind: "quicken-state-log", id: 0 }];
+      result.quickenStateLog = [
+        {
+          id: 0,
+          generation: 3,
+          operation: "expire",
+          frame: 10,
+          targetFrame: 10,
+          timeSeconds: 10 / 60,
+          targetId: "enemy-0",
+          targetName: "Target",
+          auraBefore: structuredClone(aura),
+          auraAfter: [],
+          reason: "QUICKEN_DECAY_EXPIRED"
+        }
+      ];
+      return result;
+    }
+    if (kind === "burning-fuel-expiry") {
+      const aura = [
+        {
+          element: "burning",
+          gaugeUnits: 2,
+          expiresAtFrame: null,
+          expiresAtTargetFrame: null
+        },
+        {
+          element: "burningFuel",
+          gaugeUnits: 0.01,
+          expiresAtFrame: 10,
+          expiresAtTargetFrame: 10
+        }
+      ];
+      setLifecycleAura(aura);
+      phase.reactableTick.transitions = [
+        {
+          stage: "reactable-tick",
+          kind,
+          order: 0,
+          generation: 4,
+          deadlineTargetFrame: 10,
+          burningStateLogId: 0,
+          quickenStateLogIds: [],
+          targetStateTimelinePointId: 1
+        }
+      ];
+      point.cause = "burning-fuel-expiry";
+      point.eventType = "burningFuelExpiry";
+      point.links = [{ kind: "burning-state-log", id: 0 }];
+      result.burningStateLog = [
+        {
+          id: 0,
+          generation: 4,
+          operation: "fuel-expire",
+          frame: 10,
+          targetFrame: 10,
+          timeSeconds: 10 / 60,
+          eventPriority: 0.5,
+          eventSequence: 1,
+          targetId: "enemy-0",
+          targetName: "Target",
+          tickIndex: null,
+          auraBefore: structuredClone(aura),
+          auraAfter: [],
+          reason: "FUEL_EXPIRED"
+        }
+      ];
+      return result;
+    }
+    const coexistenceAura = [
+      {
+        element: "electro",
+        gaugeUnits: 0.01,
+        expiresAtFrame: 10,
+        expiresAtTargetFrame: 10
+      },
+      {
+        element: "hydro",
+        gaugeUnits: 0.01,
+        expiresAtFrame: 10,
+        expiresAtTargetFrame: 10
+      }
+    ];
+    setLifecycleAura(coexistenceAura);
+    phase.reactableTick.transitions = [
+      {
+        stage: "reactable-tick",
+        kind: "aura-natural-expiry",
+        order: 0,
+        deadlineTargetFrame: 10,
+        targetStateTimelinePointId: 1
+      },
+      {
+        stage: "reactable-tick",
+        kind,
+        order: 1,
+        generation: 5,
+        deadlineTargetFrame: 10,
+        periodicReactionLogId: 0,
+        targetStateTimelinePointId: 2
+      }
+    ];
+    point.pointKind = "derived";
+    point.cause = "aura-natural-expiry";
+    point.eventType = null;
+    point.eventPriority = null;
+    point.eventSequence = null;
+    point.intraEventSequence = null;
+    point.links = [];
+    const electroChargedPoint = {
+      ...structuredClone(point),
+      id: 2,
+      pointKind: "observation",
+      cause: "electro-charged-expiry",
+      eventType: "periodicReactionExpiry",
+      eventPriority: 0.5,
+      eventSequence: 1,
+      intraEventSequence: 0,
+      links: [
+      { kind: "periodic-reaction-log", id: 0 }
+      ],
+      auraBefore: [],
+      auraAfter: []
+    };
+    result.targetStateTimeline.points[2].id = 3;
+    result.targetStateTimeline.points.splice(
+      2,
+      0,
+      electroChargedPoint
+    );
+    result.periodicReactionLog = [
+      {
+        id: 0,
+        reaction: "electroCharged",
+        generation: 5,
+        operation: "stop",
+        frame: 10,
+        targetFrame: 10,
+        timeSeconds: 10 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        auraBefore: [],
+        auraAfter: [],
+        reason: "AURA_DECAY_EXPIRED"
+      }
+    ];
+    return result;
+  };
+
+  const makeBridgeV2ReferenceResult = (): any => {
+    const initialAura = [
+      {
+        element: "pyro",
+        gaugeUnits: 1,
+        expiresAtFrame: 50,
+        expiresAtTargetFrame: 50
+      }
+    ];
+    const beforeTasks = [
+      {
+        ...initialAura[0],
+        gaugeUnits: 0.9
+      }
+    ];
+    const afterDecay = [
+      {
+        ...initialAura[0],
+        gaugeUnits: 0.8
+      }
+    ];
+    const result: any = structuredClone(
+      makeFrozenV2ReferenceResult()
+    );
+    result.frozenStateLog = [];
+    result.targetPhaseLog[0] = {
+      model: "target-phase-v2",
+      id: 0,
+      targetId: "enemy-0",
+      targetName: "Target",
+      globalFrame: 10,
+      timeSeconds: 10 / 60,
+      targetFrame: 10,
+      targetOrder: 0,
+      auraBeforeTargetTasks: structuredClone(beforeTasks),
+      targetTasks: [
+        {
+          stage: "target-task",
+          kind: "burning-tick",
+          order: 0,
+          eventType: "burningTick",
+          eventPriority: 0.5,
+          eventSequence: 1,
+          intraEventSequence: 0,
+          generation: 1,
+          tickIndex: 1,
+          deadlineTargetFrame: 10,
+          status: "stale",
+          burningStateLogId: null,
+          targetStateTimelinePointId: 1
+        }
+      ],
+      auraAfterTargetTasks: structuredClone(beforeTasks),
+      reactableTick: {
+        fromTargetFrame: 0,
+        toTargetFrame: 10,
+        auraBefore: structuredClone(afterDecay),
+        transitions: [],
+        auraAfter: structuredClone(afterDecay)
+      },
+      hitResolutionLogIds: [],
+      reactionTaskLogIds: []
+    };
+    result.targetStateTimeline.points = [
+      {
+        id: 0,
+        frame: 0,
+        targetFrame: 0,
+        timeSeconds: 0,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "boundary",
+        cause: "simulation-start",
+        eventType: null,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [],
+        auraBefore: structuredClone(initialAura),
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: structuredClone(initialAura)
+      },
+      {
+        id: 1,
+        frame: 10,
+        targetFrame: 10,
+        timeSeconds: 10 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "observation",
+        cause: "burning-tick",
+        eventType: "burningTick",
+        eventPriority: 0.5,
+        eventSequence: 1,
+        intraEventSequence: 0,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [],
+        auraBefore: structuredClone(beforeTasks),
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: structuredClone(beforeTasks)
+      },
+      {
+        id: 2,
+        frame: 10,
+        targetFrame: 10,
+        timeSeconds: 10 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "observation",
+        cause: "direct-hit-application",
+        eventType: "hit",
+        eventPriority: 3,
+        eventSequence: 2,
+        intraEventSequence: 0,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [{ kind: "target-phase-log", id: 0 }],
+        auraBefore: structuredClone(afterDecay),
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: structuredClone(afterDecay)
+      },
+      {
+        id: 3,
+        frame: 60,
+        targetFrame: 60,
+        timeSeconds: 1,
+        targetId: "enemy-0",
+        targetName: "Target",
+        pointKind: "boundary",
+        cause: "simulation-end",
+        eventType: null,
+        eventPriority: null,
+        eventSequence: null,
+        intraEventSequence: null,
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [],
+        auraBefore: [],
+        auraApplied: [],
+        auraConsumed: [],
+        auraAfter: []
+      }
+    ];
+    return result;
+  };
+
+  const makeAppliedBurningBridgeResult = (): any => {
+    const result = makeBridgeV2ReferenceResult();
+    const phase = result.targetPhaseLog[0];
+    const task = phase.targetTasks[0];
+    const point = result.targetStateTimeline.points[1];
+    task.status = "applied";
+    task.burningStateLogId = 0;
+    point.links = [{ kind: "burning-state-log", id: 0 }];
+    result.burningStateLog = [
+      {
+        id: 0,
+        generation: task.generation,
+        operation: "tick",
+        frame: phase.globalFrame,
+        targetFrame: phase.targetFrame,
+        timeSeconds: phase.timeSeconds,
+        eventPriority: task.eventPriority,
+        eventSequence: task.eventSequence,
+        targetId: phase.targetId,
+        targetName: phase.targetName,
+        tickIndex: task.tickIndex,
+        callbackAuraBefore: structuredClone(
+          point.auraBefore
+        ),
+        callbackAuraAfter: structuredClone(
+          point.auraAfter
+        ),
+        auraBefore: [],
+        auraAfter: [],
+        reason: null
+      }
+    ];
+    return result;
+  };
+
+  it("strictly validates v2 target tasks, transitions, entries, and deterministic logs", () => {
+    const appliedTask = {
+      stage: "target-task" as const,
+      kind: "burning-tick" as const,
+      order: 0,
+      eventType: "burningTick" as const,
+      eventPriority: 0.5,
+      eventSequence: 1,
+      intraEventSequence: 0,
+      generation: 1,
+      tickIndex: 1,
+      deadlineTargetFrame: 10,
+      status: "applied" as const,
+      burningStateLogId: 0,
+      targetStateTimelinePointId: 1
+    };
+    expect(
+      targetPhaseV2TargetTaskSchema.parse(appliedTask)
+    ).toEqual(appliedTask);
+    expect(() =>
+      targetPhaseV2TargetTaskSchema.parse({
+        ...appliedTask,
+        burningStateLogId: null
+      })
+    ).toThrow(/applied Burning target tasks require/);
+    for (const forgedTask of [
+      {
+        ...appliedTask,
+        kind: "quicken-bloom-followup"
+      },
+      {
+        ...appliedTask,
+        eventType: "periodicReactionTick"
+      },
+      {
+        ...appliedTask,
+        unversionedField: true
+      }
+    ]) {
+      expect(() =>
+        targetPhaseV2TargetTaskSchema.parse(forgedTask)
+      ).toThrow();
+    }
+    expect(() =>
+      targetLifecycleTransitionSchema.parse({
+        stage: "reactable-tick",
+        kind: "electro-charged-tick",
+        order: 0,
+        deadlineTargetFrame: 10,
+        periodicReactionLogId: 0,
+        targetStateTimelinePointId: 1
+      })
+    ).toThrow();
+
+    const result = makeFrozenV2ReferenceResult();
+    const phase = result.targetPhaseLog[0]!;
+    expect(targetPhaseV2LogEntrySchema.parse(phase)).toEqual(
+      phase
+    );
+    expect(targetPhaseV2LogSchema.parse([phase])).toEqual([
+      phase
+    ]);
+    expect(() =>
+      targetPhaseV2LogEntrySchema.parse({
+        ...phase,
+        unversionedField: true
+      })
+    ).toThrow(/Unrecognized key/);
+    expect(() =>
+      targetPhaseV2LogEntrySchema.parse({
+        ...phase,
+        reactableTick: {
+          ...phase.reactableTick,
+          transitions: [
+            phase.reactableTick.transitions[0],
+            {
+              stage: "reactable-tick",
+              kind: "aura-natural-expiry",
+              order: 1,
+              deadlineTargetFrame: 10,
+              targetStateTimelinePointId: 2
+            }
+          ]
+        }
+      })
+    ).toThrow(/must be unique and follow natural Aura/);
+  });
+
+  it("proves sparse and same-target-frame ordinary decay through one reciprocal phase bridge", () => {
+    const result = makeBridgeV2ReferenceResult();
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).not.toThrow();
+
+    const missingBridge = makeBridgeV2ReferenceResult();
+    missingBridge.targetStateTimeline.points[2].links = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        missingBridge
+      )
+    ).toThrow(/timeline is discontinuous/);
+
+    const phaseOnlyMissingBridge =
+      makeBridgeV2ReferenceResult();
+    const authoritativeAura = structuredClone(
+      phaseOnlyMissingBridge.targetPhaseLog[0]
+        .auraAfterTargetTasks
+    );
+    phaseOnlyMissingBridge.targetStateTimeline.points[2].links =
+      [];
+    phaseOnlyMissingBridge.targetStateTimeline.points[2].auraBefore =
+      structuredClone(authoritativeAura);
+    phaseOnlyMissingBridge.targetStateTimeline.points[2].auraAfter =
+      structuredClone(authoritativeAura);
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        phaseOnlyMissingBridge
+      )
+    ).toThrow(
+      /ordinary-decay gap requires exactly one reciprocal target-phase timeline bridge/
+    );
+
+    const noGapNeedsNoBridge =
+      makeBridgeV2ReferenceResult();
+    noGapNeedsNoBridge.targetPhaseLog[0].reactableTick.auraBefore =
+      structuredClone(authoritativeAura);
+    noGapNeedsNoBridge.targetPhaseLog[0].reactableTick.auraAfter =
+      structuredClone(authoritativeAura);
+    noGapNeedsNoBridge.targetStateTimeline.points[2].links = [];
+    noGapNeedsNoBridge.targetStateTimeline.points[2].auraBefore =
+      structuredClone(authoritativeAura);
+    noGapNeedsNoBridge.targetStateTimeline.points[2].auraAfter =
+      structuredClone(authoritativeAura);
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        noGapNeedsNoBridge
+      )
+    ).not.toThrow();
+
+    const danglingBridge = makeBridgeV2ReferenceResult();
+    danglingBridge.targetStateTimeline.points[2].links[0].id =
+      999;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        danglingBridge
+      )
+    ).toThrow(/missing target phase 999/);
+
+    const wrongTargetFrame = makeBridgeV2ReferenceResult();
+    wrongTargetFrame.targetStateTimeline.points[2].targetFrame =
+      9;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        wrongTargetFrame
+      )
+    ).toThrow(
+      /must match its phase target, global frame, and target frame/
+    );
+
+    const duplicateBridge = makeBridgeV2ReferenceResult();
+    const secondBridgePoint = structuredClone(
+      duplicateBridge.targetStateTimeline.points[2]
+    );
+    secondBridgePoint.id = 3;
+    secondBridgePoint.eventSequence = 3;
+    secondBridgePoint.auraBefore = [
+      {
+        ...secondBridgePoint.auraBefore[0],
+        gaugeUnits: 0.7
+      }
+    ];
+    secondBridgePoint.auraAfter =
+      secondBridgePoint.auraBefore;
+    duplicateBridge.targetStateTimeline.points[3].id = 4;
+    duplicateBridge.targetStateTimeline.points.splice(
+      3,
+      0,
+      secondBridgePoint
+    );
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        duplicateBridge
+      )
+    ).toThrow(/bridged by both timeline points/);
+
+    const unnecessaryBridge = makeBridgeV2ReferenceResult();
+    const exactAura =
+      unnecessaryBridge.targetPhaseLog[0]
+        .auraAfterTargetTasks;
+    unnecessaryBridge.targetPhaseLog[0].reactableTick.auraBefore =
+      exactAura;
+    unnecessaryBridge.targetPhaseLog[0].reactableTick.auraAfter =
+      exactAura;
+    unnecessaryBridge.targetStateTimeline.points[2].auraBefore =
+      exactAura;
+    unnecessaryBridge.targetStateTimeline.points[2].auraAfter =
+      exactAura;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        unnecessaryBridge
+      )
+    ).toThrow(/requires an actual Aura continuity gap/);
+  });
+
+  it("rejects fabricated Aura across sparse phases and ordinary-decay bridges", () => {
+    const addedAura = makeBridgeV2ReferenceResult();
+    const fabricatedHydro = {
+      element: "hydro",
+      gaugeUnits: 0.2,
+      expiresAtFrame: 50,
+      expiresAtTargetFrame: 50
+    };
+    addedAura.targetPhaseLog[0].reactableTick.auraBefore = [
+      ...addedAura.targetPhaseLog[0].reactableTick.auraBefore,
+      fabricatedHydro
+    ];
+    addedAura.targetPhaseLog[0].reactableTick.auraAfter =
+      structuredClone(
+        addedAura.targetPhaseLog[0].reactableTick.auraBefore
+      );
+    addedAura.targetStateTimeline.points[2].auraBefore =
+      structuredClone(
+        addedAura.targetPhaseLog[0].reactableTick.auraBefore
+      );
+    addedAura.targetStateTimeline.points[2].auraAfter =
+      structuredClone(
+        addedAura.targetPhaseLog[0].reactableTick.auraBefore
+      );
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(addedAura)
+    ).toThrow(/cannot add hydro/);
+
+    const increasedAura = makeBridgeV2ReferenceResult();
+    increasedAura.targetPhaseLog[0].reactableTick
+      .auraBefore[0].gaugeUnits = 1;
+    increasedAura.targetPhaseLog[0].reactableTick
+      .auraAfter[0].gaugeUnits = 1;
+    increasedAura.targetStateTimeline.points[2]
+      .auraBefore[0].gaugeUnits = 1;
+    increasedAura.targetStateTimeline.points[2]
+      .auraAfter[0].gaugeUnits = 1;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        increasedAura
+      )
+    ).toThrow(/cannot increase pyro durability/);
+
+    const extendedDeadline = makeBridgeV2ReferenceResult();
+    for (const aura of [
+      extendedDeadline.targetPhaseLog[0].reactableTick
+        .auraBefore[0],
+      extendedDeadline.targetPhaseLog[0].reactableTick
+        .auraAfter[0],
+      extendedDeadline.targetStateTimeline.points[2]
+        .auraBefore[0],
+      extendedDeadline.targetStateTimeline.points[2]
+        .auraAfter[0]
+    ]) {
+      aura.expiresAtFrame = 55;
+      aura.expiresAtTargetFrame = 55;
+    }
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        extendedDeadline
+      )
+    ).toThrow(/cannot extend pyro/);
+
+    const removedAtDeadline =
+      makeBridgeV2ReferenceResult();
+    removedAtDeadline.targetPhaseLog[0].reactableTick.auraBefore =
+      [];
+    removedAtDeadline.targetPhaseLog[0].reactableTick.auraAfter =
+      [];
+    removedAtDeadline.targetStateTimeline.points[2].auraBefore =
+      [];
+    removedAtDeadline.targetStateTimeline.points[2].auraAfter =
+      [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        removedAtDeadline
+      )
+    ).toThrow(
+      /cannot remove pyro without a typed lifecycle transition/
+    );
+
+    const removedSourceOwner =
+      makeBridgeV2ReferenceResult();
+    for (const aura of [
+      removedSourceOwner.targetPhaseLog[0]
+        .auraBeforeTargetTasks[0],
+      removedSourceOwner.targetPhaseLog[0]
+        .auraAfterTargetTasks[0],
+      removedSourceOwner.targetStateTimeline.points[0]
+        .auraBefore[0],
+      removedSourceOwner.targetStateTimeline.points[0]
+        .auraAfter[0],
+      removedSourceOwner.targetStateTimeline.points[1]
+        .auraBefore[0],
+      removedSourceOwner.targetStateTimeline.points[1]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        },
+        {
+          sourceActorId: "vanishing",
+          gaugeUnits: 0.05
+        }
+      ];
+    }
+    for (const aura of [
+      removedSourceOwner.targetPhaseLog[0].reactableTick
+        .auraBefore[0],
+      removedSourceOwner.targetPhaseLog[0].reactableTick
+        .auraAfter[0],
+      removedSourceOwner.targetStateTimeline.points[2]
+        .auraBefore[0],
+      removedSourceOwner.targetStateTimeline.points[2]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        }
+      ];
+    }
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        removedSourceOwner
+      )
+    ).not.toThrow();
+
+    const addedSourceOwner =
+      makeBridgeV2ReferenceResult();
+    for (const aura of [
+      addedSourceOwner.targetPhaseLog[0]
+        .auraBeforeTargetTasks[0],
+      addedSourceOwner.targetPhaseLog[0]
+        .auraAfterTargetTasks[0],
+      addedSourceOwner.targetStateTimeline.points[0]
+        .auraBefore[0],
+      addedSourceOwner.targetStateTimeline.points[0]
+        .auraAfter[0],
+      addedSourceOwner.targetStateTimeline.points[1]
+        .auraBefore[0],
+      addedSourceOwner.targetStateTimeline.points[1]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        }
+      ];
+    }
+    for (const aura of [
+      addedSourceOwner.targetPhaseLog[0].reactableTick
+        .auraBefore[0],
+      addedSourceOwner.targetPhaseLog[0].reactableTick
+        .auraAfter[0],
+      addedSourceOwner.targetStateTimeline.points[2]
+        .auraBefore[0],
+      addedSourceOwner.targetStateTimeline.points[2]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        },
+        {
+          sourceActorId: "fabricated",
+          gaugeUnits: 0.1
+        }
+      ];
+    }
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        addedSourceOwner
+      )
+    ).toThrow(/cannot add pyro source owner fabricated/);
+
+    const increasedSourceGauge =
+      makeBridgeV2ReferenceResult();
+    for (const aura of [
+      increasedSourceGauge.targetPhaseLog[0]
+        .auraBeforeTargetTasks[0],
+      increasedSourceGauge.targetPhaseLog[0]
+        .auraAfterTargetTasks[0],
+      increasedSourceGauge.targetStateTimeline.points[0]
+        .auraBefore[0],
+      increasedSourceGauge.targetStateTimeline.points[0]
+        .auraAfter[0],
+      increasedSourceGauge.targetStateTimeline.points[1]
+        .auraBefore[0],
+      increasedSourceGauge.targetStateTimeline.points[1]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        },
+        {
+          sourceActorId: "secondary",
+          gaugeUnits: 0.2
+        }
+      ];
+    }
+    for (const aura of [
+      increasedSourceGauge.targetPhaseLog[0].reactableTick
+        .auraBefore[0],
+      increasedSourceGauge.targetPhaseLog[0].reactableTick
+        .auraAfter[0],
+      increasedSourceGauge.targetStateTimeline.points[2]
+        .auraBefore[0],
+      increasedSourceGauge.targetStateTimeline.points[2]
+        .auraAfter[0]
+    ]) {
+      aura.sourceSlots = [
+        {
+          sourceActorId: "primary",
+          gaugeUnits: aura.gaugeUnits
+        },
+        {
+          sourceActorId: "secondary",
+          gaugeUnits: 0.3
+        }
+      ];
+    }
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        increasedSourceGauge
+      )
+    ).toThrow(/cannot increase pyro source slot secondary/);
+
+    const wrongRightEndpoint = makeBridgeV2ReferenceResult();
+    wrongRightEndpoint.targetStateTimeline.points[2]
+      .auraBefore[0].gaugeUnits = 0.7;
+    wrongRightEndpoint.targetStateTimeline.points[2]
+      .auraAfter[0].gaugeUnits = 0.7;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        wrongRightEndpoint
+      )
+    ).toThrow(/right endpoint must equal/);
+
+    const wrongLeftEndpoint = makeBridgeV2ReferenceResult();
+    wrongLeftEndpoint.targetStateTimeline.points[1]
+      .auraBefore[0].gaugeUnits = 0.85;
+    wrongLeftEndpoint.targetStateTimeline.points[1]
+      .auraAfter[0].gaugeUnits = 0.85;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        wrongLeftEndpoint
+      )
+    ).toThrow(/left endpoint must equal/);
+
+    const fabricatedSparseAura = makeBridgeV2ReferenceResult();
+    fabricatedSparseAura.targetPhaseLog[0]
+      .auraBeforeTargetTasks.push(fabricatedHydro);
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        fabricatedSparseAura
+      )
+    ).toThrow(/sparse clock advance may only decrease/);
+  });
+
+  it("forbids target-phase-v2 timeline bridges in legacy and frozen-v1 output", () => {
+    for (const mode of [
+      "legacy-event-heap-v1",
+      "target-phase-v1"
+    ] as const) {
+      const result = makeBridgeV2ReferenceResult();
+      result.config.targetTaskModel = { mode };
+      result.targetPhaseLog = [];
+      expect(() =>
+        targetPhaseV2ResultReferencesSchema.parse(result)
+      ).toThrow(/cannot carry target-phase-v2 timeline bridges/);
+      expect(() =>
+        targetTaskPhaseResultReferencesSchema.parse(result)
+      ).toThrow(/cannot carry target-phase-v2 timeline bridges/);
+    }
+  });
+
+  it("binds v2 Burning callback Aura separately from later global application Aura", () => {
+    const result = makeAppliedBurningBridgeResult();
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).not.toThrow();
+
+    const missingCallback = makeAppliedBurningBridgeResult();
+    delete missingCallback.burningStateLog[0]
+      .callbackAuraBefore;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        missingCallback
+      )
+    ).toThrow(/does not match its target task/);
+
+    const forgedCallback = makeAppliedBurningBridgeResult();
+    forgedCallback.burningStateLog[0].callbackAuraAfter[0]
+      .gaugeUnits = 0.1;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        forgedCallback
+      )
+    ).toThrow(/does not match its target task/);
+
+    for (const mode of [
+      "legacy-event-heap-v1",
+      "target-phase-v1"
+    ] as const) {
+      const historical: any =
+        makeFrozenV2ReferenceResult();
+      historical.config.targetTaskModel = { mode };
+      historical.targetPhaseLog = [];
+      historical.burningStateLog = structuredClone(
+        result.burningStateLog
+      );
+      expect(() =>
+        targetPhaseV2ResultReferencesSchema.parse(historical)
+      ).toThrow(/must omit callback Aura|cannot carry.*callback Aura/);
+      expect(() =>
+        targetTaskPhaseResultReferencesSchema.parse(historical)
+      ).toThrow(/cannot carry.*callback Aura/);
+    }
+  });
+
+  it("accepts all five typed lifecycle mappings and exact reciprocal links", () => {
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        makeFrozenV2ReferenceResult()
+      )
+    ).not.toThrow();
+    for (const kind of [
+      "aura-natural-expiry",
+      "quicken-expiry",
+      "burning-fuel-expiry",
+      "electro-charged-expiry"
+    ] as const) {
+      expect(() =>
+        targetPhaseV2ResultReferencesSchema.parse(
+          makeLifecycleFixture(kind)
+        )
+      ).not.toThrow();
+    }
+
+    const fuelWithQuicken = makeLifecycleFixture(
+      "burning-fuel-expiry"
+    );
+    const dependentQuicken = {
+      element: "quicken",
+      gaugeUnits: 0.02,
+      expiresAtFrame: 10,
+      expiresAtTargetFrame: 10
+    };
+    for (const snapshot of [
+      fuelWithQuicken.targetStateTimeline.points[0]
+        .auraBefore,
+      fuelWithQuicken.targetStateTimeline.points[0]
+        .auraAfter,
+      fuelWithQuicken.targetPhaseLog[0]
+        .auraBeforeTargetTasks,
+      fuelWithQuicken.targetPhaseLog[0]
+        .auraAfterTargetTasks,
+      fuelWithQuicken.targetPhaseLog[0].reactableTick
+        .auraBefore,
+      fuelWithQuicken.targetStateTimeline.points[1]
+        .auraBefore
+    ]) {
+      snapshot.push(structuredClone(dependentQuicken));
+    }
+    fuelWithQuicken.burningStateLog[0].auraBefore =
+      structuredClone(
+        fuelWithQuicken.targetStateTimeline.points[1]
+          .auraBefore
+      );
+    fuelWithQuicken.targetPhaseLog[0].reactableTick
+      .transitions[0].quickenStateLogIds = [0];
+    fuelWithQuicken.targetStateTimeline.points[1].links.push({
+      kind: "quicken-state-log",
+      id: 0
+    });
+    fuelWithQuicken.quickenStateLog = [
+      {
+        id: 0,
+        generation: 9,
+        operation: "remove",
+        frame: 10,
+        targetFrame: 10,
+        timeSeconds: 10 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        auraBefore: structuredClone(
+          fuelWithQuicken.targetStateTimeline.points[1]
+            .auraBefore
+        ),
+        auraAfter: [],
+        reason: "BURNING_FUEL_EXPIRED"
+      }
+    ];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        fuelWithQuicken
+      )
+    ).not.toThrow();
+
+    const missingQuickenDeltaLog =
+      structuredClone(fuelWithQuicken);
+    missingQuickenDeltaLog.targetPhaseLog[0].reactableTick
+      .transitions[0].quickenStateLogIds = [];
+    missingQuickenDeltaLog.targetStateTimeline.points[1].links =
+      missingQuickenDeltaLog.targetStateTimeline.points[1].links.filter(
+        (link: { kind: string }) =>
+          link.kind !== "quicken-state-log"
+      );
+    missingQuickenDeltaLog.quickenStateLog = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        missingQuickenDeltaLog
+      )
+    ).toThrow(/exactly one Quicken lifecycle log iff/);
+
+    fuelWithQuicken.quickenStateLog[0].operation = "expire";
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        fuelWithQuicken
+      )
+    ).toThrow(/Burning-dependent Quicken cleanup/);
+  });
+
+  it("binds every lifecycle transition to its exact target-frame deadline", () => {
+    for (const result of [
+      makeFrozenV2ReferenceResult(),
+      makeLifecycleFixture("aura-natural-expiry"),
+      makeLifecycleFixture("quicken-expiry"),
+      makeLifecycleFixture("burning-fuel-expiry"),
+      makeLifecycleFixture("electro-charged-expiry")
+    ]) {
+      const transitions =
+        result.targetPhaseLog[0].reactableTick.transitions;
+      transitions[transitions.length - 1].deadlineTargetFrame =
+        0;
+      expect(() =>
+        targetPhaseV2ResultReferencesSchema.parse(result)
+      ).toThrow(
+        /lifecycle deadline must exactly equal its target-local frame/
+      );
+    }
+
+    const wrongFrozenExpiry: any = structuredClone(
+      makeFrozenV2ReferenceResult()
+    );
+    for (const snapshot of [
+      wrongFrozenExpiry.targetStateTimeline.points[0]
+        .auraBefore,
+      wrongFrozenExpiry.targetStateTimeline.points[0]
+        .auraAfter,
+      wrongFrozenExpiry.targetPhaseLog[0]
+        .auraBeforeTargetTasks,
+      wrongFrozenExpiry.targetPhaseLog[0]
+        .auraAfterTargetTasks,
+      wrongFrozenExpiry.targetPhaseLog[0].reactableTick
+        .auraBefore,
+      wrongFrozenExpiry.targetStateTimeline.points[1]
+        .auraBefore,
+      wrongFrozenExpiry.frozenStateLog[0].auraBefore
+    ]) {
+      snapshot[0].expiresAtFrame = 100;
+      snapshot[0].expiresAtTargetFrame = 100;
+    }
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        wrongFrozenExpiry
+      )
+    ).toThrow(/exact target-local deadline/);
+  });
+
+  it("rejects lifecycle points that delete unrelated Aura state", () => {
+    for (const result of [
+      structuredClone(makeFrozenV2ReferenceResult()),
+      makeLifecycleFixture("quicken-expiry"),
+      makeLifecycleFixture("burning-fuel-expiry")
+    ]) {
+      const transition =
+        result.targetPhaseLog[0].reactableTick.transitions[0];
+      const point =
+        result.targetStateTimeline.points[
+          transition.targetStateTimelinePointId
+        ];
+      const unrelatedPyro = {
+        element: "pyro",
+        gaugeUnits: 0.5,
+        expiresAtFrame: 100,
+        expiresAtTargetFrame: 100
+      };
+      result.targetStateTimeline.points[0].auraBefore = [
+        ...structuredClone(
+          result.targetStateTimeline.points[0].auraBefore
+        ),
+        structuredClone(unrelatedPyro)
+      ];
+      result.targetStateTimeline.points[0].auraAfter = [
+        ...structuredClone(
+          result.targetStateTimeline.points[0].auraAfter
+        ),
+        structuredClone(unrelatedPyro)
+      ];
+      result.targetPhaseLog[0].auraBeforeTargetTasks = [
+        ...structuredClone(
+          result.targetPhaseLog[0].auraBeforeTargetTasks
+        ),
+        structuredClone(unrelatedPyro)
+      ];
+      result.targetPhaseLog[0].auraAfterTargetTasks = [
+        ...structuredClone(
+          result.targetPhaseLog[0].auraAfterTargetTasks
+        ),
+        structuredClone(unrelatedPyro)
+      ];
+      result.targetPhaseLog[0].reactableTick.auraBefore = [
+        ...structuredClone(
+          result.targetPhaseLog[0].reactableTick.auraBefore
+        ),
+        structuredClone(unrelatedPyro)
+      ];
+      point.auraBefore = [
+        ...structuredClone(point.auraBefore),
+        structuredClone(unrelatedPyro)
+      ];
+      const typedLog =
+        transition.kind === "frozen-expiry"
+          ? result.frozenStateLog[0]
+          : transition.kind === "quicken-expiry"
+            ? result.quickenStateLog[0]
+            : result.burningStateLog[0];
+      typedLog.auraBefore = structuredClone(point.auraBefore);
+      expect(() =>
+        targetPhaseV2ResultReferencesSchema.parse(result)
+      ).toThrow(/unrelated pyro/);
+    }
+
+    const naturalGaugeOnly = makeLifecycleFixture(
+      "aura-natural-expiry"
+    );
+    const retainedPyro = [
+      {
+        ...naturalGaugeOnly.targetStateTimeline.points[1]
+          .auraBefore[0],
+        gaugeUnits: 0.005
+      }
+    ];
+    naturalGaugeOnly.targetStateTimeline.points[1].auraAfter =
+      structuredClone(retainedPyro);
+    naturalGaugeOnly.targetPhaseLog[0].reactableTick.auraAfter =
+      structuredClone(retainedPyro);
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        naturalGaugeOnly
+      )
+    ).toThrow(/must remove an ordinary Aura/);
+
+    const electroCharged = makeLifecycleFixture(
+      "electro-charged-expiry"
+    );
+    const ecPoint =
+      electroCharged.targetStateTimeline.points[2];
+    const unrelatedPyro = {
+      element: "pyro",
+      gaugeUnits: 0.5,
+      expiresAtFrame: 100,
+      expiresAtTargetFrame: 100
+    };
+    for (const snapshot of [
+      electroCharged.targetStateTimeline.points[0].auraBefore,
+      electroCharged.targetStateTimeline.points[0].auraAfter,
+      electroCharged.targetPhaseLog[0].auraBeforeTargetTasks,
+      electroCharged.targetPhaseLog[0].auraAfterTargetTasks,
+      electroCharged.targetPhaseLog[0].reactableTick.auraBefore,
+      electroCharged.targetStateTimeline.points[1].auraBefore
+    ]) {
+      snapshot.push(structuredClone(unrelatedPyro));
+    }
+    electroCharged.targetStateTimeline.points[1].auraAfter = [
+      structuredClone(unrelatedPyro)
+    ];
+    ecPoint.auraBefore = [structuredClone(unrelatedPyro)];
+    ecPoint.auraAfter = [];
+    electroCharged.periodicReactionLog[0].auraBefore =
+      structuredClone(ecPoint.auraBefore);
+    electroCharged.periodicReactionLog[0].auraAfter = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        electroCharged
+      )
+    ).toThrow(/may only stop the periodic stream/);
+  });
+
+  it("requires exact reverse ownership for every lifecycle timeline point", () => {
+    const naturalExpiry = makeLifecycleFixture(
+      "aura-natural-expiry"
+    );
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(naturalExpiry)
+    ).not.toThrow();
+
+    const unownedNaturalExpiry = makeLifecycleFixture(
+      "aura-natural-expiry"
+    );
+    unownedNaturalExpiry.targetPhaseLog[0].reactableTick
+      .transitions = [];
+    unownedNaturalExpiry.targetPhaseLog[0].reactableTick.auraAfter =
+      structuredClone(
+        unownedNaturalExpiry.targetPhaseLog[0].reactableTick
+          .auraBefore
+      );
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        unownedNaturalExpiry
+      )
+    ).toThrow(
+      /target lifecycle timeline point 1 \(aura-natural-expiry\) requires exactly one Reactable\.Tick transition/
+    );
+
+    const duplicateOwner: any =
+      makeFrozenV2ReferenceResult();
+    duplicateOwner.targetPhaseLog[0].reactableTick.transitions = [
+      {
+        stage: "reactable-tick",
+        kind: "aura-natural-expiry",
+        order: 0,
+        deadlineTargetFrame: 10,
+        targetStateTimelinePointId: 1
+      },
+      {
+        ...duplicateOwner.targetPhaseLog[0].reactableTick
+          .transitions[0],
+        order: 1
+      }
+    ];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(duplicateOwner)
+    ).toThrow(
+      /target lifecycle timeline point 1 is claimed by both target phase 0 transition 0 and target phase 0 transition 1/
+    );
+  });
+
+  it("enforces exact v2 identity, mutually exclusive phase logs, and frozen 1.37 compatibility", () => {
+    const result: any = makeFrozenV2ReferenceResult();
+    result.engineVersion = TARGET_TASK_PHASE_ENGINE_VERSION;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).toThrow(/engineVersion must match|exact 1\.38/);
+
+    const oldLogResult: any =
+      makeFrozenV2ReferenceResult();
+    oldLogResult.targetTaskPhaseLog = [
+      {
+        id: 0,
+        targetId: "enemy-0",
+        targetName: "Target",
+        globalFrame: 10,
+        timeSeconds: 10 / 60,
+        targetFrame: 10,
+        targetOrder: 0,
+        wakeKind: "incoming",
+        eventType: "hit",
+        eventPriority: 3,
+        eventSequence: 1,
+        intraEventSequence: 0,
+        auraBeforeTasks: [],
+        auraAfterTasks: [],
+        auraAfterDecay: [],
+        burningStateLogIds: [],
+        hitResolutionLogIds: [],
+        reactionTaskLogIds: []
+      }
+    ];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(oldLogResult)
+    ).toThrow(/empty targetTaskPhaseLog/);
+
+    const currentV1: any =
+      makeFrozenV2ReferenceResult();
+    currentV1.config.targetTaskModel = {
+      mode: "target-phase-v1"
+    };
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(currentV1)
+    ).toThrow(/requires an empty targetPhaseLog/);
+    currentV1.targetPhaseLog = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(currentV1)
+    ).not.toThrow();
+
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse({
+        schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+        config: {
+          schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+          engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+          targetTaskModel: { mode: "target-phase-v1" }
+        },
+        targetTaskPhaseLog: [],
+        targetPhaseLog: []
+      })
+    ).not.toThrow();
+  });
+
+  it("binds target identity, target clock, Aura continuity, and unique phase ownership", () => {
+    const wrongOrder: any =
+      makeFrozenV2ReferenceResult();
+    wrongOrder.targetPhaseLog[0].targetOrder = 1;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(wrongOrder)
+    ).toThrow(/targetOrder must equal/);
+
+    const wrongClock: any =
+      makeFrozenV2ReferenceResult();
+    wrongClock.targetPhaseLog[0].targetFrame = 9;
+    wrongClock.targetPhaseLog[0].reactableTick.toTargetFrame = 9;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(wrongClock)
+    ).toThrow(/target-clock replay/);
+
+    const forgedAura: any =
+      makeFrozenV2ReferenceResult();
+    const fabricatedPyro = [
+      {
+        element: "pyro",
+        gaugeUnits: 0.8,
+        expiresAtFrame: 100,
+        expiresAtTargetFrame: 100
+      }
+    ];
+    forgedAura.targetPhaseLog[0].auraBeforeTargetTasks =
+      fabricatedPyro;
+    forgedAura.targetPhaseLog[0].auraAfterTargetTasks =
+      fabricatedPyro;
+    forgedAura.targetPhaseLog[0].reactableTick.auraBefore =
+      fabricatedPyro;
+    forgedAura.targetStateTimeline.points[1].auraBefore =
+      fabricatedPyro;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(forgedAura)
+    ).toThrow(
+      /sparse clock advance may only decrease.*cannot add pyro/
+    );
+
+    const orphaned: any =
+      makeFrozenV2ReferenceResult();
+    orphaned.targetPhaseLog[0].reactableTick.transitions =
+      [];
+    orphaned.targetPhaseLog[0].reactableTick.auraAfter =
+      expiringFrozenAura;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(orphaned)
+    ).toThrow(/requires exactly one Reactable\.Tick transition/);
+  });
+
+  it("rejects forged lifecycle provenance and targetFrame leakage from non-expiry EC rows", () => {
+    const wrongReason: any =
+      makeFrozenV2ReferenceResult();
+    wrongReason.frozenStateLog[0].reason = "FORGED";
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(wrongReason)
+    ).toThrow(/Frozen expiry transition/);
+
+    const wrongLink: any =
+      makeFrozenV2ReferenceResult();
+    wrongLink.targetStateTimeline.points[1].links = [
+      { kind: "frozen-state-log", id: 1 }
+    ];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(wrongLink)
+    ).toThrow(/reciprocal typed timeline point/);
+
+    const ec: any = makeLifecycleFixture(
+      "electro-charged-expiry"
+    );
+    ec.periodicReactionLog.push({
+      ...ec.periodicReactionLog[0],
+      id: 1,
+      operation: "tick",
+      reason: null
+    });
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(ec)
+    ).toThrow(/must omit targetFrame/);
+  });
+
+  it("owns every incoming hit and Quicken-Bloom task without admitting them into targetTasks", () => {
+    const result: any = makeFrozenV2ReferenceResult();
+    result.targetPhaseLog[0].hitResolutionLogIds = [0];
+    result.hitResolutionLog = [
+      {
+        id: 0,
+        frame: 10,
+        timeSeconds: 10 / 60,
+        eventPriority: 3,
+        eventSequence: 2,
+        intraEventSequence: 0,
+        targetId: "enemy-0",
+        targetName: "Target",
+        resolutionKind: "direct",
+        landed: false,
+        damageEventId: null
+      }
+    ];
+    result.targetPhaseLog[0].reactionTaskLogIds = [0];
+    result.reactionTaskLog = [
+      {
+        id: 0,
+        kind: "quicken-bloom-followup",
+        frame: 10,
+        timeSeconds: 10 / 60,
+        targetId: "enemy-0",
+        targetName: "Target",
+        eventPriority: 3,
+        eventSequence: 3,
+        intraEventSequence: 0,
+        auraBefore: [],
+        auraAfter: []
+      }
+    ];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).not.toThrow();
+    result.targetPhaseLog[0].hitResolutionLogIds = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).toThrow(/hit-resolution log 0 requires exactly one/);
+    result.targetPhaseLog[0].hitResolutionLogIds = [0];
+    result.reactionTaskLog[0].kind = "periodicReactionTick";
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(result)
+    ).toThrow();
   });
 });
 
@@ -5961,6 +7657,94 @@ describe("versioned config schema", () => {
         })
       ).toThrow(new RegExp(`"${builtIn}" is a built-in ICD group`));
     }
+  });
+
+  it("accepts versioned ICD tail policies and rejects unknown policies", () => {
+    const current = migrateConfig(legacyConfig);
+    const withPolicies = {
+      ...current,
+      rotation: [],
+      reactionEngine: {
+        mode: "aura-v1" as const,
+        icdProfiles: {
+          repeating: {
+            resetFrames: 60,
+            applicationSequence: [true, false],
+            tailPolicy: "repeat" as const
+          },
+          clamped: {
+            resetFrames: 60,
+            applicationSequence: [true, false],
+            tailPolicy: "clamp" as const
+          }
+        }
+      },
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      }
+    };
+
+    expect(migrateConfig(withPolicies).reactionEngine).toEqual(
+      withPolicies.reactionEngine
+    );
+    expect(() =>
+      migrateConfig({
+        ...withPolicies,
+        reactionEngine: {
+          mode: "aura-v1",
+          icdProfiles: {
+            invalid: {
+              resetFrames: 60,
+              applicationSequence: [true, false],
+              tailPolicy: "cycle"
+            }
+          }
+        }
+      })
+    ).toThrow(/tailPolicy/);
+  });
+
+  it("migrates historical custom ICD profiles without changing their implicit repeat tail", () => {
+    const current = migrateConfig(legacyConfig);
+    const historicalReactionEngine = {
+      mode: "aura-v1" as const,
+      icdProfiles: {
+        historical: {
+          resetFrames: 60,
+          applicationSequence: [true, false]
+        }
+      }
+    };
+    const migrated = migrateConfig({
+      ...current,
+      schemaVersion: "1.3.0",
+      engineVersion: "1.3.0-icd-profiles",
+      rotation: [],
+      reactionEngine: historicalReactionEngine,
+      timeline: {
+        mode: "legal-frame-v1",
+        fps: 60,
+        legalityMode: "strict",
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      }
+    });
+
+    expect(migrated.reactionEngine).toEqual(
+      historicalReactionEngine
+    );
+    expect(
+      migrated.reactionEngine?.icdProfiles?.historical
+        ?.tailPolicy
+    ).toBeUndefined();
   });
 
   it("requires an explicit debug flag for reactionOverride", () => {

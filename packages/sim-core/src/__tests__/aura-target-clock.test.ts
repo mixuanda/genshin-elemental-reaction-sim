@@ -156,6 +156,136 @@ describe("AuraEngine with an enabled target-local clock", () => {
     });
   });
 
+  it.each([
+    {
+      lifecycle: "Frozen",
+      makeBoundary: () => {
+        const clock = new TargetLocalClock();
+        const engine = new AuraEngine({
+          mode: "aura-v2",
+          targetClock: clock,
+          initialAura: [{ element: "cryo" as const, gaugeUnits: 1 }]
+        });
+        const generation = engine.processHit({
+          frame: 0,
+          sourceActorId: "hydro",
+          element: "hydro",
+          application: noIcd()
+        }).frozenReaction!.generation;
+        clock.applyHitlag({
+          globalFrame: 0,
+          haltFrames: 7,
+          factor: 0
+        });
+        const frame = 183;
+        return {
+          engine,
+          frame,
+          observe: () =>
+            engine.expireFrozen(frame, generation, frame)
+        };
+      },
+      expected: {
+        operation: "expire",
+        reason: "FROZEN_DECAY_EXPIRED"
+      }
+    },
+    {
+      lifecycle: "Quicken",
+      makeBoundary: () => {
+        const clock = new TargetLocalClock();
+        const engine = new AuraEngine({
+          mode: "aura-v3",
+          targetClock: clock,
+          initialAura: [
+            { element: "dendro" as const, gaugeUnits: 1 }
+          ]
+        });
+        const generation = engine.processHit({
+          frame: 0,
+          sourceActorId: "electro",
+          element: "electro",
+          application: noIcd()
+        }).catalyzeReaction!.quicken!.generation;
+        clock.applyHitlag({
+          globalFrame: 0,
+          haltFrames: 11,
+          factor: 0
+        });
+        const frame = 611;
+        return {
+          engine,
+          frame,
+          observe: () =>
+            engine.expireQuicken(frame, generation, frame)
+        };
+      },
+      expected: {
+        operation: "expire",
+        reason: "QUICKEN_DECAY_EXPIRED"
+      }
+    },
+    {
+      lifecycle: "Electro-Charged",
+      makeBoundary: () => {
+        const clock = new TargetLocalClock();
+        const engine = new AuraEngine({
+          mode: "aura-v2",
+          targetClock: clock,
+          initialAura: [{ element: "hydro" as const, gaugeUnits: 1 }]
+        });
+        const generation = engine.processHit({
+          frame: 0,
+          sourceActorId: "electro",
+          element: "electro",
+          application: noIcd()
+        }).periodicReaction!.generation;
+        clock.applyHitlag({
+          globalFrame: 0,
+          haltFrames: 5,
+          factor: 0
+        });
+        const frame = 431;
+        return {
+          engine,
+          frame,
+          observe: () =>
+            engine.expireElectroCharged(
+              frame,
+              generation,
+              frame
+            )
+        };
+      },
+      expected: {
+        operation: "stop",
+        reason: "AURA_DECAY_EXPIRED"
+      }
+    }
+  ])(
+    "retains the legacy $lifecycle observer boundary after another consumer advances the target Tick",
+    ({ makeBoundary, expected }) => {
+      const { engine, frame, observe } = makeBoundary();
+
+      expect(engine.getAuraStateAt(frame)).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            element:
+              expected.operation === "stop"
+                ? "hydro"
+                : expected.reason === "FROZEN_DECAY_EXPIRED"
+                  ? "frozen"
+                  : "quicken"
+          })
+        ])
+      );
+      expect(observe()).toMatchObject({
+        frame,
+        ...expected
+      });
+    }
+  );
+
   it("runs Burning ticks every 15 target frames and delays Fuel expiry", () => {
     const clock = new TargetLocalClock();
     const engine = new AuraEngine({

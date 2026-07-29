@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import { playerDamageResultReferencesSchema } from "@genshin-dps-lab/schemas";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
+import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
 import goldenV134 from "../../../test-vectors/fixtures/legacy-default-120s-1.34.golden.json";
 import goldenV135 from "../../../test-vectors/fixtures/legacy-default-120s-1.35.golden.json";
 import goldenV136 from "../../../test-vectors/fixtures/legacy-default-120s-1.36.golden.json";
 import goldenV137 from "../../../test-vectors/fixtures/legacy-default-120s-1.37.golden.json";
-import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
+import goldenV138 from "../../../test-vectors/fixtures/legacy-default-120s-1.38.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -21,9 +22,9 @@ const BURNING_DAMAGE_EVENTS_SHA256 =
   "8e5c192e04f4599da093fc61f353aff3529a2d234aba19ef6dadd00bf89e1cf1";
 const BURNING_STATE_LOG_SHA256 =
   "aedd0ba94477979a5c688e7496f925d073f36a0513ad3e274d38fbf0bff8b0b4";
-const BURNING_V137_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-963ec979";
-const BURNING_V137_CONFIG_HASH = "fnv1a32:b803c074";
+const BURNING_V138_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-b7a01ea2";
+const BURNING_V138_CONFIG_HASH = "fnv1a32:9091b850";
 
 const EMPTY_COMPATIBILITY_ARRAY_FIELDS = new Set([
   "bloomReactions",
@@ -157,6 +158,7 @@ function v130CompatibilityResult(
     targetClockLog: _targetClockLog,
     targetHitlagLog: _targetHitlagLog,
     targetTaskPhaseLog: _targetTaskPhaseLog,
+    targetPhaseLog: _targetPhaseLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -369,20 +371,27 @@ describe("Vanilla v0.1 golden compatibility", () => {
       configHash: "fnv1a32:433ad3f2",
       reproducibilityKey: "gdl-v2-fnv1a32-7e16aaa2"
     });
-    expect(result.schemaVersion).toBe(goldenV137.schemaVersion);
-    expect(result.engineVersion).toBe(goldenV137.engineVersion);
+    expect(goldenV138).toMatchObject({
+      schemaVersion: "1.38.0",
+      engineVersion: "1.38.0-target-reactable-phase",
+      configHash: "fnv1a32:ac06871e",
+      reproducibilityKey: "gdl-v2-fnv1a32-b4ba6a29"
+    });
+    expect(result.schemaVersion).toBe(goldenV138.schemaVersion);
+    expect(result.engineVersion).toBe(goldenV138.engineVersion);
     expect(result.config.schemaVersion).toBe(
-      goldenV137.schemaVersion
+      goldenV138.schemaVersion
     );
     expect(result.config.engineVersion).toBe(
-      goldenV137.engineVersion
+      goldenV138.engineVersion
     );
     expect(result.runManifest.configHash).toBe(
-      goldenV137.configHash
+      goldenV138.configHash
     );
     expect(result.reproducibilityKey).toBe(
-      goldenV137.reproducibilityKey
+      goldenV138.reproducibilityKey
     );
+    expect(goldenV138.options).toEqual(goldenV137.options);
     expect(goldenV137.options).toEqual(goldenV136.options);
     expect(goldenV136.options).toEqual(goldenV135.options);
     expect(goldenV135.options).toEqual(golden.options);
@@ -393,6 +402,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
     );
     expect(goldenV135.legacyDamageEventsSha256).toBe(
       goldenV133.legacyDamageEventsSha256
+    );
+    expect(goldenV138.legacyDamageEventsSha256).toBe(
+      goldenV137.legacyDamageEventsSha256
     );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
@@ -408,7 +420,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       },
       plugins: [],
       reproducibilityKey:
-        goldenV137.reproducibilityKey
+        goldenV138.reproducibilityKey
     });
     expect(result.resolvedRuntimeOptions).toBe(
       result.runManifest.resolvedRuntimeOptions
@@ -417,7 +429,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
-      goldenV137.legacyDamageEventsSha256
+      goldenV138.legacyDamageEventsSha256
     );
     expect(result.config.targetClockModel).toEqual(
       { mode: "disabled" }
@@ -429,17 +441,22 @@ describe("Vanilla v0.1 golden compatibility", () => {
       targets: []
     });
     expect(result.targetClockLog).toEqual(
-      goldenV137.targetClock.clockLog
+      goldenV138.targetClock.clockLog
     );
     expect(result.targetHitlagLog).toEqual(
-      goldenV137.targetClock.hitlagLog
+      goldenV138.targetClock.hitlagLog
     );
     expect(result.config.targetTaskModel).toEqual(
-      goldenV137.targetTask.config
+      goldenV138.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual(
-      goldenV137.targetTask.phaseLog
+      goldenV138.targetTask.phaseLog
     );
+    expect(result.targetPhaseLog).toEqual(
+      goldenV138.targetPhaseLog
+    );
+    expect(goldenV138.targetTask).toEqual(goldenV137.targetTask);
+    expect(goldenV138.targetPhaseLog).toEqual([]);
     expect(
       sha256(
         v130CompatibilityResult(
@@ -546,17 +563,17 @@ describe("Vanilla v0.1 golden compatibility", () => {
     ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
-    expectRelativeClose(result.totalDamage, goldenV137.totalDamage);
-    expectRelativeClose(result.dps, goldenV137.dps);
+    expect(result.totalDamage).toBe(goldenV138.totalDamage);
+    expect(result.dps).toBe(goldenV138.dps);
     expect(result.damageEvents).toHaveLength(
-      goldenV137.hitCount
+      goldenV138.hitCount
     );
-    expect(result.reactedHits).toBe(goldenV137.reactedHits);
+    expect(result.reactedHits).toBe(goldenV138.reactedHits);
     expect(result.skippedActions).toHaveLength(
-      goldenV137.skippedActionCount
+      goldenV138.skippedActionCount
     );
     expect(result.byCharacter).toEqual(
-      goldenV137.byCharacter
+      goldenV138.byCharacter
     );
     expect(
       result.bySkill.map(
@@ -567,7 +584,18 @@ describe("Vanilla v0.1 golden compatibility", () => {
           hits
         })
       )
-    ).toEqual(goldenV137.bySkill);
+    ).toEqual(goldenV138.bySkill);
+    expect(goldenV138.totalDamage).toBe(goldenV137.totalDamage);
+    expect(goldenV138.dps).toBe(goldenV137.dps);
+    expect(goldenV138.hitCount).toBe(goldenV137.hitCount);
+    expect(goldenV138.reactedHits).toBe(goldenV137.reactedHits);
+    expect(goldenV138.skippedActionCount).toBe(
+      goldenV137.skippedActionCount
+    );
+    expect(goldenV138.byCharacter).toEqual(
+      goldenV137.byCharacter
+    );
+    expect(goldenV138.bySkill).toEqual(goldenV137.bySkill);
     expect(goldenV137.totalDamage).toBe(goldenV136.totalDamage);
     expect(goldenV137.dps).toBe(goldenV136.dps);
     expect(goldenV137.hitCount).toBe(goldenV136.hitCount);
@@ -697,34 +725,35 @@ describe("Burning aura-v4 provisional golden", () => {
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
     expect(result.runManifest.configHash).toBe(
-      BURNING_V137_CONFIG_HASH
+      BURNING_V138_CONFIG_HASH
     );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
     expect(burningGolden.config.engineVersion).toBe(
       "1.30.0-burning-reaction"
     );
-    expect(result.schemaVersion).toBe("1.37.0");
+    expect(result.schemaVersion).toBe("1.38.0");
     expect(result.engineVersion).toBe(
-      "1.37.0-target-task-phase"
+      "1.38.0-target-reactable-phase"
     );
-    expect(result.config.schemaVersion).toBe("1.37.0");
+    expect(result.config.schemaVersion).toBe("1.38.0");
     expect(result.config.engineVersion).toBe(
-      "1.37.0-target-task-phase"
+      "1.38.0-target-reactable-phase"
     );
     expect(result.config.reactionEngine?.mode).toBe("aura-v4");
     expect(result.config.targetClockModel).toEqual(
-      goldenV137.targetClock.config
+      goldenV138.targetClock.config
     );
     expect(result.targetClockAudit).toEqual(
-      goldenV137.targetClock.audit
+      goldenV138.targetClock.audit
     );
     expect(result.targetClockLog).toEqual([]);
     expect(result.targetHitlagLog).toEqual([]);
     expect(result.config.targetTaskModel).toEqual(
-      goldenV137.targetTask.config
+      goldenV138.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual([]);
+    expect(result.targetPhaseLog).toEqual([]);
     expect(result.dataVersion).toBe(
       burningGolden.config.dataVersion
     );
@@ -732,7 +761,7 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V137_REPRODUCIBILITY_KEY
+      BURNING_V138_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
@@ -743,7 +772,7 @@ describe("Burning aura-v4 provisional golden", () => {
       resolvedRuntimeOptions: options,
       plugins: [],
       reproducibilityKey:
-        BURNING_V137_REPRODUCIBILITY_KEY
+        BURNING_V138_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

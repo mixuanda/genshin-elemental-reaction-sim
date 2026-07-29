@@ -10,6 +10,8 @@ import {
   targetClockLogSchema,
   targetClockResultReferencesSchema,
   targetHitlagLogSchema,
+  targetPhaseV2LogSchema,
+  targetPhaseV2ResultReferencesSchema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
   type AdditiveReactionFactors,
@@ -17,6 +19,7 @@ import {
   type ActionDefinition,
   type ActiveStatusSnapshot,
   type AuraElement,
+  type AuraStateEntry,
   type BloomReactionAudit,
   type BuffDefinition,
   type BuffStat,
@@ -53,6 +56,9 @@ import {
   type TargetClockLogEntry,
   type TargetClockSummary,
   type TargetHitlagLogEntry,
+  type TargetLifecycleTransition,
+  type TargetPhaseV2LogEntry,
+  type TargetPhaseV2TargetTask,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import {
@@ -121,6 +127,7 @@ import {
 export const EVENT_PRIORITY = {
   action: 0,
   targetTask: 0.5,
+  targetDecay: 0.75,
   buff: 1,
   debuff: 1,
   energy: 2,
@@ -174,6 +181,174 @@ function resolveEnemyBaseResistance(
   element: Element
 ): number {
   return target.resistances?.[element] ?? target.resistance;
+}
+
+const ENEMY_RESISTANCE_ELEMENTS = [
+  "pyro",
+  "cryo",
+  "hydro",
+  "electro",
+  "anemo",
+  "geo",
+  "dendro",
+  "physical"
+] as const satisfies readonly Element[];
+
+/**
+ * Lightweight equivalent of the enemy-target projection that the public
+ * target-clock reference Schema applies even when target-local clocks are
+ * disabled. This intentionally avoids reparsing the complete SimulationResult
+ * on the hot compatibility path while retaining every resolved-target and
+ * per-damage-event base-resistance invariant.
+ */
+export function validateEnemyTargetOutputProjection(
+  result: Pick<
+    SimulationResult,
+    "config" | "enemyTargets" | "damageEvents"
+  >
+): void {
+  const configuredTargets = result.config.enemy.targets ?? [
+    {
+      id: "enemy-0",
+      name: "敌人 0"
+    }
+  ];
+  if (result.enemyTargets.length !== configuredTargets.length) {
+    throw new Error(
+      "enemyTargets must contain exactly one resolved row for each configured target."
+    );
+  }
+
+  for (const [index, configuredTarget] of
+    configuredTargets.entries()) {
+    const resolvedTarget = result.enemyTargets[index]!;
+    const expectedScalarResistance =
+      configuredTarget.resistance ??
+      result.config.enemy.resistance;
+    const expectedResistances =
+      configuredTarget.resistance !== undefined
+        ? undefined
+        : configuredTarget.resistances ??
+          result.config.enemy.resistances;
+    const expectedInitialAura =
+      configuredTarget.initialAura ??
+      result.config.reactionEngine?.initialAura ??
+      [];
+    const expectedPosition = configuredTarget.position ?? null;
+    const issue = (field: string): never => {
+      throw new Error(
+        `enemyTargets[${index}].${field} does not match its configured target projection.`
+      );
+    };
+
+    if (resolvedTarget.id !== configuredTarget.id) issue("id");
+    if (resolvedTarget.name !== configuredTarget.name) issue("name");
+    if (
+      resolvedTarget.level !==
+      (configuredTarget.level ?? result.config.enemy.level)
+    ) {
+      issue("level");
+    }
+    if (
+      resolvedTarget.resistance !== expectedScalarResistance
+    ) {
+      issue("resistance");
+    }
+    if (expectedResistances === undefined) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          resolvedTarget,
+          "resistances"
+        )
+      ) {
+        issue("resistances");
+      }
+    } else if (
+      resolvedTarget.resistances === undefined ||
+      ENEMY_RESISTANCE_ELEMENTS.some(
+        (element) =>
+          resolvedTarget.resistances?.[element] !==
+          expectedResistances[element]
+      )
+    ) {
+      issue("resistances");
+    }
+    if (
+      resolvedTarget.defReduction !==
+      (configuredTarget.defReduction ??
+        result.config.enemy.defReduction)
+    ) {
+      issue("defReduction");
+    }
+    if (
+      resolvedTarget.freezeResistance !==
+      (configuredTarget.freezeResistance ??
+        result.config.enemy.freezeResistance ??
+        0)
+    ) {
+      issue("freezeResistance");
+    }
+    if (
+      JSON.stringify(resolvedTarget.initialAura) !==
+      JSON.stringify(expectedInitialAura)
+    ) {
+      issue("initialAura");
+    }
+    if (
+      JSON.stringify(resolvedTarget.position) !==
+      JSON.stringify(expectedPosition)
+    ) {
+      issue("position");
+    }
+    if (
+      resolvedTarget.hitboxRadius !==
+      (configuredTarget.hitboxRadius ?? 0)
+    ) {
+      issue("hitboxRadius");
+    }
+  }
+
+  const resolvedTargetById = new Map(
+    result.enemyTargets.map((target) => [target.id, target])
+  );
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    const resolvedTarget = resolvedTargetById.get(event.targetId);
+    if (resolvedTarget === undefined) {
+      throw new Error(
+        `damageEvents[${eventIndex}].targetId does not reference a resolved enemy target.`
+      );
+    }
+    if (
+      event.enemyStateBeforeHit.baseResistance !==
+      resolveEnemyBaseResistance(resolvedTarget, event.element)
+    ) {
+      throw new Error(
+        `damageEvents[${eventIndex}].enemyStateBeforeHit.baseResistance does not match the resolved target resistance.`
+      );
+    }
+  }
+}
+
+/**
+ * Disabled player damage cannot retain references to logs that are required to
+ * be empty. Kept separate so the simulator hot path and forged-output tests use
+ * the same linear check.
+ */
+export function validateDisabledPlayerDamageBackReferences(
+  result: Pick<SimulationResult, "reactionDamageLog">
+): void {
+  for (const [index, entry] of
+    result.reactionDamageLog.entries()) {
+    if (
+      entry.playerHitResolutionLogIds.length !== 0 ||
+      entry.playerDamageEventIds.length !== 0
+    ) {
+      throw new Error(
+        `reactionDamageLog[${index}] must have empty player back-references while player damage is disabled.`
+      );
+    }
+  }
 }
 
 function distancePointToSegment(
@@ -668,6 +843,10 @@ interface BurningTickEventPayload {
   tickIndex: number;
 }
 
+interface TargetDecayEventPayload {
+  targetId: string;
+}
+
 interface BurningFuelExpiryEventPayload {
   targetId: string;
   generation: number;
@@ -792,7 +971,15 @@ type InternalEventBase =
   | SimulationEvent<CrystallizeShardSpawnEventPayload>
   | SimulationEvent<CrystallizeShardExpiryEventPayload>
   | SimulationEvent<CrystallizePickupEventPayload>
-  | SimulationEvent<CrystallizeShieldExpiryEventPayload>;
+  | SimulationEvent<CrystallizeShieldExpiryEventPayload>
+  | {
+      type: "targetDecay";
+      timeSeconds: number;
+      frame: number;
+      priority: number;
+      sequence: number;
+      payload: TargetDecayEventPayload;
+    };
 
 interface TargetLocalTaskDeadline {
   targetId: string;
@@ -1063,17 +1250,19 @@ function simulateConfig(
     compatibilityMode:
       runtimeOptions.compatibilityMode ??
       (timelineExecution ||
-      config.targetTaskModel.mode === "target-phase-v1"
+      config.targetTaskModel.mode === "target-phase-v1" ||
+      config.targetTaskModel.mode === "target-phase-v2"
         ? "legal-frame-v1"
         : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   };
   if (
-    config.targetTaskModel.mode === "target-phase-v1" &&
+    (config.targetTaskModel.mode === "target-phase-v1" ||
+      config.targetTaskModel.mode === "target-phase-v2") &&
     options.compatibilityMode !== "legal-frame-v1"
   ) {
     throw new Error(
-      "targetTaskModel target-phase-v1 requires compatibilityMode legal-frame-v1."
+      `targetTaskModel ${config.targetTaskModel.mode} requires compatibilityMode legal-frame-v1.`
     );
   }
   const pluginDefinitions = runtimeOptions.plugins ?? [];
@@ -1145,16 +1334,54 @@ function simulateConfig(
   const enemyTargetOrderById = new Map(
     enemyTargets.map((target, index) => [target.id, index])
   );
-  const targetPhaseEnabled =
+  const targetPhaseV1Enabled =
     config.targetTaskModel.mode === "target-phase-v1";
+  const targetPhaseV2Enabled =
+    config.targetTaskModel.mode === "target-phase-v2";
+  const targetPhaseEnabled = targetPhaseV1Enabled;
+  const targetPhaseAuditEnabled =
+    targetPhaseV1Enabled || targetPhaseV2Enabled;
   const burningAtomicPriorityStride =
     1 / (enemyTargets.length * 2 + 1);
   const targetPhasePriorityStride =
     0.5 / (enemyTargets.length + 1);
+  const targetPhaseV2TaskPriorityForTarget = (
+    targetId: string
+  ): number =>
+    EVENT_PRIORITY.targetTask +
+    (enemyTargetOrderById.get(targetId) ?? 0) *
+      targetPhasePriorityStride;
+  const targetPhaseV2DecayPriorityForTarget = (
+    targetId: string
+  ): number =>
+    targetPhaseV2TaskPriorityForTarget(targetId) +
+    targetPhasePriorityStride * 0.5;
+  const targetPhaseV2LifecyclePriorityForTarget = (
+    targetId: string,
+    kind:
+      | "burningFuelExpiry"
+      | "quickenExpiry"
+      | "frozenExpiry"
+      | "periodicReactionExpiry"
+  ): number => {
+    const lifecycleOrder = {
+      burningFuelExpiry: 0,
+      quickenExpiry: 1,
+      frozenExpiry: 2,
+      periodicReactionExpiry: 3
+    } as const;
+    return (
+      targetPhaseV2TaskPriorityForTarget(targetId) +
+      targetPhasePriorityStride *
+        (0.6 + lifecycleOrder[kind] * 0.08)
+    );
+  };
   const burningTickPriorityForTarget = (
     targetId: string
   ): number =>
-    targetPhaseEnabled
+    targetPhaseV2Enabled
+      ? targetPhaseV2TaskPriorityForTarget(targetId)
+      : targetPhaseEnabled
       ? EVENT_PRIORITY.targetTask +
         (enemyTargetOrderById.get(targetId) ?? 0) *
           targetPhasePriorityStride
@@ -1165,7 +1392,7 @@ function simulateConfig(
   const burningDamagePriorityForTarget = (
     targetId: string
   ): number =>
-    targetPhaseEnabled
+    targetPhaseAuditEnabled
       ? EVENT_PRIORITY.reactionDamage +
         (enemyTargetOrderById.get(targetId) ?? 0) *
           targetPhasePriorityStride
@@ -1279,7 +1506,12 @@ function simulateConfig(
       }
     | Record<string, never> =>
     targetClocks === null
-      ? {}
+      ? targetPhaseV2Enabled
+        ? {
+            targetFrame: globalFrame,
+            expiresAtTargetFrame: expiresAtFrame
+          }
+        : {}
       : {
           targetFrame:
             targetClocks
@@ -1304,7 +1536,14 @@ function simulateConfig(
       }
     | Record<string, never> =>
     targetClocks === null
-      ? {}
+      ? targetPhaseV2Enabled
+        ? {
+            targetFrame: globalFrame,
+            expiresAtTargetFrameBefore:
+              expiresAtFrameBefore,
+            expiresAtTargetFrame: expiresAtFrameAfter
+          }
+        : {}
       : {
           targetFrame:
             targetClocks
@@ -1332,9 +1571,14 @@ function simulateConfig(
         fuelExpiresAtTargetFrame: number | null;
         nextTickTargetFrame: number | null;
       }
+    | { targetFrame: number }
     | Record<string, never> =>
     targetClocks === null
-      ? {}
+      ? targetPhaseV2Enabled
+        ? {
+            targetFrame: globalFrame
+          }
+        : {}
       : {
           targetFrame:
             targetClocks
@@ -1364,6 +1608,12 @@ function simulateConfig(
             target.id,
             new AuraEngine({
               ...config.reactionEngine!,
+              ...(targetPhaseV2Enabled
+                ? {
+                    reactableTickModel:
+                      "cached-boundary-v2" as const
+                  }
+                : {}),
               initialAura: deepClone(target.initialAura),
               freezeResistance: target.freezeResistance,
               ...(targetClocks?.get(target.id) === undefined
@@ -1388,7 +1638,9 @@ function simulateConfig(
   const targetStateTimelineRecorder =
     new TargetStateTimelineRecorder(
       targetClocks === null
-        ? undefined
+        ? targetPhaseV2Enabled
+          ? (_targetId, globalFrame) => globalFrame
+          : undefined
         : (targetId, globalFrame) => {
             const clock = targetClocks.get(targetId);
             if (clock === undefined) {
@@ -1418,9 +1670,100 @@ function simulateConfig(
     "electro",
     "dendro"
   ]);
+  const isolateNaturalAuraExpiry = (
+    auraBefore: readonly AuraStateEntry[],
+    auraAfter: readonly AuraStateEntry[],
+    frame: number
+  ): {
+    auraBefore: AuraStateEntry[];
+    auraAfter: AuraStateEntry[];
+  } => {
+    const specialBoundaryElements = new Set<
+      AuraStateEntry["element"]
+    >();
+    const burningFuelExpiresNow = auraBefore.some(
+      (entry) =>
+        entry.element === "burningFuel" &&
+        entry.expiresAtFrame === frame
+    );
+    if (burningFuelExpiresNow) {
+      for (const element of [
+        "burningFuel",
+        "burning",
+        "dendro",
+        "quicken"
+      ] as const) {
+        specialBoundaryElements.add(element);
+      }
+    } else if (
+      auraBefore.some(
+        (entry) =>
+          entry.element === "quicken" &&
+          entry.expiresAtFrame === frame
+      )
+    ) {
+      specialBoundaryElements.add("quicken");
+    }
+    if (
+      auraBefore.some(
+        (entry) =>
+          entry.element === "frozen" &&
+          entry.expiresAtFrame === frame
+      )
+    ) {
+      specialBoundaryElements.add("frozen");
+    }
+    const expiringOrdinaryElements = new Set(
+      auraBefore
+        .filter(
+          (entry) =>
+            ordinaryAuraElements.has(entry.element) &&
+            entry.expiresAtFrame === frame &&
+            !specialBoundaryElements.has(entry.element)
+        )
+        .map((entry) => entry.element)
+    );
+    const pointBefore = [
+      ...auraAfter.filter(
+        (entry) =>
+          !expiringOrdinaryElements.has(entry.element) &&
+          !specialBoundaryElements.has(entry.element)
+      ),
+      ...auraBefore.filter(
+        (entry) =>
+          expiringOrdinaryElements.has(entry.element) ||
+          specialBoundaryElements.has(entry.element)
+      )
+    ].sort((left, right) =>
+      left.element.localeCompare(right.element)
+    );
+    const pointAfter = [
+      ...auraAfter.filter(
+        (entry) =>
+          !specialBoundaryElements.has(entry.element)
+      ),
+      ...auraBefore.filter((entry) =>
+        specialBoundaryElements.has(entry.element)
+      )
+    ].sort((left, right) =>
+      left.element.localeCompare(right.element)
+    );
+    return {
+      auraBefore: pointBefore,
+      auraAfter: pointAfter
+    };
+  };
   const ordinaryExpiryFrameScratch = new Array<number>(
     enemyTargets.length
   ).fill(Number.POSITIVE_INFINITY);
+  let recordTargetPhaseV2NaturalExpiry: (input: {
+    targetId: string;
+    targetName: string;
+    globalFrame: number;
+    auraBefore: readonly AuraStateEntry[];
+    auraAfter: readonly AuraStateEntry[];
+    targetStateTimelinePointId: number;
+  }) => void = () => {};
   const recordNaturalAuraExpiries = (
     limitFrame: number,
     includeLimit: boolean,
@@ -1495,13 +1838,33 @@ function simulateConfig(
             );
             continue;
           }
+          const naturalBoundary = targetPhaseV2Enabled
+            ? isolateNaturalAuraExpiry(
+                deepClone(auraBefore),
+                deepClone(auraAfter),
+                nextExpiryFrame
+              )
+            : {
+                auraBefore: deepClone(auraBefore),
+                auraAfter: deepClone(auraAfter)
+              };
+          const targetStateTimelinePointId =
+            targetStateTimelineRecorder.result().points.length;
           targetStateTimelineRecorder.recordNaturalExpiry({
             frame: nextExpiryFrame,
             timeSeconds: nextExpiryFrame / 60,
             targetId: target.id,
             targetName: target.name,
-            auraBefore,
-            auraAfter
+            auraBefore: naturalBoundary.auraBefore,
+            auraAfter: naturalBoundary.auraAfter
+          });
+          recordTargetPhaseV2NaturalExpiry({
+            targetId: target.id,
+            targetName: target.name,
+            globalFrame: nextExpiryFrame,
+            auraBefore: naturalBoundary.auraBefore,
+            auraAfter: naturalBoundary.auraAfter,
+            targetStateTimelinePointId
           });
           if (auraEngineFrame > nextExpiryFrame) {
             targetStateTimelineRecorder.synchronize(
@@ -1526,13 +1889,33 @@ function simulateConfig(
           );
           continue;
         }
+        const naturalBoundary = targetPhaseV2Enabled
+          ? isolateNaturalAuraExpiry(
+              deepClone(auraBefore),
+              deepClone(auraAfter),
+              nextExpiryFrame
+            )
+          : {
+              auraBefore: deepClone(auraBefore),
+              auraAfter: deepClone(auraAfter)
+            };
+        const targetStateTimelinePointId =
+          targetStateTimelineRecorder.result().points.length;
         targetStateTimelineRecorder.recordNaturalExpiry({
           frame: nextExpiryFrame,
           timeSeconds: nextExpiryFrame / 60,
           targetId: target.id,
           targetName: target.name,
-          auraBefore,
-          auraAfter
+          auraBefore: naturalBoundary.auraBefore,
+          auraAfter: naturalBoundary.auraAfter
+        });
+        recordTargetPhaseV2NaturalExpiry({
+          targetId: target.id,
+          targetName: target.name,
+          globalFrame: nextExpiryFrame,
+          auraBefore: naturalBoundary.auraBefore,
+          auraAfter: naturalBoundary.auraAfter,
+          targetStateTimelinePointId
         });
       }
     }
@@ -1654,6 +2037,72 @@ function simulateConfig(
       timeSeconds: projectedGlobalFrame / 60,
       payload
     } as InternalEvent);
+  };
+  const scheduledTargetDecayKeys = new Set<string>();
+  const completedTargetDecayKeys = new Set<string>();
+  const targetDecayKey = (
+    globalFrame: number,
+    targetId: string
+  ): string => `${globalFrame}\u0000${targetId}`;
+  const scheduleTargetDecay = (
+    globalFrame: number,
+    targetId: string
+  ): void => {
+    if (
+      !targetPhaseV2Enabled ||
+      globalFrame > Math.round(config.duration * 60)
+    ) {
+      return;
+    }
+    const key = targetDecayKey(globalFrame, targetId);
+    if (
+      scheduledTargetDecayKeys.has(key) ||
+      completedTargetDecayKeys.has(key)
+    ) {
+      return;
+    }
+    scheduledTargetDecayKeys.add(key);
+    queue.push({
+      timeSeconds: globalFrame / 60,
+      frame: globalFrame,
+      priority: targetPhaseV2DecayPriorityForTarget(targetId),
+      type: "targetDecay",
+      payload: { targetId } satisfies TargetDecayEventPayload,
+      sequence: sequence++
+    });
+  };
+  const scheduleTargetDecayThroughOrder = (
+    globalFrame: number,
+    targetOrderInclusive: number
+  ): void => {
+    if (!targetPhaseV2Enabled) return;
+    for (
+      let targetOrder = 0;
+      targetOrder <= targetOrderInclusive;
+      targetOrder += 1
+    ) {
+      const target = enemyTargets[targetOrder];
+      if (target !== undefined) {
+        scheduleTargetDecay(globalFrame, target.id);
+      }
+    }
+  };
+  const scheduleAllTargetDecays = (
+    globalFrame: number
+  ): boolean => {
+    if (!targetPhaseV2Enabled) return false;
+    let scheduled = false;
+    for (const target of enemyTargets) {
+      const key = targetDecayKey(globalFrame, target.id);
+      if (
+        !scheduledTargetDecayKeys.has(key) &&
+        !completedTargetDecayKeys.has(key)
+      ) {
+        scheduleTargetDecay(globalFrame, target.id);
+        scheduled = true;
+      }
+    }
+    return scheduled;
   };
 
   const cycleCount = Math.ceil(config.duration / config.cycleLength);
@@ -1863,6 +2312,210 @@ function simulateConfig(
     if (entry === null) return;
     const ids = entry[field];
     if (ids[ids.length - 1] !== id) ids.push(id);
+  };
+  const targetPhaseLog: SimulationResult["targetPhaseLog"] = [];
+  interface TargetPhaseV2RuntimeState {
+    entry: TargetPhaseV2LogEntry;
+    emitted: boolean;
+    decayMaterialized: boolean;
+  }
+  type TargetLifecycleTransitionInput =
+    TargetLifecycleTransition extends infer TTransition
+      ? TTransition extends { order: number }
+        ? Omit<TTransition, "order">
+        : never
+      : never;
+  const targetPhaseV2StateByKey = new Map<
+    string,
+    TargetPhaseV2RuntimeState
+  >();
+  const lastEmittedTargetPhaseV2ByTarget = new Map<
+    string,
+    TargetPhaseV2LogEntry
+  >();
+  const emitTargetPhaseV2State = (
+    state: TargetPhaseV2RuntimeState
+  ): void => {
+    if (state.emitted) return;
+    const previous =
+      lastEmittedTargetPhaseV2ByTarget.get(
+        state.entry.targetId
+      );
+    state.entry.reactableTick.fromTargetFrame =
+      previous?.reactableTick.toTargetFrame ?? 0;
+    state.entry.id = targetPhaseLog.length;
+    targetPhaseLog.push(state.entry);
+    state.emitted = true;
+    lastEmittedTargetPhaseV2ByTarget.set(
+      state.entry.targetId,
+      state.entry
+    );
+  };
+  const resolveTargetFrameAt = (
+    targetId: string,
+    globalFrame: number
+  ): number =>
+    targetClocks
+      ?.get(targetId)
+      ?.projectLocalFrameAtGlobalFrame(globalFrame) ??
+    globalFrame;
+  const ensureTargetPhaseV2State = ({
+    targetId,
+    globalFrame,
+    emit,
+    auraBeforeOverride
+  }: {
+    targetId: string;
+    globalFrame: number;
+    emit: boolean;
+    auraBeforeOverride?: TargetPhaseV2LogEntry["auraBeforeTargetTasks"];
+  }): TargetPhaseV2RuntimeState | null => {
+    if (!targetPhaseV2Enabled) return null;
+    const key = targetTaskPhaseKey(globalFrame, targetId);
+    const existing = targetPhaseV2StateByKey.get(key);
+    if (existing !== undefined) {
+      if (emit) emitTargetPhaseV2State(existing);
+      return existing;
+    }
+    const target = enemyTargetById.get(targetId);
+    if (target === undefined) {
+      throw new Error(
+        `Target phase v2 could not resolve target "${targetId}".`
+      );
+    }
+    const auraEngine = auraEngines?.get(targetId);
+    const engineGlobalFrame =
+      auraEngine?.getCurrentFrame() ?? Math.max(0, globalFrame - 1);
+    const auraBefore =
+      auraBeforeOverride ??
+      (auraEngine === undefined
+        ? []
+        : auraEngine.getAuraStateAt(engineGlobalFrame));
+    const fromTargetFrame =
+      targetClocks?.get(targetId)?.getState().localFrame ??
+      engineGlobalFrame;
+    const toTargetFrame = resolveTargetFrameAt(
+      targetId,
+      globalFrame
+    );
+    const entry: TargetPhaseV2LogEntry = {
+      model: "target-phase-v2",
+      id: -1,
+      targetId,
+      targetName: target.name,
+      globalFrame,
+      timeSeconds: globalFrame / 60,
+      targetFrame: toTargetFrame,
+      targetOrder: enemyTargetOrderById.get(targetId) ?? 0,
+      auraBeforeTargetTasks: deepClone(auraBefore),
+      targetTasks: [],
+      auraAfterTargetTasks: deepClone(auraBefore),
+      reactableTick: {
+        fromTargetFrame,
+        toTargetFrame,
+        auraBefore: deepClone(auraBefore),
+        transitions: [],
+        auraAfter: deepClone(auraBefore)
+      },
+      hitResolutionLogIds: [],
+      reactionTaskLogIds: []
+    };
+    const state: TargetPhaseV2RuntimeState = {
+      entry,
+      emitted: false,
+      decayMaterialized: false
+    };
+    targetPhaseV2StateByKey.set(key, state);
+    if (emit) emitTargetPhaseV2State(state);
+    return state;
+  };
+  const appendTargetPhaseV2Reference = (
+    entry: TargetPhaseV2LogEntry | null,
+    field: "hitResolutionLogIds" | "reactionTaskLogIds",
+    id: number
+  ): void => {
+    if (entry === null) return;
+    const ids = entry[field];
+    if (ids[ids.length - 1] !== id) ids.push(id);
+  };
+  const appendTargetPhaseV2Transition = (
+    state: TargetPhaseV2RuntimeState,
+    transition: TargetLifecycleTransitionInput,
+    auraAfter: TargetPhaseV2LogEntry["reactableTick"]["auraAfter"]
+  ): void => {
+    emitTargetPhaseV2State(state);
+    if (state.entry.reactableTick.transitions.length === 0) {
+      const transitionPoint =
+        targetStateTimelineRecorder.result().points[
+          transition.targetStateTimelinePointId
+        ];
+      if (
+        transitionPoint === undefined ||
+        transitionPoint.targetId !== state.entry.targetId ||
+        transitionPoint.frame !== state.entry.globalFrame
+      ) {
+        throw new Error(
+          `Target phase v2 transition could not resolve timeline point ${transition.targetStateTimelinePointId}.`
+        );
+      }
+      if (state.entry.targetTasks.length === 0) {
+        // With no same-frame callback there is no target-task boundary to
+        // preserve. Any decay since the prior wake belongs to the sparse
+        // target-clock advance, so start this phase at the first typed
+        // Reactable transition instead of inventing an unbridgeable
+        // same-frame durability gap.
+        state.entry.auraBeforeTargetTasks = deepClone(
+          transitionPoint.auraBefore
+        );
+        state.entry.auraAfterTargetTasks = deepClone(
+          transitionPoint.auraBefore
+        );
+      }
+      // Ordinary durability loss that does not remove an Aura is implicit.
+      // The first explicit lifecycle transition owns the canonical
+      // pre-transition snapshot; without a transition, materializeDecay keeps
+      // both snapshots at the post-decay Aura instead.
+      state.entry.reactableTick.auraBefore = deepClone(
+        transitionPoint.auraBefore
+      );
+      state.entry.reactableTick.auraAfter = deepClone(
+        transitionPoint.auraBefore
+      );
+    }
+    state.entry.reactableTick.transitions.push({
+      ...transition,
+      order: state.entry.reactableTick.transitions.length
+    } as TargetLifecycleTransition);
+    state.entry.reactableTick.auraAfter = deepClone(auraAfter);
+  };
+  recordTargetPhaseV2NaturalExpiry = ({
+    targetId,
+    globalFrame,
+    auraBefore,
+    auraAfter,
+    targetStateTimelinePointId
+  }): void => {
+    if (!targetPhaseV2Enabled) return;
+    const state = ensureTargetPhaseV2State({
+      targetId,
+      globalFrame,
+      emit: true,
+      auraBeforeOverride: deepClone([...auraBefore])
+    });
+    if (state === null) return;
+    appendTargetPhaseV2Transition(
+      state,
+      {
+        stage: "reactable-tick",
+        kind: "aura-natural-expiry",
+        deadlineTargetFrame: resolveTargetFrameAt(
+          targetId,
+          globalFrame
+        ),
+        targetStateTimelinePointId
+      },
+      deepClone([...auraAfter])
+    );
   };
   const lastLoggedTargetClockState = new Map<
     string,
@@ -2243,16 +2896,32 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies PeriodicReactionExpiryEventPayload;
+    const priority = targetPhaseV2Enabled
+      ? targetPhaseV2LifecyclePriorityForTarget(
+          targetId,
+          "periodicReactionExpiry"
+        )
+      : undefined;
     if (targetLocalDeadline === null) {
-      push(expiryFrame / 60, "periodicReactionExpiry", payload);
+      push(
+        expiryFrame / 60,
+        "periodicReactionExpiry",
+        payload,
+        priority
+      );
     } else {
       pushTargetLocal(
         expiryFrame,
         "periodicReactionExpiry",
         payload,
-        targetLocalDeadline
+        targetLocalDeadline,
+        priority
       );
     }
+    scheduleTargetDecayThroughOrder(
+      expiryFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
   };
 
   const scheduleBurningFuelExpiry = (
@@ -2276,16 +2945,32 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies BurningFuelExpiryEventPayload;
+    const priority = targetPhaseV2Enabled
+      ? targetPhaseV2LifecyclePriorityForTarget(
+          targetId,
+          "burningFuelExpiry"
+        )
+      : undefined;
     if (targetLocalDeadline === null) {
-      push(expiryFrame / 60, "burningFuelExpiry", payload);
+      push(
+        expiryFrame / 60,
+        "burningFuelExpiry",
+        payload,
+        priority
+      );
     } else {
       pushTargetLocal(
         expiryFrame,
         "burningFuelExpiry",
         payload,
-        targetLocalDeadline
+        targetLocalDeadline,
+        priority
       );
     }
+    scheduleTargetDecayThroughOrder(
+      expiryFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
   };
 
   const scheduleFrozenExpiry = (
@@ -2309,16 +2994,32 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies FrozenExpiryEventPayload;
+    const priority = targetPhaseV2Enabled
+      ? targetPhaseV2LifecyclePriorityForTarget(
+          targetId,
+          "frozenExpiry"
+        )
+      : undefined;
     if (targetLocalDeadline === null) {
-      push(expiryFrame / 60, "frozenExpiry", payload);
+      push(
+        expiryFrame / 60,
+        "frozenExpiry",
+        payload,
+        priority
+      );
     } else {
       pushTargetLocal(
         expiryFrame,
         "frozenExpiry",
         payload,
-        targetLocalDeadline
+        targetLocalDeadline,
+        priority
       );
     }
+    scheduleTargetDecayThroughOrder(
+      expiryFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
   };
 
   const scheduleQuickenExpiry = (
@@ -2342,16 +3043,32 @@ function simulateConfig(
       generation,
       expectedExpiryFrame: expiryFrame
     } satisfies QuickenExpiryEventPayload;
+    const priority = targetPhaseV2Enabled
+      ? targetPhaseV2LifecyclePriorityForTarget(
+          targetId,
+          "quickenExpiry"
+        )
+      : undefined;
     if (targetLocalDeadline === null) {
-      push(expiryFrame / 60, "quickenExpiry", payload);
+      push(
+        expiryFrame / 60,
+        "quickenExpiry",
+        payload,
+        priority
+      );
     } else {
       pushTargetLocal(
         expiryFrame,
         "quickenExpiry",
         payload,
-        targetLocalDeadline
+        targetLocalDeadline,
+        priority
       );
     }
+    scheduleTargetDecayThroughOrder(
+      expiryFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
   };
 
   const scheduleBurningTickEvent = (
@@ -2386,6 +3103,10 @@ function simulateConfig(
         burningTickPriorityForTarget(targetId)
       );
     }
+    scheduleTargetDecayThroughOrder(
+      projectedGlobalFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
   };
 
   const scheduleElectroChargedDamage = ({
@@ -2657,6 +3378,209 @@ function simulateConfig(
     lastLoggedTargetClockState.set(targetId, {
       ...after
     });
+  };
+  const materializeTargetPhaseV2Decay = (
+    globalFrame: number,
+    targetId: string
+  ): TargetPhaseV2RuntimeState | null => {
+    if (!targetPhaseV2Enabled) return null;
+    const state = ensureTargetPhaseV2State({
+      targetId,
+      globalFrame,
+      emit: false
+    });
+    if (state === null || state.decayMaterialized) {
+      return state;
+    }
+    const targetOrder = enemyTargetOrderById.get(targetId);
+    if (targetOrder === undefined) {
+      throw new Error(
+        `Target phase v2 decay could not resolve target order for "${targetId}".`
+      );
+    }
+    const auraEngine = auraEngines?.get(targetId);
+    const auraBefore = deepClone(
+      state.entry.auraAfterTargetTasks
+    );
+    const burningFuelExpiresNow = auraBefore.some(
+      (entry) =>
+        entry.element === "burningFuel" &&
+        entry.expiresAtFrame === globalFrame
+    );
+    const ordinaryExpiresNow = auraBefore.some(
+      (entry) =>
+        ordinaryAuraElements.has(entry.element) &&
+        entry.expiresAtFrame === globalFrame &&
+        !(
+          burningFuelExpiresNow &&
+          entry.element === "dendro"
+        )
+    );
+    const auraAfter =
+      auraEngine === undefined
+        ? []
+        : auraEngine.getAuraStateAt(globalFrame);
+    const hasExactLifecycleBoundary = auraBefore.some(
+      (entry) =>
+        entry.expiresAtFrame === globalFrame &&
+        (ordinaryAuraElements.has(entry.element) ||
+          entry.element === "burningFuel" ||
+          entry.element === "frozen" ||
+          entry.element === "quicken")
+    );
+    // A sparse incoming/core wake has no same-frame target-task timeline
+    // point that could serve as the left endpoint of an ordinary-decay
+    // bridge. Canonicalize that task-less/no-expiry phase at the post-decay
+    // observation instead: the preceding authoritative point still proves
+    // the sparse clock advance, while an exact natural/Reactable expiry keeps
+    // its pre-boundary snapshot for the typed transition below.
+    if (
+      state.entry.targetTasks.length === 0 &&
+      !hasExactLifecycleBoundary
+    ) {
+      state.entry.auraBeforeTargetTasks =
+        deepClone(auraAfter);
+      state.entry.auraAfterTargetTasks =
+        deepClone(auraAfter);
+    }
+    // `reactableTick.auraBefore` is the first explicit transition boundary.
+    // In the common sparse case there is no explicit lifecycle transition, so
+    // both sides are the materialized post-decay Aura. If a transition is
+    // appended later, appendTargetPhaseV2Transition replaces this with that
+    // transition point's authoritative auraBefore.
+    state.entry.reactableTick.auraBefore =
+      deepClone(auraAfter);
+    state.entry.reactableTick.auraAfter =
+      deepClone(auraAfter);
+    if (auraEngine === undefined) {
+      targetClocks?.get(targetId)?.advanceTo(globalFrame);
+    }
+    recordTargetClockAdvance(targetId, "target-local-task");
+    if (ordinaryExpiresNow) {
+      const specialBoundaryElements = new Set<
+        (typeof auraBefore)[number]["element"]
+      >();
+      if (burningFuelExpiresNow) {
+        for (const element of [
+          "burningFuel",
+          "burning",
+          "dendro",
+          "quicken"
+        ] as const) {
+          specialBoundaryElements.add(element);
+        }
+      } else if (
+        auraBefore.some(
+          (entry) =>
+            entry.element === "quicken" &&
+            entry.expiresAtFrame === globalFrame
+        )
+      ) {
+        specialBoundaryElements.add("quicken");
+      }
+      if (
+        auraBefore.some(
+          (entry) =>
+            entry.element === "frozen" &&
+            entry.expiresAtFrame === globalFrame
+        )
+      ) {
+        specialBoundaryElements.add("frozen");
+      }
+      const expiringOrdinaryElements = new Set(
+        auraBefore
+          .filter(
+            (entry) =>
+              ordinaryAuraElements.has(entry.element) &&
+              entry.expiresAtFrame === globalFrame &&
+              !specialBoundaryElements.has(entry.element)
+          )
+          .map((entry) => entry.element)
+      );
+      const ordinaryAuraBefore = [
+        ...auraAfter.filter(
+          (entry) =>
+            !expiringOrdinaryElements.has(entry.element) &&
+            !specialBoundaryElements.has(entry.element)
+        ),
+        ...auraBefore.filter(
+          (entry) =>
+            expiringOrdinaryElements.has(entry.element) ||
+            specialBoundaryElements.has(entry.element)
+        )
+      ].sort((left, right) =>
+        left.element.localeCompare(right.element)
+      );
+      const ordinaryAuraAfter = [
+        ...auraAfter.filter(
+          (entry) =>
+            !specialBoundaryElements.has(entry.element)
+        ),
+        ...auraBefore.filter((entry) =>
+          specialBoundaryElements.has(entry.element)
+        )
+      ].sort((left, right) =>
+        left.element.localeCompare(right.element)
+      );
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
+      targetStateTimelineRecorder.recordNaturalExpiry({
+        frame: globalFrame,
+        timeSeconds: globalFrame / 60,
+        targetId,
+        targetName:
+          enemyTargetById.get(targetId)?.name ?? targetId,
+        auraBefore: ordinaryAuraBefore,
+        auraAfter: ordinaryAuraAfter
+      });
+      recordTargetPhaseV2NaturalExpiry({
+        targetId,
+        targetName:
+          enemyTargetById.get(targetId)?.name ?? targetId,
+        globalFrame,
+        auraBefore: ordinaryAuraBefore,
+        auraAfter: ordinaryAuraAfter,
+        targetStateTimelinePointId
+      });
+    }
+    if (
+      state.entry.targetTasks.length > 0 &&
+      state.entry.reactableTick.transitions.length === 0 &&
+      !hasExactLifecycleBoundary &&
+      !auraStateSnapshotsEqual(
+        state.entry.auraAfterTargetTasks,
+        auraAfter
+      )
+    ) {
+      targetStateTimelineRecorder.recordReactableTickDecay({
+        frame: globalFrame,
+        timeSeconds: globalFrame / 60,
+        targetId,
+        targetName:
+          enemyTargetById.get(targetId)?.name ?? targetId,
+        aura: auraAfter
+      });
+    }
+    state.entry.targetFrame = resolveTargetFrameAt(
+      targetId,
+      globalFrame
+    );
+    state.entry.reactableTick.toTargetFrame =
+      state.entry.targetFrame;
+    if (state.entry.reactableTick.transitions.length === 0) {
+      state.entry.reactableTick.auraBefore =
+        deepClone(auraAfter);
+      state.entry.reactableTick.auraAfter =
+        deepClone(auraAfter);
+    }
+    state.decayMaterialized = true;
+    completedTargetDecayKeys.add(
+      targetDecayKey(globalFrame, targetId)
+    );
+    scheduledTargetDecayKeys.delete(
+      targetDecayKey(globalFrame, targetId)
+    );
+    return state;
   };
 
   const extendHitlagAffectedReactionStatuses = (
@@ -5470,7 +6394,10 @@ function simulateConfig(
     eventSequence: number;
     nextIntraEventSequence: () => number;
   }): void => {
-    if (hit.targetHitlag !== undefined) {
+    if (
+      hit.targetHitlag !== undefined &&
+      (landed || !targetPhaseV2Enabled)
+    ) {
       applyConfiguredTargetHitlag({
         targetId,
         targetName:
@@ -5591,6 +6518,14 @@ function simulateConfig(
             expectedExpiryFrame: nextProjectedGlobalFrame
           }
         : event.payload;
+    if (targetPhaseV2Enabled) {
+      scheduleTargetDecayThroughOrder(
+        nextProjectedGlobalFrame,
+        enemyTargetOrderById.get(
+          targetLocalDeadline.targetId
+        ) ?? 0
+      );
+    }
     requeueTargetLocalEvent(
       event,
       nextProjectedGlobalFrame,
@@ -5608,9 +6543,21 @@ function simulateConfig(
     // advancing Aura. A stale wake must be reprojected without consuming a
     // target frame or triggering an Aura expiry on the abandoned frame.
     if (
-      targetPhaseEnabled &&
+      targetPhaseAuditEnabled &&
       reprojectStaleTargetLocalEvent(event)
     ) {
+      continue;
+    }
+    if (
+      targetPhaseV2Enabled &&
+      (event.type === "hit" ||
+        event.type === "reactionDamage" ||
+        event.type === "quickenBloomFollowup" ||
+        event.type === "periodicReactionTick" ||
+        event.type === "periodicReactionWane") &&
+      scheduleAllTargetDecays(event.frame)
+    ) {
+      queue.push(event);
       continue;
     }
     const preservesDedicatedAuraExpiryBoundary =
@@ -5655,6 +6602,12 @@ function simulateConfig(
       } else if (includeCurrentFrameNaturalAuraExpiry) {
         recordNaturalAuraExpiries(event.frame, true);
       }
+    } else if (targetPhaseV2Enabled) {
+      // v2 owns the current-frame Reactable.Tick through one synthetic
+      // targetDecay event per target. Settling only prior boundaries here
+      // prevents an action or stale target-local wake from stealing that
+      // target-owned decay.
+      recordNaturalAuraExpiries(event.frame, false);
     } else {
       recordNaturalAuraExpiries(
         event.frame,
@@ -5662,7 +6615,7 @@ function simulateConfig(
       );
     }
     if (
-      !targetPhaseEnabled &&
+      !targetPhaseAuditEnabled &&
       reprojectStaleTargetLocalEvent(event)
     ) {
       continue;
@@ -5671,6 +6624,13 @@ function simulateConfig(
     let intraEventSequence = 0;
     const nextIntraEventSequence = (): number =>
       intraEventSequence++;
+
+    if (event.type === "targetDecay") {
+      const { targetId } =
+        event.payload as TargetDecayEventPayload;
+      materializeTargetPhaseV2Decay(event.frame, targetId);
+      continue;
+    }
 
     if (event.type === "action") {
       const { action, cycle } = event.payload as ActionEventPayload;
@@ -5987,6 +6947,12 @@ function simulateConfig(
           `Quicken→Bloom task could not resolve target "${targetId}".`
         );
       }
+      const targetPhaseV2Entry =
+        ensureTargetPhaseV2State({
+          targetId,
+          globalFrame: event.frame,
+          emit: true
+        })?.entry ?? null;
       const taskResult = auraEngine.processQuickenBloomFollowup({
         frame: event.frame,
         sourceActorId,
@@ -6071,6 +7037,11 @@ function simulateConfig(
         targetTaskPhaseByKey.get(
           targetTaskPhaseKey(event.frame, targetId)
         ) ?? null,
+        "reactionTaskLogIds",
+        reactionTaskLogId
+      );
+      appendTargetPhaseV2Reference(
+        targetPhaseV2Entry,
         "reactionTaskLogIds",
         reactionTaskLogId
       );
@@ -7019,11 +7990,18 @@ function simulateConfig(
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
       if (!auraEngine || !target) continue;
+      const targetPhaseV2State =
+        materializeTargetPhaseV2Decay(
+          event.frame,
+          targetId
+        );
       const result = auraEngine.expireFrozen(
         event.frame,
         generation,
         expectedExpiryFrame
       );
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7049,8 +8027,9 @@ function simulateConfig(
       });
       if (result.operation === "stale") continue;
       const source = activeFrozenStateSources.get(targetId);
+      const frozenStateLogId = frozenStateLog.length;
       frozenStateLog.push({
-        id: frozenStateLog.length,
+        id: frozenStateLogId,
         reaction: "freeze",
         generation,
         operation: "expire",
@@ -7074,6 +8053,25 @@ function simulateConfig(
         expiresAtFrame: null,
         reason: result.reason
       });
+      if (targetPhaseV2State !== null) {
+        appendTargetPhaseV2Transition(
+          targetPhaseV2State,
+          {
+            stage: "reactable-tick",
+            kind: "frozen-expiry",
+            generation,
+            deadlineTargetFrame:
+              event.targetLocalDeadline?.targetFrame ??
+              resolveTargetFrameAt(
+                targetId,
+                expectedExpiryFrame
+              ),
+            frozenStateLogId,
+            targetStateTimelinePointId
+          },
+          result.auraAfter
+        );
+      }
       if (source?.generation === generation) {
         activeFrozenStateSources.delete(targetId);
       }
@@ -7097,6 +8095,11 @@ function simulateConfig(
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
       if (!auraEngine || !target) continue;
+      const targetPhaseV2State =
+        materializeTargetPhaseV2Decay(
+          event.frame,
+          targetId
+        );
       const result = auraEngine.expireQuicken(
         event.frame,
         generation,
@@ -7109,6 +8112,8 @@ function simulateConfig(
       const isCurrentLifecycleExpiry =
         result.operation !== "stale" &&
         source?.generation === generation;
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7133,8 +8138,9 @@ function simulateConfig(
         auraAfter: result.auraAfter
       });
       if (!isCurrentLifecycleExpiry) continue;
+      const quickenStateLogId = quickenStateLog.length;
       quickenStateLog.push({
-        id: quickenStateLog.length,
+        id: quickenStateLogId,
         reaction: "quicken",
         generation,
         operation: "expire",
@@ -7170,6 +8176,25 @@ function simulateConfig(
         endCauseAfter: result.endCauseAfter,
         reason: result.reason
       });
+      if (targetPhaseV2State !== null) {
+        appendTargetPhaseV2Transition(
+          targetPhaseV2State,
+          {
+            stage: "reactable-tick",
+            kind: "quicken-expiry",
+            generation,
+            deadlineTargetFrame:
+              event.targetLocalDeadline?.targetFrame ??
+              resolveTargetFrameAt(
+                targetId,
+                expectedExpiryFrame
+              ),
+            quickenStateLogId,
+            targetStateTimelinePointId
+          },
+          result.auraAfter
+        );
+      }
       if (source?.generation === generation) {
         activeQuickenStateSources.delete(targetId);
       }
@@ -7193,11 +8218,18 @@ function simulateConfig(
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
       if (!auraEngine || !target) continue;
+      const targetPhaseV2State =
+        materializeTargetPhaseV2Decay(
+          event.frame,
+          targetId
+        );
       const result = auraEngine.expireElectroCharged(
         event.frame,
         generation,
         expectedExpiryFrame
       );
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7226,12 +8258,21 @@ function simulateConfig(
       });
       if (result.operation === "stale") continue;
       const source = activePeriodicReactionSources.get(targetId);
+      const periodicReactionLogId = periodicReactionLog.length;
       periodicReactionLog.push({
-        id: periodicReactionLog.length,
+        id: periodicReactionLogId,
         reaction: "electroCharged",
         generation,
         operation: "stop",
         frame: event.frame,
+        ...(targetPhaseV2Enabled
+          ? {
+              targetFrame: resolveTargetFrameAt(
+                targetId,
+                event.frame
+              )
+            }
+          : {}),
         timeSeconds,
         targetId,
         targetName: target.name,
@@ -7249,6 +8290,25 @@ function simulateConfig(
         waneFrame: null,
         reason: result.reason
       });
+      if (targetPhaseV2State !== null) {
+        appendTargetPhaseV2Transition(
+          targetPhaseV2State,
+          {
+            stage: "reactable-tick",
+            kind: "electro-charged-expiry",
+            generation,
+            deadlineTargetFrame:
+              event.targetLocalDeadline?.targetFrame ??
+              resolveTargetFrameAt(
+                targetId,
+                expectedExpiryFrame
+              ),
+            periodicReactionLogId,
+            targetStateTimelinePointId
+          },
+          result.auraAfter
+        );
+      }
       if (source?.generation === generation) {
         activePeriodicReactionSources.delete(targetId);
       }
@@ -7272,6 +8332,11 @@ function simulateConfig(
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
       if (!auraEngine || !target) continue;
+      const targetPhaseV2State =
+        materializeTargetPhaseV2Decay(
+          event.frame,
+          targetId
+        );
       const result = auraEngine.expireBurningFuel(
         event.frame,
         generation,
@@ -7288,6 +8353,8 @@ function simulateConfig(
       const quickenStateLogId = quickenWasRemoved
         ? quickenStateLog.length
         : null;
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7442,6 +8509,29 @@ function simulateConfig(
         });
         activeQuickenStateSources.delete(targetId);
       }
+      if (targetPhaseV2State !== null) {
+        appendTargetPhaseV2Transition(
+          targetPhaseV2State,
+          {
+            stage: "reactable-tick",
+            kind: "burning-fuel-expiry",
+            generation,
+            deadlineTargetFrame:
+              event.targetLocalDeadline?.targetFrame ??
+              resolveTargetFrameAt(
+                targetId,
+                expectedExpiryFrame
+              ),
+            burningStateLogId,
+            quickenStateLogIds:
+              quickenStateLogId === null
+                ? []
+                : [quickenStateLogId],
+            targetStateTimelinePointId
+          },
+          result.auraAfter
+        );
+      }
       if (source?.generation === generation) {
         activeBurningSources.delete(targetId);
       }
@@ -7460,13 +8550,13 @@ function simulateConfig(
       if (
         !auraEngine ||
         !target ||
-        !source ||
-        source.generation !== generation ||
+        (!targetPhaseV2Enabled &&
+          (!source || source.generation !== generation)) ||
         auraEngine.isMechanicsTruncated()
       ) {
         continue;
       }
-      const prepared = targetPhaseEnabled
+      const prepared = targetPhaseAuditEnabled
         ? auraEngine.prepareBurningTickBeforeDecay(
             event.frame,
             generation,
@@ -7484,6 +8574,12 @@ function simulateConfig(
         prepared.nextTickFrame !== null &&
         prepared.nextTickFrame > event.frame
       ) {
+        if (targetPhaseV2Enabled) {
+          scheduleTargetDecayThroughOrder(
+            prepared.nextTickFrame,
+            enemyTargetOrderById.get(targetId) ?? 0
+          );
+        }
         requeueTargetLocalEvent(
           event,
           prepared.nextTickFrame
@@ -7510,6 +8606,25 @@ function simulateConfig(
         auraAfterTasks: prepared.auraAfter,
         auraAfterDecay: auraAfterTargetDecay
       });
+      const targetPhaseV2State =
+        ensureTargetPhaseV2State({
+          targetId,
+          globalFrame: event.frame,
+          emit: true,
+          auraBeforeOverride: prepared.auraBefore
+        });
+      if (targetPhaseV2State !== null) {
+        targetPhaseV2State.entry.auraAfterTargetTasks =
+          deepClone(prepared.auraAfter);
+        targetPhaseV2State.entry.reactableTick.auraBefore =
+          deepClone(prepared.auraAfter);
+      }
+      const targetStateTimelinePointId =
+        targetStateTimelineRecorder.result().points.length;
+      const targetTaskIntraEventSequence =
+        targetPhaseV2Enabled
+          ? nextIntraEventSequence()
+          : null;
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -7519,7 +8634,9 @@ function simulateConfig(
         eventType: event.type,
         eventPriority: event.priority,
         eventSequence: event.sequence,
-        intraEventSequence: nextIntraEventSequence(),
+        intraEventSequence:
+          targetTaskIntraEventSequence ??
+          nextIntraEventSequence(),
         reaction: "burning",
         reactions: ["burning"],
         primaryDamageEventId: null,
@@ -7533,8 +8650,62 @@ function simulateConfig(
                 }
               ],
         auraBefore: prepared.auraBefore,
-        auraAfter: auraAfterTargetDecay
+        auraAfter: targetPhaseV2Enabled
+          ? prepared.auraAfter
+          : auraAfterTargetDecay
       });
+      const targetTaskTimelinePoint =
+        targetStateTimelineRecorder.result().points[
+          targetStateTimelinePointId
+        ];
+      if (targetTaskTimelinePoint === undefined) {
+        throw new Error(
+          `Burning target task could not resolve timeline point ${targetStateTimelinePointId}.`
+        );
+      }
+      const callbackAuraProvenance = targetPhaseV2Enabled
+        ? {
+            callbackAuraBefore: deepClone(
+              targetTaskTimelinePoint.auraBefore
+            ),
+            callbackAuraAfter: deepClone(
+              targetTaskTimelinePoint.auraAfter
+            )
+          }
+        : {};
+      const targetPhaseV2Task: TargetPhaseV2TargetTask | null =
+        targetPhaseV2State === null
+          ? null
+          : {
+              stage: "target-task" as const,
+              kind: "burning-tick" as const,
+              order:
+                targetPhaseV2State.entry.targetTasks.length,
+              eventType: "burningTick" as const,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              intraEventSequence:
+                targetTaskIntraEventSequence ?? 0,
+              generation,
+              tickIndex,
+              deadlineTargetFrame:
+                event.targetLocalDeadline?.targetFrame ??
+                resolveTargetFrameAt(targetId, event.frame),
+              status:
+                prepared.operation === "stale"
+                  ? ("stale" as const)
+                  : ("applied" as const),
+              burningStateLogId: null,
+              targetStateTimelinePointId
+            };
+      if (
+        targetPhaseV2State !== null &&
+        targetPhaseV2Task !== null
+      ) {
+        targetPhaseV2State.entry.targetTasks.push(
+          targetPhaseV2Task
+        );
+      }
       if (prepared.operation === "stale") continue;
       if (prepared.operation === "stop") {
         const burningStateLogId = burningStateLog.length;
@@ -7557,11 +8728,15 @@ function simulateConfig(
           targetName: target.name,
           triggerElement: null,
           damageSourceActorId:
-            prepared.damageSourceActorId ?? source.actorId,
+            prepared.damageSourceActorId ??
+            source?.actorId ??
+            null,
           fuelSourceActorId:
             prepared.fuelSourceActorId ??
-            source.fuelSourceActorId,
-          triggerDamageEventId: source.triggerDamageEventId,
+            source?.fuelSourceActorId ??
+            null,
+          triggerDamageEventId:
+            source?.triggerDamageEventId ?? null,
           reactionDamageLogId: null,
           damageEventIds: [],
           playerHitResolutionLogId: null,
@@ -7580,6 +8755,7 @@ function simulateConfig(
             prepared.fuelGaugeUnitsAfter,
           fuelDecayPerFrame: prepared.fuelDecayPerFrame,
           fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
+          ...callbackAuraProvenance,
           auraBefore: deepClone(prepared.auraBefore),
           auraApplied: [],
           auraConsumed: [],
@@ -7609,10 +8785,19 @@ function simulateConfig(
           "burningStateLogIds",
           burningStateLogId
         );
+        if (targetPhaseV2Task !== null) {
+          targetPhaseV2Task.burningStateLogId =
+            burningStateLogId;
+        }
         activeBurningSources.delete(targetId);
         continue;
       }
 
+      if (source === undefined) {
+        throw new Error(
+          `Applied Burning callback for target "${targetId}" has no source snapshot.`
+        );
+      }
       const burningStateLogId = burningStateLog.length;
       burningStateLog.push({
         id: burningStateLogId,
@@ -7656,6 +8841,7 @@ function simulateConfig(
           prepared.fuelGaugeUnitsAfter,
         fuelDecayPerFrame: prepared.fuelDecayPerFrame,
         fuelExpiresAtFrame: prepared.fuelExpiresAtFrame,
+        ...callbackAuraProvenance,
         auraBefore: deepClone(prepared.auraBefore),
         auraApplied: [],
         auraConsumed: [],
@@ -7682,6 +8868,10 @@ function simulateConfig(
         "burningStateLogIds",
         burningStateLogId
       );
+      if (targetPhaseV2Task !== null) {
+        targetPhaseV2Task.burningStateLogId =
+          burningStateLogId;
+      }
       if (prepared.operation === "tick") {
         scheduleBurningDamage({
           frame: event.frame,
@@ -8235,6 +9425,12 @@ function simulateConfig(
             ? nextIntraEventSequence()
             : 0
         });
+        const targetPhaseV2Entry =
+          ensureTargetPhaseV2State({
+            targetId: plan.targetId,
+            globalFrame: event.frame,
+            emit: true
+          })?.entry ?? null;
         const mechanicsTruncatedBefore =
           targetAuraEngine?.isMechanicsTruncated() ?? false;
         const mechanicsStatus: DamageEvent["mechanicsStatus"] =
@@ -8308,7 +9504,7 @@ function simulateConfig(
             auraAfter: propagatedReactionAudit.auraAfter ?? []
           });
         } else if (
-          targetPhaseEnabled &&
+          targetPhaseAuditEnabled &&
           plan.landed &&
           targetAuraEngine !== null
         ) {
@@ -8590,7 +9786,7 @@ function simulateConfig(
             id: targetResolutionId,
             frame: event.frame,
             timeSeconds,
-            ...(targetPhaseEnabled
+            ...(targetPhaseAuditEnabled
               ? {
                   eventPriority: event.priority,
                   eventSequence: event.sequence,
@@ -8684,6 +9880,11 @@ function simulateConfig(
             targetResolutionId
           );
         }
+        appendTargetPhaseV2Reference(
+          targetPhaseV2Entry,
+          "hitResolutionLogIds",
+          targetResolutionId
+        );
         if (!plan.landed) return;
 
         const debuffState = getDebuffState(
@@ -9454,6 +10655,12 @@ function simulateConfig(
         ? nextIntraEventSequence()
         : 0
     });
+    const targetPhaseV2Entry =
+      ensureTargetPhaseV2State({
+        targetId,
+        globalFrame: event.frame,
+        emit: true
+      })?.entry ?? null;
     const mechanicsTruncatedBefore =
       auraEngine?.isMechanicsTruncated() ?? false;
     const mechanicsStatus: DamageEvent["mechanicsStatus"] =
@@ -9488,7 +10695,7 @@ function simulateConfig(
       id: targetResolutionId,
       frame: event.frame,
       timeSeconds,
-      ...(targetPhaseEnabled
+      ...(targetPhaseAuditEnabled
         ? {
             eventPriority: event.priority,
             eventSequence: event.sequence,
@@ -9552,6 +10759,11 @@ function simulateConfig(
     hitResolutionLog.push(targetResolution);
     appendTargetTaskPhaseReference(
       targetTaskPhaseEntry,
+      "hitResolutionLogIds",
+      targetResolutionId
+    );
+    appendTargetPhaseV2Reference(
+      targetPhaseV2Entry,
       "hitResolutionLogIds",
       targetResolutionId
     );
@@ -10975,6 +12187,92 @@ function simulateConfig(
   });
   targetTaskPhaseLogSchema.parse(targetTaskPhaseLog);
   const parsedTargetTaskPhaseLog = targetTaskPhaseLog;
+  targetPhaseLog.sort(
+    (left, right) =>
+      left.globalFrame - right.globalFrame ||
+      left.targetOrder - right.targetOrder
+  );
+  targetPhaseLog.forEach((entry, index) => {
+    entry.id = index;
+  });
+  if (targetPhaseV2Enabled) {
+    for (const phase of targetPhaseLog) {
+      const targetTaskPointIds = new Set(
+        phase.targetTasks.map(
+          (task) => task.targetStateTimelinePointId
+        )
+      );
+      const lastTargetTaskPointId =
+        targetTaskPointIds.size === 0
+          ? -1
+          : Math.max(...targetTaskPointIds);
+      const firstTransition =
+        phase.reactableTick.transitions[0];
+      // A same-target-frame durability gap is only legal across the complete
+      // Reactable boundary. Its first explicit transition carries the bridge;
+      // when the tick is sparse, the first subsequent incoming/core point
+      // carries it instead.
+      const bridgePoint =
+        firstTransition === undefined
+          ? targetStateTimeline.points.find(
+              (point) =>
+                point.targetId === phase.targetId &&
+                point.frame === phase.globalFrame &&
+                (point.targetFrame ?? point.frame) ===
+                  phase.targetFrame &&
+                point.id > lastTargetTaskPointId &&
+                !targetTaskPointIds.has(point.id)
+            )
+          : targetStateTimeline.points[
+              firstTransition.targetStateTimelinePointId
+            ];
+      if (bridgePoint === undefined) continue;
+      let precedingTargetPoint:
+        | (typeof targetStateTimeline.points)[number]
+        | undefined;
+      for (
+        let pointIndex = bridgePoint.id - 1;
+        pointIndex >= 0;
+        pointIndex -= 1
+      ) {
+        const candidate =
+          targetStateTimeline.points[pointIndex]!;
+        if (candidate.targetId === phase.targetId) {
+          precedingTargetPoint = candidate;
+          break;
+        }
+      }
+      const needsBridge =
+        precedingTargetPoint !== undefined &&
+        (precedingTargetPoint.targetFrame ??
+          precedingTargetPoint.frame) ===
+          phase.targetFrame &&
+        !auraStateSnapshotsEqual(
+          precedingTargetPoint.auraAfter,
+          bridgePoint.auraBefore
+        );
+      if (!needsBridge) continue;
+      const existingBridge = bridgePoint.links.find(
+        (link) => link.kind === "target-phase-log"
+      );
+      if (
+        existingBridge !== undefined &&
+        existingBridge.id !== phase.id
+      ) {
+        throw new Error(
+          `Target-state point ${bridgePoint.id} already bridges target phase ${existingBridge.id}; cannot also bridge ${phase.id}.`
+        );
+      }
+      if (existingBridge === undefined) {
+        bridgePoint.links.push({
+          kind: "target-phase-log",
+          id: phase.id
+        });
+      }
+    }
+  }
+  targetPhaseV2LogSchema.parse(targetPhaseLog);
+  const parsedTargetPhaseLog = targetPhaseLog;
 
   const simulationResult: SimulationResult = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -11001,6 +12299,7 @@ function simulateConfig(
     targetClockLog: parsedTargetClockLog,
     targetHitlagLog: parsedTargetHitlagLog,
     targetTaskPhaseLog: parsedTargetTaskPhaseLog,
+    targetPhaseLog: parsedTargetPhaseLog,
     targetMechanicsTruncationLog,
     reactionDamageLog,
     reactionTaskLog,
@@ -11050,9 +12349,190 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
-  dendroCoreResultReferencesSchema.parse(simulationResult);
-  playerDamageResultReferencesSchema.parse(simulationResult);
-  targetClockResultReferencesSchema.parse(simulationResult);
+  if (targetPhaseV2Enabled) {
+    targetPhaseV2ResultReferencesSchema.parse(
+      simulationResult
+    );
+  } else {
+    // The public v2 result-reference schema deliberately performs a deep,
+    // cross-log audit. Legacy/v1 runs cannot produce v2 phases, so reparsing
+    // every damage/timeline snapshot here is pure overhead. Keep the
+    // mode-exclusivity proof explicit, then validate the small identity
+    // projection; v1's own full reference validator still runs below.
+    for (const point of simulationResult.targetStateTimeline
+      .points) {
+      if (
+        point.links.some(
+          (link) => link.kind === "target-phase-log"
+        )
+      ) {
+        throw new Error(
+          `${simulationResult.config.targetTaskModel.mode} cannot carry target-phase-v2 timeline bridges.`
+        );
+      }
+    }
+    for (const entry of simulationResult.burningStateLog) {
+      if (
+        entry.callbackAuraBefore !== undefined ||
+        entry.callbackAuraAfter !== undefined ||
+        (entry.clockModel === "target-local-no-hitlag" &&
+          entry.targetFrame !== undefined)
+      ) {
+        throw new Error(
+          `${simulationResult.config.targetTaskModel.mode} cannot carry target-phase-v2 Burning callback or target-frame fields.`
+        );
+      }
+    }
+    targetPhaseV2ResultReferencesSchema.parse({
+      schemaVersion: simulationResult.schemaVersion,
+      engineVersion: simulationResult.engineVersion,
+      config: {
+        schemaVersion:
+          simulationResult.config.schemaVersion,
+        engineVersion:
+          simulationResult.config.engineVersion,
+        targetTaskModel:
+          simulationResult.config.targetTaskModel
+      },
+      targetTaskPhaseLog: [],
+      targetPhaseLog: simulationResult.targetPhaseLog
+    });
+  }
+  const dendroCoreOutputEnabled =
+    config.reactionEngine?.mode === "aura-v5" ||
+    config.reactionEngine?.mode === "aura-v6" ||
+    config.reactionEngine?.mode === "aura-v7";
+  if (dendroCoreOutputEnabled) {
+    dendroCoreResultReferencesSchema.parse(simulationResult);
+  } else {
+    // Aura modes before v5 cannot own Dendro-core lifecycle output. Their
+    // empty-mode invariant is cheaper and stronger than deeply reparsing all
+    // unrelated hit, damage, and target-state rows.
+    if (
+      simulationResult.dendroCoreLog.length !== 0 ||
+      simulationResult.dendroCoreContactLog.length !== 0 ||
+      simulationResult.dendroCoreTimeline.points.length !== 0 ||
+      simulationResult.reactionTaskLog.length !== 0
+    ) {
+      throw new Error(
+        `${config.reactionEngine?.mode ?? "legacy"} cannot produce Dendro-core or reaction-task output.`
+      );
+    }
+    for (const point of simulationResult.targetStateTimeline
+      .points) {
+      if (
+        point.links.some(
+          (link) => link.kind === "reaction-task-log"
+        )
+      ) {
+        throw new Error(
+          `${config.reactionEngine?.mode ?? "legacy"} cannot carry reaction-task timeline links.`
+        );
+      }
+    }
+  }
+  const lightweightDisabledPlayerAudit =
+    config.playerDamageModel.mode === "disabled" &&
+    simulationResult.dendroCoreLog.length === 0 &&
+    simulationResult.reactionTaskLog.length === 0 &&
+    simulationResult.crystallizeShieldLog.length === 0 &&
+    simulationResult.crystallizeShieldTimeline.length === 0;
+  if (!lightweightDisabledPlayerAudit) {
+    playerDamageResultReferencesSchema.parse(simulationResult);
+  } else {
+    if (
+      simulationResult.playerHitResolutionLog.length !== 0 ||
+      simulationResult.playerDamageEvents.length !== 0 ||
+      simulationResult.playerHpTimeline.version !== "1.0.0" ||
+      simulationResult.playerHpTimeline.points.length !== 0 ||
+      simulationResult.playerHpSummaries.length !== 0 ||
+      simulationResult.playerSelfDamageStatus !==
+        "unsupported-player-damage-model" ||
+      simulationResult.totalPlayerDamageTaken !== 0 ||
+      simulationResult.totalReactionSelfDamageTaken !== 0
+    ) {
+      throw new Error(
+        "disabled player damage requires empty player logs, HP timeline, and summaries."
+      );
+    }
+    validateDisabledPlayerDamageBackReferences(
+      simulationResult
+    );
+    for (const entry of simulationResult.burningStateLog) {
+      if (
+        entry.selfDamageStatus !==
+        simulationResult.playerSelfDamageStatus
+      ) {
+        throw new Error(
+          `Burning lifecycle ${entry.id} has inconsistent player self-damage status.`
+        );
+      }
+    }
+    for (const [eventIndex, event] of
+      simulationResult.damageEvents.entries()) {
+      const burningStatus =
+        event.reactionAudit.burningReaction
+          ?.selfDamageStatus;
+      if (
+        burningStatus !== undefined &&
+        burningStatus !==
+          simulationResult.playerSelfDamageStatus
+      ) {
+        throw new Error(
+          `Damage event ${eventIndex} has inconsistent Burning self-damage status.`
+        );
+      }
+      for (const bloomAudit of
+        event.reactionAudit.bloomReactions) {
+        if (
+          bloomAudit.selfDamageStatus !==
+          simulationResult.playerSelfDamageStatus
+        ) {
+          throw new Error(
+            `Damage event ${eventIndex} has inconsistent Bloom self-damage status.`
+          );
+        }
+      }
+    }
+  }
+  if (config.targetClockModel.mode === "target-local-hitlag-v1") {
+    targetClockResultReferencesSchema.parse(simulationResult);
+  } else {
+    validateEnemyTargetOutputProjection(simulationResult);
+    if (
+      simulationResult.targetClockAudit.mode !== "disabled" ||
+      simulationResult.targetClockLog.length !== 0 ||
+      simulationResult.targetHitlagLog.length !== 0
+    ) {
+      throw new Error(
+        "disabled target-local clocks require an empty clock audit and logs."
+      );
+    }
+    const reactionTaskIds = new Set(
+      simulationResult.reactionTaskLog.map((task) => task.id)
+    );
+    for (const point of simulationResult.targetStateTimeline
+      .points) {
+      if (
+        point.targetFrame !== undefined &&
+        point.targetFrame !== point.frame
+      ) {
+        throw new Error(
+          `disabled target-local clock point ${point.id} must use its global frame.`
+        );
+      }
+      for (const link of point.links) {
+        if (
+          link.kind === "reaction-task-log" &&
+          !reactionTaskIds.has(link.id)
+        ) {
+          throw new Error(
+            `Target-state point ${point.id} references missing reaction task ${link.id}.`
+          );
+        }
+      }
+    }
+  }
   targetTaskPhaseResultReferencesSchema.parse(
     targetPhaseEnabled
       ? simulationResult
@@ -11165,11 +12645,12 @@ export function simulate(
 ): SimulationResult {
   const config = migrateConfig(rawConfig);
   if (
-    config.targetTaskModel.mode === "target-phase-v1" &&
+    (config.targetTaskModel.mode === "target-phase-v1" ||
+      config.targetTaskModel.mode === "target-phase-v2") &&
     runtimeOptions.compatibilityMode === "legacy-v0.1"
   ) {
     throw new Error(
-      "targetTaskModel target-phase-v1 requires compatibilityMode legal-frame-v1."
+      `targetTaskModel ${config.targetTaskModel.mode} requires compatibilityMode legal-frame-v1.`
     );
   }
   if (!config.timeline) {

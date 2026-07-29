@@ -48,7 +48,37 @@ const QUICKEN_BASE_DURATION_FRAMES = 360;
 /** Fixed gcsim Quicken duration is 12 × 25 = 300f per generated U. */
 const QUICKEN_DURATION_PER_UNIT_FRAMES = 300;
 const DEFAULT_ICD_RESET_FRAMES = 150;
-const DEFAULT_ICD_SEQUENCE = [true, false, false] as const;
+/**
+ * Fixed-gcsim-provisional reference sequence:
+ * pkg/core/attacks/icd_groups.dm.go at b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541.
+ * pkg/target/icd.go clamps reads beyond this 24-slot table to its final slot.
+ */
+const DEFAULT_ICD_SEQUENCE = [
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  false
+] as const;
 const OVERLOAD_DAMAGE_GCD_FRAMES = 6;
 const OVERLOAD_DAMAGE_DELAY_FRAMES = 1;
 const OVERLOAD_DAMAGE_RADIUS = 3;
@@ -104,11 +134,13 @@ const BURNING_ICD_SEQUENCE = [
 ] as const;
 const BUILT_IN_DEFAULT_ICD_PROFILE: IcdProfile = {
   resetFrames: DEFAULT_ICD_RESET_FRAMES,
-  applicationSequence: [...DEFAULT_ICD_SEQUENCE]
+  applicationSequence: [...DEFAULT_ICD_SEQUENCE],
+  tailPolicy: "clamp"
 };
 const BUILT_IN_BURNING_ICD_PROFILE: IcdProfile = {
   resetFrames: BURNING_ICD_RESET_FRAMES,
-  applicationSequence: [...BURNING_ICD_SEQUENCE]
+  applicationSequence: [...BURNING_ICD_SEQUENCE],
+  tailPolicy: "clamp"
 };
 
 interface MutableAura {
@@ -143,11 +175,50 @@ interface QuickenDecayStateCapture {
   auraEntry: AuraStateEntry | null;
 }
 
-interface QuickenNaturalExpiryBoundary {
-  generation: number;
+type ReactableLifecycleBoundaryKind =
+  | "frozen"
+  | "quicken"
+  | "burningFuel"
+  | "electroCharged";
+
+interface ReactableTickCapture {
   frame: number;
-  lifecycleBefore: QuickenDecayStateCapture;
+  auraBefore: AuraStateEntry[];
+  frozen:
+    | {
+        generation: number;
+      }
+    | null;
+  quicken: QuickenDecayStateCapture | null;
+  burningFuel:
+    | {
+        state: BurningStateCapture;
+      }
+    | null;
+  electroCharged:
+    | {
+        generation: number;
+      }
+    | null;
 }
+
+type ReactableLifecycleBoundary =
+  | {
+      kind: "frozen";
+      result: FrozenStateResult;
+    }
+  | {
+      kind: "quicken";
+      result: QuickenExpiryResult;
+    }
+  | {
+      kind: "burningFuel";
+      result: BurningFuelExpiryResult;
+    }
+  | {
+      kind: "electroCharged";
+      result: ElectroChargedStateResult;
+    };
 
 interface ReactionRule {
   auraElement: AuraElement;
@@ -319,6 +390,14 @@ export interface ShatterStateResult {
 
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
   freezeResistance?: number;
+  /**
+   * Opt-in Reactable.Tick lifecycle cache. The default preserves the frozen
+   * observer/event-heap behavior; target-phase-v2 enables order-independent
+   * lifecycle materialization after one shared target Tick.
+   */
+  reactableTickModel?:
+    | "legacy-observer-v1"
+    | "cached-boundary-v2";
   /**
    * Optional simulator-owned target clock. Historical/disabled runs omit it
    * and retain the frozen pre-1.33 global-frame behavior byte-for-byte.
@@ -532,6 +611,9 @@ export class AuraEngine {
   private readonly mode: AuraReactionEngineConfig["mode"];
   private readonly freezeResistance: number;
   private readonly targetClock: TargetLocalClock | null;
+  private readonly reactableTickModel:
+    | "legacy-observer-v1"
+    | "cached-boundary-v2";
   private readonly reactionDamageReadyFrames = new Map<
     OneShotTransformativeReaction,
     number
@@ -543,14 +625,15 @@ export class AuraEngine {
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
   private quickenGeneration = 0;
   /**
-   * A generic Aura snapshot may advance the target clock through a queued
-   * Quicken boundary before the dedicated expiry event is dispatched. Keep
-   * the exact last-positive lifecycle state so that event can still emit one
-   * authoritative positive-to-zero audit without mutating the Aura twice.
+   * Reactable.Tick advances every target-owned lifecycle once. Dedicated
+   * expiry observers can be dispatched in any order after that shared Tick,
+   * so retain one authoritative natural boundary per lifecycle kind. A
+   * matching observer consumes its own boundary without advancing Aura twice.
    */
-  private lastQuickenNaturalExpiryBoundary:
-    | QuickenNaturalExpiryBoundary
-    | null = null;
+  private readonly reactableLifecycleBoundaries = new Map<
+    ReactableLifecycleBoundaryKind,
+    ReactableLifecycleBoundary
+  >();
   private shatterDamageReadyFrame = -1;
   private readonly swirlDamageReadyFrames = new Map<
     SwirlReaction,
@@ -596,6 +679,8 @@ export class AuraEngine {
   constructor(config: AuraEngineConfig) {
     this.mode = config.mode;
     this.targetClock = config.targetClock ?? null;
+    this.reactableTickModel =
+      config.reactableTickModel ?? "legacy-observer-v1";
     this.freezeResistance = config.freezeResistance ?? 0;
     if (
       !Number.isFinite(this.freezeResistance) ||
@@ -669,8 +754,12 @@ export class AuraEngine {
         `Target-local delay must be a non-negative safe integer; got ${delayFrames}`
       );
     }
+    // During a target Tick the shared clock is already at the new local
+    // frame, but lifecycle durability still belongs to the preceding frame.
+    // Both observer models must honor that projection override so a natural
+    // boundary can be cached before the final decay removes its Aura.
     return this.projectTargetFrame(
-      this.getCurrentTargetFrame() + delayFrames
+      this.clockFrame() + delayFrames
     );
   }
 
@@ -1002,6 +1091,373 @@ export class AuraEngine {
     }
   }
 
+  private cloneAuraSnapshot(
+    snapshot: readonly AuraStateEntry[]
+  ): AuraStateEntry[] {
+    return snapshot.map((entry) => ({
+      ...entry,
+      ...(entry.sourceSlots === undefined
+        ? {}
+        : {
+            sourceSlots: entry.sourceSlots.map((slot) => ({
+              ...slot
+            }))
+          })
+    }));
+  }
+
+  /**
+   * Replace selected Aura slots while preserving every other slot. This lets
+   * one Reactable.Tick expose a canonical, strictly chained set of lifecycle
+   * transitions without re-running any durability arithmetic.
+   */
+  private snapshotWithElementsFrom(
+    baseSnapshot: readonly AuraStateEntry[],
+    sourceSnapshot: readonly AuraStateEntry[],
+    elements: ReadonlySet<AuraStateElement>
+  ): AuraStateEntry[] {
+    return [
+      ...baseSnapshot.filter(
+        (entry) => !elements.has(entry.element)
+      ),
+      ...sourceSnapshot.filter((entry) =>
+        elements.has(entry.element)
+      )
+    ]
+      .sort((left, right) =>
+        left.element.localeCompare(right.element)
+      )
+      .map((entry) => ({
+        ...entry,
+        ...(entry.sourceSlots === undefined
+          ? {}
+          : {
+              sourceSlots: entry.sourceSlots.map((slot) => ({
+                ...slot
+              }))
+            })
+      }));
+  }
+
+  /**
+   * Capture only lifecycle states whose authoritative natural boundary is the
+   * Tick about to run. No durability arithmetic is duplicated here: the
+   * existing Reactable decay path remains the sole state mutator.
+   */
+  private captureReactableTick(
+    frame: number
+  ): ReactableTickCapture | null {
+    const cachedBoundaryV2 =
+      this.reactableTickModel === "cached-boundary-v2";
+    // The historical global-clock observer only needs its Quicken bridge.
+    // With a target-local clock, however, any same-frame consumer may advance
+    // the shared Tick before Frozen/Quicken/EC observers are dispatched, so
+    // v1 must retain those natural boundaries as well.
+    if (!cachedBoundaryV2 && this.targetClock === null) {
+      const quicken = this.captureQuickenDecayState();
+      if (
+        quicken.gaugeUnits <= AURA_EPSILON ||
+        quicken.expiresAtFrame !== frame ||
+        quicken.endCause !== "QUICKEN_DECAY"
+      ) {
+        return null;
+      }
+      return {
+        frame,
+        auraBefore: this.snapshot(),
+        frozen: null,
+        quicken,
+        burningFuel: null,
+        electroCharged: null
+      };
+    }
+    const frozenExpiryFrame = this.frozenExpiryFrame();
+    const frozen =
+      this.frozenGaugeUnits() > AURA_EPSILON &&
+      frozenExpiryFrame === frame
+        ? {
+            generation: this.frozenGeneration
+          }
+        : null;
+
+    const quickenState = this.captureQuickenDecayState();
+    const quicken =
+      quickenState.gaugeUnits > AURA_EPSILON &&
+      quickenState.expiresAtFrame === frame &&
+      quickenState.endCause === "QUICKEN_DECAY"
+        ? quickenState
+        : null;
+
+    const burningState = cachedBoundaryV2
+      ? this.captureBurningState()
+      : null;
+    const burningFuelExpiryFrame =
+      burningState === null
+        ? null
+        : this.burningFuelLifecycleExpiryFrame();
+    const burningFuel =
+      burningState !== null &&
+      burningFuelExpiryFrame === frame
+        ? {
+            state: burningState
+          }
+        : null;
+
+    const electroChargedExpiryFrame =
+      this.electroChargedActive
+        ? this.electroChargedExpiryFrame()
+        : null;
+    const electroCharged =
+      this.electroChargedActive &&
+      this.hasElectroChargedAuras() &&
+      electroChargedExpiryFrame === frame
+        ? {
+            generation: this.electroChargedGeneration
+          }
+        : null;
+
+    if (
+      frozen === null &&
+      quicken === null &&
+      burningFuel === null &&
+      electroCharged === null
+    ) {
+      return null;
+    }
+    return {
+      frame,
+      auraBefore: this.snapshot(),
+      frozen,
+      quicken,
+      burningFuel,
+      electroCharged
+    };
+  }
+
+  /**
+   * Materialize every lifecycle transition caused by one Reactable.Tick. The
+   * dedicated expiry events may run later in any order; each consumes only its
+   * cached transition and never advances target state a second time.
+   */
+  private completeReactableTick(
+    capture: ReactableTickCapture | null
+  ): void {
+    if (capture === null) return;
+    const finalAura = this.snapshot();
+    const burningStop = this.lastBurningStop;
+    const frozenExpired =
+      capture.frozen !== null &&
+      capture.frozen.generation === this.frozenGeneration &&
+      this.frozenGaugeUnits() <= AURA_EPSILON;
+    const quickenExpired =
+      capture.quicken !== null &&
+      capture.quicken.generation === this.quickenGeneration &&
+      this.quickenGaugeUnits() <= AURA_EPSILON;
+    const burningFuelExpired =
+      capture.burningFuel !== null &&
+      burningStop?.fromGeneration ===
+        capture.burningFuel.state.generation &&
+      burningStop.frame === capture.frame &&
+      burningStop.reason === "FUEL_EXPIRED";
+    const electroChargedStopped =
+      capture.electroCharged !== null &&
+      capture.electroCharged.generation ===
+        this.electroChargedGeneration &&
+      !this.hasElectroChargedAuras();
+
+    const transitionDefinitions: Array<{
+      kind: ReactableLifecycleBoundaryKind;
+      elements: ReadonlySet<AuraStateElement>;
+    }> = [];
+    // Fixed Reactable.Tick order after ordinary Aura durability has already
+    // moved: Fuel cleanup owns its dependent Dendro/Quicken removal, then an
+    // independent Quicken decay, Frozen decay, and finally EC stream cleanup.
+    if (burningFuelExpired) {
+      transitionDefinitions.push({
+        kind: "burningFuel",
+        elements: new Set<AuraStateElement>([
+          "burning",
+          "burningFuel",
+          "dendro",
+          "quicken"
+        ])
+      });
+    }
+    if (quickenExpired) {
+      transitionDefinitions.push({
+        kind: "quicken",
+        elements: new Set<AuraStateElement>(["quicken"])
+      });
+    }
+    if (frozenExpired) {
+      transitionDefinitions.push({
+        kind: "frozen",
+        elements: new Set<AuraStateElement>(["frozen"])
+      });
+    }
+    if (electroChargedStopped) {
+      transitionDefinitions.push({
+        kind: "electroCharged",
+        // Hydro/Electro durability already belongs to the preceding ordinary
+        // Aura transition. EC cleanup only stops the periodic stream.
+        elements: new Set<AuraStateElement>()
+      });
+    }
+    if (transitionDefinitions.length === 0) return;
+    const allTransitionElements = new Set<AuraStateElement>();
+    for (const definition of transitionDefinitions) {
+      for (const element of definition.elements) {
+        allTransitionElements.add(element);
+      }
+    }
+    // Ordinary Aura durability moves before Reactable lifecycle cleanup.
+    // Seed every lifecycle segment with the post-durability snapshot, while
+    // restoring only the elements owned by the pending lifecycle transitions.
+    // This must cover partial Gauge decay as well as complete Aura expiry;
+    // otherwise an unrelated Gauge change is falsely attributed to (for
+    // example) the Quicken-expiry operation.
+    let cursor = this.snapshotWithElementsFrom(
+      finalAura,
+      capture.auraBefore,
+      allTransitionElements
+    );
+    const segments = new Map<
+      ReactableLifecycleBoundaryKind,
+      {
+        auraBefore: AuraStateEntry[];
+        auraAfter: AuraStateEntry[];
+      }
+    >();
+    for (
+      let index = 0;
+      index < transitionDefinitions.length;
+      index += 1
+    ) {
+      const definition = transitionDefinitions[index]!;
+      const auraBefore = this.cloneAuraSnapshot(cursor);
+      const remainingElements =
+        new Set<AuraStateElement>();
+      for (
+        let laterIndex = index + 1;
+        laterIndex < transitionDefinitions.length;
+        laterIndex += 1
+      ) {
+        for (const element of transitionDefinitions[laterIndex]!
+          .elements) {
+          remainingElements.add(element);
+        }
+      }
+      const auraAfter = this.snapshotWithElementsFrom(
+        finalAura,
+        capture.auraBefore,
+        remainingElements
+      );
+      segments.set(definition.kind, {
+        auraBefore,
+        auraAfter: this.cloneAuraSnapshot(auraAfter)
+      });
+      cursor = auraAfter;
+    }
+
+    if (frozenExpired) {
+      const segment = segments.get("frozen")!;
+      this.reactableLifecycleBoundaries.set("frozen", {
+        kind: "frozen",
+        result: {
+          generation: capture.frozen!.generation,
+          operation: "expire",
+          frame: capture.frame,
+          auraBefore: segment.auraBefore,
+          auraAfter: segment.auraAfter,
+          expiresAtFrame: null,
+          reason: "FROZEN_DECAY_EXPIRED"
+        }
+      });
+    }
+
+    if (quickenExpired) {
+      const quickenBefore = capture.quicken!;
+      const lifecycleAfter = this.captureQuickenDecayState();
+      const segment = segments.get("quicken")!;
+      this.reactableLifecycleBoundaries.set("quicken", {
+        kind: "quicken",
+        result: {
+          generation: quickenBefore.generation,
+          operation: "expire",
+          frame: capture.frame,
+          quickenGaugeUnitsBefore: quickenBefore.gaugeUnits,
+          quickenGaugeUnitsAfter: lifecycleAfter.gaugeUnits,
+          decayPerFrameBefore: quickenBefore.decayPerFrame,
+          decayPerFrameAfter: lifecycleAfter.decayPerFrame,
+          expiresAtFrameBefore:
+            quickenBefore.expiresAtFrame,
+          expiresAtFrame: lifecycleAfter.expiresAtFrame,
+          endCauseBefore: quickenBefore.endCause,
+          endCauseAfter: lifecycleAfter.endCause,
+          auraBefore: segment.auraBefore,
+          auraAfter: segment.auraAfter,
+          reason: "QUICKEN_DECAY_EXPIRED"
+        }
+      });
+    }
+
+    if (burningFuelExpired) {
+      const burningBefore = capture.burningFuel!.state;
+      const segment = segments.get("burningFuel")!;
+      this.reactableLifecycleBoundaries.set("burningFuel", {
+        kind: "burningFuel",
+        result: {
+          generation: burningBefore.generation,
+          operation: "expire",
+          frame: capture.frame,
+          damageSourceActorId:
+            burningBefore.damageSourceActorId,
+          fuelSourceActorId: burningBefore.fuelSourceActorId,
+          burningGaugeUnitsBefore:
+            burningBefore.burningGaugeUnits,
+          burningGaugeUnitsAfter: 0,
+          fuelGaugeUnitsBefore: burningBefore.fuelGaugeUnits,
+          fuelGaugeUnitsAfter: 0,
+          fuelDecayPerFrame:
+            burningBefore.fuelDecayPerFrame,
+          auraBefore: segment.auraBefore,
+          auraAfter: segment.auraAfter,
+          nextTickFrame: null,
+          fuelExpiresAtFrame: null,
+          quickenStateMutation:
+            burningStop!.quickenStateMutation,
+          selfDamageStatus:
+            "unsupported-player-damage-model",
+          reason: "FUEL_EXPIRED"
+        }
+      });
+    }
+
+    if (electroChargedStopped) {
+      const segment = segments.get("electroCharged")!;
+      this.electroChargedActive = false;
+      this.electroChargedNextTickFrame = -1;
+      this.reactableLifecycleBoundaries.set(
+        "electroCharged",
+        {
+          kind: "electroCharged",
+          result: {
+            generation:
+              capture.electroCharged!.generation,
+            operation: "stop",
+            frame: capture.frame,
+            auraBefore: segment.auraBefore,
+            auraConsumed: [],
+            auraAfter: segment.auraAfter,
+            nextTickFrame: null,
+            coexistenceExpiresAtFrame: null,
+            reason: "AURA_DECAY_EXPIRED"
+          }
+        }
+      );
+    }
+  }
+
   private advanceFrozenBy(elapsed: number): void {
     for (let offset = 0; offset < elapsed; offset += 1) {
       const frozen = this.auras.get("frozen");
@@ -1037,6 +1493,31 @@ export class AuraEngine {
     this.currentFrame += elapsed;
   }
 
+  private advancePassiveDecayToFinalBoundary(frame: number): void {
+    const elapsed = frame - this.currentFrame;
+    if (elapsed <= 0) return;
+    const hasFinalBoundary =
+      this.reactableTickModel === "cached-boundary-v2" &&
+      (this.frozenExpiryFrame() === frame ||
+        (this.electroChargedActive &&
+          this.electroChargedExpiryFrame() === frame) ||
+        (() => {
+          const quicken = this.captureQuickenDecayState();
+          return (
+            quicken.endCause === "QUICKEN_DECAY" &&
+            quicken.expiresAtFrame === frame
+          );
+        })());
+    if (!hasFinalBoundary) {
+      this.advancePassiveDecayBy(elapsed);
+      return;
+    }
+    this.advancePassiveDecayBy(elapsed - 1);
+    const reactableTick = this.captureReactableTick(frame);
+    this.advancePassiveDecayBy(1);
+    this.completeReactableTick(reactableTick);
+  }
+
   /**
    * Advance one non-frozen enemy Tick while retaining the actual global frame
    * for result timestamps. The target-local clock has already advanced by one
@@ -1047,6 +1528,7 @@ export class AuraEngine {
     const targetFrame = this.getCurrentTargetFrame();
     const previousTargetFrame = targetFrame - 1;
     this.targetFrameProjectionOverride = previousTargetFrame;
+    const reactableTick = this.captureReactableTick(globalFrame);
 
     try {
       if (
@@ -1116,10 +1598,6 @@ export class AuraEngine {
               );
             }
             const quicken = this.auras.get("quicken");
-            const quickenBeforeDecay =
-              quicken === undefined
-                ? null
-                : this.captureQuickenDecayState();
             if (quicken !== undefined) {
               this.reduceAuraByDecay(
                 quicken,
@@ -1128,34 +1606,24 @@ export class AuraEngine {
             }
             this.advanceFrozenBy(1);
             this.targetFrameProjectionOverride = targetFrame;
-            if (quickenBeforeDecay !== null) {
-              this.rememberNaturalQuickenExpiryBoundary(
-                globalFrame,
-                quickenBeforeDecay
-              );
-            }
             return;
           }
         }
       } else {
-        const quickenBeforeDecay =
-          this.captureQuickenDecayState();
         for (const [element, aura] of this.auras) {
           if (element === "frozen") continue;
           this.reduceAuraByDecay(aura, aura.decayPerFrame);
         }
         this.advanceFrozenBy(1);
         this.targetFrameProjectionOverride = targetFrame;
-        this.rememberNaturalQuickenExpiryBoundary(
-          globalFrame,
-          quickenBeforeDecay
-        );
         return;
       }
 
       this.targetFrameProjectionOverride = targetFrame;
       this.advanceFrozenBy(1);
     } finally {
+      this.targetFrameProjectionOverride = targetFrame;
+      this.completeReactableTick(reactableTick);
       this.targetFrameProjectionOverride = null;
     }
   }
@@ -1191,27 +1659,6 @@ export class AuraEngine {
         this.advanceOneClockedTargetTick(nextGlobalFrame);
       }
     }
-  }
-
-  private rememberNaturalQuickenExpiryBoundary(
-    frame: number,
-    lifecycleBefore: QuickenDecayStateCapture
-  ): void {
-    if (
-      lifecycleBefore.generation !==
-        this.quickenGeneration ||
-      lifecycleBefore.gaugeUnits <= AURA_EPSILON ||
-      lifecycleBefore.expiresAtFrame !== frame ||
-      lifecycleBefore.endCause !== "QUICKEN_DECAY" ||
-      this.quickenGaugeUnits() > AURA_EPSILON
-    ) {
-      return;
-    }
-    this.lastQuickenNaturalExpiryBoundary = {
-      generation: lifecycleBefore.generation,
-      frame,
-      lifecycleBefore
-    };
   }
 
   private remainingFrozenFrames(): number | null {
@@ -1266,6 +1713,8 @@ export class AuraEngine {
           nextFrame <= frame;
           nextFrame += 1
         ) {
+          const reactableTick =
+            this.captureReactableTick(nextFrame);
           const burningWasActive = this.hasActiveBurning();
           for (const [element, aura] of this.auras) {
             if (
@@ -1322,10 +1771,6 @@ export class AuraEngine {
                 );
               }
               const quicken = this.auras.get("quicken");
-              const quickenBeforeDecay =
-                quicken === undefined
-                  ? null
-                  : this.captureQuickenDecayState();
               if (quicken !== undefined) {
                 this.reduceAuraByDecay(
                   quicken,
@@ -1334,12 +1779,7 @@ export class AuraEngine {
               }
               this.advanceFrozenBy(1);
               this.currentFrame = nextFrame;
-              if (quickenBeforeDecay !== null) {
-                this.rememberNaturalQuickenExpiryBoundary(
-                  nextFrame,
-                  quickenBeforeDecay
-                );
-              }
+              this.completeReactableTick(reactableTick);
               continue;
             }
           } else {
@@ -1358,6 +1798,7 @@ export class AuraEngine {
           }
           this.advanceFrozenBy(1);
           this.currentFrame = nextFrame;
+          this.completeReactableTick(reactableTick);
         }
       } else {
         const quickenLifecycle =
@@ -1374,18 +1815,13 @@ export class AuraEngine {
           this.advancePassiveDecayBy(
             quickenExpiryFrame - this.currentFrame - 1
           );
-          const quickenBeforeExpiry =
-            this.captureQuickenDecayState();
+          const reactableTick =
+            this.captureReactableTick(quickenExpiryFrame);
           this.advancePassiveDecayBy(1);
-          this.rememberNaturalQuickenExpiryBoundary(
-            quickenExpiryFrame,
-            quickenBeforeExpiry
-          );
-          this.advancePassiveDecayBy(
-            frame - this.currentFrame
-          );
+          this.completeReactableTick(reactableTick);
+          this.advancePassiveDecayToFinalBoundary(frame);
         } else {
-          this.advancePassiveDecayBy(elapsed);
+          this.advancePassiveDecayToFinalBoundary(frame);
         }
       }
       if (
@@ -1757,20 +2193,61 @@ export class AuraEngine {
     generation: number,
     expectedExpiryFrame: number
   ): FrozenStateResult {
-    const generationWasCurrent =
-      generation === this.frozenGeneration;
+    const cachedBoundary =
+      this.reactableLifecycleBoundaries.get("frozen");
+    if (
+      (this.reactableTickModel === "cached-boundary-v2" ||
+        this.targetClock !== null) &&
+      cachedBoundary?.kind === "frozen" &&
+      cachedBoundary.result.frame === frame &&
+      cachedBoundary.result.generation === generation &&
+      expectedExpiryFrame === frame &&
+      generation === this.frozenGeneration &&
+      this.frozenGaugeUnits() <= AURA_EPSILON
+    ) {
+      this.reactableLifecycleBoundaries.delete("frozen");
+      return cachedBoundary.result;
+    }
+    const currentExpiry = this.frozenExpiryFrame();
+    if (
+      generation !== this.frozenGeneration ||
+      this.frozenGaugeUnits() <= AURA_EPSILON ||
+      frame !== expectedExpiryFrame ||
+      currentExpiry !== expectedExpiryFrame
+    ) {
+      const aura = this.snapshot();
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore: aura,
+        auraAfter: this.cloneAuraSnapshot(aura),
+        expiresAtFrame: currentExpiry,
+        reason: "STALE_FROZEN_EXPIRY_CHECK"
+      };
+    }
     if (frame > this.currentFrame) {
       this.advanceTo(Math.max(this.currentFrame, frame - 1));
     }
-    const auraBefore = this.snapshot();
+    const fallbackAuraBefore = this.snapshot();
     this.advanceTo(frame);
-    const auraAfter = this.snapshot();
-    const currentExpiry = this.frozenExpiryFrame();
+    const materializedBoundary =
+      this.reactableLifecycleBoundaries.get("frozen");
     if (
-      !generationWasCurrent ||
+      materializedBoundary?.kind === "frozen" &&
+      materializedBoundary.result.frame === frame &&
+      materializedBoundary.result.generation === generation
+    ) {
+      this.reactableLifecycleBoundaries.delete("frozen");
+      return materializedBoundary.result;
+    }
+    const auraBefore = fallbackAuraBefore;
+    const auraAfter = this.snapshot();
+    const refreshedExpiry = this.frozenExpiryFrame();
+    if (
       generation !== this.frozenGeneration ||
-      (currentExpiry !== null &&
-        currentExpiry !== expectedExpiryFrame)
+      (refreshedExpiry !== null &&
+        refreshedExpiry !== expectedExpiryFrame)
     ) {
       return {
         generation,
@@ -1778,7 +2255,7 @@ export class AuraEngine {
         frame,
         auraBefore,
         auraAfter,
-        expiresAtFrame: currentExpiry,
+        expiresAtFrame: refreshedExpiry,
         reason: "STALE_FROZEN_EXPIRY_CHECK"
       };
     }
@@ -1799,7 +2276,7 @@ export class AuraEngine {
       frame,
       auraBefore,
       auraAfter,
-      expiresAtFrame: currentExpiry,
+      expiresAtFrame: refreshedExpiry,
       reason: "FROZEN_REFRESHED_BEFORE_EXPIRY"
     };
   }
@@ -1946,18 +2423,73 @@ export class AuraEngine {
     generation: number,
     expectedExpiryFrame: number
   ): ElectroChargedStateResult {
-    const streamWasEligible =
+    const cachedBoundary =
+      this.reactableLifecycleBoundaries.get(
+        "electroCharged"
+      );
+    if (
+      (this.reactableTickModel === "cached-boundary-v2" ||
+        this.targetClock !== null) &&
+      cachedBoundary?.kind === "electroCharged" &&
+      cachedBoundary.result.frame === frame &&
+      cachedBoundary.result.generation === generation &&
+      expectedExpiryFrame === frame &&
       generation === this.electroChargedGeneration &&
-      this.electroChargedActive;
+      !this.electroChargedActive
+    ) {
+      this.reactableLifecycleBoundaries.delete(
+        "electroCharged"
+      );
+      return cachedBoundary.result;
+    }
+    const dispatchExpiry = this.electroChargedExpiryFrame();
+    if (
+      generation !== this.electroChargedGeneration ||
+      !this.electroChargedActive ||
+      !this.hasElectroChargedAuras() ||
+      frame !== expectedExpiryFrame ||
+      dispatchExpiry !== expectedExpiryFrame
+    ) {
+      const aura = this.snapshot();
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore: aura,
+        auraConsumed: [],
+        auraAfter: this.cloneAuraSnapshot(aura),
+        nextTickFrame: this.electroChargedActive
+          ? this.electroChargedNextTickFrame
+          : null,
+        coexistenceExpiresAtFrame: dispatchExpiry,
+        reason: this.electroChargedActive
+          ? "STALE_EXPIRY_CHECK"
+          : "STREAM_ALREADY_INACTIVE"
+      };
+    }
     if (frame > this.currentFrame) {
       this.advanceTo(Math.max(this.currentFrame, frame - 1));
     }
-    const auraBefore = this.snapshot();
+    const fallbackAuraBefore = this.snapshot();
     this.advanceTo(frame);
+    const materializedBoundary =
+      this.reactableLifecycleBoundaries.get(
+        "electroCharged"
+      );
+    if (
+      materializedBoundary?.kind === "electroCharged" &&
+      materializedBoundary.result.frame === frame &&
+      materializedBoundary.result.generation === generation
+    ) {
+      this.reactableLifecycleBoundaries.delete(
+        "electroCharged"
+      );
+      return materializedBoundary.result;
+    }
+    const auraBefore = fallbackAuraBefore;
     const auraAfter = this.snapshot();
     const currentExpiry = this.electroChargedExpiryFrame();
     if (
-      !streamWasEligible ||
       generation !== this.electroChargedGeneration ||
       (currentExpiry !== null &&
         currentExpiry !== expectedExpiryFrame)
@@ -1973,9 +2505,7 @@ export class AuraEngine {
           ? this.electroChargedNextTickFrame
           : null,
         coexistenceExpiresAtFrame: currentExpiry,
-        reason: streamWasEligible
-          ? "STALE_EXPIRY_CHECK"
-          : "STREAM_ALREADY_INACTIVE"
+        reason: "STALE_EXPIRY_CHECK"
       };
     }
     if (!this.hasElectroChargedAuras()) {
@@ -2378,44 +2908,17 @@ export class AuraEngine {
     expectedExpiryFrame: number
   ): QuickenExpiryResult {
     const cachedBoundary =
-      this.lastQuickenNaturalExpiryBoundary;
+      this.reactableLifecycleBoundaries.get("quicken");
     if (
-      cachedBoundary !== null &&
-      cachedBoundary.generation === generation &&
+      cachedBoundary?.kind === "quicken" &&
+      cachedBoundary.result.generation === generation &&
+      cachedBoundary.result.frame === frame &&
       generation === this.quickenGeneration &&
-      cachedBoundary.frame === frame &&
-      frame === expectedExpiryFrame
+      frame === expectedExpiryFrame &&
+      this.quickenGaugeUnits() <= AURA_EPSILON
     ) {
-      const lifecycleBefore =
-        cachedBoundary.lifecycleBefore;
-      const lifecycleAfter =
-        this.captureQuickenDecayState();
-      const auraAfter = this.snapshot();
-      this.lastQuickenNaturalExpiryBoundary = null;
-      return {
-        generation,
-        operation: "expire",
-        frame,
-        quickenGaugeUnitsBefore:
-          lifecycleBefore.gaugeUnits,
-        quickenGaugeUnitsAfter:
-          lifecycleAfter.gaugeUnits,
-        decayPerFrameBefore:
-          lifecycleBefore.decayPerFrame,
-        decayPerFrameAfter:
-          lifecycleAfter.decayPerFrame,
-        expiresAtFrameBefore:
-          lifecycleBefore.expiresAtFrame,
-        expiresAtFrame: lifecycleAfter.expiresAtFrame,
-        endCauseBefore: lifecycleBefore.endCause,
-        endCauseAfter: lifecycleAfter.endCause,
-        auraBefore: this.snapshotWithQuickenState(
-          auraAfter,
-          lifecycleBefore
-        ),
-        auraAfter,
-        reason: "QUICKEN_DECAY_EXPIRED"
-      };
+      this.reactableLifecycleBoundaries.delete("quicken");
+      return cachedBoundary.result;
     }
     const generationWasCurrent =
       generation === this.quickenGeneration;
@@ -2423,6 +2926,9 @@ export class AuraEngine {
       this.captureQuickenDecayState();
     if (
       !generationWasCurrent ||
+      lifecycleAtDispatch.gaugeUnits <= AURA_EPSILON ||
+      lifecycleAtDispatch.endCause !== "QUICKEN_DECAY" ||
+      frame !== expectedExpiryFrame ||
       (lifecycleAtDispatch.expiresAtFrame !== null &&
         lifecycleAtDispatch.expiresAtFrame !==
           expectedExpiryFrame)
@@ -2469,6 +2975,16 @@ export class AuraEngine {
     const lifecycleBefore = this.captureQuickenDecayState();
     const auraBefore = this.snapshot();
     this.advanceTo(frame);
+    const materializedBoundary =
+      this.reactableLifecycleBoundaries.get("quicken");
+    if (
+      materializedBoundary?.kind === "quicken" &&
+      materializedBoundary.result.generation === generation &&
+      materializedBoundary.result.frame === frame
+    ) {
+      this.reactableLifecycleBoundaries.delete("quicken");
+      return materializedBoundary.result;
+    }
     const lifecycleAfter = this.captureQuickenDecayState();
     const auraAfter = this.snapshot();
     const currentExpiry = lifecycleAfter.expiresAtFrame;
@@ -2517,13 +3033,6 @@ export class AuraEngine {
           auraAfter,
           lifecycleBefore
         );
-      if (
-        this.lastQuickenNaturalExpiryBoundary
-          ?.generation === generation &&
-        this.lastQuickenNaturalExpiryBoundary.frame === frame
-      ) {
-        this.lastQuickenNaturalExpiryBoundary = null;
-      }
       return {
         generation,
         operation: "expire",
@@ -2986,14 +3495,29 @@ export class AuraEngine {
     generation: number,
     expectedExpiryFrame: number
   ): BurningFuelExpiryResult {
+    const cachedBoundary =
+      this.reactableLifecycleBoundaries.get("burningFuel");
+    if (
+      this.reactableTickModel === "cached-boundary-v2" &&
+      cachedBoundary?.kind === "burningFuel" &&
+      cachedBoundary.result.frame === frame &&
+      cachedBoundary.result.generation === generation &&
+      expectedExpiryFrame === frame &&
+      this.burningGeneration === generation + 1 &&
+      !this.hasActiveBurning()
+    ) {
+      this.reactableLifecycleBoundaries.delete("burningFuel");
+      return cachedBoundary.result;
+    }
     const generationWasCurrent =
       generation === this.burningGeneration;
     const dispatchExpiry =
       this.burningFuelLifecycleExpiryFrame();
     if (
       !generationWasCurrent ||
-      (dispatchExpiry !== null &&
-        dispatchExpiry !== expectedExpiryFrame)
+      frame !== expectedExpiryFrame ||
+      dispatchExpiry === null ||
+      dispatchExpiry !== expectedExpiryFrame
     ) {
       // Like Quicken expiry, a superseded Fuel event must not advance target
       // state. A newer same-frame event owns the actual Tick boundary.
@@ -3066,6 +3590,16 @@ export class AuraEngine {
     const fuelDecayPerFrame =
       this.auras.get("burningFuel")?.decayPerFrame ?? 0;
     this.advanceTo(frame);
+    const materializedBoundary =
+      this.reactableLifecycleBoundaries.get("burningFuel");
+    if (
+      materializedBoundary?.kind === "burningFuel" &&
+      materializedBoundary.result.frame === frame &&
+      materializedBoundary.result.generation === generation
+    ) {
+      this.reactableLifecycleBoundaries.delete("burningFuel");
+      return materializedBoundary.result;
+    }
     const auraAfter = this.snapshot();
     const currentExpiry = this.burningFuelExpiryFrame();
     const expiredThisFrame =
@@ -3524,8 +4058,9 @@ export class AuraEngine {
       frame - existing.windowStartFrame >= profile.resetFrames
         ? { windowStartFrame: frame, hitCount: 0 }
         : existing;
+    const tailPolicy = profile.tailPolicy ?? "repeat";
     const applicationSequenceIndex =
-      application.icdGroup === "burning"
+      tailPolicy === "clamp"
         ? Math.min(
             state.hitCount,
             profile.applicationSequence.length - 1

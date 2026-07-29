@@ -3,6 +3,8 @@ import {
   canonicalStringify,
   QUICKEN_BLOOM_TASK_ENGINE_VERSION,
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+  TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+  TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION,
   type AuraReactionEngineConfig,
@@ -13,6 +15,7 @@ import {
 import { describe, expect, it } from "vitest";
 import taskOrderGoldenV136Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.36.golden.json";
 import taskOrderGoldenV137Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.37.golden.json";
+import taskOrderGoldenV138Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.38.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -291,6 +294,7 @@ function projectTaskOrderResult(result: SimulationResult) {
         }`
     ),
     targetTaskPhaseLog: result.targetTaskPhaseLog,
+    targetPhaseLog: result.targetPhaseLog,
     totalDamage: result.totalDamage,
     reactedHits: result.reactedHits
   };
@@ -305,7 +309,21 @@ type TaskOrderScenarioId =
   | "missingHydro"
   | "auraV6Compatibility";
 
-interface TaskOrderGoldenFixture {
+type TaskOrderProjectionV137 = Omit<
+  TaskOrderProjection,
+  "targetPhaseLog"
+>;
+type TaskOrderProjectionV136 = Omit<
+  TaskOrderProjectionV137,
+  "targetTaskPhaseLog" | "version"
+> & {
+  version: Omit<
+    TaskOrderProjectionV137["version"],
+    "targetTaskModelMode"
+  >;
+};
+
+interface TaskOrderGoldenFixture<TProjection> {
   fixtureVersion: string;
   config: {
     schemaVersion: string;
@@ -318,15 +336,17 @@ interface TaskOrderGoldenFixture {
   };
   vectors: Record<
     TaskOrderScenarioId,
-    TaskOrderProjection
+    TProjection
   >;
   hashes: Record<TaskOrderScenarioId, string>;
 }
 
 const taskOrderGoldenV136 =
-  taskOrderGoldenV136Json as unknown as TaskOrderGoldenFixture;
+  taskOrderGoldenV136Json as unknown as TaskOrderGoldenFixture<TaskOrderProjectionV136>;
 const taskOrderGoldenV137 =
-  taskOrderGoldenV137Json as unknown as TaskOrderGoldenFixture;
+  taskOrderGoldenV137Json as unknown as TaskOrderGoldenFixture<TaskOrderProjectionV137>;
+const taskOrderGoldenV138 =
+  taskOrderGoldenV138Json as unknown as TaskOrderGoldenFixture<TaskOrderProjection>;
 
 function semanticHash(value: unknown): string {
   return createHash("sha256")
@@ -378,9 +398,41 @@ function projectAllTaskOrderVectors(): Record<
   };
 }
 
-function normalizeCurrentVectorsToV136(
+function normalizeCurrentVectorsToV137(
   vectors: Record<TaskOrderScenarioId, TaskOrderProjection>
-): Record<TaskOrderScenarioId, unknown> {
+): Record<TaskOrderScenarioId, TaskOrderProjectionV137> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([id, vector]) => {
+      const {
+        targetPhaseLog: _targetPhaseLog,
+        ...historicalVector
+      } = vector;
+      return [
+        id,
+        {
+          ...historicalVector,
+          version: {
+            ...historicalVector.version,
+            schemaVersion:
+              TARGET_TASK_PHASE_SCHEMA_VERSION,
+            engineVersion:
+              TARGET_TASK_PHASE_ENGINE_VERSION
+          }
+        }
+      ];
+    })
+  ) as unknown as Record<
+    TaskOrderScenarioId,
+    TaskOrderProjectionV137
+  >;
+}
+
+function normalizeV137VectorsToV136(
+  vectors: Record<
+    TaskOrderScenarioId,
+    TaskOrderProjectionV137
+  >
+): Record<TaskOrderScenarioId, TaskOrderProjectionV136> {
   return Object.fromEntries(
     Object.entries(vectors).map(([id, vector]) => {
       const {
@@ -405,11 +457,14 @@ function normalizeCurrentVectorsToV136(
         }
       ];
     })
-  ) as Record<TaskOrderScenarioId, unknown>;
+  ) as unknown as Record<
+    TaskOrderScenarioId,
+    TaskOrderProjectionV136
+  >;
 }
 
 describe("aura-v7 queued Quicken to Bloom follow-up", () => {
-  it("matches the current 1.37 identity and normalizes exactly to the frozen 1.36 task-order Golden", () => {
+  it("matches the current 1.38 identity and normalizes through the frozen 1.37 and 1.36 task-order Goldens", () => {
     const vectors = projectAllTaskOrderVectors();
     const hashes = Object.fromEntries(
       Object.entries(vectors).map(([id, vector]) => [
@@ -439,18 +494,43 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       compatibilityReactionEngineMode: "aura-v6",
       targetTaskModelMode: "legacy-event-heap-v1"
     });
-    expect(vectors).toEqual(taskOrderGoldenV137.vectors);
-    expect(hashes).toEqual(taskOrderGoldenV137.hashes);
+    expect(taskOrderGoldenV138.fixtureVersion).toBe("1.0.0");
+    expect(taskOrderGoldenV138.config).toEqual({
+      schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+      dataVersion:
+        "quicken-bloom-task-order-provisional-1",
+      timelineMode: "legal-frame-v1",
+      queuedReactionEngineMode: "aura-v7",
+      compatibilityReactionEngineMode: "aura-v6",
+      targetTaskModelMode: "legacy-event-heap-v1"
+    });
+    expect(vectors).toEqual(taskOrderGoldenV138.vectors);
+    expect(hashes).toEqual(taskOrderGoldenV138.hashes);
 
-    const normalized =
-      normalizeCurrentVectorsToV136(vectors);
-    expect(normalized).toEqual(taskOrderGoldenV136.vectors);
+    const normalizedV137 =
+      normalizeCurrentVectorsToV137(vectors);
+    expect(normalizedV137).toEqual(
+      taskOrderGoldenV137.vectors
+    );
     expect(
       Object.fromEntries(
-        Object.entries(normalized).map(([id, vector]) => [
-          id,
-          semanticHash(vector)
-        ])
+        Object.entries(normalizedV137).map(
+          ([id, vector]) => [id, semanticHash(vector)]
+        )
+      )
+    ).toEqual(taskOrderGoldenV137.hashes);
+
+    const normalizedV136 =
+      normalizeV137VectorsToV136(normalizedV137);
+    expect(normalizedV136).toEqual(
+      taskOrderGoldenV136.vectors
+    );
+    expect(
+      Object.fromEntries(
+        Object.entries(normalizedV136).map(
+          ([id, vector]) => [id, semanticHash(vector)]
+        )
       )
     ).toEqual(taskOrderGoldenV136.hashes);
     expect(
@@ -458,12 +538,13 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
         (vector) =>
           vector.version.targetTaskModelMode ===
             "legacy-event-heap-v1" &&
-          vector.targetTaskPhaseLog.length === 0
+          vector.targetTaskPhaseLog.length === 0 &&
+          vector.targetPhaseLog.length === 0
       )
     ).toBe(true);
   });
 
-  it("keeps non-Burning Quicken to Bloom semantics identical when target phase is enabled", () => {
+  it("keeps non-Burning Quicken to Bloom in the core queue under target phase v1 and v2", () => {
     const scenarios: Array<
       [string, FrameHitDefinition | undefined]
     > = [
@@ -496,6 +577,40 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
           ...entry
         }) => entry
       );
+    const omitQueueScheduling = <
+      TEntry extends {
+        eventSequence: number;
+        intraEventSequence: number;
+      }
+    >(
+      entries: readonly TEntry[]
+    ) =>
+      entries.map(
+        ({
+          eventSequence: _eventSequence,
+          intraEventSequence: _intraEventSequence,
+          ...entry
+        }) => entry
+      );
+    const omitDamageEventSequence = (
+      entries: SimulationResult["damageEvents"]
+    ) =>
+      entries.map(
+        ({ eventSequence: _eventSequence, ...entry }) =>
+          entry
+      );
+    const omitQuickenTargetClockProjection = (
+      entries: SimulationResult["quickenStateLog"]
+    ) =>
+      entries.map(
+        ({
+          targetFrame: _targetFrame,
+          expiresAtTargetFrame: _expiresAtTargetFrame,
+          expiresAtTargetFrameBefore:
+            _expiresAtTargetFrameBefore,
+          ...entry
+        }) => entry
+      );
 
     for (const [scenario, interveningHit] of scenarios) {
       const legacy = simulate(
@@ -514,38 +629,110 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
         ),
         { critMode: "noCrit" }
       );
+      const phasedV2 = simulate(
+        makeTaskOrderConfig(
+          "aura-v7",
+          interveningHit,
+          "target-phase-v2"
+        ),
+        { critMode: "noCrit" }
+      );
 
       expect(
         phased.targetTaskPhaseLog.length,
-        `${scenario} should expose target phases`
+        `${scenario} should expose frozen v1 target phases`
       ).toBeGreaterThan(0);
-      expect(phased.totalDamage, scenario).toBe(
-        legacy.totalDamage
-      );
-      expect(phased.reactedHits, scenario).toBe(
-        legacy.reactedHits
-      );
-      expect(phased.damageEvents, scenario).toEqual(
-        legacy.damageEvents
-      );
-      expect(phased.quickenStateLog, scenario).toEqual(
-        legacy.quickenStateLog
+      expect(
+        phasedV2.targetPhaseLog.length,
+        `${scenario} should expose v2 target phases`
+      ).toBeGreaterThan(0);
+      expect(phasedV2.targetTaskPhaseLog, scenario).toEqual(
+        []
       );
       expect(
-        omitIntraEventSequence(phased.reactionTaskLog),
-        scenario
-      ).toEqual(
-        omitIntraEventSequence(legacy.reactionTaskLog)
-      );
+        phasedV2.targetPhaseLog.every(
+          (phase) => phase.targetTasks.length === 0
+        ),
+        `${scenario} core reaction tasks must not become target-owned callbacks`
+      ).toBe(true);
       expect(
-        omitIntraEventSequence(phased.dendroCoreLog),
-        scenario
+        phasedV2.targetPhaseLog.flatMap(
+          (phase) => phase.reactionTaskLogIds
+        ),
+        `${scenario} v2 phases should reference each later core task exactly once`
       ).toEqual(
-        omitIntraEventSequence(legacy.dendroCoreLog)
+        phasedV2.reactionTaskLog.map((task) => task.id)
       );
-      expect(phased.auraEndStates, scenario).toEqual(
-        legacy.auraEndStates
-      );
+      for (const task of phasedV2.reactionTaskLog) {
+        expect(
+          task.triggerEventSequence,
+          `${scenario} core task must execute after its trigger`
+        ).toBeLessThan(task.eventSequence);
+      }
+
+      for (const [mode, result] of [
+        ["target-phase-v1", phased],
+        ["target-phase-v2", phasedV2]
+      ] as const) {
+        const assertionLabel = `${scenario}/${mode}`;
+        expect(result.totalDamage, assertionLabel).toBe(
+          legacy.totalDamage
+        );
+        expect(result.reactedHits, assertionLabel).toBe(
+          legacy.reactedHits
+        );
+        expect(
+          mode === "target-phase-v2"
+            ? omitDamageEventSequence(result.damageEvents)
+            : result.damageEvents,
+          assertionLabel
+        ).toEqual(
+          mode === "target-phase-v2"
+            ? omitDamageEventSequence(legacy.damageEvents)
+            : legacy.damageEvents
+        );
+        expect(
+          mode === "target-phase-v2"
+            ? omitQuickenTargetClockProjection(
+                result.quickenStateLog
+              )
+            : result.quickenStateLog,
+          assertionLabel
+        ).toEqual(
+          mode === "target-phase-v2"
+            ? omitQuickenTargetClockProjection(
+                legacy.quickenStateLog
+              )
+            : legacy.quickenStateLog
+        );
+        expect(
+          mode === "target-phase-v2"
+            ? omitQueueScheduling(result.reactionTaskLog)
+            : omitIntraEventSequence(
+                result.reactionTaskLog
+              ),
+          assertionLabel
+        ).toEqual(
+          mode === "target-phase-v2"
+            ? omitQueueScheduling(legacy.reactionTaskLog)
+            : omitIntraEventSequence(
+                legacy.reactionTaskLog
+              )
+        );
+        expect(
+          mode === "target-phase-v2"
+            ? omitQueueScheduling(result.dendroCoreLog)
+            : omitIntraEventSequence(result.dendroCoreLog),
+          assertionLabel
+        ).toEqual(
+          mode === "target-phase-v2"
+            ? omitQueueScheduling(legacy.dendroCoreLog)
+            : omitIntraEventSequence(legacy.dendroCoreLog)
+        );
+        expect(result.auraEndStates, assertionLabel).toEqual(
+          legacy.auraEndStates
+        );
+      }
     }
   });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SimConfig } from "@genshin-dps-lab/schemas";
-import { AuraEngine } from "../aura";
+import { AURA_ENGINE_CONSTANTS, AuraEngine } from "../aura";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -127,7 +127,7 @@ describe("AuraEngine normal aura and amplifying reactions", () => {
 });
 
 describe("AuraEngine ICD", () => {
-  it("uses the default 3-hit elemental application sequence", () => {
+  it("uses the default elemental application sequence", () => {
     const engine = new AuraEngine({ mode: "aura-v1" });
     const allowed = [0, 1, 2, 3].map(
       (frame) =>
@@ -140,6 +140,36 @@ describe("AuraEngine ICD", () => {
     );
 
     expect(allowed).toEqual([true, false, false, true]);
+  });
+
+  it("clamps the fixed 24-slot default sequence tail until F150 resets it", () => {
+    expect(AURA_ENGINE_CONSTANTS.defaultIcdSequence).toEqual(
+      Array.from({ length: 24 }, (_, index) => index % 3 === 0)
+    );
+    const engine = new AuraEngine({ mode: "aura-v1" });
+    const hit = (frame: number) =>
+      engine.processHit({
+        frame,
+        sourceActorId: "a",
+        element: "pyro",
+        application: defaultIcd("long-default-stream")
+      }).icdAllowed;
+
+    const firstTwentySix = Array.from({ length: 26 }, (_, index) =>
+      hit(index)
+    );
+
+    expect(firstTwentySix.slice(21, 26)).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false
+    ]);
+    expect(firstTwentySix[23]).toBe(false); // hit 24
+    expect(firstTwentySix[24]).toBe(false); // hit 25: clamped tail
+    expect(firstTwentySix[25]).toBe(false); // hit 26: clamped tail
+    expect(hit(150)).toBe(true);
   });
 
   it("resets default ICD at the 150-frame boundary", () => {
@@ -208,6 +238,67 @@ describe("AuraEngine ICD", () => {
       false,
       false,
       true
+    ]);
+  });
+
+  it("supports explicit repeat/clamp tails and defaults custom profiles to repeat", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v1",
+      icdProfiles: {
+        omitted: {
+          resetFrames: 150,
+          applicationSequence: [true, false]
+        },
+        repeating: {
+          resetFrames: 150,
+          applicationSequence: [true, false],
+          tailPolicy: "repeat"
+        },
+        clamped: {
+          resetFrames: 150,
+          applicationSequence: [true, false],
+          tailPolicy: "clamp"
+        }
+      }
+    });
+    const profileHits: Record<string, boolean[]> = {
+      omitted: [],
+      repeating: [],
+      clamped: []
+    };
+    for (const frame of [0, 1, 2]) {
+      for (const icdGroup of [
+        "omitted",
+        "repeating",
+        "clamped"
+      ]) {
+        const allowed = engine.processHit({
+          frame,
+          sourceActorId: "a",
+          element: "hydro",
+          application: {
+            gaugeUnits: 1,
+            icdTag: "custom-tail",
+            icdGroup
+          }
+        }).icdAllowed;
+        if (allowed === null) {
+          throw new Error("declared ICD profiles must return a decision");
+        }
+        profileHits[icdGroup]?.push(allowed);
+      }
+    }
+
+    expect(profileHits.omitted).toEqual([true, false, true]);
+    expect(profileHits.repeating).toEqual([
+      true,
+      false,
+      true
+    ]);
+    expect(profileHits.clamped).toEqual([
+      true,
+      false,
+      false
     ]);
   });
 
