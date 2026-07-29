@@ -1,7 +1,9 @@
-import type {
-  AuraStateEntry,
-  ReactionAudit
+import {
+  canonicalStringify,
+  type AuraStateEntry,
+  type ReactionAudit
 } from "@genshin-dps-lab/schemas";
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { AuraEngine } from "../aura";
 
@@ -73,6 +75,22 @@ const INCOMING_VECTORS: readonly IncomingVector[] = [
     strikeType: "blunt"
   }
 ];
+const ALLOWED_SPECIAL_MASKS = new Set([
+  "",
+  "burning,burningFuel",
+  "burning,burningFuel,quicken",
+  "electroCharged",
+  "electroCharged,quicken",
+  "frozen",
+  "frozen,quicken",
+  "quicken"
+]);
+const TRANSITION_HASHES = {
+  sameFrame:
+    "f2bed2d60b88c8b32c2b39d0ea152d51f31e319397545475d992b71d137cdc93",
+  settledNextFrame:
+    "15304246d45a0d2b4bfa3dc73b9809bee0e6b7342cb88ef8a7e1c6783a331b30"
+} as const;
 
 /**
  * Every prefix starts from an empty AuraEngine and uses only public hits.
@@ -241,6 +259,10 @@ function specialMask(
   electroChargedActive: boolean
 ): SpecialState[] {
   const elements = new Set(aura.map((entry) => entry.element));
+  const electroChargedCoexistence =
+    electroChargedActive &&
+    elements.has("hydro") &&
+    elements.has("electro");
   return [
     ...(elements.has("frozen")
       ? (["frozen"] as const)
@@ -254,7 +276,7 @@ function specialMask(
     ...(elements.has("burningFuel")
       ? (["burningFuel"] as const)
       : []),
-    ...(electroChargedActive
+    ...(electroChargedCoexistence
       ? (["electroCharged"] as const)
       : [])
   ].sort();
@@ -267,6 +289,10 @@ function replayPrefix(
   audits: ReactionAudit[];
   aura: AuraStateEntry[];
   electroChargedActive: boolean;
+  pendingFollowup: {
+    sourceActorId: string;
+    triggerElement: "dendro" | "electro";
+  } | null;
 } {
   const engine = new AuraEngine({
     mode: "aura-v7",
@@ -274,10 +300,15 @@ function replayPrefix(
   });
   const audits: ReactionAudit[] = [];
   let electroChargedActive = false;
+  let pendingFollowup: {
+    sourceActorId: string;
+    triggerElement: "dendro" | "electro";
+  } | null = null;
   scenario.prefix.forEach((hit, index) => {
+    const sourceActorId = `${scenario.id}:prefix:${index}`;
     const audit = engine.processHit({
       frame: 0,
-      sourceActorId: `${scenario.id}:prefix:${index}`,
+      sourceActorId,
       element: hit.element,
       application: noIcd(
         hit.gaugeUnits,
@@ -289,13 +320,21 @@ function replayPrefix(
       electroChargedActive,
       audit
     );
+    const quicken = audit.catalyzeReaction?.quicken;
+    if (quicken?.pendingHydroBloomFollowup === true) {
+      pendingFollowup = {
+        sourceActorId,
+        triggerElement: quicken.triggerElement
+      };
+    }
   });
   const aura = cloneAura(audits.at(-1)?.auraAfter ?? []);
   return {
     engine,
     audits,
     aura,
-    electroChargedActive
+    electroChargedActive,
+    pendingFollowup
   };
 }
 
@@ -570,21 +609,32 @@ function inspectAudit(audit: ReactionAudit, path: string): void {
 
 function applyIncoming(
   scenario: SpecialStateScenario,
-  vector: IncomingVector
+  vector: IncomingVector,
+  mode: "same-frame" | "settled-next-frame"
 ) {
   const setup = replayPrefix(scenario);
+  const followup =
+    mode === "settled-next-frame" &&
+    setup.pendingFollowup !== null
+      ? setup.engine.processQuickenBloomFollowup({
+          frame: 0,
+          ...setup.pendingFollowup
+        })
+      : null;
+  const frame = mode === "same-frame" ? 0 : 1;
+  const preIncomingAura = setup.engine.getAuraStateAt(frame);
   const shatter =
     vector.element === "geo" ||
     vector.element === "physical"
       ? setup.engine.processShatterHit({
-          frame: 0,
+          frame,
           element: vector.element,
           strikeType: vector.strikeType,
           poiseDamage: 0
         })
       : null;
   const audit = setup.engine.processHit({
-    frame: 0,
+    frame,
     sourceActorId: `${scenario.id}:incoming:${vector.element}:${vector.gaugeUnits ?? "none"}`,
     element: vector.element,
     ...(vector.gaugeUnits === null
@@ -599,9 +649,19 @@ function applyIncoming(
   return {
     prefixAudits: setup.audits,
     prefixAura: setup.aura,
+    preIncomingAura,
     electroChargedActive: setup.electroChargedActive,
+    pendingFollowup: setup.pendingFollowup,
+    followup,
     shatter,
-    audit
+    audit,
+    postMask: specialMask(
+      audit.auraAfter ?? [],
+      updateElectroChargedState(
+        setup.electroChargedActive,
+        audit
+      )
+    )
   };
 }
 
@@ -617,35 +677,73 @@ function inspectIncomingResult(
     inspectNumbers(result.shatter, `${path}.shatter`);
     let cursor = result.shatter.audit.auraBefore;
     for (const [index, mutation] of result.shatter.mutations.entries()) {
-      invariant(
-        JSON.stringify(mutation.auraBefore) ===
-          JSON.stringify(cursor),
+      expect(
+        mutation.auraBefore,
         `${path}.shatter.mutations[${index}] continuity drift`
-      );
+      ).toStrictEqual(cursor);
       invariant(
         mutation.consumedGaugeUnits >= -EPSILON,
         `${path}.shatter.mutations[${index}] negative consumption`
       );
       cursor = mutation.auraAfter;
     }
-    invariant(
-      JSON.stringify(result.shatter.audit.auraAfter) ===
-        JSON.stringify(cursor),
+    expect(
+      result.shatter.audit.auraAfter,
       `${path}.shatter audit continuity drift`
-    );
-    invariant(
-      JSON.stringify(result.audit.auraBefore) ===
-        JSON.stringify(result.shatter.audit.auraAfter),
+    ).toStrictEqual(cursor);
+    expect(
+      result.audit.auraBefore,
       `${path} application does not continue from Shatter`
-    );
+    ).toStrictEqual(result.shatter.audit.auraAfter);
   } else {
-    invariant(
-      JSON.stringify(result.audit.auraBefore) ===
-        JSON.stringify(result.prefixAura),
+    expect(
+      result.audit.auraBefore,
       `${path} application does not continue from prefix`
-    );
+    ).toStrictEqual(result.preIncomingAura);
   }
   inspectAudit(result.audit, `${path}.audit`);
+  invariant(
+    ALLOWED_SPECIAL_MASKS.has(result.postMask.join(",")),
+    `${path} escaped the reachable special-state closure: ${result.postMask.join(
+      ","
+    )}`
+  );
+}
+
+function transitionProjection(
+  mode: "same-frame" | "settled-next-frame"
+) {
+  return SPECIAL_STATE_SCENARIOS.flatMap((scenario) =>
+    INCOMING_VECTORS.map((vector) => {
+      const result = applyIncoming(scenario, vector, mode);
+      return {
+        scenario: scenario.id,
+        incoming: [
+          vector.element,
+          vector.gaugeUnits,
+          vector.strikeType
+        ],
+        reaction: result.audit.reaction,
+        reactions: result.audit.reactions,
+        postMask: result.postMask,
+        shatter: result.shatter?.audit.triggered ?? false,
+        shatterScheduled:
+          result.shatter?.audit.scheduled ?? false,
+        periodicOperation:
+          result.audit.periodicReaction?.operation ?? null,
+        burningOperation:
+          result.audit.burningReaction?.operation ?? null,
+        followupStatus: result.followup?.status ?? null,
+        auraAfter: result.audit.auraAfter
+      };
+    })
+  );
+}
+
+function transitionHash(value: unknown): string {
+  return createHash("sha256")
+    .update(canonicalStringify(value))
+    .digest("hex");
 }
 
 describe("aura-v7 reachable special-state finite grid", () => {
@@ -683,18 +781,23 @@ describe("aura-v7 reachable special-state finite grid", () => {
   );
 
   it.each(SPECIAL_STATE_SCENARIOS)(
-    "closes $id over seven elements plus physical-blunt",
+    "closes same-frame transient $id over seven elements plus physical-blunt",
     (scenario) => {
       let executed = 0;
       for (const vector of INCOMING_VECTORS) {
         const label = `${scenario.id}:${vector.element}:${vector.gaugeUnits ?? "none"}`;
-        const first = applyIncoming(scenario, vector);
-        const repeat = applyIncoming(scenario, vector);
-
-        invariant(
-          JSON.stringify(first) === JSON.stringify(repeat),
-          `${label} deterministic replay drift`
+        const first = applyIncoming(
+          scenario,
+          vector,
+          "same-frame"
         );
+        const repeat = applyIncoming(
+          scenario,
+          vector,
+          "same-frame"
+        );
+
+        expect(first).toStrictEqual(repeat);
         inspectIncomingResult(first, label);
         executed += 1;
       }
@@ -705,6 +808,109 @@ describe("aura-v7 reachable special-state finite grid", () => {
       );
     }
   );
+
+  it.each(SPECIAL_STATE_SCENARIOS)(
+    "closes settled next-frame $id after queued Quicken follow-ups",
+    (scenario) => {
+      for (const vector of INCOMING_VECTORS) {
+        const label =
+          `${scenario.id}:settled:${vector.element}:` +
+          `${vector.gaugeUnits ?? "none"}`;
+        const first = applyIncoming(
+          scenario,
+          vector,
+          "settled-next-frame"
+        );
+        const repeat = applyIncoming(
+          scenario,
+          vector,
+          "settled-next-frame"
+        );
+
+        expect(first).toStrictEqual(repeat);
+        inspectIncomingResult(first, label);
+      }
+    }
+  );
+
+  it("freezes exact same-frame and settled transition projections", () => {
+    expect(
+      transitionHash(transitionProjection("same-frame"))
+    ).toBe(TRANSITION_HASHES.sameFrame);
+    expect(
+      transitionHash(
+        transitionProjection("settled-next-frame")
+      )
+    ).toBe(TRANSITION_HASHES.settledNextFrame);
+  });
+
+  it("keeps semantic sentinels for Shatter, Aggravate, and EC stop", () => {
+    const frozen = SPECIAL_STATE_SCENARIOS.find(
+      (entry) => entry.id === "frozen"
+    )!;
+    for (const vector of [
+      {
+        element: "geo",
+        gaugeUnits: 0.5,
+        strikeType: "default"
+      },
+      {
+        element: "physical",
+        gaugeUnits: null,
+        strikeType: "blunt"
+      }
+    ] as const) {
+      const result = applyIncoming(
+        frozen,
+        vector,
+        "same-frame"
+      );
+      expect(result.shatter?.audit).toMatchObject({
+        reaction: "shatter",
+        triggered: true,
+        scheduled: true
+      });
+      expect(result.postMask).not.toContain("frozen");
+    }
+
+    const quicken = SPECIAL_STATE_SCENARIOS.find(
+      (entry) => entry.id === "quicken"
+    )!;
+    expect(
+      applyIncoming(
+        quicken,
+        {
+          element: "electro",
+          gaugeUnits: 0.5,
+          strikeType: "default"
+        },
+        "same-frame"
+      ).audit
+    ).toMatchObject({
+      reaction: "aggravate",
+      reactions: ["aggravate"]
+    });
+
+    const electroCharged = SPECIAL_STATE_SCENARIOS.find(
+      (entry) => entry.id === "electro-charged"
+    )!;
+    const overload = applyIncoming(
+      electroCharged,
+      {
+        element: "pyro",
+        gaugeUnits: 0.5,
+        strikeType: "default"
+      },
+      "same-frame"
+    );
+    expect(overload.audit.reactions).toContain("overload");
+    expect(overload.audit.periodicReaction).toMatchObject({
+      operation: "stop"
+    });
+    expect(overload.postMask).not.toContain(
+      "electroCharged"
+    );
+  });
 });
 
 describe("aura-v7 special-state public lifecycle boundaries", () => {
@@ -909,6 +1115,10 @@ describe("aura-v7 special-state public lifecycle boundaries", () => {
     expect(tick).toMatchObject({
       operation: "tick",
       frame: stream.start.nextTickFrame
+    });
+    expect(stream.start).toMatchObject({
+      firstDamageFrame: 10,
+      nextTickFrame: 70
     });
     inspectNumbers(wane, "electroChargedWane");
     inspectNumbers(tick, "electroChargedTick");
