@@ -569,6 +569,15 @@ function usesBurningModel(
   );
 }
 
+/**
+ * Locale-independent UTF-16 code-unit ordering for canonical Aura output.
+ * `localeCompare` is intentionally avoided because its collation can vary
+ * with the host ICU data and process locale, breaking reproducible hashes.
+ */
+function compareCodeUnits(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function cleanGaugeUnits(value: number): number {
   if (Math.abs(value) <= AURA_EPSILON) return 0;
   return Number(value.toFixed(12));
@@ -1141,7 +1150,7 @@ export class AuraEngine {
       )
     ]
       .sort((left, right) =>
-        left.element.localeCompare(right.element)
+        compareCodeUnits(left.element, right.element)
       )
       .map((entry) => ({
         ...entry,
@@ -1852,7 +1861,9 @@ export class AuraEngine {
   private snapshot(): AuraStateEntry[] {
     return [...this.auras.values()]
       .filter((aura) => aura.gaugeUnits > AURA_EPSILON)
-      .sort((left, right) => left.element.localeCompare(right.element))
+      .sort((left, right) =>
+        compareCodeUnits(left.element, right.element)
+      )
       .map((aura) => {
         const expiresAtFrame =
           aura.element === "burningFuel"
@@ -1929,7 +1940,7 @@ export class AuraEngine {
                       gaugeUnits > AURA_EPSILON
                   )
                   .sort(([left], [right]) =>
-                    left.localeCompare(right)
+                    compareCodeUnits(left, right)
                   )
                   .map(([sourceActorId, gaugeUnits]) => ({
                     sourceActorId,
@@ -2743,7 +2754,9 @@ export class AuraEngine {
         : {
             sourceSlots: [...quicken.sourceSlots]
               .filter(([, gaugeUnits]) => gaugeUnits > AURA_EPSILON)
-              .sort(([left], [right]) => left.localeCompare(right))
+              .sort(([left], [right]) =>
+                compareCodeUnits(left, right)
+              )
               .map(([sourceActorId, gaugeUnits]) => ({
                 sourceActorId,
                 gaugeUnits: cleanGaugeUnits(gaugeUnits)
@@ -2795,7 +2808,7 @@ export class AuraEngine {
       });
     }
     return snapshot.sort((left, right) =>
-      left.element.localeCompare(right.element)
+      compareCodeUnits(left.element, right.element)
     );
   }
 
