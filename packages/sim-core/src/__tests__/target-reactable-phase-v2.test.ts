@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { writeFileSync } from "node:fs";
 import type {
   SimConfig,
   SimulationResult,
@@ -8,12 +7,14 @@ import type {
 } from "@genshin-dps-lab/schemas";
 import {
   canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
-import { afterAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
 import targetReactablePhaseV139GoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json";
 import { simulate } from "../simulator";
@@ -728,104 +729,21 @@ const goldenScenarioIds: TargetReactablePhaseGoldenScenarioId[] =
     "frozenHitlag5F181"
   ];
 
-const generatedGoldenScenarios: Partial<
-  Record<
-    TargetReactablePhaseGoldenScenarioId,
-    TargetReactablePhaseGoldenScenarioV139
-  >
-> = {};
-
-afterAll(() => {
-  if (
-    process.env.UPDATE_TARGET_REACTABLE_PHASE_GOLDEN ===
-    "1"
-  ) {
-    throw new Error(
-      "target-reactable-phase-1.38.golden.json is frozen; use UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN=1 to write only the 1.39 fixture."
-    );
-  }
-  if (
-    process.env.UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN !==
-    "1"
-  ) {
-    return;
-  }
-  const generatedIds = Object.keys(
-    generatedGoldenScenarios
-  ).sort();
-  if (
-    canonicalStringify(generatedIds) !==
-    canonicalStringify([...goldenScenarioIds].sort())
-  ) {
-    throw new Error(
-      `Refusing to write incomplete target-reactable Golden: ${generatedIds.join(
-        ", "
-      )}`
-    );
-  }
-  const scenarios =
-    generatedGoldenScenarios as Record<
-      TargetReactablePhaseGoldenScenarioId,
-      TargetReactablePhaseGoldenScenarioV139
-    >;
-  const hashes = Object.fromEntries(
-    goldenScenarioIds.map((scenarioId) => [
-      scenarioId,
-      sha256(scenarios[scenarioId])
-    ])
-  );
-  const fixture = {
-    ...targetReactablePhaseV139GoldenJson,
-    fixtureVersion: "target-reactable-phase-1.39",
-    projectionFormat: {
-      ...targetReactablePhaseGoldenV138.projectionFormat,
-      targetMissHitResolutionTuple: [
-        "id",
-        "globalFrame",
-        "eventPriority",
-        "eventSequence",
-        "intraEventSequence",
-        "hitId",
-        "targetId",
-        "outcome",
-        "reason",
-        "damageAllowed",
-        "auraAllowed",
-        "hitConfirmAllowed",
-        "damageEventId",
-        "potentialDamage",
-        "finalDamage",
-        "displayDamage"
-      ],
-      targetMissHitlagTuple: [
-        ...(targetReactablePhaseGoldenV138.projectionFormat
-          .targetHitlagTuple ?? []),
-        "extendedReactionStatusLogIds"
-      ]
-    },
-    commonConfig: {
-      schemaVersion:
-        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
-      engineVersion:
-        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
-      targetTaskModel: { mode: "target-phase-v2" },
-      reactionEngine: { mode: "aura-v7" },
-      reactionDeliveryModel: {
-        mode: "deferred-event-heap-v1"
-      },
-      timeline: { mode: "legal-frame-v1", fps: 60 }
-    },
-    scenarios,
-    hashes
+function normalizeTargetReactableIdentity(
+  scenario: TargetReactablePhaseGoldenScenarioV139
+) {
+  const {
+    schemaVersion: _schemaVersion,
+    engineVersion: _engineVersion,
+    configHash: _configHash,
+    reproducibilityKey: _reproducibilityKey,
+    ...identity
+  } = scenario.identity;
+  return {
+    ...scenario,
+    identity
   };
-  writeFileSync(
-    new URL(
-      "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json",
-      import.meta.url
-    ),
-    `${JSON.stringify(fixture, null, 2)}\n`
-  );
-});
+}
 
 function expectGoldenScenario(
   scenarioId: TargetReactablePhaseGoldenScenarioId,
@@ -846,11 +764,14 @@ function expectGoldenScenario(
   );
 
   if (
+    process.env.UPDATE_TARGET_REACTABLE_PHASE_GOLDEN ===
+      "1" ||
     process.env.UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN ===
-    "1"
+      "1"
   ) {
-    generatedGoldenScenarios[scenarioId] = scenario;
-    return;
+    throw new Error(
+      "target-reactable-phase-1.38.golden.json and target-reactable-phase-1.39.golden.json are frozen; compare current identity through normalization instead of overwriting history."
+    );
   }
   const printGolden =
     process.env.PRINT_TARGET_REACTABLE_PHASE_GOLDEN;
@@ -907,11 +828,14 @@ function expectGoldenScenario(
   expect(
     Object.keys(targetReactablePhaseGoldenV139.hashes).sort()
   ).toEqual([...goldenScenarioIds].sort());
-  expect(scenario).toStrictEqual(
-    targetReactablePhaseGoldenV139.scenarios[scenarioId]
-  );
-  expect(sha256(scenario)).toBe(
-    targetReactablePhaseGoldenV139.hashes[scenarioId]
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(
+    normalizeTargetReactableIdentity(scenario)
+  ).toStrictEqual(
+    normalizeTargetReactableIdentity(
+      targetReactablePhaseGoldenV139.scenarios[scenarioId]
+    )
   );
   expect(
     sha256(

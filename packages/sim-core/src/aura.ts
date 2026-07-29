@@ -405,6 +405,46 @@ export interface AuraEngineConfig extends AuraReactionEngineConfig {
   targetClock?: TargetLocalClock;
 }
 
+export type ElectroChargedCleanupOutcome =
+  "armed" | "stopped" | "retained" | "superseded" | "natural-expiry";
+
+export type ElectroChargedCleanupReason =
+  | "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO"
+  | "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+  | "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK"
+  | "ELECTRO_CHARGED_GENERATION_SUPERSEDED"
+  | "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+
+/**
+ * Auditable aura-v8 bridge between a zero-delay Quicken→Bloom task and the
+ * following effective target Reactable.Tick. Damage-event cancellation stays
+ * simulator-owned; this result only reports the authoritative Aura/EC state
+ * boundary.
+ */
+export interface ElectroChargedCleanupResult {
+  model: "quicken-bloom-target-tick-v1";
+  generation: number;
+  armedAtFrame: number;
+  armedAtTargetFrame: number;
+  deadlineTargetFrame: number;
+  resolvedAtFrame: number | null;
+  resolvedAtTargetFrame: number | null;
+  outcome: ElectroChargedCleanupOutcome;
+  reason: ElectroChargedCleanupReason;
+  originReactionTaskId: number | null;
+  auraBefore: AuraStateEntry[];
+  auraAfter: AuraStateEntry[];
+  nextTickFrame: number | null;
+}
+
+interface PendingElectroChargedCleanup {
+  generation: number;
+  armedAtFrame: number;
+  armedAtTargetFrame: number;
+  deadlineTargetFrame: number;
+  originReactionTaskId: number | null;
+}
+
 export interface QuickenLifecycleState {
   generation: number;
   gaugeUnits: number;
@@ -442,6 +482,8 @@ export interface QuickenBloomFollowupInput {
   frame: number;
   sourceActorId: string;
   triggerElement: "dendro" | "electro";
+  /** Optional simulator reaction-task log id retained by aura-v8 cleanup. */
+  originReactionTaskId?: number | null;
 }
 
 export interface QuickenBloomFollowupResult {
@@ -541,7 +583,8 @@ function isAuraApplicationElement(
       mode === "aura-v4" ||
       mode === "aura-v5" ||
       mode === "aura-v6" ||
-      mode === "aura-v7") &&
+      mode === "aura-v7" ||
+      mode === "aura-v8") &&
       element === "dendro")
   );
 }
@@ -554,7 +597,8 @@ function usesAuraV3Durability(
     mode === "aura-v4" ||
     mode === "aura-v5" ||
     mode === "aura-v6" ||
-    mode === "aura-v7"
+    mode === "aura-v7" ||
+    mode === "aura-v8"
   );
 }
 
@@ -565,8 +609,24 @@ function usesBurningModel(
     mode === "aura-v4" ||
     mode === "aura-v5" ||
     mode === "aura-v6" ||
-    mode === "aura-v7"
+    mode === "aura-v7" ||
+    mode === "aura-v8"
   );
+}
+
+function usesBloomModel(mode: AuraReactionEngineConfig["mode"]): boolean {
+  return (
+    mode === "aura-v5" ||
+    mode === "aura-v6" ||
+    mode === "aura-v7" ||
+    mode === "aura-v8"
+  );
+}
+
+function usesQueuedQuickenBloomFollowup(
+  mode: AuraReactionEngineConfig["mode"]
+): boolean {
+  return mode === "aura-v7" || mode === "aura-v8";
 }
 
 /**
@@ -611,6 +671,8 @@ function remainingDecayFrames(
  * incoming-Electro ordered chain with one shared application Gauge budget.
  * aura-v7 defers Quicken→Hydro Bloom to a live-Aura zero-delay simulator task
  * and stops counting Burning snapshot/Fuel refreshes as new reactions.
+ * aura-v8 retains aura-v7 reaction order and defers the EC stream cleanup
+ * caused by that Bloom task to the next effective target Reactable.Tick.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -630,6 +692,10 @@ export class AuraEngine {
   private electroChargedGeneration = 0;
   private electroChargedActive = false;
   private electroChargedNextTickFrame = -1;
+  private readonly pendingElectroChargedCleanups: PendingElectroChargedCleanup[] =
+    [];
+  private readonly electroChargedCleanupResults: ElectroChargedCleanupResult[] =
+    [];
   private frozenGeneration = 0;
   private frozenDecayRate = FROZEN_BASE_DECAY_PER_FRAME;
   private quickenGeneration = 0;
@@ -736,6 +802,16 @@ export class AuraEngine {
 
   getTargetClockState(): Readonly<TargetLocalClockState> | null {
     return this.targetClock?.getState() ?? null;
+  }
+
+  /**
+   * Return and clear aura-v8 EC cleanup observations in deterministic
+   * production order. Historical Aura modes never enqueue these records.
+   */
+  drainElectroChargedCleanupResults(): ElectroChargedCleanupResult[] {
+    return this.electroChargedCleanupResults
+      .splice(0)
+      .map((result) => this.cloneElectroChargedCleanupResult(result));
   }
 
   applyTargetHitlag(
@@ -1129,6 +1205,16 @@ export class AuraEngine {
             }))
           })
     }));
+  }
+
+  private cloneElectroChargedCleanupResult(
+    result: Readonly<ElectroChargedCleanupResult>
+  ): ElectroChargedCleanupResult {
+    return {
+      ...result,
+      auraBefore: this.cloneAuraSnapshot(result.auraBefore),
+      auraAfter: this.cloneAuraSnapshot(result.auraAfter)
+    };
   }
 
   /**
@@ -1552,6 +1638,7 @@ export class AuraEngine {
     const targetFrame = this.getCurrentTargetFrame();
     const previousTargetFrame = targetFrame - 1;
     this.targetFrameProjectionOverride = previousTargetFrame;
+    const auraBeforeTick = this.snapshot();
     const reactableTick = this.captureReactableTick(globalFrame);
 
     try {
@@ -1648,6 +1735,11 @@ export class AuraEngine {
     } finally {
       this.targetFrameProjectionOverride = targetFrame;
       this.completeReactableTick(reactableTick);
+      this.completePendingElectroChargedCleanups(
+        globalFrame,
+        targetFrame,
+        auraBeforeTick
+      );
       this.targetFrameProjectionOverride = null;
     }
   }
@@ -1737,6 +1829,7 @@ export class AuraEngine {
           nextFrame <= frame;
           nextFrame += 1
         ) {
+          const auraBeforeTick = this.snapshot();
           const reactableTick =
             this.captureReactableTick(nextFrame);
           const burningWasActive = this.hasActiveBurning();
@@ -1804,6 +1897,11 @@ export class AuraEngine {
               this.advanceFrozenBy(1);
               this.currentFrame = nextFrame;
               this.completeReactableTick(reactableTick);
+              this.completePendingElectroChargedCleanups(
+                nextFrame,
+                nextFrame,
+                auraBeforeTick
+              );
               continue;
             }
           } else {
@@ -1823,8 +1921,34 @@ export class AuraEngine {
           this.advanceFrozenBy(1);
           this.currentFrame = nextFrame;
           this.completeReactableTick(reactableTick);
+          this.completePendingElectroChargedCleanups(
+            nextFrame,
+            nextFrame,
+            auraBeforeTick
+          );
         }
       } else {
+        const pendingDeadline =
+          this.mode === "aura-v8"
+            ? (this.pendingElectroChargedCleanups[0]?.deadlineTargetFrame ??
+              null)
+            : null;
+        if (pendingDeadline !== null && pendingDeadline <= frame) {
+          if (pendingDeadline !== this.currentFrame + 1) {
+            throw new Error(
+              `Aura-v8 EC cleanup missed its next target Tick: deadline ${pendingDeadline}, current ${this.currentFrame}.`
+            );
+          }
+          const auraBeforeTick = this.snapshot();
+          const reactableTick = this.captureReactableTick(pendingDeadline);
+          this.advancePassiveDecayBy(1);
+          this.completeReactableTick(reactableTick);
+          this.completePendingElectroChargedCleanups(
+            pendingDeadline,
+            pendingDeadline,
+            auraBeforeTick
+          );
+        }
         const quickenLifecycle =
           this.captureQuickenDecayState();
         const quickenExpiryFrame =
@@ -1850,7 +1974,8 @@ export class AuraEngine {
       }
       if (
         this.electroChargedActive &&
-        !this.hasElectroChargedAuras()
+        !this.hasElectroChargedAuras() &&
+        !this.shouldDeferElectroChargedMissingAuraCleanup()
       ) {
         this.electroChargedActive = false;
         this.electroChargedNextTickFrame = -1;
@@ -1958,6 +2083,134 @@ export class AuraEngine {
       (this.auras.get("electro")?.gaugeUnits ?? 0) >
         AURA_EPSILON
     );
+  }
+
+  private shouldDeferElectroChargedMissingAuraCleanup(): boolean {
+    return this.pendingElectroChargedCleanups.some(
+      (pending) =>
+        this.mode === "aura-v8" &&
+        pending.generation === this.electroChargedGeneration &&
+        this.clockFrame() < pending.deadlineTargetFrame
+    );
+  }
+
+  private armElectroChargedCleanup(
+    input: Readonly<QuickenBloomFollowupInput>,
+    auraBefore: readonly AuraStateEntry[]
+  ): void {
+    if (this.mode !== "aura-v8") return;
+    const originReactionTaskId = input.originReactionTaskId ?? null;
+    if (
+      originReactionTaskId !== null &&
+      (!Number.isSafeInteger(originReactionTaskId) || originReactionTaskId < 0)
+    ) {
+      throw new Error(
+        `originReactionTaskId must be null or a non-negative safe integer; got ${originReactionTaskId}`
+      );
+    }
+
+    const armedAtTargetFrame = this.getCurrentTargetFrame();
+    const deadlineTargetFrame = armedAtTargetFrame + 1;
+    if (!Number.isSafeInteger(deadlineTargetFrame)) {
+      throw new Error(
+        `Aura-v8 EC cleanup target deadline exceeds the safe integer frame range after ${armedAtTargetFrame}.`
+      );
+    }
+    const nextPending: PendingElectroChargedCleanup = {
+      generation: this.electroChargedGeneration,
+      armedAtFrame: input.frame,
+      armedAtTargetFrame,
+      deadlineTargetFrame,
+      originReactionTaskId
+    };
+    if (
+      this.pendingElectroChargedCleanups.some(
+        (pending) => pending.generation === nextPending.generation
+      )
+    ) {
+      return;
+    }
+    this.pendingElectroChargedCleanups.push(nextPending);
+    this.electroChargedCleanupResults.push({
+      model: "quicken-bloom-target-tick-v1",
+      ...nextPending,
+      resolvedAtFrame: null,
+      resolvedAtTargetFrame: null,
+      outcome: "armed",
+      reason: "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO",
+      auraBefore: this.cloneAuraSnapshot(auraBefore),
+      auraAfter: this.snapshot(),
+      nextTickFrame:
+        this.electroChargedNextTickFrame < 0
+          ? null
+          : this.electroChargedNextTickFrame
+    });
+  }
+
+  private completePendingElectroChargedCleanups(
+    frame: number,
+    targetFrame: number,
+    auraBeforeTick: readonly AuraStateEntry[]
+  ): void {
+    if (
+      this.mode !== "aura-v8" ||
+      this.pendingElectroChargedCleanups.length === 0
+    ) {
+      return;
+    }
+    const due = this.pendingElectroChargedCleanups.filter(
+      (pending) => targetFrame >= pending.deadlineTargetFrame
+    );
+    if (due.length === 0) return;
+    this.pendingElectroChargedCleanups.splice(0, due.length);
+
+    for (const pending of due) {
+      let outcome: Exclude<ElectroChargedCleanupOutcome, "armed">;
+      let reason: Exclude<
+        ElectroChargedCleanupReason,
+        "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO"
+      >;
+      const naturalBoundary =
+        this.reactableLifecycleBoundaries.get("electroCharged");
+      if (pending.generation !== this.electroChargedGeneration) {
+        outcome = "superseded";
+        reason = "ELECTRO_CHARGED_GENERATION_SUPERSEDED";
+      } else if (
+        naturalBoundary?.kind === "electroCharged" &&
+        naturalBoundary.result.generation === pending.generation &&
+        naturalBoundary.result.frame === frame &&
+        naturalBoundary.result.reason === "AURA_DECAY_EXPIRED"
+      ) {
+        // Reactable.Tick naturally ended coexistence first. The simulator's
+        // order-3 periodic-expiry lifecycle owns the unique stop; the later
+        // cleanup wake only records that this request lost the collision.
+        outcome = "natural-expiry";
+        reason = "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+      } else if (this.electroChargedActive && this.hasElectroChargedAuras()) {
+        outcome = "retained";
+        reason = "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK";
+      } else {
+        outcome = "stopped";
+        reason = "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM";
+        this.electroChargedActive = false;
+        this.electroChargedNextTickFrame = -1;
+      }
+
+      this.electroChargedCleanupResults.push({
+        model: "quicken-bloom-target-tick-v1",
+        ...pending,
+        resolvedAtFrame: frame,
+        resolvedAtTargetFrame: targetFrame,
+        outcome,
+        reason,
+        auraBefore: this.cloneAuraSnapshot(auraBeforeTick),
+        auraAfter: this.snapshot(),
+        nextTickFrame:
+          this.electroChargedNextTickFrame < 0
+            ? null
+            : this.electroChargedNextTickFrame
+      });
+    }
   }
 
   private electroChargedExpiryFrame(): number | null {
@@ -2369,10 +2622,45 @@ export class AuraEngine {
   waneElectroCharged(
     frame: number,
     damageApplied: boolean
+  ): ElectroChargedStateResult;
+  waneElectroCharged(
+    frame: number,
+    expectedGeneration: number,
+    damageApplied: boolean
+  ): ElectroChargedStateResult;
+  waneElectroCharged(
+    frame: number,
+    expectedGenerationOrDamageApplied: number | boolean,
+    maybeDamageApplied?: boolean
   ): ElectroChargedStateResult {
+    const expectedGeneration =
+      typeof expectedGenerationOrDamageApplied === "number"
+        ? expectedGenerationOrDamageApplied
+        : this.electroChargedGeneration;
+    const damageApplied =
+      typeof expectedGenerationOrDamageApplied === "number"
+        ? maybeDamageApplied === true
+        : expectedGenerationOrDamageApplied;
+    if (expectedGeneration !== this.electroChargedGeneration) {
+      const aura = this.snapshot();
+      return {
+        generation: expectedGeneration,
+        operation: "stale",
+        frame,
+        auraBefore: aura,
+        auraConsumed: [],
+        auraAfter: this.cloneAuraSnapshot(aura),
+        nextTickFrame: this.electroChargedActive
+          ? this.electroChargedNextTickFrame
+          : null,
+        coexistenceExpiresAtFrame:
+          this.electroChargedExpiryFrame(),
+        reason: "SUPERSEDED_STREAM"
+      };
+    }
     this.advanceTo(frame);
     const auraBefore = this.snapshot();
-    const generation = this.electroChargedGeneration;
+    const generation = expectedGeneration;
     if (
       !this.electroChargedActive ||
       !this.hasElectroChargedAuras()
@@ -3727,9 +4015,7 @@ export class AuraEngine {
       input.element === "electro" &&
       runQuickenHydroFollowup;
     if (
-      (this.mode !== "aura-v5" &&
-        this.mode !== "aura-v6" &&
-        this.mode !== "aura-v7") ||
+      !usesBloomModel(this.mode) ||
       (input.element !== "hydro" &&
         input.element !== "dendro" &&
         !isQuickenFollowupOnly)
@@ -4006,13 +4292,16 @@ export class AuraEngine {
   processQuickenBloomFollowup(
     input: QuickenBloomFollowupInput
   ): QuickenBloomFollowupResult {
-    if (this.mode !== "aura-v7") {
+    if (!usesQueuedQuickenBloomFollowup(this.mode)) {
       throw new Error(
-        "Quicken→Bloom follow-up tasks require reactionEngine.mode aura-v7."
+        "Quicken→Bloom follow-up tasks require reactionEngine.mode aura-v7 or aura-v8."
       );
     }
     this.advanceTo(input.frame);
     const auraBefore = this.snapshot();
+    const electroChargedGenerationBefore = this.electroChargedGeneration;
+    const electroChargedWasActive = this.electroChargedActive;
+    const hydroGaugeUnitsBefore = this.auras.get("hydro")?.gaugeUnits ?? 0;
     const skipped = (
       blockedReason: ReactionTaskBlockedReason
     ): QuickenBloomFollowupResult => ({
@@ -4057,6 +4346,16 @@ export class AuraEngine {
       throw new Error(
         "Quicken→Bloom follow-up passed its live Aura guards without producing exactly one follow-up audit."
       );
+    }
+    if (
+      this.mode === "aura-v8" &&
+      electroChargedWasActive &&
+      electroChargedGenerationBefore === this.electroChargedGeneration &&
+      hydroGaugeUnitsBefore > AURA_EPSILON &&
+      (this.auras.get("hydro")?.gaugeUnits ?? 0) <= AURA_EPSILON &&
+      bloomReaction.hydroConsumedGaugeUnits > AURA_EPSILON
+    ) {
+      this.armElectroChargedCleanup(input, auraBefore);
     }
     return {
       status: "triggered",
@@ -4284,7 +4583,8 @@ export class AuraEngine {
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
     if (
       electroChargedWasActive &&
-      !this.hasElectroChargedAuras()
+      !this.hasElectroChargedAuras() &&
+      !this.shouldDeferElectroChargedMissingAuraCleanup()
     ) {
       this.electroChargedActive = false;
       this.electroChargedNextTickFrame = -1;
@@ -4506,7 +4806,8 @@ export class AuraEngine {
       }
       if (
         electroChargedWasActive &&
-        !this.hasElectroChargedAuras()
+        !this.hasElectroChargedAuras() &&
+        !this.shouldDeferElectroChargedMissingAuraCleanup()
       ) {
         this.electroChargedActive = false;
         this.electroChargedNextTickFrame = -1;
@@ -4881,18 +5182,13 @@ export class AuraEngine {
       usesBurningModel(this.mode) &&
       input.element === "pyro";
     const usesOrderedHydroPipeline =
-      (this.mode === "aura-v5" ||
-        this.mode === "aura-v6" ||
-        this.mode === "aura-v7") &&
-      input.element === "hydro";
+      usesBloomModel(this.mode) && input.element === "hydro";
     const usesOrderedCryoPipeline =
-      (this.mode === "aura-v5" ||
-        this.mode === "aura-v6" ||
-        this.mode === "aura-v7") &&
-      input.element === "cryo";
+      usesBloomModel(this.mode) && input.element === "cryo";
     const usesOrderedElectroPipeline =
       (this.mode === "aura-v6" ||
-        this.mode === "aura-v7") &&
+        this.mode === "aura-v7" ||
+        this.mode === "aura-v8") &&
       input.element === "electro";
     const usesElectroHydroDendroPipeline =
       this.mode === "aura-v5" &&
@@ -5859,7 +6155,7 @@ export class AuraEngine {
         const bloom = this.resolveBloom(
           input,
           0,
-          this.mode === "aura-v7"
+          usesQueuedQuickenBloomFollowup(this.mode)
             ? false
             : pendingHydroBloomFollowup,
           auraConsumed
@@ -6360,9 +6656,7 @@ export class AuraEngine {
     } else if (
       unsupportedReactions.length === 0 &&
       !(
-        (this.mode === "aura-v5" ||
-          this.mode === "aura-v6" ||
-          this.mode === "aura-v7") &&
+        usesBloomModel(this.mode) &&
         input.element === "dendro" &&
         (this.auras.get("hydro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
@@ -6408,7 +6702,7 @@ export class AuraEngine {
       burningReaction = burningStartOrRefresh;
       if (
         automaticReaction === "none" &&
-        (this.mode !== "aura-v7" ||
+        (!usesQueuedQuickenBloomFollowup(this.mode) ||
           burningStartOrRefresh.reactionTriggered)
       ) {
         automaticReaction = "burning";
@@ -6416,15 +6710,13 @@ export class AuraEngine {
     }
 
     if (
-      (this.mode === "aura-v5" ||
-        this.mode === "aura-v6" ||
-        this.mode === "aura-v7") &&
+      usesBloomModel(this.mode) &&
       input.element === "dendro"
     ) {
       const bloom = this.resolveBloom(
         input,
         remainingDendroGaugeUnits,
-        this.mode === "aura-v7"
+        usesQueuedQuickenBloomFollowup(this.mode)
           ? false
           : catalyzeReaction?.quicken
               ?.pendingHydroBloomFollowup === true,
@@ -6463,7 +6755,8 @@ export class AuraEngine {
     if (
       periodicReaction === null &&
       electroChargedWasActive &&
-      !this.hasElectroChargedAuras()
+      !this.hasElectroChargedAuras() &&
+      !this.shouldDeferElectroChargedMissingAuraCleanup()
     ) {
       this.electroChargedActive = false;
       this.electroChargedNextTickFrame = -1;
@@ -6504,7 +6797,7 @@ export class AuraEngine {
                 : [automaticReaction]),
       ...(burningReaction !== null &&
       burningReaction.operation !== "stop" &&
-      (this.mode !== "aura-v7" ||
+      (!usesQueuedQuickenBloomFollowup(this.mode) ||
         burningReaction.reactionTriggered) &&
       (usesOrderedPyroPipeline ||
         automaticReaction !== "burning")
@@ -6693,9 +6986,9 @@ export class AuraEngine {
         ? this.mode === "aura-v5" ||
           this.mode === "aura-v6"
           ? `同帧激元素→水绽放后续已结算；本次共排队 ${bloomReactions.length} 个草原核生成请求。`
-          : this.mode === "aura-v7"
+          : usesQueuedQuickenBloomFollowup(this.mode)
             ? "同帧激元素→水绽放后续已进入零延迟任务队列；该任务会在执行时重新读取目标 Aura。"
-          : "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
+            : "固定 gcsim 会在同帧末尾继续检查激元素与水的绽放；该后续尚未实现并已明确截断。"
         : null;
     return {
       model: "aura-engine",

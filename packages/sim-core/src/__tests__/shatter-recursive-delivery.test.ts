@@ -1,14 +1,15 @@
 import { createHash } from "node:crypto";
-import { writeFileSync } from "node:fs";
 import {
   canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   reactionDeliveryResultReferencesSchema,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   type SimConfig,
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import shatterRecursiveDeliveryGoldenJson from "../../../test-vectors/fixtures/shatter-recursive-delivery-1.39.golden.json";
 import { AuraEngine } from "../aura";
 import { calcTransformativeReactionDamage } from "../formulas";
@@ -157,66 +158,27 @@ const shatterGoldenScenarioIds: ShatterGoldenScenarioId[] =
     "gcdBlocked",
     "poiseDepleted",
   ];
-const generatedShatterGoldenScenarios: Partial<
-  Record<ShatterGoldenScenarioId, ShatterGoldenScenario>
-> = {};
 
-afterAll(() => {
-  if (
-    process.env
-      .UPDATE_SHATTER_RECURSIVE_DELIVERY_GOLDEN !== "1"
-  ) {
-    return;
-  }
-  const generatedIds = Object.keys(
-    generatedShatterGoldenScenarios,
-  ).sort();
-  if (
-    canonicalStringify(generatedIds) !==
-    canonicalStringify(
-      [...shatterGoldenScenarioIds].sort(),
-    )
-  ) {
-    throw new Error(
-      `Refusing to write incomplete Shatter Golden: ${generatedIds.join(", ")}`,
-    );
-  }
-  const scenarios =
-    generatedShatterGoldenScenarios as Record<
-      ShatterGoldenScenarioId,
-      ShatterGoldenScenario
-    >;
-  const hashes = Object.fromEntries(
-    shatterGoldenScenarioIds.map((scenarioId) => [
-      scenarioId,
-      sha256(scenarios[scenarioId]),
-    ]),
-  ) as Record<ShatterGoldenScenarioId, string>;
-  const fixture: ShatterGoldenFixture = {
-    ...shatterGolden,
-    fixtureVersion: "shatter-recursive-delivery-1.39",
-    commonConfig: {
-      schemaVersion:
-        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
-      engineVersion:
-        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
-      reactionEngine: { mode: "aura-v7" },
-      reactionDeliveryModel: {
-        mode: "shatter-recursive-zero-delay-v1",
-      },
-      timeline: { mode: "legal-frame-v1", fps: 60 },
-    },
-    scenarios,
-    hashes,
+function normalizeShatterIdentity(
+  scenario: ShatterGoldenScenario,
+) {
+  const {
+    schemaVersion: _schemaVersion,
+    engineVersion: _engineVersion,
+    configHash: _configHash,
+    reproducibilityKey: _reproducibilityKey,
+    ...identity
+  } = scenario.identity;
+  const {
+    config: _configDigest,
+    ...digests
+  } = scenario.digests;
+  return {
+    ...scenario,
+    identity,
+    digests,
   };
-  writeFileSync(
-    new URL(
-      "../../../test-vectors/fixtures/shatter-recursive-delivery-1.39.golden.json",
-      import.meta.url,
-    ),
-    `${JSON.stringify(fixture, null, 2)}\n`,
-  );
-});
+}
 
 function expectShatterGolden(
   scenarioId: ShatterGoldenScenarioId,
@@ -262,10 +224,12 @@ function expectShatterGolden(
     process.env
       .UPDATE_SHATTER_RECURSIVE_DELIVERY_GOLDEN === "1"
   ) {
-    generatedShatterGoldenScenarios[scenarioId] =
-      scenario;
-    return;
+    throw new Error(
+      "shatter-recursive-delivery-1.39.golden.json is frozen; compare current identity through normalization instead of overwriting history.",
+    );
   }
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   expect(shatterGolden).toMatchObject({
     fixtureVersion: "shatter-recursive-delivery-1.39",
     provenance: {
@@ -292,11 +256,10 @@ function expectShatterGolden(
   expect(Object.keys(shatterGolden.hashes).sort()).toEqual(
     [...shatterGoldenScenarioIds].sort(),
   );
-  expect(scenario).toStrictEqual(
-    shatterGolden.scenarios[scenarioId],
-  );
-  expect(sha256(scenario)).toBe(
-    shatterGolden.hashes[scenarioId],
+  expect(normalizeShatterIdentity(scenario)).toStrictEqual(
+    normalizeShatterIdentity(
+      shatterGolden.scenarios[scenarioId],
+    ),
   );
   expect(
     sha256(shatterGolden.scenarios[scenarioId]),

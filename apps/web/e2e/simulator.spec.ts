@@ -104,8 +104,8 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.39.0",
-    engineVersion: "1.39.0-shatter-recursive-delivery",
+    schemaVersion: "1.40.0",
+    engineVersion: "1.40.0-ec-next-target-tick-cleanup",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     }
@@ -165,9 +165,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.39.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.40.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.39.0-shatter-recursive-delivery"
+    "engine 1.40.0-ec-next-target-tick-cleanup"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -606,6 +606,28 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText(
     "aura-v7 自动判定"
+  );
+
+  const auraV8Config = {
+    ...auraV7Config,
+    targetTaskModel: { mode: "target-phase-v2" as const },
+    reactionEngine: { mode: "aura-v8" as const }
+  };
+  await page.locator("#importInput").setInputFiles({
+    name: "aura-v8-browser-label.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(auraV8Config))
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
+      )
+    )
+    .toBe("aura-v8");
+  await page.getByRole("button", { name: "运行模拟" }).click();
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v8 自动判定"
   );
 });
 

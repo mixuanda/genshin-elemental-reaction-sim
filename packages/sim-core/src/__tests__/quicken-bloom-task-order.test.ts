@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import {
   canonicalStringify,
+  EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+  EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   QUICKEN_BLOOM_TASK_ENGINE_VERSION,
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
@@ -19,6 +21,7 @@ import taskOrderGoldenV136Json from "../../../test-vectors/fixtures/quicken-bloo
 import taskOrderGoldenV137Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.37.golden.json";
 import taskOrderGoldenV138Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.38.golden.json";
 import taskOrderGoldenV139Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.39.golden.json";
+import taskOrderGoldenV140Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.40.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -367,6 +370,8 @@ const taskOrderGoldenV138 =
   taskOrderGoldenV138Json as unknown as TaskOrderGoldenFixture<TaskOrderProjectionV138>;
 const taskOrderGoldenV139 =
   taskOrderGoldenV139Json as unknown as TaskOrderGoldenFixture<TaskOrderProjection>;
+const taskOrderGoldenV140 =
+  taskOrderGoldenV140Json as unknown as TaskOrderGoldenFixture<TaskOrderProjection>;
 
 function semanticHash(value: unknown): string {
   return createHash("sha256")
@@ -448,6 +453,29 @@ function normalizeCurrentVectorsToV138(
   >;
 }
 
+function normalizeCurrentVectorsToV139(
+  vectors: Record<TaskOrderScenarioId, TaskOrderProjection>
+): Record<TaskOrderScenarioId, TaskOrderProjection> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([id, vector]) => [
+      id,
+      {
+        ...vector,
+        version: {
+          ...vector.version,
+          schemaVersion:
+            SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+          engineVersion:
+            SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+        }
+      }
+    ])
+  ) as unknown as Record<
+    TaskOrderScenarioId,
+    TaskOrderProjection
+  >;
+}
+
 function normalizeV138VectorsToV137(
   vectors: Record<
     TaskOrderScenarioId,
@@ -517,7 +545,7 @@ function normalizeV137VectorsToV136(
 }
 
 describe("aura-v7 queued Quicken to Bloom follow-up", () => {
-  it("matches the current 1.39 identity and normalizes through the frozen 1.38, 1.37, and 1.36 task-order Goldens", () => {
+  it("matches the current 1.40 identity and normalizes through the frozen 1.39, 1.38, 1.37, and 1.36 task-order Goldens", () => {
     const vectors = projectAllTaskOrderVectors();
     const hashes = Object.fromEntries(
       Object.entries(vectors).map(([id, vector]) => [
@@ -570,11 +598,36 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       targetTaskModelMode: "legacy-event-heap-v1",
       reactionDeliveryModelMode: "deferred-event-heap-v1"
     });
-    expect(vectors).toEqual(taskOrderGoldenV139.vectors);
-    expect(hashes).toEqual(taskOrderGoldenV139.hashes);
+    expect(taskOrderGoldenV140.fixtureVersion).toBe("1.0.0");
+    expect(taskOrderGoldenV140.config).toEqual({
+      schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+      engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+      dataVersion:
+        "quicken-bloom-task-order-provisional-1",
+      timelineMode: "legal-frame-v1",
+      queuedReactionEngineMode: "aura-v7",
+      compatibilityReactionEngineMode: "aura-v6",
+      targetTaskModelMode: "legacy-event-heap-v1",
+      reactionDeliveryModelMode: "deferred-event-heap-v1"
+    });
+    expect(vectors).toEqual(taskOrderGoldenV140.vectors);
+    expect(hashes).toEqual(taskOrderGoldenV140.hashes);
+
+    const normalizedV139 =
+      normalizeCurrentVectorsToV139(vectors);
+    expect(normalizedV139).toEqual(
+      taskOrderGoldenV139.vectors
+    );
+    expect(
+      Object.fromEntries(
+        Object.entries(normalizedV139).map(
+          ([id, vector]) => [id, semanticHash(vector)]
+        )
+      )
+    ).toEqual(taskOrderGoldenV139.hashes);
 
     const normalizedV138 =
-      normalizeCurrentVectorsToV138(vectors);
+      normalizeCurrentVectorsToV138(normalizedV139);
     expect(normalizedV138).toEqual(
       taskOrderGoldenV138.vectors
     );

@@ -14,6 +14,8 @@ import {
   CURRENT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
+  EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+  EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
@@ -355,7 +357,8 @@ export const auraReactionEngineConfigSchema = z
       "aura-v4",
       "aura-v5",
       "aura-v6",
-      "aura-v7"
+      "aura-v7",
+      "aura-v8"
     ]),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
@@ -381,7 +384,7 @@ export const auraReactionEngineConfigSchema = z
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
+            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
         });
       }
       if (
@@ -390,13 +393,14 @@ export const auraReactionEngineConfigSchema = z
         engine.mode !== "aura-v5" &&
         engine.mode !== "aura-v6" &&
         engine.mode !== "aura-v7" &&
+        engine.mode !== "aura-v8" &&
         aura.element === "dendro"
       ) {
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
+            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
         });
       }
       if (elements.has(aura.element)) {
@@ -450,18 +454,38 @@ export const targetTaskModelSchema = z.discriminatedUnion("mode", [
     .strict()
 ]);
 
-export const reactionDeliveryModelSchema = z.discriminatedUnion("mode", [
-  z
-    .object({
-      mode: z.literal("deferred-event-heap-v1")
-    })
-    .strict(),
-  z
-    .object({
-      mode: z.literal("shatter-recursive-zero-delay-v1")
-    })
-    .strict()
-]);
+const reactionDeliveryModelValueSchema = z.discriminatedUnion(
+  "mode",
+  [
+    z
+      .object({
+        mode: z.literal("deferred-event-heap-v1")
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal("shatter-recursive-zero-delay-v1")
+      })
+      .strict()
+  ]
+);
+
+export const reactionDeliveryModelSchema = z
+  .unknown()
+  .superRefine((value, context) => {
+    if (
+      isRecord(value) &&
+      !Object.prototype.hasOwnProperty.call(value, "mode")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["mode"],
+        message:
+          "must be an explicit own property; inherited reaction delivery discriminators are forbidden"
+      });
+    }
+  })
+  .pipe(reactionDeliveryModelValueSchema);
 
 export const auraStateElementSchema = z.enum([
   "pyro",
@@ -697,6 +721,29 @@ function auraStateSnapshotsEqual(
     }
   }
   return true;
+}
+
+function electroChargedCoexistenceExpiryFrame(
+  snapshot: readonly AuraStateWireEntry[]
+): number | null {
+  const hydro = snapshot.find(
+    (entry) => entry.element === "hydro"
+  );
+  const electro = snapshot.find(
+    (entry) => entry.element === "electro"
+  );
+  if (hydro === undefined || electro === undefined) {
+    return null;
+  }
+  const finiteExpiryFrames = [
+    hydro.expiresAtFrame,
+    electro.expiresAtFrame
+  ].filter(
+    (frame): frame is number => frame !== null
+  );
+  return finiteExpiryFrames.length === 0
+    ? null
+    : Math.min(...finiteExpiryFrames);
 }
 
 /**
@@ -1080,6 +1127,7 @@ export const simulationEventTypeSchema = z.enum([
   "particleReceive",
   "hit",
   "quickenBloomFollowup",
+  "electroChargedCleanup",
   "reactionDamage",
   "periodicReactionTick",
   "periodicReactionWane",
@@ -1175,6 +1223,7 @@ export const targetStateTimelineCauseSchema = z.enum([
   "electro-charged-expiry",
   "electro-charged-tick",
   "electro-charged-wane",
+  "electro-charged-cleanup",
   "burning-fuel-expiry",
   "burning-tick",
   "target-mechanics-truncation"
@@ -2409,8 +2458,36 @@ const targetPhaseV2TransitionBaseShape = {
   targetStateTimelinePointId: z.number().int().nonnegative()
 };
 
-export const targetLifecycleTransitionSchema =
-  z.discriminatedUnion("kind", [
+const electroChargedCleanupTransitionBaseShape = {
+  ...targetPhaseV2TransitionBaseShape,
+  kind: z.literal("electro-charged-cleanup"),
+  generation: z.number().int().nonnegative(),
+  reactionTaskLogId: z.number().int().nonnegative(),
+  targetStateTimelinePointId: z.number().int().nonnegative()
+};
+
+const electroChargedCleanupTransitionSchema =
+  z.discriminatedUnion("outcome", [
+    z
+      .object({
+        ...electroChargedCleanupTransitionBaseShape,
+        outcome: z.enum(["stop", "natural-expiry"]),
+        periodicReactionLogId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupTransitionBaseShape,
+        outcome: z.enum(["retain", "superseded"]),
+        periodicReactionLogId: z.null()
+      })
+      .strict()
+  ]);
+
+export const targetLifecycleTransitionSchema = z.union([
     z
       .object({
         ...targetPhaseV2TransitionBaseShape,
@@ -2454,7 +2531,8 @@ export const targetLifecycleTransitionSchema =
           .int()
           .nonnegative()
       })
-      .strict()
+      .strict(),
+    electroChargedCleanupTransitionSchema
   ]);
 
 const validateStrictlyIncreasingIds = (
@@ -2629,11 +2707,28 @@ export const targetPhaseV2LogEntrySchema = z
       "burning-fuel-expiry": 1,
       "quicken-expiry": 2,
       "frozen-expiry": 3,
-      "electro-charged-expiry": 4
+      "electro-charged-expiry": 4,
+      "electro-charged-cleanup": 5
     } as const;
     const seenTransitionKinds = new Set<string>();
     entry.reactableTick.transitions.forEach(
       (transition, index) => {
+        const previousTransition =
+          entry.reactableTick.transitions[index - 1];
+        const naturalExpiryCollision =
+          transition.kind ===
+            "electro-charged-cleanup" &&
+          transition.outcome === "natural-expiry" &&
+          previousTransition?.kind ===
+            "electro-charged-expiry" &&
+          previousTransition.generation ===
+            transition.generation &&
+          previousTransition.deadlineTargetFrame ===
+            transition.deadlineTargetFrame &&
+          previousTransition.periodicReactionLogId ===
+            transition.periodicReactionLogId &&
+          previousTransition.targetStateTimelinePointId ===
+            transition.targetStateTimelinePointId;
         if (transition.order !== index) {
           context.addIssue({
             code: "custom",
@@ -2665,7 +2760,8 @@ export const targetPhaseV2LogEntrySchema = z
         }
         if (
           transition.targetStateTimelinePointId <=
-          previousTransitionPointId
+            previousTransitionPointId &&
+          !naturalExpiryCollision
         ) {
           context.addIssue({
             code: "custom",
@@ -2679,12 +2775,18 @@ export const targetPhaseV2LogEntrySchema = z
               "Reactable.Tick transitions must follow target timeline order"
           });
         }
-        previousTransitionPointId =
-          transition.targetStateTimelinePointId;
+        previousTransitionPointId = Math.max(
+          previousTransitionPointId,
+          transition.targetStateTimelinePointId
+        );
         const kindRank = transitionKindRank[transition.kind];
+        const repeatedCleanup =
+          transition.kind === "electro-charged-cleanup" &&
+          seenTransitionKinds.has(transition.kind);
         if (
-          seenTransitionKinds.has(transition.kind) ||
-          kindRank <= previousTransitionKindRank
+          (!repeatedCleanup &&
+            seenTransitionKinds.has(transition.kind)) ||
+          kindRank < previousTransitionKindRank
         ) {
           context.addIssue({
             code: "custom",
@@ -2695,7 +2797,7 @@ export const targetPhaseV2LogEntrySchema = z
               "kind"
             ],
             message:
-              "Reactable.Tick transitions must be unique and follow natural Aura, Burning Fuel, Quicken, Frozen, then Electro-Charged order"
+              "Reactable.Tick transitions must be unique and follow natural Aura, Burning Fuel, Quicken, Frozen, Electro-Charged expiry, then cleanup order; only per-generation cleanup may repeat"
           });
         }
         seenTransitionKinds.add(transition.kind);
@@ -2703,7 +2805,8 @@ export const targetPhaseV2LogEntrySchema = z
         if (
           timelinePointIds.has(
             transition.targetStateTimelinePointId
-          )
+          ) &&
+          !naturalExpiryCollision
         ) {
           context.addIssue({
             code: "custom",
@@ -4504,6 +4607,15 @@ export const bloomReactionAuditSchema = z
       const decayPerFrame = mutation[decayField];
       const expiresAtFrame = mutation[expiryField];
       const endCause = mutation[endCauseField];
+      const operationSnapshot =
+        side === "Before"
+          ? mutation.operationAuraBefore
+          : mutation.operationAuraAfter;
+      const quickenSnapshot = operationSnapshot.find(
+        (entry) => entry.element === "quicken"
+      );
+      const usesTargetLocalExpiry =
+        quickenSnapshot?.expiresAtTargetFrame !== undefined;
       if (gaugeUnits <= bloomGaugeEpsilon) {
         if (
           !approximatelyEqual(decayPerFrame, 0) ||
@@ -4535,10 +4647,11 @@ export const bloomReactionAuditSchema = z
           Math.ceil(gaugeUnits / decayPerFrame - 1e-9)
         );
       if (
-        (endCause === "QUICKEN_DECAY" &&
+        !usesTargetLocalExpiry &&
+        ((endCause === "QUICKEN_DECAY" &&
           expiresAtFrame !== intrinsicExpiryFrame) ||
         (endCause === "BURNING_FUEL_EXPIRED" &&
-          expiresAtFrame > intrinsicExpiryFrame)
+          expiresAtFrame > intrinsicExpiryFrame))
       ) {
         mutationIssue(
           expiryField,
@@ -5080,7 +5193,180 @@ export const reactionTaskBlockedReasonSchema = z.enum([
   "TARGET_MECHANICS_TRUNCATION"
 ]);
 
-export const quickenBloomFollowupTaskLogEntrySchema = z
+const electroChargedCleanupAuditBaseShape = {
+  generation: z.number().int().nonnegative(),
+  requestedTargetFrame: z.number().int().nonnegative(),
+  deadlineTargetFrame: z.number().int().nonnegative(),
+  requestReason: z.literal(
+    "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO"
+  )
+};
+
+export const electroChargedCleanupAuditSchema =
+  z.discriminatedUnion("outcome", [
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("stop"),
+        resolutionReason: z.literal(
+          "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+        ),
+        resolvedGlobalFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        resolvedTargetFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetPhaseLogId: z.number().int().nonnegative(),
+        periodicReactionLogId: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetStateTimelinePointId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("retain"),
+        resolutionReason: z.literal(
+          "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK"
+        ),
+        resolvedGlobalFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        resolvedTargetFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetPhaseLogId: z.number().int().nonnegative(),
+        periodicReactionLogId: z.null(),
+        targetStateTimelinePointId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("superseded"),
+        resolutionReason: z.literal(
+          "ELECTRO_CHARGED_GENERATION_SUPERSEDED"
+        ),
+        resolvedGlobalFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        resolvedTargetFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetPhaseLogId: z.number().int().nonnegative(),
+        periodicReactionLogId: z.null(),
+        targetStateTimelinePointId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("natural-expiry"),
+        resolutionReason: z.literal(
+          "AURA_DECAY_EXPIRED_BEFORE_CLEANUP"
+        ),
+        resolvedGlobalFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        resolvedTargetFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetPhaseLogId: z.number().int().nonnegative(),
+        periodicReactionLogId: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetStateTimelinePointId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("pending-at-end"),
+        resolutionReason: z.null(),
+        resolvedGlobalFrame: z.null(),
+        resolvedTargetFrame: z.null(),
+        targetPhaseLogId: z.null(),
+        periodicReactionLogId: z.null(),
+        targetStateTimelinePointId: z.null()
+      })
+      .strict()
+  ])
+  .superRefine((audit, context) => {
+    if (
+      audit.deadlineTargetFrame !==
+      audit.requestedTargetFrame + 1
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["deadlineTargetFrame"],
+        message:
+          "Electro-Charged cleanup deadline must be the next target Tick"
+      });
+    }
+    if (
+      audit.outcome !== "pending-at-end" &&
+      audit.resolvedTargetFrame !==
+        audit.deadlineTargetFrame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["resolvedTargetFrame"],
+        message:
+          "resolved Electro-Charged cleanup must run at its exact target-local deadline"
+      });
+    }
+  });
+
+const rejectInheritedElectroChargedCleanup = (
+  input: unknown,
+  context: z.RefinementCtx
+): unknown => {
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    !Object.prototype.hasOwnProperty.call(
+      input,
+      "electroChargedCleanup"
+    ) &&
+    "electroChargedCleanup" in input
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["electroChargedCleanup"],
+      message:
+        "electroChargedCleanup must be an own wire property, not inherited from a prototype"
+    });
+  }
+  return input;
+};
+
+export const quickenBloomFollowupTaskLogEntrySchema = z.preprocess(
+  rejectInheritedElectroChargedCleanup,
+  z
   .object({
     id: z.number().int().nonnegative(),
     kind: z.literal("quicken-bloom-followup"),
@@ -5113,6 +5399,8 @@ export const quickenBloomFollowupTaskLogEntrySchema = z
       z.number().int().nonnegative()
     ),
     dendroCoreIds: z.array(z.number().int().nonnegative()),
+    electroChargedCleanup:
+      electroChargedCleanupAuditSchema.nullable().optional(),
     mechanicsDataStatus: z.literal(
       "fixed-gcsim-provisional"
     )
@@ -5157,6 +5445,8 @@ export const quickenBloomFollowupTaskLogEntrySchema = z
         entry.quickenStateLogIds.length !== 0 ||
         entry.dendroCoreLogIds.length !== 0 ||
         entry.dendroCoreIds.length !== 0 ||
+        (entry.electroChargedCleanup !== undefined &&
+          entry.electroChargedCleanup !== null) ||
         !auraStateSnapshotsEqual(
           entry.auraBefore,
           entry.auraAfter
@@ -5244,7 +5534,8 @@ export const quickenBloomFollowupTaskLogEntrySchema = z
         "task Aura consumption must exactly project the inline Bloom audit"
       );
     }
-  });
+  })
+);
 
 export const reactionTaskLogSchema = z
   .array(quickenBloomFollowupTaskLogEntrySchema)
@@ -6744,6 +7035,54 @@ const addMissingReferenceIssue = (
   });
 };
 
+const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
+  Record<
+    string,
+    { engineVersion: string; maxAuraRevision: number }
+  >
+> = {
+  [DENDRO_CORE_SCHEMA_VERSION]: {
+    engineVersion: DENDRO_CORE_ENGINE_VERSION,
+    maxAuraRevision: 5
+  },
+  [PLAYER_REACTION_DAMAGE_SCHEMA_VERSION]: {
+    engineVersion: PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
+    maxAuraRevision: 5
+  },
+  [TARGET_LOCAL_HITLAG_SCHEMA_VERSION]: {
+    engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION,
+    maxAuraRevision: 5
+  },
+  [GENERAL_REACTION_ORDER_SCHEMA_VERSION]: {
+    engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION,
+    maxAuraRevision: 6
+  },
+  [ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION]: {
+    engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
+    maxAuraRevision: 6
+  },
+  [QUICKEN_BLOOM_TASK_SCHEMA_VERSION]: {
+    engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION,
+    maxAuraRevision: 7
+  },
+  [TARGET_TASK_PHASE_SCHEMA_VERSION]: {
+    engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+    maxAuraRevision: 7
+  },
+  [TARGET_REACTABLE_PHASE_SCHEMA_VERSION]: {
+    engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+    maxAuraRevision: 7
+  },
+  [SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION]: {
+    engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+    maxAuraRevision: 7
+  },
+  [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]: {
+    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+    maxAuraRevision: 8
+  }
+};
+
 /**
  * Cross-log integrity projection for Dendro-core outputs.
  *
@@ -6753,13 +7092,24 @@ const addMissingReferenceIssue = (
  */
 export const dendroCoreResultReferencesSchema = z
   .object({
+    schemaVersion: z.string(),
+    engineVersion: z.string(),
     config: z
       .object({
-        reactionEngine: auraReactionEngineConfigSchema.optional()
+        schemaVersion: z.string(),
+        engineVersion: z.string(),
+        reactionEngine: auraReactionEngineConfigSchema.optional(),
+        targetTaskModel: targetTaskModelSchema.optional(),
+        targetClockModel: targetClockModelSchema.optional(),
+        timeline: z
+          .object({
+            mode: z.literal("legal-frame-v1"),
+            fps: z.literal(60)
+          })
+          .passthrough()
+          .optional()
       })
-      .passthrough()
-      .optional()
-      .default({}),
+      .passthrough(),
     dendroCoreLog: dendroCoreLogSchema,
     dendroCoreContactLog: dendroCoreContactLogSchema,
     dendroCoreTimeline: dendroCoreTimelineSchema,
@@ -6769,6 +7119,8 @@ export const dendroCoreResultReferencesSchema = z
       .optional()
       .default([]),
     targetStateTimeline: targetStateTimelineSchema.optional(),
+    targetClockAudit: targetClockAuditSchema.optional(),
+    targetClockLog: targetClockLogSchema.optional(),
     hitResolutionLog: z.array(
       dendroCoreHitResolutionReferenceSchema
     ),
@@ -6779,6 +7131,79 @@ export const dendroCoreResultReferencesSchema = z
   })
   .passthrough()
   .superRefine((result, context) => {
+    const identityContract =
+      DENDRO_CORE_RESULT_IDENTITY_CONTRACTS[
+        result.schemaVersion
+      ];
+    if (
+      identityContract === undefined ||
+      result.config.schemaVersion !== result.schemaVersion ||
+      result.engineVersion !==
+        identityContract.engineVersion ||
+      result.config.engineVersion !==
+        identityContract.engineVersion
+    ) {
+      addMissingReferenceIssue(
+        context,
+        ["config", "engineVersion"],
+        "Dendro-core result and config require an exact supported schema and engine identity"
+      );
+    }
+    const auraMode = result.config.reactionEngine?.mode;
+    const exact140Identity =
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    const auraRevision =
+      auraMode === undefined
+        ? null
+        : Number(auraMode.slice("aura-v".length));
+    if (
+      identityContract !== undefined &&
+      auraRevision !== null &&
+      auraRevision > identityContract.maxAuraRevision
+    ) {
+      addMissingReferenceIssue(
+        context,
+        ["config", "reactionEngine", "mode"],
+        `${result.schemaVersion} does not support ${auraMode} Dendro-core output`
+      );
+    }
+    if (auraMode === "aura-v8") {
+      if (
+        result.config.timeline?.mode !==
+          "legal-frame-v1" ||
+        result.config.timeline.fps !== 60
+      ) {
+        addMissingReferenceIssue(
+          context,
+          ["config", "timeline"],
+          "aura-v8 Dendro-core output requires legal-frame-v1 at 60 FPS"
+        );
+      }
+      if (
+        result.config.targetTaskModel?.mode !==
+        "target-phase-v2"
+      ) {
+        addMissingReferenceIssue(
+          context,
+          ["config", "targetTaskModel", "mode"],
+          "aura-v8 Dendro-core output requires target-phase-v2"
+        );
+      }
+      if (result.config.targetClockModel === undefined) {
+        addMissingReferenceIssue(
+          context,
+          ["config", "targetClockModel"],
+          "aura-v8 Dendro-core output requires an explicit target clock model"
+        );
+      }
+    }
     const lifecycleById = new Map(
       result.dendroCoreLog.map((entry) => [entry.id, entry])
     );
@@ -6809,15 +7234,128 @@ export const dendroCoreResultReferencesSchema = z
         entry
       ])
     );
+    const targetClockEntriesByTarget = new Map<
+      string,
+      NonNullable<typeof result.targetClockLog>
+    >();
+    for (const entry of result.targetClockLog ?? []) {
+      const entries =
+        targetClockEntriesByTarget.get(entry.targetId) ?? [];
+      entries.push(entry);
+      targetClockEntriesByTarget.set(entry.targetId, entries);
+    }
+    const replayTargetFrame = (
+      targetId: string,
+      globalFrame: number
+    ): number | undefined => {
+      if (
+        result.config.targetClockModel?.mode === "disabled"
+      ) {
+        return globalFrame;
+      }
+      if (
+        result.config.targetClockModel?.mode !==
+          "target-local-hitlag-v1" ||
+        result.targetClockAudit?.mode !==
+          "target-local-hitlag-v1"
+      ) {
+        return undefined;
+      }
+      if (globalFrame === 0) return 0;
+      const entries =
+        targetClockEntriesByTarget.get(targetId) ?? [];
+      for (const entry of entries) {
+        if (globalFrame < entry.globalFrameBefore) break;
+        if (
+          entry.operation === "advance" &&
+          globalFrame <= entry.globalFrameAfter
+        ) {
+          const elapsed =
+            globalFrame - entry.globalFrameBefore;
+          return (
+            entry.targetFrameBefore +
+            elapsed -
+            Math.min(elapsed, entry.frozenFramesBefore)
+          );
+        }
+        if (globalFrame === entry.globalFrameBefore) {
+          return entry.targetFrameBefore;
+        }
+      }
+      const summary = result.targetClockAudit.targets.find(
+        (candidate) => candidate.targetId === targetId
+      );
+      if (
+        summary === undefined ||
+        globalFrame < summary.finalGlobalFrame
+      ) {
+        return undefined;
+      }
+      const elapsed =
+        globalFrame - summary.finalGlobalFrame;
+      return (
+        summary.finalTargetFrame +
+        elapsed -
+        Math.min(elapsed, summary.frozenFramesRemaining)
+      );
+    };
+
+    result.reactionTaskLog.forEach((task, taskIndex) => {
+      const hasCleanupField = Object.prototype.hasOwnProperty.call(
+        task,
+        "electroChargedCleanup"
+      );
+      const hasDefinedCleanupField =
+        hasCleanupField &&
+        task.electroChargedCleanup !== undefined;
+      if (exact140Identity && !hasDefinedCleanupField) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "exact 1.40 reaction tasks require an explicit Electro-Charged cleanup audit or null"
+        );
+      }
+      if (!exact140Identity && hasCleanupField) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "pre-1.40 reaction-task output cannot carry the Electro-Charged cleanup field"
+        );
+      }
+      if (
+        exact140Identity &&
+        auraMode === "aura-v7" &&
+        task.electroChargedCleanup !== null
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "aura-v7 exact 1.40 reaction tasks require electroChargedCleanup=null"
+        );
+      }
+    });
 
     if (
       result.reactionTaskLog.length > 0 &&
-      result.config.reactionEngine?.mode !== "aura-v7"
+      result.config.reactionEngine?.mode !== "aura-v7" &&
+      result.config.reactionEngine?.mode !== "aura-v8"
     ) {
       addMissingReferenceIssue(
         context,
         ["reactionTaskLog"],
-        "reaction tasks require reactionEngine.mode aura-v7"
+        "reaction tasks require reactionEngine.mode aura-v7 or aura-v8"
       );
     }
 
@@ -7248,6 +7786,95 @@ export const dendroCoreResultReferencesSchema = z
             "triggered task does not match its reciprocal Quicken lifecycle mutation"
           );
         }
+        if (
+          exact140Identity &&
+          result.config.targetClockModel?.mode ===
+            "target-local-hitlag-v1"
+        ) {
+          const taskTargetFrame = replayTargetFrame(
+            task.targetId,
+            task.frame
+          );
+          for (const side of ["Before", "After"] as const) {
+            const gaugeUnits =
+              side === "Before"
+                ? bloom.quickenGaugeUnitsBefore
+                : bloom.quickenGaugeUnitsAfter;
+            if (gaugeUnits <= bloomGaugeEpsilon) continue;
+            const decayPerFrame =
+              mutation[`decayPerFrame${side}`];
+            const expiresAtFrame =
+              mutation[`expiresAtFrame${side}`];
+            const endCause = mutation[`endCause${side}`];
+            const snapshot =
+              mutation[`operationAura${side}`];
+            const quickenAura = snapshot.find(
+              (entry) => entry.element === "quicken"
+            );
+            const expiresAtTargetFrame =
+              quickenAura?.expiresAtTargetFrame;
+            const remainingFrames =
+              decayPerFrame <= 0
+                ? null
+                : Math.max(
+                    0,
+                    Math.ceil(
+                      gaugeUnits / decayPerFrame - 1e-9
+                    )
+                  );
+            const intrinsicTargetDeadline =
+              taskTargetFrame === undefined ||
+              remainingFrames === null
+                ? null
+                : taskTargetFrame + remainingFrames;
+            const projectedAtExpiry =
+              expiresAtFrame === null
+                ? undefined
+                : replayTargetFrame(
+                    task.targetId,
+                    expiresAtFrame
+                  );
+            const projectedImmediatelyBefore =
+              expiresAtFrame === null ||
+              expiresAtFrame === 0
+                ? undefined
+                : replayTargetFrame(
+                    task.targetId,
+                    expiresAtFrame - 1
+                  );
+            if (
+              taskTargetFrame === undefined ||
+              expiresAtFrame === null ||
+              expiresAtTargetFrame === undefined ||
+              expiresAtTargetFrame === null ||
+              intrinsicTargetDeadline === null ||
+              (endCause === "QUICKEN_DECAY"
+                ? expiresAtTargetFrame !==
+                  intrinsicTargetDeadline
+                : endCause === "BURNING_FUEL_EXPIRED"
+                  ? expiresAtTargetFrame >
+                    intrinsicTargetDeadline
+                  : true) ||
+              projectedAtExpiry !==
+                expiresAtTargetFrame ||
+              (projectedImmediatelyBefore !== undefined &&
+                projectedImmediatelyBefore >=
+                  expiresAtTargetFrame)
+            ) {
+              addMissingReferenceIssue(
+                context,
+                [
+                  "reactionTaskLog",
+                  taskIndex,
+                  "bloomReaction",
+                  "quickenStateMutation",
+                  `expiresAtFrame${side}`
+                ],
+                "target-local Quicken expiry must equal its remaining Gauge deadline and earliest legal global target-clock projection"
+              );
+            }
+          }
+        }
 
         const schedule = lifecycleById.get(
           task.dendroCoreLogIds[0]!
@@ -7387,7 +8014,10 @@ export const dendroCoreResultReferencesSchema = z
       }
     });
 
-    if (result.config.reactionEngine?.mode === "aura-v7") {
+    if (
+      result.config.reactionEngine?.mode === "aura-v7" ||
+      result.config.reactionEngine?.mode === "aura-v8"
+    ) {
       result.damageEvents.forEach((origin, originIndex) => {
         if (
           origin.reactionAudit.catalyzeReaction?.quicken
@@ -7409,7 +8039,7 @@ export const dendroCoreResultReferencesSchema = z
               "quicken",
               "pendingHydroBloomFollowup"
             ],
-            "each aura-v7 pending Quicken follow-up requires exactly one reaction task"
+            "each aura-v7 or aura-v8 pending Quicken follow-up requires exactly one reaction task"
           );
         }
       });
@@ -10351,6 +10981,27 @@ export const simConfigSchema = z
   })
   .strict()
   .superRefine((config, context) => {
+    if (config.reactionEngine?.mode === "aura-v8") {
+      if (
+        config.timeline?.mode !== "legal-frame-v1" ||
+        config.timeline.fps !== 60
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["reactionEngine"],
+          message:
+            "aura-v8 requires timeline.mode legal-frame-v1 at 60 FPS"
+        });
+      }
+      if (config.targetTaskModel.mode !== "target-phase-v2") {
+        context.addIssue({
+          code: "custom",
+          path: ["targetTaskModel"],
+          message:
+            "aura-v8 requires targetTaskModel.mode target-phase-v2"
+        });
+      }
+    }
     if (
       config.reactionDeliveryModel.mode ===
       "shatter-recursive-zero-delay-v1"
@@ -10366,12 +11017,15 @@ export const simConfigSchema = z
             "shatter-recursive-zero-delay-v1 requires timeline.mode legal-frame-v1 at 60 FPS"
         });
       }
-      if (config.reactionEngine?.mode !== "aura-v7") {
+      if (
+        config.reactionEngine?.mode !== "aura-v7" &&
+        config.reactionEngine?.mode !== "aura-v8"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["reactionDeliveryModel"],
           message:
-            "shatter-recursive-zero-delay-v1 requires reactionEngine.mode aura-v7"
+            "shatter-recursive-zero-delay-v1 requires reactionEngine.mode aura-v7 or aura-v8"
         });
       }
     }
@@ -10396,12 +11050,15 @@ export const simConfigSchema = z
             "target-phase-v2 requires timeline.mode legal-frame-v1 at 60 FPS"
         });
       }
-      if (config.reactionEngine?.mode !== "aura-v7") {
+      if (
+        config.reactionEngine?.mode !== "aura-v7" &&
+        config.reactionEngine?.mode !== "aura-v8"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["targetTaskModel"],
           message:
-            "target-phase-v2 requires reactionEngine.mode aura-v7"
+            "target-phase-v2 requires reactionEngine.mode aura-v7 or aura-v8"
         });
       }
     }
@@ -10636,13 +11293,14 @@ export const simConfigSchema = z
         config.reactionEngine?.mode !== "aura-v4" &&
         config.reactionEngine?.mode !== "aura-v5" &&
         config.reactionEngine?.mode !== "aura-v6" &&
-        config.reactionEngine?.mode !== "aura-v7"
+        config.reactionEngine?.mode !== "aura-v7" &&
+        config.reactionEngine?.mode !== "aura-v8"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
           message:
-            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
+            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
@@ -10653,7 +11311,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v4" &&
           config.reactionEngine?.mode !== "aura-v5" &&
           config.reactionEngine?.mode !== "aura-v6" &&
-          config.reactionEngine?.mode !== "aura-v7"
+          config.reactionEngine?.mode !== "aura-v7" &&
+          config.reactionEngine?.mode !== "aura-v8"
         ) {
           context.addIssue({
             code: "custom",
@@ -10666,7 +11325,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
+              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
           });
         }
         if (
@@ -10675,7 +11334,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v4" &&
           config.reactionEngine?.mode !== "aura-v5" &&
           config.reactionEngine?.mode !== "aura-v6" &&
-          config.reactionEngine?.mode !== "aura-v7"
+          config.reactionEngine?.mode !== "aura-v7" &&
+          config.reactionEngine?.mode !== "aura-v8"
         ) {
           context.addIssue({
             code: "custom",
@@ -10688,7 +11348,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7"
+              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
           });
         }
       });
@@ -11105,20 +11765,22 @@ export const simConfigSchema = z
       config.reactionEngine?.mode === "aura-v4" ||
       config.reactionEngine?.mode === "aura-v5" ||
       config.reactionEngine?.mode === "aura-v6" ||
-      config.reactionEngine?.mode === "aura-v7"
+      config.reactionEngine?.mode === "aura-v7" ||
+      config.reactionEngine?.mode === "aura-v8"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1 through aura-v7 currently require timeline.mode legal-frame-v1"
+            "aura-v1 through aura-v8 currently require timeline.mode legal-frame-v1"
         });
       }
       if (
         config.reactionEngine.mode === "aura-v5" ||
         config.reactionEngine.mode === "aura-v6" ||
-        config.reactionEngine.mode === "aura-v7"
+        config.reactionEngine.mode === "aura-v7" ||
+        config.reactionEngine.mode === "aura-v8"
       ) {
         const coreContactMode = config.reactionEngine.mode;
         if (config.enemy.targets === undefined) {
@@ -11170,7 +11832,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1 through aura-v7; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1 through aura-v8; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -11216,7 +11878,8 @@ export const simConfigSchema = z
                   config.reactionEngine?.mode === "aura-v4" ||
                   config.reactionEngine?.mode === "aura-v5" ||
                   config.reactionEngine?.mode === "aura-v6" ||
-                  config.reactionEngine?.mode === "aura-v7"
+                  config.reactionEngine?.mode === "aura-v7" ||
+                  config.reactionEngine?.mode === "aura-v8"
                 ? [
                     "pyro",
                     "cryo",
@@ -11237,7 +11900,8 @@ export const simConfigSchema = z
               config.reactionEngine?.mode === "aura-v4" ||
               config.reactionEngine?.mode === "aura-v5" ||
               config.reactionEngine?.mode === "aura-v6" ||
-              config.reactionEngine?.mode === "aura-v7"
+              config.reactionEngine?.mode === "aura-v7" ||
+              config.reactionEngine?.mode === "aura-v8"
                 ? `${config.reactionEngine.mode} elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits`
                 : config.reactionEngine?.mode === "aura-v2"
                   ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
@@ -11247,7 +11911,8 @@ export const simConfigSchema = z
         if (
           (config.reactionEngine?.mode === "aura-v5" ||
             config.reactionEngine?.mode === "aura-v6" ||
-            config.reactionEngine?.mode === "aura-v7") &&
+            config.reactionEngine?.mode === "aura-v7" ||
+            config.reactionEngine?.mode === "aura-v8") &&
           hit.application !== undefined &&
           (resolvedElement === "pyro" ||
             resolvedElement === "electro") &&
@@ -11302,6 +11967,53 @@ export const simConfigSchema = z
     }
   });
 
+/**
+ * Result-reference validators must remain able to audit frozen 1.39 payloads
+ * after CURRENT advances. The wire object is preserved verbatim; only a
+ * temporary identity projection is upgraded for reuse of the complete current
+ * config validator.
+ */
+const simResultConfigSchema = z
+  .custom<SimConfig>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const exact139Identity =
+      wire.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    if (
+      exact139Identity &&
+      isRecord(wire.reactionEngine) &&
+      wire.reactionEngine.mode === "aura-v8"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionEngine", "mode"],
+        message:
+          "schemaVersion 1.39.0 does not support reactionEngine.mode aura-v8"
+      });
+      return;
+    }
+    const projected = exact139Identity
+      ? {
+          ...wire,
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          engineVersion: CURRENT_ENGINE_VERSION
+        }
+      : wire;
+    const parsed = simConfigSchema.safeParse(projected);
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({
+        ...issue,
+        path: issue.path
+      });
+    }
+  });
+
 const enemyResistanceDamageEventReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
@@ -11317,7 +12029,7 @@ const enemyResistanceDamageEventReferenceSchema = z
 
 const enemyTargetsResultReferencesBaseSchema = z
   .object({
-    config: simConfigSchema,
+    config: simResultConfigSchema,
     enemyTargets: z
       .array(resolvedEnemyTargetProfileSchema)
       .min(1)
@@ -11607,7 +12319,7 @@ const targetClockReactionStatusReferenceSchema = z
  */
 export const targetClockResultReferencesSchema = z
   .object({
-    config: simConfigSchema,
+    config: simResultConfigSchema,
     enemyTargets: z
       .array(resolvedEnemyTargetProfileSchema)
       .min(1)
@@ -12094,12 +12806,34 @@ const targetTaskPhaseConfigReferenceSchema = z
       .optional(),
     reactionEngine: z
       .object({
-        mode: z.string()
+        mode: z.enum([
+          "aura-v1",
+          "aura-v2",
+          "aura-v3",
+          "aura-v4",
+          "aura-v5",
+          "aura-v6",
+          "aura-v7",
+          "aura-v8"
+        ])
       })
       .passthrough()
       .optional()
   })
   .passthrough();
+
+const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
+  Record<string, string>
+> = {
+  [TARGET_TASK_PHASE_SCHEMA_VERSION]:
+    TARGET_TASK_PHASE_ENGINE_VERSION,
+  [TARGET_REACTABLE_PHASE_SCHEMA_VERSION]:
+    TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+  [SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION]:
+    SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+  [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]:
+    EC_NEXT_TARGET_TICK_ENGINE_VERSION
+};
 
 const targetTaskPhaseTargetReferenceSchema = z
   .object({
@@ -12161,7 +12895,9 @@ const targetTaskPhaseHitReferenceSchema = z
   })
   .passthrough();
 
-const targetTaskPhaseReactionTaskReferenceSchema = z
+const targetTaskPhaseReactionTaskReferenceSchema = z.preprocess(
+  rejectInheritedElectroChargedCleanup,
+  z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
@@ -12172,9 +12908,12 @@ const targetTaskPhaseReactionTaskReferenceSchema = z
     eventSequence: z.number().int().nonnegative(),
     intraEventSequence: z.number().int().nonnegative(),
     auraBefore: z.array(auraStateEntrySchema),
-    auraAfter: z.array(auraStateEntrySchema)
+    auraAfter: z.array(auraStateEntrySchema),
+    electroChargedCleanup:
+      electroChargedCleanupAuditSchema.nullable().optional()
   })
-  .passthrough();
+  .passthrough()
+);
 
 /**
  * Cross-log integrity projection for the 1.37 target-owned task boundary.
@@ -12226,7 +12965,11 @@ export const targetTaskPhaseResultReferencesSchema = z
       result.schemaVersion ===
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -12247,6 +12990,116 @@ export const targetTaskPhaseResultReferencesSchema = z
         "result and config engineVersion must match"
       );
     }
+    const claimedSupportedIdentity =
+      (typeof result.schemaVersion === "string" &&
+        TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+          result.schemaVersion
+        ] !== undefined) ||
+      (typeof result.config.schemaVersion === "string" &&
+        TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+          result.config.schemaVersion
+        ] !== undefined);
+    const expectedIdentityEngine =
+      typeof result.schemaVersion === "string"
+        ? TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+            result.schemaVersion
+          ]
+        : undefined;
+    const exactSupportedIdentity =
+      expectedIdentityEngine !== undefined &&
+      result.schemaVersion === result.config.schemaVersion &&
+      result.engineVersion === expectedIdentityEngine &&
+      result.config.engineVersion === expectedIdentityEngine;
+    if (
+      claimedSupportedIdentity &&
+      !exactSupportedIdentity
+    ) {
+      issue(
+        ["config", "engineVersion"],
+        "target-task result and config require an exact supported schema and engine identity"
+      );
+    }
+    const exact140Identity =
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    if (result.config.reactionEngine?.mode === "aura-v8") {
+      if (!exact140Identity) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v8 target-task output requires the exact 1.40 schema and engine identity"
+        );
+      }
+      if (
+        result.config.timeline?.mode !== "legal-frame-v1" ||
+        result.config.timeline.fps !== 60
+      ) {
+        issue(
+          ["config", "timeline"],
+          "aura-v8 target-task output requires legal-frame-v1 at 60 FPS"
+        );
+      }
+      if (mode !== "target-phase-v2") {
+        issue(
+          ["config", "targetTaskModel", "mode"],
+          "aura-v8 target-task output requires target-phase-v2"
+        );
+      }
+    }
+    (result.reactionTaskLog ?? []).forEach(
+      (task, taskIndex) => {
+        const hasCleanupField =
+          Object.prototype.hasOwnProperty.call(
+            task,
+            "electroChargedCleanup"
+          );
+        const hasDefinedCleanupField =
+          hasCleanupField &&
+          task.electroChargedCleanup !== undefined;
+        if (
+          exact140Identity &&
+          !hasDefinedCleanupField
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "exact 1.40 target-task output requires an explicit cleanup audit or null"
+          );
+        }
+        if (!exact140Identity && hasCleanupField) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "pre-1.40 target-task output cannot carry Electro-Charged cleanup"
+          );
+        }
+        if (
+          exact140Identity &&
+          result.config.reactionEngine?.mode === "aura-v7" &&
+          task.electroChargedCleanup !== null
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "aura-v7 exact 1.40 target-task output requires cleanup=null"
+          );
+        }
+      }
+    );
 
     if (
       targetTaskIdentity &&
@@ -12304,14 +13157,24 @@ export const targetTaskPhaseResultReferencesSchema = z
           SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION &&
         result.config.engineVersion ===
           SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+      const ecCleanupIdentity =
+        result.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION;
       if (
         !frozenV1Identity &&
         !migratedCurrentIdentity &&
-        !shatterRecursiveIdentity
+        !shatterRecursiveIdentity &&
+        !ecCleanupIdentity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, or 1.39 identity"
+          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, 1.39, or 1.40 identity"
         );
       }
     }
@@ -13227,13 +14090,64 @@ const targetPhaseV2PeriodicReferenceSchema = z
     timeSeconds: finiteNumber.nonnegative(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema,
+    sourceActorId: wireNonEmptyStringSchema.nullable().optional(),
+    triggerDamageEventId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    reactionTaskLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
+    reactionDamageLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    damageEventId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    tickIndex: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     auraBefore: z.array(auraStateEntrySchema),
+    auraConsumed: z.array(auraGaugeEntrySchema).optional(),
     auraAfter: z.array(auraStateEntrySchema),
+    nextTickFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    coexistenceExpiresAtFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
+    waneFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+      .optional(),
     reason: z.string().min(1).nullable()
   })
   .passthrough();
 
-const targetPhaseV2ReactionTaskReferenceSchema = z
+const targetPhaseV2ReactionTaskReferenceSchema = z.preprocess(
+  rejectInheritedElectroChargedCleanup,
+  z
   .object({
     id: z.number().int().nonnegative(),
     kind: z.literal("quicken-bloom-followup"),
@@ -13245,9 +14159,14 @@ const targetPhaseV2ReactionTaskReferenceSchema = z
     eventSequence: z.number().int().nonnegative(),
     intraEventSequence: z.number().int().nonnegative(),
     auraBefore: z.array(auraStateEntrySchema),
-    auraAfter: z.array(auraStateEntrySchema)
+    auraAfter: z.array(auraStateEntrySchema),
+    bloomReaction: bloomReactionAuditSchema.nullable().optional(),
+    status: z.enum(["triggered", "skipped"]).optional(),
+    electroChargedCleanup:
+      electroChargedCleanupAuditSchema.nullable().optional()
   })
-  .passthrough();
+  .passthrough()
+);
 
 /**
  * Cross-log proof boundary for the 1.38 target-local queue then
@@ -13319,6 +14238,146 @@ export const targetPhaseV2ResultReferencesSchema = z
         "result and config engineVersion must match"
       );
     }
+    const claimedSupportedIdentity =
+      (typeof result.schemaVersion === "string" &&
+        TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+          result.schemaVersion
+        ] !== undefined) ||
+      (typeof result.config.schemaVersion === "string" &&
+        TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+          result.config.schemaVersion
+        ] !== undefined);
+    const expectedIdentityEngine =
+      typeof result.schemaVersion === "string"
+        ? TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION[
+            result.schemaVersion
+          ]
+        : undefined;
+    const exactSupportedIdentity =
+      expectedIdentityEngine !== undefined &&
+      result.schemaVersion === result.config.schemaVersion &&
+      result.engineVersion === expectedIdentityEngine &&
+      result.config.engineVersion === expectedIdentityEngine;
+    if (
+      claimedSupportedIdentity &&
+      !exactSupportedIdentity
+    ) {
+      issue(
+        ["config", "engineVersion"],
+        "target-phase result and config require an exact supported schema and engine identity"
+      );
+    }
+    const exact140IdentityBeforeModeBranch =
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    if (result.config.reactionEngine?.mode === "aura-v8") {
+      if (!exact140IdentityBeforeModeBranch) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v8 target-phase output requires the exact 1.40 schema and engine identity"
+        );
+      }
+      if (
+        result.config.timeline?.mode !== "legal-frame-v1" ||
+        result.config.timeline.fps !== 60
+      ) {
+        issue(
+          ["config", "timeline"],
+          "aura-v8 target-phase output requires legal-frame-v1 at 60 FPS"
+        );
+      }
+      if (mode !== "target-phase-v2") {
+        issue(
+          ["config", "targetTaskModel", "mode"],
+          "aura-v8 target-phase output requires target-phase-v2"
+        );
+      }
+    }
+    (result.reactionTaskLog ?? []).forEach(
+      (task, taskIndex) => {
+        const hasCleanupField =
+          Object.prototype.hasOwnProperty.call(
+            task,
+            "electroChargedCleanup"
+          );
+        const hasDefinedCleanupField =
+          hasCleanupField &&
+          task.electroChargedCleanup !== undefined;
+        if (
+          exact140IdentityBeforeModeBranch &&
+          !hasDefinedCleanupField
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "exact 1.40 target-phase output requires an explicit cleanup audit or null"
+          );
+        }
+        if (
+          !exact140IdentityBeforeModeBranch &&
+          hasCleanupField
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "pre-1.40 target-phase output cannot carry Electro-Charged cleanup"
+          );
+        }
+        if (
+          exact140IdentityBeforeModeBranch &&
+          result.config.reactionEngine?.mode === "aura-v7" &&
+          task.electroChargedCleanup !== null
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "aura-v7 exact 1.40 target-phase output requires cleanup=null"
+          );
+        }
+      }
+    );
+    if (exact140IdentityBeforeModeBranch) {
+      const nextEcGenerationByTarget = new Map<
+        string,
+        number
+      >();
+      (result.periodicReactionLog ?? []).forEach(
+        (entry, entryIndex) => {
+          if (entry.operation !== "start") return;
+          const expectedGeneration =
+            nextEcGenerationByTarget.get(entry.targetId) ?? 1;
+          if (entry.generation !== expectedGeneration) {
+            issue(
+              [
+                "periodicReactionLog",
+                entryIndex,
+                "generation"
+              ],
+              `Electro-Charged start generation must be canonical and contiguous; expected ${expectedGeneration}`
+            );
+          }
+          nextEcGenerationByTarget.set(
+            entry.targetId,
+            expectedGeneration + 1
+          );
+        }
+      );
+    }
 
     const currentIdentity =
       result.schemaVersion === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
@@ -13327,7 +14386,11 @@ export const targetPhaseV2ResultReferencesSchema = z
       result.schemaVersion ===
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -13372,10 +14435,23 @@ export const targetPhaseV2ResultReferencesSchema = z
           SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION &&
         result.config.engineVersion ===
           SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
-      if (!exact138Identity && !exact139Identity) {
+      const exact140Identity =
+        result.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+      if (
+        !exact138Identity &&
+        !exact139Identity &&
+        !exact140Identity
+      ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require an exact supported 1.38 or 1.39 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38, 1.39, or 1.40 schema and engine identity"
         );
       }
       if (
@@ -13387,10 +14463,22 @@ export const targetPhaseV2ResultReferencesSchema = z
           "target-phase-v2 requires legal-frame-v1 at 60 FPS"
         );
       }
-      if (result.config.reactionEngine?.mode !== "aura-v7") {
+      if (
+        result.config.reactionEngine?.mode !== "aura-v7" &&
+        result.config.reactionEngine?.mode !== "aura-v8"
+      ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "target-phase-v2 requires reactionEngine.mode aura-v7"
+          "target-phase-v2 requires reactionEngine.mode aura-v7 or aura-v8"
+        );
+      }
+      if (
+        result.config.reactionEngine?.mode === "aura-v8" &&
+        !exact140Identity
+      ) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v8 target-phase output requires the exact 1.40 schema and engine identity"
         );
       }
       if (oldPhases.length !== 0) {
@@ -13473,6 +14561,8 @@ export const targetPhaseV2ResultReferencesSchema = z
     const hitResolutionLog = result.hitResolutionLog!;
     const reactionTaskLog = result.reactionTaskLog!;
     const targetStateTimeline = result.targetStateTimeline!;
+    const lifecyclePriorityStride =
+      0.5 / (enemyTargets.length + 1);
     if (
       result.config.targetClockModel?.mode !==
       targetClockAudit.mode
@@ -13954,6 +15044,24 @@ export const targetPhaseV2ResultReferencesSchema = z
       const targetPoints = phaseTargetPoints;
       phase.reactableTick.transitions.forEach(
         (transition, transitionIndex) => {
+          const previousTransition =
+            phase.reactableTick.transitions[
+              transitionIndex - 1
+            ];
+          const naturalExpiryCollision =
+            transition.kind ===
+              "electro-charged-cleanup" &&
+            transition.outcome === "natural-expiry" &&
+            previousTransition?.kind ===
+              "electro-charged-expiry" &&
+            previousTransition.generation ===
+              transition.generation &&
+            previousTransition.deadlineTargetFrame ===
+              transition.deadlineTargetFrame &&
+            previousTransition.periodicReactionLogId ===
+              transition.periodicReactionLogId &&
+            previousTransition.targetStateTimelinePointId ===
+              transition.targetStateTimelinePointId;
           const transitionPath = [
             "targetPhaseLog",
             phaseIndex,
@@ -13965,7 +15073,10 @@ export const targetPhaseV2ResultReferencesSchema = z
             lifecycleTimelineOwnerById.get(
               transition.targetStateTimelinePointId
             );
-          if (previousLifecycleOwner !== undefined) {
+          if (
+            previousLifecycleOwner !== undefined &&
+            !naturalExpiryCollision
+          ) {
             issue(
               [
                 ...transitionPath,
@@ -13973,7 +15084,7 @@ export const targetPhaseV2ResultReferencesSchema = z
               ],
               `target lifecycle timeline point ${transition.targetStateTimelinePointId} is claimed by both target phase ${previousLifecycleOwner.phaseIndex} transition ${previousLifecycleOwner.transitionIndex} and target phase ${phaseIndex} transition ${transitionIndex}`
             );
-          } else {
+          } else if (previousLifecycleOwner === undefined) {
             lifecycleTimelineOwnerById.set(
               transition.targetStateTimelinePointId,
               { phaseIndex, transitionIndex }
@@ -13996,7 +15107,8 @@ export const targetPhaseV2ResultReferencesSchema = z
           if (
             previousTargetPointPosition >= 0 &&
             targetPointPosition !==
-              previousTargetPointPosition + 1
+              previousTargetPointPosition + 1 &&
+            !naturalExpiryCollision
           ) {
             issue(
               [
@@ -14383,6 +15495,231 @@ export const targetPhaseV2ResultReferencesSchema = z
             }
             return;
           }
+          if (
+            transition.kind ===
+            "electro-charged-cleanup"
+          ) {
+            const task = reactionTaskById.get(
+              transition.reactionTaskLogId
+            );
+            const cleanup =
+              task?.electroChargedCleanup;
+            if (
+              task === undefined ||
+              task.targetId !== phase.targetId ||
+              task.targetName !== phase.targetName ||
+              cleanup === undefined ||
+              cleanup === null ||
+              cleanup.outcome === "pending-at-end" ||
+              cleanup.generation !== transition.generation ||
+              cleanup.deadlineTargetFrame !==
+                transition.deadlineTargetFrame ||
+              cleanup.resolvedGlobalFrame !==
+                phase.globalFrame ||
+              cleanup.resolvedTargetFrame !==
+                phase.targetFrame ||
+              cleanup.targetPhaseLogId !== phase.id ||
+              cleanup.targetStateTimelinePointId !==
+                transition.targetStateTimelinePointId ||
+              cleanup.outcome !== transition.outcome ||
+              cleanup.periodicReactionLogId !==
+                transition.periodicReactionLogId
+            ) {
+              issue(
+                [
+                  ...transitionPath,
+                  "reactionTaskLogId"
+                ],
+                "Electro-Charged cleanup transition does not match its reciprocal reaction task audit"
+              );
+            }
+
+            if (
+              transition.outcome === "natural-expiry"
+            ) {
+              const periodicLog = periodicById.get(
+                transition.periodicReactionLogId
+              );
+              const expectedNaturalExpiryPriority =
+                target === undefined
+                  ? null
+                  : 0.5 +
+                    target.index *
+                      lifecyclePriorityStride +
+                    lifecyclePriorityStride *
+                      (0.6 + 3 * 0.08);
+              if (
+                !naturalExpiryCollision ||
+                periodicOwnerById.get(
+                  transition.periodicReactionLogId
+                ) !== phaseIndex ||
+                periodicLog === undefined ||
+                periodicLog.reaction !==
+                  "electroCharged" ||
+                periodicLog.operation !== "stop" ||
+                periodicLog.reason !==
+                  "AURA_DECAY_EXPIRED" ||
+                periodicLog.generation !==
+                  transition.generation ||
+                periodicLog.targetId !== phase.targetId ||
+                periodicLog.targetName !==
+                  phase.targetName ||
+                periodicLog.frame !== phase.globalFrame ||
+                periodicLog.targetFrame !==
+                  phase.targetFrame ||
+                periodicLog.reactionTaskLogId !==
+                  transition.reactionTaskLogId ||
+                periodicLog.nextTickFrame !== null ||
+                periodicLog.waneFrame !== null ||
+                periodicLog.auraConsumed?.length !== 0 ||
+                point === undefined ||
+                point.pointKind !== "observation" ||
+                point.cause !==
+                  "electro-charged-expiry" ||
+                point.eventType !==
+                  "periodicReactionExpiry" ||
+                expectedNaturalExpiryPriority === null ||
+                !approximatelyEqual(
+                  point.eventPriority ?? Number.NaN,
+                  expectedNaturalExpiryPriority
+                ) ||
+                point.eventSequence === null ||
+                point.intraEventSequence === null ||
+                point.reaction !== "electroCharged" ||
+                JSON.stringify(point.reactions) !==
+                  JSON.stringify(["electroCharged"]) ||
+                point.primaryDamageEventId !== null ||
+                point.auraApplied.length !== 0 ||
+                point.auraConsumed.length !== 0 ||
+                !exactLifecycleLinks(point.links, [
+                  {
+                    kind: "periodic-reaction-log",
+                    id: transition.periodicReactionLogId
+                  }
+                ]) ||
+                point.links.filter(
+                  (link) =>
+                    link.kind === "target-phase-log" &&
+                    link.id === phase.id
+                ).length !== 1 ||
+                !auraStateSnapshotsEqual(
+                  point.auraBefore,
+                  point.auraAfter
+                )
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "periodicReactionLogId"
+                  ],
+                  "natural-expiry cleanup must reuse exactly one same-generation Electro-Charged expiry transition, stop row, and timeline point"
+                );
+              }
+              return;
+            }
+
+            const expectedLifecycleLinks: Array<{
+              kind: string;
+              id: number;
+            }> = [];
+            if (transition.outcome === "stop") {
+              claimReference(
+                periodicOwnerById,
+                transition.periodicReactionLogId,
+                phaseIndex,
+                [
+                  ...transitionPath,
+                  "periodicReactionLogId"
+                ],
+                "Electro-Charged cleanup stop log"
+              );
+              const periodicLog = periodicById.get(
+                transition.periodicReactionLogId
+              );
+              if (
+                periodicLog === undefined ||
+                periodicLog.reaction !==
+                  "electroCharged" ||
+                periodicLog.operation !== "stop" ||
+                periodicLog.reason !==
+                  "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" ||
+                periodicLog.generation !==
+                  transition.generation ||
+                periodicLog.targetId !== phase.targetId ||
+                periodicLog.targetName !==
+                  phase.targetName ||
+                periodicLog.frame !== phase.globalFrame ||
+                periodicLog.targetFrame !==
+                  phase.targetFrame ||
+                periodicLog.reactionTaskLogId !==
+                  transition.reactionTaskLogId ||
+                periodicLog.nextTickFrame !== null ||
+                periodicLog.waneFrame !== null ||
+                periodicLog.auraConsumed?.length !== 0 ||
+                !auraStateSnapshotsEqual(
+                  periodicLog.auraBefore,
+                  point?.auraBefore ?? []
+                ) ||
+                !auraStateSnapshotsEqual(
+                  periodicLog.auraAfter,
+                  point?.auraAfter ?? []
+                )
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "periodicReactionLogId"
+                  ],
+                  "Electro-Charged cleanup stop does not match its unique periodic-reaction log"
+                );
+              }
+              expectedLifecycleLinks.push({
+                kind: "periodic-reaction-log",
+                id: transition.periodicReactionLogId
+              });
+            }
+            if (
+              point === undefined ||
+              point.pointKind !== "observation" ||
+              point.cause !==
+                "electro-charged-cleanup" ||
+              point.eventType !==
+                "electroChargedCleanup" ||
+              point.eventPriority === null ||
+              point.eventSequence === null ||
+              point.intraEventSequence === null ||
+              point.reaction !== "electroCharged" ||
+              JSON.stringify(point.reactions) !==
+                JSON.stringify(["electroCharged"]) ||
+              point.primaryDamageEventId !== null ||
+              !exactLifecycleLinks(
+                point.links,
+                expectedLifecycleLinks
+              ) ||
+              point.links.filter(
+                (link) =>
+                  link.kind === "target-phase-log" &&
+                  link.id === phase.id
+              ).length !== 1 ||
+              point.links.filter(
+                (link) =>
+                  link.kind === "target-phase-log"
+              ).length !== 1 ||
+              !auraStateSnapshotsEqual(
+                point.auraBefore,
+                point.auraAfter
+              )
+            ) {
+              issue(
+                [
+                  ...transitionPath,
+                  "targetStateTimelinePointId"
+                ],
+                "Electro-Charged cleanup requires one reciprocal unchanged observation point"
+              );
+            }
+            return;
+          }
 
           claimReference(
             periodicOwnerById,
@@ -14588,7 +15925,8 @@ export const targetPhaseV2ResultReferencesSchema = z
           point.cause === "frozen-expiry" ||
           point.cause === "quicken-expiry" ||
           point.cause === "burning-fuel-expiry" ||
-          point.cause === "electro-charged-expiry"
+          point.cause === "electro-charged-expiry" ||
+          point.cause === "electro-charged-cleanup"
         ) {
           if (
             lifecycleTimelineOwnerById.get(point.id) === undefined
@@ -14619,6 +15957,28 @@ export const targetPhaseV2ResultReferencesSchema = z
               [...path, "id"],
               `missing target phase ${link.id} for timeline bridge`
             );
+            return;
+          }
+          const cleanupTransition =
+            phase.reactableTick.transitions.find(
+              (transition) =>
+                transition.kind ===
+                  "electro-charged-cleanup" &&
+                transition.targetStateTimelinePointId ===
+                  point.id
+            );
+          const phaseHasOrdinaryDecayGap =
+            !auraStateSnapshotsEqual(
+              phase.auraAfterTargetTasks,
+              phase.reactableTick.auraBefore
+            );
+          if (
+            cleanupTransition !== undefined &&
+            !phaseHasOrdinaryDecayGap
+          ) {
+            // Cleanup points always carry their reciprocal target-phase
+            // link. Without an ordinary Aura-decay gap this is ownership,
+            // not a durability bridge.
             return;
           }
           const previousOwner =
@@ -14898,6 +16258,24 @@ export const targetPhaseV2ResultReferencesSchema = z
     periodicReactionLog.forEach((entry, index) => {
       const owner = periodicOwnerById.get(entry.id);
       if (
+        entry.reactionTaskLogId !== undefined &&
+        (entry.operation !== "stop" ||
+          (entry.reason !==
+            "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" &&
+            entry.reason !== "AURA_DECAY_EXPIRED") ||
+          owner === undefined ||
+          result.config.reactionEngine?.mode !== "aura-v8")
+      ) {
+        issue(
+          [
+            "periodicReactionLog",
+            index,
+            "reactionTaskLogId"
+          ],
+          "reactionTaskLogId is reserved for an aura-v8 Electro-Charged cleanup stop or matched natural-expiry collision owned by Reactable.Tick"
+        );
+      }
+      if (
         entry.operation === "stop" &&
         entry.reason === "AURA_DECAY_EXPIRED" &&
         owner === undefined
@@ -14916,6 +16294,1484 @@ export const targetPhaseV2ResultReferencesSchema = z
           owner === undefined
             ? "non-Reactable.Tick Electro-Charged rows must omit targetFrame"
             : "Reactable.Tick Electro-Charged expiry rows require targetFrame"
+        );
+      }
+    });
+  });
+
+const electroChargedCleanupPeriodicLogEntrySchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: z.literal("electroCharged"),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum([
+      "start",
+      "refresh",
+      "tick",
+      "wane",
+      "wane-skipped",
+      "stop"
+    ]),
+    frame: z.number().int().nonnegative(),
+    targetFrame: z.number().int().nonnegative().optional(),
+    timeSeconds: finiteNumber.nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    sourceActorId: wireNonEmptyStringSchema.nullable(),
+    triggerDamageEventId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    reactionTaskLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
+    reactionDamageLogId: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    damageEventId: z.number().int().nonnegative().nullable(),
+    tickIndex: z.number().int().nonnegative().nullable(),
+    auraBefore: z.array(auraStateEntrySchema),
+    auraConsumed: z.array(auraGaugeEntrySchema),
+    auraAfter: z.array(auraStateEntrySchema),
+    nextTickFrame: z.number().int().nonnegative().nullable(),
+    coexistenceExpiresAtFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    waneFrame: z.number().int().nonnegative().nullable(),
+    reason: z.string().min(1).nullable()
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (
+      !approximatelyEqual(
+        entry.timeSeconds,
+        entry.frame / 60
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["timeSeconds"],
+        message: "must equal frame / 60"
+      });
+    }
+  });
+
+const electroChargedCleanupReactionDamageReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: z.literal("electroCharged"),
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceTargetId: wireNonEmptyStringSchema,
+    triggerFrame: z.number().int().nonnegative(),
+    damageFrame: z.number().int().nonnegative(),
+    scheduled: z.boolean(),
+    withinSimulation: z.boolean(),
+    blockedReason: z
+      .enum([
+        "REACTION_DAMAGE_GCD",
+        "REACTION_QUEUE_GCD",
+        "TARGET_MECHANICS_TRUNCATION"
+      ])
+      .nullable(),
+    nextAvailableFrame: z.number().int().nonnegative().nullable(),
+    scheduleKind: z.literal("periodic-tick"),
+    damageEventIds: z.array(z.number().int().nonnegative())
+  })
+  .passthrough();
+
+const electroChargedCleanupDamageEventReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    kind: z.enum(["direct", "transformative-reaction"]),
+    parentDamageEventId: z.number().int().nonnegative().nullable(),
+    frame: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    reaction: reactionTypeSchema
+  })
+  .passthrough();
+
+/**
+ * Exact 1.40 cross-log proof for Aura-v8 Electro-Charged cleanup requested
+ * by Quicken→Bloom. This consumes a complete versioned config and the full
+ * cleanup-owned logs while accepting unrelated SimulationResult fields.
+ */
+export const electroChargedCleanupResultReferencesSchema = z
+  .object({
+    schemaVersion: z.literal(
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    ),
+    config: simConfigSchema,
+    reactionTaskLog: reactionTaskLogSchema,
+    targetPhaseLog: targetPhaseV2LogSchema,
+    targetStateTimeline: targetStateTimelineSchema,
+    periodicReactionLog: z.array(
+      electroChargedCleanupPeriodicLogEntrySchema
+    ),
+    reactionDamageLog: z.array(
+      electroChargedCleanupReactionDamageReferenceSchema
+    ),
+    damageEvents: z.array(
+      electroChargedCleanupDamageEventReferenceSchema
+    ),
+    targetClockAudit: targetClockAuditSchema,
+    targetClockLog: targetClockLogSchema
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    if (
+      result.config.schemaVersion !==
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      result.config.engineVersion !==
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    ) {
+      issue(
+        ["config", "engineVersion"],
+        "Electro-Charged cleanup requires exact matching 1.40 result and config identity"
+      );
+    }
+    if (result.config.reactionEngine?.mode !== "aura-v8") {
+      issue(
+        ["config", "reactionEngine", "mode"],
+        "Electro-Charged cleanup requires reactionEngine.mode aura-v8"
+      );
+    }
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v2"
+    ) {
+      issue(
+        ["config", "targetTaskModel", "mode"],
+        "Electro-Charged cleanup requires target-phase-v2"
+      );
+    }
+    if (
+      result.config.timeline?.mode !== "legal-frame-v1" ||
+      result.config.timeline.fps !== 60
+    ) {
+      issue(
+        ["config", "timeline"],
+        "Electro-Charged cleanup requires legal-frame-v1 at 60 FPS"
+      );
+    }
+    if (
+      result.targetClockAudit.mode !==
+      result.config.targetClockModel.mode
+    ) {
+      issue(
+        ["targetClockAudit", "mode"],
+        "target clock audit must match the cleanup config"
+      );
+    }
+
+    const buildContiguousMap = <
+      TEntry extends { id: number }
+    >(
+      entries: TEntry[],
+      field: string
+    ): Map<number, TEntry> => {
+      const byId = new Map<number, TEntry>();
+      entries.forEach((entry, index) => {
+        if (entry.id !== index || byId.has(entry.id)) {
+          issue(
+            [field, index, "id"],
+            `${field} requires unique contiguous id ${index}`
+          );
+        }
+        byId.set(entry.id, entry);
+      });
+      return byId;
+    };
+    const taskById = buildContiguousMap(
+      result.reactionTaskLog,
+      "reactionTaskLog"
+    );
+    const phaseById = buildContiguousMap(
+      result.targetPhaseLog,
+      "targetPhaseLog"
+    );
+    const periodicById = buildContiguousMap(
+      result.periodicReactionLog,
+      "periodicReactionLog"
+    );
+    const reactionDamageById = buildContiguousMap(
+      result.reactionDamageLog,
+      "reactionDamageLog"
+    );
+    const damageEventById = buildContiguousMap(
+      result.damageEvents,
+      "damageEvents"
+    );
+    const timelinePointById = buildContiguousMap(
+      result.targetStateTimeline.points,
+      "targetStateTimeline.points"
+    );
+    const nextEcGenerationByTarget = new Map<
+      string,
+      number
+    >();
+    result.periodicReactionLog.forEach(
+      (entry, entryIndex) => {
+        if (entry.operation !== "start") return;
+        const expectedGeneration =
+          nextEcGenerationByTarget.get(entry.targetId) ?? 1;
+        if (entry.generation !== expectedGeneration) {
+          issue(
+            [
+              "periodicReactionLog",
+              entryIndex,
+              "generation"
+            ],
+            `Electro-Charged start generation must be canonical and contiguous; expected ${expectedGeneration}`
+          );
+        }
+        nextEcGenerationByTarget.set(
+          entry.targetId,
+          expectedGeneration + 1
+        );
+      }
+    );
+
+    const clockEntriesByTarget = new Map<
+      string,
+      typeof result.targetClockLog
+    >();
+    result.targetClockLog.forEach((entry) => {
+      const entries =
+        clockEntriesByTarget.get(entry.targetId) ?? [];
+      entries.push(entry);
+      clockEntriesByTarget.set(entry.targetId, entries);
+    });
+    const replayTargetFrame = (
+      targetId: string,
+      globalFrame: number
+    ): number | undefined => {
+      if (result.targetClockAudit.mode === "disabled") {
+        return globalFrame;
+      }
+      if (globalFrame === 0) return 0;
+      const entries =
+        clockEntriesByTarget.get(targetId) ?? [];
+      for (const entry of entries) {
+        if (globalFrame < entry.globalFrameBefore) break;
+        if (
+          entry.operation === "advance" &&
+          globalFrame <= entry.globalFrameAfter
+        ) {
+          const elapsed =
+            globalFrame - entry.globalFrameBefore;
+          return (
+            entry.targetFrameBefore +
+            elapsed -
+            Math.min(elapsed, entry.frozenFramesBefore)
+          );
+        }
+        if (globalFrame === entry.globalFrameBefore) {
+          return entry.targetFrameBefore;
+        }
+      }
+      if (
+        result.targetClockAudit.mode !==
+        "target-local-hitlag-v1"
+      ) {
+        return undefined;
+      }
+      const summary = result.targetClockAudit.targets.find(
+        (candidate) => candidate.targetId === targetId
+      );
+      if (
+        summary === undefined ||
+        globalFrame < summary.finalGlobalFrame
+      ) {
+        return undefined;
+      }
+      const elapsed =
+        globalFrame - summary.finalGlobalFrame;
+      return (
+        summary.finalTargetFrame +
+        elapsed -
+        Math.min(elapsed, summary.frozenFramesRemaining)
+      );
+    };
+    const finalTargetFrame = (targetId: string): number | undefined => {
+      if (result.targetClockAudit.mode === "disabled") {
+        return Math.round(result.config.duration * 60);
+      }
+      return result.targetClockAudit.targets.find(
+        (candidate) => candidate.targetId === targetId
+      )?.finalTargetFrame;
+    };
+
+    const cleanupTransitionOwners = new Map<number, number>();
+    result.targetPhaseLog.forEach((phase, phaseIndex) => {
+      phase.reactableTick.transitions.forEach(
+        (transition, transitionIndex) => {
+          if (
+            transition.kind !==
+            "electro-charged-cleanup"
+          ) {
+            return;
+          }
+          const priorOwner = cleanupTransitionOwners.get(
+            transition.reactionTaskLogId
+          );
+          if (priorOwner !== undefined) {
+            issue(
+              [
+                "targetPhaseLog",
+                phaseIndex,
+                "reactableTick",
+                "transitions",
+                transitionIndex,
+                "reactionTaskLogId"
+              ],
+              `cleanup task ${transition.reactionTaskLogId} is owned by multiple target phases`
+            );
+          } else {
+            cleanupTransitionOwners.set(
+              transition.reactionTaskLogId,
+              phase.id
+            );
+          }
+          if (!taskById.has(transition.reactionTaskLogId)) {
+            issue(
+              [
+                "targetPhaseLog",
+                phaseIndex,
+                "reactableTick",
+                "transitions",
+                transitionIndex,
+                "reactionTaskLogId"
+              ],
+              `missing cleanup reaction task ${transition.reactionTaskLogId}`
+            );
+          }
+        }
+      );
+    });
+
+    const cleanupTimelinePointOwners = new Map<number, number>();
+    result.targetStateTimeline.points.forEach(
+      (point, pointIndex) => {
+        if (point.cause !== "electro-charged-cleanup") return;
+        const phaseLinks = point.links.filter(
+          (link) => link.kind === "target-phase-log"
+        );
+        if (phaseLinks.length !== 1) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "links"
+            ],
+            "cleanup timeline observations require exactly one target-phase backlink"
+          );
+          return;
+        }
+        cleanupTimelinePointOwners.set(
+          point.id,
+          phaseLinks[0]!.id
+        );
+      }
+    );
+
+    const cadenceTimelinePointIdsByPeriodicId = new Map<
+      number,
+      number[]
+    >();
+    result.targetStateTimeline.points.forEach(
+      (point, pointIndex) => {
+        const cadenceKind =
+          point.cause === "electro-charged-tick"
+            ? "tick"
+            : point.cause === "electro-charged-wane"
+              ? "wane"
+              : null;
+        if (cadenceKind === null) return;
+        const periodicLinks = point.links.filter(
+          (link) => link.kind === "periodic-reaction-log"
+        );
+        const periodic =
+          periodicLinks.length === 1
+            ? periodicById.get(periodicLinks[0]!.id)
+            : undefined;
+        const expectedLinks =
+          cadenceKind === "tick"
+            ? periodic === undefined
+              ? []
+              : [
+                  {
+                    kind:
+                      "periodic-reaction-log" as const,
+                    id: periodic.id
+                  }
+                ]
+            : periodic === undefined ||
+                periodic.damageEventId === null
+              ? []
+              : [
+                  {
+                    kind: "damage-event" as const,
+                    id: periodic.damageEventId
+                  },
+                  {
+                    kind:
+                      "periodic-reaction-log" as const,
+                    id: periodic.id
+                  }
+                ];
+        const validOperation =
+          cadenceKind === "tick"
+            ? periodic?.operation === "tick"
+            : periodic?.operation === "wane" ||
+              periodic?.operation === "wane-skipped";
+        if (
+          periodicLinks.length !== 1 ||
+          periodic === undefined ||
+          !validOperation ||
+          periodic.targetId !== point.targetId ||
+          periodic.targetName !== point.targetName ||
+          periodic.frame !== point.frame ||
+          point.eventType !==
+            (cadenceKind === "tick"
+              ? "periodicReactionTick"
+              : "periodicReactionWane") ||
+          point.eventPriority !==
+            (cadenceKind === "tick" ? 4 : 6) ||
+          point.eventSequence === null ||
+          point.intraEventSequence === null ||
+          point.reaction !== "electroCharged" ||
+          JSON.stringify(point.reactions) !==
+            JSON.stringify(["electroCharged"]) ||
+          point.primaryDamageEventId !==
+            (cadenceKind === "tick"
+              ? null
+              : periodic.damageEventId) ||
+          JSON.stringify(point.links) !==
+            JSON.stringify(expectedLinks) ||
+          point.auraApplied.length !== 0 ||
+          JSON.stringify(point.auraConsumed) !==
+            JSON.stringify(periodic.auraConsumed) ||
+          !auraStateSnapshotsEqual(
+            point.auraBefore,
+            periodic.auraBefore
+          ) ||
+          !auraStateSnapshotsEqual(
+            point.auraAfter,
+            periodic.auraAfter
+          )
+        ) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex
+            ],
+            "Electro-Charged cadence timeline points require one exact reciprocal tick or Wane periodic row"
+          );
+          return;
+        }
+        const owners =
+          cadenceTimelinePointIdsByPeriodicId.get(periodic.id) ??
+          [];
+        owners.push(point.id);
+        cadenceTimelinePointIdsByPeriodicId.set(
+          periodic.id,
+          owners
+        );
+      }
+    );
+    result.periodicReactionLog.forEach(
+      (entry, entryIndex) => {
+        if (
+          entry.operation !== "tick" &&
+          entry.operation !== "wane" &&
+          entry.operation !== "wane-skipped"
+        ) {
+          return;
+        }
+        if (
+          cadenceTimelinePointIdsByPeriodicId.get(entry.id)
+            ?.length !== 1
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "id"],
+            "each Electro-Charged tick or Wane row requires one unique reciprocal cadence timeline point"
+          );
+        }
+      }
+    );
+
+    result.reactionTaskLog.forEach((task, taskIndex) => {
+      const hasCleanupField = Object.prototype.hasOwnProperty.call(
+        task,
+        "electroChargedCleanup"
+      );
+      const hasDefinedCleanupField =
+        hasCleanupField &&
+        task.electroChargedCleanup !== undefined;
+      const cleanup = task.electroChargedCleanup;
+      const configuredTargets =
+        result.config.enemy.targets ??
+        [{ id: "enemy-0", name: "敌人 0" }];
+      const targetOrder = configuredTargets.findIndex(
+        (target) => target.id === task.targetId
+      );
+      const targetPriorityStride =
+        0.5 / (configuredTargets.length + 1);
+      const expectedCleanupPriority =
+        targetOrder < 0
+          ? null
+          : 0.5 +
+            targetOrder * targetPriorityStride +
+            targetPriorityStride * 0.92;
+      const expectedNaturalExpiryPriority =
+        targetOrder < 0
+          ? null
+          : 0.5 +
+            targetOrder * targetPriorityStride +
+            targetPriorityStride *
+              (0.6 + 3 * 0.08);
+      if (!hasDefinedCleanupField) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "exact 1.40 aura-v8 tasks require an explicit cleanup audit or null"
+        );
+      }
+      const reciprocalTransitions =
+        result.targetPhaseLog.flatMap((phase) =>
+          phase.reactableTick.transitions.filter(
+            (transition) =>
+              transition.kind ===
+                "electro-charged-cleanup" &&
+              transition.reactionTaskLogId === task.id
+          )
+        );
+      const reciprocalPeriodicRows =
+        result.periodicReactionLog.filter(
+          (entry) => entry.reactionTaskLogId === task.id
+        );
+      if (cleanup === undefined || cleanup === null) {
+        const bloom = task.bloomReaction;
+        const hydroBefore = task.auraBefore.find(
+          (entry) => entry.element === "hydro"
+        );
+        const depletedLastHydro =
+          task.status === "triggered" &&
+          bloom?.operation === "quicken-followup" &&
+          hydroBefore !== undefined &&
+          hydroBefore.gaugeUnits > bloomGaugeEpsilon &&
+          !task.auraAfter.some(
+            (entry) => entry.element === "hydro"
+          ) &&
+          approximatelyEqual(
+            bloom.hydroConsumedGaugeUnits,
+            bloom.hydroGaugeUnitsBefore
+          ) &&
+          bloom.hydroGaugeUnitsAfter <= bloomGaugeEpsilon;
+        const activeEcGenerationExists =
+          result.periodicReactionLog.some(
+            (candidate) =>
+              candidate.targetId === task.targetId &&
+              (candidate.operation === "start" ||
+                candidate.operation === "refresh") &&
+              candidate.frame <= task.frame &&
+              !result.periodicReactionLog.some(
+                (later) =>
+                  later.targetId === task.targetId &&
+                  later.generation ===
+                    candidate.generation &&
+                  later.operation === "stop" &&
+                  later.frame <= task.frame &&
+                  (later.frame > candidate.frame ||
+                    later.id > candidate.id)
+              )
+          );
+        if (
+          reciprocalTransitions.length !== 0 ||
+          reciprocalPeriodicRows.length !== 0 ||
+          (depletedLastHydro &&
+            activeEcGenerationExists)
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup"
+            ],
+            "a null cleanup audit cannot own terminal references or omit a required active-generation last-Hydro cleanup request"
+          );
+        }
+        return;
+      }
+
+      const bloom = task.bloomReaction;
+      const hydroBefore = task.auraBefore.find(
+        (entry) => entry.element === "hydro"
+      );
+      const hydroAfter = task.auraAfter.find(
+        (entry) => entry.element === "hydro"
+      );
+      const consumedHydro = task.auraConsumed
+        .filter((entry) => entry.element === "hydro")
+        .reduce((sum, entry) => sum + entry.gaugeUnits, 0);
+      if (
+        task.status !== "triggered" ||
+        bloom === null ||
+        bloom.operation !== "quicken-followup" ||
+        hydroBefore === undefined ||
+        hydroBefore.gaugeUnits <= bloomGaugeEpsilon ||
+        hydroAfter !== undefined ||
+        !approximatelyEqual(
+          consumedHydro,
+          hydroBefore.gaugeUnits
+        ) ||
+        !approximatelyEqual(
+          bloom.hydroConsumedGaugeUnits,
+          bloom.hydroGaugeUnitsBefore
+        ) ||
+        bloom.hydroGaugeUnitsAfter > bloomGaugeEpsilon
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "cleanup requests require a triggered Quicken→Bloom task that consumes the last Hydro Aura"
+        );
+      }
+      const requestedTargetFrame = replayTargetFrame(
+        task.targetId,
+        task.frame
+      );
+      if (
+        cleanup.generation <= 0 ||
+        requestedTargetFrame === undefined ||
+        cleanup.requestedTargetFrame !==
+          requestedTargetFrame ||
+        cleanup.deadlineTargetFrame !==
+          cleanup.requestedTargetFrame + 1
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup",
+            "deadlineTargetFrame"
+          ],
+          "cleanup generation and request/deadline frames must match the task target clock"
+        );
+      }
+      const generationStartRows =
+        result.periodicReactionLog.filter(
+          (entry) =>
+            entry.targetId === task.targetId &&
+            entry.generation === cleanup.generation &&
+            entry.operation === "start"
+        );
+      const generationStart =
+        generationStartRows.length === 1
+          ? generationStartRows[0]
+          : undefined;
+      if (
+        generationStart === undefined ||
+        generationStart.frame > task.frame
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup",
+            "generation"
+          ],
+          "cleanup requires exactly one preceding same-target same-generation Electro-Charged start"
+        );
+      }
+      const generationOwnerRows =
+        result.periodicReactionLog.filter(
+          (entry) =>
+            entry.targetId === task.targetId &&
+            entry.generation === cleanup.generation &&
+            (entry.operation === "start" ||
+              entry.operation === "refresh") &&
+            entry.frame <= task.frame
+        );
+      const generationOwner = generationOwnerRows.at(-1);
+      if (generationOwner === undefined) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup",
+            "generation"
+          ],
+          "cleanup requires an existing same-target Electro-Charged generation"
+        );
+      }
+
+      if (cleanup.outcome === "pending-at-end") {
+        const finalFrame = finalTargetFrame(task.targetId);
+        if (
+          finalFrame === undefined ||
+          finalFrame >= cleanup.deadlineTargetFrame ||
+          reciprocalTransitions.length !== 0 ||
+          reciprocalPeriodicRows.length !== 0
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "outcome"
+            ],
+            "pending-at-end is legal only while the final target frame remains before the cleanup deadline and owns no terminal references"
+          );
+        }
+        return;
+      }
+
+      const phase = phaseById.get(cleanup.targetPhaseLogId);
+      const point = timelinePointById.get(
+        cleanup.targetStateTimelinePointId
+      );
+      const transition = reciprocalTransitions[0];
+      const previousTargetFrame =
+        cleanup.resolvedGlobalFrame === 0
+          ? undefined
+          : replayTargetFrame(
+              task.targetId,
+              cleanup.resolvedGlobalFrame - 1
+            );
+      if (
+        reciprocalTransitions.length !== 1 ||
+        transition === undefined ||
+        transition.kind !==
+          "electro-charged-cleanup" ||
+        phase === undefined ||
+        point === undefined ||
+        phase.targetId !== task.targetId ||
+        phase.targetName !== task.targetName ||
+        phase.globalFrame !== cleanup.resolvedGlobalFrame ||
+        phase.targetFrame !== cleanup.resolvedTargetFrame ||
+        cleanup.resolvedTargetFrame !==
+          cleanup.deadlineTargetFrame ||
+        replayTargetFrame(
+          task.targetId,
+          cleanup.resolvedGlobalFrame
+        ) !== cleanup.deadlineTargetFrame ||
+        (previousTargetFrame !== undefined &&
+          previousTargetFrame >=
+            cleanup.deadlineTargetFrame) ||
+        transition.generation !== cleanup.generation ||
+        transition.deadlineTargetFrame !==
+          cleanup.deadlineTargetFrame ||
+        transition.outcome !== cleanup.outcome ||
+        transition.periodicReactionLogId !==
+          cleanup.periodicReactionLogId ||
+        transition.targetStateTimelinePointId !== point.id
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup"
+          ],
+          "resolved cleanup requires one exact first-target-Tick phase, transition, and timeline reference"
+        );
+      }
+
+      if (cleanup.outcome === "natural-expiry") {
+        const naturalTransitions =
+          phase?.reactableTick.transitions.filter(
+            (candidate) =>
+              candidate.kind ===
+                "electro-charged-expiry" &&
+              candidate.generation === cleanup.generation &&
+              candidate.deadlineTargetFrame ===
+                cleanup.deadlineTargetFrame &&
+              candidate.periodicReactionLogId ===
+                cleanup.periodicReactionLogId &&
+              candidate.targetStateTimelinePointId ===
+                cleanup.targetStateTimelinePointId
+          ) ?? [];
+        const periodic = periodicById.get(
+          cleanup.periodicReactionLogId
+        );
+        const naturalGenerationOwner =
+          result.periodicReactionLog
+            .filter(
+              (entry) =>
+                entry.targetId === task.targetId &&
+                entry.generation ===
+                  cleanup.generation &&
+                (entry.operation === "start" ||
+                  entry.operation === "refresh") &&
+                entry.frame <=
+                  cleanup.resolvedGlobalFrame
+            )
+            .at(-1);
+        const nonPhaseLinks =
+          point?.links.filter(
+            (link) => link.kind !== "target-phase-log"
+          ) ?? [];
+        const phaseLinks =
+          point?.links.filter(
+            (link) =>
+              link.kind === "target-phase-log" &&
+              link.id === cleanup.targetPhaseLogId
+          ) ?? [];
+        if (
+          naturalTransitions.length !== 1 ||
+          periodic === undefined ||
+          reciprocalPeriodicRows.length !== 1 ||
+          reciprocalPeriodicRows[0]?.id !== periodic.id ||
+          periodic.operation !== "stop" ||
+          periodic.reason !== "AURA_DECAY_EXPIRED" ||
+          periodic.generation !== cleanup.generation ||
+          periodic.targetId !== task.targetId ||
+          periodic.targetName !== task.targetName ||
+          periodic.frame !== cleanup.resolvedGlobalFrame ||
+          periodic.targetFrame !==
+            cleanup.resolvedTargetFrame ||
+          periodic.reactionTaskLogId !== task.id ||
+          naturalGenerationOwner === undefined ||
+          periodic.sourceActorId !==
+            naturalGenerationOwner.sourceActorId ||
+          periodic.triggerDamageEventId !==
+            naturalGenerationOwner.triggerDamageEventId ||
+          periodic.damageEventId !== null ||
+          periodic.reactionDamageLogId !== null ||
+          periodic.tickIndex !== null ||
+          periodic.nextTickFrame !== null ||
+          periodic.coexistenceExpiresAtFrame !== null ||
+          periodic.waneFrame !== null ||
+          periodic.auraConsumed.length !== 0 ||
+          point?.cause !== "electro-charged-expiry" ||
+          point.eventType !== "periodicReactionExpiry" ||
+          point.pointKind !== "observation" ||
+          expectedNaturalExpiryPriority === null ||
+          !approximatelyEqual(
+            point.eventPriority ?? Number.NaN,
+            expectedNaturalExpiryPriority
+          ) ||
+          point.eventSequence === null ||
+          point.intraEventSequence === null ||
+          point.reaction !== "electroCharged" ||
+          JSON.stringify(point.reactions) !==
+            JSON.stringify(["electroCharged"]) ||
+          point.primaryDamageEventId !== null ||
+          point.auraApplied.length !== 0 ||
+          point.auraConsumed.length !== 0 ||
+          phaseLinks.length !== 1 ||
+          JSON.stringify(nonPhaseLinks) !==
+            JSON.stringify([
+              {
+                kind: "periodic-reaction-log",
+                id: cleanup.periodicReactionLogId
+              }
+            ]) ||
+          !auraStateSnapshotsEqual(
+            periodic.auraBefore,
+            point.auraBefore
+          ) ||
+          !auraStateSnapshotsEqual(
+            periodic.auraAfter,
+            point.auraAfter
+          ) ||
+          !auraStateSnapshotsEqual(
+            point.auraBefore,
+            point.auraAfter
+          )
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "periodicReactionLogId"
+            ],
+            "natural-expiry cleanup must reuse one unique natural Electro-Charged expiry stop and timeline observation"
+          );
+        }
+      } else {
+        const expectedPeriodicLinks =
+          cleanup.outcome === "stop"
+            ? [
+                {
+                  kind:
+                    "periodic-reaction-log" as const,
+                  id: cleanup.periodicReactionLogId
+                }
+              ]
+            : [];
+        const nonPhaseLinks =
+          point?.links.filter(
+            (link) => link.kind !== "target-phase-log"
+          ) ?? [];
+        const hasExactPhaseLink =
+          point?.links.filter(
+            (link) =>
+              link.kind === "target-phase-log" &&
+              link.id === cleanup.targetPhaseLogId
+          ).length === 1;
+        if (
+          point?.pointKind !== "observation" ||
+          point.cause !== "electro-charged-cleanup" ||
+          point.eventType !== "electroChargedCleanup" ||
+          expectedCleanupPriority === null ||
+          !approximatelyEqual(
+            point.eventPriority ?? Number.NaN,
+            expectedCleanupPriority
+          ) ||
+          point.eventSequence === null ||
+          point.intraEventSequence === null ||
+          point.reaction !== "electroCharged" ||
+          JSON.stringify(point.reactions) !==
+            JSON.stringify(["electroCharged"]) ||
+          !hasExactPhaseLink ||
+          JSON.stringify(nonPhaseLinks) !==
+            JSON.stringify(expectedPeriodicLinks) ||
+          !auraStateSnapshotsEqual(
+            point.auraBefore,
+            point.auraAfter
+          ) ||
+          cleanupTimelinePointOwners.get(point.id) !==
+            cleanup.targetPhaseLogId
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "targetStateTimelinePointId"
+            ],
+            "cleanup resolution requires one exact reciprocal target-state observation"
+          );
+        }
+      }
+
+      if (cleanup.outcome === "stop") {
+        const periodic = periodicById.get(
+          cleanup.periodicReactionLogId
+        );
+        const coexistencePresent =
+          point?.auraAfter.some(
+            (entry) => entry.element === "hydro"
+          ) &&
+          point.auraAfter.some(
+            (entry) => entry.element === "electro"
+          );
+        if (
+          periodic === undefined ||
+          reciprocalPeriodicRows.length !== 1 ||
+          reciprocalPeriodicRows[0]?.id !== periodic.id ||
+          periodic.operation !== "stop" ||
+          periodic.reason !==
+            "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" ||
+          periodic.generation !== cleanup.generation ||
+          periodic.targetId !== task.targetId ||
+          periodic.targetName !== task.targetName ||
+          periodic.frame !== cleanup.resolvedGlobalFrame ||
+          periodic.targetFrame !==
+            cleanup.resolvedTargetFrame ||
+          generationOwner === undefined ||
+          periodic.sourceActorId !==
+            generationOwner.sourceActorId ||
+          periodic.triggerDamageEventId !==
+            generationOwner.triggerDamageEventId ||
+          periodic.damageEventId !== null ||
+          periodic.reactionDamageLogId !== null ||
+          periodic.tickIndex !== null ||
+          periodic.nextTickFrame !== null ||
+          periodic.coexistenceExpiresAtFrame !== null ||
+          periodic.waneFrame !== null ||
+          periodic.auraConsumed.length !== 0 ||
+          point === undefined ||
+          !auraStateSnapshotsEqual(
+            periodic.auraBefore,
+            point.auraBefore
+          ) ||
+          !auraStateSnapshotsEqual(
+            periodic.auraAfter,
+            point.auraAfter
+          ) ||
+          !auraStateSnapshotsEqual(
+            periodic.auraBefore,
+            periodic.auraAfter
+          ) ||
+          coexistencePresent
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "periodicReactionLogId"
+            ],
+            "stop cleanup requires one unique same-generation stop after Hydro/Electro coexistence is absent"
+          );
+        }
+      } else if (cleanup.outcome === "retain") {
+        const coexistencePresent =
+          point?.auraAfter.some(
+            (entry) => entry.element === "hydro"
+          ) &&
+          point.auraAfter.some(
+            (entry) => entry.element === "electro"
+          );
+        const stoppedSameGeneration =
+          result.periodicReactionLog.some(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation === cleanup.generation &&
+              entry.operation === "stop" &&
+              entry.frame === cleanup.resolvedGlobalFrame
+          );
+        if (
+          !coexistencePresent ||
+          reciprocalPeriodicRows.length !== 0 ||
+          stoppedSameGeneration
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "outcome"
+            ],
+            "retain cleanup requires restored Hydro/Electro coexistence on the same active generation"
+          );
+        }
+      } else if (cleanup.outcome === "superseded") {
+        const replacementEvidence =
+          result.periodicReactionLog.some(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation > cleanup.generation &&
+              (entry.operation === "start" ||
+                entry.operation === "refresh") &&
+              entry.frame <= cleanup.resolvedGlobalFrame
+          );
+        if (
+          !replacementEvidence ||
+          reciprocalPeriodicRows.length !== 0
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "outcome"
+            ],
+            "superseded cleanup requires a newer same-target Electro-Charged generation"
+          );
+        }
+      }
+
+      if (
+        cleanup.outcome === "stop" ||
+        cleanup.outcome === "natural-expiry"
+      ) {
+        const firstTickFrame =
+          generationStart === undefined
+            ? Number.NaN
+            : generationStart.frame + 10;
+        const firstTickWithinSimulation =
+          Number.isFinite(firstTickFrame) &&
+          firstTickFrame <=
+          Math.round(result.config.duration * 60);
+        const firstTickRows =
+          result.periodicReactionLog.filter(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation === cleanup.generation &&
+              entry.operation === "tick" &&
+              entry.tickIndex === 0 &&
+              entry.frame === firstTickFrame
+          );
+        const firstTick = firstTickRows[0];
+        const reactionDamage =
+          firstTick?.reactionDamageLogId === null ||
+          firstTick?.reactionDamageLogId === undefined
+            ? undefined
+            : reactionDamageById.get(
+                firstTick.reactionDamageLogId
+              );
+        const childEvents =
+          reactionDamage?.damageEventIds.map((id) =>
+            damageEventById.get(id)
+          ) ?? [];
+        const cleanupResolvedBeforeOrAtFirstTick =
+          cleanup.resolvedGlobalFrame <= firstTickFrame;
+        const generationTicks =
+          result.periodicReactionLog.filter(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation === cleanup.generation &&
+              entry.operation === "tick"
+          );
+        let invalidHistoricalCadence = false;
+        generationTicks.forEach((tick, tickPosition) => {
+          const pinnedPostStopTick =
+            tick.tickIndex === 0 &&
+            tick.frame === firstTickFrame &&
+            cleanupResolvedBeforeOrAtFirstTick;
+          const tickBeforeCleanup =
+            tick.frame < cleanup.resolvedGlobalFrame;
+          const tickOwner = pinnedPostStopTick
+            ? generationStart
+            : result.periodicReactionLog
+                .filter(
+                  (entry) =>
+                    entry.targetId === task.targetId &&
+                    entry.generation ===
+                      cleanup.generation &&
+                    (entry.operation === "start" ||
+                      entry.operation === "refresh") &&
+                    entry.id < tick.id
+                )
+                .at(-1);
+          const expectedNextTickFrame =
+            pinnedPostStopTick ? null : tick.frame + 60;
+          const expectedWaneFrame =
+            pinnedPostStopTick ? null : tick.frame + 6;
+          const expectedTickReason = pinnedPostStopTick
+            ? "QUEUED_FIRST_TICK_AFTER_STREAM_STOP"
+            : null;
+          const expectedTickCoexistenceExpiry =
+            pinnedPostStopTick
+              ? null
+              : electroChargedCoexistenceExpiryFrame(
+                  tick.auraAfter
+                );
+          const tickReactionDamage =
+            tick.reactionDamageLogId === null
+              ? undefined
+              : reactionDamageById.get(
+                  tick.reactionDamageLogId
+                );
+          const tickDamageEvent =
+            tick.damageEventId === null
+              ? undefined
+              : damageEventById.get(tick.damageEventId);
+          const previousTick =
+            generationTicks[tickPosition - 1];
+          if (
+            (!tickBeforeCleanup && !pinnedPostStopTick) ||
+            tickOwner === undefined ||
+            tick.targetName !== task.targetName ||
+            tick.sourceActorId !== tickOwner.sourceActorId ||
+            tick.triggerDamageEventId !==
+              tickOwner.triggerDamageEventId ||
+            tick.tickIndex !== tickPosition ||
+            tick.nextTickFrame !== expectedNextTickFrame ||
+            tick.waneFrame !== expectedWaneFrame ||
+            tick.reason !== expectedTickReason ||
+            tick.coexistenceExpiresAtFrame !==
+              expectedTickCoexistenceExpiry ||
+            tick.auraConsumed.length !== 0 ||
+            !auraStateSnapshotsEqual(
+              tick.auraBefore,
+              tick.auraAfter
+            ) ||
+            (tickPosition === 0
+              ? tick.frame !== firstTickFrame
+              : previousTick === undefined ||
+                previousTick.nextTickFrame !== tick.frame ||
+                tick.tickIndex !==
+                  (previousTick.tickIndex ?? -1) + 1) ||
+            tickReactionDamage === undefined ||
+            tickReactionDamage.reaction !==
+              "electroCharged" ||
+            tickReactionDamage.sourceActorId !==
+              tick.sourceActorId ||
+            tickReactionDamage.sourceTargetId !==
+              tick.targetId ||
+            tickReactionDamage.triggerFrame !==
+              tickOwner.frame ||
+            tickReactionDamage.triggerDamageEventId !==
+              tick.triggerDamageEventId ||
+            tickReactionDamage.damageFrame !== tick.frame ||
+            !tickReactionDamage.scheduled ||
+            !tickReactionDamage.withinSimulation ||
+            tickReactionDamage.blockedReason !== null ||
+            tickReactionDamage.nextAvailableFrame !==
+              tick.nextTickFrame ||
+            tickReactionDamage.scheduleKind !==
+              "periodic-tick" ||
+            JSON.stringify(
+              tickReactionDamage.damageEventIds
+            ) !== JSON.stringify([tick.damageEventId]) ||
+            tickDamageEvent === undefined ||
+            tickDamageEvent.kind !==
+              "transformative-reaction" ||
+            tickDamageEvent.parentDamageEventId !==
+              tick.triggerDamageEventId ||
+            tickDamageEvent.frame !== tick.frame ||
+            tickDamageEvent.targetId !== tick.targetId ||
+            tickDamageEvent.reaction !==
+              "electroCharged"
+          ) {
+            invalidHistoricalCadence = true;
+          }
+
+          if (expectedNextTickFrame !== null) {
+            const callbackTicks = generationTicks.filter(
+              (candidate) =>
+                candidate.frame === expectedNextTickFrame &&
+                candidate.tickIndex ===
+                  (tick.tickIndex ?? -1) + 1
+            );
+            if (
+              expectedNextTickFrame <
+              cleanup.resolvedGlobalFrame
+                ? callbackTicks.length !== 1
+                : callbackTicks.length !== 0
+            ) {
+              invalidHistoricalCadence = true;
+            }
+          }
+
+          const callbackWanes =
+            expectedWaneFrame === null
+              ? []
+              : result.periodicReactionLog.filter(
+                  (candidate) =>
+                    candidate.targetId === task.targetId &&
+                    candidate.generation ===
+                      cleanup.generation &&
+                    candidate.frame === expectedWaneFrame &&
+                    (candidate.operation === "wane" ||
+                      candidate.operation === "wane-skipped")
+                );
+          const expectsWaneRow =
+            expectedWaneFrame !== null &&
+            expectedWaneFrame <
+              cleanup.resolvedGlobalFrame;
+          if (
+            expectsWaneRow
+              ? callbackWanes.length !== 1
+              : callbackWanes.length !== 0
+          ) {
+            invalidHistoricalCadence = true;
+          }
+          const wane = callbackWanes[0];
+          if (wane !== undefined) {
+            const skipped =
+              wane.operation === "wane-skipped";
+            const expectedWaneCoexistenceExpiry =
+              electroChargedCoexistenceExpiryFrame(
+                wane.auraAfter
+              );
+            const tickFinalDamage =
+              typeof tickDamageEvent?.finalDamage === "number"
+                ? tickDamageEvent.finalDamage
+                : undefined;
+            const gauge = (
+              snapshot: typeof wane.auraBefore,
+              element: "hydro" | "electro"
+            ): number =>
+              snapshot.find(
+                (entry) => entry.element === element
+              )?.gaugeUnits ?? 0;
+            const consumed = (
+              element: "hydro" | "electro"
+            ): number =>
+              wane.auraConsumed
+                .filter(
+                  (entry) => entry.element === element
+                )
+                .reduce(
+                  (sum, entry) =>
+                    sum + entry.gaugeUnits,
+                  0
+                );
+            const fixedWaneConsumptionValid = (
+              ["hydro", "electro"] as const
+            ).every((element) => {
+              const before = gauge(
+                wane.auraBefore,
+                element
+              );
+              const expectedConsumed = Math.min(0.4, before);
+              return (
+                before > 0 &&
+                approximatelyEqual(
+                  consumed(element),
+                  expectedConsumed
+                ) &&
+                approximatelyEqual(
+                  gauge(wane.auraAfter, element),
+                  Math.max(0, before - expectedConsumed)
+                )
+              );
+            });
+            if (
+              wane.targetName !== task.targetName ||
+              wane.sourceActorId !== tick.sourceActorId ||
+              wane.triggerDamageEventId !==
+                tick.triggerDamageEventId ||
+              wane.damageEventId !== tick.damageEventId ||
+              wane.reactionDamageLogId !== null ||
+              wane.tickIndex !== tick.tickIndex ||
+              wane.waneFrame !== expectedWaneFrame ||
+              wane.coexistenceExpiresAtFrame !==
+                expectedWaneCoexistenceExpiry ||
+              (skipped
+                ? wane.reason !== "ZERO_ACTUAL_DAMAGE" ||
+                  tickFinalDamage !== 0 ||
+                  wane.auraConsumed.length !== 0 ||
+                  !auraStateSnapshotsEqual(
+                    wane.auraBefore,
+                    wane.auraAfter
+                  ) ||
+                  wane.nextTickFrame !==
+                    tick.nextTickFrame
+                : tickFinalDamage === undefined ||
+                  tickFinalDamage <= 0 ||
+                  wane.auraConsumed.length !== 2 ||
+                  !fixedWaneConsumptionValid ||
+                  wane.auraConsumed.some(
+                    (entry) =>
+                      entry.element !== "hydro" &&
+                      entry.element !== "electro"
+                  ) ||
+                  wane.reason !==
+                    (wane.nextTickFrame === null
+                      ? "AURA_DEPLETED_BY_WANE"
+                      : null) ||
+                  (wane.nextTickFrame !== null &&
+                    wane.nextTickFrame !==
+                      tick.nextTickFrame))
+            ) {
+              invalidHistoricalCadence = true;
+            }
+          }
+        });
+        const generationStops =
+          result.periodicReactionLog.filter(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation === cleanup.generation &&
+              entry.operation === "stop"
+          );
+        const invalidTerminalStop =
+          generationStops.length !== 1 ||
+          generationStops[0]?.id !==
+            cleanup.periodicReactionLogId;
+        const illegalPostCleanupCadence =
+          result.periodicReactionLog.some(
+            (entry) =>
+              entry.targetId === task.targetId &&
+              entry.generation === cleanup.generation &&
+              entry.frame >= cleanup.resolvedGlobalFrame &&
+              ((entry.operation === "stop" &&
+                entry.id !==
+                  cleanup.periodicReactionLogId) ||
+                entry.operation === "tick" ||
+                entry.operation === "wane" ||
+                entry.operation === "wane-skipped" ||
+                entry.operation === "refresh" ||
+                entry.operation === "start") &&
+              !(
+                entry.operation === "tick" &&
+                entry.tickIndex === 0 &&
+                entry.frame === firstTickFrame
+              )
+          );
+        const invalidPinnedTick =
+          generationStart === undefined
+            ? true
+            : firstTickWithinSimulation
+            ? firstTickRows.length !== 1 ||
+              firstTick === undefined ||
+              (cleanupResolvedBeforeOrAtFirstTick &&
+                (firstTick.nextTickFrame !== null ||
+                  firstTick.waneFrame !== null ||
+                  firstTick.reason !==
+                    "QUEUED_FIRST_TICK_AFTER_STREAM_STOP" ||
+                  reactionDamage?.nextAvailableFrame !==
+                    null)) ||
+              reactionDamage === undefined ||
+              reactionDamage.damageFrame !== firstTickFrame ||
+              reactionDamage.scheduleKind !==
+                "periodic-tick" ||
+              !reactionDamage.scheduled ||
+              !reactionDamage.withinSimulation ||
+              reactionDamage.blockedReason !== null ||
+              childEvents.length === 0 ||
+              childEvents.some(
+                (event) =>
+                  event === undefined ||
+                  event.kind !==
+                    "transformative-reaction" ||
+                  event.frame !== firstTickFrame ||
+                  event.targetId !== task.targetId ||
+                  event.reaction !== "electroCharged"
+              )
+            : firstTickRows.length !== 0;
+        if (
+          invalidPinnedTick ||
+          invalidHistoricalCadence ||
+          invalidTerminalStop ||
+          illegalPostCleanupCadence
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "generation"
+            ],
+            "stopped cleanup generation must preserve exactly one start-anchored F+10 damage child and suppress tick/wane cadence at or after cleanup resolution"
+          );
+        }
+      }
+    });
+
+    result.periodicReactionLog.forEach((entry, entryIndex) => {
+      if (entry.reactionTaskLogId === undefined) return;
+      const task = taskById.get(entry.reactionTaskLogId);
+      const cleanup = task?.electroChargedCleanup;
+      const validBacklink =
+        cleanup !== undefined &&
+        cleanup !== null &&
+        (cleanup.outcome === "stop" ||
+          cleanup.outcome === "natural-expiry") &&
+        cleanup.periodicReactionLogId === entry.id &&
+        entry.operation === "stop" &&
+        entry.generation === cleanup.generation &&
+        (cleanup.outcome === "stop"
+          ? entry.reason ===
+            "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+          : entry.reason === "AURA_DECAY_EXPIRED");
+      if (!validBacklink) {
+        issue(
+          [
+            "periodicReactionLog",
+            entryIndex,
+            "reactionTaskLogId"
+          ],
+          "periodic reaction-task backlinks are reserved for their exact cleanup stop"
         );
       }
     });
@@ -15123,7 +17979,7 @@ const shatterGaugeMatches = (
   Math.abs(left - right) <= shatterGaugeTolerance;
 
 /**
- * Cross-log proof for the 1.39 zero-delay Shatter delivery boundary.
+ * Cross-log proof for the 1.39+ zero-delay Shatter delivery boundary.
  *
  * Damage IDs normally point backward to their parent. Recursive Shatter is
  * the sole exception: its child damage is committed first and may therefore
@@ -15151,6 +18007,15 @@ export const reactionDeliveryResultReferencesSchema = z
               .min(1)
               .max(32)
               .optional()
+          })
+          .passthrough()
+          .optional(),
+        reactionEngine: auraReactionEngineConfigSchema.optional(),
+        targetTaskModel: targetTaskModelSchema.optional(),
+        timeline: z
+          .object({
+            mode: z.literal("legal-frame-v1"),
+            fps: z.literal(60)
           })
           .passthrough()
           .optional(),
@@ -15212,20 +18077,59 @@ export const reactionDeliveryResultReferencesSchema = z
         'must include compatibility target "enemy-0" because hits without targeting resolve to it'
       );
     }
-    if (
-      (result.schemaVersion !==
-        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
-        result.config.schemaVersion !==
-          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
-        result.engineVersion !==
-          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION ||
-        result.config.engineVersion !==
-          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION)
-    ) {
+    const exact139Identity =
+      result.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    const exact140Identity =
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    if (!exact139Identity && !exact140Identity) {
       issue(
         ["config", "reactionDeliveryModel"],
-        "reaction delivery result requires the exact 1.39 schema and engine identity"
+        "reaction delivery result requires an exact supported 1.39 or 1.40 schema and engine identity"
       );
+    }
+    if (
+      result.config.reactionEngine?.mode === "aura-v8" &&
+      !exact140Identity
+    ) {
+      issue(
+        ["config", "reactionEngine", "mode"],
+        "aura-v8 reaction-delivery output requires the exact 1.40 schema and engine identity"
+      );
+    }
+    if (result.config.reactionEngine?.mode === "aura-v8") {
+      if (
+        result.config.timeline?.mode !==
+          "legal-frame-v1" ||
+        result.config.timeline.fps !== 60
+      ) {
+        issue(
+          ["config", "timeline"],
+          "aura-v8 reaction-delivery output requires legal-frame-v1 at 60 FPS"
+        );
+      }
+      if (
+        result.config.targetTaskModel?.mode !==
+        "target-phase-v2"
+      ) {
+        issue(
+          ["config", "targetTaskModel", "mode"],
+          "aura-v8 reaction-delivery output requires target-phase-v2"
+        );
+      }
     }
 
     addDuplicateIdIssues(
@@ -17097,7 +20001,7 @@ export const reactionDeliveryResultReferencesSchema = z
  */
 export const playerDamageResultReferencesSchema = z
   .object({
-    config: simConfigSchema,
+    config: simResultConfigSchema,
     damageEvents: z.array(
       playerSelfDamageDamageEventReferenceSchema
     ),
@@ -17205,7 +20109,8 @@ export const playerDamageResultReferencesSchema = z
       if (
         event.reactionAudit.transformativeReactions !== undefined &&
         result.config.reactionEngine?.mode !== "aura-v6" &&
-        result.config.reactionEngine?.mode !== "aura-v7"
+        result.config.reactionEngine?.mode !== "aura-v7" &&
+        result.config.reactionEngine?.mode !== "aura-v8"
       ) {
         issue(
           [
@@ -17214,7 +20119,7 @@ export const playerDamageResultReferencesSchema = z
             "reactionAudit",
             "transformativeReactions"
           ],
-          "ordered transformative-reaction arrays require reactionEngine.mode aura-v6 or aura-v7"
+          "ordered transformative-reaction arrays require reactionEngine.mode aura-v6, aura-v7, or aura-v8"
         );
       }
       const burningStatus =
@@ -18170,6 +21075,52 @@ export function formatZodError(error: z.ZodError): string[] {
 }
 
 export function parseSimConfig(input: unknown): SimConfig {
+  if (isRecord(input)) {
+    const ownPropertyIssues: string[] = [];
+    const requireOwn = (
+      value: Record<string, unknown>,
+      field: string,
+      path: string
+    ): void => {
+      if (
+        !Object.prototype.hasOwnProperty.call(value, field)
+      ) {
+        ownPropertyIssues.push(
+          `${path}: must be an explicit own property; inherited current configuration fields are forbidden`
+        );
+      }
+    };
+    requireOwn(input, "schemaVersion", "schemaVersion");
+    requireOwn(input, "engineVersion", "engineVersion");
+
+    const nestedOwnFields = [
+      ["reactionEngine", ["mode"]],
+      ["playerDamageModel", ["mode"]],
+      ["targetClockModel", ["mode"]],
+      ["targetTaskModel", ["mode"]],
+      ["reactionDeliveryModel", ["mode"]],
+      ["timeline", ["mode", "fps"]]
+    ] as const;
+    for (const [containerField, fields] of nestedOwnFields) {
+      if (!(containerField in input)) continue;
+      requireOwn(input, containerField, containerField);
+      const container = input[containerField];
+      if (!isRecord(container)) continue;
+      for (const field of fields) {
+        requireOwn(
+          container,
+          field,
+          `${containerField}.${field}`
+        );
+      }
+    }
+    if (ownPropertyIssues.length > 0) {
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${ownPropertyIssues.map((issue) => `- ${issue}`).join("\n")}`,
+        ownPropertyIssues
+      );
+    }
+  }
   const parsed = simConfigSchema.safeParse(input);
   if (!parsed.success) {
     const issues = formatZodError(parsed.error);
@@ -18188,7 +21139,8 @@ type HistoricalAuraMode =
   | "aura-v4"
   | "aura-v5"
   | "aura-v6"
-  | "aura-v7";
+  | "aura-v7"
+  | "aura-v8";
 
 interface HistoricalSchemaContract {
   engineVersion: string;
@@ -18224,6 +21176,16 @@ const HISTORICAL_AURA_MODES = {
     "aura-v5",
     "aura-v6",
     "aura-v7"
+  ] as const,
+  v8: [
+    "aura-v1",
+    "aura-v2",
+    "aura-v3",
+    "aura-v4",
+    "aura-v5",
+    "aura-v6",
+    "aura-v7",
+    "aura-v8"
   ] as const
 } satisfies Record<string, readonly HistoricalAuraMode[]>;
 
@@ -18388,6 +21350,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [TARGET_REACTABLE_PHASE_SCHEMA_VERSION]: {
     engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v7
+  },
+  [SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION]: {
+    engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v7
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -18448,9 +21414,28 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   let input: Record<string, unknown> = rawInput;
 
+  for (const identityField of [
+    "schemaVersion",
+    "engineVersion"
+  ] as const) {
+    if (
+      identityField in input &&
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        identityField
+      )
+    ) {
+      const issue = `${identityField}: must be an explicit own property; inherited configuration identity is forbidden`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+  }
   const version = input.schemaVersion;
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     "reactionDeliveryModel" in input
   ) {
     const historicalVersion =
@@ -18463,8 +21448,93 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       [issue]
     );
   }
+  if (
+    version === CURRENT_SCHEMA_VERSION ||
+    version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
+  ) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "reactionDeliveryModel"
+      )
+    ) {
+      const issue =
+        `reactionDeliveryModel: schemaVersion "${String(version)}" requires an explicit own reaction delivery model`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    if (
+      !isRecord(input.reactionDeliveryModel) ||
+      !Object.prototype.hasOwnProperty.call(
+        input.reactionDeliveryModel,
+        "mode"
+      )
+    ) {
+      const issue =
+        `reactionDeliveryModel.mode: schemaVersion "${String(version)}" requires an explicit own discriminator`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    const delivery = reactionDeliveryModelSchema.safeParse(
+      input.reactionDeliveryModel
+    );
+    if (!delivery.success) {
+      const details = formatZodError(delivery.error).map(
+        (entry) => `reactionDeliveryModel.${entry}`
+      );
+      const issue =
+        `reactionDeliveryModel: schemaVersion "${String(version)}" requires an explicit deferred-event-heap-v1 or shatter-recursive-zero-delay-v1 model`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}${details.length > 0 ? `\n${details.map((entry) => `- ${entry}`).join("\n")}` : ""}`,
+        [issue, ...details]
+      );
+    }
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "targetTaskModel"
+      ) ||
+      !isRecord(input.targetTaskModel) ||
+      !Object.prototype.hasOwnProperty.call(
+        input.targetTaskModel,
+        "mode"
+      )
+    ) {
+      const issue =
+        `targetTaskModel.mode: schemaVersion "${String(version)}" requires an explicit own model and discriminator`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    if (
+      "reactionEngine" in input &&
+      (!Object.prototype.hasOwnProperty.call(
+        input,
+        "reactionEngine"
+      ) ||
+        (input.reactionEngine !== undefined &&
+          (!isRecord(input.reactionEngine) ||
+            !Object.prototype.hasOwnProperty.call(
+              input.reactionEngine,
+              "mode"
+            ))))
+    ) {
+      const issue =
+        `reactionEngine.mode: schemaVersion "${String(version)}" requires an explicit own model and discriminator`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+  }
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
     version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
     version === TARGET_TASK_PHASE_SCHEMA_VERSION ||
     version === QUICKEN_BLOOM_TASK_SCHEMA_VERSION ||
@@ -18489,6 +21559,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
@@ -18509,6 +21580,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
@@ -18527,6 +21599,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
@@ -18545,10 +21618,26 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    isRecord(input.reactionEngine) &&
+    input.reactionEngine.mode === "aura-v8"
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionEngine.mode: schemaVersion "${historicalVersion}" does not support "aura-v8"`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
@@ -18574,6 +21663,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
@@ -18619,13 +21709,14 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     );
   }
   if (
-    version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
+    (version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+      version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION) &&
     !historicalTargetTaskModelIsLegacy &&
     !historicalTargetTaskModelIsV1 &&
     !historicalTargetTaskModelIsV2
   ) {
     const issue =
-      `targetTaskModel: schemaVersion "${TARGET_REACTABLE_PHASE_SCHEMA_VERSION}" requires an explicit legacy-event-heap-v1, target-phase-v1, or target-phase-v2 model`;
+      `targetTaskModel: schemaVersion "${String(version)}" requires an explicit legacy-event-heap-v1, target-phase-v1, or target-phase-v2 model`;
     throw new ConfigMigrationError(
       `配置校验失败：\n- ${issue}`,
       [issue]
@@ -18633,6 +21724,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     input.targetTaskModel !== undefined &&
@@ -18660,6 +21752,13 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   input = {
     ...input,

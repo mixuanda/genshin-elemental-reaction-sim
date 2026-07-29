@@ -1,0 +1,3391 @@
+{
+  "fixtureVersion": "electro-charged-quicken-cleanup-1.40",
+  "description": "Deterministic aura-v8 runtime vectors for removing a depleted Electro-Charged stream on the next effective target Tick after Quicken-to-Bloom.",
+  "provenance": {
+    "referenceProject": "genshinsim/gcsim",
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "referenceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "capturedAt": "2026-07-29",
+    "notes": [
+      "The reference source was fixed before capture; this fixture does not claim official data or complete gcsim parity.",
+      "The already-queued first Electro-Charged hit at F10 remains, while the depleted stream cleanup suppresses later cadence.",
+      "Target-local Hitlag pauses the effective target Tick, moving the cleanup from global F1 to global F6 while the deadline remains target frame 1.",
+      "Nearby wet-target chaining and long Hitlag across the later F70 callback are not represented by these vectors."
+    ]
+  },
+  "commonConfig": {
+    "schemaVersion": "1.40.0",
+    "engineVersion": "1.40.0-ec-next-target-tick-cleanup",
+    "reactionEngine": {
+      "mode": "aura-v8"
+    },
+    "targetTaskModel": {
+      "mode": "target-phase-v2"
+    },
+    "reactionDeliveryModel": {
+      "mode": "deferred-event-heap-v1"
+    },
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60
+    }
+  },
+  "scenarios": {
+    "hydroDepletedCleanupF1": {
+      "version": {
+        "schemaVersion": "1.40.0",
+        "engineVersion": "1.40.0-ec-next-target-tick-cleanup",
+        "dataVersion": "ec-quicken-cleanup-provisional-1",
+        "randomSeed": "ec-quicken-cleanup-aura-v8-1-0-90",
+        "configHash": "fnv1a32:27c1b67e",
+        "reproducibilityKey": "gdl-v2-fnv1a32-1976cdae",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "ec-quicken-cleanup-aura-v8-1-0-90"
+        },
+        "reactionEngineMode": "aura-v8",
+        "targetClockModelMode": "disabled",
+        "targetTaskModelMode": "target-phase-v2",
+        "reactionDeliveryModelMode": "deferred-event-heap-v1",
+        "timelineMode": "legal-frame-v1",
+        "fps": 60
+      },
+      "reactionTasks": [
+        {
+          "id": 0,
+          "kind": "quicken-bloom-followup",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "sourceActionId": "compound-chain#0",
+          "triggerHitId": "dendro-quicken",
+          "triggerHitGroupId": "compound-chain#0:0:0:0",
+          "triggerDamageEventId": 0,
+          "triggerElement": "dendro",
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 1,
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 0,
+          "status": "triggered",
+          "blockedReason": null,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.4,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnitsBefore": 0.8,
+                  "consumedGaugeUnits": 0.4,
+                  "gaugeUnitsAfter": 0.4
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 0.8,
+                  "consumedGaugeUnits": 0.8,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.4,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.4
+                }
+              ]
+            }
+          ],
+          "bloomReaction": {
+            "reaction": "bloom",
+            "operation": "quicken-followup",
+            "triggerElement": "dendro",
+            "sourceActorId": "driver",
+            "triggerFrame": 0,
+            "sourceBudget": "quicken-state",
+            "sourceGaugeUnitsBefore": 0.8,
+            "sourceGaugeUnitsSpent": 0.4,
+            "sourceGaugeUnitsAfter": 0.4,
+            "hydroGaugeUnitsBefore": 0.8,
+            "hydroConsumedGaugeUnits": 0.8,
+            "hydroGaugeUnitsAfter": 0,
+            "dendroGaugeUnitsBefore": 0,
+            "dendroConsumedGaugeUnits": 0,
+            "dendroGaugeUnitsAfter": 0,
+            "quickenGaugeUnitsBefore": 0.8,
+            "quickenConsumedGaugeUnits": 0.4,
+            "quickenGaugeUnitsAfter": 0.4,
+            "quickenStateMutation": {
+              "operation": "partial-consume",
+              "generationBefore": 1,
+              "generationAfter": 2,
+              "decayPerFrameBefore": 0.0013333333333333335,
+              "decayPerFrameAfter": 0.0013333333333333335,
+              "expiresAtFrameBefore": 600,
+              "expiresAtFrameAfter": 300,
+              "endCauseBefore": "QUICKEN_DECAY",
+              "endCauseAfter": "QUICKEN_DECAY",
+              "operationAuraBefore": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.64,
+                  "expiresAtFrame": 540,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.64
+                    }
+                  ]
+                },
+                {
+                  "element": "hydro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                },
+                {
+                  "element": "quicken",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 600,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                }
+              ],
+              "operationAuraAfter": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.64,
+                  "expiresAtFrame": 540,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.64
+                    }
+                  ]
+                },
+                {
+                  "element": "hydro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                },
+                {
+                  "element": "quicken",
+                  "gaugeUnits": 0.4,
+                  "expiresAtFrame": 300,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.4
+                    }
+                  ]
+                }
+              ]
+            },
+            "burningFuelGaugeUnitsBefore": 0,
+            "burningFuelConsumedGaugeUnits": 0,
+            "burningFuelGaugeUnitsAfter": 0,
+            "burningFuelStateMutation": {
+              "operation": "none",
+              "generation": null,
+              "decayPerFrame": 0,
+              "expiresAtFrameBefore": null,
+              "expiresAtFrameAfter": null
+            },
+            "scheduled": true,
+            "coreSpawnFrame": 30,
+            "coreSpawnDelayFrames": 30,
+            "blockedReason": null,
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "selfDamageStatus": "unsupported-player-damage-model"
+          },
+          "quickenStateLogIds": [
+            1
+          ],
+          "dendroCoreLogIds": [
+            0
+          ],
+          "dendroCoreIds": [
+            0
+          ],
+          "electroChargedCleanup": {
+            "generation": 1,
+            "requestedTargetFrame": 0,
+            "deadlineTargetFrame": 1,
+            "requestReason": "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO",
+            "resolvedGlobalFrame": 1,
+            "resolvedTargetFrame": 1,
+            "targetPhaseLogId": 1,
+            "periodicReactionLogId": 1,
+            "targetStateTimelinePointId": 4,
+            "outcome": "stop",
+            "resolutionReason": "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+          },
+          "mechanicsDataStatus": "fixed-gcsim-provisional"
+        }
+      ],
+      "cleanupTargetPhases": [
+        {
+          "model": "target-phase-v2",
+          "id": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "globalFrame": 1,
+          "timeSeconds": 0.016666666666666666,
+          "targetFrame": 1,
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "reactableTick": {
+            "fromTargetFrame": 0,
+            "toTargetFrame": 1,
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.638814814815,
+                "expiresAtFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.638814814815
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.398666666667,
+                "expiresAtFrame": 300,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.398666666667
+                  }
+                ]
+              }
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "electro-charged-cleanup",
+                "deadlineTargetFrame": 1,
+                "generation": 1,
+                "reactionTaskLogId": 0,
+                "targetStateTimelinePointId": 4,
+                "outcome": "stop",
+                "periodicReactionLogId": 1,
+                "order": 0
+              }
+            ],
+            "auraAfter": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.638814814815,
+                "expiresAtFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.638814814815
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.398666666667,
+                "expiresAtFrame": 300,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.398666666667
+                  }
+                ]
+              }
+            ]
+          },
+          "hitResolutionLogIds": [],
+          "reactionTaskLogIds": []
+        }
+      ],
+      "periodicElectroCharged": [
+        {
+          "id": 0,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionDamageLogId": null,
+          "damageEventId": null,
+          "tickIndex": null,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": 70,
+          "coexistenceExpiresAtFrame": 540,
+          "waneFrame": null,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "stop",
+          "frame": 1,
+          "targetFrame": 1,
+          "timeSeconds": 0.016666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionTaskLogId": 0,
+          "reactionDamageLogId": null,
+          "damageEventId": null,
+          "tickIndex": null,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": null,
+          "coexistenceExpiresAtFrame": null,
+          "waneFrame": null,
+          "reason": "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+        },
+        {
+          "id": 2,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "tick",
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionDamageLogId": 0,
+          "damageEventId": 2,
+          "tickIndex": 0,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.628148148148,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.628148148148
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.386666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.386666666667
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.628148148148,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.628148148148
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.386666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.386666666667
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": null,
+          "coexistenceExpiresAtFrame": null,
+          "waneFrame": null,
+          "reason": "QUEUED_FIRST_TICK_AFTER_STREAM_STOP"
+        }
+      ],
+      "reactionDamageLog": [
+        {
+          "id": 0,
+          "reaction": "electroCharged",
+          "triggerDamageEventId": 1,
+          "triggerHitGroupId": null,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "triggerFrame": 0,
+          "damageFrame": 10,
+          "scheduled": true,
+          "withinSimulation": true,
+          "blockedReason": null,
+          "nextAvailableFrame": null,
+          "scheduleKind": "periodic-tick",
+          "targetingMode": "single-target",
+          "centerPosition": null,
+          "radius": 0,
+          "sourceCoreId": null,
+          "sourceCoreLogId": null,
+          "selectionRadius": null,
+          "selectedTargetId": null,
+          "resolutionReason": null,
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "enemy-0"
+          ],
+          "hitTargetIds": [
+            "enemy-0"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            2
+          ],
+          "playerHitResolutionLogIds": [],
+          "playerDamageEventIds": [],
+          "reactionStatusLogIds": [],
+          "damageGroupDecisions": [
+            {
+              "reaction": "electroCharged",
+              "sourceActorId": "driver",
+              "targetId": "enemy-0",
+              "windowStartFrame": 10,
+              "hitIndex": 0,
+              "resetFrames": 30,
+              "sequence": [
+                true,
+                false
+              ],
+              "damageAllowed": true,
+              "blockedReason": null
+            }
+          ]
+        }
+      ],
+      "damageEvents": [
+        {
+          "id": 0,
+          "kind": "direct",
+          "eventPriority": 3,
+          "eventSequence": 1,
+          "parentDamageEventId": null,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "dendro-quicken",
+          "hitGroupId": "compound-chain#0:0:0:0",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 0,
+          "frame": 0,
+          "timeSeconds": 0,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "aura-engine",
+            "triggered": true,
+            "reaction": "quicken",
+            "reactions": [
+              "quicken"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": true,
+            "icdTag": "dendro-quicken",
+            "icdGroup": "no-icd",
+            "applicationGaugeUnits": 0.8,
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.8,
+                "sourceActorId": "driver"
+              }
+            ],
+            "auraConsumed": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "sourceMutations": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnitsBefore": 0.8,
+                    "consumedGaugeUnits": 0.8,
+                    "gaugeUnitsAfter": 0
+                  }
+                ]
+              }
+            ],
+            "auraAfter": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": {
+              "quicken": {
+                "reaction": "quicken",
+                "triggerElement": "dendro",
+                "consumedAuraElement": "electro",
+                "sourceGaugeUnitsBefore": 0.8,
+                "sourceGaugeUnitsSpent": 0.8,
+                "sourceGaugeUnitsAfter": 0,
+                "auraGaugeUnitsBefore": 0.8,
+                "auraConsumedGaugeUnits": 0.8,
+                "auraGaugeUnitsAfter": 0,
+                "quickenGaugeUnitsBefore": 0,
+                "candidateGaugeUnits": 0.8,
+                "quickenGaugeUnitsAfter": 0.8,
+                "operation": "start",
+                "generation": 1,
+                "decayPerFrameBefore": 0,
+                "decayPerFrame": 0.0013333333333333335,
+                "expiresAtFrameBefore": null,
+                "expiresAtFrame": 600,
+                "endCauseBefore": null,
+                "endCause": "QUICKEN_DECAY",
+                "operationAuraBefore": [
+                  {
+                    "element": "hydro",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 570,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "__initial__",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  }
+                ],
+                "operationAuraAfter": [
+                  {
+                    "element": "hydro",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 570,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "__initial__",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  },
+                  {
+                    "element": "quicken",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 600,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "driver",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  }
+                ],
+                "pendingHydroBloomFollowup": true
+              },
+              "additive": null
+            },
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "原激化消耗 0.8U electro Aura，生成 0.8U 激元素至 600f。；同帧激元素→水绽放后续已进入零延迟任务队列；该任务会在执行时重新读取目标 Aura。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "atk",
+            "scalingValue": 0,
+            "flatDamage": 0,
+            "baseDamage": 0,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 0,
+            "defenseReduction": 0,
+            "defenseMultiplier": 0.5,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0.5,
+            "critMultiplier": 1,
+            "reactionBase": 1,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": null,
+          "additiveReactionFactors": null,
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "finalDamage": 0,
+          "displayDamage": 0,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain",
+          "hitLabel": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "atk",
+          "scalingValue": 0,
+          "flat": 0,
+          "baseDamage": 0,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 0,
+          "defReduction": 0,
+          "defenseFactor": 0.5,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 1,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 1,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        },
+        {
+          "id": 1,
+          "kind": "direct",
+          "eventPriority": 3,
+          "eventSequence": 2,
+          "parentDamageEventId": null,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "electro-stream",
+          "hitGroupId": "compound-chain#0:0:1:0",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 748.7466862499999,
+          "frame": 0,
+          "timeSeconds": 0,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "aura-engine",
+            "triggered": true,
+            "reaction": "aggravate",
+            "reactions": [
+              "aggravate",
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": true,
+            "icdTag": "electro-stream",
+            "icdGroup": "no-icd",
+            "applicationGaugeUnits": 0.8,
+            "auraBefore": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "sourceActorId": "driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.64,
+                "expiresAtFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.64
+                  }
+                ]
+              },
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "transformativeReaction": null,
+            "transformativeReactions": [],
+            "periodicReaction": {
+              "reaction": "electroCharged",
+              "generation": 1,
+              "operation": "start",
+              "damageElement": "electro",
+              "baseMultiplier": 2,
+              "firstDamageFrame": 10,
+              "nextTickFrame": 70,
+              "tickIntervalFrames": 60,
+              "waneDelayFrames": 6,
+              "waneGaugeUnits": 0.4,
+              "coexistenceExpiresAtFrame": 540
+            },
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": {
+              "quicken": null,
+              "additive": {
+                "reaction": "aggravate",
+                "triggerElement": "electro",
+                "quickenGaugeUnitsBefore": 0.8,
+                "quickenGaugeUnitsAfter": 0.8,
+                "consumedQuickenGaugeUnits": 0
+              }
+            },
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "超激化读取命中帧激元素并追加可暴击、受增伤/防御/抗性影响的加算基础伤害；激元素耐久不消耗。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "atk",
+            "scalingValue": 0,
+            "flatDamage": 1663.8815249999998,
+            "baseDamage": 1663.8815249999998,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 0,
+            "defenseReduction": 0,
+            "defenseMultiplier": 0.5,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0.5,
+            "critMultiplier": 1,
+            "reactionBase": 1,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": null,
+          "additiveReactionFactors": {
+            "reaction": "aggravate",
+            "sourceActorId": "driver",
+            "characterLevel": 90,
+            "levelBaseDamage": 1446.8535,
+            "baseMultiplier": 1.15,
+            "elementalMastery": 0,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "flatDamage": 1663.8815249999998,
+            "appliedFlatDamage": 1663.8815249999998,
+            "snapshotMode": "hit-time"
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 748.7466862499999,
+            "transformativeReaction": 0
+          },
+          "finalDamage": 748.7466862499999,
+          "displayDamage": 749,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain",
+          "hitLabel": "electro-stream",
+          "element": "electro",
+          "reaction": "aggravate",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "atk",
+          "scalingValue": 0,
+          "flat": 1663.8815249999998,
+          "baseDamage": 1663.8815249999998,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 0,
+          "defReduction": 0,
+          "defenseFactor": 0.5,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 1,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 1,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        },
+        {
+          "id": 2,
+          "kind": "transformative-reaction",
+          "eventPriority": 5,
+          "eventSequence": 10,
+          "parentDamageEventId": 1,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "electro-stream:electroCharged",
+          "hitGroupId": "compound-chain#0:0:1:0:electroCharged:1",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 2,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 2604.3363,
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "reaction-damage",
+            "triggered": true,
+            "reaction": "electroCharged",
+            "reactions": [
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": null,
+            "icdTag": null,
+            "icdGroup": null,
+            "applicationGaugeUnits": null,
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null,
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": null,
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "em",
+            "scalingValue": 0,
+            "flatDamage": 0,
+            "baseDamage": 2893.707,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 1,
+            "defenseReduction": 0,
+            "defenseMultiplier": 1,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0,
+            "critMultiplier": 1,
+            "reactionBase": 2,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": {
+            "reaction": "electroCharged",
+            "characterLevel": 90,
+            "levelBaseDamage": 1446.8535,
+            "baseMultiplier": 2,
+            "elementalMastery": 0,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "preResistanceDamage": 2893.707,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9
+          },
+          "additiveReactionFactors": null,
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 2604.3363
+          },
+          "finalDamage": 2604.3363,
+          "displayDamage": 2604,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain · 感电",
+          "hitLabel": "感电反应伤害",
+          "element": "electro",
+          "reaction": "electroCharged",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0.16666666666666666,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 0,
+          "flat": 0,
+          "baseDamage": 2893.707,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 1,
+          "defReduction": 0,
+          "defenseFactor": 1,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 2,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 2,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        }
+      ],
+      "cleanupTimelinePoints": [
+        {
+          "frame": 1,
+          "timeSeconds": 0.016666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "pointKind": "observation",
+          "cause": "electro-charged-cleanup",
+          "eventType": "electroChargedCleanup",
+          "eventPriority": 0.73,
+          "eventSequence": 6,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "periodic-reaction-log",
+              "id": 1
+            },
+            {
+              "kind": "target-phase-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "targetFrame": 1,
+          "id": 4
+        }
+      ],
+      "electroChargedDamageEvents": [
+        {
+          "id": 2,
+          "frame": 10,
+          "eventPriority": 5,
+          "eventSequence": 10,
+          "targetId": "enemy-0",
+          "sourceActorId": "driver",
+          "creditOwnerId": "driver",
+          "reaction": "electroCharged",
+          "reactionAudit": {
+            "model": "reaction-damage",
+            "triggered": true,
+            "reaction": "electroCharged",
+            "reactions": [
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": null,
+            "icdTag": null,
+            "icdGroup": null,
+            "applicationGaugeUnits": null,
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null,
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": null,
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+          },
+          "finalDamage": 2604.3363,
+          "displayDamage": 2604
+        }
+      ],
+      "dendroCoreLog": [
+        {
+          "id": 0,
+          "coreId": 0,
+          "operation": "spawn-scheduled",
+          "eventType": "quickenBloomFollowup",
+          "frame": 0,
+          "timeSeconds": 0,
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 1,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "originDamageEventId": 0,
+          "triggerFrame": 0,
+          "coreDurationFrames": 300,
+          "hitboxRadius": 2,
+          "maxActiveCores": 5,
+          "clockModel": "global-frame-no-hitlag",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "selfDamageStatus": "unsupported-player-damage-model",
+          "reactionTaskLogId": 0,
+          "bloomReactionIndex": 0,
+          "spawnFrame": 30,
+          "withinSimulation": true,
+          "reason": "BLOOM_TRIGGERED"
+        },
+        {
+          "id": 1,
+          "coreId": 0,
+          "operation": "spawn",
+          "eventType": "dendroCoreSpawn",
+          "frame": 30,
+          "timeSeconds": 0.5,
+          "eventPriority": 2,
+          "eventSequence": 8,
+          "intraEventSequence": 0,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "originDamageEventId": 0,
+          "triggerFrame": 0,
+          "coreDurationFrames": 300,
+          "hitboxRadius": 2,
+          "maxActiveCores": 5,
+          "clockModel": "global-frame-no-hitlag",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "selfDamageStatus": "unsupported-player-damage-model",
+          "spawnedAtFrame": 30,
+          "expiresAtFrame": 330,
+          "position": {
+            "x": 0.4772172871976656,
+            "y": 0.14921012297997996
+          },
+          "spawnRadius": 0.5,
+          "spawnAngleDegrees": 17.362744119018316,
+          "positionRandomRoll": 0.04822984477505088,
+          "rngStream": "dendro-core-position-v1",
+          "reason": "SPAWNED"
+        }
+      ],
+      "targetClockLog": [],
+      "targetHitlagLog": [],
+      "auraEndStates": [
+        {
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "frame": 90,
+          "timeSeconds": 1.5,
+          "aura": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.533333333333,
+              "expiresAtFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.533333333333
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.28,
+              "expiresAtFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.28
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "totalDamage": 3353.08298625,
+      "damageEventCount": 3,
+      "reactedHits": 2
+    },
+    "hydroDepletedHitlag5F6": {
+      "version": {
+        "schemaVersion": "1.40.0",
+        "engineVersion": "1.40.0-ec-next-target-tick-cleanup",
+        "dataVersion": "ec-quicken-cleanup-provisional-1",
+        "randomSeed": "ec-quicken-cleanup-aura-v8-1-5-90",
+        "configHash": "fnv1a32:9a6835e3",
+        "reproducibilityKey": "gdl-v2-fnv1a32-29301c68",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "ec-quicken-cleanup-aura-v8-1-5-90"
+        },
+        "reactionEngineMode": "aura-v8",
+        "targetClockModelMode": "target-local-hitlag-v1",
+        "targetTaskModelMode": "target-phase-v2",
+        "reactionDeliveryModelMode": "deferred-event-heap-v1",
+        "timelineMode": "legal-frame-v1",
+        "fps": 60
+      },
+      "reactionTasks": [
+        {
+          "id": 0,
+          "kind": "quicken-bloom-followup",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "sourceActionId": "compound-chain#0",
+          "triggerHitId": "dendro-quicken",
+          "triggerHitGroupId": "compound-chain#0:0:0:0",
+          "triggerDamageEventId": 0,
+          "triggerElement": "dendro",
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 1,
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 0,
+          "status": "triggered",
+          "blockedReason": null,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 575,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 605,
+              "expiresAtTargetFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.4,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnitsBefore": 0.8,
+                  "consumedGaugeUnits": 0.4,
+                  "gaugeUnitsAfter": 0.4
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 0.8,
+                  "consumedGaugeUnits": 0.8,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.4,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.4
+                }
+              ]
+            }
+          ],
+          "bloomReaction": {
+            "reaction": "bloom",
+            "operation": "quicken-followup",
+            "triggerElement": "dendro",
+            "sourceActorId": "driver",
+            "triggerFrame": 0,
+            "sourceBudget": "quicken-state",
+            "sourceGaugeUnitsBefore": 0.8,
+            "sourceGaugeUnitsSpent": 0.4,
+            "sourceGaugeUnitsAfter": 0.4,
+            "hydroGaugeUnitsBefore": 0.8,
+            "hydroConsumedGaugeUnits": 0.8,
+            "hydroGaugeUnitsAfter": 0,
+            "dendroGaugeUnitsBefore": 0,
+            "dendroConsumedGaugeUnits": 0,
+            "dendroGaugeUnitsAfter": 0,
+            "quickenGaugeUnitsBefore": 0.8,
+            "quickenConsumedGaugeUnits": 0.4,
+            "quickenGaugeUnitsAfter": 0.4,
+            "quickenStateMutation": {
+              "operation": "partial-consume",
+              "generationBefore": 1,
+              "generationAfter": 2,
+              "decayPerFrameBefore": 0.0013333333333333335,
+              "decayPerFrameAfter": 0.0013333333333333335,
+              "expiresAtFrameBefore": 605,
+              "expiresAtFrameAfter": 305,
+              "endCauseBefore": "QUICKEN_DECAY",
+              "endCauseAfter": "QUICKEN_DECAY",
+              "operationAuraBefore": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.64,
+                  "expiresAtFrame": 545,
+                  "expiresAtTargetFrame": 540,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.64
+                    }
+                  ]
+                },
+                {
+                  "element": "hydro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 575,
+                  "expiresAtTargetFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                },
+                {
+                  "element": "quicken",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 605,
+                  "expiresAtTargetFrame": 600,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                }
+              ],
+              "operationAuraAfter": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.64,
+                  "expiresAtFrame": 545,
+                  "expiresAtTargetFrame": 540,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.64
+                    }
+                  ]
+                },
+                {
+                  "element": "hydro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 575,
+                  "expiresAtTargetFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                },
+                {
+                  "element": "quicken",
+                  "gaugeUnits": 0.4,
+                  "expiresAtFrame": 305,
+                  "expiresAtTargetFrame": 300,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "driver",
+                      "gaugeUnits": 0.4
+                    }
+                  ]
+                }
+              ]
+            },
+            "burningFuelGaugeUnitsBefore": 0,
+            "burningFuelConsumedGaugeUnits": 0,
+            "burningFuelGaugeUnitsAfter": 0,
+            "burningFuelStateMutation": {
+              "operation": "none",
+              "generation": null,
+              "decayPerFrame": 0,
+              "expiresAtFrameBefore": null,
+              "expiresAtFrameAfter": null
+            },
+            "scheduled": true,
+            "coreSpawnFrame": 30,
+            "coreSpawnDelayFrames": 30,
+            "blockedReason": null,
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "selfDamageStatus": "unsupported-player-damage-model"
+          },
+          "quickenStateLogIds": [
+            1
+          ],
+          "dendroCoreLogIds": [
+            0
+          ],
+          "dendroCoreIds": [
+            0
+          ],
+          "electroChargedCleanup": {
+            "generation": 1,
+            "requestedTargetFrame": 0,
+            "deadlineTargetFrame": 1,
+            "requestReason": "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO",
+            "resolvedGlobalFrame": 6,
+            "resolvedTargetFrame": 1,
+            "targetPhaseLogId": 1,
+            "periodicReactionLogId": 1,
+            "targetStateTimelinePointId": 4,
+            "outcome": "stop",
+            "resolutionReason": "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+          },
+          "mechanicsDataStatus": "fixed-gcsim-provisional"
+        }
+      ],
+      "cleanupTargetPhases": [
+        {
+          "model": "target-phase-v2",
+          "id": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "globalFrame": 6,
+          "timeSeconds": 0.1,
+          "targetFrame": 1,
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "reactableTick": {
+            "fromTargetFrame": 0,
+            "toTargetFrame": 1,
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.638814814815,
+                "expiresAtFrame": 545,
+                "expiresAtTargetFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.638814814815
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.398666666667,
+                "expiresAtFrame": 305,
+                "expiresAtTargetFrame": 300,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.398666666667
+                  }
+                ]
+              }
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "electro-charged-cleanup",
+                "deadlineTargetFrame": 1,
+                "generation": 1,
+                "reactionTaskLogId": 0,
+                "targetStateTimelinePointId": 4,
+                "outcome": "stop",
+                "periodicReactionLogId": 1,
+                "order": 0
+              }
+            ],
+            "auraAfter": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.638814814815,
+                "expiresAtFrame": 545,
+                "expiresAtTargetFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.638814814815
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.398666666667,
+                "expiresAtFrame": 305,
+                "expiresAtTargetFrame": 300,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.398666666667
+                  }
+                ]
+              }
+            ]
+          },
+          "hitResolutionLogIds": [],
+          "reactionTaskLogIds": []
+        }
+      ],
+      "periodicElectroCharged": [
+        {
+          "id": 0,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionDamageLogId": null,
+          "damageEventId": null,
+          "tickIndex": null,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 600,
+              "expiresAtTargetFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.64,
+              "expiresAtFrame": 540,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.64
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "expiresAtTargetFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 600,
+              "expiresAtTargetFrame": 600,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": 70,
+          "coexistenceExpiresAtFrame": 540,
+          "waneFrame": null,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "stop",
+          "frame": 6,
+          "targetFrame": 1,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionTaskLogId": 0,
+          "reactionDamageLogId": null,
+          "damageEventId": null,
+          "tickIndex": null,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": null,
+          "coexistenceExpiresAtFrame": null,
+          "waneFrame": null,
+          "reason": "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+        },
+        {
+          "id": 2,
+          "reaction": "electroCharged",
+          "generation": 1,
+          "operation": "tick",
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "triggerDamageEventId": 1,
+          "reactionDamageLogId": 0,
+          "damageEventId": 2,
+          "tickIndex": 0,
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.634074074074,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.634074074074
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.393333333333,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.393333333333
+                }
+              ]
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.634074074074,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.634074074074
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.393333333333,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.393333333333
+                }
+              ]
+            }
+          ],
+          "nextTickFrame": null,
+          "coexistenceExpiresAtFrame": null,
+          "waneFrame": null,
+          "reason": "QUEUED_FIRST_TICK_AFTER_STREAM_STOP"
+        }
+      ],
+      "reactionDamageLog": [
+        {
+          "id": 0,
+          "reaction": "electroCharged",
+          "triggerDamageEventId": 1,
+          "triggerHitGroupId": null,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "triggerFrame": 0,
+          "damageFrame": 10,
+          "scheduled": true,
+          "withinSimulation": true,
+          "blockedReason": null,
+          "nextAvailableFrame": null,
+          "scheduleKind": "periodic-tick",
+          "targetingMode": "single-target",
+          "centerPosition": null,
+          "radius": 0,
+          "sourceCoreId": null,
+          "sourceCoreLogId": null,
+          "selectionRadius": null,
+          "selectedTargetId": null,
+          "resolutionReason": null,
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "enemy-0"
+          ],
+          "hitTargetIds": [
+            "enemy-0"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            2
+          ],
+          "playerHitResolutionLogIds": [],
+          "playerDamageEventIds": [],
+          "reactionStatusLogIds": [],
+          "damageGroupDecisions": [
+            {
+              "reaction": "electroCharged",
+              "sourceActorId": "driver",
+              "targetId": "enemy-0",
+              "windowStartFrame": 10,
+              "hitIndex": 0,
+              "resetFrames": 30,
+              "sequence": [
+                true,
+                false
+              ],
+              "damageAllowed": true,
+              "blockedReason": null
+            }
+          ]
+        }
+      ],
+      "damageEvents": [
+        {
+          "id": 0,
+          "kind": "direct",
+          "eventPriority": 3,
+          "eventSequence": 1,
+          "parentDamageEventId": null,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "dendro-quicken",
+          "hitGroupId": "compound-chain#0:0:0:0",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 0,
+          "frame": 0,
+          "timeSeconds": 0,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "aura-engine",
+            "triggered": true,
+            "reaction": "quicken",
+            "reactions": [
+              "quicken"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": true,
+            "icdTag": "dendro-quicken",
+            "icdGroup": "no-icd",
+            "applicationGaugeUnits": 0.8,
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "expiresAtTargetFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "expiresAtTargetFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.8,
+                "sourceActorId": "driver"
+              }
+            ],
+            "auraConsumed": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "sourceMutations": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnitsBefore": 0.8,
+                    "consumedGaugeUnits": 0.8,
+                    "gaugeUnitsAfter": 0
+                  }
+                ]
+              }
+            ],
+            "auraAfter": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "expiresAtTargetFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "expiresAtTargetFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": {
+              "quicken": {
+                "reaction": "quicken",
+                "triggerElement": "dendro",
+                "consumedAuraElement": "electro",
+                "sourceGaugeUnitsBefore": 0.8,
+                "sourceGaugeUnitsSpent": 0.8,
+                "sourceGaugeUnitsAfter": 0,
+                "auraGaugeUnitsBefore": 0.8,
+                "auraConsumedGaugeUnits": 0.8,
+                "auraGaugeUnitsAfter": 0,
+                "quickenGaugeUnitsBefore": 0,
+                "candidateGaugeUnits": 0.8,
+                "quickenGaugeUnitsAfter": 0.8,
+                "operation": "start",
+                "generation": 1,
+                "decayPerFrameBefore": 0,
+                "decayPerFrame": 0.0013333333333333335,
+                "expiresAtFrameBefore": null,
+                "expiresAtFrame": 600,
+                "endCauseBefore": null,
+                "endCause": "QUICKEN_DECAY",
+                "operationAuraBefore": [
+                  {
+                    "element": "hydro",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 570,
+                    "expiresAtTargetFrame": 570,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "__initial__",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  }
+                ],
+                "operationAuraAfter": [
+                  {
+                    "element": "hydro",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 570,
+                    "expiresAtTargetFrame": 570,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "__initial__",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  },
+                  {
+                    "element": "quicken",
+                    "gaugeUnits": 0.8,
+                    "expiresAtFrame": 600,
+                    "expiresAtTargetFrame": 600,
+                    "sourceSlots": [
+                      {
+                        "sourceActorId": "driver",
+                        "gaugeUnits": 0.8
+                      }
+                    ]
+                  }
+                ],
+                "pendingHydroBloomFollowup": true
+              },
+              "additive": null
+            },
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "原激化消耗 0.8U electro Aura，生成 0.8U 激元素至 600f。；同帧激元素→水绽放后续已进入零延迟任务队列；该任务会在执行时重新读取目标 Aura。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "atk",
+            "scalingValue": 0,
+            "flatDamage": 0,
+            "baseDamage": 0,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 0,
+            "defenseReduction": 0,
+            "defenseMultiplier": 0.5,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0.5,
+            "critMultiplier": 1,
+            "reactionBase": 1,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": null,
+          "additiveReactionFactors": null,
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 0
+          },
+          "finalDamage": 0,
+          "displayDamage": 0,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain",
+          "hitLabel": "dendro-quicken",
+          "element": "dendro",
+          "reaction": "quicken",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "atk",
+          "scalingValue": 0,
+          "flat": 0,
+          "baseDamage": 0,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 0,
+          "defReduction": 0,
+          "defenseFactor": 0.5,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 1,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 1,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        },
+        {
+          "id": 1,
+          "kind": "direct",
+          "eventPriority": 3,
+          "eventSequence": 2,
+          "parentDamageEventId": null,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "electro-stream",
+          "hitGroupId": "compound-chain#0:0:1:0",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 748.7466862499999,
+          "frame": 0,
+          "timeSeconds": 0,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "aura-engine",
+            "triggered": true,
+            "reaction": "aggravate",
+            "reactions": [
+              "aggravate",
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": true,
+            "icdTag": "electro-stream",
+            "icdGroup": "no-icd",
+            "applicationGaugeUnits": 0.8,
+            "auraBefore": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "expiresAtTargetFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "expiresAtTargetFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.8,
+                "sourceActorId": "driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.64,
+                "expiresAtFrame": 540,
+                "expiresAtTargetFrame": 540,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.64
+                  }
+                ]
+              },
+              {
+                "element": "hydro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 570,
+                "expiresAtTargetFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              },
+              {
+                "element": "quicken",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 600,
+                "expiresAtTargetFrame": 600,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ],
+            "transformativeReaction": null,
+            "transformativeReactions": [],
+            "periodicReaction": {
+              "reaction": "electroCharged",
+              "generation": 1,
+              "operation": "start",
+              "damageElement": "electro",
+              "baseMultiplier": 2,
+              "firstDamageFrame": 10,
+              "nextTickFrame": 70,
+              "tickIntervalFrames": 60,
+              "waneDelayFrames": 6,
+              "waneGaugeUnits": 0.4,
+              "coexistenceExpiresAtFrame": 540
+            },
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": {
+              "quicken": null,
+              "additive": {
+                "reaction": "aggravate",
+                "triggerElement": "electro",
+                "quickenGaugeUnitsBefore": 0.8,
+                "quickenGaugeUnitsAfter": 0.8,
+                "consumedQuickenGaugeUnits": 0
+              }
+            },
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "超激化读取命中帧激元素并追加可暴击、受增伤/防御/抗性影响的加算基础伤害；激元素耐久不消耗。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "atk",
+            "scalingValue": 0,
+            "flatDamage": 1663.8815249999998,
+            "baseDamage": 1663.8815249999998,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 0,
+            "defenseReduction": 0,
+            "defenseMultiplier": 0.5,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0.5,
+            "critMultiplier": 1,
+            "reactionBase": 1,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": null,
+          "additiveReactionFactors": {
+            "reaction": "aggravate",
+            "sourceActorId": "driver",
+            "characterLevel": 90,
+            "levelBaseDamage": 1446.8535,
+            "baseMultiplier": 1.15,
+            "elementalMastery": 0,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "flatDamage": 1663.8815249999998,
+            "appliedFlatDamage": 1663.8815249999998,
+            "snapshotMode": "hit-time"
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 748.7466862499999,
+            "transformativeReaction": 0
+          },
+          "finalDamage": 748.7466862499999,
+          "displayDamage": 749,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain",
+          "hitLabel": "electro-stream",
+          "element": "electro",
+          "reaction": "aggravate",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "atk",
+          "scalingValue": 0,
+          "flat": 1663.8815249999998,
+          "baseDamage": 1663.8815249999998,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 0,
+          "defReduction": 0,
+          "defenseFactor": 0.5,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 1,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 1,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        },
+        {
+          "id": 2,
+          "kind": "transformative-reaction",
+          "eventPriority": 5,
+          "eventSequence": 10,
+          "parentDamageEventId": 1,
+          "sourceActorId": "driver",
+          "scalingOwnerId": "driver",
+          "creditOwnerId": "driver",
+          "actionId": "compound-chain#0",
+          "hitId": "electro-stream:electroCharged",
+          "hitGroupId": "compound-chain#0:0:1:0:electroCharged:1",
+          "targetIndex": 0,
+          "targetCount": 1,
+          "targetResolutionId": 2,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "targetDamagePolicy": "normal",
+          "targetDamageMultiplier": 1,
+          "mechanicsStatus": "authoritative",
+          "potentialDamage": 2604.3363,
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "activeCharacterId": "driver",
+          "statsBeforeDamage": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          },
+          "activeStatuses": [],
+          "enemyStateBeforeHit": {
+            "level": 90,
+            "baseResistance": 0.1,
+            "resistanceShred": 0,
+            "effectiveResistance": 0.1,
+            "baseDefenseReduction": 0,
+            "effectiveDefenseReduction": 0
+          },
+          "reactionAudit": {
+            "model": "reaction-damage",
+            "triggered": true,
+            "reaction": "electroCharged",
+            "reactions": [
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": null,
+            "icdTag": null,
+            "icdGroup": null,
+            "applicationGaugeUnits": null,
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null,
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": null,
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+          },
+          "damageFactors": {
+            "scaling": 0,
+            "scalingStat": "em",
+            "scalingValue": 0,
+            "flatDamage": 0,
+            "baseDamage": 2893.707,
+            "damageBonus": 0,
+            "damageBonusMultiplier": 1,
+            "defenseIgnore": 1,
+            "defenseReduction": 0,
+            "defenseMultiplier": 1,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9,
+            "critRate": 0,
+            "critDamage": 0,
+            "critMultiplier": 1,
+            "reactionBase": 2,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "amplifyingReactionMultiplier": 1,
+            "groupMultiplier": 1
+          },
+          "transformativeReactionFactors": {
+            "reaction": "electroCharged",
+            "characterLevel": 90,
+            "levelBaseDamage": 1446.8535,
+            "baseMultiplier": 2,
+            "elementalMastery": 0,
+            "elementalMasteryBonus": 0,
+            "reactionBonus": 0,
+            "preResistanceDamage": 2893.707,
+            "effectiveResistance": 0.1,
+            "resistanceMultiplier": 0.9
+          },
+          "additiveReactionFactors": null,
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 2604.3363
+          },
+          "finalDamage": 2604.3363,
+          "displayDamage": 2604,
+          "sourceActorName": "Reaction driver",
+          "scalingOwnerName": "Reaction driver",
+          "creditOwnerName": "Reaction driver",
+          "actionName": "Compound reaction chain · 感电",
+          "hitLabel": "感电反应伤害",
+          "element": "electro",
+          "reaction": "electroCharged",
+          "snapshot": "hit",
+          "cycle": 0,
+          "flatDetails": [],
+          "timelineCommandIndex": 0,
+          "sourceAbilityId": "compound-chain",
+          "actionStartFrame": 0,
+          "actionCancelFrame": 1,
+          "actionAnimationEndFrame": 1,
+          "time": 0.16666666666666666,
+          "second": 0,
+          "actorId": "driver",
+          "creditId": "driver",
+          "actorName": "Reaction driver",
+          "activeId": "driver",
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 0,
+          "flat": 0,
+          "baseDamage": 2893.707,
+          "dmgBonus": 0,
+          "bonusFactor": 1,
+          "defIgnore": 1,
+          "defReduction": 0,
+          "defenseFactor": 1,
+          "effectiveRes": 0.1,
+          "resFactor": 0.9,
+          "critRate": 0,
+          "critDmg": 0,
+          "critFactor": 1,
+          "em": 0,
+          "reactionBase": 2,
+          "emBonus": 0,
+          "reactionBonus": 0,
+          "reactionFactor": 2,
+          "groupMultiplier": 1,
+          "buffs": [],
+          "debuffs": []
+        }
+      ],
+      "cleanupTimelinePoints": [
+        {
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "pointKind": "observation",
+          "cause": "electro-charged-cleanup",
+          "eventType": "electroChargedCleanup",
+          "eventPriority": 0.73,
+          "eventSequence": 6,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "periodic-reaction-log",
+              "id": 1
+            },
+            {
+              "kind": "target-phase-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.638814814815,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.638814814815
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.398666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.398666666667
+                }
+              ]
+            }
+          ],
+          "targetFrame": 1,
+          "id": 4
+        }
+      ],
+      "electroChargedDamageEvents": [
+        {
+          "id": 2,
+          "frame": 10,
+          "eventPriority": 5,
+          "eventSequence": 10,
+          "targetId": "enemy-0",
+          "sourceActorId": "driver",
+          "creditOwnerId": "driver",
+          "reaction": "electroCharged",
+          "reactionAudit": {
+            "model": "reaction-damage",
+            "triggered": true,
+            "reaction": "electroCharged",
+            "reactions": [
+              "electroCharged"
+            ],
+            "unsupportedReactions": [],
+            "mechanicsTruncation": null,
+            "icdAllowed": null,
+            "icdTag": null,
+            "icdGroup": null,
+            "applicationGaugeUnits": null,
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null,
+            "transformativeReaction": null,
+            "periodicReaction": null,
+            "frozenReaction": null,
+            "shatterReaction": null,
+            "swirlReactions": [],
+            "swirlDamageGroup": null,
+            "crystallizeReaction": null,
+            "catalyzeReaction": null,
+            "burningReaction": null,
+            "bloomReactions": [],
+            "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+          },
+          "finalDamage": 2604.3363,
+          "displayDamage": 2604
+        }
+      ],
+      "dendroCoreLog": [
+        {
+          "id": 0,
+          "coreId": 0,
+          "operation": "spawn-scheduled",
+          "eventType": "quickenBloomFollowup",
+          "frame": 0,
+          "timeSeconds": 0,
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 1,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "originDamageEventId": 0,
+          "triggerFrame": 0,
+          "coreDurationFrames": 300,
+          "hitboxRadius": 2,
+          "maxActiveCores": 5,
+          "clockModel": "global-frame-gadget-v1",
+          "hitlagStatus": "not-affected-by-enemy-hitlag",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "selfDamageStatus": "unsupported-player-damage-model",
+          "reactionTaskLogId": 0,
+          "bloomReactionIndex": 0,
+          "spawnFrame": 30,
+          "withinSimulation": true,
+          "reason": "BLOOM_TRIGGERED"
+        },
+        {
+          "id": 1,
+          "coreId": 0,
+          "operation": "spawn",
+          "eventType": "dendroCoreSpawn",
+          "frame": 30,
+          "timeSeconds": 0.5,
+          "eventPriority": 2,
+          "eventSequence": 8,
+          "intraEventSequence": 0,
+          "sourceActorId": "driver",
+          "sourceTargetId": "enemy-0",
+          "originDamageEventId": 0,
+          "triggerFrame": 0,
+          "coreDurationFrames": 300,
+          "hitboxRadius": 2,
+          "maxActiveCores": 5,
+          "clockModel": "global-frame-gadget-v1",
+          "hitlagStatus": "not-affected-by-enemy-hitlag",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "selfDamageStatus": "unsupported-player-damage-model",
+          "spawnedAtFrame": 30,
+          "expiresAtFrame": 330,
+          "position": {
+            "x": -0.1845343336280458,
+            "y": 0.46470106489274704
+          },
+          "spawnRadius": 0.5,
+          "spawnAngleDegrees": 111.65819104760885,
+          "positionRandomRoll": 0.3101616417989135,
+          "rngStream": "dendro-core-position-v1",
+          "reason": "SPAWNED"
+        }
+      ],
+      "targetClockLog": [
+        {
+          "id": 0,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "operation": "apply-hitlag",
+          "globalFrameBefore": 0,
+          "globalFrameAfter": 0,
+          "targetFrameBefore": 0,
+          "targetFrameAfter": 0,
+          "frozenFramesBefore": 0,
+          "consumedFrozenFrames": 0,
+          "addedFrozenFrames": 5,
+          "frozenFramesAfter": 5,
+          "targetHitlagLogId": 0,
+          "cause": "hit"
+        },
+        {
+          "id": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "operation": "advance",
+          "globalFrameBefore": 0,
+          "globalFrameAfter": 6,
+          "targetFrameBefore": 0,
+          "targetFrameAfter": 1,
+          "frozenFramesBefore": 5,
+          "consumedFrozenFrames": 5,
+          "addedFrozenFrames": 0,
+          "frozenFramesAfter": 0,
+          "targetHitlagLogId": null,
+          "cause": "target-local-task"
+        },
+        {
+          "id": 2,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "operation": "advance",
+          "globalFrameBefore": 6,
+          "globalFrameAfter": 10,
+          "targetFrameBefore": 1,
+          "targetFrameAfter": 5,
+          "frozenFramesBefore": 0,
+          "consumedFrozenFrames": 0,
+          "addedFrozenFrames": 0,
+          "frozenFramesAfter": 0,
+          "targetHitlagLogId": null,
+          "cause": "target-local-task"
+        },
+        {
+          "id": 3,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "operation": "advance",
+          "globalFrameBefore": 10,
+          "globalFrameAfter": 90,
+          "targetFrameBefore": 5,
+          "targetFrameAfter": 85,
+          "frozenFramesBefore": 0,
+          "consumedFrozenFrames": 0,
+          "addedFrozenFrames": 0,
+          "frozenFramesAfter": 0,
+          "targetHitlagLogId": null,
+          "cause": "simulation-end"
+        }
+      ],
+      "targetHitlagLog": [
+        {
+          "id": 0,
+          "globalFrame": 0,
+          "timeSeconds": 0,
+          "targetFrame": 0,
+          "eventPriority": 3,
+          "eventSequence": 2,
+          "intraEventSequence": 1,
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "sourceActorId": "driver",
+          "sourceActionId": "compound-chain#0",
+          "hitId": "electro-stream",
+          "hitGroupId": "compound-chain#0:0:1:0",
+          "hitResolutionLogId": 1,
+          "haltFrames": 5,
+          "factor": 0,
+          "roundedHaltFrames": 5,
+          "extensionFrames": 5,
+          "frozenFramesBefore": 0,
+          "frozenFramesAfter": 5,
+          "pausedGlobalFrameStart": 1,
+          "nextTargetAdvanceGlobalFrame": 6,
+          "applied": true,
+          "blockedReason": null,
+          "extendedReactionStatusLogIds": [],
+          "mechanicsDataStatus": "fixed-gcsim-provisional"
+        }
+      ],
+      "auraEndStates": [
+        {
+          "targetId": "enemy-0",
+          "targetName": "Hydro Electro target",
+          "frame": 90,
+          "timeSeconds": 1.5,
+          "aura": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.539259259259,
+              "expiresAtFrame": 545,
+              "expiresAtTargetFrame": 540,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.539259259259
+                }
+              ]
+            },
+            {
+              "element": "quicken",
+              "gaugeUnits": 0.286666666667,
+              "expiresAtFrame": 305,
+              "expiresAtTargetFrame": 300,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "driver",
+                  "gaugeUnits": 0.286666666667
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "totalDamage": 3353.08298625,
+      "damageEventCount": 3,
+      "reactedHits": 2
+    }
+  },
+  "hashes": {
+    "hydroDepletedCleanupF1": "fbfd58988ba89284004feb728975ba649d49e35cb7668e680d3ec9d5067d0f20",
+    "hydroDepletedHitlag5F6": "dfcec30cd61f26ee2e327571e125fa0973a2544b98c03a53ffb7ce0f888fd61a"
+  }
+}

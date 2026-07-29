@@ -816,9 +816,9 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.39.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.40.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.39.0-shatter-recursive-delivery"
+      "1.40.0-ec-next-target-tick-cleanup"
     );
 
     for (const scenarioId of scenarioIds) {

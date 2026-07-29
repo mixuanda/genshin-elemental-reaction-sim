@@ -3,6 +3,7 @@ import {
   createSimulationConfigHash,
   createSimulationRunManifest,
   dendroCoreResultReferencesSchema,
+  electroChargedCleanupResultReferencesSchema,
   migrateConfig,
   playerDamageResultReferencesSchema,
   reactionDeliveryResultReferencesSchema,
@@ -33,6 +34,7 @@ import {
   type DendroCoreReaction,
   type Element,
   type ElementalApplication,
+  type ElectroChargedCleanupAudit,
   type EnergySummary,
   type HitGeometry,
   type HitDefinition,
@@ -65,6 +67,7 @@ import {
 import {
   AURA_ENGINE_CONSTANTS,
   AuraEngine,
+  type ElectroChargedCleanupResult,
   type ShatterStateResult
 } from "./aura";
 import {
@@ -137,6 +140,7 @@ export const EVENT_PRIORITY = {
   hit: 3,
   quickenBloomFollowup: 3,
   periodicReactionExpiry: 2,
+  electroChargedCleanup: 2,
   burningFuelExpiry: 2,
   frozenExpiry: 2,
   quickenExpiry: 2,
@@ -824,6 +828,7 @@ interface PeriodicReactionTickEventPayload {
 
 interface PeriodicReactionWaneEventPayload {
   targetId: string;
+  generation: number;
   sourceActorId: string;
   triggerDamageEventId: number;
   damageEventId: number;
@@ -835,6 +840,13 @@ interface PeriodicReactionExpiryEventPayload {
   targetId: string;
   generation: number;
   expectedExpiryFrame: number;
+}
+
+interface ElectroChargedCleanupEventPayload {
+  targetId: string;
+  generation: number;
+  reactionTaskLogId: number;
+  deadlineTargetFrame: number;
 }
 
 interface BurningTickEventPayload {
@@ -963,6 +975,7 @@ type InternalEventBase =
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
+  | SimulationEvent<ElectroChargedCleanupEventPayload>
   | SimulationEvent<BurningTickEventPayload>
   | SimulationEvent<BurningFuelExpiryEventPayload>
   | SimulationEvent<FrozenExpiryEventPayload>
@@ -1367,12 +1380,14 @@ function simulateConfig(
       | "quickenExpiry"
       | "frozenExpiry"
       | "periodicReactionExpiry"
+      | "electroChargedCleanup"
   ): number => {
     const lifecycleOrder = {
       burningFuelExpiry: 0,
       quickenExpiry: 1,
       frozenExpiry: 2,
-      periodicReactionExpiry: 3
+      periodicReactionExpiry: 3,
+      electroChargedCleanup: 4
     } as const;
     return (
       targetPhaseV2TaskPriorityForTarget(targetId) +
@@ -1606,7 +1621,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v4" ||
     config.reactionEngine?.mode === "aura-v5" ||
     config.reactionEngine?.mode === "aura-v6" ||
-    config.reactionEngine?.mode === "aura-v7"
+    config.reactionEngine?.mode === "aura-v7" ||
+    config.reactionEngine?.mode === "aura-v8"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -2003,6 +2019,7 @@ function simulateConfig(
       | "burningFuelExpiry"
       | "frozenExpiry"
       | "quickenExpiry"
+      | "electroChargedCleanup"
       | "burningTick",
     payload: TPayload,
     targetLocalDeadline: TargetLocalTaskDeadline,
@@ -2924,6 +2941,58 @@ function simulateConfig(
     }
     scheduleTargetDecayThroughOrder(
       expiryFrame,
+      enemyTargetOrderById.get(targetId) ?? 0
+    );
+  };
+
+  const scheduleElectroChargedCleanup = ({
+    targetId,
+    generation,
+    reactionTaskLogId,
+    deadlineTargetFrame,
+    projectedGlobalFrame
+  }: {
+    targetId: string;
+    generation: number;
+    reactionTaskLogId: number;
+    deadlineTargetFrame: number;
+    projectedGlobalFrame: number;
+  }): void => {
+    const payload = {
+      targetId,
+      generation,
+      reactionTaskLogId,
+      deadlineTargetFrame
+    } satisfies ElectroChargedCleanupEventPayload;
+    const targetLocalDeadline =
+      targetClocks?.has(targetId) === true
+        ? {
+            targetId,
+            targetFrame: deadlineTargetFrame
+          }
+        : null;
+    const priority = targetPhaseV2LifecyclePriorityForTarget(
+      targetId,
+      "electroChargedCleanup"
+    );
+    if (targetLocalDeadline === null) {
+      push(
+        projectedGlobalFrame / 60,
+        "electroChargedCleanup",
+        payload,
+        priority
+      );
+    } else {
+      pushTargetLocal(
+        projectedGlobalFrame,
+        "electroChargedCleanup",
+        payload,
+        targetLocalDeadline,
+        priority
+      );
+    }
+    scheduleTargetDecayThroughOrder(
+      projectedGlobalFrame,
       enemyTargetOrderById.get(targetId) ?? 0
     );
   };
@@ -4556,7 +4625,8 @@ function simulateConfig(
   }): void => {
     const quicken = audit.catalyzeReaction?.quicken;
     if (
-      config.reactionEngine?.mode !== "aura-v7" ||
+      (config.reactionEngine?.mode !== "aura-v7" &&
+        config.reactionEngine?.mode !== "aura-v8") ||
       quicken?.pendingHydroBloomFollowup !== true
     ) {
       return;
@@ -6819,7 +6889,8 @@ function simulateConfig(
     if (
       (config.reactionEngine?.mode !== "aura-v5" &&
         config.reactionEngine?.mode !== "aura-v6" &&
-        config.reactionEngine?.mode !== "aura-v7") ||
+        config.reactionEngine?.mode !== "aura-v7" &&
+        config.reactionEngine?.mode !== "aura-v8") ||
       (element !== "pyro" && element !== "electro") ||
       application === undefined ||
       application.gaugeUnits <= 0
@@ -7010,8 +7081,9 @@ function simulateConfig(
     });
     if (
       config.reactionEngine?.mode === "aura-v5" ||
-      config.reactionEngine?.mode === "aura-v6"
-      || config.reactionEngine?.mode === "aura-v7"
+      config.reactionEngine?.mode === "aura-v6" ||
+      config.reactionEngine?.mode === "aura-v7" ||
+      config.reactionEngine?.mode === "aura-v8"
     ) {
       processDendroCoreContacts({
         actorId,
@@ -7125,6 +7197,7 @@ function simulateConfig(
       event.type === "frozenExpiry" ||
       event.type === "quickenExpiry" ||
       event.type === "periodicReactionExpiry" ||
+      event.type === "electroChargedCleanup" ||
       event.type === "burningFuelExpiry";
     // Priority 0..2 events run before target-local Aura expiry boundaries.
     // Advancing the shared Aura engine through the current frame for an
@@ -7508,6 +7581,7 @@ function simulateConfig(
           `Quicken→Bloom task could not resolve target "${targetId}".`
         );
       }
+      const reactionTaskLogId = reactionTaskLog.length;
       const targetPhaseV2Entry =
         ensureTargetPhaseV2State({
           targetId,
@@ -7517,8 +7591,71 @@ function simulateConfig(
       const taskResult = auraEngine.processQuickenBloomFollowup({
         frame: event.frame,
         sourceActorId,
-        triggerElement
+        triggerElement,
+        originReactionTaskId: reactionTaskLogId
       });
+      const electroChargedCleanupResults =
+        auraEngine.drainElectroChargedCleanupResults();
+      const prematureCleanup = electroChargedCleanupResults.find(
+        (result) => result.outcome !== "armed"
+      );
+      if (prematureCleanup !== undefined) {
+        throw new Error(
+          `Aura-v8 EC cleanup for reaction task ${prematureCleanup.originReactionTaskId ?? "unknown"} resolved before its scheduled target Tick.`
+        );
+      }
+      const armedCleanupResults = electroChargedCleanupResults.filter(
+        (result) =>
+          result.outcome === "armed" &&
+          result.originReactionTaskId === reactionTaskLogId
+      );
+      if (
+        electroChargedCleanupResults.length !== armedCleanupResults.length ||
+        armedCleanupResults.length > 1
+      ) {
+        throw new Error(
+          `Quicken→Bloom task ${reactionTaskLogId} produced an invalid Aura-v8 EC cleanup arm set.`
+        );
+      }
+      const armedCleanup = armedCleanupResults[0] ?? null;
+      const electroChargedCleanup: ElectroChargedCleanupAudit | null =
+        armedCleanup === null
+          ? null
+          : {
+              generation: armedCleanup.generation,
+              requestedTargetFrame: armedCleanup.armedAtTargetFrame,
+              deadlineTargetFrame: armedCleanup.deadlineTargetFrame,
+              requestReason: "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO",
+              outcome: "pending-at-end",
+              resolutionReason: null,
+              resolvedGlobalFrame: null,
+              resolvedTargetFrame: null,
+              targetPhaseLogId: null,
+              periodicReactionLogId: null,
+              targetStateTimelinePointId: null
+            };
+      if (armedCleanup !== null) {
+        if (
+          armedCleanup.reason !== "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO" ||
+          armedCleanup.resolvedAtFrame !== null ||
+          armedCleanup.resolvedAtTargetFrame !== null ||
+          armedCleanup.deadlineTargetFrame !==
+            armedCleanup.armedAtTargetFrame + 1
+        ) {
+          throw new Error(
+            `Quicken→Bloom task ${reactionTaskLogId} produced an invalid Aura-v8 EC cleanup arm.`
+          );
+        }
+        scheduleElectroChargedCleanup({
+          targetId,
+          generation: armedCleanup.generation,
+          reactionTaskLogId,
+          deadlineTargetFrame: armedCleanup.deadlineTargetFrame,
+          projectedGlobalFrame: auraEngine.projectTargetFrame(
+            armedCleanup.deadlineTargetFrame
+          )
+        });
+      }
       const bloomReaction =
         taskResult.bloomReaction === null
           ? null
@@ -7526,7 +7663,6 @@ function simulateConfig(
               ...taskResult.bloomReaction,
               selfDamageStatus: playerSelfDamageStatus
             };
-      const reactionTaskLogId = reactionTaskLog.length;
       const taskIntraEventSequence =
         nextIntraEventSequence();
       const quickenStateLogIds =
@@ -7592,6 +7728,7 @@ function simulateConfig(
         quickenStateLogIds,
         dendroCoreLogIds: coreReferences.dendroCoreLogIds,
         dendroCoreIds: coreReferences.dendroCoreIds,
+        electroChargedCleanup,
         mechanicsDataStatus: "fixed-gcsim-provisional"
       });
       appendTargetTaskPhaseReference(
@@ -8762,6 +8899,361 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "electroChargedCleanup") {
+      const { targetId, generation, reactionTaskLogId, deadlineTargetFrame } =
+        event.payload as ElectroChargedCleanupEventPayload;
+      const auraEngine = auraEngines?.get(targetId);
+      const target = enemyTargetById.get(targetId);
+      const wakeReactionTask = reactionTaskLog[reactionTaskLogId];
+      if (
+        auraEngine === undefined ||
+        target === undefined ||
+        wakeReactionTask === undefined ||
+        wakeReactionTask.targetId !== targetId ||
+        wakeReactionTask.electroChargedCleanup === null
+      ) {
+        throw new Error(
+          `Aura-v8 EC cleanup could not resolve reaction task ${reactionTaskLogId} for target "${targetId}".`
+        );
+      }
+      const wakeAudit = wakeReactionTask.electroChargedCleanup;
+      if (wakeAudit.outcome !== "pending-at-end") {
+        // Multiple generations can share one target-Tick deadline. The first
+        // wake drains and resolves every terminal Aura result; later queued
+        // wakes for those tasks are deterministic no-ops.
+        continue;
+      }
+      if (
+        wakeAudit.generation !== generation ||
+        wakeAudit.deadlineTargetFrame !== deadlineTargetFrame
+      ) {
+        throw new Error(
+          `Aura-v8 EC cleanup wake disagrees with reaction task ${reactionTaskLogId}.`
+        );
+      }
+      const targetPhaseV2State = materializeTargetPhaseV2Decay(
+        event.frame,
+        targetId
+      );
+      if (targetPhaseV2State === null) {
+        throw new Error("Aura-v8 EC cleanup requires target-phase-v2.");
+      }
+      const cleanupResults = auraEngine.drainElectroChargedCleanupResults();
+      if (
+        cleanupResults.length === 0 ||
+        cleanupResults.some((result) => result.outcome === "armed")
+      ) {
+        throw new Error(
+          `Aura-v8 EC cleanup reaction task ${reactionTaskLogId} did not produce terminal results at its target Tick.`
+        );
+      }
+      let resolvedWakeTask = false;
+      for (const cleanupResult of cleanupResults) {
+        const originReactionTaskId = cleanupResult.originReactionTaskId;
+        if (originReactionTaskId === null) {
+          throw new Error(
+            "Simulator-owned Aura-v8 EC cleanup result is missing its reaction task id."
+          );
+        }
+        const reactionTask = reactionTaskLog[originReactionTaskId];
+        const pendingAudit = reactionTask?.electroChargedCleanup;
+        const resolvedGlobalFrame = cleanupResult.resolvedAtFrame;
+        const resolvedTargetFrame = cleanupResult.resolvedAtTargetFrame;
+        if (
+          reactionTask === undefined ||
+          reactionTask.targetId !== targetId ||
+          pendingAudit === undefined ||
+          pendingAudit === null ||
+          pendingAudit.outcome !== "pending-at-end" ||
+          pendingAudit.generation !== cleanupResult.generation ||
+          pendingAudit.deadlineTargetFrame !==
+            cleanupResult.deadlineTargetFrame ||
+          resolvedGlobalFrame === null ||
+          resolvedTargetFrame === null ||
+          resolvedGlobalFrame !== event.frame ||
+          resolvedTargetFrame !== resolveTargetFrameAt(targetId, event.frame) ||
+          resolvedTargetFrame < cleanupResult.deadlineTargetFrame
+        ) {
+          throw new Error(
+            `Aura-v8 EC cleanup reaction task ${originReactionTaskId} produced an inconsistent terminal result.`
+          );
+        }
+        const source = activePeriodicReactionSources.get(targetId);
+        let outcome: "stop" | "retain" | "superseded" | "natural-expiry";
+        let periodicReactionLogId: number | null = null;
+        let targetStateTimelinePointId: number | null = null;
+        if (cleanupResult.outcome === "stopped") {
+          if (
+            cleanupResult.reason !==
+              "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" ||
+            cleanupResult.nextTickFrame !== null ||
+            source?.generation !== cleanupResult.generation
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup stop for reaction task ${originReactionTaskId} does not own active generation ${cleanupResult.generation}.`
+            );
+          }
+          outcome = "stop";
+          periodicReactionLogId = periodicReactionLog.length;
+          periodicReactionLog.push({
+            id: periodicReactionLogId,
+            reaction: "electroCharged",
+            generation: cleanupResult.generation,
+            operation: "stop",
+            frame: event.frame,
+            targetFrame: resolvedTargetFrame,
+            timeSeconds,
+            targetId,
+            targetName: target.name,
+            sourceActorId: source.actorId,
+            triggerDamageEventId: source.triggerDamageEventId,
+            reactionTaskLogId: originReactionTaskId,
+            reactionDamageLogId: null,
+            damageEventId: null,
+            tickIndex: null,
+            auraBefore: deepClone(cleanupResult.auraAfter),
+            auraConsumed: [],
+            auraAfter: deepClone(cleanupResult.auraAfter),
+            nextTickFrame: null,
+            coexistenceExpiresAtFrame: null,
+            waneFrame: null,
+            reason: "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+          });
+          activePeriodicReactionSources.delete(targetId);
+        } else if (cleanupResult.outcome === "retained") {
+          if (
+            cleanupResult.reason !==
+              "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK" ||
+            source?.generation !== cleanupResult.generation
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup retain for reaction task ${originReactionTaskId} lost active generation ${cleanupResult.generation}.`
+            );
+          }
+          outcome = "retain";
+        } else if (cleanupResult.outcome === "superseded") {
+          if (
+            cleanupResult.reason !== "ELECTRO_CHARGED_GENERATION_SUPERSEDED" ||
+            source === undefined ||
+            source.generation === cleanupResult.generation
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup supersession for reaction task ${originReactionTaskId} has no replacement stream.`
+            );
+          }
+          outcome = "superseded";
+        } else if (cleanupResult.outcome === "natural-expiry") {
+          if (
+            cleanupResult.reason !== "AURA_DECAY_EXPIRED_BEFORE_CLEANUP" ||
+            cleanupResult.nextTickFrame !== null ||
+            source !== undefined
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup natural-expiry for reaction task ${originReactionTaskId} did not follow ownership deletion for generation ${cleanupResult.generation}.`
+            );
+          }
+          const naturalStopMatches = periodicReactionLog.filter(
+            (entry) =>
+              entry.reaction === "electroCharged" &&
+              entry.generation === cleanupResult.generation &&
+              entry.operation === "stop" &&
+              entry.frame === event.frame &&
+              entry.targetFrame === resolvedTargetFrame &&
+              entry.reason === "AURA_DECAY_EXPIRED"
+          );
+          if (naturalStopMatches.length !== 1) {
+            throw new Error(
+              `Aura-v8 EC cleanup natural-expiry for reaction task ${originReactionTaskId} requires exactly one same-frame natural stop; found ${naturalStopMatches.length}.`
+            );
+          }
+          const naturalStop = naturalStopMatches[0]!;
+          if (
+            naturalStop.id < 0 ||
+            periodicReactionLog[naturalStop.id] !== naturalStop ||
+            (naturalStop.reactionTaskLogId !== undefined &&
+              naturalStop.reactionTaskLogId !== originReactionTaskId)
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup natural-expiry for reaction task ${originReactionTaskId} resolved an invalid natural stop backlink.`
+            );
+          }
+          const naturalTransitions =
+            targetPhaseV2State.entry.reactableTick.transitions.filter(
+              (transition) =>
+                transition.kind === "electro-charged-expiry" &&
+                transition.generation === cleanupResult.generation &&
+                transition.periodicReactionLogId === naturalStop.id
+            );
+          if (naturalTransitions.length !== 1) {
+            throw new Error(
+              `Aura-v8 EC cleanup natural-expiry for reaction task ${originReactionTaskId} requires exactly one same-frame expiry transition; found ${naturalTransitions.length}.`
+            );
+          }
+          const naturalTransition = naturalTransitions[0]!;
+          const naturalPoint =
+            targetStateTimelineRecorder.result().points[
+              naturalTransition.targetStateTimelinePointId
+            ];
+          const naturalPeriodicLinks =
+            naturalPoint?.links.filter(
+              (link) =>
+                link.kind === "periodic-reaction-log" &&
+                link.id === naturalStop.id
+            ) ?? [];
+          if (
+            naturalPoint === undefined ||
+            naturalPoint.targetId !== targetId ||
+            naturalPoint.frame !== event.frame ||
+            (naturalPoint.targetFrame ?? naturalPoint.frame) !==
+              resolvedTargetFrame ||
+            naturalPoint.cause !== "electro-charged-expiry" ||
+            naturalPoint.eventType !== "periodicReactionExpiry" ||
+            naturalPeriodicLinks.length !== 1
+          ) {
+            throw new Error(
+              `Aura-v8 EC cleanup natural-expiry for reaction task ${originReactionTaskId} could not reuse the unique natural-expiry timeline point.`
+            );
+          }
+          naturalStop.reactionTaskLogId = originReactionTaskId;
+          outcome = "natural-expiry";
+          periodicReactionLogId = naturalStop.id;
+          targetStateTimelinePointId =
+            naturalTransition.targetStateTimelinePointId;
+        } else {
+          throw new Error(
+            `Aura-v8 EC cleanup reaction task ${originReactionTaskId} produced unsupported outcome "${cleanupResult.outcome}".`
+          );
+        }
+
+        if (targetStateTimelinePointId === null) {
+          targetStateTimelinePointId =
+            targetStateTimelineRecorder.result().points.length;
+          targetStateTimelineRecorder.recordEvent({
+            frame: event.frame,
+            timeSeconds,
+            targetId,
+            targetName: target.name,
+            cause: "electro-charged-cleanup",
+            eventType: event.type,
+            eventPriority: event.priority,
+            eventSequence: event.sequence,
+            intraEventSequence: nextIntraEventSequence(),
+            reaction: "electroCharged",
+            reactions: ["electroCharged"],
+            primaryDamageEventId: null,
+            links:
+              periodicReactionLogId === null
+                ? []
+                : [
+                    {
+                      kind: "periodic-reaction-log",
+                      id: periodicReactionLogId
+                    }
+                  ],
+            // Reactable.Tick already performed ordinary Aura decay. Cleanup
+            // only changes EC stream ownership, so this point must not
+            // misrepresent passive gauge loss as a cleanup mutation.
+            auraBefore: cleanupResult.auraAfter,
+            auraAfter: cleanupResult.auraAfter
+          });
+        }
+        const cleanupTransitionBase = {
+          stage: "reactable-tick" as const,
+          kind: "electro-charged-cleanup" as const,
+          deadlineTargetFrame: cleanupResult.deadlineTargetFrame,
+          generation: cleanupResult.generation,
+          reactionTaskLogId: originReactionTaskId,
+          targetStateTimelinePointId
+        };
+        appendTargetPhaseV2Transition(
+          targetPhaseV2State,
+          outcome === "stop" || outcome === "natural-expiry"
+            ? {
+                ...cleanupTransitionBase,
+                outcome,
+                periodicReactionLogId: periodicReactionLogId!
+              }
+            : {
+                ...cleanupTransitionBase,
+                outcome,
+                periodicReactionLogId: null
+              },
+          cleanupResult.auraAfter
+        );
+        const targetPhaseLogId = targetPhaseV2State.entry.id;
+        const resolvedTimelinePoint =
+          targetStateTimelineRecorder.result().points[
+            targetStateTimelinePointId
+          ];
+        if (resolvedTimelinePoint === undefined) {
+          throw new Error(
+            `Aura-v8 EC cleanup reaction task ${originReactionTaskId} resolved missing timeline point ${targetStateTimelinePointId}.`
+          );
+        }
+        const existingTargetPhaseLink = resolvedTimelinePoint.links.find(
+          (link) => link.kind === "target-phase-log"
+        );
+        if (existingTargetPhaseLink === undefined) {
+          resolvedTimelinePoint.links.push({
+            kind: "target-phase-log",
+            id: targetPhaseLogId
+          });
+        } else if (existingTargetPhaseLink.id !== targetPhaseLogId) {
+          throw new Error(
+            `Aura-v8 EC cleanup reaction task ${originReactionTaskId} cannot reuse timeline point ${targetStateTimelinePointId} from another target phase.`
+          );
+        }
+        const resolvedBase = {
+          generation: cleanupResult.generation,
+          requestedTargetFrame: pendingAudit.requestedTargetFrame,
+          deadlineTargetFrame: cleanupResult.deadlineTargetFrame,
+          requestReason: "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO" as const,
+          resolvedGlobalFrame,
+          resolvedTargetFrame,
+          targetPhaseLogId,
+          periodicReactionLogId,
+          targetStateTimelinePointId
+        };
+        reactionTask.electroChargedCleanup =
+          outcome === "stop"
+            ? {
+                ...resolvedBase,
+                outcome,
+                resolutionReason: "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM",
+                periodicReactionLogId: periodicReactionLogId!
+              }
+            : outcome === "retain"
+              ? {
+                  ...resolvedBase,
+                  outcome,
+                  resolutionReason: "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK",
+                  periodicReactionLogId: null
+                }
+              : outcome === "superseded"
+                ? {
+                    ...resolvedBase,
+                    outcome,
+                    resolutionReason: "ELECTRO_CHARGED_GENERATION_SUPERSEDED",
+                    periodicReactionLogId: null
+                  }
+                : {
+                    ...resolvedBase,
+                    outcome,
+                    resolutionReason: "AURA_DECAY_EXPIRED_BEFORE_CLEANUP",
+                    periodicReactionLogId: periodicReactionLogId!
+                  };
+        if (originReactionTaskId === reactionTaskLogId) {
+          resolvedWakeTask = true;
+        }
+      }
+      if (!resolvedWakeTask) {
+        throw new Error(
+          `Aura-v8 EC cleanup wake for reaction task ${reactionTaskLogId} did not resolve its owning task.`
+        );
+      }
+      continue;
+    }
+
     if (event.type === "periodicReactionExpiry") {
       const {
         targetId,
@@ -9521,18 +10013,36 @@ function simulateConfig(
           auraState.some((aura) => aura.element === "hydro") &&
           auraState.some((aura) => aura.element === "electro");
         const streamContinues =
+          activeSource?.generation === generation && coexistencePresent;
+        const cleanupPending =
+          config.reactionEngine?.mode === "aura-v8" &&
           activeSource?.generation === generation &&
-          coexistencePresent;
+          reactionTaskLog.some(
+            (task) =>
+              task.targetId === targetId &&
+              task.electroChargedCleanup?.outcome === "pending-at-end" &&
+              task.electroChargedCleanup.generation === generation
+          );
         nextTickFrame = streamContinues
           ? event.frame +
             AURA_ENGINE_CONSTANTS.electroChargedTickIntervalFrames
           : null;
-        waneEligible = coexistencePresent;
+        // A pinned first tick may outlive its original stream. It must never
+        // wane a replacement generation in aura-v8. Historical Aura modes
+        // retain their frozen coexistence-only Wane contract.
+        waneEligible =
+          config.reactionEngine?.mode === "aura-v8"
+            ? streamContinues
+            : coexistencePresent;
         tickReason = streamContinues
           ? null
           : activeSource === undefined
             ? "QUEUED_FIRST_TICK_AFTER_STREAM_STOP"
-            : "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED";
+            : activeSource.generation !== generation
+              ? "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED"
+              : cleanupPending
+                ? "QUEUED_FIRST_TICK_WHILE_CLEANUP_PENDING"
+                : "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED";
         coexistenceExpiresAtFrame = coexistencePresent
           ? (auraState
               .filter(
@@ -9676,12 +10186,22 @@ function simulateConfig(
     if (event.type === "periodicReactionWane") {
       const {
         targetId,
+        generation,
         sourceActorId,
         triggerDamageEventId,
         damageEventId,
         tickIndex,
         damageApplied
       } = event.payload as PeriodicReactionWaneEventPayload;
+      const generationBoundWane =
+        config.reactionEngine?.mode === "aura-v8";
+      if (generationBoundWane) {
+        const activeSource =
+          activePeriodicReactionSources.get(targetId);
+        if (activeSource?.generation !== generation) {
+          continue;
+        }
+      }
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
       if (
@@ -9691,10 +10211,22 @@ function simulateConfig(
       ) {
         continue;
       }
-      const result = auraEngine.waneElectroCharged(
-        event.frame,
-        damageApplied
-      );
+      const result = generationBoundWane
+        ? auraEngine.waneElectroCharged(
+            event.frame,
+            generation,
+            damageApplied
+          )
+        : auraEngine.waneElectroCharged(
+            event.frame,
+            damageApplied
+          );
+      if (
+        generationBoundWane &&
+        result.operation === "stale"
+      ) {
+        continue;
+      }
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
         timeSeconds,
@@ -9751,7 +10283,14 @@ function simulateConfig(
         (result.operation === "wane" &&
           result.coexistenceExpiresAtFrame === null)
       ) {
-        activePeriodicReactionSources.delete(targetId);
+        if (!generationBoundWane) {
+          activePeriodicReactionSources.delete(targetId);
+        } else if (
+          activePeriodicReactionSources.get(targetId)
+            ?.generation === generation
+        ) {
+          activePeriodicReactionSources.delete(targetId);
+        }
       } else {
         schedulePeriodicReactionExpiry(
           targetId,
@@ -11229,8 +11768,9 @@ function simulateConfig(
       }
       if (
         config.reactionEngine?.mode === "aura-v5" ||
-        config.reactionEngine?.mode === "aura-v6"
-        || config.reactionEngine?.mode === "aura-v7"
+        config.reactionEngine?.mode === "aura-v6" ||
+        config.reactionEngine?.mode === "aura-v7" ||
+        config.reactionEngine?.mode === "aura-v8"
       ) {
         processDendroCoreContacts({
           actorId,
@@ -11297,6 +11837,7 @@ function simulateConfig(
             "periodicReactionWane",
             {
               targetId: sourceTargetId,
+              generation: periodicContext.generation,
               sourceActorId: actorId,
               triggerDamageEventId,
               damageEventId: periodicDamageEventId,
@@ -12921,6 +13462,37 @@ function simulateConfig(
       );
     }
   }
+  if (config.reactionEngine?.mode === "aura-v8") {
+    for (const target of enemyTargets) {
+      const auraEngine = auraEngines?.get(target.id);
+      if (auraEngine === undefined) {
+        throw new Error(
+          `Aura-v8 simulation end could not resolve target "${target.id}".`
+        );
+      }
+      const unhandledCleanupResults =
+        auraEngine.drainElectroChargedCleanupResults();
+      if (unhandledCleanupResults.length !== 0) {
+        throw new Error(
+          `Aura-v8 target "${target.id}" reached simulation end with ${unhandledCleanupResults.length} unhandled EC cleanup result(s).`
+        );
+      }
+    }
+    for (const reactionTask of reactionTaskLog) {
+      const cleanup = reactionTask.electroChargedCleanup;
+      if (cleanup === null || cleanup.outcome !== "pending-at-end") {
+        continue;
+      }
+      const finalTargetFrame =
+        targetClocks?.get(reactionTask.targetId)?.getState().localFrame ??
+        durationFrame;
+      if (finalTargetFrame >= cleanup.deadlineTargetFrame) {
+        throw new Error(
+          `Aura-v8 EC cleanup task ${reactionTask.id} remained pending after target frame ${cleanup.deadlineTargetFrame}.`
+        );
+      }
+    }
+  }
   for (const endState of auraEndStates) {
     targetStateTimelineRecorder.recordBoundary({
       frame: endState.frame,
@@ -13001,6 +13573,41 @@ function simulateConfig(
   });
   if (targetPhaseV2Enabled) {
     for (const phase of targetPhaseLog) {
+      for (const transition of phase.reactableTick.transitions) {
+        if (transition.kind !== "electro-charged-cleanup") {
+          continue;
+        }
+        const reactionTask = reactionTaskLog[transition.reactionTaskLogId];
+        const cleanup = reactionTask?.electroChargedCleanup;
+        if (
+          cleanup === undefined ||
+          cleanup === null ||
+          cleanup.outcome === "pending-at-end"
+        ) {
+          throw new Error(
+            `Target phase ${phase.id} references unresolved EC cleanup task ${transition.reactionTaskLogId}.`
+          );
+        }
+        cleanup.targetPhaseLogId = phase.id;
+        const point =
+          targetStateTimeline.points[transition.targetStateTimelinePointId];
+        if (point === undefined) {
+          throw new Error(
+            `Target phase ${phase.id} EC cleanup transition references missing timeline point ${transition.targetStateTimelinePointId}.`
+          );
+        }
+        const targetPhaseLink = point.links.find(
+          (link) => link.kind === "target-phase-log"
+        );
+        if (targetPhaseLink === undefined) {
+          point.links.push({
+            kind: "target-phase-log",
+            id: phase.id
+          });
+        } else {
+          targetPhaseLink.id = phase.id;
+        }
+      }
       const targetTaskPointIds = new Set(
         phase.targetTasks.map(
           (task) => task.targetStateTimelinePointId
@@ -13156,6 +13763,9 @@ function simulateConfig(
   reactionDeliveryResultReferencesSchema.parse(
     simulationResult
   );
+  if (config.reactionEngine?.mode === "aura-v8") {
+    electroChargedCleanupResultReferencesSchema.parse(simulationResult);
+  }
   if (targetPhaseV2Enabled) {
     targetPhaseV2ResultReferencesSchema.parse(
       simulationResult
@@ -13208,7 +13818,8 @@ function simulateConfig(
   const dendroCoreOutputEnabled =
     config.reactionEngine?.mode === "aura-v5" ||
     config.reactionEngine?.mode === "aura-v6" ||
-    config.reactionEngine?.mode === "aura-v7";
+    config.reactionEngine?.mode === "aura-v7" ||
+    config.reactionEngine?.mode === "aura-v8";
   if (dendroCoreOutputEnabled) {
     dendroCoreResultReferencesSchema.parse(simulationResult);
   } else {

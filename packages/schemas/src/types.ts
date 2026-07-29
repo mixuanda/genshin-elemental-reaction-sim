@@ -10,14 +10,15 @@ export const SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION =
   "1.39.0" as const;
 export const SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION =
   "1.39.0-shatter-recursive-delivery" as const;
+export const EC_NEXT_TARGET_TICK_SCHEMA_VERSION = "1.40.0" as const;
+export const EC_NEXT_TARGET_TICK_ENGINE_VERSION =
+  "1.40.0-ec-next-target-tick-cleanup" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
-export const CURRENT_SCHEMA_VERSION =
-  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
-export const CURRENT_ENGINE_VERSION =
-  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+export const CURRENT_SCHEMA_VERSION = EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+export const CURRENT_ENGINE_VERSION = EC_NEXT_TARGET_TICK_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -315,7 +316,8 @@ export interface AuraReactionEngineConfig {
     | "aura-v4"
     | "aura-v5"
     | "aura-v6"
-    | "aura-v7";
+    | "aura-v7"
+    | "aura-v8";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -347,7 +349,7 @@ export type TargetTaskModel =
 /**
  * Selects how zero-delay reaction damage is delivered relative to the hit
  * that triggered it. Historical configurations preserve deferred heap
- * delivery; the recursive mode is an explicit 1.39 opt-in.
+ * delivery; the recursive mode is an explicit 1.39+ opt-in.
  */
 export type ReactionDeliveryModel =
   | { mode: "deferred-event-heap-v1" }
@@ -916,6 +918,7 @@ export type SimulationEventType =
   | "periodicReactionTick"
   | "periodicReactionWane"
   | "periodicReactionExpiry"
+  | "electroChargedCleanup"
   | "burningTick"
   | "burningFuelExpiry"
   | "dendroCoreSpawn"
@@ -969,7 +972,7 @@ export interface AuraStateEntry {
    * disabled output omits it and retains expiresAtFrame byte-for-byte.
    */
   expiresAtTargetFrame?: number | null;
-  /** Present in aura-v3 through aura-v7; each owner keeps an independent slot. */
+  /** Present in aura-v3 through aura-v8; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -1021,7 +1024,7 @@ export interface ReactionAudit {
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
   /**
-   * aura-v6/aura-v7 ordered, independently auditable transformative reactions
+   * aura-v6 through aura-v8 ordered, independently auditable transformative reactions
    * for one elemental application. The legacy singular field remains the
    * first-item compatibility projection.
    */
@@ -1262,6 +1265,67 @@ export type ReactionTaskBlockedReason =
   | "MISSING_HYDRO"
   | "TARGET_MECHANICS_TRUNCATION";
 
+interface ElectroChargedCleanupAuditBase {
+  generation: number;
+  requestedTargetFrame: number;
+  deadlineTargetFrame: number;
+  requestReason: "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO";
+}
+
+/**
+ * Aura-v8 cleanup requested by a zero-delay Quicken→Bloom follow-up.
+ *
+ * A resolved audit owns one target-phase transition and one target-state
+ * observation. The stop branch creates a periodic-reaction stop row; the
+ * natural-expiry branch reuses the unique ordinary-decay stop row.
+ */
+export type ElectroChargedCleanupAudit =
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "stop";
+      resolutionReason: "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM";
+      resolvedGlobalFrame: number;
+      resolvedTargetFrame: number;
+      targetPhaseLogId: number;
+      periodicReactionLogId: number;
+      targetStateTimelinePointId: number;
+    })
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "retain";
+      resolutionReason: "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK";
+      resolvedGlobalFrame: number;
+      resolvedTargetFrame: number;
+      targetPhaseLogId: number;
+      periodicReactionLogId: null;
+      targetStateTimelinePointId: number;
+    })
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "superseded";
+      resolutionReason: "ELECTRO_CHARGED_GENERATION_SUPERSEDED";
+      resolvedGlobalFrame: number;
+      resolvedTargetFrame: number;
+      targetPhaseLogId: number;
+      periodicReactionLogId: null;
+      targetStateTimelinePointId: number;
+    })
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "natural-expiry";
+      resolutionReason: "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+      resolvedGlobalFrame: number;
+      resolvedTargetFrame: number;
+      targetPhaseLogId: number;
+      periodicReactionLogId: number;
+      targetStateTimelinePointId: number;
+    })
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "pending-at-end";
+      resolutionReason: null;
+      resolvedGlobalFrame: null;
+      resolvedTargetFrame: null;
+      targetPhaseLogId: null;
+      periodicReactionLogId: null;
+      targetStateTimelinePointId: null;
+    });
+
 /**
  * Fixed-reference zero-delay work emitted after Quicken is created while
  * Hydro remains. The task owns its live Aura mutation; the originating damage
@@ -1296,6 +1360,7 @@ export interface QuickenBloomFollowupTaskLogEntry {
   quickenStateLogIds: number[];
   dendroCoreLogIds: number[];
   dendroCoreIds: number[];
+  electroChargedCleanup: ElectroChargedCleanupAudit | null;
   mechanicsDataStatus: "fixed-gcsim-provisional";
 }
 
@@ -1893,6 +1958,7 @@ export type TargetStateTimelineCause =
   | "frozen-expiry"
   | "quicken-expiry"
   | "electro-charged-expiry"
+  | "electro-charged-cleanup"
   | "electro-charged-tick"
   | "electro-charged-wane"
   | "burning-fuel-expiry"
@@ -2217,8 +2283,8 @@ export interface PeriodicReactionLogEntry {
   operation: PeriodicReactionOperation;
   frame: number;
   /**
-   * Present only on a target-phase-v2 natural coexistence-expiry `stop`
-   * row materialized by Reactable.Tick. Electro-Charged damage ticks and
+   * Present on target-phase-v2 Electro-Charged `stop` rows materialized by
+   * Reactable.Tick, including aura-v8 Quicken→Bloom cleanup. Damage ticks and
    * post-damage wane rows remain global/core work and omit this field.
    */
   targetFrame?: number;
@@ -2227,6 +2293,11 @@ export interface PeriodicReactionLogEntry {
   targetName: string;
   sourceActorId: string | null;
   triggerDamageEventId: number | null;
+  /**
+   * Present only on an aura-v8 Quicken→Bloom coexistence cleanup, including
+   * the natural-expiry collision where the existing stop row is reused.
+   */
+  reactionTaskLogId?: number;
   reactionDamageLogId: number | null;
   damageEventId: number | null;
   tickIndex: number | null;
@@ -2947,7 +3018,25 @@ export type TargetLifecycleTransition =
       deadlineTargetFrame: number;
       periodicReactionLogId: number;
       targetStateTimelinePointId: number;
-    };
+    }
+  | ({
+      stage: "reactable-tick";
+      kind: "electro-charged-cleanup";
+      order: number;
+      deadlineTargetFrame: number;
+      generation: number;
+      reactionTaskLogId: number;
+      targetStateTimelinePointId: number;
+    } & (
+      | {
+          outcome: "stop" | "natural-expiry";
+          periodicReactionLogId: number;
+        }
+      | {
+          outcome: "retain" | "superseded";
+          periodicReactionLogId: null;
+        }
+    ));
 
 /**
  * One complete target-local phase at a `(globalFrame, targetId)` boundary:

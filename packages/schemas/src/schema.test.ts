@@ -17,6 +17,8 @@ import {
   CURRENT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
+  EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+  EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   dendroCoreContactLogEntrySchema,
   dendroCoreContactLogSchema,
   dendroCoreLogEntrySchema,
@@ -31,6 +33,7 @@ import {
   GENERAL_REACTION_ORDER_ENGINE_VERSION,
   GENERAL_REACTION_ORDER_SCHEMA_VERSION,
   migrateConfig,
+  parseSimConfig,
   parseSimulationRunManifestForConfig,
   PLAYER_REACTION_DAMAGE_ENGINE_VERSION,
   PLAYER_REACTION_DAMAGE_SCHEMA_VERSION,
@@ -2191,6 +2194,14 @@ describe("1.33 target-local Hitlag contract", () => {
     expect(
       targetClockResultReferencesSchema.parse(result)
     ).toEqual(result);
+    const frozen139Result: any = structuredClone(result);
+    frozen139Result.config.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    frozen139Result.config.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    expect(() =>
+      targetClockResultReferencesSchema.parse(frozen139Result)
+    ).not.toThrow();
 
     expect(() =>
       targetHitlagLogEntrySchema.parse({
@@ -3116,9 +3127,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.39.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.40.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.39.0-shatter-recursive-delivery"
+      "1.40.0-ec-next-target-tick-cleanup"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4104,7 +4115,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     };
   };
 
-  it("freezes the new identity and strictly gates the recursive model", () => {
+  it("freezes the 1.39 identity and strictly gates the recursive model under 1.40", () => {
     expect(SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION).toBe(
       "1.39.0"
     );
@@ -4112,10 +4123,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4186,12 +4197,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.reactionDeliveryModel).toEqual({
       mode: "deferred-event-heap-v1"
     });
-    expect(migrated.schemaVersion).toBe(
-      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
-    );
-    expect(migrated.engineVersion).toBe(
-      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
-    );
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
 
     for (const wire of [
       historical,
@@ -4222,6 +4229,284 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     );
   });
 
+  it("migrates exact 1.39 wires without changing delivery, target-task, or aura-v7 semantics", () => {
+    const current = makeLegalAuraV7Config();
+    for (const deliveryMode of [
+      "deferred-event-heap-v1",
+      "shatter-recursive-zero-delay-v1"
+    ] as const) {
+      const historical = {
+        ...current,
+        schemaVersion:
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+        engineVersion:
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+        targetTaskModel: { mode: "target-phase-v2" as const },
+        reactionDeliveryModel: { mode: deliveryMode }
+      };
+      const migrated = migrateConfig(historical);
+      expect(migrated.schemaVersion).toBe(
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION
+      );
+      expect(migrated.engineVersion).toBe(
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION
+      );
+      expect(migrated.reactionEngine?.mode).toBe("aura-v7");
+      expect(migrated.targetTaskModel).toEqual({
+        mode: "target-phase-v2"
+      });
+      expect(migrated.reactionDeliveryModel).toEqual({
+        mode: deliveryMode
+      });
+    }
+  });
+
+  it("fails closed on missing, forged, or extended 1.39 delivery wires and pre-1.39 smuggling", () => {
+    const historical = {
+      ...makeLegalAuraV7Config(),
+      schemaVersion:
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion:
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v2" as const },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1" as const
+      }
+    };
+    const missing = {
+      ...historical
+    } as Record<string, unknown>;
+    delete missing.reactionDeliveryModel;
+    expect(() => migrateConfig(missing)).toThrow(
+      /1\.39\.0.*requires an explicit.*reaction|reactionDeliveryModel/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.39.0-forged"
+      })
+    ).toThrow(/schemaVersion "1\.39\.0" requires/);
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        reactionDeliveryModel: {
+          mode: "deferred-event-heap-v1",
+          futureField: true
+        }
+      })
+    ).toThrow(/reactionDeliveryModel.*Unrecognized key/s);
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        reactionEngine: { mode: "aura-v8" }
+      })
+    ).toThrow(/schemaVersion "1\.39\.0" does not support "aura-v8"/);
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
+      })
+    ).toThrow(/does not support reaction delivery selection/);
+  });
+
+  it("rejects inherited config identities and inherited current or 1.39 model discriminators", () => {
+    const current = makeLegalAuraV7Config();
+    const {
+      schemaVersion,
+      engineVersion,
+      reactionDeliveryModel,
+      reactionEngine,
+      targetTaskModel,
+      ...payload
+    } = current;
+
+    expect(() =>
+      migrateConfig(
+        Object.assign(
+          Object.create({ schemaVersion }),
+          {
+            ...payload,
+            engineVersion,
+            reactionDeliveryModel,
+            reactionEngine,
+            targetTaskModel
+          }
+        )
+      )
+    ).toThrow(/schemaVersion.*explicit own property/);
+    expect(() =>
+      migrateConfig(
+        Object.assign(
+          Object.create({ engineVersion }),
+          {
+            ...payload,
+            schemaVersion,
+            reactionDeliveryModel,
+            reactionEngine,
+            targetTaskModel
+          }
+        )
+      )
+    ).toThrow(/engineVersion.*explicit own property/);
+    expect(() =>
+      migrateConfig(
+        Object.assign(
+          Object.create({ reactionDeliveryModel }),
+          {
+            ...payload,
+            schemaVersion,
+            engineVersion,
+            reactionEngine,
+            targetTaskModel
+          }
+        )
+      )
+    ).toThrow(/reactionDeliveryModel.*explicit own/);
+
+    const inheritedMode = Object.create({
+      mode: "deferred-event-heap-v1"
+    });
+    expect(() =>
+      reactionDeliveryModelSchema.parse(inheritedMode)
+    ).toThrow(/explicit own property/);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        reactionDeliveryModel: inheritedMode
+      })
+    ).toThrow(/reactionDeliveryModel\.mode.*explicit own/);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        targetTaskModel: Object.create({
+          mode: "target-phase-v2"
+        })
+      })
+    ).toThrow(/targetTaskModel\.mode.*explicit own/);
+    expect(() =>
+      migrateConfig({
+        ...current,
+        reactionEngine: Object.create({
+          mode: "aura-v7"
+        })
+      })
+    ).toThrow(/reactionEngine\.mode.*explicit own/);
+
+    const historical139 = {
+      ...current,
+      schemaVersion:
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion:
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      reactionDeliveryModel: inheritedMode
+    };
+    expect(() => migrateConfig(historical139)).toThrow(
+      /reactionDeliveryModel\.mode.*explicit own/
+    );
+    const {
+      reactionDeliveryModel: _delivery,
+      ...historicalPayload
+    } = historical139;
+    expect(() =>
+      migrateConfig(
+        Object.assign(
+          Object.create({
+            reactionDeliveryModel: {
+              mode: "deferred-event-heap-v1"
+            }
+          }),
+          historicalPayload
+        )
+      )
+    ).toThrow(/reactionDeliveryModel.*explicit own/);
+  });
+
+  it("gates aura-v8 to the 1.40 legal target-phase-v2 boundary while preserving current aura-v7", () => {
+    const legalV7 = {
+      ...makeLegalAuraV7Config(),
+      targetTaskModel: { mode: "target-phase-v2" as const }
+    };
+    expect(migrateConfig(legalV7).reactionEngine?.mode).toBe(
+      "aura-v7"
+    );
+
+    const legalV8 = {
+      ...legalV7,
+      reactionEngine: { mode: "aura-v8" as const }
+    };
+    for (const targetClockModel of [
+      { mode: "disabled" as const },
+      { mode: "target-local-hitlag-v1" as const }
+    ]) {
+      const migrated = migrateConfig({
+        ...legalV8,
+        targetClockModel,
+        reactionDeliveryModel: {
+          mode: "shatter-recursive-zero-delay-v1"
+        }
+      });
+      expect(migrated.reactionEngine?.mode).toBe("aura-v8");
+      expect(migrated.targetClockModel).toEqual(targetClockModel);
+      expect(migrated.reactionDeliveryModel).toEqual({
+        mode: "shatter-recursive-zero-delay-v1"
+      });
+    }
+
+    expect(() =>
+      migrateConfig({
+        ...legalV8,
+        targetTaskModel: { mode: "target-phase-v1" }
+      })
+    ).toThrow(/aura-v8 requires targetTaskModel\.mode target-phase-v2/);
+    expect(() =>
+      migrateConfig({
+        ...legalV8,
+        timeline: undefined
+      })
+    ).toThrow(/aura-v8 requires timeline\.mode legal-frame-v1 at 60 FPS/);
+  });
+
+  it("validates reaction-delivery references under exact 1.39 and 1.40 identities", () => {
+    const historical = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(historical)
+    ).not.toThrow();
+
+    const current: any = structuredClone(historical);
+    current.schemaVersion = EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    current.engineVersion = EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    current.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    current.config.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(current)
+    ).not.toThrow();
+    current.config.reactionEngine = { mode: "aura-v8" };
+    current.config.targetTaskModel = {
+      mode: "target-phase-v2"
+    };
+    current.config.timeline = {
+      mode: "legal-frame-v1",
+      fps: 60
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(current)
+    ).not.toThrow();
+
+    const forgedHistoricalAuraV8: any =
+      structuredClone(historical);
+    forgedHistoricalAuraV8.config.reactionEngine = {
+      mode: "aura-v8"
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        forgedHistoricalAuraV8
+      )
+    ).toThrow(/aura-v8.*exact 1\.40/);
+  });
+
   it("allows only an exact recursive Shatter forward-parent backlink and rejects cycles", () => {
     const recursive = makeRecursiveReferenceResult();
     expect(
@@ -4248,7 +4533,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires the exact 1\.39 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 or 1\.40 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -4363,7 +4648,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toThrow(/requires a settled scheduled state/);
   });
 
-  it("requires exact 1.39 identity for deferred results too", () => {
+  it("requires an exact supported delivery identity for deferred results too", () => {
     const deferred = makeDeferredReferenceResult();
     for (const [schemaVersion, engineVersion] of [
       [
@@ -4384,7 +4669,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires the exact 1\.39 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 or 1\.40 schema and engine identity/);
     }
   });
 
@@ -7624,6 +7909,10 @@ describe("1.37 target task phase result references", () => {
           SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
         engineVersion:
           SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+      },
+      {
+        schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+        engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION
       }
     ]) {
       const versioned = makeReferenceResult();
@@ -7749,7 +8038,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37, 1\.38, or 1\.39 identity/);
+    ).toThrow(/exact supported 1\.37, 1\.38, 1\.39, or 1\.40 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -8038,6 +8327,51 @@ describe("1.37 target task phase result references", () => {
         forgedPrePhaseAura
       )
     ).toThrow(/pre-task Aura must descend/);
+  });
+
+  it("fails closed on forged current legacy identity and legacy aura-v8 before returning", () => {
+    const forgedIdentity: any = makeReferenceResult();
+    forgedIdentity.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    forgedIdentity.engineVersion = "1.40.0-forged";
+    forgedIdentity.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    forgedIdentity.config.engineVersion = "1.40.0-forged";
+    forgedIdentity.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    forgedIdentity.targetTaskPhaseLog = [];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        forgedIdentity
+      )
+    ).toThrow(/exact supported schema and engine identity/);
+
+    const legacyAuraV8: any = makeReferenceResult();
+    legacyAuraV8.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    legacyAuraV8.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    legacyAuraV8.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    legacyAuraV8.config.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    legacyAuraV8.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    legacyAuraV8.config.reactionEngine = {
+      mode: "aura-v8"
+    };
+    legacyAuraV8.config.timeline = {
+      mode: "legal-frame-v1",
+      fps: 60
+    };
+    legacyAuraV8.targetTaskPhaseLog = [];
+    expect(() =>
+      targetTaskPhaseResultReferencesSchema.parse(
+        legacyAuraV8
+      )
+    ).toThrow(/aura-v8.*requires target-phase-v2/);
   });
 });
 
@@ -9155,19 +9489,50 @@ describe("1.38 target Reactable phase schema and references", () => {
         makeFrozenV2ReferenceResult()
       )
     ).not.toThrow();
+    const frozen139Identity: any =
+      makeFrozenV2ReferenceResult();
+    frozen139Identity.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    frozen139Identity.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    frozen139Identity.config.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    frozen139Identity.config.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(frozen139Identity)
+    ).not.toThrow();
+
     const currentIdentity: any =
       makeFrozenV2ReferenceResult();
     currentIdentity.schemaVersion =
-      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
     currentIdentity.engineVersion =
-      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
     currentIdentity.config.schemaVersion =
-      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
     currentIdentity.config.engineVersion =
-      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
     expect(() =>
       targetPhaseV2ResultReferencesSchema.parse(currentIdentity)
     ).not.toThrow();
+    currentIdentity.config.reactionEngine = {
+      mode: "aura-v8"
+    };
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(currentIdentity)
+    ).not.toThrow();
+
+    const forgedHistoricalAuraV8: any =
+      makeFrozenV2ReferenceResult();
+    forgedHistoricalAuraV8.config.reactionEngine = {
+      mode: "aura-v8"
+    };
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        forgedHistoricalAuraV8
+      )
+    ).toThrow(/aura-v8.*exact 1\.40/);
 
     const mixedIdentity: any =
       makeFrozenV2ReferenceResult();
@@ -9178,7 +9543,7 @@ describe("1.38 target Reactable phase schema and references", () => {
     expect(() =>
       targetPhaseV2ResultReferencesSchema.parse(mixedIdentity)
     ).toThrow(
-      /schemaVersion must match|engineVersion must match|exact supported 1\.38 or 1\.39/
+      /schemaVersion must match|engineVersion must match|exact supported 1\.38, 1\.39, or 1\.40/
     );
     for (const kind of [
       "aura-natural-expiry",
@@ -9554,6 +9919,49 @@ describe("1.38 target Reactable phase schema and references", () => {
         targetPhaseLog: []
       })
     ).not.toThrow();
+  });
+
+  it("rejects forged current legacy identity and legacy aura-v8 before the v2 branch return", () => {
+    const forgedIdentity: any =
+      makeFrozenV2ReferenceResult();
+    forgedIdentity.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    forgedIdentity.engineVersion = "1.40.0-forged";
+    forgedIdentity.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    forgedIdentity.config.engineVersion = "1.40.0-forged";
+    forgedIdentity.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    forgedIdentity.targetPhaseLog = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        forgedIdentity
+      )
+    ).toThrow(/exact supported schema and engine identity/);
+
+    const legacyAuraV8: any =
+      makeFrozenV2ReferenceResult();
+    legacyAuraV8.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    legacyAuraV8.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    legacyAuraV8.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    legacyAuraV8.config.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    legacyAuraV8.config.targetTaskModel = {
+      mode: "legacy-event-heap-v1"
+    };
+    legacyAuraV8.config.reactionEngine = {
+      mode: "aura-v8"
+    };
+    legacyAuraV8.targetPhaseLog = [];
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        legacyAuraV8
+      )
+    ).toThrow(/aura-v8.*requires target-phase-v2/);
   });
 
   it("binds target identity, target clock, Aura continuity, and unique phase ownership", () => {
@@ -10152,6 +10560,93 @@ describe("versioned config schema", () => {
     expect(migrated.characters[0]?.stats.critRate).toBe(0.05);
   });
 
+  it("fail-closes parseSimConfig on inherited current identities and nested discriminators", () => {
+    const current = migrateConfig(legacyConfig);
+    const legal = migrateConfig({
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      },
+      reactionEngine: { mode: "aura-v1" as const }
+    });
+
+    expect(parseSimConfig(structuredClone(legal))).toEqual(legal);
+
+    const inheritRootIdentity = (
+      field: "schemaVersion" | "engineVersion"
+    ): Record<string, unknown> => {
+      const clone = structuredClone(
+        legal
+      ) as unknown as Record<string, unknown>;
+      const value = clone[field];
+      delete clone[field];
+      return Object.assign(
+        Object.create({ [field]: value }),
+        clone
+      ) as Record<string, unknown>;
+    };
+
+    expect(() =>
+      parseSimConfig(inheritRootIdentity("schemaVersion"))
+    ).toThrow(/schemaVersion.*explicit own property/);
+    expect(() =>
+      parseSimConfig(inheritRootIdentity("engineVersion"))
+    ).toThrow(/engineVersion.*explicit own property/);
+
+    const nestedFields = [
+      ["reactionEngine", "mode"],
+      ["playerDamageModel", "mode"],
+      ["targetClockModel", "mode"],
+      ["targetTaskModel", "mode"],
+      ["reactionDeliveryModel", "mode"],
+      ["timeline", "mode"],
+      ["timeline", "fps"]
+    ] as const;
+    for (const [containerField, field] of nestedFields) {
+      const clone = structuredClone(
+        legal
+      ) as unknown as Record<string, unknown>;
+      const container = clone[containerField] as Record<
+        string,
+        unknown
+      >;
+      const value = container[field];
+      delete container[field];
+      clone[containerField] = Object.assign(
+        Object.create({ [field]: value }),
+        container
+      );
+
+      expect(() => parseSimConfig(clone)).toThrow(
+        new RegExp(
+          `${containerField}\\.${field}.*explicit own property`
+        )
+      );
+    }
+
+    const inheritedContainer = structuredClone(
+      legal
+    ) as unknown as Record<string, unknown>;
+    const reactionDeliveryModel =
+      inheritedContainer.reactionDeliveryModel;
+    delete inheritedContainer.reactionDeliveryModel;
+    expect(() =>
+      parseSimConfig(
+        Object.assign(
+          Object.create({ reactionDeliveryModel }),
+          inheritedContainer
+        )
+      )
+    ).toThrow(/reactionDeliveryModel.*explicit own property/);
+  });
+
   it("reports a precise field path before simulation", () => {
     expect(() =>
       migrateConfig({
@@ -10176,15 +10671,7 @@ describe("versioned config schema", () => {
   it("rejects unknown fields instead of silently ignoring them", () => {
     expect(() =>
       migrateConfig({
-        ...legacyConfig,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: "1",
-        dataVersion: "1",
-        randomSeed: "seed",
-        meta: {
-          ...legacyConfig.meta,
-          verificationStatus: "provisional"
-        },
+        ...migrateConfig(legacyConfig),
         unexpected: true
       })
     ).toThrow(/unexpected/);
@@ -13889,6 +14376,13 @@ describe("versioned config schema", () => {
       reason: "BLOOM_TRIGGERED"
     };
     const references = {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      config: {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
+        reactionEngine: { mode: "aura-v5" as const }
+      },
       dendroCoreLog: [scheduled],
       dendroCoreContactLog: [],
       dendroCoreTimeline: {
@@ -13928,6 +14422,45 @@ describe("versioned config schema", () => {
       dendroCoreResultReferencesSchema.parse(references)
         .totalDamage
     ).toBe(123);
+    const frozen131: any = structuredClone(references);
+    frozen131.schemaVersion = DENDRO_CORE_SCHEMA_VERSION;
+    frozen131.engineVersion = DENDRO_CORE_ENGINE_VERSION;
+    frozen131.config.schemaVersion =
+      DENDRO_CORE_SCHEMA_VERSION;
+    frozen131.config.engineVersion =
+      DENDRO_CORE_ENGINE_VERSION;
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse(frozen131)
+    ).not.toThrow();
+
+    const frozen139: any = structuredClone(references);
+    frozen139.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    frozen139.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    frozen139.config.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    frozen139.config.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    frozen139.config.reactionEngine = { mode: "aura-v7" };
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse(frozen139)
+    ).not.toThrow();
+    frozen139.config.reactionEngine = { mode: "aura-v8" };
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse(frozen139)
+    ).toThrow(/1\.39\.0 does not support aura-v8/);
+
+    const forgedCurrentIdentity: any =
+      structuredClone(references);
+    forgedCurrentIdentity.engineVersion = "1.40.0-forged";
+    forgedCurrentIdentity.config.engineVersion =
+      "1.40.0-forged";
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse(
+        forgedCurrentIdentity
+      )
+    ).toThrow(/exact supported schema and engine identity/);
     expect(() =>
       dendroCoreResultReferencesSchema.parse({
         ...references,
@@ -14892,7 +15425,7 @@ describe("versioned config schema", () => {
     ).toThrow(/cannot claim a tickIndex/);
   });
 
-  it("gates Dendro Aura and applications behind aura-v3 through aura-v7", () => {
+  it("gates Dendro Aura and applications behind aura-v3 through aura-v8", () => {
     const current = migrateConfig(legacyConfig);
     const withDendroApplication = {
       ...current,
@@ -14953,7 +15486,7 @@ describe("versioned config schema", () => {
           }
         })
       ).toThrow(
-        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, aura-v6, or aura-v7/
+        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8/
       );
     }
 
@@ -15025,7 +15558,7 @@ describe("versioned config schema", () => {
           reactionEngine: { mode }
         })
       ).toThrow(
-        /aura-v1 through aura-v7 currently require timeline\.mode legal-frame-v1/
+        /aura-v1 through aura-v8 currently require timeline\.mode legal-frame-v1/
       );
     }
   });
@@ -15073,7 +15606,7 @@ describe("versioned config schema", () => {
         })
       )
     ).toThrow(
-      /manual reaction labels are forbidden in aura-v1 through aura-v7/
+      /manual reaction labels are forbidden in aura-v1 through aura-v8/
     );
 
     expect(() =>
