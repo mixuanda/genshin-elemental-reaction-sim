@@ -657,6 +657,12 @@ export class AuraEngine {
   private burningFuelDepletedDecayPerFrame: number | null = null;
   private burningNextTickTargetFrame = -1;
   private burningNextTickIndex = 1;
+  /**
+   * A legacy target-phase callback owns the following same-frame decay. Its
+   * historical dedicated Fuel observer remains stale after that decay; this
+   * marker keeps the public snapshot cache from changing frozen v1 output.
+   */
+  private legacyPreDecayBurningTaskFrame: number | null = null;
   private lastBurningApplicationIcdDecision:
     | BurningApplicationIcdDecision
     | null = null;
@@ -1038,6 +1044,16 @@ export class AuraEngine {
     return null;
   }
 
+  private captureBurningFuelExpiryAt(
+    frame: number
+  ): ReactableTickCapture["burningFuel"] {
+    if (this.burningFuelLifecycleExpiryFrame() !== frame) {
+      return null;
+    }
+    const state = this.captureBurningState();
+    return state === null ? null : { state };
+  }
+
   private stopBurning(
     frame: number,
     reason: BurningStopReason,
@@ -1149,17 +1165,25 @@ export class AuraEngine {
   ): ReactableTickCapture | null {
     const cachedBoundaryV2 =
       this.reactableTickModel === "cached-boundary-v2";
-    // The historical global-clock observer only needs its Quicken bridge.
-    // With a target-local clock, however, any same-frame consumer may advance
-    // the shared Tick before Frozen/Quicken/EC observers are dispatched, so
-    // v1 must retain those natural boundaries as well.
+    const legacyPreDecayTaskOwnsFuelBoundary =
+      !cachedBoundaryV2 &&
+      this.legacyPreDecayBurningTaskFrame === frame;
+    // The historical global-clock observer retains its Quicken bridge and the
+    // public Burning Fuel result. With a target-local clock, any same-frame
+    // consumer may advance the shared Tick before the lifecycle observers are
+    // dispatched, so v1 retains every natural boundary.
     if (!cachedBoundaryV2 && this.targetClock === null) {
-      const quicken = this.captureQuickenDecayState();
-      if (
-        quicken.gaugeUnits <= AURA_EPSILON ||
-        quicken.expiresAtFrame !== frame ||
-        quicken.endCause !== "QUICKEN_DECAY"
-      ) {
+      const quickenState = this.captureQuickenDecayState();
+      const quicken =
+        quickenState.gaugeUnits > AURA_EPSILON &&
+        quickenState.expiresAtFrame === frame &&
+        quickenState.endCause === "QUICKEN_DECAY"
+          ? quickenState
+          : null;
+      const burningFuel = legacyPreDecayTaskOwnsFuelBoundary
+        ? null
+        : this.captureBurningFuelExpiryAt(frame);
+      if (quicken === null && burningFuel === null) {
         return null;
       }
       return {
@@ -1167,7 +1191,7 @@ export class AuraEngine {
         auraBefore: this.snapshot(),
         frozen: null,
         quicken,
-        burningFuel: null,
+        burningFuel,
         electroCharged: null
       };
     }
@@ -1188,19 +1212,10 @@ export class AuraEngine {
         ? quickenState
         : null;
 
-    const burningState = cachedBoundaryV2
-      ? this.captureBurningState()
-      : null;
-    const burningFuelExpiryFrame =
-      burningState === null
-        ? null
-        : this.burningFuelLifecycleExpiryFrame();
     const burningFuel =
-      burningState !== null &&
-      burningFuelExpiryFrame === frame
-        ? {
-            state: burningState
-          }
+      !legacyPreDecayTaskOwnsFuelBoundary &&
+      (cachedBoundaryV2 || this.targetClock !== null)
+        ? this.captureBurningFuelExpiryAt(frame)
         : null;
 
     const electroChargedExpiryFrame =
@@ -3352,6 +3367,9 @@ export class AuraEngine {
         );
       }
       this.advanceTo(frame - 1);
+      if (this.reactableTickModel === "legacy-observer-v1") {
+        this.legacyPreDecayBurningTaskFrame = frame;
+      }
     } else {
       this.advanceTo(frame);
     }
@@ -3498,7 +3516,6 @@ export class AuraEngine {
     const cachedBoundary =
       this.reactableLifecycleBoundaries.get("burningFuel");
     if (
-      this.reactableTickModel === "cached-boundary-v2" &&
       cachedBoundary?.kind === "burningFuel" &&
       cachedBoundary.result.frame === frame &&
       cachedBoundary.result.generation === generation &&
@@ -3598,7 +3615,9 @@ export class AuraEngine {
       materializedBoundary.result.generation === generation
     ) {
       this.reactableLifecycleBoundaries.delete("burningFuel");
-      return materializedBoundary.result;
+      if (this.reactableTickModel === "cached-boundary-v2") {
+        return materializedBoundary.result;
+      }
     }
     const auraAfter = this.snapshot();
     const currentExpiry = this.burningFuelExpiryFrame();

@@ -510,3 +510,73 @@ describe("AuraEngine with an enabled target-local clock", () => {
     });
   });
 });
+
+describe("AuraEngine legacy public lifecycle observers", () => {
+  it.each(["global", "target-local"] as const)(
+    "retains the Burning Fuel boundary after a public snapshot advances the %s Tick",
+    (clockKind) => {
+      const clock =
+        clockKind === "target-local"
+          ? new TargetLocalClock()
+          : undefined;
+      const engine = new AuraEngine({
+        mode: "aura-v4",
+        reactableTickModel: "legacy-observer-v1",
+        ...(clock === undefined ? {} : { targetClock: clock }),
+        initialAura: [
+          { element: "dendro", gaugeUnits: 7 / 60 }
+        ]
+      });
+      const burning = engine.processHit({
+        frame: 0,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd()
+      }).burningReaction!;
+      const expiryFrame = burning.fuelExpiresAtFrame!;
+
+      expect(expiryFrame).toBe(15);
+      expect(engine.getAuraStateAt(expiryFrame)).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ element: "burning" }),
+          expect.objectContaining({ element: "burningFuel" })
+        ])
+      );
+      const expiry = engine.expireBurningFuel(
+        expiryFrame,
+        burning.generation,
+        expiryFrame
+      );
+      expect(expiry).toMatchObject({
+        generation: burning.generation,
+        operation: "expire",
+        frame: expiryFrame,
+        reason: "FUEL_EXPIRED",
+        fuelGaugeUnitsBefore: expect.closeTo(1 / 150, 12),
+        fuelGaugeUnitsAfter: 0
+      });
+      expect(expiry.auraBefore).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ element: "burning" }),
+          expect.objectContaining({ element: "burningFuel" })
+        ])
+      );
+      expect(expiry.auraAfter).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ element: "burning" }),
+          expect.objectContaining({ element: "burningFuel" })
+        ])
+      );
+      expect(
+        engine.expireBurningFuel(
+          expiryFrame,
+          burning.generation,
+          expiryFrame
+        )
+      ).toMatchObject({
+        operation: "stale",
+        reason: "STALE_BURNING_FUEL_EXPIRY_CHECK"
+      });
+    }
+  );
+});
