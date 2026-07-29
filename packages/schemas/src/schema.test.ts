@@ -44,6 +44,8 @@ import {
   quickenDecayMutationAuditSchema,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
+  reactionDeliveryModelSchema,
+  reactionDeliveryResultReferencesSchema,
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
   reactionDamageGroupAuditSchema,
@@ -51,6 +53,8 @@ import {
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   resolvedEnemyTargetProfileSchema,
   resolvedWorldHitGeometrySchema,
+  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   simulationRunManifestSchema,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
@@ -102,6 +106,16 @@ const legacyConfig = {
     }
   ],
   rotation: []
+};
+
+const asPre139Wire = <T extends object>(
+  config: T
+): Omit<T, "reactionDeliveryModel"> => {
+  const {
+    reactionDeliveryModel: _reactionDeliveryModel,
+    ...wire
+  } = config as T & { reactionDeliveryModel?: unknown };
+  return wire as Omit<T, "reactionDeliveryModel">;
 };
 
 const validTargetStateTimeline = {
@@ -831,7 +845,7 @@ describe("1.32 player reaction self-damage contract", () => {
   it("freezes the 1.31 historical pair and migrates it to explicit disabled mode", () => {
     const current = migrateConfig(legacyConfig);
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: DENDRO_CORE_SCHEMA_VERSION,
       engineVersion: DENDRO_CORE_ENGINE_VERSION
     };
@@ -867,6 +881,7 @@ describe("1.32 player reaction self-damage contract", () => {
     const current = makeEnabledConfig();
     const {
       targetClockModel: _targetClockModel,
+      reactionDeliveryModel: _reactionDeliveryModel,
       ...wire132
     } = current;
     const historical = {
@@ -2047,7 +2062,7 @@ describe("1.33 target-local Hitlag contract", () => {
       }
     });
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
       engineVersion: TARGET_LOCAL_HITLAG_ENGINE_VERSION
     };
@@ -2538,7 +2553,7 @@ describe("1.34 general reaction order contract", () => {
     ] as const) {
       expect(() =>
         migrateConfig({
-          ...config,
+          ...asPre139Wire(config),
           ...historical
         })
       ).toThrow(
@@ -2593,7 +2608,7 @@ describe("1.34 general reaction order contract", () => {
       mode: "target-local-hitlag-v1" as const
     };
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
       engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
       characters: current.characters.map((character) => ({
@@ -2619,7 +2634,10 @@ describe("1.34 general reaction order contract", () => {
     expect(migrateConfig(historical)).toEqual({
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      }
     });
   });
 
@@ -2645,7 +2663,7 @@ describe("1.34 general reaction order contract", () => {
       ]
     });
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
       engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
     };
@@ -2653,14 +2671,17 @@ describe("1.34 general reaction order contract", () => {
     expect(migrateConfig(historical)).toEqual({
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      }
     });
   });
 
   it("fails closed on aura-v7 or a forged engine under the frozen 1.35 identity", () => {
     const current = makeAuraV6Config();
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
       engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
     };
@@ -2712,7 +2733,7 @@ describe("1.34 general reaction order contract", () => {
       mode: "target-local-hitlag-v1" as const
     };
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
       engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION,
       characters: current.characters.map((character) => ({
@@ -2951,6 +2972,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   it("migrates the frozen 1.36 pair and all legacy inputs to the legacy event heap", () => {
     const {
       targetTaskModel: _targetTaskModel,
+      reactionDeliveryModel: _reactionDeliveryModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -2976,13 +2998,17 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         ...versioned,
         schemaVersion: CURRENT_SCHEMA_VERSION,
         engineVersion: CURRENT_ENGINE_VERSION,
-        targetTaskModel: { mode: "legacy-event-heap-v1" }
+        targetTaskModel: { mode: "legacy-event-heap-v1" },
+        reactionDeliveryModel: {
+          mode: "deferred-event-heap-v1"
+        }
       });
     }
 
     const current = migrateConfig(legacyConfig);
     const {
       targetTaskModel: _currentTargetTaskModel,
+      reactionDeliveryModel: _currentReactionDeliveryModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3012,7 +3038,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   it("rejects a forged 1.36 engine and historical target-phase opt-in", () => {
     const current = migrateConfig(legacyConfig);
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
       engineVersion: QUICKEN_BLOOM_TASK_ENGINE_VERSION
     };
@@ -3038,7 +3064,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   it("strictly preserves the frozen 1.37 legacy/v1 mode and rejects missing, v2, or forged wires", () => {
     const current = makeAuraV7Config();
     const historicalBase = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
       engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION
     };
@@ -3090,9 +3116,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.38.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.39.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.38.0-target-reactable-phase"
+      "1.39.0-shatter-recursive-delivery"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -3292,6 +3318,4045 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       ])
     ).toThrow(/globalFrame must strictly increase/);
   });
+});
+
+describe("1.39 Shatter recursive delivery config and references", () => {
+  const makeLegalAuraV7Config = () => {
+    const current = migrateConfig(legacyConfig);
+    return {
+      ...current,
+      enemy: {
+        ...current.enemy,
+        targets: [
+          {
+            id: "enemy-0",
+            name: "Recursive Shatter target",
+            position: { x: 0, y: 0 }
+          }
+        ]
+      },
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [],
+        commands: []
+      },
+      reactionEngine: { mode: "aura-v7" as const }
+    };
+  };
+
+  const noShatterReactionAudit = {
+    reactions: [] as const,
+    mechanicsTruncation: null,
+    transformativeReaction: null,
+    burningReaction: null,
+    shatterReaction: null,
+    swirlReactions: [] as const
+  };
+  type TestDamageGroupReaction =
+    | "overload"
+    | "electroCharged"
+    | "superconduct"
+    | "bloom"
+    | "burgeon"
+    | "hyperbloom"
+    | "shatter"
+    | "swirlPyro"
+    | "swirlHydro"
+    | "swirlCryo"
+    | "swirlElectro";
+  const makeDamageGroupDecision = (
+    reaction: TestDamageGroupReaction,
+    targetId: string,
+    windowStartFrame: number,
+    hitIndex = 0,
+    sourceActorId = "a"
+  ) => {
+    const reactionB =
+      reaction === "overload" ||
+      reaction === "electroCharged";
+    const damageAllowed = reactionB
+      ? hitIndex === 0
+      : hitIndex < 2;
+    return {
+      reaction,
+      sourceActorId,
+      targetId,
+      windowStartFrame,
+      hitIndex,
+      resetFrames: 30 as const,
+      sequence: reactionB
+        ? ([true, false] as const)
+        : ([true, true, false] as const),
+      damageAllowed,
+      blockedReason: damageAllowed
+        ? null
+        : reactionB
+          ? ("REACTION_B_DAMAGE_ICD" as const)
+          : ("REACTION_A_DAMAGE_ICD" as const)
+    };
+  };
+  const makeTriggeredShatterReactionAudit = (
+    scheduled: boolean,
+    damageFrame = 12
+  ) => ({
+    reactions: [] as const,
+    mechanicsTruncation: null,
+    transformativeReaction: null,
+    burningReaction: null,
+    shatterReaction: {
+      reaction: "shatter" as const,
+      strikeType: "default" as const,
+      triggered: true,
+      scheduled,
+      damageElement: "physical" as const,
+      damageFrame,
+      baseMultiplier: 3,
+      blockedReason: scheduled
+        ? null
+        : ("REACTION_DAMAGE_GCD" as const),
+      nextAvailableFrame: damageFrame + 12,
+      frozenGaugeBefore: 1,
+      poiseConsumedGaugeUnits: 0,
+      frozenGaugeAfterPoise: 1,
+      shatterConsumedGaugeUnits: 1,
+      frozenGaugeAfter: 0
+    },
+    swirlReactions: [] as const
+  });
+
+  const makeOneShotTransformativeAudit = (
+    reaction: "overload" | "superconduct",
+    triggerFrame = 12,
+    scheduled = true
+  ) => ({
+    reaction,
+    scheduled,
+    damageFrame: triggerFrame + 1,
+    blockedReason: scheduled
+      ? null
+      : ("REACTION_DAMAGE_GCD" as const),
+    nextAvailableFrame: triggerFrame + 6
+  });
+
+  const makeRecursiveReferenceResult = () => ({
+    schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+    engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+    config: {
+      schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      duration: 1,
+      enemy: {
+        targets: [{ id: "enemy-0" }]
+      },
+      reactionDeliveryModel: {
+        mode: "shatter-recursive-zero-delay-v1" as const
+      }
+    },
+    damageEvents: [
+      {
+        id: 0,
+        kind: "transformative-reaction" as const,
+        parentDamageEventId: 1,
+        eventPriority: 3,
+        eventSequence: 7,
+        sourceActorId: "a",
+        targetId: "enemy-0",
+        frame: 12,
+        element: "physical" as const,
+        reaction: "shatter" as const,
+        finalDamage: 100,
+        damageFactors: {
+          groupMultiplier: 1
+        },
+        transformativeReactionFactors: {
+          baseMultiplier: 3
+        },
+        reactionAudit: noShatterReactionAudit
+      },
+      {
+        id: 1,
+        kind: "direct" as const,
+        parentDamageEventId: null,
+        eventPriority: 3,
+        eventSequence: 7,
+        sourceActorId: "a",
+        targetId: "enemy-0",
+        frame: 12,
+        element: "geo" as const,
+        reaction: "none" as const,
+        reactionAudit: makeTriggeredShatterReactionAudit(true)
+      }
+    ],
+    reactionDamageLog: [
+      {
+        id: 0,
+        reaction: "shatter" as const,
+        triggerDamageEventId: 1,
+        sourceActorId: "a",
+        sourceTargetId: "enemy-0",
+        triggerFrame: 12,
+        damageFrame: 12,
+        scheduled: true,
+        withinSimulation: true,
+        blockedReason: null,
+        nextAvailableFrame: 24,
+        scheduleKind: "one-shot" as const,
+        targetingMode: "single-target" as const,
+        checkedTargetIds: ["enemy-0"],
+        hitTargetIds: ["enemy-0"],
+        damageEventIds: [0],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "shatter",
+            "enemy-0",
+            12
+          )
+        ]
+      }
+    ]
+  });
+
+  const makeDeferredReferenceResult = () => ({
+    schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+    engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+    config: {
+      schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      duration: 1,
+      enemy: {
+        targets: [{ id: "enemy-0" }, { id: "enemy-1" }]
+      },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1" as const
+      }
+    },
+    damageEvents: [
+      {
+        id: 0,
+        kind: "direct" as const,
+        parentDamageEventId: null,
+        eventPriority: 3,
+        eventSequence: 7,
+        sourceActorId: "a",
+        targetId: "enemy-0",
+        frame: 12,
+        element: "pyro" as const,
+        reaction: "overload" as const,
+        reactionAudit: {
+          reactions: ["overload" as const],
+          mechanicsTruncation: null,
+          transformativeReaction:
+            makeOneShotTransformativeAudit("overload"),
+          burningReaction: null,
+          shatterReaction: null,
+          swirlReactions: [] as const
+        }
+      },
+      {
+        id: 1,
+        kind: "transformative-reaction" as const,
+        parentDamageEventId: 0,
+        eventPriority: 5,
+        eventSequence: 8,
+        sourceActorId: "a",
+        targetId: "enemy-1",
+        frame: 13,
+        element: "pyro" as const,
+        reaction: "overload" as const,
+        finalDamage: 100,
+        damageFactors: {
+          groupMultiplier: 1
+        },
+        reactionAudit: {
+          reactions: ["overload" as const],
+          mechanicsTruncation: null,
+          transformativeReaction: null,
+          burningReaction: null,
+          shatterReaction: null,
+          swirlReactions: [] as const
+        }
+      }
+    ],
+    reactionDamageLog: [
+      {
+        id: 0,
+        reaction: "overload" as const,
+        triggerDamageEventId: 0,
+        sourceActorId: "a",
+        sourceTargetId: "enemy-0",
+        triggerFrame: 12,
+        damageFrame: 13,
+        scheduled: true,
+        withinSimulation: true,
+        blockedReason: null,
+        nextAvailableFrame: 18,
+        scheduleKind: "one-shot" as const,
+        targetingMode: "radius" as const,
+        checkedTargetIds: ["enemy-0", "enemy-1"],
+        hitTargetIds: ["enemy-1"],
+        damageEventIds: [1],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "overload",
+            "enemy-1",
+            13
+          )
+        ]
+      }
+    ]
+  });
+
+  const makeDeferredShatterReferenceResult = () => {
+    const recursive = makeRecursiveReferenceResult();
+    return {
+      ...recursive,
+      config: {
+        ...recursive.config,
+        reactionDeliveryModel: {
+          mode: "deferred-event-heap-v1" as const
+        }
+      },
+      damageEvents: [
+        {
+          ...recursive.damageEvents[1],
+          id: 0
+        },
+        {
+          ...recursive.damageEvents[0],
+          id: 1,
+          parentDamageEventId: 0,
+          eventPriority: 5,
+          eventSequence: 8
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...recursive.reactionDamageLog[0],
+          triggerDamageEventId: 0,
+          damageEventIds: [1]
+        }
+      ]
+    };
+  };
+
+  const makeUntriggeredShatterReferenceResult = (
+    blockedReason:
+      | "NO_FROZEN_AURA"
+      | "FROZEN_DEPLETED_BY_POISE" = "NO_FROZEN_AURA"
+  ) => {
+    const recursive = makeRecursiveReferenceResult();
+    return {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[1],
+          id: 0,
+          reactionAudit: {
+            ...noShatterReactionAudit,
+            shatterReaction: {
+              ...makeTriggeredShatterReactionAudit(false)
+                .shatterReaction,
+              strikeType:
+                blockedReason ===
+                "FROZEN_DEPLETED_BY_POISE"
+                  ? ("blunt" as const)
+                  : ("default" as const),
+              triggered: false,
+              blockedReason,
+              nextAvailableFrame: null,
+              frozenGaugeBefore:
+                blockedReason ===
+                "FROZEN_DEPLETED_BY_POISE"
+                  ? 1
+                  : 0,
+              poiseConsumedGaugeUnits:
+                blockedReason ===
+                "FROZEN_DEPLETED_BY_POISE"
+                  ? 1
+                  : 0,
+              frozenGaugeAfterPoise: 0,
+              shatterConsumedGaugeUnits: 0,
+              frozenGaugeAfter: 0
+            }
+          }
+        }
+      ],
+      reactionDamageLog: []
+    };
+  };
+
+  const makeGcdBlockedShatterReferenceResult = () => {
+    const recursive = makeRecursiveReferenceResult();
+    return {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[1],
+          id: 0,
+          reactionAudit:
+            makeTriggeredShatterReactionAudit(false)
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...recursive.reactionDamageLog[0],
+          triggerDamageEventId: 0,
+          scheduled: false,
+          withinSimulation: false,
+          blockedReason: "REACTION_DAMAGE_GCD" as const,
+          checkedTargetIds: [],
+          hitTargetIds: [],
+          damageEventIds: []
+        }
+      ]
+    };
+  };
+
+  const makeSwirlReferenceResult = () => {
+    const deferred = makeDeferredReferenceResult();
+    const trigger = {
+      ...deferred.damageEvents[0],
+      element: "anemo" as const,
+      reaction: "swirlPyro" as const,
+      reactionAudit: {
+        ...deferred.damageEvents[0]!.reactionAudit,
+        reactions: ["swirlPyro" as const],
+        transformativeReaction: null,
+        swirlReactions: [
+          {
+            reaction: "swirlPyro" as const,
+            scheduled: true,
+            blockedReason: null,
+            nextAvailableFrame: 18,
+            selfDamageFrame: 13,
+            propagationDamageFrame: 17
+          }
+        ]
+      }
+    };
+    const selfDamage = {
+      ...deferred.damageEvents[1],
+      targetId: "enemy-0",
+      element: "pyro" as const,
+      reaction: "swirlPyro" as const
+    };
+    const propagationDamage = {
+      ...selfDamage,
+      id: 2,
+      targetId: "enemy-1",
+      frame: 17,
+      eventSequence: 9
+    };
+    const selfLog = {
+      ...deferred.reactionDamageLog[0],
+      reaction: "swirlPyro" as const,
+      scheduleKind: "swirl-self" as const,
+      targetingMode: "single-target" as const,
+      checkedTargetIds: ["enemy-0"],
+      hitTargetIds: ["enemy-0"],
+      damageEventIds: [1],
+      damageGroupBlockedTargetIds: [],
+      damageGroupDecisions: [
+        makeDamageGroupDecision(
+          "swirlPyro",
+          "enemy-0",
+          13
+        )
+      ]
+    };
+    const propagationLog = {
+      ...selfLog,
+      id: 1,
+      scheduleKind: "swirl-propagation" as const,
+      targetingMode: "radius" as const,
+      damageFrame: 17,
+      checkedTargetIds: ["enemy-1"],
+      hitTargetIds: ["enemy-1"],
+      damageEventIds: [2],
+      damageGroupDecisions: [
+        makeDamageGroupDecision(
+          "swirlPyro",
+          "enemy-1",
+          17
+        )
+      ]
+    };
+    return {
+      ...deferred,
+      damageEvents: [
+        trigger,
+        selfDamage,
+        propagationDamage
+      ] as const,
+      reactionDamageLog: [
+        selfLog,
+        propagationLog
+      ] as const
+    };
+  };
+
+  const makeNestedRecursiveReferenceResult = () => ({
+    schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+    engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+    config: {
+      schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      duration: 1,
+      enemy: {
+        targets: [{ id: "enemy-0" }, { id: "enemy-1" }]
+      },
+      reactionDeliveryModel: {
+        mode: "shatter-recursive-zero-delay-v1" as const
+      }
+    },
+    damageEvents: [
+      {
+        id: 0,
+        kind: "direct" as const,
+        parentDamageEventId: null,
+        eventPriority: 3,
+        eventSequence: 7,
+        sourceActorId: "a",
+        targetId: "enemy-0",
+        frame: 12,
+        element: "pyro" as const,
+        reaction: "overload" as const,
+        reactionAudit: {
+          reactions: ["overload" as const],
+          mechanicsTruncation: null,
+          transformativeReaction:
+            makeOneShotTransformativeAudit("overload"),
+          burningReaction: null,
+          shatterReaction: null,
+          swirlReactions: [] as const
+        }
+      },
+      {
+        id: 1,
+        kind: "transformative-reaction" as const,
+        parentDamageEventId: 2,
+        eventPriority: 5,
+        eventSequence: 8,
+        sourceActorId: "a",
+        targetId: "enemy-1",
+        frame: 13,
+        element: "physical" as const,
+        reaction: "shatter" as const,
+        finalDamage: 100,
+        damageFactors: {
+          groupMultiplier: 1
+        },
+        transformativeReactionFactors: {
+          baseMultiplier: 3
+        },
+        reactionAudit: noShatterReactionAudit
+      },
+      {
+        id: 2,
+        kind: "transformative-reaction" as const,
+        parentDamageEventId: 0,
+        eventPriority: 5,
+        eventSequence: 8,
+        sourceActorId: "a",
+        targetId: "enemy-1",
+        frame: 13,
+        element: "pyro" as const,
+        reaction: "overload" as const,
+        finalDamage: 100,
+        damageFactors: {
+          groupMultiplier: 1
+        },
+        reactionAudit: {
+          ...makeTriggeredShatterReactionAudit(true, 13),
+          shatterReaction: {
+            ...makeTriggeredShatterReactionAudit(true, 13)
+              .shatterReaction,
+            strikeType: "blunt" as const
+          }
+        }
+      }
+    ],
+    reactionDamageLog: [
+      {
+        id: 0,
+        reaction: "overload" as const,
+        triggerDamageEventId: 0,
+        sourceActorId: "a",
+        sourceTargetId: "enemy-0",
+        triggerFrame: 12,
+        damageFrame: 13,
+        scheduled: true,
+        withinSimulation: true,
+        blockedReason: null,
+        nextAvailableFrame: 18,
+        scheduleKind: "one-shot" as const,
+        targetingMode: "radius" as const,
+        checkedTargetIds: ["enemy-0", "enemy-1"],
+        hitTargetIds: ["enemy-1"],
+        damageEventIds: [2],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "overload",
+            "enemy-1",
+            13
+          )
+        ]
+      },
+      {
+        id: 1,
+        reaction: "shatter" as const,
+        triggerDamageEventId: 2,
+        sourceActorId: "a",
+        sourceTargetId: "enemy-1",
+        triggerFrame: 13,
+        damageFrame: 13,
+        scheduled: true,
+        withinSimulation: true,
+        blockedReason: null,
+        nextAvailableFrame: 25,
+        scheduleKind: "one-shot" as const,
+        targetingMode: "single-target" as const,
+        checkedTargetIds: ["enemy-1"],
+        hitTargetIds: ["enemy-1"],
+        damageEventIds: [1],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "shatter",
+            "enemy-1",
+            13
+          )
+        ]
+      }
+    ]
+  });
+
+  const makeCoreDamageGroupReplayResult = (
+    attempts: Array<{
+      frame: number;
+      windowStartFrame: number;
+      hitIndex: number;
+      reaction?: "bloom" | "burgeon";
+      targetId?: "enemy-0" | "enemy-1";
+      sourceActorId?: string;
+    }>
+  ) => {
+    const deferred = makeDeferredReferenceResult();
+    const resolvedAttempts = attempts.map((attempt) => {
+      const reaction = attempt.reaction ?? "bloom";
+      const targetId = attempt.targetId ?? "enemy-0";
+      const sourceActorId = attempt.sourceActorId ?? "a";
+      const decision = makeDamageGroupDecision(
+        reaction,
+        targetId,
+        attempt.windowStartFrame,
+        attempt.hitIndex,
+        sourceActorId
+      );
+      return {
+        ...attempt,
+        reaction,
+        targetId,
+        sourceActorId,
+        decision
+      };
+    });
+    return {
+      ...deferred,
+      damageEvents: resolvedAttempts.map(
+        (attempt, attemptIndex) => ({
+          ...deferred.damageEvents[1],
+          id: attemptIndex,
+          parentDamageEventId: null,
+          eventPriority: 5,
+          eventSequence: attemptIndex,
+          sourceActorId: attempt.sourceActorId,
+          targetId: attempt.targetId,
+          frame: attempt.frame,
+          element: "dendro" as const,
+          reaction: attempt.reaction,
+          finalDamage: attempt.decision.damageAllowed
+            ? 100
+            : 0,
+          damageFactors: {
+            groupMultiplier: attempt.decision.damageAllowed
+              ? 1
+              : 0
+          },
+          reactionAudit: noShatterReactionAudit
+        })
+      ),
+      reactionDamageLog: resolvedAttempts.map(
+        (attempt, attemptIndex) => ({
+          ...deferred.reactionDamageLog[0],
+          id: attemptIndex,
+          reaction: attempt.reaction,
+          triggerDamageEventId: null,
+          sourceActorId: attempt.sourceActorId,
+          sourceTargetId: attempt.targetId,
+          triggerFrame: attempt.frame,
+          damageFrame: attempt.frame,
+          nextAvailableFrame: null,
+          scheduleKind:
+            attempt.reaction === "bloom"
+              ? ("dendro-core-bloom" as const)
+              : ("dendro-core-burgeon" as const),
+          targetingMode: "radius" as const,
+          checkedTargetIds: [attempt.targetId],
+          hitTargetIds: [attempt.targetId],
+          damageEventIds: [attemptIndex],
+          damageGroupBlockedTargetIds:
+            attempt.decision.damageAllowed
+              ? []
+              : [attempt.targetId],
+          damageGroupDecisions: [attempt.decision]
+        })
+      )
+    };
+  };
+
+  const makeElectroChargedDamageGroupReplayResult = (
+    attempts: Array<{
+      frame: number;
+      windowStartFrame: number;
+      hitIndex: number;
+    }>
+  ) => {
+    const deferred = makeDeferredReferenceResult();
+    const trigger = {
+      ...deferred.damageEvents[0],
+      id: 0,
+      frame: 0,
+      eventSequence: 0,
+      targetId: "enemy-0",
+      reaction: "electroCharged" as const,
+      reactionAudit: {
+        ...deferred.damageEvents[0]!.reactionAudit,
+        reactions: ["electroCharged" as const],
+        transformativeReaction: null
+      }
+    };
+    const decisions = attempts.map((attempt) =>
+      makeDamageGroupDecision(
+        "electroCharged",
+        "enemy-0",
+        attempt.windowStartFrame,
+        attempt.hitIndex
+      )
+    );
+    return {
+      ...deferred,
+      damageEvents: [
+        trigger,
+        ...attempts.map((attempt, attemptIndex) => ({
+          ...deferred.damageEvents[1],
+          id: attemptIndex + 1,
+          parentDamageEventId: 0,
+          eventPriority: 5,
+          eventSequence: attemptIndex + 1,
+          targetId: "enemy-0",
+          frame: attempt.frame,
+          element: "electro" as const,
+          reaction: "electroCharged" as const,
+          finalDamage: decisions[attemptIndex]!
+            .damageAllowed
+            ? 100
+            : 0,
+          damageFactors: {
+            groupMultiplier: decisions[attemptIndex]!
+              .damageAllowed
+              ? 1
+              : 0
+          },
+          reactionAudit: noShatterReactionAudit
+        }))
+      ],
+      reactionDamageLog: attempts.map(
+        (attempt, attemptIndex) => ({
+          ...deferred.reactionDamageLog[0],
+          id: attemptIndex,
+          reaction: "electroCharged" as const,
+          triggerDamageEventId: 0,
+          sourceTargetId: "enemy-0",
+          triggerFrame: 0,
+          damageFrame: attempt.frame,
+          nextAvailableFrame: null,
+          scheduleKind: "periodic-tick" as const,
+          targetingMode: "single-target" as const,
+          checkedTargetIds: ["enemy-0"],
+          hitTargetIds: ["enemy-0"],
+          damageEventIds: [attemptIndex + 1],
+          damageGroupBlockedTargetIds:
+            decisions[attemptIndex]!.damageAllowed
+              ? []
+              : ["enemy-0"],
+          damageGroupDecisions: [decisions[attemptIndex]!]
+        })
+      )
+    };
+  };
+
+  it("freezes the new identity and strictly gates the recursive model", () => {
+    expect(SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION).toBe(
+      "1.39.0"
+    );
+    expect(SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION).toBe(
+      "1.39.0-shatter-recursive-delivery"
+    );
+    expect(CURRENT_SCHEMA_VERSION).toBe(
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
+    );
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+    );
+    expect(
+      reactionDeliveryModelSchema.parse({
+        mode: "deferred-event-heap-v1"
+      })
+    ).toEqual({ mode: "deferred-event-heap-v1" });
+    expect(() =>
+      reactionDeliveryModelSchema.parse({
+        mode: "shatter-recursive-zero-delay-v1",
+        futureField: true
+      })
+    ).toThrow(/Unrecognized key/);
+
+    const current = migrateConfig(legacyConfig);
+    const missing = { ...current } as Record<string, unknown>;
+    delete missing.reactionDeliveryModel;
+    expect(() => migrateConfig(missing)).toThrow(
+      /reactionDeliveryModel/
+    );
+    expect(() =>
+      migrateConfig({
+        ...current,
+        reactionDeliveryModel: {
+          mode: "shatter-recursive-zero-delay-v1"
+        }
+      })
+    ).toThrow(/requires timeline\.mode legal-frame-v1/);
+    expect(() =>
+      migrateConfig({
+        ...makeLegalAuraV7Config(),
+        reactionEngine: { mode: "aura-v6" },
+        reactionDeliveryModel: {
+          mode: "shatter-recursive-zero-delay-v1"
+        }
+      })
+    ).toThrow(/requires reactionEngine\.mode aura-v7/);
+    expect(
+      migrateConfig({
+        ...makeLegalAuraV7Config(),
+        reactionDeliveryModel: {
+          mode: "shatter-recursive-zero-delay-v1"
+        }
+      }).reactionDeliveryModel
+    ).toEqual({ mode: "shatter-recursive-zero-delay-v1" });
+  });
+
+  it("migrates the exact 1.38 wire deeply and rejects future fields on every historical wire", () => {
+    const current = makeLegalAuraV7Config();
+    const historical = {
+      ...asPre139Wire(current),
+      schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+      engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v2" as const }
+    };
+    const migrated = migrateConfig(historical);
+    const {
+      schemaVersion: _schemaVersion,
+      engineVersion: _engineVersion,
+      reactionDeliveryModel: _reactionDeliveryModel,
+      ...migratedPayload
+    } = migrated;
+    const {
+      schemaVersion: _oldSchemaVersion,
+      engineVersion: _oldEngineVersion,
+      ...historicalPayload
+    } = historical;
+    expect(migratedPayload).toEqual(historicalPayload);
+    expect(migrated.reactionDeliveryModel).toEqual({
+      mode: "deferred-event-heap-v1"
+    });
+    expect(migrated.schemaVersion).toBe(
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
+    );
+    expect(migrated.engineVersion).toBe(
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+    );
+
+    for (const wire of [
+      historical,
+      {
+        ...asPre139Wire(current),
+        schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+        targetTaskModel: { mode: "target-phase-v1" as const }
+      },
+      legacyConfig
+    ]) {
+      expect(() =>
+        migrateConfig({
+          ...wire,
+          reactionDeliveryModel: {
+            mode: "deferred-event-heap-v1"
+          }
+        })
+      ).toThrow(/does not support reaction delivery selection/);
+    }
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.38.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.38\.0" requires "1\.38\.0-target-reactable-phase"/
+    );
+  });
+
+  it("allows only an exact recursive Shatter forward-parent backlink and rejects cycles", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(recursive)
+    ).toEqual(recursive);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        config: {
+          ...recursive.config,
+          reactionDeliveryModel: {
+            mode: "deferred-event-heap-v1"
+          }
+        }
+      })
+    ).toThrow(/forbids forward parent damage references/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+        config: {
+          ...recursive.config,
+          engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
+        }
+      })
+    ).toThrow(/requires the exact 1\.39 schema and engine identity/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[0],
+            element: "geo"
+          },
+          recursive.damageEvents[1]
+        ]
+      })
+    ).toThrow(/physical transformative Shatter child/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: []
+      })
+    ).toThrow(/exactly one matching reaction-damage log backlink/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          recursive.reactionDamageLog[0],
+          {
+            ...recursive.reactionDamageLog[0],
+            id: 1
+          }
+        ]
+      })
+    ).toThrow(/exactly one matching reaction-damage log backlink/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...recursive.damageEvents[1],
+            parentDamageEventId: 0
+          }
+        ]
+      })
+    ).toThrow(/must be acyclic/);
+  });
+
+  it("accepts delayed deferred AoE ownership, nested Overload to Shatter, and valid empty recursive states", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(deferred)
+    ).toEqual(deferred);
+    const deferredShatter =
+      makeDeferredShatterReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        deferredShatter
+      )
+    ).toEqual(deferredShatter);
+
+    const nested = makeNestedRecursiveReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(nested)
+    ).toEqual(nested);
+
+    const recursive = makeRecursiveReferenceResult();
+    const emptyBlocked = {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[1],
+          id: 0,
+          reactionAudit:
+            makeTriggeredShatterReactionAudit(false)
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...recursive.reactionDamageLog[0],
+          triggerDamageEventId: 0,
+          scheduled: false,
+          withinSimulation: false,
+          blockedReason: "REACTION_DAMAGE_GCD" as const,
+          checkedTargetIds: [],
+          hitTargetIds: [],
+          damageEventIds: []
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(emptyBlocked)
+    ).toEqual(emptyBlocked);
+
+    const impossibleOutOfDuration = {
+      ...emptyBlocked,
+      damageEvents: [
+        {
+          ...emptyBlocked.damageEvents[0],
+          reactionAudit:
+            makeTriggeredShatterReactionAudit(true)
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...emptyBlocked.reactionDamageLog[0],
+          scheduled: true,
+          blockedReason: null
+        }
+      ]
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        impossibleOutOfDuration
+      )
+    ).toThrow(/requires a settled scheduled state/);
+  });
+
+  it("requires exact 1.39 identity for deferred results too", () => {
+    const deferred = makeDeferredReferenceResult();
+    for (const [schemaVersion, engineVersion] of [
+      [
+        TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+        TARGET_REACTABLE_PHASE_ENGINE_VERSION
+      ],
+      ["1.37.0", "1.37.0-target-task-phase"],
+      ["9.99.0", "evil-engine"]
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...deferred,
+          schemaVersion,
+          engineVersion,
+          config: {
+            ...deferred.config,
+            schemaVersion,
+            engineVersion
+          }
+        })
+      ).toThrow(/requires the exact 1\.39 schema and engine identity/);
+    }
+  });
+
+  it("rejects missing, duplicate, direct, and multiply-owned damage references", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            checkedTargetIds: ["enemy-0", "enemy-1"],
+            hitTargetIds: ["enemy-0", "enemy-1"],
+            damageEventIds: [0, 99]
+          }
+        ]
+      })
+    ).toThrow(/missing produced damage event 99/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            hitTargetIds: ["enemy-0", "enemy-0"],
+            damageEventIds: [0, 0]
+          }
+        ]
+      })
+    ).toThrow(/duplicate produced damage event 0/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            damageEventIds: [1]
+          }
+        ]
+      })
+    ).toThrow(/produced damage event does not match/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          recursive.reactionDamageLog[0],
+          {
+            ...recursive.reactionDamageLog[0],
+            id: 1
+          }
+        ]
+      })
+    ).toThrow(/requires exactly one owning reaction-damage log/);
+  });
+
+  it("requires direct damage to remain parentless and reaction target fanout to stay unique", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[0],
+            id: 1,
+            parentDamageEventId: 0,
+            eventPriority: 99,
+            eventSequence: 99,
+            sourceActorId: "other",
+            targetId: "enemy-9",
+            frame: 99
+          }
+        ],
+        reactionDamageLog: []
+      })
+    ).toThrow(/direct damage events must have a null parent/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          deferred.damageEvents[1],
+          {
+            ...deferred.damageEvents[1],
+            id: 2
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            hitTargetIds: ["enemy-1", "enemy-1"],
+            damageEventIds: [1, 2]
+          }
+        ]
+      })
+    ).toThrow(/duplicate reaction-damage target/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            checkedTargetIds: [
+              "enemy-0",
+              "enemy-1",
+              "enemy-1"
+            ]
+          }
+        ]
+      })
+    ).toThrow(/duplicate reaction-damage target/);
+  });
+
+  it("rejects wrong child/log provenance and orphan transformative damage", () => {
+    const recursive = makeRecursiveReferenceResult();
+    for (const damageEvent of [
+      {
+        ...recursive.damageEvents[0],
+        parentDamageEventId: null
+      },
+      {
+        ...recursive.damageEvents[0],
+        sourceActorId: "other"
+      },
+      {
+        ...recursive.damageEvents[0],
+        targetId: "enemy-1"
+      },
+      {
+        ...recursive.damageEvents[0],
+        frame: 13
+      },
+      {
+        ...recursive.damageEvents[0],
+        reaction: "overload" as const
+      }
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          damageEvents: [
+            damageEvent,
+            recursive.damageEvents[1]
+          ]
+        })
+      ).toThrow(/does not match|recursive Shatter|forward parent/);
+    }
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            triggerFrame: 11
+          }
+        ]
+      })
+    ).toThrow(/exact zero-delay|backlink/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          ...recursive.damageEvents,
+          {
+            id: 2,
+            kind: "transformative-reaction" as const,
+            parentDamageEventId: 1,
+            eventPriority: 4,
+            eventSequence: 8,
+            sourceActorId: "a",
+            targetId: "enemy-0",
+            frame: 13,
+            element: "pyro" as const,
+            reaction: "overload" as const,
+            reactionAudit: noShatterReactionAudit
+          }
+        ]
+      })
+    ).toThrow(/requires exactly one owning reaction-damage log/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[0],
+            reaction: "none" as const
+          },
+          recursive.damageEvents[1]
+        ],
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            reaction: "none" as const
+          }
+        ]
+      })
+    ).toThrow(/reactionDamageLog/);
+  });
+
+  it("binds non-core trigger provenance while preserving the Dendro-core ownership exception", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[1],
+            sourceActorId: "forged"
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            sourceActorId: "forged"
+          }
+        ]
+      })
+    ).toThrow(/non-core trigger damage event does not match/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          {
+            ...deferred.damageEvents[0]!,
+            reactionAudit: {
+              ...deferred.damageEvents[0]!.reactionAudit,
+              reactions: []
+            }
+          },
+          deferred.damageEvents[1]
+        ]
+      })
+    ).toThrow(/requires its trigger audit to include/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            sourceTargetId: "forged-target"
+          }
+        ]
+      })
+    ).toThrow(/non-core trigger damage event does not match/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            triggerFrame: 999
+          }
+        ]
+      })
+    ).toThrow(/non-core trigger damage event does not match/);
+
+    const coreOwned = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0],
+          reactionAudit: noShatterReactionAudit
+        },
+        {
+          ...deferred.damageEvents[1],
+          sourceActorId: "core-owner",
+          element: "dendro" as const,
+          reaction: "burgeon" as const
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          reaction: "burgeon" as const,
+          sourceActorId: "core-owner",
+          sourceTargetId: "enemy-0",
+          triggerFrame: 13,
+          scheduleKind: "dendro-core-burgeon" as const,
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "burgeon",
+              "enemy-1",
+              13,
+              0,
+              "core-owner"
+            )
+          ]
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(coreOwned)
+    ).toEqual(coreOwned);
+  });
+
+  it("binds Burning ticks to Burning audit provenance and settled single-target delivery", () => {
+    const deferred = makeDeferredReferenceResult();
+    const burning = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0]!,
+          reaction: "burning" as const,
+          reactionAudit: {
+            ...deferred.damageEvents[0]!.reactionAudit,
+            reactions: [] as const,
+            transformativeReaction: null,
+            burningReaction: {
+              reaction: "burning" as const,
+              operation: "start" as const
+            }
+          }
+        },
+        {
+          ...deferred.damageEvents[1]!,
+          reaction: "burning" as const
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          reaction: "burning" as const,
+          scheduleKind: "burning-tick" as const,
+          damageGroupBlockedTargetIds: [],
+          damageGroupDecisions: []
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(burning)
+    ).toEqual(burning);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...burning,
+        damageEvents: [
+          {
+            ...burning.damageEvents[0]!,
+            reactionAudit: {
+              ...burning.damageEvents[0]!.reactionAudit,
+              burningReaction: null
+            }
+          },
+          burning.damageEvents[1]!
+        ]
+      })
+    ).toThrow(/active start or refresh burningReaction trigger audit/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...burning,
+        damageEvents: [
+          {
+            ...burning.damageEvents[0]!,
+            reactionAudit: {
+              ...burning.damageEvents[0]!.reactionAudit,
+              burningReaction: {
+                reaction: "burning",
+                operation: "stop"
+              }
+            }
+          },
+          burning.damageEvents[1]!
+        ]
+      })
+    ).toThrow(/active start or refresh burningReaction trigger audit/);
+
+    const electroCharged = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0]!,
+          reaction: "electroCharged" as const,
+          reactionAudit: {
+            ...deferred.damageEvents[0]!.reactionAudit,
+            reactions: ["electroCharged" as const],
+            transformativeReaction: null
+          }
+        },
+        {
+          ...deferred.damageEvents[1]!,
+          targetId: "enemy-0",
+          element: "electro" as const,
+          reaction: "electroCharged" as const
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          reaction: "electroCharged" as const,
+          scheduleKind: "periodic-tick" as const,
+          targetingMode: "single-target" as const,
+          checkedTargetIds: ["enemy-0"],
+          hitTargetIds: ["enemy-0"],
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "electroCharged",
+              "enemy-0",
+              13
+            )
+          ]
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        electroCharged
+      )
+    ).toEqual(electroCharged);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...electroCharged,
+        damageEvents: [electroCharged.damageEvents[0]],
+        reactionDamageLog: [
+          {
+            ...electroCharged.reactionDamageLog[0],
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/settled single-target reaction damage/);
+  });
+
+  it("requires a bidirectional parent shatterReaction audit for every Shatter log", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...recursive.damageEvents[1],
+            reactionAudit: noShatterReactionAudit
+          }
+        ]
+      })
+    ).toThrow(/does not match its triggering parent/);
+
+    for (const shatterReaction of [
+      {
+        ...makeTriggeredShatterReactionAudit(true)
+          .shatterReaction,
+        scheduled: false,
+        blockedReason: "REACTION_DAMAGE_GCD" as const
+      },
+      {
+        ...makeTriggeredShatterReactionAudit(true)
+          .shatterReaction,
+        damageFrame: 13
+      },
+      {
+        ...makeTriggeredShatterReactionAudit(true)
+          .shatterReaction,
+        blockedReason: "TARGET_MECHANICS_TRUNCATION" as const
+      },
+      {
+        ...makeTriggeredShatterReactionAudit(true)
+          .shatterReaction,
+        nextAvailableFrame: 43
+      }
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          damageEvents: [
+            recursive.damageEvents[0],
+            {
+              ...recursive.damageEvents[1],
+              reactionAudit: {
+                ...recursive.damageEvents[1]!.reactionAudit,
+                shatterReaction
+              }
+            }
+          ]
+        })
+      ).toThrow(/does not match its triggering parent/);
+    }
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[1],
+            id: 0
+          }
+        ],
+        reactionDamageLog: []
+      })
+    ).toThrow(/requires exactly one Shatter log/);
+
+    const falseAudit = {
+      ...makeTriggeredShatterReactionAudit(false).shatterReaction,
+      triggered: false
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[1],
+            id: 0,
+            reactionAudit: {
+              ...recursive.damageEvents[1]!.reactionAudit,
+              shatterReaction: falseAudit
+            }
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            triggerDamageEventId: 0,
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_DAMAGE_GCD",
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/does not match its triggering parent/);
+  });
+
+  it("applies Shatter trigger uniqueness and audit reciprocity in deferred mode", () => {
+    const deferred = makeDeferredShatterReferenceResult();
+    const blockedByTruncation = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0],
+          reactionAudit: {
+            reactions: [],
+            mechanicsTruncation: {
+              operation: "trigger"
+            },
+            transformativeReaction: null,
+            burningReaction: null,
+            shatterReaction: {
+              ...makeTriggeredShatterReactionAudit(false)
+                .shatterReaction,
+              blockedReason:
+                "TARGET_MECHANICS_TRUNCATION" as const
+            },
+            swirlReactions: []
+          }
+        }
+      ],
+      reactionDamageLog: []
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        blockedByTruncation
+      )
+    ).toEqual(blockedByTruncation);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          deferred.damageEvents[1],
+          {
+            ...deferred.damageEvents[1],
+            id: 2
+          }
+        ],
+        reactionDamageLog: [
+          deferred.reactionDamageLog[0],
+          {
+            ...deferred.reactionDamageLog[0],
+            id: 1,
+            damageEventIds: [2]
+          }
+        ]
+      })
+    ).toThrow(/at most one Shatter log/);
+  });
+
+  it("accepts both legal untriggered Shatter terminal states", () => {
+    for (const result of [
+      makeUntriggeredShatterReferenceResult(
+        "NO_FROZEN_AURA"
+      ),
+      makeUntriggeredShatterReferenceResult(
+        "FROZEN_DEPLETED_BY_POISE"
+      )
+    ]) {
+      expect(
+        reactionDeliveryResultReferencesSchema.parse(result)
+      ).toEqual(result);
+    }
+  });
+
+  it.each([
+    [
+      "scheduled",
+      { scheduled: true },
+      /untriggered shatterReaction cannot be scheduled/
+    ],
+    [
+      "null blockedReason",
+      { blockedReason: null },
+      /untriggered shatterReaction requires/
+    ],
+    [
+      "damage-GCD blockedReason",
+      { blockedReason: "REACTION_DAMAGE_GCD" as const },
+      /untriggered shatterReaction requires/
+    ],
+    [
+      "mechanics-truncation blockedReason",
+      {
+        blockedReason:
+          "TARGET_MECHANICS_TRUNCATION" as const
+      },
+      /untriggered shatterReaction requires/
+    ],
+    [
+      "nextAvailableFrame",
+      { nextAvailableFrame: 42 },
+      /cannot retain a damage-GCD ready frame/
+    ],
+    [
+      "damageFrame",
+      { damageFrame: 13 },
+      /damageFrame must equal its owning/
+    ]
+  ])(
+    "rejects an untriggered Shatter single-field mutation: %s",
+    (_label, patch, expectedError) => {
+      const result =
+        makeUntriggeredShatterReferenceResult();
+      const event = result.damageEvents[0]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...result,
+          damageEvents: [
+            {
+              ...event,
+              reactionAudit: {
+                ...event.reactionAudit,
+                shatterReaction: {
+                  ...event.reactionAudit.shatterReaction!,
+                  ...patch
+                }
+              }
+            }
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it("accepts a legal Shatter damage-GCD terminal state", () => {
+    const result =
+      makeGcdBlockedShatterReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(result)
+    ).toEqual(result);
+  });
+
+  it.each([
+    [
+      "triggered",
+      { triggered: false },
+      /untriggered shatterReaction requires/
+    ],
+    [
+      "scheduled",
+      { scheduled: true },
+      /scheduled shatterReaction requires a null blockedReason/
+    ],
+    [
+      "null blockedReason",
+      { blockedReason: null },
+      /unscheduled recursive shatterReaction requires/
+    ],
+    [
+      "no-aura blockedReason",
+      { blockedReason: "NO_FROZEN_AURA" as const },
+      /unscheduled recursive shatterReaction requires/
+    ],
+    [
+      "mechanics-truncation blockedReason",
+      {
+        blockedReason:
+          "TARGET_MECHANICS_TRUNCATION" as const
+      },
+      /unscheduled recursive shatterReaction requires/
+    ],
+    [
+      "null nextAvailableFrame",
+      { nextAvailableFrame: null },
+      /nextAvailableFrame greater than damageFrame/
+    ],
+    [
+      "non-future nextAvailableFrame",
+      { nextAvailableFrame: 12 },
+      /nextAvailableFrame greater than damageFrame/
+    ],
+    [
+      "damageFrame",
+      { damageFrame: 13 },
+      /damageFrame must equal its owning/
+    ]
+  ])(
+    "rejects a GCD-blocked Shatter single-field mutation: %s",
+    (_label, patch, expectedError) => {
+      const result =
+        makeGcdBlockedShatterReferenceResult();
+      const event = result.damageEvents[0]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...result,
+          damageEvents: [
+            {
+              ...event,
+              reactionAudit: {
+                ...event.reactionAudit,
+                shatterReaction: {
+                  ...event.reactionAudit.shatterReaction!,
+                  ...patch
+                }
+              }
+            }
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it.each([
+    [
+      "triggered",
+      { triggered: false },
+      /untriggered shatterReaction cannot be scheduled/
+    ],
+    [
+      "scheduled",
+      { scheduled: false },
+      /unscheduled recursive shatterReaction requires/
+    ],
+    [
+      "blockedReason",
+      { blockedReason: "REACTION_DAMAGE_GCD" as const },
+      /scheduled shatterReaction requires a null blockedReason/
+    ],
+    [
+      "null nextAvailableFrame",
+      { nextAvailableFrame: null },
+      /nextAvailableFrame greater than damageFrame/
+    ],
+    [
+      "non-future nextAvailableFrame",
+      { nextAvailableFrame: 12 },
+      /nextAvailableFrame greater than damageFrame/
+    ]
+  ])(
+    "rejects a scheduled Shatter single-field mutation: %s",
+    (_label, patch, expectedError) => {
+      const result = makeRecursiveReferenceResult();
+      const parent = result.damageEvents[1]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...result,
+          damageEvents: [
+            result.damageEvents[0],
+            {
+              ...parent,
+              reactionAudit: {
+                ...parent.reactionAudit,
+                shatterReaction: {
+                  ...parent.reactionAudit.shatterReaction!,
+                  ...patch
+                }
+              }
+            }
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it("requires a blunt strike or Geo parent for triggered Shatter", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...recursive.damageEvents[1],
+            element: "pyro"
+          }
+        ]
+      })
+    ).toThrow(/requires a blunt strike or Geo parent/);
+
+    const bluntPyro = {
+      ...recursive,
+      damageEvents: [
+        recursive.damageEvents[0],
+        {
+          ...recursive.damageEvents[1],
+          element: "pyro" as const,
+          reactionAudit: {
+            ...recursive.damageEvents[1]!.reactionAudit,
+            shatterReaction: {
+              ...recursive.damageEvents[1]!.reactionAudit
+                .shatterReaction!,
+              strikeType: "blunt" as const
+            }
+          }
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(bluntPyro)
+    ).toEqual(bluntPyro);
+  });
+
+  it.each([
+    [
+      "damage element",
+      { damageElement: "pyro" as const },
+      /physical/
+    ],
+    [
+      "base multiplier",
+      { baseMultiplier: 2.9 },
+      /baseMultiplier must equal 3/
+    ],
+    [
+      "Shatter consumption",
+      { shatterConsumedGaugeUnits: 0 },
+      /positive Shatter consumption/
+    ],
+    [
+      "Frozen gauge after poise",
+      { frozenGaugeAfterPoise: 0 },
+      /positive Shatter consumption/
+    ],
+    [
+      "Frozen gauge after",
+      { frozenGaugeAfter: 1 },
+      /positive Shatter consumption/
+    ]
+  ])(
+    "rejects a triggered Shatter legality mutation: %s",
+    (_label, patch, expectedError) => {
+      const recursive = makeRecursiveReferenceResult();
+      const parent = recursive.damageEvents[1]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          damageEvents: [
+            recursive.damageEvents[0],
+            {
+              ...parent,
+              reactionAudit: {
+                ...parent.reactionAudit,
+                shatterReaction: {
+                  ...parent.reactionAudit.shatterReaction!,
+                  ...patch
+                }
+              }
+            }
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it("rejects coordinated Shatter gauge mutations that break both conservation equations", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const parent = recursive.damageEvents[1]!;
+    const parsed =
+      reactionDeliveryResultReferencesSchema.safeParse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...parent,
+            reactionAudit: {
+              ...parent.reactionAudit,
+              shatterReaction: {
+                ...parent.reactionAudit.shatterReaction!,
+                strikeType: "blunt",
+                frozenGaugeBefore: 10,
+                poiseConsumedGaugeUnits: 7,
+                frozenGaugeAfterPoise: 1,
+                shatterConsumedGaugeUnits: 0.2,
+                frozenGaugeAfter: 0.7
+              }
+            }
+          }
+        ]
+      });
+    expect(parsed.success).toBe(false);
+    if (parsed.success) {
+      throw new Error(
+        "coordinated Shatter gauge mutation must be rejected"
+      );
+    }
+    expect(parsed.error.issues.map((issue) => issue.message)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /frozenGaugeAfterPoise must equal frozenGaugeBefore - poiseConsumedGaugeUnits/
+        ),
+        expect.stringMatching(
+          /frozenGaugeAfter must equal frozenGaugeAfterPoise - shatterConsumedGaugeUnits/
+        )
+      ])
+    );
+  });
+
+  it("rejects Shatter consumption beyond each preceding Frozen gauge state", () => {
+    const poiseDepleted =
+      makeUntriggeredShatterReferenceResult(
+        "FROZEN_DEPLETED_BY_POISE"
+      );
+    const poiseParent = poiseDepleted.damageEvents[0]!;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...poiseDepleted,
+        damageEvents: [
+          {
+            ...poiseParent,
+            reactionAudit: {
+              ...poiseParent.reactionAudit,
+              shatterReaction: {
+                ...poiseParent.reactionAudit.shatterReaction!,
+                poiseConsumedGaugeUnits: 1.1
+              }
+            }
+          }
+        ]
+      })
+    ).toThrow(/poiseConsumedGaugeUnits cannot exceed/);
+
+    const recursive = makeRecursiveReferenceResult();
+    const shatterParent = recursive.damageEvents[1]!;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...shatterParent,
+            reactionAudit: {
+              ...shatterParent.reactionAudit,
+              shatterReaction: {
+                ...shatterParent.reactionAudit.shatterReaction!,
+                shatterConsumedGaugeUnits: 1.1
+              }
+            }
+          }
+        ]
+      })
+    ).toThrow(/shatterConsumedGaugeUnits cannot exceed/);
+  });
+
+  it("forbids non-blunt Shatter parents from consuming Frozen through poise", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const parent = recursive.damageEvents[1]!;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...parent,
+            reactionAudit: {
+              ...parent.reactionAudit,
+              shatterReaction: {
+                ...parent.reactionAudit.shatterReaction!,
+                poiseConsumedGaugeUnits: 0.25,
+                frozenGaugeAfterPoise: 0.75,
+                shatterConsumedGaugeUnits: 0.75
+              }
+            }
+          }
+        ]
+      })
+    ).toThrow(/non-blunt Shatter parent cannot consume/);
+  });
+
+  it("accepts the zero residual Shatter boundary within gauge cleanup tolerance", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const parent = recursive.damageEvents[1]!;
+    const legalBoundary = {
+      ...recursive,
+      damageEvents: [
+        recursive.damageEvents[0],
+        {
+          ...parent,
+          reactionAudit: {
+            ...parent.reactionAudit,
+            shatterReaction: {
+              ...parent.reactionAudit.shatterReaction!,
+              frozenGaugeBefore: 1.0000000004,
+              poiseConsumedGaugeUnits: 0,
+              frozenGaugeAfterPoise: 1.0000000003,
+              shatterConsumedGaugeUnits: 1.0000000002,
+              frozenGaugeAfter: 0
+            }
+          }
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        legalBoundary
+      )
+    ).toEqual(legalBoundary);
+  });
+
+  it("binds the fixed Shatter multiplier to its child factors", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[0],
+            transformativeReactionFactors: {
+              baseMultiplier: 2.9
+            }
+          },
+          recursive.damageEvents[1]
+        ]
+      })
+    ).toThrow(/child transformative baseMultiplier/);
+  });
+
+  it("closes the Shatter ReactionA decision and child damage state", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const allowedImmune = {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[0],
+          finalDamage: 0
+        },
+        recursive.damageEvents[1]
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        allowedImmune
+      )
+    ).toEqual(allowedImmune);
+    const childWithFinalDamage =
+      recursive.damageEvents[0]!;
+    if (!("finalDamage" in childWithFinalDamage)) {
+      throw new Error(
+        "recursive fixture child must project finalDamage"
+      );
+    }
+    const {
+      finalDamage: _finalDamage,
+      ...childWithoutFinalDamage
+    } = childWithFinalDamage;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          childWithoutFinalDamage,
+          recursive.damageEvents[1]
+        ]
+      })
+    ).toThrow(/requires an explicit finalDamage/);
+
+    const makeShatterAttempt = (
+      childId: number,
+      frame: number,
+      eventSequence: number,
+      hitIndex: number
+    ) => {
+      const decision = makeDamageGroupDecision(
+        "shatter",
+        "enemy-0",
+        0,
+        hitIndex
+      );
+      const child = {
+        ...recursive.damageEvents[0],
+        id: childId,
+        parentDamageEventId: childId + 1,
+        frame,
+        eventSequence,
+        finalDamage: decision.damageAllowed ? 100 : 0,
+        damageFactors: {
+          groupMultiplier: decision.damageAllowed ? 1 : 0
+        }
+      };
+      const parent = {
+        ...recursive.damageEvents[1],
+        id: childId + 1,
+        frame,
+        eventSequence,
+        reactionAudit:
+          makeTriggeredShatterReactionAudit(true, frame)
+      };
+      const log = {
+        ...recursive.reactionDamageLog[0],
+        id: childId / 2,
+        triggerDamageEventId: parent.id,
+        triggerFrame: frame,
+        damageFrame: frame,
+        nextAvailableFrame: frame + 12,
+        damageEventIds: [child.id],
+        damageGroupBlockedTargetIds: decision.damageAllowed
+          ? []
+          : ["enemy-0"],
+        damageGroupDecisions: [decision]
+      };
+      return { child, parent, log };
+    };
+    const shatterAttempts = [
+      makeShatterAttempt(0, 0, 7, 0),
+      makeShatterAttempt(2, 12, 8, 1),
+      makeShatterAttempt(4, 24, 9, 2)
+    ];
+    const blocked = {
+      ...recursive,
+      damageEvents: shatterAttempts.flatMap(
+        ({ child, parent }) => [child, parent]
+      ),
+      reactionDamageLog: shatterAttempts.map(({ log }) => log)
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(blocked)
+    ).toEqual(blocked);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            damageGroupDecisions: [
+              {
+                ...recursive.reactionDamageLog[0]!
+                  .damageGroupDecisions[0]!,
+                damageAllowed: false,
+                blockedReason:
+                  "REACTION_A_DAMAGE_ICD" as const
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/blocked Shatter ReactionA damage requires/);
+
+    for (const mutation of [
+      {
+        damageEvents: blocked.damageEvents.map((event, index) =>
+          index === 4 ? { ...event, finalDamage: 1 } : event
+        )
+      },
+      {
+        damageEvents: blocked.damageEvents.map((event, index) =>
+          index === 4
+            ? {
+                ...event,
+                damageFactors: {
+                  groupMultiplier: 1
+                }
+              }
+            : event
+        )
+      },
+      {
+        reactionDamageLog: blocked.reactionDamageLog.map(
+          (entry, index) =>
+            index === 2
+              ? {
+                  ...entry,
+                  damageGroupBlockedTargetIds: []
+                }
+              : entry
+        )
+      },
+      {
+        reactionDamageLog: blocked.reactionDamageLog.map(
+          (entry, index) =>
+            index === 2
+              ? {
+                  ...entry,
+                  damageGroupDecisions: [
+                    {
+                      ...entry.damageGroupDecisions[0]!,
+                      blockedReason: null
+                    }
+                  ]
+                }
+              : entry
+        )
+      }
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...blocked,
+          ...mutation
+        })
+      ).toThrow(/blocked Shatter ReactionA damage requires/);
+    }
+  });
+
+  it.each(["overload", "superconduct"] as const)(
+    "rejects a second %s one-shot log even when its damage frame changes",
+    (reaction) => {
+      const deferred = makeDeferredReferenceResult();
+      const damageElement =
+        reaction === "overload"
+          ? ("pyro" as const)
+          : ("cryo" as const);
+      const trigger = {
+        ...deferred.damageEvents[0],
+        reaction,
+        reactionAudit: {
+          ...deferred.damageEvents[0]!.reactionAudit,
+          reactions: [reaction],
+          transformativeReaction:
+            makeOneShotTransformativeAudit(reaction)
+        }
+      };
+      const firstDamage = {
+        ...deferred.damageEvents[1],
+        element: damageElement,
+        reaction
+      };
+      const firstLog = {
+        ...deferred.reactionDamageLog[0],
+        reaction
+      };
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...deferred,
+          damageEvents: [
+            trigger,
+            firstDamage,
+            {
+              ...firstDamage,
+              id: 2,
+              frame: 18,
+              eventSequence: 9
+            }
+          ],
+          reactionDamageLog: [
+            firstLog,
+            {
+              ...firstLog,
+              id: 1,
+              damageFrame: 18,
+              damageEventIds: [2]
+            }
+          ]
+        })
+      ).toThrow(/single-delivery reaction-damage logs/);
+    }
+  );
+
+  it.each([
+    "swirl-self",
+    "swirl-propagation"
+  ] as const)(
+    "rejects a duplicate %s role even when its damage frame changes",
+    (duplicateRole) => {
+      const deferred = makeDeferredReferenceResult();
+      const trigger = {
+        ...deferred.damageEvents[0],
+        element: "anemo" as const,
+        reaction: "swirlPyro" as const,
+        reactionAudit: {
+          ...deferred.damageEvents[0]!.reactionAudit,
+          reactions: ["swirlPyro" as const],
+          transformativeReaction: null,
+          swirlReactions: [
+            {
+              reaction: "swirlPyro" as const,
+              scheduled: true,
+              blockedReason: null,
+              nextAvailableFrame: 18,
+              selfDamageFrame: 13,
+              propagationDamageFrame: 17
+            }
+          ]
+        }
+      };
+      const selfDamage = {
+        ...deferred.damageEvents[1],
+        targetId: "enemy-0",
+        element: "pyro" as const,
+        reaction: "swirlPyro" as const
+      };
+      const propagationDamage = {
+        ...selfDamage,
+        id: 2,
+        targetId: "enemy-1",
+        frame: 17,
+        eventSequence: 9
+      };
+      const selfLog = {
+        ...deferred.reactionDamageLog[0],
+        reaction: "swirlPyro" as const,
+        scheduleKind: "swirl-self" as const,
+        targetingMode: "single-target" as const,
+        checkedTargetIds: ["enemy-0"],
+        hitTargetIds: ["enemy-0"],
+        damageEventIds: [1],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "swirlPyro",
+            "enemy-0",
+            13
+          )
+        ]
+      };
+      const propagationLog = {
+        ...selfLog,
+        id: 1,
+        scheduleKind: "swirl-propagation" as const,
+        targetingMode: "radius" as const,
+        damageFrame: 17,
+        checkedTargetIds: ["enemy-1"],
+        hitTargetIds: ["enemy-1"],
+        damageEventIds: [2],
+        damageGroupDecisions: [
+          makeDamageGroupDecision(
+            "swirlPyro",
+            "enemy-1",
+            17
+          )
+        ]
+      };
+      const duplicateDamage =
+        duplicateRole === "swirl-self"
+          ? {
+              ...selfDamage,
+              id: 3,
+              frame: 18,
+              eventSequence: 9
+            }
+          : {
+              ...propagationDamage,
+              id: 3,
+              frame: 18,
+              eventSequence: 9
+            };
+      const duplicateLog = {
+        ...(duplicateRole === "swirl-self"
+          ? selfLog
+          : propagationLog),
+        id: 2,
+        damageFrame: 18,
+        damageEventIds: [3]
+      };
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...deferred,
+          damageEvents: [
+            trigger,
+            selfDamage,
+            propagationDamage,
+            duplicateDamage
+          ],
+          reactionDamageLog: [
+            selfLog,
+            propagationLog,
+            duplicateLog
+          ]
+        })
+      ).toThrow(/single-delivery reaction-damage logs/);
+    }
+  );
+
+  it.each([
+    ["electroCharged", "periodic-tick", "electro"],
+    ["burning", "burning-tick", "pyro"]
+  ] as const)(
+    "preserves legal multi-tick %s logs from one source trigger",
+    (reaction, scheduleKind, damageElement) => {
+      const deferred = makeDeferredReferenceResult();
+      const singleTarget = reaction === "electroCharged";
+      const trigger = {
+        ...deferred.damageEvents[0],
+        reaction,
+        reactionAudit: {
+          ...deferred.damageEvents[0]!.reactionAudit,
+          reactions: singleTarget ? [reaction] : [],
+          transformativeReaction: null,
+          burningReaction: singleTarget
+            ? null
+            : {
+                reaction: "burning" as const,
+                operation: "start" as const
+              }
+        }
+      };
+      const firstDamage = {
+        ...deferred.damageEvents[1],
+        targetId: singleTarget ? "enemy-0" : "enemy-1",
+        element: damageElement,
+        reaction
+      };
+      const firstLog = {
+        ...deferred.reactionDamageLog[0],
+        reaction,
+        scheduleKind,
+        targetingMode: singleTarget
+          ? ("single-target" as const)
+          : ("radius" as const),
+        checkedTargetIds: singleTarget
+          ? ["enemy-0"]
+          : ["enemy-0", "enemy-1"],
+        hitTargetIds: [
+          singleTarget ? "enemy-0" : "enemy-1"
+        ],
+        damageGroupBlockedTargetIds: [],
+        damageGroupDecisions: singleTarget
+          ? [
+              makeDamageGroupDecision(
+                "electroCharged",
+                "enemy-0",
+                13
+              )
+            ]
+          : []
+      };
+      const secondDamage = {
+        ...firstDamage,
+        id: 2,
+        frame: 18,
+        eventSequence: 9,
+        ...(singleTarget
+          ? {
+              finalDamage: 0,
+              damageFactors: {
+                groupMultiplier: 0
+              }
+            }
+          : {})
+      };
+      const secondLog = {
+        ...firstLog,
+        id: 1,
+        damageFrame: 18,
+        damageEventIds: [2],
+        damageGroupBlockedTargetIds: singleTarget
+          ? ["enemy-0"]
+          : [],
+        damageGroupDecisions: singleTarget
+          ? [
+              makeDamageGroupDecision(
+                "electroCharged",
+                "enemy-0",
+                13,
+                1
+              )
+            ]
+          : []
+      };
+      const multiTick = {
+        ...deferred,
+        damageEvents: [trigger, firstDamage, secondDamage],
+        reactionDamageLog: [firstLog, secondLog]
+      };
+      expect(
+        reactionDeliveryResultReferencesSchema.parse(
+          multiTick
+        )
+      ).toEqual(multiTick);
+    }
+  );
+
+  it("replays ReactionA windows through F29, same-frame order, and the F30 reset boundary", () => {
+    const replay = makeCoreDamageGroupReplayResult([
+      {
+        frame: 0,
+        windowStartFrame: 0,
+        hitIndex: 0
+      },
+      {
+        frame: 29,
+        windowStartFrame: 0,
+        hitIndex: 1
+      },
+      {
+        frame: 29,
+        windowStartFrame: 0,
+        hitIndex: 2
+      },
+      {
+        frame: 30,
+        windowStartFrame: 30,
+        hitIndex: 0
+      }
+    ]);
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(replay)
+    ).toEqual(replay);
+    expect(
+      replay.reactionDamageLog.map((entry) => ({
+        frame: entry.damageFrame,
+        hitIndex: entry.damageGroupDecisions[0]!.hitIndex,
+        allowed:
+          entry.damageGroupDecisions[0]!.damageAllowed
+      }))
+    ).toEqual([
+      { frame: 0, hitIndex: 0, allowed: true },
+      { frame: 29, hitIndex: 1, allowed: true },
+      { frame: 29, hitIndex: 2, allowed: false },
+      { frame: 30, hitIndex: 0, allowed: true }
+    ]);
+  });
+
+  it("isolates same-frame ReactionA windows by target, actor, and reaction", () => {
+    const isolated = makeCoreDamageGroupReplayResult([
+      {
+        frame: 0,
+        windowStartFrame: 0,
+        hitIndex: 0,
+        reaction: "bloom",
+        targetId: "enemy-0",
+        sourceActorId: "a"
+      },
+      {
+        frame: 0,
+        windowStartFrame: 0,
+        hitIndex: 0,
+        reaction: "bloom",
+        targetId: "enemy-1",
+        sourceActorId: "a"
+      },
+      {
+        frame: 0,
+        windowStartFrame: 0,
+        hitIndex: 0,
+        reaction: "bloom",
+        targetId: "enemy-0",
+        sourceActorId: "b"
+      },
+      {
+        frame: 0,
+        windowStartFrame: 0,
+        hitIndex: 0,
+        reaction: "burgeon",
+        targetId: "enemy-0",
+        sourceActorId: "a"
+      }
+    ]);
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(isolated)
+    ).toEqual(isolated);
+  });
+
+  it("replays ReactionB second-hit blocking and rejects coordinated window forgery", () => {
+    const replay =
+      makeElectroChargedDamageGroupReplayResult([
+        {
+          frame: 0,
+          windowStartFrame: 0,
+          hitIndex: 0
+        },
+        {
+          frame: 29,
+          windowStartFrame: 0,
+          hitIndex: 1
+        },
+        {
+          frame: 30,
+          windowStartFrame: 30,
+          hitIndex: 0
+        }
+      ]);
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(replay)
+    ).toEqual(replay);
+
+    const forgedDecision = makeDamageGroupDecision(
+      "electroCharged",
+      "enemy-0",
+      29,
+      0
+    );
+    const forged = {
+      ...replay,
+      damageEvents: replay.damageEvents.map((event, index) =>
+        index === 2
+          ? {
+              ...event,
+              finalDamage: 100,
+              damageFactors: {
+                groupMultiplier: 1
+              }
+            }
+          : event
+      ),
+      reactionDamageLog: replay.reactionDamageLog.map(
+        (entry, index) =>
+          index === 1
+            ? {
+                ...entry,
+                damageGroupBlockedTargetIds: [],
+                damageGroupDecisions: [forgedDecision]
+              }
+            : entry
+      )
+    };
+    const parsed =
+      reactionDeliveryResultReferencesSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) {
+      throw new Error(
+        "coordinated ReactionB window forgery must be rejected"
+      );
+    }
+    expect(parsed.error.issues.map((issue) => issue.message)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /windowStartFrame must replay to 0/
+        ),
+        expect.stringMatching(/hitIndex must replay to 1/)
+      ])
+    );
+  });
+
+  it("closes non-Shatter ReactionA/B decisions against child damage state", () => {
+    const deferred = makeDeferredReferenceResult();
+    const secondTrigger = {
+      ...deferred.damageEvents[0],
+      id: 2,
+      frame: 17,
+      eventSequence: 9,
+      reactionAudit: {
+        ...deferred.damageEvents[0]!.reactionAudit,
+        transformativeReaction:
+          makeOneShotTransformativeAudit(
+            "overload",
+            17
+          )
+      }
+    };
+    const secondChild = {
+      ...deferred.damageEvents[1],
+      id: 3,
+      parentDamageEventId: 2,
+      frame: 18,
+      eventSequence: 10,
+      finalDamage: 0,
+      damageFactors: {
+        groupMultiplier: 0
+      }
+    };
+    const blocked = {
+      ...deferred,
+      damageEvents: [
+        deferred.damageEvents[0],
+        deferred.damageEvents[1],
+        secondTrigger,
+        secondChild
+      ],
+      reactionDamageLog: [
+        deferred.reactionDamageLog[0],
+        {
+          ...deferred.reactionDamageLog[0],
+          id: 1,
+          triggerDamageEventId: 2,
+          triggerFrame: 17,
+          damageFrame: 18,
+          nextAvailableFrame: 23,
+          damageEventIds: [3],
+          damageGroupBlockedTargetIds: ["enemy-1"],
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-1",
+              13,
+              1
+            )
+          ]
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(blocked)
+    ).toEqual(blocked);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...blocked,
+        damageEvents: [
+          blocked.damageEvents[0],
+          blocked.damageEvents[1],
+          blocked.damageEvents[2],
+          {
+            ...blocked.damageEvents[3],
+            finalDamage: 100,
+            damageFactors: {
+              groupMultiplier: 1
+            }
+          }
+        ]
+      })
+    ).toThrow(
+      /blocked ReactionA\/B damage requires REACTION_B_DAMAGE_ICD, child groupMultiplier 0, and finalDamage 0/
+    );
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            damageGroupDecisions: []
+          }
+        ]
+      })
+    ).toThrow(/decisions must align 1:1/);
+  });
+
+  it("rejects forged Burning damage-group state and requires neutral child grouping", () => {
+    const deferred = makeDeferredReferenceResult();
+    const trigger = {
+      ...deferred.damageEvents[0],
+      reaction: "burning" as const,
+      reactionAudit: {
+        ...deferred.damageEvents[0]!.reactionAudit,
+        reactions: [] as const,
+        transformativeReaction: null,
+        burningReaction: {
+          reaction: "burning" as const,
+          operation: "start" as const
+        }
+      }
+    };
+    const forged = {
+      ...deferred,
+      damageEvents: [
+        trigger,
+        {
+          ...deferred.damageEvents[1],
+          reaction: "burning" as const,
+          finalDamage: 0,
+          damageFactors: {
+            groupMultiplier: 0
+          }
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          reaction: "burning" as const,
+          scheduleKind: "burning-tick" as const,
+          damageGroupBlockedTargetIds: ["enemy-1"],
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-1",
+              13,
+              1
+            )
+          ]
+        }
+      ]
+    };
+    const parsed =
+      reactionDeliveryResultReferencesSchema.safeParse(forged);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) {
+      throw new Error(
+        "forged Burning damage-group state must be rejected"
+      );
+    }
+    expect(parsed.error.issues.map((issue) => issue.message)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /Burning does not use a ReactionA\/B damage group/
+        ),
+        expect.stringMatching(
+          /settled Burning damage requires child groupMultiplier 1/
+        )
+      ])
+    );
+  });
+
+  it("preserves allowed zero-damage Hydro Swirl children", () => {
+    const swirl = makeSwirlReferenceResult();
+    const swirlTrigger = swirl.damageEvents[0]!;
+    const swirlChildren = swirl.damageEvents.slice(1);
+    const hydroSwirl = {
+      ...swirl,
+      damageEvents: [
+        {
+          ...swirlTrigger,
+          reaction: "swirlHydro" as const,
+          reactionAudit: {
+            ...swirlTrigger.reactionAudit,
+            reactions: ["swirlHydro" as const],
+            swirlReactions:
+              swirlTrigger.reactionAudit.swirlReactions.map(
+                (audit) => ({
+                  ...audit,
+                  reaction: "swirlHydro" as const
+                })
+              )
+          }
+        },
+        ...swirlChildren.map((event) => ({
+          ...event,
+          element: "hydro" as const,
+          reaction: "swirlHydro" as const,
+          finalDamage: 0,
+          damageFactors: {
+            groupMultiplier: 1
+          }
+        }))
+      ],
+      reactionDamageLog: swirl.reactionDamageLog.map(
+        (entry) => ({
+          ...entry,
+          reaction: "swirlHydro" as const,
+          damageGroupDecisions:
+            entry.damageGroupDecisions.map((decision) => ({
+              ...decision,
+              reaction: "swirlHydro" as const
+            }))
+        })
+      )
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(hydroSwirl)
+    ).toEqual(hydroSwirl);
+  });
+
+  it("requires one-shot transformative audits and logs in both directions", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [deferred.damageEvents[0]],
+        reactionDamageLog: []
+      })
+    ).toThrow(/requires exactly one reaction-damage log/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          {
+            ...deferred.damageEvents[0],
+            reactionAudit: {
+              ...deferred.damageEvents[0]!.reactionAudit,
+              transformativeReaction: null
+            }
+          },
+          deferred.damageEvents[1]
+        ]
+      })
+    ).toThrow(/requires exactly one matching parent reaction audit/);
+  });
+
+  it("accepts the real one-shot GCD and mechanics-truncation terminal states", () => {
+    const deferred = makeDeferredReferenceResult();
+    const gcdAudit = {
+      ...makeOneShotTransformativeAudit(
+        "overload",
+        12,
+        false
+      ),
+      // A hit one frame before the previous 6f window closes
+      // legitimately makes readyFrame equal damageFrame.
+      nextAvailableFrame: 13
+    };
+    const gcdBlocked = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0],
+          reactionAudit: {
+            ...deferred.damageEvents[0]!.reactionAudit,
+            transformativeReaction: gcdAudit
+          }
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          scheduled: false,
+          withinSimulation: false,
+          blockedReason: "REACTION_DAMAGE_GCD" as const,
+          nextAvailableFrame: 13,
+          checkedTargetIds: [],
+          hitTargetIds: [],
+          damageEventIds: [],
+          damageGroupBlockedTargetIds: [],
+          damageGroupDecisions: []
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(gcdBlocked)
+    ).toEqual(gcdBlocked);
+
+    const truncatedAudit = {
+      ...makeOneShotTransformativeAudit(
+        "overload",
+        12,
+        false
+      ),
+      blockedReason:
+        "TARGET_MECHANICS_TRUNCATION" as const,
+      nextAvailableFrame: 18
+    };
+    const mechanicsTruncated = {
+      ...deferred,
+      damageEvents: [
+        {
+          ...deferred.damageEvents[0],
+          reactionAudit: {
+            ...deferred.damageEvents[0]!.reactionAudit,
+            mechanicsTruncation: {
+              operation: "trigger"
+            },
+            transformativeReaction: truncatedAudit
+          }
+        }
+      ],
+      reactionDamageLog: []
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        mechanicsTruncated
+      )
+    ).toEqual(mechanicsTruncated);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...mechanicsTruncated,
+        damageEvents: [
+          {
+            ...mechanicsTruncated.damageEvents[0],
+            reactionAudit: {
+              ...mechanicsTruncated.damageEvents[0]!
+                .reactionAudit,
+              mechanicsTruncation: null
+            }
+          }
+        ]
+      })
+    ).toThrow(/requires a non-null mechanicsTruncation/);
+  });
+
+  it.each([
+    [
+      "damageFrame",
+      { damageFrame: 14 },
+      /trigger frame \+ 1/
+    ],
+    [
+      "nextAvailableFrame",
+      { nextAvailableFrame: 19 },
+      /trigger frame \+ 6/
+    ],
+    [
+      "scheduled",
+      { scheduled: false },
+      /scheduling does not match blockedReason/
+    ],
+    [
+      "blockedReason",
+      { blockedReason: "REACTION_DAMAGE_GCD" as const },
+      /scheduling does not match blockedReason/
+    ]
+  ])(
+    "rejects a one-shot audit single-field mutation: %s",
+    (_label, patch, expectedError) => {
+      const deferred = makeDeferredReferenceResult();
+      const trigger = deferred.damageEvents[0]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...deferred,
+          damageEvents: [
+            {
+              ...trigger,
+              reactionAudit: {
+                ...trigger.reactionAudit,
+                transformativeReaction: {
+                  ...trigger.reactionAudit
+                    .transformativeReaction!,
+                  ...patch
+                }
+              }
+            },
+            deferred.damageEvents[1]
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it("requires the two fixed Swirl delivery roles and their fine audit", () => {
+    const swirl = makeSwirlReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(swirl)
+    ).toEqual(swirl);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...swirl,
+        damageEvents: swirl.damageEvents.slice(0, 2),
+        reactionDamageLog: [swirl.reactionDamageLog[0]]
+      })
+    ).toThrow(/requires exactly one swirl-propagation/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...swirl,
+        damageEvents: [
+          {
+            ...swirl.damageEvents[0],
+            reactionAudit: {
+              ...swirl.damageEvents[0]!.reactionAudit,
+              swirlReactions: []
+            }
+          },
+          swirl.damageEvents[1],
+          swirl.damageEvents[2]
+        ]
+      })
+    ).toThrow(/requires exactly one matching parent reaction audit/);
+  });
+
+  it.each([
+    [
+      "selfDamageFrame",
+      { selfDamageFrame: 14 },
+      /selfDamageFrame must equal/
+    ],
+    [
+      "propagationDamageFrame",
+      { propagationDamageFrame: 18 },
+      /propagationDamageFrame must equal/
+    ],
+    [
+      "nextAvailableFrame",
+      { nextAvailableFrame: 19 },
+      /trigger frame \+ 6/
+    ],
+    [
+      "scheduled",
+      { scheduled: false },
+      /scheduling does not match blockedReason/
+    ]
+  ])(
+    "rejects a Swirl audit single-field mutation: %s",
+    (_label, patch, expectedError) => {
+      const swirl = makeSwirlReferenceResult();
+      const trigger = swirl.damageEvents[0]!;
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...swirl,
+          damageEvents: [
+            {
+              ...trigger,
+              reactionAudit: {
+                ...trigger.reactionAudit,
+                swirlReactions: [
+                  {
+                    ...trigger.reactionAudit.swirlReactions[0]!,
+                    ...patch
+                  }
+                ]
+              }
+            },
+            swirl.damageEvents[1],
+            swirl.damageEvents[2]
+          ]
+        })
+      ).toThrow(expectedError);
+    }
+  );
+
+  it("rejects hit-target misalignment and a contiguous bogus log", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            hitTargetIds: []
+          }
+        ]
+      })
+    ).toThrow(/must align 1:1/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            checkedTargetIds: ["enemy-0"]
+          }
+        ]
+      })
+    ).toThrow(/in-order subsequence of checkedTargetIds/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          deferred.reactionDamageLog[0],
+          {
+            ...deferred.reactionDamageLog[0],
+            id: 1,
+            triggerDamageEventId: 99,
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/missing trigger damage event 99/);
+  });
+
+  it("does not let an empty recursive Shatter log claim settled status", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[1],
+            id: 0
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            triggerDamageEventId: 0,
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/settled Shatter log requires exactly one/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            checkedTargetIds: ["enemy-0", "enemy-1"]
+          }
+        ]
+      })
+    ).toThrow(/settled Shatter log requires exactly one/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[1],
+            id: 0,
+            reactionAudit:
+              makeTriggeredShatterReactionAudit(false)
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            triggerDamageEventId: 0,
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_QUEUE_GCD",
+            checkedTargetIds: ["enemy-0"],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/cannot retain checked targets/);
+  });
+
+  it.each([
+    ["unscheduled but within duration", { withinSimulation: true }],
+    ["unscheduled without a block", { blockedReason: null }],
+    [
+      "scheduled out of duration with a damage-GCD block",
+      {
+        scheduled: true,
+        blockedReason: "REACTION_DAMAGE_GCD" as const
+      }
+    ],
+    [
+      "reaction queue GCD",
+      { blockedReason: "REACTION_QUEUE_GCD" as const }
+    ],
+    [
+      "target mechanics truncation",
+      { blockedReason: "TARGET_MECHANICS_TRUNCATION" as const }
+    ],
+    ["null trigger", { triggerDamageEventId: null }],
+    ["periodic schedule", { scheduleKind: "periodic-tick" as const }],
+    ["radius targeting", { targetingMode: "radius" as const }]
+  ])(
+    "rejects impossible non-settled recursive Shatter state: %s",
+    (_label, patch) => {
+      const recursive = makeRecursiveReferenceResult();
+      const blocked = {
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[1],
+            id: 0,
+            reactionAudit:
+              makeTriggeredShatterReactionAudit(
+                "scheduled" in patch
+                  ? patch.scheduled === true
+                  : false
+              )
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            triggerDamageEventId: 0,
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_DAMAGE_GCD" as const,
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: [],
+            ...patch
+          }
+        ]
+      };
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse(blocked)
+      ).toThrow(
+        /Shatter|reaction-damage scheduling/
+      );
+    }
+  );
+
+  it("enforces the generic scheduled/within/output state machine for deferred logs", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_DAMAGE_GCD"
+          }
+        ]
+      })
+    ).toThrow(/cannot retain checked targets/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            scheduled: false,
+            blockedReason: "REACTION_DAMAGE_GCD",
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/withinSimulation only when scheduled/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            blockedReason: "REACTION_DAMAGE_GCD"
+          }
+        ]
+      })
+    ).toThrow(/null blockedReason when scheduled/);
+
+    const scheduledAfterDuration = {
+      ...deferred,
+      config: {
+        ...deferred.config,
+        duration: 0.2
+      },
+      damageEvents: [deferred.damageEvents[0]],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          withinSimulation: false,
+          checkedTargetIds: [],
+          hitTargetIds: [],
+          damageEventIds: [],
+          damageGroupBlockedTargetIds: [],
+          damageGroupDecisions: []
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        scheduledAfterDuration
+      )
+    ).toEqual(scheduledAfterDuration);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...scheduledAfterDuration,
+        reactionDamageLog: [
+          {
+            ...scheduledAfterDuration.reactionDamageLog[0],
+            withinSimulation: true
+          }
+        ]
+      })
+    ).toThrow(/withinSimulation must equal scheduled/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        config: {
+          ...deferred.config,
+          duration: 0.2
+        }
+      })
+    ).toThrow(/damage events cannot occur after simulation frame/);
+  });
+
+  it("rejects pre-trigger reaction damage, non-core null triggers, and invalid queued ordering", () => {
+    const deferred = makeDeferredReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[1],
+            frame: 11
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            damageFrame: 11
+          }
+        ]
+      })
+    ).toThrow(/cannot occur before its trigger frame/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [deferred.damageEvents[0]],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            damageFrame: 11,
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_DAMAGE_GCD",
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/cannot occur before its trigger frame/);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[1],
+            parentDamageEventId: null
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            triggerDamageEventId: null
+          }
+        ]
+      })
+    ).toThrow(/only Dendro-core reaction damage may omit/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          {
+            ...deferred.damageEvents[0],
+            eventPriority: 5,
+            eventSequence: 9
+          },
+          {
+            ...deferred.damageEvents[1],
+            frame: 12,
+            eventPriority: 5,
+            eventSequence: 8
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...deferred.reactionDamageLog[0],
+            damageFrame: 12
+          }
+        ]
+      })
+    ).toThrow(/later eventSequence/);
+
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        deferred
+      )
+    ).toEqual(deferred);
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[1],
+            eventPriority: 1
+          }
+        ]
+      })
+    ).toThrow(/eventPriority 5/);
+  });
+
+  it("locks reaction schedule, targeting, and damage-element mappings", () => {
+    const deferred = makeDeferredReferenceResult();
+    for (const patch of [
+      { scheduleKind: "periodic-tick" as const },
+      { targetingMode: "nearest-target-radius" as const }
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...deferred,
+          reactionDamageLog: [
+            {
+              ...deferred.reactionDamageLog[0],
+              ...patch
+            }
+          ]
+        })
+      ).toThrow(/fixed reaction-delivery matrix/);
+    }
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...deferred,
+        damageEvents: [
+          deferred.damageEvents[0],
+          {
+            ...deferred.damageEvents[1],
+            element: "hydro"
+          }
+        ]
+      })
+    ).toThrow(/damage element/);
+  });
+
+  it("locks per-log damage-id, target, and event-tuple ordering", () => {
+    const deferred = makeDeferredReferenceResult();
+    const secondTargetEvent = {
+      ...deferred.damageEvents[1],
+      id: 2,
+      targetId: "enemy-2"
+    };
+    const twoTargetResult = {
+      ...deferred,
+      config: {
+        ...deferred.config,
+        enemy: {
+          targets: [
+            { id: "enemy-0" },
+            { id: "enemy-1" },
+            { id: "enemy-2" }
+          ]
+        }
+      },
+      damageEvents: [
+        deferred.damageEvents[0],
+        deferred.damageEvents[1],
+        secondTargetEvent
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          checkedTargetIds: [
+            "enemy-0",
+            "enemy-1",
+            "enemy-2"
+          ],
+          hitTargetIds: ["enemy-1", "enemy-2"],
+          damageEventIds: [1, 2],
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-1",
+              13
+            ),
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-2",
+              13
+            )
+          ]
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        twoTargetResult
+      )
+    ).toEqual(twoTargetResult);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...twoTargetResult,
+        reactionDamageLog: [
+          {
+            ...twoTargetResult.reactionDamageLog[0],
+            checkedTargetIds: [
+              "enemy-0",
+              "enemy-2",
+              "enemy-1"
+            ],
+            hitTargetIds: ["enemy-2", "enemy-1"],
+            damageEventIds: [2, 1]
+          }
+        ]
+      })
+    ).toThrow(/strictly increasing/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...twoTargetResult,
+        damageEvents: [
+          twoTargetResult.damageEvents[0],
+          {
+            ...twoTargetResult.damageEvents[1],
+            targetId: "enemy-2"
+          },
+          {
+            ...twoTargetResult.damageEvents[2],
+            targetId: "enemy-1"
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...twoTargetResult.reactionDamageLog[0],
+            hitTargetIds: ["enemy-2", "enemy-1"]
+          }
+        ]
+      })
+    ).toThrow(/in-order subsequence/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...twoTargetResult,
+        damageEvents: [
+          twoTargetResult.damageEvents[0],
+          twoTargetResult.damageEvents[1],
+          {
+            ...twoTargetResult.damageEvents[2],
+            eventSequence: 9
+          }
+        ]
+      })
+    ).toThrow(/must share the same event tuple/);
+  });
+
+  it("binds checked targets to canonical config traversal order", () => {
+    const deferred = makeDeferredReferenceResult();
+    const firstTargetDamage = {
+      ...deferred.damageEvents[1],
+      targetId: "enemy-0"
+    };
+    const secondTargetDamage = {
+      ...deferred.damageEvents[1],
+      id: 2,
+      targetId: "enemy-1"
+    };
+    const canonical = {
+      ...deferred,
+      damageEvents: [
+        deferred.damageEvents[0],
+        firstTargetDamage,
+        secondTargetDamage
+      ],
+      reactionDamageLog: [
+        {
+          ...deferred.reactionDamageLog[0],
+          checkedTargetIds: ["enemy-0", "enemy-1"],
+          hitTargetIds: ["enemy-0", "enemy-1"],
+          damageEventIds: [1, 2],
+          damageGroupDecisions: [
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-0",
+              13
+            ),
+            makeDamageGroupDecision(
+              "overload",
+              "enemy-1",
+              13
+            )
+          ]
+        }
+      ]
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(canonical)
+    ).toEqual(canonical);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...canonical,
+        damageEvents: [
+          canonical.damageEvents[0],
+          {
+            ...canonical.damageEvents[1],
+            targetId: "enemy-1"
+          },
+          {
+            ...canonical.damageEvents[2],
+            targetId: "enemy-0"
+          }
+        ],
+        reactionDamageLog: [
+          {
+            ...canonical.reactionDamageLog[0],
+            checkedTargetIds: ["enemy-1", "enemy-0"],
+            hitTargetIds: ["enemy-1", "enemy-0"]
+          }
+        ]
+      })
+    ).toThrow(/config\.enemy\.targets traversal order/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...canonical,
+        reactionDamageLog: [
+          {
+            ...canonical.reactionDamageLog[0],
+            checkedTargetIds: ["enemy-0", "unregistered"]
+          }
+        ]
+      })
+    ).toThrow(/not registered in config\.enemy\.targets/);
+  });
+
+  it("uses enemy-0 as the canonical target when config omits enemy.targets", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const {
+      enemy: _enemy,
+      ...configWithoutEnemy
+    } = recursive.config;
+    const fallback = {
+      ...recursive,
+      config: configWithoutEnemy
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(fallback)
+    ).toEqual(fallback);
+
+    const fallbackWithEnemy = {
+      ...recursive,
+      config: {
+        ...recursive.config,
+        enemy: {}
+      }
+    };
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(
+        fallbackWithEnemy
+      )
+    ).toEqual(fallbackWithEnemy);
+  });
+
+  it("requires an explicit target registry to retain compatibility target enemy-0", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        config: {
+          ...recursive.config,
+          enemy: {
+            targets: [{ id: "enemy-1" }]
+          }
+        },
+        damageEvents: recursive.damageEvents.map((event) => ({
+          ...event,
+          targetId: "enemy-1"
+        })),
+        reactionDamageLog: [
+          {
+            ...recursive.reactionDamageLog[0],
+            sourceTargetId: "enemy-1",
+            checkedTargetIds: ["enemy-1"],
+            hitTargetIds: ["enemy-1"],
+            damageGroupDecisions:
+              recursive.reactionDamageLog[0]!
+                .damageGroupDecisions.map((decision) => ({
+                  ...decision,
+                  targetId: "enemy-1"
+                }))
+          }
+        ]
+      })
+    ).toThrow(/must include compatibility target/);
+  });
+
+  it("locks global damage commit tuple order and direct hit priority", () => {
+    const recursive = makeRecursiveReferenceResult();
+    expect(
+      reactionDeliveryResultReferencesSchema.parse(recursive)
+    ).toEqual(recursive);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          {
+            ...recursive.damageEvents[1],
+            eventPriority: 999
+          }
+        ]
+      })
+    ).toThrow(/EVENT_PRIORITY\.hit = 3/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          recursive.damageEvents[0],
+          recursive.damageEvents[1],
+          {
+            ...recursive.damageEvents[1],
+            id: 2,
+            frame: 11,
+            eventSequence: 8,
+            reactionAudit: noShatterReactionAudit
+          }
+        ]
+      })
+    ).toThrow(/nondecreasing \(frame, eventPriority, eventSequence\)/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        damageEvents: [
+          {
+            ...recursive.damageEvents[0],
+            eventPriority: 999
+          },
+          {
+            ...recursive.damageEvents[1],
+            eventPriority: 999
+          }
+        ]
+      })
+    ).toThrow(/EVENT_PRIORITY\.hit = 3/);
+  });
+
+  it("locks recursive Shatter adjacency, inherited ordering, and one child per parent", () => {
+    const recursive = makeRecursiveReferenceResult();
+    const unrelated = {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[0],
+          parentDamageEventId: 2
+        },
+        {
+          ...recursive.damageEvents[1],
+          id: 1,
+          parentDamageEventId: null
+        },
+        {
+          ...recursive.damageEvents[1],
+          id: 2
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...recursive.reactionDamageLog[0],
+          triggerDamageEventId: 2
+        }
+      ]
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(unrelated)
+    ).toThrow(/adjacent/);
+
+    for (const damageEvent of [
+      {
+        ...recursive.damageEvents[0],
+        eventPriority: 4
+      },
+      {
+        ...recursive.damageEvents[0],
+        eventSequence: 8
+      }
+    ]) {
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          damageEvents: [
+            damageEvent,
+            recursive.damageEvents[1]
+          ]
+        })
+      ).toThrow(/same-tuple|exact zero-delay/);
+    }
+
+    const childTwo = {
+      ...recursive.damageEvents[0],
+      id: 1,
+      parentDamageEventId: 2
+    };
+    const sharedParent = {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[0],
+          parentDamageEventId: 2
+        },
+        childTwo,
+        {
+          ...recursive.damageEvents[1],
+          id: 2
+        }
+      ],
+      reactionDamageLog: [
+        {
+          ...recursive.reactionDamageLog[0],
+          triggerDamageEventId: 2
+        },
+        {
+          ...recursive.reactionDamageLog[0],
+          id: 1,
+          triggerDamageEventId: 2,
+          damageEventIds: [1]
+        }
+      ]
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(sharedParent)
+    ).toThrow(/at most one forward recursive Shatter child/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...sharedParent,
+        reactionDamageLog: [
+          {
+            ...sharedParent.reactionDamageLog[0],
+            hitTargetIds: ["enemy-0", "enemy-0"],
+            damageEventIds: [0, 1]
+          }
+        ]
+      })
+    ).toThrow(
+      /settled Shatter|exactly one owning|duplicate reaction-damage target/
+    );
+
+    const chainedShatter = {
+      ...recursive,
+      damageEvents: [
+        {
+          ...recursive.damageEvents[0],
+          parentDamageEventId: 1
+        },
+        {
+          ...recursive.damageEvents[0],
+          id: 1,
+          parentDamageEventId: 2
+        },
+        {
+          ...recursive.damageEvents[1],
+          id: 2
+        }
+      ],
+      reactionDamageLog: [
+        recursive.reactionDamageLog[0],
+        {
+          ...recursive.reactionDamageLog[0],
+          id: 1,
+          triggerDamageEventId: 2,
+          damageEventIds: [1]
+        }
+      ]
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(chainedShatter)
+    ).toThrow(/cannot be the parent of another recursive Shatter/);
+
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse({
+        ...recursive,
+        reactionDamageLog: [
+          recursive.reactionDamageLog[0],
+          {
+            ...recursive.reactionDamageLog[0],
+            id: 1,
+            scheduled: false,
+            withinSimulation: false,
+            blockedReason: "REACTION_DAMAGE_GCD",
+            checkedTargetIds: [],
+            hitTargetIds: [],
+            damageEventIds: []
+          }
+        ]
+      })
+    ).toThrow(/at most one Shatter log/);
+  });
+
+  it.each([
+    ["scheduled", { scheduled: false }],
+    ["withinSimulation", { withinSimulation: false }],
+    [
+      "blockedReason",
+      { blockedReason: "REACTION_DAMAGE_GCD" as const }
+    ],
+    ["scheduleKind", { scheduleKind: "periodic-tick" as const }],
+    ["targetingMode", { targetingMode: "radius" as const }]
+  ])(
+    "rejects a settled recursive Shatter child with wrong %s",
+    (_field, patch) => {
+      const recursive = makeRecursiveReferenceResult();
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          reactionDamageLog: [
+            {
+              ...recursive.reactionDamageLog[0],
+              ...patch
+            }
+          ]
+        })
+      ).toThrow(
+        /exact zero-delay one-shot provenance|non-settled|backlink|reaction-damage scheduling|always requires one-shot/
+      );
+    }
+  );
+
+  it.each(["eventPriority", "eventSequence"] as const)(
+    "requires recursive damage events to project %s",
+    (field) => {
+      const recursive = makeRecursiveReferenceResult();
+      const child = {
+        ...recursive.damageEvents[0]
+      } as Record<string, unknown>;
+      delete child[field];
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse({
+          ...recursive,
+          damageEvents: [child, recursive.damageEvents[1]]
+        })
+      ).toThrow(new RegExp(field));
+    }
+  );
 });
 
 describe("1.37 target task phase result references", () => {
@@ -3549,6 +7614,27 @@ describe("1.37 target task phase result references", () => {
         makeReferenceResult()
       )
     ).not.toThrow();
+    for (const identity of [
+      {
+        schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+        engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
+      },
+      {
+        schemaVersion:
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+        engineVersion:
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION
+      }
+    ]) {
+      const versioned = makeReferenceResult();
+      versioned.schemaVersion = identity.schemaVersion;
+      versioned.engineVersion = identity.engineVersion;
+      versioned.config.schemaVersion = identity.schemaVersion;
+      versioned.config.engineVersion = identity.engineVersion;
+      expect(() =>
+        targetTaskPhaseResultReferencesSchema.parse(versioned)
+      ).not.toThrow();
+    }
 
     const currentLegacy = makeReferenceResult();
     currentLegacy.config.targetTaskModel = {
@@ -3663,7 +7749,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/frozen 1\.37 identity or the migrated current identity/);
+    ).toThrow(/exact supported 1\.37, 1\.38, or 1\.39 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -5069,6 +9155,31 @@ describe("1.38 target Reactable phase schema and references", () => {
         makeFrozenV2ReferenceResult()
       )
     ).not.toThrow();
+    const currentIdentity: any =
+      makeFrozenV2ReferenceResult();
+    currentIdentity.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    currentIdentity.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    currentIdentity.config.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    currentIdentity.config.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(currentIdentity)
+    ).not.toThrow();
+
+    const mixedIdentity: any =
+      makeFrozenV2ReferenceResult();
+    mixedIdentity.schemaVersion =
+      SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
+    mixedIdentity.engineVersion =
+      SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(mixedIdentity)
+    ).toThrow(
+      /schemaVersion must match|engineVersion must match|exact supported 1\.38 or 1\.39/
+    );
     for (const kind of [
       "aura-natural-expiry",
       "quicken-expiry",
@@ -5839,7 +9950,7 @@ describe("1.35 per-element enemy resistance schema", () => {
   it("fails closed when a frozen 1.34 wire config carries shared or target per-element resistance", () => {
     const current = migrateConfig(legacyConfig);
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
       engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION
     };
@@ -5877,7 +9988,7 @@ describe("1.35 per-element enemy resistance schema", () => {
   it("fails closed when a non-JSON 1.34 object inherits per-element resistance from its prototype", () => {
     const current = migrateConfig(legacyConfig);
     const historical = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: GENERAL_REACTION_ORDER_SCHEMA_VERSION,
       engineVersion: GENERAL_REACTION_ORDER_ENGINE_VERSION
     };
@@ -6147,107 +10258,107 @@ describe("versioned config schema", () => {
   it("migrates 1.0.0 through 1.20.0 configs to actor poses", () => {
     const current = migrateConfig(legacyConfig);
     const migratedFromOne = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.0.0",
       engineVersion: "1.0.0-compat"
     });
     const migratedFromAura = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.1.0",
       engineVersion: "1.1.0-aura"
     });
     const migratedFromParticles = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.2.0",
       engineVersion: "1.2.0-particles"
     });
     const migratedFromIcdProfiles = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.3.0",
       engineVersion: "1.3.0-icd-profiles"
     });
     const migratedFromActionStates = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.4.0",
       engineVersion: "1.4.0-action-states"
     });
     const migratedFromFollowupCancels = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.5.0",
       engineVersion: "1.5.0-followup-cancels"
     });
     const migratedFromRuntimeEnergy = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.6.0",
       engineVersion: "1.6.0-runtime-energy"
     });
     const migratedFromFixedEnergyIcd = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.7.0",
       engineVersion: "1.7.0-fixed-energy-icd"
     });
     const migratedFromHitParticles = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.8.0",
       engineVersion: "1.8.0-hit-particle-triggers"
     });
     const migratedFromMovementCommands = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.9.0",
       engineVersion: "1.9.0-movement-commands"
     });
     const migratedFromStateClears = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.10.0",
       engineVersion: "1.10.0-timeline-state-clears"
     });
     const migratedFromTargetHitResolution = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.11.0",
       engineVersion: "1.11.0-target-hit-resolution"
     });
     const migratedFromTargetEffectPolicy = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.12.0",
       engineVersion: "1.12.0-target-effect-policy"
     });
     const migratedFromTargetPhaseTimeline = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.13.0",
       engineVersion: "1.13.0-target-phase-timeline"
     });
     const migratedFromMultiTargetRegistry = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.14.0",
       engineVersion: "1.14.0-multi-target-registry"
     });
     const migratedFromAoeFanout = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.15.0",
       engineVersion: "1.15.0-aoe-fanout"
     });
     const migratedFromCircleGeometry = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.16.0",
       engineVersion: "1.16.0-circle-geometry"
     });
     const migratedFromTargetMotion = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.17.0",
       engineVersion: "1.17.0-target-motion"
     });
     const migratedFromOrientedRectangle = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.18.0",
       engineVersion: "1.18.0-oriented-rectangle"
     });
     const migratedFromCapsuleGeometry = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.19.0",
       engineVersion: "1.19.0-capsule-geometry"
     });
     const migratedFromSectorGeometry = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.20.0",
       engineVersion: "1.20.0-sector-geometry"
     });
@@ -6595,7 +10706,7 @@ describe("versioned config schema", () => {
 
     for (const contract of contracts) {
       const validInput = {
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: contract.schemaVersion,
         engineVersion: contract.engineVersion,
         ...(contract.allowedMode === "aura-v5"
@@ -6655,7 +10766,7 @@ describe("versioned config schema", () => {
     expectMigrationIssue(
       () =>
         migrateConfig({
-          ...current,
+          ...asPre139Wire(current),
           schemaVersion: "1.28.0",
           engineVersion: "1.28.0-crystallize-shards",
           reactionEngine: { mode: "aura-v5" }
@@ -7722,7 +11833,7 @@ describe("versioned config schema", () => {
       }
     };
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.3.0",
       engineVersion: "1.3.0-icd-profiles",
       rotation: [],
@@ -8180,7 +12291,7 @@ describe("versioned config schema", () => {
   it("migrates the actor-pose schema into the Overload schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.21.0",
       engineVersion: "1.21.0-actor-local-geometry"
     });
@@ -8192,7 +12303,7 @@ describe("versioned config schema", () => {
   it("migrates the Overload schema into the Superconduct schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.22.0",
       engineVersion: "1.22.0-overload-reaction"
     });
@@ -8204,7 +12315,7 @@ describe("versioned config schema", () => {
   it("migrates the Superconduct schema into the Electro-Charged schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.23.0",
       engineVersion: "1.23.0-superconduct-reaction"
     });
@@ -8216,7 +12327,7 @@ describe("versioned config schema", () => {
   it("migrates the Electro-Charged schema into the Frozen-state schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.24.0",
       engineVersion: "1.24.0-electro-charged-reaction"
     });
@@ -8228,7 +12339,7 @@ describe("versioned config schema", () => {
   it("migrates the Frozen-state schema into the Shatter schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.25.0",
       engineVersion: "1.25.0-freeze-state"
     });
@@ -8240,7 +12351,7 @@ describe("versioned config schema", () => {
   it("migrates the Shatter schema into the Swirl propagation schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.26.0",
       engineVersion: "1.26.0-shatter-reaction"
     });
@@ -8252,7 +12363,7 @@ describe("versioned config schema", () => {
   it("migrates the Swirl propagation schema into the Crystallize shard schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.27.0",
       engineVersion: "1.27.0-swirl-propagation"
     });
@@ -8264,7 +12375,7 @@ describe("versioned config schema", () => {
   it("migrates the Crystallize shard schema into the Catalyze schema", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.28.0",
       engineVersion: "1.28.0-crystallize-shards"
     });
@@ -8276,7 +12387,7 @@ describe("versioned config schema", () => {
   it("migrates the Catalyze schema without silently opting aura-v3 into Burning", () => {
     const current = migrateConfig(legacyConfig);
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: "1.29.0",
       engineVersion: "1.29.0-catalyze-reaction",
       rotation: [],
@@ -8308,7 +12419,7 @@ describe("versioned config schema", () => {
     ]) {
       expect(() =>
         migrateConfig({
-          ...current,
+          ...asPre139Wire(current),
           schemaVersion: "1.29.0",
           engineVersion
         })
@@ -8319,7 +12430,7 @@ describe("versioned config schema", () => {
 
     expect(() =>
       migrateConfig({
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: "1.29.0",
         engineVersion: "1.29.0-catalyze-reaction",
         reactionEngine: {
@@ -8344,7 +12455,7 @@ describe("versioned config schema", () => {
       }
     };
     const migrated = migrateConfig({
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion: BURNING_REACTION_SCHEMA_VERSION,
       engineVersion: BURNING_REACTION_ENGINE_VERSION,
       randomSeed: "burning-seed",
@@ -8368,7 +12479,7 @@ describe("versioned config schema", () => {
 
     expect(() =>
       migrateConfig({
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: BURNING_REACTION_SCHEMA_VERSION,
         engineVersion: "1.30.0-forged"
       })
@@ -8378,7 +12489,7 @@ describe("versioned config schema", () => {
 
     expect(() =>
       migrateConfig({
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: BURNING_REACTION_SCHEMA_VERSION,
         engineVersion: BURNING_REACTION_ENGINE_VERSION,
         reactionEngine: { mode: "aura-v5" }
@@ -8389,7 +12500,7 @@ describe("versioned config schema", () => {
 
     expect(() =>
       migrateConfig({
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: "1.29.0",
         engineVersion: "1.29.0-catalyze-reaction",
         reactionEngine: { mode: "aura-v5" }
@@ -8399,7 +12510,7 @@ describe("versioned config schema", () => {
     );
     expect(() =>
       migrateConfig({
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion: "1.28.0",
         engineVersion: "1.28.0-target-motion",
         reactionEngine: { mode: "aura-v5" }

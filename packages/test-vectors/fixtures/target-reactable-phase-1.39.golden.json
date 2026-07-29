@@ -1,0 +1,6567 @@
+{
+  "fixtureVersion": "target-reactable-phase-1.39",
+  "provenance": {
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "referenceProject": "genshinsim/gcsim",
+    "referenceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "officialServerTruth": false,
+    "completeGcsimParity": false,
+    "scope": "Provisional target-phase-v2 lifecycle and 1.39 TARGET_MISS Hitlag audit vectors.",
+    "limitations": [
+      "Synchronous cross-target Burning application remains unimplemented; queued reactionDamage resolves later in the global/core phase.",
+      "Recursive Shatter delivery is covered by a separate explicit 1.39 fixture.",
+      "This fixture is a fixed-code cross-check and does not claim official server truth or complete gcsim parity."
+    ]
+  },
+  "projectionFormat": {
+    "auraTuple": [
+      "element",
+      "gaugeUnits",
+      "expiresAtFrame",
+      "expiresAtTargetFrame",
+      "sourceSlots[sourceActorId,gaugeUnits]"
+    ],
+    "timelinePointTuple": [
+      "id",
+      "globalFrame",
+      "targetFrame",
+      "targetId",
+      "pointKind",
+      "cause",
+      "eventType",
+      "eventPriority",
+      "eventSequence",
+      "intraEventSequence",
+      "reaction",
+      "reactions",
+      "primaryDamageEventId",
+      "links",
+      "auraBefore",
+      "auraAfter"
+    ],
+    "damageTuple": [
+      "id",
+      "kind",
+      "globalFrame",
+      "targetId",
+      "element",
+      "reaction",
+      "parentDamageEventId",
+      "eventPriority",
+      "eventSequence",
+      "finalDamage",
+      "displayDamage"
+    ],
+    "targetClockTransitionTuple": [
+      "id",
+      "targetId",
+      "operation",
+      "globalFrameBefore",
+      "globalFrameAfter",
+      "targetFrameBefore",
+      "targetFrameAfter",
+      "consumedFrozenFrames",
+      "addedFrozenFrames",
+      "frozenFramesAfter",
+      "targetHitlagLogId",
+      "cause"
+    ],
+    "targetHitlagTuple": [
+      "id",
+      "globalFrame",
+      "targetFrame",
+      "targetId",
+      "hitResolutionLogId",
+      "haltFrames",
+      "factor",
+      "extensionFrames",
+      "frozenFramesBefore",
+      "frozenFramesAfter",
+      "pausedGlobalFrameStart",
+      "nextTargetAdvanceGlobalFrame",
+      "applied",
+      "blockedReason"
+    ],
+    "targetMissHitResolutionTuple": [
+      "id",
+      "globalFrame",
+      "eventPriority",
+      "eventSequence",
+      "intraEventSequence",
+      "hitId",
+      "targetId",
+      "outcome",
+      "reason",
+      "damageAllowed",
+      "auraAllowed",
+      "hitConfirmAllowed",
+      "damageEventId",
+      "potentialDamage",
+      "finalDamage",
+      "displayDamage"
+    ],
+    "targetMissHitlagTuple": [
+      "id",
+      "globalFrame",
+      "targetFrame",
+      "targetId",
+      "hitResolutionLogId",
+      "haltFrames",
+      "factor",
+      "extensionFrames",
+      "frozenFramesBefore",
+      "frozenFramesAfter",
+      "pausedGlobalFrameStart",
+      "nextTargetAdvanceGlobalFrame",
+      "applied",
+      "blockedReason",
+      "extendedReactionStatusLogIds"
+    ]
+  },
+  "commonConfig": {
+    "schemaVersion": "1.39.0",
+    "engineVersion": "1.39.0-shatter-recursive-delivery",
+    "targetTaskModel": {
+      "mode": "target-phase-v2"
+    },
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "reactionDeliveryModel": {
+      "mode": "deferred-event-heap-v1"
+    },
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60
+    }
+  },
+  "scenarios": {
+    "frozenF176": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:915bf0a1",
+        "reproducibilityKey": "gdl-v2-fnv1a32-e14a7a1f",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "targetTaskModel": {
+          "mode": "target-phase-v2"
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        },
+        "reactionDeliveryModel": {
+          "mode": "deferred-event-heap-v1"
+        }
+      },
+      "boundaryFrame": 176,
+      "phases": [
+        {
+          "model": "target-phase-v2",
+          "id": 20,
+          "targetId": "enemy-0",
+          "targetName": "frozen lifecycle target",
+          "frame": [
+            176,
+            2.933333333333333,
+            176
+          ],
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            [
+              "frozen",
+              0.005555555556,
+              176,
+              null,
+              []
+            ]
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            [
+              "frozen",
+              0.005555555556,
+              176,
+              null,
+              []
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              161,
+              176
+            ],
+            "auraBefore": [
+              [
+                "frozen",
+                0.005555555556,
+                176,
+                null,
+                []
+              ]
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "frozen-expiry",
+                "order": 0,
+                "generation": 1,
+                "deadlineTargetFrame": 176,
+                "stateLogRef": {
+                  "kind": "frozen-state-log",
+                  "id": 1
+                },
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 28
+              }
+            ],
+            "auraAfter": []
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        },
+        {
+          "model": "target-phase-v2",
+          "id": 21,
+          "targetId": "enemy-1",
+          "targetName": "Later Burning target",
+          "frame": [
+            176,
+            2.933333333333333,
+            176
+          ],
+          "targetOrder": 1,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.184705882353,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.184705882353
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.178039215686,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [
+            {
+              "stage": "target-task",
+              "kind": "burning-tick",
+              "order": 0,
+              "event": [
+                "burningTick",
+                0.6666666666666666,
+                43,
+                0
+              ],
+              "generation": 1,
+              "tickIndex": 9,
+              "deadlineTargetFrame": 176,
+              "status": "applied",
+              "burningStateLogId": 10,
+              "targetStateTimelinePointId": 29
+            }
+          ],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.184705882353,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.184705882353
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.178039215686,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              161,
+              176
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.178039215686,
+                503,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2.178039215686
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.17137254902,
+                502,
+                null,
+                [
+                  [
+                    "__initial__",
+                    2.17137254902
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                626,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [],
+            "auraAfter": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.178039215686,
+                503,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2.178039215686
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.17137254902,
+                502,
+                null,
+                [
+                  [
+                    "__initial__",
+                    2.17137254902
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                626,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        }
+      ],
+      "boundaryTimelinePoints": [
+        [
+          28,
+          176,
+          176,
+          "enemy-0",
+          "mutation",
+          "frozen-expiry",
+          "frozenExpiry",
+          0.6266666666666667,
+          7,
+          0,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "frozen-state-log",
+              "id": 1
+            }
+          ],
+          [
+            [
+              "frozen",
+              0.005555555556,
+              176,
+              null,
+              []
+            ]
+          ],
+          []
+        ],
+        [
+          29,
+          176,
+          176,
+          "enemy-1",
+          "observation",
+          "burning-tick",
+          "burningTick",
+          0.6666666666666666,
+          43,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 10
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.184705882353,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.184705882353
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.178039215686,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.184705882353,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.184705882353
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.178039215686,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          30,
+          176,
+          176,
+          "enemy-1",
+          "derived",
+          "target-reactable-tick-decay",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "target-phase-log",
+              "id": 21
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.178039215686,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.17137254902,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.17137254902
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.178039215686,
+              503,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.178039215686
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.17137254902,
+              502,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.17137254902
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              626,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "referencedStateLogs": {
+        "burning": [
+          {
+            "id": 10,
+            "generation": 1,
+            "operation": "tick-skipped",
+            "frame": 176,
+            "targetFrame": 176,
+            "targetId": "enemy-1",
+            "event": [
+              0.6666666666666666,
+              43
+            ],
+            "tickIndex": 9,
+            "reason": null,
+            "damageEventIds": [],
+            "fuel": [
+              2.184705882353,
+              2.184705882353,
+              503,
+              null
+            ],
+            "nextTick": [
+              191,
+              null
+            ],
+            "callbackAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.184705882353,
+                  503,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.184705882353
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.178039215686,
+                  502,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.178039215686
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  626,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.184705882353,
+                  503,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.184705882353
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.178039215686,
+                  502,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.178039215686
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  626,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.184705882353,
+                  503,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.184705882353
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.178039215686,
+                  502,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.178039215686
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  626,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.184705882353,
+                  503,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.184705882353
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.178039215686,
+                  502,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.178039215686
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  626,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            }
+          }
+        ],
+        "frozen": [
+          {
+            "id": 1,
+            "generation": 1,
+            "operation": "expire",
+            "frame": 176,
+            "targetFrame": 176,
+            "targetId": "enemy-0",
+            "expiresAt": [
+              null,
+              null
+            ],
+            "reason": "FROZEN_DECAY_EXPIRED",
+            "auraBefore": [
+              [
+                "frozen",
+                0.005555555556,
+                176,
+                null,
+                []
+              ]
+            ],
+            "auraAfter": []
+          }
+        ],
+        "quicken": [],
+        "periodic": []
+      },
+      "periodicGlobalRows": [],
+      "damage": {
+        "totalDamage": 4588.592528571428,
+        "dps": 1512.7228116169545,
+        "hitCount": 10,
+        "rows": [
+          [
+            0,
+            "direct",
+            0,
+            "enemy-0",
+            "hydro",
+            "freeze",
+            null,
+            3,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            "direct",
+            41,
+            "enemy-1",
+            "pyro",
+            "burning",
+            null,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            2,
+            "transformative-reaction",
+            56,
+            "enemy-1",
+            "pyro",
+            "burning",
+            1,
+            5.166666666666667,
+            14,
+            573.5740660714285,
+            574
+          ],
+          [
+            3,
+            "transformative-reaction",
+            71,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            18,
+            573.5740660714285,
+            574
+          ],
+          [
+            4,
+            "transformative-reaction",
+            86,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            22,
+            573.5740660714285,
+            574
+          ],
+          [
+            5,
+            "transformative-reaction",
+            101,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            26,
+            573.5740660714285,
+            574
+          ],
+          [
+            6,
+            "transformative-reaction",
+            116,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            30,
+            573.5740660714285,
+            574
+          ],
+          [
+            7,
+            "transformative-reaction",
+            131,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            34,
+            573.5740660714285,
+            574
+          ],
+          [
+            8,
+            "transformative-reaction",
+            146,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            38,
+            573.5740660714285,
+            574
+          ],
+          [
+            9,
+            "transformative-reaction",
+            161,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            42,
+            573.5740660714285,
+            574
+          ]
+        ]
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      },
+      "abandonedWake": null,
+      "targetMissAudits": []
+    },
+    "quickenF600": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:c13e5120",
+        "reproducibilityKey": "gdl-v2-fnv1a32-81e636ee",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "targetTaskModel": {
+          "mode": "target-phase-v2"
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        },
+        "reactionDeliveryModel": {
+          "mode": "deferred-event-heap-v1"
+        }
+      },
+      "boundaryFrame": 600,
+      "phases": [
+        {
+          "model": "target-phase-v2",
+          "id": 20,
+          "targetId": "enemy-0",
+          "targetName": "quicken lifecycle target",
+          "frame": [
+            600,
+            10,
+            600
+          ],
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            [
+              "quicken",
+              0.001333333333,
+              600,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.001333333333
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            [
+              "quicken",
+              0.001333333333,
+              600,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.001333333333
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              585,
+              600
+            ],
+            "auraBefore": [
+              [
+                "quicken",
+                0.001333333333,
+                600,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.001333333333
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "quicken-expiry",
+                "order": 0,
+                "generation": 1,
+                "deadlineTargetFrame": 600,
+                "stateLogRef": {
+                  "kind": "quicken-state-log",
+                  "id": 1
+                },
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 28
+              }
+            ],
+            "auraAfter": []
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        },
+        {
+          "model": "target-phase-v2",
+          "id": 21,
+          "targetId": "enemy-1",
+          "targetName": "Later Burning target",
+          "frame": [
+            600,
+            10,
+            600
+          ],
+          "targetOrder": 1,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.854509803922,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.854509803922
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.847843137255,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [
+            {
+              "stage": "target-task",
+              "kind": "burning-tick",
+              "order": 0,
+              "event": [
+                "burningTick",
+                0.6666666666666666,
+                43,
+                0
+              ],
+              "generation": 1,
+              "tickIndex": 9,
+              "deadlineTargetFrame": 600,
+              "status": "applied",
+              "burningStateLogId": 10,
+              "targetStateTimelinePointId": 29
+            }
+          ],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.854509803922,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.854509803922
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.847843137255,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              585,
+              600
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                0.847843137255,
+                728,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.847843137255
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                0.841176470588,
+                727,
+                null,
+                [
+                  [
+                    "__initial__",
+                    0.841176470588
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                1050,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [],
+            "auraAfter": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                0.847843137255,
+                728,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.847843137255
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                0.841176470588,
+                727,
+                null,
+                [
+                  [
+                    "__initial__",
+                    0.841176470588
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                1050,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        }
+      ],
+      "boundaryTimelinePoints": [
+        [
+          28,
+          600,
+          600,
+          "enemy-0",
+          "mutation",
+          "quicken-expiry",
+          "quickenExpiry",
+          0.6133333333333333,
+          7,
+          0,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "quicken-state-log",
+              "id": 1
+            }
+          ],
+          [
+            [
+              "quicken",
+              0.001333333333,
+              600,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.001333333333
+                ]
+              ]
+            ]
+          ],
+          []
+        ],
+        [
+          29,
+          600,
+          600,
+          "enemy-1",
+          "observation",
+          "burning-tick",
+          "burningTick",
+          0.6666666666666666,
+          43,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 10
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.854509803922,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.854509803922
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.847843137255,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.854509803922,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.854509803922
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.847843137255,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          30,
+          600,
+          600,
+          "enemy-1",
+          "derived",
+          "target-reactable-tick-decay",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "target-phase-log",
+              "id": 21
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.847843137255,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.841176470588,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.841176470588
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.847843137255,
+              728,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.847843137255
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.841176470588,
+              727,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.841176470588
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              1050,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "referencedStateLogs": {
+        "burning": [
+          {
+            "id": 10,
+            "generation": 1,
+            "operation": "tick-skipped",
+            "frame": 600,
+            "targetFrame": 600,
+            "targetId": "enemy-1",
+            "event": [
+              0.6666666666666666,
+              43
+            ],
+            "tickIndex": 9,
+            "reason": null,
+            "damageEventIds": [],
+            "fuel": [
+              0.854509803922,
+              0.854509803922,
+              728,
+              null
+            ],
+            "nextTick": [
+              615,
+              null
+            ],
+            "callbackAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.854509803922,
+                  728,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.854509803922
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.847843137255,
+                  727,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.847843137255
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1050,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.854509803922,
+                  728,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.854509803922
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.847843137255,
+                  727,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.847843137255
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1050,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.854509803922,
+                  728,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.854509803922
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.847843137255,
+                  727,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.847843137255
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1050,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.854509803922,
+                  728,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.854509803922
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.847843137255,
+                  727,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.847843137255
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1050,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            }
+          }
+        ],
+        "frozen": [],
+        "quicken": [
+          {
+            "id": 1,
+            "generation": 1,
+            "operation": "expire",
+            "frame": 600,
+            "targetFrame": 600,
+            "targetId": "enemy-0",
+            "gauge": [
+              0.001333333333,
+              0
+            ],
+            "expiresAt": [
+              null,
+              null
+            ],
+            "reason": "QUICKEN_DECAY_EXPIRED",
+            "auraBefore": [
+              [
+                "quicken",
+                0.001333333333,
+                600,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.001333333333
+                  ]
+                ]
+              ]
+            ],
+            "auraAfter": []
+          }
+        ],
+        "periodic": []
+      },
+      "periodicGlobalRows": [],
+      "damage": {
+        "totalDamage": 4588.592528571428,
+        "dps": 454.3160919377652,
+        "hitCount": 10,
+        "rows": [
+          [
+            0,
+            "direct",
+            0,
+            "enemy-0",
+            "electro",
+            "quicken",
+            null,
+            3,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            "direct",
+            465,
+            "enemy-1",
+            "pyro",
+            "burning",
+            null,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            2,
+            "transformative-reaction",
+            480,
+            "enemy-1",
+            "pyro",
+            "burning",
+            1,
+            5.166666666666667,
+            14,
+            573.5740660714285,
+            574
+          ],
+          [
+            3,
+            "transformative-reaction",
+            495,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            18,
+            573.5740660714285,
+            574
+          ],
+          [
+            4,
+            "transformative-reaction",
+            510,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            22,
+            573.5740660714285,
+            574
+          ],
+          [
+            5,
+            "transformative-reaction",
+            525,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            26,
+            573.5740660714285,
+            574
+          ],
+          [
+            6,
+            "transformative-reaction",
+            540,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            30,
+            573.5740660714285,
+            574
+          ],
+          [
+            7,
+            "transformative-reaction",
+            555,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            34,
+            573.5740660714285,
+            574
+          ],
+          [
+            8,
+            "transformative-reaction",
+            570,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            38,
+            573.5740660714285,
+            574
+          ],
+          [
+            9,
+            "transformative-reaction",
+            585,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            42,
+            573.5740660714285,
+            574
+          ]
+        ]
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      },
+      "abandonedWake": null,
+      "targetMissAudits": []
+    },
+    "burningFuelF61": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:53801e8b",
+        "reproducibilityKey": "gdl-v2-fnv1a32-293e86ee",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "targetTaskModel": {
+          "mode": "target-phase-v2"
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        },
+        "reactionDeliveryModel": {
+          "mode": "deferred-event-heap-v1"
+        }
+      },
+      "boundaryFrame": 61,
+      "phases": [
+        {
+          "model": "target-phase-v2",
+          "id": 12,
+          "targetId": "enemy-0",
+          "targetName": "burning-fuel lifecycle target",
+          "frame": [
+            61,
+            1.0166666666666666,
+            61
+          ],
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.006666666667,
+              61,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.006666666667
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.735438596491,
+              585,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.735438596491
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.006666666667,
+              61,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.006666666667
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.735438596491,
+              585,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.735438596491
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              60,
+              61
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                0.006666666667,
+                61,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.006666666667
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.735438596491,
+                585,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.735438596491
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "burning-fuel-expiry",
+                "order": 0,
+                "generation": 1,
+                "deadlineTargetFrame": 61,
+                "stateLogRef": {
+                  "kind": "burning-state-log",
+                  "id": 7
+                },
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 16
+              }
+            ],
+            "auraAfter": [
+              [
+                "pyro",
+                0.735438596491,
+                585,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.735438596491
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [
+              12
+            ],
+            "reactionTaskLogIds": []
+          }
+        },
+        {
+          "model": "target-phase-v2",
+          "id": 13,
+          "targetId": "enemy-1",
+          "targetName": "Later Burning target",
+          "frame": [
+            61,
+            1.0166666666666666,
+            61
+          ],
+          "targetOrder": 1,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.969019607843,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.969019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.962352941176,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.780350877193,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.780350877193
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [
+            {
+              "stage": "target-task",
+              "kind": "burning-tick",
+              "order": 0,
+              "event": [
+                "burningTick",
+                0.6666666666666666,
+                25,
+                0
+              ],
+              "generation": 1,
+              "tickIndex": 1,
+              "deadlineTargetFrame": 61,
+              "status": "applied",
+              "burningStateLogId": 8,
+              "targetStateTimelinePointId": 17
+            }
+          ],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.969019607843,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.969019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.962352941176,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.780350877193,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.780350877193
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              60,
+              61
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.962352941176,
+                506,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2.962352941176
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.95568627451,
+                505,
+                null,
+                [
+                  [
+                    "__initial__",
+                    2.95568627451
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.778947368421,
+                616,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.778947368421
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [],
+            "auraAfter": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.962352941176,
+                506,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2.962352941176
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.95568627451,
+                505,
+                null,
+                [
+                  [
+                    "__initial__",
+                    2.95568627451
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.778947368421,
+                616,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.778947368421
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [
+              13
+            ],
+            "reactionTaskLogIds": []
+          }
+        }
+      ],
+      "boundaryTimelinePoints": [
+        [
+          16,
+          61,
+          61,
+          "enemy-0",
+          "mutation",
+          "burning-fuel-expiry",
+          "burningFuelExpiry",
+          0.6,
+          7,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 7
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.006666666667,
+              61,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.006666666667
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.735438596491,
+              585,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.735438596491
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "pyro",
+              0.735438596491,
+              585,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.735438596491
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          17,
+          61,
+          61,
+          "enemy-1",
+          "observation",
+          "burning-tick",
+          "burningTick",
+          0.6666666666666666,
+          25,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 8
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.969019607843,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.969019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.962352941176,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.780350877193,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.780350877193
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.969019607843,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.969019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.962352941176,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.780350877193,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.780350877193
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          18,
+          61,
+          61,
+          "enemy-1",
+          "derived",
+          "target-reactable-tick-decay",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "target-phase-log",
+              "id": 13
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.962352941176,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.95568627451,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.95568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.778947368421,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.778947368421
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.962352941176,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.95568627451,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.95568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.778947368421,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.778947368421
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          19,
+          61,
+          61,
+          "enemy-1",
+          "mutation",
+          "reaction-damage-application",
+          "reactionDamage",
+          5.166666666666667,
+          29,
+          0,
+          "none",
+          [],
+          6,
+          [
+            {
+              "kind": "damage-event",
+              "id": 6
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 4
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.962352941176,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.95568627451,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.95568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.778947368421,
+              616,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.778947368421
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.962352941176,
+              506,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2.962352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.95568627451,
+              505,
+              null,
+              [
+                [
+                  "__initial__",
+                  2.95568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.8,
+              631,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.8
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "referencedStateLogs": {
+        "burning": [
+          {
+            "id": 7,
+            "generation": 1,
+            "operation": "fuel-expire",
+            "frame": 61,
+            "targetFrame": 61,
+            "targetId": "enemy-0",
+            "event": [
+              0.6,
+              7
+            ],
+            "tickIndex": null,
+            "reason": "FUEL_EXPIRED",
+            "damageEventIds": [],
+            "fuel": [
+              0.006666666667,
+              0,
+              null,
+              null
+            ],
+            "nextTick": [
+              null,
+              null
+            ],
+            "callbackAura": null,
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.006666666667,
+                  61,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.006666666667
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.735438596491,
+                  585,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.735438596491
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "pyro",
+                  0.735438596491,
+                  585,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.735438596491
+                    ]
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": 8,
+            "generation": 1,
+            "operation": "tick",
+            "frame": 61,
+            "targetFrame": 61,
+            "targetId": "enemy-1",
+            "event": [
+              0.6666666666666666,
+              25
+            ],
+            "tickIndex": 1,
+            "reason": null,
+            "damageEventIds": [
+              6
+            ],
+            "fuel": [
+              2.969019607843,
+              2.969019607843,
+              506,
+              null
+            ],
+            "nextTick": [
+              76,
+              null
+            ],
+            "callbackAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.969019607843,
+                  506,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.969019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.962352941176,
+                  505,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.962352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.780350877193,
+                  616,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.780350877193
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.969019607843,
+                  506,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.969019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.962352941176,
+                  505,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.962352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.780350877193,
+                  616,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.780350877193
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.962352941176,
+                  506,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.962352941176
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.95568627451,
+                  505,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.95568627451
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.778947368421,
+                  616,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.778947368421
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.962352941176,
+                  506,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2.962352941176
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.95568627451,
+                  505,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      2.95568627451
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.8,
+                  631,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.8
+                    ]
+                  ]
+                ]
+              ]
+            }
+          }
+        ],
+        "frozen": [],
+        "quicken": [],
+        "periodic": []
+      },
+      "periodicGlobalRows": [],
+      "damage": {
+        "totalDamage": 2867.870330357143,
+        "dps": 2568.2420868869935,
+        "hitCount": 7,
+        "rows": [
+          [
+            0,
+            "direct",
+            0,
+            "enemy-0",
+            "pyro",
+            "burning",
+            null,
+            3,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            "transformative-reaction",
+            15,
+            "enemy-0",
+            "pyro",
+            "burning",
+            0,
+            5,
+            11,
+            573.5740660714285,
+            574
+          ],
+          [
+            2,
+            "transformative-reaction",
+            30,
+            "enemy-0",
+            "pyro",
+            "burning",
+            1,
+            5,
+            15,
+            573.5740660714285,
+            574
+          ],
+          [
+            3,
+            "transformative-reaction",
+            45,
+            "enemy-0",
+            "pyro",
+            "burning",
+            1,
+            5,
+            19,
+            573.5740660714285,
+            574
+          ],
+          [
+            4,
+            "direct",
+            46,
+            "enemy-1",
+            "pyro",
+            "burning",
+            null,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            5,
+            "transformative-reaction",
+            60,
+            "enemy-0",
+            "pyro",
+            "burning",
+            1,
+            5,
+            27,
+            573.5740660714285,
+            574
+          ],
+          [
+            6,
+            "transformative-reaction",
+            61,
+            "enemy-1",
+            "pyro",
+            "burning",
+            4,
+            5.166666666666667,
+            29,
+            573.5740660714285,
+            574
+          ]
+        ]
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      },
+      "abandonedWake": null,
+      "targetMissAudits": []
+    },
+    "electroChargedF570": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:62e705e4",
+        "reproducibilityKey": "gdl-v2-fnv1a32-55003bdc",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "targetTaskModel": {
+          "mode": "target-phase-v2"
+        },
+        "targetClockModel": {
+          "mode": "disabled"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        },
+        "reactionDeliveryModel": {
+          "mode": "deferred-event-heap-v1"
+        }
+      },
+      "boundaryFrame": 570,
+      "phases": [
+        {
+          "model": "target-phase-v2",
+          "id": 30,
+          "targetId": "enemy-0",
+          "targetName": "electro-charged lifecycle target",
+          "frame": [
+            570,
+            9.5,
+            570
+          ],
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            [
+              "electro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.019649122807
+                ]
+              ]
+            ],
+            [
+              "hydro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.019649122807
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            [
+              "electro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.019649122807
+                ]
+              ]
+            ],
+            [
+              "hydro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.019649122807
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              555,
+              570
+            ],
+            "auraBefore": [
+              [
+                "electro",
+                0.019649122807,
+                570,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.019649122807
+                  ]
+                ]
+              ],
+              [
+                "hydro",
+                0.019649122807,
+                570,
+                null,
+                [
+                  [
+                    "__initial__",
+                    0.019649122807
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "aura-natural-expiry",
+                "order": 0,
+                "generation": null,
+                "deadlineTargetFrame": 570,
+                "stateLogRef": null,
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 58
+              },
+              {
+                "stage": "reactable-tick",
+                "kind": "electro-charged-expiry",
+                "order": 1,
+                "generation": 1,
+                "deadlineTargetFrame": 570,
+                "stateLogRef": {
+                  "kind": "periodic-reaction-log",
+                  "id": 21
+                },
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 59
+              }
+            ],
+            "auraAfter": []
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        },
+        {
+          "model": "target-phase-v2",
+          "id": 31,
+          "targetId": "enemy-1",
+          "targetName": "Later Burning target",
+          "frame": [
+            570,
+            9.5,
+            570
+          ],
+          "targetOrder": 1,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.94862745098,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.94862745098
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.941960784314,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [
+            {
+              "stage": "target-task",
+              "kind": "burning-tick",
+              "order": 0,
+              "event": [
+                "burningTick",
+                0.6666666666666666,
+                111,
+                0
+              ],
+              "generation": 1,
+              "tickIndex": 9,
+              "deadlineTargetFrame": 570,
+              "status": "applied",
+              "burningStateLogId": 10,
+              "targetStateTimelinePointId": 60
+            }
+          ],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.94862745098,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.94862745098
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.941960784314,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              555,
+              570
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                0.941960784314,
+                712,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.941960784314
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                0.935294117647,
+                711,
+                null,
+                [
+                  [
+                    "__initial__",
+                    0.935294117647
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                1020,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [],
+            "auraAfter": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                0.941960784314,
+                712,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.941960784314
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                0.935294117647,
+                711,
+                null,
+                [
+                  [
+                    "__initial__",
+                    0.935294117647
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                1020,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        }
+      ],
+      "boundaryTimelinePoints": [
+        [
+          58,
+          570,
+          570,
+          "enemy-0",
+          "derived",
+          "aura-natural-expiry",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [],
+          [
+            [
+              "electro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.019649122807
+                ]
+              ]
+            ],
+            [
+              "hydro",
+              0.019649122807,
+              570,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.019649122807
+                ]
+              ]
+            ]
+          ],
+          []
+        ],
+        [
+          59,
+          570,
+          570,
+          "enemy-0",
+          "observation",
+          "electro-charged-expiry",
+          "periodicReactionExpiry",
+          0.64,
+          7,
+          0,
+          "electroCharged",
+          [
+            "electroCharged"
+          ],
+          null,
+          [
+            {
+              "kind": "periodic-reaction-log",
+              "id": 21
+            }
+          ],
+          [],
+          []
+        ],
+        [
+          60,
+          570,
+          570,
+          "enemy-1",
+          "observation",
+          "burning-tick",
+          "burningTick",
+          0.6666666666666666,
+          111,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 10
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.94862745098,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.94862745098
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.941960784314,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.94862745098,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.94862745098
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.941960784314,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          61,
+          570,
+          570,
+          "enemy-1",
+          "derived",
+          "target-reactable-tick-decay",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "target-phase-log",
+              "id": 31
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.941960784314,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.935294117647,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.935294117647
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              0.941960784314,
+              712,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.941960784314
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              0.935294117647,
+              711,
+              null,
+              [
+                [
+                  "__initial__",
+                  0.935294117647
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              1020,
+              null,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "referencedStateLogs": {
+        "burning": [
+          {
+            "id": 10,
+            "generation": 1,
+            "operation": "tick-skipped",
+            "frame": 570,
+            "targetFrame": 570,
+            "targetId": "enemy-1",
+            "event": [
+              0.6666666666666666,
+              111
+            ],
+            "tickIndex": 9,
+            "reason": null,
+            "damageEventIds": [],
+            "fuel": [
+              0.94862745098,
+              0.94862745098,
+              712,
+              null
+            ],
+            "nextTick": [
+              585,
+              null
+            ],
+            "callbackAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.94862745098,
+                  712,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.94862745098
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.941960784314,
+                  711,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.941960784314
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1020,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.94862745098,
+                  712,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.94862745098
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.941960784314,
+                  711,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.941960784314
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1020,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.94862745098,
+                  712,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.94862745098
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.941960784314,
+                  711,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.941960784314
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1020,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  0.94862745098,
+                  712,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.94862745098
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  0.941960784314,
+                  711,
+                  null,
+                  [
+                    [
+                      "__initial__",
+                      0.941960784314
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  1020,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            }
+          }
+        ],
+        "frozen": [],
+        "quicken": [],
+        "periodic": [
+          {
+            "id": 21,
+            "generation": 1,
+            "operation": "stop",
+            "frame": 570,
+            "targetFrame": 570,
+            "targetId": "enemy-0",
+            "tickIndex": null,
+            "reason": "AURA_DECAY_EXPIRED",
+            "auraBefore": [],
+            "auraAfter": []
+          }
+        ]
+      },
+      "periodicGlobalRows": [
+        [
+          1,
+          "tick",
+          10,
+          null,
+          "enemy-0",
+          0,
+          1,
+          null
+        ],
+        [
+          2,
+          "wane-skipped",
+          16,
+          null,
+          "enemy-0",
+          0,
+          1,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          3,
+          "tick",
+          70,
+          null,
+          "enemy-0",
+          1,
+          2,
+          null
+        ],
+        [
+          4,
+          "wane-skipped",
+          76,
+          null,
+          "enemy-0",
+          1,
+          2,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          5,
+          "tick",
+          130,
+          null,
+          "enemy-0",
+          2,
+          3,
+          null
+        ],
+        [
+          6,
+          "wane-skipped",
+          136,
+          null,
+          "enemy-0",
+          2,
+          3,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          7,
+          "tick",
+          190,
+          null,
+          "enemy-0",
+          3,
+          4,
+          null
+        ],
+        [
+          8,
+          "wane-skipped",
+          196,
+          null,
+          "enemy-0",
+          3,
+          4,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          9,
+          "tick",
+          250,
+          null,
+          "enemy-0",
+          4,
+          5,
+          null
+        ],
+        [
+          10,
+          "wane-skipped",
+          256,
+          null,
+          "enemy-0",
+          4,
+          5,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          11,
+          "tick",
+          310,
+          null,
+          "enemy-0",
+          5,
+          6,
+          null
+        ],
+        [
+          12,
+          "wane-skipped",
+          316,
+          null,
+          "enemy-0",
+          5,
+          6,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          13,
+          "tick",
+          370,
+          null,
+          "enemy-0",
+          6,
+          7,
+          null
+        ],
+        [
+          14,
+          "wane-skipped",
+          376,
+          null,
+          "enemy-0",
+          6,
+          7,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          15,
+          "tick",
+          430,
+          null,
+          "enemy-0",
+          7,
+          8,
+          null
+        ],
+        [
+          16,
+          "wane-skipped",
+          436,
+          null,
+          "enemy-0",
+          7,
+          8,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          17,
+          "tick",
+          490,
+          null,
+          "enemy-0",
+          8,
+          13,
+          null
+        ],
+        [
+          18,
+          "wane-skipped",
+          496,
+          null,
+          "enemy-0",
+          8,
+          13,
+          "ZERO_ACTUAL_DAMAGE"
+        ],
+        [
+          19,
+          "tick",
+          550,
+          null,
+          "enemy-0",
+          9,
+          18,
+          null
+        ],
+        [
+          20,
+          "wane-skipped",
+          556,
+          null,
+          "enemy-0",
+          9,
+          18,
+          "ZERO_ACTUAL_DAMAGE"
+        ]
+      ],
+      "damage": {
+        "totalDamage": 4588.592528571428,
+        "dps": 477.97838839285714,
+        "hitCount": 20,
+        "rows": [
+          [
+            0,
+            "direct",
+            0,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            null,
+            3,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            "transformative-reaction",
+            10,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            12,
+            0,
+            0
+          ],
+          [
+            2,
+            "transformative-reaction",
+            70,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            19,
+            0,
+            0
+          ],
+          [
+            3,
+            "transformative-reaction",
+            130,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            26,
+            0,
+            0
+          ],
+          [
+            4,
+            "transformative-reaction",
+            190,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            33,
+            0,
+            0
+          ],
+          [
+            5,
+            "transformative-reaction",
+            250,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            40,
+            0,
+            0
+          ],
+          [
+            6,
+            "transformative-reaction",
+            310,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            47,
+            0,
+            0
+          ],
+          [
+            7,
+            "transformative-reaction",
+            370,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            54,
+            0,
+            0
+          ],
+          [
+            8,
+            "transformative-reaction",
+            430,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            61,
+            0,
+            0
+          ],
+          [
+            9,
+            "direct",
+            435,
+            "enemy-1",
+            "pyro",
+            "burning",
+            null,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            10,
+            "transformative-reaction",
+            450,
+            "enemy-1",
+            "pyro",
+            "burning",
+            9,
+            5.166666666666667,
+            71,
+            573.5740660714285,
+            574
+          ],
+          [
+            11,
+            "transformative-reaction",
+            465,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            75,
+            573.5740660714285,
+            574
+          ],
+          [
+            12,
+            "transformative-reaction",
+            480,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            79,
+            573.5740660714285,
+            574
+          ],
+          [
+            13,
+            "transformative-reaction",
+            490,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            85,
+            0,
+            0
+          ],
+          [
+            14,
+            "transformative-reaction",
+            495,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            88,
+            573.5740660714285,
+            574
+          ],
+          [
+            15,
+            "transformative-reaction",
+            510,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            94,
+            573.5740660714285,
+            574
+          ],
+          [
+            16,
+            "transformative-reaction",
+            525,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            98,
+            573.5740660714285,
+            574
+          ],
+          [
+            17,
+            "transformative-reaction",
+            540,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            102,
+            573.5740660714285,
+            574
+          ],
+          [
+            18,
+            "transformative-reaction",
+            550,
+            "enemy-0",
+            "electro",
+            "electroCharged",
+            0,
+            5,
+            108,
+            0,
+            0
+          ],
+          [
+            19,
+            "transformative-reaction",
+            555,
+            "enemy-1",
+            "pyro",
+            "burning",
+            10,
+            5.166666666666667,
+            110,
+            573.5740660714285,
+            574
+          ]
+        ]
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "disabled",
+          "hitlagStatus": "unsupported-enemy-hitlag",
+          "targets": []
+        },
+        "transitions": [],
+        "hitlag": []
+      },
+      "abandonedWake": null,
+      "targetMissAudits": []
+    },
+    "frozenHitlag5F181": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:933072ce",
+        "reproducibilityKey": "gdl-v2-fnv1a32-d2439a08",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "targetTaskModel": {
+          "mode": "target-phase-v2"
+        },
+        "targetClockModel": {
+          "mode": "target-local-hitlag-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        },
+        "reactionDeliveryModel": {
+          "mode": "deferred-event-heap-v1"
+        }
+      },
+      "boundaryFrame": 181,
+      "phases": [
+        {
+          "model": "target-phase-v2",
+          "id": 20,
+          "targetId": "enemy-0",
+          "targetName": "frozen lifecycle target",
+          "frame": [
+            181,
+            3.0166666666666666,
+            176
+          ],
+          "targetOrder": 0,
+          "auraBeforeTargetTasks": [
+            [
+              "frozen",
+              0.005555555556,
+              181,
+              176,
+              []
+            ]
+          ],
+          "targetTasks": [],
+          "auraAfterTargetTasks": [
+            [
+              "frozen",
+              0.005555555556,
+              181,
+              176,
+              []
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              161,
+              176
+            ],
+            "auraBefore": [
+              [
+                "frozen",
+                0.005555555556,
+                181,
+                176,
+                []
+              ]
+            ],
+            "transitions": [
+              {
+                "stage": "reactable-tick",
+                "kind": "frozen-expiry",
+                "order": 0,
+                "generation": 1,
+                "deadlineTargetFrame": 176,
+                "stateLogRef": {
+                  "kind": "frozen-state-log",
+                  "id": 1
+                },
+                "quickenStateLogIds": [],
+                "targetStateTimelinePointId": 28
+              }
+            ],
+            "auraAfter": []
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        },
+        {
+          "model": "target-phase-v2",
+          "id": 21,
+          "targetId": "enemy-1",
+          "targetName": "Later Burning target",
+          "frame": [
+            181,
+            3.0166666666666666,
+            181
+          ],
+          "targetOrder": 1,
+          "auraBeforeTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.169019607843,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.169019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.162352941176,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "targetTasks": [
+            {
+              "stage": "target-task",
+              "kind": "burning-tick",
+              "order": 0,
+              "event": [
+                "burningTick",
+                0.6666666666666666,
+                43,
+                0
+              ],
+              "generation": 1,
+              "tickIndex": 9,
+              "deadlineTargetFrame": 181,
+              "status": "applied",
+              "burningStateLogId": 10,
+              "targetStateTimelinePointId": 29
+            }
+          ],
+          "auraAfterTargetTasks": [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.169019607843,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.169019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.162352941176,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          "reactableTick": {
+            "frame": [
+              166,
+              181
+            ],
+            "auraBefore": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.162352941176,
+                506,
+                506,
+                [
+                  [
+                    "phase-driver",
+                    2.162352941176
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.15568627451,
+                505,
+                505,
+                [
+                  [
+                    "__initial__",
+                    2.15568627451
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                631,
+                631,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ],
+            "transitions": [],
+            "auraAfter": [
+              [
+                "burning",
+                2,
+                null,
+                null,
+                [
+                  [
+                    "phase-driver",
+                    2
+                  ]
+                ]
+              ],
+              [
+                "burningFuel",
+                2.162352941176,
+                506,
+                506,
+                [
+                  [
+                    "phase-driver",
+                    2.162352941176
+                  ]
+                ]
+              ],
+              [
+                "dendro",
+                2.15568627451,
+                505,
+                505,
+                [
+                  [
+                    "__initial__",
+                    2.15568627451
+                  ]
+                ]
+              ],
+              [
+                "pyro",
+                0.631578947368,
+                631,
+                631,
+                [
+                  [
+                    "phase-driver",
+                    0.631578947368
+                  ]
+                ]
+              ]
+            ]
+          },
+          "refs": {
+            "hitResolutionLogIds": [],
+            "reactionTaskLogIds": []
+          }
+        }
+      ],
+      "boundaryTimelinePoints": [
+        [
+          28,
+          181,
+          176,
+          "enemy-0",
+          "mutation",
+          "frozen-expiry",
+          "frozenExpiry",
+          0.6266666666666667,
+          7,
+          0,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "frozen-state-log",
+              "id": 1
+            }
+          ],
+          [
+            [
+              "frozen",
+              0.005555555556,
+              181,
+              176,
+              []
+            ]
+          ],
+          []
+        ],
+        [
+          29,
+          181,
+          181,
+          "enemy-1",
+          "observation",
+          "burning-tick",
+          "burningTick",
+          0.6666666666666666,
+          43,
+          0,
+          "burning",
+          [
+            "burning"
+          ],
+          null,
+          [
+            {
+              "kind": "burning-state-log",
+              "id": 10
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.169019607843,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.169019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.162352941176,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.169019607843,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.169019607843
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.162352941176,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.63298245614,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.63298245614
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          30,
+          181,
+          181,
+          "enemy-1",
+          "derived",
+          "target-reactable-tick-decay",
+          null,
+          null,
+          null,
+          null,
+          "none",
+          [],
+          null,
+          [
+            {
+              "kind": "target-phase-log",
+              "id": 21
+            }
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.162352941176,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.15568627451,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.15568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ],
+          [
+            [
+              "burning",
+              2,
+              null,
+              null,
+              [
+                [
+                  "phase-driver",
+                  2
+                ]
+              ]
+            ],
+            [
+              "burningFuel",
+              2.162352941176,
+              506,
+              506,
+              [
+                [
+                  "phase-driver",
+                  2.162352941176
+                ]
+              ]
+            ],
+            [
+              "dendro",
+              2.15568627451,
+              505,
+              505,
+              [
+                [
+                  "__initial__",
+                  2.15568627451
+                ]
+              ]
+            ],
+            [
+              "pyro",
+              0.631578947368,
+              631,
+              631,
+              [
+                [
+                  "phase-driver",
+                  0.631578947368
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "referencedStateLogs": {
+        "burning": [
+          {
+            "id": 10,
+            "generation": 1,
+            "operation": "tick-skipped",
+            "frame": 181,
+            "targetFrame": 181,
+            "targetId": "enemy-1",
+            "event": [
+              0.6666666666666666,
+              43
+            ],
+            "tickIndex": 9,
+            "reason": null,
+            "damageEventIds": [],
+            "fuel": [
+              2.169019607843,
+              2.169019607843,
+              506,
+              506
+            ],
+            "nextTick": [
+              196,
+              196
+            ],
+            "callbackAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.169019607843,
+                  506,
+                  506,
+                  [
+                    [
+                      "phase-driver",
+                      2.169019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.162352941176,
+                  505,
+                  505,
+                  [
+                    [
+                      "__initial__",
+                      2.162352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  631,
+                  631,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.169019607843,
+                  506,
+                  506,
+                  [
+                    [
+                      "phase-driver",
+                      2.169019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.162352941176,
+                  505,
+                  505,
+                  [
+                    [
+                      "__initial__",
+                      2.162352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  631,
+                  631,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "globalApplicationAura": {
+              "before": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.169019607843,
+                  506,
+                  506,
+                  [
+                    [
+                      "phase-driver",
+                      2.169019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.162352941176,
+                  505,
+                  505,
+                  [
+                    [
+                      "__initial__",
+                      2.162352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  631,
+                  631,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ],
+              "after": [
+                [
+                  "burning",
+                  2,
+                  null,
+                  null,
+                  [
+                    [
+                      "phase-driver",
+                      2
+                    ]
+                  ]
+                ],
+                [
+                  "burningFuel",
+                  2.169019607843,
+                  506,
+                  506,
+                  [
+                    [
+                      "phase-driver",
+                      2.169019607843
+                    ]
+                  ]
+                ],
+                [
+                  "dendro",
+                  2.162352941176,
+                  505,
+                  505,
+                  [
+                    [
+                      "__initial__",
+                      2.162352941176
+                    ]
+                  ]
+                ],
+                [
+                  "pyro",
+                  0.63298245614,
+                  631,
+                  631,
+                  [
+                    [
+                      "phase-driver",
+                      0.63298245614
+                    ]
+                  ]
+                ]
+              ]
+            }
+          }
+        ],
+        "frozen": [
+          {
+            "id": 1,
+            "generation": 1,
+            "operation": "expire",
+            "frame": 181,
+            "targetFrame": 176,
+            "targetId": "enemy-0",
+            "expiresAt": [
+              null,
+              null
+            ],
+            "reason": "FROZEN_DECAY_EXPIRED",
+            "auraBefore": [
+              [
+                "frozen",
+                0.005555555556,
+                181,
+                176,
+                []
+              ]
+            ],
+            "auraAfter": []
+          }
+        ],
+        "quicken": [],
+        "periodic": []
+      },
+      "periodicGlobalRows": [],
+      "damage": {
+        "totalDamage": 4588.592528571428,
+        "dps": 1472.275677616501,
+        "hitCount": 10,
+        "rows": [
+          [
+            0,
+            "direct",
+            0,
+            "enemy-0",
+            "hydro",
+            "freeze",
+            null,
+            3,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            "direct",
+            46,
+            "enemy-1",
+            "pyro",
+            "burning",
+            null,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            2,
+            "transformative-reaction",
+            61,
+            "enemy-1",
+            "pyro",
+            "burning",
+            1,
+            5.166666666666667,
+            14,
+            573.5740660714285,
+            574
+          ],
+          [
+            3,
+            "transformative-reaction",
+            76,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            18,
+            573.5740660714285,
+            574
+          ],
+          [
+            4,
+            "transformative-reaction",
+            91,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            22,
+            573.5740660714285,
+            574
+          ],
+          [
+            5,
+            "transformative-reaction",
+            106,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            26,
+            573.5740660714285,
+            574
+          ],
+          [
+            6,
+            "transformative-reaction",
+            121,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            30,
+            573.5740660714285,
+            574
+          ],
+          [
+            7,
+            "transformative-reaction",
+            136,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            34,
+            573.5740660714285,
+            574
+          ],
+          [
+            8,
+            "transformative-reaction",
+            151,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            38,
+            573.5740660714285,
+            574
+          ],
+          [
+            9,
+            "transformative-reaction",
+            166,
+            "enemy-1",
+            "pyro",
+            "burning",
+            2,
+            5.166666666666667,
+            42,
+            573.5740660714285,
+            574
+          ]
+        ]
+      },
+      "targetClock": {
+        "audit": {
+          "version": "1.0.0",
+          "mode": "target-local-hitlag-v1",
+          "hitlagStatus": "modeled-enemy-hitlag",
+          "roundingModel": "ceil-ceil-v1",
+          "applicationOrder": "after-current-target-tick",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "targets": [
+            {
+              "targetId": "enemy-0",
+              "targetName": "frozen lifecycle target",
+              "finalGlobalFrame": 187,
+              "finalTargetFrame": 182,
+              "frozenFramesConsumed": 5,
+              "frozenFramesRemaining": 0,
+              "hitlagApplications": 1,
+              "totalExtensionFrames": 5
+            },
+            {
+              "targetId": "enemy-1",
+              "targetName": "Later Burning target",
+              "finalGlobalFrame": 187,
+              "finalTargetFrame": 187,
+              "frozenFramesConsumed": 0,
+              "frozenFramesRemaining": 0,
+              "hitlagApplications": 0,
+              "totalExtensionFrames": 0
+            }
+          ]
+        },
+        "transitions": [
+          [
+            0,
+            "enemy-0",
+            "apply-hitlag",
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            5,
+            0,
+            "hit"
+          ],
+          [
+            1,
+            "enemy-0",
+            "advance",
+            0,
+            46,
+            0,
+            41,
+            5,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            2,
+            "enemy-1",
+            "advance",
+            0,
+            46,
+            0,
+            46,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            3,
+            "enemy-0",
+            "advance",
+            46,
+            61,
+            41,
+            56,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            4,
+            "enemy-1",
+            "advance",
+            46,
+            61,
+            46,
+            61,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            5,
+            "enemy-0",
+            "advance",
+            61,
+            76,
+            56,
+            71,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            6,
+            "enemy-1",
+            "advance",
+            61,
+            76,
+            61,
+            76,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            7,
+            "enemy-0",
+            "advance",
+            76,
+            91,
+            71,
+            86,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            8,
+            "enemy-1",
+            "advance",
+            76,
+            91,
+            76,
+            91,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            9,
+            "enemy-0",
+            "advance",
+            91,
+            106,
+            86,
+            101,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            10,
+            "enemy-1",
+            "advance",
+            91,
+            106,
+            91,
+            106,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            11,
+            "enemy-0",
+            "advance",
+            106,
+            121,
+            101,
+            116,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            12,
+            "enemy-1",
+            "advance",
+            106,
+            121,
+            106,
+            121,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            13,
+            "enemy-0",
+            "advance",
+            121,
+            136,
+            116,
+            131,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            14,
+            "enemy-1",
+            "advance",
+            121,
+            136,
+            121,
+            136,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            15,
+            "enemy-0",
+            "advance",
+            136,
+            151,
+            131,
+            146,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            16,
+            "enemy-1",
+            "advance",
+            136,
+            151,
+            136,
+            151,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            17,
+            "enemy-0",
+            "advance",
+            151,
+            166,
+            146,
+            161,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            18,
+            "enemy-1",
+            "advance",
+            151,
+            166,
+            151,
+            166,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            19,
+            "enemy-0",
+            "advance",
+            166,
+            176,
+            161,
+            171,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            20,
+            "enemy-0",
+            "advance",
+            176,
+            181,
+            171,
+            176,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            21,
+            "enemy-1",
+            "advance",
+            166,
+            181,
+            166,
+            181,
+            0,
+            0,
+            0,
+            null,
+            "target-local-task"
+          ],
+          [
+            22,
+            "enemy-0",
+            "advance",
+            181,
+            187,
+            176,
+            182,
+            0,
+            0,
+            0,
+            null,
+            "simulation-end"
+          ],
+          [
+            23,
+            "enemy-1",
+            "advance",
+            181,
+            187,
+            181,
+            187,
+            0,
+            0,
+            0,
+            null,
+            "simulation-end"
+          ]
+        ],
+        "hitlag": [
+          [
+            0,
+            0,
+            0,
+            "enemy-0",
+            0,
+            5,
+            0,
+            5,
+            0,
+            5,
+            1,
+            6,
+            true,
+            null
+          ],
+          [
+            1,
+            0,
+            0,
+            "enemy-1",
+            1,
+            5,
+            0,
+            5,
+            0,
+            0,
+            null,
+            null,
+            false,
+            "TARGET_MISS"
+          ]
+        ]
+      },
+      "abandonedWake": {
+        "globalFrame": 176,
+        "targetPhaseRows": 0,
+        "frozenExpiryRows": 0,
+        "frozenTimelinePoints": 0
+      },
+      "targetMissAudits": [
+        {
+          "hitResolution": [
+            1,
+            0,
+            3,
+            2,
+            0,
+            "frozen-start",
+            "enemy-1",
+            "miss",
+            "OUTSIDE_CIRCLE_GEOMETRY",
+            false,
+            false,
+            false,
+            null,
+            0,
+            0,
+            0
+          ],
+          "targetHitlag": [
+            1,
+            0,
+            0,
+            "enemy-1",
+            1,
+            5,
+            0,
+            5,
+            0,
+            0,
+            null,
+            null,
+            false,
+            "TARGET_MISS",
+            []
+          ],
+          "phase": {
+            "model": "target-phase-v2",
+            "id": 1,
+            "targetId": "enemy-1",
+            "targetName": "Later Burning target",
+            "frame": [
+              0,
+              0,
+              0
+            ],
+            "targetOrder": 1,
+            "auraBeforeTargetTasks": [
+              [
+                "dendro",
+                3.2,
+                1020,
+                1020,
+                [
+                  [
+                    "__initial__",
+                    3.2
+                  ]
+                ]
+              ]
+            ],
+            "targetTasks": [],
+            "auraAfterTargetTasks": [
+              [
+                "dendro",
+                3.2,
+                1020,
+                1020,
+                [
+                  [
+                    "__initial__",
+                    3.2
+                  ]
+                ]
+              ]
+            ],
+            "reactableTick": {
+              "frame": [
+                0,
+                0
+              ],
+              "auraBefore": [
+                [
+                  "dendro",
+                  3.2,
+                  1020,
+                  1020,
+                  [
+                    [
+                      "__initial__",
+                      3.2
+                    ]
+                  ]
+                ]
+              ],
+              "transitions": [],
+              "auraAfter": [
+                [
+                  "dendro",
+                  3.2,
+                  1020,
+                  1020,
+                  [
+                    [
+                      "__initial__",
+                      3.2
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "refs": {
+              "hitResolutionLogIds": [
+                1
+              ],
+              "reactionTaskLogIds": []
+            }
+          },
+          "targetClockAudit": {
+            "targetId": "enemy-1",
+            "targetName": "Later Burning target",
+            "finalGlobalFrame": 187,
+            "finalTargetFrame": 187,
+            "frozenFramesConsumed": 0,
+            "frozenFramesRemaining": 0,
+            "hitlagApplications": 0,
+            "totalExtensionFrames": 0
+          },
+          "targetClockTransitionIds": [],
+          "damageEventIds": []
+        }
+      ]
+    }
+  },
+  "hashes": {
+    "frozenF176": "b5f08176fe8cf808b25022d9096ee583c9899f1862677ff75bc2f77be6513d3c",
+    "quickenF600": "5868c17268c7576f5e99ae607dc4c55b9b10a122b22e27d0e0493844b974d7b0",
+    "burningFuelF61": "66fc01725b2a0138b12aba42a6b00e0b3f84f28a11235be8874839ba97e84bf9",
+    "electroChargedF570": "064764058f6f1e0e0ef4e118827a77fe7a4b18ac07f13b88a3f37f63d030917a",
+    "frozenHitlag5F181": "0b01757f0dc8040122d084f7dd3b8462066df6d027b644ca3113785d00df43a5"
+  }
+}

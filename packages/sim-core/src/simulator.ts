@@ -5,6 +5,7 @@ import {
   dendroCoreResultReferencesSchema,
   migrateConfig,
   playerDamageResultReferencesSchema,
+  reactionDeliveryResultReferencesSchema,
   simulationRunManifestSchema,
   targetClockAuditSchema,
   targetClockLogSchema,
@@ -1338,6 +1339,9 @@ function simulateConfig(
     config.targetTaskModel.mode === "target-phase-v1";
   const targetPhaseV2Enabled =
     config.targetTaskModel.mode === "target-phase-v2";
+  const recursiveShatterDeliveryEnabled =
+    config.reactionDeliveryModel.mode ===
+    "shatter-recursive-zero-delay-v1";
   const targetPhaseEnabled = targetPhaseV1Enabled;
   const targetPhaseAuditEnabled =
     targetPhaseV1Enabled || targetPhaseV2Enabled;
@@ -4944,7 +4948,10 @@ function simulateConfig(
     sourceBuffStatuses,
     snapshot,
     cycle,
-    triggerFrame
+    triggerFrame,
+    eventPriority,
+    eventSequence,
+    nextIntraEventSequence
   }: {
     audit: ShatterReactionAudit;
     actorId: string;
@@ -4959,8 +4966,11 @@ function simulateConfig(
     snapshot: DamageEvent["snapshot"];
     cycle: number;
     triggerFrame: number;
-  }): void => {
-    if (!audit.triggered) return;
+    eventPriority: number;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): number | null => {
+    if (!audit.triggered) return null;
     const reactionDamageLogId = reactionDamageLog.length;
     const withinSimulation =
       audit.scheduled &&
@@ -5001,7 +5011,29 @@ function simulateConfig(
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
-    if (!withinSimulation) return;
+    if (!withinSimulation) return null;
+    if (recursiveShatterDeliveryEnabled) {
+      return settleRecursiveShatterDamage({
+        actorId,
+        action,
+        triggerHitId,
+        triggerHitGroupId,
+        parentDamageEventId: triggerDamageEventId,
+        sourceTargetId,
+        baseMultiplier: audit.baseMultiplier,
+        stats,
+        elementalMastery: stats.em,
+        reactionBonus,
+        sourceBuffStatuses,
+        snapshot,
+        cycle,
+        reactionDamageLogId,
+        frame: audit.damageFrame,
+        eventPriority,
+        eventSequence,
+        nextIntraEventSequence
+      });
+    }
     push(audit.damageFrame / 60, "reactionDamage", {
       reaction: "shatter",
       damageElement: "physical",
@@ -5026,6 +5058,7 @@ function simulateConfig(
       cycle,
       reactionDamageLogId
     } satisfies ReactionDamageEventPayload);
+    return null;
   };
 
   const resolveSwirlDamageGroup = ({
@@ -6097,6 +6130,537 @@ function simulateConfig(
     };
   };
 
+  function settleRecursiveShatterDamage({
+    actorId,
+    action,
+    triggerHitId,
+    triggerHitGroupId,
+    parentDamageEventId,
+    sourceTargetId,
+    baseMultiplier,
+    stats,
+    elementalMastery,
+    reactionBonus,
+    sourceBuffStatuses,
+    snapshot,
+    cycle,
+    reactionDamageLogId,
+    frame,
+    eventPriority,
+    eventSequence,
+    nextIntraEventSequence
+  }: {
+    actorId: string;
+    action: ActionDefinition;
+    triggerHitId: string;
+    triggerHitGroupId: string;
+    parentDamageEventId: number;
+    sourceTargetId: string;
+    baseMultiplier: number;
+    stats: CharacterStats;
+    elementalMastery: number;
+    reactionBonus: number;
+    sourceBuffStatuses: ActiveStatusSnapshot[];
+    snapshot: DamageEvent["snapshot"];
+    cycle: number;
+    reactionDamageLogId: number;
+    frame: number;
+    eventPriority: number;
+    eventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): number {
+    const sourceActor = characters.get(actorId);
+    const targetProfile =
+      enemyTargetById.get(sourceTargetId);
+    const reactionLog =
+      reactionDamageLog[reactionDamageLogId];
+    if (
+      sourceActor === undefined ||
+      targetProfile === undefined ||
+      reactionLog === undefined
+    ) {
+      throw new Error(
+        `Recursive Shatter settlement could not resolve actor "${actorId}", target "${sourceTargetId}", or reaction log ${reactionDamageLogId}.`
+      );
+    }
+    if (
+      parentDamageEventId !== damageEvents.length + 1 ||
+      reactionLog.reaction !== "shatter" ||
+      !reactionLog.scheduled ||
+      !reactionLog.withinSimulation ||
+      reactionLog.triggerDamageEventId !==
+        parentDamageEventId ||
+      reactionLog.sourceActorId !== actorId ||
+      reactionLog.sourceTargetId !== sourceTargetId ||
+      reactionLog.triggerFrame !== frame ||
+      reactionLog.damageFrame !== frame
+    ) {
+      throw new Error(
+        `Recursive Shatter log ${reactionDamageLogId} does not own the expected same-frame forward parent ${parentDamageEventId}.`
+      );
+    }
+
+    const timeSeconds = frame / 60;
+    const reactionLabel =
+      TRANSFORMATIVE_REACTION_LABELS.shatter;
+    const reactionHitId = `${triggerHitId}:shatter`;
+    const reactionHitGroupId =
+      `${triggerHitGroupId}:shatter:${parentDamageEventId}`;
+    const reactionActionName =
+      `${action.name} · ${reactionLabel}`;
+    const targetAuraEngine =
+      auraEngines?.get(sourceTargetId) ?? null;
+    const targetTaskPhaseEntry = ensureTargetTaskPhase({
+      targetId: sourceTargetId,
+      globalFrame: frame,
+      wakeKind: "incoming",
+      eventType: "reactionDamage",
+      eventPriority,
+      eventSequence,
+      intraEventSequence: targetPhaseEnabled
+        ? nextIntraEventSequence()
+        : 0
+    });
+    const targetPhaseV2Entry =
+      ensureTargetPhaseV2State({
+        targetId: sourceTargetId,
+        globalFrame: frame,
+        emit: true
+      })?.entry ?? null;
+    const mechanicsTruncatedBefore =
+      targetAuraEngine?.isMechanicsTruncated() ?? false;
+    const mechanicsStatus: DamageEvent["mechanicsStatus"] =
+      mechanicsTruncatedBefore
+        ? "mechanics-truncated"
+        : "authoritative";
+    const activeTargetPhase = targetPhaseTimeline.find(
+      (phase) =>
+        phase.targetId === sourceTargetId &&
+        frame >= phase.startFrame &&
+        frame < phase.endFrame
+    );
+    const damageAllowed =
+      activeTargetPhase?.effects.damage !== "immune";
+    const childDamageEventId = damageEvents.length;
+
+    reactionLog.checkedTargetIds.push(sourceTargetId);
+    reactionLog.hitTargetIds.push(sourceTargetId);
+    if (
+      targetPhaseAuditEnabled &&
+      targetAuraEngine !== null
+    ) {
+      const aura = targetAuraEngine.getAuraStateAt(frame);
+      targetStateTimelineRecorder.recordEvent({
+        frame,
+        timeSeconds,
+        targetId: sourceTargetId,
+        targetName: targetProfile.name,
+        cause: "reaction-damage-application",
+        eventType: "reactionDamage",
+        eventPriority,
+        eventSequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: childDamageEventId,
+        links: [
+          {
+            kind: "damage-event",
+            id: childDamageEventId
+          },
+          {
+            kind: "reaction-damage-log",
+            id: reactionDamageLogId
+          }
+        ],
+        auraBefore: aura,
+        auraAfter: aura
+      });
+    }
+
+    const shatterDamageGroupDecision =
+      shatterReactionALimiter.decide({
+        targetId: sourceTargetId,
+        actorId,
+        reactionTag: "shatter",
+        frame
+      });
+    const shatterDamageGroupAudit: ReactionADamageGroupAudit =
+      {
+        reaction: "shatter",
+        sourceActorId: actorId,
+        targetId: sourceTargetId,
+        windowStartFrame:
+          shatterDamageGroupDecision.windowStartFrame,
+        hitIndex: shatterDamageGroupDecision.hitIndex,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed:
+          shatterDamageGroupDecision.damageAllowed,
+        blockedReason:
+          shatterDamageGroupDecision.blockedReason
+      };
+    reactionLog.damageGroupDecisions.push(
+      shatterDamageGroupAudit
+    );
+    if (!shatterDamageGroupAudit.damageAllowed) {
+      reactionLog.damageGroupBlockedTargetIds.push(
+        sourceTargetId
+      );
+    }
+
+    const targetResolutionId = hitResolutionLog.length;
+    const targetPosition = resolveTargetPosition(
+      sourceTargetId,
+      frame
+    );
+    const targetResolution: SimulationResult["hitResolutionLog"][number] =
+      {
+        id: targetResolutionId,
+        frame,
+        timeSeconds,
+        ...(targetPhaseAuditEnabled
+          ? {
+              eventPriority,
+              eventSequence,
+              intraEventSequence: nextIntraEventSequence()
+            }
+          : {}),
+        cycle,
+        sourceActorId: actorId,
+        sourceActionId: action.id,
+        actionName: reactionActionName,
+        hitId: reactionHitId,
+        hitGroupId: reactionHitGroupId,
+        targetIndex: 0,
+        targetCount: 1,
+        hitLabel: `${reactionLabel}反应伤害`,
+        element: "physical",
+        targetId: sourceTargetId,
+        targetName: targetProfile.name,
+        targetingSource: "reaction-source",
+        resolutionKind: "reaction-damage",
+        targetPosition: deepClone(targetPosition),
+        sourceActorPosition: null,
+        sourceActorFacingDegrees: null,
+        geometryKind: null,
+        geometryCoordinateSpace: null,
+        geometryOrigin: null,
+        geometryStart: null,
+        geometryEnd: null,
+        geometryRadius: null,
+        geometryHalfWidth: null,
+        geometryHalfHeight: null,
+        geometryRotationDegrees: null,
+        geometryDirectionDegrees: null,
+        geometryAngleDegrees: null,
+        geometryDistance: null,
+        geometryThreshold: null,
+        outcome: "landed",
+        landed: true,
+        reason: activeTargetPhase?.reason ?? null,
+        targetEffectSource:
+          activeTargetPhase === undefined
+            ? "normal"
+            : "target-phase",
+        targetPhaseId: activeTargetPhase?.id ?? null,
+        damageAllowed,
+        mechanicsStatus,
+        auraAllowed: false,
+        hitConfirmAllowed: false,
+        damageEventId: null,
+        potentialDamage: 0,
+        finalDamage: 0,
+        displayDamage: 0,
+        ...(action.timelineCommandIndex === undefined
+          ? {}
+          : {
+              timelineCommandIndex:
+                action.timelineCommandIndex
+            }),
+        ...(action.sourceAbilityId === undefined
+          ? {}
+          : { sourceAbilityId: action.sourceAbilityId })
+      };
+    hitResolutionLog.push(targetResolution);
+    if (
+      targetTaskPhaseEntry?.wakeKind === "incoming" &&
+      targetTaskPhaseEntry.eventType === "reactionDamage"
+    ) {
+      appendTargetTaskPhaseReference(
+        targetTaskPhaseEntry,
+        "hitResolutionLogIds",
+        targetResolutionId
+      );
+    }
+    appendTargetPhaseV2Reference(
+      targetPhaseV2Entry,
+      "hitResolutionLogIds",
+      targetResolutionId
+    );
+
+    const debuffState = getDebuffState(
+      timeSeconds,
+      "physical",
+      targetProfile.defReduction,
+      sourceTargetId
+    );
+    const baseResistance = resolveEnemyBaseResistance(
+      targetProfile,
+      "physical"
+    );
+    const effectiveResistance =
+      baseResistance - debuffState.resShred;
+    const effectiveDefenseReduction = clamp(
+      debuffState.defReduction,
+      -1,
+      0.9
+    );
+    const activeStatuses: ActiveStatusSnapshot[] = [
+      ...sourceBuffStatuses.map((status) =>
+        deepClone(status)
+      ),
+      ...debuffState.relevantDebuffs.map((debuff) => ({
+        key: debuff.key,
+        kind: "debuff" as const,
+        sourceActorId: debuff.actorId,
+        ...("targetId" in debuff
+          ? { targetId: debuff.targetId }
+          : {}),
+        element: debuff.element,
+        resShred: debuff.resShred,
+        defReduction: debuff.defReduction,
+        startTimeSeconds: debuff.start,
+        endTimeSeconds: debuff.end,
+        label: debuff.label
+      }))
+    ];
+    const calculation = calcTransformativeReactionDamage({
+      characterLevel: sourceActor.level,
+      elementalMastery,
+      reactionBonus,
+      baseMultiplier,
+      effectiveResistance
+    });
+    const reactionDamageGroupMultiplier =
+      shatterDamageGroupAudit.damageAllowed ? 1 : 0;
+    const transformativeReactionFactors: TransformativeReactionFactors =
+      {
+        reaction: "shatter",
+        characterLevel: sourceActor.level,
+        levelBaseDamage: calculation.levelBaseDamage,
+        baseMultiplier,
+        elementalMastery,
+        elementalMasteryBonus:
+          calculation.elementalMasteryBonus,
+        reactionBonus: calculation.reactionBonus,
+        preResistanceDamage:
+          calculation.preResistanceDamage,
+        effectiveResistance,
+        resistanceMultiplier:
+          calculation.resistanceMultiplier
+      };
+    const targetDamageMultiplier =
+      damageAllowed && !mechanicsTruncatedBefore ? 1 : 0;
+    const potentialDamage =
+      calculation.finalDamage *
+      reactionDamageGroupMultiplier;
+    const finalDamage =
+      potentialDamage * targetDamageMultiplier;
+    const displayDamage = Math.round(finalDamage);
+    const damageComposition: DamageEvent["damageComposition"] =
+      {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: finalDamage
+      };
+    const damageFactors: DamageEvent["damageFactors"] = {
+      scaling: 0,
+      scalingStat: "em",
+      scalingValue: elementalMastery,
+      flatDamage: 0,
+      baseDamage: calculation.preResistanceDamage,
+      damageBonus: 0,
+      damageBonusMultiplier: 1,
+      defenseIgnore: 1,
+      defenseReduction: effectiveDefenseReduction,
+      defenseMultiplier: 1,
+      effectiveResistance,
+      resistanceMultiplier:
+        calculation.resistanceMultiplier,
+      critRate: 0,
+      critDamage: 0,
+      critMultiplier: 1,
+      reactionBase: baseMultiplier,
+      elementalMasteryBonus:
+        calculation.elementalMasteryBonus,
+      reactionBonus: calculation.reactionBonus,
+      amplifyingReactionMultiplier: 1,
+      groupMultiplier: reactionDamageGroupMultiplier
+    };
+    const reactionAudit: ReactionAudit = {
+      model: "reaction-damage",
+      triggered: true,
+      reaction: "shatter",
+      reactions: ["shatter"],
+      unsupportedReactions: [],
+      mechanicsTruncation: null,
+      icdAllowed: null,
+      icdTag: null,
+      icdGroup: null,
+      applicationGaugeUnits: null,
+      auraBefore: null,
+      auraApplied: null,
+      auraConsumed: null,
+      auraAfter: null,
+      transformativeReaction: null,
+      periodicReaction: null,
+      frozenReaction: null,
+      shatterReaction: null,
+      swirlReactions: [],
+      swirlDamageGroup: null,
+      crystallizeReaction: null,
+      catalyzeReaction: null,
+      burningReaction: null,
+      bloomReactions: [],
+      note:
+        `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。`
+    };
+    const buffLabels = sourceBuffStatuses.map(
+      (status) => status.label
+    );
+    const debuffLabels = debuffState.relevantDebuffs.map(
+      (debuff) => debuff.label
+    );
+    damageEvents.push({
+      id: childDamageEventId,
+      kind: "transformative-reaction",
+      eventPriority,
+      eventSequence,
+      parentDamageEventId,
+      sourceActorId: actorId,
+      scalingOwnerId: actorId,
+      creditOwnerId: actorId,
+      actionId: action.id,
+      hitId: reactionHitId,
+      hitGroupId: reactionHitGroupId,
+      targetIndex: 0,
+      targetCount: 1,
+      targetResolutionId,
+      targetId: sourceTargetId,
+      targetName: targetProfile.name,
+      targetDamagePolicy: damageAllowed
+        ? "normal"
+        : "immune",
+      targetDamageMultiplier,
+      mechanicsStatus,
+      potentialDamage,
+      frame,
+      timeSeconds,
+      activeCharacterId,
+      statsBeforeDamage: deepClone(stats),
+      activeStatuses,
+      enemyStateBeforeHit: {
+        level: targetProfile.level,
+        baseResistance,
+        resistanceShred: debuffState.resShred,
+        effectiveResistance,
+        baseDefenseReduction: targetProfile.defReduction,
+        effectiveDefenseReduction
+      },
+      reactionAudit,
+      damageFactors,
+      transformativeReactionFactors,
+      additiveReactionFactors: null,
+      damageComposition,
+      finalDamage,
+      displayDamage,
+      sourceActorName: sourceActor.name,
+      scalingOwnerName: sourceActor.name,
+      creditOwnerName: sourceActor.name,
+      actionName: reactionActionName,
+      hitLabel: `${reactionLabel}反应伤害`,
+      element: "physical",
+      reaction: "shatter",
+      snapshot,
+      cycle,
+      flatDetails: [],
+      ...(action.timelineCommandIndex === undefined
+        ? {}
+        : {
+            timelineCommandIndex:
+              action.timelineCommandIndex
+          }),
+      ...(action.sourceAbilityId === undefined
+        ? {}
+        : { sourceAbilityId: action.sourceAbilityId }),
+      ...(action.startFrame === undefined
+        ? {}
+        : { actionStartFrame: action.startFrame }),
+      ...(action.cancelFrame === undefined
+        ? {}
+        : { actionCancelFrame: action.cancelFrame }),
+      ...(action.animationEndFrame === undefined
+        ? {}
+        : {
+            actionAnimationEndFrame:
+              action.animationEndFrame
+          }),
+      time: timeSeconds,
+      second: Math.floor(timeSeconds),
+      actorId,
+      creditId: actorId,
+      actorName: sourceActor.name,
+      activeId: activeCharacterId,
+      scaling: 0,
+      scalingStat: "em",
+      scalingValue: elementalMastery,
+      flat: 0,
+      baseDamage: calculation.preResistanceDamage,
+      dmgBonus: 0,
+      bonusFactor: 1,
+      defIgnore: 1,
+      defReduction: effectiveDefenseReduction,
+      defenseFactor: 1,
+      effectiveRes: effectiveResistance,
+      resFactor: calculation.resistanceMultiplier,
+      critRate: 0,
+      critDmg: 0,
+      critFactor: 1,
+      em: elementalMastery,
+      reactionBase: baseMultiplier,
+      emBonus: calculation.elementalMasteryBonus,
+      reactionBonus: calculation.reactionBonus,
+      reactionFactor:
+        baseMultiplier *
+        (1 +
+          calculation.elementalMasteryBonus +
+          calculation.reactionBonus),
+      groupMultiplier: reactionDamageGroupMultiplier,
+      buffs: buffLabels,
+      debuffs: debuffLabels
+    });
+    reactionLog.damageEventIds.push(childDamageEventId);
+    targetResolution.damageEventId = childDamageEventId;
+    targetResolution.potentialDamage = potentialDamage;
+    targetResolution.finalDamage = finalDamage;
+    targetResolution.displayDamage = displayDamage;
+    recordTargetMechanicsTruncation({
+      audit: reactionAudit,
+      targetId: sourceTargetId,
+      targetName: targetProfile.name,
+      sourceActorId: actorId,
+      sourceActionId: action.id,
+      hitId: reactionHitId,
+      triggerDamageEventId: childDamageEventId,
+      frame,
+      timeSeconds,
+      eventPriority,
+      eventSequence
+    });
+    return childDamageEventId;
+  }
+
   const processHitConfirmedParticles = ({
     actorId,
     action,
@@ -6394,10 +6958,7 @@ function simulateConfig(
     eventSequence: number;
     nextIntraEventSequence: () => number;
   }): void => {
-    if (
-      hit.targetHitlag !== undefined &&
-      (landed || !targetPhaseV2Enabled)
-    ) {
+    if (hit.targetHitlag !== undefined) {
       applyConfiguredTargetHitlag({
         targetId,
         targetName:
@@ -9448,102 +10009,251 @@ function simulateConfig(
         );
         const reactionDamageAuraAllowed =
           activeTargetPhase?.effects.aura !== "blocked";
-        const propagatedReactionAudit =
+        const damageAllowed =
           plan.landed &&
-          reactionDamageAuraAllowed &&
-          targetAuraEngine !== null &&
-          (application !== undefined || mechanicsTruncatedBefore)
-            ? projectPlayerSelfDamageStatus(
-                targetAuraEngine.processHit({
-                  frame: event.frame,
-                  sourceActorId: actorId,
-                  element: damageElement,
-                  ...(application === undefined
-                    ? {}
-                    : { application })
-                })
-              )
-            : null;
-        const pendingReactionDamageEventId = damageEvents.length;
-        if (propagatedReactionAudit !== null) {
-          targetStateTimelineRecorder.recordEvent({
-            frame: event.frame,
-            timeSeconds,
-            targetId: plan.targetId,
-            targetName: targetProfile.name,
-            cause: "reaction-damage-application",
-            eventType: event.type,
-            eventPriority: event.priority,
-            eventSequence: event.sequence,
-            intraEventSequence: nextIntraEventSequence(),
-            reaction: propagatedReactionAudit.reaction,
-            reactions: propagatedReactionAudit.reactions,
-            primaryDamageEventId: pendingReactionDamageEventId,
-            links: [
+          activeTargetPhase?.effects.damage !== "immune";
+        const appendParentReactionHitResolution =
+          (): SimulationResult["hitResolutionLog"][number] => {
+            const targetResolutionId =
+              hitResolutionLog.length;
+            const targetResolution: SimulationResult["hitResolutionLog"][number] =
               {
-                kind: "damage-event",
-                id: pendingReactionDamageEventId
-              },
-              {
-                kind: "reaction-damage-log",
-                id: reactionDamageLogId
-              },
-              ...(propagatedReactionAudit.mechanicsTruncation ===
-              null
-                ? projectedQuickenDecayRebaseLogIds(
-                    propagatedReactionAudit
-                  ).map((id) => ({
-                    kind: "quicken-state-log" as const,
-                    id
-                  }))
-                : [])
-            ],
-            auraBefore: propagatedReactionAudit.auraBefore ?? [],
-            auraApplied: propagatedReactionAudit.auraApplied ?? [],
-            auraConsumed: propagatedReactionAudit.auraConsumed ?? [],
-            auraAfter: propagatedReactionAudit.auraAfter ?? []
-          });
-        } else if (
-          targetPhaseAuditEnabled &&
-          plan.landed &&
-          targetAuraEngine !== null
-        ) {
-          // A target phase is still observable when a scheduled reaction
-          // attack deals damage without applying Aura (for example an
-          // Electro-Charged tick). Emit an explicit no-op state point so the
-          // incoming damage, phase boundary, and target-state replay remain
-          // mutually auditable instead of relying on a silent synchronize.
-          const aura = targetAuraEngine.getAuraStateAt(
-            event.frame
-          );
-          targetStateTimelineRecorder.recordEvent({
-            frame: event.frame,
-            timeSeconds,
-            targetId: plan.targetId,
-            targetName: targetProfile.name,
-            cause: "reaction-damage-application",
-            eventType: event.type,
-            eventPriority: event.priority,
-            eventSequence: event.sequence,
-            intraEventSequence: nextIntraEventSequence(),
-            reaction: "none",
-            reactions: [],
-            primaryDamageEventId: pendingReactionDamageEventId,
-            links: [
-              {
-                kind: "damage-event",
-                id: pendingReactionDamageEventId
-              },
-              {
-                kind: "reaction-damage-log",
-                id: reactionDamageLogId
-              }
-            ],
-            auraBefore: aura,
-            auraAfter: aura
-          });
+                id: targetResolutionId,
+                frame: event.frame,
+                timeSeconds,
+                ...(targetPhaseAuditEnabled
+                  ? {
+                      eventPriority: event.priority,
+                      eventSequence: event.sequence,
+                      intraEventSequence
+                    }
+                  : {}),
+                cycle,
+                sourceActorId: actorId,
+                sourceActionId: action.id,
+                actionName: reactionActionName,
+                hitId: resolvedReactionHitId,
+                hitGroupId: resolvedReactionHitGroupId,
+                targetIndex,
+                targetCount: spatialPlans.length,
+                hitLabel: `${reactionLabel}反应伤害`,
+                element: damageElement,
+                targetId: plan.targetId,
+                targetName: targetProfile.name,
+                targetingSource: plan.targetingSource,
+                resolutionKind: "reaction-damage",
+                targetPosition: deepClone(
+                  plan.targetPosition
+                ),
+                sourceActorPosition: null,
+                sourceActorFacingDegrees: null,
+                geometryKind:
+                  plan.targetingSource ===
+                  "reaction-geometry"
+                    ? "circle"
+                    : null,
+                geometryCoordinateSpace:
+                  plan.targetingSource ===
+                  "reaction-geometry"
+                    ? "world"
+                    : null,
+                geometryOrigin:
+                  plan.targetingSource ===
+                  "reaction-geometry"
+                    ? deepClone(
+                        resolvedReactionCenterPosition
+                      )
+                    : null,
+                geometryStart: null,
+                geometryEnd: null,
+                geometryRadius:
+                  plan.targetingSource ===
+                  "reaction-geometry"
+                    ? radius
+                    : null,
+                geometryHalfWidth: null,
+                geometryHalfHeight: null,
+                geometryRotationDegrees: null,
+                geometryDirectionDegrees: null,
+                geometryAngleDegrees: null,
+                geometryDistance: plan.distance,
+                geometryThreshold: plan.threshold,
+                outcome: plan.landed ? "landed" : "miss",
+                landed: plan.landed,
+                reason:
+                  plan.reason ??
+                  (activeTargetPhase === undefined
+                    ? null
+                    : activeTargetPhase.reason),
+                targetEffectSource:
+                  activeTargetPhase === undefined
+                    ? "normal"
+                    : "target-phase",
+                targetPhaseId:
+                  activeTargetPhase?.id ?? null,
+                damageAllowed,
+                mechanicsStatus,
+                auraAllowed:
+                  plan.landed &&
+                  application !== undefined &&
+                  reactionDamageAuraAllowed,
+                hitConfirmAllowed: false,
+                damageEventId: null,
+                potentialDamage: 0,
+                finalDamage: 0,
+                displayDamage: 0,
+                ...(action.timelineCommandIndex ===
+                undefined
+                  ? {}
+                  : {
+                      timelineCommandIndex:
+                        action.timelineCommandIndex
+                    }),
+                ...(action.sourceAbilityId === undefined
+                  ? {}
+                  : {
+                      sourceAbilityId:
+                        action.sourceAbilityId
+                    })
+              };
+            hitResolutionLog.push(targetResolution);
+            reactionHitResolutionLogIds.push(
+              targetResolutionId
+            );
+            if (
+              targetTaskPhaseEntry?.wakeKind ===
+                "incoming" &&
+              targetTaskPhaseEntry.eventType ===
+                "reactionDamage"
+            ) {
+              appendTargetTaskPhaseReference(
+                targetTaskPhaseEntry,
+                "hitResolutionLogIds",
+                targetResolutionId
+              );
+            }
+            appendTargetPhaseV2Reference(
+              targetPhaseV2Entry,
+              "hitResolutionLogIds",
+              targetResolutionId
+            );
+            return targetResolution;
+          };
+        let targetResolution:
+          | SimulationResult["hitResolutionLog"][number]
+          | null = recursiveShatterDeliveryEnabled
+          ? appendParentReactionHitResolution()
+          : null;
+        const resolvePropagatedReactionAudit =
+          (): ReactionAudit | null =>
+            plan.landed &&
+            reactionDamageAuraAllowed &&
+            targetAuraEngine !== null &&
+            (application !== undefined ||
+              mechanicsTruncatedBefore)
+              ? projectPlayerSelfDamageStatus(
+                  targetAuraEngine.processHit({
+                    frame: event.frame,
+                    sourceActorId: actorId,
+                    element: damageElement,
+                    ...(application === undefined
+                      ? {}
+                      : { application })
+                  })
+                )
+              : null;
+        let propagatedReactionAudit =
+          recursiveShatterDeliveryEnabled
+            ? null
+            : resolvePropagatedReactionAudit();
+        let pendingReactionDamageEventId =
+          damageEvents.length;
+        const recordReactionDamageApplication = (): void => {
+          if (propagatedReactionAudit !== null) {
+            targetStateTimelineRecorder.recordEvent({
+              frame: event.frame,
+              timeSeconds,
+              targetId: plan.targetId,
+              targetName: targetProfile.name,
+              cause: "reaction-damage-application",
+              eventType: event.type,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              intraEventSequence: nextIntraEventSequence(),
+              reaction: propagatedReactionAudit.reaction,
+              reactions: propagatedReactionAudit.reactions,
+              primaryDamageEventId:
+                pendingReactionDamageEventId,
+              links: [
+                {
+                  kind: "damage-event",
+                  id: pendingReactionDamageEventId
+                },
+                {
+                  kind: "reaction-damage-log",
+                  id: reactionDamageLogId
+                },
+                ...(propagatedReactionAudit
+                  .mechanicsTruncation === null
+                  ? projectedQuickenDecayRebaseLogIds(
+                      propagatedReactionAudit
+                    ).map((id) => ({
+                      kind: "quicken-state-log" as const,
+                      id
+                    }))
+                  : [])
+              ],
+              auraBefore:
+                propagatedReactionAudit.auraBefore ?? [],
+              auraApplied:
+                propagatedReactionAudit.auraApplied ?? [],
+              auraConsumed:
+                propagatedReactionAudit.auraConsumed ?? [],
+              auraAfter:
+                propagatedReactionAudit.auraAfter ?? []
+            });
+          } else if (
+            targetPhaseAuditEnabled &&
+            plan.landed &&
+            targetAuraEngine !== null
+          ) {
+            const aura = targetAuraEngine.getAuraStateAt(
+              event.frame
+            );
+            targetStateTimelineRecorder.recordEvent({
+              frame: event.frame,
+              timeSeconds,
+              targetId: plan.targetId,
+              targetName: targetProfile.name,
+              cause: "reaction-damage-application",
+              eventType: event.type,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              intraEventSequence: nextIntraEventSequence(),
+              reaction: "none",
+              reactions: [],
+              primaryDamageEventId:
+                pendingReactionDamageEventId,
+              links: [
+                {
+                  kind: "damage-event",
+                  id: pendingReactionDamageEventId
+                },
+                {
+                  kind: "reaction-damage-log",
+                  id: reactionDamageLogId
+                }
+              ],
+              auraBefore: aura,
+              auraAfter: aura
+            });
+          }
+        };
+        if (!recursiveShatterDeliveryEnabled) {
+          recordReactionDamageApplication();
         }
-        const burningApplicationIcdDecision =
+        let burningApplicationIcdDecision =
+          !recursiveShatterDeliveryEnabled &&
           application?.icdGroup === "burning" &&
           propagatedReactionAudit?.icdGroup === "burning"
             ? targetAuraEngine?.getLastBurningApplicationIcdDecision() ??
@@ -9730,6 +10440,16 @@ function simulateConfig(
                   poiseDamage
                 })
             : null;
+        if (
+          recursiveShatterDeliveryEnabled &&
+          nestedShatterState?.audit.triggered === true &&
+          nestedShatterState.audit.scheduled &&
+          nestedShatterState.audit.damageFrame <=
+            Math.round(config.duration * 60)
+        ) {
+          pendingReactionDamageEventId =
+            damageEvents.length + 1;
+        }
         nestedShatterState?.mutations.forEach((mutation) => {
           const shatterTriggered =
             mutation.operation === "shatter-consume";
@@ -9777,114 +10497,106 @@ function simulateConfig(
             targetAuraEngine.getAuraStateAt(event.frame)
           );
         }
-        const damageAllowed =
-          plan.landed &&
-          activeTargetPhase?.effects.damage !== "immune";
-        const targetResolutionId = hitResolutionLog.length;
-        const targetResolution: SimulationResult["hitResolutionLog"][number] =
-          {
-            id: targetResolutionId,
-            frame: event.frame,
-            timeSeconds,
-            ...(targetPhaseAuditEnabled
-              ? {
-                  eventPriority: event.priority,
-                  eventSequence: event.sequence,
-                  intraEventSequence
-                }
-              : {}),
-            cycle,
-            sourceActorId: actorId,
-            sourceActionId: action.id,
-            actionName: reactionActionName,
-            hitId: resolvedReactionHitId,
-            hitGroupId: resolvedReactionHitGroupId,
-            targetIndex,
-            targetCount: spatialPlans.length,
-            hitLabel: `${reactionLabel}反应伤害`,
-            element: damageElement,
+        if (
+          recursiveShatterDeliveryEnabled &&
+          nestedShatterState !== null
+        ) {
+          recordShatterFrozenState({
+            result: nestedShatterState,
             targetId: plan.targetId,
             targetName: targetProfile.name,
-            targetingSource: plan.targetingSource,
-            resolutionKind: "reaction-damage",
-            targetPosition: deepClone(plan.targetPosition),
-            sourceActorPosition: null,
-            sourceActorFacingDegrees: null,
-            geometryKind:
-              plan.targetingSource === "reaction-geometry"
-                ? "circle"
-                : null,
-            geometryCoordinateSpace:
-              plan.targetingSource === "reaction-geometry"
-                ? "world"
-                : null,
-            geometryOrigin:
-              plan.targetingSource === "reaction-geometry"
-                ? deepClone(resolvedReactionCenterPosition)
-                : null,
-            geometryStart: null,
-            geometryEnd: null,
-            geometryRadius:
-              plan.targetingSource === "reaction-geometry"
-                ? radius
-                : null,
-            geometryHalfWidth: null,
-            geometryHalfHeight: null,
-            geometryRotationDegrees: null,
-            geometryDirectionDegrees: null,
-            geometryAngleDegrees: null,
-            geometryDistance: plan.distance,
-            geometryThreshold: plan.threshold,
-            outcome: plan.landed ? "landed" : "miss",
-            landed: plan.landed,
-            reason:
-              plan.reason ??
-              (activeTargetPhase === undefined
-                ? null
-                : activeTargetPhase.reason),
-            targetEffectSource:
-              activeTargetPhase === undefined
-                ? "normal"
-                : "target-phase",
-            targetPhaseId: activeTargetPhase?.id ?? null,
-            damageAllowed,
-            mechanicsStatus,
-            auraAllowed:
-              plan.landed &&
-              application !== undefined &&
-              reactionDamageAuraAllowed,
-            hitConfirmAllowed: false,
-            damageEventId: null,
-            potentialDamage: 0,
-            finalDamage: 0,
-            displayDamage: 0,
-            ...(action.timelineCommandIndex === undefined
-              ? {}
-              : {
-                  timelineCommandIndex:
-                    action.timelineCommandIndex
-                }),
-            ...(action.sourceAbilityId === undefined
-              ? {}
-              : { sourceAbilityId: action.sourceAbilityId })
-          };
-        hitResolutionLog.push(targetResolution);
-        reactionHitResolutionLogIds.push(targetResolutionId);
-        if (
-          targetTaskPhaseEntry?.wakeKind === "incoming" &&
-          targetTaskPhaseEntry.eventType === "reactionDamage"
-        ) {
-          appendTargetTaskPhaseReference(
-            targetTaskPhaseEntry,
-            "hitResolutionLogIds",
-            targetResolutionId
-          );
+            sourceActorId: actorId,
+            triggerDamageEventId:
+              pendingReactionDamageEventId,
+            frame: event.frame,
+            timeSeconds,
+            freezeResistance:
+              targetProfile.freezeResistance
+          });
+          if (nestedShatterState.audit.triggered) {
+            const shatterSourceStats = computeStats(
+              actorId,
+              timeSeconds
+            );
+            if (shatterSourceStats === undefined) {
+              throw new Error(
+                `Shatter source stats for "${actorId}" could not be resolved at frame ${event.frame}.`
+              );
+            }
+            const shatterReactionBonusDelta =
+              scheduledReactionBonus -
+              scheduledStats.reactionBonus;
+            scheduleShatterDamage({
+              audit: nestedShatterState.audit,
+              actorId,
+              action,
+              triggerHitId: resolvedReactionHitId,
+              triggerHitGroupId:
+                resolvedReactionHitGroupId,
+              triggerDamageEventId:
+                pendingReactionDamageEventId,
+              sourceTargetId: plan.targetId,
+              stats: shatterSourceStats,
+              reactionBonus:
+                shatterSourceStats.reactionBonus +
+                shatterReactionBonusDelta,
+              sourceBuffStatuses: activeBuffs
+                .filter(
+                  (buff) => buff.targetId === actorId
+                )
+                .map((buff) => ({
+                  key: buff.key,
+                  kind: "buff" as const,
+                  sourceActorId: buff.actorId,
+                  targetId: buff.targetId,
+                  stat: buff.stat,
+                  value: buff.value,
+                  startTimeSeconds: buff.start,
+                  endTimeSeconds: buff.end,
+                  label: buff.label
+                })),
+              snapshot: "hit",
+              cycle,
+              triggerFrame: event.frame,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              nextIntraEventSequence
+            });
+          }
+          if (
+            damageEvents.length !==
+            pendingReactionDamageEventId
+          ) {
+            throw new Error(
+              `Recursive Shatter reserved parent damage event ${pendingReactionDamageEventId}, but the next damage event id is ${damageEvents.length}.`
+            );
+          }
         }
-        appendTargetPhaseV2Reference(
-          targetPhaseV2Entry,
-          "hitResolutionLogIds",
-          targetResolutionId
-        );
+        if (recursiveShatterDeliveryEnabled) {
+          propagatedReactionAudit =
+            resolvePropagatedReactionAudit();
+          if (
+            nestedShatterState?.audit.triggered === true &&
+            propagatedReactionAudit !== null &&
+            propagatedReactionAudit.mechanicsTruncation !== null
+          ) {
+            throw new Error(
+              "Recursive Shatter cannot cross a newly triggered target-mechanics truncation boundary."
+            );
+          }
+          recordReactionDamageApplication();
+          burningApplicationIcdDecision =
+            application?.icdGroup === "burning" &&
+            propagatedReactionAudit?.icdGroup ===
+              "burning"
+              ? (targetAuraEngine
+                  ?.getLastBurningApplicationIcdDecision() ??
+                null)
+              : null;
+        }
+        targetResolution ??=
+          appendParentReactionHitResolution();
+        const targetResolutionId = targetResolution.id;
         if (!plan.landed) return;
 
         const debuffState = getDebuffState(
@@ -10305,6 +11017,7 @@ function simulateConfig(
           eventSequence: event.sequence
         });
         if (
+          !recursiveShatterDeliveryEnabled &&
           reactionAudit.mechanicsTruncation === null &&
           nestedShatterState !== null
         ) {
@@ -10360,7 +11073,10 @@ function simulateConfig(
                 })),
               snapshot: "hit",
               cycle,
-              triggerFrame: event.frame
+              triggerFrame: event.frame,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              nextIntraEventSequence
             });
           }
         }
@@ -10887,7 +11603,6 @@ function simulateConfig(
       baseDefenseReduction: targetProfile.defReduction,
       effectiveDefenseReduction
     };
-    const pendingDirectDamageEventId = damageEvents.length;
     const shatterState =
       auraEngine !== null &&
       auraAllowed &&
@@ -10903,6 +11618,15 @@ function simulateConfig(
               : { poiseDamage: hit.poiseDamage })
           })
         : null;
+    const recursiveShatterWillSettle =
+      recursiveShatterDeliveryEnabled &&
+      shatterState?.audit.triggered === true &&
+      shatterState.audit.scheduled &&
+      shatterState.audit.damageFrame <=
+        Math.round(config.duration * 60);
+    const pendingDirectDamageEventId =
+      damageEvents.length +
+      (recursiveShatterWillSettle ? 1 : 0);
     shatterState?.mutations.forEach((mutation) => {
       const shatterTriggered =
         mutation.operation === "shatter-consume";
@@ -10935,6 +11659,70 @@ function simulateConfig(
         auraAfter: mutation.auraAfter
       });
     });
+    if (
+      recursiveShatterDeliveryEnabled &&
+      shatterState !== null
+    ) {
+      recordShatterFrozenState({
+        result: shatterState,
+        targetId,
+        targetName: targetProfile.name,
+        sourceActorId: actorId,
+        triggerDamageEventId: pendingDirectDamageEventId,
+        frame: event.frame,
+        timeSeconds,
+        freezeResistance: targetProfile.freezeResistance
+      });
+      if (shatterState.audit.triggered) {
+        const shatterSourceStats = computeStats(
+          actorId,
+          timeSeconds
+        );
+        if (shatterSourceStats === undefined) {
+          throw new Error(
+            `Shatter source stats for "${actorId}" could not be resolved.`
+          );
+        }
+        scheduleShatterDamage({
+          audit: shatterState.audit,
+          actorId,
+          action,
+          triggerHitId: hitId,
+          triggerHitGroupId: hitGroupId,
+          triggerDamageEventId:
+            pendingDirectDamageEventId,
+          sourceTargetId: targetId,
+          stats: shatterSourceStats,
+          reactionBonus:
+            shatterSourceStats.reactionBonus +
+            safeNumber(hit.reactionBonus),
+          sourceBuffStatuses: activeBuffs
+            .filter((buff) => buff.targetId === actorId)
+            .map((buff) => ({
+              key: buff.key,
+              kind: "buff" as const,
+              sourceActorId: buff.actorId,
+              targetId: buff.targetId,
+              stat: buff.stat,
+              value: buff.value,
+              startTimeSeconds: buff.start,
+              endTimeSeconds: buff.end,
+              label: buff.label
+            })),
+          snapshot: "hit",
+          cycle,
+          triggerFrame: event.frame,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          nextIntraEventSequence
+        });
+      }
+      if (damageEvents.length !== pendingDirectDamageEventId) {
+        throw new Error(
+          `Recursive Shatter reserved parent damage event ${pendingDirectDamageEventId}, but the next damage event id is ${damageEvents.length}.`
+        );
+      }
+    }
     const manualReaction = auraAllowed ? (hit.reaction ?? "none") : "none";
     const rawReactionAudit: ReactionAudit =
       auraEngine === null
@@ -10995,6 +11783,15 @@ function simulateConfig(
             };
     const reactionAudit =
       projectPlayerSelfDamageStatus(rawReactionAudit);
+    if (
+      recursiveShatterDeliveryEnabled &&
+      shatterState?.audit.triggered === true &&
+      reactionAudit.mechanicsTruncation !== null
+    ) {
+      throw new Error(
+        "Recursive Shatter cannot cross a newly triggered target-mechanics truncation boundary."
+      );
+    }
     if (auraEngine !== null) {
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
@@ -11032,6 +11829,7 @@ function simulateConfig(
     reactionAudit.shatterReaction =
       shatterState?.audit ?? null;
     if (
+      !recursiveShatterDeliveryEnabled &&
       reactionAudit.mechanicsTruncation !== null &&
       reactionAudit.shatterReaction?.scheduled === true
     ) {
@@ -11410,7 +12208,10 @@ function simulateConfig(
         eventPriority: event.priority,
         eventSequence: event.sequence
       });
-    if (shatterState !== null) {
+    if (
+      !recursiveShatterDeliveryEnabled &&
+      shatterState !== null
+    ) {
       recordShatterFrozenState({
         result: shatterState,
         targetId,
@@ -11460,7 +12261,10 @@ function simulateConfig(
             })),
           snapshot: "hit",
           cycle,
-          triggerFrame: event.frame
+          triggerFrame: event.frame,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          nextIntraEventSequence
         });
       }
     }
@@ -12349,6 +13153,9 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+  reactionDeliveryResultReferencesSchema.parse(
+    simulationResult
+  );
   if (targetPhaseV2Enabled) {
     targetPhaseV2ResultReferencesSchema.parse(
       simulationResult

@@ -11,6 +11,7 @@ import {
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
   reactionDamageGroupAuditSchema,
+  reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
   simConfigSchema,
   simulationRunManifestSchema,
@@ -460,6 +461,9 @@ function makeMatrixConfig(
     reactionEngine: {
       mode: scenario.reactionMode ?? "aura-v5"
     },
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    },
     playerDamageModel: {
       mode: "reaction-self-v1",
       position: { x: 0, y: 0 },
@@ -572,6 +576,8 @@ function compactResult(result: SimulationResult) {
       durationFrames: Math.round(result.config.duration * 60),
       playerDamageModel: result.config.playerDamageModel,
       targetClockModel: result.config.targetClockModel,
+      reactionDeliveryModel:
+        result.config.reactionDeliveryModel,
       ...(result.config.enemy.resistances === undefined
         ? {}
         : {
@@ -1047,6 +1053,9 @@ function validateCrossLinks(result: SimulationResult): void {
 function validateResultSchemas(result: SimulationResult): void {
   expect(simConfigSchema.parse(result.config)).toEqual(result.config);
   expect(
+    reactionDeliveryResultReferencesSchema.parse(result)
+  ).toEqual(result);
+  expect(
     simulationRunManifestSchema.parse(result.runManifest)
   ).toEqual(result.runManifest);
   expect(
@@ -1311,8 +1320,13 @@ function withoutVersionIdentity(
       const {
         runManifest: _runManifest,
         hashes,
+        config,
         ...semanticVector
       } = vector;
+      const {
+        reactionDeliveryModel: _reactionDeliveryModel,
+        ...historicalConfig
+      } = config as Record<string, unknown>;
       const {
         config: _configHash,
         runManifest: _runManifestHash,
@@ -1322,6 +1336,7 @@ function withoutVersionIdentity(
         scenarioId,
         {
           ...semanticVector,
+          config: historicalConfig,
           hashes: semanticHashes
         }
       ];
@@ -1335,8 +1350,13 @@ function withoutSingleVersionIdentity(
   const {
     runManifest: _runManifest,
     hashes,
+    config,
     ...semanticVector
   } = vector;
+  const {
+    reactionDeliveryModel: _reactionDeliveryModel,
+    ...historicalConfig
+  } = config;
   const {
     config: _configHash,
     runManifest: _runManifestHash,
@@ -1344,6 +1364,7 @@ function withoutSingleVersionIdentity(
   } = hashes;
   return {
     ...semanticVector,
+    config: historicalConfig,
     hashes: semanticHashes
   };
 }
@@ -1517,6 +1538,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         });
         expect(result.mechanicsStatus).toBe("complete");
         expect(result.targetMechanicsTruncationLog).toEqual([]);
+        expect(result.config.reactionDeliveryModel).toEqual({
+          mode: "deferred-event-heap-v1"
+        });
         validateResultSchemas(result);
       }
       expect(v7Result.runManifest.configHash).not.toBe(
@@ -1938,6 +1962,24 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         ]);
         expect(result.totalDamage).toBe(1246.8);
       }
+      if (scenarioId === "freezeShatter") {
+        const parent = result.damageEvents.find(
+          (event) =>
+            event.kind === "direct" &&
+            event.hitId === "shatter-blunt"
+        );
+        const child = result.damageEvents.find(
+          (event) => event.reaction === "shatter"
+        );
+        expect(result.config.reactionDeliveryModel).toEqual({
+          mode: "deferred-event-heap-v1"
+        });
+        expect(parent).toBeDefined();
+        expect(child).toMatchObject({
+          parentDamageEventId: parent?.id
+        });
+        expect(parent!.id).toBeLessThan(child!.id);
+      }
 
       collectObservedReactions(result, observedReactions);
       const compact = compactResult(result);
@@ -1946,6 +1988,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       });
       expect(result.config.targetTaskModel).toEqual({
         mode: "legacy-event-heap-v1"
+      });
+      expect(result.config.reactionDeliveryModel).toEqual({
+        mode: "deferred-event-heap-v1"
       });
       expect(result.targetClockAudit).toEqual({
         version: "1.0.0",

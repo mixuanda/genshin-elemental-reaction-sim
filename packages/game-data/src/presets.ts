@@ -27,6 +27,7 @@ export const durinMeltPreset: SimConfig = {
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
+  reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   characters: [
     {
       id: "durin",
@@ -470,6 +471,7 @@ export const blankPreset: SimConfig = {
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
+  reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   characters: [
     {
       id: "a",
@@ -565,6 +567,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
+  reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   characters: [
     {
       id: "frame-a",
@@ -741,6 +744,7 @@ export const auraReactionDemoPreset: SimConfig = {
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
+  reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -839,6 +843,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   playerDamageModel: { mode: "disabled" },
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
+  reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

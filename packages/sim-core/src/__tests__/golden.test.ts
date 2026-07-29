@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import { playerDamageResultReferencesSchema } from "@genshin-dps-lab/schemas";
@@ -9,6 +10,7 @@ import goldenV135 from "../../../test-vectors/fixtures/legacy-default-120s-1.35.
 import goldenV136 from "../../../test-vectors/fixtures/legacy-default-120s-1.36.golden.json";
 import goldenV137 from "../../../test-vectors/fixtures/legacy-default-120s-1.37.golden.json";
 import goldenV138 from "../../../test-vectors/fixtures/legacy-default-120s-1.38.golden.json";
+import goldenV139 from "../../../test-vectors/fixtures/legacy-default-120s-1.39.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -22,9 +24,31 @@ const BURNING_DAMAGE_EVENTS_SHA256 =
   "8e5c192e04f4599da093fc61f353aff3529a2d234aba19ef6dadd00bf89e1cf1";
 const BURNING_STATE_LOG_SHA256 =
   "aedd0ba94477979a5c688e7496f925d073f36a0513ad3e274d38fbf0bff8b0b4";
-const BURNING_V138_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-b7a01ea2";
-const BURNING_V138_CONFIG_HASH = "fnv1a32:9091b850";
+const BURNING_V139_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-925ba8a3";
+const BURNING_V139_CONFIG_HASH = "fnv1a32:33ff0f6a";
+const FROZEN_VERSIONED_FIXTURE_SHA256 = {
+  "legacy-default-120s-1.37.golden.json":
+    "168595c9e3df60717fe2b5619278cc227789df7cbf56b9985a78ceb78e10bacc",
+  "quicken-bloom-task-order-1.37.golden.json":
+    "d7d6a4c5ec77fcc658f024b44044765cac74f5d60e59bff4fa4d8ed49317bfb6",
+  "target-task-phase-1.37.golden.json":
+    "5bb1ebe27d7bd5dd613abed4cb1326345925dec00311ee500b24648ffd97c60a",
+  "legacy-default-120s-1.38.golden.json":
+    "a3813cda16b831d6606df5976dc90e2d8410c272fadefd25551e29e94ff334ed",
+  "quicken-bloom-task-order-1.38.golden.json":
+    "07b35af482d2cf1f5cf77eb978682c51eb014300413ea516973dba1807863cfc",
+  "target-reactable-phase-1.38.golden.json":
+    "f6bd14ae2a86596cc7d50b2d63b4b75c9c00aeb14cb75f0ada10e3ae4b3f5db0",
+  "legacy-default-120s-1.39.golden.json":
+    "9765979c127cee707a99db1344a9569d25560d8a2f19ad2577fac2c7c9225151",
+  "quicken-bloom-task-order-1.39.golden.json":
+    "a09f6c001bc0282299f96a81232fab56caa0803f3b5b83f4d85233772ef50534",
+  "target-reactable-phase-1.39.golden.json":
+    "40f4c76f3469453b08436b2fbd1cddab1af8b9975ce8f1133b3315b03253d5f8",
+  "shatter-recursive-delivery-1.39.golden.json":
+    "a83ff459e5753ddef1082d923b6476bdbe5392dc9f574ac3d462e357df322579"
+} as const;
 
 const EMPTY_COMPATIBILITY_ARRAY_FIELDS = new Set([
   "bloomReactions",
@@ -178,7 +202,8 @@ function v130CompatibilityResult(
             ([key]) =>
               key !== "playerDamageModel" &&
               key !== "targetClockModel" &&
-              key !== "targetTaskModel"
+              key !== "targetTaskModel" &&
+              key !== "reactionDeliveryModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -220,8 +245,12 @@ function expectNoDendroCoreOutput(
 
 function makeBurningGoldenConfig(): unknown {
   const base = makeConfig();
+  const {
+    reactionDeliveryModel: _reactionDeliveryModel,
+    ...v130Base
+  } = base;
   return {
-    ...base,
+    ...v130Base,
     schemaVersion: burningGolden.config.schemaVersion,
     engineVersion: burningGolden.config.engineVersion,
     dataVersion: "burning-fixed-gcsim-cross-check-1",
@@ -327,6 +356,25 @@ function expectRelativeClose(
   );
 }
 
+describe("frozen versioned fixture integrity", () => {
+  it("keeps every 1.37–1.39 fixture byte-for-byte frozen", () => {
+    for (const [fileName, expectedSha256] of Object.entries(
+      FROZEN_VERSIONED_FIXTURE_SHA256
+    )) {
+      const bytes = readFileSync(
+        new URL(
+          `../../../test-vectors/fixtures/${fileName}`,
+          import.meta.url
+        )
+      );
+      expect(
+        createHash("sha256").update(bytes).digest("hex"),
+        fileName
+      ).toBe(expectedSha256);
+    }
+  });
+});
+
 describe("Vanilla v0.1 golden compatibility", () => {
   it("matches the full default 120-second baseline", () => {
     const result = simulate(durinMeltPreset, {
@@ -335,6 +383,60 @@ describe("Vanilla v0.1 golden compatibility", () => {
       compatibilityMode: "legacy-v0.1",
       randomSeed: golden.options.randomSeed
     });
+    const projectedBySkill = result.bySkill.map(
+      ({ creditId, actionName, damage, hits }) => ({
+        creditId,
+        actionName,
+        damage,
+        hits
+      })
+    );
+    if (
+      process.env.UPDATE_LEGACY_DEFAULT_V139_GOLDEN === "1"
+    ) {
+      const fixture = {
+        ...goldenV139,
+        schemaVersion: result.schemaVersion,
+        engineVersion: result.engineVersion,
+        configHash: result.runManifest.configHash,
+        reproducibilityKey: result.reproducibilityKey,
+        options: {
+          energyMode: "configured" as const,
+          critMode: "average" as const,
+          compatibilityMode: "legacy-v0.1" as const,
+          randomSeed: golden.options.randomSeed
+        },
+        totalDamage: result.totalDamage,
+        dps: result.dps,
+        hitCount: result.damageEvents.length,
+        reactedHits: result.reactedHits,
+        skippedActionCount: result.skippedActions.length,
+        byCharacter: result.byCharacter,
+        bySkill: projectedBySkill,
+        legacyDamageEventsSha256: sha256(result.damageEvents),
+        targetClock: {
+          config: result.config.targetClockModel,
+          audit: result.targetClockAudit,
+          clockLog: result.targetClockLog,
+          hitlagLog: result.targetHitlagLog
+        },
+        targetTask: {
+          config: result.config.targetTaskModel,
+          phaseLog: result.targetTaskPhaseLog
+        },
+        targetPhaseLog: result.targetPhaseLog,
+        reactionDeliveryModel:
+          result.config.reactionDeliveryModel
+      };
+      writeFileSync(
+        new URL(
+          "../../../test-vectors/fixtures/legacy-default-120s-1.39.golden.json",
+          import.meta.url
+        ),
+        `${JSON.stringify(fixture, null, 2)}\n`
+      );
+      return;
+    }
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
@@ -377,20 +479,32 @@ describe("Vanilla v0.1 golden compatibility", () => {
       configHash: "fnv1a32:ac06871e",
       reproducibilityKey: "gdl-v2-fnv1a32-b4ba6a29"
     });
-    expect(result.schemaVersion).toBe(goldenV138.schemaVersion);
-    expect(result.engineVersion).toBe(goldenV138.engineVersion);
+    expect(goldenV139).toMatchObject({
+      schemaVersion: "1.39.0",
+      engineVersion: "1.39.0-shatter-recursive-delivery",
+      configHash: expect.stringMatching(/^fnv1a32:[0-9a-f]{8}$/),
+      reproducibilityKey: expect.stringMatching(
+        /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
+      ),
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      }
+    });
+    expect(result.schemaVersion).toBe(goldenV139.schemaVersion);
+    expect(result.engineVersion).toBe(goldenV139.engineVersion);
     expect(result.config.schemaVersion).toBe(
-      goldenV138.schemaVersion
+      goldenV139.schemaVersion
     );
     expect(result.config.engineVersion).toBe(
-      goldenV138.engineVersion
+      goldenV139.engineVersion
     );
     expect(result.runManifest.configHash).toBe(
-      goldenV138.configHash
+      goldenV139.configHash
     );
     expect(result.reproducibilityKey).toBe(
-      goldenV138.reproducibilityKey
+      goldenV139.reproducibilityKey
     );
+    expect(goldenV139.options).toEqual(goldenV138.options);
     expect(goldenV138.options).toEqual(goldenV137.options);
     expect(goldenV137.options).toEqual(goldenV136.options);
     expect(goldenV136.options).toEqual(goldenV135.options);
@@ -406,6 +520,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(goldenV138.legacyDamageEventsSha256).toBe(
       goldenV137.legacyDamageEventsSha256
     );
+    expect(goldenV139.legacyDamageEventsSha256).toBe(
+      goldenV138.legacyDamageEventsSha256
+    );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
       identityAlgorithm: "fnv1a32-v2",
@@ -420,7 +537,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       },
       plugins: [],
       reproducibilityKey:
-        goldenV138.reproducibilityKey
+        goldenV139.reproducibilityKey
     });
     expect(result.resolvedRuntimeOptions).toBe(
       result.runManifest.resolvedRuntimeOptions
@@ -429,7 +546,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
-      goldenV138.legacyDamageEventsSha256
+      goldenV139.legacyDamageEventsSha256
     );
     expect(result.config.targetClockModel).toEqual(
       { mode: "disabled" }
@@ -441,18 +558,25 @@ describe("Vanilla v0.1 golden compatibility", () => {
       targets: []
     });
     expect(result.targetClockLog).toEqual(
-      goldenV138.targetClock.clockLog
+      goldenV139.targetClock.clockLog
     );
     expect(result.targetHitlagLog).toEqual(
-      goldenV138.targetClock.hitlagLog
+      goldenV139.targetClock.hitlagLog
     );
     expect(result.config.targetTaskModel).toEqual(
-      goldenV138.targetTask.config
+      goldenV139.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual(
-      goldenV138.targetTask.phaseLog
+      goldenV139.targetTask.phaseLog
     );
     expect(result.targetPhaseLog).toEqual(
+      goldenV139.targetPhaseLog
+    );
+    expect(result.config.reactionDeliveryModel).toEqual(
+      goldenV139.reactionDeliveryModel
+    );
+    expect(goldenV139.targetTask).toEqual(goldenV138.targetTask);
+    expect(goldenV139.targetPhaseLog).toEqual(
       goldenV138.targetPhaseLog
     );
     expect(goldenV138.targetTask).toEqual(goldenV137.targetTask);
@@ -563,28 +687,30 @@ describe("Vanilla v0.1 golden compatibility", () => {
     ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
-    expect(result.totalDamage).toBe(goldenV138.totalDamage);
-    expect(result.dps).toBe(goldenV138.dps);
+    expect(result.totalDamage).toBe(goldenV139.totalDamage);
+    expect(result.dps).toBe(goldenV139.dps);
     expect(result.damageEvents).toHaveLength(
-      goldenV138.hitCount
+      goldenV139.hitCount
     );
-    expect(result.reactedHits).toBe(goldenV138.reactedHits);
+    expect(result.reactedHits).toBe(goldenV139.reactedHits);
     expect(result.skippedActions).toHaveLength(
-      goldenV138.skippedActionCount
+      goldenV139.skippedActionCount
     );
     expect(result.byCharacter).toEqual(
+      goldenV139.byCharacter
+    );
+    expect(projectedBySkill).toEqual(goldenV139.bySkill);
+    expect(goldenV139.totalDamage).toBe(goldenV138.totalDamage);
+    expect(goldenV139.dps).toBe(goldenV138.dps);
+    expect(goldenV139.hitCount).toBe(goldenV138.hitCount);
+    expect(goldenV139.reactedHits).toBe(goldenV138.reactedHits);
+    expect(goldenV139.skippedActionCount).toBe(
+      goldenV138.skippedActionCount
+    );
+    expect(goldenV139.byCharacter).toEqual(
       goldenV138.byCharacter
     );
-    expect(
-      result.bySkill.map(
-        ({ creditId, actionName, damage, hits }) => ({
-          creditId,
-          actionName,
-          damage,
-          hits
-        })
-      )
-    ).toEqual(goldenV138.bySkill);
+    expect(goldenV139.bySkill).toEqual(goldenV138.bySkill);
     expect(goldenV138.totalDamage).toBe(goldenV137.totalDamage);
     expect(goldenV138.dps).toBe(goldenV137.dps);
     expect(goldenV138.hitCount).toBe(goldenV137.hitCount);
@@ -725,35 +851,38 @@ describe("Burning aura-v4 provisional golden", () => {
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
     expect(result.runManifest.configHash).toBe(
-      BURNING_V138_CONFIG_HASH
+      BURNING_V139_CONFIG_HASH
     );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
     expect(burningGolden.config.engineVersion).toBe(
       "1.30.0-burning-reaction"
     );
-    expect(result.schemaVersion).toBe("1.38.0");
+    expect(result.schemaVersion).toBe("1.39.0");
     expect(result.engineVersion).toBe(
-      "1.38.0-target-reactable-phase"
+      "1.39.0-shatter-recursive-delivery"
     );
-    expect(result.config.schemaVersion).toBe("1.38.0");
+    expect(result.config.schemaVersion).toBe("1.39.0");
     expect(result.config.engineVersion).toBe(
-      "1.38.0-target-reactable-phase"
+      "1.39.0-shatter-recursive-delivery"
     );
     expect(result.config.reactionEngine?.mode).toBe("aura-v4");
     expect(result.config.targetClockModel).toEqual(
-      goldenV138.targetClock.config
+      goldenV139.targetClock.config
     );
     expect(result.targetClockAudit).toEqual(
-      goldenV138.targetClock.audit
+      goldenV139.targetClock.audit
     );
     expect(result.targetClockLog).toEqual([]);
     expect(result.targetHitlagLog).toEqual([]);
     expect(result.config.targetTaskModel).toEqual(
-      goldenV138.targetTask.config
+      goldenV139.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual([]);
     expect(result.targetPhaseLog).toEqual([]);
+    expect(result.config.reactionDeliveryModel).toEqual(
+      goldenV139.reactionDeliveryModel
+    );
     expect(result.dataVersion).toBe(
       burningGolden.config.dataVersion
     );
@@ -761,7 +890,7 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V138_REPRODUCIBILITY_KEY
+      BURNING_V139_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
@@ -772,7 +901,7 @@ describe("Burning aura-v4 provisional golden", () => {
       resolvedRuntimeOptions: options,
       plugins: [],
       reproducibilityKey:
-        BURNING_V138_REPRODUCIBILITY_KEY
+        BURNING_V139_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

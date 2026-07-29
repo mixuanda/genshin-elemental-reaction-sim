@@ -38,6 +38,8 @@ import {
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
+  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   SECTOR_GEOMETRY_SCHEMA_VERSION,
@@ -444,6 +446,19 @@ export const targetTaskModelSchema = z.discriminatedUnion("mode", [
   z
     .object({
       mode: z.literal("target-phase-v2")
+    })
+    .strict()
+]);
+
+export const reactionDeliveryModelSchema = z.discriminatedUnion("mode", [
+  z
+    .object({
+      mode: z.literal("deferred-event-heap-v1")
+    })
+    .strict(),
+  z
+    .object({
+      mode: z.literal("shatter-recursive-zero-delay-v1")
     })
     .strict()
 ]);
@@ -10331,10 +10346,35 @@ export const simConfigSchema = z
     reactionEngine: auraReactionEngineConfigSchema.optional(),
     playerDamageModel: playerDamageModelSchema,
     targetClockModel: targetClockModelSchema,
-    targetTaskModel: targetTaskModelSchema
+    targetTaskModel: targetTaskModelSchema,
+    reactionDeliveryModel: reactionDeliveryModelSchema
   })
   .strict()
   .superRefine((config, context) => {
+    if (
+      config.reactionDeliveryModel.mode ===
+      "shatter-recursive-zero-delay-v1"
+    ) {
+      if (
+        config.timeline?.mode !== "legal-frame-v1" ||
+        config.timeline.fps !== 60
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["reactionDeliveryModel"],
+          message:
+            "shatter-recursive-zero-delay-v1 requires timeline.mode legal-frame-v1 at 60 FPS"
+        });
+      }
+      if (config.reactionEngine?.mode !== "aura-v7") {
+        context.addIssue({
+          code: "custom",
+          path: ["reactionDeliveryModel"],
+          message:
+            "shatter-recursive-zero-delay-v1 requires reactionEngine.mode aura-v7"
+        });
+      }
+    }
     if (
       config.targetTaskModel.mode === "target-phase-v1" &&
       config.reactionEngine !== undefined &&
@@ -12182,7 +12222,11 @@ export const targetTaskPhaseResultReferencesSchema = z
         TARGET_TASK_PHASE_SCHEMA_VERSION ||
       result.schemaVersion === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
+        TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -12251,13 +12295,23 @@ export const targetTaskPhaseResultReferencesSchema = z
           TARGET_REACTABLE_PHASE_ENGINE_VERSION &&
         result.config.engineVersion ===
           TARGET_REACTABLE_PHASE_ENGINE_VERSION;
+      const shatterRecursiveIdentity =
+        result.schemaVersion ===
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
       if (
         !frozenV1Identity &&
-        !migratedCurrentIdentity
+        !migratedCurrentIdentity &&
+        !shatterRecursiveIdentity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use either the frozen 1.37 identity or the migrated current identity"
+          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, or 1.39 identity"
         );
       }
     }
@@ -13269,7 +13323,11 @@ export const targetPhaseV2ResultReferencesSchema = z
     const currentIdentity =
       result.schemaVersion === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
+        TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -13295,19 +13353,29 @@ export const targetPhaseV2ResultReferencesSchema = z
       );
     }
     if (mode === "target-phase-v2") {
-      if (
+      const exact138Identity =
         result.schemaVersion !==
-          TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
-        result.config.schemaVersion !==
-          TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
-        result.engineVersion !==
-          TARGET_REACTABLE_PHASE_ENGINE_VERSION ||
-        result.config.engineVersion !==
-          TARGET_REACTABLE_PHASE_ENGINE_VERSION
-      ) {
+          TARGET_REACTABLE_PHASE_SCHEMA_VERSION
+          ? false
+          : result.config.schemaVersion ===
+              TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
+            result.engineVersion ===
+              TARGET_REACTABLE_PHASE_ENGINE_VERSION &&
+            result.config.engineVersion ===
+              TARGET_REACTABLE_PHASE_ENGINE_VERSION;
+      const exact139Identity =
+        result.schemaVersion ===
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+      if (!exact138Identity && !exact139Identity) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require the exact 1.38 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38 or 1.39 schema and engine identity"
         );
       }
       if (
@@ -13350,17 +13418,19 @@ export const targetPhaseV2ResultReferencesSchema = z
           });
         }
       );
-      result.burningStateLog?.forEach((entry, entryIndex) => {
-        if (
-          entry.callbackAuraBefore !== undefined ||
-          entry.callbackAuraAfter !== undefined
-        ) {
-          issue(
-            ["burningStateLog", entryIndex],
-            `${mode} cannot carry target-phase-v2 Burning callback Aura snapshots`
-          );
+      result.burningStateLog?.forEach(
+        (entry, entryIndex) => {
+          if (
+            entry.callbackAuraBefore !== undefined ||
+            entry.callbackAuraAfter !== undefined
+          ) {
+            issue(
+              ["burningStateLog", entryIndex],
+              `${mode} cannot carry target-phase-v2 Burning callback Aura snapshots`
+            );
+          }
         }
-      });
+      );
       if (phases.length !== 0) {
         issue(
           ["targetPhaseLog"],
@@ -14851,6 +14921,2174 @@ export const targetPhaseV2ResultReferencesSchema = z
     });
   });
 
+const reactionDeliveryTransformativeAuditReferenceSchema = z
+  .object({
+    reaction: z.enum(["overload", "superconduct"]),
+    scheduled: z.boolean(),
+    damageFrame: z.number().int().nonnegative(),
+    blockedReason: z
+      .enum([
+        "REACTION_DAMAGE_GCD",
+        "TARGET_MECHANICS_TRUNCATION"
+      ])
+      .nullable(),
+    nextAvailableFrame: z.number().int().nonnegative()
+  })
+  .passthrough();
+
+const reactionDeliverySwirlAuditReferenceSchema = z
+  .object({
+    reaction: z.enum([
+      "swirlPyro",
+      "swirlHydro",
+      "swirlCryo",
+      "swirlElectro"
+    ]),
+    scheduled: z.boolean(),
+    blockedReason: z
+      .literal("REACTION_QUEUE_GCD")
+      .nullable(),
+    nextAvailableFrame: z.number().int().nonnegative(),
+    selfDamageFrame: z.number().int().nonnegative(),
+    propagationDamageFrame: z.number().int().nonnegative()
+  })
+  .passthrough();
+
+const reactionDeliveryDamageEventReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    kind: z.enum(["direct", "transformative-reaction"]),
+    parentDamageEventId: z.number().int().nonnegative().nullable(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    sourceActorId: wireNonEmptyStringSchema,
+    targetId: wireNonEmptyStringSchema,
+    frame: z.number().int().nonnegative(),
+    element: elementSchema,
+    reaction: reactionTypeSchema,
+    finalDamage: finiteNumber.nonnegative().optional(),
+    damageFactors: z
+      .object({
+        groupMultiplier: finiteNumber.nonnegative()
+      })
+      .passthrough()
+      .optional(),
+    transformativeReactionFactors: z
+      .object({
+        baseMultiplier: finiteNumber.nonnegative()
+      })
+      .passthrough()
+      .nullable()
+      .optional(),
+    reactionAudit: z
+      .object({
+        reactions: z.array(reactionTypeSchema),
+        mechanicsTruncation: z
+          .object({
+            operation: z.enum(["trigger", "carry"])
+          })
+          .passthrough()
+          .nullable(),
+        transformativeReaction:
+          reactionDeliveryTransformativeAuditReferenceSchema
+            .nullable(),
+        transformativeReactions: z
+          .array(
+            reactionDeliveryTransformativeAuditReferenceSchema
+          )
+          .optional(),
+        burningReaction: z
+          .object({
+            reaction: z.literal("burning"),
+            operation: z.enum([
+              "start",
+              "refresh-fuel",
+              "refresh-snapshot",
+              "stop"
+            ])
+          })
+          .passthrough()
+          .nullable(),
+        shatterReaction: z
+          .object({
+            reaction: z.literal("shatter"),
+            strikeType: z.enum(["default", "blunt"]),
+            triggered: z.boolean(),
+            scheduled: z.boolean(),
+            damageElement: z.literal("physical"),
+            damageFrame: z.number().int().nonnegative(),
+            baseMultiplier: finiteNumber.nonnegative(),
+            blockedReason: z
+              .enum([
+                "NO_FROZEN_AURA",
+                "FROZEN_DEPLETED_BY_POISE",
+                "REACTION_DAMAGE_GCD",
+                "TARGET_MECHANICS_TRUNCATION"
+              ])
+              .nullable(),
+            nextAvailableFrame: z
+              .number()
+              .int()
+              .nonnegative()
+              .nullable(),
+            frozenGaugeBefore: finiteNumber.nonnegative(),
+            poiseConsumedGaugeUnits:
+              finiteNumber.nonnegative(),
+            frozenGaugeAfterPoise: finiteNumber.nonnegative(),
+            shatterConsumedGaugeUnits:
+              finiteNumber.nonnegative(),
+            frozenGaugeAfter: finiteNumber.nonnegative()
+          })
+          .passthrough()
+          .nullable(),
+        swirlReactions: z.array(
+          reactionDeliverySwirlAuditReferenceSchema
+        )
+      })
+      .passthrough()
+  })
+  .passthrough();
+
+const reactionDeliveryLogReferenceSchema = z
+  .object({
+    id: z.number().int().nonnegative(),
+    reaction: z.enum([
+      "overload",
+      "superconduct",
+      "electroCharged",
+      "burning",
+      "bloom",
+      "burgeon",
+      "hyperbloom",
+      "shatter",
+      "swirlPyro",
+      "swirlHydro",
+      "swirlCryo",
+      "swirlElectro"
+    ]),
+    triggerDamageEventId: z.number().int().nonnegative().nullable(),
+    sourceActorId: wireNonEmptyStringSchema,
+    sourceTargetId: wireNonEmptyStringSchema,
+    triggerFrame: z.number().int().nonnegative(),
+    damageFrame: z.number().int().nonnegative(),
+    scheduled: z.boolean(),
+    withinSimulation: z.boolean(),
+    blockedReason: z
+      .enum([
+        "REACTION_DAMAGE_GCD",
+        "REACTION_QUEUE_GCD",
+        "TARGET_MECHANICS_TRUNCATION"
+      ])
+      .nullable(),
+    nextAvailableFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable(),
+    scheduleKind: z.enum([
+      "one-shot",
+      "periodic-tick",
+      "burning-tick",
+      "swirl-self",
+      "swirl-propagation",
+      "dendro-core-bloom",
+      "dendro-core-burgeon",
+      "dendro-core-hyperbloom"
+    ]),
+    targetingMode: z.enum([
+      "radius",
+      "single-target",
+      "nearest-target-radius"
+    ]),
+    checkedTargetIds: z.array(wireNonEmptyStringSchema),
+    hitTargetIds: z.array(wireNonEmptyStringSchema),
+    damageEventIds: z.array(z.number().int().nonnegative()),
+    damageGroupBlockedTargetIds: z
+      .array(wireNonEmptyStringSchema)
+      .optional(),
+    damageGroupDecisions: z
+      .array(reactionDamageGroupAuditSchema)
+      .optional()
+  })
+  .passthrough();
+
+// Aura runtime zeroes residual gauges at 1e-10 and serializes gauges to
+// twelve decimal places. Keep cross-field conservation tolerant of that
+// cleanup boundary while still rejecting materially inconsistent states.
+const shatterGaugeTolerance = 1e-9;
+const shatterGaugeMatches = (
+  left: number,
+  right: number
+): boolean =>
+  Math.abs(left - right) <= shatterGaugeTolerance;
+
+/**
+ * Cross-log proof for the 1.39 zero-delay Shatter delivery boundary.
+ *
+ * Damage IDs normally point backward to their parent. Recursive Shatter is
+ * the sole exception: its child damage is committed first and may therefore
+ * point forward to the direct or reaction-damage event that triggered it.
+ */
+export const reactionDeliveryResultReferencesSchema = z
+  .object({
+    schemaVersion: z.string(),
+    engineVersion: z.string(),
+    config: z
+      .object({
+        schemaVersion: z.string(),
+        engineVersion: z.string(),
+        duration: finiteNumber.positive(),
+        enemy: z
+          .object({
+            targets: z
+              .array(
+                z
+                  .object({
+                    id: wireNonEmptyStringSchema
+                  })
+                  .passthrough()
+              )
+              .min(1)
+              .max(32)
+              .optional()
+          })
+          .passthrough()
+          .optional(),
+        reactionDeliveryModel: reactionDeliveryModelSchema
+      })
+      .passthrough(),
+    damageEvents: z.array(
+      reactionDeliveryDamageEventReferenceSchema
+    ),
+    reactionDamageLog: z.array(
+      reactionDeliveryLogReferenceSchema
+    )
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => addMissingReferenceIssue(context, path, message);
+    if (result.schemaVersion !== result.config.schemaVersion) {
+      issue(
+        ["config", "schemaVersion"],
+        "result and config schemaVersion must match"
+      );
+    }
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(
+        ["config", "engineVersion"],
+        "result and config engineVersion must match"
+      );
+    }
+
+    const recursive =
+      result.config.reactionDeliveryModel.mode ===
+      "shatter-recursive-zero-delay-v1";
+    const simulationEndFrame = Math.round(
+      result.config.duration * 60
+    );
+    const configuredTargetIds =
+      result.config.enemy?.targets?.map((target) => target.id) ??
+      ["enemy-0"];
+    const configuredTargetIndexById = new Map<string, number>();
+    configuredTargetIds.forEach((targetId, targetIndex) => {
+      if (configuredTargetIndexById.has(targetId)) {
+        issue(
+          ["config", "enemy", "targets", targetIndex, "id"],
+          `duplicate configured target id "${targetId}"`
+        );
+      } else {
+        configuredTargetIndexById.set(targetId, targetIndex);
+      }
+    });
+    if (
+      result.config.enemy?.targets !== undefined &&
+      !configuredTargetIndexById.has("enemy-0")
+    ) {
+      issue(
+        ["config", "enemy", "targets"],
+        'must include compatibility target "enemy-0" because hits without targeting resolve to it'
+      );
+    }
+    if (
+      (result.schemaVersion !==
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+        result.config.schemaVersion !==
+          SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+        result.engineVersion !==
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION ||
+        result.config.engineVersion !==
+          SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION)
+    ) {
+      issue(
+        ["config", "reactionDeliveryModel"],
+        "reaction delivery result requires the exact 1.39 schema and engine identity"
+      );
+    }
+
+    addDuplicateIdIssues(
+      result.damageEvents.map((event) => event.id),
+      "damageEvents",
+      context
+    );
+    addDuplicateIdIssues(
+      result.reactionDamageLog.map((entry) => entry.id),
+      "reactionDamageLog",
+      context
+    );
+    const damageById = new Map(
+      result.damageEvents.map((event) => [event.id, event])
+    );
+    const ownersByDamageEventId = new Map<
+      number,
+      Array<{ logIndex: number; referenceIndex: number }>
+    >();
+    const shatterLogIndexesByTrigger = new Map<
+      number,
+      number[]
+    >();
+    const singleDeliveryLogIndexesByKey = new Map<
+      string,
+      number[]
+    >();
+    const claimedSingleDeliveryLogIndexes = new Set<number>();
+    const singleDeliveryKey = (
+      triggerDamageEventId: number,
+      reaction: string,
+      deliveryRole: string
+    ): string =>
+      JSON.stringify([
+        triggerDamageEventId,
+        reaction,
+        deliveryRole
+      ]);
+    const expectedDamageElementByReaction = {
+      overload: "pyro",
+      superconduct: "cryo",
+      electroCharged: "electro",
+      burning: "pyro",
+      bloom: "dendro",
+      burgeon: "dendro",
+      hyperbloom: "dendro",
+      shatter: "physical",
+      swirlPyro: "pyro",
+      swirlHydro: "hydro",
+      swirlCryo: "cryo",
+      swirlElectro: "electro"
+    } as const;
+    const damageGroupPolicyByReaction = {
+      overload: {
+        allowedInstances: 1,
+        blockedReason: "REACTION_B_DAMAGE_ICD"
+      },
+      superconduct: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      electroCharged: {
+        allowedInstances: 1,
+        blockedReason: "REACTION_B_DAMAGE_ICD"
+      },
+      bloom: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      burgeon: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      hyperbloom: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      shatter: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      swirlPyro: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      swirlHydro: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      swirlCryo: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      },
+      swirlElectro: {
+        allowedInstances: 2,
+        blockedReason: "REACTION_A_DAMAGE_ICD"
+      }
+    } as const;
+    type DamageGroupReaction =
+      keyof typeof damageGroupPolicyByReaction;
+    type DamageGroupDecision = z.infer<
+      typeof reactionDamageGroupAuditSchema
+    >;
+    const damageGroupAttempts: Array<{
+      reaction: DamageGroupReaction;
+      decision: DamageGroupDecision;
+      child: z.infer<
+        typeof reactionDeliveryDamageEventReferenceSchema
+      >;
+      logIndex: number;
+      decisionIndex: number;
+    }> = [];
+
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      if (entry.id !== entryIndex) {
+        issue(
+          ["reactionDamageLog", entryIndex, "id"],
+          `reactionDamageLog requires contiguous id ${entryIndex}`
+        );
+      }
+      const scheduleMatchesReaction =
+        entry.reaction === "overload" ||
+        entry.reaction === "superconduct"
+          ? entry.scheduleKind === "one-shot" &&
+            entry.targetingMode === "radius"
+          : entry.reaction === "electroCharged"
+            ? entry.scheduleKind === "periodic-tick" &&
+              entry.targetingMode === "single-target"
+            : entry.reaction === "burning"
+              ? entry.scheduleKind === "burning-tick" &&
+                entry.targetingMode === "radius"
+              : entry.reaction === "bloom"
+                ? entry.scheduleKind ===
+                    "dendro-core-bloom" &&
+                  entry.targetingMode === "radius"
+                : entry.reaction === "burgeon"
+                  ? entry.scheduleKind ===
+                      "dendro-core-burgeon" &&
+                    entry.targetingMode === "radius"
+                  : entry.reaction === "hyperbloom"
+                    ? entry.scheduleKind ===
+                        "dendro-core-hyperbloom" &&
+                      entry.targetingMode ===
+                        "nearest-target-radius"
+                    : entry.reaction === "shatter"
+                      ? entry.scheduleKind === "one-shot" &&
+                        entry.targetingMode ===
+                          "single-target"
+                      : entry.scheduleKind === "swirl-self"
+                        ? entry.targetingMode ===
+                          "single-target"
+                        : entry.scheduleKind ===
+                            "swirl-propagation" &&
+                          entry.targetingMode === "radius";
+      if (!scheduleMatchesReaction) {
+        issue(
+          ["reactionDamageLog", entryIndex, "scheduleKind"],
+          "reaction, scheduleKind, and targetingMode do not match the fixed reaction-delivery matrix"
+        );
+      }
+
+      (
+        [
+          ["checkedTargetIds", entry.checkedTargetIds],
+          ["hitTargetIds", entry.hitTargetIds]
+        ] as const
+      ).forEach(([field, targetIds]) => {
+        const seenTargetIds = new Set<string>();
+        targetIds.forEach((targetId, targetIndex) => {
+          if (seenTargetIds.has(targetId)) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                field,
+                targetIndex
+              ],
+              `duplicate reaction-damage target "${targetId}"`
+            );
+          }
+          seenTargetIds.add(targetId);
+        });
+      });
+      if (
+        !configuredTargetIndexById.has(entry.sourceTargetId)
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "sourceTargetId"],
+          `reaction-damage source target "${entry.sourceTargetId}" is not registered in config.enemy.targets`
+        );
+      }
+      let previousConfiguredTargetIndex = -1;
+      entry.checkedTargetIds.forEach(
+        (targetId, targetIndex) => {
+          const configuredTargetIndex =
+            configuredTargetIndexById.get(targetId);
+          if (configuredTargetIndex === undefined) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "checkedTargetIds",
+                targetIndex
+              ],
+              `checked reaction-damage target "${targetId}" is not registered in config.enemy.targets`
+            );
+            return;
+          }
+          if (
+            configuredTargetIndex <= previousConfiguredTargetIndex
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "checkedTargetIds",
+                targetIndex
+              ],
+              "checked reaction-damage targets must follow config.enemy.targets traversal order"
+            );
+          }
+          previousConfiguredTargetIndex =
+            configuredTargetIndex;
+        }
+      );
+
+      const checkedTargets = new Set(entry.checkedTargetIds);
+      let previousCheckedTargetIndex = -1;
+      entry.hitTargetIds.forEach((targetId, targetIndex) => {
+        const checkedTargetIndex =
+          entry.checkedTargetIds.indexOf(
+            targetId,
+            previousCheckedTargetIndex + 1
+          );
+        if (
+          !checkedTargets.has(targetId) ||
+          checkedTargetIndex === -1
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "hitTargetIds",
+              targetIndex
+            ],
+            "reaction-damage hit targets must form an in-order subsequence of checkedTargetIds"
+          );
+        } else {
+          previousCheckedTargetIndex = checkedTargetIndex;
+        }
+      });
+      if (
+        entry.damageEventIds.length !== entry.hitTargetIds.length
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageEventIds"],
+          "produced reaction damage events and hit targets must align 1:1"
+        );
+      }
+      if (
+        (entry.withinSimulation && !entry.scheduled) ||
+        (entry.scheduled && entry.blockedReason !== null) ||
+        (!entry.scheduled && entry.blockedReason === null)
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "blockedReason"],
+          "reaction-damage scheduling requires withinSimulation only when scheduled, null blockedReason when scheduled, and a non-null blockedReason when unscheduled"
+        );
+      }
+      const expectedWithinSimulation =
+        entry.scheduled &&
+        entry.damageFrame <= simulationEndFrame;
+      if (
+        entry.withinSimulation !== expectedWithinSimulation
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "withinSimulation"],
+          `withinSimulation must equal scheduled && damageFrame <= ${simulationEndFrame}`
+        );
+      }
+      if (
+        (!entry.scheduled || !entry.withinSimulation) &&
+        (entry.checkedTargetIds.length !== 0 ||
+          entry.hitTargetIds.length !== 0 ||
+          entry.damageEventIds.length !== 0)
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageEventIds"],
+          "reaction damage outside the scheduled in-simulation state cannot retain checked targets, hit targets, or damage events"
+        );
+      }
+      if (
+        entry.scheduled &&
+        entry.withinSimulation &&
+        entry.targetingMode === "single-target" &&
+        (entry.checkedTargetIds.length !== 1 ||
+          entry.checkedTargetIds[0] !== entry.sourceTargetId ||
+          entry.hitTargetIds.length !== 1 ||
+          entry.hitTargetIds[0] !== entry.sourceTargetId ||
+          entry.damageEventIds.length !== 1)
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageEventIds"],
+          "settled single-target reaction damage requires exactly one checked source target, hit target, and damage event"
+        );
+      }
+      if (entry.damageFrame < entry.triggerFrame) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageFrame"],
+          "reaction damage cannot occur before its trigger frame"
+        );
+      }
+      if (
+        (entry.reaction === "overload" ||
+          entry.reaction === "superconduct") &&
+        entry.damageFrame !== entry.triggerFrame + 1
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageFrame"],
+          "Overload and Superconduct damageFrame must equal triggerFrame + 1"
+        );
+      }
+      if (
+        entry.scheduleKind === "swirl-self" &&
+        entry.damageFrame !== entry.triggerFrame + 1
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageFrame"],
+          "Swirl self damageFrame must equal triggerFrame + 1"
+        );
+      }
+      if (
+        entry.scheduleKind === "swirl-propagation" &&
+        entry.damageFrame !== entry.triggerFrame + 5
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "damageFrame"],
+          "Swirl propagation damageFrame must equal triggerFrame + 5"
+        );
+      }
+      if (
+        entry.scheduleKind === "one-shot" &&
+        entry.reaction !== "shatter" &&
+        (entry.nextAvailableFrame === null ||
+          (entry.scheduled
+            ? entry.nextAvailableFrame !==
+              entry.triggerFrame + 6
+            : entry.nextAvailableFrame <= entry.triggerFrame))
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "nextAvailableFrame"
+          ],
+          "one-shot reaction damage requires triggerFrame + 6 when scheduled and a future ready frame when GCD-blocked"
+        );
+      }
+      if (
+        (entry.scheduleKind === "swirl-self" ||
+          entry.scheduleKind === "swirl-propagation") &&
+        (entry.nextAvailableFrame === null ||
+          (entry.scheduled
+            ? entry.nextAvailableFrame !==
+              entry.triggerFrame + 6
+            : entry.nextAvailableFrame <= entry.triggerFrame))
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "nextAvailableFrame"
+          ],
+          "Swirl reaction damage requires triggerFrame + 6 when scheduled and a future ready frame when queue-GCD-blocked"
+        );
+      }
+      if (
+        entry.scheduleKind === "one-shot" &&
+        entry.reaction !== "shatter" &&
+        !entry.scheduled &&
+        entry.blockedReason !== "REACTION_DAMAGE_GCD"
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "blockedReason"],
+          "an unscheduled one-shot reaction log requires REACTION_DAMAGE_GCD"
+        );
+      }
+      if (
+        (entry.scheduleKind === "swirl-self" ||
+          entry.scheduleKind === "swirl-propagation") &&
+        !entry.scheduled &&
+        entry.blockedReason !== "REACTION_QUEUE_GCD"
+      ) {
+        issue(
+          ["reactionDamageLog", entryIndex, "blockedReason"],
+          "an unscheduled Swirl reaction log requires REACTION_QUEUE_GCD"
+        );
+      }
+
+      const trigger =
+        entry.triggerDamageEventId === null
+          ? undefined
+          : damageById.get(entry.triggerDamageEventId);
+      const singleDeliveryRole =
+        entry.reaction !== "shatter" &&
+        (entry.scheduleKind === "one-shot" ||
+          entry.scheduleKind === "swirl-self" ||
+          entry.scheduleKind === "swirl-propagation")
+          ? entry.scheduleKind
+          : null;
+      if (
+        entry.triggerDamageEventId !== null &&
+        singleDeliveryRole !== null
+      ) {
+        const uniquenessKey = singleDeliveryKey(
+          entry.triggerDamageEventId,
+          entry.reaction,
+          singleDeliveryRole
+        );
+        const duplicateIndexes =
+          singleDeliveryLogIndexesByKey.get(uniquenessKey) ??
+          [];
+        duplicateIndexes.push(entryIndex);
+        singleDeliveryLogIndexesByKey.set(
+          uniquenessKey,
+          duplicateIndexes
+        );
+      }
+      if (
+        entry.triggerDamageEventId === null &&
+        !entry.scheduleKind.startsWith("dendro-core-")
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "only Dendro-core reaction damage may omit triggerDamageEventId"
+        );
+      }
+      if (
+        entry.triggerDamageEventId !== null &&
+        trigger === undefined
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          `missing trigger damage event ${entry.triggerDamageEventId}`
+        );
+      } else if (
+        trigger !== undefined &&
+        !entry.scheduleKind.startsWith("dendro-core-") &&
+        (trigger.frame !== entry.triggerFrame ||
+          trigger.sourceActorId !== entry.sourceActorId ||
+          trigger.targetId !== entry.sourceTargetId)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "non-core trigger damage event does not match the reaction-damage source, source target, or trigger frame"
+        );
+      }
+      if (
+        trigger?.kind === "transformative-reaction" &&
+        trigger.reaction === "shatter"
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "a Shatter damage event cannot trigger another reaction-damage log"
+        );
+      }
+      if (
+        trigger !== undefined &&
+        entry.reaction !== "shatter" &&
+        !entry.scheduleKind.startsWith("dendro-core-") &&
+        entry.scheduleKind !== "burning-tick" &&
+        !trigger.reactionAudit.reactions.includes(entry.reaction)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "non-core reaction-damage log requires its trigger audit to include the scheduled reaction"
+        );
+      }
+      if (
+        trigger !== undefined &&
+        entry.scheduleKind === "burning-tick" &&
+        (trigger.reactionAudit.burningReaction === null ||
+          trigger.reactionAudit.burningReaction.operation ===
+            "stop")
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "Burning-tick reaction damage requires an active start or refresh burningReaction trigger audit"
+        );
+      }
+
+      const seenDamageEventIds = new Set<number>();
+      entry.damageEventIds.forEach(
+        (damageEventId, referenceIndex) => {
+          const owners =
+            ownersByDamageEventId.get(damageEventId) ?? [];
+          owners.push({ logIndex: entryIndex, referenceIndex });
+          ownersByDamageEventId.set(damageEventId, owners);
+
+          if (seenDamageEventIds.has(damageEventId)) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                referenceIndex
+              ],
+              `duplicate produced damage event ${damageEventId}`
+            );
+          }
+          seenDamageEventIds.add(damageEventId);
+          if (
+            referenceIndex > 0 &&
+            damageEventId <=
+              entry.damageEventIds[referenceIndex - 1]!
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                referenceIndex
+              ],
+              "reaction-damage event ids must be strictly increasing"
+            );
+          }
+
+          const produced = damageById.get(damageEventId);
+          if (produced === undefined) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                referenceIndex
+              ],
+              `missing produced damage event ${damageEventId}`
+            );
+            return;
+          }
+          const firstProduced = damageById.get(
+            entry.damageEventIds[0]!
+          );
+          if (
+            firstProduced !== undefined &&
+            (produced.frame !== firstProduced.frame ||
+              produced.eventPriority !==
+                firstProduced.eventPriority ||
+              produced.eventSequence !==
+                firstProduced.eventSequence)
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                referenceIndex
+              ],
+              "all damage events owned by one reaction-damage log must share the same event tuple"
+            );
+          }
+          if (
+            produced.kind !== "transformative-reaction" ||
+            produced.parentDamageEventId !==
+              entry.triggerDamageEventId ||
+            produced.sourceActorId !== entry.sourceActorId ||
+            produced.targetId !==
+              entry.hitTargetIds[referenceIndex] ||
+            produced.frame !== entry.damageFrame ||
+            produced.reaction !== entry.reaction ||
+            produced.element !==
+              expectedDamageElementByReaction[entry.reaction]
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                referenceIndex
+              ],
+              "produced damage event does not match its reaction-damage parent, source, target, damage frame, reaction, or damage element"
+            );
+          }
+        }
+      );
+
+      if (entry.reaction === "burning") {
+        const decisions = entry.damageGroupDecisions ?? [];
+        const blockedTargetIds =
+          entry.damageGroupBlockedTargetIds ?? [];
+        if (
+          decisions.length !== 0 ||
+          blockedTargetIds.length !== 0
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "damageGroupDecisions"
+            ],
+            "Burning does not use a ReactionA/B damage group and requires empty decisions and blocked targets"
+          );
+        }
+        entry.damageEventIds.forEach(
+          (damageEventId, damageEventIndex) => {
+            const child = damageById.get(damageEventId);
+            if (
+              child !== undefined &&
+              (child.damageFactors?.groupMultiplier !== 1 ||
+                child.finalDamage === undefined)
+            ) {
+              issue(
+                [
+                  "reactionDamageLog",
+                  entryIndex,
+                  "damageEventIds",
+                  damageEventIndex
+                ],
+                "settled Burning damage requires child groupMultiplier 1 and explicit finalDamage"
+              );
+            }
+          }
+        );
+      }
+
+      const damageGroupPolicy =
+        entry.reaction === "burning"
+          ? undefined
+          : damageGroupPolicyByReaction[entry.reaction];
+      if (
+        entry.reaction !== "burning" &&
+        damageGroupPolicy !== undefined
+      ) {
+        const groupedReaction = entry.reaction;
+        (entry.damageGroupDecisions ?? []).forEach(
+          (decision, decisionIndex) => {
+            const damageEventId =
+              entry.damageEventIds[decisionIndex];
+            const child =
+              damageEventId === undefined
+                ? undefined
+                : damageById.get(damageEventId);
+            if (child !== undefined) {
+              damageGroupAttempts.push({
+                reaction: groupedReaction,
+                decision,
+                child,
+                logIndex: entryIndex,
+                decisionIndex
+              });
+            }
+          }
+        );
+      }
+      if (
+        damageGroupPolicy !== undefined &&
+        entry.reaction !== "shatter"
+      ) {
+        const decisions = entry.damageGroupDecisions ?? [];
+        const blockedTargetIds =
+          entry.damageGroupBlockedTargetIds ?? [];
+        if (decisions.length !== entry.hitTargetIds.length) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "damageGroupDecisions"
+            ],
+            "ReactionA/B damage-group decisions must align 1:1 with landed reaction-damage targets"
+          );
+        }
+        decisions.forEach((decision, decisionIndex) => {
+          const targetId = entry.hitTargetIds[decisionIndex];
+          const damageEventId =
+            entry.damageEventIds[decisionIndex];
+          const child =
+            damageEventId === undefined
+              ? undefined
+              : damageById.get(damageEventId);
+          const decisionPath = [
+            "reactionDamageLog",
+            entryIndex,
+            "damageGroupDecisions",
+            decisionIndex
+          ] as const;
+          if (
+            decision.reaction !== entry.reaction ||
+            decision.sourceActorId !== entry.sourceActorId ||
+            targetId === undefined ||
+            decision.targetId !== targetId
+          ) {
+            issue(
+              [...decisionPath, "targetId"],
+              "ReactionA/B damage-group decision must match its log reaction, source actor, and landed target"
+            );
+          }
+          if (decision.damageAllowed) {
+            if (
+              decision.blockedReason !== null ||
+              child?.damageFactors?.groupMultiplier !== 1 ||
+              child.finalDamage === undefined
+            ) {
+              issue(
+                [...decisionPath, "damageAllowed"],
+                "allowed ReactionA/B damage requires blockedReason null, child groupMultiplier 1, and explicit finalDamage"
+              );
+            }
+          } else if (
+            decision.blockedReason !==
+              damageGroupPolicy.blockedReason ||
+            child?.damageFactors?.groupMultiplier !== 0 ||
+            child.finalDamage !== 0
+          ) {
+            issue(
+              [...decisionPath, "damageAllowed"],
+              `blocked ReactionA/B damage requires ${damageGroupPolicy.blockedReason}, child groupMultiplier 0, and finalDamage 0`
+            );
+          }
+        });
+        const expectedBlockedTargetIds = decisions
+          .filter((decision) => !decision.damageAllowed)
+          .map((decision) => decision.targetId);
+        if (
+          blockedTargetIds.length !==
+            expectedBlockedTargetIds.length ||
+          blockedTargetIds.some(
+            (targetId, targetIndex) =>
+              targetId !==
+              expectedBlockedTargetIds[targetIndex]
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "damageGroupBlockedTargetIds"
+            ],
+            "damageGroupBlockedTargetIds must exactly match blocked ReactionA/B decisions in traversal order"
+          );
+        }
+      }
+
+      if (entry.reaction === "shatter") {
+        if (entry.triggerDamageEventId === null) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "triggerDamageEventId"
+            ],
+            "Shatter requires a trigger damage event"
+          );
+        } else {
+          const siblingIndexes =
+            shatterLogIndexesByTrigger.get(
+              entry.triggerDamageEventId
+            ) ?? [];
+          siblingIndexes.push(entryIndex);
+          shatterLogIndexesByTrigger.set(
+            entry.triggerDamageEventId,
+            siblingIndexes
+          );
+        }
+        if (
+          entry.scheduleKind !== "one-shot" ||
+          entry.targetingMode !== "single-target"
+        ) {
+          issue(
+            ["reactionDamageLog", entryIndex, "scheduleKind"],
+            "Shatter always requires one-shot single-target delivery"
+          );
+        }
+        if (entry.damageFrame !== entry.triggerFrame) {
+          issue(
+            ["reactionDamageLog", entryIndex, "damageFrame"],
+            "Shatter damageFrame must equal triggerFrame"
+          );
+        }
+        const settled =
+          entry.scheduled &&
+          entry.withinSimulation &&
+          entry.blockedReason === null;
+        const blocked =
+          !entry.scheduled &&
+          !entry.withinSimulation &&
+          entry.blockedReason === "REACTION_DAMAGE_GCD";
+        if (
+          settled &&
+          entry.nextAvailableFrame !== entry.damageFrame + 12
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "nextAvailableFrame"
+            ],
+            "a scheduled Shatter log requires nextAvailableFrame equal to damageFrame + 12"
+          );
+        }
+        if (
+          blocked &&
+          (entry.nextAvailableFrame === null ||
+            entry.nextAvailableFrame <= entry.damageFrame)
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "nextAvailableFrame"
+            ],
+            "a damage-GCD-blocked Shatter log requires nextAvailableFrame greater than damageFrame"
+          );
+        }
+        if (!settled && !blocked) {
+          issue(
+            ["reactionDamageLog", entryIndex, "blockedReason"],
+            recursive
+              ? "recursive Shatter requires a settled scheduled state or scheduled=false with withinSimulation=false and REACTION_DAMAGE_GCD"
+              : "deferred Shatter logs require a settled scheduled state or scheduled=false with withinSimulation=false and REACTION_DAMAGE_GCD"
+          );
+        }
+
+        const child = damageById.get(entry.damageEventIds[0]!);
+        const parent =
+          entry.triggerDamageEventId === null
+            ? undefined
+            : damageById.get(entry.triggerDamageEventId);
+        const parentShatterAudit =
+          parent?.reactionAudit.shatterReaction;
+        if (
+          parentShatterAudit === undefined ||
+          parentShatterAudit === null ||
+          !parentShatterAudit.triggered ||
+          parentShatterAudit.scheduled !== entry.scheduled ||
+          parentShatterAudit.damageFrame !== entry.damageFrame ||
+          parentShatterAudit.blockedReason !==
+            entry.blockedReason ||
+          parentShatterAudit.nextAvailableFrame !==
+            entry.nextAvailableFrame
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "triggerDamageEventId"
+            ],
+            "Shatter log does not match its triggering parent shatterReaction audit"
+          );
+        }
+        if (
+          parent?.kind === "transformative-reaction" &&
+          parent.reaction === "shatter"
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "triggerDamageEventId"
+            ],
+            "a Shatter damage event cannot trigger another Shatter log"
+          );
+        }
+        if (
+          settled &&
+          (entry.checkedTargetIds.length !== 1 ||
+            entry.checkedTargetIds[0] !== entry.sourceTargetId ||
+            entry.hitTargetIds.length !== 1 ||
+            entry.hitTargetIds[0] !== entry.sourceTargetId ||
+            entry.damageEventIds.length !== 1 ||
+            child === undefined ||
+            parent === undefined ||
+            child.parentDamageEventId !== parent.id ||
+            child.kind !== "transformative-reaction" ||
+            child.reaction !== "shatter" ||
+            child.element !== "physical" ||
+            child.sourceActorId !== entry.sourceActorId ||
+            child.targetId !== entry.sourceTargetId ||
+            parent.sourceActorId !== entry.sourceActorId ||
+            parent.targetId !== entry.sourceTargetId ||
+            child.frame !== entry.damageFrame ||
+            parent.frame !== entry.triggerFrame ||
+            child.frame !== parent.frame ||
+            entry.damageFrame !== entry.triggerFrame)
+        ) {
+          issue(
+            ["reactionDamageLog", entryIndex, "damageEventIds"],
+            "a settled Shatter log requires exactly one same-frame physical child and matching parent"
+          );
+        } else if (
+          !settled &&
+          (entry.checkedTargetIds.length !== 0 ||
+            entry.hitTargetIds.length !== 0 ||
+            entry.damageEventIds.length !== 0)
+        ) {
+          issue(
+            ["reactionDamageLog", entryIndex, "damageEventIds"],
+            "a non-settled Shatter log cannot retain checked targets, hit targets, or damage events"
+          );
+        }
+        if (settled && child !== undefined && parent !== undefined) {
+          const damageGroupDecisions =
+            entry.damageGroupDecisions ?? [];
+          const blockedTargetIds =
+            entry.damageGroupBlockedTargetIds ?? [];
+          const decision =
+            damageGroupDecisions.length === 1
+              ? damageGroupDecisions[0]
+              : undefined;
+          if (child.finalDamage === undefined) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                0
+              ],
+              "settled Shatter child requires an explicit finalDamage"
+            );
+          }
+          if (
+            decision === undefined ||
+            decision.reaction !== "shatter" ||
+            decision.sourceActorId !== entry.sourceActorId ||
+            decision.targetId !== entry.sourceTargetId
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageGroupDecisions"
+              ],
+              "settled Shatter requires exactly one matching ReactionA damage-group decision"
+            );
+          } else if (decision.damageAllowed) {
+            if (
+              decision.blockedReason !== null ||
+              blockedTargetIds.length !== 0 ||
+              child.damageFactors?.groupMultiplier !== 1
+            ) {
+              issue(
+                [
+                  "reactionDamageLog",
+                  entryIndex,
+                  "damageGroupDecisions",
+                  0
+                ],
+                "allowed Shatter ReactionA damage requires no blocked target and child groupMultiplier 1"
+              );
+            }
+          } else if (
+            decision.blockedReason !==
+              "REACTION_A_DAMAGE_ICD" ||
+            blockedTargetIds.length !== 1 ||
+            blockedTargetIds[0] !== entry.sourceTargetId ||
+            child.damageFactors?.groupMultiplier !== 0 ||
+            child.finalDamage !== 0
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageGroupDecisions",
+                0
+              ],
+              "blocked Shatter ReactionA damage requires the source target, REACTION_A_DAMAGE_ICD, groupMultiplier 0, and finalDamage 0"
+            );
+          }
+          if (
+            parentShatterAudit !== null &&
+            parentShatterAudit !== undefined &&
+            (parentShatterAudit.baseMultiplier !== 3 ||
+              child.transformativeReactionFactors
+                ?.baseMultiplier !==
+                parentShatterAudit.baseMultiplier)
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageEventIds",
+                0
+              ],
+              "Shatter child transformative baseMultiplier must equal the fixed parent audit multiplier 3"
+            );
+          }
+        }
+        if (
+          recursive &&
+          settled &&
+          (child === undefined ||
+            parent === undefined ||
+            parent.id !== child.id + 1 ||
+            child.eventPriority !== parent.eventPriority ||
+            child.eventSequence !== parent.eventSequence)
+        ) {
+          issue(
+            ["reactionDamageLog", entryIndex, "damageEventIds"],
+            "recursive Shatter requires an adjacent child-first parent with the same event tuple"
+          );
+        }
+      }
+    });
+
+    damageGroupAttempts.sort(
+      (left, right) =>
+        left.child.frame - right.child.frame ||
+        left.child.eventPriority -
+          right.child.eventPriority ||
+        left.child.eventSequence -
+          right.child.eventSequence ||
+        left.child.id - right.child.id
+    );
+    const damageGroupWindowByScope = new Map<
+      string,
+      {
+        windowStartFrame: number;
+        attemptCount: number;
+      }
+    >();
+    damageGroupAttempts.forEach((attempt) => {
+      const policy =
+        damageGroupPolicyByReaction[attempt.reaction];
+      const scopeKey = JSON.stringify([
+        attempt.child.targetId,
+        attempt.child.sourceActorId,
+        attempt.reaction
+      ]);
+      const previous = damageGroupWindowByScope.get(scopeKey);
+      const startsNewWindow =
+        previous === undefined ||
+        attempt.child.frame - previous.windowStartFrame >= 30;
+      const expectedWindowStartFrame = startsNewWindow
+        ? attempt.child.frame
+        : previous.windowStartFrame;
+      const expectedHitIndex = startsNewWindow
+        ? 0
+        : previous.attemptCount;
+      const expectedDamageAllowed =
+        expectedHitIndex < policy.allowedInstances;
+      const expectedBlockedReason = expectedDamageAllowed
+        ? null
+        : policy.blockedReason;
+      const decisionPath = [
+        "reactionDamageLog",
+        attempt.logIndex,
+        "damageGroupDecisions",
+        attempt.decisionIndex
+      ] as const;
+      if (
+        attempt.decision.windowStartFrame !==
+        expectedWindowStartFrame
+      ) {
+        issue(
+          [...decisionPath, "windowStartFrame"],
+          `ReactionA/B windowStartFrame must replay to ${expectedWindowStartFrame} for scope ${scopeKey}`
+        );
+      }
+      if (attempt.decision.hitIndex !== expectedHitIndex) {
+        issue(
+          [...decisionPath, "hitIndex"],
+          `ReactionA/B hitIndex must replay to ${expectedHitIndex} for scope ${scopeKey}`
+        );
+      }
+      if (
+        attempt.decision.damageAllowed !==
+          expectedDamageAllowed ||
+        attempt.decision.blockedReason !==
+          expectedBlockedReason
+      ) {
+        issue(
+          [...decisionPath, "damageAllowed"],
+          `ReactionA/B decision must replay the half-open 30-frame window for scope ${scopeKey}`
+        );
+      }
+      damageGroupWindowByScope.set(scopeKey, {
+        windowStartFrame: expectedWindowStartFrame,
+        attemptCount: expectedHitIndex + 1
+      });
+    });
+
+    shatterLogIndexesByTrigger.forEach(
+      (logIndexes, triggerDamageEventId) => {
+        if (logIndexes.length <= 1) return;
+        logIndexes.forEach((logIndex) => {
+          issue(
+            [
+              "reactionDamageLog",
+              logIndex,
+              "triggerDamageEventId"
+            ],
+            `damage event ${triggerDamageEventId} may own at most one Shatter log`
+          );
+        });
+      }
+    );
+    singleDeliveryLogIndexesByKey.forEach((logIndexes) => {
+      if (logIndexes.length <= 1) return;
+      logIndexes.forEach((logIndex) => {
+        issue(
+          ["reactionDamageLog", logIndex, "id"],
+          "single-delivery reaction-damage logs must be unique per trigger, reaction, and delivery role"
+        );
+      });
+    });
+
+    result.damageEvents.forEach((event, eventIndex) => {
+      const singularTransformativeAudit =
+        event.reactionAudit.transformativeReaction;
+      const orderedTransformativeAudits =
+        event.reactionAudit.transformativeReactions;
+      const transformativeAudits =
+        orderedTransformativeAudits ??
+        (singularTransformativeAudit === null
+          ? []
+          : [singularTransformativeAudit]);
+      if (orderedTransformativeAudits !== undefined) {
+        const first = orderedTransformativeAudits[0] ?? null;
+        if (
+          first?.reaction !==
+            singularTransformativeAudit?.reaction ||
+          first?.scheduled !==
+            singularTransformativeAudit?.scheduled ||
+          first?.damageFrame !==
+            singularTransformativeAudit?.damageFrame ||
+          first?.blockedReason !==
+            singularTransformativeAudit?.blockedReason ||
+          first?.nextAvailableFrame !==
+            singularTransformativeAudit?.nextAvailableFrame
+        ) {
+          issue(
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "transformativeReaction"
+            ],
+            "the singular transformative reaction audit must equal the first ordered audit"
+          );
+        }
+      }
+      const seenTransformativeAuditReactions = new Set<string>();
+      transformativeAudits.forEach((audit, auditIndex) => {
+        const auditPath = [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          orderedTransformativeAudits === undefined
+            ? "transformativeReaction"
+            : "transformativeReactions",
+          ...(orderedTransformativeAudits === undefined
+            ? []
+            : [auditIndex])
+        ] as Array<string | number>;
+        if (
+          seenTransformativeAuditReactions.has(audit.reaction)
+        ) {
+          issue(
+            [...auditPath, "reaction"],
+            "one damage event cannot repeat a one-shot transformative reaction audit"
+          );
+        }
+        seenTransformativeAuditReactions.add(audit.reaction);
+        if (audit.damageFrame !== event.frame + 1) {
+          issue(
+            [...auditPath, "damageFrame"],
+            "one-shot transformative audit damageFrame must equal its trigger frame + 1"
+          );
+        }
+        if (
+          audit.scheduled
+            ? audit.nextAvailableFrame !== event.frame + 6
+            : audit.nextAvailableFrame <= event.frame
+        ) {
+          issue(
+            [...auditPath, "nextAvailableFrame"],
+            "one-shot transformative audit requires trigger frame + 6 when scheduled and a future ready frame when blocked"
+          );
+        }
+        const mechanicsTruncated =
+          audit.blockedReason ===
+          "TARGET_MECHANICS_TRUNCATION";
+        if (
+          audit.scheduled !== (audit.blockedReason === null)
+        ) {
+          issue(
+            [...auditPath, "blockedReason"],
+            "one-shot transformative audit scheduling does not match blockedReason"
+          );
+        }
+        if (
+          mechanicsTruncated &&
+          event.reactionAudit.mechanicsTruncation === null
+        ) {
+          issue(
+            [...auditPath, "blockedReason"],
+            "TARGET_MECHANICS_TRUNCATION requires a non-null mechanicsTruncation audit"
+          );
+        }
+        const logIndexesForAudit =
+          singleDeliveryLogIndexesByKey.get(
+            singleDeliveryKey(
+              event.id,
+              audit.reaction,
+              "one-shot"
+            )
+          ) ?? [];
+        const expectedLogCount = mechanicsTruncated ? 0 : 1;
+        if (logIndexesForAudit.length !== expectedLogCount) {
+          issue(
+            auditPath,
+            mechanicsTruncated
+              ? "a mechanics-truncated one-shot transformative audit cannot own a reaction-damage log"
+              : "a one-shot transformative audit requires exactly one reaction-damage log"
+          );
+        }
+        if (logIndexesForAudit.length === 1) {
+          const logIndex = logIndexesForAudit[0]!;
+          const log = result.reactionDamageLog[logIndex]!;
+          claimedSingleDeliveryLogIndexes.add(logIndex);
+          if (
+            log.scheduled !== audit.scheduled ||
+            log.damageFrame !== audit.damageFrame ||
+            log.blockedReason !== audit.blockedReason ||
+            log.nextAvailableFrame !==
+              audit.nextAvailableFrame
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                logIndex,
+                "triggerDamageEventId"
+              ],
+              "one-shot reaction-damage log does not match its triggering transformative audit"
+            );
+          }
+        }
+      });
+
+      const seenSwirlAuditReactions = new Set<string>();
+      event.reactionAudit.swirlReactions.forEach(
+        (audit, auditIndex) => {
+          const auditPath = [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "swirlReactions",
+            auditIndex
+          ] as Array<string | number>;
+          if (seenSwirlAuditReactions.has(audit.reaction)) {
+            issue(
+              [...auditPath, "reaction"],
+              "one damage event cannot repeat a Swirl reaction audit"
+            );
+          }
+          seenSwirlAuditReactions.add(audit.reaction);
+          if (audit.selfDamageFrame !== event.frame + 1) {
+            issue(
+              [...auditPath, "selfDamageFrame"],
+              "Swirl selfDamageFrame must equal its trigger frame + 1"
+            );
+          }
+          if (
+            audit.propagationDamageFrame !== event.frame + 5
+          ) {
+            issue(
+              [...auditPath, "propagationDamageFrame"],
+              "Swirl propagationDamageFrame must equal its trigger frame + 5"
+            );
+          }
+          if (
+            audit.scheduled
+              ? audit.nextAvailableFrame !== event.frame + 6
+              : audit.nextAvailableFrame <= event.frame
+          ) {
+            issue(
+              [...auditPath, "nextAvailableFrame"],
+              "Swirl audit requires trigger frame + 6 when scheduled and a future ready frame when queue-GCD-blocked"
+            );
+          }
+          if (
+            audit.scheduled !==
+            (audit.blockedReason === null)
+          ) {
+            issue(
+              [...auditPath, "blockedReason"],
+              "Swirl audit scheduling does not match blockedReason"
+            );
+          }
+          (
+            [
+              ["swirl-self", audit.selfDamageFrame],
+              [
+                "swirl-propagation",
+                audit.propagationDamageFrame
+              ]
+            ] as const
+          ).forEach(([deliveryRole, damageFrame]) => {
+            const logIndexesForAudit =
+              singleDeliveryLogIndexesByKey.get(
+                singleDeliveryKey(
+                  event.id,
+                  audit.reaction,
+                  deliveryRole
+                )
+              ) ?? [];
+            if (logIndexesForAudit.length !== 1) {
+              issue(
+                auditPath,
+                `a Swirl audit requires exactly one ${deliveryRole} reaction-damage log`
+              );
+              return;
+            }
+            const logIndex = logIndexesForAudit[0]!;
+            const log = result.reactionDamageLog[logIndex]!;
+            claimedSingleDeliveryLogIndexes.add(logIndex);
+            if (
+              log.scheduled !== audit.scheduled ||
+              log.damageFrame !== damageFrame ||
+              log.blockedReason !== audit.blockedReason ||
+              log.nextAvailableFrame !==
+                audit.nextAvailableFrame
+            ) {
+              issue(
+                [
+                  "reactionDamageLog",
+                  logIndex,
+                  "triggerDamageEventId"
+                ],
+                `${deliveryRole} reaction-damage log does not match its triggering Swirl audit`
+              );
+            }
+          });
+        }
+      );
+
+      const shatterAudit =
+        event.reactionAudit.shatterReaction;
+      const logIndexes =
+        shatterLogIndexesByTrigger.get(event.id) ?? [];
+      if (shatterAudit !== null) {
+        const auditPath = [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "shatterReaction"
+        ] as const;
+        if (shatterAudit.damageFrame !== event.frame) {
+          issue(
+            [...auditPath, "damageFrame"],
+            "shatterReaction damageFrame must equal its owning damage event frame"
+          );
+        }
+        if (shatterAudit.baseMultiplier !== 3) {
+          issue(
+            [...auditPath, "baseMultiplier"],
+            "Shatter baseMultiplier must equal 3"
+          );
+        }
+        if (
+          shatterAudit.poiseConsumedGaugeUnits >
+          shatterAudit.frozenGaugeBefore +
+            shatterGaugeTolerance
+        ) {
+          issue(
+            [...auditPath, "poiseConsumedGaugeUnits"],
+            "Shatter poiseConsumedGaugeUnits cannot exceed frozenGaugeBefore"
+          );
+        }
+        if (
+          !shatterGaugeMatches(
+            shatterAudit.frozenGaugeAfterPoise,
+            shatterAudit.frozenGaugeBefore -
+              shatterAudit.poiseConsumedGaugeUnits
+          )
+        ) {
+          issue(
+            [...auditPath, "frozenGaugeAfterPoise"],
+            "Shatter frozenGaugeAfterPoise must equal frozenGaugeBefore - poiseConsumedGaugeUnits within 1e-9"
+          );
+        }
+        if (
+          shatterAudit.shatterConsumedGaugeUnits >
+          shatterAudit.frozenGaugeAfterPoise +
+            shatterGaugeTolerance
+        ) {
+          issue(
+            [...auditPath, "shatterConsumedGaugeUnits"],
+            "Shatter shatterConsumedGaugeUnits cannot exceed frozenGaugeAfterPoise"
+          );
+        }
+        if (
+          !shatterGaugeMatches(
+            shatterAudit.frozenGaugeAfter,
+            shatterAudit.frozenGaugeAfterPoise -
+              shatterAudit.shatterConsumedGaugeUnits
+          )
+        ) {
+          issue(
+            [...auditPath, "frozenGaugeAfter"],
+            "Shatter frozenGaugeAfter must equal frozenGaugeAfterPoise - shatterConsumedGaugeUnits within 1e-9"
+          );
+        }
+        if (
+          shatterAudit.strikeType !== "blunt" &&
+          shatterAudit.poiseConsumedGaugeUnits !== 0
+        ) {
+          issue(
+            [...auditPath, "poiseConsumedGaugeUnits"],
+            "a non-blunt Shatter parent cannot consume Frozen gauge through poise"
+          );
+        }
+        if (!shatterAudit.triggered) {
+          if (shatterAudit.scheduled) {
+            issue(
+              [...auditPath, "scheduled"],
+              "an untriggered shatterReaction cannot be scheduled"
+            );
+          }
+          if (
+            shatterAudit.blockedReason !== "NO_FROZEN_AURA" &&
+            shatterAudit.blockedReason !==
+              "FROZEN_DEPLETED_BY_POISE"
+          ) {
+            issue(
+              [...auditPath, "blockedReason"],
+              "an untriggered shatterReaction requires NO_FROZEN_AURA or FROZEN_DEPLETED_BY_POISE"
+            );
+          }
+          if (shatterAudit.nextAvailableFrame !== null) {
+            issue(
+              [...auditPath, "nextAvailableFrame"],
+              "an untriggered shatterReaction cannot retain a damage-GCD ready frame"
+            );
+          }
+          if (
+            shatterAudit.blockedReason === "NO_FROZEN_AURA" &&
+            (shatterAudit.frozenGaugeBefore !== 0 ||
+              shatterAudit.poiseConsumedGaugeUnits !== 0 ||
+              shatterAudit.frozenGaugeAfterPoise !== 0 ||
+              shatterAudit.shatterConsumedGaugeUnits !== 0 ||
+              shatterAudit.frozenGaugeAfter !== 0)
+          ) {
+            issue(
+              [...auditPath, "frozenGaugeBefore"],
+              "NO_FROZEN_AURA requires zero frozen and consumption gauges"
+            );
+          }
+          if (
+            shatterAudit.blockedReason ===
+              "FROZEN_DEPLETED_BY_POISE" &&
+            (shatterAudit.strikeType !== "blunt" ||
+              shatterAudit.frozenGaugeBefore <= 0 ||
+              shatterAudit.poiseConsumedGaugeUnits <= 0 ||
+              shatterAudit.frozenGaugeAfterPoise !== 0 ||
+              shatterAudit.shatterConsumedGaugeUnits !== 0 ||
+              shatterAudit.frozenGaugeAfter !== 0)
+          ) {
+            issue(
+              [...auditPath, "frozenGaugeAfterPoise"],
+              "FROZEN_DEPLETED_BY_POISE requires a blunt strike that consumes the remaining Frozen gauge before Shatter"
+            );
+          }
+        } else {
+          if (
+            shatterAudit.strikeType !== "blunt" &&
+            event.element !== "geo"
+          ) {
+            issue(
+              [...auditPath, "strikeType"],
+              "triggered Shatter requires a blunt strike or Geo parent damage"
+            );
+          }
+          if (
+            shatterAudit.frozenGaugeBefore <= 0 ||
+            shatterAudit.frozenGaugeAfterPoise <= 0 ||
+            shatterAudit.shatterConsumedGaugeUnits <= 0 ||
+            shatterAudit.frozenGaugeAfter >=
+              shatterAudit.frozenGaugeAfterPoise
+          ) {
+            issue(
+              [...auditPath, "shatterConsumedGaugeUnits"],
+              "triggered Shatter requires positive Frozen gauge and positive Shatter consumption"
+            );
+          }
+          if (
+            shatterAudit.nextAvailableFrame === null ||
+            shatterAudit.nextAvailableFrame <=
+              shatterAudit.damageFrame
+          ) {
+            issue(
+              [...auditPath, "nextAvailableFrame"],
+              "a triggered shatterReaction requires nextAvailableFrame greater than damageFrame"
+            );
+          }
+          if (shatterAudit.scheduled) {
+            if (shatterAudit.blockedReason !== null) {
+              issue(
+                [...auditPath, "blockedReason"],
+                "a scheduled shatterReaction requires a null blockedReason"
+              );
+            }
+            if (
+              shatterAudit.nextAvailableFrame !==
+              shatterAudit.damageFrame + 12
+            ) {
+              issue(
+                [...auditPath, "nextAvailableFrame"],
+                "a scheduled shatterReaction requires nextAvailableFrame equal to damageFrame + 12"
+              );
+            }
+          } else {
+            const damageGcdBlocked =
+              shatterAudit.blockedReason ===
+              "REACTION_DAMAGE_GCD";
+            const deferredMechanicsTruncation =
+              !recursive &&
+              shatterAudit.blockedReason ===
+                "TARGET_MECHANICS_TRUNCATION";
+            if (
+              !damageGcdBlocked &&
+              !deferredMechanicsTruncation
+            ) {
+              issue(
+                [...auditPath, "blockedReason"],
+                recursive
+                  ? "an unscheduled recursive shatterReaction requires REACTION_DAMAGE_GCD"
+                  : "an unscheduled deferred shatterReaction requires REACTION_DAMAGE_GCD or TARGET_MECHANICS_TRUNCATION"
+              );
+            }
+            if (
+              deferredMechanicsTruncation &&
+              (event.reactionAudit.mechanicsTruncation === null ||
+                shatterAudit.nextAvailableFrame !==
+                  shatterAudit.damageFrame + 12)
+            ) {
+              issue(
+                [...auditPath, "nextAvailableFrame"],
+                "deferred TARGET_MECHANICS_TRUNCATION requires a mechanicsTruncation audit and the original damageFrame + 12 ready frame"
+              );
+            }
+          }
+        }
+      }
+      if (shatterAudit?.triggered === true) {
+        const deferredMechanicsTruncation =
+          !recursive &&
+          !shatterAudit.scheduled &&
+          shatterAudit.blockedReason ===
+            "TARGET_MECHANICS_TRUNCATION";
+        const expectedLogCount =
+          deferredMechanicsTruncation ? 0 : 1;
+        if (logIndexes.length !== expectedLogCount) {
+          issue(
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "shatterReaction"
+            ],
+            deferredMechanicsTruncation
+              ? `deferred mechanics-truncated shatterReaction audit cannot own a Shatter log for damage event ${event.id}`
+              : `triggered shatterReaction audit requires exactly one Shatter log for damage event ${event.id}`
+          );
+        }
+      } else if (logIndexes.length !== 0) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "shatterReaction"
+          ],
+          `damage event ${event.id} cannot own a Shatter log without a triggered shatterReaction audit`
+        );
+      }
+    });
+
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      if (
+        entry.reaction !== "shatter" &&
+        (entry.scheduleKind === "one-shot" ||
+          entry.scheduleKind === "swirl-self" ||
+          entry.scheduleKind === "swirl-propagation") &&
+        !claimedSingleDeliveryLogIndexes.has(entryIndex)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "triggerDamageEventId"
+          ],
+          "single-delivery reaction-damage log requires exactly one matching parent reaction audit"
+        );
+      }
+    });
+
+    result.damageEvents.forEach((event, eventIndex) => {
+      if (event.kind !== "transformative-reaction") return;
+      const owners = ownersByDamageEventId.get(event.id) ?? [];
+      if (owners.length !== 1) {
+        issue(
+          ["damageEvents", eventIndex, "id"],
+          `transformative reaction damage event ${event.id} requires exactly one owning reaction-damage log`
+        );
+      }
+    });
+
+    let previousDamageTuple:
+      | readonly [number, number, number]
+      | null = null;
+    result.damageEvents.forEach((event, eventIndex) => {
+      if (event.id !== eventIndex) {
+        issue(
+          ["damageEvents", eventIndex, "id"],
+          `damageEvents requires contiguous id ${eventIndex}`
+        );
+      }
+      if (event.kind === "direct" && event.eventPriority !== 3) {
+        issue(
+          ["damageEvents", eventIndex, "eventPriority"],
+          "direct damage events require EVENT_PRIORITY.hit = 3"
+        );
+      }
+      if (!configuredTargetIndexById.has(event.targetId)) {
+        issue(
+          ["damageEvents", eventIndex, "targetId"],
+          `damage event target "${event.targetId}" is not registered in config.enemy.targets`
+        );
+      }
+      const currentDamageTuple = [
+        event.frame,
+        event.eventPriority,
+        event.eventSequence
+      ] as const;
+      if (
+        previousDamageTuple !== null &&
+        (currentDamageTuple[0] < previousDamageTuple[0] ||
+          (currentDamageTuple[0] === previousDamageTuple[0] &&
+            (currentDamageTuple[1] < previousDamageTuple[1] ||
+              (currentDamageTuple[1] ===
+                previousDamageTuple[1] &&
+                currentDamageTuple[2] <
+                  previousDamageTuple[2]))))
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "frame"],
+          "damageEvents must follow nondecreasing (frame, eventPriority, eventSequence) commit order"
+        );
+      }
+      previousDamageTuple = currentDamageTuple;
+      if (event.frame > simulationEndFrame) {
+        issue(
+          ["damageEvents", eventIndex, "frame"],
+          `damage events cannot occur after simulation frame ${simulationEndFrame}`
+        );
+      }
+      const parentId = event.parentDamageEventId;
+      const recursiveForwardShatterCandidate =
+        recursive &&
+        event.kind === "transformative-reaction" &&
+        event.reaction === "shatter" &&
+        parentId !== null &&
+        parentId > event.id;
+      const ownerReferences =
+        ownersByDamageEventId.get(event.id) ?? [];
+      const soleOwner =
+        ownerReferences.length === 1
+          ? result.reactionDamageLog[
+              ownerReferences[0]!.logIndex
+            ]
+          : undefined;
+      if (
+        event.kind === "transformative-reaction" &&
+        !recursiveForwardShatterCandidate &&
+        soleOwner !== undefined &&
+        soleOwner.scheduleKind !== "burning-tick" &&
+        event.eventPriority !== 5
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "eventPriority"],
+          "queued non-Burning transformative reaction damage requires eventPriority 5"
+        );
+      }
+      if (parentId === null) return;
+      if (event.kind === "direct") {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "direct damage events must have a null parentDamageEventId"
+        );
+      }
+      const parent = damageById.get(parentId);
+      if (parent === undefined) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          `missing parent damage event ${parentId}`
+        );
+        return;
+      }
+
+      const forwardParent = parentId > event.id;
+      const recursiveForwardShatter =
+        recursive &&
+        forwardParent &&
+        event.kind === "transformative-reaction" &&
+        event.reaction === "shatter";
+      if (
+        event.kind === "transformative-reaction" &&
+        !recursiveForwardShatter &&
+        (event.frame < parent.frame ||
+          event.eventSequence <= parent.eventSequence)
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "non-recursive reaction damage must not precede its trigger frame and must have a later eventSequence"
+        );
+      }
+      if (!forwardParent) return;
+      if (!recursive) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "deferred-event-heap-v1 forbids forward parent damage references"
+        );
+        return;
+      }
+
+      if (
+        event.kind !== "transformative-reaction" ||
+        event.reaction !== "shatter" ||
+        event.element !== "physical" ||
+        parentId !== event.id + 1 ||
+        event.frame !== parent.frame ||
+        event.targetId !== parent.targetId ||
+        event.sourceActorId !== parent.sourceActorId ||
+        event.eventPriority !== parent.eventPriority ||
+        event.eventSequence !== parent.eventSequence
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "a forward parent is allowed only for an adjacent same-frame, same-target, same-source, same-tuple physical transformative Shatter child"
+        );
+      }
+      if (
+        parent.kind === "transformative-reaction" &&
+        parent.reaction === "shatter"
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "a recursive Shatter child cannot be the parent of another recursive Shatter child"
+        );
+      }
+
+      const backlinkLogs = result.reactionDamageLog.filter(
+        (entry) =>
+          entry.damageEventIds.filter((id) => id === event.id)
+            .length > 0
+      );
+      const backlink =
+        backlinkLogs.length === 1 ? backlinkLogs[0] : undefined;
+      if (
+        backlink === undefined ||
+        backlink.damageEventIds.filter((id) => id === event.id)
+          .length !== 1 ||
+        backlink.reaction !== "shatter" ||
+        backlink.triggerDamageEventId !== parent.id ||
+        backlink.sourceActorId !== event.sourceActorId ||
+        backlink.sourceTargetId !== event.targetId ||
+        backlink.triggerFrame !== event.frame ||
+        backlink.damageFrame !== event.frame ||
+        backlink.scheduled !== true ||
+        backlink.withinSimulation !== true ||
+        backlink.blockedReason !== null ||
+        backlink.scheduleKind !== "one-shot" ||
+        backlink.targetingMode !== "single-target" ||
+        backlink.damageEventIds.length !== 1
+      ) {
+        issue(
+          ["damageEvents", eventIndex, "parentDamageEventId"],
+          "a recursive Shatter child requires exactly one matching reaction-damage log backlink"
+        );
+      }
+    });
+
+    const forwardShatterChildrenByParent = new Map<
+      number,
+      number[]
+    >();
+    result.damageEvents.forEach((event) => {
+      if (
+        event.kind !== "transformative-reaction" ||
+        event.reaction !== "shatter" ||
+        event.parentDamageEventId === null ||
+        event.parentDamageEventId <= event.id
+      ) {
+        return;
+      }
+      const children =
+        forwardShatterChildrenByParent.get(
+          event.parentDamageEventId
+        ) ?? [];
+      children.push(event.id);
+      forwardShatterChildrenByParent.set(
+        event.parentDamageEventId,
+        children
+      );
+    });
+    forwardShatterChildrenByParent.forEach((children, parentId) => {
+      if (children.length <= 1) return;
+      children.forEach((childId) => {
+        issue(
+          [
+            "damageEvents",
+            childId,
+            "parentDamageEventId"
+          ],
+          `damage event ${parentId} may own at most one forward recursive Shatter child`
+        );
+      });
+    });
+
+    result.damageEvents.forEach((event, eventIndex) => {
+      const seen = new Set<number>();
+      let cursor: typeof event | undefined = event;
+      while (
+        cursor !== undefined &&
+        cursor.parentDamageEventId !== null
+      ) {
+        if (seen.has(cursor.id)) {
+          issue(
+            ["damageEvents", eventIndex, "parentDamageEventId"],
+            "damage-event parent references must be acyclic"
+          );
+          break;
+        }
+        seen.add(cursor.id);
+        cursor = damageById.get(cursor.parentDamageEventId);
+      }
+    });
+  });
+
 /**
  * Strict player-reaction-damage output boundary plus cross-log integrity.
  *
@@ -15919,7 +18157,8 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     rotation: Array.isArray(input.rotation) ? input.rotation : [],
     playerDamageModel: { mode: "disabled" },
     targetClockModel: { mode: "disabled" },
-    targetTaskModel: { mode: "legacy-event-heap-v1" }
+    targetTaskModel: { mode: "legacy-event-heap-v1" },
+    reactionDeliveryModel: { mode: "deferred-event-heap-v1" }
   };
 }
 
@@ -16145,6 +18384,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [TARGET_TASK_PHASE_SCHEMA_VERSION]: {
     engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v7
+  },
+  [TARGET_REACTABLE_PHASE_SCHEMA_VERSION]: {
+    engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v7
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -16206,8 +18449,23 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   let input: Record<string, unknown> = rawInput;
 
   const version = input.schemaVersion;
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
+    "reactionDeliveryModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionDeliveryModel: schemaVersion "${historicalVersion}" does not support reaction delivery selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
     version === TARGET_TASK_PHASE_SCHEMA_VERSION ||
     version === QUICKEN_BLOOM_TASK_SCHEMA_VERSION ||
     version === ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION
@@ -16231,6 +18489,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
@@ -16250,6 +18509,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
@@ -16267,6 +18527,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
@@ -16288,6 +18549,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.playerDamageModel !== undefined &&
@@ -16312,6 +18574,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     version !== QUICKEN_BLOOM_TASK_SCHEMA_VERSION &&
     input.targetClockModel !== undefined &&
@@ -16339,6 +18602,10 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     isRecord(input.targetTaskModel) &&
     input.targetTaskModel.mode === "target-phase-v1" &&
     Object.keys(input.targetTaskModel).length === 1;
+  const historicalTargetTaskModelIsV2 =
+    isRecord(input.targetTaskModel) &&
+    input.targetTaskModel.mode === "target-phase-v2" &&
+    Object.keys(input.targetTaskModel).length === 1;
   if (
     version === TARGET_TASK_PHASE_SCHEMA_VERSION &&
     !historicalTargetTaskModelIsLegacy &&
@@ -16352,7 +18619,21 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     );
   }
   if (
+    version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
+    !historicalTargetTaskModelIsLegacy &&
+    !historicalTargetTaskModelIsV1 &&
+    !historicalTargetTaskModelIsV2
+  ) {
+    const issue =
+      `targetTaskModel: schemaVersion "${TARGET_REACTABLE_PHASE_SCHEMA_VERSION}" requires an explicit legacy-event-heap-v1, target-phase-v1, or target-phase-v2 model`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
     input.targetTaskModel !== undefined &&
     !historicalTargetTaskModelIsLegacy
@@ -16379,6 +18660,19 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  input = {
+    ...input,
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    }
+  };
+  if (version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === TARGET_TASK_PHASE_SCHEMA_VERSION) {
     return parseSimConfig({

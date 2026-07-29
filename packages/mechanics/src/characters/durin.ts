@@ -433,6 +433,7 @@ export function createDurinBlackSkillAuditConfig(
     playerDamageModel: { mode: "disabled" },
     targetClockModel: { mode: "disabled" },
     targetTaskModel: { mode: "legacy-event-heap-v1" },
+    reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
     characters: [
       {
         id: "durin",
@@ -539,6 +540,7 @@ export function createDurinWhiteSkillAuditConfig(
     playerDamageModel: { mode: "disabled" },
     targetClockModel: { mode: "disabled" },
     targetTaskModel: { mode: "legacy-event-heap-v1" },
+    reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
     characters: [
       {
         id: "durin",

@@ -8,11 +8,14 @@ import type {
 } from "@genshin-dps-lab/schemas";
 import {
   canonicalStringify,
+  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
 import { afterAll, describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
+import targetReactablePhaseV139GoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json";
 import { simulate } from "../simulator";
 import { auraStateSnapshotsEqual } from "../target-state-timeline";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -470,22 +473,27 @@ function projectTargetReactablePhaseScenario(
         entry.targetHitlagLogId,
         entry.cause
       ]),
-      hitlag: result.targetHitlagLog.map((entry) => [
-        entry.id,
-        entry.globalFrame,
-        entry.targetFrame,
-        entry.targetId,
-        entry.hitResolutionLogId,
-        entry.haltFrames,
-        entry.factor,
-        entry.extensionFrames,
-        entry.frozenFramesBefore,
-        entry.frozenFramesAfter,
-        entry.pausedGlobalFrameStart,
-        entry.nextTargetAdvanceGlobalFrame,
-        entry.applied,
-        entry.blockedReason
-      ])
+      // This lifecycle fixture freezes applied clock reprojections. Blocked
+      // miss audits are asserted directly below so the frozen 1.38 lifecycle
+      // projection remains unchanged while the runtime audit becomes complete.
+      hitlag: result.targetHitlagLog
+        .filter((entry) => entry.applied)
+        .map((entry) => [
+          entry.id,
+          entry.globalFrame,
+          entry.targetFrame,
+          entry.targetId,
+          entry.hitResolutionLogId,
+          entry.haltFrames,
+          entry.factor,
+          entry.extensionFrames,
+          entry.frozenFramesBefore,
+          entry.frozenFramesAfter,
+          entry.pausedGlobalFrameStart,
+          entry.nextTargetAdvanceGlobalFrame,
+          entry.applied,
+          entry.blockedReason
+        ])
     },
     abandonedWake:
       abandonedWakeFrame === null
@@ -514,11 +522,146 @@ function projectTargetReactablePhaseScenario(
   };
 }
 
-type TargetReactablePhaseGoldenScenario = ReturnType<
+function projectTargetReactablePhaseScenarioV139(
+  result: SimulationResult,
+  boundaryFrame: number,
+  abandonedWakeFrame: number | null = null
+) {
+  const historicalProjection =
+    projectTargetReactablePhaseScenario(
+      result,
+      boundaryFrame,
+      abandonedWakeFrame
+    );
+  const targetClockAuditById =
+    result.targetClockAudit.mode === "target-local-hitlag-v1"
+      ? new Map(
+          result.targetClockAudit.targets.map((target) => [
+            target.targetId,
+            target
+          ])
+        )
+      : new Map();
+  const targetMissAudits = result.targetHitlagLog
+    .filter(
+      (entry) =>
+        entry.applied === false &&
+        entry.blockedReason === "TARGET_MISS"
+    )
+    .map((entry) => {
+      const hitResolution =
+        result.hitResolutionLog[entry.hitResolutionLogId];
+      if (hitResolution === undefined) {
+        throw new Error(
+          `Missing hit resolution ${entry.hitResolutionLogId} for target Miss audit.`
+        );
+      }
+      const phase = result.targetPhaseLog.find(
+        (candidate) =>
+          candidate.globalFrame === entry.globalFrame &&
+          candidate.targetId === entry.targetId &&
+          candidate.hitResolutionLogIds.includes(
+            hitResolution.id
+          )
+      );
+      if (phase === undefined) {
+        throw new Error(
+          `Missing target-phase-v2 owner for target Miss resolution ${hitResolution.id}.`
+        );
+      }
+      return {
+        hitResolution: [
+          hitResolution.id,
+          hitResolution.frame,
+          hitResolution.eventPriority ?? null,
+          hitResolution.eventSequence ?? null,
+          hitResolution.intraEventSequence ?? null,
+          hitResolution.hitId,
+          hitResolution.targetId,
+          hitResolution.outcome,
+          hitResolution.reason,
+          hitResolution.damageAllowed,
+          hitResolution.auraAllowed,
+          hitResolution.hitConfirmAllowed,
+          hitResolution.damageEventId,
+          hitResolution.potentialDamage,
+          hitResolution.finalDamage,
+          hitResolution.displayDamage
+        ],
+        targetHitlag: [
+          entry.id,
+          entry.globalFrame,
+          entry.targetFrame,
+          entry.targetId,
+          entry.hitResolutionLogId,
+          entry.haltFrames,
+          entry.factor,
+          entry.extensionFrames,
+          entry.frozenFramesBefore,
+          entry.frozenFramesAfter,
+          entry.pausedGlobalFrameStart,
+          entry.nextTargetAdvanceGlobalFrame,
+          entry.applied,
+          entry.blockedReason,
+          entry.extendedReactionStatusLogIds
+        ],
+        phase: projectTargetPhase(phase),
+        targetClockAudit:
+          targetClockAuditById.get(entry.targetId) ?? null,
+        targetClockTransitionIds: result.targetClockLog
+          .filter(
+            (transition) =>
+              transition.targetHitlagLogId === entry.id
+          )
+          .map((transition) => transition.id),
+        damageEventIds: result.damageEvents
+          .filter(
+            (damageEvent) =>
+              damageEvent.targetResolutionId ===
+              hitResolution.id
+          )
+          .map((damageEvent) => damageEvent.id)
+      };
+    });
+
+  return {
+    ...historicalProjection,
+    identity: {
+      ...historicalProjection.identity,
+      reactionDeliveryModel:
+        result.config.reactionDeliveryModel
+    },
+    targetClock: {
+      ...historicalProjection.targetClock,
+      hitlag: result.targetHitlagLog.map((entry) => [
+        entry.id,
+        entry.globalFrame,
+        entry.targetFrame,
+        entry.targetId,
+        entry.hitResolutionLogId,
+        entry.haltFrames,
+        entry.factor,
+        entry.extensionFrames,
+        entry.frozenFramesBefore,
+        entry.frozenFramesAfter,
+        entry.pausedGlobalFrameStart,
+        entry.nextTargetAdvanceGlobalFrame,
+        entry.applied,
+        entry.blockedReason
+      ])
+    },
+    targetMissAudits
+  };
+}
+
+type TargetReactablePhaseGoldenScenarioV138 = ReturnType<
   typeof projectTargetReactablePhaseScenario
 >;
+type TargetReactablePhaseGoldenScenarioV139 = ReturnType<
+  typeof projectTargetReactablePhaseScenarioV139
+>;
 
-interface TargetReactablePhaseGoldenFixture {
+interface TargetReactablePhaseGoldenFixtureV138 {
   fixtureVersion: "target-reactable-phase-1.38";
   provenance: {
     mechanicsDataStatus: "fixed-gcsim-provisional";
@@ -539,7 +682,7 @@ interface TargetReactablePhaseGoldenFixture {
   };
   scenarios: Record<
     TargetReactablePhaseGoldenScenarioId,
-    TargetReactablePhaseGoldenScenario
+    TargetReactablePhaseGoldenScenarioV138
   >;
   hashes: Record<
     TargetReactablePhaseGoldenScenarioId,
@@ -547,8 +690,34 @@ interface TargetReactablePhaseGoldenFixture {
   >;
 }
 
-const targetReactablePhaseGolden =
-  targetReactablePhaseGoldenJson as unknown as TargetReactablePhaseGoldenFixture;
+interface TargetReactablePhaseGoldenFixtureV139 {
+  fixtureVersion: "target-reactable-phase-1.39";
+  provenance: TargetReactablePhaseGoldenFixtureV138["provenance"];
+  projectionFormat: Record<string, string[]>;
+  commonConfig: {
+    schemaVersion: string;
+    engineVersion: string;
+    targetTaskModel: { mode: "target-phase-v2" };
+    reactionEngine: { mode: "aura-v7" };
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1";
+    };
+    timeline: { mode: "legal-frame-v1"; fps: 60 };
+  };
+  scenarios: Record<
+    TargetReactablePhaseGoldenScenarioId,
+    TargetReactablePhaseGoldenScenarioV139
+  >;
+  hashes: Record<
+    TargetReactablePhaseGoldenScenarioId,
+    string
+  >;
+}
+
+const targetReactablePhaseGoldenV138 =
+  targetReactablePhaseGoldenJson as unknown as TargetReactablePhaseGoldenFixtureV138;
+const targetReactablePhaseGoldenV139 =
+  targetReactablePhaseV139GoldenJson as unknown as TargetReactablePhaseGoldenFixtureV139;
 
 const goldenScenarioIds: TargetReactablePhaseGoldenScenarioId[] =
   [
@@ -562,13 +731,21 @@ const goldenScenarioIds: TargetReactablePhaseGoldenScenarioId[] =
 const generatedGoldenScenarios: Partial<
   Record<
     TargetReactablePhaseGoldenScenarioId,
-    TargetReactablePhaseGoldenScenario
+    TargetReactablePhaseGoldenScenarioV139
   >
 > = {};
 
 afterAll(() => {
   if (
-    process.env.UPDATE_TARGET_REACTABLE_PHASE_GOLDEN !==
+    process.env.UPDATE_TARGET_REACTABLE_PHASE_GOLDEN ===
+    "1"
+  ) {
+    throw new Error(
+      "target-reactable-phase-1.38.golden.json is frozen; use UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN=1 to write only the 1.39 fixture."
+    );
+  }
+  if (
+    process.env.UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN !==
     "1"
   ) {
     return;
@@ -589,7 +766,7 @@ afterAll(() => {
   const scenarios =
     generatedGoldenScenarios as Record<
       TargetReactablePhaseGoldenScenarioId,
-      TargetReactablePhaseGoldenScenario
+      TargetReactablePhaseGoldenScenarioV139
     >;
   const hashes = Object.fromEntries(
     goldenScenarioIds.map((scenarioId) => [
@@ -598,13 +775,52 @@ afterAll(() => {
     ])
   );
   const fixture = {
-    ...targetReactablePhaseGoldenJson,
+    ...targetReactablePhaseV139GoldenJson,
+    fixtureVersion: "target-reactable-phase-1.39",
+    projectionFormat: {
+      ...targetReactablePhaseGoldenV138.projectionFormat,
+      targetMissHitResolutionTuple: [
+        "id",
+        "globalFrame",
+        "eventPriority",
+        "eventSequence",
+        "intraEventSequence",
+        "hitId",
+        "targetId",
+        "outcome",
+        "reason",
+        "damageAllowed",
+        "auraAllowed",
+        "hitConfirmAllowed",
+        "damageEventId",
+        "potentialDamage",
+        "finalDamage",
+        "displayDamage"
+      ],
+      targetMissHitlagTuple: [
+        ...(targetReactablePhaseGoldenV138.projectionFormat
+          .targetHitlagTuple ?? []),
+        "extendedReactionStatusLogIds"
+      ]
+    },
+    commonConfig: {
+      schemaVersion:
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion:
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v2" },
+      reactionEngine: { mode: "aura-v7" },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      },
+      timeline: { mode: "legal-frame-v1", fps: 60 }
+    },
     scenarios,
     hashes
   };
   writeFileSync(
     new URL(
-      "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json",
+      "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json",
       import.meta.url
     ),
     `${JSON.stringify(fixture, null, 2)}\n`
@@ -617,14 +833,20 @@ function expectGoldenScenario(
   boundaryFrame: number,
   abandonedWakeFrame: number | null = null
 ): void {
-  const scenario = projectTargetReactablePhaseScenario(
+  const historicalScenario =
+    projectTargetReactablePhaseScenario(
+      result,
+      boundaryFrame,
+      abandonedWakeFrame
+    );
+  const scenario = projectTargetReactablePhaseScenarioV139(
     result,
     boundaryFrame,
     abandonedWakeFrame
   );
 
   if (
-    process.env.UPDATE_TARGET_REACTABLE_PHASE_GOLDEN ===
+    process.env.UPDATE_TARGET_REACTABLE_PHASE_V139_GOLDEN ===
     "1"
   ) {
     generatedGoldenScenarios[scenarioId] = scenario;
@@ -651,14 +873,54 @@ function expectGoldenScenario(
     return;
   }
 
-  expect(targetReactablePhaseGolden).toMatchObject({
-    fixtureVersion: "target-reactable-phase-1.38",
+  expect(targetReactablePhaseGoldenV139).toMatchObject({
+    fixtureVersion: "target-reactable-phase-1.39",
     provenance: {
       mechanicsDataStatus: "fixed-gcsim-provisional",
       referenceProject: "genshinsim/gcsim",
       officialServerTruth: false,
       completeGcsimParity: false
     },
+    commonConfig: {
+      schemaVersion:
+        SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion:
+        SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v2" },
+      reactionEngine: { mode: "aura-v7" },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      },
+      timeline: { mode: "legal-frame-v1", fps: 60 }
+    }
+  });
+  expect(
+    targetReactablePhaseGoldenV139.provenance.limitations
+  ).toContain(
+    "Synchronous cross-target Burning application remains unimplemented; queued reactionDamage resolves later in the global/core phase."
+  );
+  expect(
+    Object.keys(
+      targetReactablePhaseGoldenV139.scenarios
+    ).sort()
+  ).toEqual([...goldenScenarioIds].sort());
+  expect(
+    Object.keys(targetReactablePhaseGoldenV139.hashes).sort()
+  ).toEqual([...goldenScenarioIds].sort());
+  expect(scenario).toStrictEqual(
+    targetReactablePhaseGoldenV139.scenarios[scenarioId]
+  );
+  expect(sha256(scenario)).toBe(
+    targetReactablePhaseGoldenV139.hashes[scenarioId]
+  );
+  expect(
+    sha256(
+      targetReactablePhaseGoldenV139.scenarios[scenarioId]
+    )
+  ).toBe(targetReactablePhaseGoldenV139.hashes[scenarioId]);
+
+  expect(targetReactablePhaseGoldenV138).toMatchObject({
+    fixtureVersion: "target-reactable-phase-1.38",
     commonConfig: {
       schemaVersion: TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
       engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION,
@@ -667,28 +929,22 @@ function expectGoldenScenario(
       timeline: { mode: "legal-frame-v1", fps: 60 }
     }
   });
-  expect(
-    targetReactablePhaseGolden.provenance.limitations
-  ).toContain(
-    "Synchronous cross-target Burning application remains unimplemented; queued reactionDamage resolves later in the global/core phase."
-  );
-  expect(
-    Object.keys(targetReactablePhaseGolden.scenarios).sort()
-  ).toEqual([...goldenScenarioIds].sort());
-  expect(
-    Object.keys(targetReactablePhaseGolden.hashes).sort()
-  ).toEqual([...goldenScenarioIds].sort());
-  expect(scenario).toStrictEqual(
-    targetReactablePhaseGolden.scenarios[scenarioId]
-  );
-  expect(sha256(scenario)).toBe(
-    targetReactablePhaseGolden.hashes[scenarioId]
+  const {
+    identity: _currentIdentity,
+    ...historicalSemantics
+  } = historicalScenario;
+  const {
+    identity: _frozenIdentity,
+    ...frozenHistoricalSemantics
+  } = targetReactablePhaseGoldenV138.scenarios[scenarioId];
+  expect(historicalSemantics).toStrictEqual(
+    frozenHistoricalSemantics
   );
   expect(
     sha256(
-      targetReactablePhaseGolden.scenarios[scenarioId]
+      targetReactablePhaseGoldenV138.scenarios[scenarioId]
     )
-  ).toBe(targetReactablePhaseGolden.hashes[scenarioId]);
+  ).toBe(targetReactablePhaseGoldenV138.hashes[scenarioId]);
 }
 
 function makeLifecycleScenarioConfig(
@@ -1507,8 +1763,80 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
         factor: 0,
         extensionFrames: 5,
         applied: true
+      },
+      {
+        globalFrame: 0,
+        targetFrame: 0,
+        targetId: "enemy-1",
+        hitResolutionLogId: 1,
+        haltFrames: 5,
+        factor: 0,
+        extensionFrames: 5,
+        frozenFramesBefore: 0,
+        frozenFramesAfter: 0,
+        pausedGlobalFrameStart: null,
+        nextTargetAdvanceGlobalFrame: null,
+        applied: false,
+        blockedReason: "TARGET_MISS",
+        extendedReactionStatusLogIds: []
       }
     ]);
+    expect(result.targetHitlagLog).toHaveLength(2);
+    expect(
+      result.targetClockLog
+        .filter((entry) => entry.operation === "apply-hitlag")
+        .map((entry) => ({
+          targetId: entry.targetId,
+          targetHitlagLogId: entry.targetHitlagLogId
+        }))
+    ).toEqual([
+      {
+        targetId: "enemy-0",
+        targetHitlagLogId: 0
+      }
+    ]);
+    if (
+      result.targetClockAudit.mode !==
+      "target-local-hitlag-v1"
+    ) {
+      throw new Error("Expected a target-local Hitlag audit.");
+    }
+    expect(
+      result.targetClockAudit.targets.find(
+        (target) => target.targetId === "enemy-1"
+      )
+    ).toMatchObject({
+      finalGlobalFrame: 187,
+      finalTargetFrame: 187,
+      frozenFramesConsumed: 0,
+      frozenFramesRemaining: 0,
+      hitlagApplications: 0,
+      totalExtensionFrames: 0
+    });
+    const missedTargetPhase = result.targetPhaseLog.find(
+      (entry) =>
+        entry.globalFrame === 0 &&
+        entry.targetId === "enemy-1"
+    );
+    expect(missedTargetPhase).toMatchObject({
+      hitResolutionLogIds: [1],
+      targetTasks: [],
+      reactableTick: {
+        transitions: []
+      }
+    });
+    expect(
+      auraStateSnapshotsEqual(
+        missedTargetPhase?.auraBeforeTargetTasks ?? [],
+        missedTargetPhase?.auraAfterTargetTasks ?? []
+      )
+    ).toBe(true);
+    expect(
+      auraStateSnapshotsEqual(
+        missedTargetPhase?.auraAfterTargetTasks ?? [],
+        missedTargetPhase?.reactableTick.auraAfter ?? []
+      )
+    ).toBe(true);
     expect(
       result.targetPhaseLog.some(
         (entry) =>

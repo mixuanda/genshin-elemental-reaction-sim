@@ -3,6 +3,8 @@ import {
   canonicalStringify,
   QUICKEN_BLOOM_TASK_ENGINE_VERSION,
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
+  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
@@ -16,6 +18,7 @@ import { describe, expect, it } from "vitest";
 import taskOrderGoldenV136Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.36.golden.json";
 import taskOrderGoldenV137Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.37.golden.json";
 import taskOrderGoldenV138Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.38.golden.json";
+import taskOrderGoldenV139Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.39.golden.json";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -112,6 +115,9 @@ function makeTaskOrderConfig(
     rotation: [],
     reactionEngine: { mode },
     targetTaskModel: { mode: targetTaskMode },
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    },
     timeline: {
       mode: "legal-frame-v1",
       fps: 60,
@@ -178,7 +184,9 @@ function projectTaskOrderResult(result: SimulationResult) {
       reactionEngineMode:
         result.config.reactionEngine?.mode ?? null,
       timelineMode: result.config.timeline?.mode ?? null,
-      targetTaskModelMode: result.config.targetTaskModel.mode
+      targetTaskModelMode: result.config.targetTaskModel.mode,
+      reactionDeliveryModelMode:
+        result.config.reactionDeliveryModel.mode
     },
     directDamageEvents: result.damageEvents
       .filter((event) => event.kind === "direct")
@@ -309,8 +317,17 @@ type TaskOrderScenarioId =
   | "missingHydro"
   | "auraV6Compatibility";
 
-type TaskOrderProjectionV137 = Omit<
+type TaskOrderProjectionV138 = Omit<
   TaskOrderProjection,
+  "version"
+> & {
+  version: Omit<
+    TaskOrderProjection["version"],
+    "reactionDeliveryModelMode"
+  >;
+};
+type TaskOrderProjectionV137 = Omit<
+  TaskOrderProjectionV138,
   "targetPhaseLog"
 >;
 type TaskOrderProjectionV136 = Omit<
@@ -333,6 +350,7 @@ interface TaskOrderGoldenFixture<TProjection> {
     queuedReactionEngineMode: string;
     compatibilityReactionEngineMode: string;
     targetTaskModelMode?: string;
+    reactionDeliveryModelMode?: string;
   };
   vectors: Record<
     TaskOrderScenarioId,
@@ -346,7 +364,9 @@ const taskOrderGoldenV136 =
 const taskOrderGoldenV137 =
   taskOrderGoldenV137Json as unknown as TaskOrderGoldenFixture<TaskOrderProjectionV137>;
 const taskOrderGoldenV138 =
-  taskOrderGoldenV138Json as unknown as TaskOrderGoldenFixture<TaskOrderProjection>;
+  taskOrderGoldenV138Json as unknown as TaskOrderGoldenFixture<TaskOrderProjectionV138>;
+const taskOrderGoldenV139 =
+  taskOrderGoldenV139Json as unknown as TaskOrderGoldenFixture<TaskOrderProjection>;
 
 function semanticHash(value: unknown): string {
   return createHash("sha256")
@@ -398,8 +418,41 @@ function projectAllTaskOrderVectors(): Record<
   };
 }
 
-function normalizeCurrentVectorsToV137(
+function normalizeCurrentVectorsToV138(
   vectors: Record<TaskOrderScenarioId, TaskOrderProjection>
+): Record<TaskOrderScenarioId, TaskOrderProjectionV138> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([id, vector]) => {
+      const {
+        reactionDeliveryModelMode:
+          _reactionDeliveryModelMode,
+        ...historicalVersion
+      } = vector.version;
+      return [
+        id,
+        {
+          ...vector,
+          version: {
+            ...historicalVersion,
+            schemaVersion:
+              TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+            engineVersion:
+              TARGET_REACTABLE_PHASE_ENGINE_VERSION
+          }
+        }
+      ];
+    })
+  ) as unknown as Record<
+    TaskOrderScenarioId,
+    TaskOrderProjectionV138
+  >;
+}
+
+function normalizeV138VectorsToV137(
+  vectors: Record<
+    TaskOrderScenarioId,
+    TaskOrderProjectionV138
+  >
 ): Record<TaskOrderScenarioId, TaskOrderProjectionV137> {
   return Object.fromEntries(
     Object.entries(vectors).map(([id, vector]) => {
@@ -464,7 +517,7 @@ function normalizeV137VectorsToV136(
 }
 
 describe("aura-v7 queued Quicken to Bloom follow-up", () => {
-  it("matches the current 1.38 identity and normalizes through the frozen 1.37 and 1.36 task-order Goldens", () => {
+  it("matches the current 1.39 identity and normalizes through the frozen 1.38, 1.37, and 1.36 task-order Goldens", () => {
     const vectors = projectAllTaskOrderVectors();
     const hashes = Object.fromEntries(
       Object.entries(vectors).map(([id, vector]) => [
@@ -505,11 +558,36 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       compatibilityReactionEngineMode: "aura-v6",
       targetTaskModelMode: "legacy-event-heap-v1"
     });
-    expect(vectors).toEqual(taskOrderGoldenV138.vectors);
-    expect(hashes).toEqual(taskOrderGoldenV138.hashes);
+    expect(taskOrderGoldenV139.fixtureVersion).toBe("1.0.0");
+    expect(taskOrderGoldenV139.config).toEqual({
+      schemaVersion: SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
+      engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
+      dataVersion:
+        "quicken-bloom-task-order-provisional-1",
+      timelineMode: "legal-frame-v1",
+      queuedReactionEngineMode: "aura-v7",
+      compatibilityReactionEngineMode: "aura-v6",
+      targetTaskModelMode: "legacy-event-heap-v1",
+      reactionDeliveryModelMode: "deferred-event-heap-v1"
+    });
+    expect(vectors).toEqual(taskOrderGoldenV139.vectors);
+    expect(hashes).toEqual(taskOrderGoldenV139.hashes);
+
+    const normalizedV138 =
+      normalizeCurrentVectorsToV138(vectors);
+    expect(normalizedV138).toEqual(
+      taskOrderGoldenV138.vectors
+    );
+    expect(
+      Object.fromEntries(
+        Object.entries(normalizedV138).map(
+          ([id, vector]) => [id, semanticHash(vector)]
+        )
+      )
+    ).toEqual(taskOrderGoldenV138.hashes);
 
     const normalizedV137 =
-      normalizeCurrentVectorsToV137(vectors);
+      normalizeV138VectorsToV137(normalizedV138);
     expect(normalizedV137).toEqual(
       taskOrderGoldenV137.vectors
     );
@@ -538,6 +616,8 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
         (vector) =>
           vector.version.targetTaskModelMode ===
             "legacy-event-heap-v1" &&
+          vector.version.reactionDeliveryModelMode ===
+            "deferred-event-heap-v1" &&
           vector.targetTaskPhaseLog.length === 0 &&
           vector.targetPhaseLog.length === 0
       )

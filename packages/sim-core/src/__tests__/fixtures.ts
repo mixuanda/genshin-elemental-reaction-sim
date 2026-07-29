@@ -36,6 +36,9 @@ export function makeConfig(
   const targetTaskModel = overrides.targetTaskModel ?? {
     mode: "legacy-event-heap-v1" as const
   };
+  const reactionDeliveryModel = overrides.reactionDeliveryModel ?? {
+    mode: "deferred-event-heap-v1" as const
+  };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -70,6 +73,7 @@ export function makeConfig(
     ...overrides,
     playerDamageModel,
     targetClockModel,
-    targetTaskModel
+    targetTaskModel,
+    reactionDeliveryModel
   };
 }

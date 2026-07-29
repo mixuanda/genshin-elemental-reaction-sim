@@ -6,14 +6,18 @@ export const TARGET_REACTABLE_PHASE_SCHEMA_VERSION =
   "1.38.0" as const;
 export const TARGET_REACTABLE_PHASE_ENGINE_VERSION =
   "1.38.0-target-reactable-phase" as const;
+export const SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION =
+  "1.39.0" as const;
+export const SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION =
+  "1.39.0-shatter-recursive-delivery" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  TARGET_REACTABLE_PHASE_SCHEMA_VERSION;
+  SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  TARGET_REACTABLE_PHASE_ENGINE_VERSION;
+  SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -339,6 +343,15 @@ export type TargetTaskModel =
   | { mode: "legacy-event-heap-v1" }
   | { mode: "target-phase-v1" }
   | { mode: "target-phase-v2" };
+
+/**
+ * Selects how zero-delay reaction damage is delivered relative to the hit
+ * that triggered it. Historical configurations preserve deferred heap
+ * delivery; the recursive mode is an explicit 1.39 opt-in.
+ */
+export type ReactionDeliveryModel =
+  | { mode: "deferred-event-heap-v1" }
+  | { mode: "shatter-recursive-zero-delay-v1" };
 
 export interface CharacterStats {
   baseAtk: number;
@@ -836,6 +849,8 @@ export interface SimConfig {
   targetClockModel: TargetClockModel;
   /** Every pre-1.37 configuration migrates to the legacy event heap. */
   targetTaskModel: TargetTaskModel;
+  /** Every pre-1.39 configuration migrates to deferred heap delivery. */
+  reactionDeliveryModel: ReactionDeliveryModel;
 }
 
 export interface SimulationOptions {

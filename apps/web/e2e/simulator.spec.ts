@@ -32,6 +32,12 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(importedTargetTaskModel).toEqual({
     mode: "legacy-event-heap-v1"
   });
+  const importedReactionDeliveryModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().reactionDeliveryModel
+  );
+  expect(importedReactionDeliveryModel).toEqual({
+    mode: "deferred-event-heap-v1"
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -61,10 +67,49 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     await readFile(downloadedPath!, "utf8")
   ) as {
     targetTaskModel?: unknown;
+    reactionDeliveryModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
   );
+  expect(exportedConfig.reactionDeliveryModel).toEqual(
+    importedReactionDeliveryModel
+  );
+});
+
+test("migrates a 1.38 config to deferred reaction delivery", async ({
+  page
+}) => {
+  await page.goto("/");
+  const historicalConfig = structuredClone(
+    durinMeltPreset
+  ) as unknown as Record<string, unknown>;
+  historicalConfig.schemaVersion = "1.38.0";
+  historicalConfig.engineVersion = "1.38.0-target-reactable-phase";
+  delete historicalConfig.reactionDeliveryModel;
+
+  await page.locator("#importInput").setInputFiles({
+    name: "durin-compatibility-preset-1.38.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(historicalConfig))
+  });
+
+  await expect(page.locator("#notice")).toContainText("黑杜林融化");
+  const migratedIdentityAndDelivery = await page.evaluate(() => {
+    const config = window.GenshinDpsLab.getConfig();
+    return {
+      schemaVersion: config.schemaVersion,
+      engineVersion: config.engineVersion,
+      reactionDeliveryModel: config.reactionDeliveryModel
+    };
+  });
+  expect(migratedIdentityAndDelivery).toEqual({
+    schemaVersion: "1.39.0",
+    engineVersion: "1.39.0-shatter-recursive-delivery",
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    }
+  });
 });
 
 test("shows a field path for an invalid config", async ({ page }) => {
@@ -120,9 +165,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.38.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.39.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.38.0-target-reactable-phase"
+    "engine 1.39.0-shatter-recursive-delivery"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

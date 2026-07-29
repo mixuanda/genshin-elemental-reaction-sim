@@ -1,0 +1,1058 @@
+{
+  "fixtureVersion": "shatter-recursive-delivery-1.39",
+  "provenance": {
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "referenceProject": "genshinsim/gcsim",
+    "referenceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "officialServerTruth": false,
+    "completeGcsimParity": false,
+    "scope": "Deterministic recursive zero-delay Shatter delivery, parent links, GCD blocking, poise depletion, and core-owned damage-curve ordering.",
+    "limitations": [
+      "These are fixed-code regression vectors, not official server measurements.",
+      "The fixture covers the implemented Shatter delivery boundary only and does not claim complete gcsim reaction parity."
+    ]
+  },
+  "projectionFormat": {
+    "damageTuple": [
+      "id",
+      "kind",
+      "globalFrame",
+      "targetId",
+      "sourceActorId",
+      "hitId",
+      "element",
+      "reaction",
+      "parentDamageEventId",
+      "eventPriority",
+      "eventSequence",
+      "finalDamage",
+      "displayDamage"
+    ],
+    "reactionDamageTuple": [
+      "id",
+      "reaction",
+      "triggerDamageEventId",
+      "sourceActorId",
+      "sourceTargetId",
+      "triggerFrame",
+      "damageFrame",
+      "scheduled",
+      "withinSimulation",
+      "blockedReason",
+      "scheduleKind",
+      "targetingMode",
+      "checkedTargetIds",
+      "hitTargetIds",
+      "damageEventIds"
+    ],
+    "frozenStateTuple": [
+      "id",
+      "operation",
+      "globalFrame",
+      "targetId",
+      "generation",
+      "reason",
+      "triggerDamageEventId"
+    ],
+    "damageCurveTuple": [
+      "damageEventId",
+      "globalFrame",
+      "targetId",
+      "finalDamage",
+      "cumulativeDamage",
+      "cumulativeByReaction"
+    ]
+  },
+  "commonConfig": {
+    "schemaVersion": "1.39.0",
+    "engineVersion": "1.39.0-shatter-recursive-delivery",
+    "reactionEngine": {
+      "mode": "aura-v7"
+    },
+    "reactionDeliveryModel": {
+      "mode": "shatter-recursive-zero-delay-v1"
+    },
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60
+    }
+  },
+  "scenarios": {
+    "directPhysical": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:2221764a",
+        "reproducibilityKey": "gdl-v2-fnv1a32-dd3d0225",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "reactionDeliveryModel": {
+          "mode": "shatter-recursive-zero-delay-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "targetTaskModel": {
+          "mode": "legacy-event-heap-v1"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        }
+      },
+      "totals": {
+        "totalDamage": 7136.8247357142845,
+        "dps": 3568.4123678571423,
+        "byCharacter": {
+          "hydro": 375,
+          "crusher": 6761.8247357142845
+        }
+      },
+      "damage": [
+        [
+          0,
+          "direct",
+          0,
+          "enemy-0",
+          "hydro",
+          "hydro-freeze-hit",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          3,
+          375,
+          375
+        ],
+        [
+          1,
+          "transformative-reaction",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit:shatter",
+          "physical",
+          "shatter",
+          2,
+          3,
+          4,
+          6386.8247357142845,
+          6387
+        ],
+        [
+          2,
+          "direct",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit",
+          "physical",
+          "none",
+          null,
+          3,
+          4,
+          375,
+          375
+        ]
+      ],
+      "reactionDamage": [
+        [
+          0,
+          "shatter",
+          2,
+          "crusher",
+          "enemy-0",
+          2,
+          2,
+          true,
+          true,
+          null,
+          "one-shot",
+          "single-target",
+          [
+            "enemy-0"
+          ],
+          [
+            "enemy-0"
+          ],
+          [
+            1
+          ]
+        ]
+      ],
+      "frozenState": [
+        [
+          0,
+          "start",
+          0,
+          "enemy-0",
+          1,
+          null,
+          0
+        ],
+        [
+          1,
+          "shatter-consume",
+          2,
+          "enemy-0",
+          2,
+          "FROZEN_CONSUMED_BY_SHATTER",
+          2
+        ]
+      ],
+      "damageCurve": [
+        [
+          0,
+          0,
+          "enemy-0",
+          375,
+          375,
+          {}
+        ],
+        [
+          1,
+          2,
+          "enemy-0",
+          6386.8247357142845,
+          6761.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          2,
+          2,
+          "enemy-0",
+          375,
+          7136.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ]
+      ],
+      "digests": {
+        "config": "4449268b43f5d2356c19affe3de5fd3e6f90722551aadc38857cf23c2da0117a",
+        "damageEvents": "77a275d12210db96cc4fb7f8228eaa6a40a02be479800c3393973a26fccf2f13",
+        "reactionDamageLog": "da77d0a0fed27a78dcf487b545c142e0cbd1c9989c495fe1998bbe08839b2aba",
+        "damageCurve": "d3630e8e6bff25191cd594f291b5c2b3eb906e1f94a647610237a110bdee234a"
+      }
+    },
+    "directGeo": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:35ba734a",
+        "reproducibilityKey": "gdl-v2-fnv1a32-d729ac8e",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "reactionDeliveryModel": {
+          "mode": "shatter-recursive-zero-delay-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "targetTaskModel": {
+          "mode": "legacy-event-heap-v1"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        }
+      },
+      "totals": {
+        "totalDamage": 7136.8247357142845,
+        "dps": 3568.4123678571423,
+        "byCharacter": {
+          "hydro": 375,
+          "crusher": 6761.8247357142845
+        }
+      },
+      "damage": [
+        [
+          0,
+          "direct",
+          0,
+          "enemy-0",
+          "hydro",
+          "hydro-freeze-hit",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          3,
+          375,
+          375
+        ],
+        [
+          1,
+          "transformative-reaction",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit:shatter",
+          "physical",
+          "shatter",
+          2,
+          3,
+          4,
+          6386.8247357142845,
+          6387
+        ],
+        [
+          2,
+          "direct",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit",
+          "geo",
+          "none",
+          null,
+          3,
+          4,
+          375,
+          375
+        ]
+      ],
+      "reactionDamage": [
+        [
+          0,
+          "shatter",
+          2,
+          "crusher",
+          "enemy-0",
+          2,
+          2,
+          true,
+          true,
+          null,
+          "one-shot",
+          "single-target",
+          [
+            "enemy-0"
+          ],
+          [
+            "enemy-0"
+          ],
+          [
+            1
+          ]
+        ]
+      ],
+      "frozenState": [
+        [
+          0,
+          "start",
+          0,
+          "enemy-0",
+          1,
+          null,
+          0
+        ],
+        [
+          1,
+          "shatter-consume",
+          2,
+          "enemy-0",
+          2,
+          "FROZEN_CONSUMED_BY_SHATTER",
+          2
+        ]
+      ],
+      "damageCurve": [
+        [
+          0,
+          0,
+          "enemy-0",
+          375,
+          375,
+          {}
+        ],
+        [
+          1,
+          2,
+          "enemy-0",
+          6386.8247357142845,
+          6761.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          2,
+          2,
+          "enemy-0",
+          375,
+          7136.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ]
+      ],
+      "digests": {
+        "config": "6a5132e3dadf34c6fc522ca2b466d78ed148cc61204047114269b6423853492d",
+        "damageEvents": "0fd2130a1cc814d4fb7e40235516cd8e4706d47e2d40477b31817cfbb710f754",
+        "reactionDamageLog": "da77d0a0fed27a78dcf487b545c142e0cbd1c9989c495fe1998bbe08839b2aba",
+        "damageCurve": "d3630e8e6bff25191cd594f291b5c2b3eb906e1f94a647610237a110bdee234a"
+      }
+    },
+    "nestedOverload": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:05168d33",
+        "reproducibilityKey": "gdl-v2-fnv1a32-904795ac",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "reactionDeliveryModel": {
+          "mode": "shatter-recursive-zero-delay-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "targetTaskModel": {
+          "mode": "legacy-event-heap-v1"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        }
+      },
+      "totals": {
+        "totalDamage": 20401.518246428568,
+        "dps": 20401.518246428568,
+        "byCharacter": {
+          "hydro": 450,
+          "pyro": 19951.518246428568
+        }
+      },
+      "damage": [
+        [
+          0,
+          "direct",
+          0,
+          "enemy-1",
+          "hydro",
+          "freeze-neighbor-hit",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          3,
+          450,
+          450
+        ],
+        [
+          1,
+          "direct",
+          2,
+          "enemy-0",
+          "pyro",
+          "trigger-overload-hit",
+          "pyro",
+          "overload",
+          null,
+          3,
+          4,
+          450,
+          450
+        ],
+        [
+          2,
+          "transformative-reaction",
+          3,
+          "enemy-0",
+          "pyro",
+          "trigger-overload-hit:overload",
+          "pyro",
+          "overload",
+          1,
+          5,
+          6,
+          6309.314726785714,
+          6309
+        ],
+        [
+          3,
+          "transformative-reaction",
+          3,
+          "enemy-1",
+          "pyro",
+          "trigger-overload-hit:overload:shatter",
+          "physical",
+          "shatter",
+          4,
+          5,
+          6,
+          6882.888792857142,
+          6883
+        ],
+        [
+          4,
+          "transformative-reaction",
+          3,
+          "enemy-1",
+          "pyro",
+          "trigger-overload-hit:overload",
+          "pyro",
+          "overload",
+          1,
+          5,
+          6,
+          6309.314726785714,
+          6309
+        ]
+      ],
+      "reactionDamage": [
+        [
+          0,
+          "overload",
+          1,
+          "pyro",
+          "enemy-0",
+          2,
+          3,
+          true,
+          true,
+          null,
+          "one-shot",
+          "radius",
+          [
+            "enemy-0",
+            "enemy-1"
+          ],
+          [
+            "enemy-0",
+            "enemy-1"
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        [
+          1,
+          "shatter",
+          4,
+          "pyro",
+          "enemy-1",
+          3,
+          3,
+          true,
+          true,
+          null,
+          "one-shot",
+          "single-target",
+          [
+            "enemy-1"
+          ],
+          [
+            "enemy-1"
+          ],
+          [
+            3
+          ]
+        ]
+      ],
+      "frozenState": [
+        [
+          0,
+          "start",
+          0,
+          "enemy-1",
+          1,
+          null,
+          0
+        ],
+        [
+          1,
+          "poise-consume",
+          3,
+          "enemy-1",
+          2,
+          "FROZEN_PARTIALLY_CONSUMED_BY_BLUNT_POISE",
+          4
+        ],
+        [
+          2,
+          "shatter-consume",
+          3,
+          "enemy-1",
+          2,
+          "FROZEN_CONSUMED_BY_SHATTER",
+          4
+        ]
+      ],
+      "damageCurve": [
+        [
+          0,
+          0,
+          "enemy-1",
+          450,
+          450,
+          {}
+        ],
+        [
+          1,
+          2,
+          "enemy-0",
+          450,
+          900,
+          {}
+        ],
+        [
+          2,
+          3,
+          "enemy-0",
+          6309.314726785714,
+          7209.314726785714,
+          {
+            "overload": 6309.314726785714
+          }
+        ],
+        [
+          3,
+          3,
+          "enemy-1",
+          6882.888792857142,
+          14092.203519642855,
+          {
+            "overload": 6309.314726785714,
+            "shatter": 6882.888792857142
+          }
+        ],
+        [
+          4,
+          3,
+          "enemy-1",
+          6309.314726785714,
+          20401.518246428568,
+          {
+            "overload": 12618.629453571428,
+            "shatter": 6882.888792857142
+          }
+        ]
+      ],
+      "digests": {
+        "config": "a7f76fdfe6fd0f151d24e1e99040f9e379819f2c9209cfd950a590f3c52d1fca",
+        "damageEvents": "1759abf4b0442da69dcbf1c56fc0b0e9fb2be8294f1bf4309c3faa3ce991edfd",
+        "reactionDamageLog": "f93642e5cb35c2fbe189d31f0a07b5686526db07b0fc1fdc1e859dcb7b1e4c8f",
+        "damageCurve": "9a17496945beb862f67fb440a8911ac194458792a07412c47803fd503357684a"
+      }
+    },
+    "gcdBlocked": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:faf06a29",
+        "reproducibilityKey": "gdl-v2-fnv1a32-b479e1e5",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "reactionDeliveryModel": {
+          "mode": "shatter-recursive-zero-delay-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "targetTaskModel": {
+          "mode": "legacy-event-heap-v1"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        }
+      },
+      "totals": {
+        "totalDamage": 8261.824735714285,
+        "dps": 4130.912367857142,
+        "byCharacter": {
+          "hydro": 375,
+          "crusher": 7886.8247357142845
+        }
+      },
+      "damage": [
+        [
+          0,
+          "direct",
+          0,
+          "enemy-0",
+          "hydro",
+          "hydro-freeze-hit",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          3,
+          375,
+          375
+        ],
+        [
+          1,
+          "transformative-reaction",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit:shatter",
+          "physical",
+          "shatter",
+          2,
+          3,
+          4,
+          6386.8247357142845,
+          6387
+        ],
+        [
+          2,
+          "direct",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit",
+          "physical",
+          "none",
+          null,
+          3,
+          4,
+          375,
+          375
+        ],
+        [
+          3,
+          "direct",
+          5,
+          "enemy-0",
+          "crusher",
+          "refreeze-cryo",
+          "cryo",
+          "none",
+          null,
+          3,
+          5,
+          375,
+          375
+        ],
+        [
+          4,
+          "direct",
+          6,
+          "enemy-0",
+          "crusher",
+          "refreeze-hydro",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          6,
+          375,
+          375
+        ],
+        [
+          5,
+          "direct",
+          8,
+          "enemy-0",
+          "crusher",
+          "crusher-hit-gcd",
+          "physical",
+          "none",
+          null,
+          3,
+          7,
+          375,
+          375
+        ]
+      ],
+      "reactionDamage": [
+        [
+          0,
+          "shatter",
+          2,
+          "crusher",
+          "enemy-0",
+          2,
+          2,
+          true,
+          true,
+          null,
+          "one-shot",
+          "single-target",
+          [
+            "enemy-0"
+          ],
+          [
+            "enemy-0"
+          ],
+          [
+            1
+          ]
+        ],
+        [
+          1,
+          "shatter",
+          5,
+          "crusher",
+          "enemy-0",
+          8,
+          8,
+          false,
+          false,
+          "REACTION_DAMAGE_GCD",
+          "one-shot",
+          "single-target",
+          [],
+          [],
+          []
+        ]
+      ],
+      "frozenState": [
+        [
+          0,
+          "start",
+          0,
+          "enemy-0",
+          1,
+          null,
+          0
+        ],
+        [
+          1,
+          "shatter-consume",
+          2,
+          "enemy-0",
+          2,
+          "FROZEN_CONSUMED_BY_SHATTER",
+          2
+        ],
+        [
+          2,
+          "start",
+          6,
+          "enemy-0",
+          3,
+          null,
+          4
+        ],
+        [
+          3,
+          "shatter-consume",
+          8,
+          "enemy-0",
+          4,
+          "FROZEN_CONSUMED_BY_SHATTER",
+          5
+        ]
+      ],
+      "damageCurve": [
+        [
+          0,
+          0,
+          "enemy-0",
+          375,
+          375,
+          {}
+        ],
+        [
+          1,
+          2,
+          "enemy-0",
+          6386.8247357142845,
+          6761.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          2,
+          2,
+          "enemy-0",
+          375,
+          7136.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          3,
+          5,
+          "enemy-0",
+          375,
+          7511.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          4,
+          6,
+          "enemy-0",
+          375,
+          7886.8247357142845,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ],
+        [
+          5,
+          8,
+          "enemy-0",
+          375,
+          8261.824735714285,
+          {
+            "shatter": 6386.8247357142845
+          }
+        ]
+      ],
+      "digests": {
+        "config": "5b31e27ce33e0b5a789e13c18a9eb35d7bf93c8353ff7ec1891905b7719157b5",
+        "damageEvents": "bf33ec8a86e3d1b5fe5a5dad21ac17489b23c877a392a7ded75373bde79d4856",
+        "reactionDamageLog": "1b5fe096726ddc7224da92e629933d6b529a24c40aff40bb787cc4c351b78122",
+        "damageCurve": "75e0f048dcdcefa725286acf0cc743d775a04386986fc35e5f0254ef682d571c"
+      }
+    },
+    "poiseDepleted": {
+      "identity": {
+        "schemaVersion": "1.39.0",
+        "engineVersion": "1.39.0-shatter-recursive-delivery",
+        "dataVersion": "test-vector-1",
+        "randomSeed": "test-seed",
+        "configHash": "fnv1a32:c833aaae",
+        "reproducibilityKey": "gdl-v2-fnv1a32-9af6f413",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "test-seed"
+        },
+        "reactionDeliveryModel": {
+          "mode": "shatter-recursive-zero-delay-v1"
+        },
+        "reactionEngine": {
+          "mode": "aura-v7"
+        },
+        "targetTaskModel": {
+          "mode": "legacy-event-heap-v1"
+        },
+        "timeline": {
+          "mode": "legal-frame-v1",
+          "fps": 60
+        }
+      },
+      "totals": {
+        "totalDamage": 750,
+        "dps": 375,
+        "byCharacter": {
+          "hydro": 375,
+          "crusher": 375
+        }
+      },
+      "damage": [
+        [
+          0,
+          "direct",
+          0,
+          "enemy-0",
+          "hydro",
+          "hydro-freeze-hit",
+          "hydro",
+          "freeze",
+          null,
+          3,
+          3,
+          375,
+          375
+        ],
+        [
+          1,
+          "direct",
+          2,
+          "enemy-0",
+          "crusher",
+          "crusher-hit",
+          "physical",
+          "none",
+          null,
+          3,
+          4,
+          375,
+          375
+        ]
+      ],
+      "reactionDamage": [],
+      "frozenState": [
+        [
+          0,
+          "start",
+          0,
+          "enemy-0",
+          1,
+          null,
+          0
+        ],
+        [
+          1,
+          "poise-consume",
+          2,
+          "enemy-0",
+          2,
+          "FROZEN_DEPLETED_BY_BLUNT_POISE",
+          1
+        ]
+      ],
+      "damageCurve": [
+        [
+          0,
+          0,
+          "enemy-0",
+          375,
+          375,
+          {}
+        ],
+        [
+          1,
+          2,
+          "enemy-0",
+          375,
+          750,
+          {}
+        ]
+      ],
+      "digests": {
+        "config": "8eebcfbde51f2453a93db8af0c2310ab507d89e15ba062784892e43289ef0873",
+        "damageEvents": "5a04a8b2af745a0532264c3ef33063ad83b5482394cf7e75cbdd6ab7d1f2ed6b",
+        "reactionDamageLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "damageCurve": "bcf2654b827b502adc0ba70cf6d1b6ed18558f837331983e6720014012122fa7"
+      }
+    }
+  },
+  "hashes": {
+    "directPhysical": "2fc98719d8c7d63b364c9b1006f19b86b07af9af0212fcb756fd0cc13661dd87",
+    "directGeo": "5cbc9dfbc298c5fef72595ec0bc8e83238a92f04d82047897143440d852e138a",
+    "nestedOverload": "ba2817bfec038fbe78f997e003addc717440d8edafc60d3b80590ee3940b48df",
+    "gcdBlocked": "56575daebaa18b0ff30012bafc717a566385965fa21d44c0803ea7d2d3eb8ca7",
+    "poiseDepleted": "850a449f0d27c5e7c4706926106fe6f6440b46a7af93cd4869a4be69cdbd32e2"
+  }
+}
