@@ -17,14 +17,18 @@ export const EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION =
   "1.41.0" as const;
 export const EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION =
   "1.41.0-ec-secondary-wet-propagation" as const;
+export const EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION =
+  "1.42.0" as const;
+export const EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION =
+  "1.42.0-ec-global-cadence-safety" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -323,7 +327,8 @@ export interface AuraReactionEngineConfig {
     | "aura-v5"
     | "aura-v6"
     | "aura-v7"
-    | "aura-v8";
+    | "aura-v8"
+    | "aura-v9";
   initialAura?: InitialAuraApplication[];
   /** Character-specific ICD groups keyed by the id used on each hit. */
   icdProfiles?: Record<string, IcdProfile>;
@@ -995,7 +1000,7 @@ export interface AuraStateEntry {
    * disabled output omits it and retains expiresAtFrame byte-for-byte.
    */
   expiresAtTargetFrame?: number | null;
-  /** Present in aura-v3 through aura-v8; each owner keeps an independent slot. */
+  /** Present in aura-v3 through aura-v9; each owner keeps an independent slot. */
   sourceSlots?: AuraSourceGaugeSlot[];
 }
 
@@ -1047,7 +1052,7 @@ export interface ReactionAudit {
   auraConsumed: AuraGaugeEntry[] | null;
   auraAfter: AuraStateEntry[] | null;
   /**
-   * aura-v6 through aura-v8 ordered, independently auditable transformative reactions
+   * aura-v6 through aura-v9 ordered, independently auditable transformative reactions
    * for one elemental application. The legacy singular field remains the
    * first-item compatibility projection.
    */
@@ -1293,6 +1298,18 @@ interface ElectroChargedCleanupAuditBase {
   requestedTargetFrame: number;
   deadlineTargetFrame: number;
   requestReason: "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO";
+  /**
+   * Aura-v9 global-cadence state at cleanup resolution. Historical aura-v8
+   * wires omit this field.
+   */
+  cadence?: ElectroChargedCleanupCadenceAudit;
+}
+
+export interface ElectroChargedCleanupCadenceAudit {
+  status: "scheduled" | "dormant" | "stopped" | "superseded";
+  nextTickFrame: number | null;
+  waneListenerActive: boolean;
+  lastCallbackFrame: number | null;
 }
 
 /**
@@ -1333,6 +1350,15 @@ export type ElectroChargedCleanupAudit =
   | (ElectroChargedCleanupAuditBase & {
       outcome: "natural-expiry";
       resolutionReason: "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+      resolvedGlobalFrame: number;
+      resolvedTargetFrame: number;
+      targetPhaseLogId: number;
+      periodicReactionLogId: number;
+      targetStateTimelinePointId: number;
+    })
+  | (ElectroChargedCleanupAuditBase & {
+      outcome: "ended-before-deadline";
+      resolutionReason: "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP";
       resolvedGlobalFrame: number;
       resolvedTargetFrame: number;
       targetPhaseLogId: number;
@@ -1417,6 +1443,10 @@ export interface PeriodicReactionAudit {
   waneDelayFrames: number;
   waneGaugeUnits: number;
   coexistenceExpiresAtFrame: number | null;
+  /** Aura-v9 global callback state; historical audit wires omit it. */
+  cadenceStatus?: "scheduled" | "dormant" | "stopped";
+  /** Aura-v9 Wane listener state; historical audit wires omit it. */
+  waneListenerActive?: boolean;
 }
 
 export interface FrozenReactionAudit {
@@ -2339,6 +2369,7 @@ export type PeriodicReactionOperation =
   | "start"
   | "refresh"
   | "tick"
+  | "tick-skipped"
   | "wane"
   | "wane-skipped"
   | "stop";
@@ -2351,8 +2382,8 @@ export interface PeriodicReactionLogEntry {
   frame: number;
   /**
    * Present on target-phase-v2 Electro-Charged `stop` rows materialized by
-   * Reactable.Tick, including aura-v8 Quicken→Bloom cleanup. Damage ticks and
-   * post-damage wane rows remain global/core work and omit this field.
+   * Reactable.Tick, including aura-v8/v9 Quicken→Bloom cleanup. Damage ticks
+   * and post-damage Wane rows remain global/core work and omit this field.
    */
   targetFrame?: number;
   timeSeconds: number;
@@ -2361,8 +2392,8 @@ export interface PeriodicReactionLogEntry {
   sourceActorId: string | null;
   triggerDamageEventId: number | null;
   /**
-   * Present only on an aura-v8 Quicken→Bloom coexistence cleanup, including
-   * the natural-expiry collision where the existing stop row is reused.
+   * Present only on an aura-v8/v9 Quicken→Bloom coexistence cleanup,
+   * including natural-expiry and aura-v9 ended-before-deadline reuse.
    */
   reactionTaskLogId?: number;
   reactionDamageLogId: number | null;
@@ -2375,6 +2406,10 @@ export interface PeriodicReactionLogEntry {
   coexistenceExpiresAtFrame: number | null;
   waneFrame: number | null;
   reason: string | null;
+  /** Aura-v9 global callback state; historical log wires omit it. */
+  cadenceStatus?: "scheduled" | "dormant" | "stopped";
+  /** Aura-v9 Wane listener state; historical log wires omit it. */
+  waneListenerActive?: boolean;
 }
 
 export type FrozenStateOperation =
@@ -3096,7 +3131,10 @@ export type TargetLifecycleTransition =
       targetStateTimelinePointId: number;
     } & (
       | {
-          outcome: "stop" | "natural-expiry";
+          outcome:
+            | "stop"
+            | "natural-expiry"
+            | "ended-before-deadline";
           periodicReactionLogId: number;
         }
       | {

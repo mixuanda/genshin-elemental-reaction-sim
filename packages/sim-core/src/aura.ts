@@ -294,7 +294,8 @@ function requiresAuraV2(reaction: ReactionType): boolean {
 
 export interface ElectroChargedStateResult {
   generation: number;
-  operation: "tick" | "wane" | "wane-skipped" | "stop" | "stale";
+  operation:
+    "tick" | "tick-skipped" | "wane" | "wane-skipped" | "stop" | "stale";
   frame: number;
   auraBefore: AuraStateEntry[];
   auraConsumed: NonNullable<ReactionAudit["auraConsumed"]>;
@@ -302,6 +303,12 @@ export interface ElectroChargedStateResult {
   nextTickFrame: number | null;
   coexistenceExpiresAtFrame: number | null;
   reason: string | null;
+  /** Aura-v9 only: fixed global callback cadence state. */
+  cadenceStatus?: "scheduled" | "dormant" | "stopped";
+  /** Aura-v9 only: whether a successful EC damage event may queue Wane. */
+  waneListenerActive?: boolean;
+  /** Aura-v9 only: most recent non-first global callback frame. */
+  lastCallbackFrame?: number | null;
 }
 
 export interface FrozenStateResult {
@@ -406,14 +413,27 @@ export interface AuraEngineConfig extends AuraReactionEngineConfig {
 }
 
 export type ElectroChargedCleanupOutcome =
-  "armed" | "stopped" | "retained" | "superseded" | "natural-expiry";
+  | "armed"
+  | "stopped"
+  | "retained"
+  | "superseded"
+  | "natural-expiry"
+  | "ended-before-deadline";
 
 export type ElectroChargedCleanupReason =
   | "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO"
   | "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
   | "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK"
   | "ELECTRO_CHARGED_GENERATION_SUPERSEDED"
-  | "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+  | "AURA_DECAY_EXPIRED_BEFORE_CLEANUP"
+  | "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP";
+
+export interface ElectroChargedCleanupCadenceResult {
+  status: "scheduled" | "dormant" | "stopped" | "superseded";
+  nextTickFrame: number | null;
+  waneListenerActive: boolean;
+  lastCallbackFrame: number | null;
+}
 
 /**
  * Auditable aura-v8 bridge between a zero-delay Quicken→Bloom task and the
@@ -435,6 +455,8 @@ export interface ElectroChargedCleanupResult {
   auraBefore: AuraStateEntry[];
   auraAfter: AuraStateEntry[];
   nextTickFrame: number | null;
+  /** Aura-v9 only; historical aura-v8 cleanup wires omit it. */
+  cadence?: ElectroChargedCleanupCadenceResult;
 }
 
 interface PendingElectroChargedCleanup {
@@ -584,7 +606,8 @@ function isAuraApplicationElement(
       mode === "aura-v5" ||
       mode === "aura-v6" ||
       mode === "aura-v7" ||
-      mode === "aura-v8") &&
+      mode === "aura-v8" ||
+      mode === "aura-v9") &&
       element === "dendro")
   );
 }
@@ -598,7 +621,8 @@ function usesAuraV3Durability(
     mode === "aura-v5" ||
     mode === "aura-v6" ||
     mode === "aura-v7" ||
-    mode === "aura-v8"
+    mode === "aura-v8" ||
+    mode === "aura-v9"
   );
 }
 
@@ -610,7 +634,8 @@ function usesBurningModel(
     mode === "aura-v5" ||
     mode === "aura-v6" ||
     mode === "aura-v7" ||
-    mode === "aura-v8"
+    mode === "aura-v8" ||
+    mode === "aura-v9"
   );
 }
 
@@ -619,14 +644,15 @@ function usesBloomModel(mode: AuraReactionEngineConfig["mode"]): boolean {
     mode === "aura-v5" ||
     mode === "aura-v6" ||
     mode === "aura-v7" ||
-    mode === "aura-v8"
+    mode === "aura-v8" ||
+    mode === "aura-v9"
   );
 }
 
 function usesQueuedQuickenBloomFollowup(
   mode: AuraReactionEngineConfig["mode"]
 ): boolean {
-  return mode === "aura-v7" || mode === "aura-v8";
+  return mode === "aura-v7" || mode === "aura-v8" || mode === "aura-v9";
 }
 
 /**
@@ -673,6 +699,8 @@ function remainingDecayFrames(
  * and stops counting Burning snapshot/Fuel refreshes as new reactions.
  * aura-v8 retains aura-v7 reaction order and defers the EC stream cleanup
  * caused by that Bloom task to the next effective target Reactable.Tick.
+ * aura-v9 keeps that target-local cleanup boundary while moving EC damage
+ * callbacks and Wane onto generation-bound global-frame tasks.
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
@@ -692,6 +720,23 @@ export class AuraEngine {
   private electroChargedGeneration = 0;
   private electroChargedActive = false;
   private electroChargedNextTickFrame = -1;
+  private electroChargedCadenceStatus: "scheduled" | "dormant" | "stopped" =
+    "stopped";
+  private electroChargedWaneListenerActive = false;
+  private electroChargedLastCallbackFrame: number | null = null;
+  private readonly electroChargedCadenceByGeneration = new Map<
+    number,
+    {
+      status: "scheduled" | "dormant" | "stopped";
+      nextTickFrame: number | null;
+      waneListenerActive: boolean;
+      lastCallbackFrame: number | null;
+    }
+  >();
+  private electroChargedEndedBeforeCleanup: {
+    generation: number;
+    frame: number;
+  } | null = null;
   private readonly pendingElectroChargedCleanups: PendingElectroChargedCleanup[] =
     [];
   private readonly electroChargedCleanupResults: ElectroChargedCleanupResult[] =
@@ -953,8 +998,7 @@ export class AuraEngine {
     }
     this.auras.clear();
     this.burningFuelDepletedFrame = null;
-    this.electroChargedActive = false;
-    this.electroChargedNextTickFrame = -1;
+    this.stopElectroCharged(frame, false);
     return this.getMechanicsTruncation()!;
   }
 
@@ -1545,26 +1589,22 @@ export class AuraEngine {
 
     if (electroChargedStopped) {
       const segment = segments.get("electroCharged")!;
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
-      this.reactableLifecycleBoundaries.set(
-        "electroCharged",
-        {
-          kind: "electroCharged",
-          result: {
-            generation:
-              capture.electroCharged!.generation,
-            operation: "stop",
-            frame: capture.frame,
-            auraBefore: segment.auraBefore,
-            auraConsumed: [],
-            auraAfter: segment.auraAfter,
-            nextTickFrame: null,
-            coexistenceExpiresAtFrame: null,
-            reason: "AURA_DECAY_EXPIRED"
-          }
-        }
-      );
+      this.stopElectroCharged(capture.frame, false);
+      this.reactableLifecycleBoundaries.set("electroCharged", {
+        kind: "electroCharged",
+        result: {
+          generation: capture.electroCharged!.generation,
+          operation: "stop",
+          frame: capture.frame,
+          auraBefore: segment.auraBefore,
+          auraConsumed: [],
+          auraAfter: segment.auraAfter,
+          nextTickFrame: null,
+          coexistenceExpiresAtFrame: null,
+          reason: "AURA_DECAY_EXPIRED",
+          ...this.electroChargedStateFields(),
+        },
+      });
     }
   }
 
@@ -1929,7 +1969,7 @@ export class AuraEngine {
         }
       } else {
         const pendingDeadline =
-          this.mode === "aura-v8"
+          this.mode === "aura-v8" || this.mode === "aura-v9"
             ? (this.pendingElectroChargedCleanups[0]?.deadlineTargetFrame ??
               null)
             : null;
@@ -1977,8 +2017,7 @@ export class AuraEngine {
         !this.hasElectroChargedAuras() &&
         !this.shouldDeferElectroChargedMissingAuraCleanup()
       ) {
-        this.electroChargedActive = false;
-        this.electroChargedNextTickFrame = -1;
+        this.stopElectroCharged(frame, false);
       }
     }
   }
@@ -2085,10 +2124,123 @@ export class AuraEngine {
     );
   }
 
+  private isElectroChargedGlobalCadenceEnabled(): boolean {
+    return this.mode === "aura-v9";
+  }
+
+  private electroChargedStateFields(): Pick<
+    ElectroChargedStateResult,
+    "cadenceStatus" | "waneListenerActive" | "lastCallbackFrame"
+  > {
+    return this.isElectroChargedGlobalCadenceEnabled()
+      ? {
+          cadenceStatus: this.electroChargedCadenceStatus,
+          waneListenerActive: this.electroChargedWaneListenerActive,
+          lastCallbackFrame: this.electroChargedLastCallbackFrame,
+        }
+      : {};
+  }
+
+  private electroChargedAuditFields(): {
+    cadenceStatus?: "scheduled" | "dormant" | "stopped";
+    waneListenerActive?: boolean;
+  } {
+    return this.isElectroChargedGlobalCadenceEnabled()
+      ? {
+          cadenceStatus: this.electroChargedCadenceStatus,
+          waneListenerActive: this.electroChargedWaneListenerActive,
+        }
+      : {};
+  }
+
+  private electroChargedAuditNextTickFrame(): number | null {
+    return this.isElectroChargedGlobalCadenceEnabled() &&
+      this.electroChargedNextTickFrame < 0
+      ? null
+      : this.electroChargedNextTickFrame;
+  }
+
+  private electroChargedCleanupCadence(
+    status: "scheduled" | "dormant" | "stopped" | "superseded" = this
+      .electroChargedCadenceStatus,
+    generation = this.electroChargedGeneration,
+  ): ElectroChargedCleanupCadenceResult | undefined {
+    if (!this.isElectroChargedGlobalCadenceEnabled()) {
+      return undefined;
+    }
+    const generationState =
+      this.electroChargedCadenceByGeneration.get(generation);
+    return {
+      status,
+      nextTickFrame:
+        status === "scheduled"
+          ? (generationState?.nextTickFrame ?? null)
+          : null,
+      waneListenerActive:
+        status === "superseded"
+          ? false
+          : (generationState?.waneListenerActive ?? false),
+      lastCallbackFrame: generationState?.lastCallbackFrame ?? null,
+    };
+  }
+
+  private syncElectroChargedCadenceGeneration(): void {
+    if (!this.isElectroChargedGlobalCadenceEnabled()) return;
+    this.electroChargedCadenceByGeneration.set(this.electroChargedGeneration, {
+      status: this.electroChargedCadenceStatus,
+      nextTickFrame:
+        this.electroChargedNextTickFrame < 0
+          ? null
+          : this.electroChargedNextTickFrame,
+      waneListenerActive: this.electroChargedWaneListenerActive,
+      lastCallbackFrame: this.electroChargedLastCallbackFrame,
+    });
+  }
+
+  private startElectroCharged(frame: number): void {
+    this.electroChargedGeneration += 1;
+    this.electroChargedActive = true;
+    this.electroChargedNextTickFrame =
+      frame +
+      ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+      ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+    if (this.isElectroChargedGlobalCadenceEnabled()) {
+      this.electroChargedCadenceStatus = "scheduled";
+      this.electroChargedWaneListenerActive = true;
+      this.electroChargedLastCallbackFrame = null;
+      this.electroChargedEndedBeforeCleanup = null;
+      this.syncElectroChargedCadenceGeneration();
+    }
+  }
+
+  private stopElectroCharged(frame: number, endedBeforeCleanup: boolean): void {
+    if (
+      endedBeforeCleanup &&
+      this.isElectroChargedGlobalCadenceEnabled() &&
+      this.pendingElectroChargedCleanups.some(
+        (pending) =>
+          pending.generation === this.electroChargedGeneration &&
+          this.getCurrentTargetFrame() < pending.deadlineTargetFrame,
+      )
+    ) {
+      this.electroChargedEndedBeforeCleanup = {
+        generation: this.electroChargedGeneration,
+        frame,
+      };
+    }
+    this.electroChargedActive = false;
+    this.electroChargedNextTickFrame = -1;
+    if (this.isElectroChargedGlobalCadenceEnabled()) {
+      this.electroChargedCadenceStatus = "stopped";
+      this.electroChargedWaneListenerActive = false;
+      this.syncElectroChargedCadenceGeneration();
+    }
+  }
+
   private shouldDeferElectroChargedMissingAuraCleanup(): boolean {
     return this.pendingElectroChargedCleanups.some(
       (pending) =>
-        this.mode === "aura-v8" &&
+        (this.mode === "aura-v8" || this.mode === "aura-v9") &&
         pending.generation === this.electroChargedGeneration &&
         this.clockFrame() < pending.deadlineTargetFrame
     );
@@ -2098,7 +2250,7 @@ export class AuraEngine {
     input: Readonly<QuickenBloomFollowupInput>,
     auraBefore: readonly AuraStateEntry[]
   ): void {
-    if (this.mode !== "aura-v8") return;
+    if (this.mode !== "aura-v8" && this.mode !== "aura-v9") return;
     const originReactionTaskId = input.originReactionTaskId ?? null;
     if (
       originReactionTaskId !== null &&
@@ -2131,6 +2283,10 @@ export class AuraEngine {
       return;
     }
     this.pendingElectroChargedCleanups.push(nextPending);
+    const cadence = this.electroChargedCleanupCadence(
+      this.electroChargedCadenceStatus,
+      nextPending.generation,
+    );
     this.electroChargedCleanupResults.push({
       model: "quicken-bloom-target-tick-v1",
       ...nextPending,
@@ -2143,7 +2299,8 @@ export class AuraEngine {
       nextTickFrame:
         this.electroChargedNextTickFrame < 0
           ? null
-          : this.electroChargedNextTickFrame
+          : this.electroChargedNextTickFrame,
+      ...(cadence === undefined ? {} : { cadence }),
     });
   }
 
@@ -2153,7 +2310,7 @@ export class AuraEngine {
     auraBeforeTick: readonly AuraStateEntry[]
   ): void {
     if (
-      this.mode !== "aura-v8" ||
+      (this.mode !== "aura-v8" && this.mode !== "aura-v9") ||
       this.pendingElectroChargedCleanups.length === 0
     ) {
       return;
@@ -2186,16 +2343,30 @@ export class AuraEngine {
         // cleanup wake only records that this request lost the collision.
         outcome = "natural-expiry";
         reason = "AURA_DECAY_EXPIRED_BEFORE_CLEANUP";
+      } else if (
+        this.electroChargedEndedBeforeCleanup?.generation ===
+          pending.generation &&
+        this.electroChargedEndedBeforeCleanup.frame < frame
+      ) {
+        outcome = "ended-before-deadline";
+        reason = "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP";
       } else if (this.electroChargedActive && this.hasElectroChargedAuras()) {
         outcome = "retained";
         reason = "COEXISTENCE_RESTORED_BEFORE_TARGET_TICK";
       } else {
         outcome = "stopped";
         reason = "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM";
-        this.electroChargedActive = false;
-        this.electroChargedNextTickFrame = -1;
+        this.stopElectroCharged(frame, false);
       }
 
+      const cadence = this.electroChargedCleanupCadence(
+        outcome === "superseded"
+          ? "superseded"
+          : outcome === "retained"
+            ? this.electroChargedCadenceStatus
+            : "stopped",
+        pending.generation,
+      );
       this.electroChargedCleanupResults.push({
         model: "quicken-bloom-target-tick-v1",
         ...pending,
@@ -2205,10 +2376,12 @@ export class AuraEngine {
         reason,
         auraBefore: this.cloneAuraSnapshot(auraBeforeTick),
         auraAfter: this.snapshot(),
-        nextTickFrame:
-          this.electroChargedNextTickFrame < 0
+        nextTickFrame: this.isElectroChargedGlobalCadenceEnabled()
+          ? (cadence?.nextTickFrame ?? null)
+          : this.electroChargedNextTickFrame < 0
             ? null
-            : this.electroChargedNextTickFrame
+            : this.electroChargedNextTickFrame,
+        ...(cadence === undefined ? {} : { cadence }),
       });
     }
   }
@@ -2565,6 +2738,59 @@ export class AuraEngine {
     return this.snapshot();
   }
 
+  /**
+   * Observe the independently queued +10f damage task. In aura-v9 this task
+   * may still deal its pinned damage while coexistence is temporarily absent,
+   * but a missing Aura permanently disables Wane for the current generation.
+   * The independent +70f callback remains scheduled.
+   */
+  prepareElectroChargedFirstDamage(
+    frame: number,
+    generation: number,
+  ): ElectroChargedStateResult {
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    if (
+      generation !== this.electroChargedGeneration ||
+      !this.electroChargedActive
+    ) {
+      return {
+        generation,
+        operation: "stale",
+        frame,
+        auraBefore,
+        auraConsumed: [],
+        auraAfter: this.cloneAuraSnapshot(auraBefore),
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+        reason: "SUPERSEDED_STREAM",
+        ...this.electroChargedStateFields(),
+      };
+    }
+    const coexistencePresent = this.hasElectroChargedAuras();
+    if (this.isElectroChargedGlobalCadenceEnabled() && !coexistencePresent) {
+      this.electroChargedWaneListenerActive = false;
+      this.syncElectroChargedCadenceGeneration();
+    }
+    return {
+      generation,
+      operation: "tick",
+      frame,
+      auraBefore,
+      auraConsumed: [],
+      auraAfter: this.snapshot(),
+      nextTickFrame:
+        this.electroChargedNextTickFrame < 0
+          ? null
+          : this.electroChargedNextTickFrame,
+      coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+      reason: coexistencePresent
+        ? null
+        : "COEXISTING_AURA_MISSING_AT_FIRST_DAMAGE",
+      ...this.electroChargedStateFields(),
+    };
+  }
+
   prepareElectroChargedTick(
     frame: number,
     generation: number
@@ -2580,17 +2806,38 @@ export class AuraEngine {
         auraConsumed: [],
         auraAfter: this.snapshot(),
         nextTickFrame: null,
-        coexistenceExpiresAtFrame:
-          this.electroChargedExpiryFrame(),
-        reason: "SUPERSEDED_STREAM"
+        coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+        reason: "SUPERSEDED_STREAM",
+        ...this.electroChargedStateFields(),
       };
     }
-    if (
-      !this.electroChargedActive ||
-      !this.hasElectroChargedAuras()
-    ) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+    if (this.isElectroChargedGlobalCadenceEnabled()) {
+      this.electroChargedLastCallbackFrame = frame;
+      if (
+        this.electroChargedActive &&
+        !this.hasElectroChargedAuras() &&
+        this.shouldDeferElectroChargedMissingAuraCleanup()
+      ) {
+        this.electroChargedWaneListenerActive = false;
+        this.electroChargedCadenceStatus = "dormant";
+        this.electroChargedNextTickFrame = -1;
+        this.syncElectroChargedCadenceGeneration();
+        return {
+          generation,
+          operation: "tick-skipped",
+          frame,
+          auraBefore,
+          auraConsumed: [],
+          auraAfter: this.snapshot(),
+          nextTickFrame: null,
+          coexistenceExpiresAtFrame: null,
+          reason: "COEXISTING_AURA_MISSING_AT_GLOBAL_CALLBACK",
+          ...this.electroChargedStateFields(),
+        };
+      }
+    }
+    if (!this.electroChargedActive || !this.hasElectroChargedAuras()) {
+      this.stopElectroCharged(frame, false);
       return {
         generation,
         operation: "stop",
@@ -2600,11 +2847,16 @@ export class AuraEngine {
         auraAfter: this.snapshot(),
         nextTickFrame: null,
         coexistenceExpiresAtFrame: null,
-        reason: "COEXISTING_AURA_MISSING"
+        reason: "COEXISTING_AURA_MISSING",
+        ...this.electroChargedStateFields(),
       };
     }
     this.electroChargedNextTickFrame =
       frame + ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+    if (this.isElectroChargedGlobalCadenceEnabled()) {
+      this.electroChargedCadenceStatus = "scheduled";
+      this.syncElectroChargedCadenceGeneration();
+    }
     return {
       generation,
       operation: "tick",
@@ -2613,9 +2865,9 @@ export class AuraEngine {
       auraConsumed: [],
       auraAfter: this.snapshot(),
       nextTickFrame: this.electroChargedNextTickFrame,
-      coexistenceExpiresAtFrame:
-        this.electroChargedExpiryFrame(),
-      reason: null
+      coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+      reason: null,
+      ...this.electroChargedStateFields(),
     };
   }
 
@@ -2653,20 +2905,16 @@ export class AuraEngine {
         nextTickFrame: this.electroChargedActive
           ? this.electroChargedNextTickFrame
           : null,
-        coexistenceExpiresAtFrame:
-          this.electroChargedExpiryFrame(),
-        reason: "SUPERSEDED_STREAM"
+        coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+        reason: "SUPERSEDED_STREAM",
+        ...this.electroChargedStateFields(),
       };
     }
     this.advanceTo(frame);
     const auraBefore = this.snapshot();
     const generation = expectedGeneration;
-    if (
-      !this.electroChargedActive ||
-      !this.hasElectroChargedAuras()
-    ) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+    if (!this.electroChargedActive || !this.hasElectroChargedAuras()) {
+      this.stopElectroCharged(frame, true);
       return {
         generation,
         operation: "stop",
@@ -2676,7 +2924,8 @@ export class AuraEngine {
         auraAfter: this.snapshot(),
         nextTickFrame: null,
         coexistenceExpiresAtFrame: null,
-        reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
+        reason: "COEXISTING_AURA_MISSING_BEFORE_WANE",
+        ...this.electroChargedStateFields(),
       };
     }
     if (!damageApplied) {
@@ -2688,9 +2937,9 @@ export class AuraEngine {
         auraConsumed: [],
         auraAfter: this.snapshot(),
         nextTickFrame: this.electroChargedNextTickFrame,
-        coexistenceExpiresAtFrame:
-          this.electroChargedExpiryFrame(),
-        reason: "ZERO_ACTUAL_DAMAGE"
+        coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+        reason: "ZERO_ACTUAL_DAMAGE",
+        ...this.electroChargedStateFields(),
       };
     }
 
@@ -2711,8 +2960,7 @@ export class AuraEngine {
       });
     }
     if (!this.hasElectroChargedAuras()) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+      this.stopElectroCharged(frame, true);
     }
     return {
       generation,
@@ -2724,11 +2972,9 @@ export class AuraEngine {
       nextTickFrame: this.electroChargedActive
         ? this.electroChargedNextTickFrame
         : null,
-      coexistenceExpiresAtFrame:
-        this.electroChargedExpiryFrame(),
-      reason: this.electroChargedActive
-        ? null
-        : "AURA_DEPLETED_BY_WANE"
+      coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+      reason: this.electroChargedActive ? null : "AURA_DEPLETED_BY_WANE",
+      ...this.electroChargedStateFields(),
     };
   }
 
@@ -2778,7 +3024,8 @@ export class AuraEngine {
         coexistenceExpiresAtFrame: dispatchExpiry,
         reason: this.electroChargedActive
           ? "STALE_EXPIRY_CHECK"
-          : "STREAM_ALREADY_INACTIVE"
+          : "STREAM_ALREADY_INACTIVE",
+        ...this.electroChargedStateFields(),
       };
     }
     if (frame > this.currentFrame) {
@@ -2819,12 +3066,12 @@ export class AuraEngine {
           ? this.electroChargedNextTickFrame
           : null,
         coexistenceExpiresAtFrame: currentExpiry,
-        reason: "STALE_EXPIRY_CHECK"
+        reason: "STALE_EXPIRY_CHECK",
+        ...this.electroChargedStateFields(),
       };
     }
     if (!this.hasElectroChargedAuras()) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+      this.stopElectroCharged(frame, false);
       return {
         generation,
         operation: "stop",
@@ -2834,7 +3081,8 @@ export class AuraEngine {
         auraAfter,
         nextTickFrame: null,
         coexistenceExpiresAtFrame: null,
-        reason: "AURA_DECAY_EXPIRED"
+        reason: "AURA_DECAY_EXPIRED",
+        ...this.electroChargedStateFields(),
       };
     }
     return {
@@ -2846,7 +3094,8 @@ export class AuraEngine {
       auraAfter,
       nextTickFrame: this.electroChargedNextTickFrame,
       coexistenceExpiresAtFrame: currentExpiry,
-      reason: "AURA_REFRESHED_BEFORE_EXPIRY"
+      reason: "AURA_REFRESHED_BEFORE_EXPIRY",
+      ...this.electroChargedStateFields(),
     };
   }
 
@@ -4294,7 +4543,7 @@ export class AuraEngine {
   ): QuickenBloomFollowupResult {
     if (!usesQueuedQuickenBloomFollowup(this.mode)) {
       throw new Error(
-        "Quicken→Bloom follow-up tasks require reactionEngine.mode aura-v7 or aura-v8."
+        "Quicken→Bloom follow-up tasks require reactionEngine.mode aura-v7, aura-v8, or aura-v9.",
       );
     }
     this.advanceTo(input.frame);
@@ -4348,7 +4597,7 @@ export class AuraEngine {
       );
     }
     if (
-      this.mode === "aura-v8" &&
+      (this.mode === "aura-v8" || this.mode === "aura-v9") &&
       electroChargedWasActive &&
       electroChargedGenerationBefore === this.electroChargedGeneration &&
       hydroGaugeUnitsBefore > AURA_EPSILON &&
@@ -4586,8 +4835,7 @@ export class AuraEngine {
       !this.hasElectroChargedAuras() &&
       !this.shouldDeferElectroChargedMissingAuraCleanup()
     ) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+      this.stopElectroCharged(input.frame, false);
       periodicReaction = {
         reaction: "electroCharged",
         generation: this.electroChargedGeneration,
@@ -4600,7 +4848,8 @@ export class AuraEngine {
           ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
         waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
         waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-        coexistenceExpiresAtFrame: null
+        coexistenceExpiresAtFrame: null,
+        ...this.electroChargedAuditFields(),
       };
     }
 
@@ -4809,8 +5058,7 @@ export class AuraEngine {
         !this.hasElectroChargedAuras() &&
         !this.shouldDeferElectroChargedMissingAuraCleanup()
       ) {
-        this.electroChargedActive = false;
-        this.electroChargedNextTickFrame = -1;
+        this.stopElectroCharged(input.frame, false);
         periodicReaction = {
           reaction: "electroCharged",
           generation: this.electroChargedGeneration,
@@ -4823,7 +5071,8 @@ export class AuraEngine {
             ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
           waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
           waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-          coexistenceExpiresAtFrame: null
+          coexistenceExpiresAtFrame: null,
+          ...this.electroChargedAuditFields(),
         };
       }
     }
@@ -5188,7 +5437,8 @@ export class AuraEngine {
     const usesOrderedElectroPipeline =
       (this.mode === "aura-v6" ||
         this.mode === "aura-v7" ||
-        this.mode === "aura-v8") &&
+        this.mode === "aura-v8" ||
+        this.mode === "aura-v9") &&
       input.element === "electro";
     const usesElectroHydroDendroPipeline =
       this.mode === "aura-v5" &&
@@ -5780,12 +6030,7 @@ export class AuraEngine {
             ? "refresh"
             : "start";
           if (operation === "start") {
-            this.electroChargedGeneration += 1;
-            this.electroChargedActive = true;
-            this.electroChargedNextTickFrame =
-              input.frame +
-              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
-              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+            this.startElectroCharged(input.frame);
           }
           const coexistenceExpiresAtFrame =
             this.electroChargedExpiryFrame();
@@ -5806,15 +6051,12 @@ export class AuraEngine {
                 ? input.frame +
                   ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
                 : null,
-            nextTickFrame:
-              this.electroChargedNextTickFrame,
-            tickIntervalFrames:
-              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
-            waneDelayFrames:
-              ELECTRO_CHARGED_WANE_DELAY_FRAMES,
-            waneGaugeUnits:
-              ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-            coexistenceExpiresAtFrame
+            nextTickFrame: this.electroChargedAuditNextTickFrame(),
+            tickIntervalFrames: ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+            waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+            waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+            coexistenceExpiresAtFrame,
+            ...this.electroChargedAuditFields(),
           };
           orderedHydroReactions.push(
             "electroCharged"
@@ -5824,31 +6066,31 @@ export class AuraEngine {
           // first damage when Hydro already reacted earlier in this hit. The
           // remaining Hydro budget is not attached, so no continuing
           // coexistence stream is created.
-          this.electroChargedGeneration += 1;
-          this.electroChargedActive = true;
-          this.electroChargedNextTickFrame =
-            input.frame +
-            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
-            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+          const residualOperation =
+            this.isElectroChargedGlobalCadenceEnabled() &&
+            this.electroChargedActive
+              ? "refresh"
+              : "start";
+          if (residualOperation === "start") {
+            this.startElectroCharged(input.frame);
+          }
           periodicReaction = {
             reaction: "electroCharged",
             generation: this.electroChargedGeneration,
-            operation: "start",
+            operation: residualOperation,
             damageElement: "electro",
             baseMultiplier:
               ELECTRO_CHARGED_BASE_MULTIPLIER,
             firstDamageFrame:
-              input.frame +
-              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES,
-            nextTickFrame:
-              this.electroChargedNextTickFrame,
-            tickIntervalFrames:
-              ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
-            waneDelayFrames:
-              ELECTRO_CHARGED_WANE_DELAY_FRAMES,
-            waneGaugeUnits:
-              ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-            coexistenceExpiresAtFrame: null
+              residualOperation === "start"
+                ? input.frame + ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+                : null,
+            nextTickFrame: this.electroChargedAuditNextTickFrame(),
+            tickIntervalFrames: ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+            waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+            waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+            coexistenceExpiresAtFrame: null,
+            ...this.electroChargedAuditFields(),
           };
           orderedHydroReactions.push(
             "electroCharged"
@@ -5944,12 +6186,7 @@ export class AuraEngine {
         electroChargedOperation =
           this.electroChargedActive ? "refresh" : "start";
         if (electroChargedOperation === "start") {
-          this.electroChargedGeneration += 1;
-          this.electroChargedActive = true;
-          this.electroChargedNextTickFrame =
-            input.frame +
-            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
-            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+          this.startElectroCharged(input.frame);
         }
         orderedElectroReactions.push(
           "electroCharged"
@@ -6181,16 +6418,12 @@ export class AuraEngine {
               ? input.frame +
                 ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
               : null,
-          nextTickFrame:
-            this.electroChargedNextTickFrame,
-          tickIntervalFrames:
-            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
-          waneDelayFrames:
-            ELECTRO_CHARGED_WANE_DELAY_FRAMES,
-          waneGaugeUnits:
-            ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-          coexistenceExpiresAtFrame:
-            this.electroChargedExpiryFrame()
+          nextTickFrame: this.electroChargedAuditNextTickFrame(),
+          tickIntervalFrames: ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+          waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+          waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+          coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+          ...this.electroChargedAuditFields(),
         };
       }
 
@@ -6219,12 +6452,7 @@ export class AuraEngine {
       const electroChargedOperation =
         this.electroChargedActive ? "refresh" : "start";
       if (electroChargedOperation === "start") {
-        this.electroChargedGeneration += 1;
-        this.electroChargedActive = true;
-        this.electroChargedNextTickFrame =
-          input.frame +
-          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
-          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+        this.startElectroCharged(input.frame);
       }
       orderedElectroReactions.push("electroCharged");
 
@@ -6329,16 +6557,15 @@ export class AuraEngine {
             ? input.frame +
               ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
             : null,
-        nextTickFrame: this.electroChargedNextTickFrame,
-        tickIntervalFrames:
-          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        nextTickFrame: this.electroChargedAuditNextTickFrame(),
+        tickIntervalFrames: ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
         waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
         waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
         // The queued Bloom may remove Hydro later in the same frame. The
         // +10f EC damage remains scheduled, while a continuing coexistence
         // stream exists only when Hydro survives that follow-up.
-        coexistenceExpiresAtFrame:
-          this.electroChargedExpiryFrame()
+        coexistenceExpiresAtFrame: this.electroChargedExpiryFrame(),
+        ...this.electroChargedAuditFields(),
       };
       automaticReaction = "electroCharged";
     } else if (frozenMelt) {
@@ -6445,12 +6672,7 @@ export class AuraEngine {
         ? "refresh"
         : "start";
       if (operation === "start") {
-        this.electroChargedGeneration += 1;
-        this.electroChargedActive = true;
-        this.electroChargedNextTickFrame =
-          input.frame +
-          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
-          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+        this.startElectroCharged(input.frame);
       }
       const coexistenceExpiresAtFrame =
         this.electroChargedExpiryFrame();
@@ -6471,12 +6693,12 @@ export class AuraEngine {
             ? input.frame +
               ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
             : null,
-        nextTickFrame: this.electroChargedNextTickFrame,
-        tickIntervalFrames:
-          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        nextTickFrame: this.electroChargedAuditNextTickFrame(),
+        tickIntervalFrames: ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
         waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
         waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-        coexistenceExpiresAtFrame
+        coexistenceExpiresAtFrame,
+        ...this.electroChargedAuditFields(),
       };
     } else if (rule?.reaction === "freeze") {
       const targetAura = this.auras.get(rule.auraElement);
@@ -6758,8 +6980,7 @@ export class AuraEngine {
       !this.hasElectroChargedAuras() &&
       !this.shouldDeferElectroChargedMissingAuraCleanup()
     ) {
-      this.electroChargedActive = false;
-      this.electroChargedNextTickFrame = -1;
+      this.stopElectroCharged(input.frame, false);
       periodicReaction = {
         reaction: "electroCharged",
         generation: this.electroChargedGeneration,
@@ -6772,7 +6993,8 @@ export class AuraEngine {
           ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
         waneDelayFrames: ELECTRO_CHARGED_WANE_DELAY_FRAMES,
         waneGaugeUnits: ELECTRO_CHARGED_WANE_GAUGE_UNITS,
-        coexistenceExpiresAtFrame: null
+        coexistenceExpiresAtFrame: null,
+        ...this.electroChargedAuditFields(),
       };
     }
 

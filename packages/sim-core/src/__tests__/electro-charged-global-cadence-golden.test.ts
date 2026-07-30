@@ -1,0 +1,816 @@
+import { createHash } from "node:crypto";
+import {
+  linkSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync
+} from "node:fs";
+import { fileURLToPath } from "node:url";
+import {
+  canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
+  electroChargedCleanupResultReferencesSchema,
+  electroChargedGlobalCadenceGoldenFixtureV142Schema,
+  electroChargedGlobalCadenceGoldenScenarioIdsV142,
+  playerDamageResultReferencesSchema,
+  reactionDeliveryResultReferencesSchema,
+  targetPhaseV2ResultReferencesSchema,
+  type FrameHitDefinition,
+  type SimConfig,
+  type SimulationResult
+} from "@genshin-dps-lab/schemas";
+import { describe, expect, it } from "vitest";
+import { simulate } from "../simulator";
+import { makeConfig, neutralStats } from "./fixtures";
+
+type CadenceGoldenScenarioId =
+  (typeof electroChargedGlobalCadenceGoldenScenarioIdsV142)[number];
+
+const UPDATE_FLAG =
+  "UPDATE_EC_GLOBAL_CADENCE_V142_GOLDEN";
+const SCENARIO_IDS: CadenceGoldenScenarioId[] = [
+  ...electroChargedGlobalCadenceGoldenScenarioIdsV142
+];
+const FIXTURE_URL = new URL(
+  "../../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json",
+  import.meta.url
+);
+const SAME_TARGET_GEOMETRY = {
+  kind: "circle" as const,
+  coordinateSpace: "world" as const,
+  origin: { x: 0, y: 0 },
+  radius: 1
+};
+
+function applicationHit({
+  id,
+  element,
+  gaugeUnits,
+  hitlagFrames
+}: {
+  id: string;
+  element: NonNullable<FrameHitDefinition["element"]>;
+  gaugeUnits: number;
+  hitlagFrames?: number;
+}): FrameHitDefinition {
+  return {
+    id,
+    label: id,
+    frame: 0,
+    scaling: 0,
+    element,
+    geometry: SAME_TARGET_GEOMETRY,
+    application: {
+      gaugeUnits,
+      icdTag: id,
+      icdGroup: "no-icd"
+    },
+    ...(hitlagFrames === undefined
+      ? {}
+      : {
+          targetHitlag: {
+            haltFrames: hitlagFrames,
+            factor: 0
+          }
+        })
+  };
+}
+
+function makeLongHitlagConfig({
+  restoreFrame,
+  restoreGaugeUnits = 1
+}: {
+  restoreFrame?: number;
+  restoreGaugeUnits?: number;
+} = {}): SimConfig {
+  const base = makeConfig();
+  return {
+    ...base,
+    dataVersion: "ec-global-cadence-provisional-1",
+    randomSeed:
+      `ec-global-cadence-${restoreFrame ?? "none"}-${restoreGaugeUnits}-145`,
+    meta: {
+      name: "Aura-v9 EC global cadence long-Hitlag Golden",
+      version: "1.42.0",
+      verificationStatus: "provisional",
+      note:
+        "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity."
+    },
+    duration: 145 / 60,
+    cycleLength: 3,
+    enemy: {
+      level: 90,
+      resistance: 0.1,
+      defReduction: 0,
+      targets: [
+        {
+          id: "enemy-0",
+          name: "Hydro Electro target",
+          position: { x: 0, y: 0 },
+          hitboxRadius: 0,
+          initialAura: [
+            { element: "hydro", gaugeUnits: 0.5 },
+            { element: "electro", gaugeUnits: 2 }
+          ]
+        }
+      ]
+    },
+    characters: [
+      {
+        ...base.characters[0]!,
+        id: "driver",
+        name: "Reaction driver",
+        element: "electro",
+        level: 90,
+        stats: {
+          ...neutralStats,
+          baseAtk: 0
+        }
+      }
+    ],
+    rotation: [],
+    reactionEngine: { mode: "aura-v9" },
+    targetClockModel: {
+      mode: "target-local-hitlag-v1"
+    },
+    targetTaskModel: { mode: "target-phase-v2" },
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    },
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "driver",
+      swapFrames: 1,
+      abilities: [
+        {
+          id: "compound-chain",
+          actorId: "driver",
+          name: "Compound reaction chain",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: [
+            applicationHit({
+              id: "dendro-quicken",
+              element: "dendro",
+              gaugeUnits: 0.2
+            }),
+            applicationHit({
+              id: "electro-stream",
+              element: "electro",
+              gaugeUnits: 0.8,
+              hitlagFrames: 120
+            })
+          ]
+        },
+        ...(restoreFrame === undefined
+          ? []
+          : [
+              {
+                id: "hydro-restore",
+                actorId: "driver",
+                name: "Hydro restore",
+                kind: "skill" as const,
+                cancelFrame: 1,
+                animationEndFrame: 1,
+                cooldownFrames: 0,
+                hits: [
+                  applicationHit({
+                    id: `hydro-restore-${restoreFrame}`,
+                    element: "hydro",
+                    gaugeUnits: restoreGaugeUnits
+                  })
+                ]
+              }
+            ])
+      ],
+      commands: [
+        {
+          type: "skill",
+          actorId: "driver",
+          abilityId: "compound-chain",
+          atFrame: 0
+        },
+        ...(restoreFrame === undefined
+          ? []
+          : [
+              {
+                type: "skill" as const,
+                actorId: "driver",
+                abilityId: "hydro-restore",
+                atFrame: restoreFrame
+              }
+            ])
+      ]
+    }
+  };
+}
+
+function makePureEcHitlag120Config(): SimConfig {
+  const base = makeConfig();
+  return {
+    ...base,
+    dataVersion: "ec-global-cadence-pure-provisional-1",
+    randomSeed: "ec-pure-2-2-120-0",
+    meta: {
+      name: "Aura-v9 pure EC global cadence Golden",
+      version: "1.42.0",
+      verificationStatus: "provisional",
+      note:
+        "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity."
+    },
+    duration: 145 / 60,
+    cycleLength: 3,
+    enemy: {
+      level: 90,
+      resistance: 0.1,
+      defReduction: 0,
+      targets: [
+        {
+          id: "enemy-0",
+          name: "Pure EC target",
+          position: { x: 0, y: 0 },
+          hitboxRadius: 0,
+          initialAura: [
+            { element: "hydro", gaugeUnits: 2 }
+          ]
+        }
+      ]
+    },
+    characters: [
+      {
+        ...base.characters[0]!,
+        id: "driver",
+        name: "Reaction driver",
+        element: "electro",
+        level: 90,
+        stats: {
+          ...neutralStats,
+          baseAtk: 0
+        }
+      }
+    ],
+    rotation: [],
+    reactionEngine: { mode: "aura-v9" },
+    targetClockModel: {
+      mode: "target-local-hitlag-v1"
+    },
+    targetTaskModel: { mode: "target-phase-v2" },
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1"
+    },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    },
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "driver",
+      swapFrames: 1,
+      abilities: [
+        {
+          id: "ec-start",
+          actorId: "driver",
+          name: "EC start",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: [
+            applicationHit({
+              id: "ec-start-hit",
+              element: "electro",
+              gaugeUnits: 2,
+              hitlagFrames: 120
+            })
+          ]
+        }
+      ],
+      commands: [
+        {
+          type: "skill",
+          actorId: "driver",
+          abilityId: "ec-start",
+          atFrame: 0
+        }
+      ]
+    }
+  };
+}
+
+function projectScenario(result: SimulationResult) {
+  const componentTotals = result.damageEvents.reduce(
+    (totals, event) => ({
+      direct:
+        totals.direct + event.damageComposition.direct,
+      additiveReaction:
+        totals.additiveReaction +
+        event.damageComposition.additiveReaction,
+      transformativeReaction:
+        totals.transformativeReaction +
+        event.damageComposition.transformativeReaction
+    }),
+    {
+      direct: 0,
+      additiveReaction: 0,
+      transformativeReaction: 0
+    }
+  );
+  return {
+    identity: {
+      schemaVersion: result.schemaVersion,
+      engineVersion: result.engineVersion,
+      dataVersion: result.dataVersion,
+      randomSeed: result.randomSeed,
+      configHash: result.runManifest.configHash,
+      reproducibilityKey: result.reproducibilityKey,
+      resolvedRuntimeOptions:
+        result.resolvedRuntimeOptions
+    },
+    configContract: {
+      duration: result.config.duration,
+      enemy: result.config.enemy,
+      reactionEngine: result.config.reactionEngine,
+      targetClockModel: result.config.targetClockModel,
+      targetTaskModel: result.config.targetTaskModel,
+      reactionDeliveryModel:
+        result.config.reactionDeliveryModel,
+      electroChargedPropagationModel:
+        result.config.electroChargedPropagationModel,
+      timeline: {
+        mode: result.config.timeline?.mode ?? null,
+        fps: result.config.timeline?.fps ?? null
+      },
+      enemyTargets: result.enemyTargets
+    },
+    reactionTasks: result.reactionTaskLog,
+    periodicElectroCharged:
+      result.periodicReactionLog.filter(
+        (entry) => entry.reaction === "electroCharged"
+      ),
+    reactionDamageLog: result.reactionDamageLog,
+    damageEvents: result.damageEvents,
+    hitResolutionLog: result.hitResolutionLog,
+    damageCurve: result.damageCurve,
+    byCharacter: result.byCharacter,
+    characterSummaries: result.characterSummaries,
+    bySkill: result.bySkill,
+    targetSummaries: result.targetSummaries,
+    targetStateTimeline: result.targetStateTimeline,
+    targetClockAudit: result.targetClockAudit,
+    targetClockLog: result.targetClockLog,
+    targetHitlagLog: result.targetHitlagLog,
+    targetTaskPhaseLog: result.targetTaskPhaseLog,
+    targetPhaseLog: result.targetPhaseLog,
+    auraInitialStates: result.auraInitialStates,
+    auraEndStates: result.auraEndStates,
+    totals: {
+      totalDamage: result.totalDamage,
+      dps: result.dps,
+      damageEventCount: result.damageEvents.length,
+      reactedHits: result.reactedHits,
+      skippedActionCount: result.skippedActions.length,
+      componentTotals,
+      displayDamageTotal: result.damageEvents.reduce(
+        (sum, event) => sum + event.displayDamage,
+        0
+      )
+    }
+  };
+}
+
+type CadenceGoldenScenario = ReturnType<
+  typeof projectScenario
+>;
+
+interface CadenceGoldenFixture {
+  fixtureVersion: "electro-charged-global-cadence-1.42";
+  description: string;
+  provenance: {
+    referenceProject: "genshinsim/gcsim";
+    referenceCommit: string;
+    mechanicsDataStatus: "fixed-gcsim-provisional";
+    capturedAt: string;
+    notes: string[];
+  };
+  commonConfig: {
+    schemaVersion: typeof CURRENT_SCHEMA_VERSION;
+    engineVersion: typeof CURRENT_ENGINE_VERSION;
+    reactionEngine: { mode: "aura-v9" };
+    targetClockModel: {
+      mode: "target-local-hitlag-v1";
+    };
+    targetTaskModel: { mode: "target-phase-v2" };
+    reactionDeliveryModel: {
+      mode: "deferred-event-heap-v1";
+    };
+    electroChargedPropagationModel: {
+      mode: "single-target-v1";
+    };
+    timeline: { mode: "legal-frame-v1"; fps: 60 };
+  };
+  scenarios: Record<
+    CadenceGoldenScenarioId,
+    CadenceGoldenScenario
+  >;
+  hashes: Record<CadenceGoldenScenarioId, string>;
+}
+
+function semanticHash(value: unknown): string {
+  return createHash("sha256")
+    .update(canonicalStringify(value))
+    .digest("hex");
+}
+
+function atomicCreateJsonFixture(
+  outputUrl: URL,
+  value: unknown
+): void {
+  const outputPath = fileURLToPath(outputUrl);
+  const temporaryPath =
+    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  writeFileSync(
+    temporaryPath,
+    `${JSON.stringify(value, null, 2)}\n`,
+    { flag: "wx" }
+  );
+  try {
+    linkSync(temporaryPath, outputPath);
+  } catch (error) {
+    if (
+      error !== null &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "EEXIST"
+    ) {
+      throw new Error(
+        `Refusing to overwrite frozen fixture ${outputPath}.`
+      );
+    }
+    throw error;
+  } finally {
+    unlinkSync(temporaryPath);
+  }
+}
+
+function loadOrCreateFixture(
+  generated: CadenceGoldenFixture
+): CadenceGoldenFixture {
+  if (process.env[UPDATE_FLAG] === "1") {
+    atomicCreateJsonFixture(FIXTURE_URL, generated);
+    return generated;
+  }
+  return JSON.parse(
+    readFileSync(FIXTURE_URL, "utf8")
+  ) as CadenceGoldenFixture;
+}
+
+function expectDamageConservation(
+  result: SimulationResult
+): void {
+  let cumulativeDamage = 0;
+  const cumulativeComponents = {
+    direct: 0,
+    additiveReaction: 0,
+    transformativeReaction: 0
+  };
+  expect(result.damageCurve).toHaveLength(
+    result.damageEvents.length
+  );
+  result.damageEvents.forEach((event, index) => {
+    const composition =
+      event.damageComposition.direct +
+      event.damageComposition.additiveReaction +
+      event.damageComposition.transformativeReaction;
+    expect(composition).toBeCloseTo(event.finalDamage, 10);
+    expect(event.displayDamage).toBe(
+      Math.round(event.finalDamage)
+    );
+    cumulativeDamage += event.finalDamage;
+    cumulativeComponents.direct +=
+      event.damageComposition.direct;
+    cumulativeComponents.additiveReaction +=
+      event.damageComposition.additiveReaction;
+    cumulativeComponents.transformativeReaction +=
+      event.damageComposition.transformativeReaction;
+    const point = result.damageCurve[index]!;
+    expect(point).toMatchObject({
+      damageEventId: event.id,
+      targetId: event.targetId,
+      targetName: event.targetName,
+      frame: event.frame,
+      timeSeconds: event.timeSeconds,
+      sourceActorId: event.sourceActorId,
+      creditOwnerId: event.creditOwnerId,
+      finalDamage: event.finalDamage,
+      cumulativeDamage,
+      cumulativeByComponent: {
+        ...cumulativeComponents
+      }
+    });
+  });
+  expect(cumulativeDamage).toBeCloseTo(
+    result.totalDamage,
+    10
+  );
+  expect(
+    Object.values(result.byCharacter).reduce(
+      (sum, damage) => sum + damage,
+      0
+    )
+  ).toBeCloseTo(result.totalDamage, 10);
+  expect(
+    result.bySkill.reduce(
+      (sum, skill) => sum + skill.damage,
+      0
+    )
+  ).toBeCloseTo(result.totalDamage, 10);
+  expect(
+    result.targetSummaries.reduce(
+      (sum, target) => sum + target.damage,
+      0
+    )
+  ).toBeCloseTo(result.totalDamage, 10);
+  expect(result.dps * result.config.duration).toBeCloseTo(
+    result.totalDamage,
+    10
+  );
+}
+
+function cleanupOf(result: SimulationResult) {
+  const task = result.reactionTaskLog.find(
+    (entry) => entry.electroChargedCleanup !== null
+  );
+  if (task?.electroChargedCleanup === null || task === undefined) {
+    throw new Error("Expected one EC cleanup task.");
+  }
+  return { task, cleanup: task.electroChargedCleanup };
+}
+
+describe("Aura-v9 Electro-Charged global cadence Golden", () => {
+  it("freezes five deterministic long-Hitlag and global-cadence results with complete damage projections", () => {
+    const runs: Array<{
+      id: CadenceGoldenScenarioId;
+      config: SimConfig;
+    }> = [
+      {
+        id: "longHitlagNoRestoreStop",
+        config: makeLongHitlagConfig()
+      },
+      {
+        id: "longHitlagRestoreF70Scheduled",
+        config: makeLongHitlagConfig({
+          restoreFrame: 70
+        })
+      },
+      {
+        id: "longHitlagRestoreF71Dormant",
+        config: makeLongHitlagConfig({
+          restoreFrame: 71
+        })
+      },
+      {
+        id: "longHitlagRestoreF5EndedBeforeDeadline",
+        config: makeLongHitlagConfig({
+          restoreFrame: 5,
+          restoreGaugeUnits: 0.5
+        })
+      },
+      {
+        id: "pureEcHitlag120GlobalCadence",
+        config: makePureEcHitlag120Config()
+      }
+    ];
+    const scenarios = {} as Record<
+      CadenceGoldenScenarioId,
+      CadenceGoldenScenario
+    >;
+    for (const run of runs) {
+      const first = simulate(run.config, {
+        critMode: "noCrit"
+      });
+      const repeated = simulate(run.config, {
+        critMode: "noCrit"
+      });
+      expect(repeated).toEqual(first);
+      expect(
+        electroChargedCleanupResultReferencesSchema.parse(
+          first
+        )
+      ).toEqual(first);
+      expect(
+        targetPhaseV2ResultReferencesSchema.parse(first)
+      ).toEqual(first);
+      expect(
+        reactionDeliveryResultReferencesSchema.parse(first)
+      ).toEqual(first);
+      expect(
+        playerDamageResultReferencesSchema.parse(first)
+      ).toEqual(first);
+      expectDamageConservation(first);
+      scenarios[run.id] = projectScenario(first);
+    }
+
+    expect(Object.keys(scenarios).sort()).toEqual(
+      [...SCENARIO_IDS].sort()
+    );
+    const generated: CadenceGoldenFixture = {
+      fixtureVersion:
+        "electro-charged-global-cadence-1.42",
+      description:
+        "Deterministic exact-1.42 Aura-v9 Golden for independent F10/F70 global Electro-Charged callbacks, dormant cadence, delayed cleanup, terminal Wane backlinks, and per-hit damage output.",
+      provenance: {
+        referenceProject: "genshinsim/gcsim",
+        referenceCommit:
+          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        mechanicsDataStatus: "fixed-gcsim-provisional",
+        capturedAt: "2026-07-30",
+        notes: [
+          "The pinned reference schedules the first F10 damage and F70 callback independently on global frames; enemy Hitlag freezes target-owned Aura time, not these callbacks.",
+          "Aura-v9 additionally guards generations, stale Wanes, dormant cadence, and cleanup backlinks; these safety rules must not be backported into frozen Aura-v8 output.",
+          "Every damage event, exact composition, nearest-integer display value, and core-produced damage curve point is retained and reconciled.",
+          "This fixture is provisional mechanics evidence, not official game data or a claim of complete gcsim parity."
+        ]
+      },
+      commonConfig: {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
+        reactionEngine: { mode: "aura-v9" },
+        targetClockModel: {
+          mode: "target-local-hitlag-v1"
+        },
+        targetTaskModel: { mode: "target-phase-v2" },
+        reactionDeliveryModel: {
+          mode: "deferred-event-heap-v1"
+        },
+        electroChargedPropagationModel: {
+          mode: "single-target-v1"
+        },
+        timeline: { mode: "legal-frame-v1", fps: 60 }
+      },
+      scenarios,
+      hashes: Object.fromEntries(
+        SCENARIO_IDS.map((id) => [
+          id,
+          semanticHash(scenarios[id])
+        ])
+      ) as Record<CadenceGoldenScenarioId, string>
+    };
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
+        generated
+      )
+    ).toEqual(generated);
+    const fixture = generated;
+    for (const id of SCENARIO_IDS) {
+      expect(semanticHash(fixture.scenarios[id])).toBe(
+        fixture.hashes[id]
+      );
+    }
+
+    const noRestore =
+      fixture.scenarios.longHitlagNoRestoreStop;
+    expect(
+      noRestore.periodicElectroCharged.map(
+        ({ frame, operation }) => ({ frame, operation })
+      )
+    ).toEqual([
+      { frame: 0, operation: "start" },
+      { frame: 10, operation: "tick" },
+      { frame: 70, operation: "tick-skipped" },
+      { frame: 121, operation: "stop" }
+    ]);
+    expect(cleanupOf(simulate(runs[0]!.config, {
+      critMode: "noCrit"
+    })).cleanup).toMatchObject({
+      outcome: "stop",
+      periodicReactionLogId:
+        noRestore.periodicElectroCharged.at(-1)?.id,
+      cadence: {
+        status: "stopped",
+        nextTickFrame: null,
+        waneListenerActive: false,
+        lastCallbackFrame: 70
+      }
+    });
+
+    const scheduled =
+      fixture.scenarios.longHitlagRestoreF70Scheduled;
+    expect(
+      scheduled.periodicElectroCharged
+        .filter((row) => row.operation === "tick")
+        .map((row) => row.frame)
+    ).toEqual([10, 70, 130]);
+    const restoreF70 =
+      scheduled.periodicElectroCharged.find(
+        (row) =>
+          row.operation === "refresh" && row.frame === 70
+      );
+    const tickF70 =
+      scheduled.periodicElectroCharged.find(
+        (row) =>
+          row.operation === "tick" && row.frame === 70
+      );
+    if (restoreF70 === undefined || tickF70 === undefined) {
+      throw new Error(
+        "Expected the same-frame F70 refresh and callback."
+      );
+    }
+    expect(restoreF70.id).toBeLessThan(tickF70.id);
+    expect(
+      scheduled.reactionTasks[0]?.electroChargedCleanup
+    ).toMatchObject({
+      outcome: "retain",
+      cadence: {
+        status: "scheduled",
+        nextTickFrame: 130,
+        waneListenerActive: false,
+        lastCallbackFrame: 70
+      }
+    });
+
+    const dormant =
+      fixture.scenarios.longHitlagRestoreF71Dormant;
+    expect(
+      dormant.periodicElectroCharged.find(
+        (row) => row.frame === 70
+      )
+    ).toMatchObject({
+      operation: "tick-skipped",
+      cadenceStatus: "dormant",
+      nextTickFrame: null,
+      waneListenerActive: false
+    });
+    expect(
+      dormant.reactionTasks[0]?.electroChargedCleanup
+    ).toMatchObject({
+      outcome: "retain",
+      cadence: {
+        status: "dormant",
+        nextTickFrame: null,
+        waneListenerActive: false,
+        lastCallbackFrame: 70
+      }
+    });
+
+    const ended =
+      fixture.scenarios
+        .longHitlagRestoreF5EndedBeforeDeadline;
+    const terminal = ended.periodicElectroCharged.find(
+      (row) =>
+        row.frame === 16 && row.operation === "wane"
+    );
+    expect(terminal).toMatchObject({
+      cadenceStatus: "stopped",
+      nextTickFrame: null,
+      waneListenerActive: false,
+      reason: "AURA_DEPLETED_BY_WANE"
+    });
+    expect(
+      ended.reactionTasks[0]?.electroChargedCleanup
+    ).toMatchObject({
+      outcome: "ended-before-deadline",
+      resolutionReason:
+        "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP",
+      periodicReactionLogId: terminal?.id
+    });
+
+    const pure =
+      fixture.scenarios.pureEcHitlag120GlobalCadence;
+    expect(
+      pure.periodicElectroCharged
+        .filter((row) => row.operation === "tick")
+        .map((row) => row.frame)
+    ).toEqual([10, 70, 130]);
+    expect(
+      pure.periodicElectroCharged
+        .filter((row) => row.operation === "wane")
+        .map((row) => row.frame)
+    ).toEqual([16, 76, 136]);
+    expect(
+      pure.damageEvents
+        .filter(
+          (event) =>
+            event.kind === "transformative-reaction" &&
+            event.reaction === "electroCharged"
+        )
+        .map((event) => event.frame)
+    ).toEqual([10, 70, 130]);
+
+    const persisted = loadOrCreateFixture(generated);
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
+        persisted
+      )
+    ).toEqual(persisted);
+    expect(persisted).toEqual(generated);
+  });
+});

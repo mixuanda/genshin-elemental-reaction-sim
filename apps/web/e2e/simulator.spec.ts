@@ -112,8 +112,8 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.41.0",
-    engineVersion: "1.41.0-ec-secondary-wet-propagation",
+    schemaVersion: "1.42.0",
+    engineVersion: "1.42.0-ec-global-cadence-safety",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -176,9 +176,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.41.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.42.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.41.0-ec-secondary-wet-propagation"
+    "engine 1.42.0-ec-global-cadence-safety"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -639,6 +639,27 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText(
     "aura-v8 自动判定"
+  );
+
+  const auraV9Config = {
+    ...auraV8Config,
+    reactionEngine: { mode: "aura-v9" as const }
+  };
+  await page.locator("#importInput").setInputFiles({
+    name: "aura-v9-browser-label.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(auraV9Config))
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
+      )
+    )
+    .toBe("aura-v9");
+  await page.getByRole("button", { name: "运行模拟" }).click();
+  await expect(page.locator("#metricGrid")).toContainText(
+    "aura-v9 自动判定"
   );
 });
 

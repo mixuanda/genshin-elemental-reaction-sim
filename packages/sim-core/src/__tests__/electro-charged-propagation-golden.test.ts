@@ -8,8 +8,12 @@ import {
 import { fileURLToPath } from "node:url";
 import {
   canonicalStringify,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
   reactionDeliveryResultReferencesSchema,
   targetPhaseV2ResultReferencesSchema,
   type SimConfig,
@@ -348,6 +352,64 @@ type PropagationGoldenScenario = ReturnType<
   typeof projectPropagationScenario
 >;
 
+type FrozenV141PropagationGoldenScenario = Omit<
+  PropagationGoldenScenario,
+  "identity"
+> & {
+  identity: Omit<
+    PropagationGoldenScenario["identity"],
+    "schemaVersion" | "engineVersion"
+  > & {
+    schemaVersion: typeof EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+    engineVersion: typeof EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+  };
+};
+
+function normalizeIdentityForFrozenV141(
+  scenario: PropagationGoldenScenario,
+  result: SimulationResult
+): FrozenV141PropagationGoldenScenario {
+  const frozenConfigHash = createSimulationConfigHash({
+    ...result.config,
+    schemaVersion:
+      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+    engineVersion:
+      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+  });
+  const frozenRunIdentity = {
+    version: result.runManifest.version,
+    identityAlgorithm:
+      result.runManifest.identityAlgorithm,
+    schemaVersion:
+      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+    engineVersion:
+      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+    dataVersion: result.dataVersion,
+    configHash: frozenConfigHash,
+    resolvedRuntimeOptions:
+      result.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins
+  } as unknown as Parameters<
+    typeof createSimulationReproducibilityKey
+  >[0];
+
+  return {
+    ...scenario,
+    identity: {
+      ...scenario.identity,
+      schemaVersion:
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+      engineVersion:
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+      configHash: frozenConfigHash,
+      reproducibilityKey:
+        createSimulationReproducibilityKey(
+          frozenRunIdentity
+        )
+    }
+  };
+}
+
 interface PropagationGoldenFixture {
   fixtureVersion: "electro-charged-propagation-1.41";
   description: string;
@@ -358,7 +420,7 @@ interface PropagationGoldenFixture {
     capturedAt: string;
     notes: string[];
   };
-  scenario: PropagationGoldenScenario;
+  scenario: FrozenV141PropagationGoldenScenario;
   scenarioSha256: string;
 }
 
@@ -430,11 +492,23 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
       targetPhaseV2ResultReferencesSchema.parse(repeated)
     ).toEqual(repeated);
     expect(repeated).toEqual(first);
+    expect(first.schemaVersion).toBe(
+      CURRENT_SCHEMA_VERSION
+    );
+    expect(first.engineVersion).toBe(
+      CURRENT_ENGINE_VERSION
+    );
 
     const firstProjection =
-      projectPropagationScenario(first);
+      normalizeIdentityForFrozenV141(
+        projectPropagationScenario(first),
+        first
+      );
     const repeatedProjection =
-      projectPropagationScenario(repeated);
+      normalizeIdentityForFrozenV141(
+        projectPropagationScenario(repeated),
+        repeated
+      );
     expect(repeatedProjection).toEqual(firstProjection);
 
     const generatedFixture: PropagationGoldenFixture = {
@@ -459,8 +533,10 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
       scenarioSha256: semanticHash(firstProjection)
     };
     expect(generatedFixture.scenario.identity).toMatchObject({
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
+      schemaVersion:
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+      engineVersion:
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
       dataVersion:
         "ec-propagation-community-provisional-1",
       randomSeed: "ec-propagation-v141-golden-seed"

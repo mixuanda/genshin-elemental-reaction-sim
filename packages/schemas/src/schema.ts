@@ -14,6 +14,8 @@ import {
   CURRENT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
@@ -832,7 +834,8 @@ export const auraReactionEngineConfigSchema = z
       "aura-v5",
       "aura-v6",
       "aura-v7",
-      "aura-v8"
+      "aura-v8",
+      "aura-v9"
     ]),
     initialAura: z.array(initialAuraApplicationSchema).max(5).optional(),
     icdProfiles: z
@@ -858,7 +861,7 @@ export const auraReactionEngineConfigSchema = z
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
+            "electro aura requires reactionEngine.mode to be aura-v2 through aura-v9"
         });
       }
       if (
@@ -868,13 +871,14 @@ export const auraReactionEngineConfigSchema = z
         engine.mode !== "aura-v6" &&
         engine.mode !== "aura-v7" &&
         engine.mode !== "aura-v8" &&
+        engine.mode !== "aura-v9" &&
         aura.element === "dendro"
       ) {
         context.addIssue({
           code: "custom",
           path: ["initialAura", index, "element"],
           message:
-            "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
+            "dendro aura requires reactionEngine.mode to be aura-v3 through aura-v9"
         });
       }
       if (elements.has(aura.element)) {
@@ -3199,7 +3203,11 @@ const electroChargedCleanupTransitionSchema =
     z
       .object({
         ...electroChargedCleanupTransitionBaseShape,
-        outcome: z.enum(["stop", "natural-expiry"]),
+        outcome: z.enum([
+          "stop",
+          "natural-expiry",
+          "ended-before-deadline"
+        ]),
         periodicReactionLogId: z
           .number()
           .int()
@@ -5927,7 +5935,21 @@ const electroChargedCleanupAuditBaseShape = {
   deadlineTargetFrame: z.number().int().nonnegative(),
   requestReason: z.literal(
     "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO"
-  )
+  ),
+  cadence: z
+    .object({
+      status: z.enum([
+        "scheduled",
+        "dormant",
+        "stopped",
+        "superseded"
+      ]),
+      nextTickFrame: z.number().int().nonnegative().nullable(),
+      waneListenerActive: z.boolean(),
+      lastCallbackFrame: z.number().int().nonnegative().nullable()
+    })
+    .strict()
+    .optional()
 };
 
 export const electroChargedCleanupAuditSchema =
@@ -5938,6 +5960,32 @@ export const electroChargedCleanupAuditSchema =
         outcome: z.literal("stop"),
         resolutionReason: z.literal(
           "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+        ),
+        resolvedGlobalFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        resolvedTargetFrame: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetPhaseLogId: z.number().int().nonnegative(),
+        periodicReactionLogId: z
+          .number()
+          .int()
+          .nonnegative(),
+        targetStateTimelinePointId: z
+          .number()
+          .int()
+          .nonnegative()
+      })
+      .strict(),
+    z
+      .object({
+        ...electroChargedCleanupAuditBaseShape,
+        outcome: z.literal("ended-before-deadline"),
+        resolutionReason: z.literal(
+          "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP"
         ),
         resolvedGlobalFrame: z
           .number()
@@ -6066,6 +6114,61 @@ export const electroChargedCleanupAuditSchema =
         message:
           "resolved Electro-Charged cleanup must run at its exact target-local deadline"
       });
+    }
+    if (audit.cadence !== undefined) {
+      const { cadence } = audit;
+      if (
+        (cadence.status === "scheduled") !==
+        (cadence.nextTickFrame !== null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cadence", "nextTickFrame"],
+          message:
+            "scheduled cleanup cadence requires a next callback; every non-scheduled state requires null"
+        });
+      }
+      if (
+        cadence.status !== "scheduled" &&
+        cadence.waneListenerActive
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cadence", "waneListenerActive"],
+          message:
+            "dormant, stopped, and superseded cadence cannot retain an active Wane listener"
+        });
+      }
+      const expectedTerminalStatus =
+        audit.outcome === "superseded"
+          ? "superseded"
+          : audit.outcome === "stop" ||
+              audit.outcome === "natural-expiry" ||
+              audit.outcome === "ended-before-deadline"
+            ? "stopped"
+            : null;
+      if (
+        expectedTerminalStatus !== null &&
+        cadence.status !== expectedTerminalStatus
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cadence", "status"],
+          message: `${audit.outcome} cleanup requires cadence status ${expectedTerminalStatus}`
+        });
+      }
+      if (
+        audit.outcome === "retain" &&
+        cadence.status !== "scheduled" &&
+        cadence.status !== "dormant"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["cadence", "status"],
+          message:
+            "retain cleanup requires scheduled or explicitly dormant cadence"
+        });
+      }
     }
   });
 
@@ -8211,6 +8314,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   [EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION]: {
     engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
     maxAuraRevision: 8
+  },
+  [EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION]: {
+    engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+    maxAuraRevision: 9
   }
 };
 
@@ -8301,7 +8408,15 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         result.engineVersion ===
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
         result.config.engineVersion ===
-          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION);
     const auraRevision =
       auraMode === undefined
         ? null
@@ -8315,18 +8430,29 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    const exact142Identity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    const exactPropagationIdentity =
+      exact141Identity || exact142Identity;
     if (
-      exact141Identity &&
+      exactPropagationIdentity &&
       result.config.electroChargedPropagationModel === undefined
     ) {
       addMissingReferenceIssue(
         context,
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41 Dendro-core output requires an explicit Electro-Charged propagation model"
+        "exact 1.41 or 1.42 Dendro-core output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
-      !exact141Identity &&
+      !exactPropagationIdentity &&
       result.config.electroChargedPropagationModel !== undefined
     ) {
       addMissingReferenceIssue(
@@ -8337,7 +8463,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
     }
     result.reactionDamageLog.forEach((entry, entryIndex) => {
       if (
-        !exact141Identity &&
+        !exactPropagationIdentity &&
         (entry.targetingMode ===
           "electro-charged-nearby-wet" ||
           entry.electroChargedPropagation !== undefined)
@@ -8353,7 +8479,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         );
       }
       if (
-        exact141Identity &&
+        exactPropagationIdentity &&
         result.config.electroChargedPropagationModel?.mode ===
           "single-target-v1" &&
         (entry.targetingMode ===
@@ -8371,7 +8497,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         );
       }
       if (
-        exact141Identity &&
+        exactPropagationIdentity &&
         result.config.electroChargedPropagationModel?.mode ===
           "nearby-wet-radius-v1" &&
         entry.reaction === "electroCharged" &&
@@ -8403,7 +8529,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         `${result.schemaVersion} does not support ${auraMode} Dendro-core output`
       );
     }
-    if (auraMode === "aura-v8") {
+    if (auraMode === "aura-v8" || auraMode === "aura-v9") {
       if (
         result.config.timeline?.mode !==
           "legal-frame-v1" ||
@@ -8412,7 +8538,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         addMissingReferenceIssue(
           context,
           ["config", "timeline"],
-          "aura-v8 Dendro-core output requires legal-frame-v1 at 60 FPS"
+          `${auraMode} Dendro-core output requires legal-frame-v1 at 60 FPS`
         );
       }
       if (
@@ -8422,14 +8548,14 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         addMissingReferenceIssue(
           context,
           ["config", "targetTaskModel", "mode"],
-          "aura-v8 Dendro-core output requires target-phase-v2"
+          `${auraMode} Dendro-core output requires target-phase-v2`
         );
       }
       if (result.config.targetClockModel === undefined) {
         addMissingReferenceIssue(
           context,
           ["config", "targetClockModel"],
-          "aura-v8 Dendro-core output requires an explicit target clock model"
+          `${auraMode} Dendro-core output requires an explicit target clock model`
         );
       }
     }
@@ -8545,7 +8671,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
             taskIndex,
             "electroChargedCleanup"
           ],
-          "exact 1.40 or 1.41 reaction tasks require an explicit Electro-Charged cleanup audit or null"
+          "exact 1.40 through 1.42 reaction tasks require an explicit Electro-Charged cleanup audit or null"
         );
       }
       if (!exactEcCleanupIdentity && hasCleanupField) {
@@ -8574,17 +8700,42 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           "aura-v7 exact 1.40 or 1.41 reaction tasks require electroChargedCleanup=null"
         );
       }
+      const cleanup = task.electroChargedCleanup;
+      if (cleanup !== null && cleanup !== undefined) {
+        const hasCadence =
+          Object.prototype.hasOwnProperty.call(
+            cleanup,
+            "cadence"
+          ) && cleanup.cadence !== undefined;
+        const exactV9Cleanup =
+          exact142Identity && auraMode === "aura-v9";
+        if (exactV9Cleanup !== hasCadence) {
+          addMissingReferenceIssue(
+            context,
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "cadence"
+            ],
+            exactV9Cleanup
+              ? "aura-v9 cleanup requires explicit cadence audit fields"
+              : "historical and aura-v8 cleanup must omit aura-v9 cadence audit fields"
+          );
+        }
+      }
     });
 
     if (
       result.reactionTaskLog.length > 0 &&
       result.config.reactionEngine?.mode !== "aura-v7" &&
-      result.config.reactionEngine?.mode !== "aura-v8"
+      result.config.reactionEngine?.mode !== "aura-v8" &&
+      result.config.reactionEngine?.mode !== "aura-v9"
     ) {
       addMissingReferenceIssue(
         context,
         ["reactionTaskLog"],
-        "reaction tasks require reactionEngine.mode aura-v7 or aura-v8"
+        "reaction tasks require reactionEngine.mode aura-v7, aura-v8, or aura-v9"
       );
     }
 
@@ -9245,7 +9396,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
 
     if (
       result.config.reactionEngine?.mode === "aura-v7" ||
-      result.config.reactionEngine?.mode === "aura-v8"
+      result.config.reactionEngine?.mode === "aura-v8" ||
+      result.config.reactionEngine?.mode === "aura-v9"
     ) {
       result.damageEvents.forEach((origin, originIndex) => {
         if (
@@ -9268,7 +9420,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               "quicken",
               "pendingHydroBloomFollowup"
             ],
-            "each aura-v7 or aura-v8 pending Quicken follow-up requires exactly one reaction task"
+            "each aura-v7 through aura-v9 pending Quicken follow-up requires exactly one reaction task"
           );
         }
       });
@@ -12216,7 +12368,10 @@ export const simConfigSchema = z
     const ecNearbyWetPropagationEnabled =
       config.electroChargedPropagationModel.mode ===
       "nearby-wet-radius-v1";
-    if (config.reactionEngine?.mode === "aura-v8") {
+    if (
+      config.reactionEngine?.mode === "aura-v8" ||
+      config.reactionEngine?.mode === "aura-v9"
+    ) {
       if (
         config.timeline?.mode !== "legal-frame-v1" ||
         config.timeline.fps !== 60
@@ -12225,7 +12380,7 @@ export const simConfigSchema = z
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v8 requires timeline.mode legal-frame-v1 at 60 FPS"
+            `${config.reactionEngine.mode} requires timeline.mode legal-frame-v1 at 60 FPS`
         });
       }
       if (config.targetTaskModel.mode !== "target-phase-v2") {
@@ -12233,7 +12388,7 @@ export const simConfigSchema = z
           code: "custom",
           path: ["targetTaskModel"],
           message:
-            "aura-v8 requires targetTaskModel.mode target-phase-v2"
+            `${config.reactionEngine.mode} requires targetTaskModel.mode target-phase-v2`
         });
       }
     }
@@ -12241,12 +12396,15 @@ export const simConfigSchema = z
       config.electroChargedPropagationModel.mode ===
       "nearby-wet-radius-v1"
     ) {
-      if (config.reactionEngine?.mode !== "aura-v8") {
+      if (
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["electroChargedPropagationModel"],
           message:
-            "nearby-wet-radius-v1 requires reactionEngine.mode aura-v8"
+            "nearby-wet-radius-v1 requires reactionEngine.mode aura-v8 or aura-v9"
         });
       }
       if (
@@ -12286,13 +12444,14 @@ export const simConfigSchema = z
       }
       if (
         config.reactionEngine?.mode !== "aura-v7" &&
-        config.reactionEngine?.mode !== "aura-v8"
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9"
       ) {
         context.addIssue({
           code: "custom",
           path: ["reactionDeliveryModel"],
           message:
-            "shatter-recursive-zero-delay-v1 requires reactionEngine.mode aura-v7 or aura-v8"
+            "shatter-recursive-zero-delay-v1 requires reactionEngine.mode aura-v7, aura-v8, or aura-v9"
         });
       }
     }
@@ -12319,13 +12478,14 @@ export const simConfigSchema = z
       }
       if (
         config.reactionEngine?.mode !== "aura-v7" &&
-        config.reactionEngine?.mode !== "aura-v8"
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9"
       ) {
         context.addIssue({
           code: "custom",
           path: ["targetTaskModel"],
           message:
-            "target-phase-v2 requires reactionEngine.mode aura-v7 or aura-v8"
+            "target-phase-v2 requires reactionEngine.mode aura-v7, aura-v8, or aura-v9"
         });
       }
     }
@@ -12561,13 +12721,14 @@ export const simConfigSchema = z
         config.reactionEngine?.mode !== "aura-v5" &&
         config.reactionEngine?.mode !== "aura-v6" &&
         config.reactionEngine?.mode !== "aura-v7" &&
-        config.reactionEngine?.mode !== "aura-v8"
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9"
       ) {
         context.addIssue({
           code: "custom",
           path: ["enemy", "targets", index, "initialAura"],
           message:
-            "requires reactionEngine.mode to be aura-v1, aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
+            "requires reactionEngine.mode to be aura-v1 through aura-v9"
         });
       }
       target.initialAura?.forEach((aura, auraIndex) => {
@@ -12579,7 +12740,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v5" &&
           config.reactionEngine?.mode !== "aura-v6" &&
           config.reactionEngine?.mode !== "aura-v7" &&
-          config.reactionEngine?.mode !== "aura-v8"
+          config.reactionEngine?.mode !== "aura-v8" &&
+          config.reactionEngine?.mode !== "aura-v9"
         ) {
           context.addIssue({
             code: "custom",
@@ -12592,7 +12754,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "electro aura requires reactionEngine.mode to be aura-v2, aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
+              "electro aura requires reactionEngine.mode to be aura-v2 through aura-v9"
           });
         }
         if (
@@ -12602,7 +12764,8 @@ export const simConfigSchema = z
           config.reactionEngine?.mode !== "aura-v5" &&
           config.reactionEngine?.mode !== "aura-v6" &&
           config.reactionEngine?.mode !== "aura-v7" &&
-          config.reactionEngine?.mode !== "aura-v8"
+          config.reactionEngine?.mode !== "aura-v8" &&
+          config.reactionEngine?.mode !== "aura-v9"
         ) {
           context.addIssue({
             code: "custom",
@@ -12615,7 +12778,7 @@ export const simConfigSchema = z
               "element"
             ],
             message:
-              "dendro aura requires reactionEngine.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8"
+              "dendro aura requires reactionEngine.mode to be aura-v3 through aura-v9"
           });
         }
       });
@@ -13033,21 +13196,23 @@ export const simConfigSchema = z
       config.reactionEngine?.mode === "aura-v5" ||
       config.reactionEngine?.mode === "aura-v6" ||
       config.reactionEngine?.mode === "aura-v7" ||
-      config.reactionEngine?.mode === "aura-v8"
+      config.reactionEngine?.mode === "aura-v8" ||
+      config.reactionEngine?.mode === "aura-v9"
     ) {
       if (!config.timeline) {
         context.addIssue({
           code: "custom",
           path: ["reactionEngine"],
           message:
-            "aura-v1 through aura-v8 currently require timeline.mode legal-frame-v1"
+            "aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1"
         });
       }
       if (
         config.reactionEngine.mode === "aura-v5" ||
         config.reactionEngine.mode === "aura-v6" ||
         config.reactionEngine.mode === "aura-v7" ||
-        config.reactionEngine.mode === "aura-v8"
+        config.reactionEngine.mode === "aura-v8" ||
+        config.reactionEngine.mode === "aura-v9"
       ) {
         const coreContactMode = config.reactionEngine.mode;
         if (config.enemy.targets === undefined) {
@@ -13105,7 +13270,7 @@ export const simConfigSchema = z
             code: "custom",
             path: [...path, "reaction"],
             message:
-              "manual reaction labels are forbidden in aura-v1 through aura-v8; use reactionOverride only for explicit debug runs"
+              "manual reaction labels are forbidden in aura-v1 through aura-v9; use reactionOverride only for explicit debug runs"
           });
         }
         if (
@@ -13152,7 +13317,8 @@ export const simConfigSchema = z
                   config.reactionEngine?.mode === "aura-v5" ||
                   config.reactionEngine?.mode === "aura-v6" ||
                   config.reactionEngine?.mode === "aura-v7" ||
-                  config.reactionEngine?.mode === "aura-v8"
+                  config.reactionEngine?.mode === "aura-v8" ||
+                  config.reactionEngine?.mode === "aura-v9"
                 ? [
                     "pyro",
                     "cryo",
@@ -13174,7 +13340,8 @@ export const simConfigSchema = z
               config.reactionEngine?.mode === "aura-v5" ||
               config.reactionEngine?.mode === "aura-v6" ||
               config.reactionEngine?.mode === "aura-v7" ||
-              config.reactionEngine?.mode === "aura-v8"
+              config.reactionEngine?.mode === "aura-v8" ||
+              config.reactionEngine?.mode === "aura-v9"
                 ? `${config.reactionEngine.mode} elemental applications currently support pyro, cryo, hydro, electro, anemo, geo, and dendro hits`
                 : config.reactionEngine?.mode === "aura-v2"
                   ? "aura-v2 elemental applications currently support only pyro, cryo, hydro, electro, anemo, and geo hits"
@@ -13185,7 +13352,8 @@ export const simConfigSchema = z
           (config.reactionEngine?.mode === "aura-v5" ||
             config.reactionEngine?.mode === "aura-v6" ||
             config.reactionEngine?.mode === "aura-v7" ||
-            config.reactionEngine?.mode === "aura-v8") &&
+            config.reactionEngine?.mode === "aura-v8" ||
+            config.reactionEngine?.mode === "aura-v9") &&
           hit.application !== undefined &&
           (resolvedElement === "pyro" ||
             resolvedElement === "electro") &&
@@ -13247,7 +13415,7 @@ export const simConfigSchema = z
   });
 
 /**
- * Result-reference validators must remain able to audit frozen 1.39 and 1.40
+ * Result-reference validators must remain able to audit frozen 1.39–1.41
  * payloads after CURRENT advances. The wire object is preserved verbatim; only
  * a temporary identity projection is upgraded for reuse of the complete
  * current config validator. Future fields remain forbidden on those frozen
@@ -13267,10 +13435,15 @@ const simResultConfigSchema = z
     const exact140Identity =
       wire.schemaVersion === EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
       wire.engineVersion === EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    const exact141Identity =
+      wire.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
     const exactHistoricalIdentity =
-      exact139Identity || exact140Identity;
+      exact139Identity || exact140Identity || exact141Identity;
     if (
-      exactHistoricalIdentity &&
+      (exact139Identity || exact140Identity) &&
       Object.prototype.hasOwnProperty.call(
         wire,
         "electroChargedPropagationModel"
@@ -13297,14 +13470,31 @@ const simResultConfigSchema = z
       });
       return;
     }
+    if (
+      exact141Identity &&
+      isRecord(wire.reactionEngine) &&
+      wire.reactionEngine.mode === "aura-v9"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionEngine", "mode"],
+        message:
+          "schemaVersion 1.41.0 does not support reactionEngine.mode aura-v9"
+      });
+      return;
+    }
     const projected = exactHistoricalIdentity
       ? {
           ...wire,
           schemaVersion: CURRENT_SCHEMA_VERSION,
           engineVersion: CURRENT_ENGINE_VERSION,
-          electroChargedPropagationModel: {
-            mode: "single-target-v1"
-          }
+          ...(exact141Identity
+            ? {}
+            : {
+                electroChargedPropagationModel: {
+                  mode: "single-target-v1"
+                }
+              })
         }
       : wire;
     const parsed = simConfigSchema.safeParse(projected);
@@ -14119,7 +14309,8 @@ const targetTaskPhaseConfigReferenceSchema = z
           "aura-v5",
           "aura-v6",
           "aura-v7",
-          "aura-v8"
+          "aura-v8",
+          "aura-v9"
         ])
       })
       .passthrough()
@@ -14139,7 +14330,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]:
     EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   [EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION]:
-    EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+    EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+  [EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION]:
+    EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -14348,7 +14541,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -14414,7 +14611,15 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
         result.engineVersion ===
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
         result.config.engineVersion ===
-          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION);
     const exact141TargetTaskIdentity =
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
@@ -14424,17 +14629,28 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    const exact142TargetTaskIdentity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    const exactPropagationTargetTaskIdentity =
+      exact141TargetTaskIdentity || exact142TargetTaskIdentity;
     if (
-      exact141TargetTaskIdentity &&
+      exactPropagationTargetTaskIdentity &&
       result.config.electroChargedPropagationModel === undefined
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41 target-task output requires an explicit Electro-Charged propagation model"
+        "exact 1.41 or 1.42 target-task output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
-      !exact141TargetTaskIdentity &&
+      !exactPropagationTargetTaskIdentity &&
       result.config.electroChargedPropagationModel !== undefined
     ) {
       issue(
@@ -14442,11 +14658,15 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
         "pre-1.41 target-task output cannot carry Electro-Charged propagation selection"
       );
     }
-    if (result.config.reactionEngine?.mode === "aura-v8") {
+    if (
+      result.config.reactionEngine?.mode === "aura-v8" ||
+      result.config.reactionEngine?.mode === "aura-v9"
+    ) {
+      const auraMode = result.config.reactionEngine.mode;
       if (!exactEcCleanupIdentity) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-task output requires the exact 1.40 or 1.41 schema and engine identity"
+          `${auraMode} target-task output requires an exact supported schema and engine identity`
         );
       }
       if (
@@ -14455,13 +14675,19 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "timeline"],
-          "aura-v8 target-task output requires legal-frame-v1 at 60 FPS"
+          `${auraMode} target-task output requires legal-frame-v1 at 60 FPS`
         );
       }
       if (mode !== "target-phase-v2") {
         issue(
           ["config", "targetTaskModel", "mode"],
-          "aura-v8 target-task output requires target-phase-v2"
+          `${auraMode} target-task output requires target-phase-v2`
+        );
+      }
+      if (auraMode === "aura-v9" && !exact142TargetTaskIdentity) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v9 target-task output requires the exact 1.42 schema and engine identity"
         );
       }
     }
@@ -14485,7 +14711,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 or 1.41 target-task output requires an explicit cleanup audit or null"
+            "exact 1.40 through 1.42 target-task output requires an explicit cleanup audit or null"
           );
         }
         if (!exactEcCleanupIdentity && hasCleanupField) {
@@ -14511,6 +14737,44 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
             ],
             "aura-v7 exact 1.40 or 1.41 target-task output requires cleanup=null"
           );
+        }
+        const cleanup = task.electroChargedCleanup;
+        if (cleanup !== null && cleanup !== undefined) {
+          const hasCadence =
+            Object.prototype.hasOwnProperty.call(
+              cleanup,
+              "cadence"
+            ) && cleanup.cadence !== undefined;
+          const requiresV9Cadence =
+            exact142TargetTaskIdentity &&
+            result.config.reactionEngine?.mode === "aura-v9";
+          if (requiresV9Cadence !== hasCadence) {
+            issue(
+              [
+                "reactionTaskLog",
+                taskIndex,
+                "electroChargedCleanup",
+                "cadence"
+              ],
+              requiresV9Cadence
+                ? "aura-v9 cleanup requires an explicit global cadence audit"
+                : "historical and non-v9 cleanup wires must omit global cadence audit fields"
+            );
+          }
+          if (
+            cleanup.outcome === "ended-before-deadline" &&
+            !requiresV9Cadence
+          ) {
+            issue(
+              [
+                "reactionTaskLog",
+                taskIndex,
+                "electroChargedCleanup",
+                "outcome"
+              ],
+              "ended-before-deadline is reserved for exact 1.42 aura-v9 cleanup"
+            );
+          }
         }
       }
     );
@@ -14589,16 +14853,26 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+      const ecCadenceSafetyIdentity =
+        result.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
       if (
         !frozenV1Identity &&
         !migratedCurrentIdentity &&
         !shatterRecursiveIdentity &&
         !ecCleanupIdentity &&
-        !ecPropagationIdentity
+        !ecPropagationIdentity &&
+        !ecCadenceSafetyIdentity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, 1.39, 1.40, or 1.41 identity"
+          "target-phase-v1 result and config must use an exact supported 1.37 through 1.42 identity"
         );
       }
     }
@@ -15506,6 +15780,7 @@ const targetPhaseV2PeriodicReferenceSchema = z
       "start",
       "refresh",
       "tick",
+      "tick-skipped",
       "wane",
       "wane-skipped",
       "stop"
@@ -15566,7 +15841,11 @@ const targetPhaseV2PeriodicReferenceSchema = z
       .nonnegative()
       .nullable()
       .optional(),
-    reason: z.string().min(1).nullable()
+    reason: z.string().min(1).nullable(),
+    cadenceStatus: z
+      .enum(["scheduled", "dormant", "stopped"])
+      .optional(),
+    waneListenerActive: z.boolean().optional()
   })
   .passthrough();
 
@@ -15710,7 +15989,15 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         result.engineVersion ===
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
         result.config.engineVersion ===
-          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION);
     const exact141TargetPhaseIdentity =
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
@@ -15720,17 +16007,28 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    const exact142TargetPhaseIdentity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    const exactPropagationTargetPhaseIdentity =
+      exact141TargetPhaseIdentity || exact142TargetPhaseIdentity;
     if (
-      exact141TargetPhaseIdentity &&
+      exactPropagationTargetPhaseIdentity &&
       result.config.electroChargedPropagationModel === undefined
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41 target-phase output requires an explicit Electro-Charged propagation model"
+        "exact 1.41 or 1.42 target-phase output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
-      !exact141TargetPhaseIdentity &&
+      !exactPropagationTargetPhaseIdentity &&
       result.config.electroChargedPropagationModel !== undefined
     ) {
       issue(
@@ -15738,11 +16036,15 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         "pre-1.41 target-phase output cannot carry Electro-Charged propagation selection"
       );
     }
-    if (result.config.reactionEngine?.mode === "aura-v8") {
+    if (
+      result.config.reactionEngine?.mode === "aura-v8" ||
+      result.config.reactionEngine?.mode === "aura-v9"
+    ) {
+      const auraMode = result.config.reactionEngine.mode;
       if (!exactEcCleanupIdentityBeforeModeBranch) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40 or 1.41 schema and engine identity"
+          `${auraMode} target-phase output requires an exact supported schema and engine identity`
         );
       }
       if (
@@ -15751,13 +16053,19 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "timeline"],
-          "aura-v8 target-phase output requires legal-frame-v1 at 60 FPS"
+          `${auraMode} target-phase output requires legal-frame-v1 at 60 FPS`
         );
       }
       if (mode !== "target-phase-v2") {
         issue(
           ["config", "targetTaskModel", "mode"],
-          "aura-v8 target-phase output requires target-phase-v2"
+          `${auraMode} target-phase output requires target-phase-v2`
+        );
+      }
+      if (auraMode === "aura-v9" && !exact142TargetPhaseIdentity) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v9 target-phase output requires the exact 1.42 schema and engine identity"
         );
       }
     }
@@ -15781,7 +16089,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 or 1.41 target-phase output requires an explicit cleanup audit or null"
+            "exact 1.40 through 1.42 target-phase output requires an explicit cleanup audit or null"
           );
         }
         if (
@@ -15809,6 +16117,112 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
               "electroChargedCleanup"
             ],
             "aura-v7 exact 1.40 or 1.41 target-phase output requires cleanup=null"
+          );
+        }
+        const cleanup = task.electroChargedCleanup;
+        if (cleanup !== null && cleanup !== undefined) {
+          const hasCadence =
+            Object.prototype.hasOwnProperty.call(
+              cleanup,
+              "cadence"
+            ) && cleanup.cadence !== undefined;
+          const requiresV9Cadence =
+            exact142TargetPhaseIdentity &&
+            result.config.reactionEngine?.mode === "aura-v9";
+          if (requiresV9Cadence !== hasCadence) {
+            issue(
+              [
+                "reactionTaskLog",
+                taskIndex,
+                "electroChargedCleanup",
+                "cadence"
+              ],
+              requiresV9Cadence
+                ? "aura-v9 cleanup requires an explicit global cadence audit"
+                : "historical and non-v9 cleanup wires must omit global cadence audit fields"
+            );
+          }
+          if (
+            cleanup.outcome === "ended-before-deadline" &&
+            !requiresV9Cadence
+          ) {
+            issue(
+              [
+                "reactionTaskLog",
+                taskIndex,
+                "electroChargedCleanup",
+                "outcome"
+              ],
+              "ended-before-deadline is reserved for exact 1.42 aura-v9 cleanup"
+            );
+          }
+        }
+      }
+    );
+    const exactAuraV9Identity =
+      exact142TargetPhaseIdentity &&
+      result.config.reactionEngine?.mode === "aura-v9";
+    (result.periodicReactionLog ?? []).forEach(
+      (entry, entryIndex) => {
+        const hasCadenceStatus =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "cadenceStatus"
+          ) && entry.cadenceStatus !== undefined;
+        const hasWaneListener =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "waneListenerActive"
+          ) && entry.waneListenerActive !== undefined;
+        if (
+          exactAuraV9Identity !== hasCadenceStatus ||
+          exactAuraV9Identity !== hasWaneListener
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "cadenceStatus"],
+            exactAuraV9Identity
+              ? "aura-v9 periodic rows require explicit cadenceStatus and waneListenerActive"
+              : "historical and non-v9 periodic rows must omit aura-v9 cadence fields"
+          );
+        }
+        if (entry.operation === "tick-skipped") {
+          if (
+            !exactAuraV9Identity ||
+            entry.reason !==
+              "COEXISTING_AURA_MISSING_AT_GLOBAL_CALLBACK" ||
+            entry.reactionDamageLogId !== null ||
+            entry.damageEventId !== null ||
+            entry.nextTickFrame !== null ||
+            entry.waneFrame !== null ||
+            entry.cadenceStatus !== "dormant" ||
+            entry.waneListenerActive !== false ||
+            (entry.auraConsumed?.length ?? 0) !== 0
+          ) {
+            issue(
+              ["periodicReactionLog", entryIndex, "operation"],
+              "tick-skipped is an exact aura-v9 dormant callback with no damage, Wane, Aura consumption, or next callback"
+            );
+          }
+        }
+        if (
+          exactAuraV9Identity &&
+          entry.cadenceStatus === "scheduled" &&
+          entry.nextTickFrame === null
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "nextTickFrame"],
+            "scheduled aura-v9 cadence requires a next global callback frame"
+          );
+        }
+        if (
+          exactAuraV9Identity &&
+          (entry.cadenceStatus === "dormant" ||
+            entry.cadenceStatus === "stopped") &&
+          entry.nextTickFrame !== null
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "nextTickFrame"],
+            "dormant or stopped aura-v9 cadence cannot retain a next callback frame"
           );
         }
       }
@@ -15856,7 +16270,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -15917,17 +16335,27 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
           EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
         result.engineVersion ===
           EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+            result.config.engineVersion ===
+              EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+      const exact142Identity =
+        result.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
         result.config.engineVersion ===
-          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
       if (
         !exact138Identity &&
         !exact139Identity &&
         !exact140Identity &&
-        !exact141Identity
+        !exact141Identity &&
+        !exact142Identity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require an exact supported 1.38, 1.39, 1.40, or 1.41 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38 through 1.42 schema and engine identity"
         );
       }
       if (
@@ -15941,21 +16369,32 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       }
       if (
         result.config.reactionEngine?.mode !== "aura-v7" &&
-        result.config.reactionEngine?.mode !== "aura-v8"
+        result.config.reactionEngine?.mode !== "aura-v8" &&
+        result.config.reactionEngine?.mode !== "aura-v9"
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "target-phase-v2 requires reactionEngine.mode aura-v7 or aura-v8"
+          "target-phase-v2 requires reactionEngine.mode aura-v7, aura-v8, or aura-v9"
         );
       }
       if (
         result.config.reactionEngine?.mode === "aura-v8" &&
         !exact140Identity &&
-        !exact141Identity
+        !exact141Identity &&
+        !exact142Identity
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40 or 1.41 schema and engine identity"
+          "aura-v8 target-phase output requires the exact 1.40, 1.41, or 1.42 schema and engine identity"
+        );
+      }
+      if (
+        result.config.reactionEngine?.mode === "aura-v9" &&
+        !exact142Identity
+      ) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v9 target-phase output requires the exact 1.42 schema and engine identity"
         );
       }
       if (oldPhases.length !== 0) {
@@ -17154,6 +17593,52 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
                 kind: "periodic-reaction-log",
                 id: transition.periodicReactionLogId
               });
+            } else if (
+              transition.outcome ===
+              "ended-before-deadline"
+            ) {
+              const periodicLog = periodicById.get(
+                transition.periodicReactionLogId
+              );
+              const terminalWane =
+                periodicLog?.operation === "wane" &&
+                periodicLog.reason ===
+                  "AURA_DEPLETED_BY_WANE";
+              const terminalStop =
+                periodicLog?.operation === "stop" &&
+                periodicLog.reason !== null &&
+                periodicLog.reason !==
+                  "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM";
+              if (
+                periodicLog === undefined ||
+                periodicLog.reaction !==
+                  "electroCharged" ||
+                (!terminalWane && !terminalStop) ||
+                periodicLog.generation !==
+                  transition.generation ||
+                periodicLog.targetId !== phase.targetId ||
+                periodicLog.targetName !==
+                  phase.targetName ||
+                periodicLog.frame <= (task?.frame ?? -1) ||
+                periodicLog.frame >= phase.globalFrame ||
+                periodicLog.reactionTaskLogId !==
+                  transition.reactionTaskLogId ||
+                periodicLog.nextTickFrame !== null ||
+                periodicLog.cadenceStatus !== "stopped" ||
+                periodicLog.waneListenerActive !== false
+              ) {
+                issue(
+                  [
+                    ...transitionPath,
+                    "periodicReactionLogId"
+                  ],
+                  "ended-before-deadline cleanup must reuse its unique earlier terminal Electro-Charged Wane/stop row"
+                );
+              }
+              expectedLifecycleLinks.push({
+                kind: "periodic-reaction-log",
+                id: transition.periodicReactionLogId
+              });
             }
             if (
               point === undefined ||
@@ -17732,16 +18217,59 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         );
       }
     });
+    const exactAuraV9TargetPhaseV2Identity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.reactionEngine?.mode === "aura-v9";
     periodicReactionLog.forEach((entry, index) => {
       const owner = periodicOwnerById.get(entry.id);
+      const backlinkedTask =
+        entry.reactionTaskLogId === undefined
+          ? undefined
+          : reactionTaskById.get(entry.reactionTaskLogId);
+      const backlinkedCleanup =
+        backlinkedTask?.electroChargedCleanup;
+      const validEndedBeforeBacklink =
+        exactAuraV9TargetPhaseV2Identity &&
+        backlinkedTask !== undefined &&
+        backlinkedCleanup !== undefined &&
+        backlinkedCleanup !== null &&
+        backlinkedCleanup.outcome ===
+          "ended-before-deadline" &&
+        backlinkedCleanup.periodicReactionLogId === entry.id &&
+        entry.generation === backlinkedCleanup.generation &&
+        entry.targetId === backlinkedTask.targetId &&
+        entry.targetName === backlinkedTask.targetName &&
+        entry.frame > backlinkedTask.frame &&
+        entry.frame <
+          backlinkedCleanup.resolvedGlobalFrame &&
+        entry.nextTickFrame === null &&
+        entry.cadenceStatus === "stopped" &&
+        entry.waneListenerActive === false &&
+        ((entry.operation === "wane" &&
+          entry.reason === "AURA_DEPLETED_BY_WANE") ||
+          (entry.operation === "stop" &&
+            entry.reason !== null &&
+            entry.reason !==
+              "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"));
+      const validTargetTickCleanupBacklink =
+        entry.operation === "stop" &&
+        (entry.reason ===
+          "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" ||
+          entry.reason === "AURA_DECAY_EXPIRED") &&
+        owner !== undefined &&
+        (result.config.reactionEngine?.mode === "aura-v8" ||
+          result.config.reactionEngine?.mode === "aura-v9");
       if (
         entry.reactionTaskLogId !== undefined &&
-        (entry.operation !== "stop" ||
-          (entry.reason !==
-            "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" &&
-            entry.reason !== "AURA_DECAY_EXPIRED") ||
-          owner === undefined ||
-          result.config.reactionEngine?.mode !== "aura-v8")
+        !validTargetTickCleanupBacklink &&
+        !validEndedBeforeBacklink
       ) {
         issue(
           [
@@ -17749,7 +18277,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
             index,
             "reactionTaskLogId"
           ],
-          "reactionTaskLogId is reserved for an aura-v8 Electro-Charged cleanup stop or matched natural-expiry collision owned by Reactable.Tick"
+          "reactionTaskLogId is reserved for an aura-v8/v9 cleanup stop/natural-expiry owned by Reactable.Tick or an exact aura-v9 ended-before terminal row"
         );
       }
       if (
@@ -17786,6 +18314,7 @@ const electroChargedCleanupPeriodicLogEntrySchema = z
       "start",
       "refresh",
       "tick",
+      "tick-skipped",
       "wane",
       "wane-skipped",
       "stop"
@@ -17823,7 +18352,11 @@ const electroChargedCleanupPeriodicLogEntrySchema = z
       .nonnegative()
       .nullable(),
     waneFrame: z.number().int().nonnegative().nullable(),
-    reason: z.string().min(1).nullable()
+    reason: z.string().min(1).nullable(),
+    cadenceStatus: z
+      .enum(["scheduled", "dormant", "stopped"])
+      .optional(),
+    waneListenerActive: z.boolean().optional()
   })
   .strict()
   .superRefine((entry, context) => {
@@ -17844,7 +18377,20 @@ const electroChargedCleanupPeriodicLogEntrySchema = z
 const electroChargedCleanupReactionDamageReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
-    reaction: z.literal("electroCharged"),
+    reaction: z.enum([
+      "overload",
+      "superconduct",
+      "electroCharged",
+      "burning",
+      "bloom",
+      "burgeon",
+      "hyperbloom",
+      "shatter",
+      "swirlPyro",
+      "swirlHydro",
+      "swirlCryo",
+      "swirlElectro"
+    ]),
     sourceActorId: wireNonEmptyStringSchema,
     sourceTargetId: wireNonEmptyStringSchema,
     triggerFrame: z.number().int().nonnegative(),
@@ -17859,10 +18405,32 @@ const electroChargedCleanupReactionDamageReferenceSchema = z
       ])
       .nullable(),
     nextAvailableFrame: z.number().int().nonnegative().nullable(),
-    scheduleKind: z.literal("periodic-tick"),
+    scheduleKind: z.enum([
+      "one-shot",
+      "periodic-tick",
+      "burning-tick",
+      "swirl-self",
+      "swirl-propagation",
+      "dendro-core-bloom",
+      "dendro-core-burgeon",
+      "dendro-core-hyperbloom"
+    ]),
     damageEventIds: z.array(z.number().int().nonnegative())
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((entry, context) => {
+    if (
+      entry.reaction === "electroCharged" &&
+      entry.scheduleKind !== "periodic-tick"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["scheduleKind"],
+        message:
+          "Electro-Charged cleanup-owned reaction damage requires periodic-tick scheduling"
+      });
+    }
+  });
 
 const electroChargedCleanupDamageEventReferenceSchema = z
   .object({
@@ -17876,7 +18444,7 @@ const electroChargedCleanupDamageEventReferenceSchema = z
   .passthrough();
 
 /**
- * Exact 1.40/1.41 cross-log proof for Aura-v8 Electro-Charged cleanup
+ * Exact 1.40–1.42 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
  * requested by Quicken→Bloom. This consumes a versioned config and the full
  * cleanup-owned logs while accepting unrelated SimulationResult fields.
  */
@@ -17884,16 +18452,16 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
   rejectInheritedVersionedResultIdentity,
   z
   .object({
-    schemaVersion: z.literal(
-      EC_NEXT_TARGET_TICK_SCHEMA_VERSION
-    ).or(
-      z.literal(EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION)
-    ),
-    engineVersion: z.literal(
-      EC_NEXT_TARGET_TICK_ENGINE_VERSION
-    ).or(
-      z.literal(EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION)
-    ),
+    schemaVersion: z.union([
+      z.literal(EC_NEXT_TARGET_TICK_SCHEMA_VERSION),
+      z.literal(EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION),
+      z.literal(EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION)
+    ]),
+    engineVersion: z.union([
+      z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
+      z.literal(EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION),
+      z.literal(EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION)
+    ]),
     config: z
       .object({
         schemaVersion: z.string(),
@@ -17947,10 +18515,26 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       result.config.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
-    if (!exact140Identity && !exact141Identity) {
+    const exact142Identity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    const exactAuraV9Identity =
+      exact142Identity &&
+      result.config.reactionEngine?.mode === "aura-v9";
+    if (
+      !exact140Identity &&
+      !exact141Identity &&
+      !exact142Identity
+    ) {
       issue(
         ["config", "engineVersion"],
-        "Electro-Charged cleanup requires exact matching 1.40 or 1.41 result and config identity"
+        "Electro-Charged cleanup requires exact matching 1.40 through 1.42 result and config identity"
       );
     }
     const hasPropagationModel =
@@ -17964,16 +18548,31 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         "exact 1.40 cleanup output cannot carry the 1.41 Electro-Charged propagation model"
       );
     }
-    if (exact141Identity && !hasPropagationModel) {
+    if (
+      (exact141Identity || exact142Identity) &&
+      !hasPropagationModel
+    ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41 cleanup output requires an explicit Electro-Charged propagation model"
+        "exact 1.41 or 1.42 cleanup output requires an explicit Electro-Charged propagation model"
       );
     }
-    if (result.config.reactionEngine?.mode !== "aura-v8") {
+    if (
+      result.config.reactionEngine?.mode !== "aura-v8" &&
+      result.config.reactionEngine?.mode !== "aura-v9"
+    ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "Electro-Charged cleanup requires reactionEngine.mode aura-v8"
+        "Electro-Charged cleanup requires reactionEngine.mode aura-v8 or aura-v9"
+      );
+    }
+    if (
+      result.config.reactionEngine?.mode === "aura-v9" &&
+      !exact142Identity
+    ) {
+      issue(
+        ["config", "reactionEngine", "mode"],
+        "aura-v9 Electro-Charged cleanup requires exact 1.42 identity"
       );
     }
     if (
@@ -18052,25 +18651,115 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     >();
     result.periodicReactionLog.forEach(
       (entry, entryIndex) => {
-        if (entry.operation !== "start") return;
-        const expectedGeneration =
-          nextEcGenerationByTarget.get(entry.targetId) ?? 1;
-        if (entry.generation !== expectedGeneration) {
-          issue(
-            [
-              "periodicReactionLog",
-              entryIndex,
-              "generation"
-            ],
-            `Electro-Charged start generation must be canonical and contiguous; expected ${expectedGeneration}`
+        if (entry.operation === "start") {
+          const expectedGeneration =
+            nextEcGenerationByTarget.get(entry.targetId) ?? 1;
+          if (entry.generation !== expectedGeneration) {
+            issue(
+              [
+                "periodicReactionLog",
+                entryIndex,
+                "generation"
+              ],
+              `Electro-Charged start generation must be canonical and contiguous; expected ${expectedGeneration}`
+            );
+          }
+          nextEcGenerationByTarget.set(
+            entry.targetId,
+            expectedGeneration + 1
           );
         }
-        nextEcGenerationByTarget.set(
-          entry.targetId,
-          expectedGeneration + 1
-        );
+        const hasCadenceStatus =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "cadenceStatus"
+          ) && entry.cadenceStatus !== undefined;
+        const hasWaneListener =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "waneListenerActive"
+          ) && entry.waneListenerActive !== undefined;
+        if (
+          exactAuraV9Identity !== hasCadenceStatus ||
+          exactAuraV9Identity !== hasWaneListener
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "cadenceStatus"],
+            exactAuraV9Identity
+              ? "aura-v9 periodic rows require explicit cadenceStatus and waneListenerActive"
+              : "aura-v8 periodic rows must omit aura-v9 cadence fields"
+          );
+        }
+        if (entry.operation === "tick-skipped") {
+          if (
+            !exactAuraV9Identity ||
+            entry.reason !==
+              "COEXISTING_AURA_MISSING_AT_GLOBAL_CALLBACK" ||
+            entry.reactionDamageLogId !== null ||
+            entry.damageEventId !== null ||
+            entry.nextTickFrame !== null ||
+            entry.waneFrame !== null ||
+            entry.cadenceStatus !== "dormant" ||
+            entry.waneListenerActive !== false ||
+            entry.auraConsumed.length !== 0 ||
+            !auraStateSnapshotsEqual(
+              entry.auraBefore,
+              entry.auraAfter
+            )
+          ) {
+            issue(
+              ["periodicReactionLog", entryIndex, "operation"],
+              "tick-skipped must be a no-damage exact aura-v9 callback that makes cadence dormant"
+            );
+          }
+        }
+        if (
+          exactAuraV9Identity &&
+          entry.cadenceStatus === "scheduled" &&
+          entry.nextTickFrame === null
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "nextTickFrame"],
+            "scheduled aura-v9 cadence requires a next global callback frame"
+          );
+        }
+        if (
+          exactAuraV9Identity &&
+          (entry.cadenceStatus === "dormant" ||
+            entry.cadenceStatus === "stopped") &&
+          entry.nextTickFrame !== null
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "nextTickFrame"],
+            "dormant or stopped aura-v9 cadence cannot retain a next callback frame"
+          );
+        }
       }
     );
+    if (exactAuraV9Identity) {
+      result.periodicReactionLog.forEach(
+        (entry, entryIndex) => {
+          if (entry.operation !== "tick-skipped") return;
+          const ghostCallback =
+            result.periodicReactionLog.find(
+              (candidate) =>
+                candidate.targetId === entry.targetId &&
+                candidate.generation === entry.generation &&
+                candidate.id > entry.id &&
+                (candidate.operation === "tick" ||
+                  candidate.operation === "tick-skipped" ||
+                  candidate.operation === "wane" ||
+                  candidate.operation === "wane-skipped")
+            );
+          if (ghostCallback !== undefined) {
+            issue(
+              ["periodicReactionLog", entryIndex, "operation"],
+              `dormant generation cannot emit later callback row ${ghostCallback.id}`
+            );
+          }
+        }
+      );
+    }
 
     const clockEntriesByTarget = new Map<
       string,
@@ -18263,7 +18952,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
                 ];
         const validOperation =
           cadenceKind === "tick"
-            ? periodic?.operation === "tick"
+            ? periodic?.operation === "tick" ||
+              periodic?.operation === "tick-skipped"
             : periodic?.operation === "wane" ||
               periodic?.operation === "wane-skipped";
         if (
@@ -18326,6 +19016,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       (entry, entryIndex) => {
         if (
           entry.operation !== "tick" &&
+          entry.operation !== "tick-skipped" &&
           entry.operation !== "wane" &&
           entry.operation !== "wane-skipped"
         ) {
@@ -18337,7 +19028,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         ) {
           issue(
             ["periodicReactionLog", entryIndex, "id"],
-            "each Electro-Charged tick or Wane row requires one unique reciprocal cadence timeline point"
+            "each Electro-Charged callback tick or Wane row requires one unique reciprocal cadence timeline point"
           );
         }
       }
@@ -18380,7 +19071,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
             taskIndex,
             "electroChargedCleanup"
           ],
-          "exact 1.40 or 1.41 aura-v8 tasks require an explicit cleanup audit or null"
+          "exact 1.40 through 1.42 aura-v8/v9 tasks require an explicit cleanup audit or null"
         );
       }
       const reciprocalTransitions =
@@ -18448,6 +19139,38 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
           );
         }
         return;
+      }
+      const hasCadence =
+        Object.prototype.hasOwnProperty.call(
+          cleanup,
+          "cadence"
+        ) && cleanup.cadence !== undefined;
+      if (exactAuraV9Identity !== hasCadence) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup",
+            "cadence"
+          ],
+          exactAuraV9Identity
+            ? "aura-v9 cleanup requires an explicit global cadence audit, including pending-at-end"
+            : "aura-v8 cleanup must omit aura-v9 cadence audit fields"
+        );
+      }
+      if (
+        cleanup.outcome === "ended-before-deadline" &&
+        !exactAuraV9Identity
+      ) {
+        issue(
+          [
+            "reactionTaskLog",
+            taskIndex,
+            "electroChargedCleanup",
+            "outcome"
+          ],
+          "ended-before-deadline is reserved for exact 1.42 aura-v9 cleanup"
+        );
       }
 
       const bloom = task.bloomReaction;
@@ -18553,6 +19276,66 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
           ],
           "cleanup requires an existing same-target Electro-Charged generation"
         );
+      }
+      if (cleanup.cadence !== undefined) {
+        const observationFrame =
+          cleanup.outcome === "pending-at-end"
+            ? Math.round(result.config.duration * 60)
+            : cleanup.resolvedGlobalFrame;
+        const relevantRows =
+          observationFrame === null
+            ? []
+            : result.periodicReactionLog.filter(
+                (entry) =>
+                  entry.targetId === task.targetId &&
+                  entry.generation === cleanup.generation &&
+                  entry.frame <= observationFrame
+              );
+        const latestRow = relevantRows.at(-1);
+        const lastGlobalCallback =
+          relevantRows
+            .filter(
+              (entry) =>
+                (entry.operation === "tick" ||
+                  entry.operation === "tick-skipped") &&
+                entry.tickIndex !== null &&
+                entry.tickIndex > 0
+            )
+            .at(-1)?.frame ?? null;
+        const cadence = cleanup.cadence;
+        const terminalOutcome =
+          cleanup.outcome === "stop" ||
+          cleanup.outcome === "natural-expiry" ||
+          cleanup.outcome === "ended-before-deadline";
+        const cadenceMatchesLatest =
+          cleanup.outcome === "superseded"
+            ? cadence.status === "superseded" &&
+              cadence.nextTickFrame === null &&
+              cadence.waneListenerActive === false
+            : latestRow !== undefined &&
+              cadence.status === latestRow.cadenceStatus &&
+              cadence.nextTickFrame ===
+                latestRow.nextTickFrame &&
+              cadence.waneListenerActive ===
+                latestRow.waneListenerActive;
+        if (
+          !cadenceMatchesLatest ||
+          cadence.lastCallbackFrame !== lastGlobalCallback ||
+          (terminalOutcome &&
+            (cadence.status !== "stopped" ||
+              cadence.nextTickFrame !== null ||
+              cadence.waneListenerActive))
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "cadence"
+            ],
+            "cleanup cadence must exactly project the latest same-generation periodic state and last F+70-or-later global callback"
+          );
+        }
       }
 
       if (cleanup.outcome === "pending-at-end") {
@@ -18741,7 +19524,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         }
       } else {
         const expectedPeriodicLinks =
-          cleanup.outcome === "stop"
+          cleanup.outcome === "stop" ||
+          cleanup.outcome === "ended-before-deadline"
             ? [
                 {
                   kind:
@@ -18912,11 +19696,63 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
             "superseded cleanup requires a newer same-target Electro-Charged generation"
           );
         }
+      } else if (
+        cleanup.outcome === "ended-before-deadline"
+      ) {
+        const terminal = periodicById.get(
+          cleanup.periodicReactionLogId
+        );
+        const terminalWane =
+          terminal?.operation === "wane" &&
+          terminal.reason === "AURA_DEPLETED_BY_WANE";
+        const terminalStop =
+          terminal?.operation === "stop" &&
+          terminal.reason !== null &&
+          terminal.reason !==
+            "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM";
+        const laterSameGenerationRow =
+          terminal === undefined
+            ? undefined
+            : result.periodicReactionLog.find(
+                (entry) =>
+                  entry.targetId === task.targetId &&
+                  entry.generation === cleanup.generation &&
+                  entry.id > terminal.id &&
+                  entry.frame <=
+                    cleanup.resolvedGlobalFrame
+              );
+        if (
+          terminal === undefined ||
+          (!terminalWane && !terminalStop) ||
+          terminal.targetId !== task.targetId ||
+          terminal.targetName !== task.targetName ||
+          terminal.generation !== cleanup.generation ||
+          terminal.frame <= task.frame ||
+          terminal.frame >= cleanup.resolvedGlobalFrame ||
+          terminal.nextTickFrame !== null ||
+          terminal.cadenceStatus !== "stopped" ||
+          terminal.waneListenerActive !== false ||
+          reciprocalPeriodicRows.length !== 1 ||
+          reciprocalPeriodicRows[0]?.id !== terminal.id ||
+          terminal.reactionTaskLogId !== task.id ||
+          laterSameGenerationRow !== undefined
+        ) {
+          issue(
+            [
+              "reactionTaskLog",
+              taskIndex,
+              "electroChargedCleanup",
+              "periodicReactionLogId"
+            ],
+            "ended-before-deadline must reference one same-target, same-generation terminal Wane/stop before the cleanup deadline with no later lifecycle row"
+          );
+        }
       }
 
       if (
-        cleanup.outcome === "stop" ||
-        cleanup.outcome === "natural-expiry"
+        !exactAuraV9Identity &&
+        (cleanup.outcome === "stop" ||
+          cleanup.outcome === "natural-expiry")
       ) {
         const firstTickFrame =
           generationStart === undefined
@@ -19279,7 +20115,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       if (entry.reactionTaskLogId === undefined) return;
       const task = taskById.get(entry.reactionTaskLogId);
       const cleanup = task?.electroChargedCleanup;
-      const validBacklink =
+      const validCleanupStopBacklink =
         cleanup !== undefined &&
         cleanup !== null &&
         (cleanup.outcome === "stop" ||
@@ -19291,14 +20127,37 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
           ? entry.reason ===
             "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
           : entry.reason === "AURA_DECAY_EXPIRED");
-      if (!validBacklink) {
+      const validEndedBeforeBacklink =
+        task !== undefined &&
+        cleanup !== undefined &&
+        cleanup !== null &&
+        cleanup.outcome === "ended-before-deadline" &&
+        cleanup.periodicReactionLogId === entry.id &&
+        entry.generation === cleanup.generation &&
+        entry.targetId === task.targetId &&
+        entry.targetName === task.targetName &&
+        entry.frame > task.frame &&
+        entry.frame < cleanup.resolvedGlobalFrame &&
+        entry.nextTickFrame === null &&
+        entry.cadenceStatus === "stopped" &&
+        entry.waneListenerActive === false &&
+        ((entry.operation === "wane" &&
+          entry.reason === "AURA_DEPLETED_BY_WANE") ||
+          (entry.operation === "stop" &&
+            entry.reason !== null &&
+            entry.reason !==
+              "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"));
+      if (
+        !validCleanupStopBacklink &&
+        !validEndedBeforeBacklink
+      ) {
         issue(
           [
             "periodicReactionLog",
             entryIndex,
             "reactionTaskLogId"
           ],
-          "periodic reaction-task backlinks are reserved for their exact cleanup stop"
+          "periodic reaction-task backlinks are reserved for their exact cleanup terminal row"
         );
       }
     });
@@ -19354,7 +20213,11 @@ const reactionDeliveryPeriodicReactionAuditReferenceSchema = z
       .number()
       .int()
       .nonnegative()
-      .nullable()
+      .nullable(),
+    cadenceStatus: z
+      .enum(["scheduled", "dormant", "stopped"])
+      .optional(),
+    waneListenerActive: z.boolean().optional()
   })
   .passthrough();
 
@@ -20191,34 +21054,49 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    const exact142Identity =
+      result.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     if (
       !exact139Identity &&
       !exact140Identity &&
-      !exact141Identity
+      !exact141Identity &&
+      !exact142Identity
     ) {
       issue(
         ["config", "reactionDeliveryModel"],
-        "reaction delivery result requires an exact supported 1.39, 1.40, or 1.41 schema and engine identity"
+        "reaction delivery result requires an exact supported 1.39 through 1.42 schema and engine identity"
       );
     }
     if (
       configReactionEngine?.mode === "aura-v8" &&
       !exact140Identity &&
-      !exact141Identity
+      !exact141Identity &&
+      !exact142Identity
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v8 reaction-delivery output requires the exact 1.40 or 1.41 schema and engine identity"
+        "aura-v8 reaction-delivery output requires the exact 1.40, 1.41, or 1.42 schema and engine identity"
       );
     }
-    if (configReactionEngine?.mode === "aura-v8") {
+    if (
+      configReactionEngine?.mode === "aura-v8" ||
+      configReactionEngine?.mode === "aura-v9"
+    ) {
+      const auraMode = configReactionEngine.mode;
       if (
         configTimeline?.mode !== "legal-frame-v1" ||
         configTimeline.fps !== 60
       ) {
         issue(
           ["config", "timeline"],
-          "aura-v8 reaction-delivery output requires legal-frame-v1 at 60 FPS"
+          `${auraMode} reaction-delivery output requires legal-frame-v1 at 60 FPS`
         );
       }
       if (
@@ -20226,21 +21104,27 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "targetTaskModel", "mode"],
-          "aura-v8 reaction-delivery output requires target-phase-v2"
+          `${auraMode} reaction-delivery output requires target-phase-v2`
+        );
+      }
+      if (auraMode === "aura-v9" && !exact142Identity) {
+        issue(
+          ["config", "reactionEngine", "mode"],
+          "aura-v9 reaction-delivery output requires exact 1.42 identity"
         );
       }
     }
     if (
-      exact141Identity &&
+      (exact141Identity || exact142Identity) &&
       configElectroChargedPropagationModel === undefined
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41 reaction-delivery output requires an explicit Electro-Charged propagation model"
+        "exact 1.41 or 1.42 reaction-delivery output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
-      exact141Identity &&
+      (exact141Identity || exact142Identity) &&
       configElectroChargedPropagationModel?.mode ===
         "nearby-wet-radius-v1" &&
       configEnemy?.targets === undefined
@@ -20259,6 +21143,131 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         "pre-1.41 reaction-delivery output cannot carry Electro-Charged propagation selection"
       );
     }
+    const exactAuraV9Identity =
+      exact142Identity &&
+      configReactionEngine?.mode === "aura-v9";
+    result.damageEvents.forEach((event, eventIndex) => {
+      const periodic = event.reactionAudit.periodicReaction;
+      if (periodic === null || periodic === undefined) return;
+      const hasCadenceStatus =
+        Object.prototype.hasOwnProperty.call(
+          periodic,
+          "cadenceStatus"
+        ) && periodic.cadenceStatus !== undefined;
+      const hasWaneListener =
+        Object.prototype.hasOwnProperty.call(
+          periodic,
+          "waneListenerActive"
+        ) && periodic.waneListenerActive !== undefined;
+      if (
+        exactAuraV9Identity !== hasCadenceStatus ||
+        exactAuraV9Identity !== hasWaneListener
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "periodicReaction",
+            "cadenceStatus"
+          ],
+          exactAuraV9Identity
+            ? "aura-v9 periodic reaction audits require explicit cadenceStatus and waneListenerActive"
+            : "historical and aura-v8 periodic reaction audits must omit aura-v9 cadence fields"
+        );
+      }
+      if (!exactAuraV9Identity) return;
+      if (
+        (periodic.cadenceStatus === "scheduled") !==
+        (periodic.nextTickFrame !== null)
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "periodicReaction",
+            "nextTickFrame"
+          ],
+          "scheduled aura-v9 audit cadence requires a next callback and dormant/stopped cadence requires null"
+        );
+      }
+      if (
+        periodic.operation === "start" &&
+        (periodic.firstDamageFrame !== event.frame + 10 ||
+          periodic.nextTickFrame !== event.frame + 70 ||
+          periodic.cadenceStatus !== "scheduled" ||
+          periodic.waneListenerActive !== true)
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "periodicReaction"
+          ],
+          "aura-v9 start must independently publish F+10 first damage and F+70 global cadence with an active Wane listener"
+        );
+      }
+      if (
+        periodic.operation === "stop" &&
+        (periodic.cadenceStatus !== "stopped" ||
+          periodic.nextTickFrame !== null ||
+          periodic.waneListenerActive)
+      ) {
+        issue(
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "periodicReaction"
+          ],
+          "aura-v9 stop must terminate cadence and its Wane listener"
+        );
+      }
+    });
+    (resultPeriodicReactionLog ?? []).forEach(
+      (entry, entryIndex) => {
+        const hasCadenceStatus =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "cadenceStatus"
+          ) && entry.cadenceStatus !== undefined;
+        const hasWaneListener =
+          Object.prototype.hasOwnProperty.call(
+            entry,
+            "waneListenerActive"
+          ) && entry.waneListenerActive !== undefined;
+        if (
+          exactAuraV9Identity !== hasCadenceStatus ||
+          exactAuraV9Identity !== hasWaneListener
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "cadenceStatus"],
+            exactAuraV9Identity
+              ? "aura-v9 periodic rows require explicit cadenceStatus and waneListenerActive"
+              : "historical and aura-v8 periodic rows must omit aura-v9 cadence fields"
+          );
+        }
+        if (
+          entry.operation === "tick-skipped" &&
+          (!exactAuraV9Identity ||
+            entry.reason !==
+              "COEXISTING_AURA_MISSING_AT_GLOBAL_CALLBACK" ||
+            entry.reactionDamageLogId !== null ||
+            entry.damageEventId !== null ||
+            entry.nextTickFrame !== null ||
+            entry.waneFrame !== null ||
+            entry.cadenceStatus !== "dormant" ||
+            entry.waneListenerActive !== false)
+        ) {
+          issue(
+            ["periodicReactionLog", entryIndex, "operation"],
+            "tick-skipped is reserved for an aura-v9 dormant no-damage global callback"
+          );
+        }
+      }
+    );
 
     addDuplicateIdIssues(
       result.damageEvents.map((event) => event.id),
@@ -20304,7 +21313,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       );
     });
     if (
-      exact141Identity &&
+      (exact141Identity || exact142Identity) &&
       configElectroChargedPropagationModel?.mode ===
         "nearby-wet-radius-v1"
     ) {
@@ -20312,7 +21321,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["hitResolutionLog", entryIndex, "id"],
-            `exact 1.41 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
@@ -20320,13 +21329,13 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["damageEvents", entryIndex, "id"],
-            `exact 1.41 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
     }
     const exact141NearbyWetOutput =
-      exact141Identity &&
+      (exact141Identity || exact142Identity) &&
       configElectroChargedPropagationModel?.mode ===
         "nearby-wet-radius-v1";
     let replayNearbyTargetFrame:
@@ -20338,19 +21347,19 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       if (configTargetClockModel === undefined) {
         issue(
           ["config", "targetClockModel"],
-          "exact 1.41 nearby-Wet output requires an explicit target clock model"
+          "exact 1.41/1.42 nearby-Wet output requires an explicit target clock model"
         );
       }
       if (resultTargetClockLog === undefined) {
         issue(
           ["targetClockLog"],
-          "exact 1.41 nearby-Wet output requires a target-clock replay log"
+          "exact 1.41/1.42 nearby-Wet output requires a target-clock replay log"
         );
       }
       if (resultTargetHitlagLog === undefined) {
         issue(
           ["targetHitlagLog"],
-          "exact 1.41 nearby-Wet output requires a target-Hitlag provenance log"
+          "exact 1.41/1.42 nearby-Wet output requires a target-Hitlag provenance log"
         );
       }
       const targetClockLog = resultTargetClockLog ?? [];
@@ -20597,7 +21606,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex, "id"],
-          `exact 1.41 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
+          `exact 1.41/1.42 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
         );
       }
       if (
@@ -20611,7 +21620,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex],
-          "exact 1.41 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
+          "exact 1.41/1.42 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
         );
       }
       if (
@@ -20638,7 +21647,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               entryIndex,
               "reactionDamageLogId"
             ],
-            "exact 1.41 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
+            "exact 1.41/1.42 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
           );
         }
       }
@@ -20859,7 +21868,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         );
       }
       if (
-        exact141Identity &&
+        (exact141Identity || exact142Identity) &&
         entry.reaction === "electroCharged"
       ) {
         const propagationModel =
@@ -20911,7 +21920,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       }
 
       if (
-        exact141Identity &&
+        (exact141Identity || exact142Identity) &&
         entry.reaction === "electroCharged" &&
         entry.withinSimulation &&
         propagationAudit !== undefined
@@ -23463,7 +24472,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     });
 
     const nearbyPropagationOutput =
-      exact141Identity &&
+      (exact141Identity || exact142Identity) &&
       configElectroChargedPropagationModel?.mode ===
         "nearby-wet-radius-v1";
     (resultTargetStateTimeline?.points ?? []).forEach(
@@ -23482,7 +24491,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               pointIndex,
               "cause"
             ],
-            "Electro-Charged propagation candidate observations are reserved for exact 1.41 nearby-Wet output"
+            "Electro-Charged propagation candidate observations are reserved for exact 1.41/1.42 nearby-Wet output"
           );
         } else if (
           !claimedPropagationObservationPointIds.has(
@@ -24791,6 +25800,791 @@ export const goldenFixtureEnvelopeV141Schema = z.union([
   legacyDefault120sGoldenFixtureV141Schema
 ]);
 
+const reproducibilityKeyV2Schema = z
+  .string()
+  .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/);
+const goldenAggregateMatchesV142 = (
+  left: number,
+  right: number
+): boolean =>
+  Math.abs(left - right) <=
+  1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+
+const legacyDefault120sGoldenSkillV142Schema = z
+  .object({
+    creditId: wireNonEmptyStringSchema,
+    actionName: wireNonEmptyStringSchema,
+    damage: finiteNumber.nonnegative(),
+    hits: z.number().int().nonnegative()
+  })
+  .strict();
+
+/**
+ * Exact 1.42 identity envelope for the unchanged Vanilla-v0.1 120-second
+ * compatibility baseline. The release writer freezes the whole JSON file by
+ * SHA-256; this schema independently freezes every damage/count projection and
+ * the historical damage-event digest while allowing the identity hash to be
+ * generated from the exact 1.42 config.
+ */
+export const legacyDefault120sGoldenFixtureV142Schema = z.preprocess(
+  rejectNonPlainJsonWire(
+    "legacyDefault120sGoldenFixtureV142"
+  ),
+  z
+    .object({
+      fixtureVersion: z.literal("1.0.0"),
+      description: wireNonEmptyStringSchema,
+      provenance: z
+        .object({
+          source: wireNonEmptyStringSchema,
+          capturedAt: z.literal("2026-07-30"),
+          verificationStatus: z.literal("provisional"),
+          note: z
+            .string()
+            .refine(
+              (note) =>
+                note.includes(
+                  "illustrative magic numbers, not verified game data"
+                ),
+              {
+                message:
+                  "must retain the illustrative, unverified-data disclaimer"
+              }
+            )
+        })
+        .strict(),
+      schemaVersion: z.literal(
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+      ),
+      engineVersion: z.literal(
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+      ),
+      configHash: z.literal("fnv1a32:c8eef2e4"),
+      reproducibilityKey: z.literal(
+        "gdl-v2-fnv1a32-e3fa9efe"
+      ),
+      options: z
+        .object({
+          energyMode: z.literal("configured"),
+          critMode: z.literal("average"),
+          compatibilityMode: z.literal("legacy-v0.1"),
+          randomSeed: z.literal("legacy-default")
+        })
+        .strict(),
+      totalDamage: z.literal(41410555.13728799),
+      dps: z.literal(345087.9594773999),
+      hitCount: z.literal(269),
+      reactedHits: z.literal(129),
+      skippedActionCount: z.literal(3),
+      byCharacter: z
+        .object({
+          nicole: z.literal(740338.5919263127),
+          citlali: z.literal(77244.84267655843),
+          durin: z.literal(38779268.124040276),
+          lohen: z.literal(1813703.5786448019)
+        })
+        .strict(),
+      bySkill: z.tuple([
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("durin"),
+          actionName: z.literal("杜林 黑 Q"),
+          damage: z.literal(33960210.24410402),
+          hits: z.literal(103)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("durin"),
+          actionName: z.literal("杜林 黑 E"),
+          damage: z.literal(3173673.996688688),
+          hits: z.literal(18)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("lohen"),
+          actionName: z.literal("洛恩站场输出"),
+          damage: z.literal(1813703.5786448019),
+          hits: z.literal(78)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("durin"),
+          actionName: z.literal("尼可 Q"),
+          damage: z.literal(1645383.8832475687),
+          hits: z.literal(10)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("nicole"),
+          actionName: z.literal("尼可 Q"),
+          damage: z.literal(577890.9248479266),
+          hits: z.literal(3)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("nicole"),
+          actionName: z.literal("尼可 E"),
+          damage: z.literal(162447.66707838603),
+          hits: z.literal(6)
+        }),
+        legacyDefault120sGoldenSkillV142Schema.extend({
+          creditId: z.literal("citlali"),
+          actionName: z.literal("茜特菈莉 E"),
+          damage: z.literal(77244.84267655843),
+          hits: z.literal(51)
+        })
+      ]),
+      legacyDamageEventsSha256: z.literal(
+        "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f"
+      ),
+      reactionDeliveryModel: z
+        .object({
+          mode: z.literal("deferred-event-heap-v1")
+        })
+        .strict(),
+      electroChargedPropagationModel: z
+        .object({
+          mode: z.literal("single-target-v1")
+        })
+        .strict(),
+      targetClock: z
+        .object({
+          config: z
+            .object({ mode: z.literal("disabled") })
+            .strict(),
+          audit: targetClockAuditSchema,
+          clockLog: targetClockLogSchema,
+          hitlagLog: targetHitlagLogSchema
+        })
+        .strict(),
+      targetTask: z
+        .object({
+          config: z
+            .object({
+              mode: z.literal("legacy-event-heap-v1")
+            })
+            .strict(),
+          phaseLog: targetTaskPhaseLogSchema
+        })
+        .strict(),
+      targetPhaseLog: targetPhaseV2LogSchema
+    })
+    .strict()
+    .superRefine((fixture, context) => {
+      const byCharacterTotal = Object.values(
+        fixture.byCharacter
+      ).reduce((sum, damage) => sum + damage, 0);
+      const bySkillTotal = fixture.bySkill.reduce(
+        (sum, skill) => sum + skill.damage,
+        0
+      );
+      const bySkillHits = fixture.bySkill.reduce(
+        (sum, skill) => sum + skill.hits,
+        0
+      );
+      if (
+        !goldenAggregateMatchesV142(
+          byCharacterTotal,
+          fixture.totalDamage
+        ) ||
+        !goldenAggregateMatchesV142(
+          bySkillTotal,
+          fixture.totalDamage
+        ) ||
+        bySkillHits !== fixture.hitCount ||
+        !goldenAggregateMatchesV142(
+          fixture.dps * 120,
+          fixture.totalDamage
+        ) ||
+        fixture.targetClock.audit.mode !== "disabled" ||
+        fixture.targetClock.clockLog.length !== 0 ||
+        fixture.targetClock.hitlagLog.length !== 0 ||
+        fixture.targetTask.phaseLog.length !== 0 ||
+        fixture.targetPhaseLog.length !== 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "the exact 1.42 legacy Golden must preserve every frozen 1.41 compatibility summary and disabled target-owned log"
+        });
+      }
+    })
+);
+
+export const electroChargedGlobalCadenceGoldenScenarioIdsV142 = [
+  "longHitlagNoRestoreStop",
+  "longHitlagRestoreF70Scheduled",
+  "longHitlagRestoreF71Dormant",
+  "longHitlagRestoreF5EndedBeforeDeadline",
+  "pureEcHitlag120GlobalCadence"
+] as const;
+
+export const electroChargedGlobalCadenceGoldenScenarioIdV142Schema =
+  z.enum(electroChargedGlobalCadenceGoldenScenarioIdsV142);
+
+const damageCompositionGoldenV142Schema = z
+  .object({
+    direct: finiteNumber.nonnegative(),
+    additiveReaction: finiteNumber.nonnegative(),
+    transformativeReaction: finiteNumber.nonnegative()
+  })
+  .strict();
+
+const electroChargedGlobalCadenceDamageEventV142Schema =
+  reactionDeliveryDamageEventReferenceSchema
+    .and(
+      z
+        .object({
+          id: z.number().int().nonnegative(),
+          creditOwnerId: wireNonEmptyStringSchema,
+          actionName: wireNonEmptyStringSchema,
+          finalDamage: finiteNumber.nonnegative(),
+          displayDamage: z.number().int().nonnegative(),
+          damageComposition:
+            damageCompositionGoldenV142Schema
+        })
+        .passthrough()
+    )
+    .superRefine((event, context) => {
+      const componentTotal =
+        event.damageComposition.direct +
+        event.damageComposition.additiveReaction +
+        event.damageComposition.transformativeReaction;
+      if (
+        !goldenAggregateMatchesV142(
+          componentTotal,
+          event.finalDamage
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["damageComposition"],
+          message:
+            "Golden damage composition must sum to finalDamage"
+        });
+      }
+      if (event.displayDamage !== Math.round(event.finalDamage)) {
+        context.addIssue({
+          code: "custom",
+          path: ["displayDamage"],
+          message:
+            "Golden displayDamage must be the nearest integer finalDamage"
+        });
+      }
+    });
+
+const damageCurvePointGoldenV142Schema = z
+  .object({
+    damageEventId: z.number().int().nonnegative(),
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    sourceActorId: wireNonEmptyStringSchema,
+    creditOwnerId: wireNonEmptyStringSchema,
+    finalDamage: finiteNumber.nonnegative(),
+    cumulativeDamage: finiteNumber.nonnegative(),
+    cumulativeByCharacter: z.record(
+      wireNonEmptyStringSchema,
+      finiteNumber.nonnegative()
+    ),
+    cumulativeByComponent:
+      damageCompositionGoldenV142Schema,
+    cumulativeByReaction: z.record(
+      wireNonEmptyStringSchema,
+      finiteNumber.nonnegative()
+    )
+  })
+  .strict();
+
+const characterDamageSummaryGoldenV142Schema = z
+  .object({
+    characterId: wireNonEmptyStringSchema,
+    damage: finiteNumber.nonnegative(),
+    hits: z.number().int().nonnegative(),
+    dps: finiteNumber.nonnegative(),
+    share: finiteNumber.min(0).max(1)
+  })
+  .strict();
+
+const skillSummaryGoldenV142Schema = z
+  .object({
+    creditId: wireNonEmptyStringSchema,
+    actionName: wireNonEmptyStringSchema,
+    damage: finiteNumber.nonnegative(),
+    hits: z.number().int().nonnegative(),
+    dps: finiteNumber.nonnegative(),
+    share: finiteNumber.min(0).max(1)
+  })
+  .strict();
+
+const targetDamageSummaryGoldenV142Schema = z
+  .object({
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    damage: finiteNumber.nonnegative(),
+    potentialDamage: finiteNumber.nonnegative(),
+    damageEvents: z.number().int().nonnegative(),
+    landedChecks: z.number().int().nonnegative(),
+    missedChecks: z.number().int().nonnegative(),
+    immuneDamageEvents: z.number().int().nonnegative(),
+    dps: finiteNumber.nonnegative(),
+    share: finiteNumber.min(0).max(1)
+  })
+  .strict();
+
+const electroChargedGlobalCadenceGoldenScenarioV142Schema = z
+  .object({
+    identity: z
+      .object({
+        schemaVersion: z.literal(
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+        ),
+        engineVersion: z.literal(
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+        ),
+        dataVersion: wireNonEmptyStringSchema,
+        randomSeed: wireNonEmptyStringSchema,
+        configHash: fnv1a32ContentHashSchema,
+        reproducibilityKey: reproducibilityKeyV2Schema,
+        resolvedRuntimeOptions: z
+          .object({
+            energyMode: z.literal("configured"),
+            critMode: z.literal("noCrit"),
+            compatibilityMode: z.literal(
+              "legal-frame-v1"
+            ),
+            randomSeed: wireNonEmptyStringSchema
+          })
+          .strict()
+      })
+      .strict(),
+    configContract: z
+      .object({
+        duration: finiteNumber.positive(),
+        enemy: enemyProfileSchema,
+        reactionEngine: z
+          .object({ mode: z.literal("aura-v9") })
+          .strict(),
+        targetClockModel: z
+          .object({
+            mode: z.literal("target-local-hitlag-v1")
+          })
+          .strict(),
+        targetTaskModel: z
+          .object({ mode: z.literal("target-phase-v2") })
+          .strict(),
+        reactionDeliveryModel: z
+          .object({
+            mode: z.literal("deferred-event-heap-v1")
+          })
+          .strict(),
+        electroChargedPropagationModel: z
+          .object({ mode: z.literal("single-target-v1") })
+          .strict(),
+        timeline: z
+          .object({
+            mode: z.literal("legal-frame-v1"),
+            fps: z.literal(60)
+          })
+          .strict(),
+        enemyTargets: z
+          .array(resolvedEnemyTargetProfileSchema)
+          .min(1)
+      })
+      .strict(),
+    reactionTasks: reactionTaskLogSchema,
+    periodicElectroCharged: z.array(
+      electroChargedCleanupPeriodicLogEntrySchema
+    ),
+    reactionDamageLog: z.array(
+      electroChargedCleanupReactionDamageReferenceSchema
+    ),
+    damageEvents: z.array(
+      electroChargedGlobalCadenceDamageEventV142Schema
+    ),
+    hitResolutionLog: z.array(
+      targetTaskPhaseHitReferenceSchema
+    ),
+    damageCurve: z.array(
+      damageCurvePointGoldenV142Schema
+    ),
+    byCharacter: z.record(
+      wireNonEmptyStringSchema,
+      finiteNumber.nonnegative()
+    ),
+    characterSummaries: z.array(
+      characterDamageSummaryGoldenV142Schema
+    ),
+    bySkill: z.array(skillSummaryGoldenV142Schema),
+    targetSummaries: z.array(
+      targetDamageSummaryGoldenV142Schema
+    ),
+    targetStateTimeline: targetStateTimelineSchema,
+    targetClockAudit: targetClockAuditSchema,
+    targetClockLog: targetClockLogSchema,
+    targetHitlagLog: targetHitlagLogSchema,
+    targetTaskPhaseLog: targetTaskPhaseLogSchema,
+    targetPhaseLog: targetPhaseV2LogSchema,
+    auraInitialStates: z.array(goldenAuraBoundarySchema),
+    auraEndStates: z.array(goldenAuraBoundarySchema),
+    totals: z
+      .object({
+        totalDamage: finiteNumber.nonnegative(),
+        dps: finiteNumber.nonnegative(),
+        damageEventCount: z.number().int().nonnegative(),
+        reactedHits: z.number().int().nonnegative(),
+        skippedActionCount: z.number().int().nonnegative(),
+        componentTotals:
+          damageCompositionGoldenV142Schema,
+        displayDamageTotal: z.number().int().nonnegative()
+      })
+      .strict()
+  })
+  .strict()
+  .superRefine((scenario, context) => {
+    if (
+      scenario.identity.randomSeed !==
+      scenario.identity.resolvedRuntimeOptions.randomSeed
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["identity", "resolvedRuntimeOptions", "randomSeed"],
+        message:
+          "Golden runtime options must retain the exact scenario seed"
+      });
+    }
+
+    const projectedTimeline = {
+      ...scenario.configContract.timeline,
+      legalityMode: "strict" as const,
+      initialActiveCharacterId: "golden-projection",
+      swapFrames: 1,
+      abilities: [],
+      commands: []
+    };
+    const referenceResult = {
+      schemaVersion: scenario.identity.schemaVersion,
+      engineVersion: scenario.identity.engineVersion,
+      config: {
+        schemaVersion: scenario.identity.schemaVersion,
+        engineVersion: scenario.identity.engineVersion,
+        duration: scenario.configContract.duration,
+        enemy: scenario.configContract.enemy,
+        reactionEngine:
+          scenario.configContract.reactionEngine,
+        targetClockModel:
+          scenario.configContract.targetClockModel,
+        targetTaskModel:
+          scenario.configContract.targetTaskModel,
+        reactionDeliveryModel:
+          scenario.configContract.reactionDeliveryModel,
+        electroChargedPropagationModel:
+          scenario.configContract
+            .electroChargedPropagationModel,
+        timeline: projectedTimeline
+      },
+      enemyTargets: scenario.configContract.enemyTargets,
+      reactionTaskLog: scenario.reactionTasks,
+      periodicReactionLog:
+        scenario.periodicElectroCharged,
+      reactionDamageLog: scenario.reactionDamageLog,
+      damageEvents: scenario.damageEvents,
+      hitResolutionLog: scenario.hitResolutionLog,
+      targetStateTimeline: scenario.targetStateTimeline,
+      targetClockAudit: scenario.targetClockAudit,
+      targetClockLog: scenario.targetClockLog,
+      targetHitlagLog: scenario.targetHitlagLog,
+      targetTaskPhaseLog: scenario.targetTaskPhaseLog,
+      targetPhaseLog: scenario.targetPhaseLog
+    };
+    for (const [label, result] of [
+      [
+        "Electro-Charged cleanup",
+        electroChargedCleanupResultReferencesSchema.safeParse(
+          referenceResult
+        )
+      ],
+      [
+        "reaction delivery",
+        reactionDeliveryResultReferencesSchema.safeParse(
+          referenceResult
+        )
+      ],
+      [
+        "target task",
+        targetTaskPhaseResultReferencesSchema.safeParse(
+          referenceResult
+        )
+      ]
+    ] as const) {
+      if (!result.success) {
+        context.addIssue({
+          code: "custom",
+          path: ["reactionTasks"],
+          message:
+            `the 1.42 global-cadence Golden must satisfy the ${label} cross-log proof`
+        });
+      }
+    }
+
+    const damageTotal = scenario.damageEvents.reduce(
+      (sum, event) => sum + event.finalDamage,
+      0
+    );
+    const displayDamageTotal = scenario.damageEvents.reduce(
+      (sum, event) => sum + event.displayDamage,
+      0
+    );
+    const componentTotals = scenario.damageEvents.reduce(
+      (totals, event) => ({
+        direct:
+          totals.direct + event.damageComposition.direct,
+        additiveReaction:
+          totals.additiveReaction +
+          event.damageComposition.additiveReaction,
+        transformativeReaction:
+          totals.transformativeReaction +
+          event.damageComposition.transformativeReaction
+      }),
+      {
+        direct: 0,
+        additiveReaction: 0,
+        transformativeReaction: 0
+      }
+    );
+    const byCharacterTotal = Object.values(
+      scenario.byCharacter
+    ).reduce((sum, damage) => sum + damage, 0);
+    const characterSummaryTotal =
+      scenario.characterSummaries.reduce(
+        (sum, summary) => sum + summary.damage,
+        0
+      );
+    const skillTotal = scenario.bySkill.reduce(
+      (sum, summary) => sum + summary.damage,
+      0
+    );
+    const targetTotal = scenario.targetSummaries.reduce(
+      (sum, summary) => sum + summary.damage,
+      0
+    );
+    const finalCurvePoint = scenario.damageCurve.at(-1);
+    if (
+      scenario.totals.damageEventCount !==
+        scenario.damageEvents.length ||
+      !goldenAggregateMatchesV142(
+        scenario.totals.totalDamage,
+        damageTotal
+      ) ||
+      !goldenAggregateMatchesV142(
+        scenario.totals.dps *
+          scenario.configContract.duration,
+        scenario.totals.totalDamage
+      ) ||
+      scenario.totals.displayDamageTotal !==
+        displayDamageTotal ||
+      !goldenAggregateMatchesV142(
+        scenario.totals.componentTotals.direct,
+        componentTotals.direct
+      ) ||
+      !goldenAggregateMatchesV142(
+        scenario.totals.componentTotals.additiveReaction,
+        componentTotals.additiveReaction
+      ) ||
+      !goldenAggregateMatchesV142(
+        scenario.totals.componentTotals
+          .transformativeReaction,
+        componentTotals.transformativeReaction
+      ) ||
+      !goldenAggregateMatchesV142(
+        byCharacterTotal,
+        scenario.totals.totalDamage
+      ) ||
+      !goldenAggregateMatchesV142(
+        characterSummaryTotal,
+        scenario.totals.totalDamage
+      ) ||
+      !goldenAggregateMatchesV142(
+        skillTotal,
+        scenario.totals.totalDamage
+      ) ||
+      !goldenAggregateMatchesV142(
+        targetTotal,
+        scenario.totals.totalDamage
+      ) ||
+      finalCurvePoint === undefined ||
+      !goldenAggregateMatchesV142(
+        finalCurvePoint.cumulativeDamage,
+        scenario.totals.totalDamage
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["totals"],
+        message:
+          "the global-cadence Golden must reconcile every damage event, display integer, component, summary, DPS, and final curve point"
+      });
+    }
+  });
+
+const electroChargedGlobalCadenceCommonConfigV142Schema = z
+  .object({
+    schemaVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    ),
+    reactionEngine: z
+      .object({ mode: z.literal("aura-v9") })
+      .strict(),
+    targetClockModel: z
+      .object({
+        mode: z.literal("target-local-hitlag-v1")
+      })
+      .strict(),
+    targetTaskModel: z
+      .object({ mode: z.literal("target-phase-v2") })
+      .strict(),
+    reactionDeliveryModel: z
+      .object({
+        mode: z.literal("deferred-event-heap-v1")
+      })
+      .strict(),
+    electroChargedPropagationModel: z
+      .object({ mode: z.literal("single-target-v1") })
+      .strict(),
+    timeline: z
+      .object({
+        mode: z.literal("legal-frame-v1"),
+        fps: z.literal(60)
+      })
+      .strict()
+  })
+  .strict();
+
+const electroChargedGlobalCadenceScenarioRecordV142Schema =
+  z
+    .object({
+      longHitlagNoRestoreStop:
+        electroChargedGlobalCadenceGoldenScenarioV142Schema,
+      longHitlagRestoreF70Scheduled:
+        electroChargedGlobalCadenceGoldenScenarioV142Schema,
+      longHitlagRestoreF71Dormant:
+        electroChargedGlobalCadenceGoldenScenarioV142Schema,
+      longHitlagRestoreF5EndedBeforeDeadline:
+        electroChargedGlobalCadenceGoldenScenarioV142Schema,
+      pureEcHitlag120GlobalCadence:
+        electroChargedGlobalCadenceGoldenScenarioV142Schema
+    })
+    .strict();
+
+const electroChargedGlobalCadenceHashRecordV142Schema = z
+  .object({
+    longHitlagNoRestoreStop: z.literal(
+      "55a68ebbe1489118f65fbe65971a305555e5f290e1346e0aa65f40ff30233ded"
+    ),
+    longHitlagRestoreF70Scheduled: z.literal(
+      "51bb2eab7144cfa26606619a207e6f715414b91e5a83da861cdea1a733837739"
+    ),
+    longHitlagRestoreF71Dormant: z.literal(
+      "6bc26c97ffcfe564fdc5bdddb4bd9cbb41a6098056ab7aa6d62daf1206666928"
+    ),
+    longHitlagRestoreF5EndedBeforeDeadline: z.literal(
+      "8254b5f3942dd430511ef816a4457f704ecea813b02a99efc258ab8e25426364"
+    ),
+    pureEcHitlag120GlobalCadence: z.literal(
+      "dddc32e7dde2a57d9575fef956a20db5ded91352e1ccbb0494fb7b4b183a19d1"
+    )
+  })
+  .strict();
+
+export const electroChargedGlobalCadenceGoldenFixtureV142Schema =
+  z.preprocess(
+    rejectNonPlainJsonWire(
+      "electroChargedGlobalCadenceGoldenFixtureV142"
+    ),
+    z
+      .object({
+        fixtureVersion: z.literal(
+          "electro-charged-global-cadence-1.42"
+        ),
+        description: wireNonEmptyStringSchema,
+        provenance: z
+          .object({
+            referenceProject: z.literal(
+              "genshinsim/gcsim"
+            ),
+            referenceCommit: z.literal(
+              "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+            ),
+            mechanicsDataStatus: z.literal(
+              "fixed-gcsim-provisional"
+            ),
+            capturedAt: z.literal("2026-07-30"),
+            notes: z.array(wireNonEmptyStringSchema).min(3)
+          })
+          .strict(),
+        commonConfig:
+          electroChargedGlobalCadenceCommonConfigV142Schema,
+        scenarios:
+          electroChargedGlobalCadenceScenarioRecordV142Schema,
+        hashes:
+          electroChargedGlobalCadenceHashRecordV142Schema
+      })
+      .strict()
+      .superRefine((fixture, context) => {
+        for (const [scenarioId, scenario] of Object.entries(
+          fixture.scenarios
+        )) {
+          if (
+            scenario.identity.schemaVersion !==
+              fixture.commonConfig.schemaVersion ||
+            scenario.identity.engineVersion !==
+              fixture.commonConfig.engineVersion ||
+            JSON.stringify(
+              scenario.configContract.reactionEngine
+            ) !==
+              JSON.stringify(
+                fixture.commonConfig.reactionEngine
+              ) ||
+            JSON.stringify(
+              scenario.configContract.targetClockModel
+            ) !==
+              JSON.stringify(
+                fixture.commonConfig.targetClockModel
+              ) ||
+            JSON.stringify(
+              scenario.configContract.targetTaskModel
+            ) !==
+              JSON.stringify(
+                fixture.commonConfig.targetTaskModel
+              ) ||
+            JSON.stringify(
+              scenario.configContract.reactionDeliveryModel
+            ) !==
+              JSON.stringify(
+                fixture.commonConfig.reactionDeliveryModel
+              ) ||
+            JSON.stringify(
+              scenario.configContract
+                .electroChargedPropagationModel
+            ) !==
+              JSON.stringify(
+                fixture.commonConfig
+                  .electroChargedPropagationModel
+              ) ||
+            JSON.stringify(
+              scenario.configContract.timeline
+            ) !==
+              JSON.stringify(fixture.commonConfig.timeline)
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["scenarios", scenarioId, "configContract"],
+              message:
+                "every global-cadence scenario must exactly match the frozen 1.42 common config contract"
+            });
+          }
+        }
+      })
+  );
+
 /**
  * Strict player-reaction-damage output boundary plus cross-log integrity.
  *
@@ -24908,7 +26702,8 @@ export const playerDamageResultReferencesSchema = z
         event.reactionAudit.transformativeReactions !== undefined &&
         result.config.reactionEngine?.mode !== "aura-v6" &&
         result.config.reactionEngine?.mode !== "aura-v7" &&
-        result.config.reactionEngine?.mode !== "aura-v8"
+        result.config.reactionEngine?.mode !== "aura-v8" &&
+        result.config.reactionEngine?.mode !== "aura-v9"
       ) {
         issue(
           [
@@ -24917,7 +26712,7 @@ export const playerDamageResultReferencesSchema = z
             "reactionAudit",
             "transformativeReactions"
           ],
-          "ordered transformative-reaction arrays require reactionEngine.mode aura-v6, aura-v7, or aura-v8"
+          "ordered transformative-reaction arrays require reactionEngine.mode aura-v6 through aura-v9"
         );
       }
       const burningStatus =
@@ -26160,6 +27955,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]: {
     engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v8
+  },
+  [EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION]: {
+    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v8
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -26241,6 +28040,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   const version = input.schemaVersion;
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     "electroChargedPropagationModel" in input
   ) {
     const historicalVersion =
@@ -26253,7 +28053,10 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       [issue]
     );
   }
-  if (version === CURRENT_SCHEMA_VERSION) {
+  if (
+    version === CURRENT_SCHEMA_VERSION ||
+    version === EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
+  ) {
     if (
       !Object.prototype.hasOwnProperty.call(
         input,
@@ -26261,7 +28064,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       )
     ) {
       const issue =
-        `electroChargedPropagationModel: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit own Electro-Charged propagation model`;
+        `electroChargedPropagationModel: schemaVersion "${String(version)}" requires an explicit own Electro-Charged propagation model`;
       throw new ConfigMigrationError(
         `配置校验失败：\n- ${issue}`,
         [issue]
@@ -26275,7 +28078,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       )
     ) {
       const issue =
-        `electroChargedPropagationModel.mode: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit own discriminator`;
+        `electroChargedPropagationModel.mode: schemaVersion "${String(version)}" requires an explicit own discriminator`;
       throw new ConfigMigrationError(
         `配置校验失败：\n- ${issue}`,
         [issue]
@@ -26290,7 +28093,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         (entry) => `electroChargedPropagationModel.${entry}`
       );
       const issue =
-        `electroChargedPropagationModel: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit single-target-v1 or provisional nearby-wet-radius-v1 model`;
+        `electroChargedPropagationModel: schemaVersion "${String(version)}" requires an explicit single-target-v1 or provisional nearby-wet-radius-v1 model`;
       throw new ConfigMigrationError(
         `配置校验失败：\n- ${issue}${details.length > 0 ? `\n${details.map((entry) => `- ${entry}`).join("\n")}` : ""}`,
         [issue, ...details]
@@ -26299,6 +28102,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     "reactionDeliveryModel" in input
@@ -26315,6 +28119,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version === CURRENT_SCHEMA_VERSION ||
+    version === EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
     version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
     version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION
   ) {
@@ -26400,6 +28205,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
     version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
     version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
     version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
@@ -26421,6 +28227,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== DENDRO_CORE_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
@@ -26446,6 +28253,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
     version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
@@ -26468,6 +28276,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
@@ -26488,6 +28297,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v8"
@@ -26504,6 +28314,22 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    isRecord(input.reactionEngine) &&
+    input.reactionEngine.mode === "aura-v9"
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionEngine.mode: schemaVersion "${historicalVersion}" does not support "aura-v9"`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
@@ -26532,6 +28358,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
@@ -26584,7 +28411,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (
     (version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
       version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
-      version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION) &&
+      version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      version === EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION) &&
     !historicalTargetTaskModelIsLegacy &&
     !historicalTargetTaskModelIsV1 &&
     !historicalTargetTaskModelIsV2
@@ -26598,6 +28426,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
     version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
@@ -26625,15 +28454,24 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
   }
+  if (typeof version === "string") {
+    validateHistoricalSchemaContract(input, version);
+  }
+  if (
+    version === EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
+  ) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  }
   input = {
     ...input,
     electroChargedPropagationModel: {
       mode: "single-target-v1"
     }
   };
-  if (typeof version === "string") {
-    validateHistoricalSchemaContract(input, version);
-  }
   if (version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION) {
     return parseSimConfig({
       ...input,

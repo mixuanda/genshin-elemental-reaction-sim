@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import {
   canonicalStringify,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   QUICKEN_BLOOM_TASK_ENGINE_VERSION,
@@ -573,9 +575,10 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
     expect(
       Object.values(vectors).every(
         (vector) =>
-          vector.version.schemaVersion === "1.41.0" &&
+          vector.version.schemaVersion ===
+            CURRENT_SCHEMA_VERSION &&
           vector.version.engineVersion ===
-            "1.41.0-ec-secondary-wet-propagation"
+            CURRENT_ENGINE_VERSION
       )
     ).toBe(true);
 

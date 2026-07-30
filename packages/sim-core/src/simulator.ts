@@ -1355,6 +1355,24 @@ function simulateConfig(
     config.targetTaskModel.mode === "target-phase-v1";
   const targetPhaseV2Enabled =
     config.targetTaskModel.mode === "target-phase-v2";
+  const auraV9Enabled = config.reactionEngine?.mode === "aura-v9";
+  const electroChargedV9Fields = (
+    cadenceStatus: "scheduled" | "dormant" | "stopped" | undefined,
+    waneListenerActive: boolean | undefined,
+  ):
+    | {
+        cadenceStatus: "scheduled" | "dormant" | "stopped";
+        waneListenerActive: boolean;
+      }
+    | Record<string, never> => {
+    if (!auraV9Enabled) return {};
+    if (cadenceStatus === undefined || waneListenerActive === undefined) {
+      throw new Error(
+        "Aura-v9 Electro-Charged output is missing global-cadence state.",
+      );
+    }
+    return { cadenceStatus, waneListenerActive };
+  };
   const recursiveShatterDeliveryEnabled =
     config.reactionDeliveryModel.mode ===
     "shatter-recursive-zero-delay-v1";
@@ -1625,7 +1643,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v5" ||
     config.reactionEngine?.mode === "aura-v6" ||
     config.reactionEngine?.mode === "aura-v7" ||
-    config.reactionEngine?.mode === "aura-v8"
+    config.reactionEngine?.mode === "aura-v8" ||
+    config.reactionEngine?.mode === "aura-v9"
       ? new Map(
           enemyTargets.map((target) => [
             target.id,
@@ -2562,6 +2581,49 @@ function simulateConfig(
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
   const reactionTaskLog: SimulationResult["reactionTaskLog"] = [];
+  const syncPendingElectroChargedCleanupCadence = ({
+    targetId,
+    generation,
+    cadenceStatus,
+    nextTickFrame,
+    waneListenerActive,
+    lastCallbackFrame,
+  }: {
+    targetId: string;
+    generation: number;
+    cadenceStatus: "scheduled" | "dormant" | "stopped" | undefined;
+    nextTickFrame: number | null;
+    waneListenerActive: boolean | undefined;
+    lastCallbackFrame: number | null | undefined;
+  }): void => {
+    if (!auraV9Enabled) return;
+    if (
+      cadenceStatus === undefined ||
+      waneListenerActive === undefined ||
+      lastCallbackFrame === undefined
+    ) {
+      throw new Error(
+        `Aura-v9 generation ${generation} is missing cadence state while synchronizing pending cleanup.`,
+      );
+    }
+    for (const task of reactionTaskLog) {
+      const cleanup = task.electroChargedCleanup;
+      if (
+        task.targetId !== targetId ||
+        cleanup === null ||
+        cleanup.outcome !== "pending-at-end" ||
+        cleanup.generation !== generation
+      ) {
+        continue;
+      }
+      cleanup.cadence = {
+        status: cadenceStatus,
+        nextTickFrame: cadenceStatus === "scheduled" ? nextTickFrame : null,
+        waneListenerActive,
+        lastCallbackFrame,
+      };
+    }
+  };
   const reactionStatusLog: SimulationResult["reactionStatusLog"] = [];
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
@@ -2946,6 +3008,23 @@ function simulateConfig(
       expiryFrame,
       enemyTargetOrderById.get(targetId) ?? 0
     );
+  };
+
+  const scheduleElectroChargedGlobalCadence = (
+    targetId: string,
+    generation: number,
+    operation: "start" | "refresh",
+    nextTickFrame: number | null,
+  ): void => {
+    if (!auraV9Enabled || operation !== "start" || nextTickFrame === null) {
+      return;
+    }
+    push(nextTickFrame / 60, "periodicReactionTick", {
+      targetId,
+      generation,
+      tickIndex: 1,
+      firstTick: false,
+    } satisfies PeriodicReactionTickEventPayload);
   };
 
   const scheduleElectroChargedCleanup = ({
@@ -4639,7 +4718,8 @@ function simulateConfig(
     const quicken = audit.catalyzeReaction?.quicken;
     if (
       (config.reactionEngine?.mode !== "aura-v7" &&
-        config.reactionEngine?.mode !== "aura-v8") ||
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9") ||
       quicken?.pendingHydroBloomFollowup !== true
     ) {
       return;
@@ -6021,7 +6101,11 @@ function simulateConfig(
         nextTickFrame: null,
         coexistenceExpiresAtFrame: null,
         waneFrame: null,
-        reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+        reason: "COEXISTING_AURA_REMOVED_BY_HIT",
+        ...electroChargedV9Fields(
+          periodicReaction.cadenceStatus,
+          periodicReaction.waneListenerActive
+        )
       });
       const activeSource =
         activePeriodicReactionSources.get(targetId);
@@ -6099,7 +6183,11 @@ function simulateConfig(
       coexistenceExpiresAtFrame:
         periodicReaction.coexistenceExpiresAtFrame,
       waneFrame: null,
-      reason: null
+      reason: null,
+      ...electroChargedV9Fields(
+        periodicReaction.cadenceStatus,
+        periodicReaction.waneListenerActive
+      )
     });
     schedulePeriodicReactionExpiry(
       targetId,
@@ -6119,6 +6207,12 @@ function simulateConfig(
         } satisfies PeriodicReactionTickEventPayload
       );
     }
+    scheduleElectroChargedGlobalCadence(
+      targetId,
+      periodicReaction.generation,
+      periodicReaction.operation,
+      periodicReaction.nextTickFrame,
+    );
   };
 
   const addBuff = (
@@ -6903,7 +6997,8 @@ function simulateConfig(
       (config.reactionEngine?.mode !== "aura-v5" &&
         config.reactionEngine?.mode !== "aura-v6" &&
         config.reactionEngine?.mode !== "aura-v7" &&
-        config.reactionEngine?.mode !== "aura-v8") ||
+        config.reactionEngine?.mode !== "aura-v8" &&
+        config.reactionEngine?.mode !== "aura-v9") ||
       (element !== "pyro" && element !== "electro") ||
       application === undefined ||
       application.gaugeUnits <= 0
@@ -7096,7 +7191,8 @@ function simulateConfig(
       config.reactionEngine?.mode === "aura-v5" ||
       config.reactionEngine?.mode === "aura-v6" ||
       config.reactionEngine?.mode === "aura-v7" ||
-      config.reactionEngine?.mode === "aura-v8"
+      config.reactionEngine?.mode === "aura-v8" ||
+      config.reactionEngine?.mode === "aura-v9"
     ) {
       processDendroCoreContacts({
         actorId,
@@ -7645,7 +7741,19 @@ function simulateConfig(
               resolvedTargetFrame: null,
               targetPhaseLogId: null,
               periodicReactionLogId: null,
-              targetStateTimelinePointId: null
+              targetStateTimelinePointId: null,
+              ...(auraV9Enabled
+                ? {
+                    cadence: (() => {
+                      if (armedCleanup.cadence === undefined) {
+                        throw new Error(
+                          `Aura-v9 EC cleanup arm for reaction task ${reactionTaskLogId} is missing cadence state.`
+                        );
+                      }
+                      return deepClone(armedCleanup.cadence);
+                    })()
+                  }
+                : {})
             };
       if (armedCleanup !== null) {
         if (
@@ -8992,9 +9100,19 @@ function simulateConfig(
           );
         }
         const source = activePeriodicReactionSources.get(targetId);
-        let outcome: "stop" | "retain" | "superseded" | "natural-expiry";
+        let outcome:
+          | "stop"
+          | "retain"
+          | "superseded"
+          | "natural-expiry"
+          | "ended-before-deadline";
         let periodicReactionLogId: number | null = null;
         let targetStateTimelinePointId: number | null = null;
+        if (auraV9Enabled && cleanupResult.cadence === undefined) {
+          throw new Error(
+            `Aura-v9 EC cleanup for reaction task ${originReactionTaskId} is missing cadence state.`,
+          );
+        }
         if (cleanupResult.outcome === "stopped") {
           if (
             cleanupResult.reason !==
@@ -9030,7 +9148,13 @@ function simulateConfig(
             nextTickFrame: null,
             coexistenceExpiresAtFrame: null,
             waneFrame: null,
-            reason: "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+            reason: "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM",
+            ...electroChargedV9Fields(
+              cleanupResult.cadence?.status === "superseded"
+                ? undefined
+                : cleanupResult.cadence?.status,
+              cleanupResult.cadence?.waneListenerActive
+            )
           });
           activePeriodicReactionSources.delete(targetId);
         } else if (cleanupResult.outcome === "retained") {
@@ -9055,6 +9179,44 @@ function simulateConfig(
             );
           }
           outcome = "superseded";
+        } else if (cleanupResult.outcome === "ended-before-deadline") {
+          if (
+            !auraV9Enabled ||
+            cleanupResult.reason !==
+              "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP" ||
+            cleanupResult.nextTickFrame !== null ||
+            source !== undefined
+          ) {
+            throw new Error(
+              `Aura-v9 EC cleanup ended-before-deadline for reaction task ${originReactionTaskId} has inconsistent stream ownership.`,
+            );
+          }
+          const terminalMatches = periodicReactionLog.filter(
+            (entry) =>
+              entry.reaction === "electroCharged" &&
+              entry.generation === cleanupResult.generation &&
+              entry.targetId === targetId &&
+              entry.frame < event.frame &&
+              entry.nextTickFrame === null &&
+              (entry.operation === "wane" || entry.operation === "stop"),
+          );
+          const terminal = terminalMatches.at(-1);
+          if (terminal === undefined) {
+            throw new Error(
+              `Aura-v9 EC cleanup ended-before-deadline for reaction task ${originReactionTaskId} cannot find its terminal periodic row.`,
+            );
+          }
+          if (
+            terminal.reactionTaskLogId !== undefined &&
+            terminal.reactionTaskLogId !== originReactionTaskId
+          ) {
+            throw new Error(
+              `Aura-v9 EC cleanup terminal row ${terminal.id} already belongs to another reaction task.`,
+            );
+          }
+          terminal.reactionTaskLogId = originReactionTaskId;
+          outcome = "ended-before-deadline";
+          periodicReactionLogId = terminal.id;
         } else if (cleanupResult.outcome === "natural-expiry") {
           if (
             cleanupResult.reason !== "AURA_DECAY_EXPIRED_BEFORE_CLEANUP" ||
@@ -9155,6 +9317,7 @@ function simulateConfig(
             reactions: ["electroCharged"],
             primaryDamageEventId: null,
             links:
+              (outcome !== "stop" && outcome !== "ended-before-deadline") ||
               periodicReactionLogId === null
                 ? []
                 : [
@@ -9180,7 +9343,9 @@ function simulateConfig(
         };
         appendTargetPhaseV2Transition(
           targetPhaseV2State,
-          outcome === "stop" || outcome === "natural-expiry"
+          outcome === "stop" ||
+            outcome === "natural-expiry" ||
+            outcome === "ended-before-deadline"
             ? {
                 ...cleanupTransitionBase,
                 outcome,
@@ -9225,7 +9390,12 @@ function simulateConfig(
           resolvedTargetFrame,
           targetPhaseLogId,
           periodicReactionLogId,
-          targetStateTimelinePointId
+          targetStateTimelinePointId,
+          ...(auraV9Enabled
+            ? {
+                cadence: deepClone(cleanupResult.cadence!)
+              }
+            : {})
         };
         reactionTask.electroChargedCleanup =
           outcome === "stop"
@@ -9249,12 +9419,20 @@ function simulateConfig(
                     resolutionReason: "ELECTRO_CHARGED_GENERATION_SUPERSEDED",
                     periodicReactionLogId: null
                   }
-                : {
-                    ...resolvedBase,
-                    outcome,
-                    resolutionReason: "AURA_DECAY_EXPIRED_BEFORE_CLEANUP",
-                    periodicReactionLogId: periodicReactionLogId!
-                  };
+                : outcome === "natural-expiry"
+                  ? {
+                      ...resolvedBase,
+                      outcome,
+                      resolutionReason: "AURA_DECAY_EXPIRED_BEFORE_CLEANUP",
+                      periodicReactionLogId: periodicReactionLogId!
+                    }
+                  : {
+                      ...resolvedBase,
+                      outcome,
+                      resolutionReason:
+                        "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP",
+                      periodicReactionLogId: periodicReactionLogId!
+                    };
         if (originReactionTaskId === reactionTaskLogId) {
           resolvedWakeTask = true;
         }
@@ -9354,7 +9532,11 @@ function simulateConfig(
         nextTickFrame: null,
         coexistenceExpiresAtFrame: null,
         waneFrame: null,
-        reason: result.reason
+        reason: result.reason,
+        ...electroChargedV9Fields(
+          result.cadenceStatus,
+          result.waneListenerActive
+        )
       });
       if (targetPhaseV2State !== null) {
         appendTargetPhaseV2Transition(
@@ -9990,9 +10172,15 @@ function simulateConfig(
       let coexistenceExpiresAtFrame: number | null;
       let waneEligible = true;
       let tickReason: string | null = null;
+      let cadenceStatus: "scheduled" | "dormant" | "stopped" | undefined;
+      let waneListenerActive: boolean | undefined;
       if (firstTick) {
         source = pinnedSource;
-        const auraState = auraEngine.getAuraStateAt(event.frame);
+        const firstDamageState = auraV9Enabled
+          ? auraEngine.prepareElectroChargedFirstDamage(event.frame, generation)
+          : null;
+        const auraState =
+          firstDamageState?.auraAfter ?? auraEngine.getAuraStateAt(event.frame);
         auraBefore = auraState;
         auraAfter = deepClone(auraState);
         targetStateTimelineRecorder.recordEvent({
@@ -10025,10 +10213,11 @@ function simulateConfig(
         const coexistencePresent =
           auraState.some((aura) => aura.element === "hydro") &&
           auraState.some((aura) => aura.element === "electro");
-        const streamContinues =
-          activeSource?.generation === generation && coexistencePresent;
+        const streamOwnsGeneration = activeSource?.generation === generation;
+        const streamContinues = streamOwnsGeneration && coexistencePresent;
         const cleanupPending =
-          config.reactionEngine?.mode === "aura-v8" &&
+          (config.reactionEngine?.mode === "aura-v8" ||
+            config.reactionEngine?.mode === "aura-v9") &&
           activeSource?.generation === generation &&
           reactionTaskLog.some(
             (task) =>
@@ -10036,15 +10225,22 @@ function simulateConfig(
               task.electroChargedCleanup?.outcome === "pending-at-end" &&
               task.electroChargedCleanup.generation === generation
           );
-        nextTickFrame = streamContinues
-          ? event.frame +
-            AURA_ENGINE_CONSTANTS.electroChargedTickIntervalFrames
-          : null;
+        nextTickFrame = auraV9Enabled
+          ? streamOwnsGeneration
+            ? (firstDamageState?.nextTickFrame ?? null)
+            : null
+          : streamContinues
+            ? event.frame +
+              AURA_ENGINE_CONSTANTS.electroChargedTickIntervalFrames
+            : null;
         // A pinned first tick may outlive its original stream. It must never
         // wane a replacement generation in aura-v8. Historical Aura modes
         // retain their frozen coexistence-only Wane contract.
-        waneEligible =
-          config.reactionEngine?.mode === "aura-v8"
+        waneEligible = auraV9Enabled
+          ? streamOwnsGeneration &&
+            coexistencePresent &&
+            firstDamageState?.waneListenerActive === true
+          : config.reactionEngine?.mode === "aura-v8"
             ? streamContinues
             : coexistencePresent;
         tickReason = streamContinues
@@ -10067,6 +10263,26 @@ function simulateConfig(
               .filter((frame): frame is number => frame !== null)
               .sort((left, right) => left - right)[0] ?? null)
           : null;
+        cadenceStatus = auraV9Enabled
+          ? streamOwnsGeneration
+            ? firstDamageState?.cadenceStatus
+            : "stopped"
+          : undefined;
+        waneListenerActive = auraV9Enabled
+          ? streamOwnsGeneration
+            ? firstDamageState?.waneListenerActive
+            : false
+          : undefined;
+        if (auraV9Enabled && streamOwnsGeneration) {
+          syncPendingElectroChargedCleanupCadence({
+            targetId,
+            generation,
+            cadenceStatus: firstDamageState?.cadenceStatus,
+            nextTickFrame,
+            waneListenerActive: firstDamageState?.waneListenerActive,
+            lastCallbackFrame: firstDamageState?.lastCallbackFrame,
+          });
+        }
       } else {
         const activeSource =
           activePeriodicReactionSources.get(targetId);
@@ -10080,6 +10296,16 @@ function simulateConfig(
           event.frame,
           generation
         );
+        if (auraV9Enabled && prepared.operation !== "stale") {
+          syncPendingElectroChargedCleanupCadence({
+            targetId,
+            generation,
+            cadenceStatus: prepared.cadenceStatus,
+            nextTickFrame: prepared.nextTickFrame,
+            waneListenerActive: prepared.waneListenerActive,
+            lastCallbackFrame: prepared.lastCallbackFrame,
+          });
+        }
         targetStateTimelineRecorder.recordEvent({
           frame: event.frame,
           timeSeconds,
@@ -10129,11 +10355,44 @@ function simulateConfig(
             nextTickFrame: null,
             coexistenceExpiresAtFrame: null,
             waneFrame: null,
-            reason: prepared.reason
+            reason: prepared.reason,
+            ...electroChargedV9Fields(
+              prepared.cadenceStatus,
+              prepared.waneListenerActive
+            )
           });
           if (activeSource?.generation === generation) {
             activePeriodicReactionSources.delete(targetId);
           }
+          continue;
+        }
+        if (prepared.operation === "tick-skipped") {
+          periodicReactionLog.push({
+            id: periodicReactionLog.length,
+            reaction: "electroCharged",
+            generation,
+            operation: "tick-skipped",
+            frame: event.frame,
+            timeSeconds,
+            targetId,
+            targetName: target.name,
+            sourceActorId: activeSource.actorId,
+            triggerDamageEventId: activeSource.triggerDamageEventId,
+            reactionDamageLogId: null,
+            damageEventId: null,
+            tickIndex,
+            auraBefore: prepared.auraBefore,
+            auraConsumed: prepared.auraConsumed,
+            auraAfter: prepared.auraAfter,
+            nextTickFrame: null,
+            coexistenceExpiresAtFrame: null,
+            waneFrame: null,
+            reason: prepared.reason,
+            ...electroChargedV9Fields(
+              prepared.cadenceStatus,
+              prepared.waneListenerActive,
+            ),
+          });
           continue;
         }
         source = activeSource;
@@ -10142,6 +10401,13 @@ function simulateConfig(
         nextTickFrame = prepared.nextTickFrame;
         coexistenceExpiresAtFrame =
           prepared.coexistenceExpiresAtFrame;
+        tickReason = prepared.reason;
+        cadenceStatus = prepared.cadenceStatus;
+        waneListenerActive =
+          prepared.waneListenerActive;
+        waneEligible = auraV9Enabled
+          ? prepared.waneListenerActive === true
+          : true;
       }
       if (!source) continue;
 
@@ -10166,7 +10432,11 @@ function simulateConfig(
         nextTickFrame,
         coexistenceExpiresAtFrame,
         waneFrame: null,
-        reason: tickReason
+        reason: tickReason,
+        ...electroChargedV9Fields(
+          cadenceStatus,
+          waneListenerActive
+        )
       });
       scheduleElectroChargedDamage({
         frame: event.frame,
@@ -10178,7 +10448,7 @@ function simulateConfig(
         nextTickFrame,
         waneEligible
       });
-      if (nextTickFrame !== null) {
+      if (nextTickFrame !== null && !(auraV9Enabled && firstTick)) {
         push(nextTickFrame / 60, "periodicReactionTick", {
           targetId,
           generation,
@@ -10207,7 +10477,8 @@ function simulateConfig(
         damageApplied
       } = event.payload as PeriodicReactionWaneEventPayload;
       const generationBoundWane =
-        config.reactionEngine?.mode === "aura-v8";
+        config.reactionEngine?.mode === "aura-v8" ||
+        config.reactionEngine?.mode === "aura-v9";
       if (generationBoundWane) {
         const activeSource =
           activePeriodicReactionSources.get(targetId);
@@ -10239,6 +10510,16 @@ function simulateConfig(
         result.operation === "stale"
       ) {
         continue;
+      }
+      if (auraV9Enabled) {
+        syncPendingElectroChargedCleanupCadence({
+          targetId,
+          generation,
+          cadenceStatus: result.cadenceStatus,
+          nextTickFrame: result.nextTickFrame,
+          waneListenerActive: result.waneListenerActive,
+          lastCallbackFrame: result.lastCallbackFrame,
+        });
       }
       targetStateTimelineRecorder.recordEvent({
         frame: event.frame,
@@ -10289,7 +10570,11 @@ function simulateConfig(
         coexistenceExpiresAtFrame:
           result.coexistenceExpiresAtFrame,
         waneFrame: event.frame,
-        reason: result.reason
+        reason: result.reason,
+        ...electroChargedV9Fields(
+          result.cadenceStatus,
+          result.waneListenerActive
+        )
       });
       if (
         result.operation === "stop" ||
@@ -12026,7 +12311,8 @@ function simulateConfig(
         config.reactionEngine?.mode === "aura-v5" ||
         config.reactionEngine?.mode === "aura-v6" ||
         config.reactionEngine?.mode === "aura-v7" ||
-        config.reactionEngine?.mode === "aura-v8"
+        config.reactionEngine?.mode === "aura-v8" ||
+        config.reactionEngine?.mode === "aura-v9"
       ) {
         processDendroCoreContacts({
           actorId,
@@ -12073,14 +12359,17 @@ function simulateConfig(
           periodicReactionLog[
             periodicContext.periodicReactionLogId
           ];
+        const shouldScheduleWane =
+          periodicContext.waneEligible &&
+          (!auraV9Enabled || periodicActualDamage > 0);
         if (periodicLog !== undefined) {
           periodicLog.damageEventId = periodicDamageEventId;
-          periodicLog.waneFrame = periodicContext.waneEligible
+          periodicLog.waneFrame = shouldScheduleWane
             ? event.frame +
               AURA_ENGINE_CONSTANTS.electroChargedWaneDelayFrames
             : null;
         }
-        if (periodicContext.waneEligible) {
+        if (shouldScheduleWane) {
           if (triggerDamageEventId === null) {
             throw new Error(
               "Periodic reaction damage requires a trigger damage event."
@@ -13346,7 +13635,11 @@ function simulateConfig(
           nextTickFrame: null,
           coexistenceExpiresAtFrame: null,
           waneFrame: null,
-          reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+          reason: "COEXISTING_AURA_REMOVED_BY_HIT",
+          ...electroChargedV9Fields(
+            periodicReaction.cadenceStatus,
+            periodicReaction.waneListenerActive
+          )
         });
         const activeSource =
           activePeriodicReactionSources.get(targetId);
@@ -13425,7 +13718,11 @@ function simulateConfig(
           coexistenceExpiresAtFrame:
             periodicReaction.coexistenceExpiresAtFrame,
           waneFrame: null,
-          reason: null
+          reason: null,
+          ...electroChargedV9Fields(
+            periodicReaction.cadenceStatus,
+            periodicReaction.waneListenerActive
+          )
         });
         schedulePeriodicReactionExpiry(
           targetId,
@@ -13445,6 +13742,12 @@ function simulateConfig(
             } satisfies PeriodicReactionTickEventPayload
           );
         }
+        scheduleElectroChargedGlobalCadence(
+          targetId,
+          periodicReaction.generation,
+          periodicReaction.operation,
+          periodicReaction.nextTickFrame
+        );
       }
     }
     }
@@ -13718,7 +14021,10 @@ function simulateConfig(
       );
     }
   }
-  if (config.reactionEngine?.mode === "aura-v8") {
+  if (
+    config.reactionEngine?.mode === "aura-v8" ||
+    config.reactionEngine?.mode === "aura-v9"
+  ) {
     for (const target of enemyTargets) {
       const auraEngine = auraEngines?.get(target.id);
       if (auraEngine === undefined) {
@@ -14156,7 +14462,20 @@ function simulateConfig(
         }
       : {})
   });
-  if (config.reactionEngine?.mode === "aura-v8") {
+  const hasElectroChargedCleanupAudit =
+    simulationResult.reactionTaskLog.some(
+      (task) => task.electroChargedCleanup !== null
+    );
+  const hasElectroChargedPeriodicRows =
+    simulationResult.periodicReactionLog.some(
+      (event) => event.reaction === "electroCharged"
+    );
+  if (
+    (config.reactionEngine?.mode === "aura-v8" ||
+      config.reactionEngine?.mode === "aura-v9") &&
+    (hasElectroChargedCleanupAudit ||
+      hasElectroChargedPeriodicRows)
+  ) {
     electroChargedCleanupResultReferencesSchema.parse(simulationResult);
   }
   if (targetPhaseV2Enabled) {
@@ -14215,7 +14534,8 @@ function simulateConfig(
     config.reactionEngine?.mode === "aura-v5" ||
     config.reactionEngine?.mode === "aura-v6" ||
     config.reactionEngine?.mode === "aura-v7" ||
-    config.reactionEngine?.mode === "aura-v8";
+    config.reactionEngine?.mode === "aura-v8" ||
+    config.reactionEngine?.mode === "aura-v9";
   if (dendroCoreOutputEnabled) {
     dendroCoreResultReferencesSchema.parse(simulationResult);
   } else {

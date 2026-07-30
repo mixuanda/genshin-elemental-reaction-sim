@@ -7,6 +7,7 @@ import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   dendroCoreResultReferencesSchema,
+  electroChargedCleanupResultReferencesSchema,
   parseSimulationRunManifestForConfig,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
@@ -15,6 +16,7 @@ import {
   playerDamageResultReferencesSchema,
   simConfigSchema,
   simulationRunManifestSchema,
+  targetPhaseV2ResultReferencesSchema,
   targetStateTimelineSchema,
   type Element,
   type EnemyElementalResistances,
@@ -1283,6 +1285,39 @@ const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
   }
 } as const satisfies Record<string, MatrixScenario>;
 
+const CLASSIC_REACTION_CLASS_COUNT = 16;
+const AURA_V9_CLASSIC_MATRIX_DIGEST =
+  "31d24feedf7aa283b687075c16634a2ba9bf2898c37173d0789e56e8f66781cb";
+
+function makeAuraV9MatrixConfig(
+  scenarioId: string,
+  scenario: MatrixScenario
+): SimConfig {
+  const config = makeMatrixConfig(scenarioId, scenario);
+  return {
+    ...config,
+    meta: {
+      ...config.meta,
+      name: `Reaction matrix 1.42 · ${scenarioId}`,
+      version: "1.42.0",
+      verificationStatus: "provisional",
+      note:
+        `Exact 1.42 aura-v9 classic-reaction release gate; ` +
+        `fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; ` +
+        "not official game truth and does not cover Lunar reactions."
+    },
+    reactionEngine: {
+      mode: "aura-v9"
+    },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    },
+    targetTaskModel: {
+      mode: "target-phase-v2"
+    }
+  };
+}
+
 const EXPECTED_V7_BURNING_PROJECTION_DAMAGE_EVENT_IDS: Partial<
   Record<ScenarioId, readonly number[]>
 > = {
@@ -2178,5 +2213,140 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         matrixV135Golden.vectors as Record<string, unknown>
       )
     );
+  });
+});
+
+describe("1.42 aura-v9 classic reaction release gate", () => {
+  it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.42.0");
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.42.0-ec-global-cadence-safety"
+    );
+    expect(REQUIRED_REACTIONS).toHaveLength(24);
+
+    const scenarios = [
+      ...Object.entries(SCENARIOS),
+      ...Object.entries(SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS)
+    ] as [string, MatrixScenario][];
+    expect(scenarios).toHaveLength(24);
+
+    const observedReactions = new Set<ReactionType>();
+    const scenarioSentinels: Array<{
+      scenarioId: string;
+      reactions: ReactionType[];
+      totalDamage: number;
+      damageEventCount: number;
+      semanticDigest: string;
+    }> = [];
+
+    for (const [scenarioId, scenario] of scenarios) {
+      const config = makeAuraV9MatrixConfig(
+        scenarioId,
+        scenario
+      );
+      const options = {
+        ...OPTIONS,
+        randomSeed: config.randomSeed
+      };
+      const result = simulate(config, options);
+      const repeated = simulate(
+        makeAuraV9MatrixConfig(scenarioId, scenario),
+        options
+      );
+
+      expect(result).toEqual(repeated);
+      expect(result.config).toMatchObject({
+        schemaVersion: "1.42.0",
+        engineVersion: "1.42.0-ec-global-cadence-safety",
+        reactionEngine: {
+          mode: "aura-v9"
+        },
+        electroChargedPropagationModel: {
+          mode: "single-target-v1"
+        },
+        targetTaskModel: {
+          mode: "target-phase-v2"
+        },
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60
+        }
+      });
+      expect(result.runManifest).toMatchObject({
+        schemaVersion: "1.42.0",
+        engineVersion: "1.42.0-ec-global-cadence-safety",
+        dataVersion: DATA_VERSION,
+        resolvedRuntimeOptions: options
+      });
+      expect(result.timelineExecution?.failures).toEqual([]);
+      expect(result.mechanicsStatus).toBe("complete");
+      expect(result.targetMechanicsTruncationLog).toEqual([]);
+
+      validateResultSchemas(result);
+      expect(
+        targetPhaseV2ResultReferencesSchema.parse(result)
+      ).toEqual(result);
+      expect(
+        reactionDeliveryResultReferencesSchema.parse(result)
+      ).toEqual(result);
+      if (scenarioId === "electroCharged") {
+        expect(
+          electroChargedCleanupResultReferencesSchema.parse(result)
+        ).toEqual(result);
+      }
+      expect(
+        playerDamageResultReferencesSchema.parse(result)
+      ).toEqual(result);
+      if (
+        result.dendroCoreLog.length > 0 ||
+        result.dendroCoreContactLog.length > 0
+      ) {
+        expect(
+          dendroCoreResultReferencesSchema.parse(result)
+        ).toEqual(result);
+      }
+
+      const scenarioReactions = new Set<ReactionType>();
+      collectObservedReactions(result, scenarioReactions);
+      for (const reaction of scenarioReactions) {
+        observedReactions.add(reaction);
+      }
+      const reactions = [...scenarioReactions].sort();
+      scenarioSentinels.push({
+        scenarioId,
+        reactions,
+        totalDamage: result.totalDamage,
+        damageEventCount: result.damageEvents.length,
+        semanticDigest: sha256({
+          compactResult: compactResult(result),
+          targetTaskPhaseLog: result.targetTaskPhaseLog,
+          targetPhaseLog: result.targetPhaseLog,
+          reactionTaskLog: result.reactionTaskLog
+        })
+      });
+    }
+
+    const observedLabels = [...observedReactions].sort();
+    expect(observedLabels).toHaveLength(24);
+    expect(observedLabels).toEqual([...REQUIRED_REACTIONS].sort());
+    expect(
+      observedLabels.some((reaction) =>
+        reaction.toLowerCase().includes("lunar")
+      )
+    ).toBe(false);
+
+    const canonicalSentinel = {
+      scope: "classic-reactions-only-no-lunar",
+      reactionClassCount: CLASSIC_REACTION_CLASS_COUNT,
+      nonNoneReactionLabelCount: REQUIRED_REACTIONS.length,
+      scenarioCount: scenarios.length,
+      observedLabels,
+      scenarios: scenarioSentinels
+    };
+    const digest = sha256(canonicalSentinel);
+    if (process.env.PRINT_AURA_V9_REACTION_MATRIX === "1") {
+      console.log(`aura-v9 classic reaction digest: ${digest}`);
+    }
+    expect(digest).toBe(AURA_V9_CLASSIC_MATRIX_DIGEST);
   });
 });

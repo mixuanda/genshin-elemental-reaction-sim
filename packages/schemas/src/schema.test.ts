@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
 import legacyDefault120sGolden from "../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
+import legacyDefault120sGoldenV142 from "../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import {
   auraSourceGaugeMutationSchema,
   auraStateEntrySchema,
@@ -21,10 +23,16 @@ import {
   CURRENT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+  electroChargedCleanupAuditSchema,
+  electroChargedCleanupResultReferencesSchema,
+  electroChargedGlobalCadenceGoldenFixtureV142Schema,
+  electroChargedGlobalCadenceGoldenScenarioIdsV142,
   electroChargedPropagationAuditSchema,
   electroChargedPropagationGoldenFixtureV141Schema,
   electroChargedPropagationModelSchema,
@@ -43,6 +51,7 @@ import {
   GENERAL_REACTION_ORDER_SCHEMA_VERSION,
   goldenFixtureEnvelopeV141Schema,
   legacyDefault120sGoldenFixtureV141Schema,
+  legacyDefault120sGoldenFixtureV142Schema,
   migrateConfig,
   parseSimConfig,
   parseSimulationRunManifestForConfig,
@@ -3176,9 +3185,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.41.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.42.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.41.0-ec-secondary-wet-propagation"
+      "1.42.0-ec-global-cadence-safety"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4235,10 +4244,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
+      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4315,7 +4324,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toEqual({ mode: "shatter-recursive-zero-delay-v1" });
   });
 
-  it("migrates exact 1.40 to 1.41 by injecting source-only EC propagation and nothing else", () => {
+  it("migrates pre-1.41 exact 1.40 by injecting source-only EC propagation and nothing else", () => {
     const current = {
       ...makeLegalAuraV7Config(),
       reactionEngine: { mode: "aura-v8" as const },
@@ -4359,6 +4368,128 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         engineVersion: "1.40.0-forged"
       })
     ).toThrow(/schemaVersion "1\.40\.0" requires/);
+  });
+
+  it("migrates exact 1.41 to 1.42 without changing aura-v8 or its propagation model", () => {
+    const propagation = {
+      mode: "nearby-wet-radius-v1" as const,
+      radius: 5,
+      verificationStatus: "provisional" as const
+    };
+    const historical = {
+      ...makeLegalAuraV7Config(),
+      schemaVersion:
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+      engineVersion:
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+      reactionEngine: { mode: "aura-v8" as const },
+      targetTaskModel: { mode: "target-phase-v2" as const },
+      electroChargedPropagationModel: propagation
+    };
+
+    expect(migrateConfig(historical)).toEqual({
+      ...historical,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        reactionEngine: { mode: "aura-v9" }
+      })
+    ).toThrow(
+      /schemaVersion "1\.41\.0" does not support "aura-v9"/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.41.0-forged"
+      })
+    ).toThrow(/schemaVersion "1\.41\.0" requires/);
+  });
+
+  it("gates aura-v9 to exact 1.42 legal 60 FPS target-phase-v2 configs", () => {
+    const legal = {
+      ...makeLegalAuraV7Config(),
+      reactionEngine: { mode: "aura-v9" as const },
+      targetTaskModel: { mode: "target-phase-v2" as const }
+    };
+    expect(migrateConfig(legal).reactionEngine?.mode).toBe(
+      "aura-v9"
+    );
+    expect(() =>
+      migrateConfig({
+        ...legal,
+        timeline: undefined
+      })
+    ).toThrow(
+      /aura-v9 requires timeline\.mode legal-frame-v1 at 60 FPS/
+    );
+    expect(() =>
+      migrateConfig({
+        ...legal,
+        targetTaskModel: { mode: "target-phase-v1" }
+      })
+    ).toThrow(
+      /aura-v9 requires targetTaskModel\.mode target-phase-v2/
+    );
+  });
+
+  it("validates aura-v9 cleanup cadence state and the ended-before-deadline wire", () => {
+    const pending = {
+      generation: 1,
+      requestedTargetFrame: 0,
+      deadlineTargetFrame: 1,
+      requestReason:
+        "QUICKEN_BLOOM_DEPLETED_LAST_HYDRO" as const,
+      outcome: "pending-at-end" as const,
+      resolutionReason: null,
+      resolvedGlobalFrame: null,
+      resolvedTargetFrame: null,
+      targetPhaseLogId: null,
+      periodicReactionLogId: null,
+      targetStateTimelinePointId: null,
+      cadence: {
+        status: "dormant" as const,
+        nextTickFrame: null,
+        waneListenerActive: false,
+        lastCallbackFrame: 70
+      }
+    };
+    expect(
+      electroChargedCleanupAuditSchema.parse(pending)
+    ).toEqual(pending);
+
+    const ended = {
+      ...pending,
+      outcome: "ended-before-deadline" as const,
+      resolutionReason:
+        "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP" as const,
+      resolvedGlobalFrame: 121,
+      resolvedTargetFrame: 1,
+      targetPhaseLogId: 2,
+      periodicReactionLogId: 4,
+      targetStateTimelinePointId: 8,
+      cadence: {
+        status: "stopped" as const,
+        nextTickFrame: null,
+        waneListenerActive: false,
+        lastCallbackFrame: null
+      }
+    };
+    expect(
+      electroChargedCleanupAuditSchema.parse(ended)
+    ).toEqual(ended);
+    expect(() =>
+      electroChargedCleanupAuditSchema.parse({
+        ...pending,
+        cadence: {
+          ...pending.cadence,
+          status: "scheduled",
+          nextTickFrame: null
+        }
+      })
+    ).toThrow(/scheduled cleanup cadence requires a next callback/);
   });
 
   it("gates provisional nearby-Wet propagation to exact Aura-v8 target-phase-v2 and permits auditable unresolved positions", () => {
@@ -6100,6 +6231,413 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toBe(false);
   });
 
+  it("strictly freezes the exact 1.42 default and five-scenario EC cadence Golden envelopes", () => {
+    expect(() =>
+      legacyDefault120sGoldenFixtureV142Schema.parse(
+        legacyDefault120sGoldenV142
+      )
+    ).not.toThrow();
+    expect(() =>
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
+        electroChargedGlobalCadenceGoldenV142
+      )
+    ).not.toThrow();
+    expect(
+      Object.keys(
+        electroChargedGlobalCadenceGoldenV142.scenarios
+      ).sort()
+    ).toEqual(
+      [...electroChargedGlobalCadenceGoldenScenarioIdsV142].sort()
+    );
+
+    const forgedDefault: any = structuredClone(
+      legacyDefault120sGoldenV142
+    );
+    forgedDefault.totalDamage += 1;
+    expect(
+      legacyDefault120sGoldenFixtureV142Schema.safeParse(
+        forgedDefault
+      ).success
+    ).toBe(false);
+    forgedDefault.totalDamage =
+      legacyDefault120sGoldenV142.totalDamage;
+    forgedDefault.configHash = "fnv1a32:00000000";
+    expect(
+      legacyDefault120sGoldenFixtureV142Schema.safeParse(
+        forgedDefault
+      ).success
+    ).toBe(false);
+
+    const missingScenario: any = structuredClone(
+      electroChargedGlobalCadenceGoldenV142
+    );
+    delete missingScenario.scenarios
+      .longHitlagRestoreF71Dormant;
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.safeParse(
+        missingScenario
+      ).success
+    ).toBe(false);
+
+    const forgedCadence: any = structuredClone(
+      electroChargedGlobalCadenceGoldenV142
+    );
+    delete forgedCadence.scenarios.longHitlagNoRestoreStop
+      .periodicElectroCharged[0].cadenceStatus;
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.safeParse(
+        forgedCadence
+      ).success
+    ).toBe(false);
+
+    const forgedComposition: any = structuredClone(
+      electroChargedGlobalCadenceGoldenV142
+    );
+    forgedComposition.scenarios.pureEcHitlag120GlobalCadence
+      .damageEvents[0].damageComposition
+      .transformativeReaction += 1;
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.safeParse(
+        forgedComposition
+      ).success
+    ).toBe(false);
+
+    const forgedScenarioHash: any = structuredClone(
+      electroChargedGlobalCadenceGoldenV142
+    );
+    forgedScenarioHash.hashes.longHitlagNoRestoreStop =
+      "0".repeat(64);
+    expect(
+      electroChargedGlobalCadenceGoldenFixtureV142Schema.safeParse(
+        forgedScenarioHash
+      ).success
+    ).toBe(false);
+  });
+
+  it("keeps aura-v9 cleanup validation isolated from non-EC and mixed global reaction logs", () => {
+    const projectScenario = (scenario: any): any => ({
+      schemaVersion: scenario.identity.schemaVersion,
+      engineVersion: scenario.identity.engineVersion,
+      config: {
+        schemaVersion: scenario.identity.schemaVersion,
+        engineVersion: scenario.identity.engineVersion,
+        duration: scenario.configContract.duration,
+        enemy: scenario.configContract.enemy,
+        reactionEngine: scenario.configContract.reactionEngine,
+        targetClockModel:
+          scenario.configContract.targetClockModel,
+        targetTaskModel:
+          scenario.configContract.targetTaskModel,
+        electroChargedPropagationModel:
+          scenario.configContract
+            .electroChargedPropagationModel,
+        timeline: {
+          ...scenario.configContract.timeline,
+          legalityMode: "strict",
+          initialActiveCharacterId: "schema-projection",
+          swapFrames: 1,
+          abilities: [],
+          commands: []
+        }
+      },
+      reactionTaskLog: scenario.reactionTasks,
+      targetPhaseLog: scenario.targetPhaseLog,
+      targetStateTimeline: scenario.targetStateTimeline,
+      periodicReactionLog:
+        scenario.periodicElectroCharged,
+      reactionDamageLog: scenario.reactionDamageLog,
+      damageEvents: scenario.damageEvents,
+      targetClockAudit: scenario.targetClockAudit,
+      targetClockLog: scenario.targetClockLog
+    });
+    const nonEcOnly = {
+      schemaVersion:
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion:
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+      config: {
+        schemaVersion:
+          EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+        engineVersion:
+          EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+        duration: 1,
+        enemy: {
+          level: 90,
+          resistance: 0.1,
+          defReduction: 0,
+          targets: [
+            {
+              id: "enemy-0",
+              name: "Non-EC target"
+            }
+          ]
+        },
+        reactionEngine: { mode: "aura-v9" },
+        targetClockModel: { mode: "disabled" },
+        targetTaskModel: { mode: "target-phase-v2" },
+        electroChargedPropagationModel: {
+          mode: "single-target-v1"
+        },
+        timeline: {
+          mode: "legal-frame-v1",
+          fps: 60,
+          legalityMode: "strict",
+          initialActiveCharacterId: "schema-projection",
+          swapFrames: 1,
+          abilities: [],
+          commands: []
+        }
+      },
+      reactionTaskLog: [],
+      targetPhaseLog: [],
+      targetStateTimeline: {
+        version: "1.0.0",
+        points: [
+          {
+            id: 0,
+            frame: 0,
+            targetFrame: 0,
+            timeSeconds: 0,
+            targetId: "enemy-0",
+            targetName: "Non-EC target",
+            pointKind: "boundary",
+            cause: "simulation-start",
+            eventType: null,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            reaction: "none",
+            reactions: [],
+            primaryDamageEventId: null,
+            links: [],
+            auraBefore: [],
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: []
+          },
+          {
+            id: 1,
+            frame: 60,
+            targetFrame: 60,
+            timeSeconds: 1,
+            targetId: "enemy-0",
+            targetName: "Non-EC target",
+            pointKind: "boundary",
+            cause: "simulation-end",
+            eventType: null,
+            eventPriority: null,
+            eventSequence: null,
+            intraEventSequence: null,
+            reaction: "none",
+            reactions: [],
+            primaryDamageEventId: null,
+            links: [],
+            auraBefore: [],
+            auraApplied: [],
+            auraConsumed: [],
+            auraAfter: []
+          }
+        ]
+      },
+      periodicReactionLog: [],
+      reactionDamageLog: [
+        {
+          id: 0,
+          reaction: "overload",
+          sourceActorId: "driver",
+          sourceTargetId: "enemy-0",
+          triggerFrame: 0,
+          damageFrame: 0,
+          scheduled: true,
+          withinSimulation: true,
+          blockedReason: null,
+          nextAvailableFrame: 60,
+          scheduleKind: "one-shot",
+          damageEventIds: []
+        }
+      ],
+      damageEvents: [],
+      targetClockAudit: {
+        version: "1.0.0",
+        mode: "disabled",
+        hitlagStatus: "unsupported-enemy-hitlag",
+        targets: []
+      },
+      targetClockLog: []
+    };
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(
+        nonEcOnly
+      )
+    ).not.toThrow();
+
+    const pureEc = projectScenario(
+      electroChargedGlobalCadenceGoldenV142.scenarios
+        .pureEcHitlag120GlobalCadence
+    );
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(pureEc)
+    ).not.toThrow();
+
+    const mixed = structuredClone(pureEc);
+    mixed.reactionDamageLog.push({
+      id: mixed.reactionDamageLog.length,
+      reaction: "overload",
+      sourceActorId: "driver",
+      sourceTargetId: "enemy-0",
+      triggerFrame: 0,
+      damageFrame: 0,
+      scheduled: true,
+      withinSimulation: true,
+      blockedReason: null,
+      nextAvailableFrame: 60,
+      scheduleKind: "one-shot",
+      damageEventIds: []
+    });
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(mixed)
+    ).not.toThrow();
+
+    mixed.reactionDamageLog.at(-1).reaction =
+      "electroCharged";
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(mixed)
+    ).toThrow(
+      /Electro-Charged cleanup-owned reaction damage requires periodic-tick/
+    );
+  });
+
+  it("isolates aura-v9 cadence fields from aura-v8 result wires", () => {
+    const scenario: any =
+      electroChargedGlobalCadenceGoldenV142.scenarios
+        .pureEcHitlag120GlobalCadence;
+    const v9: any = {
+      schemaVersion: scenario.identity.schemaVersion,
+      engineVersion: scenario.identity.engineVersion,
+      config: {
+        schemaVersion: scenario.identity.schemaVersion,
+        engineVersion: scenario.identity.engineVersion,
+        duration: scenario.configContract.duration,
+        enemy: scenario.configContract.enemy,
+        reactionEngine: { mode: "aura-v9" },
+        targetClockModel:
+          scenario.configContract.targetClockModel,
+        targetTaskModel:
+          scenario.configContract.targetTaskModel,
+        electroChargedPropagationModel:
+          scenario.configContract
+            .electroChargedPropagationModel,
+        timeline: {
+          ...scenario.configContract.timeline,
+          legalityMode: "strict",
+          initialActiveCharacterId: "schema-projection",
+          swapFrames: 1,
+          abilities: [],
+          commands: []
+        }
+      },
+      reactionTaskLog: scenario.reactionTasks,
+      targetPhaseLog: scenario.targetPhaseLog,
+      targetStateTimeline: scenario.targetStateTimeline,
+      periodicReactionLog:
+        scenario.periodicElectroCharged,
+      reactionDamageLog: scenario.reactionDamageLog,
+      damageEvents: scenario.damageEvents,
+      targetClockAudit: scenario.targetClockAudit,
+      targetClockLog: scenario.targetClockLog
+    };
+    const missingV9Cadence = structuredClone(v9);
+    delete missingV9Cadence.periodicReactionLog[0]
+      .cadenceStatus;
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(
+        missingV9Cadence
+      )
+    ).toThrow(
+      /aura-v9 periodic rows require explicit cadenceStatus/
+    );
+
+    const v8 = structuredClone(v9);
+    v8.config.reactionEngine.mode = "aura-v8";
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(v8)
+    ).toThrow(/aura-v8 periodic rows must omit aura-v9 cadence/);
+    for (const row of v8.periodicReactionLog) {
+      delete row.cadenceStatus;
+      delete row.waneListenerActive;
+    }
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(v8)
+    ).not.toThrow();
+  });
+
+  it("rejects any same-generation lifecycle row after an ended-before terminal and before cleanup", () => {
+    const scenario: any =
+      electroChargedGlobalCadenceGoldenV142.scenarios
+        .longHitlagRestoreF5EndedBeforeDeadline;
+    const result: any = {
+      schemaVersion: scenario.identity.schemaVersion,
+      engineVersion: scenario.identity.engineVersion,
+      config: {
+        schemaVersion: scenario.identity.schemaVersion,
+        engineVersion: scenario.identity.engineVersion,
+        duration: scenario.configContract.duration,
+        enemy: scenario.configContract.enemy,
+        reactionEngine: scenario.configContract.reactionEngine,
+        targetClockModel:
+          scenario.configContract.targetClockModel,
+        targetTaskModel:
+          scenario.configContract.targetTaskModel,
+        electroChargedPropagationModel:
+          scenario.configContract
+            .electroChargedPropagationModel,
+        timeline: {
+          ...scenario.configContract.timeline,
+          legalityMode: "strict",
+          initialActiveCharacterId: "schema-projection",
+          swapFrames: 1,
+          abilities: [],
+          commands: []
+        }
+      },
+      reactionTaskLog: scenario.reactionTasks,
+      targetPhaseLog: scenario.targetPhaseLog,
+      targetStateTimeline: scenario.targetStateTimeline,
+      periodicReactionLog: structuredClone(
+        scenario.periodicElectroCharged
+      ),
+      reactionDamageLog: scenario.reactionDamageLog,
+      damageEvents: scenario.damageEvents,
+      targetClockAudit: scenario.targetClockAudit,
+      targetClockLog: scenario.targetClockLog
+    };
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(result)
+    ).not.toThrow();
+
+    const terminal = result.periodicReactionLog.at(-1);
+    const laterLifecycle = {
+      ...structuredClone(terminal),
+      id: result.periodicReactionLog.length,
+      operation: "refresh",
+      frame: terminal.frame + 1,
+      timeSeconds: (terminal.frame + 1) / 60,
+      reactionDamageLogId: null,
+      damageEventId: null,
+      tickIndex: null,
+      auraBefore: terminal.auraAfter,
+      auraConsumed: [],
+      auraAfter: terminal.auraAfter,
+      waneFrame: null,
+      reason: null
+    };
+    delete laterLifecycle.reactionTaskLogId;
+    result.periodicReactionLog.push(laterLifecycle);
+    expect(() =>
+      electroChargedCleanupResultReferencesSchema.parse(result)
+    ).toThrow(/no later lifecycle row/);
+  });
+
   it("version-gates EC propagation result wires and rejects inherited result identity", () => {
     const historical: any =
       makeElectroChargedDamageGroupReplayResult([
@@ -6812,7 +7350,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39, 1\.40, or 1\.41 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 through 1\.42 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -6948,7 +7486,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39, 1\.40, or 1\.41 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 through 1\.42 schema and engine identity/);
     }
   });
 
@@ -10317,7 +10855,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37, 1\.38, 1\.39, 1\.40, or 1\.41 identity/);
+    ).toThrow(/exact supported 1\.37 through 1\.42 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -17710,7 +18248,7 @@ describe("versioned config schema", () => {
     ).toThrow(/cannot claim a tickIndex/);
   });
 
-  it("gates Dendro Aura and applications behind aura-v3 through aura-v8", () => {
+  it("gates Dendro Aura and applications behind aura-v3 through aura-v9", () => {
     const current = migrateConfig(legacyConfig);
     const withDendroApplication = {
       ...current,
@@ -17771,7 +18309,7 @@ describe("versioned config schema", () => {
           }
         })
       ).toThrow(
-        /dendro aura requires reactionEngine\.mode to be aura-v3, aura-v4, aura-v5, aura-v6, aura-v7, or aura-v8/
+        /dendro aura requires reactionEngine\.mode to be aura-v3 through aura-v9/
       );
     }
 
@@ -17843,7 +18381,7 @@ describe("versioned config schema", () => {
           reactionEngine: { mode }
         })
       ).toThrow(
-        /aura-v1 through aura-v8 currently require timeline\.mode legal-frame-v1/
+        /aura-v1 through aura-v9 currently require timeline\.mode legal-frame-v1/
       );
     }
   });
@@ -17891,7 +18429,7 @@ describe("versioned config schema", () => {
         })
       )
     ).toThrow(
-      /manual reaction labels are forbidden in aura-v1 through aura-v8/
+      /manual reaction labels are forbidden in aura-v1 through aura-v9/
     );
 
     expect(() =>
