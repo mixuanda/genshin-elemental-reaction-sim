@@ -28,6 +28,7 @@ export const durinMeltPreset: SimConfig = {
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+  electroChargedPropagationModel: { mode: "single-target-v1" },
   characters: [
     {
       id: "durin",
@@ -472,6 +473,7 @@ export const blankPreset: SimConfig = {
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+  electroChargedPropagationModel: { mode: "single-target-v1" },
   characters: [
     {
       id: "a",
@@ -568,6 +570,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+  electroChargedPropagationModel: { mode: "single-target-v1" },
   characters: [
     {
       id: "frame-a",
@@ -745,6 +748,7 @@ export const auraReactionDemoPreset: SimConfig = {
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+  electroChargedPropagationModel: { mode: "single-target-v1" },
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -844,6 +848,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   targetClockModel: { mode: "disabled" },
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+  electroChargedPropagationModel: { mode: "single-target-v1" },
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

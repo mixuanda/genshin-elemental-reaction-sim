@@ -1,0 +1,4329 @@
+{
+  "fixtureVersion": "electro-charged-propagation-1.41",
+  "description": "Deterministic 1.41 runtime vector for source, in-range Wet, dry, out-of-range Wet, unresolved Wet, and immune Wet Electro-Charged propagation candidates.",
+  "provenance": {
+    "referenceProject": "genshinsim/gcsim",
+    "referenceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "mechanicsDataStatus": "community-provisional",
+    "capturedAt": "2026-07-29",
+    "notes": [
+      "The pinned gcsim reference remains single-target and does not implement nearby-Wet propagation.",
+      "The radius, all-target registration-order selection, secondary ownership, and source-only Wane rules are community-provisional and are not official game data.",
+      "The secondary Electro-Charged damage applies no Aura, starts no periodic stream, and does not mutate an existing stream.",
+      "This fixture is a regression contract, not a claim of complete gcsim or live-game parity."
+    ]
+  },
+  "scenario": {
+    "identity": {
+      "schemaVersion": "1.41.0",
+      "engineVersion": "1.41.0-ec-secondary-wet-propagation",
+      "dataVersion": "ec-propagation-community-provisional-1",
+      "randomSeed": "ec-propagation-v141-golden-seed",
+      "configHash": "fnv1a32:c6f195e0",
+      "reproducibilityKey": "gdl-v2-fnv1a32-cc0079e7",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "noCrit",
+        "compatibilityMode": "legal-frame-v1",
+        "randomSeed": "ec-propagation-v141-golden-seed"
+      }
+    },
+    "configContract": {
+      "reactionEngine": {
+        "mode": "aura-v8"
+      },
+      "targetClockModel": {
+        "mode": "disabled"
+      },
+      "targetTaskModel": {
+        "mode": "target-phase-v2"
+      },
+      "reactionDeliveryModel": {
+        "mode": "deferred-event-heap-v1"
+      },
+      "electroChargedPropagationModel": {
+        "mode": "nearby-wet-radius-v1",
+        "radius": 3,
+        "verificationStatus": "provisional"
+      },
+      "timeline": {
+        "mode": "legal-frame-v1",
+        "fps": 60
+      },
+      "enemyTargets": [
+        {
+          "id": "enemy-0",
+          "name": "Source",
+          "level": 90,
+          "resistance": 0.1,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "hitboxRadius": 0
+        },
+        {
+          "id": "wet-boundary",
+          "name": "Wet boundary",
+          "level": 90,
+          "resistance": 0.5,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 3.5,
+            "y": 0
+          },
+          "hitboxRadius": 0.5
+        },
+        {
+          "id": "dry-nearby",
+          "name": "Dry nearby",
+          "level": 90,
+          "resistance": 0.1,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [],
+          "position": {
+            "x": 1,
+            "y": 0
+          },
+          "hitboxRadius": 0
+        },
+        {
+          "id": "wet-outside",
+          "name": "Wet outside",
+          "level": 90,
+          "resistance": 0.1,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 3.51,
+            "y": 0
+          },
+          "hitboxRadius": 0.5
+        },
+        {
+          "id": "wet-unresolved",
+          "name": "Wet unresolved",
+          "level": 90,
+          "resistance": 0.1,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": null,
+          "hitboxRadius": 0
+        },
+        {
+          "id": "wet-immune",
+          "name": "Wet immune",
+          "level": 90,
+          "resistance": 0.1,
+          "defReduction": 0,
+          "freezeResistance": 0,
+          "initialAura": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1
+            }
+          ],
+          "position": {
+            "x": 2,
+            "y": 0
+          },
+          "hitboxRadius": 0
+        }
+      ]
+    },
+    "periodicElectroCharged": [
+      {
+        "id": 0,
+        "reaction": "electroCharged",
+        "generation": 1,
+        "operation": "start",
+        "frame": 0,
+        "timeSeconds": 0,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "sourceActorId": "ec-owner",
+        "triggerDamageEventId": 0,
+        "reactionDamageLogId": null,
+        "damageEventId": null,
+        "tickIndex": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.8
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ],
+        "nextTickFrame": 70,
+        "coexistenceExpiresAtFrame": 570,
+        "waneFrame": null,
+        "reason": null
+      },
+      {
+        "id": 1,
+        "reaction": "electroCharged",
+        "generation": 1,
+        "operation": "tick",
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "sourceActorId": "ec-owner",
+        "triggerDamageEventId": 0,
+        "reactionDamageLogId": 0,
+        "damageEventId": 1,
+        "tickIndex": 0,
+        "auraBefore": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "nextTickFrame": 70,
+        "coexistenceExpiresAtFrame": 570,
+        "waneFrame": 16,
+        "reason": null
+      },
+      {
+        "id": 2,
+        "reaction": "electroCharged",
+        "generation": 1,
+        "operation": "wane",
+        "frame": 16,
+        "timeSeconds": 0.26666666666666666,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "sourceActorId": "ec-owner",
+        "triggerDamageEventId": 0,
+        "reactionDamageLogId": null,
+        "damageEventId": 1,
+        "tickIndex": 0,
+        "auraBefore": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.777543859649,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.777543859649
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.777543859649,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.777543859649
+              }
+            ]
+          }
+        ],
+        "auraConsumed": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.4,
+            "sourceMutations": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnitsBefore": 0.777543859649,
+                "consumedGaugeUnits": 0.4,
+                "gaugeUnitsAfter": 0.377543859649
+              }
+            ]
+          },
+          {
+            "element": "electro",
+            "gaugeUnits": 0.4,
+            "sourceMutations": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnitsBefore": 0.777543859649,
+                "consumedGaugeUnits": 0.4,
+                "gaugeUnitsAfter": 0.377543859649
+              }
+            ]
+          }
+        ],
+        "auraAfter": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.377543859649,
+            "expiresAtFrame": 285,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.377543859649
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.377543859649,
+            "expiresAtFrame": 285,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.377543859649
+              }
+            ]
+          }
+        ],
+        "nextTickFrame": 70,
+        "coexistenceExpiresAtFrame": 285,
+        "waneFrame": 16,
+        "reason": null
+      }
+    ],
+    "reactionDamage": [
+      {
+        "id": 0,
+        "reaction": "electroCharged",
+        "triggerDamageEventId": 0,
+        "triggerHitGroupId": null,
+        "sourceActorId": "ec-owner",
+        "sourceTargetId": "enemy-0",
+        "triggerFrame": 0,
+        "damageFrame": 10,
+        "scheduled": true,
+        "withinSimulation": true,
+        "blockedReason": null,
+        "nextAvailableFrame": 70,
+        "scheduleKind": "periodic-tick",
+        "targetingMode": "electro-charged-nearby-wet",
+        "centerPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 3,
+        "sourceCoreId": null,
+        "sourceCoreLogId": null,
+        "selectionRadius": null,
+        "selectedTargetId": null,
+        "resolutionReason": null,
+        "applicationGaugeUnits": null,
+        "excludedTargetIds": [],
+        "checkedTargetIds": [
+          "enemy-0",
+          "wet-boundary",
+          "wet-immune"
+        ],
+        "hitTargetIds": [
+          "enemy-0",
+          "wet-boundary",
+          "wet-immune"
+        ],
+        "unresolvedTargetIds": [
+          "wet-unresolved"
+        ],
+        "damageGroupBlockedTargetIds": [],
+        "damageEventIds": [
+          1,
+          2,
+          3
+        ],
+        "playerHitResolutionLogIds": [],
+        "playerDamageEventIds": [],
+        "reactionStatusLogIds": [],
+        "damageGroupDecisions": [
+          {
+            "reaction": "electroCharged",
+            "sourceActorId": "ec-owner",
+            "targetId": "enemy-0",
+            "windowStartFrame": 10,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          },
+          {
+            "reaction": "electroCharged",
+            "sourceActorId": "ec-owner",
+            "targetId": "wet-boundary",
+            "windowStartFrame": 10,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          },
+          {
+            "reaction": "electroCharged",
+            "sourceActorId": "ec-owner",
+            "targetId": "wet-immune",
+            "windowStartFrame": 10,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          }
+        ],
+        "electroChargedPropagation": {
+          "model": "nearby-wet-radius-v1",
+          "verificationStatus": "provisional",
+          "mechanicsDataStatus": "community-provisional",
+          "generation": 1,
+          "tickIndex": 0,
+          "evaluationFrame": 10,
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "radius": 3,
+          "selectionMode": "all-in-range-registration-order-v1",
+          "sourcePosition": {
+            "x": 0,
+            "y": 0
+          },
+          "candidates": [
+            {
+              "targetId": "enemy-0",
+              "targetName": "Source",
+              "targetOrder": 0,
+              "hydroGaugeUnits": 0.785964912281,
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "auraObservationTimelinePointId": 8,
+              "hitResolutionLogId": 1,
+              "damageEventId": 1,
+              "distance": null,
+              "threshold": null,
+              "selected": true,
+              "reason": "SOURCE_STREAM_TARGET"
+            },
+            {
+              "targetId": "wet-boundary",
+              "targetName": "Wet boundary",
+              "targetOrder": 1,
+              "hydroGaugeUnits": 0.785964912281,
+              "position": {
+                "x": 3.5,
+                "y": 0
+              },
+              "auraObservationTimelinePointId": 9,
+              "hitResolutionLogId": 2,
+              "damageEventId": 2,
+              "distance": 3.5,
+              "threshold": 3.5,
+              "selected": true,
+              "reason": "NEARBY_WET_IN_RANGE"
+            },
+            {
+              "targetId": "dry-nearby",
+              "targetName": "Dry nearby",
+              "targetOrder": 2,
+              "hydroGaugeUnits": 0,
+              "position": {
+                "x": 1,
+                "y": 0
+              },
+              "auraObservationTimelinePointId": 10,
+              "hitResolutionLogId": null,
+              "damageEventId": null,
+              "distance": null,
+              "threshold": null,
+              "selected": false,
+              "reason": "NO_HYDRO_AURA"
+            },
+            {
+              "targetId": "wet-outside",
+              "targetName": "Wet outside",
+              "targetOrder": 3,
+              "hydroGaugeUnits": 0.785964912281,
+              "position": {
+                "x": 3.51,
+                "y": 0
+              },
+              "auraObservationTimelinePointId": 11,
+              "hitResolutionLogId": null,
+              "damageEventId": null,
+              "distance": 3.51,
+              "threshold": 3.5,
+              "selected": false,
+              "reason": "OUT_OF_RANGE"
+            },
+            {
+              "targetId": "wet-unresolved",
+              "targetName": "Wet unresolved",
+              "targetOrder": 4,
+              "hydroGaugeUnits": 0.785964912281,
+              "position": null,
+              "auraObservationTimelinePointId": 12,
+              "hitResolutionLogId": null,
+              "damageEventId": null,
+              "distance": null,
+              "threshold": null,
+              "selected": false,
+              "reason": "POSITION_UNRESOLVED"
+            },
+            {
+              "targetId": "wet-immune",
+              "targetName": "Wet immune",
+              "targetOrder": 5,
+              "hydroGaugeUnits": 0.785964912281,
+              "position": {
+                "x": 2,
+                "y": 0
+              },
+              "auraObservationTimelinePointId": 13,
+              "hitResolutionLogId": 3,
+              "damageEventId": 3,
+              "distance": 2,
+              "threshold": 3,
+              "selected": true,
+              "reason": "NEARBY_WET_IN_RANGE"
+            }
+          ]
+        }
+      }
+    ],
+    "reactionBDecisions": [
+      {
+        "reaction": "electroCharged",
+        "sourceActorId": "ec-owner",
+        "targetId": "enemy-0",
+        "windowStartFrame": 10,
+        "hitIndex": 0,
+        "resetFrames": 30,
+        "sequence": [
+          true,
+          false
+        ],
+        "damageAllowed": true,
+        "blockedReason": null
+      },
+      {
+        "reaction": "electroCharged",
+        "sourceActorId": "ec-owner",
+        "targetId": "wet-boundary",
+        "windowStartFrame": 10,
+        "hitIndex": 0,
+        "resetFrames": 30,
+        "sequence": [
+          true,
+          false
+        ],
+        "damageAllowed": true,
+        "blockedReason": null
+      },
+      {
+        "reaction": "electroCharged",
+        "sourceActorId": "ec-owner",
+        "targetId": "wet-immune",
+        "windowStartFrame": 10,
+        "hitIndex": 0,
+        "resetFrames": 30,
+        "sequence": [
+          true,
+          false
+        ],
+        "damageAllowed": true,
+        "blockedReason": null
+      }
+    ],
+    "triggerDamageEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "parentDamageEventId": null,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate",
+        "hitGroupId": "start-ec#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 0,
+        "timeSeconds": 0,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "start-source-with-unresolved-candidate",
+          "icdGroup": "no-icd",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC",
+        "hitLabel": "Start source with unresolved candidate",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      }
+    ],
+    "propagationDamageChildren": [
+      {
+        "id": 1,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 0,
+        "targetCount": 3,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 5483.847756226415,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "finalDamage": 5483.847756226415,
+        "displayDamage": 5484,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 2,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 1,
+        "targetCount": 3,
+        "targetResolutionId": 2,
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 3046.5820867924526,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.5,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.5,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.5,
+          "resistanceMultiplier": 0.5,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.5,
+          "resistanceMultiplier": 0.5
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 3046.5820867924526
+        },
+        "finalDamage": 3046.5820867924526,
+        "displayDamage": 3047,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.5,
+        "resFactor": 0.5,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 3,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 2,
+        "targetCount": 3,
+        "targetResolutionId": 3,
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "targetDamagePolicy": "immune",
+        "targetDamageMultiplier": 0,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 5483.847756226415,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 0,
+        "displayDamage": 0,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      }
+    ],
+    "relevantHitResolutions": [
+      {
+        "id": 0,
+        "frame": 0,
+        "timeSeconds": 0,
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "ec-owner",
+        "sourceActionId": "start-ec#0",
+        "actionName": "Start EC",
+        "hitId": "start-source-with-unresolved-candidate",
+        "hitGroupId": "start-ec#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "Start source with unresolved candidate",
+        "element": "electro",
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetingSource": "scripted",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": null,
+        "geometryCoordinateSpace": null,
+        "geometryOrigin": null,
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": null,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": null,
+        "geometryThreshold": null,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 0,
+        "potentialDamage": 450,
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec"
+      },
+      {
+        "id": 1,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 7,
+        "cycle": 0,
+        "sourceActorId": "ec-owner",
+        "sourceActionId": "start-ec#0",
+        "actionName": "Start EC · 感电",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 0,
+        "targetCount": 3,
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetingSource": "reaction-source",
+        "resolutionKind": "reaction-damage",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": null,
+        "geometryCoordinateSpace": null,
+        "geometryOrigin": null,
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": null,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": null,
+        "geometryThreshold": null,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "auraAllowed": false,
+        "hitConfirmAllowed": false,
+        "damageEventId": 1,
+        "potentialDamage": 5483.847756226415,
+        "finalDamage": 5483.847756226415,
+        "displayDamage": 5484,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec"
+      },
+      {
+        "id": 2,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 8,
+        "cycle": 0,
+        "sourceActorId": "ec-owner",
+        "sourceActionId": "start-ec#0",
+        "actionName": "Start EC · 感电",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 1,
+        "targetCount": 3,
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "targetingSource": "reaction-geometry",
+        "resolutionKind": "reaction-damage",
+        "targetPosition": {
+          "x": 3.5,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 3,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 3.5,
+        "geometryThreshold": 3.5,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "auraAllowed": false,
+        "hitConfirmAllowed": false,
+        "damageEventId": 2,
+        "potentialDamage": 3046.5820867924526,
+        "finalDamage": 3046.5820867924526,
+        "displayDamage": 3047,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec"
+      },
+      {
+        "id": 3,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 9,
+        "cycle": 0,
+        "sourceActorId": "ec-owner",
+        "sourceActionId": "start-ec#0",
+        "actionName": "Start EC · 感电",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 2,
+        "targetCount": 3,
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "targetingSource": "reaction-geometry",
+        "resolutionKind": "reaction-damage",
+        "targetPosition": {
+          "x": 2,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 3,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 2,
+        "geometryThreshold": 3,
+        "outcome": "landed",
+        "landed": true,
+        "reason": "TEST_EC_IMMUNE",
+        "targetEffectSource": "target-phase",
+        "targetPhaseId": "immune-at-first-tick",
+        "damageAllowed": false,
+        "mechanicsStatus": "authoritative",
+        "auraAllowed": false,
+        "hitConfirmAllowed": false,
+        "damageEventId": 3,
+        "potentialDamage": 5483.847756226415,
+        "finalDamage": 0,
+        "displayDamage": 0,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec"
+      }
+    ],
+    "allRelatedDamageEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "parentDamageEventId": null,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate",
+        "hitGroupId": "start-ec#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 0,
+        "timeSeconds": 0,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "start-source-with-unresolved-candidate",
+          "icdGroup": "no-icd",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "transformativeReactions": [],
+          "periodicReaction": {
+            "reaction": "electroCharged",
+            "generation": 1,
+            "operation": "start",
+            "damageElement": "electro",
+            "baseMultiplier": 2,
+            "firstDamageFrame": 10,
+            "nextTickFrame": 70,
+            "tickIntervalFrames": 60,
+            "waneDelayFrames": 6,
+            "waneGaugeUnits": 0.4,
+            "coexistenceExpiresAtFrame": 570
+          },
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC",
+        "hitLabel": "Start source with unresolved candidate",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 1,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 0,
+        "targetCount": 3,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 5483.847756226415,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 5483.847756226415
+        },
+        "finalDamage": 5483.847756226415,
+        "displayDamage": 5484,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 2,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 1,
+        "targetCount": 3,
+        "targetResolutionId": 2,
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 3046.5820867924526,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.5,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.5,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.5,
+          "resistanceMultiplier": 0.5,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.5,
+          "resistanceMultiplier": 0.5
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 3046.5820867924526
+        },
+        "finalDamage": 3046.5820867924526,
+        "displayDamage": 3047,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.5,
+        "resFactor": 0.5,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 3,
+        "kind": "transformative-reaction",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "parentDamageEventId": 0,
+        "sourceActorId": "ec-owner",
+        "scalingOwnerId": "ec-owner",
+        "creditOwnerId": "ec-owner",
+        "actionId": "start-ec#0",
+        "hitId": "start-source-with-unresolved-candidate:electroCharged",
+        "hitGroupId": "start-ec#0:0:0:0:electroCharged:0",
+        "targetIndex": 2,
+        "targetCount": 3,
+        "targetResolutionId": 3,
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "targetDamagePolicy": "immune",
+        "targetDamageMultiplier": 0,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 5483.847756226415,
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "activeCharacterId": "ec-owner",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 120,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0.2,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "reaction-damage",
+          "triggered": true,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": null,
+          "icdTag": null,
+          "icdGroup": null,
+          "applicationGaugeUnits": null,
+          "auraBefore": null,
+          "auraApplied": null,
+          "auraConsumed": null,
+          "auraAfter": null,
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "感电自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。"
+        },
+        "damageFactors": {
+          "scaling": 0,
+          "scalingStat": "em",
+          "scalingValue": 120,
+          "flatDamage": 0,
+          "baseDamage": 6093.164173584905,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 1,
+          "defenseReduction": 0,
+          "defenseMultiplier": 1,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0,
+          "critMultiplier": 1,
+          "reactionBase": 2,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": {
+          "reaction": "electroCharged",
+          "characterLevel": 90,
+          "levelBaseDamage": 1446.8535,
+          "baseMultiplier": 2,
+          "elementalMastery": 120,
+          "elementalMasteryBonus": 0.9056603773584906,
+          "reactionBonus": 0.2,
+          "preResistanceDamage": 6093.164173584905,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9
+        },
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 0,
+        "displayDamage": 0,
+        "sourceActorName": "EC Owner",
+        "scalingOwnerName": "EC Owner",
+        "creditOwnerName": "EC Owner",
+        "actionName": "Start EC · 感电",
+        "hitLabel": "感电反应伤害",
+        "element": "electro",
+        "reaction": "electroCharged",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "start-ec",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 11,
+        "actionAnimationEndFrame": 11,
+        "time": 0.16666666666666666,
+        "second": 0,
+        "actorId": "ec-owner",
+        "creditId": "ec-owner",
+        "actorName": "EC Owner",
+        "activeId": "ec-owner",
+        "scaling": 0,
+        "scalingStat": "em",
+        "scalingValue": 120,
+        "flat": 0,
+        "baseDamage": 6093.164173584905,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 1,
+        "defReduction": 0,
+        "defenseFactor": 1,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0,
+        "critFactor": 1,
+        "em": 120,
+        "reactionBase": 2,
+        "emBonus": 0.9056603773584906,
+        "reactionBonus": 0.2,
+        "reactionFactor": 4.211320754716981,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      }
+    ],
+    "targetStateTimeline": {
+      "version": "1.0.0",
+      "points": [
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 0
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "wet-boundary",
+          "targetName": "Wet boundary",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 1
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "dry-nearby",
+          "targetName": "Dry nearby",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [],
+          "targetFrame": 0,
+          "id": 2
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "wet-outside",
+          "targetName": "Wet outside",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 3
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "wet-unresolved",
+          "targetName": "Wet unresolved",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 4
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "wet-immune",
+          "targetName": "Wet immune",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 5
+        },
+        {
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 1,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": 0,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "electro",
+              "gaugeUnits": 1,
+              "sourceActorId": "ec-owner"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "targetFrame": 0,
+          "id": 6
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "observation",
+          "cause": "electro-charged-tick",
+          "eventType": "periodicReactionTick",
+          "eventPriority": 4,
+          "eventSequence": 8,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "periodic-reaction-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 7
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 8
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-boundary",
+          "targetName": "Wet boundary",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 1,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 9
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "dry-nearby",
+          "targetName": "Dry nearby",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 2,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [],
+          "targetFrame": 10,
+          "id": 10
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-outside",
+          "targetName": "Wet outside",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 3,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 11
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-unresolved",
+          "targetName": "Wet unresolved",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 4,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 12
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-immune",
+          "targetName": "Wet immune",
+          "pointKind": "observation",
+          "cause": "electro-charged-propagation-candidate",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 5,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 13
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 6,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": 1,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 1
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 14
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-boundary",
+          "targetName": "Wet boundary",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 7,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": 2,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 2
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 15
+        },
+        {
+          "frame": 10,
+          "timeSeconds": 0.16666666666666666,
+          "targetId": "wet-immune",
+          "targetName": "Wet immune",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 15,
+          "intraEventSequence": 8,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": 3,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 3
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.785964912281,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.785964912281
+                }
+              ]
+            }
+          ],
+          "targetFrame": 10,
+          "id": 16
+        },
+        {
+          "frame": 16,
+          "timeSeconds": 0.26666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "mutation",
+          "cause": "electro-charged-wane",
+          "eventType": "periodicReactionWane",
+          "eventPriority": 6,
+          "eventSequence": 16,
+          "intraEventSequence": 0,
+          "reaction": "electroCharged",
+          "reactions": [
+            "electroCharged"
+          ],
+          "primaryDamageEventId": 1,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 1
+            },
+            {
+              "kind": "periodic-reaction-log",
+              "id": 2
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.777543859649,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.777543859649
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.777543859649,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.777543859649
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.4,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 0.777543859649,
+                  "consumedGaugeUnits": 0.4,
+                  "gaugeUnitsAfter": 0.377543859649
+                }
+              ]
+            },
+            {
+              "element": "electro",
+              "gaugeUnits": 0.4,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnitsBefore": 0.777543859649,
+                  "consumedGaugeUnits": 0.4,
+                  "gaugeUnitsAfter": 0.377543859649
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.377543859649,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.377543859649
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.377543859649,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.377543859649
+                }
+              ]
+            }
+          ],
+          "targetFrame": 16,
+          "id": 17
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "enemy-0",
+          "targetName": "Source",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.315789473684,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.315789473684
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.315789473684,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.315789473684
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.315789473684,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "ec-owner",
+                  "gaugeUnits": 0.315789473684
+                }
+              ]
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.315789473684,
+              "expiresAtFrame": 285,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.315789473684
+                }
+              ]
+            }
+          ],
+          "targetFrame": 60,
+          "id": 18
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "wet-boundary",
+          "targetName": "Wet boundary",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "targetFrame": 60,
+          "id": 19
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "dry-nearby",
+          "targetName": "Dry nearby",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [],
+          "targetFrame": 60,
+          "id": 20
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "wet-outside",
+          "targetName": "Wet outside",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "targetFrame": 60,
+          "id": 21
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "wet-unresolved",
+          "targetName": "Wet unresolved",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "targetFrame": 60,
+          "id": 22
+        },
+        {
+          "frame": 60,
+          "timeSeconds": 1,
+          "targetId": "wet-immune",
+          "targetName": "Wet immune",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.715789473684,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.715789473684
+                }
+              ]
+            }
+          ],
+          "targetFrame": 60,
+          "id": 23
+        }
+      ]
+    },
+    "candidateAuraWitnesses": [
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 0,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 8
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 1,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 9
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "dry-nearby",
+        "targetName": "Dry nearby",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 2,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [],
+        "targetFrame": 10,
+        "id": 10
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-outside",
+        "targetName": "Wet outside",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 3,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 11
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-unresolved",
+        "targetName": "Wet unresolved",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 4,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 12
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "pointKind": "observation",
+        "cause": "electro-charged-propagation-candidate",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 5,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": null,
+        "links": [
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 13
+      }
+    ],
+    "propagationDamageApplicationPoints": [
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "pointKind": "observation",
+        "cause": "reaction-damage-application",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 6,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": 1,
+        "links": [
+          {
+            "kind": "damage-event",
+            "id": 1
+          },
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 14
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "pointKind": "observation",
+        "cause": "reaction-damage-application",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 7,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": 2,
+        "links": [
+          {
+            "kind": "damage-event",
+            "id": 2
+          },
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 15
+      },
+      {
+        "frame": 10,
+        "timeSeconds": 0.16666666666666666,
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "pointKind": "observation",
+        "cause": "reaction-damage-application",
+        "eventType": "reactionDamage",
+        "eventPriority": 5,
+        "eventSequence": 15,
+        "intraEventSequence": 8,
+        "reaction": "electroCharged",
+        "reactions": [
+          "electroCharged"
+        ],
+        "primaryDamageEventId": 3,
+        "links": [
+          {
+            "kind": "damage-event",
+            "id": 3
+          },
+          {
+            "kind": "reaction-damage-log",
+            "id": 0
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.785964912281,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.785964912281
+              }
+            ]
+          }
+        ],
+        "targetFrame": 10,
+        "id": 16
+      }
+    ],
+    "auraInitialStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "dry-nearby",
+        "targetName": "Dry nearby",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": []
+      },
+      {
+        "targetId": "wet-outside",
+        "targetName": "Wet outside",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-unresolved",
+        "targetName": "Wet unresolved",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "auraEndStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "Source",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": [
+          {
+            "element": "electro",
+            "gaugeUnits": 0.315789473684,
+            "expiresAtFrame": 285,
+            "sourceSlots": [
+              {
+                "sourceActorId": "ec-owner",
+                "gaugeUnits": 0.315789473684
+              }
+            ]
+          },
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.315789473684,
+            "expiresAtFrame": 285,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.315789473684
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-boundary",
+        "targetName": "Wet boundary",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.715789473684,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.715789473684
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "dry-nearby",
+        "targetName": "Dry nearby",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": []
+      },
+      {
+        "targetId": "wet-outside",
+        "targetName": "Wet outside",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.715789473684,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.715789473684
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-unresolved",
+        "targetName": "Wet unresolved",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.715789473684,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.715789473684
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "targetId": "wet-immune",
+        "targetName": "Wet immune",
+        "frame": 60,
+        "timeSeconds": 1,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.715789473684,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.715789473684
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totals": {
+      "totalDamage": 8980.429843018868,
+      "dps": 8980.429843018868,
+      "damageEventCount": 4,
+      "reactedHits": 1,
+      "skippedActionCount": 0
+    }
+  },
+  "scenarioSha256": "b00a4a02e859e7744660fb71ed859763a67b0cb08dfb8cc8146e46f409d6e92c"
+}

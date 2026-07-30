@@ -16,6 +16,8 @@ import {
   DENDRO_CORE_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
@@ -63,7 +65,8 @@ import {
 } from "./types";
 import {
   createSimulationConfigHash,
-  createSimulationReproducibilityKey
+  createSimulationReproducibilityKey,
+  createVersionedContentHash
 } from "./reproducibility";
 
 const idSchema = z.string().trim().min(1);
@@ -79,6 +82,464 @@ const geometryCoordinateSpaceSchema = z.enum(["world", "actor-local"]);
 const fnv1a32ContentHashSchema = z
   .string()
   .regex(/^fnv1a32:[0-9a-f]{8}$/);
+const rejectInheritedWireFields =
+  (
+    fields: readonly string[],
+    label: string
+  ) =>
+  (input: unknown, context: z.RefinementCtx): unknown => {
+    if (
+      typeof input !== "object" ||
+      input === null ||
+      Array.isArray(input)
+    ) {
+      return input;
+    }
+    for (const field of fields) {
+      if (
+        field in input &&
+        !Object.prototype.hasOwnProperty.call(input, field)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: `${label}.${field} must be an explicit own wire property`
+        });
+      }
+    }
+    return input;
+  };
+const rejectInheritedArrayEntries =
+  (label: string) =>
+  (input: unknown, context: z.RefinementCtx): unknown => {
+    if (!Array.isArray(input)) return input;
+    for (let index = 0; index < input.length; index += 1) {
+      if (
+        !Object.prototype.hasOwnProperty.call(input, index)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [index],
+          message: `${label}[${index}] must be an explicit own wire entry`
+        });
+      }
+    }
+    return input;
+  };
+const rejectNonPlainJsonWire =
+  (label: string) =>
+  (input: unknown, context: z.RefinementCtx): unknown => {
+    // Real SimulationResult wires stay far below these limits. They bound
+    // adversarial recursion and traversal work before Zod sees the clean
+    // clone without constraining any supported 36,000-frame simulation.
+    const maximumWireDepth = 256;
+    const maximumWireNodes = 1_000_000;
+    let visitedWireNodes = 0;
+    let nodeBudgetIssueAdded = false;
+    const cloneStates = new WeakMap<
+      object,
+      { clone: unknown; active: boolean }
+    >();
+    const hasInheritedArrayIndexHazard = [
+      Array.prototype,
+      Object.prototype
+    ].some((prototype) =>
+      Reflect.ownKeys(prototype).some(
+        (key) =>
+          typeof key === "string" &&
+          /^(0|[1-9]\d*)$/.test(key) &&
+          Number(key) < 4_294_967_295
+        )
+    );
+    const standardObjectPrototypeKeys = new Set([
+      "constructor",
+      "__defineGetter__",
+      "__defineSetter__",
+      "hasOwnProperty",
+      "__lookupGetter__",
+      "__lookupSetter__",
+      "isPrototypeOf",
+      "propertyIsEnumerable",
+      "toString",
+      "valueOf",
+      "__proto__",
+      "toLocaleString"
+    ]);
+    const canUseOrdinaryObjectClone = Reflect.ownKeys(
+      Object.prototype
+    ).every((key) => {
+      if (
+        typeof key !== "string" ||
+        !standardObjectPrototypeKeys.has(key)
+      ) {
+        return false;
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(
+        Object.prototype,
+        key
+      );
+      if (
+        descriptor === undefined ||
+        descriptor.enumerable
+      ) {
+        return false;
+      }
+      return key === "__proto__"
+        ? !("value" in descriptor)
+        : "value" in descriptor &&
+            descriptor.writable === true;
+    });
+    const addWireIssue = (
+      path: Array<string | number>,
+      message: string
+    ): void => {
+      context.addIssue({
+        code: "custom",
+        path: [...path],
+        message: `${label} ${message}`
+      });
+    };
+    if (!canUseOrdinaryObjectClone) {
+      addWireIssue(
+        [],
+        "cannot be sanitized against a polluted or non-writable Object.prototype"
+      );
+    }
+    const visit = (
+      value: unknown,
+      path: Array<string | number>
+    ): unknown => {
+      visitedWireNodes += 1;
+      if (visitedWireNodes > maximumWireNodes) {
+        if (!nodeBudgetIssueAdded) {
+          addWireIssue(
+            path,
+            `exceeds the ${maximumWireNodes}-node JSON wire budget`
+          );
+          nodeBudgetIssueAdded = true;
+        }
+        return null;
+      }
+      if (path.length > maximumWireDepth) {
+        addWireIssue(
+          path,
+          `exceeds the maximum JSON wire depth of ${maximumWireDepth}`
+        );
+        return null;
+      }
+      if (value === null) return null;
+      if (
+        typeof value === "string" ||
+        typeof value === "boolean"
+      ) {
+        return value;
+      }
+      if (typeof value === "number") {
+        if (Number.isFinite(value)) return value;
+        addWireIssue(
+          path,
+          "must contain only finite JSON numbers"
+        );
+        return null;
+      }
+      if (typeof value !== "object") {
+        addWireIssue(
+          path,
+          `cannot contain ${typeof value} values`
+        );
+        return null;
+      }
+      const existingState = cloneStates.get(value);
+      if (existingState !== undefined) {
+        if (existingState.active) {
+          addWireIssue(
+            path,
+            "must be an acyclic plain JSON wire"
+          );
+          return null;
+        }
+        return existingState.clone;
+      }
+      let isArray: boolean;
+      let prototype: object | null;
+      let ownKeys: PropertyKey[];
+      try {
+        isArray = Array.isArray(value);
+        prototype = Object.getPrototypeOf(value);
+        ownKeys = Reflect.ownKeys(value);
+      } catch {
+        addWireIssue(
+          path,
+          "cannot contain proxy objects with throwing reflection traps"
+        );
+        return null;
+      }
+      const expectedPrototype = isArray
+        ? Array.prototype
+        : Object.prototype;
+      if (
+        prototype !== expectedPrototype &&
+        prototype !== null
+      ) {
+        addWireIssue(
+          path,
+          "must contain only plain JSON objects with explicit own wire properties"
+        );
+      }
+      if (isArray) {
+        let lengthDescriptor: PropertyDescriptor | undefined;
+        try {
+          lengthDescriptor = Object.getOwnPropertyDescriptor(
+            value,
+            "length"
+          );
+        } catch {
+          addWireIssue(
+            path,
+            "cannot contain proxy objects with throwing reflection traps"
+          );
+          return null;
+        }
+        const arrayLength =
+          lengthDescriptor !== undefined &&
+          "value" in lengthDescriptor &&
+          typeof lengthDescriptor.value === "number"
+            ? lengthDescriptor.value
+            : -1;
+        let hasExtraProperties = false;
+        let expectedIndex = 0;
+        for (const ownKey of ownKeys) {
+          if (ownKey === "length") continue;
+          if (
+            typeof ownKey !== "string" ||
+            !/^(0|[1-9]\d*)$/.test(ownKey) ||
+            Number(ownKey) !== expectedIndex
+          ) {
+            hasExtraProperties = true;
+          } else {
+            expectedIndex += 1;
+          }
+        }
+        const dense =
+          Number.isSafeInteger(arrayLength) &&
+          arrayLength >= 0 &&
+          expectedIndex === arrayLength &&
+          ownKeys.length === arrayLength + 1 &&
+          !hasExtraProperties;
+        if (hasExtraProperties) {
+          addWireIssue(
+            path,
+            "arrays cannot contain symbols or extra properties"
+          );
+        }
+        if (!dense) {
+          addWireIssue(
+            path,
+            "arrays must contain dense explicit own wire entries"
+          );
+        }
+        const cleanArray: unknown[] = [];
+        const arrayState = {
+          clone: cleanArray,
+          active: true
+        };
+        cloneStates.set(value, arrayState);
+        if (!dense) {
+          arrayState.active = false;
+          return cleanArray;
+        }
+        for (let index = 0; index < arrayLength; index += 1) {
+          let descriptor: PropertyDescriptor | undefined;
+          try {
+            descriptor = Object.getOwnPropertyDescriptor(
+              value,
+              String(index)
+            );
+          } catch {
+            addWireIssue(
+              path,
+              "cannot contain proxy objects with throwing reflection traps"
+            );
+            arrayState.active = false;
+            return null;
+          }
+          if (descriptor === undefined) {
+            addWireIssue(
+              [...path, index],
+              "arrays must contain dense explicit own wire entries"
+            );
+            continue;
+          }
+          if (
+            !descriptor.enumerable ||
+            !("value" in descriptor)
+          ) {
+            addWireIssue(
+              [...path, index],
+              "array entries must be enumerable own data properties without getters or setters"
+            );
+            continue;
+          }
+          path.push(index);
+          const cleanEntry = visit(descriptor.value, path);
+          path.pop();
+          if (hasInheritedArrayIndexHazard) {
+            Object.defineProperty(cleanArray, index, {
+              value: cleanEntry,
+              enumerable: true,
+              configurable: true,
+              writable: true
+            });
+          } else {
+            cleanArray[index] = cleanEntry;
+          }
+        }
+        arrayState.active = false;
+        return cleanArray;
+      }
+      const cleanObject: Record<string, unknown> =
+        canUseOrdinaryObjectClone
+          ? {}
+          : Object.create(null);
+      const objectState = {
+        clone: cleanObject,
+        active: true
+      };
+      cloneStates.set(value, objectState);
+      for (const key of ownKeys) {
+        if (typeof key === "symbol") {
+          addWireIssue(
+            path,
+            "cannot contain symbol properties"
+          );
+          continue;
+        }
+        let descriptor: PropertyDescriptor | undefined;
+        try {
+          descriptor = Object.getOwnPropertyDescriptor(
+            value,
+            key
+          );
+        } catch {
+          addWireIssue(
+            path,
+            "cannot contain proxy objects with throwing reflection traps"
+          );
+          objectState.active = false;
+          return null;
+        }
+        if (descriptor === undefined) continue;
+        if (
+          !descriptor.enumerable ||
+          !("value" in descriptor)
+        ) {
+          addWireIssue(
+            [...path, key],
+            "object fields must be enumerable own data properties without getters or setters"
+          );
+          continue;
+        }
+        path.push(key);
+        const cleanField = visit(descriptor.value, path);
+        path.pop();
+        if (
+          canUseOrdinaryObjectClone &&
+          key === "__proto__"
+        ) {
+          Object.defineProperty(cleanObject, key, {
+            value: cleanField,
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
+        } else {
+          cleanObject[key] = cleanField;
+        }
+      }
+      objectState.active = false;
+      return cleanObject;
+    };
+    return visit(input, []);
+  };
+const rejectInheritedVersionedResultIdentity = (
+  input: unknown,
+  context: z.RefinementCtx
+): unknown => {
+  if (
+    typeof input !== "object" ||
+    input === null ||
+    Array.isArray(input)
+  ) {
+    return input;
+  }
+  const result = input as Record<string, unknown>;
+  const requireOwnWhenPresent = (
+    owner: Record<string, unknown>,
+    field: string,
+    path: Array<string | number>
+  ): void => {
+    if (
+      field in owner &&
+      !Object.prototype.hasOwnProperty.call(owner, field)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path,
+        message:
+          "versioned result identity and discriminators must be explicit own wire properties"
+      });
+    }
+  };
+  requireOwnWhenPresent(result, "schemaVersion", [
+    "schemaVersion"
+  ]);
+  requireOwnWhenPresent(result, "engineVersion", [
+    "engineVersion"
+  ]);
+  requireOwnWhenPresent(result, "config", ["config"]);
+  const config = result.config;
+  if (
+    typeof config !== "object" ||
+    config === null ||
+    Array.isArray(config)
+  ) {
+    return input;
+  }
+  const configRecord = config as Record<string, unknown>;
+  requireOwnWhenPresent(configRecord, "schemaVersion", [
+    "config",
+    "schemaVersion"
+  ]);
+  requireOwnWhenPresent(configRecord, "engineVersion", [
+    "config",
+    "engineVersion"
+  ]);
+  for (const modelField of [
+    "reactionEngine",
+    "targetClockModel",
+    "targetTaskModel",
+    "reactionDeliveryModel",
+    "electroChargedPropagationModel"
+  ]) {
+    requireOwnWhenPresent(configRecord, modelField, [
+      "config",
+      modelField
+    ]);
+    const model = configRecord[modelField];
+    if (
+      typeof model === "object" &&
+      model !== null &&
+      !Array.isArray(model)
+    ) {
+      requireOwnWhenPresent(
+        model as Record<string, unknown>,
+        "mode",
+        ["config", modelField, "mode"]
+      );
+    }
+  }
+  return input;
+};
 
 export const resolvedSimulationRuntimeOptionsSchema = z
   .object({
@@ -106,7 +567,7 @@ export const damagePluginManifestEntrySchema = z
   })
   .strict();
 
-export const simulationRunManifestSchema = z
+const simulationRunManifestValueSchema = z
   .object({
     version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
@@ -160,6 +621,19 @@ export const simulationRunManifestSchema = z
       });
     }
   });
+
+export const simulationRunManifestSchema = z.preprocess(
+  rejectInheritedWireFields(
+    [
+      "version",
+      "identityAlgorithm",
+      "schemaVersion",
+      "engineVersion"
+    ],
+    "runManifest"
+  ),
+  simulationRunManifestValueSchema
+);
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -487,6 +961,39 @@ export const reactionDeliveryModelSchema = z
   })
   .pipe(reactionDeliveryModelValueSchema);
 
+const electroChargedPropagationModelValueSchema =
+  z.discriminatedUnion("mode", [
+    z
+      .object({
+        mode: z.literal("single-target-v1")
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal("nearby-wet-radius-v1"),
+        radius: finiteNumber.positive().max(100),
+        verificationStatus: z.literal("provisional")
+      })
+      .strict()
+  ]);
+
+export const electroChargedPropagationModelSchema = z
+  .unknown()
+  .superRefine((value, context) => {
+    if (
+      isRecord(value) &&
+      !Object.prototype.hasOwnProperty.call(value, "mode")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["mode"],
+        message:
+          "must be an explicit own property; inherited Electro-Charged propagation discriminators are forbidden"
+      });
+    }
+  })
+  .pipe(electroChargedPropagationModelValueSchema);
+
 export const auraStateElementSchema = z.enum([
   "pyro",
   "cryo",
@@ -744,6 +1251,155 @@ function electroChargedCoexistenceExpiryFrame(
   return finiteExpiryFrames.length === 0
     ? null
     : Math.min(...finiteExpiryFrames);
+}
+
+type AuraGaugeWireEntry = z.infer<
+  typeof auraGaugeEntrySchema
+>;
+
+function electroChargedWaneAuditMatches(
+  before: readonly AuraStateWireEntry[],
+  consumed: readonly AuraGaugeWireEntry[],
+  after: readonly AuraStateWireEntry[],
+  waneGaugeUnits: number
+): boolean {
+  const waneElements = ["hydro", "electro"] as const;
+  const consumedByElement = new Map(
+    consumed.map((entry) => [entry.element, entry])
+  );
+  if (
+    consumed.length !== waneElements.length ||
+    consumedByElement.size !== waneElements.length
+  ) {
+    return false;
+  }
+  for (const element of waneElements) {
+    const beforeEntry = before.find(
+      (entry) => entry.element === element
+    );
+    const consumedEntry = consumedByElement.get(element);
+    if (
+      beforeEntry === undefined ||
+      consumedEntry === undefined ||
+      !approximatelyEqual(
+        consumedEntry.gaugeUnits,
+        Math.min(waneGaugeUnits, beforeEntry.gaugeUnits)
+      )
+    ) {
+      return false;
+    }
+    const beforeSlots = beforeEntry.sourceSlots ?? [];
+    const mutations = consumedEntry.sourceMutations ?? [];
+    if (mutations.length !== beforeSlots.length) {
+      return false;
+    }
+    const expectedAfterSlots = beforeSlots
+      .map((slot) => ({
+        sourceActorId: slot.sourceActorId,
+        gaugeUnits: Math.max(
+          0,
+          slot.gaugeUnits -
+            Math.min(waneGaugeUnits, slot.gaugeUnits)
+        )
+      }))
+      .filter(
+        (slot) =>
+          slot.gaugeUnits > electroChargedAuraEpsilon
+      );
+    for (
+      let slotIndex = 0;
+      slotIndex < beforeSlots.length;
+      slotIndex += 1
+    ) {
+      const beforeSlot = beforeSlots[slotIndex]!;
+      const mutation = mutations[slotIndex];
+      const expectedConsumed = Math.min(
+        waneGaugeUnits,
+        beforeSlot.gaugeUnits
+      );
+      if (
+        mutation === undefined ||
+        mutation.sourceActorId !==
+          beforeSlot.sourceActorId ||
+        !approximatelyEqual(
+          mutation.gaugeUnitsBefore,
+          beforeSlot.gaugeUnits
+        ) ||
+        !approximatelyEqual(
+          mutation.consumedGaugeUnits,
+          expectedConsumed
+        ) ||
+        !approximatelyEqual(
+          mutation.gaugeUnitsAfter,
+          Math.max(
+            0,
+            beforeSlot.gaugeUnits - expectedConsumed
+          )
+        )
+      ) {
+        return false;
+      }
+    }
+    const afterEntry = after.find(
+      (entry) => entry.element === element
+    );
+    if (expectedAfterSlots.length === 0) {
+      if (afterEntry !== undefined) return false;
+      continue;
+    }
+    if (
+      afterEntry === undefined ||
+      (afterEntry.sourceSlots ?? []).length !==
+        expectedAfterSlots.length
+    ) {
+      return false;
+    }
+    const afterSlots = afterEntry.sourceSlots ?? [];
+    for (
+      let slotIndex = 0;
+      slotIndex < expectedAfterSlots.length;
+      slotIndex += 1
+    ) {
+      const expectedSlot = expectedAfterSlots[slotIndex]!;
+      const actualSlot = afterSlots[slotIndex];
+      if (
+        actualSlot === undefined ||
+        actualSlot.sourceActorId !==
+          expectedSlot.sourceActorId ||
+        !approximatelyEqual(
+          actualSlot.gaugeUnits,
+          expectedSlot.gaugeUnits
+        )
+      ) {
+        return false;
+      }
+    }
+    const expectedGauge = Math.max(
+      ...expectedAfterSlots.map((slot) => slot.gaugeUnits)
+    );
+    if (
+      !approximatelyEqual(
+        afterEntry.gaugeUnits,
+        expectedGauge
+      )
+    ) {
+      return false;
+    }
+  }
+  const unaffectedBefore = before.filter(
+    (entry) =>
+      entry.element !== "hydro" &&
+      entry.element !== "electro"
+  );
+  const unaffectedAfter = after.filter(
+    (entry) =>
+      entry.element !== "hydro" &&
+      entry.element !== "electro"
+  );
+  return auraStateSnapshotsEqual(
+    unaffectedBefore,
+    unaffectedAfter
+  );
 }
 
 /**
@@ -1224,12 +1880,39 @@ export const targetStateTimelineCauseSchema = z.enum([
   "electro-charged-tick",
   "electro-charged-wane",
   "electro-charged-cleanup",
+  "electro-charged-propagation-candidate",
   "burning-fuel-expiry",
   "burning-tick",
   "target-mechanics-truncation"
 ]);
 
-export const targetStateTimelinePointSchema = z
+export const targetStateTimelinePointSchema = z.preprocess(
+  rejectInheritedWireFields(
+    [
+      "id",
+      "frame",
+      "targetFrame",
+      "timeSeconds",
+      "targetId",
+      "targetName",
+      "pointKind",
+      "cause",
+      "eventType",
+      "eventPriority",
+      "eventSequence",
+      "intraEventSequence",
+      "reaction",
+      "reactions",
+      "primaryDamageEventId",
+      "links",
+      "auraBefore",
+      "auraApplied",
+      "auraConsumed",
+      "auraAfter"
+    ],
+    "targetStateTimelinePoint"
+  ),
+  z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
@@ -1498,6 +2181,8 @@ export const targetStateTimelinePointSchema = z
       "electro-charged-expiry": "periodicReactionExpiry",
       "electro-charged-tick": "periodicReactionTick",
       "electro-charged-wane": "periodicReactionWane",
+      "electro-charged-propagation-candidate":
+        "reactionDamage",
       "burning-fuel-expiry": "burningFuelExpiry",
       "burning-tick": "burningTick"
     } as const;
@@ -1524,6 +2209,37 @@ export const targetStateTimelinePointSchema = z
         "eventType",
         "target-mechanics-truncation requires a hit or reactionDamage event"
       );
+    }
+    if (
+      point.cause ===
+      "electro-charged-propagation-candidate"
+    ) {
+      if (point.pointKind !== "observation") {
+        issue(
+          "pointKind",
+          "Electro-Charged propagation candidate witnesses must be observation points"
+        );
+      }
+      if (
+        point.reaction !== "electroCharged" ||
+        point.reactions.length !== 1 ||
+        point.reactions[0] !== "electroCharged"
+      ) {
+        issue(
+          "reaction",
+          "Electro-Charged propagation candidate witnesses require exactly one electroCharged reaction"
+        );
+      }
+      if (
+        point.primaryDamageEventId !== null ||
+        point.links.length !== 1 ||
+        point.links[0]?.kind !== "reaction-damage-log"
+      ) {
+        issue(
+          "links",
+          "Electro-Charged propagation candidate witnesses require only one reaction-damage-log parent link"
+        );
+      }
     }
 
     const linkKeys = new Set<string>();
@@ -1562,12 +2278,23 @@ export const targetStateTimelinePointSchema = z
         "primaryDamageEventId requires a matching damage-event link"
       );
     }
-  });
+  })
+);
 
-export const targetStateTimelineSchema = z
+export const targetStateTimelineSchema = z.preprocess(
+  rejectInheritedWireFields(
+    ["version", "points"],
+    "targetStateTimeline"
+  ),
+  z
   .object({
     version: z.literal("1.0.0"),
-    points: z.array(targetStateTimelinePointSchema).min(1)
+    points: z.preprocess(
+      rejectInheritedArrayEntries(
+        "targetStateTimeline.points"
+      ),
+      z.array(targetStateTimelinePointSchema).min(1)
+    )
   })
   .strict()
   .superRefine((timeline, context) => {
@@ -1741,7 +2468,8 @@ export const targetStateTimelineSchema = z
         });
       }
     }
-  });
+  })
+);
 
 export const targetClockSummarySchema = z
   .object({
@@ -5685,6 +6413,402 @@ export const reactionDamageGroupAuditSchema = z.union([
   reactionBDamageGroupAuditSchema
 ]);
 
+const electroChargedAuraEpsilon = 1e-10;
+const electroChargedWitnessTolerance = 1e-9;
+const electroChargedPropagationPointSchema = z.preprocess(
+  rejectInheritedWireFields(
+    ["x", "y"],
+    "electroChargedPropagationPosition"
+  ),
+  derivedPoint2DSchema
+);
+
+export const electroChargedPropagationCandidateAuditSchema =
+  z.preprocess(
+    rejectInheritedWireFields(
+      [
+        "targetId",
+        "targetName",
+        "targetOrder",
+        "hydroGaugeUnits",
+        "position",
+        "distance",
+        "threshold",
+        "selected",
+        "reason",
+        "auraObservationTimelinePointId",
+        "hitResolutionLogId",
+        "damageEventId"
+      ],
+      "electroChargedPropagationCandidate"
+    ),
+    z
+  .object({
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    targetOrder: z.number().int().nonnegative(),
+    hydroGaugeUnits: finiteNumber.nonnegative(),
+    position: electroChargedPropagationPointSchema.nullable(),
+    distance: finiteNumber.nonnegative().nullable(),
+    threshold: finiteNumber.nonnegative().nullable(),
+    selected: z.boolean(),
+    reason: z.enum([
+      "SOURCE_STREAM_TARGET",
+      "NEARBY_WET_IN_RANGE",
+      "NO_HYDRO_AURA",
+      "OUT_OF_RANGE",
+      "POSITION_UNRESOLVED",
+      "SOURCE_POSITION_UNRESOLVED"
+    ]),
+    auraObservationTimelinePointId: z
+      .number()
+      .int()
+      .nonnegative(),
+    hitResolutionLogId: z.number().int().nonnegative().nullable(),
+    damageEventId: z.number().int().nonnegative().nullable()
+  })
+  .strict()
+  .superRefine((candidate, context) => {
+    const hasHitResolutionChild =
+      candidate.hitResolutionLogId !== null;
+    const hasDamageChild = candidate.damageEventId !== null;
+    if (
+      candidate.selected
+        ? !hasHitResolutionChild || !hasDamageChild
+        : hasHitResolutionChild || hasDamageChild
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["selected"],
+        message:
+          "selected Electro-Charged propagation candidates require one hit-resolution and damage-event child; unselected candidates require null child ids"
+      });
+    }
+    if (
+      candidate.selected &&
+      candidate.reason !== "SOURCE_STREAM_TARGET" &&
+      candidate.reason !== "NEARBY_WET_IN_RANGE"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message:
+          "selected Electro-Charged propagation candidates must be the source stream target or nearby Wet in range"
+      });
+    }
+    if (
+      !candidate.selected &&
+      (candidate.reason === "SOURCE_STREAM_TARGET" ||
+        candidate.reason === "NEARBY_WET_IN_RANGE")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message:
+          "unselected Electro-Charged propagation candidates require an explicit exclusion reason"
+      });
+    }
+    if (
+      candidate.reason === "SOURCE_STREAM_TARGET" &&
+      (candidate.distance !== null ||
+        candidate.threshold !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message:
+          "SOURCE_STREAM_TARGET requires null distance and threshold"
+      });
+    }
+    if (
+      candidate.reason === "NEARBY_WET_IN_RANGE" &&
+      (candidate.hydroGaugeUnits <=
+        electroChargedAuraEpsilon ||
+        candidate.position === null ||
+        candidate.distance === null ||
+        candidate.threshold === null ||
+        candidate.distance >
+          candidate.threshold +
+            electroChargedWitnessTolerance)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message:
+          "NEARBY_WET_IN_RANGE requires positive live Hydro Aura and resolved in-range geometry"
+      });
+    }
+    if (
+      candidate.reason === "NO_HYDRO_AURA" &&
+      (candidate.hydroGaugeUnits >
+        electroChargedAuraEpsilon ||
+        candidate.distance !== null ||
+        candidate.threshold !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["hydroGaugeUnits"],
+        message:
+          "NO_HYDRO_AURA requires Hydro gauge at or below the Aura epsilon and null distance/threshold"
+      });
+    }
+    if (
+      candidate.reason === "OUT_OF_RANGE" &&
+      (candidate.hydroGaugeUnits <=
+        electroChargedAuraEpsilon ||
+        candidate.position === null ||
+        candidate.distance === null ||
+        candidate.threshold === null ||
+        candidate.distance <=
+          candidate.threshold +
+            electroChargedWitnessTolerance)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["distance"],
+        message:
+          "OUT_OF_RANGE requires positive live Hydro Aura and resolved distance greater than threshold"
+      });
+    }
+    if (
+      candidate.reason === "POSITION_UNRESOLVED" &&
+      (candidate.hydroGaugeUnits <=
+        electroChargedAuraEpsilon ||
+        candidate.position !== null ||
+        candidate.distance !== null ||
+        candidate.threshold !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["position"],
+        message:
+          "POSITION_UNRESOLVED requires positive live Hydro Aura, a null target position, and null distance/threshold"
+      });
+    }
+    if (
+      candidate.reason === "SOURCE_POSITION_UNRESOLVED" &&
+      (candidate.hydroGaugeUnits <=
+        electroChargedAuraEpsilon ||
+        candidate.distance !== null ||
+        candidate.threshold !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message:
+          "SOURCE_POSITION_UNRESOLVED requires positive live Hydro Aura and null distance/threshold"
+      });
+    }
+  })
+  );
+
+export const electroChargedPropagationAuditSchema = z.preprocess(
+  rejectInheritedWireFields(
+    [
+      "model",
+      "verificationStatus",
+      "mechanicsDataStatus",
+      "generation",
+      "tickIndex",
+      "evaluationFrame",
+      "eventPriority",
+      "eventSequence",
+      "radius",
+      "selectionMode",
+      "sourcePosition",
+      "candidates"
+    ],
+    "electroChargedPropagationAudit"
+  ),
+  z
+  .object({
+    model: z.literal("nearby-wet-radius-v1"),
+    verificationStatus: z.literal("provisional"),
+    mechanicsDataStatus: z.literal("community-provisional"),
+    generation: z.number().int().nonnegative(),
+    tickIndex: z.number().int().nonnegative(),
+    evaluationFrame: z.number().int().nonnegative(),
+    eventPriority: finiteNumber.nonnegative(),
+    eventSequence: z.number().int().nonnegative(),
+    radius: finiteNumber.positive().max(100),
+    selectionMode: z.literal(
+      "all-in-range-registration-order-v1"
+    ),
+    sourcePosition:
+      electroChargedPropagationPointSchema.nullable(),
+    candidates: z.preprocess(
+      rejectInheritedArrayEntries(
+        "electroChargedPropagationAudit.candidates"
+      ),
+      z
+        .array(
+          electroChargedPropagationCandidateAuditSchema
+        )
+        .min(1)
+        .max(32)
+    )
+  })
+  .strict()
+  .superRefine((audit, context) => {
+    const targetIds = new Set<string>();
+    const targetOrders = new Set<number>();
+    let previousNonSourceOrder = -1;
+    let previousObservationTimelinePointId = -1;
+    audit.candidates.forEach((candidate, candidateIndex) => {
+      if (targetIds.has(candidate.targetId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "targetId"],
+          message:
+            "Electro-Charged propagation candidates must have unique target ids"
+        });
+      }
+      if (
+        targetOrders.has(candidate.targetOrder) ||
+        (candidateIndex > 1 &&
+          candidate.targetOrder <= previousNonSourceOrder)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "targetOrder"],
+          message:
+            "Electro-Charged propagation candidates must be unique and ordered by target registration order"
+        });
+      }
+      targetIds.add(candidate.targetId);
+      targetOrders.add(candidate.targetOrder);
+      if (candidateIndex > 0) {
+        previousNonSourceOrder = candidate.targetOrder;
+      }
+      if (
+        candidate.auraObservationTimelinePointId <=
+        previousObservationTimelinePointId
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [
+            "candidates",
+            candidateIndex,
+            "auraObservationTimelinePointId"
+          ],
+          message:
+            "candidate Aura observation timeline point ids must be strictly increasing in candidate order"
+        });
+      }
+      previousObservationTimelinePointId =
+        candidate.auraObservationTimelinePointId;
+      if (
+        candidateIndex === 0 &&
+        (!candidate.selected ||
+          candidate.reason !== "SOURCE_STREAM_TARGET" ||
+          candidate.distance !== null ||
+          candidate.threshold !== null ||
+          (candidate.position === null) !==
+            (audit.sourcePosition === null) ||
+          (candidate.position !== null &&
+            audit.sourcePosition !== null &&
+            (candidate.position.x !==
+              audit.sourcePosition.x ||
+              candidate.position.y !==
+                audit.sourcePosition.y)))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex],
+          message:
+            "the first candidate must be the selected source stream target with matching source position and null distance/threshold"
+        });
+      }
+      if (
+        candidateIndex > 0 &&
+        candidate.reason === "SOURCE_STREAM_TARGET"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "reason"],
+          message:
+            "only the first propagation candidate can be the source stream target"
+        });
+      }
+      if (
+        audit.sourcePosition === null &&
+        candidateIndex > 0 &&
+        candidate.hydroGaugeUnits >
+          electroChargedAuraEpsilon &&
+        candidate.reason !== "SOURCE_POSITION_UNRESOLVED"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "reason"],
+          message:
+            "a missing source position requires SOURCE_POSITION_UNRESOLVED for every non-source candidate"
+        });
+      }
+      if (
+        audit.sourcePosition !== null &&
+        candidate.reason === "SOURCE_POSITION_UNRESOLVED"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "reason"],
+          message:
+            "SOURCE_POSITION_UNRESOLVED requires a null audit source position"
+        });
+      }
+      if (
+        candidate.reason === "POSITION_UNRESOLVED" &&
+        audit.sourcePosition === null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["candidates", candidateIndex, "reason"],
+          message:
+            "POSITION_UNRESOLVED requires a resolved audit source position"
+        });
+      }
+      if (
+        candidateIndex > 0 &&
+        audit.sourcePosition !== null &&
+        candidate.position !== null &&
+        candidate.distance !== null
+      ) {
+        const expectedDistance = Math.hypot(
+          candidate.position.x - audit.sourcePosition.x,
+          candidate.position.y - audit.sourcePosition.y
+        );
+        if (candidate.distance !== expectedDistance) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "candidates",
+              candidateIndex,
+              "distance"
+            ],
+            message:
+              "resolved candidate distance must exactly equal the source-to-target Euclidean distance"
+          });
+        }
+      }
+      if (
+        candidateIndex > 0 &&
+        candidate.threshold !== null &&
+        candidate.threshold < audit.radius
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [
+            "candidates",
+            candidateIndex,
+            "threshold"
+          ],
+          message:
+            "resolved candidate threshold cannot be smaller than the propagation radius"
+        });
+      }
+    });
+  })
+);
+
 const dendroCoreLogBaseShape = {
   id: z.number().int().nonnegative(),
   coreId: z.number().int().nonnegative(),
@@ -6851,8 +7975,11 @@ const dendroCoreReactionDamageReferenceSchema = z
     targetingMode: z.enum([
       "radius",
       "single-target",
-      "nearest-target-radius"
+      "nearest-target-radius",
+      "electro-charged-nearby-wet"
     ]),
+    electroChargedPropagation:
+      electroChargedPropagationAuditSchema.optional(),
     centerPosition: derivedPoint2DSchema.nullable(),
     radius: finiteNumber.nonnegative(),
     sourceCoreId: z.number().int().nonnegative().nullable(),
@@ -7080,6 +8207,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]: {
     engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
     maxAuraRevision: 8
+  },
+  [EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION]: {
+    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+    maxAuraRevision: 8
   }
 };
 
@@ -7090,7 +8221,9 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
  * additional result fields while strictly validating the core-owned lifecycle,
  * contact, timeline, damage-event, and reaction-damage references.
  */
-export const dendroCoreResultReferencesSchema = z
+export const dendroCoreResultReferencesSchema = z.preprocess(
+  rejectInheritedVersionedResultIdentity,
+  z
   .object({
     schemaVersion: z.string(),
     engineVersion: z.string(),
@@ -7101,6 +8234,8 @@ export const dendroCoreResultReferencesSchema = z
         reactionEngine: auraReactionEngineConfigSchema.optional(),
         targetTaskModel: targetTaskModelSchema.optional(),
         targetClockModel: targetClockModelSchema.optional(),
+        electroChargedPropagationModel:
+          electroChargedPropagationModelSchema.optional(),
         timeline: z
           .object({
             mode: z.literal("legal-frame-v1"),
@@ -7150,19 +8285,113 @@ export const dendroCoreResultReferencesSchema = z
       );
     }
     const auraMode = result.config.reactionEngine?.mode;
-    const exact140Identity =
-      result.schemaVersion ===
+    const exactEcCleanupIdentity =
+      (result.schemaVersion ===
         EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
-      result.config.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
-      result.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
-      result.config.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+        result.config.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
     const auraRevision =
       auraMode === undefined
         ? null
         : Number(auraMode.slice("aura-v".length));
+    const exact141Identity =
+      result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    if (
+      exact141Identity &&
+      result.config.electroChargedPropagationModel === undefined
+    ) {
+      addMissingReferenceIssue(
+        context,
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.41 Dendro-core output requires an explicit Electro-Charged propagation model"
+      );
+    }
+    if (
+      !exact141Identity &&
+      result.config.electroChargedPropagationModel !== undefined
+    ) {
+      addMissingReferenceIssue(
+        context,
+        ["config", "electroChargedPropagationModel"],
+        "pre-1.41 Dendro-core output cannot carry Electro-Charged propagation selection"
+      );
+    }
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      if (
+        !exact141Identity &&
+        (entry.targetingMode ===
+          "electro-charged-nearby-wet" ||
+          entry.electroChargedPropagation !== undefined)
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "pre-1.41 Dendro-core references cannot carry Electro-Charged nearby-Wet targeting or audit data"
+        );
+      }
+      if (
+        exact141Identity &&
+        result.config.electroChargedPropagationModel?.mode ===
+          "single-target-v1" &&
+        (entry.targetingMode ===
+          "electro-charged-nearby-wet" ||
+          entry.electroChargedPropagation !== undefined)
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "1.41 single-target-v1 Dendro-core references cannot carry Electro-Charged propagation audit data"
+        );
+      }
+      if (
+        exact141Identity &&
+        result.config.electroChargedPropagationModel?.mode ===
+          "nearby-wet-radius-v1" &&
+        entry.reaction === "electroCharged" &&
+        entry.scheduleKind === "periodic-tick" &&
+        entry.withinSimulation &&
+        (entry.targetingMode !==
+          "electro-charged-nearby-wet" ||
+          entry.electroChargedPropagation === undefined)
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "within-simulation 1.41 nearby-Wet Dendro-core references require a complete Electro-Charged propagation audit"
+        );
+      }
+    });
     if (
       identityContract !== undefined &&
       auraRevision !== null &&
@@ -7308,7 +8537,7 @@ export const dendroCoreResultReferencesSchema = z
       const hasDefinedCleanupField =
         hasCleanupField &&
         task.electroChargedCleanup !== undefined;
-      if (exact140Identity && !hasDefinedCleanupField) {
+      if (exactEcCleanupIdentity && !hasDefinedCleanupField) {
         addMissingReferenceIssue(
           context,
           [
@@ -7316,10 +8545,10 @@ export const dendroCoreResultReferencesSchema = z
             taskIndex,
             "electroChargedCleanup"
           ],
-          "exact 1.40 reaction tasks require an explicit Electro-Charged cleanup audit or null"
+          "exact 1.40 or 1.41 reaction tasks require an explicit Electro-Charged cleanup audit or null"
         );
       }
-      if (!exact140Identity && hasCleanupField) {
+      if (!exactEcCleanupIdentity && hasCleanupField) {
         addMissingReferenceIssue(
           context,
           [
@@ -7331,7 +8560,7 @@ export const dendroCoreResultReferencesSchema = z
         );
       }
       if (
-        exact140Identity &&
+        exactEcCleanupIdentity &&
         auraMode === "aura-v7" &&
         task.electroChargedCleanup !== null
       ) {
@@ -7342,7 +8571,7 @@ export const dendroCoreResultReferencesSchema = z
             taskIndex,
             "electroChargedCleanup"
           ],
-          "aura-v7 exact 1.40 reaction tasks require electroChargedCleanup=null"
+          "aura-v7 exact 1.40 or 1.41 reaction tasks require electroChargedCleanup=null"
         );
       }
     });
@@ -7787,7 +9016,7 @@ export const dendroCoreResultReferencesSchema = z
           );
         }
         if (
-          exact140Identity &&
+          exactEcCleanupIdentity &&
           result.config.targetClockModel?.mode ===
             "target-local-hitlag-v1"
         ) {
@@ -8554,7 +9783,8 @@ export const dendroCoreResultReferencesSchema = z
           attemptCount: expectedHitIndex + 1
         });
       });
-  });
+  })
+);
 
 const burningIcdApplicationSequenceSchema = z.tuple([
   z.literal(true),
@@ -10977,10 +12207,15 @@ export const simConfigSchema = z
     playerDamageModel: playerDamageModelSchema,
     targetClockModel: targetClockModelSchema,
     targetTaskModel: targetTaskModelSchema,
-    reactionDeliveryModel: reactionDeliveryModelSchema
+    reactionDeliveryModel: reactionDeliveryModelSchema,
+    electroChargedPropagationModel:
+      electroChargedPropagationModelSchema
   })
   .strict()
   .superRefine((config, context) => {
+    const ecNearbyWetPropagationEnabled =
+      config.electroChargedPropagationModel.mode ===
+      "nearby-wet-radius-v1";
     if (config.reactionEngine?.mode === "aura-v8") {
       if (
         config.timeline?.mode !== "legal-frame-v1" ||
@@ -10999,6 +12234,38 @@ export const simConfigSchema = z
           path: ["targetTaskModel"],
           message:
             "aura-v8 requires targetTaskModel.mode target-phase-v2"
+        });
+      }
+    }
+    if (
+      config.electroChargedPropagationModel.mode ===
+      "nearby-wet-radius-v1"
+    ) {
+      if (config.reactionEngine?.mode !== "aura-v8") {
+        context.addIssue({
+          code: "custom",
+          path: ["electroChargedPropagationModel"],
+          message:
+            "nearby-wet-radius-v1 requires reactionEngine.mode aura-v8"
+        });
+      }
+      if (
+        config.timeline?.mode !== "legal-frame-v1" ||
+        config.timeline.fps !== 60
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["electroChargedPropagationModel"],
+          message:
+            "nearby-wet-radius-v1 requires timeline.mode legal-frame-v1 at 60 FPS"
+        });
+      }
+      if (config.targetTaskModel.mode !== "target-phase-v2") {
+        context.addIssue({
+          code: "custom",
+          path: ["electroChargedPropagationModel"],
+          message:
+            "nearby-wet-radius-v1 requires targetTaskModel.mode target-phase-v2"
         });
       }
     }
@@ -11789,7 +13056,7 @@ export const simConfigSchema = z
             path: ["enemy", "targets"],
             message: `${coreContactMode} requires enemy.targets and a position for every registered target`
           });
-        } else {
+        } else if (!ecNearbyWetPropagationEnabled) {
           config.enemy.targets.forEach((target, targetIndex) => {
             if (target.position === undefined) {
               context.addIssue({
@@ -11817,6 +13084,12 @@ export const simConfigSchema = z
           element?: string | undefined;
           scalingOwnerId?: string | undefined;
           geometry?: unknown;
+          targeting?:
+            | {
+                mode?: "fanout" | undefined;
+                targetId?: string | undefined;
+              }
+            | undefined;
         },
         path: Array<string | number>,
         actorId: string
@@ -11916,7 +13189,13 @@ export const simConfigSchema = z
           hit.application !== undefined &&
           (resolvedElement === "pyro" ||
             resolvedElement === "electro") &&
-          hit.geometry === undefined
+          hit.geometry === undefined &&
+          !(
+            ecNearbyWetPropagationEnabled &&
+            hit.targeting !== undefined &&
+            hit.targeting.mode !== "fanout" &&
+            hit.targeting.targetId !== undefined
+          )
         ) {
           context.addIssue({
             code: "custom",
@@ -11968,10 +13247,11 @@ export const simConfigSchema = z
   });
 
 /**
- * Result-reference validators must remain able to audit frozen 1.39 payloads
- * after CURRENT advances. The wire object is preserved verbatim; only a
- * temporary identity projection is upgraded for reuse of the complete current
- * config validator.
+ * Result-reference validators must remain able to audit frozen 1.39 and 1.40
+ * payloads after CURRENT advances. The wire object is preserved verbatim; only
+ * a temporary identity projection is upgraded for reuse of the complete
+ * current config validator. Future fields remain forbidden on those frozen
+ * wires and are injected only into the temporary validation projection.
  */
 const simResultConfigSchema = z
   .custom<SimConfig>((value) => isRecord(value), {
@@ -11984,6 +13264,26 @@ const simResultConfigSchema = z
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
       wire.engineVersion ===
         SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    const exact140Identity =
+      wire.schemaVersion === EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      wire.engineVersion === EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    const exactHistoricalIdentity =
+      exact139Identity || exact140Identity;
+    if (
+      exactHistoricalIdentity &&
+      Object.prototype.hasOwnProperty.call(
+        wire,
+        "electroChargedPropagationModel"
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["electroChargedPropagationModel"],
+        message:
+          "pre-1.41 result config cannot carry Electro-Charged propagation selection"
+      });
+      return;
+    }
     if (
       exact139Identity &&
       isRecord(wire.reactionEngine) &&
@@ -11997,11 +13297,14 @@ const simResultConfigSchema = z
       });
       return;
     }
-    const projected = exact139Identity
+    const projected = exactHistoricalIdentity
       ? {
           ...wire,
           schemaVersion: CURRENT_SCHEMA_VERSION,
-          engineVersion: CURRENT_ENGINE_VERSION
+          engineVersion: CURRENT_ENGINE_VERSION,
+          electroChargedPropagationModel: {
+            mode: "single-target-v1"
+          }
         }
       : wire;
     const parsed = simConfigSchema.safeParse(projected);
@@ -12791,6 +14094,8 @@ const targetTaskPhaseConfigReferenceSchema = z
     schemaVersion: z.string().optional(),
     engineVersion: z.string().optional(),
     targetTaskModel: targetTaskModelSchema.optional(),
+    electroChargedPropagationModel:
+      electroChargedPropagationModelSchema.optional(),
     targetClockModel: z
       .object({
         mode: z.enum(["disabled", "target-local-hitlag-v1"])
@@ -12832,7 +14137,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION]:
     SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]:
-    EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+  [EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION]:
+    EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -12887,11 +14194,77 @@ const targetTaskPhaseHitReferenceSchema = z
     eventSequence: z.number().int().nonnegative().optional(),
     intraEventSequence:
       z.number().int().nonnegative().optional(),
+    cycle: z.number().int().nonnegative().optional(),
+    sourceActorId: wireNonEmptyStringSchema.optional(),
+    sourceActionId: wireNonEmptyStringSchema.optional(),
+    actionName: wireNonEmptyStringSchema.optional(),
+    hitId: wireNonEmptyStringSchema.optional(),
+    hitGroupId: wireNonEmptyStringSchema.optional(),
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
+    element: elementSchema.optional(),
     targetId: wireNonEmptyStringSchema,
     targetName: wireNonEmptyStringSchema,
+    targetingSource: z
+      .enum([
+        "default",
+        "scripted",
+        "geometry",
+        "reaction-source",
+        "reaction-geometry"
+      ])
+      .optional(),
     resolutionKind: z.enum(["direct", "reaction-damage"]),
+    targetPosition:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    sourceActorPosition:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    sourceActorFacingDegrees: finiteNumber.nullable().optional(),
+    geometryKind: z
+      .enum(["circle", "rectangle", "capsule", "sector"])
+      .nullable()
+      .optional(),
+    geometryCoordinateSpace:
+      geometryCoordinateSpaceSchema.nullable().optional(),
+    geometryOrigin:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    geometryStart:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    geometryEnd:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    geometryRadius: finiteNumber.nonnegative().nullable().optional(),
+    geometryHalfWidth:
+      finiteNumber.nonnegative().nullable().optional(),
+    geometryHalfHeight:
+      finiteNumber.nonnegative().nullable().optional(),
+    geometryRotationDegrees: finiteNumber.nullable().optional(),
+    geometryDirectionDegrees: finiteNumber.nullable().optional(),
+    geometryAngleDegrees:
+      finiteNumber.nonnegative().nullable().optional(),
+    geometryDistance:
+      finiteNumber.nonnegative().nullable().optional(),
+    geometryThreshold:
+      finiteNumber.nonnegative().nullable().optional(),
+    outcome: z.enum(["landed", "miss"]).optional(),
     landed: z.boolean(),
-    damageEventId: z.number().int().nonnegative().nullable()
+    reason: z.string().nullable().optional(),
+    targetEffectSource: z
+      .enum(["normal", "hit", "target-phase"])
+      .optional(),
+    targetPhaseId: wireNonEmptyStringSchema.nullable().optional(),
+    damageAllowed: z.boolean().optional(),
+    auraAllowed: z.boolean().optional(),
+    hitConfirmAllowed: z.boolean().optional(),
+    mechanicsStatus: z
+      .enum(["authoritative", "mechanics-truncated"])
+      .optional(),
+    damageEventId: z.number().int().nonnegative().nullable(),
+    potentialDamage: finiteNumber.nonnegative().optional(),
+    finalDamage: finiteNumber.nonnegative().optional(),
+    displayDamage: finiteNumber.nonnegative().optional(),
+    timelineCommandIndex:
+      z.number().int().nonnegative().optional(),
+    sourceAbilityId: wireNonEmptyStringSchema.optional()
   })
   .passthrough();
 
@@ -12922,7 +14295,9 @@ const targetTaskPhaseReactionTaskReferenceSchema = z.preprocess(
  * are treated as legacy output and are not reinterpreted. Current target-phase
  * output must provide every owned projection used below.
  */
-export const targetTaskPhaseResultReferencesSchema = z
+export const targetTaskPhaseResultReferencesSchema = z.preprocess(
+  rejectInheritedVersionedResultIdentity,
+  z
   .object({
     schemaVersion: z.string().optional(),
     engineVersion: z.string().optional(),
@@ -12969,7 +14344,11 @@ export const targetTaskPhaseResultReferencesSchema = z
       result.schemaVersion ===
         EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -13019,20 +14398,55 @@ export const targetTaskPhaseResultReferencesSchema = z
         "target-task result and config require an exact supported schema and engine identity"
       );
     }
-    const exact140Identity =
+    const exactEcCleanupIdentity =
+      (result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
+    const exact141TargetTaskIdentity =
       result.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       result.config.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       result.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    if (
+      exact141TargetTaskIdentity &&
+      result.config.electroChargedPropagationModel === undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.41 target-task output requires an explicit Electro-Charged propagation model"
+      );
+    }
+    if (
+      !exact141TargetTaskIdentity &&
+      result.config.electroChargedPropagationModel !== undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "pre-1.41 target-task output cannot carry Electro-Charged propagation selection"
+      );
+    }
     if (result.config.reactionEngine?.mode === "aura-v8") {
-      if (!exact140Identity) {
+      if (!exactEcCleanupIdentity) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-task output requires the exact 1.40 schema and engine identity"
+          "aura-v8 target-task output requires the exact 1.40 or 1.41 schema and engine identity"
         );
       }
       if (
@@ -13062,7 +14476,7 @@ export const targetTaskPhaseResultReferencesSchema = z
           hasCleanupField &&
           task.electroChargedCleanup !== undefined;
         if (
-          exact140Identity &&
+          exactEcCleanupIdentity &&
           !hasDefinedCleanupField
         ) {
           issue(
@@ -13071,10 +14485,10 @@ export const targetTaskPhaseResultReferencesSchema = z
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 target-task output requires an explicit cleanup audit or null"
+            "exact 1.40 or 1.41 target-task output requires an explicit cleanup audit or null"
           );
         }
-        if (!exact140Identity && hasCleanupField) {
+        if (!exactEcCleanupIdentity && hasCleanupField) {
           issue(
             [
               "reactionTaskLog",
@@ -13085,7 +14499,7 @@ export const targetTaskPhaseResultReferencesSchema = z
           );
         }
         if (
-          exact140Identity &&
+          exactEcCleanupIdentity &&
           result.config.reactionEngine?.mode === "aura-v7" &&
           task.electroChargedCleanup !== null
         ) {
@@ -13095,7 +14509,7 @@ export const targetTaskPhaseResultReferencesSchema = z
               taskIndex,
               "electroChargedCleanup"
             ],
-            "aura-v7 exact 1.40 target-task output requires cleanup=null"
+            "aura-v7 exact 1.40 or 1.41 target-task output requires cleanup=null"
           );
         }
       }
@@ -13166,15 +14580,25 @@ export const targetTaskPhaseResultReferencesSchema = z
           EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+      const ecPropagationIdentity =
+        result.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
       if (
         !frozenV1Identity &&
         !migratedCurrentIdentity &&
         !shatterRecursiveIdentity &&
-        !ecCleanupIdentity
+        !ecCleanupIdentity &&
+        !ecPropagationIdentity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, 1.39, or 1.40 identity"
+          "target-phase-v1 result and config must use an exact supported 1.37, 1.38, 1.39, 1.40, or 1.41 identity"
         );
       }
     }
@@ -13989,7 +15413,8 @@ export const targetTaskPhaseResultReferencesSchema = z
         );
       }
     });
-  });
+  })
+);
 
 const targetPhaseV2FrozenReferenceSchema = z
   .object({
@@ -14174,7 +15599,9 @@ const targetPhaseV2ReactionTaskReferenceSchema = z.preprocess(
  * targetTaskPhaseResultReferencesSchema; this validator only adds the v2
  * lifecycle boundary and the mutual-exclusion contract between both logs.
  */
-export const targetPhaseV2ResultReferencesSchema = z
+export const targetPhaseV2ResultReferencesSchema = z.preprocess(
+  rejectInheritedVersionedResultIdentity,
+  z
   .object({
     schemaVersion: z.string().optional(),
     engineVersion: z.string().optional(),
@@ -14267,20 +15694,55 @@ export const targetPhaseV2ResultReferencesSchema = z
         "target-phase result and config require an exact supported schema and engine identity"
       );
     }
-    const exact140IdentityBeforeModeBranch =
+    const exactEcCleanupIdentityBeforeModeBranch =
+      (result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_NEXT_TARGET_TICK_ENGINE_VERSION) ||
+      (result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION);
+    const exact141TargetPhaseIdentity =
       result.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       result.config.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       result.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
       result.config.engineVersion ===
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    if (
+      exact141TargetPhaseIdentity &&
+      result.config.electroChargedPropagationModel === undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.41 target-phase output requires an explicit Electro-Charged propagation model"
+      );
+    }
+    if (
+      !exact141TargetPhaseIdentity &&
+      result.config.electroChargedPropagationModel !== undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "pre-1.41 target-phase output cannot carry Electro-Charged propagation selection"
+      );
+    }
     if (result.config.reactionEngine?.mode === "aura-v8") {
-      if (!exact140IdentityBeforeModeBranch) {
+      if (!exactEcCleanupIdentityBeforeModeBranch) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40 schema and engine identity"
+          "aura-v8 target-phase output requires the exact 1.40 or 1.41 schema and engine identity"
         );
       }
       if (
@@ -14310,7 +15772,7 @@ export const targetPhaseV2ResultReferencesSchema = z
           hasCleanupField &&
           task.electroChargedCleanup !== undefined;
         if (
-          exact140IdentityBeforeModeBranch &&
+          exactEcCleanupIdentityBeforeModeBranch &&
           !hasDefinedCleanupField
         ) {
           issue(
@@ -14319,11 +15781,11 @@ export const targetPhaseV2ResultReferencesSchema = z
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 target-phase output requires an explicit cleanup audit or null"
+            "exact 1.40 or 1.41 target-phase output requires an explicit cleanup audit or null"
           );
         }
         if (
-          !exact140IdentityBeforeModeBranch &&
+          !exactEcCleanupIdentityBeforeModeBranch &&
           hasCleanupField
         ) {
           issue(
@@ -14336,7 +15798,7 @@ export const targetPhaseV2ResultReferencesSchema = z
           );
         }
         if (
-          exact140IdentityBeforeModeBranch &&
+          exactEcCleanupIdentityBeforeModeBranch &&
           result.config.reactionEngine?.mode === "aura-v7" &&
           task.electroChargedCleanup !== null
         ) {
@@ -14346,12 +15808,12 @@ export const targetPhaseV2ResultReferencesSchema = z
               taskIndex,
               "electroChargedCleanup"
             ],
-            "aura-v7 exact 1.40 target-phase output requires cleanup=null"
+            "aura-v7 exact 1.40 or 1.41 target-phase output requires cleanup=null"
           );
         }
       }
     );
-    if (exact140IdentityBeforeModeBranch) {
+    if (exactEcCleanupIdentityBeforeModeBranch) {
       const nextEcGenerationByTarget = new Map<
         string,
         number
@@ -14390,7 +15852,11 @@ export const targetPhaseV2ResultReferencesSchema = z
       result.schemaVersion ===
         EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -14444,14 +15910,24 @@ export const targetPhaseV2ResultReferencesSchema = z
           EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+      const exact141Identity =
+        result.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.config.schemaVersion ===
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+        result.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+        result.config.engineVersion ===
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
       if (
         !exact138Identity &&
         !exact139Identity &&
-        !exact140Identity
+        !exact140Identity &&
+        !exact141Identity
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require an exact supported 1.38, 1.39, or 1.40 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38, 1.39, 1.40, or 1.41 schema and engine identity"
         );
       }
       if (
@@ -14474,11 +15950,12 @@ export const targetPhaseV2ResultReferencesSchema = z
       }
       if (
         result.config.reactionEngine?.mode === "aura-v8" &&
-        !exact140Identity
+        !exact140Identity &&
+        !exact141Identity
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40 schema and engine identity"
+          "aura-v8 target-phase output requires the exact 1.40 or 1.41 schema and engine identity"
         );
       }
       if (oldPhases.length !== 0) {
@@ -16297,7 +17774,8 @@ export const targetPhaseV2ResultReferencesSchema = z
         );
       }
     });
-  });
+  })
+);
 
 const electroChargedCleanupPeriodicLogEntrySchema = z
   .object({
@@ -16398,19 +17876,38 @@ const electroChargedCleanupDamageEventReferenceSchema = z
   .passthrough();
 
 /**
- * Exact 1.40 cross-log proof for Aura-v8 Electro-Charged cleanup requested
- * by Quicken→Bloom. This consumes a complete versioned config and the full
+ * Exact 1.40/1.41 cross-log proof for Aura-v8 Electro-Charged cleanup
+ * requested by Quicken→Bloom. This consumes a versioned config and the full
  * cleanup-owned logs while accepting unrelated SimulationResult fields.
  */
-export const electroChargedCleanupResultReferencesSchema = z
+export const electroChargedCleanupResultReferencesSchema = z.preprocess(
+  rejectInheritedVersionedResultIdentity,
+  z
   .object({
     schemaVersion: z.literal(
       EC_NEXT_TARGET_TICK_SCHEMA_VERSION
+    ).or(
+      z.literal(EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION)
     ),
     engineVersion: z.literal(
       EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    ).or(
+      z.literal(EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION)
     ),
-    config: simConfigSchema,
+    config: z
+      .object({
+        schemaVersion: z.string(),
+        engineVersion: z.string(),
+        duration: finiteNumber.positive(),
+        enemy: enemyProfileSchema,
+        reactionEngine: auraReactionEngineConfigSchema.optional(),
+        targetClockModel: targetClockModelSchema,
+        targetTaskModel: targetTaskModelSchema,
+        timeline: legalTimelineConfigSchema.optional(),
+        electroChargedPropagationModel:
+          electroChargedPropagationModelSchema.optional()
+      })
+      .passthrough(),
     reactionTaskLog: reactionTaskLogSchema,
     targetPhaseLog: targetPhaseV2LogSchema,
     targetStateTimeline: targetStateTimelineSchema,
@@ -16432,15 +17929,45 @@ export const electroChargedCleanupResultReferencesSchema = z
       path: Array<string | number>,
       message: string
     ): void => addMissingReferenceIssue(context, path, message);
-    if (
-      result.config.schemaVersion !==
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
-      result.config.engineVersion !==
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION
-    ) {
+    const exact140Identity =
+      result.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
+      result.config.schemaVersion ===
+        EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
+      result.config.engineVersion ===
+        EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    const exact141Identity =
+      result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+      result.config.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.config.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    if (!exact140Identity && !exact141Identity) {
       issue(
         ["config", "engineVersion"],
-        "Electro-Charged cleanup requires exact matching 1.40 result and config identity"
+        "Electro-Charged cleanup requires exact matching 1.40 or 1.41 result and config identity"
+      );
+    }
+    const hasPropagationModel =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "electroChargedPropagationModel"
+      );
+    if (exact140Identity && hasPropagationModel) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.40 cleanup output cannot carry the 1.41 Electro-Charged propagation model"
+      );
+    }
+    if (exact141Identity && !hasPropagationModel) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.41 cleanup output requires an explicit Electro-Charged propagation model"
       );
     }
     if (result.config.reactionEngine?.mode !== "aura-v8") {
@@ -16853,7 +18380,7 @@ export const electroChargedCleanupResultReferencesSchema = z
             taskIndex,
             "electroChargedCleanup"
           ],
-          "exact 1.40 aura-v8 tasks require an explicit cleanup audit or null"
+          "exact 1.40 or 1.41 aura-v8 tasks require an explicit cleanup audit or null"
         );
       }
       const reciprocalTransitions =
@@ -17775,7 +19302,8 @@ export const electroChargedCleanupResultReferencesSchema = z
         );
       }
     });
-  });
+  })
+);
 
 const reactionDeliveryTransformativeAuditReferenceSchema = z
   .object({
@@ -17810,6 +19338,26 @@ const reactionDeliverySwirlAuditReferenceSchema = z
   })
   .passthrough();
 
+const reactionDeliveryPeriodicReactionAuditReferenceSchema = z
+  .object({
+    reaction: z.literal("electroCharged"),
+    generation: z.number().int().nonnegative(),
+    operation: z.enum(["start", "refresh", "stop"]),
+    damageElement: z.literal("electro"),
+    baseMultiplier: finiteNumber.nonnegative(),
+    firstDamageFrame: z.number().int().nonnegative().nullable(),
+    nextTickFrame: z.number().int().nonnegative().nullable(),
+    tickIntervalFrames: z.number().int().positive(),
+    waneDelayFrames: z.number().int().positive(),
+    waneGaugeUnits: finiteNumber.nonnegative(),
+    coexistenceExpiresAtFrame: z
+      .number()
+      .int()
+      .nonnegative()
+      .nullable()
+  })
+  .passthrough();
+
 const reactionDeliveryDamageEventReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
@@ -17818,11 +19366,43 @@ const reactionDeliveryDamageEventReferenceSchema = z
     eventPriority: finiteNumber.nonnegative(),
     eventSequence: z.number().int().nonnegative(),
     sourceActorId: wireNonEmptyStringSchema,
+    scalingOwnerId: wireNonEmptyStringSchema.optional(),
+    creditOwnerId: wireNonEmptyStringSchema.optional(),
+    actionId: wireNonEmptyStringSchema.optional(),
+    actionName: wireNonEmptyStringSchema.optional(),
+    hitId: wireNonEmptyStringSchema.optional(),
+    hitGroupId: wireNonEmptyStringSchema.optional(),
+    targetIndex: z.number().int().nonnegative().optional(),
+    targetCount: z.number().int().positive().optional(),
+    targetResolutionId:
+      z.number().int().nonnegative().optional(),
     targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema.optional(),
+    targetDamagePolicy: z
+      .enum(["normal", "immune"])
+      .optional(),
+    targetDamageMultiplier: z.union([z.literal(0), z.literal(1)])
+      .optional(),
+    mechanicsStatus: z
+      .enum(["authoritative", "mechanics-truncated"])
+      .optional(),
+    potentialDamage: finiteNumber.nonnegative().optional(),
     frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative().optional(),
+    activeCharacterId:
+      wireNonEmptyStringSchema.nullable().optional(),
+    activeId: wireNonEmptyStringSchema.nullable().optional(),
     element: elementSchema,
     reaction: reactionTypeSchema,
     finalDamage: finiteNumber.nonnegative().optional(),
+    displayDamage: finiteNumber.nonnegative().optional(),
+    snapshot: z.enum(["action", "hit"]).optional(),
+    cycle: z.number().int().nonnegative().optional(),
+    timelineCommandIndex:
+      z.number().int().nonnegative().optional(),
+    sourceAbilityId: wireNonEmptyStringSchema.optional(),
+    actorId: wireNonEmptyStringSchema.optional(),
+    creditId: wireNonEmptyStringSchema.optional(),
     damageFactors: z
       .object({
         groupMultiplier: finiteNumber.nonnegative()
@@ -17838,7 +19418,37 @@ const reactionDeliveryDamageEventReferenceSchema = z
       .optional(),
     reactionAudit: z
       .object({
+        model: z
+          .enum([
+            "none",
+            "manual-override",
+            "aura-engine",
+            "reaction-damage"
+          ])
+          .optional(),
+        triggered: z.boolean().optional(),
+        reaction: reactionTypeSchema.optional(),
         reactions: z.array(reactionTypeSchema),
+        auraBefore: z
+          .array(auraStateEntrySchema)
+          .nullable()
+          .optional(),
+        auraApplied: z
+          .array(auraGaugeEntrySchema)
+          .nullable()
+          .optional(),
+        auraConsumed: z
+          .array(auraGaugeEntrySchema)
+          .nullable()
+          .optional(),
+        auraAfter: z
+          .array(auraStateEntrySchema)
+          .nullable()
+          .optional(),
+        periodicReaction:
+          reactionDeliveryPeriodicReactionAuditReferenceSchema
+            .nullable()
+            .optional(),
         mechanicsTruncation: z
           .object({
             operation: z.enum(["trigger", "carry"])
@@ -17905,7 +19515,35 @@ const reactionDeliveryDamageEventReferenceSchema = z
   })
   .passthrough();
 
-const reactionDeliveryLogReferenceSchema = z
+const reactionDeliveryLogReferenceSchema = z.preprocess(
+  rejectInheritedWireFields(
+    [
+      "id",
+      "reaction",
+      "triggerDamageEventId",
+      "sourceActorId",
+      "sourceTargetId",
+      "triggerFrame",
+      "damageFrame",
+      "scheduled",
+      "withinSimulation",
+      "blockedReason",
+      "nextAvailableFrame",
+      "scheduleKind",
+      "targetingMode",
+      "centerPosition",
+      "radius",
+      "unresolvedTargetIds",
+      "electroChargedPropagation",
+      "checkedTargetIds",
+      "hitTargetIds",
+      "damageEventIds",
+      "damageGroupBlockedTargetIds",
+      "damageGroupDecisions"
+    ],
+    "reactionDeliveryLog"
+  ),
+  z
   .object({
     id: z.number().int().nonnegative(),
     reaction: z.enum([
@@ -17954,8 +19592,17 @@ const reactionDeliveryLogReferenceSchema = z
     targetingMode: z.enum([
       "radius",
       "single-target",
-      "nearest-target-radius"
+      "nearest-target-radius",
+      "electro-charged-nearby-wet"
     ]),
+    centerPosition:
+      electroChargedPropagationPointSchema.nullable().optional(),
+    radius: finiteNumber.nonnegative().nullable().optional(),
+    unresolvedTargetIds: z
+      .array(wireNonEmptyStringSchema)
+      .optional(),
+    electroChargedPropagation:
+      electroChargedPropagationAuditSchema.optional(),
     checkedTargetIds: z.array(wireNonEmptyStringSchema),
     hitTargetIds: z.array(wireNonEmptyStringSchema),
     damageEventIds: z.array(z.number().int().nonnegative()),
@@ -17966,7 +19613,62 @@ const reactionDeliveryLogReferenceSchema = z
       .array(reactionDamageGroupAuditSchema)
       .optional()
   })
-  .passthrough();
+  .passthrough()
+);
+
+const reactionDeliveryTargetReferenceSchema = z.preprocess(
+  rejectInheritedWireFields(
+    ["id", "name", "position", "hitboxRadius"],
+    "reactionDeliveryTarget"
+  ),
+  z
+    .object({
+      id: wireNonEmptyStringSchema,
+      name: wireNonEmptyStringSchema.optional(),
+      position:
+        electroChargedPropagationPointSchema.optional(),
+      hitboxRadius: finiteNumber
+        .min(0)
+        .max(1_000)
+        .optional()
+    })
+    .passthrough()
+);
+
+const reactionDeliveryTargetMotionReferenceSchema =
+  z.preprocess(
+    rejectInheritedWireFields(
+      [
+        "id",
+        "label",
+        "targetId",
+        "startFrame",
+        "endFrame",
+        "endPosition"
+      ],
+      "reactionDeliveryTargetMotion"
+    ),
+    z
+      .object({
+        id: wireNonEmptyStringSchema,
+        label: wireNonEmptyStringSchema,
+        targetId: wireNonEmptyStringSchema,
+        startFrame: z.number().int().min(0).max(36_000),
+        endFrame: z.number().int().positive().max(36_000),
+        endPosition:
+          electroChargedPropagationPointSchema
+      })
+      .strict()
+      .superRefine((motion, context) => {
+        if (motion.endFrame <= motion.startFrame) {
+          context.addIssue({
+            code: "custom",
+            path: ["endFrame"],
+            message: "must be greater than startFrame"
+          });
+        }
+      })
+  );
 
 // Aura runtime zeroes residual gauges at 1e-10 and serializes gauges to
 // twelve decimal places. Keep cross-field conservation tolerant of that
@@ -17985,7 +19687,21 @@ const shatterGaugeMatches = (
  * the sole exception: its child damage is committed first and may therefore
  * point forward to the direct or reaction-damage event that triggered it.
  */
-export const reactionDeliveryResultReferencesSchema = z
+export const reactionDeliveryResultReferencesSchema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire(
+      "reactionDeliveryResult"
+    )(
+      input,
+      context
+    );
+    rejectInheritedVersionedResultIdentity(
+      cleanInput,
+      context
+    );
+    return cleanInput;
+  },
+  z
   .object({
     schemaVersion: z.string(),
     engineVersion: z.string(),
@@ -17998,19 +19714,26 @@ export const reactionDeliveryResultReferencesSchema = z
           .object({
             targets: z
               .array(
-                z
-                  .object({
-                    id: wireNonEmptyStringSchema
-                  })
-                  .passthrough()
+                reactionDeliveryTargetReferenceSchema
               )
               .min(1)
               .max(32)
+              .optional(),
+            targetMotions: z
+              .array(
+                reactionDeliveryTargetMotionReferenceSchema
+              )
+              .max(256)
+              .optional(),
+            targetPhases: z
+              .array(targetPhaseDefinitionSchema)
+              .max(256)
               .optional()
           })
           .passthrough()
           .optional(),
         reactionEngine: auraReactionEngineConfigSchema.optional(),
+        targetClockModel: targetClockModelSchema.optional(),
         targetTaskModel: targetTaskModelSchema.optional(),
         timeline: z
           .object({
@@ -18019,7 +19742,9 @@ export const reactionDeliveryResultReferencesSchema = z
           })
           .passthrough()
           .optional(),
-        reactionDeliveryModel: reactionDeliveryModelSchema
+        reactionDeliveryModel: reactionDeliveryModelSchema,
+        electroChargedPropagationModel:
+          electroChargedPropagationModelSchema.optional()
       })
       .passthrough(),
     damageEvents: z.array(
@@ -18027,7 +19752,16 @@ export const reactionDeliveryResultReferencesSchema = z
     ),
     reactionDamageLog: z.array(
       reactionDeliveryLogReferenceSchema
-    )
+    ),
+    hitResolutionLog: z
+      .array(targetTaskPhaseHitReferenceSchema)
+      .optional(),
+    periodicReactionLog: z
+      .array(electroChargedCleanupPeriodicLogEntrySchema)
+      .optional(),
+    targetStateTimeline: targetStateTimelineSchema.optional(),
+    targetClockLog: targetClockLogSchema.optional(),
+    targetHitlagLog: targetHitlagLogSchema.optional()
   })
   .passthrough()
   .superRefine((result, context) => {
@@ -18048,16 +19782,117 @@ export const reactionDeliveryResultReferencesSchema = z
       );
     }
 
+    const configEnemy =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "enemy"
+      )
+        ? result.config.enemy
+        : undefined;
+    const configReactionEngine =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "reactionEngine"
+      )
+        ? result.config.reactionEngine
+        : undefined;
+    const configTargetClockModel =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "targetClockModel"
+      )
+        ? result.config.targetClockModel
+        : undefined;
+    const configTargetTaskModel =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "targetTaskModel"
+      )
+        ? result.config.targetTaskModel
+        : undefined;
+    const configTimeline =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "timeline"
+      )
+        ? result.config.timeline
+        : undefined;
+    const configReactionDeliveryModel =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "reactionDeliveryModel"
+      )
+        ? result.config.reactionDeliveryModel
+        : undefined;
+    const configElectroChargedPropagationModel =
+      Object.prototype.hasOwnProperty.call(
+        result.config,
+        "electroChargedPropagationModel"
+      )
+        ? result.config.electroChargedPropagationModel
+        : undefined;
+    const resultHitResolutionLog =
+      Object.prototype.hasOwnProperty.call(
+        result,
+        "hitResolutionLog"
+      )
+        ? result.hitResolutionLog
+        : undefined;
+    const resultPeriodicReactionLog =
+      Object.prototype.hasOwnProperty.call(
+        result,
+        "periodicReactionLog"
+      )
+        ? result.periodicReactionLog
+        : undefined;
+    const resultTargetStateTimeline =
+      Object.prototype.hasOwnProperty.call(
+        result,
+        "targetStateTimeline"
+      )
+        ? result.targetStateTimeline
+        : undefined;
+    const resultTargetClockLog =
+      Object.prototype.hasOwnProperty.call(
+        result,
+        "targetClockLog"
+      )
+        ? result.targetClockLog
+        : undefined;
+    const resultTargetHitlagLog =
+      Object.prototype.hasOwnProperty.call(
+        result,
+        "targetHitlagLog"
+      )
+        ? result.targetHitlagLog
+        : undefined;
     const recursive =
-      result.config.reactionDeliveryModel.mode ===
+      configReactionDeliveryModel?.mode ===
       "shatter-recursive-zero-delay-v1";
     const simulationEndFrame = Math.round(
       result.config.duration * 60
     );
-    const configuredTargetIds =
-      result.config.enemy?.targets?.map((target) => target.id) ??
-      ["enemy-0"];
+    const configuredTargets =
+      configEnemy?.targets?.map((target) => ({
+        id: target.id,
+        name: target.name ?? null,
+        position: target.position ?? null,
+        hitboxRadius: target.hitboxRadius ?? 0
+      })) ?? [
+        {
+          id: "enemy-0",
+          name: "敌人 0",
+          position: null,
+          hitboxRadius: 0
+        }
+      ];
+    const configuredTargetIds = configuredTargets.map(
+      (target) => target.id
+    );
     const configuredTargetIndexById = new Map<string, number>();
+    const configuredTargetById = new Map(
+      configuredTargets.map((target) => [target.id, target])
+    );
     configuredTargetIds.forEach((targetId, targetIndex) => {
       if (configuredTargetIndexById.has(targetId)) {
         issue(
@@ -18069,7 +19904,7 @@ export const reactionDeliveryResultReferencesSchema = z
       }
     });
     if (
-      result.config.enemy?.targets !== undefined &&
+      configEnemy?.targets !== undefined &&
       !configuredTargetIndexById.has("enemy-0")
     ) {
       issue(
@@ -18077,6 +19912,258 @@ export const reactionDeliveryResultReferencesSchema = z
         'must include compatibility target "enemy-0" because hits without targeting resolve to it'
       );
     }
+    const configuredTargetPhaseIds = new Set<string>();
+    const configuredTargetPhasesByTarget = new Map<
+      string,
+      Array<z.infer<typeof targetPhaseDefinitionSchema>>
+    >();
+    for (const [phaseIndex, phase] of (
+      configEnemy?.targetPhases ?? []
+    ).entries()) {
+      if (configuredTargetPhaseIds.has(phase.id)) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetPhases",
+            phaseIndex,
+            "id"
+          ],
+          `duplicate target phase id "${phase.id}"`
+        );
+      }
+      configuredTargetPhaseIds.add(phase.id);
+      if (!configuredTargetById.has(phase.targetId)) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetPhases",
+            phaseIndex,
+            "targetId"
+          ],
+          `unknown configured target "${phase.targetId}"`
+        );
+        continue;
+      }
+      if (phase.endFrame > simulationEndFrame) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetPhases",
+            phaseIndex,
+            "endFrame"
+          ],
+          "target phase cannot extend beyond simulation end"
+        );
+      }
+      const priorPhases =
+        configuredTargetPhasesByTarget.get(phase.targetId) ??
+        [];
+      if (
+        priorPhases.some(
+          (priorPhase) =>
+            phase.startFrame < priorPhase.endFrame &&
+            priorPhase.startFrame < phase.endFrame
+        )
+      ) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetPhases",
+            phaseIndex,
+            "startFrame"
+          ],
+          "target phases must not overlap for one target"
+        );
+      }
+      priorPhases.push(phase);
+      configuredTargetPhasesByTarget.set(
+        phase.targetId,
+        priorPhases
+      );
+    }
+    const resolveConfiguredTargetPhase = (
+      targetId: string,
+      frame: number
+    ) =>
+      configuredTargetPhasesByTarget
+        .get(targetId)
+        ?.find(
+          (phase) =>
+            phase.startFrame <= frame &&
+            frame < phase.endFrame
+        );
+    type PropagationPoint = { x: number; y: number };
+    type ResolvedPropagationMotion = z.infer<
+      typeof reactionDeliveryTargetMotionReferenceSchema
+    > & {
+      startPosition: PropagationPoint;
+    };
+    const resolvedMotionsByTarget = new Map<
+      string,
+      ResolvedPropagationMotion[]
+    >();
+    const lastMotionPositionByTarget = new Map<
+      string,
+      PropagationPoint | null
+    >(
+      configuredTargets.map((target) => [
+        target.id,
+        target.position
+      ])
+    );
+    const previousMotionEndFrameByTarget = new Map<
+      string,
+      number
+    >();
+    const configuredMotionIds = new Set<string>();
+    for (const [motionIndex, motion] of (
+      configEnemy?.targetMotions ?? []
+    ).entries()) {
+      const target = configuredTargetById.get(
+        motion.targetId
+      );
+      const previousEndFrame =
+        previousMotionEndFrameByTarget.get(
+          motion.targetId
+        ) ?? -1;
+      if (configuredMotionIds.has(motion.id)) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetMotions",
+            motionIndex,
+            "id"
+          ],
+          `duplicate target motion id "${motion.id}"`
+        );
+      }
+      configuredMotionIds.add(motion.id);
+      if (target === undefined) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetMotions",
+            motionIndex,
+            "targetId"
+          ],
+          `unknown configured target "${motion.targetId}"`
+        );
+        continue;
+      }
+      if (motion.startFrame < previousEndFrame) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetMotions",
+            motionIndex,
+            "startFrame"
+          ],
+          "target motions must be sorted and non-overlapping per target"
+        );
+      }
+      if (motion.endFrame > simulationEndFrame) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetMotions",
+            motionIndex,
+            "endFrame"
+          ],
+          "target motion cannot extend beyond simulation end"
+        );
+      }
+      previousMotionEndFrameByTarget.set(
+        motion.targetId,
+        Math.max(previousEndFrame, motion.endFrame)
+      );
+      const startPosition =
+        lastMotionPositionByTarget.get(motion.targetId) ??
+        null;
+      if (startPosition === null) {
+        issue(
+          [
+            "config",
+            "enemy",
+            "targetMotions",
+            motionIndex,
+            "targetId"
+          ],
+          "target motion requires a configured initial position"
+        );
+        continue;
+      }
+      const resolvedMotions =
+        resolvedMotionsByTarget.get(motion.targetId) ?? [];
+      resolvedMotions.push({
+        ...motion,
+        startPosition
+      });
+      resolvedMotionsByTarget.set(
+        motion.targetId,
+        resolvedMotions
+      );
+      lastMotionPositionByTarget.set(
+        motion.targetId,
+        motion.endPosition
+      );
+    }
+    const resolveConfiguredTargetPosition = (
+      targetId: string,
+      frame: number
+    ): PropagationPoint | null => {
+      const configuredTarget =
+        configuredTargetById.get(targetId);
+      if (
+        configuredTarget === undefined ||
+        configuredTarget.position === null
+      ) {
+        return null;
+      }
+      let position = configuredTarget.position;
+      for (const motion of
+        resolvedMotionsByTarget.get(targetId) ?? []) {
+        if (frame < motion.startFrame) break;
+        if (frame >= motion.endFrame) {
+          position = motion.endPosition;
+          continue;
+        }
+        const progress =
+          (frame - motion.startFrame) /
+          (motion.endFrame - motion.startFrame);
+        return {
+          x:
+            motion.startPosition.x +
+            (motion.endPosition.x -
+              motion.startPosition.x) *
+              progress,
+          y:
+            motion.startPosition.y +
+            (motion.endPosition.y -
+              motion.startPosition.y) *
+              progress
+        };
+      }
+      return position;
+    };
+    const exactPointMatches = (
+      actual: PropagationPoint | null,
+      expected: PropagationPoint | null
+    ): boolean =>
+      actual === null || expected === null
+        ? actual === expected
+        : actual.x === expected.x && actual.y === expected.y;
+    const exactNullableFiniteMatches = (
+      actual: number | null,
+      expected: number | null
+    ): boolean => actual === expected;
     const exact139Identity =
       result.schemaVersion ===
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
@@ -18095,26 +20182,39 @@ export const reactionDeliveryResultReferencesSchema = z
         EC_NEXT_TARGET_TICK_ENGINE_VERSION &&
       result.config.engineVersion ===
         EC_NEXT_TARGET_TICK_ENGINE_VERSION;
-    if (!exact139Identity && !exact140Identity) {
+    const exact141Identity =
+      result.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.config.schemaVersion ===
+        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
+      result.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION &&
+      result.config.engineVersion ===
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    if (
+      !exact139Identity &&
+      !exact140Identity &&
+      !exact141Identity
+    ) {
       issue(
         ["config", "reactionDeliveryModel"],
-        "reaction delivery result requires an exact supported 1.39 or 1.40 schema and engine identity"
+        "reaction delivery result requires an exact supported 1.39, 1.40, or 1.41 schema and engine identity"
       );
     }
     if (
-      result.config.reactionEngine?.mode === "aura-v8" &&
-      !exact140Identity
+      configReactionEngine?.mode === "aura-v8" &&
+      !exact140Identity &&
+      !exact141Identity
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v8 reaction-delivery output requires the exact 1.40 schema and engine identity"
+        "aura-v8 reaction-delivery output requires the exact 1.40 or 1.41 schema and engine identity"
       );
     }
-    if (result.config.reactionEngine?.mode === "aura-v8") {
+    if (configReactionEngine?.mode === "aura-v8") {
       if (
-        result.config.timeline?.mode !==
-          "legal-frame-v1" ||
-        result.config.timeline.fps !== 60
+        configTimeline?.mode !== "legal-frame-v1" ||
+        configTimeline.fps !== 60
       ) {
         issue(
           ["config", "timeline"],
@@ -18122,14 +20222,42 @@ export const reactionDeliveryResultReferencesSchema = z
         );
       }
       if (
-        result.config.targetTaskModel?.mode !==
-        "target-phase-v2"
+        configTargetTaskModel?.mode !== "target-phase-v2"
       ) {
         issue(
           ["config", "targetTaskModel", "mode"],
           "aura-v8 reaction-delivery output requires target-phase-v2"
         );
       }
+    }
+    if (
+      exact141Identity &&
+      configElectroChargedPropagationModel === undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "exact 1.41 reaction-delivery output requires an explicit Electro-Charged propagation model"
+      );
+    }
+    if (
+      exact141Identity &&
+      configElectroChargedPropagationModel?.mode ===
+        "nearby-wet-radius-v1" &&
+      configEnemy?.targets === undefined
+    ) {
+      issue(
+        ["config", "enemy", "targets"],
+        "nearby-Wet propagation output requires the explicit configured target registry"
+      );
+    }
+    if (
+      (exact139Identity || exact140Identity) &&
+      configElectroChargedPropagationModel !== undefined
+    ) {
+      issue(
+        ["config", "electroChargedPropagationModel"],
+        "pre-1.41 reaction-delivery output cannot carry Electro-Charged propagation selection"
+      );
     }
 
     addDuplicateIdIssues(
@@ -18145,6 +20273,401 @@ export const reactionDeliveryResultReferencesSchema = z
     const damageById = new Map(
       result.damageEvents.map((event) => [event.id, event])
     );
+    const hitResolutionLog = resultHitResolutionLog ?? [];
+    addDuplicateIdIssues(
+      hitResolutionLog.map((entry) => entry.id),
+      "hitResolutionLog",
+      context
+    );
+    const hitResolutionById = new Map(
+      hitResolutionLog.map((entry) => [entry.id, entry])
+    );
+    const reactionDamageHitsByDamageEventId = new Map<
+      number,
+      (typeof hitResolutionLog)[number][]
+    >();
+    hitResolutionLog.forEach((entry) => {
+      if (
+        entry.resolutionKind !== "reaction-damage" ||
+        entry.damageEventId === null
+      ) {
+        return;
+      }
+      const hits =
+        reactionDamageHitsByDamageEventId.get(
+          entry.damageEventId
+        ) ?? [];
+      hits.push(entry);
+      reactionDamageHitsByDamageEventId.set(
+        entry.damageEventId,
+        hits
+      );
+    });
+    if (
+      exact141Identity &&
+      configElectroChargedPropagationModel?.mode ===
+        "nearby-wet-radius-v1"
+    ) {
+      hitResolutionLog.forEach((entry, entryIndex) => {
+        if (entry.id !== entryIndex) {
+          issue(
+            ["hitResolutionLog", entryIndex, "id"],
+            `exact 1.41 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
+          );
+        }
+      });
+      result.damageEvents.forEach((entry, entryIndex) => {
+        if (entry.id !== entryIndex) {
+          issue(
+            ["damageEvents", entryIndex, "id"],
+            `exact 1.41 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
+          );
+        }
+      });
+    }
+    const exact141NearbyWetOutput =
+      exact141Identity &&
+      configElectroChargedPropagationModel?.mode ===
+        "nearby-wet-radius-v1";
+    let replayNearbyTargetFrame:
+      | ((targetId: string, globalFrame: number) =>
+          | number
+          | undefined)
+      | undefined;
+    if (exact141NearbyWetOutput) {
+      if (configTargetClockModel === undefined) {
+        issue(
+          ["config", "targetClockModel"],
+          "exact 1.41 nearby-Wet output requires an explicit target clock model"
+        );
+      }
+      if (resultTargetClockLog === undefined) {
+        issue(
+          ["targetClockLog"],
+          "exact 1.41 nearby-Wet output requires a target-clock replay log"
+        );
+      }
+      if (resultTargetHitlagLog === undefined) {
+        issue(
+          ["targetHitlagLog"],
+          "exact 1.41 nearby-Wet output requires a target-Hitlag provenance log"
+        );
+      }
+      const targetClockLog = resultTargetClockLog ?? [];
+      const targetHitlagLog = resultTargetHitlagLog ?? [];
+      if (configTargetClockModel?.mode === "disabled") {
+        if (
+          targetClockLog.length !== 0 ||
+          targetHitlagLog.length !== 0
+        ) {
+          issue(
+            ["targetClockLog"],
+            "disabled target clocks require empty clock and Hitlag proof logs"
+          );
+        }
+        replayNearbyTargetFrame = (
+          _targetId,
+          globalFrame
+        ) => globalFrame;
+      } else if (
+        configTargetClockModel?.mode ===
+        "target-local-hitlag-v1"
+      ) {
+        const clockEntriesByTargetId = new Map<
+          string,
+          typeof targetClockLog
+        >();
+        targetClockLog.forEach((clockEntry, clockIndex) => {
+          const configuredTarget =
+            configuredTargetById.get(clockEntry.targetId);
+          if (
+            configuredTarget === undefined ||
+            configuredTarget.name !== clockEntry.targetName
+          ) {
+            issue(
+              ["targetClockLog", clockIndex, "targetId"],
+              "target-clock replay rows must name an exact configured target"
+            );
+          }
+          const targetEntries =
+            clockEntriesByTargetId.get(
+              clockEntry.targetId
+            ) ?? [];
+          targetEntries.push(clockEntry);
+          clockEntriesByTargetId.set(
+            clockEntry.targetId,
+            targetEntries
+          );
+        });
+        replayNearbyTargetFrame = (
+          targetId,
+          globalFrame
+        ) => {
+          if (globalFrame === 0) return 0;
+          const targetEntries =
+            clockEntriesByTargetId.get(targetId);
+          if (targetEntries === undefined) return undefined;
+          for (const clockEntry of targetEntries) {
+            if (globalFrame < clockEntry.globalFrameBefore) {
+              break;
+            }
+            if (
+              clockEntry.operation === "advance" &&
+              globalFrame <= clockEntry.globalFrameAfter
+            ) {
+              const elapsed =
+                globalFrame -
+                clockEntry.globalFrameBefore;
+              return (
+                clockEntry.targetFrameBefore +
+                elapsed -
+                Math.min(
+                  elapsed,
+                  clockEntry.frozenFramesBefore
+                )
+              );
+            }
+            if (
+              globalFrame === clockEntry.globalFrameBefore
+            ) {
+              return clockEntry.targetFrameBefore;
+            }
+          }
+          return undefined;
+        };
+
+        const appliedClockReferencesByHitlagId =
+          new Map<number, number>();
+        targetClockLog.forEach((clockEntry, clockIndex) => {
+          if (clockEntry.operation !== "apply-hitlag") {
+            return;
+          }
+          const hitlagId = clockEntry.targetHitlagLogId;
+          const hitlag =
+            hitlagId === null
+              ? undefined
+              : targetHitlagLog[hitlagId];
+          if (
+            hitlagId === null ||
+            hitlag === undefined ||
+            hitlag.id !== hitlagId ||
+            !hitlag.applied ||
+            hitlag.targetId !== clockEntry.targetId ||
+            hitlag.targetName !== clockEntry.targetName ||
+            hitlag.globalFrame !==
+              clockEntry.globalFrameBefore ||
+            hitlag.targetFrame !==
+              clockEntry.targetFrameBefore ||
+            hitlag.frozenFramesBefore !==
+              clockEntry.frozenFramesBefore ||
+            hitlag.frozenFramesAfter !==
+              clockEntry.frozenFramesAfter ||
+            hitlag.extensionFrames !==
+              clockEntry.addedFrozenFrames
+          ) {
+            issue(
+              [
+                "targetClockLog",
+                clockIndex,
+                "targetHitlagLogId"
+              ],
+              "apply-hitlag clock transition must exactly replay one applied target-Hitlag row"
+            );
+          }
+          if (hitlagId !== null) {
+            appliedClockReferencesByHitlagId.set(
+              hitlagId,
+              (appliedClockReferencesByHitlagId.get(
+                hitlagId
+              ) ?? 0) + 1
+            );
+          }
+        });
+        targetHitlagLog.forEach((hitlag, hitlagIndex) => {
+          const configuredTarget =
+            configuredTargetById.get(hitlag.targetId);
+          const hit = hitResolutionById.get(
+            hitlag.hitResolutionLogId
+          );
+          if (
+            configuredTarget === undefined ||
+            configuredTarget.name !== hitlag.targetName
+          ) {
+            issue(
+              ["targetHitlagLog", hitlagIndex, "targetId"],
+              "target-Hitlag rows must name an exact configured target"
+            );
+          }
+          if (
+            hit === undefined ||
+            hit.frame !== hitlag.globalFrame ||
+            hit.timeSeconds !== hitlag.timeSeconds ||
+            hit.eventPriority !== hitlag.eventPriority ||
+            hit.eventSequence !== hitlag.eventSequence ||
+            hit.intraEventSequence === undefined ||
+            hitlag.intraEventSequence !==
+              hit.intraEventSequence +
+                (hit.landed ? 1 : 0) ||
+            hit.targetId !== hitlag.targetId ||
+            hit.targetName !== hitlag.targetName ||
+            hit.sourceActorId !== hitlag.sourceActorId ||
+            hit.sourceActionId !== hitlag.sourceActionId ||
+            hit.hitId !== hitlag.hitId ||
+            hit.hitGroupId !== hitlag.hitGroupId
+          ) {
+            issue(
+              [
+                "targetHitlagLog",
+                hitlagIndex,
+                "hitResolutionLogId"
+              ],
+              "target-Hitlag row must exactly match its hit-resolution provenance"
+            );
+          }
+          const shouldApply =
+            hit?.landed === true &&
+            hitlag.extensionFrames > 0;
+          const expectedBlockedReason =
+            hit?.landed === false
+              ? "TARGET_MISS"
+              : hitlag.extensionFrames === 0
+                ? "ZERO_EXTENSION"
+                : null;
+          if (
+            hit !== undefined &&
+            (hitlag.applied !== shouldApply ||
+              hitlag.blockedReason !==
+                expectedBlockedReason)
+          ) {
+            issue(
+              [
+                "targetHitlagLog",
+                hitlagIndex,
+                "blockedReason"
+              ],
+              "hit outcome and extension must determine target-Hitlag application"
+            );
+          }
+          const clockReferenceCount =
+            appliedClockReferencesByHitlagId.get(
+              hitlag.id
+            ) ?? 0;
+          if (
+            clockReferenceCount !==
+            (hitlag.applied ? 1 : 0)
+          ) {
+            issue(
+              ["targetHitlagLog", hitlagIndex, "id"],
+              hitlag.applied
+                ? "applied target-Hitlag requires exactly one reciprocal clock transition"
+                : "blocked target-Hitlag cannot own a clock transition"
+            );
+          }
+        });
+      }
+    }
+    const periodicReactionLog =
+      resultPeriodicReactionLog ?? [];
+    addDuplicateIdIssues(
+      periodicReactionLog.map((entry) => entry.id),
+      "periodicReactionLog",
+      context
+    );
+    const periodicTickByReactionDamageLogId = new Map<
+      number,
+      (typeof periodicReactionLog)[number]
+    >();
+    const targetStateTimelinePointById = new Map(
+      (resultTargetStateTimeline?.points ?? []).map(
+        (point) => [point.id, point]
+      )
+    );
+    const claimedPropagationObservationPointIds =
+      new Set<number>();
+    const claimedPropagationHitResolutionIds =
+      new Set<number>();
+    const claimedPropagationDamageEventIds =
+      new Set<number>();
+    const claimedPropagationApplicationPointIds =
+      new Set<number>();
+    periodicReactionLog.forEach((entry, entryIndex) => {
+      if (
+        exact141NearbyWetOutput &&
+        entry.id !== entryIndex
+      ) {
+        issue(
+          ["periodicReactionLog", entryIndex, "id"],
+          `exact 1.41 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
+        );
+      }
+      if (
+        exact141NearbyWetOutput &&
+        entry.operation === "tick" &&
+        (entry.reactionDamageLogId === null ||
+          entry.damageEventId === null ||
+          entry.tickIndex === null ||
+          entry.triggerDamageEventId === null ||
+          entry.sourceActorId === null)
+      ) {
+        issue(
+          ["periodicReactionLog", entryIndex],
+          "exact 1.41 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
+        );
+      }
+      if (
+        exact141NearbyWetOutput &&
+        entry.operation === "tick" &&
+        entry.reactionDamageLogId !== null
+      ) {
+        const reactionDamageParent =
+          result.reactionDamageLog[
+            entry.reactionDamageLogId
+          ];
+        if (
+          reactionDamageParent === undefined ||
+          reactionDamageParent.id !==
+            entry.reactionDamageLogId ||
+          reactionDamageParent.reaction !==
+            "electroCharged" ||
+          reactionDamageParent.electroChargedPropagation ===
+            undefined
+        ) {
+          issue(
+            [
+              "periodicReactionLog",
+              entryIndex,
+              "reactionDamageLogId"
+            ],
+            "exact 1.41 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
+          );
+        }
+      }
+      if (
+        entry.operation !== "tick" ||
+        entry.reactionDamageLogId === null
+      ) {
+        return;
+      }
+      if (
+        periodicTickByReactionDamageLogId.has(
+          entry.reactionDamageLogId
+        )
+      ) {
+        issue(
+          [
+            "periodicReactionLog",
+            entryIndex,
+            "reactionDamageLogId"
+          ],
+          "one reaction-damage log cannot own multiple Electro-Charged tick rows"
+        );
+      } else {
+        periodicTickByReactionDamageLogId.set(
+          entry.reactionDamageLogId,
+          entry
+        );
+      }
+    });
     const ownersByDamageEventId = new Map<
       number,
       Array<{ logIndex: number; referenceIndex: number }>
@@ -18257,7 +20780,9 @@ export const reactionDeliveryResultReferencesSchema = z
             entry.targetingMode === "radius"
           : entry.reaction === "electroCharged"
             ? entry.scheduleKind === "periodic-tick" &&
-              entry.targetingMode === "single-target"
+              (entry.targetingMode === "single-target" ||
+                entry.targetingMode ===
+                  "electro-charged-nearby-wet")
             : entry.reaction === "burning"
               ? entry.scheduleKind === "burning-tick" &&
                 entry.targetingMode === "radius"
@@ -18288,6 +20813,1784 @@ export const reactionDeliveryResultReferencesSchema = z
         issue(
           ["reactionDamageLog", entryIndex, "scheduleKind"],
           "reaction, scheduleKind, and targetingMode do not match the fixed reaction-delivery matrix"
+        );
+      }
+      const propagationAudit =
+        entry.electroChargedPropagation;
+      if (
+        entry.reaction !== "electroCharged" &&
+        propagationAudit !== undefined
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "Electro-Charged propagation audit is reserved for Electro-Charged periodic damage"
+        );
+      }
+      if (
+        !entry.withinSimulation &&
+        propagationAudit !== undefined
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "out-of-simulation reaction damage cannot claim an unevaluated Electro-Charged propagation audit"
+        );
+      }
+      if (
+        (exact139Identity || exact140Identity) &&
+        (entry.targetingMode ===
+          "electro-charged-nearby-wet" ||
+          propagationAudit !== undefined)
+      ) {
+        issue(
+          [
+            "reactionDamageLog",
+            entryIndex,
+            "electroChargedPropagation"
+          ],
+          "pre-1.41 reaction-damage output cannot carry Electro-Charged nearby-Wet targeting or audit data"
+        );
+      }
+      if (
+        exact141Identity &&
+        entry.reaction === "electroCharged"
+      ) {
+        const propagationModel =
+          configElectroChargedPropagationModel;
+        if (propagationModel?.mode === "single-target-v1") {
+          if (
+            entry.targetingMode !== "single-target" ||
+            propagationAudit !== undefined
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "electroChargedPropagation"
+              ],
+              "1.41 single-target-v1 Electro-Charged output requires single-target delivery without a propagation audit"
+            );
+          }
+        } else if (
+          propagationModel?.mode === "nearby-wet-radius-v1"
+        ) {
+          if (
+            entry.targetingMode !==
+            "electro-charged-nearby-wet"
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "targetingMode"
+              ],
+              "1.41 nearby-wet-radius-v1 Electro-Charged output requires electro-charged-nearby-wet targeting"
+            );
+          }
+          if (
+            entry.withinSimulation &&
+            propagationAudit === undefined
+          ) {
+            issue(
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "electroChargedPropagation"
+              ],
+              "within-simulation nearby-Wet Electro-Charged ticks require a complete propagation audit"
+            );
+          }
+        }
+      }
+
+      if (
+        exact141Identity &&
+        entry.reaction === "electroCharged" &&
+        entry.withinSimulation &&
+        propagationAudit !== undefined
+      ) {
+        const propagationModel =
+          configElectroChargedPropagationModel;
+        const expectedCandidateTargetIds = [
+          entry.sourceTargetId,
+          ...configuredTargetIds.filter(
+            (targetId) => targetId !== entry.sourceTargetId
+          )
+        ];
+        const candidateTargetIds =
+          propagationAudit.candidates.map(
+            (candidate) => candidate.targetId
+          );
+        if (
+          propagationModel?.mode !==
+            "nearby-wet-radius-v1" ||
+          propagationAudit.radius !== propagationModel.radius
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "radius"
+            ],
+            "propagation audit radius must equal the configured nearby-Wet radius"
+          );
+        }
+        if (
+          propagationAudit.evaluationFrame !==
+          entry.damageFrame
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "evaluationFrame"
+            ],
+            "propagation candidates must be evaluated at the reaction-damage frame"
+          );
+        }
+        if (
+          candidateTargetIds.length !==
+            expectedCandidateTargetIds.length ||
+          candidateTargetIds.some(
+            (targetId, candidateIndex) =>
+              targetId !==
+              expectedCandidateTargetIds[candidateIndex]
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates"
+            ],
+            "propagation candidates must be complete, with the source first and every remaining target in registration order"
+          );
+        }
+        const expectedSourcePosition =
+          resolveConfiguredTargetPosition(
+            entry.sourceTargetId,
+            propagationAudit.evaluationFrame
+          );
+        if (
+          !exactPointMatches(
+            propagationAudit.sourcePosition,
+            expectedSourcePosition
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "sourcePosition"
+            ],
+            "propagation sourcePosition must equal the configured source target position at evaluationFrame"
+          );
+        }
+        if (
+          entry.centerPosition === undefined ||
+          !exactPointMatches(
+            entry.centerPosition ?? null,
+            propagationAudit.sourcePosition
+          ) ||
+          !exactPointMatches(
+            entry.centerPosition ?? null,
+            expectedSourcePosition
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "centerPosition"
+            ],
+            "nearby-Wet reaction center must equal the configured source target position at evaluationFrame"
+          );
+        }
+        if (
+          entry.radius === undefined ||
+          entry.radius === null ||
+          entry.radius !== propagationAudit.radius
+        ) {
+          issue(
+            ["reactionDamageLog", entryIndex, "radius"],
+            "nearby-Wet reaction radius must equal the propagation audit and configured radius"
+          );
+        }
+        propagationAudit.candidates.forEach(
+          (candidate, candidateIndex) => {
+            const candidatePath = [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates",
+              candidateIndex
+            ] as Array<string | number>;
+            const expectedTargetOrder =
+              configuredTargetIndexById.get(
+                candidate.targetId
+              );
+            if (
+              expectedTargetOrder === undefined ||
+              candidate.targetOrder !== expectedTargetOrder
+            ) {
+              issue(
+                [...candidatePath, "targetOrder"],
+                "candidate targetOrder must equal config.enemy.targets registration order"
+              );
+            }
+            const configuredTarget =
+              configuredTargetById.get(candidate.targetId);
+            if (
+              configuredTarget === undefined ||
+              configuredTarget.name === null ||
+              candidate.targetName !== configuredTarget.name
+            ) {
+              issue(
+                [...candidatePath, "targetName"],
+                "candidate targetName must equal the configured target name"
+              );
+            }
+            const expectedPosition =
+              resolveConfiguredTargetPosition(
+                candidate.targetId,
+                propagationAudit.evaluationFrame
+              );
+            if (
+              !exactPointMatches(
+                candidate.position,
+                expectedPosition
+              )
+            ) {
+              issue(
+                [...candidatePath, "position"],
+                "candidate position must equal its configured linear-motion position at evaluationFrame"
+              );
+            }
+
+            const observationPointId =
+              candidate.auraObservationTimelinePointId;
+            if (
+              claimedPropagationObservationPointIds.has(
+                observationPointId
+              )
+            ) {
+              issue(
+                [
+                  ...candidatePath,
+                  "auraObservationTimelinePointId"
+                ],
+                "each propagation candidate requires a unique Aura observation timeline point"
+              );
+            }
+            claimedPropagationObservationPointIds.add(
+              observationPointId
+            );
+            const observationPoint =
+              targetStateTimelinePointById.get(
+                observationPointId
+              );
+            const replayedObservationTargetFrame =
+              replayNearbyTargetFrame?.(
+                candidate.targetId,
+                propagationAudit.evaluationFrame
+              );
+            const observationHasExactParentLink =
+              observationPoint?.links.length === 1 &&
+              observationPoint.links[0]?.kind ===
+                "reaction-damage-log" &&
+              observationPoint.links[0].id === entry.id;
+            if (
+              observationPoint === undefined ||
+              observationPoint.frame !==
+                propagationAudit.evaluationFrame ||
+              observationPoint.timeSeconds !==
+                propagationAudit.evaluationFrame / 60 ||
+              replayedObservationTargetFrame === undefined ||
+              observationPoint.targetFrame !==
+                replayedObservationTargetFrame ||
+              observationPoint.targetId !==
+                candidate.targetId ||
+              observationPoint.targetName !==
+                candidate.targetName ||
+              observationPoint.pointKind !== "observation" ||
+              observationPoint.cause !==
+                "electro-charged-propagation-candidate" ||
+              observationPoint.eventType !==
+                "reactionDamage" ||
+              observationPoint.eventPriority !==
+                propagationAudit.eventPriority ||
+              observationPoint.eventSequence !==
+                propagationAudit.eventSequence ||
+              observationPoint.intraEventSequence !==
+                candidateIndex ||
+              observationPoint.reaction !==
+                "electroCharged" ||
+              observationPoint.reactions.length !== 1 ||
+              observationPoint.reactions[0] !==
+                "electroCharged" ||
+              observationPoint.primaryDamageEventId !==
+                null ||
+              !observationHasExactParentLink ||
+              observationPoint.auraApplied.length !== 0 ||
+              observationPoint.auraConsumed.length !== 0 ||
+              !auraStateSnapshotsEqual(
+                observationPoint.auraBefore,
+                observationPoint.auraAfter
+              )
+            ) {
+              issue(
+                [
+                  ...candidatePath,
+                  "auraObservationTimelinePointId"
+                ],
+                "candidate Aura witness must be its exact same-frame immutable Electro-Charged observation with only the reaction-damage parent link"
+              );
+            }
+            const observedHydroGaugeUnits =
+              observationPoint?.auraBefore.find(
+                (aura) => aura.element === "hydro"
+              )?.gaugeUnits ?? 0;
+            if (
+              candidate.hydroGaugeUnits !==
+                observedHydroGaugeUnits
+            ) {
+              issue(
+                [...candidatePath, "hydroGaugeUnits"],
+                "candidate Hydro gauge must equal its Aura observation witness"
+              );
+            }
+
+            let expectedSelected: boolean;
+            let expectedReason:
+              | "SOURCE_STREAM_TARGET"
+              | "NEARBY_WET_IN_RANGE"
+              | "NO_HYDRO_AURA"
+              | "OUT_OF_RANGE"
+              | "POSITION_UNRESOLVED"
+              | "SOURCE_POSITION_UNRESOLVED";
+            let expectedDistance: number | null = null;
+            let expectedThreshold: number | null = null;
+            if (candidate.targetId === entry.sourceTargetId) {
+              expectedSelected = true;
+              expectedReason = "SOURCE_STREAM_TARGET";
+            } else if (
+              observedHydroGaugeUnits <=
+              electroChargedAuraEpsilon
+            ) {
+              expectedSelected = false;
+              expectedReason = "NO_HYDRO_AURA";
+            } else if (expectedSourcePosition === null) {
+              expectedSelected = false;
+              expectedReason =
+                "SOURCE_POSITION_UNRESOLVED";
+            } else if (expectedPosition === null) {
+              expectedSelected = false;
+              expectedReason = "POSITION_UNRESOLVED";
+            } else {
+              expectedDistance = Math.hypot(
+                expectedPosition.x -
+                  expectedSourcePosition.x,
+                expectedPosition.y -
+                  expectedSourcePosition.y
+              );
+              expectedThreshold =
+                propagationAudit.radius +
+                (configuredTarget?.hitboxRadius ?? 0);
+              expectedSelected =
+                expectedDistance <=
+                expectedThreshold +
+                  electroChargedWitnessTolerance;
+              expectedReason = expectedSelected
+                ? "NEARBY_WET_IN_RANGE"
+                : "OUT_OF_RANGE";
+            }
+            if (
+              candidate.selected !== expectedSelected ||
+              candidate.reason !== expectedReason ||
+              candidate.distance !== expectedDistance ||
+              candidate.threshold !== expectedThreshold
+            ) {
+              issue(
+                [...candidatePath, "reason"],
+                "candidate selection, reason, distance, and threshold must be derived from witnessed Hydro and configured evaluation-frame geometry"
+              );
+            }
+          }
+        );
+        const expectedUnresolvedTargetIds =
+          propagationAudit.candidates
+            .filter(
+              (candidate, candidateIndex) =>
+                candidateIndex > 0 &&
+                (candidate.reason ===
+                  "POSITION_UNRESOLVED" ||
+                  candidate.reason ===
+                    "SOURCE_POSITION_UNRESOLVED")
+            )
+            .map((candidate) => candidate.targetId);
+        const unresolvedTargetIds =
+          entry.unresolvedTargetIds ?? [];
+        if (
+          unresolvedTargetIds.length !==
+            expectedUnresolvedTargetIds.length ||
+          unresolvedTargetIds.some(
+            (targetId, targetIndex) =>
+              targetId !==
+              expectedUnresolvedTargetIds[targetIndex]
+          )
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "unresolvedTargetIds"
+            ],
+            "unresolved targets must exactly project position-unresolved Wet candidates in candidate order"
+          );
+        }
+        const sourceCandidate =
+          propagationAudit.candidates[0];
+        if (
+          sourceCandidate === undefined ||
+          sourceCandidate.targetId !== entry.sourceTargetId ||
+          !sourceCandidate.selected ||
+          sourceCandidate.reason !== "SOURCE_STREAM_TARGET" ||
+          sourceCandidate.position === null !==
+            (propagationAudit.sourcePosition === null) ||
+          (sourceCandidate.position !== null &&
+            propagationAudit.sourcePosition !== null &&
+            (sourceCandidate.position.x !==
+              propagationAudit.sourcePosition.x ||
+              sourceCandidate.position.y !==
+                propagationAudit.sourcePosition.y)) ||
+          sourceCandidate.distance !== null ||
+          sourceCandidate.threshold !== null
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates",
+              0
+            ],
+            "the first propagation candidate must be the selected source stream target with matching position and null distance/threshold"
+          );
+        }
+        const selectedCandidates =
+          propagationAudit.candidates.filter(
+            (candidate) => candidate.selected
+          );
+        const selectedTargetIds = selectedCandidates.map(
+          (candidate) => candidate.targetId
+        );
+        const selectedHitResolutionIds =
+          selectedCandidates.map(
+            (candidate) =>
+              candidate.hitResolutionLogId as number
+          );
+        const selectedDamageEventIds =
+          selectedCandidates.map(
+            (candidate) => candidate.damageEventId as number
+          );
+        const selectedArraysMatch =
+          selectedTargetIds.length ===
+            entry.checkedTargetIds.length &&
+          selectedTargetIds.every(
+            (targetId, selectedIndex) =>
+              targetId ===
+                entry.checkedTargetIds[selectedIndex] &&
+              targetId === entry.hitTargetIds[selectedIndex]
+          ) &&
+          selectedDamageEventIds.length ===
+            entry.damageEventIds.length &&
+          selectedDamageEventIds.every(
+            (damageEventId, selectedIndex) =>
+              damageEventId ===
+              entry.damageEventIds[selectedIndex]
+          );
+        if (!selectedArraysMatch) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates"
+            ],
+            "selected candidates must align in order with checked targets, hit targets, and damage children"
+          );
+        }
+        if (
+          new Set(selectedHitResolutionIds).size !==
+            selectedHitResolutionIds.length ||
+          new Set(selectedDamageEventIds).size !==
+            selectedDamageEventIds.length
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates"
+            ],
+            "selected candidates require unique hit-resolution and damage-event children"
+          );
+        }
+        const sourceHitResolution =
+          sourceCandidate?.hitResolutionLogId === null ||
+          sourceCandidate?.hitResolutionLogId === undefined
+            ? undefined
+            : hitResolutionById.get(
+                sourceCandidate.hitResolutionLogId
+              );
+        const sourceDamageEvent =
+          sourceCandidate?.damageEventId === null ||
+          sourceCandidate?.damageEventId === undefined
+            ? undefined
+            : damageById.get(sourceCandidate.damageEventId);
+        const triggerDamageEvent =
+          entry.triggerDamageEventId === null
+            ? undefined
+            : damageById.get(entry.triggerDamageEventId);
+        const triggerHitResolution =
+          triggerDamageEvent?.targetResolutionId ===
+            undefined
+            ? undefined
+            : hitResolutionById.get(
+                triggerDamageEvent.targetResolutionId
+              );
+        const triggerBacklinkHits =
+          triggerDamageEvent === undefined
+            ? []
+            : hitResolutionLog.filter(
+                (hit) =>
+                  hit.damageEventId === triggerDamageEvent.id
+              );
+        const triggerPeriodicAudit =
+          triggerDamageEvent?.reactionAudit.periodicReaction;
+        const triggerReactionAudit =
+          triggerDamageEvent?.reactionAudit;
+        if (
+          triggerDamageEvent === undefined ||
+          triggerDamageEvent.id !==
+            entry.triggerDamageEventId ||
+          triggerDamageEvent.kind !== "direct" ||
+          triggerDamageEvent.parentDamageEventId !== null ||
+          triggerDamageEvent.frame !== entry.triggerFrame ||
+          triggerDamageEvent.timeSeconds !==
+            entry.triggerFrame / 60 ||
+          triggerDamageEvent.sourceActorId !==
+            entry.sourceActorId ||
+          triggerDamageEvent.scalingOwnerId !==
+            entry.sourceActorId ||
+          triggerDamageEvent.creditOwnerId !==
+            entry.sourceActorId ||
+          triggerDamageEvent.actorId !==
+            entry.sourceActorId ||
+          triggerDamageEvent.creditId !==
+            entry.sourceActorId ||
+          triggerDamageEvent.targetId !==
+            entry.sourceTargetId ||
+          triggerDamageEvent.targetName !==
+            sourceCandidate?.targetName ||
+          triggerDamageEvent.targetResolutionId ===
+            undefined ||
+          triggerDamageEvent.actionId === undefined ||
+          triggerDamageEvent.actionName === undefined ||
+          triggerDamageEvent.hitId === undefined ||
+          triggerDamageEvent.hitGroupId === undefined ||
+          triggerDamageEvent.element !== "electro" ||
+          triggerDamageEvent.reaction !==
+            "electroCharged" ||
+          triggerDamageEvent.snapshot !== "hit" ||
+          triggerHitResolution === undefined ||
+          triggerHitResolution.id !==
+            triggerDamageEvent.targetResolutionId ||
+          triggerHitResolution.resolutionKind !== "direct" ||
+          triggerHitResolution.frame !==
+            triggerDamageEvent.frame ||
+          triggerHitResolution.timeSeconds !==
+            triggerDamageEvent.timeSeconds ||
+          triggerHitResolution.eventPriority !==
+            triggerDamageEvent.eventPriority ||
+          triggerHitResolution.eventSequence !==
+            triggerDamageEvent.eventSequence ||
+          triggerHitResolution.sourceActorId !==
+            triggerDamageEvent.sourceActorId ||
+          triggerHitResolution.sourceActionId !==
+            triggerDamageEvent.actionId ||
+          triggerHitResolution.actionName !==
+            triggerDamageEvent.actionName ||
+          triggerHitResolution.hitId !==
+            triggerDamageEvent.hitId ||
+          triggerHitResolution.hitGroupId !==
+            triggerDamageEvent.hitGroupId ||
+          triggerHitResolution.targetIndex !==
+            triggerDamageEvent.targetIndex ||
+          triggerHitResolution.targetCount !==
+            triggerDamageEvent.targetCount ||
+          triggerHitResolution.targetId !==
+            triggerDamageEvent.targetId ||
+          triggerHitResolution.targetName !==
+            triggerDamageEvent.targetName ||
+          triggerHitResolution.damageEventId !==
+            triggerDamageEvent.id ||
+          triggerHitResolution.mechanicsStatus !==
+            triggerDamageEvent.mechanicsStatus ||
+          triggerHitResolution.potentialDamage !==
+            triggerDamageEvent.potentialDamage ||
+          triggerHitResolution.finalDamage !==
+            triggerDamageEvent.finalDamage ||
+          triggerHitResolution.displayDamage !==
+            triggerDamageEvent.displayDamage ||
+          triggerHitResolution.cycle !==
+            triggerDamageEvent.cycle ||
+          triggerHitResolution.timelineCommandIndex !==
+            triggerDamageEvent.timelineCommandIndex ||
+          triggerHitResolution.sourceAbilityId !==
+            triggerDamageEvent.sourceAbilityId ||
+          triggerBacklinkHits.length !== 1 ||
+          triggerBacklinkHits[0]?.id !==
+            triggerHitResolution.id
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "triggerDamageEventId"
+            ],
+            "nearby-Wet Electro-Charged requires one exact direct trigger damage and reciprocal hit-resolution backlink"
+          );
+        }
+        const triggerApplicationPoints = (
+          resultTargetStateTimeline?.points ?? []
+        ).filter(
+          (point) =>
+            point.cause === "direct-hit-application" &&
+            (point.primaryDamageEventId ===
+              triggerDamageEvent?.id ||
+              point.links.some(
+                (link) =>
+                  link.kind === "damage-event" &&
+                  link.id === triggerDamageEvent?.id
+              ))
+        );
+        const triggerApplicationPoint =
+          triggerApplicationPoints[0];
+        const replayedTriggerTargetFrame =
+          replayNearbyTargetFrame?.(
+            entry.sourceTargetId,
+            entry.triggerFrame
+          );
+        const triggerApplicationAuraIsExact =
+          triggerApplicationPoint !== undefined &&
+          triggerReactionAudit?.auraBefore !== undefined &&
+          triggerReactionAudit.auraBefore !== null &&
+          triggerReactionAudit.auraApplied !== undefined &&
+          triggerReactionAudit.auraApplied !== null &&
+          triggerReactionAudit.auraConsumed !== undefined &&
+          triggerReactionAudit.auraConsumed !== null &&
+          triggerReactionAudit.auraAfter !== undefined &&
+          triggerReactionAudit.auraAfter !== null &&
+          auraStateSnapshotsEqual(
+            triggerApplicationPoint.auraBefore,
+            triggerReactionAudit.auraBefore
+          ) &&
+          JSON.stringify(
+            triggerApplicationPoint.auraApplied
+          ) ===
+            JSON.stringify(triggerReactionAudit.auraApplied) &&
+          JSON.stringify(
+            triggerApplicationPoint.auraConsumed
+          ) ===
+            JSON.stringify(
+              triggerReactionAudit.auraConsumed
+            ) &&
+          auraStateSnapshotsEqual(
+            triggerApplicationPoint.auraAfter,
+            triggerReactionAudit.auraAfter
+          );
+        if (
+          triggerApplicationPoints.length !== 1 ||
+          triggerApplicationPoint === undefined ||
+          replayedTriggerTargetFrame === undefined ||
+          triggerApplicationPoint.frame !==
+            entry.triggerFrame ||
+          triggerApplicationPoint.targetFrame !==
+            replayedTriggerTargetFrame ||
+          triggerApplicationPoint.timeSeconds !==
+            entry.triggerFrame / 60 ||
+          triggerApplicationPoint.targetId !==
+            entry.sourceTargetId ||
+          triggerApplicationPoint.targetName !==
+            sourceCandidate?.targetName ||
+          triggerApplicationPoint.pointKind !== "mutation" ||
+          triggerApplicationPoint.eventType !== "hit" ||
+          triggerApplicationPoint.eventPriority !==
+            triggerHitResolution?.eventPriority ||
+          triggerApplicationPoint.eventSequence !==
+            triggerHitResolution?.eventSequence ||
+          triggerApplicationPoint.intraEventSequence !==
+            triggerHitResolution?.intraEventSequence ||
+          triggerApplicationPoint.reaction !==
+            "electroCharged" ||
+          triggerApplicationPoint.reactions.length !== 1 ||
+          triggerApplicationPoint.reactions[0] !==
+            "electroCharged" ||
+          triggerApplicationPoint.primaryDamageEventId !==
+            triggerDamageEvent?.id ||
+          triggerApplicationPoint.links.length !== 1 ||
+          triggerApplicationPoint.links[0]?.kind !==
+            "damage-event" ||
+          triggerApplicationPoint.links[0].id !==
+            triggerDamageEvent?.id ||
+          !triggerApplicationAuraIsExact
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "triggerDamageEventId"
+            ],
+            "direct Electro-Charged trigger requires one exact target-clock Aura-application timeline backlink"
+          );
+        }
+        if (
+          triggerReactionAudit?.model !== "aura-engine" ||
+          triggerReactionAudit.triggered !== true ||
+          triggerReactionAudit.reaction !==
+            "electroCharged" ||
+          triggerReactionAudit.reactions.length !== 1 ||
+          triggerReactionAudit.reactions[0] !==
+            "electroCharged" ||
+          triggerPeriodicAudit === undefined ||
+          triggerPeriodicAudit === null ||
+          triggerPeriodicAudit.reaction !==
+            "electroCharged" ||
+          triggerPeriodicAudit.generation !==
+            propagationAudit.generation ||
+          (triggerPeriodicAudit.operation !== "start" &&
+            triggerPeriodicAudit.operation !== "refresh") ||
+          triggerPeriodicAudit.damageElement !== "electro" ||
+          triggerPeriodicAudit.baseMultiplier !== 2 ||
+          (triggerPeriodicAudit.operation === "start"
+            ? triggerPeriodicAudit.firstDamageFrame !==
+                entry.triggerFrame + 10 ||
+              triggerPeriodicAudit.nextTickFrame !==
+                entry.triggerFrame + 70
+            : triggerPeriodicAudit.firstDamageFrame !==
+                null ||
+              triggerPeriodicAudit.nextTickFrame === null) ||
+          triggerPeriodicAudit.tickIntervalFrames !== 60 ||
+          triggerPeriodicAudit.waneDelayFrames !== 6 ||
+          triggerPeriodicAudit.waneGaugeUnits !== 0.4
+        ) {
+          issue(
+            [
+              "damageEvents",
+              entry.triggerDamageEventId ?? 0,
+              "reactionAudit",
+              "periodicReaction"
+            ],
+            "direct Electro-Charged trigger periodic audit must exactly anchor generation, F+10 first damage, 60F cadence, and F+6 0.4U Wane"
+          );
+        }
+        const expectedReactionActionName =
+          triggerDamageEvent?.actionName === undefined
+            ? undefined
+            : `${triggerDamageEvent.actionName} · 感电`;
+        const expectedReactionHitId =
+          triggerDamageEvent?.hitId === undefined
+            ? undefined
+            : `${triggerDamageEvent.hitId}:electroCharged`;
+        const expectedReactionHitGroupId =
+          triggerDamageEvent?.hitGroupId === undefined ||
+          entry.triggerDamageEventId === null
+            ? undefined
+            : `${triggerDamageEvent.hitGroupId}:electroCharged:${entry.triggerDamageEventId}`;
+        const expectedTargetCount =
+          selectedCandidates.length;
+        selectedCandidates.forEach(
+          (candidate, selectedIndex) => {
+            const candidateIndex =
+              propagationAudit.candidates.indexOf(candidate);
+            const candidatePath = [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "candidates",
+              candidateIndex
+            ] as Array<string | number>;
+            const hitResolutionLogId =
+              candidate.hitResolutionLogId as number;
+            const damageEventId =
+              candidate.damageEventId as number;
+            const hitResolution = hitResolutionById.get(
+              hitResolutionLogId
+            );
+            const damageEvent = damageById.get(
+              damageEventId
+            );
+            if (
+              claimedPropagationHitResolutionIds.has(
+                hitResolutionLogId
+              ) ||
+              claimedPropagationDamageEventIds.has(
+                damageEventId
+              )
+            ) {
+              issue(
+                [...candidatePath, "hitResolutionLogId"],
+                "propagation child ids cannot be shared by multiple candidates or reaction-damage parents"
+              );
+            }
+            claimedPropagationHitResolutionIds.add(
+              hitResolutionLogId
+            );
+            claimedPropagationDamageEventIds.add(
+              damageEventId
+            );
+            const hitsForDamageEvent =
+              reactionDamageHitsByDamageEventId.get(
+                damageEventId
+              ) ?? [];
+            const hitHasExactTargetGeometry =
+              hitResolution !== undefined &&
+              hitResolution.targetPosition !== undefined &&
+              exactPointMatches(
+                hitResolution.targetPosition,
+                candidate.position
+              );
+            const hitHasExactBatchIdentity =
+              hitResolution !== undefined &&
+              sourceHitResolution !== undefined &&
+              hitResolution.sourceActionId !== undefined &&
+              hitResolution.actionName !== undefined &&
+              hitResolution.hitId !== undefined &&
+              hitResolution.hitGroupId !== undefined &&
+              hitResolution.sourceActionId ===
+                sourceHitResolution.sourceActionId &&
+              hitResolution.actionName ===
+                sourceHitResolution.actionName &&
+              hitResolution.hitId ===
+                sourceHitResolution.hitId &&
+              hitResolution.hitGroupId ===
+                sourceHitResolution.hitGroupId;
+            const sourceGeometryIsExact =
+              hitResolution !== undefined &&
+              hitResolution.targetingSource ===
+                "reaction-source" &&
+              hitResolution.geometryKind === null &&
+              hitResolution.geometryCoordinateSpace === null &&
+              hitResolution.geometryOrigin === null &&
+              hitResolution.geometryStart === null &&
+              hitResolution.geometryEnd === null &&
+              hitResolution.geometryRadius === null &&
+              hitResolution.geometryHalfWidth === null &&
+              hitResolution.geometryHalfHeight === null &&
+              hitResolution.geometryRotationDegrees === null &&
+              hitResolution.geometryDirectionDegrees === null &&
+              hitResolution.geometryAngleDegrees === null &&
+              hitResolution.geometryDistance === null &&
+              hitResolution.geometryThreshold === null;
+            const secondaryGeometryIsExact =
+              hitResolution !== undefined &&
+              candidate.position !== null &&
+              propagationAudit.sourcePosition !== null &&
+              hitResolution.targetingSource ===
+                "reaction-geometry" &&
+              hitResolution.geometryKind === "circle" &&
+              hitResolution.geometryCoordinateSpace ===
+                "world" &&
+              hitResolution.geometryOrigin !== undefined &&
+              exactPointMatches(
+                hitResolution.geometryOrigin,
+                propagationAudit.sourcePosition
+              ) &&
+              hitResolution.geometryStart === null &&
+              hitResolution.geometryEnd === null &&
+              hitResolution.geometryRadius !== undefined &&
+              hitResolution.geometryRadius !== null &&
+              hitResolution.geometryRadius ===
+                propagationAudit.radius &&
+              hitResolution.geometryHalfWidth === null &&
+              hitResolution.geometryHalfHeight === null &&
+              hitResolution.geometryRotationDegrees === null &&
+              hitResolution.geometryDirectionDegrees === null &&
+              hitResolution.geometryAngleDegrees === null &&
+              hitResolution.geometryDistance !== undefined &&
+              exactNullableFiniteMatches(
+                hitResolution.geometryDistance,
+                candidate.distance
+              ) &&
+              hitResolution.geometryThreshold !== undefined &&
+              exactNullableFiniteMatches(
+                hitResolution.geometryThreshold,
+                candidate.threshold
+              );
+            const activeTargetPhase =
+              resolveConfiguredTargetPhase(
+                candidate.targetId,
+                entry.damageFrame
+              );
+            const expectedTargetEffectSource =
+              activeTargetPhase === undefined
+                ? "normal"
+                : "target-phase";
+            const expectedTargetPhaseId =
+              activeTargetPhase?.id ?? null;
+            const expectedTargetReason =
+              activeTargetPhase?.reason ?? null;
+            const expectedTargetDamageAllowed =
+              activeTargetPhase?.effects.damage !== "immune";
+            const sourcePoseMatchesTrigger =
+              hitResolution !== undefined &&
+              triggerHitResolution !== undefined &&
+              hitResolution.sourceActorPosition !==
+                undefined &&
+              triggerHitResolution.sourceActorPosition !==
+                undefined &&
+              exactPointMatches(
+                hitResolution.sourceActorPosition,
+                triggerHitResolution.sourceActorPosition
+              ) &&
+              hitResolution.sourceActorFacingDegrees !==
+                undefined &&
+              triggerHitResolution.sourceActorFacingDegrees !==
+                undefined &&
+              hitResolution.sourceActorFacingDegrees ===
+                triggerHitResolution.sourceActorFacingDegrees;
+            const expectedApplicationIntraEventSequence =
+              propagationAudit.candidates.length +
+              selectedIndex;
+            if (
+              hitResolution === undefined ||
+              hitResolution.id !== hitResolutionLogId ||
+              hitResolution.resolutionKind !==
+                "reaction-damage" ||
+              hitResolution.frame !== entry.damageFrame ||
+              hitResolution.timeSeconds !==
+                entry.damageFrame / 60 ||
+              hitResolution.intraEventSequence !==
+                expectedApplicationIntraEventSequence + 1 ||
+              hitResolution.sourceActorId !==
+                entry.sourceActorId ||
+              triggerDamageEvent === undefined ||
+              hitResolution.sourceActionId !==
+                triggerDamageEvent.actionId ||
+              hitResolution.actionName !==
+                expectedReactionActionName ||
+              hitResolution.hitId !==
+                expectedReactionHitId ||
+              hitResolution.hitGroupId !==
+                expectedReactionHitGroupId ||
+              !hitHasExactBatchIdentity ||
+              hitResolution.targetIndex !== selectedIndex ||
+              hitResolution.targetCount !==
+                expectedTargetCount ||
+              hitResolution.element !== "electro" ||
+              hitResolution.targetId !== candidate.targetId ||
+              hitResolution.targetName !==
+                candidate.targetName ||
+              !hitHasExactTargetGeometry ||
+              !sourcePoseMatchesTrigger ||
+              hitResolution.eventPriority !==
+                propagationAudit.eventPriority ||
+              hitResolution.eventSequence !==
+                propagationAudit.eventSequence ||
+              hitResolution.reason !==
+                expectedTargetReason ||
+              hitResolution.targetEffectSource !==
+                expectedTargetEffectSource ||
+              hitResolution.targetPhaseId !==
+                expectedTargetPhaseId ||
+              hitResolution.outcome !== "landed" ||
+              !hitResolution.landed ||
+              hitResolution.damageAllowed !==
+                expectedTargetDamageAllowed ||
+              hitResolution.auraAllowed !== false ||
+              hitResolution.hitConfirmAllowed !== false ||
+              hitResolution.mechanicsStatus !==
+                triggerHitResolution?.mechanicsStatus ||
+              hitResolution.cycle !==
+                triggerHitResolution?.cycle ||
+              hitResolution.timelineCommandIndex !==
+                triggerHitResolution?.timelineCommandIndex ||
+              hitResolution.sourceAbilityId !==
+                triggerHitResolution?.sourceAbilityId ||
+              hitResolution.damageEventId !==
+                damageEventId ||
+              hitsForDamageEvent.length !== 1 ||
+              hitsForDamageEvent[0]?.id !==
+                hitResolutionLogId ||
+              (selectedIndex === 0
+                ? !sourceGeometryIsExact
+                : !secondaryGeometryIsExact)
+            ) {
+              issue(
+                [...candidatePath, "hitResolutionLogId"],
+                "selected propagation candidate requires its unique exact landed reaction-damage hit resolution with P5 source/secondary geometry provenance"
+              );
+            }
+            const targetPolicyMatches =
+              hitResolution !== undefined &&
+              damageEvent !== undefined &&
+              ((hitResolution.damageAllowed === true &&
+                damageEvent.targetDamagePolicy === "normal" &&
+                damageEvent.targetDamageMultiplier === 1) ||
+                (hitResolution.damageAllowed === false &&
+                  damageEvent.targetDamagePolicy === "immune" &&
+                  damageEvent.targetDamageMultiplier === 0));
+            const damageMatchesHit =
+              hitResolution !== undefined &&
+              damageEvent !== undefined &&
+              damageEvent.targetResolutionId ===
+                hitResolution.id &&
+              damageEvent.actionId ===
+                hitResolution.sourceActionId &&
+              damageEvent.actionName ===
+                hitResolution.actionName &&
+              damageEvent.hitId === hitResolution.hitId &&
+              damageEvent.hitGroupId ===
+                hitResolution.hitGroupId &&
+              damageEvent.targetIndex ===
+                hitResolution.targetIndex &&
+              damageEvent.targetCount ===
+                hitResolution.targetCount &&
+              damageEvent.mechanicsStatus ===
+                hitResolution.mechanicsStatus &&
+              damageEvent.potentialDamage ===
+                hitResolution.potentialDamage &&
+              damageEvent.finalDamage ===
+                hitResolution.finalDamage &&
+              damageEvent.displayDamage ===
+                hitResolution.displayDamage &&
+              damageEvent.cycle === hitResolution.cycle &&
+              damageEvent.timelineCommandIndex ===
+                hitResolution.timelineCommandIndex &&
+              damageEvent.sourceAbilityId ===
+                hitResolution.sourceAbilityId;
+            const damageReactionAuditIsExact =
+              damageEvent !== undefined &&
+              damageEvent.reactionAudit.model ===
+                "reaction-damage" &&
+              damageEvent.reactionAudit.triggered === true &&
+              damageEvent.reactionAudit.reaction ===
+                "electroCharged" &&
+              damageEvent.reactionAudit.reactions.length === 1 &&
+              damageEvent.reactionAudit.reactions[0] ===
+                "electroCharged" &&
+              damageEvent.reactionAudit.mechanicsTruncation ===
+                null &&
+              damageEvent.reactionAudit.periodicReaction ===
+                null;
+            const damageActiveActorFieldsAreExact =
+              damageEvent !== undefined &&
+              sourceDamageEvent !== undefined &&
+              damageEvent.activeCharacterId !== undefined &&
+              damageEvent.activeId !== undefined &&
+              damageEvent.activeCharacterId ===
+                damageEvent.activeId &&
+              damageEvent.activeCharacterId ===
+                sourceDamageEvent.activeCharacterId &&
+              damageEvent.activeId ===
+                sourceDamageEvent.activeId;
+            if (
+              damageEvent === undefined ||
+              damageEvent.id !== damageEventId ||
+              !damageMatchesHit ||
+              !damageReactionAuditIsExact ||
+              !damageActiveActorFieldsAreExact ||
+              !targetPolicyMatches ||
+              damageEvent.targetId !== candidate.targetId ||
+              damageEvent.targetName !==
+                candidate.targetName ||
+              damageEvent.targetIndex !== selectedIndex ||
+              damageEvent.targetCount !==
+                expectedTargetCount ||
+              damageEvent.frame !== entry.damageFrame ||
+              damageEvent.timeSeconds !==
+                entry.damageFrame / 60 ||
+              damageEvent.eventPriority !==
+                propagationAudit.eventPriority ||
+              damageEvent.eventSequence !==
+                propagationAudit.eventSequence ||
+              damageEvent.sourceActorId !==
+                entry.sourceActorId ||
+              damageEvent.actionId !==
+                triggerDamageEvent?.actionId ||
+              damageEvent.actionName !==
+                expectedReactionActionName ||
+              damageEvent.hitId !==
+                expectedReactionHitId ||
+              damageEvent.hitGroupId !==
+                expectedReactionHitGroupId ||
+              damageEvent.scalingOwnerId !==
+                entry.sourceActorId ||
+              damageEvent.creditOwnerId !==
+                entry.sourceActorId ||
+              damageEvent.actorId !== entry.sourceActorId ||
+              damageEvent.creditId !== entry.sourceActorId ||
+              damageEvent.parentDamageEventId !==
+                entry.triggerDamageEventId ||
+              damageEvent.reaction !== "electroCharged" ||
+              damageEvent.kind !== "transformative-reaction" ||
+              damageEvent.element !== "electro" ||
+              damageEvent.snapshot !== "hit" ||
+              damageEvent.mechanicsStatus !==
+                triggerDamageEvent?.mechanicsStatus ||
+              damageEvent.cycle !==
+                triggerDamageEvent?.cycle ||
+              damageEvent.timelineCommandIndex !==
+                triggerDamageEvent?.timelineCommandIndex ||
+              damageEvent.sourceAbilityId !==
+                triggerDamageEvent?.sourceAbilityId ||
+              sourceDamageEvent === undefined ||
+              damageEvent.actionId !==
+                sourceDamageEvent.actionId ||
+              damageEvent.actionName !==
+                sourceDamageEvent.actionName ||
+              damageEvent.hitId !==
+                sourceDamageEvent.hitId ||
+              damageEvent.hitGroupId !==
+                sourceDamageEvent.hitGroupId
+            ) {
+              issue(
+                [...candidatePath, "damageEventId"],
+                "selected propagation candidate requires its exact Electro-Charged damage event with P5 parent, ownership, target ordinal, hit identity, and target-policy provenance"
+              );
+            }
+            const decision =
+              entry.damageGroupDecisions?.[selectedIndex];
+            if (
+              decision === undefined ||
+              decision.reaction !== "electroCharged" ||
+              decision.sourceActorId !==
+                entry.sourceActorId ||
+              decision.targetId !== candidate.targetId
+            ) {
+              issue(
+                [
+                  "reactionDamageLog",
+                  entryIndex,
+                  "damageGroupDecisions",
+                  selectedIndex
+                ],
+                "selected propagation candidate requires one ordered ReactionB decision"
+              );
+            }
+            const applicationPoints = (
+              resultTargetStateTimeline?.points ?? []
+            ).filter(
+                (point) =>
+                  point.cause ===
+                    "reaction-damage-application" &&
+                  (point.primaryDamageEventId ===
+                    damageEventId ||
+                    point.links.some(
+                      (link) =>
+                        link.kind === "damage-event" &&
+                        link.id === damageEventId
+                    ) ||
+                    (point.frame === entry.damageFrame &&
+                      point.targetId === candidate.targetId &&
+                      point.links.some(
+                        (link) =>
+                          link.kind ===
+                            "reaction-damage-log" &&
+                          link.id === entry.id
+                      )))
+              );
+            const applicationPoint = applicationPoints[0];
+            const applicationHasExactLinks =
+              applicationPoint?.links.length === 2 &&
+              applicationPoint.links[0]?.kind ===
+                "damage-event" &&
+              applicationPoint.links[0].id === damageEventId &&
+              applicationPoint.links[1]?.kind ===
+                "reaction-damage-log" &&
+              applicationPoint.links[1].id === entry.id;
+            const observationPoint =
+              targetStateTimelinePointById.get(
+                candidate.auraObservationTimelinePointId
+              );
+            const replayedApplicationTargetFrame =
+              replayNearbyTargetFrame?.(
+                candidate.targetId,
+                entry.damageFrame
+              );
+            if (
+              applicationPoints.length !== 1 ||
+              applicationPoint === undefined ||
+              replayedApplicationTargetFrame === undefined ||
+              applicationPoint.targetFrame !==
+                replayedApplicationTargetFrame ||
+              applicationPoint.targetFrame !==
+                observationPoint?.targetFrame ||
+              applicationPoint.frame !== entry.damageFrame ||
+              applicationPoint.timeSeconds !==
+                entry.damageFrame / 60 ||
+              applicationPoint.targetId !== candidate.targetId ||
+              applicationPoint.targetName !==
+                candidate.targetName ||
+              applicationPoint.pointKind !== "observation" ||
+              applicationPoint.cause !==
+                "reaction-damage-application" ||
+              applicationPoint.eventType !==
+                "reactionDamage" ||
+              applicationPoint.eventPriority !==
+                propagationAudit.eventPriority ||
+              applicationPoint.eventSequence !==
+                propagationAudit.eventSequence ||
+              applicationPoint.intraEventSequence !==
+                expectedApplicationIntraEventSequence ||
+              hitResolution?.intraEventSequence !==
+                expectedApplicationIntraEventSequence + 1 ||
+              applicationPoint.reaction !==
+                "electroCharged" ||
+              applicationPoint.reactions.length !== 1 ||
+              applicationPoint.reactions[0] !==
+                "electroCharged" ||
+              applicationPoint.primaryDamageEventId !==
+                damageEventId ||
+              !applicationHasExactLinks ||
+              applicationPoint.auraApplied.length !== 0 ||
+              applicationPoint.auraConsumed.length !== 0 ||
+              !auraStateSnapshotsEqual(
+                applicationPoint.auraBefore,
+                applicationPoint.auraAfter
+              ) ||
+              observationPoint === undefined ||
+              !auraStateSnapshotsEqual(
+                applicationPoint.auraBefore,
+                observationPoint.auraBefore
+              )
+            ) {
+              issue(
+                [...candidatePath, "damageEventId"],
+                "selected propagation candidate requires exactly one immutable same-frame damage-application point with its primary damage child and exact ordered damage/reaction parent links"
+              );
+            } else if (
+              claimedPropagationApplicationPointIds.has(
+                applicationPoint.id
+              )
+            ) {
+              issue(
+                [...candidatePath, "damageEventId"],
+                "a propagation damage-application point cannot be shared by multiple selected candidates"
+              );
+            } else {
+              claimedPropagationApplicationPointIds.add(
+                applicationPoint.id
+              );
+            }
+          }
+        );
+        const sourceDamageEventId =
+          sourceCandidate?.damageEventId ?? null;
+        const periodicTick =
+          periodicTickByReactionDamageLogId.get(entry.id);
+        const generationStartRows =
+          periodicReactionLog.filter(
+            (periodicEntry) =>
+              periodicEntry.operation === "start" &&
+              periodicEntry.generation ===
+                propagationAudit.generation &&
+              periodicEntry.targetId ===
+                entry.sourceTargetId
+          );
+        const generationStart = generationStartRows[0];
+        const generationStartTrigger =
+          generationStart?.triggerDamageEventId === null ||
+          generationStart?.triggerDamageEventId === undefined
+            ? undefined
+            : damageById.get(
+                generationStart.triggerDamageEventId
+              );
+        const generationStartAudit =
+          generationStartTrigger?.reactionAudit.periodicReaction;
+        const generationStartAuraMatches =
+          generationStart !== undefined &&
+          generationStartTrigger !== undefined &&
+          generationStartTrigger.reactionAudit.auraBefore !==
+            undefined &&
+          generationStartTrigger.reactionAudit.auraBefore !==
+            null &&
+          generationStartTrigger.reactionAudit.auraConsumed !==
+            undefined &&
+          generationStartTrigger.reactionAudit.auraConsumed !==
+            null &&
+          generationStartTrigger.reactionAudit.auraAfter !==
+            undefined &&
+          generationStartTrigger.reactionAudit.auraAfter !==
+            null &&
+          auraStateSnapshotsEqual(
+            generationStart.auraBefore,
+            generationStartTrigger.reactionAudit.auraBefore
+          ) &&
+          JSON.stringify(generationStart.auraConsumed) ===
+            JSON.stringify(
+              generationStartTrigger.reactionAudit.auraConsumed
+            ) &&
+          auraStateSnapshotsEqual(
+            generationStart.auraAfter,
+            generationStartTrigger.reactionAudit.auraAfter
+          );
+        if (
+          generationStartRows.length !== 1 ||
+          generationStart === undefined ||
+          generationStart.frame !==
+            generationStartTrigger?.frame ||
+          generationStart.timeSeconds !==
+            generationStart.frame / 60 ||
+          generationStart.targetFrame !== undefined ||
+          generationStart.targetName !==
+            sourceCandidate?.targetName ||
+          generationStart.sourceActorId !==
+            generationStartTrigger?.sourceActorId ||
+          generationStart.reactionDamageLogId !== null ||
+          generationStart.damageEventId !== null ||
+          generationStart.tickIndex !== null ||
+          generationStart.reactionTaskLogId !== undefined ||
+          !generationStartAuraMatches ||
+          generationStart.nextTickFrame !==
+            generationStartAudit?.nextTickFrame ||
+          generationStart.coexistenceExpiresAtFrame !==
+            generationStartAudit?.coexistenceExpiresAtFrame ||
+          generationStart.waneFrame !== null ||
+          generationStart.reason !== null ||
+          generationStartAudit === undefined ||
+          generationStartAudit === null ||
+          generationStartAudit.operation !== "start" ||
+          generationStartAudit.generation !==
+            propagationAudit.generation ||
+          generationStartAudit.firstDamageFrame !==
+            generationStart.frame + 10 ||
+          generationStartAudit.nextTickFrame !==
+            generationStart.frame + 70 ||
+          generationStartAudit.tickIntervalFrames !== 60 ||
+          generationStartAudit.waneDelayFrames !== 6 ||
+          generationStartAudit.waneGaugeUnits !== 0.4 ||
+          entry.damageFrame !==
+            generationStartAudit.firstDamageFrame +
+              propagationAudit.tickIndex * 60
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "generation"
+            ],
+            "propagation generation requires one exact start row and a replayable F+10 then 60F cadence"
+          );
+        }
+        const triggerOperationRows =
+          periodicReactionLog.filter(
+            (periodicEntry) =>
+              periodicEntry.generation ===
+                propagationAudit.generation &&
+              periodicEntry.targetId ===
+                entry.sourceTargetId &&
+              periodicEntry.triggerDamageEventId ===
+                entry.triggerDamageEventId &&
+              periodicEntry.operation ===
+                triggerPeriodicAudit?.operation
+          );
+        const triggerOperationRow =
+          triggerOperationRows[0];
+        if (
+          triggerOperationRows.length !== 1 ||
+          triggerOperationRow === undefined ||
+          triggerOperationRow.frame !== entry.triggerFrame ||
+          triggerOperationRow.timeSeconds !==
+            entry.triggerFrame / 60 ||
+          triggerOperationRow.targetName !==
+            sourceCandidate?.targetName ||
+          triggerOperationRow.sourceActorId !==
+            entry.sourceActorId ||
+          triggerOperationRow.reactionDamageLogId !== null ||
+          triggerOperationRow.damageEventId !== null ||
+          triggerOperationRow.tickIndex !== null ||
+          triggerOperationRow.targetFrame !== undefined ||
+          triggerOperationRow.reactionTaskLogId !== undefined ||
+          triggerOperationRow.nextTickFrame !==
+            triggerPeriodicAudit?.nextTickFrame ||
+          triggerOperationRow.coexistenceExpiresAtFrame !==
+            triggerPeriodicAudit?.coexistenceExpiresAtFrame ||
+          triggerOperationRow.waneFrame !== null ||
+          triggerOperationRow.reason !== null
+        ) {
+          issue(
+            [
+              "periodicReactionLog",
+              triggerOperationRow?.id ?? 0
+            ],
+            "the active Electro-Charged source requires one exact start/refresh row owned by its direct trigger"
+          );
+        }
+        const expectedTickWaneFrame =
+          periodicTick?.waneFrame ?? null;
+        const tickAuraIsImmutable =
+          periodicTick !== undefined &&
+          periodicTick.auraConsumed.length === 0 &&
+          auraStateSnapshotsEqual(
+            periodicTick.auraBefore,
+            periodicTick.auraAfter
+          );
+        if (
+          periodicTick === undefined ||
+          periodicTick.targetId !== entry.sourceTargetId ||
+          periodicTick.targetName !==
+            sourceCandidate?.targetName ||
+          periodicTick.sourceActorId !==
+            entry.sourceActorId ||
+          periodicTick.triggerDamageEventId !==
+            entry.triggerDamageEventId ||
+          periodicTick.frame !== entry.damageFrame ||
+          periodicTick.timeSeconds !==
+            entry.damageFrame / 60 ||
+          periodicTick.targetFrame !== undefined ||
+          periodicTick.reactionTaskLogId !== undefined ||
+          periodicTick.generation !==
+            propagationAudit.generation ||
+          periodicTick.tickIndex !==
+            propagationAudit.tickIndex ||
+          periodicTick.damageEventId !==
+            sourceDamageEventId ||
+          periodicTick.nextTickFrame !==
+            entry.nextAvailableFrame ||
+          periodicTick.coexistenceExpiresAtFrame !==
+            electroChargedCoexistenceExpiryFrame(
+              periodicTick.auraAfter
+            ) ||
+          (periodicTick.nextTickFrame !== null &&
+            periodicTick.reason !== null) ||
+          (periodicTick.waneFrame !== null &&
+            periodicTick.waneFrame !==
+              entry.damageFrame + 6) ||
+          !tickAuraIsImmutable
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "generation"
+            ],
+            "propagation audit must match its source periodic tick, whose singular damageEventId remains the source child"
+          );
+        }
+        const tickTimelinePoints = (
+          resultTargetStateTimeline?.points ?? []
+        ).filter(
+          (point) =>
+            point.cause === "electro-charged-tick" &&
+            point.links.some(
+              (link) =>
+                link.kind === "periodic-reaction-log" &&
+                link.id === periodicTick?.id
+            )
+        );
+        const tickTimelinePoint = tickTimelinePoints[0];
+        const replayedTickTargetFrame =
+          replayNearbyTargetFrame?.(
+            entry.sourceTargetId,
+            entry.damageFrame
+          );
+        if (
+          periodicTick === undefined ||
+          tickTimelinePoints.length !== 1 ||
+          tickTimelinePoint === undefined ||
+          replayedTickTargetFrame === undefined ||
+          tickTimelinePoint.frame !== entry.damageFrame ||
+          tickTimelinePoint.targetFrame !==
+            replayedTickTargetFrame ||
+          tickTimelinePoint.timeSeconds !==
+            entry.damageFrame / 60 ||
+          tickTimelinePoint.targetId !== entry.sourceTargetId ||
+          tickTimelinePoint.targetName !==
+            sourceCandidate?.targetName ||
+          tickTimelinePoint.pointKind !== "observation" ||
+          tickTimelinePoint.eventType !==
+            "periodicReactionTick" ||
+          tickTimelinePoint.eventPriority !== 4 ||
+          tickTimelinePoint.eventSequence === null ||
+          tickTimelinePoint.eventSequence >=
+            propagationAudit.eventSequence ||
+          tickTimelinePoint.intraEventSequence !== 0 ||
+          tickTimelinePoint.reaction !== "electroCharged" ||
+          tickTimelinePoint.reactions.length !== 1 ||
+          tickTimelinePoint.reactions[0] !==
+            "electroCharged" ||
+          tickTimelinePoint.primaryDamageEventId !== null ||
+          tickTimelinePoint.links.length !== 1 ||
+          tickTimelinePoint.links[0]?.kind !==
+            "periodic-reaction-log" ||
+          tickTimelinePoint.links[0].id !== periodicTick.id ||
+          tickTimelinePoint.auraApplied.length !== 0 ||
+          JSON.stringify(tickTimelinePoint.auraConsumed) !==
+            JSON.stringify(periodicTick.auraConsumed) ||
+          !auraStateSnapshotsEqual(
+            tickTimelinePoint.auraBefore,
+            periodicTick.auraBefore
+          ) ||
+          !auraStateSnapshotsEqual(
+            tickTimelinePoint.auraAfter,
+            periodicTick.auraAfter
+          )
+        ) {
+          issue(
+            [
+              "periodicReactionLog",
+              periodicTick?.id ?? 0
+            ],
+            "periodic Electro-Charged tick requires one exact P4 immutable target-clock timeline witness"
+          );
+        }
+        if (
+          sourceDamageEvent === undefined ||
+          sourceDamageEvent.eventPriority !==
+            propagationAudit.eventPriority ||
+          sourceDamageEvent.eventSequence !==
+            propagationAudit.eventSequence
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              entryIndex,
+              "electroChargedPropagation",
+              "eventSequence"
+            ],
+            "propagation audit event tuple must match its source damage child"
+          );
+        }
+        const secondaryDamageEventIds = new Set(
+          selectedDamageEventIds.slice(1)
+        );
+        const matchingWaneRows = periodicReactionLog.filter(
+          (periodicEntry) =>
+            (periodicEntry.operation === "wane" ||
+              periodicEntry.operation === "wane-skipped") &&
+            periodicEntry.generation ===
+              propagationAudit.generation &&
+            periodicEntry.targetId === entry.sourceTargetId &&
+            periodicEntry.damageEventId ===
+              sourceDamageEventId &&
+            periodicEntry.tickIndex ===
+              propagationAudit.tickIndex
+        );
+        const expectedWaneRowCount =
+          expectedTickWaneFrame !== null &&
+          expectedTickWaneFrame <= simulationEndFrame
+            ? 1
+            : 0;
+        if (
+          matchingWaneRows.length !== expectedWaneRowCount
+        ) {
+          issue(
+            [
+              "periodicReactionLog",
+              periodicTick?.id ?? 0,
+              "waneFrame"
+            ],
+            "periodic Electro-Charged tick requires exactly one in-simulation generation-bound Wane row"
+          );
+        }
+        const waneRow = matchingWaneRows[0];
+        if (waneRow !== undefined) {
+          const sourceActualDamage =
+            sourceDamageEvent?.finalDamage ?? 0;
+          const expectedWaneOperation =
+            sourceActualDamage > 0
+              ? "wane"
+              : "wane-skipped";
+          const waneRetainsCoexistence =
+            waneRow.auraAfter.some(
+              (aura) => aura.element === "hydro"
+            ) &&
+            waneRow.auraAfter.some(
+              (aura) => aura.element === "electro"
+            );
+          const expectedWaneReason =
+            expectedWaneOperation === "wane-skipped"
+              ? "ZERO_ACTUAL_DAMAGE"
+              : waneRetainsCoexistence
+                ? null
+                : "AURA_DEPLETED_BY_WANE";
+          const expectedPostWaneNextTickFrame =
+            waneRetainsCoexistence
+              ? periodicTick?.nextTickFrame
+              : null;
+          const expectedWaneGaugeByElement = new Map(
+            waneRow.auraBefore
+              .filter(
+                (aura) =>
+                  aura.element === "hydro" ||
+                  aura.element === "electro"
+              )
+              .map((aura) => [
+                aura.element,
+                Math.min(0.4, aura.gaugeUnits)
+              ])
+          );
+          const waneGaugeIsExact =
+            expectedWaneOperation === "wane"
+              ? waneRow.auraConsumed.every(
+                  (consumed) =>
+                    (consumed.element === "hydro" ||
+                      consumed.element === "electro") &&
+                    consumed.gaugeUnits ===
+                      expectedWaneGaugeByElement.get(
+                        consumed.element
+                      )
+                ) &&
+                electroChargedWaneAuditMatches(
+                  waneRow.auraBefore,
+                  waneRow.auraConsumed,
+                  waneRow.auraAfter,
+                  0.4
+                )
+              : waneRow.auraConsumed.length === 0 &&
+                auraStateSnapshotsEqual(
+                  waneRow.auraBefore,
+                  waneRow.auraAfter
+                );
+          if (
+            waneRow.operation !== expectedWaneOperation ||
+            waneRow.frame !== expectedTickWaneFrame ||
+            waneRow.waneFrame !== expectedTickWaneFrame ||
+            waneRow.timeSeconds !== waneRow.frame / 60 ||
+            waneRow.targetFrame !== undefined ||
+            waneRow.targetName !==
+              sourceCandidate?.targetName ||
+            waneRow.sourceActorId !== entry.sourceActorId ||
+            waneRow.triggerDamageEventId !==
+              entry.triggerDamageEventId ||
+            waneRow.reactionDamageLogId !== null ||
+            waneRow.damageEventId !== sourceDamageEventId ||
+            waneRow.tickIndex !==
+              propagationAudit.tickIndex ||
+            waneRow.reactionTaskLogId !== undefined ||
+            waneRow.nextTickFrame !==
+              expectedPostWaneNextTickFrame ||
+            waneRow.coexistenceExpiresAtFrame !==
+              electroChargedCoexistenceExpiryFrame(
+                waneRow.auraAfter
+              ) ||
+            waneRow.reason !== expectedWaneReason ||
+            !waneGaugeIsExact
+          ) {
+            issue(
+              ["periodicReactionLog", waneRow.id],
+              "Electro-Charged Wane must retain exact generation, source child, cadence, reason, and source-only 0.4U Aura provenance"
+            );
+          }
+          const waneTimelinePoints = (
+            resultTargetStateTimeline?.points ?? []
+          ).filter(
+            (point) =>
+              point.cause === "electro-charged-wane" &&
+              point.links.some(
+                (link) =>
+                  link.kind ===
+                    "periodic-reaction-log" &&
+                  link.id === waneRow.id
+              )
+          );
+          const waneTimelinePoint = waneTimelinePoints[0];
+          const replayedWaneTargetFrame =
+            replayNearbyTargetFrame?.(
+              entry.sourceTargetId,
+              waneRow.frame
+            );
+          if (
+            waneTimelinePoints.length !== 1 ||
+            waneTimelinePoint === undefined ||
+            replayedWaneTargetFrame === undefined ||
+            waneTimelinePoint.frame !== waneRow.frame ||
+            waneTimelinePoint.targetFrame !==
+              replayedWaneTargetFrame ||
+            waneTimelinePoint.timeSeconds !==
+              waneRow.frame / 60 ||
+            waneTimelinePoint.targetId !==
+              entry.sourceTargetId ||
+            waneTimelinePoint.targetName !==
+              sourceCandidate?.targetName ||
+            waneTimelinePoint.pointKind !==
+              (waneRow.operation === "wane"
+                ? "mutation"
+                : "observation") ||
+            waneTimelinePoint.eventType !==
+              "periodicReactionWane" ||
+            waneTimelinePoint.eventPriority !== 6 ||
+            waneTimelinePoint.eventSequence === null ||
+            waneTimelinePoint.eventSequence <=
+              propagationAudit.eventSequence ||
+            waneTimelinePoint.intraEventSequence !== 0 ||
+            waneTimelinePoint.reaction !==
+              "electroCharged" ||
+            waneTimelinePoint.reactions.length !== 1 ||
+            waneTimelinePoint.reactions[0] !==
+              "electroCharged" ||
+            waneTimelinePoint.primaryDamageEventId !==
+              sourceDamageEventId ||
+            waneTimelinePoint.links.length !== 2 ||
+            waneTimelinePoint.links[0]?.kind !==
+              "damage-event" ||
+            waneTimelinePoint.links[0].id !==
+              sourceDamageEventId ||
+            waneTimelinePoint.links[1]?.kind !==
+              "periodic-reaction-log" ||
+            waneTimelinePoint.links[1].id !== waneRow.id ||
+            JSON.stringify(waneTimelinePoint.auraConsumed) !==
+              JSON.stringify(waneRow.auraConsumed) ||
+            !auraStateSnapshotsEqual(
+              waneTimelinePoint.auraBefore,
+              waneRow.auraBefore
+            ) ||
+            !auraStateSnapshotsEqual(
+              waneTimelinePoint.auraAfter,
+              waneRow.auraAfter
+            )
+          ) {
+            issue(
+              ["periodicReactionLog", waneRow.id],
+              "Electro-Charged Wane requires one exact P6 source-child timeline mutation"
+            );
+          }
+        }
+        periodicReactionLog.forEach(
+          (periodicEntry, periodicIndex) => {
+            if (
+              (periodicEntry.operation === "wane" ||
+                periodicEntry.operation === "wane-skipped") &&
+              periodicEntry.damageEventId !== null &&
+              secondaryDamageEventIds.has(
+                periodicEntry.damageEventId
+              )
+            ) {
+              issue(
+                [
+                  "periodicReactionLog",
+                  periodicIndex,
+                  "damageEventId"
+                ],
+                "Electro-Charged Wane remains source-only and cannot reference a propagated secondary damage child"
+              );
+            }
+          }
         );
       }
 
@@ -18339,6 +22642,8 @@ export const reactionDeliveryResultReferencesSchema = z
             return;
           }
           if (
+            entry.targetingMode !==
+              "electro-charged-nearby-wet" &&
             configuredTargetIndex <= previousConfiguredTargetIndex
           ) {
             issue(
@@ -19156,6 +23461,46 @@ export const reactionDeliveryResultReferencesSchema = z
         }
       }
     });
+
+    const nearbyPropagationOutput =
+      exact141Identity &&
+      configElectroChargedPropagationModel?.mode ===
+        "nearby-wet-radius-v1";
+    (resultTargetStateTimeline?.points ?? []).forEach(
+      (point, pointIndex) => {
+        if (
+          point.cause !==
+          "electro-charged-propagation-candidate"
+        ) {
+          return;
+        }
+        if (!nearbyPropagationOutput) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "cause"
+            ],
+            "Electro-Charged propagation candidate observations are reserved for exact 1.41 nearby-Wet output"
+          );
+        } else if (
+          !claimedPropagationObservationPointIds.has(
+            point.id
+          )
+        ) {
+          issue(
+            [
+              "targetStateTimeline",
+              "points",
+              pointIndex,
+              "cause"
+            ],
+            "orphan Electro-Charged propagation observation is not claimed by exactly one candidate"
+          );
+        }
+      }
+    );
 
     damageGroupAttempts.sort(
       (left, right) =>
@@ -19991,7 +24336,460 @@ export const reactionDeliveryResultReferencesSchema = z
         cursor = damageById.get(cursor.parentDamageEventId);
       }
     });
+  })
+);
+
+const goldenAuraBoundarySchema = z
+  .object({
+    targetId: wireNonEmptyStringSchema,
+    targetName: wireNonEmptyStringSchema,
+    frame: z.number().int().nonnegative(),
+    timeSeconds: finiteNumber.nonnegative(),
+    aura: z.array(auraStateEntrySchema)
+  })
+  .strict();
+
+const exactGoldenWire = <T extends z.ZodTypeAny>(
+  label: string,
+  expectedContentHash: string,
+  schema: T
+) =>
+  z.preprocess((input, context) => {
+    const cleanInput = rejectNonPlainJsonWire(label)(
+      input,
+      context
+    );
+    try {
+      const actualContentHash =
+        createVersionedContentHash(cleanInput);
+      if (actualContentHash !== expectedContentHash) {
+        context.addIssue({
+          code: "custom",
+          message: `${label} content drifted from the frozen ${expectedContentHash} envelope`
+        });
+      }
+    } catch {
+      context.addIssue({
+        code: "custom",
+        message: `${label} must be a finite JSON wire before its frozen content hash can be checked`
+      });
+    }
+    return cleanInput;
+  }, schema);
+
+const electroChargedPropagationGoldenScenarioV141Schema = z
+  .object({
+    identity: z
+      .object({
+        schemaVersion: z.literal(
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
+        ),
+        engineVersion: z.literal(
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+        ),
+        dataVersion: z.literal(
+          "ec-propagation-community-provisional-1"
+        ),
+        randomSeed: z.literal(
+          "ec-propagation-v141-golden-seed"
+        ),
+        configHash: z.literal("fnv1a32:c6f195e0"),
+        reproducibilityKey: z.literal(
+          "gdl-v2-fnv1a32-cc0079e7"
+        ),
+        resolvedRuntimeOptions: z
+          .object({
+            energyMode: z.literal("configured"),
+            critMode: z.literal("noCrit"),
+            compatibilityMode: z.literal(
+              "legal-frame-v1"
+            ),
+            randomSeed: z.literal(
+              "ec-propagation-v141-golden-seed"
+            )
+          })
+          .strict()
+      })
+      .strict(),
+    configContract: z
+      .object({
+        reactionEngine: z
+          .object({ mode: z.literal("aura-v8") })
+          .strict(),
+        targetClockModel: z
+          .object({ mode: z.literal("disabled") })
+          .strict(),
+        targetTaskModel: z
+          .object({ mode: z.literal("target-phase-v2") })
+          .strict(),
+        reactionDeliveryModel: z
+          .object({
+            mode: z.literal(
+              "deferred-event-heap-v1"
+            )
+          })
+          .strict(),
+        electroChargedPropagationModel: z
+          .object({
+            mode: z.literal("nearby-wet-radius-v1"),
+            radius: z.literal(3),
+            verificationStatus: z.literal("provisional")
+          })
+          .strict(),
+        timeline: z
+          .object({
+            mode: z.literal("legal-frame-v1"),
+            fps: z.literal(60)
+          })
+          .strict(),
+        enemyTargets: z
+          .array(resolvedEnemyTargetProfileSchema)
+          .length(6)
+      })
+      .strict(),
+    totals: z
+      .object({
+        totalDamage: finiteNumber.nonnegative(),
+        dps: finiteNumber.nonnegative(),
+        damageEventCount: z.number().int().nonnegative(),
+        reactedHits: z.number().int().nonnegative(),
+        skippedActionCount: z.number().int().nonnegative()
+      })
+      .strict(),
+    auraInitialStates: z.array(goldenAuraBoundarySchema),
+    auraEndStates: z.array(goldenAuraBoundarySchema),
+    periodicElectroCharged: z.array(
+      electroChargedCleanupPeriodicLogEntrySchema
+    ),
+    reactionDamage: z.array(
+      reactionDeliveryLogReferenceSchema
+    ),
+    reactionBDecisions: z.array(
+      reactionBDamageGroupAuditSchema
+    ),
+    relevantHitResolutions: z.array(
+      targetTaskPhaseHitReferenceSchema
+    ),
+    candidateAuraWitnesses: z.array(
+      targetStateTimelinePointSchema
+    ),
+    propagationDamageApplicationPoints: z.array(
+      targetStateTimelinePointSchema
+    ),
+    triggerDamageEvents: z.array(
+      reactionDeliveryDamageEventReferenceSchema
+    ),
+    propagationDamageChildren: z.array(
+      reactionDeliveryDamageEventReferenceSchema
+    ),
+    allRelatedDamageEvents: z.array(
+      reactionDeliveryDamageEventReferenceSchema
+    ),
+    targetStateTimeline: targetStateTimelineSchema
+  })
+  .strict()
+  .superRefine((scenario, context) => {
+    const referenceResult =
+      reactionDeliveryResultReferencesSchema.safeParse({
+        schemaVersion: scenario.identity.schemaVersion,
+        engineVersion: scenario.identity.engineVersion,
+        config: {
+          schemaVersion: scenario.identity.schemaVersion,
+          engineVersion: scenario.identity.engineVersion,
+          duration: 1,
+          enemy: {
+            targets:
+              scenario.configContract.enemyTargets.map(
+                (target) => ({
+                  id: target.id,
+                  name: target.name,
+                  ...(target.position === null
+                    ? {}
+                    : { position: target.position }),
+                  hitboxRadius: target.hitboxRadius
+                })
+              ),
+            targetPhases: [
+              {
+                id: "immune-at-first-tick",
+                label: "Immune at first tick",
+                targetId: "wet-immune",
+                startFrame: 10,
+                endFrame: 11,
+                reason: "TEST_EC_IMMUNE",
+                effects: {
+                  damage: "immune",
+                  aura: "normal",
+                  hitConfirm: "normal"
+                }
+              }
+            ]
+          },
+          reactionEngine:
+            scenario.configContract.reactionEngine,
+          targetClockModel:
+            scenario.configContract.targetClockModel,
+          targetTaskModel:
+            scenario.configContract.targetTaskModel,
+          timeline: scenario.configContract.timeline,
+          reactionDeliveryModel:
+            scenario.configContract.reactionDeliveryModel,
+          electroChargedPropagationModel:
+            scenario.configContract
+              .electroChargedPropagationModel
+        },
+        damageEvents: scenario.allRelatedDamageEvents,
+        reactionDamageLog: scenario.reactionDamage,
+        hitResolutionLog:
+          scenario.relevantHitResolutions,
+        periodicReactionLog:
+          scenario.periodicElectroCharged,
+        targetClockLog: [],
+        targetHitlagLog: [],
+        targetStateTimeline: scenario.targetStateTimeline
+      });
+    if (!referenceResult.success) {
+      context.addIssue({
+        code: "custom",
+        path: ["scenario"],
+        message:
+          "the propagation Golden scenario must satisfy the exact 1.41 reaction-delivery cross-log proof"
+      });
+    }
+    const totalDamage =
+      scenario.allRelatedDamageEvents.reduce(
+        (sum, event) => sum + (event.finalDamage ?? 0),
+        0
+      );
+    if (
+      !approximatelyEqual(
+        scenario.totals.totalDamage,
+        totalDamage
+      ) ||
+      !approximatelyEqual(
+        scenario.totals.dps,
+        scenario.totals.totalDamage
+      ) ||
+      scenario.totals.damageEventCount !==
+        scenario.allRelatedDamageEvents.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["totals"],
+        message:
+          "the one-second propagation Golden totals must project every related damage event"
+      });
+    }
   });
+
+export const electroChargedPropagationGoldenFixtureV141Schema =
+  exactGoldenWire(
+    "electroChargedPropagationGoldenFixtureV141",
+    "fnv1a32:e88f9ec7",
+    z
+      .object({
+        fixtureVersion: z.literal(
+          "electro-charged-propagation-1.41"
+        ),
+        description: wireNonEmptyStringSchema,
+        provenance: z
+          .object({
+            referenceProject: z.literal(
+              "genshinsim/gcsim"
+            ),
+            referenceCommit: z.literal(
+              "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+            ),
+            mechanicsDataStatus: z.literal(
+              "community-provisional"
+            ),
+            capturedAt: z.literal("2026-07-29"),
+            notes: z.tuple([
+              z.literal(
+                "The pinned gcsim reference remains single-target and does not implement nearby-Wet propagation."
+              ),
+              z.literal(
+                "The radius, all-target registration-order selection, secondary ownership, and source-only Wane rules are community-provisional and are not official game data."
+              ),
+              z.literal(
+                "The secondary Electro-Charged damage applies no Aura, starts no periodic stream, and does not mutate an existing stream."
+              ),
+              z.literal(
+                "This fixture is a regression contract, not a claim of complete gcsim or live-game parity."
+              )
+            ])
+          })
+          .strict(),
+        scenario:
+          electroChargedPropagationGoldenScenarioV141Schema,
+        scenarioSha256: z.literal(
+          "b00a4a02e859e7744660fb71ed859763a67b0cb08dfb8cc8146e46f409d6e92c"
+        )
+      })
+      .strict()
+  );
+
+const legacyDefault120sGoldenSkillV141Schema = z
+  .object({
+    creditId: wireNonEmptyStringSchema,
+    actionName: wireNonEmptyStringSchema,
+    damage: finiteNumber.nonnegative(),
+    hits: z.number().int().nonnegative()
+  })
+  .strict();
+
+export const legacyDefault120sGoldenFixtureV141Schema =
+  exactGoldenWire(
+    "legacyDefault120sGoldenFixtureV141",
+    "fnv1a32:a93afb14",
+    z
+      .object({
+        fixtureVersion: z.literal("1.0.0"),
+        description: wireNonEmptyStringSchema,
+        provenance: z
+          .object({
+            source: wireNonEmptyStringSchema,
+            capturedAt: z.literal("2026-07-29"),
+            verificationStatus: z.literal("provisional"),
+            note: z
+              .string()
+              .refine(
+                (note) =>
+                  note.includes(
+                    "illustrative magic numbers, not verified game data"
+                  ),
+                {
+                  message:
+                    "must retain the illustrative, unverified-data disclaimer"
+                }
+              )
+          })
+          .strict(),
+        schemaVersion: z.literal(
+          EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
+        ),
+        engineVersion: z.literal(
+          EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+        ),
+        configHash: z.literal("fnv1a32:209615b8"),
+        reproducibilityKey: z.literal(
+          "gdl-v2-fnv1a32-10db6191"
+        ),
+        options: z
+          .object({
+            energyMode: z.literal("configured"),
+            critMode: z.literal("average"),
+            compatibilityMode: z.literal("legacy-v0.1"),
+            randomSeed: z.literal("legacy-default")
+          })
+          .strict(),
+        totalDamage: finiteNumber.nonnegative(),
+        dps: finiteNumber.nonnegative(),
+        hitCount: z.number().int().nonnegative(),
+        reactedHits: z.number().int().nonnegative(),
+        skippedActionCount: z.number().int().nonnegative(),
+        byCharacter: z
+          .object({
+            nicole: finiteNumber.nonnegative(),
+            citlali: finiteNumber.nonnegative(),
+            durin: finiteNumber.nonnegative(),
+            lohen: finiteNumber.nonnegative()
+          })
+          .strict(),
+        bySkill: z.array(
+          legacyDefault120sGoldenSkillV141Schema
+        ),
+        legacyDamageEventsSha256: z.literal(
+          "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f"
+        ),
+        reactionDeliveryModel: z
+          .object({
+            mode: z.literal(
+              "deferred-event-heap-v1"
+            )
+          })
+          .strict(),
+        electroChargedPropagationModel: z
+          .object({
+            mode: z.literal("single-target-v1")
+          })
+          .strict(),
+        targetClock: z
+          .object({
+            config: z
+              .object({ mode: z.literal("disabled") })
+              .strict(),
+            audit: targetClockAuditSchema,
+            clockLog: targetClockLogSchema,
+            hitlagLog: targetHitlagLogSchema
+          })
+          .strict(),
+        targetTask: z
+          .object({
+            config: z
+              .object({
+                mode: z.literal(
+                  "legacy-event-heap-v1"
+                )
+              })
+              .strict(),
+            phaseLog: targetTaskPhaseLogSchema
+          })
+          .strict(),
+        targetPhaseLog: targetPhaseV2LogSchema
+      })
+      .strict()
+      .superRefine((fixture, context) => {
+        const goldenTotalMatches = (
+          left: number,
+          right: number
+        ): boolean =>
+          Math.abs(left - right) <=
+          1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+        const byCharacterTotal = Object.values(
+          fixture.byCharacter
+        ).reduce((sum, damage) => sum + damage, 0);
+        const bySkillTotal = fixture.bySkill.reduce(
+          (sum, skill) => sum + skill.damage,
+          0
+        );
+        const bySkillHits = fixture.bySkill.reduce(
+          (sum, skill) => sum + skill.hits,
+          0
+        );
+        if (
+          !goldenTotalMatches(
+            byCharacterTotal,
+            fixture.totalDamage
+          ) ||
+          !goldenTotalMatches(
+            bySkillTotal,
+            fixture.totalDamage
+          ) ||
+          bySkillHits !== fixture.hitCount ||
+          !goldenTotalMatches(
+            fixture.dps * 120,
+            fixture.totalDamage
+          ) ||
+          fixture.targetClock.audit.mode !== "disabled" ||
+          fixture.targetClock.clockLog.length !== 0 ||
+          fixture.targetClock.hitlagLog.length !== 0 ||
+          fixture.targetTask.phaseLog.length !== 0 ||
+          fixture.targetPhaseLog.length !== 0
+        ) {
+          context.addIssue({
+            code: "custom",
+            message:
+              "legacy 120-second Golden summaries and disabled target-owned logs must exactly reconcile"
+          });
+        }
+      })
+  );
+
+export const goldenFixtureEnvelopeV141Schema = z.union([
+  electroChargedPropagationGoldenFixtureV141Schema,
+  legacyDefault120sGoldenFixtureV141Schema
+]);
 
 /**
  * Strict player-reaction-damage output boundary plus cross-log integrity.
@@ -21063,7 +25861,10 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     playerDamageModel: { mode: "disabled" },
     targetClockModel: { mode: "disabled" },
     targetTaskModel: { mode: "legacy-event-heap-v1" },
-    reactionDeliveryModel: { mode: "deferred-event-heap-v1" }
+    reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    }
   };
 }
 
@@ -21099,6 +25900,7 @@ export function parseSimConfig(input: unknown): SimConfig {
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
       ["reactionDeliveryModel", ["mode"]],
+      ["electroChargedPropagationModel", ["mode"]],
       ["timeline", ["mode", "fps"]]
     ] as const;
     for (const [containerField, fields] of nestedOwnFields) {
@@ -21354,6 +26156,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION]: {
     engineVersion: SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v7
+  },
+  [EC_NEXT_TARGET_TICK_SCHEMA_VERSION]: {
+    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v8
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -21435,7 +26241,66 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   const version = input.schemaVersion;
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    "electroChargedPropagationModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `electroChargedPropagationModel: schemaVersion "${historicalVersion}" does not support Electro-Charged propagation selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (version === CURRENT_SCHEMA_VERSION) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "electroChargedPropagationModel"
+      )
+    ) {
+      const issue =
+        `electroChargedPropagationModel: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit own Electro-Charged propagation model`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    if (
+      !isRecord(input.electroChargedPropagationModel) ||
+      !Object.prototype.hasOwnProperty.call(
+        input.electroChargedPropagationModel,
+        "mode"
+      )
+    ) {
+      const issue =
+        `electroChargedPropagationModel.mode: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit own discriminator`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    const propagation =
+      electroChargedPropagationModelSchema.safeParse(
+        input.electroChargedPropagationModel
+      );
+    if (!propagation.success) {
+      const details = formatZodError(propagation.error).map(
+        (entry) => `electroChargedPropagationModel.${entry}`
+      );
+      const issue =
+        `electroChargedPropagationModel: schemaVersion "${CURRENT_SCHEMA_VERSION}" requires an explicit single-target-v1 or provisional nearby-wet-radius-v1 model`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}${details.length > 0 ? `\n${details.map((entry) => `- ${entry}`).join("\n")}` : ""}`,
+        [issue, ...details]
+      );
+    }
+  }
+  if (
+    version !== CURRENT_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     "reactionDeliveryModel" in input
   ) {
     const historicalVersion =
@@ -21450,7 +26315,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version === CURRENT_SCHEMA_VERSION ||
-    version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION
+    version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+    version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION
   ) {
     if (
       !Object.prototype.hasOwnProperty.call(
@@ -21534,6 +26400,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const historicalEnemyElementalResistancesPath =
     version === CURRENT_SCHEMA_VERSION ||
+    version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION ||
     version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
     version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
     version === TARGET_TASK_PHASE_SCHEMA_VERSION ||
@@ -21559,6 +26426,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21580,6 +26448,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== CURRENT_SCHEMA_VERSION &&
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21599,6 +26468,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21618,6 +26488,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     isRecord(input.reactionEngine) &&
     input.reactionEngine.mode === "aura-v8"
   ) {
@@ -21637,6 +26508,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== PLAYER_REACTION_DAMAGE_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21663,6 +26535,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version !== GENERAL_REACTION_ORDER_SCHEMA_VERSION &&
     version !== TARGET_LOCAL_HITLAG_SCHEMA_VERSION &&
     version !== ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21710,7 +26583,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     (version === TARGET_REACTABLE_PHASE_SCHEMA_VERSION ||
-      version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION) &&
+      version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION ||
+      version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION) &&
     !historicalTargetTaskModelIsLegacy &&
     !historicalTargetTaskModelIsV1 &&
     !historicalTargetTaskModelIsV2
@@ -21724,6 +26598,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (
     version !== CURRENT_SCHEMA_VERSION &&
+    version !== EC_NEXT_TARGET_TICK_SCHEMA_VERSION &&
     version !== SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION &&
     version !== TARGET_REACTABLE_PHASE_SCHEMA_VERSION &&
     version !== TARGET_TASK_PHASE_SCHEMA_VERSION &&
@@ -21750,8 +26625,21 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
   }
+  input = {
+    ...input,
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    }
+  };
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === EC_NEXT_TARGET_TICK_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION) {
     return parseSimConfig({

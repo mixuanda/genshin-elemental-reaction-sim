@@ -1,4 +1,7 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
+import legacyDefault120sGolden from "../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
 import {
   auraSourceGaugeMutationSchema,
   auraStateEntrySchema,
@@ -8,6 +11,7 @@ import {
   burningReactionAuditSchema,
   burningStateLogEntrySchema,
   ConfigMigrationError,
+  canonicalStringify,
   createSimulationConfigHash,
   createSimulationRunManifest,
   createVersionedContentHash,
@@ -19,6 +23,11 @@ import {
   DENDRO_CORE_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+  EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+  electroChargedPropagationAuditSchema,
+  electroChargedPropagationGoldenFixtureV141Schema,
+  electroChargedPropagationModelSchema,
   dendroCoreContactLogEntrySchema,
   dendroCoreContactLogSchema,
   dendroCoreLogEntrySchema,
@@ -32,6 +41,8 @@ import {
   enemyTargetsResultReferencesSchema,
   GENERAL_REACTION_ORDER_ENGINE_VERSION,
   GENERAL_REACTION_ORDER_SCHEMA_VERSION,
+  goldenFixtureEnvelopeV141Schema,
+  legacyDefault120sGoldenFixtureV141Schema,
   migrateConfig,
   parseSimConfig,
   parseSimulationRunManifestForConfig,
@@ -113,12 +124,23 @@ const legacyConfig = {
 
 const asPre139Wire = <T extends object>(
   config: T
-): Omit<T, "reactionDeliveryModel"> => {
+): Omit<
+  T,
+  "reactionDeliveryModel" | "electroChargedPropagationModel"
+> => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
+    electroChargedPropagationModel:
+      _electroChargedPropagationModel,
     ...wire
-  } = config as T & { reactionDeliveryModel?: unknown };
-  return wire as Omit<T, "reactionDeliveryModel">;
+  } = config as T & {
+    reactionDeliveryModel?: unknown;
+    electroChargedPropagationModel?: unknown;
+  };
+  return wire as Omit<
+    T,
+    "reactionDeliveryModel" | "electroChargedPropagationModel"
+  >;
 };
 
 const validTargetStateTimeline = {
@@ -885,6 +907,8 @@ describe("1.32 player reaction self-damage contract", () => {
     const {
       targetClockModel: _targetClockModel,
       reactionDeliveryModel: _reactionDeliveryModel,
+      electroChargedPropagationModel:
+        _electroChargedPropagationModel,
       ...wire132
     } = current;
     const historical = {
@@ -2199,9 +2223,21 @@ describe("1.33 target-local Hitlag contract", () => {
       SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
     frozen139Result.config.engineVersion =
       SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    delete frozen139Result.config.electroChargedPropagationModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
+    expect(() =>
+      targetClockResultReferencesSchema.parse({
+        ...frozen139Result,
+        config: {
+          ...frozen139Result.config,
+          electroChargedPropagationModel: {
+            mode: "single-target-v1"
+          }
+        }
+      })
+    ).toThrow(/pre-1\.41 result config/);
 
     expect(() =>
       targetHitlagLogEntrySchema.parse({
@@ -2648,6 +2684,9 @@ describe("1.34 general reaction order contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionDeliveryModel: {
         mode: "deferred-event-heap-v1"
+      },
+      electroChargedPropagationModel: {
+        mode: "single-target-v1"
       }
     });
   });
@@ -2685,6 +2724,9 @@ describe("1.34 general reaction order contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionDeliveryModel: {
         mode: "deferred-event-heap-v1"
+      },
+      electroChargedPropagationModel: {
+        mode: "single-target-v1"
       }
     });
   });
@@ -2984,6 +3026,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
     const {
       targetTaskModel: _targetTaskModel,
       reactionDeliveryModel: _reactionDeliveryModel,
+      electroChargedPropagationModel:
+        _electroChargedPropagationModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3012,6 +3056,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         targetTaskModel: { mode: "legacy-event-heap-v1" },
         reactionDeliveryModel: {
           mode: "deferred-event-heap-v1"
+        },
+        electroChargedPropagationModel: {
+          mode: "single-target-v1"
         }
       });
     }
@@ -3020,6 +3067,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
     const {
       targetTaskModel: _currentTargetTaskModel,
       reactionDeliveryModel: _currentReactionDeliveryModel,
+      electroChargedPropagationModel:
+        _currentElectroChargedPropagationModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3127,9 +3176,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.40.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.41.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.40.0-ec-next-target-tick-cleanup"
+      "1.41.0-ec-secondary-wet-propagation"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4115,6 +4164,69 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     };
   };
 
+  const makeNearbyWetPropagationReferenceResult = () => {
+    const scenario = structuredClone(
+      electroChargedPropagationGolden.scenario
+    );
+    return {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      config: {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
+        duration: 1,
+        enemy: {
+          targets:
+            scenario.configContract.enemyTargets.map(
+              (target) => ({
+                id: target.id,
+                name: target.name,
+                ...(target.position === null
+                  ? {}
+                  : { position: target.position }),
+                hitboxRadius: target.hitboxRadius
+              })
+            ),
+          targetPhases: [
+            {
+              id: "immune-at-first-tick",
+              label: "Immune at first tick",
+              targetId: "wet-immune",
+              startFrame: 10,
+              endFrame: 11,
+              reason: "TEST_EC_IMMUNE",
+              effects: {
+                damage: "immune",
+                aura: "normal",
+                hitConfirm: "normal"
+              }
+            }
+          ]
+        },
+        reactionEngine:
+          scenario.configContract.reactionEngine,
+        targetClockModel:
+          scenario.configContract.targetClockModel,
+        targetTaskModel:
+          scenario.configContract.targetTaskModel,
+        timeline: scenario.configContract.timeline,
+        reactionDeliveryModel:
+          scenario.configContract.reactionDeliveryModel,
+        electroChargedPropagationModel:
+          scenario.configContract
+            .electroChargedPropagationModel
+      },
+      damageEvents: scenario.allRelatedDamageEvents,
+      reactionDamageLog: scenario.reactionDamage,
+      hitResolutionLog: scenario.relevantHitResolutions,
+      periodicReactionLog:
+        scenario.periodicElectroCharged,
+      targetClockLog: [],
+      targetHitlagLog: [],
+      targetStateTimeline: scenario.targetStateTimeline
+    };
+  };
+
   it("freezes the 1.39 identity and strictly gates the recursive model under 1.40", () => {
     expect(SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION).toBe(
       "1.39.0"
@@ -4123,10 +4235,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      EC_NEXT_TARGET_TICK_SCHEMA_VERSION
+      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      EC_NEXT_TARGET_TICK_ENGINE_VERSION
+      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4139,6 +4251,36 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         futureField: true
       })
     ).toThrow(/Unrecognized key/);
+    expect(
+      electroChargedPropagationModelSchema.parse({
+        mode: "single-target-v1"
+      })
+    ).toEqual({ mode: "single-target-v1" });
+    expect(
+      electroChargedPropagationModelSchema.parse({
+        mode: "nearby-wet-radius-v1",
+        radius: 5,
+        verificationStatus: "provisional"
+      })
+    ).toEqual({
+      mode: "nearby-wet-radius-v1",
+      radius: 5,
+      verificationStatus: "provisional"
+    });
+    expect(() =>
+      electroChargedPropagationModelSchema.parse({
+        mode: "nearby-wet-radius-v1",
+        radius: 0,
+        verificationStatus: "provisional"
+      })
+    ).toThrow();
+    expect(() =>
+      electroChargedPropagationModelSchema.parse({
+        mode: "nearby-wet-radius-v1",
+        radius: 101,
+        verificationStatus: "provisional"
+      })
+    ).toThrow();
 
     const current = migrateConfig(legacyConfig);
     const missing = { ...current } as Record<string, unknown>;
@@ -4173,6 +4315,2141 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toEqual({ mode: "shatter-recursive-zero-delay-v1" });
   });
 
+  it("migrates exact 1.40 to 1.41 by injecting source-only EC propagation and nothing else", () => {
+    const current = {
+      ...makeLegalAuraV7Config(),
+      reactionEngine: { mode: "aura-v8" as const },
+      targetTaskModel: { mode: "target-phase-v2" as const }
+    };
+    const {
+      electroChargedPropagationModel:
+        _electroChargedPropagationModel,
+      ...currentPayload
+    } = current;
+    const historical = {
+      ...currentPayload,
+      schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+      engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    };
+    const migrated = migrateConfig(historical);
+
+    expect(migrated).toEqual({
+      ...historical,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      electroChargedPropagationModel: {
+        mode: "single-target-v1"
+      }
+    });
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        electroChargedPropagationModel: {
+          mode: "nearby-wet-radius-v1",
+          radius: 5,
+          verificationStatus: "provisional"
+        }
+      })
+    ).toThrow(
+      /1\.40\.0.*does not support Electro-Charged propagation selection/
+    );
+    expect(() =>
+      migrateConfig({
+        ...historical,
+        engineVersion: "1.40.0-forged"
+      })
+    ).toThrow(/schemaVersion "1\.40\.0" requires/);
+  });
+
+  it("gates provisional nearby-Wet propagation to exact Aura-v8 target-phase-v2 and permits auditable unresolved positions", () => {
+    const legal = makeLegalAuraV7Config();
+    const targetsWithoutPositions =
+      legal.enemy.targets?.map(
+        ({ position: _position, ...target }) => target
+      ) ?? [];
+    const targetedElectroAbility = {
+      id: "single-target-electro",
+      actorId: "a",
+      name: "Single target Electro",
+      kind: "skill" as const,
+      cancelFrame: 1,
+      animationEndFrame: 1,
+      cooldownFrames: 0,
+      hits: [
+        {
+          frame: 0,
+          scaling: 1,
+          element: "electro" as const,
+          targeting: {
+            targetId: "enemy-0",
+            outcome: "landed" as const
+          },
+          application: {
+            gaugeUnits: 1,
+            icdTag: "test",
+            icdGroup: "default"
+          }
+        }
+      ]
+    };
+    const nearby = {
+      ...legal,
+      enemy: {
+        ...legal.enemy,
+        targets: targetsWithoutPositions
+      },
+      reactionEngine: { mode: "aura-v8" as const },
+      targetTaskModel: { mode: "target-phase-v2" as const },
+      electroChargedPropagationModel: {
+        mode: "nearby-wet-radius-v1" as const,
+        radius: 5,
+        verificationStatus: "provisional" as const
+      },
+      timeline: {
+        ...legal.timeline,
+        abilities: [targetedElectroAbility]
+      }
+    };
+    expect(parseSimConfig(nearby)).toEqual(nearby);
+    expect(() =>
+      parseSimConfig({
+        ...nearby,
+        electroChargedPropagationModel: {
+          mode: "single-target-v1"
+        }
+      })
+    ).toThrow(/requires a position for every registered target/);
+    expect(() =>
+      parseSimConfig({
+        ...nearby,
+        timeline: {
+          ...nearby.timeline,
+          abilities: [
+            {
+              ...targetedElectroAbility,
+              hits: [
+                {
+                  ...targetedElectroAbility.hits[0],
+                  targeting: undefined
+                }
+              ]
+            }
+          ]
+        }
+      })
+    ).toThrow(/require explicit geometry/);
+    expect(() =>
+      parseSimConfig({
+        ...nearby,
+        reactionEngine: { mode: "aura-v7" }
+      })
+    ).toThrow(/requires reactionEngine\.mode aura-v8/);
+  });
+
+  it("strictly validates provisional propagation audits and rejects mutation or prototype smuggling", () => {
+    const audit = {
+      model: "nearby-wet-radius-v1",
+      verificationStatus: "provisional",
+      mechanicsDataStatus: "community-provisional",
+      generation: 1,
+      tickIndex: 0,
+      evaluationFrame: 10,
+      eventPriority: 5,
+      eventSequence: 7,
+      radius: 5,
+      selectionMode:
+        "all-in-range-registration-order-v1",
+      sourcePosition: null,
+      candidates: [
+        {
+          targetId: "enemy-1",
+          targetName: "Source",
+          targetOrder: 1,
+          hydroGaugeUnits: 0.4,
+          position: null,
+          distance: null,
+          threshold: null,
+          selected: true,
+          reason: "SOURCE_STREAM_TARGET",
+          auraObservationTimelinePointId: 0,
+          hitResolutionLogId: 4,
+          damageEventId: 8
+        },
+        {
+          targetId: "enemy-0",
+          targetName: "Dry",
+          targetOrder: 0,
+          hydroGaugeUnits: 0,
+          position: null,
+          distance: null,
+          threshold: null,
+          selected: false,
+          reason: "NO_HYDRO_AURA",
+          auraObservationTimelinePointId: 1,
+          hitResolutionLogId: null,
+          damageEventId: null
+        },
+        {
+          targetId: "enemy-2",
+          targetName: "Wet unresolved",
+          targetOrder: 2,
+          hydroGaugeUnits: 0.5,
+          position: null,
+          distance: null,
+          threshold: null,
+          selected: false,
+          reason: "SOURCE_POSITION_UNRESOLVED",
+          auraObservationTimelinePointId: 2,
+          hitResolutionLogId: null,
+          damageEventId: null
+        }
+      ]
+    } as const;
+    expect(
+      electroChargedPropagationAuditSchema.parse(audit)
+    ).toEqual(audit);
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse({
+        ...audit,
+        mechanicsDataStatus: "fixed-gcsim-provisional"
+      })
+    ).toThrow();
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse({
+        ...audit,
+        candidates: audit.candidates.map(
+          (candidate, index) =>
+            index === 1
+              ? { ...candidate, targetOrder: 2 }
+              : candidate
+        )
+      })
+    ).toThrow(/unique|registration order/);
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse({
+        ...audit,
+        candidates: [
+          {
+            ...audit.candidates[0],
+            damageEventId: null
+          },
+          ...audit.candidates.slice(1)
+        ]
+      })
+    ).toThrow(/require one hit-resolution and damage-event child/);
+
+    const resolvedAudit: any = {
+      ...audit,
+      radius: 3,
+      sourcePosition: { x: 0, y: 0 },
+      candidates: [
+        {
+          ...audit.candidates[0],
+          targetId: "enemy-0",
+          targetOrder: 0,
+          position: { x: 0, y: 0 },
+          auraObservationTimelinePointId: 10
+        },
+        {
+          targetId: "enemy-1",
+          targetName: "Wet nearby",
+          targetOrder: 1,
+          hydroGaugeUnits: 0.5,
+          position: { x: 3, y: 0 },
+          distance: 3,
+          threshold: 3,
+          selected: true,
+          reason: "NEARBY_WET_IN_RANGE",
+          auraObservationTimelinePointId: 11,
+          hitResolutionLogId: 5,
+          damageEventId: 9
+        },
+        {
+          targetId: "enemy-2",
+          targetName: "Dry",
+          targetOrder: 2,
+          hydroGaugeUnits: 1e-10,
+          position: { x: 1, y: 0 },
+          distance: null,
+          threshold: null,
+          selected: false,
+          reason: "NO_HYDRO_AURA",
+          auraObservationTimelinePointId: 12,
+          hitResolutionLogId: null,
+          damageEventId: null
+        },
+        {
+          targetId: "enemy-3",
+          targetName: "Wet outside",
+          targetOrder: 3,
+          hydroGaugeUnits: 0.5,
+          position: { x: 3.01, y: 0 },
+          distance: 3.01,
+          threshold: 3,
+          selected: false,
+          reason: "OUT_OF_RANGE",
+          auraObservationTimelinePointId: 13,
+          hitResolutionLogId: null,
+          damageEventId: null
+        },
+        {
+          targetId: "enemy-4",
+          targetName: "Wet unresolved",
+          targetOrder: 4,
+          hydroGaugeUnits: 0.5,
+          position: null,
+          distance: null,
+          threshold: null,
+          selected: false,
+          reason: "POSITION_UNRESOLVED",
+          auraObservationTimelinePointId: 14,
+          hitResolutionLogId: null,
+          damageEventId: null
+        }
+      ]
+    };
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse(
+        resolvedAudit
+      )
+    ).not.toThrow();
+    const mutateResolvedCandidate = (
+      candidateIndex: number,
+      mutation: Record<string, unknown>
+    ): any => {
+      const mutated = structuredClone(resolvedAudit);
+      Object.assign(
+        mutated.candidates[candidateIndex],
+        mutation
+      );
+      return mutated;
+    };
+    for (const [candidateIndex, mutation] of [
+      [0, { distance: 0 }],
+      [
+        0,
+        {
+          selected: false,
+          hitResolutionLogId: null,
+          damageEventId: null
+        }
+      ],
+      [1, { hydroGaugeUnits: 1e-10 }],
+      [1, { position: null }],
+      [1, { distance: 2.5 }],
+      [1, { distance: 3.01 }],
+      [1, { threshold: 2.9999999995 }],
+      [2, { hydroGaugeUnits: 1e-9 }],
+      [2, { distance: 1, threshold: 3 }],
+      [3, { hydroGaugeUnits: 0 }],
+      [3, { position: null }],
+      [3, { distance: 3 }],
+      [4, { hydroGaugeUnits: 0 }],
+      [4, { position: { x: 2, y: 0 } }],
+      [4, { distance: 2, threshold: 3 }],
+      [2, { hitResolutionLogId: 99 }]
+    ] as const) {
+      expect(() =>
+        electroChargedPropagationAuditSchema.parse(
+          mutateResolvedCandidate(
+            candidateIndex,
+            mutation
+          )
+        )
+      ).toThrow();
+    }
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse({
+        ...audit,
+        sourcePosition: { x: 0, y: 0 }
+      })
+    ).toThrow(/SOURCE_POSITION_UNRESOLVED/);
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse({
+        ...audit,
+        candidates: audit.candidates.map(
+          (candidate, index) =>
+            index === 2
+              ? {
+                  ...candidate,
+                  reason: "POSITION_UNRESOLVED"
+                }
+              : candidate
+        )
+      })
+    ).toThrow(/missing source position|resolved audit source position/);
+
+    const {
+      model: inheritedModel,
+      ...ownAuditFields
+    } = structuredClone(resolvedAudit);
+    expect(() =>
+      electroChargedPropagationAuditSchema.parse(
+        Object.assign(
+          Object.create({ model: inheritedModel }),
+          ownAuditFields
+        )
+      )
+    ).toThrow(/explicit own wire property/);
+    for (const inheritedField of [
+      "reason",
+      "selected"
+    ] as const) {
+      const inheritedCandidateAudit =
+        structuredClone(resolvedAudit);
+      const candidate =
+        inheritedCandidateAudit.candidates[1];
+      const inheritedValue = candidate[inheritedField];
+      delete candidate[inheritedField];
+      inheritedCandidateAudit.candidates[1] =
+        Object.assign(
+          Object.create({
+            [inheritedField]: inheritedValue
+          }),
+          candidate
+        );
+      expect(() =>
+        electroChargedPropagationAuditSchema.parse(
+          inheritedCandidateAudit
+        )
+      ).toThrow(/explicit own wire property/);
+    }
+    expect(() =>
+      electroChargedPropagationModelSchema.parse(
+        Object.create({ mode: "single-target-v1" })
+      )
+    ).toThrow(/explicit own property/);
+  });
+
+  it("binds every real 1.41 propagation candidate to witnessed Aura and configured motion geometry", () => {
+    const reference: any =
+      makeNearbyWetPropagationReferenceResult();
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(reference)
+    ).not.toThrow();
+
+    const expectRejectedMutation = (
+      mutate: (result: any) => void,
+      expected: RegExp
+    ): void => {
+      const mutated: any =
+        makeNearbyWetPropagationReferenceResult();
+      mutate(mutated);
+      expect(() =>
+        reactionDeliveryResultReferencesSchema.parse(mutated)
+      ).toThrow(expected);
+    };
+
+    expectRejectedMutation((result) => {
+      const audit =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation;
+      const { model, ...ownFields } = audit;
+      result.reactionDamageLog[0].electroChargedPropagation =
+        Object.assign(
+          Object.create({ model }),
+          ownFields
+        );
+    }, /explicit own wire propert/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0] = Object.create(
+        result.reactionDamageLog[0]
+      );
+    }, /plain JSON objects|explicit own wire/);
+    expectRejectedMutation((result) => {
+      const candidate =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation.candidates[1];
+      result.targetStateTimeline.points[
+        candidate.auraObservationTimelinePointId
+      ] = Object.create(
+        result.targetStateTimeline.points[
+          candidate.auraObservationTimelinePointId
+        ]
+      );
+    }, /plain JSON objects|explicit own wire/);
+    for (const inheritedField of [
+      "reason",
+      "selected"
+    ] as const) {
+      expectRejectedMutation((result) => {
+        const candidates =
+          result.reactionDamageLog[0]
+            .electroChargedPropagation.candidates;
+        const candidate = candidates[1];
+        const inheritedValue = candidate[inheritedField];
+        delete candidate[inheritedField];
+        candidates[1] = Object.assign(
+          Object.create({
+            [inheritedField]: inheritedValue
+          }),
+          candidate
+        );
+      }, /explicit own wire propert/);
+    }
+
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1]
+        .targetName = "Forged target";
+    }, /targetName|Aura witness/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1]
+        .hydroGaugeUnits = 999;
+    }, /Hydro gauge|witness/);
+    expectRejectedMutation((result) => {
+      result.hitResolutionLog[2].targetName =
+        "Forged target";
+    }, /exact landed reaction-damage hit resolution/);
+    expectRejectedMutation((result) => {
+      result.hitResolutionLog[2].eventPriority = 999;
+    }, /exact landed reaction-damage hit resolution/);
+    expectRejectedMutation((result) => {
+      result.damageEvents[2].targetName =
+        "Forged target";
+    }, /exact Electro-Charged damage event/);
+    const selectedCandidateAt = (
+      result: any,
+      candidateIndex = 1
+    ): {
+      candidate: any;
+      hit: any;
+      damage: any;
+    } => {
+      const candidate =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation.candidates[
+          candidateIndex
+        ];
+      return {
+        candidate,
+        hit:
+          result.hitResolutionLog[
+            candidate.hitResolutionLogId
+          ],
+        damage:
+          result.damageEvents[candidate.damageEventId]
+      };
+    };
+    for (const mutate of [
+      (result: any) => {
+        selectedCandidateAt(result).hit.sourceActorId =
+          "forged-owner";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.targetIndex = 0;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.targetCount = 99;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.targetPosition = {
+          x: 3.5000000005,
+          y: 0
+        };
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.targetingSource =
+          "reaction-source";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.geometryKind =
+          "sector";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.geometryOrigin = {
+          x: 0.0000000005,
+          y: 0
+        };
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.geometryDistance +=
+          0.0000000005;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.geometryThreshold +=
+          0.0000000005;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.auraAllowed = true;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.hitConfirmAllowed =
+          true;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).hit.damageAllowed = false;
+      }
+    ]) {
+      expectRejectedMutation(
+        mutate,
+        /exact landed reaction-damage hit resolution|target-policy provenance/
+      );
+    }
+    for (const mutate of [
+      (result: any) => {
+        selectedCandidateAt(result).damage.targetResolutionId =
+          1;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.scalingOwnerId =
+          "forged-owner";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.creditOwnerId =
+          "forged-owner";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.creditId =
+          "forged-owner";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.parentDamageEventId =
+          null;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.targetIndex = 0;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.targetCount = 99;
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.element = "hydro";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.snapshot = "action";
+      },
+      (result: any) => {
+        selectedCandidateAt(result).damage.displayDamage += 1;
+      }
+    ]) {
+      expectRejectedMutation(
+        mutate,
+        /exact Electro-Charged damage event/
+      );
+    }
+    expectRejectedMutation((result) => {
+      for (const hit of result.hitResolutionLog.filter(
+        (entry: any) =>
+          entry.resolutionKind === "reaction-damage"
+      )) {
+        hit.sourceActionId = "forged-action";
+        hit.actionName = "Forged action · 感电";
+        hit.hitId = "forged-hit:electroCharged";
+        hit.hitGroupId =
+          "forged-group:electroCharged:0";
+      }
+      for (const damage of result.damageEvents.filter(
+        (entry: any) =>
+          entry.kind === "transformative-reaction" &&
+          entry.reaction === "electroCharged"
+      )) {
+        damage.actionId = "forged-action";
+        damage.actionName = "Forged action · 感电";
+        damage.hitId = "forged-hit:electroCharged";
+        damage.hitGroupId =
+          "forged-group:electroCharged:0";
+      }
+    }, /exact landed reaction-damage hit resolution|exact Electro-Charged damage event/);
+    expectRejectedMutation((result) => {
+      const { candidate, hit } =
+        selectedCandidateAt(result);
+      candidate.distance += 0.0000000005;
+      hit.geometryDistance += 0.0000000005;
+    }, /derived from witnessed Hydro|geometry/);
+    expectRejectedMutation((result) => {
+      const { candidate, hit } =
+        selectedCandidateAt(result);
+      const forgedHit = structuredClone(hit);
+      forgedHit.id = 99;
+      result.hitResolutionLog.push(forgedHit);
+      candidate.hitResolutionLogId = 99;
+    }, /contiguous|unique exact landed reaction-damage hit resolution/);
+    expectRejectedMutation((result) => {
+      const { damage } = selectedCandidateAt(result);
+      const point =
+        result.targetStateTimeline.points.find(
+          (entry: any) =>
+            entry.cause ===
+              "reaction-damage-application" &&
+            entry.primaryDamageEventId === damage.id
+        );
+      point.primaryDamageEventId = null;
+    }, /exactly one immutable same-frame damage-application point/);
+    expectRejectedMutation((result) => {
+      const { damage } = selectedCandidateAt(result);
+      const point =
+        result.targetStateTimeline.points.find(
+          (entry: any) =>
+            entry.primaryDamageEventId === damage.id
+        );
+      point.links.push({
+        kind: "reaction-damage-log",
+        id: 0
+      });
+    }, /exactly one immutable same-frame damage-application point/);
+    expectRejectedMutation((result) => {
+      const { damage } = selectedCandidateAt(result);
+      const point =
+        result.targetStateTimeline.points.find(
+          (entry: any) =>
+            entry.primaryDamageEventId === damage.id
+        );
+      point.links.reverse();
+    }, /exactly one immutable same-frame damage-application point/);
+    expectRejectedMutation((result) => {
+      const tick = result.periodicReactionLog.find(
+        (entry: any) => entry.operation === "tick"
+      );
+      tick.targetName = "Forged source";
+    }, /source periodic tick/);
+    expectRejectedMutation((result) => {
+      const tick = result.periodicReactionLog.find(
+        (entry: any) => entry.operation === "tick"
+      );
+      tick.sourceActorId = "forged-owner";
+    }, /source periodic tick/);
+    expectRejectedMutation((result) => {
+      const wane = result.periodicReactionLog.find(
+        (entry: any) => entry.operation === "wane"
+      );
+      wane.triggerDamageEventId = null;
+    }, /Wane.*provenance|provenance.*Wane/);
+    expectRejectedMutation((result) => {
+      const log = result.reactionDamageLog[0];
+      log.centerPosition = { x: 1, y: 0 };
+      log.electroChargedPropagation.sourcePosition = {
+        x: 1,
+        y: 0
+      };
+      log.electroChargedPropagation.candidates[0].position = {
+        x: 1,
+        y: 0
+      };
+    }, /configured source target position|reaction center/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1]
+        .position = { x: 3.4, y: 0 };
+    }, /configured linear-motion position/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1]
+        .distance = 3.4;
+    }, /derived from witnessed Hydro|geometry/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1]
+        .threshold = 3.6;
+    }, /derived from witnessed Hydro|geometry/);
+    expectRejectedMutation((result) => {
+      const candidate =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation.candidates[1];
+      const point =
+        result.targetStateTimeline.points[
+          candidate.auraObservationTimelinePointId
+        ];
+      point.links[0].id = 999;
+    }, /reaction-damage parent link|missing reaction damage log/);
+    expectRejectedMutation((result) => {
+      const candidate =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation.candidates[1];
+      const point =
+        result.targetStateTimeline.points[
+          candidate.auraObservationTimelinePointId
+        ];
+      const hydroBefore = point.auraBefore.find(
+        (aura: any) => aura.element === "hydro"
+      );
+      const hydroAfter = point.auraAfter.find(
+        (aura: any) => aura.element === "hydro"
+      );
+      hydroBefore.gaugeUnits += 0.25;
+      hydroAfter.gaugeUnits += 0.25;
+    }, /Hydro gauge|discontinuous/);
+    expectRejectedMutation((result) => {
+      result.reactionDamageLog[0].withinSimulation = false;
+    }, /out-of-simulation reaction damage cannot claim/);
+
+    const movingTarget: any =
+      makeNearbyWetPropagationReferenceResult();
+    movingTarget.config.enemy.targetMotions = [
+      {
+        id: "wet-boundary-motion",
+        label: "Wet boundary linear motion",
+        targetId: "wet-boundary",
+        startFrame: 0,
+        endFrame: 20,
+        endPosition: { x: 3.4, y: 0 }
+      }
+    ];
+    const movingCandidate =
+      movingTarget.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1];
+    movingCandidate.position = { x: 3.45, y: 0 };
+    movingCandidate.distance = 3.45;
+    const movingHit =
+      movingTarget.hitResolutionLog[
+        movingCandidate.hitResolutionLogId
+      ];
+    movingHit.targetPosition = { x: 3.45, y: 0 };
+    movingHit.geometryDistance = 3.45;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        movingTarget
+      )
+    ).not.toThrow();
+    movingCandidate.position = { x: 3.4, y: 0 };
+    movingCandidate.distance = 3.4;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        movingTarget
+      )
+    ).toThrow(/configured linear-motion position|derived from witnessed Hydro/);
+
+    const forgedDisabledTargetFrame: any =
+      makeNearbyWetPropagationReferenceResult();
+    const forgedDisabledCandidate =
+      forgedDisabledTargetFrame.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[1];
+    const forgedDisabledObservation =
+      forgedDisabledTargetFrame.targetStateTimeline.points[
+        forgedDisabledCandidate.auraObservationTimelinePointId
+      ];
+    const forgedDisabledApplication =
+      forgedDisabledTargetFrame.targetStateTimeline.points.find(
+        (point: any) =>
+          point.cause ===
+            "reaction-damage-application" &&
+          point.primaryDamageEventId ===
+            forgedDisabledCandidate.damageEventId
+      );
+    forgedDisabledObservation.targetFrame = 9;
+    forgedDisabledApplication.targetFrame = 9;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        forgedDisabledTargetFrame
+      )
+    ).toThrow(/target-clock|targetFrame|Aura witness/);
+
+    const targetClockLagged: any =
+      makeNearbyWetPropagationReferenceResult();
+    targetClockLagged.config.targetClockModel = {
+      mode: "target-local-hitlag-v1"
+    };
+    const sourceCandidate =
+      targetClockLagged.reactionDamageLog[0]
+        .electroChargedPropagation.candidates[0];
+    const sourceObservation =
+      targetClockLagged.targetStateTimeline.points[
+        sourceCandidate.auraObservationTimelinePointId
+      ];
+    const sourceApplication =
+      targetClockLagged.targetStateTimeline.points.find(
+        (point: any) =>
+          point.cause ===
+            "reaction-damage-application" &&
+          point.primaryDamageEventId ===
+            sourceCandidate.damageEventId
+      );
+    const sourceTick =
+      targetClockLagged.targetStateTimeline.points.find(
+        (point: any) =>
+          point.cause === "electro-charged-tick"
+      );
+    const sourceWane =
+      targetClockLagged.targetStateTimeline.points.find(
+        (point: any) =>
+          point.cause === "electro-charged-wane"
+      );
+    sourceObservation.targetFrame = 9;
+    sourceApplication.targetFrame = 9;
+    sourceTick.targetFrame = 9;
+    sourceWane.targetFrame = 15;
+    const targetIds =
+      targetClockLagged.config.enemy.targets.map(
+        (target: any) => ({
+          id: target.id,
+          name: target.name
+        })
+      );
+    targetClockLagged.targetClockLog = [
+      {
+        id: 0,
+        targetId: "enemy-0",
+        targetName: "Source",
+        operation: "apply-hitlag",
+        globalFrameBefore: 0,
+        globalFrameAfter: 0,
+        targetFrameBefore: 0,
+        targetFrameAfter: 0,
+        frozenFramesBefore: 0,
+        consumedFrozenFrames: 0,
+        addedFrozenFrames: 1,
+        frozenFramesAfter: 1,
+        targetHitlagLogId: 0,
+        cause: "hit"
+      },
+      {
+        id: 1,
+        targetId: "enemy-0",
+        targetName: "Source",
+        operation: "advance",
+        globalFrameBefore: 0,
+        globalFrameAfter: 60,
+        targetFrameBefore: 0,
+        targetFrameAfter: 59,
+        frozenFramesBefore: 1,
+        consumedFrozenFrames: 1,
+        addedFrozenFrames: 0,
+        frozenFramesAfter: 0,
+        targetHitlagLogId: null,
+        cause: "simulation-end"
+      },
+      ...targetIds.slice(1).map(
+        (target: any, targetIndex: number) => ({
+          id: targetIndex + 2,
+          targetId: target.id,
+          targetName: target.name,
+          operation: "advance",
+          globalFrameBefore: 0,
+          globalFrameAfter: 60,
+          targetFrameBefore: 0,
+          targetFrameAfter: 60,
+          frozenFramesBefore: 0,
+          consumedFrozenFrames: 0,
+          addedFrozenFrames: 0,
+          frozenFramesAfter: 0,
+          targetHitlagLogId: null,
+          cause: "simulation-end"
+        })
+      )
+    ];
+    targetClockLagged.targetHitlagLog = [
+      {
+        id: 0,
+        globalFrame: 0,
+        timeSeconds: 0,
+        targetFrame: 0,
+        eventPriority: 3,
+        eventSequence: 1,
+        intraEventSequence: 1,
+        targetId: "enemy-0",
+        targetName: "Source",
+        sourceActorId: "ec-owner",
+        sourceActionId: "start-ec#0",
+        hitId: "start-source-with-unresolved-candidate",
+        hitGroupId: "start-ec#0:0:0:0",
+        hitResolutionLogId: 0,
+        haltFrames: 1,
+        factor: 0,
+        roundedHaltFrames: 1,
+        extensionFrames: 1,
+        frozenFramesBefore: 0,
+        frozenFramesAfter: 1,
+        pausedGlobalFrameStart: 1,
+        nextTargetAdvanceGlobalFrame: 2,
+        applied: true,
+        blockedReason: null,
+        extendedReactionStatusLogIds: [],
+        mechanicsDataStatus: "fixed-gcsim-provisional"
+      }
+    ];
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        targetClockLagged
+      )
+    ).not.toThrow();
+    targetClockLagged.targetHitlagLog[0].intraEventSequence =
+      0;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        targetClockLagged
+      )
+    ).toThrow(/target-Hitlag row must exactly match/);
+    targetClockLagged.targetHitlagLog[0].intraEventSequence =
+      1;
+    const targetClockWithMiss = structuredClone(
+      targetClockLagged
+    );
+    const missedHit = {
+      ...structuredClone(
+        targetClockWithMiss.hitResolutionLog[0]
+      ),
+      id: targetClockWithMiss.hitResolutionLog.length,
+      eventSequence: 2,
+      targetIndex: 1,
+      targetCount: 2,
+      targetId: "wet-boundary",
+      targetName: "Wet boundary",
+      targetingSource: "geometry",
+      targetPosition: { x: 3.5, y: 0 },
+      outcome: "miss",
+      landed: false,
+      reason: "OUTSIDE_GEOMETRY",
+      targetEffectSource: "hit",
+      damageAllowed: false,
+      auraAllowed: false,
+      hitConfirmAllowed: false,
+      damageEventId: null,
+      potentialDamage: 0,
+      finalDamage: 0,
+      displayDamage: 0
+    };
+    targetClockWithMiss.hitResolutionLog.push(missedHit);
+    targetClockWithMiss.targetHitlagLog.push({
+      ...structuredClone(
+        targetClockWithMiss.targetHitlagLog[0]
+      ),
+      id: 1,
+      targetId: "wet-boundary",
+      targetName: "Wet boundary",
+      targetFrame: 0,
+      eventSequence: missedHit.eventSequence,
+      intraEventSequence: missedHit.intraEventSequence,
+      hitResolutionLogId: missedHit.id,
+      applied: false,
+      blockedReason: "TARGET_MISS",
+      frozenFramesBefore: 0,
+      frozenFramesAfter: 0,
+      pausedGlobalFrameStart: null,
+      nextTargetAdvanceGlobalFrame: null
+    });
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        targetClockWithMiss
+      )
+    ).not.toThrow();
+    targetClockWithMiss.targetHitlagLog[1].intraEventSequence =
+      missedHit.intraEventSequence + 1;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        targetClockWithMiss
+      )
+    ).toThrow(/target-Hitlag row must exactly match/);
+    sourceObservation.targetFrame = 8;
+    sourceApplication.targetFrame = 8;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        targetClockLagged
+      )
+    ).toThrow(/target-clock|targetFrame|Aura witness/);
+  });
+
+  it("fail-closes every exact 1.41 nearby-Wet trigger, child, clock, and periodic provenance edge", () => {
+    const expectRejected = (
+      label: string,
+      mutate: (result: any) => void
+    ): void => {
+      const result: any =
+        makeNearbyWetPropagationReferenceResult();
+      mutate(result);
+      expect(
+        reactionDeliveryResultReferencesSchema.safeParse(
+          result
+        ).success,
+        label
+      ).toBe(false);
+    };
+    const selected = (result: any, candidateIndex = 1) => {
+      const candidate =
+        result.reactionDamageLog[0]
+          .electroChargedPropagation.candidates[
+          candidateIndex
+        ];
+      return {
+        candidate,
+        hit:
+          result.hitResolutionLog[
+            candidate.hitResolutionLogId
+          ],
+        damage:
+          result.damageEvents[candidate.damageEventId],
+        application:
+          result.targetStateTimeline.points.find(
+            (point: any) =>
+              point.cause ===
+                "reaction-damage-application" &&
+              point.primaryDamageEventId ===
+                candidate.damageEventId
+          ),
+        observation:
+          result.targetStateTimeline.points[
+            candidate.auraObservationTimelinePointId
+          ]
+      };
+    };
+    const triggerApplication = (result: any) =>
+      result.targetStateTimeline.points.find(
+        (point: any) =>
+          point.cause === "direct-hit-application" &&
+          point.primaryDamageEventId === 0
+      );
+    const periodic = (result: any, operation: string) =>
+      result.periodicReactionLog.find(
+        (entry: any) => entry.operation === operation
+      );
+    const periodicTimeline = (
+      result: any,
+      cause: string
+    ) =>
+      result.targetStateTimeline.points.find(
+        (point: any) => point.cause === cause
+      );
+
+    const triggerMutations: Array<
+      readonly [string, (result: any) => void]
+    > = [
+      [
+        "trigger kind",
+        (result) => {
+          result.damageEvents[0].kind =
+            "transformative-reaction";
+        }
+      ],
+      [
+        "trigger parent",
+        (result) => {
+          result.damageEvents[0].parentDamageEventId = 1;
+        }
+      ],
+      [
+        "trigger target name",
+        (result) => {
+          result.damageEvents[0].targetName = "Forged";
+        }
+      ],
+      [
+        "trigger target resolution",
+        (result) => {
+          result.damageEvents[0].targetResolutionId = 1;
+        }
+      ],
+      [
+        "trigger event priority",
+        (result) => {
+          result.damageEvents[0].eventPriority = 4;
+        }
+      ],
+      [
+        "trigger event sequence",
+        (result) => {
+          result.damageEvents[0].eventSequence = 2;
+        }
+      ],
+      [
+        "trigger action",
+        (result) => {
+          result.damageEvents[0].actionId = "forged";
+        }
+      ],
+      [
+        "trigger action name",
+        (result) => {
+          result.damageEvents[0].actionName = "Forged";
+        }
+      ],
+      [
+        "trigger hit",
+        (result) => {
+          result.damageEvents[0].hitId = "forged";
+        }
+      ],
+      [
+        "trigger hit group",
+        (result) => {
+          result.damageEvents[0].hitGroupId = "forged";
+        }
+      ],
+      [
+        "trigger hit backlink",
+        (result) => {
+          result.hitResolutionLog[0].damageEventId = 1;
+        }
+      ],
+      [
+        "trigger hit action backlink",
+        (result) => {
+          result.hitResolutionLog[0].sourceActionId =
+            "forged";
+        }
+      ],
+      [
+        "trigger application primary",
+        (result) => {
+          triggerApplication(result).primaryDamageEventId = 1;
+        }
+      ],
+      [
+        "trigger application links",
+        (result) => {
+          triggerApplication(result).links[0].id = 1;
+        }
+      ],
+      [
+        "trigger application intra-event ordering",
+        (result) => {
+          triggerApplication(result).intraEventSequence = 1;
+        }
+      ],
+      [
+        "trigger application Aura",
+        (result) => {
+          triggerApplication(result).auraAfter[0]
+            .gaugeUnits += 0.01;
+        }
+      ]
+    ];
+    triggerMutations.forEach(([label, mutate]) =>
+      expectRejected(label, mutate)
+    );
+
+    for (const [field, forgedValue] of [
+      ["generation", 2],
+      ["operation", "refresh"],
+      ["damageElement", "hydro"],
+      ["baseMultiplier", 3],
+      ["firstDamageFrame", 11],
+      ["nextTickFrame", 71],
+      ["tickIntervalFrames", 59],
+      ["waneDelayFrames", 5],
+      ["waneGaugeUnits", 0.5],
+      ["coexistenceExpiresAtFrame", 569]
+    ] as const) {
+      expectRejected(
+        `trigger periodic audit ${field}`,
+        (result) => {
+          result.damageEvents[0].reactionAudit
+            .periodicReaction[field] = forgedValue;
+        }
+      );
+    }
+
+    const selectedHitMutations: Array<
+      readonly [string, (result: any) => void]
+    > = [
+      [
+        "selected hit time",
+        (result) => {
+          selected(result).hit.timeSeconds += 0.01;
+        }
+      ],
+      [
+        "selected hit intra-event ordering",
+        (result) => {
+          selected(result).hit.intraEventSequence += 1;
+        }
+      ],
+      [
+        "selected hit source position",
+        (result) => {
+          selected(result).hit.sourceActorPosition = {
+            x: 0,
+            y: 0
+          };
+        }
+      ],
+      [
+        "selected hit source facing",
+        (result) => {
+          selected(result).hit.sourceActorFacingDegrees = 0;
+        }
+      ],
+      [
+        "selected hit reason",
+        (result) => {
+          selected(result).hit.reason = "FORGED";
+        }
+      ],
+      [
+        "selected hit target effect source",
+        (result) => {
+          selected(result).hit.targetEffectSource =
+            "target-phase";
+        }
+      ],
+      [
+        "selected hit target phase",
+        (result) => {
+          selected(result).hit.targetPhaseId =
+            "immune-at-first-tick";
+        }
+      ],
+      [
+        "selected hit and damage source ability",
+        (result) => {
+          const child = selected(result);
+          child.hit.sourceAbilityId = "forged";
+          child.damage.sourceAbilityId = "forged";
+        }
+      ],
+      [
+        "selected hit and damage cycle",
+        (result) => {
+          const child = selected(result);
+          child.hit.cycle = 1;
+          child.damage.cycle = 1;
+        }
+      ],
+      [
+        "selected hit and damage timeline command",
+        (result) => {
+          const child = selected(result);
+          child.hit.timelineCommandIndex = 1;
+          child.damage.timelineCommandIndex = 1;
+        }
+      ],
+      [
+        "selected hit and damage mechanics status",
+        (result) => {
+          const child = selected(result);
+          child.hit.mechanicsStatus =
+            "mechanics-truncated";
+          child.damage.mechanicsStatus =
+            "mechanics-truncated";
+        }
+      ]
+    ];
+    selectedHitMutations.forEach(([label, mutate]) =>
+      expectRejected(label, mutate)
+    );
+
+    const selectedDamageMutations: Array<
+      readonly [string, (result: any) => void]
+    > = [
+      [
+        "selected damage time",
+        (result) => {
+          selected(result).damage.timeSeconds += 0.01;
+        }
+      ],
+      [
+        "selected damage active character",
+        (result) => {
+          selected(result).damage.activeCharacterId =
+            "forged-active";
+        }
+      ],
+      [
+        "selected damage active id",
+        (result) => {
+          selected(result).damage.activeId =
+            "forged-active";
+        }
+      ],
+      [
+        "selected damage audit model",
+        (result) => {
+          selected(result).damage.reactionAudit.model =
+            "aura-engine";
+        }
+      ],
+      [
+        "selected damage audit trigger",
+        (result) => {
+          selected(result).damage.reactionAudit.triggered =
+            false;
+        }
+      ],
+      [
+        "selected damage audit reaction",
+        (result) => {
+          selected(result).damage.reactionAudit.reaction =
+            "overload";
+        }
+      ],
+      [
+        "selected damage ordered reactions",
+        (result) => {
+          selected(result).damage.reactionAudit.reactions =
+            [];
+        }
+      ],
+      [
+        "selected damage periodic audit",
+        (result) => {
+          selected(result).damage.reactionAudit
+            .periodicReaction =
+            structuredClone(
+              result.damageEvents[0].reactionAudit
+                .periodicReaction
+            );
+        }
+      ],
+      [
+        "selected application time",
+        (result) => {
+          selected(result).application.timeSeconds += 0.01;
+        }
+      ],
+      [
+        "selected application intra-event ordering",
+        (result) => {
+          selected(result).application.intraEventSequence += 1;
+        }
+      ],
+      [
+        "candidate witness intra-event ordering",
+        (result) => {
+          selected(result).observation.intraEventSequence += 1;
+        }
+      ]
+    ];
+    selectedDamageMutations.forEach(([label, mutate]) =>
+      expectRejected(label, mutate)
+    );
+
+    const periodicMutations: Array<
+      readonly [string, (result: any) => void]
+    > = [
+      [
+        "duplicate generation start",
+        (result) => {
+          const duplicate = structuredClone(
+            periodic(result, "start")
+          );
+          duplicate.id = result.periodicReactionLog.length;
+          result.periodicReactionLog.push(duplicate);
+        }
+      ],
+      [
+        "start target name",
+        (result) => {
+          periodic(result, "start").targetName = "Forged";
+        }
+      ],
+      [
+        "start source",
+        (result) => {
+          periodic(result, "start").sourceActorId =
+            "forged";
+        }
+      ],
+      [
+        "start trigger",
+        (result) => {
+          periodic(result, "start").triggerDamageEventId = 1;
+        }
+      ],
+      [
+        "start reaction parent",
+        (result) => {
+          periodic(result, "start").reactionDamageLogId = 0;
+        }
+      ],
+      [
+        "start damage child",
+        (result) => {
+          periodic(result, "start").damageEventId = 1;
+        }
+      ],
+      [
+        "start tick index",
+        (result) => {
+          periodic(result, "start").tickIndex = 0;
+        }
+      ],
+      [
+        "start next tick",
+        (result) => {
+          periodic(result, "start").nextTickFrame = 71;
+        }
+      ],
+      [
+        "start Aura",
+        (result) => {
+          periodic(result, "start").auraAfter[0]
+            .gaugeUnits += 0.01;
+        }
+      ],
+      [
+        "tick reaction parent",
+        (result) => {
+          periodic(result, "tick").reactionDamageLogId = null;
+        }
+      ],
+      [
+        "tick source child",
+        (result) => {
+          periodic(result, "tick").damageEventId = 2;
+        }
+      ],
+      [
+        "tick index",
+        (result) => {
+          periodic(result, "tick").tickIndex = 1;
+        }
+      ],
+      [
+        "tick trigger",
+        (result) => {
+          periodic(result, "tick").triggerDamageEventId = null;
+        }
+      ],
+      [
+        "tick source",
+        (result) => {
+          periodic(result, "tick").sourceActorId = null;
+        }
+      ],
+      [
+        "tick next cadence",
+        (result) => {
+          periodic(result, "tick").nextTickFrame = 71;
+        }
+      ],
+      [
+        "tick Wane cadence",
+        (result) => {
+          periodic(result, "tick").waneFrame = 17;
+        }
+      ],
+      [
+        "tick immutable Aura",
+        (result) => {
+          periodic(result, "tick").auraConsumed.push({
+            element: "hydro",
+            gaugeUnits: 0.1
+          });
+        }
+      ],
+      [
+        "tick reason while stream continues",
+        (result) => {
+          periodic(result, "tick").reason = "FORGED";
+        }
+      ],
+      [
+        "tick timeline link",
+        (result) => {
+          periodicTimeline(
+            result,
+            "electro-charged-tick"
+          ).links[0].id = 0;
+        }
+      ],
+      [
+        "tick timeline Aura",
+        (result) => {
+          periodicTimeline(
+            result,
+            "electro-charged-tick"
+          ).auraAfter[0].gaugeUnits += 0.01;
+        }
+      ],
+      [
+        "Wane operation",
+        (result) => {
+          periodic(result, "wane").operation =
+            "wane-skipped";
+        }
+      ],
+      [
+        "Wane frame",
+        (result) => {
+          periodic(result, "wane").frame = 17;
+          periodic(result, "wane").timeSeconds = 17 / 60;
+        }
+      ],
+      [
+        "Wane source child",
+        (result) => {
+          periodic(result, "wane").damageEventId = 2;
+        }
+      ],
+      [
+        "Wane trigger",
+        (result) => {
+          periodic(result, "wane").triggerDamageEventId = 1;
+        }
+      ],
+      [
+        "Wane reaction parent",
+        (result) => {
+          periodic(result, "wane").reactionDamageLogId = 0;
+        }
+      ],
+      [
+        "Wane tick index",
+        (result) => {
+          periodic(result, "wane").tickIndex = 1;
+        }
+      ],
+      [
+        "Wane gauge",
+        (result) => {
+          periodic(result, "wane").auraConsumed[0]
+            .gaugeUnits = 0.3;
+        }
+      ],
+      [
+        "Wane Aura result",
+        (result) => {
+          const wane = periodic(result, "wane");
+          const hydro = wane.auraAfter.find(
+            (aura: any) => aura.element === "hydro"
+          );
+          hydro.gaugeUnits += 0.01;
+          hydro.sourceSlots[0].gaugeUnits += 0.01;
+          periodicTimeline(
+            result,
+            "electro-charged-wane"
+          ).auraAfter = structuredClone(wane.auraAfter);
+        }
+      ],
+      [
+        "Wane timeline source child",
+        (result) => {
+          periodicTimeline(
+            result,
+            "electro-charged-wane"
+          ).primaryDamageEventId = 2;
+        }
+      ],
+      [
+        "orphan tick with null parents",
+        (result) => {
+          const orphan = structuredClone(
+            periodic(result, "tick")
+          );
+          orphan.id = result.periodicReactionLog.length;
+          orphan.generation = 99;
+          orphan.reactionDamageLogId = null;
+          orphan.damageEventId = null;
+          orphan.tickIndex = null;
+          orphan.triggerDamageEventId = null;
+          orphan.sourceActorId = null;
+          result.periodicReactionLog.push(orphan);
+        }
+      ]
+    ];
+    periodicMutations.forEach(([label, mutate]) =>
+      expectRejected(label, mutate)
+    );
+  });
+
+  it("strictly freezes both 1.41 Golden fixture envelopes and their provisional provenance", () => {
+    expect(() =>
+      electroChargedPropagationGoldenFixtureV141Schema.parse(
+        electroChargedPropagationGolden
+      )
+    ).not.toThrow();
+    expect(() =>
+      legacyDefault120sGoldenFixtureV141Schema.parse(
+        legacyDefault120sGolden
+      )
+    ).not.toThrow();
+    expect(() =>
+      goldenFixtureEnvelopeV141Schema.parse(
+        electroChargedPropagationGolden
+      )
+    ).not.toThrow();
+    expect(() =>
+      goldenFixtureEnvelopeV141Schema.parse(
+        legacyDefault120sGolden
+      )
+    ).not.toThrow();
+    expect(
+      createHash("sha256")
+        .update(
+          canonicalStringify(
+            electroChargedPropagationGolden.scenario
+          )
+        )
+        .digest("hex")
+    ).toBe(electroChargedPropagationGolden.scenarioSha256);
+
+    const expectPropagationDriftRejected = (
+      label: string,
+      mutate: (fixture: any) => void
+    ): void => {
+      const fixture: any = structuredClone(
+        electroChargedPropagationGolden
+      );
+      mutate(fixture);
+      expect(
+        electroChargedPropagationGoldenFixtureV141Schema.safeParse(
+          fixture
+        ).success,
+        label
+      ).toBe(false);
+    };
+    const expectLegacyDriftRejected = (
+      label: string,
+      mutate: (fixture: any) => void
+    ): void => {
+      const fixture: any = structuredClone(
+        legacyDefault120sGolden
+      );
+      mutate(fixture);
+      expect(
+        legacyDefault120sGoldenFixtureV141Schema.safeParse(
+          fixture
+        ).success,
+        label
+      ).toBe(false);
+    };
+    expectPropagationDriftRejected(
+      "unknown envelope field",
+      (fixture) => {
+        fixture.futureClaim = true;
+      }
+    );
+    expectPropagationDriftRejected(
+      "reference commit",
+      (fixture) => {
+        fixture.provenance.referenceCommit = "forged";
+      }
+    );
+    expectPropagationDriftRejected(
+      "provisional mechanics status",
+      (fixture) => {
+        fixture.provenance.mechanicsDataStatus =
+          "official-verified";
+      }
+    );
+    expectPropagationDriftRejected(
+      "single-target gcsim disclaimer",
+      (fixture) => {
+        fixture.provenance.notes[0] =
+          "Nearby propagation is official.";
+      }
+    );
+    expectPropagationDriftRejected(
+      "scenario identity",
+      (fixture) => {
+        fixture.scenario.identity.engineVersion = "forged";
+      }
+    );
+    expectPropagationDriftRejected(
+      "scenario config hash",
+      (fixture) => {
+        fixture.scenario.identity.configHash =
+          "fnv1a32:00000000";
+      }
+    );
+    expectPropagationDriftRejected(
+      "nearby radius",
+      (fixture) => {
+        fixture.scenario.configContract
+          .electroChargedPropagationModel.radius = 5;
+      }
+    );
+    expectPropagationDriftRejected(
+      "damage total",
+      (fixture) => {
+        fixture.scenario.totals.totalDamage += 1;
+      }
+    );
+    expectPropagationDriftRejected(
+      "scenario SHA",
+      (fixture) => {
+        fixture.scenarioSha256 = "0".repeat(64);
+      }
+    );
+
+    expectLegacyDriftRejected(
+      "unverified-data disclaimer",
+      (fixture) => {
+        fixture.provenance.note =
+          "All values are officially verified.";
+      }
+    );
+    expectLegacyDriftRejected(
+      "legacy config hash",
+      (fixture) => {
+        fixture.configHash = "fnv1a32:00000000";
+      }
+    );
+    expectLegacyDriftRejected(
+      "legacy propagation mode",
+      (fixture) => {
+        fixture.electroChargedPropagationModel.mode =
+          "nearby-wet-radius-v1";
+      }
+    );
+    expectLegacyDriftRejected(
+      "legacy total",
+      (fixture) => {
+        fixture.totalDamage += 1;
+      }
+    );
+    expectLegacyDriftRejected(
+      "legacy damage digest",
+      (fixture) => {
+        fixture.legacyDamageEventsSha256 =
+          "0".repeat(64);
+      }
+    );
+
+    const inheritedFixture = Object.assign(
+      Object.create({
+        fixtureVersion:
+          electroChargedPropagationGolden.fixtureVersion
+      }),
+      structuredClone(electroChargedPropagationGolden)
+    );
+    delete inheritedFixture.fixtureVersion;
+    expect(
+      electroChargedPropagationGoldenFixtureV141Schema.safeParse(
+        inheritedFixture
+      ).success
+    ).toBe(false);
+  });
+
+  it("version-gates EC propagation result wires and rejects inherited result identity", () => {
+    const historical: any =
+      makeElectroChargedDamageGroupReplayResult([
+        { frame: 10, windowStartFrame: 10, hitIndex: 0 }
+      ]);
+    historical.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    historical.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    historical.config.schemaVersion =
+      EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    historical.config.engineVersion =
+      EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(historical)
+    ).not.toThrow();
+
+    const smuggled = structuredClone(historical) as any;
+    smuggled.reactionDamageLog[0].targetingMode =
+      "electro-charged-nearby-wet";
+    smuggled.reactionDamageLog[0].electroChargedPropagation = {
+      model: "nearby-wet-radius-v1",
+      verificationStatus: "provisional",
+      mechanicsDataStatus: "community-provisional",
+      generation: 1,
+      tickIndex: 0,
+      evaluationFrame: 10,
+      eventPriority: 5,
+      eventSequence: 1,
+      radius: 5,
+      selectionMode:
+        "all-in-range-registration-order-v1",
+      sourcePosition: { x: 0, y: 0 },
+      candidates: [
+        {
+          targetId: "enemy-0",
+          targetName: "Target",
+          targetOrder: 0,
+          hydroGaugeUnits: 0.4,
+          position: { x: 0, y: 0 },
+          distance: null,
+          threshold: null,
+          selected: true,
+          reason: "SOURCE_STREAM_TARGET",
+          auraObservationTimelinePointId: 0,
+          hitResolutionLogId: 0,
+          damageEventId: 1
+        }
+      ]
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(smuggled)
+    ).toThrow(/pre-1\.41/);
+
+    const currentSingle = structuredClone(historical) as any;
+    currentSingle.schemaVersion = CURRENT_SCHEMA_VERSION;
+    currentSingle.engineVersion = CURRENT_ENGINE_VERSION;
+    currentSingle.config.schemaVersion =
+      CURRENT_SCHEMA_VERSION;
+    currentSingle.config.engineVersion =
+      CURRENT_ENGINE_VERSION;
+    currentSingle.config.electroChargedPropagationModel = {
+      mode: "single-target-v1"
+    };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        currentSingle
+      )
+    ).not.toThrow();
+    currentSingle.reactionDamageLog[0]
+      .electroChargedPropagation =
+      smuggled.reactionDamageLog[0]
+        .electroChargedPropagation;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        currentSingle
+      )
+    ).toThrow(/single-target-v1/);
+
+    const inheritedIdentity =
+      structuredClone(historical) as Record<string, unknown>;
+    const schemaVersion = inheritedIdentity.schemaVersion;
+    delete inheritedIdentity.schemaVersion;
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        Object.assign(
+          Object.create({ schemaVersion }),
+          inheritedIdentity
+        )
+      )
+    ).toThrow(/explicit own wire properties/);
+  });
+
+  it("sanitizes the full reaction-delivery wire without invoking accessors or inherited proof fields", () => {
+    const expectWireRejected = (wire: unknown): void => {
+      expect(
+        reactionDeliveryResultReferencesSchema.safeParse(wire)
+          .success
+      ).toBe(false);
+    };
+
+    for (const [ownerKind, field] of [
+      ["root", "damageEvents"],
+      ["root", "reactionDamageLog"],
+      ["root", "hitResolutionLog"],
+      ["root", "periodicReactionLog"],
+      ["root", "targetStateTimeline"],
+      ["config", "duration"],
+      ["config", "enemy"],
+      ["config", "timeline"],
+      ["config", "reactionDeliveryModel"],
+      ["config", "electroChargedPropagationModel"]
+    ] as const) {
+      const wire: any =
+        makeNearbyWetPropagationReferenceResult();
+      const owner =
+        ownerKind === "root" ? wire : wire.config;
+      const inheritedValue = owner[field];
+      delete owner[field];
+      const previousDescriptor =
+        Object.getOwnPropertyDescriptor(
+          Object.prototype,
+          field
+        );
+      Object.defineProperty(Object.prototype, field, {
+        value: inheritedValue,
+        enumerable: false,
+        configurable: true,
+        writable: true
+      });
+      try {
+        expect(
+          reactionDeliveryResultReferencesSchema.safeParse(
+            wire
+          ).success,
+          `${ownerKind}.${field}`
+        ).toBe(false);
+      } finally {
+        if (previousDescriptor === undefined) {
+          delete (Object.prototype as any)[field];
+        } else {
+          Object.defineProperty(
+            Object.prototype,
+            field,
+            previousDescriptor
+          );
+        }
+      }
+    }
+
+    let getterCalls = 0;
+    const getterWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    delete getterWire.damageEvents;
+    Object.defineProperty(getterWire, "damageEvents", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterCalls += 1;
+        return [];
+      }
+    });
+    expectWireRejected(getterWire);
+    expect(getterCalls).toBe(0);
+
+    let arrayGetterCalls = 0;
+    const arrayGetterWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    Object.defineProperty(
+      arrayGetterWire.hitResolutionLog,
+      "1",
+      {
+        enumerable: true,
+        configurable: true,
+        get() {
+          arrayGetterCalls += 1;
+          return {};
+        }
+      }
+    );
+    expectWireRejected(arrayGetterWire);
+    expect(arrayGetterCalls).toBe(0);
+
+    for (const invalidValue of [
+      undefined,
+      () => undefined,
+      Symbol("wire-value"),
+      1n,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY
+    ]) {
+      const wire: any =
+        makeNearbyWetPropagationReferenceResult();
+      wire.untrustedExtension = invalidValue;
+      expectWireRejected(wire);
+    }
+
+    let toJsonCalls = 0;
+    const toJsonWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    toJsonWire.toJSON = () => {
+      toJsonCalls += 1;
+      return {};
+    };
+    expectWireRejected(toJsonWire);
+    expect(toJsonCalls).toBe(0);
+
+    const symbolWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    Object.defineProperty(symbolWire, Symbol("wire-field"), {
+      value: true,
+      enumerable: true
+    });
+    expectWireRejected(symbolWire);
+
+    const hiddenWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    Object.defineProperty(hiddenWire, "hiddenField", {
+      value: true,
+      enumerable: false
+    });
+    expectWireRejected(hiddenWire);
+
+    const sparseWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    delete sparseWire.hitResolutionLog[1];
+    expectWireRejected(sparseWire);
+
+    const extraArrayPropertyWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    extraArrayPropertyWire.hitResolutionLog.extra = true;
+    expectWireRejected(extraArrayPropertyWire);
+
+    const sharedProof = Object.assign(
+      Object.create(null),
+      { marker: "shared-dag" }
+    );
+    const sharedDagWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    sharedDagWire.proofA = sharedProof;
+    sharedDagWire.proofB = sharedProof;
+    expect(
+      reactionDeliveryResultReferencesSchema.safeParse(
+        sharedDagWire
+      ).success
+    ).toBe(true);
+
+    const cyclicWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    cyclicWire.recursive = cyclicWire;
+    expectWireRejected(cyclicWire);
+
+    const throwingProxyWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    throwingProxyWire.untrustedExtension = new Proxy(
+      {},
+      {
+        ownKeys() {
+          throw new Error("must not escape safeParse");
+        }
+      }
+    );
+    expectWireRejected(throwingProxyWire);
+
+    const revokedProxyWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    const revokedArrayProxy = Proxy.revocable([], {});
+    revokedProxyWire.untrustedExtension =
+      revokedArrayProxy.proxy;
+    revokedArrayProxy.revoke();
+    let revokedProxyResult:
+      | ReturnType<
+          typeof reactionDeliveryResultReferencesSchema.safeParse
+        >
+      | undefined;
+    expect(() => {
+      revokedProxyResult =
+        reactionDeliveryResultReferencesSchema.safeParse(
+          revokedProxyWire
+        );
+    }).not.toThrow();
+    expect(revokedProxyResult?.success).toBe(false);
+
+    const deepWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    let deepExtension: Record<string, unknown> = {
+      leaf: true
+    };
+    for (let depth = 0; depth < 20_000; depth += 1) {
+      deepExtension = { child: deepExtension };
+    }
+    deepWire.untrustedExtension = deepExtension;
+    let deepResult:
+      | ReturnType<
+          typeof reactionDeliveryResultReferencesSchema.safeParse
+        >
+      | undefined;
+    expect(() => {
+      deepResult =
+        reactionDeliveryResultReferencesSchema.safeParse(
+          deepWire
+        );
+    }).not.toThrow();
+    expect(deepResult?.success).toBe(false);
+    if (deepResult?.success === false) {
+      expect(deepResult.error.message).toMatch(
+        /maximum JSON wire depth/
+      );
+    }
+
+    const nonWritablePrototypeWire: any =
+      makeNearbyWetPropagationReferenceResult();
+    nonWritablePrototypeWire.toString = "own-wire-value";
+    const originalToStringDescriptor =
+      Object.getOwnPropertyDescriptor(
+        Object.prototype,
+        "toString"
+      )!;
+    Object.defineProperty(Object.prototype, "toString", {
+      ...originalToStringDescriptor,
+      writable: false
+    });
+    try {
+      let nonWritablePrototypeResult:
+        | ReturnType<
+            typeof reactionDeliveryResultReferencesSchema.safeParse
+          >
+        | undefined;
+      expect(() => {
+        nonWritablePrototypeResult =
+          reactionDeliveryResultReferencesSchema.safeParse(
+            nonWritablePrototypeWire
+          );
+      }).not.toThrow();
+      expect(nonWritablePrototypeResult?.success).toBe(false);
+      if (nonWritablePrototypeResult?.success === false) {
+        expect(
+          nonWritablePrototypeResult.error.message
+        ).toMatch(/non-writable Object\.prototype/);
+      }
+    } finally {
+      Object.defineProperty(
+        Object.prototype,
+        "toString",
+        originalToStringDescriptor
+      );
+    }
+  });
+
   it("migrates the exact 1.38 wire deeply and rejects future fields on every historical wire", () => {
     const current = makeLegalAuraV7Config();
     const historical = {
@@ -4186,6 +6463,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       schemaVersion: _schemaVersion,
       engineVersion: _engineVersion,
       reactionDeliveryModel: _reactionDeliveryModel,
+      electroChargedPropagationModel:
+        _electroChargedPropagationModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -4236,7 +6515,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "shatter-recursive-zero-delay-v1"
     ] as const) {
       const historical = {
-        ...current,
+        ...asPre139Wire(current),
         schemaVersion:
           SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
         engineVersion:
@@ -4246,10 +6525,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       };
       const migrated = migrateConfig(historical);
       expect(migrated.schemaVersion).toBe(
-        EC_NEXT_TARGET_TICK_SCHEMA_VERSION
+        CURRENT_SCHEMA_VERSION
       );
       expect(migrated.engineVersion).toBe(
-        EC_NEXT_TARGET_TICK_ENGINE_VERSION
+        CURRENT_ENGINE_VERSION
       );
       expect(migrated.reactionEngine?.mode).toBe("aura-v7");
       expect(migrated.targetTaskModel).toEqual({
@@ -4263,7 +6542,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
 
   it("fails closed on missing, forged, or extended 1.39 delivery wires and pre-1.39 smuggling", () => {
     const historical = {
-      ...makeLegalAuraV7Config(),
+      ...asPre139Wire(makeLegalAuraV7Config()),
       schemaVersion:
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
       engineVersion:
@@ -4394,7 +6673,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toThrow(/reactionEngine\.mode.*explicit own/);
 
     const historical139 = {
-      ...current,
+      ...asPre139Wire(current),
       schemaVersion:
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
       engineVersion:
@@ -4533,7 +6812,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39 or 1\.40 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39, 1\.40, or 1\.41 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -4669,7 +6948,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39 or 1\.40 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39, 1\.40, or 1\.41 schema and engine identity/);
     }
   });
 
@@ -8038,7 +10317,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37, 1\.38, 1\.39, or 1\.40 identity/);
+    ).toThrow(/exact supported 1\.37, 1\.38, 1\.39, 1\.40, or 1\.41 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -10606,6 +12885,7 @@ describe("versioned config schema", () => {
       ["targetClockModel", "mode"],
       ["targetTaskModel", "mode"],
       ["reactionDeliveryModel", "mode"],
+      ["electroChargedPropagationModel", "mode"],
       ["timeline", "mode"],
       ["timeline", "fps"]
     ] as const;
@@ -11828,7 +14108,7 @@ describe("versioned config schema", () => {
       /requires enemy\.targets and a position for every registered target/
     );
 
-    const conflicting = structuredClone(base);
+    const conflicting: any = structuredClone(base);
     conflicting.enemy.targets[1]!.position = { x: 2, y: 0 };
     Object.assign(conflicting.rotation[0]!.hits[0]!, {
       targeting: {
@@ -14381,7 +16661,10 @@ describe("versioned config schema", () => {
       config: {
         schemaVersion: CURRENT_SCHEMA_VERSION,
         engineVersion: CURRENT_ENGINE_VERSION,
-        reactionEngine: { mode: "aura-v5" as const }
+        reactionEngine: { mode: "aura-v5" as const },
+        electroChargedPropagationModel: {
+          mode: "single-target-v1" as const
+        }
       },
       dendroCoreLog: [scheduled],
       dendroCoreContactLog: [],
@@ -14429,6 +16712,7 @@ describe("versioned config schema", () => {
       DENDRO_CORE_SCHEMA_VERSION;
     frozen131.config.engineVersion =
       DENDRO_CORE_ENGINE_VERSION;
+    delete frozen131.config.electroChargedPropagationModel;
     expect(() =>
       dendroCoreResultReferencesSchema.parse(frozen131)
     ).not.toThrow();
@@ -14442,6 +16726,7 @@ describe("versioned config schema", () => {
       SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
     frozen139.config.engineVersion =
       SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+    delete frozen139.config.electroChargedPropagationModel;
     frozen139.config.reactionEngine = { mode: "aura-v7" };
     expect(() =>
       dendroCoreResultReferencesSchema.parse(frozen139)

@@ -266,6 +266,9 @@ export const durinBlackSkillAuditPreset: SimConfig = {
       }
     ]
   },
+  electroChargedPropagationModel: {
+    mode: "single-target-v1"
+  },
   reactionEngine: {
     mode: "aura-v1",
     initialAura: [{ element: "cryo", gaugeUnits: 1 }],
@@ -496,6 +499,9 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
         frames: 1
       }
     ]
+  },
+  electroChargedPropagationModel: {
+    mode: "single-target-v1"
   },
   reactionEngine: {
     mode: "aura-v1",

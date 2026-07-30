@@ -1,15 +1,11 @@
 import { createHash } from "node:crypto";
-import {
-  linkSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync
-} from "node:fs";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 import {
   canonicalStringify,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+  EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   electroChargedCleanupResultReferencesSchema,
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
@@ -264,8 +260,8 @@ interface CleanupGoldenFixture {
     notes: string[];
   };
   commonConfig: {
-    schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-    engineVersion: typeof CURRENT_ENGINE_VERSION;
+    schemaVersion: typeof EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    engineVersion: typeof EC_NEXT_TARGET_TICK_ENGINE_VERSION;
     reactionEngine: { mode: "aura-v8" };
     targetTaskModel: { mode: "target-phase-v2" };
     reactionDeliveryModel: {
@@ -286,51 +282,35 @@ function semanticHash(value: unknown): string {
     .digest("hex");
 }
 
-function atomicCreateJsonFixture(
-  outputUrl: URL,
-  value: unknown
-): void {
-  const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(
-    temporaryPath,
-    `${JSON.stringify(value, null, 2)}\n`,
-    { flag: "wx" }
-  );
-  try {
-    linkSync(temporaryPath, outputPath);
-  } catch (error) {
-    if (
-      error !== null &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "EEXIST"
-    ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
-    }
-    throw error;
-  } finally {
-    unlinkSync(temporaryPath);
-  }
-}
-
-function loadOrCreateFixture(
-  fixture: CleanupGoldenFixture
-): CleanupGoldenFixture {
+function loadFrozenFixture(): CleanupGoldenFixture {
   if (process.env[UPDATE_FLAG] === "1") {
-    atomicCreateJsonFixture(FIXTURE_URL, fixture);
-    return fixture;
+    throw new Error(
+      "electro-charged-quicken-cleanup-1.40.golden.json is frozen; create a new versioned fixture instead."
+    );
   }
   return JSON.parse(
     readFileSync(FIXTURE_URL, "utf8")
   ) as CleanupGoldenFixture;
 }
 
+function projectV140CompatibilitySemantics(
+  scenario: CleanupGoldenScenario
+) {
+  const {
+    schemaVersion: _schemaVersion,
+    engineVersion: _engineVersion,
+    configHash: _configHash,
+    reproducibilityKey: _reproducibilityKey,
+    ...compatibleVersion
+  } = scenario.version;
+  return {
+    ...scenario,
+    version: compatibleVersion
+  };
+}
+
 describe("aura-v8 Electro-Charged cleanup Golden", () => {
-  it("freezes F1 cleanup and Hitlag5-to-F6 cleanup as distinct runtime vectors", () => {
+  it("keeps current identity separate while matching the frozen 1.40 F1 and Hitlag5-to-F6 semantics", () => {
     const scenarioRuns: Array<{
       id: CleanupGoldenScenarioId;
       hitlagFrames?: number;
@@ -411,50 +391,29 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       CleanupGoldenScenarioId,
       CleanupGoldenScenario
     >;
-    const hashes = Object.fromEntries(
-      Object.entries(scenarios).map(([id, scenario]) => [
-        id,
-        semanticHash(scenario)
-      ])
-    ) as Record<CleanupGoldenScenarioId, string>;
-    const generatedFixture: CleanupGoldenFixture = {
-      fixtureVersion:
-        "electro-charged-quicken-cleanup-1.40",
-      description:
-        "Deterministic aura-v8 runtime vectors for removing a depleted Electro-Charged stream on the next effective target Tick after Quicken-to-Bloom.",
-      provenance: {
-        referenceProject: "genshinsim/gcsim",
-        mechanicsDataStatus: "fixed-gcsim-provisional",
-        referenceCommit:
-          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-        capturedAt: "2026-07-29",
-        notes: [
-          "The reference source was fixed before capture; this fixture does not claim official data or complete gcsim parity.",
-          "The already-queued first Electro-Charged hit at F10 remains, while the depleted stream cleanup suppresses later cadence.",
-          "Target-local Hitlag pauses the effective target Tick, moving the cleanup from global F1 to global F6 while the deadline remains target frame 1.",
-          "Nearby wet-target chaining and long Hitlag across the later F70 callback are not represented by these vectors."
-        ]
+    const fixture = loadFrozenFixture();
+    expect(fixture.commonConfig).toEqual({
+      schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+      engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+      reactionEngine: { mode: "aura-v8" },
+      targetTaskModel: { mode: "target-phase-v2" },
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
       },
-      commonConfig: {
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION,
-        reactionEngine: { mode: "aura-v8" },
-        targetTaskModel: { mode: "target-phase-v2" },
-        reactionDeliveryModel: {
-          mode: "deferred-event-heap-v1"
-        },
-        timeline: { mode: "legal-frame-v1", fps: 60 }
-      },
-      scenarios,
-      hashes
-    };
-    const fixture = loadOrCreateFixture(generatedFixture);
-
-    expect(fixture).toEqual(generatedFixture);
-    expect(fixture.hashes).toEqual(hashes);
+      timeline: { mode: "legal-frame-v1", fps: 60 }
+    });
     for (const scenarioId of Object.keys(
       scenarios
     ) as CleanupGoldenScenarioId[]) {
+      expect(
+        projectV140CompatibilitySemantics(
+          scenarios[scenarioId]
+        )
+      ).toEqual(
+        projectV140CompatibilitySemantics(
+          fixture.scenarios[scenarioId]
+        )
+      );
       expect(semanticHash(fixture.scenarios[scenarioId])).toBe(
         fixture.hashes[scenarioId]
       );

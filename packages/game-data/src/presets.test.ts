@@ -20,7 +20,12 @@ const presets = [
 ];
 
 describe("game-data preset engine identity", () => {
-  it("propagates the exact 1.40 identity without opting legacy presets into aura-v8", () => {
+  it("propagates the exact 1.41 identity without opting legacy presets into aura-v8 or nearby Electro-Charged propagation", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.41.0");
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.41.0-ec-secondary-wet-propagation"
+    );
+
     for (const preset of presets) {
       expect(
         [preset.schemaVersion, preset.engineVersion],
@@ -38,6 +43,9 @@ describe("game-data preset engine identity", () => {
       });
       expect(preset.reactionDeliveryModel).toEqual({
         mode: "deferred-event-heap-v1"
+      });
+      expect(preset.electroChargedPropagationModel).toEqual({
+        mode: "single-target-v1"
       });
     }
   });

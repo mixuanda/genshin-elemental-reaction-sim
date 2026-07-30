@@ -492,6 +492,9 @@ export function createDurinBlackSkillAuditConfig(
         }
       ]
     },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
+    },
     reactionEngine: {
       mode: "aura-v1",
       ...(initialCryoAura
@@ -598,6 +601,9 @@ export function createDurinWhiteSkillAuditConfig(
           frames: 1
         }
       ]
+    },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
     },
     reactionEngine: {
       mode: "aura-v1",

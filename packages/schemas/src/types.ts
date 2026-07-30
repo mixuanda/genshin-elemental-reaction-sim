@@ -13,12 +13,18 @@ export const SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION =
 export const EC_NEXT_TARGET_TICK_SCHEMA_VERSION = "1.40.0" as const;
 export const EC_NEXT_TARGET_TICK_ENGINE_VERSION =
   "1.40.0-ec-next-target-tick-cleanup" as const;
+export const EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION =
+  "1.41.0" as const;
+export const EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION =
+  "1.41.0-ec-secondary-wet-propagation" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
-export const CURRENT_SCHEMA_VERSION = EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
-export const CURRENT_ENGINE_VERSION = EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+export const CURRENT_SCHEMA_VERSION =
+  EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+export const CURRENT_ENGINE_VERSION =
+  EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -354,6 +360,20 @@ export type TargetTaskModel =
 export type ReactionDeliveryModel =
   | { mode: "deferred-event-heap-v1" }
   | { mode: "shatter-recursive-zero-delay-v1" };
+
+/**
+ * Selects whether an Electro-Charged periodic tick is confined to its source
+ * target or also checks nearby targets with live Hydro Aura. The spatial
+ * branch remains provisional until its target-selection details are backed by
+ * primary game evidence.
+ */
+export type ElectroChargedPropagationModel =
+  | { mode: "single-target-v1" }
+  | {
+      mode: "nearby-wet-radius-v1";
+      radius: number;
+      verificationStatus: "provisional";
+    };
 
 export interface CharacterStats {
   baseAtk: number;
@@ -853,6 +873,9 @@ export interface SimConfig {
   targetTaskModel: TargetTaskModel;
   /** Every pre-1.39 configuration migrates to deferred heap delivery. */
   reactionDeliveryModel: ReactionDeliveryModel;
+  /** Every pre-1.41 configuration migrates to source-only EC damage. */
+  electroChargedPropagationModel:
+    ElectroChargedPropagationModel;
 }
 
 export interface SimulationOptions {
@@ -1961,6 +1984,7 @@ export type TargetStateTimelineCause =
   | "electro-charged-cleanup"
   | "electro-charged-tick"
   | "electro-charged-wane"
+  | "electro-charged-propagation-candidate"
   | "burning-fuel-expiry"
   | "burning-tick"
   | "target-mechanics-truncation";
@@ -2072,6 +2096,45 @@ export type ReactionDamageGroupAudit =
   | ReactionADamageGroupAudit
   | ReactionBDamageGroupAudit;
 
+export type ElectroChargedPropagationCandidateReason =
+  | "SOURCE_STREAM_TARGET"
+  | "NEARBY_WET_IN_RANGE"
+  | "NO_HYDRO_AURA"
+  | "OUT_OF_RANGE"
+  | "POSITION_UNRESOLVED"
+  | "SOURCE_POSITION_UNRESOLVED";
+
+export interface ElectroChargedPropagationCandidateAudit {
+  targetId: TargetId;
+  targetName: string;
+  targetOrder: number;
+  hydroGaugeUnits: number;
+  position: { x: number; y: number } | null;
+  distance: number | null;
+  threshold: number | null;
+  selected: boolean;
+  reason: ElectroChargedPropagationCandidateReason;
+  auraObservationTimelinePointId: number;
+  hitResolutionLogId: number | null;
+  damageEventId: number | null;
+}
+
+export interface ElectroChargedPropagationAudit {
+  model: "nearby-wet-radius-v1";
+  verificationStatus: "provisional";
+  mechanicsDataStatus: "community-provisional";
+  generation: number;
+  tickIndex: number;
+  evaluationFrame: number;
+  eventPriority: number;
+  eventSequence: number;
+  radius: number;
+  selectionMode:
+    "all-in-range-registration-order-v1";
+  sourcePosition: { x: number; y: number } | null;
+  candidates: ElectroChargedPropagationCandidateAudit[];
+}
+
 export interface ReactionDamageLogEntry {
   id: number;
   reaction: TransformativeReaction;
@@ -2104,7 +2167,11 @@ export interface ReactionDamageLogEntry {
   targetingMode:
     | "radius"
     | "single-target"
-    | "nearest-target-radius";
+    | "nearest-target-radius"
+    | "electro-charged-nearby-wet";
+  /** Exact 1.41 audit for provisional EC nearby-Wet propagation. */
+  electroChargedPropagation?:
+    ElectroChargedPropagationAudit;
   centerPosition: { x: number; y: number } | null;
   radius: number;
   /** Dendro-core source and Hyperbloom selection audit. */

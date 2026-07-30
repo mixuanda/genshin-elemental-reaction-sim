@@ -2,7 +2,7 @@
 
 ## 1. 当前目标
 
-Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线、角色无关的行动状态机、火/冰/水/雷/草 Aura、声明式 ICD Profile、基础增幅/转化/状态反应、`aura-v5` 有序多反应链、ReactionA/B、燃烧 Marker/Fuel/Tick，以及绽放、草原核、烈绽放和超绽放的确定性纵向切片。1.32 提供 opt-in 的玩家反应自伤；1.33 提供独立 opt-in 的敌方目标本地时钟；1.34 以 opt-in `aura-v6` 加入雷元素有序多反应链；1.35 加入严格的八项敌方基础抗性；1.36 再以 opt-in `aura-v7` 将 Quicken 后的水草绽放跟进建模为同帧零延迟、FIFO 且执行时重读实时 Aura 的 core task；1.37 新增独立 `targetTaskModel`，以显式 opt-in 的 `target-phase-v1` 冻结第一批 Burning target callback 与目标 Aura 衰减边界；1.38 另增显式 opt-in `target-phase-v2`，只把每个目标 callback→同一目标 `Reactable.Tick` 固定为一个边界，不改写冻结的 v1；1.39 新增独立 `reactionDeliveryModel`，默认保留事件堆延迟交付，并允许满足严格版本门的配置显式选择同步递归碎冰交付；1.40 再新增精确版本门下的 `aura-v8`，把 Quicken→Bloom 耗尽同代水 Aura 后的感电 cleanup 固定到下一次有效目标 Tick：无 Hitlag 时 F1 停止，5 帧目标 Hitlag 时重投影到 F6，已排队 F10 首次伤害保留，停止后的 F16 Wane/F70 Tick 被抑制。历史迁移和当前兼容预设仍保留原 Aura、目标任务、目标时钟与反应交付模式，不会自动启用 v2、`aura-v8` 或递归碎冰。Quicken→Bloom 仍是 core zero-delay task；`aura-v8` cleanup 才属于精确 1.40 的目标 Tick 审计，感电伤害 Tick/Wane 与其他 core work 仍按全局队列运行。核心持有版本化目标/草原核/玩家 HP 时间线、逐击伤害构成、可复现粒子/能量事件、命中产球、核心反应任务、两种目标相位日志、递归碎冰父链、EC cleanup 及其跨日志审计，并通过 `runManifest` 固定每次运行的配置、选项和插件身份。当前经典反应家族都已有可执行核心路径，但统一只标记为 `fixed-gcsim-provisional`；当前版本仍不声称拥有完整游戏机制、官服真值或 gcsim 精度，新的 UI/展示扩展也明确后置于核心正确性。
+Vanilla v0.1 结果继续由兼容模式和 Golden Fixture 冻结。正式路径已经加入 60 FPS 合法帧时间线、角色无关的行动状态机、火/冰/水/雷/草 Aura、声明式 ICD Profile、基础增幅/转化/状态反应、`aura-v5` 有序多反应链、ReactionA/B、燃烧 Marker/Fuel/Tick，以及绽放、草原核、烈绽放和超绽放的确定性纵向切片。1.32 提供 opt-in 的玩家反应自伤；1.33 提供独立 opt-in 的敌方目标本地时钟；1.34 以 opt-in `aura-v6` 加入雷元素有序多反应链；1.35 加入严格的八项敌方基础抗性；1.36 再以 opt-in `aura-v7` 将 Quicken 后的水草绽放跟进建模为同帧零延迟、FIFO 且执行时重读实时 Aura 的 core task；1.37 新增独立 `targetTaskModel`，以显式 opt-in 的 `target-phase-v1` 冻结第一批 Burning target callback 与目标 Aura 衰减边界；1.38 另增显式 opt-in `target-phase-v2`，只把每个目标 callback→同一目标 `Reactable.Tick` 固定为一个边界，不改写冻结的 v1；1.39 新增独立 `reactionDeliveryModel`，默认保留事件堆延迟交付，并允许满足严格版本门的配置显式选择同步递归碎冰交付；1.40 再新增精确版本门下的 `aura-v8`，把 Quicken→Bloom 耗尽同代水 Aura 后的感电 cleanup 固定到下一次有效目标 Tick。1.41 新增独立 `electroChargedPropagationModel`：默认及迁移结果均为 `single-target-v1`；显式 `nearby-wet-radius-v1` 才按用户提供的半径审计附近湿目标并逐目标交付感电伤害。该分支是默认关闭的 `community-provisional` 契约，不是 gcsim parity、官服实测真值或正式半径数据。核心持有版本化目标/草原核/玩家 HP 时间线、逐击伤害构成、可复现粒子/能量事件、命中产球、核心反应任务、两种目标相位日志、递归碎冰父链、EC cleanup、传播候选及其跨日志审计，并通过 `runManifest` 固定每次运行的配置、选项和插件身份。当前优先保证基础反应核心及其测试；新的 UI/展示扩展明确后置。
 
 ## 2. 包边界
 
@@ -28,6 +28,7 @@ packages/mechanics
 packages/test-vectors
   冻结 v0.1、1.30 Burning、1.31–1.35 历史反应矩阵、1.36 历史兼容/反应任务 Golden、1.37 冻结兼容/v1 目标相位向量、独立的 1.38 兼容/v2 目标相位向量，以及 1.39 兼容、Quicken→Bloom、v2 Miss 和递归碎冰向量。
   1.40 另以三份只读 Fixture 冻结兼容默认、identity-only Quicken→Bloom 与 aura-v8 EC cleanup。
+  1.41 只新增兼容默认与 community-provisional EC 附近湿目标传播向量，不覆盖或重写任何历史 Fixture。
 ```
 
 依赖方向：
@@ -52,7 +53,7 @@ dataVersion
 randomSeed
 ```
 
-`migrateConfig()` 负责把无版本及 `0.1.0`–`1.39.0` 配置迁移到 `1.40.0`。1.35→1.36 的 identity-only 迁移继续作为冻结历史契约；1.36→1.37 为所有历史输入补入 `targetTaskModel: { mode: "legacy-event-heap-v1" }`，不会自动启用 `target-phase-v1`；1.37→1.38 精确保留输入已有的 `legacy-event-heap-v1` 或 `target-phase-v1`，不会自动启用 `target-phase-v2`；1.38→1.39 精确保留目标任务模式并补入 `reactionDeliveryModel: { mode: "deferred-event-heap-v1" }`，不会自动启用递归碎冰；1.39→1.40 只更新运行身份，原样保留 `aura-v7`、目标任务、目标时钟、玩家模型和 deferred/recursive 交付选择，不会自动启用 `aura-v8`。历史输入夹带未来字段会 fail-closed。所有迁移都保留 `reactionEngine`、`playerDamageModel`、`targetClockModel`、`targetTaskModel`、逐元素敌方抗性和其余配置，不会静默切换 Aura 模式。更早配置继续保留各自的反应模式、Burning 相位和 fail-closed 语义，并按对应历史版本补入禁用模型或拒绝当时尚不存在的字段。只有显式选择 `reaction-self-v1` 才启用玩家反应自伤，只有显式选择 `target-local-hitlag-v1` 且运行时为 `legal-frame-v1` 才启用目标本地时钟；`aura-v7` 从 1.36 起才可显式选择；冻结的 `target-phase-v1` 可由 1.37 身份显式选择并在迁移后保持；`target-phase-v2` 只允许 1.38+ 输入显式选择。两个目标相位模式都要求 `legal-frame-v1`；历史模式继续使用 `aura-v7`，只有精确 `1.40.0` / `1.40.0-ec-next-target-tick-cleanup`、60 FPS 且 `target-phase-v2` 的配置可以显式选择 `aura-v8`。严格 Zod Schema 会校验版本配对、历史 wire contract、合法模式和场景结构。`engineVersion` 当前为 `1.40.0-ec-next-target-tick-cleanup`。
+`migrateConfig()` 负责把无版本及 `0.1.0`–`1.40.0` 配置迁移到 `1.41.0`。1.35→1.40 的迁移继续作为冻结历史契约；1.40→1.41 只更新运行身份并注入 `electroChargedPropagationModel: { mode: "single-target-v1" }`，原样保留 `reactionEngine`、`playerDamageModel`、`targetClockModel`、`targetTaskModel`、`reactionDeliveryModel`、逐元素敌方抗性和其余配置，不会自动启用附近湿目标传播。历史输入夹带未来字段会 fail-closed。只有精确 `1.41.0` / `1.41.0-ec-secondary-wet-propagation` 身份可声明新的传播模型；`nearby-wet-radius-v1` 还要求 `legal-frame-v1`、60 FPS、`target-phase-v2` 与 `aura-v8`。严格 Zod Schema 会校验版本配对、历史 wire contract、合法模式和场景结构。`engineVersion` 当前为 `1.41.0-ec-secondary-wet-propagation`。
 
 目标时钟的版本化输入是：
 
@@ -70,6 +71,14 @@ reactionDeliveryModel:
   | { mode: "deferred-event-heap-v1" }
   | { mode: "shatter-recursive-zero-delay-v1" };
 
+electroChargedPropagationModel:
+  | { mode: "single-target-v1" }
+  | {
+      mode: "nearby-wet-radius-v1";
+      radius: number; // 有限正数，当前 Schema 上限 100
+      verificationStatus: "provisional";
+    };
+
 hit.targetHitlag?: {
   haltFrames: number; // 有限数，0 <= haltFrames <= 600，可为小数
   factor: number;     // [0, 1]
@@ -78,9 +87,13 @@ hit.targetHitlag?: {
 
 公共配置不暴露固定参考中的 defense-halt bonus。Schema 在输入边界强制 `0 <= haltFrames <= 600` 和 `0 <= factor <= 1`，负数、非有限数或超过 600 帧的单次 Halt 都会拒绝。每次扩展帧采用 `ceil(ceil(haltFrames) × (1 - factor))`；命中所在目标 Tick 先完成，新增暂停从下一全局帧开始。同目标同帧多次命中叠加冻结帧，不同目标隔离。Miss 不改变时钟；1.39 在 v2 下仍会为配置了 Hitlag 的 Miss 写入 `blockedReason: "TARGET_MISS"`、`applied: false` 的审计。landed 但数值免疫或 Aura/命中回调阻断的目标仍应用 Hitlag；零扩展只记录 `ZERO_EXTENSION`。这些数据状态固定为 `fixed-gcsim-provisional`，不代表官服实测真值。
 
-`targetTaskModel` 与 `targetClockModel`、`reactionEngine` 分别建模。三种模式各自有独立 wire contract：历史兼容路径使用 `legacy-event-heap-v1`；1.37 `target-phase-v1` 已冻结 callback→Aura 衰减；1.38 `target-phase-v2` 只新增 callback→同一目标 `Reactable.Tick`。v1/v2 都在运行时强制 `legal-frame-v1`；历史身份与 v1 继续只允许 `aura-v7`，精确 1.40 的 v2 可显式选择 `aura-v8`。迁移保留输入原模式；v2 从 1.38 起才可显式选择，并可由 1.39/1.40 配置继续选择。当前 target-owned callback 覆盖已实现的 Burning wake，以及精确 `aura-v8` 中 Quicken→Bloom cleanup 的下一有效目标 Tick 决议；Quicken→Bloom follow-up 本身仍保持 1.36 的 core zero-delay task 身份，感电伤害 Tick/Wane 与其他 core work 也继续留在全局队列。
+`targetTaskModel` 与 `targetClockModel`、`reactionEngine` 分别建模。三种模式各自有独立 wire contract：历史兼容路径使用 `legacy-event-heap-v1`；1.37 `target-phase-v1` 已冻结 callback→Aura 衰减；1.38 `target-phase-v2` 只新增 callback→同一目标 `Reactable.Tick`。v1/v2 都在运行时强制 `legal-frame-v1`；历史身份与 v1 继续只允许 `aura-v7`，精确 1.40/1.41 的 v2 可显式选择 `aura-v8`。迁移保留输入原模式。当前 target-owned callback 覆盖已实现的 Burning wake，以及精确 `aura-v8` 中 Quicken→Bloom cleanup 的下一有效目标 Tick 决议；Quicken→Bloom follow-up 本身仍保持 1.36 的 core zero-delay task 身份，感电伤害 Tick/Wane 与其他 core work 也继续留在全局队列。
 
-`reactionDeliveryModel` 与 Aura、目标任务和目标时钟分别建模。`deferred-event-heap-v1` 是所有现有预设、兼容配置及迁移结果的默认值，并保留 1.38 及更早的父段先编号、碎冰子段稍后交付顺序。`shatter-recursive-zero-delay-v1` 从精确 `1.39.0` / `1.39.0-shatter-recursive-delivery` 身份开始可显式选择，1.39→1.40 迁移会原样保留该选择；它要求 `timeline.mode = legal-frame-v1`、`fps = 60`，并只配合当前身份允许的 `aura-v7`/`aura-v8`。它只让零延迟碎冰子伤害在同一帧、同一目标、同一来源上下文中先于直接父段或嵌套 Overload 父段交付；其他反应、目标任务和周期事件仍沿用原调度。因为子段先编号，递归模式允许 `parentDamageEventId` 合法前向引用；结果 Schema 强制连续 DamageEvent ID、无环父链、同帧/目标/来源约束，以及唯一 Shatter `reactionDamageLog` 的 reciprocal 引用。迁移绝不从 deferred 自动切换到该模式。
+`reactionDeliveryModel` 与 Aura、目标任务和目标时钟分别建模。`deferred-event-heap-v1` 是所有现有预设、兼容配置及迁移结果的默认值，并保留 1.38 及更早的父段先编号、碎冰子段稍后交付顺序。`shatter-recursive-zero-delay-v1` 从精确 `1.39.0` / `1.39.0-shatter-recursive-delivery` 身份开始可显式选择，后续迁移会原样保留该选择；它要求 `timeline.mode = legal-frame-v1`、`fps = 60`，并只配合当前身份允许的 `aura-v7`/`aura-v8`。它只让零延迟碎冰子伤害在同一帧、同一目标、同一来源上下文中先于直接父段或嵌套 Overload 父段交付；其他反应、目标任务和周期事件仍沿用原调度。因为子段先编号，递归模式允许 `parentDamageEventId` 合法前向引用；结果 Schema 强制连续 DamageEvent ID、无环父链、同帧/目标/来源约束，以及唯一 Shatter `reactionDamageLog` 的 reciprocal 引用。迁移绝不从 deferred 自动切换到该模式。
+
+`electroChargedPropagationModel` 只控制感电实际伤害 Tick 的目标集合，不修改 Aura、ICD、ReactionB、周期流或目标时钟所有权。`single-target-v1` 是默认兼容路径，只生成源流目标的伤害。`nearby-wet-radius-v1` 在每个 Tick 执行点构造一次 `electroChargedPropagationAudit`，并固定写入 `mechanicsDataStatus: "community-provisional"`：源目标总是第一项且选中；其余目标按注册顺序读取实时 Hydro Gauge，再以源目标位置、目标位置和圆形 hurtbox 计算距离阈值。候选会明确记录 `SOURCE_STREAM_TARGET`、`NEARBY_WET_IN_RANGE`、`NO_HYDRO_AURA`、`OUT_OF_RANGE`、`POSITION_UNRESOLVED` 或 `SOURCE_POSITION_UNRESOLVED`，被选中的每个目标都必须反链唯一 `hitResolutionLogId` 与 `damageEventId`。副目标伤害使用源 Tick 的 owner、snapshot、等级、EM、反应增伤和同一反应伤害批次；每个目标独立应用其雷抗与伤害免疫。
+
+附近传播只交付伤害，不施加 Hydro/Electro Aura，不递归搜索下一层，不创建或接管副目标感电流，不刷新/重置副目标 `+10/+60` cadence，也不为副目标安排 `+6` Wane。副目标已有感电流继续由其原 owner 和 generation 独立推进。这个选择与半径是显式 `community-provisional` 规则；固定 gcsim 提交的经典 EC 实现仍是 `NewSingleTargetHit`，因此本模式不得标记为 gcsim parity 或官服精确。
 
 严格结果边界会用 `targetClockLog` 对每个 `TargetStateTimeline.targetFrame` 做插值重放，并把 simulation-end 与目标汇总精确绑定；一个 `hitResolutionLogId` 最多只能产生一条 Hitlag 日志。超导状态以 `startFrame + 720 + Σ reciprocal extensionFrames` 校验自然结束帧，被刷新截断的旧区间则必须恰好结束在 `supersededAtFrame`。Aura 同一目标帧的连续性以 `expiresAtTargetFrame` 为权威，允许 Hitlag 只重投影全局到期帧而不制造虚假状态突变。
 
@@ -404,7 +417,7 @@ icdProfiles: {
 
 如果消耗型反应发生，剩余来袭元素是否继续参与同击后续反应由对应 Aura 版本的显式顺序决定，不由 UI 或手工标签猜测。正式 `aura-v1`–`aura-v8` Schema 都禁止非 `none` 的手工 `reaction`；只有 `debugAllowReactionOverride: true` 时可使用 `reactionOverride`。
 
-当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura、独立冻元素耐久，并为感电保留同目标水雷共存；`aura-v3` 再加入草普通 Aura、激元素和普通 Aura/激元素的逐来源槽；`aura-v4` 增加目标级 Burning Marker/Fuel、周期代次、归属和内置燃烧附着 ICD；`aura-v5` 增加有序基础反应矩阵、Bloom 审计和草原核管理器；`aura-v6` 增加雷来袭有序链及水来袭 Frozen→EC guard；`aura-v7` 再增加 Quicken→Bloom 实时 Aura 核心任务和 Burning refresh 计数修正；`aura-v8` 只新增该 follow-up 耗尽 Hydro 后的 EC next-target-Tick cleanup。同一角色/Tag/Group、感电流、燃烧流、冻元素/激元素代次、碎冰 GCD、ReactionA/B、扩散元素队列 GCD、草原核与周期调度在不同目标或各自作用域内确定性隔离。v1/v2 为兼容回放继续使用聚合状态；v3–v8 普通 Aura 的同来源重挂取较强值、不同来源保留独立槽，所有槽共享当前最大值决定的衰减，反应消耗从每个来源槽扣同一预算。1.37 以 opt-in `target-phase-v1` 冻结第一批 Burning callback/Aura 衰减；1.38 `target-phase-v2` 新增 callback→同一目标 `Reactable.Tick`，1.40 v8 在这一 Tick 上增加 cleanup 决议。一般化特殊 Aura overlap、全部可达排列、附近湿目标 EC 连锁、Burning callback 内同步跨目标 Aura/反应命中、更多 Hitlag 属性、通用目标任务所有权和角色回调顺序仍未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
+当前状态机为每个已注册目标建立独立的火/冰/水普通 Aura 与 ICD 实例；`aura-v2` 另允许雷普通 Aura、独立冻元素耐久，并为感电保留同目标水雷共存；`aura-v3` 再加入草普通 Aura、激元素和普通 Aura/激元素的逐来源槽；`aura-v4` 增加目标级 Burning Marker/Fuel、周期代次、归属和内置燃烧附着 ICD；`aura-v5` 增加有序基础反应矩阵、Bloom 审计和草原核管理器；`aura-v6` 增加雷来袭有序链及水来袭 Frozen→EC guard；`aura-v7` 再增加 Quicken→Bloom 实时 Aura 核心任务和 Burning refresh 计数修正；`aura-v8` 只新增该 follow-up 耗尽 Hydro 后的 EC next-target-Tick cleanup。1.41 的传播模型不改变这些 Aura 状态机，只在感电伤害 Tick 交付点按显式半径增加独立副目标伤害。同一角色/Tag/Group、感电流、燃烧流、冻元素/激元素代次、碎冰 GCD、ReactionA/B、扩散元素队列 GCD、草原核与周期调度在不同目标或各自作用域内确定性隔离。一般化特殊 Aura overlap、全部可达排列、官服核验的感电传播规则、Burning callback 内同步跨目标 Aura/反应命中、更多 Hitlag 属性、通用目标任务所有权和角色回调顺序仍未实现。自定义 ICD Profile 已具备通用契约，但尚未建立全角色 Profile 数据库。
 
 基础发布门把 `aura-v7` 的公开输入面拆成代表性有序链与公开普通初态组合两层：前者固定七种来袭元素的高信息量链、Frozen 火蒸发 guard、ICD 重置和 Aura 精确到期，后者检查数值有限、Gauge 非负、Aura 元素唯一且稳定排序、聚合 Gauge 等于最大来源槽、逐槽消费守恒、Bloom 预算守恒、重放确定性和输入数组换序。结果 Zod Schema 同样在 `sourceSlots` 存在时强制来源唯一和最大槽一致，并对每条 `sourceMutation` 强制守恒；没有来源槽的历史投影继续接受。
 
@@ -508,9 +521,9 @@ target callback → same target Reactable.Tick
 
 核心会按水/雷中较早的衰减到期帧排队可失效的检查；刷新或削减导致到期帧变化时，旧检查以流代次和期望到期帧判为过期，不会重复停止。若普通命中通过其他反应消耗掉水或雷 Aura，该命中的 `ReactionAudit.periodicReaction` 会在同帧记录 `stop`，清除未来 Tick 的活动来源，而不是等待下一 Tick 才发现共存丢失。固定 gcsim 实现已经把新流的首次伤害作为独立攻击排队，因此共存若在前 10 帧内丢失，首次伤害仍结算并记录 `QUEUED_FIRST_TICK_AFTER_STREAM_STOP`，但不会安排后续 Tick 或 6 帧后的 Aura 削减。网页把 `wane / stop` 节点合并进敌方 Aura 曲线，因此周期削减和命中终止都不会只存在于日志表。
 
-该语义交叉核对固定 gcsim 提交的 `pkg/reactable/electrocharged.go`。固定路径使用 `NewSingleTargetHit`，所以本核心同样让每个敌人独立维护单目标 Tick 流，不推断附近潮湿目标的额外连锁。`aura-v6` 中冻元素存在时会拒绝新感电，包括水命中在同一有序链中刚生成 Frozen 的情况；`aura-v5` 仍保留旧 post-Freeze EC 行为用于历史回放。1.31 已覆盖指定的水雷/冰与水雷/火/冰有序链，但尚未实现任意来源 Aura overlap、所有同击反应排列或未经固定来源核验的目标传播，因此仍不是完整 gcsim Aura 系统。
+该语义交叉核对固定 gcsim 提交的 `pkg/reactable/electrocharged.go`。固定路径使用 `NewSingleTargetHit`，所以默认 `single-target-v1` 仍让每个敌人独立维护单目标 Tick 流。1.41 的 `nearby-wet-radius-v1` 是另行标注的社区临时规则，不宣称来自这条固定 gcsim 路径。`aura-v6` 中冻元素存在时会拒绝新感电，包括水命中在同一有序链中刚生成 Frozen 的情况；`aura-v5` 仍保留旧 post-Freeze EC 行为用于历史回放。任意来源 Aura overlap、所有同击反应排列和官服核验的目标传播规则仍未完成，因此不是完整 gcsim Aura 系统。
 
-1.40 的 `aura-v8` 已实现此前未完成的 Quicken→Bloom cleanup：只有 follow-up 恰好耗尽同代最后 Hydro 才设定下一有效目标 Tick 的 deadline；无 Hitlag 在 F1 停止，5 帧 Hitlag 在 F6/TF1 停止。已经排队的 F10 首次伤害继续结算，同代补水可保留流，新代次替换、自然到期碰撞和模拟末端 pending 都有显式结果；停止后的 F16 Wane/F70 Tick 不再发生。`aura-v7` 仍保留旧行为，迁移不自动启用 v8。当前仍未实现附近潮湿目标的感电连锁、跨过 F70 callback 的长 Hitlag Golden、任意来源 Aura overlap 或全部同击反应排列，因此不能把这个 cleanup 解释为完整感电或完整 gcsim Aura 系统。
+1.40 的 `aura-v8` 已实现此前未完成的 Quicken→Bloom cleanup：只有 follow-up 恰好耗尽同代最后 Hydro 才设定下一有效目标 Tick 的 deadline；无 Hitlag 在 F1 停止，5 帧 Hitlag 在 F6/TF1 停止。已经排队的 F10 首次伤害继续结算，同代补水可保留流，新代次替换、自然到期碰撞和模拟末端 pending 都有显式结果；停止后的 F16 Wane/F70 Tick 不再发生。`aura-v7` 仍保留旧行为，迁移不自动启用 v8。1.41 只新增默认关闭的附近湿目标伤害传播与候选审计，不改变上述 cleanup 或任何目标流的 cadence/Wane 所有权。跨过 F70 callback 的长 Hitlag Golden、任意来源 Aura overlap、全部同击反应排列和传播的官服真值仍未完成。
 
 #### 6.1.3 冻元素耐久、冻结抗性与冻结底反应
 
@@ -861,7 +874,7 @@ Vitest 发布门与验证清单（执行对应命令后方可报告结果）：
 - 有序不重叠的目标阶段 Schema、半开边界、相邻阶段切换、活动阶段来源日志和逐击覆盖优先级。
 - 120 秒末端截断语义。
 - 相同配置、Schema/引擎/数据版本、解析后运行选项、随机种子和有序插件身份的可复现性；配置哈希、插件顺序/内容哈希、重复插件 ID 拒绝、状态型插件实例隔离和 `runManifest` 运行时 Schema。
-- 默认 120 秒 Golden Fixture、1.30 Burning Golden、1.31–1.35 历史基础反应/状态/草原核向量、1.36 冻结兼容身份与 Quicken→Bloom core task Golden，以及冻结的 `legacy-default-120s-1.37.golden.json`、`quicken-bloom-task-order-1.37.golden.json`、`target-task-phase-1.37.golden.json`。1.38 使用独立的 `legacy-default-120s-1.38.golden.json`、`quicken-bloom-task-order-1.38.golden.json`、`target-reactable-phase-1.38.golden.json`；v1 `targetTaskPhaseLog` 与 v2 `targetPhaseLog` 分别设门且互斥。1.39 再使用独立的 `legacy-default-120s-1.39.golden.json`、`quicken-bloom-task-order-1.39.golden.json`、`shatter-recursive-delivery-1.39.golden.json` 与 `target-reactable-phase-1.39.golden.json`；`shatter-recursive-delivery.test.ts` 负责直接钝击/岩碎冰、嵌套 Overload→Shatter 前向父链、12 帧 GCD、钝击耗尽、deferred 兼容总量和确定性。1.40 新增只读 `legacy-default-120s-1.40.golden.json`、`quicken-bloom-task-order-1.40.golden.json` 与 `electro-charged-quicken-cleanup-1.40.golden.json`；后者由 `aura-v8-ec-cleanup.test.ts`、`electro-charged-quicken-cleanup.test.ts` 和 `electro-charged-cleanup-golden.test.ts` 共同锁定 F1、Hitlag5→F6、恢复/替换/自然到期/pending、F10 保留及跨日志 reciprocal 引用。目标时钟、`aura-v6` 雷多反应链、`aura-v7` FIFO/live-Aura/跳过路径、callback-before-decay、callback→同目标 `Reactable.Tick` 和公开普通初态组合另有专门门禁；其中 `target-phase-v2-reaction-gate.test.ts` 固定 17 类代表性反应及 Frozen/Quicken 同帧边界。这些门禁不得外推为感电附近湿目标连锁、同步跨目标 Burning、完整 target task system 或完整 gcsim parity。
+- 默认 120 秒 Golden Fixture、1.30 Burning Golden、1.31–1.40 历史基础反应/状态/目标相位/递归碎冰/EC cleanup 向量继续只读保留。1.41 已冻结 `legacy-default-120s-1.41.golden.json`（SHA-256 `9768d8b0461bd641ed5a4097e1cfe4204e1d6db9e9a6453e75754eb1a90bf9c8`）与 `electro-charged-propagation-1.41.golden.json`（SHA-256 `b855f87f391a5f0dfd82e30a4666c8bb79a7777c94bc8f2bd675178fabdb0d18`）。前者锁定 `single-target-v1` 默认兼容；后者锁定当前传播候选/逐目标伤害合同。传播门仍须断言湿/干/范围外/位置未解析/伤害免疫、hurtbox 边界、逐元素抗性、同帧目标相位、现有副目标流的 owner/cadence 保持、不递归、不产生副目标 Wane、目标上限和重复运行确定性。未来新 Golden 摘要和 SHA 仍只能在运行校验后写入。
 - 整数帧行动、切人、命中追踪、显式冲刺/跳跃占用、按后续普攻/重击/战技/爆发/冲刺/跳跃/切人选择取消帧、未声明路径回退与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。
@@ -886,7 +899,7 @@ Vitest 发布门与验证清单（执行对应命令后方可报告结果）：
 - v4 燃烧启动/火草刷新、Marker/Fuel 来源、Fuel 覆盖与逐帧边界、15 帧周期、第 9 Tick 固定跳过、自然到期、Marker 被反应消费停止和旧代次事件失效。
 - v4 燃烧等级/精通/增伤/火抗公式、范围扇出、逐击伤害父链、实时面板归属刷新、火附着 ICD，以及禁用/启用目标时钟下的 Tick/Fuel 边界；v7 另锁定启动与 Fuel/快照 refresh 的反应投影；冻结的 1.37 v1 锁定 legacy 不漂移和 callback-before-decay，1.38 v2 另锁定 callback→同一目标 `Reactable.Tick`。实际 Burning 范围伤害仍为全局 core work，callback 内同步跨目标 Aura/反应命中不在当前门内。
 - v5 Bloom gauge 组合不变量、水草双向交互、冰来袭 `超导 → 融化 → 冻结` 有序链、v6 `hydroFrozenEcGuard` 和 post-Freeze EC 兼容边界，以及 v7 Quicken→Bloom core zero-delay FIFO/live-Aura 触发、跳过路径与 `reactionTaskLog` reciprocal 引用；冻结的 v1 与 1.38 v2 都必须证明该核心任务没有被重新分类为 target-owned task。
-- v8 Quicken→Bloom 耗尽最后 Hydro 后只在下一有效目标 Tick 清理同代感电流；F1、Hitlag5→F6、F10 首次伤害保留、F16/F70 抑制、同代恢复、代次替换、自然到期唯一所有权和模拟末端 pending 都必须可审计且确定性复现。该门不覆盖附近潮湿目标连锁或跨过 F70 callback 的长 Hitlag。
+- v8 Quicken→Bloom 耗尽最后 Hydro 后只在下一有效目标 Tick 清理同代感电流；F1、Hitlag5→F6、F10 首次伤害保留、F16/F70 抑制、同代恢复、代次替换、自然到期唯一所有权和模拟末端 pending 都必须可审计且确定性复现。1.41 另行验证显式半径附近湿目标伤害传播；它不能反向改变 cleanup，也不覆盖跨过 F70 callback 的长 Hitlag。
 - 草原核 30 帧生成、provisional `300f` 寿命、稳定且不可重放的 ID、独立种子位置、五核心上限/最旧淘汰、自然绽放、火/雷接触、同 hit-group 去重和 expiry-before-hit 边界。
 - 烈绽放 1 帧延迟/半径 5、超绽放 60 帧延迟/15m 最近目标/半径 1、无目标消费、爆炸帧实时 EM/反应增伤、ReactionA 前二/30 帧，以及生命周期/接触/时间线/反应伤害/逐击父链的严格引用一致性。
 - 通用 ReactionA 对碎冰、超导和绽放系的前二/30 帧规则，以及 ReactionB 对超载、感电的首一/30 帧规则；被阻止尝试仍生成零伤害事件和审计。
@@ -910,7 +923,7 @@ Vitest 发布门与验证清单（执行对应命令后方可报告结果）：
 - 未知角色/武器/技能 ID 的完整诊断，不静默猜测。
 - 120 秒兼容模拟、带运行时能量前缀探测的 120 秒合法时间线和持续 Burning 流继续受既有桌面性能门约束；该阈值不是跨设备 SLA，也不得在未实际运行对应命令时写入通过结论。
 
-Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计与三类伤害构成曲线、具名多目标属性与逐目标 Aura/ICD 隔离、显式 AoE 扇出、圆形/旋转矩形/胶囊/填充扇形几何的内部/边界/范围外判定、静态施放者局部到世界坐标变换、目标线性移动插值及跨目标一次产球聚合、目标/Aura 筛选、目标命中判定表、脚本化 Miss、三层目标策略、按帧阶段、敌方 Aura 曲线、扩散自身/传播/二次反应与父链、结晶碎片/拾取/护盾状态、草雷激化、燃烧、能量曲线、公式展开、杜林黑/白 E 审计向量及 UID 展示柜边界。绽放系敌方伤害继续进入现有逐击、技能、时间轴和累计/构成曲线；1.40 本轮只保证核心、Schema、Golden 和既有页面不退化，不新增 EC cleanup、玩家自伤/HP/盾破裂或草原核生命周期专用面板。展示扩展明确后置，未来 UI 仍只能读取核心结构化输出。
+Playwright 覆盖预设切换、JSON 导入、运行、总览数字、时间轴、逐击累计与三类伤害构成曲线、具名多目标属性与逐目标 Aura/ICD 隔离、显式 AoE 扇出、几何求交、目标移动、目标/Aura 筛选、反应父链、结晶、激化、燃烧、能量、公式、杜林审计向量及 UID 展示柜边界。1.41 当前只要求核心、Schema、Golden 和既有页面不退化；不为附近传播、EC cleanup、玩家自伤/HP/盾破裂或草原核生命周期新增专用面板。所有新增传播伤害仍通过核心生成的逐目标 `DamageEvent` 自动进入既有逐击、技能、时间轴和累计/构成曲线；展示扩展后置，未来 UI 也只能读取核心结构化输出。
 
 ## 8. 展示柜导入边界
 
@@ -969,15 +982,15 @@ game patch 6.7
 
 Milestone 2 的结构能力已经落地，但除已单独引用的杜林取消点外，内置行动帧仍是 provisional 示例，不代表游戏实测。能量不足现在会通过确定性前缀探测进入 `skippedActions` 和 `timelineExecution.failures`，失败行动不预占冷却或状态，后续命令会重排；重击、冲刺与跳跃已经进入命令语言，冲刺/跳跃只使用显式占用帧。条件语句、目标命中分支和目标驱动取消仍未进入命令语言。
 
-Milestone 3 已落地火/冰/水/雷/草普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、正/反融化、正/反蒸发、超载、超导、感电、冻结/碎冰，火/水/冰/雷扩散、火/水/冰/雷结晶、燃烧、绽放/烈绽放/超绽放及原激化/超激化/蔓激化；这些经典反应家族均可执行但仍为 `fixed-gcsim-provisional`。1.32–1.35 的玩家自伤、目标本地 Hitlag、v6 雷来袭链和逐元素抗性继续保留；1.36 新增 opt-in v7 的 Quicken→Bloom core zero-delay FIFO/live-Aura 任务、反应任务跨日志 Schema、Burning refresh 计数修正和公式运行时输入守卫；1.37 新增并冻结独立 `targetTaskModel`、显式 opt-in 第一批 Burning target phase、Hitlag wake 重投影与严格 `targetTaskPhaseLog`；1.38 另增显式 opt-in `target-phase-v2` 与 `targetPhaseLog`，只建模 callback→同一目标 `Reactable.Tick`；1.39 增加默认 deferred、显式 opt-in 递归的碎冰交付模型及其严格前向父链引用，并把 v2 Miss 的 `TARGET_MISS` Hitlag 阻止记录纳入审计；1.40 增加 opt-in `aura-v8`，完成 Quicken→Bloom 后的 EC next-target-Tick cleanup、Hitlag 重投影和严格 reciprocal 引用。迁移保留 legacy/v1/v2、v7 和既有交付模式，不自动启用 v8 或递归。目标 Aura 曲线仍只读取核心的版本化 `targetStateTimeline`，UI 不推断同帧状态顺序。感电伤害 Tick/Wane、Quicken→Bloom follow-up 与其余 core work 继续全局运行；附近湿目标 EC 连锁、完整多 Aura、Burning callback 内同步跨目标 Aura/反应命中及 “Freeze Broken” 合成攻击尚未实现。冻结的杜林兼容预设仍保留手工反应并使用 legacy 目标任务模型和 deferred 交付以维持 Golden；其示例魔法数继续是 provisional，不是正式角色数据。
+Milestone 3 已落地火/冰/水/雷/草普通 Aura、可扩展元素量、衰减、默认/No ICD、自定义 ICD Profile、正/反融化、正/反蒸发、超载、超导、感电、冻结/碎冰，火/水/冰/雷扩散、火/水/冰/雷结晶、燃烧、绽放/烈绽放/超绽放及原激化/超激化/蔓激化；这些经典反应家族均可执行但仍为 `fixed-gcsim-provisional`。1.36–1.40 依次冻结 Quicken→Bloom core task、两种目标相位、碎冰递归交付和 EC next-target-Tick cleanup。1.41 再加入默认关闭的 `community-provisional` 附近湿目标伤害传播：候选、逐目标伤害与反链可审计，但 Aura 不附着、传播不递归、副目标流不被接管或重置，也不产生副目标 Wane。迁移保留全部历史模式并注入 `single-target-v1`，不自动启用附近传播。目标 Aura 曲线仍只读取核心的版本化 `targetStateTimeline`，UI 不推断同帧状态顺序。完整多 Aura、官服核验的传播规则、Burning callback 内同步跨目标 Aura/反应命中及 “Freeze Broken” 合成攻击尚未实现。冻结的杜林兼容预设仍保留手工反应并使用 legacy 目标任务模型和 deferred 交付以维持 Golden；其示例魔法数继续是 provisional，不是正式角色数据。
 
 Milestone 4 已完成核心第一批闭环：版本化粒子 Schema、固定种子随机数量、固定帧或逐击命中触发、角色级粒子内部冷却、生成/到达事件、接收时前后台、同/异/无色、晶球、充能效率、溢出、固定回能拆分、逐次日志和能量曲线。具名多目标、逐目标 landed / miss、独立 Aura/ICD、三层目标效果策略、按帧阶段窗口、显式/圆形/旋转矩形/胶囊/填充扇形扇出、声明式线性目标移动和一次回调聚合已成为伤害和命中产球的共同门；内置 M4 预设仍只用于机制验收，其面板、帧数和产球范围是 provisional。尚未完成 120 秒、来源核验的杜林首轮启动/循环预设，也没有敌人掉球、粒子几何飞行轨迹、真实 Boss AI 或真实技能产球数据库。
 
 Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等于正式杜林预设完成。杜林黑/白 E 已有倍率引用、裸伤/增伤、动作帧、黑 E 附着/ICD、白 E 无附着口径、回能、粒子和互斥状态向量，但仍有明确未解决项；尼可、洛恩、茜特菈莉、希诺宁以及其余角色/武器仍需逐技能机制插件与交叉验证。全角色/全武器技能数值的可查询目录也不等于完整的特有 ICD、动作帧、粒子、快照和机制可执行库；展示柜 UID 映射尚未形成通用 `ShowcaseSnapshot -> ResolvedLoadout -> SimConfig`，不得把测试 UID 的单次映射成功外推为全 UID 支持。
 
-下一阶段按以下顺序推进，且每项都要保留现有兼容 Golden、1.31–1.35 历史矩阵、1.36 冻结身份/Quicken→Bloom 核心任务向量、冻结的 1.37 `legacy-default-120s-1.37.golden.json` / `quicken-bloom-task-order-1.37.golden.json` / `target-task-phase-1.37.golden.json`、独立的 1.38 `legacy-default-120s-1.38.golden.json` / `quicken-bloom-task-order-1.38.golden.json` / `target-reactable-phase-1.38.golden.json`、1.39 的四份冻结 Fixture，以及 1.40 的三份冻结 Fixture 与上列 SHA-256：
+下一阶段按以下顺序推进，且每项都要保留全部历史 Golden 与两份已冻结的 1.41 Fixture：
 
-1. 以冻结的 `aura-v8` cleanup 为新基线，补感电附近潮湿目标连锁、跨过 F70 callback 的长 Hitlag、来源 overlap 和多代次交错；必须继续证明已排队首次伤害、Wane、后续 Tick 与目标时钟各自的所有权，不得静默改写 v7 或三份 1.40 Golden。
+1. 继续稳定 1.41 基础反应门：在已冻结 `single-target-v1` 默认兼容和 `nearby-wet-radius-v1` 候选/逐目标伤害 Golden 的基础上，补跨过 F70 callback 的长 Hitlag、来源 overlap 和多代次交错；必须继续证明已排队首次伤害、源目标 Wane、后续 Tick、既有副目标流与目标时钟各自的所有权，不得静默改写 v7/v8 或任何历史 Golden。
 2. 继续补基础反应：扩展除已列明雷来袭之外的其他来袭元素顺序、来源 overlap、所有特殊/多 Aura 可达排列和边界向量，并继续覆盖逐元素敌方抗性与减抗状态的交叉组合；每个新增顺序都用新 Golden 锁定。另立事件契约补固定参考的 `DoNotLog` “Freeze Broken” 合成攻击及回调。完成这些基础机制后再考虑 Lunar 反应族，不得把当前经典反应路径外推为全反应覆盖。
 3. 基础反应门稳定后，从冻结的 1.37 callback→Aura 衰减和 1.38 callback→同一目标 `Reactable.Tick` 边界继续补 Burning callback 内同步跨目标 Aura/反应命中与通用目标任务所有权，再决定 movement/phase、更多 Debuff/状态和敌方 AI 任务如何受 Hitlag；继续证明 Quicken→Bloom core zero-delay task、感电 `+10/+60` Tick 与 `+6` Wane、附着 ICD、ReactionA/B、草原核/结晶实体和玩家侧状态不被误归类或误冻。当前 v2 没有全目标 barrier，也不能声称完成同步跨目标 Burning；不得静默改写 v1–v8、legacy 或任何冻结 Golden。
 4. 在当前玩家反应自伤基础上，按独立版本加入玩家 Aura、敌方攻击与玩家侧反应，再逐项设计治疗、死亡/复活、动态 Max HP、角色移动、非结晶盾和护盾强效；`clamp-and-continue` 不能冒充正式死亡逻辑。
@@ -987,4 +1000,4 @@ Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等�
 8. 建立版本化 `ShowcaseSnapshot -> ResolvedLoadout -> SimConfig` 管线，以 `skillDepotId` 优先消除旅行者/变体歧义，加入圣遗物目录与效果闸门，并用多个固定展示柜 Fixture 验证 UID 数据缺失/变更路径；“毕业站位”在标准核验前继续保持不可模拟占位。
 9. 在当前静态角色姿态、四类局部几何和目标线性移动模型上增加角色移动/转向命令、追踪/索敌语义和命令/AI 驱动的敌方位置更新，再建立有来源的具体 Boss 状态机。
 10. 映射杜林黑/白 Q，逐项补齐命座、专武和圣遗物效果后，才能组合 120 秒、0 初始能量、合法帧的来源核验预设；当前默认杜林预设中的示例魔法数继续保持 `provisional`。
-11. 上述核心机制稳定后再增加玩家 HP/自伤/盾破裂、专用草原核生命周期/接触、敌方附着和反应构成展示；UI 只能消费核心结构化结果，不得自行补算伤害或事件顺序。
+11. 上述核心机制稳定后再增加玩家 HP/自伤/盾破裂、专用草原核生命周期/接触、敌方附着和反应构成展示；UI 只能消费核心结构化结果，不得自行补算伤害或事件顺序。当前基础机制优先级高于新增面板或曲线样式。

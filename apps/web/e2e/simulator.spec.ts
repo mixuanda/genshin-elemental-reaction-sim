@@ -86,7 +86,12 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
   ) as unknown as Record<string, unknown>;
   historicalConfig.schemaVersion = "1.38.0";
   historicalConfig.engineVersion = "1.38.0-target-reactable-phase";
+  historicalConfig.meta = {
+    ...(historicalConfig.meta as Record<string, unknown>),
+    name: "1.38 迁移验收"
+  };
   delete historicalConfig.reactionDeliveryModel;
+  delete historicalConfig.electroChargedPropagationModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -94,20 +99,26 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
     buffer: Buffer.from(JSON.stringify(historicalConfig))
   });
 
-  await expect(page.locator("#notice")).toContainText("黑杜林融化");
+  await expect(page.locator("#jsonError")).toBeHidden();
+  await expect(page.locator("#notice")).toContainText("1.38 迁移验收");
   const migratedIdentityAndDelivery = await page.evaluate(() => {
     const config = window.GenshinDpsLab.getConfig();
     return {
       schemaVersion: config.schemaVersion,
       engineVersion: config.engineVersion,
-      reactionDeliveryModel: config.reactionDeliveryModel
+      reactionDeliveryModel: config.reactionDeliveryModel,
+      electroChargedPropagationModel:
+        config.electroChargedPropagationModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.40.0",
-    engineVersion: "1.40.0-ec-next-target-tick-cleanup",
+    schemaVersion: "1.41.0",
+    engineVersion: "1.41.0-ec-secondary-wet-propagation",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
+    },
+    electroChargedPropagationModel: {
+      mode: "single-target-v1"
     }
   });
 });
@@ -165,9 +176,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.40.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.41.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.40.0-ec-next-target-tick-cleanup"
+    "engine 1.41.0-ec-secondary-wet-propagation"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

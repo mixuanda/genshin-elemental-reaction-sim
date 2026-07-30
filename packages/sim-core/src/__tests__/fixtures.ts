@@ -39,6 +39,10 @@ export function makeConfig(
   const reactionDeliveryModel = overrides.reactionDeliveryModel ?? {
     mode: "deferred-event-heap-v1" as const
   };
+  const electroChargedPropagationModel =
+    overrides.electroChargedPropagationModel ?? {
+      mode: "single-target-v1" as const
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -74,6 +78,7 @@ export function makeConfig(
     playerDamageModel,
     targetClockModel,
     targetTaskModel,
-    reactionDeliveryModel
+    reactionDeliveryModel,
+    electroChargedPropagationModel
   };
 }

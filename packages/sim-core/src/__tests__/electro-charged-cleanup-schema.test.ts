@@ -383,6 +383,8 @@ describe("Electro-Charged cleanup result schema", () => {
         SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION;
       historical.config.engineVersion =
         SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
+      delete historical.config
+        .electroChargedPropagationModel;
       delete historical.reactionTaskLog[0]
         .electroChargedCleanup;
       expect(() => schema.parse(historical)).not.toThrow();

@@ -35,6 +35,8 @@ import {
   type Element,
   type ElementalApplication,
   type ElectroChargedCleanupAudit,
+  type ElectroChargedPropagationAudit,
+  type ElectroChargedPropagationCandidateAudit,
   type EnergySummary,
   type HitGeometry,
   type HitDefinition,
@@ -722,7 +724,8 @@ interface ReactionDamageEventPayload {
   targetingMode:
     | "radius"
     | "single-target"
-    | "nearest-target-radius";
+    | "nearest-target-radius"
+    | "electro-charged-nearby-wet";
   centerPosition: { x: number; y: number } | null;
   radius: number;
   baseMultiplier: number;
@@ -3204,6 +3207,16 @@ function simulateConfig(
     const reactionDamageLogId = reactionDamageLog.length;
     const withinSimulation =
       frame <= Math.round(config.duration * 60);
+    const propagationModel =
+      config.electroChargedPropagationModel;
+    const targetingMode =
+      propagationModel.mode === "nearby-wet-radius-v1"
+        ? ("electro-charged-nearby-wet" as const)
+        : ("single-target" as const);
+    const propagationRadius =
+      propagationModel.mode === "nearby-wet-radius-v1"
+        ? propagationModel.radius
+        : 0;
     reactionDamageLog.push({
       id: reactionDamageLogId,
       reaction: "electroCharged",
@@ -3218,9 +3231,9 @@ function simulateConfig(
       blockedReason: null,
       nextAvailableFrame: nextTickFrame,
       scheduleKind: "periodic-tick",
-      targetingMode: "single-target",
+      targetingMode,
       centerPosition: null,
-      radius: 0,
+      radius: propagationRadius,
       sourceCoreId: null,
       sourceCoreLogId: null,
       selectionRadius: null,
@@ -3255,9 +3268,9 @@ function simulateConfig(
       triggerHitGroupId: source.triggerHitGroupId,
       triggerDamageEventId: source.triggerDamageEventId,
       sourceTargetId: targetId,
-      targetingMode: "single-target",
+      targetingMode,
       centerPosition: null,
-      radius: 0,
+      radius: propagationRadius,
       baseMultiplier:
         AURA_ENGINE_CONSTANTS.electroChargedBaseMultiplier,
       stats: deepClone(source.stats),
@@ -10385,6 +10398,200 @@ function simulateConfig(
       const reactionActionName =
         `${action.name} · ${reactionLabel}`;
       let resolvedReactionCenterPosition = centerPosition;
+      let electroChargedPropagationAudit:
+        | ElectroChargedPropagationAudit
+        | null = null;
+      let electroChargedPropagationCandidateByTargetId:
+        | Map<
+            string,
+            ElectroChargedPropagationCandidateAudit
+          >
+        | null = null;
+      if (targetingMode === "electro-charged-nearby-wet") {
+        if (
+          reaction !== "electroCharged" ||
+          periodicContext === undefined ||
+          config.electroChargedPropagationModel.mode !==
+            "nearby-wet-radius-v1" ||
+          config.electroChargedPropagationModel.radius !== radius
+        ) {
+          throw new Error(
+            "Electro-Charged nearby-Wet targeting requires a matching periodic context and configured propagation radius."
+          );
+        }
+
+        const sourcePosition = resolveTargetPosition(
+          sourceTargetId,
+          event.frame
+        );
+        resolvedReactionCenterPosition =
+          sourcePosition === null
+            ? null
+            : deepClone(sourcePosition);
+        reactionLog.centerPosition =
+          sourcePosition === null
+            ? null
+            : deepClone(sourcePosition);
+
+        const orderedTargets = [
+          enemyTargetById.get(sourceTargetId),
+          ...enemyTargets.filter(
+            (target) => target.id !== sourceTargetId
+          )
+        ].filter(
+          (
+            target
+          ): target is SimulationResult["enemyTargets"][number] =>
+            target !== undefined
+        );
+        const candidates: ElectroChargedPropagationCandidateAudit[] =
+          orderedTargets.map((target) => {
+            // The P5 propagation read is an incoming observation. Settle the
+            // target-owned v2 lifecycle first so an exact-frame natural expiry
+            // is logged rather than silently disappearing inside getAuraStateAt.
+            materializeTargetPhaseV2Decay(
+              event.frame,
+              target.id
+            );
+            const aura =
+              auraEngines
+                ?.get(target.id)
+                ?.getAuraStateAt(event.frame) ?? [];
+            const hydroGaugeUnits =
+              aura.find(
+                (entry) => entry.element === "hydro"
+              )?.gaugeUnits ?? 0;
+            const auraObservationTimelinePointId =
+              targetStateTimelineRecorder.recordEvent({
+                frame: event.frame,
+                timeSeconds,
+                targetId: target.id,
+                targetName: target.name,
+                cause:
+                  "electro-charged-propagation-candidate",
+                eventType: "reactionDamage",
+                eventPriority: event.priority,
+                eventSequence: event.sequence,
+                intraEventSequence:
+                  nextIntraEventSequence(),
+                reaction: "electroCharged",
+                reactions: ["electroCharged"],
+                primaryDamageEventId: null,
+                links: [
+                  {
+                    kind: "reaction-damage-log",
+                    id: reactionDamageLogId
+                  }
+                ],
+                auraBefore: aura,
+                auraAfter: aura
+              });
+            const position = resolveTargetPosition(
+              target.id,
+              event.frame
+            );
+            const base = {
+              targetId: target.id,
+              targetName: target.name,
+              targetOrder:
+                enemyTargetOrderById.get(target.id) ?? 0,
+              hydroGaugeUnits,
+              position:
+                position === null
+                  ? null
+                  : deepClone(position),
+              auraObservationTimelinePointId,
+              hitResolutionLogId: null,
+              damageEventId: null
+            };
+
+            if (target.id === sourceTargetId) {
+              return {
+                ...base,
+                distance: null,
+                threshold: null,
+                selected: true,
+                reason: "SOURCE_STREAM_TARGET"
+              };
+            }
+            if (hydroGaugeUnits <= 1e-10) {
+              return {
+                ...base,
+                distance: null,
+                threshold: null,
+                selected: false,
+                reason: "NO_HYDRO_AURA"
+              };
+            }
+            if (sourcePosition === null) {
+              reactionLog.unresolvedTargetIds.push(target.id);
+              return {
+                ...base,
+                distance: null,
+                threshold: null,
+                selected: false,
+                reason: "SOURCE_POSITION_UNRESOLVED"
+              };
+            }
+            if (position === null) {
+              reactionLog.unresolvedTargetIds.push(target.id);
+              return {
+                ...base,
+                distance: null,
+                threshold: null,
+                selected: false,
+                reason: "POSITION_UNRESOLVED"
+              };
+            }
+
+            const geometryResolution = resolveHitGeometry(
+              {
+                kind: "circle",
+                coordinateSpace: "world",
+                origin: sourcePosition,
+                radius
+              },
+              position,
+              target.hitboxRadius
+            );
+            return {
+              ...base,
+              distance: geometryResolution.distance,
+              threshold: geometryResolution.threshold,
+              selected: geometryResolution.landed,
+              reason: geometryResolution.landed
+                ? "NEARBY_WET_IN_RANGE"
+                : "OUT_OF_RANGE"
+            };
+          });
+        const audit: ElectroChargedPropagationAudit = {
+          model: "nearby-wet-radius-v1",
+          verificationStatus: "provisional",
+          mechanicsDataStatus: "community-provisional",
+          generation: periodicContext.generation,
+          tickIndex: periodicContext.tickIndex,
+          evaluationFrame: event.frame,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          radius,
+          selectionMode:
+            "all-in-range-registration-order-v1",
+          sourcePosition:
+            sourcePosition === null
+              ? null
+              : deepClone(sourcePosition),
+          candidates
+        };
+        electroChargedPropagationAudit = audit;
+        electroChargedPropagationCandidateByTargetId =
+          new Map(
+            candidates.map((candidate) => [
+              candidate.targetId,
+              candidate
+            ])
+          );
+        reactionLog.electroChargedPropagation = audit;
+      }
       if (targetingMode === "nearest-target-radius") {
         if (
           centerPosition === null ||
@@ -10431,7 +10638,34 @@ function simulateConfig(
         targetingSource: "reaction-source" | "reaction-geometry";
       }> = [];
       const excludedTargetIdSet = new Set(excludedTargetIds);
-      if (targetingMode === "single-target") {
+      if (
+        targetingMode === "electro-charged-nearby-wet"
+      ) {
+        if (electroChargedPropagationAudit === null) {
+          throw new Error(
+            "Electro-Charged nearby-Wet targeting is missing its P5 candidate audit."
+          );
+        }
+        for (const candidate of
+          electroChargedPropagationAudit.candidates) {
+          if (!candidate.selected) continue;
+          spatialPlans.push({
+            targetId: candidate.targetId,
+            targetPosition:
+              candidate.position === null
+                ? null
+                : deepClone(candidate.position),
+            landed: true,
+            reason: null,
+            distance: candidate.distance,
+            threshold: candidate.threshold,
+            targetingSource:
+              candidate.targetId === sourceTargetId
+                ? "reaction-source"
+                : "reaction-geometry"
+          });
+        }
+      } else if (targetingMode === "single-target") {
         if (!excludedTargetIdSet.has(sourceTargetId)) {
           spatialPlans.push({
             targetId: sourceTargetId,
@@ -10769,8 +11003,14 @@ function simulateConfig(
               eventPriority: event.priority,
               eventSequence: event.sequence,
               intraEventSequence: nextIntraEventSequence(),
-              reaction: "none",
-              reactions: [],
+              reaction:
+                electroChargedPropagationAudit !== null
+                  ? "electroCharged"
+                  : "none",
+              reactions:
+                electroChargedPropagationAudit !== null
+                  ? ["electroCharged"]
+                  : [],
               primaryDamageEventId:
                 pendingReactionDamageEventId,
               links: [
@@ -11136,6 +11376,16 @@ function simulateConfig(
         targetResolution ??=
           appendParentReactionHitResolution();
         const targetResolutionId = targetResolution.id;
+        const electroChargedPropagationCandidate =
+          electroChargedPropagationCandidateByTargetId?.get(
+            plan.targetId
+          );
+        if (
+          electroChargedPropagationCandidate !== undefined
+        ) {
+          electroChargedPropagationCandidate.hitResolutionLogId =
+            targetResolutionId;
+        }
         if (!plan.landed) return;
 
         const debuffState = getDebuffState(
@@ -11490,6 +11740,12 @@ function simulateConfig(
         });
         reactionTriggerDamageEventIds.push(damageEventId);
         reactionLog.damageEventIds.push(damageEventId);
+        if (
+          electroChargedPropagationCandidate !== undefined
+        ) {
+          electroChargedPropagationCandidate.damageEventId =
+            damageEventId;
+        }
         targetResolution.damageEventId = damageEventId;
         targetResolution.potentialDamage = potentialDamage;
         targetResolution.finalDamage = finalDamage;
@@ -13760,9 +14016,146 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
-  reactionDeliveryResultReferencesSchema.parse(
-    simulationResult
-  );
+  // The public reference schema still accepts and descriptor-cleans a full
+  // result. The simulator only needs to validate the fields that participate
+  // in its cross-log proof, so avoid cloning unrelated timelines and summaries
+  // on every run.
+  const validatesNearbyElectroChargedPropagation =
+    simulationResult.config.electroChargedPropagationModel
+      .mode === "nearby-wet-radius-v1";
+  if (
+    !validatesNearbyElectroChargedPropagation &&
+    simulationResult.targetStateTimeline.points.some(
+      (point) =>
+        point.cause ===
+        "electro-charged-propagation-candidate"
+    )
+  ) {
+    throw new Error(
+      "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
+    );
+  }
+  reactionDeliveryResultReferencesSchema.parse({
+    schemaVersion: simulationResult.schemaVersion,
+    engineVersion: simulationResult.engineVersion,
+    config: {
+      schemaVersion: simulationResult.config.schemaVersion,
+      engineVersion: simulationResult.config.engineVersion,
+      duration: simulationResult.config.duration,
+      enemy: {
+        ...(simulationResult.config.enemy.targets === undefined
+          ? {}
+          : {
+              targets:
+                simulationResult.config.enemy.targets.map(
+                  ({
+                    id,
+                    name,
+                    position,
+                    hitboxRadius
+                  }) => ({
+                    id,
+                    name,
+                    ...(position === undefined
+                      ? {}
+                      : { position }),
+                    ...(hitboxRadius === undefined
+                      ? {}
+                      : { hitboxRadius })
+                  })
+                )
+            }),
+        ...(simulationResult.config.enemy.targetMotions ===
+        undefined
+          ? {}
+          : {
+              targetMotions:
+                simulationResult.config.enemy.targetMotions.map(
+                  ({
+                    id,
+                    label,
+                    targetId,
+                    startFrame,
+                    endFrame,
+                    endPosition
+                  }) => ({
+                    id,
+                    label,
+                    targetId,
+                    startFrame,
+                    endFrame,
+                    endPosition
+                  })
+                )
+            }),
+        ...(simulationResult.config.enemy.targetPhases ===
+        undefined
+          ? {}
+          : {
+              targetPhases:
+                simulationResult.config.enemy.targetPhases.map(
+                  ({
+                    id,
+                    label,
+                    targetId,
+                    startFrame,
+                    endFrame,
+                    reason,
+                    effects
+                  }) => ({
+                    id,
+                    label,
+                    targetId,
+                    startFrame,
+                    endFrame,
+                    reason,
+                    effects
+                  })
+                )
+            })
+      },
+      ...(simulationResult.config.reactionEngine === undefined
+        ? {}
+        : {
+            reactionEngine: {
+              mode: simulationResult.config.reactionEngine.mode
+            }
+          }),
+      targetTaskModel:
+        simulationResult.config.targetTaskModel,
+      targetClockModel:
+        simulationResult.config.targetClockModel,
+      ...(simulationResult.config.timeline === undefined
+        ? {}
+        : {
+            timeline: {
+              mode: simulationResult.config.timeline.mode,
+              fps: simulationResult.config.timeline.fps
+            }
+          }),
+      reactionDeliveryModel:
+        simulationResult.config.reactionDeliveryModel,
+      electroChargedPropagationModel:
+        simulationResult.config
+          .electroChargedPropagationModel
+    },
+    damageEvents: simulationResult.damageEvents,
+    reactionDamageLog: simulationResult.reactionDamageLog,
+    ...(validatesNearbyElectroChargedPropagation
+      ? {
+          hitResolutionLog:
+            simulationResult.hitResolutionLog,
+          periodicReactionLog:
+            simulationResult.periodicReactionLog,
+          targetClockLog:
+            simulationResult.targetClockLog,
+          targetHitlagLog:
+            simulationResult.targetHitlagLog,
+          targetStateTimeline:
+            simulationResult.targetStateTimeline
+        }
+      : {})
+  });
   if (config.reactionEngine?.mode === "aura-v8") {
     electroChargedCleanupResultReferencesSchema.parse(simulationResult);
   }
@@ -13809,7 +14202,10 @@ function simulateConfig(
         engineVersion:
           simulationResult.config.engineVersion,
         targetTaskModel:
-          simulationResult.config.targetTaskModel
+          simulationResult.config.targetTaskModel,
+        electroChargedPropagationModel:
+          simulationResult.config
+            .electroChargedPropagationModel
       },
       targetTaskPhaseLog: [],
       targetPhaseLog: simulationResult.targetPhaseLog
@@ -13963,7 +14359,10 @@ function simulateConfig(
             engineVersion:
               simulationResult.config.engineVersion,
             targetTaskModel:
-              simulationResult.config.targetTaskModel
+              simulationResult.config.targetTaskModel,
+            electroChargedPropagationModel:
+              simulationResult.config
+                .electroChargedPropagationModel
           },
           targetTaskPhaseLog:
             simulationResult.targetTaskPhaseLog

@@ -476,6 +476,29 @@ function normalizeCurrentVectorsToV139(
   >;
 }
 
+function normalizeCurrentVectorsToV140(
+  vectors: Record<TaskOrderScenarioId, TaskOrderProjection>
+): Record<TaskOrderScenarioId, TaskOrderProjection> {
+  return Object.fromEntries(
+    Object.entries(vectors).map(([id, vector]) => [
+      id,
+      {
+        ...vector,
+        version: {
+          ...vector.version,
+          schemaVersion:
+            EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+          engineVersion:
+            EC_NEXT_TARGET_TICK_ENGINE_VERSION
+        }
+      }
+    ])
+  ) as unknown as Record<
+    TaskOrderScenarioId,
+    TaskOrderProjection
+  >;
+}
+
 function normalizeV138VectorsToV137(
   vectors: Record<
     TaskOrderScenarioId,
@@ -545,14 +568,16 @@ function normalizeV137VectorsToV136(
 }
 
 describe("aura-v7 queued Quicken to Bloom follow-up", () => {
-  it("matches the current 1.40 identity and normalizes through the frozen 1.39, 1.38, 1.37, and 1.36 task-order Goldens", () => {
+  it("keeps the current identity separate and normalizes through the frozen 1.40, 1.39, 1.38, 1.37, and 1.36 task-order Goldens", () => {
     const vectors = projectAllTaskOrderVectors();
-    const hashes = Object.fromEntries(
-      Object.entries(vectors).map(([id, vector]) => [
-        id,
-        semanticHash(vector)
-      ])
-    );
+    expect(
+      Object.values(vectors).every(
+        (vector) =>
+          vector.version.schemaVersion === "1.41.0" &&
+          vector.version.engineVersion ===
+            "1.41.0-ec-secondary-wet-propagation"
+      )
+    ).toBe(true);
 
     expect(taskOrderGoldenV136.fixtureVersion).toBe("1.0.0");
     expect(taskOrderGoldenV136.config).toEqual({
@@ -610,11 +635,21 @@ describe("aura-v7 queued Quicken to Bloom follow-up", () => {
       targetTaskModelMode: "legacy-event-heap-v1",
       reactionDeliveryModelMode: "deferred-event-heap-v1"
     });
-    expect(vectors).toEqual(taskOrderGoldenV140.vectors);
-    expect(hashes).toEqual(taskOrderGoldenV140.hashes);
+    const normalizedV140 =
+      normalizeCurrentVectorsToV140(vectors);
+    expect(normalizedV140).toEqual(
+      taskOrderGoldenV140.vectors
+    );
+    expect(
+      Object.fromEntries(
+        Object.entries(normalizedV140).map(
+          ([id, vector]) => [id, semanticHash(vector)]
+        )
+      )
+    ).toEqual(taskOrderGoldenV140.hashes);
 
     const normalizedV139 =
-      normalizeCurrentVectorsToV139(vectors);
+      normalizeCurrentVectorsToV139(normalizedV140);
     expect(normalizedV139).toEqual(
       taskOrderGoldenV139.vectors
     );

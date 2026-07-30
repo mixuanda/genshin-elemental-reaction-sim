@@ -34,9 +34,9 @@ const BURNING_DAMAGE_EVENTS_SHA256 =
   "8e5c192e04f4599da093fc61f353aff3529a2d234aba19ef6dadd00bf89e1cf1";
 const BURNING_STATE_LOG_SHA256 =
   "aedd0ba94477979a5c688e7496f925d073f36a0513ad3e274d38fbf0bff8b0b4";
-const BURNING_V140_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-238e2924";
-const BURNING_V140_CONFIG_HASH = "fnv1a32:b6b184e8";
+const BURNING_V141_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-709c1c8c";
+const BURNING_V141_CONFIG_HASH = "fnv1a32:a41cac38";
 const FROZEN_VERSIONED_FIXTURE_SHA256 = {
   "legacy-default-120s-1.37.golden.json":
     "168595c9e3df60717fe2b5619278cc227789df7cbf56b9985a78ceb78e10bacc",
@@ -67,6 +67,16 @@ const FROZEN_V140_FIXTURE_SHA256 = {
   "electro-charged-quicken-cleanup-1.40.golden.json":
     "bc1fb0bec7b526c1f3046ef81bb3aac5d947410fc013fbcc8d6fd2c6731563e0"
 } as const;
+const FROZEN_V141_FIXTURE_SHA256 = {
+  "legacy-default-120s-1.41.golden.json":
+    "9768d8b0461bd641ed5a4097e1cfe4204e1d6db9e9a6453e75754eb1a90bf9c8",
+  "electro-charged-propagation-1.41.golden.json":
+    "b855f87f391a5f0dfd82e30a4666c8bb79a7777c94bc8f2bd675178fabdb0d18"
+} as const;
+const LEGACY_DEFAULT_V141_FIXTURE_URL = new URL(
+  "../../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json",
+  import.meta.url
+);
 const LEGACY_DEFAULT_V140_FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.40.golden.json",
   import.meta.url
@@ -167,85 +177,128 @@ function atomicCreateJsonFixture(
   }
 }
 
-function loadOrCreateLegacyDefaultV140Fixture(
-  generatedFixture: typeof goldenV139
-): typeof goldenV139 {
+type LegacyDefaultV141Fixture = typeof goldenV139 & {
+  electroChargedPropagationModel: {
+    mode: "single-target-v1";
+  };
+};
+
+function loadFrozenLegacyDefaultV140Fixture(): typeof goldenV139 {
   if (
     process.env.UPDATE_LEGACY_DEFAULT_V139_GOLDEN === "1"
   ) {
     throw new Error(
-      "legacy-default-120s-1.39.golden.json is frozen; create only the versioned 1.40 fixture."
+      "legacy-default-120s-1.39.golden.json is frozen; create only a new versioned fixture."
     );
   }
   if (
     process.env.UPDATE_LEGACY_DEFAULT_V140_GOLDEN === "1"
   ) {
+    throw new Error(
+      "legacy-default-120s-1.40.golden.json is frozen; create only the versioned 1.41 fixture."
+    );
+  }
+  const sourceBytes = readFileSync(
+    LEGACY_DEFAULT_V140_FIXTURE_URL
+  );
+  const sourceSha256 = createHash("sha256")
+    .update(sourceBytes)
+    .digest("hex");
+  if (
+    sourceSha256 !==
+    FROZEN_V140_FIXTURE_SHA256[
+      "legacy-default-120s-1.40.golden.json"
+    ]
+  ) {
+    throw new Error(
+      `Frozen 1.40 default fixture changed: received ${sourceSha256}.`
+    );
+  }
+  return JSON.parse(sourceBytes.toString("utf8")) as typeof goldenV139;
+}
+
+function projectLegacyDefaultCompatibilitySemantics(
+  fixture: typeof goldenV139 | LegacyDefaultV141Fixture
+) {
+  return {
+    options: fixture.options,
+    totalDamage: fixture.totalDamage,
+    dps: fixture.dps,
+    hitCount: fixture.hitCount,
+    reactedHits: fixture.reactedHits,
+    skippedActionCount: fixture.skippedActionCount,
+    byCharacter: fixture.byCharacter,
+    bySkill: fixture.bySkill,
+    legacyDamageEventsSha256:
+      fixture.legacyDamageEventsSha256,
+    targetClock: fixture.targetClock,
+    targetTask: fixture.targetTask,
+    targetPhaseLog: fixture.targetPhaseLog,
+    reactionDeliveryModel:
+      fixture.reactionDeliveryModel
+  };
+}
+
+function loadOrCreateLegacyDefaultV141Fixture(
+  generatedFixture: LegacyDefaultV141Fixture,
+  frozenV140: typeof goldenV139
+): LegacyDefaultV141Fixture {
+  if (
+    process.env.UPDATE_LEGACY_DEFAULT_V141_GOLDEN === "1"
+  ) {
     const sourceBytes = readFileSync(
-      LEGACY_DEFAULT_V139_FIXTURE_URL
+      LEGACY_DEFAULT_V140_FIXTURE_URL
     );
     const sourceSha256 = createHash("sha256")
       .update(sourceBytes)
       .digest("hex");
     if (
       sourceSha256 !==
-      FROZEN_VERSIONED_FIXTURE_SHA256[
-        "legacy-default-120s-1.39.golden.json"
+      FROZEN_V140_FIXTURE_SHA256[
+        "legacy-default-120s-1.40.golden.json"
       ]
     ) {
       throw new Error(
-        `Refusing to derive the 1.40 default fixture from an unfrozen 1.39 source: received ${sourceSha256}.`
+        `Refusing to derive the 1.41 default fixture from an unfrozen 1.40 source: received ${sourceSha256}.`
       );
     }
-    const projectCompatibilitySemantics = (
-      fixture: typeof goldenV139
-    ) => ({
-      options: fixture.options,
-      totalDamage: fixture.totalDamage,
-      dps: fixture.dps,
-      hitCount: fixture.hitCount,
-      reactedHits: fixture.reactedHits,
-      skippedActionCount: fixture.skippedActionCount,
-      byCharacter: fixture.byCharacter,
-      bySkill: fixture.bySkill,
-      legacyDamageEventsSha256:
-        fixture.legacyDamageEventsSha256,
-      targetClock: fixture.targetClock,
-      targetTask: fixture.targetTask,
-      targetPhaseLog: fixture.targetPhaseLog,
-      reactionDeliveryModel:
-        fixture.reactionDeliveryModel
-    });
     if (
       JSON.stringify(
-        projectCompatibilitySemantics(generatedFixture)
+        projectLegacyDefaultCompatibilitySemantics(
+          generatedFixture
+        )
       ) !==
       JSON.stringify(
-        projectCompatibilitySemantics(goldenV139)
+        projectLegacyDefaultCompatibilitySemantics(
+          frozenV140
+        )
       )
     ) {
       throw new Error(
-        "Refusing to write the 1.40 default fixture because its frozen 1.39 compatibility semantics changed."
+        "Refusing to write the 1.41 default fixture because its frozen 1.40 compatibility semantics changed."
       );
     }
     if (
       generatedFixture.schemaVersion !==
         CURRENT_SCHEMA_VERSION ||
       generatedFixture.engineVersion !==
-        CURRENT_ENGINE_VERSION
+        CURRENT_ENGINE_VERSION ||
+      generatedFixture.electroChargedPropagationModel.mode !==
+        "single-target-v1"
     ) {
       throw new Error(
-        "Refusing to write the 1.40 default fixture with a non-current identity."
+        "Refusing to write the 1.41 default fixture without the exact current identity and source-only Electro-Charged propagation model."
       );
     }
     atomicCreateJsonFixture(
-      LEGACY_DEFAULT_V140_FIXTURE_URL,
+      LEGACY_DEFAULT_V141_FIXTURE_URL,
       generatedFixture
     );
     return generatedFixture;
   }
   return JSON.parse(
-    readFileSync(LEGACY_DEFAULT_V140_FIXTURE_URL, "utf8")
-  ) as typeof goldenV139;
+    readFileSync(LEGACY_DEFAULT_V141_FIXTURE_URL, "utf8")
+  ) as LegacyDefaultV141Fixture;
 }
 
 function stripV131QuickenLifecycleAudit(
@@ -341,7 +394,8 @@ function v130CompatibilityResult(
               key !== "playerDamageModel" &&
               key !== "targetClockModel" &&
               key !== "targetTaskModel" &&
-              key !== "reactionDeliveryModel"
+              key !== "reactionDeliveryModel" &&
+              key !== "electroChargedPropagationModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -385,6 +439,8 @@ function makeBurningGoldenConfig(): unknown {
   const base = makeConfig();
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
+    electroChargedPropagationModel:
+      _electroChargedPropagationModel,
     ...v130Base
   } = base;
   return {
@@ -528,16 +584,42 @@ describe("frozen versioned fixture integrity", () => {
       ).toBe(expectedSha256);
     }
   });
+
+  it("keeps the two 1.41 release fixtures byte-for-byte frozen", () => {
+    for (const [fileName, expectedSha256] of Object.entries(
+      FROZEN_V141_FIXTURE_SHA256
+    )) {
+      const bytes = readFileSync(
+        new URL(
+          `../../../test-vectors/fixtures/${fileName}`,
+          import.meta.url
+        )
+      );
+      expect(
+        createHash("sha256").update(bytes).digest("hex"),
+        fileName
+      ).toBe(expectedSha256);
+    }
+  });
 });
 
 describe("Vanilla v0.1 golden compatibility", () => {
   it("matches the full default 120-second baseline", () => {
-    const result = simulate(durinMeltPreset, {
+    const options = {
       energyMode: "configured",
       critMode: "average",
       compatibilityMode: "legacy-v0.1",
       randomSeed: golden.options.randomSeed
-    });
+    } as const;
+    const result = simulate(durinMeltPreset, options);
+    const repeated = simulate(durinMeltPreset, options);
+    expect(repeated).toEqual(result);
+    expect(
+      playerDamageResultReferencesSchema.parse(result)
+    ).toEqual(result);
+    expect(
+      playerDamageResultReferencesSchema.parse(repeated)
+    ).toEqual(repeated);
     const projectedBySkill = result.bySkill.map(
       ({ creditId, actionName, damage, hits }) => ({
         creditId,
@@ -546,17 +628,19 @@ describe("Vanilla v0.1 golden compatibility", () => {
         hits
       })
     );
-    const generatedV140Fixture = {
-      ...goldenV139,
+    const goldenV140 =
+      loadFrozenLegacyDefaultV140Fixture();
+    const generatedV141Fixture = {
+      ...goldenV140,
       description:
-        "Compact 1.40 identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.",
+        "Compact 1.41 identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.",
       provenance: {
-        ...goldenV139.provenance,
+        ...goldenV140.provenance,
         source:
-          "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.39 identity fixture",
+          "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.40 identity fixture",
         capturedAt: "2026-07-29",
         note:
-          "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.40 engine identity adds opt-in aura-v8 Electro-Charged cleanup while this default preset keeps deferred delivery, legacy target tasks, and the complete 269-event damage digest frozen to 1.39."
+          "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.41 engine adds opt-in community-provisional nearby-Wet Electro-Charged propagation, while this default preset explicitly keeps single-target-v1 and the complete 269-event damage digest frozen to 1.40."
       },
       schemaVersion: result.schemaVersion,
       engineVersion: result.engineVersion,
@@ -588,18 +672,39 @@ describe("Vanilla v0.1 golden compatibility", () => {
       },
       targetPhaseLog: result.targetPhaseLog,
       reactionDeliveryModel:
-        result.config.reactionDeliveryModel
-    } as unknown as typeof goldenV139;
-    const goldenV140 =
-      loadOrCreateLegacyDefaultV140Fixture(
-        generatedV140Fixture
+        result.config.reactionDeliveryModel,
+      electroChargedPropagationModel:
+        result.config.electroChargedPropagationModel
+    } as unknown as LegacyDefaultV141Fixture;
+    expect(generatedV141Fixture).toMatchObject({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      totalDamage: 41410555.13728799,
+      dps: 345087.9594773999,
+      hitCount: 269,
+      reactedHits: 129,
+      skippedActionCount: 3,
+      legacyDamageEventsSha256:
+        "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f",
+      electroChargedPropagationModel: {
+        mode: "single-target-v1"
+      }
+    });
+    expect(
+      projectLegacyDefaultCompatibilitySemantics(
+        generatedV141Fixture
+      )
+    ).toEqual(
+      projectLegacyDefaultCompatibilitySemantics(goldenV140)
+    );
+    const goldenV141 =
+      loadOrCreateLegacyDefaultV141Fixture(
+        generatedV141Fixture,
+        goldenV140
       );
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
-    expect(
-      playerDamageResultReferencesSchema.parse(result)
-    ).toEqual(result);
     expect(goldenV133).toMatchObject({
       schemaVersion: "1.33.0",
       engineVersion: "1.33.0-target-local-hitlag",
@@ -659,20 +764,43 @@ describe("Vanilla v0.1 golden compatibility", () => {
         mode: "deferred-event-heap-v1"
       }
     });
-    expect(result.schemaVersion).toBe(goldenV140.schemaVersion);
-    expect(result.engineVersion).toBe(goldenV140.engineVersion);
+    expect(goldenV141).toMatchObject({
+      schemaVersion: "1.41.0",
+      engineVersion:
+        "1.41.0-ec-secondary-wet-propagation",
+      configHash: expect.stringMatching(/^fnv1a32:[0-9a-f]{8}$/),
+      reproducibilityKey: expect.stringMatching(
+        /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
+      ),
+      reactionDeliveryModel: {
+        mode: "deferred-event-heap-v1"
+      },
+      electroChargedPropagationModel: {
+        mode: "single-target-v1"
+      },
+      totalDamage: 41410555.13728799,
+      dps: 345087.9594773999,
+      hitCount: 269,
+      reactedHits: 129,
+      skippedActionCount: 3,
+      legacyDamageEventsSha256:
+        "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f"
+    });
+    expect(result.schemaVersion).toBe(goldenV141.schemaVersion);
+    expect(result.engineVersion).toBe(goldenV141.engineVersion);
     expect(result.config.schemaVersion).toBe(
-      goldenV140.schemaVersion
+      goldenV141.schemaVersion
     );
     expect(result.config.engineVersion).toBe(
-      goldenV140.engineVersion
+      goldenV141.engineVersion
     );
     expect(result.runManifest.configHash).toBe(
-      goldenV140.configHash
+      goldenV141.configHash
     );
     expect(result.reproducibilityKey).toBe(
-      goldenV140.reproducibilityKey
+      goldenV141.reproducibilityKey
     );
+    expect(goldenV141.options).toEqual(goldenV140.options);
     expect(goldenV140.options).toEqual(goldenV139.options);
     expect(goldenV139.options).toEqual(goldenV138.options);
     expect(goldenV138.options).toEqual(goldenV137.options);
@@ -696,6 +824,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(goldenV140.legacyDamageEventsSha256).toBe(
       goldenV139.legacyDamageEventsSha256
     );
+    expect(goldenV141.legacyDamageEventsSha256).toBe(
+      goldenV140.legacyDamageEventsSha256
+    );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
       identityAlgorithm: "fnv1a32-v2",
@@ -710,7 +841,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       },
       plugins: [],
       reproducibilityKey:
-        goldenV140.reproducibilityKey
+        goldenV141.reproducibilityKey
     });
     expect(result.resolvedRuntimeOptions).toBe(
       result.runManifest.resolvedRuntimeOptions
@@ -719,7 +850,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
-      goldenV140.legacyDamageEventsSha256
+      goldenV141.legacyDamageEventsSha256
     );
     expect(result.config.targetClockModel).toEqual(
       { mode: "disabled" }
@@ -731,21 +862,36 @@ describe("Vanilla v0.1 golden compatibility", () => {
       targets: []
     });
     expect(result.targetClockLog).toEqual(
-      goldenV140.targetClock.clockLog
+      goldenV141.targetClock.clockLog
     );
     expect(result.targetHitlagLog).toEqual(
-      goldenV140.targetClock.hitlagLog
+      goldenV141.targetClock.hitlagLog
     );
     expect(result.config.targetTaskModel).toEqual(
-      goldenV140.targetTask.config
+      goldenV141.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual(
-      goldenV140.targetTask.phaseLog
+      goldenV141.targetTask.phaseLog
     );
     expect(result.targetPhaseLog).toEqual(
-      goldenV140.targetPhaseLog
+      goldenV141.targetPhaseLog
     );
     expect(result.config.reactionDeliveryModel).toEqual(
+      goldenV141.reactionDeliveryModel
+    );
+    expect(result.config.electroChargedPropagationModel).toEqual(
+      goldenV141.electroChargedPropagationModel
+    );
+    expect(
+      projectLegacyDefaultCompatibilitySemantics(goldenV141)
+    ).toEqual(
+      projectLegacyDefaultCompatibilitySemantics(goldenV140)
+    );
+    expect(goldenV141.targetTask).toEqual(goldenV140.targetTask);
+    expect(goldenV141.targetPhaseLog).toEqual(
+      goldenV140.targetPhaseLog
+    );
+    expect(goldenV141.reactionDeliveryModel).toEqual(
       goldenV140.reactionDeliveryModel
     );
     expect(goldenV140.targetTask).toEqual(goldenV139.targetTask);
@@ -867,19 +1013,32 @@ describe("Vanilla v0.1 golden compatibility", () => {
     ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
-    expect(result.totalDamage).toBe(goldenV140.totalDamage);
-    expect(result.dps).toBe(goldenV140.dps);
+    expect(result.totalDamage).toBe(goldenV141.totalDamage);
+    expect(result.dps).toBe(goldenV141.dps);
     expect(result.damageEvents).toHaveLength(
-      goldenV140.hitCount
+      goldenV141.hitCount
     );
-    expect(result.reactedHits).toBe(goldenV140.reactedHits);
+    expect(result.reactedHits).toBe(goldenV141.reactedHits);
     expect(result.skippedActions).toHaveLength(
-      goldenV140.skippedActionCount
+      goldenV141.skippedActionCount
     );
     expect(result.byCharacter).toEqual(
+      goldenV141.byCharacter
+    );
+    expect(projectedBySkill).toEqual(goldenV141.bySkill);
+    expect(goldenV141.totalDamage).toBe(goldenV140.totalDamage);
+    expect(goldenV141.dps).toBe(goldenV140.dps);
+    expect(goldenV141.hitCount).toBe(goldenV140.hitCount);
+    expect(goldenV141.reactedHits).toBe(
+      goldenV140.reactedHits
+    );
+    expect(goldenV141.skippedActionCount).toBe(
+      goldenV140.skippedActionCount
+    );
+    expect(goldenV141.byCharacter).toEqual(
       goldenV140.byCharacter
     );
-    expect(projectedBySkill).toEqual(goldenV140.bySkill);
+    expect(goldenV141.bySkill).toEqual(goldenV140.bySkill);
     expect(goldenV140.totalDamage).toBe(goldenV139.totalDamage);
     expect(goldenV140.dps).toBe(goldenV139.dps);
     expect(goldenV140.hitCount).toBe(goldenV139.hitCount);
@@ -1005,12 +1164,6 @@ describe("Vanilla v0.1 golden compatibility", () => {
       )
     ).toEqual(golden.skippedActions);
 
-    const repeated = simulate(durinMeltPreset, {
-      energyMode: "configured",
-      critMode: "average",
-      compatibilityMode: "legacy-v0.1",
-      randomSeed: golden.options.randomSeed
-    });
     expect(repeated.reproducibilityKey).toBe(
       result.reproducibilityKey
     );
@@ -1042,7 +1195,7 @@ describe("Burning aura-v4 provisional golden", () => {
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
     expect(result.runManifest.configHash).toBe(
-      BURNING_V140_CONFIG_HASH
+      BURNING_V141_CONFIG_HASH
     );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
@@ -1081,7 +1234,7 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V140_REPRODUCIBILITY_KEY
+      BURNING_V141_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
       version: "1.0.0",
@@ -1092,7 +1245,7 @@ describe("Burning aura-v4 provisional golden", () => {
       resolvedRuntimeOptions: options,
       plugins: [],
       reproducibilityKey:
-        BURNING_V140_REPRODUCIBILITY_KEY
+        BURNING_V141_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

@@ -177,7 +177,7 @@ export class TargetStateTimelineRecorder {
     ) => number
   ) {}
 
-  private append(point: Omit<TargetStateTimelinePoint, "id">): void {
+  private append(point: Omit<TargetStateTimelinePoint, "id">): number {
     const targetFrame =
       point.targetFrame ??
       this.resolveTargetFrame?.(point.targetId, point.frame);
@@ -192,6 +192,7 @@ export class TargetStateTimelineRecorder {
       emitted.auraAfter
     );
     this.latestFrameByTarget.set(emitted.targetId, emitted.frame);
+    return emitted.id;
   }
 
   recordBoundary(input: TargetStateBoundaryInput): void {
@@ -217,7 +218,7 @@ export class TargetStateTimelineRecorder {
     });
   }
 
-  recordEvent(input: TargetStateEventInput): void {
+  recordEvent(input: TargetStateEventInput): number {
     const auraApplied = cloneAuraGauges(input.auraApplied ?? []);
     const auraConsumed = cloneAuraGauges(input.auraConsumed ?? []);
     const auraBefore = cloneAuraStates(input.auraBefore);
@@ -226,7 +227,7 @@ export class TargetStateTimelineRecorder {
       auraApplied.length > 0 ||
       auraConsumed.length > 0 ||
       !auraStateSnapshotsEqual(auraBefore, auraAfter);
-    this.append({
+    return this.append({
       frame: input.frame,
       timeSeconds: input.timeSeconds,
       targetId: input.targetId,
