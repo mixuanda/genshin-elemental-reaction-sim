@@ -5085,14 +5085,6 @@ function simulateConfig(
     if (audit.catalyzeReaction?.quicken != null) {
       nextLogId += 1;
     }
-    for (const bloom of audit.bloomReactions) {
-      const operation = bloom.quickenStateMutation.operation;
-      if (operation === "none") continue;
-      if (operation === "decay-rebase") {
-        projectedIds.push(nextLogId);
-      }
-      nextLogId += 1;
-    }
     const burningMutation =
       audit.burningReaction?.quickenStateMutation;
     if (
@@ -5102,6 +5094,15 @@ function simulateConfig(
       if (burningMutation.operation === "decay-rebase") {
         projectedIds.push(nextLogId);
       }
+      nextLogId += 1;
+    }
+    for (const bloom of audit.bloomReactions) {
+      const operation = bloom.quickenStateMutation.operation;
+      if (operation === "none") continue;
+      if (operation === "decay-rebase") {
+        projectedIds.push(nextLogId);
+      }
+      nextLogId += 1;
     }
     return projectedIds;
   };
@@ -5193,6 +5194,67 @@ function simulateConfig(
       activeQuickenStateSources.delete(targetId);
     }
     return logId;
+  };
+
+  const recordOrderedQuickenState = ({
+    audit,
+    targetId,
+    targetName,
+    sourceActorId,
+    triggerDamageEventId,
+    frame,
+    timeSeconds
+  }: {
+    audit: ReactionAudit;
+    targetId: string;
+    targetName: string;
+    sourceActorId: string;
+    triggerDamageEventId: number;
+    frame: number;
+    timeSeconds: number;
+  }): number[] => {
+    // Aura mutates Quicken in this exact order for a single application:
+    // Quicken attachment, Burning decay rebase/removal, then synchronous
+    // Bloom consumption. Serializing the same order keeps the active source
+    // generation aligned with the authoritative Aura lifecycle.
+    const catalyzeLogIds = recordQuickenState({
+      audit: {
+        catalyzeReaction: audit.catalyzeReaction,
+        bloomReactions: []
+      },
+      targetId,
+      targetName,
+      sourceActorId,
+      triggerDamageEventId,
+      frame,
+      timeSeconds
+    });
+    const burningLogId = recordBurningQuickenStateMutation({
+      audit,
+      targetId,
+      targetName,
+      fallbackSourceActorId: sourceActorId,
+      fallbackTriggerDamageEventId: triggerDamageEventId,
+      frame,
+      timeSeconds
+    });
+    const bloomLogIds = recordQuickenState({
+      audit: {
+        catalyzeReaction: null,
+        bloomReactions: audit.bloomReactions
+      },
+      targetId,
+      targetName,
+      sourceActorId,
+      triggerDamageEventId,
+      frame,
+      timeSeconds
+    });
+    return [
+      ...catalyzeLogIds,
+      ...(burningLogId === null ? [] : [burningLogId]),
+      ...bloomLogIds
+    ];
   };
 
   const scheduleShatterDamage = ({
@@ -5555,15 +5617,6 @@ function simulateConfig(
   }): void => {
     const burningReaction = audit.burningReaction;
     if (burningReaction !== null) {
-      recordBurningQuickenStateMutation({
-        audit,
-        targetId,
-        targetName,
-        fallbackSourceActorId: actorId,
-        fallbackTriggerDamageEventId: damageEventId,
-        frame,
-        timeSeconds
-      });
       if (burningReaction.operation === "stop") {
         const activeSource = activeBurningSources.get(targetId);
         burningStateLog.push({
@@ -5907,20 +5960,15 @@ function simulateConfig(
               label: buff.label
             }))
         : sourceBuffStatuses;
-    if (
-      audit.catalyzeReaction?.quicken != null ||
-      audit.bloomReactions.length > 0
-    ) {
-      recordQuickenState({
-        audit,
-        targetId,
-        targetName,
-        sourceActorId: actorId,
-        triggerDamageEventId: damageEventId,
-        frame,
-        timeSeconds
-      });
-    }
+    recordOrderedQuickenState({
+      audit,
+      targetId,
+      targetName,
+      sourceActorId: actorId,
+      triggerDamageEventId: damageEventId,
+      frame,
+      timeSeconds
+    });
     scheduleQuickenBloomFollowup({
       audit,
       actorId,
@@ -13615,20 +13663,15 @@ function simulateConfig(
           nextIntraEventSequence
         });
       }
-      if (
-        reactionAudit.catalyzeReaction?.quicken != null ||
-        reactionAudit.bloomReactions.length > 0
-      ) {
-        recordQuickenState({
-          audit: reactionAudit,
-          targetId,
-          targetName: targetProfile.name,
-          sourceActorId: actorId,
-          triggerDamageEventId: damageEventId,
-          frame: event.frame,
-          timeSeconds
-        });
-      }
+      recordOrderedQuickenState({
+        audit: reactionAudit,
+        targetId,
+        targetName: targetProfile.name,
+        sourceActorId: actorId,
+        triggerDamageEventId: damageEventId,
+        frame: event.frame,
+        timeSeconds
+      });
       scheduleQuickenBloomFollowup({
         audit: reactionAudit,
         actorId,

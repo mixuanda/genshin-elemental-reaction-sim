@@ -1436,6 +1436,181 @@ describe("exact current 1.44 SimulationResult schema", () => {
         forgedTick.damageAllowed = !forgedTick.damageAllowed;
       }
     );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const startEvent = mutation.damageEvents.find(
+          (event) =>
+            event.reactionAudit.burningReaction?.operation ===
+            "start"
+        );
+        const startRow = mutation.burningStateLog.find(
+          (entry) => entry.operation === "start"
+        );
+        if (startEvent === undefined || startRow === undefined) {
+          throw new Error(
+            "Burning result must expose its start source."
+          );
+        }
+        startEvent.reactionAudit.burningReaction!.damageSourceActorId =
+          "ghost";
+        startRow.damageSourceActorId = "ghost";
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const startEvent = mutation.damageEvents.find(
+          (event) =>
+            event.reactionAudit.burningReaction?.operation ===
+            "start"
+        );
+        if (startEvent === undefined) {
+          throw new Error(
+            "Burning result must expose its start audit."
+          );
+        }
+        startEvent.reactionAudit.burningReaction!.snapshotFrame += 1;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        for (const event of mutation.damageEvents) {
+          const audit = event.reactionAudit.burningReaction;
+          if (audit !== null) {
+            audit.fuelDecayPerFrame += 0.001;
+          }
+        }
+        for (const entry of mutation.burningStateLog) {
+          entry.fuelDecayPerFrame += 0.001;
+        }
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const startEvent = mutation.damageEvents.find(
+          (event) =>
+            event.reactionAudit.burningReaction?.operation ===
+            "start"
+        );
+        if (startEvent === undefined) {
+          throw new Error(
+            "Burning result must expose its start audit."
+          );
+        }
+        startEvent.reactionAudit.burningReaction!
+          .candidateFuelGaugeUnits += 0.1;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const forgedTick = mutation.burningStateLog.find(
+          (entry) => entry.operation === "tick"
+        );
+        if (
+          forgedTick === undefined ||
+          forgedTick.reactionDamageLogId === null ||
+          forgedTick.nextTickFrame === null
+        ) {
+          throw new Error(
+            "Burning result must expose a scheduled tick."
+          );
+        }
+        forgedTick.nextTickFrame += 1;
+        mutation.reactionDamageLog[
+          forgedTick.reactionDamageLogId
+        ]!.nextAvailableFrame = forgedTick.nextTickFrame;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const forgedTick = mutation.burningStateLog.find(
+          (entry) => entry.operation === "tick"
+        );
+        if (forgedTick === undefined) {
+          throw new Error(
+            "Burning result must expose a normal tick."
+          );
+        }
+        forgedTick.tickIndex = 9;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const forgedTick = mutation.burningStateLog.find(
+          (entry) =>
+            entry.operation === "tick" &&
+            entry.icdHitIndex !== null
+        );
+        if (forgedTick === undefined) {
+          throw new Error(
+            "Burning result must expose an ICD-bearing tick."
+          );
+        }
+        forgedTick.icdHitIndex! += 1;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      playerDamageResult,
+      (mutation) => {
+        const startEvent = mutation.damageEvents.find(
+          (event) =>
+            event.reactionAudit.burningReaction?.operation ===
+            "start"
+        );
+        const forgedTick = mutation.burningStateLog.find((entry) => {
+          if (
+            entry.operation !== "tick" ||
+            entry.triggerDamageEventId === null
+          ) {
+            return false;
+          }
+          return (
+            mutation.damageEvents[entry.triggerDamageEventId]
+              ?.reactionAudit.burningReaction?.operation ===
+            "refresh-snapshot"
+          );
+        });
+        if (
+          startEvent === undefined ||
+          forgedTick === undefined ||
+          forgedTick.reactionDamageLogId === null
+        ) {
+          throw new Error(
+            "Burning result must expose a post-refresh tick."
+          );
+        }
+        forgedTick.triggerDamageEventId = startEvent.id;
+        const parent = mutation.reactionDamageLog[
+          forgedTick.reactionDamageLogId
+        ]!;
+        parent.triggerDamageEventId = startEvent.id;
+        parent.triggerFrame = startEvent.frame;
+        for (const childId of parent.damageEventIds) {
+          mutation.damageEvents[childId]!.parentDamageEventId =
+            startEvent.id;
+          const alias = mutation.hitEvents.find(
+            (event) => event.id === childId
+          );
+          if (alias !== undefined) {
+            alias.parentDamageEventId = startEvent.id;
+          }
+        }
+      }
+    );
   });
 
   it("rejects Frozen expiry generation, clock, and Aura drift at both result boundaries", () => {

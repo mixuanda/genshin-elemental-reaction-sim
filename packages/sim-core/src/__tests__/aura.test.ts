@@ -440,6 +440,53 @@ describe("AuraEngine legacy multi-reaction boundary", () => {
   );
 
   it.each(["aura-v2", "aura-v3"] as const)(
+    "fails closed in %s when Pyro can continue from Overload into Frozen Melt",
+    (mode) => {
+      const engine = new AuraEngine({
+        mode,
+        initialAura: [
+          { element: "cryo", gaugeUnits: 1 },
+          { element: "electro", gaugeUnits: 1 }
+        ]
+      });
+      engine.processHit({
+        frame: 0,
+        sourceActorId: "hydro",
+        element: "hydro",
+        application: noIcd()
+      });
+
+      const audit = engine.processHit({
+        frame: 0,
+        sourceActorId: "pyro",
+        element: "pyro",
+        application: noIcd(2)
+      });
+
+      expect(audit).toMatchObject({
+        reaction: "overload",
+        reactions: ["overload"],
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ],
+        mechanicsTruncation: {
+          operation: "trigger",
+          reason: "UNSUPPORTED_REACTION_ORDER",
+          unsupportedReactions: [
+            "legacy-multi-reaction-order"
+          ]
+        },
+        auraAfter: [],
+        transformativeReaction: {
+          reaction: "overload",
+          scheduled: false,
+          blockedReason: "TARGET_MECHANICS_TRUNCATION"
+        }
+      });
+    }
+  );
+
+  it.each(["aura-v2", "aura-v3"] as const)(
     "keeps valid single-branch %s Overload authoritative",
     (mode) => {
       const audit = new AuraEngine({

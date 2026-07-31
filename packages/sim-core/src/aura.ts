@@ -5623,6 +5623,25 @@ export class AuraEngine {
           )
         );
       }
+      // Frozen is a distinct status Aura rather than an ordinary Cryo entry,
+      // so it is absent from REACTION_RULES. After an earlier Pyro branch
+      // such as Overload consumes only part of the incoming Gauge, the fixed
+      // order can still reach Frozen Melt. Legacy v2/v3 cannot execute that
+      // chain authoritatively, but they must detect it and fail closed.
+      if (
+        input.element === "pyro" &&
+        frozenPresent &&
+        remainingGaugeUnits > AURA_EPSILON &&
+        !legacyReactionCandidates.some(
+          (candidate) => candidate.reaction === "melt"
+        ) &&
+        Math.min(
+          this.frozenGaugeUnits(),
+          remainingGaugeUnits * 2
+        ) > AURA_EPSILON
+      ) {
+        reachableConsumingReactionCount += 1;
+      }
       if (
         this.mode === "aura-v3" &&
         input.element === "electro" &&
@@ -7193,7 +7212,15 @@ export class AuraEngine {
         fuelGaugeUnitsAfter: 0,
         fuelExpiresAtFrame: null,
         firstTickFrame: null,
-        nextTickFrame: null
+        nextTickFrame: null,
+        ...(burningReaction.clockModel ===
+        "target-local-hitlag-v1"
+          ? {
+              fuelExpiresAtTargetFrame: null,
+              firstTickTargetFrame: null,
+              nextTickTargetFrame: null
+            }
+          : {})
       };
     }
     if (

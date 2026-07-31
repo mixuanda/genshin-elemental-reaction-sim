@@ -4507,35 +4507,59 @@ export const burningReactionAuditSchema = z
               "Fuel-driven Quicken rebase must use the Burning Fuel decay rate"
             );
           }
-          const quickenDecayExpiryFrame =
-            audit.snapshotFrame +
-            Math.max(
-              0,
-              Math.ceil(
-                quickenMutation.quickenGaugeUnitsAfter /
-                  audit.fuelDecayPerFrame -
-                  quickenDecayMutationEpsilon
-              )
+          const quickenDecayFrames = Math.max(
+            0,
+            Math.ceil(
+              quickenMutation.quickenGaugeUnitsAfter /
+                audit.fuelDecayPerFrame -
+                quickenDecayMutationEpsilon
+            )
+          );
+          const snapshotClockFrame = hitlagAware
+            ? audit.snapshotTargetFrame
+            : audit.snapshotFrame;
+          const fuelExpiryClockFrame = hitlagAware
+            ? audit.fuelExpiresAtTargetFrame
+            : audit.fuelExpiresAtFrame;
+          const quickenAfter =
+            quickenMutation.operationAuraAfter.find(
+              (entry) => entry.element === "quicken"
             );
-          const fuelOwnsExpiry =
-            audit.fuelExpiresAtFrame <=
-            quickenDecayExpiryFrame;
-          const expectedEndCause = fuelOwnsExpiry
-            ? "BURNING_FUEL_EXPIRED"
-            : "QUICKEN_DECAY";
-          const expectedExpiryFrame = fuelOwnsExpiry
-            ? audit.fuelExpiresAtFrame
-            : quickenDecayExpiryFrame;
+          const quickenExpiryClockFrame = hitlagAware
+            ? quickenAfter?.expiresAtTargetFrame
+            : quickenMutation.expiresAtFrameAfter;
           if (
-            quickenMutation.endCauseAfter !==
-              expectedEndCause ||
-            quickenMutation.expiresAtFrameAfter !==
-              expectedExpiryFrame
+            snapshotClockFrame !== undefined &&
+            fuelExpiryClockFrame !== undefined &&
+            fuelExpiryClockFrame !== null
           ) {
-            issue(
-              "quickenStateMutation",
-              "Fuel-driven Quicken expiry must use the earlier Fuel or Quicken boundary, with Fuel winning ties"
-            );
+            const quickenDecayExpiryClockFrame =
+              snapshotClockFrame + quickenDecayFrames;
+            const fuelOwnsExpiry =
+              fuelExpiryClockFrame <=
+              quickenDecayExpiryClockFrame;
+            const expectedEndCause = fuelOwnsExpiry
+              ? "BURNING_FUEL_EXPIRED"
+              : "QUICKEN_DECAY";
+            const expectedExpiryClockFrame = fuelOwnsExpiry
+              ? fuelExpiryClockFrame
+              : quickenDecayExpiryClockFrame;
+            const fuelGlobalExpiryMatches =
+              !fuelOwnsExpiry ||
+              quickenMutation.expiresAtFrameAfter ===
+                audit.fuelExpiresAtFrame;
+            if (
+              quickenMutation.endCauseAfter !==
+                expectedEndCause ||
+              quickenExpiryClockFrame !==
+                expectedExpiryClockFrame ||
+              !fuelGlobalExpiryMatches
+            ) {
+              issue(
+                "quickenStateMutation",
+                "Fuel-driven Quicken expiry must use the earlier Fuel or Quicken boundary, with Fuel winning ties"
+              );
+            }
           }
         }
       } else if (quickenMutation.operation !== "none") {
@@ -4573,21 +4597,32 @@ export const burningReactionAuditSchema = z
             "Burning stop must restore positive intrinsic Quicken decay"
           );
         } else {
-          const intrinsicExpiryFrame =
-            audit.snapshotFrame +
-            Math.max(
-              0,
-              Math.ceil(
-                quickenMutation.quickenGaugeUnitsAfter /
-                  quickenMutation.decayPerFrameAfter -
-                  quickenDecayMutationEpsilon
-              )
+          const intrinsicDecayFrames = Math.max(
+            0,
+            Math.ceil(
+              quickenMutation.quickenGaugeUnitsAfter /
+                quickenMutation.decayPerFrameAfter -
+                quickenDecayMutationEpsilon
+            )
+          );
+          const snapshotClockFrame = hitlagAware
+            ? audit.snapshotTargetFrame
+            : audit.snapshotFrame;
+          const quickenAfter =
+            quickenMutation.operationAuraAfter.find(
+              (entry) => entry.element === "quicken"
             );
+          const actualExpiryClockFrame = hitlagAware
+            ? quickenAfter?.expiresAtTargetFrame
+            : quickenMutation.expiresAtFrameAfter;
+          const expectedExpiryClockFrame =
+            snapshotClockFrame === undefined
+              ? undefined
+              : snapshotClockFrame + intrinsicDecayFrames;
           if (
             quickenMutation.endCauseAfter !==
               "QUICKEN_DECAY" ||
-            quickenMutation.expiresAtFrameAfter !==
-              intrinsicExpiryFrame
+            actualExpiryClockFrame !== expectedExpiryClockFrame
           ) {
             issue(
               "quickenStateMutation",

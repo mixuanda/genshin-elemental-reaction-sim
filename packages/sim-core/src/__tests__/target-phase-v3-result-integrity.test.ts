@@ -1,6 +1,8 @@
 import {
   assertTrustedSimulationResultV142,
   assertTrustedSimulationResultV144,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   simulationResultV142Schema,
@@ -129,6 +131,26 @@ function makeTargetPhaseV3BurningConfig(): SimConfig {
           actorId: "pyro",
           abilityId: "start-burning",
           atFrame: 0
+        }
+      ]
+    }
+  };
+}
+
+function makeTargetPhaseV3BurningMotionConfig(): SimConfig {
+  const base = makeTargetPhaseV3BurningConfig();
+  return {
+    ...base,
+    enemy: {
+      ...base.enemy,
+      targetMotions: [
+        {
+          id: "outside-holds-position",
+          label: "Outside target holds through first callback",
+          targetId: "outside-radius",
+          startFrame: 1,
+          endFrame: 15,
+          endPosition: { x: 5, y: 0 }
         }
       ]
     }
@@ -382,6 +404,19 @@ function expectBothBoundariesToReject(
   ).toThrow(/integrity validation failed/);
 }
 
+function refreshResultIdentity(result: SimulationResult): void {
+  result.runManifest.configHash =
+    createSimulationConfigHash(result.config);
+  const {
+    reproducibilityKey: _previousReproducibilityKey,
+    ...identity
+  } = result.runManifest;
+  const reproducibilityKey =
+    createSimulationReproducibilityKey(identity);
+  result.runManifest.reproducibilityKey = reproducibilityKey;
+  result.reproducibilityKey = reproducibilityKey;
+}
+
 describe("target-phase-v3 result integrity", () => {
   it("accepts a complete registered-order callback delivery at both boundaries", () => {
     const result = simulate(makeTargetPhaseV3BurningConfig(), {
@@ -436,6 +471,84 @@ describe("target-phase-v3 result integrity", () => {
         )
       ).not.toEqual(expect.arrayContaining(callbackHitIds));
     }
+  });
+
+  it("replays Burning callback target policies from config phases", () => {
+    const config = makeTargetPhaseV3BurningConfig();
+    config.enemy.targetPhases = [
+      {
+        id: "immune-callback-window",
+        label: "Immune callback window",
+        targetId: "before-owner",
+        startFrame: 15,
+        endFrame: 16,
+        reason: "SCRIPTED_IMMUNITY",
+        effects: {
+          damage: "immune",
+          aura: "blocked",
+          hitConfirm: "blocked"
+        }
+      }
+    ];
+    const result = simulate(config, { critMode: "noCrit" });
+    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+
+    const delivery = deliveredTasks(result)[0]!.task.delivery;
+    const attempt = delivery.attempts.find(
+      (candidate) => candidate.targetId === "before-owner"
+    );
+    if (attempt?.outcome !== "landed") {
+      throw new Error("Expected landed phase-policy callback attempt.");
+    }
+    const hit = result.hitResolutionLog[attempt.hitResolutionLogId]!;
+    const damage = result.damageEvents[attempt.damageEventId]!;
+    expect(hit).toMatchObject({
+      targetEffectSource: "target-phase",
+      targetPhaseId: "immune-callback-window",
+      reason: "SCRIPTED_IMMUNITY",
+      damageAllowed: false,
+      auraAllowed: false,
+      hitConfirmAllowed: false,
+      mechanicsStatus: "authoritative"
+    });
+    expect(damage).toMatchObject({
+      targetDamagePolicy: "immune",
+      targetDamageMultiplier: 0,
+      mechanicsStatus: "authoritative"
+    });
+  });
+
+  it("rejects forged Burning callback policy and mechanics flags", () => {
+    const base = simulate(makeTargetPhaseV3BurningConfig());
+    const delivery = deliveredTasks(base)[0]!.task.delivery;
+    const attempt = delivery.attempts.find(
+      (candidate) => candidate.outcome === "landed"
+    );
+    if (attempt?.outcome !== "landed") {
+      throw new Error("Expected landed callback attempt.");
+    }
+
+    for (const field of [
+      "damageAllowed",
+      "auraAllowed",
+      "hitConfirmAllowed"
+    ] as const) {
+      const forged = structuredClone(base);
+      const forgedHit =
+        forged.hitResolutionLog[attempt.hitResolutionLogId]!;
+      forgedHit[field] = !forgedHit[field];
+      expectBothBoundariesToReject(forged);
+    }
+
+    const forgedMechanics = structuredClone(base);
+    const forgedHit =
+      forgedMechanics.hitResolutionLog[attempt.hitResolutionLogId]!;
+    const forgedDamage =
+      forgedMechanics.damageEvents[attempt.damageEventId]!;
+    forgedHit.mechanicsStatus = "mechanics-truncated";
+    forgedDamage.mechanicsStatus = "mechanics-truncated";
+    expectBothBoundariesToReject(forgedMechanics);
   });
 
   it("rejects deleting the delivery while retaining its callback lifecycle", () => {
@@ -507,6 +620,75 @@ describe("target-phase-v3 result integrity", () => {
       hitResolutionLogId: null
     });
     expectBothBoundariesToReject(wrongOutcome);
+  });
+
+  it("rejects Burning deadline and config-rooted geometry drift", () => {
+    const base = simulate(makeTargetPhaseV3BurningConfig());
+
+    const wrongDeadline = structuredClone(base);
+    const deadlineTask = deliveredTasks(wrongDeadline)[0]!.task;
+    deadlineTask.deadlineTargetFrame -= 1;
+    expectBothBoundariesToReject(wrongDeadline);
+
+    const wrongCenter = structuredClone(base);
+    const centerDelivery = deliveredTasks(wrongCenter)[0]!.task.delivery;
+    wrongCenter.reactionDamageLog[
+      centerDelivery.reactionDamageLogId
+    ]!.centerPosition = { x: 123, y: 456 };
+    expectBothBoundariesToReject(wrongCenter);
+
+    const wrongRadius = structuredClone(base);
+    const radiusDelivery = deliveredTasks(wrongRadius)[0]!.task.delivery;
+    wrongRadius.reactionDamageLog[
+      radiusDelivery.reactionDamageLogId
+    ]!.radius = 5;
+    expectBothBoundariesToReject(wrongRadius);
+
+    const wrongGauge = structuredClone(base);
+    const gaugeDelivery = deliveredTasks(wrongGauge)[0]!.task.delivery;
+    wrongGauge.reactionDamageLog[
+      gaugeDelivery.reactionDamageLogId
+    ]!.applicationGaugeUnits = 2;
+    expectBothBoundariesToReject(wrongGauge);
+
+    const wrongHitWitness = structuredClone(base);
+    const landedAttempt = deliveredTasks(wrongHitWitness)[0]!
+      .task.delivery.attempts.find(
+        (attempt) => attempt.outcome === "landed"
+      )!;
+    wrongHitWitness.hitResolutionLog[
+      landedAttempt.hitResolutionLogId
+    ]!.geometryDistance! += 0.25;
+    expectBothBoundariesToReject(wrongHitWitness);
+
+    const coordinatedMotion = simulate(
+      makeTargetPhaseV3BurningMotionConfig()
+    );
+    const configuredMotion =
+      coordinatedMotion.config.enemy.targetMotions?.[0];
+    const projectedMotion =
+      coordinatedMotion.targetMotionTimeline[0];
+    if (configuredMotion === undefined || projectedMotion === undefined) {
+      throw new Error(
+        "Burning motion vector must expose its config and projection."
+      );
+    }
+    configuredMotion.endPosition = { x: 0.5, y: 0 };
+    projectedMotion.endPosition = { x: 0.5, y: 0 };
+    refreshResultIdentity(coordinatedMotion);
+    expectBothBoundariesToReject(coordinatedMotion);
+
+    const forgedProjection = simulate(
+      makeTargetPhaseV3BurningMotionConfig()
+    );
+    const forgedMotion = forgedProjection.targetMotionTimeline[0];
+    if (forgedMotion === undefined) {
+      throw new Error(
+        "Burning motion vector must expose its projected timeline."
+      );
+    }
+    forgedMotion.startPosition = { x: 99, y: 99 };
+    expectBothBoundariesToReject(forgedProjection);
   });
 
   it("rejects recipient-phase ownership of callback-owned hits", () => {

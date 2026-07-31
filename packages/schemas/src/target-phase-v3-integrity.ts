@@ -12,6 +12,15 @@ import {
 type IssuePath = Array<string | number>;
 
 const FLOAT_TOLERANCE = 1e-9;
+const BURNING_DAMAGE_RADIUS = 1;
+const BURNING_APPLICATION_GAUGE_UNITS = 1;
+
+type ConfiguredTargetGeometry = {
+  id: string;
+  name: string;
+  position: { x: number; y: number } | null;
+  hitboxRadius: number;
+};
 
 function approximatelyEqual(left: number, right: number): boolean {
   return (
@@ -26,6 +35,216 @@ function semanticEqual(left: unknown, right: unknown): boolean {
     left === right ||
     canonicalStringify(left) === canonicalStringify(right)
   );
+}
+
+function expectPointEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: { x: number; y: number } | null,
+  expected: { x: number; y: number } | null,
+  label: string
+): void {
+  if (actual === null || expected === null) {
+    expectEqual(context, path, actual, expected, label);
+    return;
+  }
+  if (
+    !approximatelyEqual(actual.x, expected.x) ||
+    !approximatelyEqual(actual.y, expected.y)
+  ) {
+    addIssue(
+      context,
+      path,
+      `${label} must match the position replayed from config`
+    );
+  }
+}
+
+function configuredTargetGeometry(
+  result: SimulationResult
+): ConfiguredTargetGeometry[] {
+  return (
+    result.config.enemy.targets ?? [
+      { id: "enemy-0", name: "敌人 0" }
+    ]
+  ).map((target) => ({
+    id: target.id,
+    name: target.name,
+    position:
+      target.position === undefined
+        ? null
+        : { ...target.position },
+    hitboxRadius: target.hitboxRadius ?? 0
+  }));
+}
+
+function createConfiguredTargetPositionResolver(
+  result: SimulationResult,
+  targets: readonly ConfiguredTargetGeometry[]
+): (
+  targetId: string,
+  frame: number
+) => { x: number; y: number } | null {
+  const initialPositionByTarget = new Map(
+    targets.map((target) => [target.id, target.position])
+  );
+  const lastPositionByTarget = new Map(initialPositionByTarget);
+  const motionsByTarget = new Map<
+    string,
+    Array<{
+      startFrame: number;
+      endFrame: number;
+      startPosition: { x: number; y: number };
+      endPosition: { x: number; y: number };
+    }>
+  >();
+
+  for (const motion of result.config.enemy.targetMotions ?? []) {
+    const startPosition = lastPositionByTarget.get(motion.targetId);
+    if (startPosition === null || startPosition === undefined) {
+      continue;
+    }
+    const resolved = {
+      startFrame: motion.startFrame,
+      endFrame: motion.endFrame,
+      startPosition: { ...startPosition },
+      endPosition: { ...motion.endPosition }
+    };
+    const motions = motionsByTarget.get(motion.targetId) ?? [];
+    motions.push(resolved);
+    motionsByTarget.set(motion.targetId, motions);
+    lastPositionByTarget.set(motion.targetId, {
+      ...motion.endPosition
+    });
+  }
+
+  return (targetId, frame) => {
+    const initialPosition = initialPositionByTarget.get(targetId);
+    if (initialPosition === null || initialPosition === undefined) {
+      return null;
+    }
+    let position = initialPosition;
+    for (const motion of motionsByTarget.get(targetId) ?? []) {
+      if (frame < motion.startFrame) break;
+      if (frame >= motion.endFrame) {
+        position = motion.endPosition;
+        continue;
+      }
+      const progress =
+        (frame - motion.startFrame) /
+        (motion.endFrame - motion.startFrame);
+      return {
+        x:
+          motion.startPosition.x +
+          (motion.endPosition.x - motion.startPosition.x) *
+            progress,
+        y:
+          motion.startPosition.y +
+          (motion.endPosition.y - motion.startPosition.y) *
+            progress
+      };
+    }
+    return { ...position };
+  };
+}
+
+function validateConfiguredTargetMotionTimeline(
+  result: SimulationResult,
+  context: RefinementCtx,
+  targets: readonly ConfiguredTargetGeometry[]
+): void {
+  const configuredMotions = result.config.enemy.targetMotions ?? [];
+  if (result.targetMotionTimeline.length !== configuredMotions.length) {
+    addIssue(
+      context,
+      ["targetMotionTimeline"],
+      "target motion timeline length must match config.enemy.targetMotions"
+    );
+  }
+
+  const lastPositionByTarget = new Map(
+    targets.map((target) => [
+      target.id,
+      target.position === null ? null : { ...target.position }
+    ])
+  );
+  for (const [motionIndex, configured] of configuredMotions.entries()) {
+    const projected = result.targetMotionTimeline[motionIndex];
+    const path = ["targetMotionTimeline", motionIndex] satisfies IssuePath;
+    const startPosition = lastPositionByTarget.get(configured.targetId);
+    if (startPosition === null || startPosition === undefined) {
+      addIssue(
+        context,
+        [...path, "startPosition"],
+        "configured target motion requires a registered initial position"
+      );
+      continue;
+    }
+    if (projected === undefined) {
+      addIssue(
+        context,
+        path,
+        `missing projection for configured target motion ${configured.id}`
+      );
+    } else {
+      for (const [field, expected] of [
+        ["id", configured.id],
+        ["label", configured.label],
+        ["targetId", configured.targetId],
+        ["startFrame", configured.startFrame],
+        ["endFrame", configured.endFrame]
+      ] as const) {
+        expectEqual(
+          context,
+          [...path, field],
+          projected[field],
+          expected,
+          `target motion ${field}`
+        );
+      }
+      expectPointEqual(
+        context,
+        [...path, "startPosition"],
+        projected.startPosition,
+        startPosition,
+        "target motion startPosition"
+      );
+      expectPointEqual(
+        context,
+        [...path, "endPosition"],
+        projected.endPosition,
+        configured.endPosition,
+        "target motion endPosition"
+      );
+      if (
+        !approximatelyEqual(
+          projected.startTimeSeconds,
+          configured.startFrame / 60
+        )
+      ) {
+        addIssue(
+          context,
+          [...path, "startTimeSeconds"],
+          "target motion startTimeSeconds must equal config startFrame / 60"
+        );
+      }
+      if (
+        !approximatelyEqual(
+          projected.endTimeSeconds,
+          configured.endFrame / 60
+        )
+      ) {
+        addIssue(
+          context,
+          [...path, "endTimeSeconds"],
+          "target motion endTimeSeconds must equal config endFrame / 60"
+        );
+      }
+    }
+    lastPositionByTarget.set(configured.targetId, {
+      ...configured.endPosition
+    });
+  }
 }
 
 /**
@@ -287,6 +506,20 @@ export function validateTargetPhaseV3Integrity(
       { target, targetOrder }
     ])
   );
+  const configuredTargets = configuredTargetGeometry(result);
+  const configuredTargetById = new Map(
+    configuredTargets.map((target) => [target.id, target])
+  );
+  const resolveConfiguredTargetPosition =
+    createConfiguredTargetPositionResolver(
+      result,
+      configuredTargets
+    );
+  validateConfiguredTargetMotionTimeline(
+    result,
+    context,
+    configuredTargets
+  );
   const burningById = new Map(
     result.burningStateLog.map((entry) => [entry.id, entry])
   );
@@ -314,6 +547,35 @@ export function validateTargetPhaseV3Integrity(
   const timelinePointById = new Map(
     result.targetStateTimeline.points.map((entry) => [entry.id, entry])
   );
+  const earliestMechanicsTruncationTriggerByTarget = new Map<
+    string,
+    SimulationResult["damageEvents"][number]
+  >();
+  const compareDamageOrder = (
+    left: SimulationResult["damageEvents"][number],
+    right: SimulationResult["damageEvents"][number]
+  ): number =>
+    left.frame - right.frame ||
+    left.eventPriority - right.eventPriority ||
+    left.eventSequence - right.eventSequence ||
+    left.id - right.id;
+  for (const truncation of result.targetMechanicsTruncationLog) {
+    const trigger = damageById.get(truncation.triggerDamageEventId);
+    if (trigger === undefined) continue;
+    const previous =
+      earliestMechanicsTruncationTriggerByTarget.get(
+        truncation.targetId
+      );
+    if (
+      previous === undefined ||
+      compareDamageOrder(trigger, previous) < 0
+    ) {
+      earliestMechanicsTruncationTriggerByTarget.set(
+        truncation.targetId,
+        trigger
+      );
+    }
+  }
   const phaseByFrameAndTarget = new Map(
     v3Phases.map((phase) => [
       `${phase.globalFrame}\u0000${phase.targetId}`,
@@ -466,6 +728,13 @@ export function validateTargetPhaseV3Integrity(
       ] satisfies IssuePath;
       const taskPoint = timelinePointById.get(
         task.targetStateTimelinePointId
+      );
+      expectEqual(
+        context,
+        [...taskPath, "deadlineTargetFrame"],
+        task.deadlineTargetFrame,
+        phase.targetFrame,
+        "Burning callback target deadline"
       );
 
       if (task.status === "stale") {
@@ -679,6 +948,56 @@ export function validateTargetPhaseV3Integrity(
         continue;
       }
 
+      const expectedCenterPosition =
+        resolveConfiguredTargetPosition(
+          phase.targetId,
+          phase.globalFrame
+        );
+      expectPointEqual(
+        context,
+        [
+          "reactionDamageLog",
+          reactionDamage.id,
+          "centerPosition"
+        ],
+        reactionDamage.centerPosition,
+        expectedCenterPosition,
+        "Burning damage center"
+      );
+      expectEqual(
+        context,
+        ["reactionDamageLog", reactionDamage.id, "radius"],
+        reactionDamage.radius,
+        BURNING_DAMAGE_RADIUS,
+        "Burning damage radius"
+      );
+      expectEqual(
+        context,
+        [
+          "reactionDamageLog",
+          reactionDamage.id,
+          "applicationGaugeUnits"
+        ],
+        reactionDamage.applicationGaugeUnits,
+        BURNING_APPLICATION_GAUGE_UNITS,
+        "Burning application Gauge"
+      );
+      for (const [field, actual] of [
+        ["sourceCoreId", reactionDamage.sourceCoreId],
+        ["sourceCoreLogId", reactionDamage.sourceCoreLogId],
+        ["selectionRadius", reactionDamage.selectionRadius],
+        ["selectedTargetId", reactionDamage.selectedTargetId],
+        ["resolutionReason", reactionDamage.resolutionReason]
+      ] as const) {
+        expectEqual(
+          context,
+          ["reactionDamageLog", reactionDamage.id, field],
+          actual,
+          null,
+          `Burning damage parent ${field}`
+        );
+      }
+
       if (delivery.attempts.length !== result.enemyTargets.length) {
         addIssue(
           context,
@@ -728,6 +1047,94 @@ export function validateTargetPhaseV3Integrity(
           "Burning application phase"
         );
 
+        const configuredAttemptTarget = configuredTargetById.get(
+          attempt.targetId
+        );
+        const expectedTargetPosition =
+          resolveConfiguredTargetPosition(
+            attempt.targetId,
+            phase.globalFrame
+          );
+        const expectedDistance =
+          expectedCenterPosition === null ||
+          expectedTargetPosition === null
+            ? null
+            : Math.hypot(
+                expectedTargetPosition.x -
+                  expectedCenterPosition.x,
+                expectedTargetPosition.y -
+                  expectedCenterPosition.y
+              );
+        const expectedThreshold =
+          configuredAttemptTarget === undefined
+            ? null
+            : BURNING_DAMAGE_RADIUS +
+              configuredAttemptTarget.hitboxRadius;
+        const expectedOutcome: TargetPhaseV3DeliveryAttempt["outcome"] =
+          expectedCenterPosition === null
+            ? attempt.targetId === phase.targetId
+              ? "landed"
+              : "unresolved"
+            : expectedTargetPosition === null ||
+                expectedThreshold === null
+              ? "unresolved"
+              : expectedDistance !== null &&
+                  expectedDistance <=
+                    expectedThreshold + FLOAT_TOLERANCE
+                ? "landed"
+                : "miss";
+        const activeTargetPhase = (
+          result.config.enemy.targetPhases ?? []
+        ).find(
+          (targetPhase) =>
+            targetPhase.targetId === attempt.targetId &&
+            phase.globalFrame >= targetPhase.startFrame &&
+            phase.globalFrame < targetPhase.endFrame
+        );
+        const expectedReason =
+          expectedOutcome === "miss"
+            ? "OUTSIDE_CIRCLE_GEOMETRY"
+            : activeTargetPhase?.reason ?? null;
+        const expectedDamageAllowed =
+          expectedOutcome === "landed" &&
+          activeTargetPhase?.effects.damage !== "immune";
+        const expectedAuraAllowed =
+          expectedOutcome === "landed" &&
+          reactionDamage.applicationGaugeUnits !== null &&
+          activeTargetPhase?.effects.aura !== "blocked";
+        const truncationTrigger =
+          earliestMechanicsTruncationTriggerByTarget.get(
+            attempt.targetId
+          );
+        const currentDamageId =
+          attempt.outcome === "landed"
+            ? attempt.damageEventId
+            : null;
+        const mechanicsTruncatedBefore =
+          truncationTrigger !== undefined &&
+          (truncationTrigger.frame < phase.globalFrame ||
+            (truncationTrigger.frame === phase.globalFrame &&
+              (truncationTrigger.eventPriority <
+                delivery.eventPriority ||
+                (truncationTrigger.eventPriority ===
+                  delivery.eventPriority &&
+                  (truncationTrigger.eventSequence <
+                    delivery.eventSequence ||
+                    (truncationTrigger.eventSequence ===
+                      delivery.eventSequence &&
+                      currentDamageId !== null &&
+                      truncationTrigger.id < currentDamageId))))));
+        const expectedMechanicsStatus = mechanicsTruncatedBefore
+          ? "mechanics-truncated"
+          : "authoritative";
+        expectEqual(
+          context,
+          [...attemptPath, "outcome"],
+          attempt.outcome,
+          expectedOutcome,
+          "Burning delivery outcome replayed from config geometry"
+        );
+
         if (attempt.outcome === "unresolved") {
           unresolvedTargetIds.push(attempt.targetId);
           if (
@@ -767,6 +1174,7 @@ export function validateTargetPhaseV3Integrity(
         if (
           hit === undefined ||
           hit.targetId !== attempt.targetId ||
+          hit.targetName !== configuredAttemptTarget?.name ||
           hit.frame !== phase.globalFrame ||
           hit.resolutionKind !== "reaction-damage" ||
           hit.eventPriority !== delivery.eventPriority ||
@@ -781,6 +1189,190 @@ export function validateTargetPhaseV3Integrity(
             [...attemptPath, "hitResolutionLogId"],
             "delivery attempt does not match its callback-owned hit resolution and micro-event tuple"
           );
+        }
+        if (hit !== undefined) {
+          expectPointEqual(
+            context,
+            ["hitResolutionLog", hit.id, "targetPosition"],
+            hit.targetPosition,
+            expectedTargetPosition,
+            "Burning hit target position"
+          );
+          if (expectedCenterPosition === null) {
+            expectEqual(
+              context,
+              ["hitResolutionLog", hit.id, "targetingSource"],
+              hit.targetingSource,
+              "reaction-source",
+              "unresolved-center Burning source targeting"
+            );
+            for (const [field, actual] of [
+              ["sourceActorPosition", hit.sourceActorPosition],
+              ["sourceActorFacingDegrees", hit.sourceActorFacingDegrees],
+              ["geometryKind", hit.geometryKind],
+              ["geometryCoordinateSpace", hit.geometryCoordinateSpace],
+              ["geometryOrigin", hit.geometryOrigin],
+              ["geometryStart", hit.geometryStart],
+              ["geometryEnd", hit.geometryEnd],
+              ["geometryRadius", hit.geometryRadius],
+              ["geometryHalfWidth", hit.geometryHalfWidth],
+              ["geometryHalfHeight", hit.geometryHalfHeight],
+              ["geometryRotationDegrees", hit.geometryRotationDegrees],
+              ["geometryDirectionDegrees", hit.geometryDirectionDegrees],
+              ["geometryAngleDegrees", hit.geometryAngleDegrees],
+              ["geometryDistance", hit.geometryDistance],
+              ["geometryThreshold", hit.geometryThreshold]
+            ] as const) {
+              expectEqual(
+                context,
+                ["hitResolutionLog", hit.id, field],
+                actual,
+                null,
+                `unresolved-center Burning ${field}`
+              );
+            }
+          } else {
+            expectEqual(
+              context,
+              ["hitResolutionLog", hit.id, "targetingSource"],
+              hit.targetingSource,
+              "reaction-geometry",
+              "Burning geometry targeting"
+            );
+            expectEqual(
+              context,
+              ["hitResolutionLog", hit.id, "geometryKind"],
+              hit.geometryKind,
+              "circle",
+              "Burning hit geometry kind"
+            );
+            expectEqual(
+              context,
+              [
+                "hitResolutionLog",
+                hit.id,
+                "geometryCoordinateSpace"
+              ],
+              hit.geometryCoordinateSpace,
+              "world",
+              "Burning hit geometry coordinate space"
+            );
+            expectPointEqual(
+              context,
+              ["hitResolutionLog", hit.id, "geometryOrigin"],
+              hit.geometryOrigin,
+              expectedCenterPosition,
+              "Burning hit geometry origin"
+            );
+            expectEqual(
+              context,
+              ["hitResolutionLog", hit.id, "geometryRadius"],
+              hit.geometryRadius,
+              BURNING_DAMAGE_RADIUS,
+              "Burning hit geometry radius"
+            );
+            for (const [field, actual] of [
+              ["sourceActorPosition", hit.sourceActorPosition],
+              ["sourceActorFacingDegrees", hit.sourceActorFacingDegrees],
+              ["geometryStart", hit.geometryStart],
+              ["geometryEnd", hit.geometryEnd],
+              ["geometryHalfWidth", hit.geometryHalfWidth],
+              ["geometryHalfHeight", hit.geometryHalfHeight],
+              ["geometryRotationDegrees", hit.geometryRotationDegrees],
+              ["geometryDirectionDegrees", hit.geometryDirectionDegrees],
+              ["geometryAngleDegrees", hit.geometryAngleDegrees]
+            ] as const) {
+              expectEqual(
+                context,
+                ["hitResolutionLog", hit.id, field],
+                actual,
+                null,
+                `circle Burning ${field}`
+              );
+            }
+            if (
+              expectedDistance === null ||
+              expectedThreshold === null
+            ) {
+              addIssue(
+                context,
+                ["hitResolutionLog", hit.id, "geometryDistance"],
+                "resolved Burning geometry requires a configured target position and hitbox"
+              );
+            } else {
+              if (
+                hit.geometryDistance === null ||
+                !approximatelyEqual(
+                  hit.geometryDistance,
+                  expectedDistance
+                )
+              ) {
+                addIssue(
+                  context,
+                  ["hitResolutionLog", hit.id, "geometryDistance"],
+                  "Burning hit distance must match config geometry replay"
+                );
+              }
+              if (
+                hit.geometryThreshold === null ||
+                !approximatelyEqual(
+                  hit.geometryThreshold,
+                  expectedThreshold
+                )
+              ) {
+                addIssue(
+                  context,
+                  ["hitResolutionLog", hit.id, "geometryThreshold"],
+                  "Burning hit threshold must match config hitbox replay"
+                );
+              }
+            }
+          }
+          expectEqual(
+            context,
+            ["hitResolutionLog", hit.id, "reason"],
+            hit.reason,
+            expectedReason,
+            "Burning hit outcome reason"
+          );
+          expectEqual(
+            context,
+            ["hitResolutionLog", hit.id, "targetEffectSource"],
+            hit.targetEffectSource,
+            activeTargetPhase === undefined
+              ? "normal"
+              : "target-phase",
+            "Burning hit target effect source"
+          );
+          expectEqual(
+            context,
+            ["hitResolutionLog", hit.id, "targetPhaseId"],
+            hit.targetPhaseId,
+            activeTargetPhase?.id ?? null,
+            "Burning hit target phase"
+          );
+          for (const [field, actual, expected] of [
+            [
+              "damageAllowed",
+              hit.damageAllowed,
+              expectedDamageAllowed
+            ],
+            ["auraAllowed", hit.auraAllowed, expectedAuraAllowed],
+            ["hitConfirmAllowed", hit.hitConfirmAllowed, false],
+            [
+              "mechanicsStatus",
+              hit.mechanicsStatus,
+              expectedMechanicsStatus
+            ]
+          ] as const) {
+            expectEqual(
+              context,
+              ["hitResolutionLog", hit.id, field],
+              actual,
+              expected,
+              `Burning hit ${field}`
+            );
+          }
         }
         resolvedTargetIndex += 1;
 
@@ -831,6 +1423,29 @@ export function validateTargetPhaseV3Integrity(
             context,
             [...attemptPath, "damageEventId"],
             "landed attempt does not match its callback-owned Burning damage event"
+          );
+        }
+        if (damage !== undefined) {
+          expectEqual(
+            context,
+            ["damageEvents", damage.id, "mechanicsStatus"],
+            damage.mechanicsStatus,
+            expectedMechanicsStatus,
+            "Burning damage mechanics status"
+          );
+          expectEqual(
+            context,
+            ["damageEvents", damage.id, "targetDamagePolicy"],
+            damage.targetDamagePolicy,
+            expectedDamageAllowed ? "normal" : "immune",
+            "Burning damage target policy"
+          );
+          expectEqual(
+            context,
+            ["damageEvents", damage.id, "targetDamageMultiplier"],
+            damage.targetDamageMultiplier,
+            expectedDamageAllowed ? 1 : 0,
+            "Burning damage target multiplier"
           );
         }
         const timelinePoint = timelinePointById.get(

@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import { AuraEngine } from "../aura";
 import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
+import { TargetLocalClock } from "../target-clock";
 import { makeConfig, neutralStats } from "./fixtures";
 
 function noIcd(gaugeUnits = 1) {
@@ -533,6 +534,31 @@ describe("aura-v4 Burning lifecycle", () => {
       nextTickFrame: null,
       reason: "SUPERSEDED_STREAM"
     });
+
+    const clockedAudit = new AuraEngine({
+      mode: "aura-v4",
+      targetClock: new TargetLocalClock(),
+      initialAura: [
+        { element: "pyro", gaugeUnits: 1 },
+        { element: "hydro", gaugeUnits: 1 }
+      ]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd()
+    });
+    expect(clockedAudit.burningReaction).toMatchObject({
+      blockedReason: "TARGET_MECHANICS_TRUNCATION",
+      fuelExpiresAtTargetFrame: null,
+      firstTickTargetFrame: null,
+      nextTickTargetFrame: null
+    });
+    expect(() =>
+      burningReactionAuditSchema.parse(
+        clockedAudit.burningReaction
+      )
+    ).not.toThrow();
   });
 
   it("stops immediately when a reaction consumes the Burning marker", () => {
@@ -717,6 +743,155 @@ describe("aura-v4 Burning lifecycle", () => {
       });
     }
   );
+
+  it("validates Fuel-driven Quicken expiry in the target-local clock domain", () => {
+    const clock = new TargetLocalClock();
+    const engine = new AuraEngine({
+      mode: "aura-v5",
+      targetClock: clock,
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd(1)
+    });
+    engine.processHit({
+      frame: 1,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd(1)
+    });
+    engine.applyTargetHitlag({
+      globalFrame: 1,
+      haltFrames: 5,
+      factor: 0
+    });
+    engine.processHit({
+      frame: 2,
+      sourceActorId: "physical",
+      element: "physical"
+    });
+
+    const beforeRefresh = engine.getQuickenLifecycleState();
+    const quickenFrames = Math.ceil(
+      beforeRefresh.gaugeUnits /
+        beforeRefresh.decayPerFrame -
+        1e-9
+    );
+    const fuelFrames = quickenFrames - 1;
+    const refresh = engine.processHit({
+      frame: 2,
+      sourceActorId: "dendro-refresh",
+      element: "dendro",
+      application: noIcd(fuelFrames / 150 / 0.8)
+    });
+    const burningAudit = refresh.burningReaction!;
+
+    expect(clock.getState()).toMatchObject({
+      globalFrame: 2,
+      localFrame: 1,
+      frozenFrames: 4
+    });
+    expect(burningAudit).toMatchObject({
+      snapshotFrame: 2,
+      snapshotTargetFrame: 1,
+      fuelExpiresAtTargetFrame: 1 + 1 + fuelFrames,
+      quickenStateMutation: {
+        operation: "decay-rebase",
+        endCauseAfter: "BURNING_FUEL_EXPIRED"
+      }
+    });
+    expect(
+      burningReactionAuditSchema.parse(burningAudit)
+    ).toEqual(burningAudit);
+
+    const coordinatedDrift = structuredClone(burningAudit);
+    const quickenAfter =
+      coordinatedDrift.quickenStateMutation.operationAuraAfter.find(
+        (entry) => entry.element === "quicken"
+      );
+    if (
+      coordinatedDrift.fuelExpiresAtTargetFrame ===
+        undefined ||
+      coordinatedDrift.fuelExpiresAtTargetFrame === null ||
+      quickenAfter?.expiresAtTargetFrame === undefined ||
+      quickenAfter.expiresAtTargetFrame === null
+    ) {
+      throw new Error(
+        "Expected hitlag-aware Fuel and Quicken target deadlines"
+      );
+    }
+    coordinatedDrift.fuelExpiresAtTargetFrame += 1;
+    quickenAfter.expiresAtTargetFrame += 1;
+    expect(() =>
+      burningReactionAuditSchema.parse(coordinatedDrift)
+    ).toThrow(/earlier Fuel or Quicken boundary/);
+  });
+
+  it("validates restored Quicken decay after a hitlag-aware Burning stop", () => {
+    const clock = new TargetLocalClock();
+    const engine = new AuraEngine({
+      mode: "aura-v5",
+      targetClock: clock,
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd(1)
+    });
+    engine.processHit({
+      frame: 1,
+      sourceActorId: "pyro",
+      element: "pyro",
+      application: noIcd(1)
+    });
+    engine.applyTargetHitlag({
+      globalFrame: 1,
+      haltFrames: 5,
+      factor: 0
+    });
+    const stopAudit = engine.processHit({
+      frame: 2,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd(10)
+    }).burningReaction;
+
+    expect(stopAudit).toMatchObject({
+      operation: "stop",
+      snapshotFrame: 2,
+      snapshotTargetFrame: 1,
+      quickenStateMutation: {
+        operation: "decay-rebase",
+        endCauseAfter: "QUICKEN_DECAY"
+      }
+    });
+    expect(
+      burningReactionAuditSchema.parse(stopAudit)
+    ).toEqual(stopAudit);
+
+    const coordinatedDrift = structuredClone(stopAudit!);
+    const quickenAfter =
+      coordinatedDrift.quickenStateMutation.operationAuraAfter.find(
+        (entry) => entry.element === "quicken"
+      );
+    if (
+      quickenAfter?.expiresAtTargetFrame === undefined ||
+      quickenAfter.expiresAtTargetFrame === null
+    ) {
+      throw new Error(
+        "Expected restored Quicken target-local expiry."
+      );
+    }
+    quickenAfter.expiresAtTargetFrame += 1;
+    expect(() =>
+      burningReactionAuditSchema.parse(coordinatedDrift)
+    ).toThrow(/intrinsic decay expiry/);
+  });
 });
 
 describe("Burning simulation integration", () => {

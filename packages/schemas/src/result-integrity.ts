@@ -4,7 +4,9 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  type AuraGaugeEntry,
   type AuraReactionEngineConfig,
+  type AuraStateEntry,
   type CharacterStats,
   type DamageEvent,
   type ScalingStat,
@@ -33,6 +35,22 @@ const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
 const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
 const FROZEN_DECAY_ACCELERATION_PER_FRAME =
   0.1 / (60 * 60);
+const BURNING_TICK_INTERVAL_FRAMES = 15;
+const BURNING_SKIPPED_TICK_INDEX = 9;
+const BURNING_FUEL_DECAY_PER_FRAME = 0.4 / 60;
+const BURNING_ICD_RESET_FRAMES = 120;
+const BURNING_APPLICATION_GAUGE_UNITS = 1;
+const BURNING_MARKER_GAUGE_UNITS = 2;
+const BURNING_ICD_SEQUENCE = [
+  true,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+] as const;
 
 function usesCurrentAuraDurability(
   mode: AuraReactionEngineConfig["mode"] | undefined
@@ -170,6 +188,200 @@ function semanticEqual(left: unknown, right: unknown): boolean {
   return canonicalStringify(left) === canonicalStringify(right);
 }
 
+function auraStateProjectionEqual(
+  left: readonly AuraStateEntry[],
+  right: readonly AuraStateEntry[]
+): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    const leftEntry = left[index]!;
+    const rightEntry = right[index]!;
+    if (
+      leftEntry.element !== rightEntry.element ||
+      !nearlyEqual(leftEntry.gaugeUnits, rightEntry.gaugeUnits) ||
+      leftEntry.expiresAtFrame !== rightEntry.expiresAtFrame ||
+      leftEntry.expiresAtTargetFrame !==
+        rightEntry.expiresAtTargetFrame
+    ) {
+      return false;
+    }
+    const leftSlots = leftEntry.sourceSlots;
+    const rightSlots = rightEntry.sourceSlots;
+    if ((leftSlots === undefined) !== (rightSlots === undefined)) {
+      return false;
+    }
+    if (leftSlots === undefined || rightSlots === undefined) {
+      continue;
+    }
+    if (leftSlots.length !== rightSlots.length) return false;
+    for (
+      let slotIndex = 0;
+      slotIndex < leftSlots.length;
+      slotIndex += 1
+    ) {
+      const leftSlot = leftSlots[slotIndex]!;
+      const rightSlot = rightSlots[slotIndex]!;
+      if (
+        leftSlot.sourceActorId !== rightSlot.sourceActorId ||
+        !nearlyEqual(leftSlot.gaugeUnits, rightSlot.gaugeUnits)
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function auraGaugeProjectionEqual(
+  left: readonly AuraGaugeEntry[],
+  right: readonly AuraGaugeEntry[]
+): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    const leftEntry = left[index]!;
+    const rightEntry = right[index]!;
+    if (
+      leftEntry.element !== rightEntry.element ||
+      !nearlyEqual(leftEntry.gaugeUnits, rightEntry.gaugeUnits) ||
+      leftEntry.sourceActorId !== rightEntry.sourceActorId
+    ) {
+      return false;
+    }
+    const leftMutations = leftEntry.sourceMutations;
+    const rightMutations = rightEntry.sourceMutations;
+    if (
+      (leftMutations === undefined) !==
+      (rightMutations === undefined)
+    ) {
+      return false;
+    }
+    if (
+      leftMutations === undefined ||
+      rightMutations === undefined
+    ) {
+      continue;
+    }
+    if (leftMutations.length !== rightMutations.length) return false;
+    for (
+      let mutationIndex = 0;
+      mutationIndex < leftMutations.length;
+      mutationIndex += 1
+    ) {
+      const leftMutation = leftMutations[mutationIndex]!;
+      const rightMutation = rightMutations[mutationIndex]!;
+      if (
+        leftMutation.sourceActorId !==
+          rightMutation.sourceActorId ||
+        !nearlyEqual(
+          leftMutation.gaugeUnitsBefore,
+          rightMutation.gaugeUnitsBefore
+        ) ||
+        !nearlyEqual(
+          leftMutation.consumedGaugeUnits,
+          rightMutation.consumedGaugeUnits
+        ) ||
+        !nearlyEqual(
+          leftMutation.gaugeUnitsAfter,
+          rightMutation.gaugeUnitsAfter
+        )
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function orderedScalarArrayEqual(
+  left: readonly (string | number | boolean | null)[],
+  right: readonly (string | number | boolean | null)[]
+): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
+}
+
+function mechanicsTruncationProjectionEqual(
+  left: DamageEvent["reactionAudit"]["mechanicsTruncation"],
+  right: DamageEvent["reactionAudit"]["mechanicsTruncation"]
+): boolean {
+  if (left === right) return true;
+  if (left === null || right === null) return false;
+  return (
+    left.operation === right.operation &&
+    left.startedAtFrame === right.startedAtFrame &&
+    left.reason === right.reason &&
+    orderedScalarArrayEqual(
+      left.unsupportedReactions,
+      right.unsupportedReactions
+    ) &&
+    auraStateProjectionEqual(
+      left.discardedAura,
+      right.discardedAura
+    )
+  );
+}
+
+function expectAuraStateProjection(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: readonly AuraStateEntry[],
+  expected: readonly AuraStateEntry[],
+  label: string
+): void {
+  if (!auraStateProjectionEqual(actual, expected)) {
+    addIssue(context, path, `${label} does not match its authoritative source`);
+  }
+}
+
+function expectAuraGaugeProjection(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: readonly AuraGaugeEntry[],
+  expected: readonly AuraGaugeEntry[],
+  label: string
+): void {
+  if (!auraGaugeProjectionEqual(actual, expected)) {
+    addIssue(context, path, `${label} does not match its authoritative source`);
+  }
+}
+
+function expectAuraStateFieldProjection(
+  context: RefinementCtx,
+  pathPrefix: readonly (string | number)[],
+  field: string,
+  actual: readonly AuraStateEntry[],
+  expected: readonly AuraStateEntry[],
+  label: string
+): void {
+  if (!auraStateProjectionEqual(actual, expected)) {
+    addIssue(
+      context,
+      [...pathPrefix, field],
+      `${label} does not match its authoritative source`
+    );
+  }
+}
+
+function expectAuraGaugeFieldProjection(
+  context: RefinementCtx,
+  pathPrefix: readonly (string | number)[],
+  field: string,
+  actual: readonly AuraGaugeEntry[],
+  expected: readonly AuraGaugeEntry[],
+  label: string
+): void {
+  if (!auraGaugeProjectionEqual(actual, expected)) {
+    addIssue(
+      context,
+      [...pathPrefix, field],
+      `${label} does not match its authoritative source`
+    );
+  }
+}
+
 function addIssue(
   context: RefinementCtx,
   path: IssuePath,
@@ -210,6 +422,40 @@ function expectEqual(
       context,
       path,
       `${label} must equal ${String(expected)}; received ${String(actual)}`
+    );
+  }
+}
+
+function expectFieldEqual(
+  context: RefinementCtx,
+  pathPrefix: readonly (string | number)[],
+  field: string,
+  actual: unknown,
+  expected: unknown,
+  label: string
+): void {
+  if (actual !== expected) {
+    addIssue(
+      context,
+      [...pathPrefix, field],
+      `${label} must equal ${String(expected)}; received ${String(actual)}`
+    );
+  }
+}
+
+function expectFieldNearlyEqual(
+  context: RefinementCtx,
+  pathPrefix: readonly (string | number)[],
+  field: string,
+  actual: number,
+  expected: number,
+  label: string
+): void {
+  if (!nearlyEqual(actual, expected)) {
+    addIssue(
+      context,
+      [...pathPrefix, field],
+      `${label} must equal ${expected}; received ${actual}`
     );
   }
 }
@@ -1625,26 +1871,26 @@ function validateAuraProjection(
   let auraTimelineIndex = 0;
   for (const [eventIndex, event] of result.damageEvents.entries()) {
     const audit = event.reactionAudit;
-    const auraFields = [
-      audit.auraBefore,
-      audit.auraApplied,
-      audit.auraConsumed,
-      audit.auraAfter
-    ];
-    const hasAnyAuraProjection = auraFields.some(
-      (field) => field !== null
-    );
-    const hasCompleteAuraProjection = auraFields.every(
-      (field) => field !== null
-    );
-    if (hasAnyAuraProjection && !hasCompleteAuraProjection) {
-      addIssue(
-        context,
-        ["damageEvents", eventIndex, "reactionAudit"],
-        "Aura audit fields must be all-null or all-present"
-      );
+    if (
+      audit.auraBefore === null ||
+      audit.auraApplied === null ||
+      audit.auraConsumed === null ||
+      audit.auraAfter === null
+    ) {
+      if (
+        audit.auraBefore !== null ||
+        audit.auraApplied !== null ||
+        audit.auraConsumed !== null ||
+        audit.auraAfter !== null
+      ) {
+        addIssue(
+          context,
+          ["damageEvents", eventIndex, "reactionAudit"],
+          "Aura audit fields must be all-null or all-present"
+        );
+      }
+      continue;
     }
-    if (!hasCompleteAuraProjection) continue;
 
     const point = result.auraTimeline[auraTimelineIndex];
     if (point === undefined) {
@@ -1656,52 +1902,177 @@ function validateAuraProjection(
       auraTimelineIndex += 1;
       continue;
     }
-    for (const [field, expected] of [
-      ["damageEventId", event.id],
-      ["eventPriority", event.eventPriority],
-      ["eventSequence", event.eventSequence],
-      ["targetId", event.targetId],
-      ["targetName", event.targetName],
-      ["frame", event.frame],
-      ["sourceActorId", event.sourceActorId],
-      ["actionId", event.actionId],
-      ["hitId", event.hitId],
-      ["incomingElement", event.element],
-      ["icdAllowed", audit.icdAllowed],
-      ["reaction", audit.reaction]
-    ] as const) {
-      expectEqual(
-        context,
-        ["auraTimeline", auraTimelineIndex, field],
-        point[field],
-        expected,
-        `Aura timeline ${field}`
-      );
-    }
-    expectNearlyEqual(
+    const timelinePath = [
+      "auraTimeline",
+      auraTimelineIndex
+    ] satisfies IssuePath;
+    expectFieldEqual(
       context,
-      ["auraTimeline", auraTimelineIndex, "timeSeconds"],
+      timelinePath,
+      "damageEventId",
+      point.damageEventId,
+      event.id,
+      "Aura timeline damage event"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "eventPriority",
+      point.eventPriority,
+      event.eventPriority,
+      "Aura timeline event priority"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "eventSequence",
+      point.eventSequence,
+      event.eventSequence,
+      "Aura timeline event sequence"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "targetId",
+      point.targetId,
+      event.targetId,
+      "Aura timeline target"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "targetName",
+      point.targetName,
+      event.targetName,
+      "Aura timeline target name"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "frame",
+      point.frame,
+      event.frame,
+      "Aura timeline frame"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "sourceActorId",
+      point.sourceActorId,
+      event.sourceActorId,
+      "Aura timeline source"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "actionId",
+      point.actionId,
+      event.actionId,
+      "Aura timeline action"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "hitId",
+      point.hitId,
+      event.hitId,
+      "Aura timeline hit"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "incomingElement",
+      point.incomingElement,
+      event.element,
+      "Aura timeline incoming element"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "icdAllowed",
+      point.icdAllowed,
+      audit.icdAllowed,
+      "Aura timeline ICD decision"
+    );
+    expectFieldEqual(
+      context,
+      timelinePath,
+      "reaction",
+      point.reaction,
+      audit.reaction,
+      "Aura timeline reaction"
+    );
+    expectFieldNearlyEqual(
+      context,
+      timelinePath,
+      "timeSeconds",
       point.timeSeconds,
       event.timeSeconds,
       "Aura timeline time"
     );
-    for (const [field, expected] of [
-      ["reactions", audit.reactions],
-      ["unsupportedReactions", audit.unsupportedReactions],
-      ["mechanicsTruncation", audit.mechanicsTruncation],
-      ["auraBefore", audit.auraBefore],
-      ["auraApplied", audit.auraApplied],
-      ["auraConsumed", audit.auraConsumed],
-      ["auraAfter", audit.auraAfter]
-    ] as const) {
-      expectSemanticEqual(
+    if (!orderedScalarArrayEqual(point.reactions, audit.reactions)) {
+      addIssue(
         context,
-        ["auraTimeline", auraTimelineIndex, field],
-        point[field],
-        expected,
-        `Aura timeline ${field}`
+        [...timelinePath, "reactions"],
+        "Aura timeline reactions do not match their authoritative source"
       );
     }
+    if (
+      !orderedScalarArrayEqual(
+        point.unsupportedReactions,
+        audit.unsupportedReactions
+      )
+    ) {
+      addIssue(
+        context,
+        [...timelinePath, "unsupportedReactions"],
+        "Aura timeline unsupported reactions do not match their authoritative source"
+      );
+    }
+    if (
+      !mechanicsTruncationProjectionEqual(
+        point.mechanicsTruncation,
+        audit.mechanicsTruncation
+      )
+    ) {
+      addIssue(
+        context,
+        [...timelinePath, "mechanicsTruncation"],
+        "Aura timeline mechanics truncation does not match its authoritative source"
+      );
+    }
+    expectAuraStateFieldProjection(
+      context,
+      timelinePath,
+      "auraBefore",
+      point.auraBefore,
+      audit.auraBefore,
+      "Aura timeline auraBefore"
+    );
+    expectAuraGaugeFieldProjection(
+      context,
+      timelinePath,
+      "auraApplied",
+      point.auraApplied,
+      audit.auraApplied,
+      "Aura timeline auraApplied"
+    );
+    expectAuraGaugeFieldProjection(
+      context,
+      timelinePath,
+      "auraConsumed",
+      point.auraConsumed,
+      audit.auraConsumed,
+      "Aura timeline auraConsumed"
+    );
+    expectAuraStateFieldProjection(
+      context,
+      timelinePath,
+      "auraAfter",
+      point.auraAfter,
+      audit.auraAfter,
+      "Aura timeline auraAfter"
+    );
     auraTimelineIndex += 1;
   }
   if (auraTimelineIndex !== result.auraTimeline.length) {
@@ -1715,17 +2086,21 @@ function validateAuraProjection(
   const targetById = new Map(
     result.enemyTargets.map((target) => [target.id, target])
   );
+  type TimelinePointOwnership = {
+    point: SimulationResult["targetStateTimeline"]["points"][number];
+    count: number;
+  };
   const initialBoundaryByTarget = new Map<
     string,
-    SimulationResult["targetStateTimeline"]["points"]
+    TimelinePointOwnership
   >();
   const endBoundaryByTarget = new Map<
     string,
-    SimulationResult["targetStateTimeline"]["points"]
+    TimelinePointOwnership
   >();
   const applicationPointsByDamageEventId = new Map<
     number,
-    SimulationResult["targetStateTimeline"]["points"]
+    TimelinePointOwnership
   >();
   const linkTargets: Record<
     Exclude<
@@ -1821,40 +2196,55 @@ function validateAuraProjection(
       }
     }
     if (point.cause === "simulation-start") {
-      const boundaries =
-        initialBoundaryByTarget.get(point.targetId) ?? [];
-      boundaries.push(point);
-      initialBoundaryByTarget.set(point.targetId, boundaries);
+      const ownership = initialBoundaryByTarget.get(point.targetId);
+      if (ownership === undefined) {
+        initialBoundaryByTarget.set(point.targetId, {
+          point,
+          count: 1
+        });
+      } else {
+        ownership.count += 1;
+      }
     } else if (point.cause === "simulation-end") {
-      const boundaries =
-        endBoundaryByTarget.get(point.targetId) ?? [];
-      boundaries.push(point);
-      endBoundaryByTarget.set(point.targetId, boundaries);
+      const ownership = endBoundaryByTarget.get(point.targetId);
+      if (ownership === undefined) {
+        endBoundaryByTarget.set(point.targetId, {
+          point,
+          count: 1
+        });
+      } else {
+        ownership.count += 1;
+      }
     } else if (
       (point.cause === "direct-hit-application" ||
         point.cause === "reaction-damage-application") &&
       point.primaryDamageEventId !== null
     ) {
-      const applications =
-        applicationPointsByDamageEventId.get(
-          point.primaryDamageEventId
-        ) ?? [];
-      applications.push(point);
-      applicationPointsByDamageEventId.set(
-        point.primaryDamageEventId,
-        applications
+      const ownership = applicationPointsByDamageEventId.get(
+        point.primaryDamageEventId
       );
+      if (ownership === undefined) {
+        applicationPointsByDamageEventId.set(
+          point.primaryDamageEventId,
+          { point, count: 1 }
+        );
+      } else {
+        ownership.count += 1;
+      }
     }
   }
 
   for (const [auraIndex, auraPoint] of
     result.auraTimeline.entries()) {
     const event = result.damageEvents[auraPoint.damageEventId];
-    const applications =
+    const applicationOwnership =
       applicationPointsByDamageEventId.get(
         auraPoint.damageEventId
-      ) ?? [];
-    if (applications.length !== 1 || event === undefined) {
+      );
+    if (
+      applicationOwnership?.count !== 1 ||
+      event === undefined
+    ) {
       addIssue(
         context,
         ["auraTimeline", auraIndex, "damageEventId"],
@@ -1862,82 +2252,142 @@ function validateAuraProjection(
       );
       continue;
     }
-    const application = applications[0]!;
+    const application = applicationOwnership.point;
     const expectedCause =
       event.kind === "direct"
         ? "direct-hit-application"
         : "reaction-damage-application";
     const expectedEventType =
       event.kind === "direct" ? "hit" : "reactionDamage";
-    for (const [field, expected] of [
-      ["cause", expectedCause],
-      ["eventType", expectedEventType],
-      ["eventPriority", event.eventPriority],
-      ["eventSequence", event.eventSequence],
-      ["targetId", auraPoint.targetId],
-      ["targetName", auraPoint.targetName],
-      ["frame", auraPoint.frame],
-      ["reaction", auraPoint.reaction]
-    ] as const) {
-      expectEqual(
-        context,
-        [
-          "targetStateTimeline",
-          "points",
-          application.id,
-          field
-        ],
-        application[field],
-        expected,
-        `target-state application ${field}`
-      );
-    }
-    expectNearlyEqual(
+    const applicationPath = [
+      "targetStateTimeline",
+      "points",
+      application.id
+    ] satisfies IssuePath;
+    expectFieldEqual(
       context,
-      [
-        "targetStateTimeline",
-        "points",
-        application.id,
-        "timeSeconds"
-      ],
+      applicationPath,
+      "cause",
+      application.cause,
+      expectedCause,
+      "target-state application cause"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "eventType",
+      application.eventType,
+      expectedEventType,
+      "target-state application event type"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "eventPriority",
+      application.eventPriority,
+      event.eventPriority,
+      "target-state application priority"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "eventSequence",
+      application.eventSequence,
+      event.eventSequence,
+      "target-state application sequence"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "targetId",
+      application.targetId,
+      auraPoint.targetId,
+      "target-state application target"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "targetName",
+      application.targetName,
+      auraPoint.targetName,
+      "target-state application target name"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "frame",
+      application.frame,
+      auraPoint.frame,
+      "target-state application frame"
+    );
+    expectFieldEqual(
+      context,
+      applicationPath,
+      "reaction",
+      application.reaction,
+      auraPoint.reaction,
+      "target-state application reaction"
+    );
+    expectFieldNearlyEqual(
+      context,
+      applicationPath,
+      "timeSeconds",
       application.timeSeconds,
       auraPoint.timeSeconds,
       "target-state application time"
     );
-    for (const [field, expected] of [
-      ["reactions", auraPoint.reactions],
-      ["auraBefore", auraPoint.auraBefore],
-      ["auraApplied", auraPoint.auraApplied],
-      ["auraConsumed", auraPoint.auraConsumed],
-      ["auraAfter", auraPoint.auraAfter]
-    ] as const) {
-      expectSemanticEqual(
-        context,
-        [
-          "targetStateTimeline",
-          "points",
-          application.id,
-          field
-        ],
-        application[field],
-        expected,
-        `target-state application ${field}`
-      );
-    }
-    const damageLinks = application.links.filter(
-      (link) =>
-        link.kind === "damage-event" &&
-        link.id === auraPoint.damageEventId
-    );
-    if (damageLinks.length !== 1) {
+    if (!orderedScalarArrayEqual(application.reactions, auraPoint.reactions)) {
       addIssue(
         context,
-        [
-          "targetStateTimeline",
-          "points",
-          application.id,
-          "links"
-        ],
+        [...applicationPath, "reactions"],
+        "target-state application reactions do not match their authoritative source"
+      );
+    }
+    expectAuraStateFieldProjection(
+      context,
+      applicationPath,
+      "auraBefore",
+      application.auraBefore,
+      auraPoint.auraBefore,
+      "target-state application auraBefore"
+    );
+    expectAuraGaugeFieldProjection(
+      context,
+      applicationPath,
+      "auraApplied",
+      application.auraApplied,
+      auraPoint.auraApplied,
+      "target-state application auraApplied"
+    );
+    expectAuraGaugeFieldProjection(
+      context,
+      applicationPath,
+      "auraConsumed",
+      application.auraConsumed,
+      auraPoint.auraConsumed,
+      "target-state application auraConsumed"
+    );
+    expectAuraStateFieldProjection(
+      context,
+      applicationPath,
+      "auraAfter",
+      application.auraAfter,
+      auraPoint.auraAfter,
+      "target-state application auraAfter"
+    );
+    let matchingDamageLinkCount = 0;
+    for (const link of application.links) {
+      if (
+        link.kind === "damage-event" &&
+        link.id === auraPoint.damageEventId
+      ) {
+        matchingDamageLinkCount += 1;
+      }
+    }
+    if (matchingDamageLinkCount !== 1) {
+      addIssue(
+        context,
+        [...applicationPath, "links"],
         "target-state application must backlink its damage event exactly once"
       );
     }
@@ -1947,24 +2397,24 @@ function validateAuraProjection(
     result.enemyTargets.entries()) {
     const initialState = result.auraInitialStates[targetIndex];
     const endState = result.auraEndStates[targetIndex];
-    const initialBoundaries =
-      initialBoundaryByTarget.get(target.id) ?? [];
-    const endBoundaries = endBoundaryByTarget.get(target.id) ?? [];
-    if (initialBoundaries.length !== 1) {
+    const initialBoundaryOwnership =
+      initialBoundaryByTarget.get(target.id);
+    const endBoundaryOwnership = endBoundaryByTarget.get(target.id);
+    if (initialBoundaryOwnership?.count !== 1) {
       addIssue(
         context,
         ["targetStateTimeline", "points"],
         `target ${target.id} must have exactly one simulation-start boundary`
       );
     }
-    if (endBoundaries.length !== 1) {
+    if (endBoundaryOwnership?.count !== 1) {
       addIssue(
         context,
         ["targetStateTimeline", "points"],
         `target ${target.id} must have exactly one simulation-end boundary`
       );
     }
-    const initialBoundary = initialBoundaries[0];
+    const initialBoundary = initialBoundaryOwnership?.point;
     if (initialState !== undefined && initialBoundary !== undefined) {
       expectEqual(
         context,
@@ -2144,7 +2594,7 @@ function validateAuraProjection(
         }
       }
     }
-    const endBoundary = endBoundaries[0];
+    const endBoundary = endBoundaryOwnership?.point;
     if (endState !== undefined && endBoundary !== undefined) {
       expectEqual(
         context,
@@ -6828,12 +7278,179 @@ function validateBurningStateProjection(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
+  type QuickenStateRow =
+    SimulationResult["quickenStateLog"][number];
+  type TargetStatePoint =
+    SimulationResult["targetStateTimeline"]["points"][number];
+  type BurningReactionAudit = NonNullable<
+    SimulationResult["damageEvents"][number]["reactionAudit"]["burningReaction"]
+  >;
+  type BurningQuickenMutation =
+    BurningReactionAudit["quickenStateMutation"];
+  type CatalyzeQuickenAudit = NonNullable<
+    NonNullable<
+      SimulationResult["damageEvents"][number]["reactionAudit"]["catalyzeReaction"]
+    >["quicken"]
+  >;
+  type BloomReactionAudit =
+    SimulationResult["damageEvents"][number]["reactionAudit"]["bloomReactions"][number];
+  type BurningQuickenOwner = {
+    eventIndex: number;
+    applicationPointId: number;
+  };
+  type BurningClockCut = {
+    frame: number;
+    eventPriority: number;
+    eventSequence: number;
+  };
+  type BurningClockState = {
+    globalFrame: number;
+    targetFrame: number;
+    frozenFrames: number;
+  };
+
+  const usesTargetHitlagClock =
+    result.config.targetClockModel.mode ===
+    "target-local-hitlag-v1";
+  const appliedHitlagByTarget = new Map<
+    string,
+    SimulationResult["targetHitlagLog"]
+  >();
+  if (usesTargetHitlagClock) {
+    // This is deliberately a minimal result-side replay over the already
+    // validated Hitlag log. It closes coordinated Burning deadline drift, but
+    // it is not the final config-root provenance link from haltFrames/factor
+    // on an ability hit to the emitted Hitlag row.
+    for (const hitlag of result.targetHitlagLog) {
+      if (!hitlag.applied || hitlag.extensionFrames <= 0) continue;
+      const rows = appliedHitlagByTarget.get(hitlag.targetId) ?? [];
+      rows.push(hitlag);
+      appliedHitlagByTarget.set(hitlag.targetId, rows);
+    }
+    for (const rows of appliedHitlagByTarget.values()) {
+      rows.sort(
+        (left, right) =>
+          left.globalFrame - right.globalFrame ||
+          left.eventPriority - right.eventPriority ||
+          left.eventSequence - right.eventSequence ||
+          left.intraEventSequence - right.intraEventSequence ||
+          left.id - right.id
+      );
+    }
+  }
+
+  const hitlagStrictlyPrecedesBurningCut = (
+    hitlag: SimulationResult["targetHitlagLog"][number],
+    cut: BurningClockCut
+  ): boolean =>
+    hitlag.globalFrame < cut.frame ||
+    (hitlag.globalFrame === cut.frame &&
+      (hitlag.eventPriority < cut.eventPriority ||
+        (hitlag.eventPriority === cut.eventPriority &&
+          hitlag.eventSequence < cut.eventSequence)));
+
+  const advanceBurningClock = (
+    state: BurningClockState,
+    globalFrame: number
+  ): BurningClockState => {
+    const elapsed = globalFrame - state.globalFrame;
+    const consumedFrozenFrames = Math.min(
+      elapsed,
+      state.frozenFrames
+    );
+    return {
+      globalFrame,
+      targetFrame:
+        state.targetFrame + elapsed - consumedFrozenFrames,
+      frozenFrames: state.frozenFrames - consumedFrozenFrames
+    };
+  };
+
+  const burningClockStateAtCut = (
+    targetId: string,
+    cut: BurningClockCut
+  ): BurningClockState => {
+    let state: BurningClockState = {
+      globalFrame: 0,
+      targetFrame: 0,
+      frozenFrames: 0
+    };
+    for (const hitlag of appliedHitlagByTarget.get(targetId) ?? []) {
+      if (!hitlagStrictlyPrecedesBurningCut(hitlag, cut)) break;
+      state = advanceBurningClock(state, hitlag.globalFrame);
+      state = {
+        ...state,
+        frozenFrames: state.frozenFrames + hitlag.extensionFrames
+      };
+    }
+    return advanceBurningClock(state, cut.frame);
+  };
+
+  const validateBurningGlobalDeadline = (
+    state: BurningClockState,
+    globalDeadline: number | null,
+    targetDeadline: number | null | undefined,
+    path: IssuePath,
+    label: string
+  ): void => {
+    if (!usesTargetHitlagClock) return;
+    if (targetDeadline === undefined) {
+      addIssue(
+        context,
+        path,
+        `${label} requires its target-local deadline`
+      );
+      return;
+    }
+    if (targetDeadline === null) {
+      expectEqual(context, path, globalDeadline, null, label);
+      return;
+    }
+    const expectedGlobalDeadline =
+      targetDeadline <= state.targetFrame
+        ? state.globalFrame
+        : state.globalFrame +
+          state.frozenFrames +
+          targetDeadline -
+          state.targetFrame;
+    expectEqual(
+      context,
+      path,
+      globalDeadline,
+      expectedGlobalDeadline,
+      label
+    );
+  };
+
   const damageEventById = new Map(
     result.damageEvents.map((event) => [event.id, event])
   );
   const reactionDamageById = new Map(
     result.reactionDamageLog.map((entry) => [entry.id, entry])
   );
+  const enemyTargetById = new Map(
+    result.enemyTargets.map((target) => [target.id, target])
+  );
+  const v3ApplicationPhaseByDamageEventId = new Map<
+    number,
+    "before-reactable-tick" | "after-reactable-tick"
+  >();
+  for (const phase of result.targetPhaseLog) {
+    if (phase.model !== "target-phase-v3") continue;
+    for (const task of phase.targetTasks) {
+      for (const attempt of task.delivery?.attempts ?? []) {
+        if (
+          attempt.outcome === "landed" &&
+          attempt.damageEventId !== null
+        ) {
+          v3ApplicationPhaseByDamageEventId.set(
+            attempt.damageEventId,
+            attempt.applicationPhase
+          );
+        }
+      }
+    }
+  }
   const burningTickByReactionDamageId = new Map<
     number,
     SimulationResult["burningStateLog"]
@@ -6842,21 +7459,395 @@ function validateBurningStateProjection(
     number,
     SimulationResult["burningStateLog"]
   >();
+  const burningAuditOwnedRowIds = new Set<number>();
+  const authoritativeBurningStopRowIds = new Set<number>();
   const lifecyclePointByBurningStateId = new Map<
     number,
     SimulationResult["targetStateTimeline"]["points"]
   >();
-  const tickRowsByTargetGeneration = new Map<
-    string,
-    SimulationResult["burningStateLog"]
+  const targetTaskPhasesByBurningStateId = new Map<
+    number,
+    SimulationResult["targetTaskPhaseLog"]
   >();
+  const applicationPointsByDamageEventId = new Map<
+    number,
+    TargetStatePoint[]
+  >();
+  const quickenTimelinePointsByRowId = new Map<
+    number,
+    TargetStatePoint[]
+  >();
+  const burningQuickenRowsByTarget = new Map<
+    string,
+    Map<number, QuickenStateRow[]>
+  >();
+  const burningQuickenOwnersByRowId = new Map<
+    number,
+    BurningQuickenOwner[]
+  >();
+  const quickenStateById = new Map(
+    result.quickenStateLog.map((row) => [row.id, row])
+  );
   for (const point of result.targetStateTimeline.points) {
-    for (const link of point.links) {
-      if (link.kind !== "burning-state-log") continue;
+    if (
+      (point.cause === "direct-hit-application" ||
+        point.cause === "reaction-damage-application") &&
+      point.primaryDamageEventId !== null
+    ) {
       const points =
-        lifecyclePointByBurningStateId.get(link.id) ?? [];
+        applicationPointsByDamageEventId.get(
+          point.primaryDamageEventId
+        ) ?? [];
       points.push(point);
-      lifecyclePointByBurningStateId.set(link.id, points);
+      applicationPointsByDamageEventId.set(
+        point.primaryDamageEventId,
+        points
+      );
+    }
+    for (const link of point.links) {
+      if (link.kind === "burning-state-log") {
+        const points =
+          lifecyclePointByBurningStateId.get(link.id) ?? [];
+        points.push(point);
+        lifecyclePointByBurningStateId.set(link.id, points);
+      } else if (link.kind === "quicken-state-log") {
+        // Preserve one entry per link occurrence. This lets the reverse
+        // ownership check reject a duplicated link even when both copies sit
+        // on the same target-state point.
+        const points =
+          quickenTimelinePointsByRowId.get(link.id) ?? [];
+        points.push(point);
+        quickenTimelinePointsByRowId.set(link.id, points);
+      }
+    }
+  }
+  for (const row of result.quickenStateLog) {
+    if (row.reason !== "BURNING_REBASED_QUICKEN_DECAY") {
+      continue;
+    }
+    let rowsByFrame = burningQuickenRowsByTarget.get(
+      row.targetId
+    );
+    if (rowsByFrame === undefined) {
+      rowsByFrame = new Map();
+      burningQuickenRowsByTarget.set(row.targetId, rowsByFrame);
+    }
+    const rows = rowsByFrame.get(row.frame) ?? [];
+    rows.push(row);
+    rowsByFrame.set(row.frame, rows);
+  }
+  const burningQuickenRowMatchesMutation = (
+    row: QuickenStateRow,
+    mutation: BurningQuickenMutation,
+    event: SimulationResult["damageEvents"][number],
+    applicationPoint: TargetStatePoint
+  ): boolean => {
+    const quickenBefore =
+      mutation.operationAuraBefore.find(
+        (entry) => entry.element === "quicken"
+      );
+    const quickenAfter =
+      mutation.operationAuraAfter.find(
+        (entry) => entry.element === "quicken"
+      );
+    const expectedTargetExpiryBefore =
+      quickenBefore?.expiresAtTargetFrame ??
+      mutation.expiresAtFrameBefore;
+    const expectedTargetExpiryAfter =
+      quickenAfter?.expiresAtTargetFrame ??
+      mutation.expiresAtFrameAfter;
+    return (
+      row.reaction === "quicken" &&
+      row.reason === "BURNING_REBASED_QUICKEN_DECAY" &&
+      row.operation === "decay-rebase" &&
+      row.generation === mutation.generationAfter &&
+      row.frame === event.frame &&
+      nearlyEqual(row.timeSeconds, event.timeSeconds) &&
+      (row.targetFrame ?? row.frame) ===
+        (applicationPoint.targetFrame ?? applicationPoint.frame) &&
+      row.targetId === event.targetId &&
+      row.targetName === event.targetName &&
+      row.triggerElement === null &&
+      row.consumedAuraElement === null &&
+      nearlyEqual(row.candidateGaugeUnits, 0) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsBefore,
+        mutation.quickenGaugeUnitsBefore
+      ) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsAfter,
+        mutation.quickenGaugeUnitsAfter
+      ) &&
+      nearlyEqual(
+        row.decayPerFrameBefore,
+        mutation.decayPerFrameBefore
+      ) &&
+      nearlyEqual(
+        row.decayPerFrameAfter,
+        mutation.decayPerFrameAfter
+      ) &&
+      row.expiresAtFrameBefore ===
+        mutation.expiresAtFrameBefore &&
+      row.expiresAtFrame === mutation.expiresAtFrameAfter &&
+      (row.expiresAtTargetFrameBefore ??
+        row.expiresAtFrameBefore) ===
+        expectedTargetExpiryBefore &&
+      (row.expiresAtTargetFrame ?? row.expiresAtFrame) ===
+        expectedTargetExpiryAfter &&
+      row.endCauseBefore === mutation.endCauseBefore &&
+      row.endCauseAfter === mutation.endCauseAfter &&
+      auraStateProjectionEqual(
+        row.auraBefore,
+        mutation.operationAuraBefore
+      ) &&
+      auraStateProjectionEqual(
+        row.auraAfter,
+        mutation.operationAuraAfter
+      )
+    );
+  };
+  const quickenRowMatchesApplicationContext = (
+    row: QuickenStateRow,
+    event: SimulationResult["damageEvents"][number],
+    applicationPoint: TargetStatePoint
+  ): boolean =>
+    row.frame === event.frame &&
+    nearlyEqual(row.timeSeconds, event.timeSeconds) &&
+    (row.targetFrame ?? row.frame) ===
+      (applicationPoint.targetFrame ?? applicationPoint.frame) &&
+    row.targetId === event.targetId &&
+    row.targetName === event.targetName;
+  const quickenRowMatchesCatalyzeAudit = (
+    row: QuickenStateRow,
+    audit: CatalyzeQuickenAudit,
+    event: SimulationResult["damageEvents"][number],
+    applicationPoint: TargetStatePoint
+  ): boolean => {
+    const beforeQuicken = audit.operationAuraBefore.find(
+      (entry) => entry.element === "quicken"
+    );
+    const afterQuicken = audit.operationAuraAfter.find(
+      (entry) => entry.element === "quicken"
+    );
+    const expectedReason =
+      audit.operation === "unchanged"
+        ? "WEAKER_QUICKEN_DID_NOT_REFRESH"
+        : audit.operation === "start"
+          ? "QUICKEN_STARTED"
+          : "QUICKEN_REFRESHED";
+    return (
+      quickenRowMatchesApplicationContext(
+        row,
+        event,
+        applicationPoint
+      ) &&
+      row.reaction === "quicken" &&
+      row.generation === audit.generation &&
+      row.operation === audit.operation &&
+      row.sourceActorId === event.sourceActorId &&
+      row.triggerDamageEventId === event.id &&
+      row.triggerElement === audit.triggerElement &&
+      row.consumedAuraElement === audit.consumedAuraElement &&
+      nearlyEqual(
+        row.candidateGaugeUnits,
+        audit.candidateGaugeUnits
+      ) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsBefore,
+        audit.quickenGaugeUnitsBefore
+      ) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsAfter,
+        audit.quickenGaugeUnitsAfter
+      ) &&
+      nearlyEqual(
+        row.decayPerFrameBefore,
+        audit.decayPerFrameBefore
+      ) &&
+      nearlyEqual(row.decayPerFrameAfter, audit.decayPerFrame) &&
+      row.expiresAtFrameBefore === audit.expiresAtFrameBefore &&
+      row.expiresAtFrame === audit.expiresAtFrame &&
+      (row.expiresAtTargetFrameBefore ??
+        row.expiresAtFrameBefore) ===
+        (beforeQuicken?.expiresAtTargetFrame ??
+          audit.expiresAtFrameBefore) &&
+      (row.expiresAtTargetFrame ?? row.expiresAtFrame) ===
+        (afterQuicken?.expiresAtTargetFrame ??
+          audit.expiresAtFrame) &&
+      row.endCauseBefore === audit.endCauseBefore &&
+      row.endCauseAfter === audit.endCause &&
+      row.reason === expectedReason &&
+      auraStateProjectionEqual(
+        row.auraBefore,
+        audit.operationAuraBefore
+      ) &&
+      auraStateProjectionEqual(
+        row.auraAfter,
+        audit.operationAuraAfter
+      )
+    );
+  };
+  const quickenRowMatchesBloomAudit = (
+    row: QuickenStateRow,
+    audit: BloomReactionAudit,
+    event: SimulationResult["damageEvents"][number],
+    applicationPoint: TargetStatePoint
+  ): boolean => {
+    const mutation = audit.quickenStateMutation;
+    const beforeQuicken = mutation.operationAuraBefore.find(
+      (entry) => entry.element === "quicken"
+    );
+    const afterQuicken = mutation.operationAuraAfter.find(
+      (entry) => entry.element === "quicken"
+    );
+    const expectedReason =
+      mutation.operation === "partial-consume"
+        ? "BLOOM_PARTIALLY_CONSUMED_QUICKEN"
+        : mutation.operation === "decay-rebase"
+          ? "BLOOM_REBASED_QUICKEN_DECAY"
+          : "BLOOM_REMOVED_QUICKEN";
+    return (
+      mutation.operation !== "none" &&
+      quickenRowMatchesApplicationContext(
+        row,
+        event,
+        applicationPoint
+      ) &&
+      row.reaction === "quicken" &&
+      row.generation === mutation.generationAfter &&
+      row.operation === mutation.operation &&
+      row.triggerDamageEventId === event.id &&
+      row.triggerElement === null &&
+      row.consumedAuraElement === null &&
+      nearlyEqual(row.candidateGaugeUnits, 0) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsBefore,
+        audit.quickenGaugeUnitsBefore
+      ) &&
+      nearlyEqual(
+        row.quickenGaugeUnitsAfter,
+        audit.quickenGaugeUnitsAfter
+      ) &&
+      nearlyEqual(
+        row.decayPerFrameBefore,
+        mutation.decayPerFrameBefore
+      ) &&
+      nearlyEqual(
+        row.decayPerFrameAfter,
+        mutation.decayPerFrameAfter
+      ) &&
+      row.expiresAtFrameBefore ===
+        mutation.expiresAtFrameBefore &&
+      row.expiresAtFrame === mutation.expiresAtFrameAfter &&
+      (row.expiresAtTargetFrameBefore ??
+        row.expiresAtFrameBefore) ===
+        (beforeQuicken?.expiresAtTargetFrame ??
+          mutation.expiresAtFrameBefore) &&
+      (row.expiresAtTargetFrame ?? row.expiresAtFrame) ===
+        (afterQuicken?.expiresAtTargetFrame ??
+          mutation.expiresAtFrameAfter) &&
+      row.endCauseBefore === mutation.endCauseBefore &&
+      row.endCauseAfter === mutation.endCauseAfter &&
+      row.reason === expectedReason &&
+      auraStateProjectionEqual(
+        row.auraBefore,
+        mutation.operationAuraBefore
+      ) &&
+      auraStateProjectionEqual(
+        row.auraAfter,
+        mutation.operationAuraAfter
+      )
+    );
+  };
+  const resolveAuthoritativeQuickenSourceBefore = (
+    exclusiveRowId: number,
+    targetId: string
+  ): {
+    sourceActorId: string;
+    triggerDamageEventId: number;
+  } | null => {
+    let activeSource: {
+      sourceActorId: string;
+      triggerDamageEventId: number;
+    } | null = null;
+    for (const row of result.quickenStateLog) {
+      if (row.id >= exclusiveRowId) break;
+      if (row.targetId !== targetId) continue;
+      if (row.operation === "start" || row.operation === "refresh") {
+        const trigger =
+          row.triggerDamageEventId === null
+            ? undefined
+            : damageEventById.get(row.triggerDamageEventId);
+        const triggerPoint =
+          trigger === undefined
+            ? undefined
+            : (applicationPointsByDamageEventId.get(trigger.id) ?? [])[0];
+        const triggerAudit =
+          trigger?.reactionAudit.catalyzeReaction?.quicken;
+        activeSource =
+          trigger !== undefined &&
+          triggerPoint !== undefined &&
+          triggerAudit !== null &&
+          triggerAudit !== undefined &&
+          quickenRowMatchesCatalyzeAudit(
+            row,
+            triggerAudit,
+            trigger,
+            triggerPoint
+          )
+            ? {
+                sourceActorId: trigger.sourceActorId,
+                triggerDamageEventId: trigger.id
+              }
+            : null;
+      } else if (row.operation === "partial-consume") {
+        const trigger =
+          row.triggerDamageEventId === null
+            ? undefined
+            : damageEventById.get(row.triggerDamageEventId);
+        const triggerPoint =
+          trigger === undefined
+            ? undefined
+            : (applicationPointsByDamageEventId.get(trigger.id) ?? [])[0];
+        const ownsBloomMutation: boolean =
+          activeSource !== null &&
+          trigger !== undefined &&
+          triggerPoint !== undefined &&
+          trigger.reactionAudit.bloomReactions.filter((bloom) =>
+            quickenRowMatchesBloomAudit(
+              row,
+              bloom,
+              trigger,
+              triggerPoint
+            )
+          ).length === 1;
+        activeSource = ownsBloomMutation
+          ? {
+              sourceActorId: activeSource!.sourceActorId,
+              triggerDamageEventId: trigger!.id
+            }
+          : null;
+      } else if (
+        row.operation === "remove" ||
+        row.operation === "expire"
+      ) {
+        activeSource = null;
+      }
+      // unchanged and decay-rebase preserve the already-authoritative source.
+    }
+    return activeSource;
+  };
+  for (const phase of result.targetTaskPhaseLog) {
+    for (const burningStateLogId of phase.burningStateLogIds) {
+      const phases =
+        targetTaskPhasesByBurningStateId.get(
+          burningStateLogId
+        ) ?? [];
+      phases.push(phase);
+      targetTaskPhasesByBurningStateId.set(
+        burningStateLogId,
+        phases
+      );
     }
   }
   for (const row of result.burningStateLog) {
@@ -6876,25 +7867,728 @@ function validateBurningStateProjection(
         rows
       );
     }
-    if (
-      row.operation === "tick" ||
-      row.operation === "tick-skipped"
-    ) {
-      const key = `${row.targetId}\u0000${row.generation}`;
-      const rows = tickRowsByTargetGeneration.get(key) ?? [];
-      rows.push(row);
-      tickRowsByTargetGeneration.set(key, rows);
-    }
   }
 
   for (const [eventIndex, event] of
     result.damageEvents.entries()) {
     const audit = event.reactionAudit.burningReaction;
+    const isBurningDamageIdentity =
+      event.kind === "transformative-reaction" &&
+      event.transformativeReactionFactors?.reaction === "burning";
+    const burningMarkerBefore =
+      event.reactionAudit.auraBefore?.some(
+        (entry) =>
+          entry.element === "burning" &&
+          entry.gaugeUnits > AURA_GAUGE_EPSILON
+      ) ?? false;
+    const burningFuelBefore =
+      event.reactionAudit.auraBefore?.some(
+        (entry) =>
+          entry.element === "burningFuel" &&
+          entry.gaugeUnits > AURA_GAUGE_EPSILON
+      ) ?? false;
+    const burningMarkerAfter =
+      event.reactionAudit.auraAfter?.some(
+        (entry) =>
+          entry.element === "burning" &&
+          entry.gaugeUnits > AURA_GAUGE_EPSILON
+      ) ?? false;
+    const burningFuelAfter =
+      event.reactionAudit.auraAfter?.some(
+        (entry) =>
+          entry.element === "burningFuel" &&
+          entry.gaugeUnits > AURA_GAUGE_EPSILON
+      ) ?? false;
+    if (
+      audit === null &&
+      !isBurningDamageIdentity &&
+      (event.reactionAudit.reaction === "burning" ||
+        event.reactionAudit.reactions.includes("burning"))
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "burningReaction"
+        ],
+        "a parent reaction audit that reports Burning requires its Burning lifecycle audit"
+      );
+    }
+    if (
+      audit === null &&
+      burningMarkerBefore &&
+      burningFuelBefore &&
+      (!burningMarkerAfter || !burningFuelAfter)
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "burningReaction"
+        ],
+        "a hit that removes active Burning requires its Burning stop audit"
+      );
+    }
     if (audit === null) continue;
-    const rows = (rowsByTrigger.get(event.id) ?? []).filter(
-      (row) => row.operation === audit.operation
+    const auditPath = [
+      "damageEvents",
+      eventIndex,
+      "reactionAudit",
+      "burningReaction"
+    ] satisfies IssuePath;
+    const expectedClockModel =
+      result.config.targetClockModel.mode ===
+      "target-local-hitlag-v1"
+        ? "target-local-hitlag-v1"
+        : "target-local-no-hitlag";
+    const expectedHitlagStatus =
+      result.config.targetClockModel.mode ===
+      "target-local-hitlag-v1"
+        ? "modeled-enemy-hitlag"
+        : "unsupported-enemy-hitlag";
+    expectFieldEqual(
+      context,
+      auditPath,
+      "clockModel",
+      audit.clockModel,
+      expectedClockModel,
+      "Burning clock model"
     );
-    if (rows.length !== 1) {
+    expectFieldEqual(
+      context,
+      auditPath,
+      "hitlagStatus",
+      audit.hitlagStatus,
+      expectedHitlagStatus,
+      "Burning Hitlag status"
+    );
+    if (audit.operation !== "stop") {
+      expectFieldEqual(
+        context,
+        auditPath,
+        "damageSourceActorId",
+        audit.damageSourceActorId,
+        event.sourceActorId,
+        "Burning snapshot damage source"
+      );
+    }
+    if (audit.operation === "start") {
+      const burningReactionCount =
+        event.reactionAudit.reactions.filter(
+          (reaction) => reaction === "burning"
+        ).length;
+      if (
+        !event.reactionAudit.triggered ||
+        event.reactionAudit.reaction === "none" ||
+        burningReactionCount !== 1
+      ) {
+        addIssue(
+          context,
+          auditPath,
+          "Burning start requires the parent reaction audit to report one triggered Burning reaction"
+        );
+      }
+    }
+    expectFieldEqual(
+      context,
+      auditPath,
+      "triggerElement",
+      audit.triggerElement,
+      event.element,
+      "Burning trigger element"
+    );
+    expectFieldEqual(
+      context,
+      auditPath,
+      "snapshotFrame",
+      audit.snapshotFrame,
+      event.frame,
+      "Burning snapshot frame"
+    );
+    if (usesTargetHitlagClock) {
+      const auditClockState = burningClockStateAtCut(event.targetId, {
+        frame: event.frame,
+        eventPriority: event.eventPriority,
+        eventSequence: event.eventSequence
+      });
+      validateBurningGlobalDeadline(
+        auditClockState,
+        audit.fuelExpiresAtFrame,
+        audit.fuelExpiresAtTargetFrame,
+        [...auditPath, "fuelExpiresAtFrame"],
+        "Burning audit Fuel global deadline target-clock projection"
+      );
+      validateBurningGlobalDeadline(
+        auditClockState,
+        audit.firstTickFrame,
+        audit.firstTickTargetFrame,
+        [...auditPath, "firstTickFrame"],
+        "Burning audit first Tick global deadline target-clock projection"
+      );
+      validateBurningGlobalDeadline(
+        auditClockState,
+        audit.nextTickFrame,
+        audit.nextTickTargetFrame,
+        [...auditPath, "nextTickFrame"],
+        "Burning audit next Tick global deadline target-clock projection"
+      );
+    }
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "fuelDecayPerFrame",
+      audit.fuelDecayPerFrame,
+      BURNING_FUEL_DECAY_PER_FRAME,
+      "Burning mechanics Fuel decay"
+    );
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "tickIntervalFrames",
+      audit.tickIntervalFrames,
+      BURNING_TICK_INTERVAL_FRAMES,
+      "Burning mechanics tick interval"
+    );
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "skippedTickIndex",
+      audit.skippedTickIndex,
+      BURNING_SKIPPED_TICK_INDEX,
+      "Burning mechanics skipped tick index"
+    );
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "baseMultiplier",
+      audit.baseMultiplier,
+      0.25,
+      "Burning mechanics base multiplier"
+    );
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "radius",
+      audit.radius,
+      1,
+      "Burning mechanics radius"
+    );
+    expectFieldNearlyEqual(
+      context,
+      auditPath,
+      "applicationGaugeUnits",
+      audit.applicationGaugeUnits,
+      BURNING_APPLICATION_GAUGE_UNITS,
+      "Burning mechanics application Gauge"
+    );
+    expectFieldEqual(
+      context,
+      auditPath,
+      "damageElement",
+      audit.damageElement,
+      "pyro",
+      "Burning damage element"
+    );
+
+    if (audit.operation === "stop") {
+      expectFieldNearlyEqual(
+        context,
+        auditPath,
+        "candidateBurningGaugeUnits",
+        audit.candidateBurningGaugeUnits,
+        0,
+        "Burning stop candidate marker"
+      );
+      expectFieldNearlyEqual(
+        context,
+        auditPath,
+        "candidateFuelGaugeUnits",
+        audit.candidateFuelGaugeUnits,
+        0,
+        "Burning stop candidate Fuel"
+      );
+      expectFieldNearlyEqual(
+        context,
+        auditPath,
+        "fuelGaugeUnitsAfter",
+        audit.fuelGaugeUnitsAfter,
+        0,
+        "Burning stop Fuel"
+      );
+    } else {
+      expectFieldNearlyEqual(
+        context,
+        auditPath,
+        "candidateBurningGaugeUnits",
+        audit.candidateBurningGaugeUnits,
+        BURNING_MARKER_GAUGE_UNITS,
+        "Burning candidate marker"
+      );
+    }
+    if (audit.operation !== "stop" && audit.blockedReason === null) {
+      if (
+        audit.operation === "start" ||
+        audit.operation === "refresh-fuel"
+      ) {
+        expectFieldNearlyEqual(
+          context,
+          auditPath,
+          "candidateFuelGaugeUnits",
+          audit.candidateFuelGaugeUnits,
+          audit.fuelGaugeUnitsAfter,
+          "Burning attached Fuel candidate"
+        );
+      } else {
+        expectFieldNearlyEqual(
+          context,
+          auditPath,
+          "candidateFuelGaugeUnits",
+          audit.candidateFuelGaugeUnits,
+          audit.fuelGaugeUnitsBefore,
+          "Burning snapshot Fuel candidate"
+        );
+        expectFieldNearlyEqual(
+          context,
+          auditPath,
+          "fuelGaugeUnitsAfter",
+          audit.fuelGaugeUnitsAfter,
+          audit.fuelGaugeUnitsBefore,
+          "Burning snapshot Fuel preservation"
+        );
+      }
+    }
+
+    if (audit.blockedReason === null) {
+      const operationAuraAfter =
+        audit.quickenStateMutation.operationAuraAfter;
+      let markerEntry:
+        | (typeof operationAuraAfter)[number]
+        | undefined;
+      let markerEntryCount = 0;
+      let fuelEntry:
+        | (typeof operationAuraAfter)[number]
+        | undefined;
+      let fuelEntryCount = 0;
+      for (const entry of operationAuraAfter) {
+        if (entry.element === "burning") {
+          markerEntry = entry;
+          markerEntryCount += 1;
+        } else if (entry.element === "burningFuel") {
+          fuelEntry = entry;
+          fuelEntryCount += 1;
+        }
+      }
+      if (audit.burningGaugeUnitsAfter > AURA_GAUGE_EPSILON) {
+        if (markerEntryCount !== 1 || markerEntry === undefined) {
+          addIssue(
+            context,
+            [...auditPath, "quickenStateMutation", "operationAuraAfter"],
+            "active Burning post-state requires exactly one marker entry"
+          );
+        } else {
+          expectFieldNearlyEqual(
+            context,
+            auditPath,
+            "burningGaugeUnitsAfter",
+            markerEntry.gaugeUnits,
+            audit.burningGaugeUnitsAfter,
+            "Burning marker post-state Gauge"
+          );
+          expectFieldEqual(
+            context,
+            auditPath,
+            "burningExpiresAtFrame",
+            markerEntry.expiresAtFrame,
+            null,
+            "Burning marker expiry"
+          );
+        }
+      } else if (markerEntryCount !== 0) {
+        addIssue(
+          context,
+          [...auditPath, "quickenStateMutation", "operationAuraAfter"],
+          "inactive Burning post-state cannot retain a marker entry"
+        );
+      }
+      if (audit.fuelGaugeUnitsAfter > AURA_GAUGE_EPSILON) {
+        if (fuelEntryCount !== 1 || fuelEntry === undefined) {
+          addIssue(
+            context,
+            [...auditPath, "quickenStateMutation", "operationAuraAfter"],
+            "active Burning post-state requires exactly one Fuel entry"
+          );
+        } else {
+          expectFieldNearlyEqual(
+            context,
+            auditPath,
+            "fuelGaugeUnitsAfter",
+            fuelEntry.gaugeUnits,
+            audit.fuelGaugeUnitsAfter,
+            "Burning Fuel post-state Gauge"
+          );
+          expectFieldEqual(
+            context,
+            auditPath,
+            "fuelExpiresAtFrame",
+            fuelEntry.expiresAtFrame,
+            audit.fuelExpiresAtFrame,
+            "Burning Fuel post-state expiry"
+          );
+          expectFieldEqual(
+            context,
+            auditPath,
+            "fuelExpiresAtTargetFrame",
+            fuelEntry.expiresAtTargetFrame,
+            audit.fuelExpiresAtTargetFrame,
+            "Burning Fuel post-state target expiry"
+          );
+          const fuelSourceSlots = fuelEntry.sourceSlots ?? [];
+          if (
+            audit.fuelSourceActorId === null ||
+            fuelSourceSlots.length !== 1 ||
+            fuelSourceSlots[0]!.sourceActorId !==
+              audit.fuelSourceActorId ||
+            !nearlyEqual(
+              fuelSourceSlots[0]!.gaugeUnits,
+              audit.fuelGaugeUnitsAfter
+            )
+          ) {
+            addIssue(
+              context,
+              [...auditPath, "fuelSourceActorId"],
+              "Burning Fuel post-state owner does not match its authoritative source"
+            );
+          }
+        }
+      } else if (fuelEntryCount !== 0) {
+        addIssue(
+          context,
+          [...auditPath, "quickenStateMutation", "operationAuraAfter"],
+          "inactive Burning post-state cannot retain a Fuel entry"
+        );
+      }
+    }
+    if (
+      audit.blockedReason === "TARGET_MECHANICS_TRUNCATION" ||
+      event.reactionAudit.mechanicsTruncation !== null
+    ) {
+      // Mechanics truncation owns its one terminal lifecycle projection. The
+      // simulator deliberately skips processBurningConsequences, so a nested
+      // Burning start/refresh/stop audit does not own a second audit-shaped
+      // burningStateLog row.
+      continue;
+    }
+    const quickenMutation = audit.quickenStateMutation;
+    const applicationPoints =
+      applicationPointsByDamageEventId.get(event.id) ?? [];
+    const applicationPoint =
+      applicationPoints.length === 1
+        ? applicationPoints[0]
+        : undefined;
+    if (applicationPoint === undefined) {
+      addIssue(
+        context,
+        [...auditPath, "quickenStateMutation"],
+        "a non-truncated Burning audit requires exactly one application timeline point"
+      );
+    }
+    let ownedBurningQuickenRow: QuickenStateRow | undefined;
+    if (quickenMutation.operation === "none") {
+      const burningOwnedLinks = applicationPoints.flatMap(
+        (point) =>
+          point.links.filter((link) => {
+            if (link.kind !== "quicken-state-log") return false;
+            const linkedRow = quickenStateById.get(link.id);
+            return (
+              linkedRow?.reason ===
+                "BURNING_REBASED_QUICKEN_DECAY" ||
+              linkedRow?.reason === "BURNING_REMOVED_QUICKEN"
+            );
+          })
+      );
+      if (burningOwnedLinks.length !== 0) {
+        addIssue(
+          context,
+          [...auditPath, "quickenStateMutation", "operation"],
+          "operation=none cannot own a Burning Quicken lifecycle row or timeline link"
+        );
+      }
+    } else if (quickenMutation.operation !== "decay-rebase") {
+      addIssue(
+        context,
+        [...auditPath, "quickenStateMutation", "operation"],
+        "a non-truncated Burning audit currently supports only none or decay-rebase Quicken ownership"
+      );
+    } else if (applicationPoint !== undefined) {
+      const matchingQuickenRows =
+        burningQuickenRowsByTarget
+          .get(event.targetId)
+          ?.get(event.frame)
+          ?.filter((row) =>
+            burningQuickenRowMatchesMutation(
+              row,
+              quickenMutation,
+              event,
+              applicationPoint
+            )
+          ) ?? [];
+      if (matchingQuickenRows.length !== 1) {
+        addIssue(
+          context,
+          [...auditPath, "quickenStateMutation"],
+          "Burning decay-rebase must own exactly one exact BURNING_REBASED_QUICKEN_DECAY row"
+        );
+      } else {
+        const quickenRow = matchingQuickenRows[0]!;
+        ownedBurningQuickenRow = quickenRow;
+        const owners =
+          burningQuickenOwnersByRowId.get(quickenRow.id) ?? [];
+        owners.push({
+          eventIndex,
+          applicationPointId: applicationPoint.id
+        });
+        burningQuickenOwnersByRowId.set(quickenRow.id, owners);
+        const applicationLinkCount =
+          applicationPoint.links.filter(
+            (link) =>
+              link.kind === "quicken-state-log" &&
+              link.id === quickenRow.id
+          ).length;
+        if (applicationLinkCount !== 1) {
+          addIssue(
+            context,
+            [...auditPath, "quickenStateMutation"],
+            "Burning decay-rebase application point must link its owned Quicken row exactly once"
+          );
+        }
+      }
+    }
+    if (applicationPoint !== undefined) {
+      const expectedApplicationRows: QuickenStateRow[] = [];
+      let applicationSequenceComplete = true;
+      const catalyzeQuicken =
+        event.reactionAudit.catalyzeReaction?.quicken;
+      if (catalyzeQuicken !== null && catalyzeQuicken !== undefined) {
+        const matchingCatalyzeRows = result.quickenStateLog.filter(
+          (candidate) =>
+            quickenRowMatchesCatalyzeAudit(
+              candidate,
+              catalyzeQuicken,
+              event,
+              applicationPoint
+            )
+        );
+        if (matchingCatalyzeRows.length !== 1) {
+          applicationSequenceComplete = false;
+          addIssue(
+            context,
+            [...auditPath, "quickenStateMutation"],
+            "a Burning application with Quicken formation must own exactly one exact leading Quicken row"
+          );
+        } else {
+          expectedApplicationRows.push(matchingCatalyzeRows[0]!);
+        }
+      }
+      if (quickenMutation.operation === "decay-rebase") {
+        if (ownedBurningQuickenRow === undefined) {
+          applicationSequenceComplete = false;
+        } else {
+          expectedApplicationRows.push(ownedBurningQuickenRow);
+          const authoritativeSource =
+            resolveAuthoritativeQuickenSourceBefore(
+              ownedBurningQuickenRow.id,
+              event.targetId
+            );
+          if (authoritativeSource === null) {
+            addIssue(
+              context,
+              [...auditPath, "quickenStateMutation"],
+              "Burning decay-rebase requires an authoritative preceding Quicken source"
+            );
+          } else {
+            expectFieldEqual(
+              context,
+              ["quickenStateLog", ownedBurningQuickenRow.id],
+              "sourceActorId",
+              ownedBurningQuickenRow.sourceActorId,
+              authoritativeSource.sourceActorId,
+              "Burning decay-rebase inherited Quicken source"
+            );
+            expectFieldEqual(
+              context,
+              ["quickenStateLog", ownedBurningQuickenRow.id],
+              "triggerDamageEventId",
+              ownedBurningQuickenRow.triggerDamageEventId,
+              authoritativeSource.triggerDamageEventId,
+              "Burning decay-rebase inherited Quicken trigger"
+            );
+          }
+        }
+      }
+      for (const [bloomIndex, bloom] of
+        event.reactionAudit.bloomReactions.entries()) {
+        if (bloom.quickenStateMutation.operation === "none") continue;
+        const matchingBloomRows = result.quickenStateLog.filter(
+          (candidate) =>
+            quickenRowMatchesBloomAudit(
+              candidate,
+              bloom,
+              event,
+              applicationPoint
+            )
+        );
+        if (matchingBloomRows.length !== 1) {
+          applicationSequenceComplete = false;
+          addIssue(
+            context,
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "bloomReactions",
+              bloomIndex,
+              "quickenStateMutation"
+            ],
+            "a Burning application Bloom mutation must own exactly one exact trailing Quicken row"
+          );
+        } else {
+          expectedApplicationRows.push(matchingBloomRows[0]!);
+        }
+      }
+      if (
+        applicationSequenceComplete &&
+        expectedApplicationRows.length > 1
+      ) {
+        for (
+          let sequenceIndex = 1;
+          sequenceIndex < expectedApplicationRows.length;
+          sequenceIndex += 1
+        ) {
+          const previous = expectedApplicationRows[sequenceIndex - 1]!;
+          const current = expectedApplicationRows[sequenceIndex]!;
+          const currentPath = [
+            "quickenStateLog",
+            current.id
+          ] satisfies IssuePath;
+          expectFieldEqual(
+            context,
+            currentPath,
+            "id",
+            current.id,
+            previous.id + 1,
+            "same-application Quicken lifecycle order"
+          );
+          expectFieldEqual(
+            context,
+            currentPath,
+            "generation",
+            current.generation,
+            previous.generation + 1,
+            "same-application Quicken generation"
+          );
+          expectFieldNearlyEqual(
+            context,
+            currentPath,
+            "quickenGaugeUnitsBefore",
+            current.quickenGaugeUnitsBefore,
+            previous.quickenGaugeUnitsAfter,
+            "same-application Quicken Gauge continuity"
+          );
+          expectFieldNearlyEqual(
+            context,
+            currentPath,
+            "decayPerFrameBefore",
+            current.decayPerFrameBefore,
+            previous.decayPerFrameAfter,
+            "same-application Quicken decay continuity"
+          );
+          expectFieldEqual(
+            context,
+            currentPath,
+            "expiresAtFrameBefore",
+            current.expiresAtFrameBefore,
+            previous.expiresAtFrame,
+            "same-application Quicken expiry continuity"
+          );
+          expectFieldEqual(
+            context,
+            currentPath,
+            "endCauseBefore",
+            current.endCauseBefore,
+            previous.endCauseAfter,
+            "same-application Quicken end-cause continuity"
+          );
+          expectAuraStateProjection(
+            context,
+            [...currentPath, "auraBefore"],
+            current.auraBefore.filter(
+              (entry) => entry.element === "quicken"
+            ),
+            previous.auraAfter.filter(
+              (entry) => entry.element === "quicken"
+            ),
+            "same-application Quicken slot continuity"
+          );
+        }
+      }
+    }
+    let matchingRow:
+      | SimulationResult["burningStateLog"][number]
+      | undefined;
+    let matchingRowCount = 0;
+    for (const candidate of rowsByTrigger.get(event.id) ?? []) {
+      if (candidate.operation !== audit.operation) continue;
+      if (
+        audit.operation === "stop" &&
+        (candidate.reason !==
+          (audit.stopReason ?? "BURNING_AURA_CONSUMED") ||
+          candidate.triggerElement !== audit.triggerElement ||
+          candidate.damageSourceActorId !==
+            audit.damageSourceActorId ||
+          candidate.fuelSourceActorId !== audit.fuelSourceActorId ||
+          !nearlyEqual(
+            candidate.burningGaugeUnitsBefore,
+            audit.burningGaugeUnitsBefore
+          ) ||
+          !nearlyEqual(
+            candidate.burningGaugeUnitsAfter,
+            audit.burningGaugeUnitsAfter
+          ) ||
+          !nearlyEqual(
+            candidate.fuelGaugeUnitsBefore,
+            audit.fuelGaugeUnitsBefore
+          ) ||
+          !nearlyEqual(
+            candidate.fuelGaugeUnitsAfter,
+            audit.fuelGaugeUnitsAfter
+          ) ||
+          !auraStateProjectionEqual(
+            candidate.auraBefore,
+            event.reactionAudit.auraBefore ?? []
+          ) ||
+          !auraGaugeProjectionEqual(
+            candidate.auraApplied,
+            event.reactionAudit.auraApplied ?? []
+          ) ||
+          !auraGaugeProjectionEqual(
+            candidate.auraConsumed,
+            event.reactionAudit.auraConsumed ?? []
+          ) ||
+          !auraStateProjectionEqual(
+            candidate.auraAfter,
+            event.reactionAudit.auraAfter ?? []
+          ))
+      ) {
+        continue;
+      }
+      matchingRow = candidate;
+      matchingRowCount += 1;
+    }
+    if (matchingRowCount !== 1 || matchingRow === undefined) {
       addIssue(
         context,
         [
@@ -6907,7 +8601,40 @@ function validateBurningStateProjection(
       );
       continue;
     }
-    const row = rows[0]!;
+    const row = matchingRow;
+    burningAuditOwnedRowIds.add(row.id);
+    const rowPath = ["burningStateLog", row.id] satisfies IssuePath;
+    const applicationPhase =
+      v3ApplicationPhaseByDamageEventId.get(event.id);
+    const expectedLifecycleLocalSnapshotFrame =
+      applicationPhase === "before-reactable-tick" &&
+      audit.snapshotTargetFrame !== undefined
+        ? audit.snapshotTargetFrame + 1
+        : audit.snapshotTargetFrame ?? audit.snapshotFrame;
+    expectFieldEqual(
+      context,
+      rowPath,
+      "targetFrame",
+      row.targetFrame ?? row.frame,
+      expectedLifecycleLocalSnapshotFrame,
+      "Burning lifecycle local snapshot frame"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "fuelExpiresAtTargetFrame",
+      row.fuelExpiresAtTargetFrame ?? row.fuelExpiresAtFrame,
+      audit.fuelExpiresAtTargetFrame ?? audit.fuelExpiresAtFrame,
+      "Burning lifecycle local Fuel deadline"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "nextTickTargetFrame",
+      row.nextTickTargetFrame ?? row.nextTickFrame,
+      audit.nextTickTargetFrame ?? audit.nextTickFrame,
+      "Burning lifecycle local tick deadline"
+    );
     for (const [field, expected] of [
       ["reaction", audit.reaction],
       ["generation", audit.generation],
@@ -6927,12 +8654,23 @@ function validateBurningStateProjection(
       ["hitlagStatus", audit.hitlagStatus],
       ["selfDamageStatus", audit.selfDamageStatus]
     ] as const) {
-      expectEqual(
+      expectFieldEqual(
         context,
-        ["burningStateLog", row.id, field],
+        rowPath,
+        field,
         row[field],
         expected,
         `Burning lifecycle ${field}`
+      );
+    }
+    if (audit.operation === "stop") {
+      expectFieldEqual(
+        context,
+        rowPath,
+        "reason",
+        row.reason,
+        audit.stopReason ?? "BURNING_AURA_CONSUMED",
+        "Burning stop reason"
       );
     }
     for (const [field, expected] of [
@@ -6946,42 +8684,440 @@ function validateBurningStateProjection(
       ["fuelGaugeUnitsAfter", audit.fuelGaugeUnitsAfter],
       ["fuelDecayPerFrame", audit.fuelDecayPerFrame]
     ] as const) {
-      expectNearlyEqual(
+      expectFieldNearlyEqual(
         context,
-        ["burningStateLog", row.id, field],
+        rowPath,
+        field,
         row[field],
         expected,
         `Burning lifecycle ${field}`
       );
     }
-    for (const [field, expected] of [
-      ["auraBefore", event.reactionAudit.auraBefore ?? []],
-      ["auraApplied", event.reactionAudit.auraApplied ?? []],
-      ["auraConsumed", event.reactionAudit.auraConsumed ?? []],
-      ["auraAfter", event.reactionAudit.auraAfter ?? []]
-    ] as const) {
-      expectSemanticEqual(
+    expectAuraStateProjection(
+      context,
+      [...rowPath, "auraBefore"],
+      row.auraBefore,
+      event.reactionAudit.auraBefore ?? [],
+      "Burning lifecycle auraBefore"
+    );
+    expectAuraGaugeProjection(
+      context,
+      [...rowPath, "auraApplied"],
+      row.auraApplied,
+      event.reactionAudit.auraApplied ?? [],
+      "Burning lifecycle auraApplied"
+    );
+    expectAuraGaugeProjection(
+      context,
+      [...rowPath, "auraConsumed"],
+      row.auraConsumed,
+      event.reactionAudit.auraConsumed ?? [],
+      "Burning lifecycle auraConsumed"
+    );
+    expectAuraStateProjection(
+      context,
+      [...rowPath, "auraAfter"],
+      row.auraAfter,
+      event.reactionAudit.auraAfter ?? [],
+      "Burning lifecycle auraAfter"
+    );
+  }
+
+  for (const [rowIndex, row] of
+    result.quickenStateLog.entries()) {
+    if (
+      row.reason !== "BURNING_REBASED_QUICKEN_DECAY" &&
+      row.reason !== "BURNING_REMOVED_QUICKEN"
+    ) {
+      continue;
+    }
+    const rowPath = ["quickenStateLog", rowIndex] satisfies IssuePath;
+    const owners =
+      burningQuickenOwnersByRowId.get(row.id) ?? [];
+    if (owners.length !== 1) {
+      addIssue(
         context,
-        ["burningStateLog", row.id, field],
-        row[field],
-        expected,
-        `Burning lifecycle ${field}`
+        rowPath,
+        "a Burning-owned Quicken lifecycle row requires exactly one exact Burning audit owner"
+      );
+    }
+    if (row.reason !== "BURNING_REBASED_QUICKEN_DECAY") {
+      continue;
+    }
+    const linkedPoints =
+      quickenTimelinePointsByRowId.get(row.id) ?? [];
+    if (linkedPoints.length !== 1) {
+      addIssue(
+        context,
+        rowPath,
+        "BURNING_REBASED_QUICKEN_DECAY must be linked from exactly one target-state point"
+      );
+      continue;
+    }
+    if (
+      owners.length === 1 &&
+      linkedPoints[0]!.id !== owners[0]!.applicationPointId
+    ) {
+      addIssue(
+        context,
+        rowPath,
+        "BURNING_REBASED_QUICKEN_DECAY must be linked by its owning Burning application's timeline point"
       );
     }
   }
 
   for (const [rowIndex, row] of
     result.burningStateLog.entries()) {
-    expectNearlyEqual(
+    if (row.operation !== "stop") continue;
+    const rowPath = ["burningStateLog", rowIndex] satisfies IssuePath;
+    const trigger =
+      row.triggerDamageEventId === null
+        ? undefined
+        : damageEventById.get(row.triggerDamageEventId);
+    const callbackPoints =
+      lifecyclePointByBurningStateId.get(row.id) ?? [];
+    const callbackPoint = callbackPoints[0];
+    const callbackOwned =
+      callbackPoints.length === 1 &&
+      callbackPoint !== undefined &&
+      callbackPoint.cause === "burning-tick" &&
+      callbackPoint.eventType === "burningTick" &&
+      callbackPoint.targetId === row.targetId &&
+      callbackPoint.targetName === row.targetName &&
+      callbackPoint.frame === row.frame &&
+      callbackPoint.eventPriority === row.eventPriority &&
+      callbackPoint.eventSequence === row.eventSequence &&
+      auraStateProjectionEqual(
+        callbackPoint.auraBefore,
+        row.callbackAuraBefore ?? row.auraBefore
+      ) &&
+      auraStateProjectionEqual(
+        callbackPoint.auraAfter,
+        row.callbackAuraAfter ?? row.auraAfter
+      );
+    const legacyCallbackOwned = result.targetTaskPhaseLog.some(
+      (phase) =>
+        phase.wakeKind === "burning-tick" &&
+        phase.eventType === "burningTick" &&
+        phase.targetId === row.targetId &&
+        phase.targetName === row.targetName &&
+        phase.globalFrame === row.frame &&
+        phase.targetFrame === (row.targetFrame ?? row.frame) &&
+        phase.eventPriority === row.eventPriority &&
+        phase.eventSequence === row.eventSequence &&
+        phase.burningStateLogIds.filter((id) => id === row.id)
+          .length === 1 &&
+        auraStateProjectionEqual(
+          phase.auraBeforeTasks,
+          row.callbackAuraBefore ?? row.auraBefore
+        ) &&
+        auraStateProjectionEqual(
+          phase.auraAfterTasks,
+          row.callbackAuraAfter ?? row.auraAfter
+        )
+    );
+    const auditOwned = burningAuditOwnedRowIds.has(row.id);
+    const directAuraBefore = trigger?.reactionAudit.auraBefore;
+    const directAuraAfter = trigger?.reactionAudit.auraAfter;
+    const directAuraApplied = trigger?.reactionAudit.auraApplied;
+    const directAuraConsumed = trigger?.reactionAudit.auraConsumed;
+    const directBurningBefore =
+      directAuraBefore?.find(
+        (entry) => entry.element === "burning"
+      )?.gaugeUnits ?? 0;
+    const directFuelBefore =
+      directAuraBefore?.find(
+        (entry) => entry.element === "burningFuel"
+      )?.gaugeUnits ?? 0;
+    const directBurningAfter =
+      directAuraAfter?.find(
+        (entry) => entry.element === "burning"
+      )?.gaugeUnits ?? 0;
+    const directFuelAfter =
+      directAuraAfter?.find(
+        (entry) => entry.element === "burningFuel"
+      )?.gaugeUnits ?? 0;
+    const phaseDecayRemovedBurning =
+      result.targetTaskPhaseLog.some(
+        (phase) => {
+          if (
+            phase.targetId !== row.targetId ||
+            phase.globalFrame !== row.frame
+          ) {
+            return false;
+          }
+          const burningBefore = phase.auraAfterTasks.some(
+            (entry) =>
+              entry.element === "burning" &&
+              entry.gaugeUnits > AURA_GAUGE_EPSILON
+          );
+          const fuelBefore = phase.auraAfterTasks.some(
+            (entry) =>
+              entry.element === "burningFuel" &&
+              entry.gaugeUnits > AURA_GAUGE_EPSILON
+          );
+          const burningAfter = phase.auraAfterDecay.some(
+            (entry) =>
+              entry.element === "burning" &&
+              entry.gaugeUnits > AURA_GAUGE_EPSILON
+          );
+          const fuelAfter = phase.auraAfterDecay.some(
+            (entry) =>
+              entry.element === "burningFuel" &&
+              entry.gaugeUnits > AURA_GAUGE_EPSILON
+          );
+          return (
+            burningBefore &&
+            fuelBefore &&
+            (!burningAfter || !fuelAfter)
+          );
+        }
+      );
+    const directRemovalOwned =
+      trigger !== undefined &&
+      trigger.reactionAudit.burningReaction === null &&
+      row.reason === "BURNING_AURA_CONSUMED" &&
+      row.frame === trigger.frame &&
+      row.timeSeconds === trigger.timeSeconds &&
+      row.eventPriority === trigger.eventPriority &&
+      row.eventSequence === trigger.eventSequence &&
+      row.targetId === trigger.targetId &&
+      row.targetName === trigger.targetName &&
+      row.triggerElement === null &&
+      directAuraBefore !== null &&
+      directAuraBefore !== undefined &&
+      directAuraAfter !== null &&
+      directAuraAfter !== undefined &&
+      directAuraApplied !== null &&
+      directAuraApplied !== undefined &&
+      directAuraConsumed !== null &&
+      directAuraConsumed !== undefined &&
+      ((directBurningBefore > AURA_GAUGE_EPSILON &&
+        directFuelBefore > AURA_GAUGE_EPSILON &&
+        (directBurningAfter <= AURA_GAUGE_EPSILON ||
+          directFuelAfter <= AURA_GAUGE_EPSILON)) ||
+        phaseDecayRemovedBurning) &&
+      nearlyEqual(
+        row.burningGaugeUnitsBefore,
+        directBurningBefore
+      ) &&
+      nearlyEqual(row.fuelGaugeUnitsBefore, directFuelBefore) &&
+      nearlyEqual(row.burningGaugeUnitsAfter, directBurningAfter) &&
+      nearlyEqual(row.fuelGaugeUnitsAfter, directFuelAfter) &&
+      auraStateProjectionEqual(row.auraBefore, directAuraBefore) &&
+      auraGaugeProjectionEqual(row.auraApplied, directAuraApplied) &&
+      auraGaugeProjectionEqual(
+        row.auraConsumed,
+        directAuraConsumed
+      ) &&
+      auraStateProjectionEqual(row.auraAfter, directAuraAfter);
+    const matchingTruncations =
+      trigger === undefined
+        ? []
+        : result.targetMechanicsTruncationLog.filter(
+            (entry) =>
+              entry.triggerDamageEventId === trigger.id &&
+              entry.targetId === row.targetId &&
+              entry.targetName === row.targetName &&
+              entry.frame === row.frame
+          );
+    const truncation = matchingTruncations[0];
+    const truncationOwned =
+      matchingTruncations.length === 1 &&
+      truncation !== undefined &&
+      row.reason === "TARGET_MECHANICS_TRUNCATION" &&
+      trigger !== undefined &&
+      row.frame === trigger.frame &&
+      row.timeSeconds === trigger.timeSeconds &&
+      row.eventPriority === trigger.eventPriority &&
+      row.eventSequence === trigger.eventSequence &&
+      row.triggerElement === null &&
+      auraStateProjectionEqual(
+        row.auraBefore,
+        truncation.discardedAura
+      ) &&
+      row.auraApplied.length === 0 &&
+      row.auraConsumed.length === 0 &&
+      row.auraAfter.length === 0;
+
+    if (
+      auditOwned ||
+      callbackOwned ||
+      legacyCallbackOwned ||
+      directRemovalOwned ||
+      truncationOwned
+    ) {
+      authoritativeBurningStopRowIds.add(row.id);
+    } else {
+      addIssue(
+        context,
+        rowPath,
+        "Burning stop must be owned by an exact stop audit, Aura-consuming hit, mechanics truncation, or callback task"
+      );
+    }
+  }
+
+  for (const [rowIndex, row] of
+    result.burningStateLog.entries()) {
+    const rowPath = ["burningStateLog", rowIndex] satisfies IssuePath;
+    const expectedClockModel =
+      result.config.targetClockModel.mode ===
+      "target-local-hitlag-v1"
+        ? "target-local-hitlag-v1"
+        : "target-local-no-hitlag";
+    const expectedHitlagStatus =
+      result.config.targetClockModel.mode ===
+      "target-local-hitlag-v1"
+        ? "modeled-enemy-hitlag"
+        : "unsupported-enemy-hitlag";
+    expectFieldEqual(
       context,
-      ["burningStateLog", rowIndex, "timeSeconds"],
+      rowPath,
+      "clockModel",
+      row.clockModel,
+      expectedClockModel,
+      "Burning lifecycle clock model"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "hitlagStatus",
+      row.hitlagStatus,
+      expectedHitlagStatus,
+      "Burning lifecycle Hitlag status"
+    );
+    expectFieldNearlyEqual(
+      context,
+      rowPath,
+      "timeSeconds",
       row.timeSeconds,
       row.frame / 60,
       "Burning lifecycle time"
     );
-    const target = result.enemyTargets.find(
-      (candidate) => candidate.id === row.targetId
+    expectFieldNearlyEqual(
+      context,
+      rowPath,
+      "fuelDecayPerFrame",
+      row.fuelDecayPerFrame,
+      BURNING_FUEL_DECAY_PER_FRAME,
+      "Burning Fuel decay constant"
     );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "icdGroup",
+      row.icdGroup,
+      "burning",
+      "Burning lifecycle ICD group"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "icdTag",
+      row.icdTag,
+      "burning-application",
+      "Burning lifecycle ICD tag"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "icdScope",
+      row.icdScope,
+      "global-target",
+      "Burning lifecycle ICD scope"
+    );
+    expectFieldEqual(
+      context,
+      rowPath,
+      "icdResetFrames",
+      row.icdResetFrames,
+      BURNING_ICD_RESET_FRAMES,
+      "Burning lifecycle ICD reset"
+    );
+    if (
+      row.icdApplicationSequence.length !==
+        BURNING_ICD_SEQUENCE.length ||
+      row.icdApplicationSequence.some(
+        (allowed, index) =>
+          allowed !== BURNING_ICD_SEQUENCE[index]
+      )
+    ) {
+      addIssue(
+        context,
+        ["burningStateLog", rowIndex, "icdApplicationSequence"],
+        "Burning application ICD sequence does not match its authoritative source"
+      );
+    }
+    const scalarLifecyclePoints =
+      lifecyclePointByBurningStateId.get(row.id) ?? [];
+    const scalarLifecyclePoint =
+      scalarLifecyclePoints.length === 1
+        ? scalarLifecyclePoints[0]
+        : undefined;
+    const scalarTargetTaskPhases =
+      targetTaskPhasesByBurningStateId.get(row.id) ?? [];
+    const scalarTargetTaskPhase =
+      scalarTargetTaskPhases.length === 1
+        ? scalarTargetTaskPhases[0]
+        : undefined;
+    const scalarAuraBefore =
+      row.callbackAuraBefore ??
+      scalarTargetTaskPhase?.auraBeforeTasks ??
+      scalarLifecyclePoint?.auraBefore ??
+      row.auraBefore;
+    const scalarAuraAfter =
+      row.callbackAuraAfter ??
+      scalarTargetTaskPhase?.auraAfterTasks ??
+      scalarLifecyclePoint?.auraAfter ??
+      row.auraAfter;
+    const burningGaugeUnitsBefore =
+      scalarAuraBefore.find(
+        (entry) => entry.element === "burning"
+      )?.gaugeUnits ?? 0;
+    const burningGaugeUnitsAfter =
+      scalarAuraAfter.find(
+        (entry) => entry.element === "burning"
+      )?.gaugeUnits ?? 0;
+    const fuelGaugeUnitsBefore =
+      scalarAuraBefore.find(
+        (entry) => entry.element === "burningFuel"
+      )?.gaugeUnits ?? 0;
+    const fuelGaugeUnitsAfter =
+      scalarAuraAfter.find(
+        (entry) => entry.element === "burningFuel"
+      )?.gaugeUnits ?? 0;
+    for (const [field, actual, expected] of [
+      [
+        "burningGaugeUnitsBefore",
+        row.burningGaugeUnitsBefore,
+        burningGaugeUnitsBefore
+      ],
+      [
+        "burningGaugeUnitsAfter",
+        row.burningGaugeUnitsAfter,
+        burningGaugeUnitsAfter
+      ],
+      [
+        "fuelGaugeUnitsBefore",
+        row.fuelGaugeUnitsBefore,
+        fuelGaugeUnitsBefore
+      ],
+      [
+        "fuelGaugeUnitsAfter",
+        row.fuelGaugeUnitsAfter,
+        fuelGaugeUnitsAfter
+      ]
+    ] as const) {
+      expectFieldNearlyEqual(
+        context,
+        rowPath,
+        field,
+        actual,
+        expected,
+        `Burning lifecycle ${field} Aura projection`
+      );
+    }
+    const target = enemyTargetById.get(row.targetId);
     if (
       target === undefined ||
       target.name !== row.targetName
@@ -7026,25 +9162,58 @@ function validateBurningStateProjection(
           row.operation === "fuel-expire"
             ? "burning-fuel-expiry"
             : "burning-tick";
-        for (const [field, expected] of [
-          ["cause", expectedCause],
-          ["frame", row.frame],
-          ["targetId", row.targetId],
-          ["targetName", row.targetName],
-          ["eventPriority", row.eventPriority],
-          ["eventSequence", row.eventSequence]
-        ] as const) {
-          expectEqual(
-            context,
-            ["burningStateLog", rowIndex, field],
-            point[field],
-            expected,
-            `Burning lifecycle point ${field}`
-          );
-        }
-        expectNearlyEqual(
+        expectFieldEqual(
           context,
-          ["burningStateLog", rowIndex, "timeSeconds"],
+          rowPath,
+          "cause",
+          point.cause,
+          expectedCause,
+          "Burning lifecycle point cause"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "frame",
+          point.frame,
+          row.frame,
+          "Burning lifecycle point frame"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "targetId",
+          point.targetId,
+          row.targetId,
+          "Burning lifecycle point target"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "targetName",
+          point.targetName,
+          row.targetName,
+          "Burning lifecycle point target name"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "eventPriority",
+          point.eventPriority,
+          row.eventPriority,
+          "Burning lifecycle point priority"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "eventSequence",
+          point.eventSequence,
+          row.eventSequence,
+          "Burning lifecycle point sequence"
+        );
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "timeSeconds",
           point.timeSeconds,
           row.timeSeconds,
           "Burning lifecycle point time"
@@ -7055,6 +9224,7 @@ function validateBurningStateProjection(
       if (
         row.reactionDamageLogId === null ||
         row.tickIndex === null ||
+        row.tickIndex === BURNING_SKIPPED_TICK_INDEX ||
         row.tickSkipped ||
         row.skipReason !== null
       ) {
@@ -7105,68 +9275,104 @@ function validateBurningStateProjection(
           "Burning tick must backlink its source Burning audit"
         );
       } else {
-        for (const [field, expected] of [
-          ["generation", sourceAudit.generation],
-          ["damageSourceActorId", trigger.sourceActorId],
-          ["fuelSourceActorId", sourceAudit.fuelSourceActorId]
-        ] as const) {
-          expectEqual(
-            context,
-            ["burningStateLog", rowIndex, field],
-            row[field],
-            expected,
-            `Burning tick source ${field}`
-          );
-        }
-        expectNearlyEqual(
+        expectFieldEqual(
           context,
-          [
-            "burningStateLog",
-            rowIndex,
-            "fuelDecayPerFrame"
-          ],
+          rowPath,
+          "generation",
+          row.generation,
+          sourceAudit.generation,
+          "Burning tick source generation"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "damageSourceActorId",
+          row.damageSourceActorId,
+          trigger.sourceActorId,
+          "Burning tick damage source"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "fuelSourceActorId",
+          row.fuelSourceActorId,
+          sourceAudit.fuelSourceActorId,
+          "Burning tick Fuel source"
+        );
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "fuelDecayPerFrame",
           row.fuelDecayPerFrame,
           sourceAudit.fuelDecayPerFrame,
           "Burning tick source fuel decay"
         );
       }
-      for (const [field, expected] of [
-        ["sourceActorId", row.damageSourceActorId],
-        ["sourceTargetId", row.targetId],
-        ["triggerDamageEventId", row.triggerDamageEventId],
-        ["damageFrame", row.frame],
-        ["nextAvailableFrame", row.nextTickFrame]
-      ] as const) {
-        expectEqual(
+      const parentPath = ["reactionDamageLog", parent.id] satisfies IssuePath;
+      expectFieldEqual(
+        context,
+        parentPath,
+        "sourceActorId",
+        parent.sourceActorId,
+        row.damageSourceActorId,
+        "Burning tick parent source"
+      );
+      expectFieldEqual(
+        context,
+        parentPath,
+        "sourceTargetId",
+        parent.sourceTargetId,
+        row.targetId,
+        "Burning tick parent source target"
+      );
+      expectFieldEqual(
+        context,
+        parentPath,
+        "triggerDamageEventId",
+        parent.triggerDamageEventId,
+        row.triggerDamageEventId,
+        "Burning tick parent trigger"
+      );
+      expectFieldEqual(
+        context,
+        parentPath,
+        "damageFrame",
+        parent.damageFrame,
+        row.frame,
+        "Burning tick parent frame"
+      );
+      expectFieldEqual(
+        context,
+        parentPath,
+        "nextAvailableFrame",
+        parent.nextAvailableFrame,
+        row.nextTickFrame,
+        "Burning tick parent next callback"
+      );
+      if (
+        row.damageEventIds.length !== parent.damageEventIds.length ||
+        row.damageEventIds.some(
+          (damageEventId, index) =>
+            damageEventId !== parent.damageEventIds[index]
+        )
+      ) {
+        addIssue(
           context,
-          [
-            "reactionDamageLog",
-            parent.id,
-            field
-          ],
-          parent[field],
-          expected,
-          `Burning tick parent ${field}`
+          [...rowPath, "damageEventIds"],
+          "Burning tick damage children do not match their authoritative parent"
         );
       }
-      expectSemanticEqual(
-        context,
-        ["burningStateLog", rowIndex, "damageEventIds"],
-        row.damageEventIds,
-        parent.damageEventIds,
-        "Burning tick damage children"
-      );
-      const sourceTargetChildren = parent.damageEventIds
-        .map((damageEventId) =>
-          damageEventById.get(damageEventId)
-        )
-        .filter(
-          (
-            event
-          ): event is SimulationResult["damageEvents"][number] =>
-            event?.targetId === row.targetId
-        );
-      if (sourceTargetChildren.length !== 1) {
+      let sourceTargetChild:
+        | SimulationResult["damageEvents"][number]
+        | undefined;
+      let sourceTargetChildCount = 0;
+      for (const damageEventId of parent.damageEventIds) {
+        const child = damageEventById.get(damageEventId);
+        if (child?.targetId !== row.targetId) continue;
+        sourceTargetChild = child;
+        sourceTargetChildCount += 1;
+      }
+      if (sourceTargetChildCount !== 1 || sourceTargetChild === undefined) {
         addIssue(
           context,
           ["burningStateLog", rowIndex, "damageAllowed"],
@@ -7177,9 +9383,48 @@ function validateBurningStateProjection(
           context,
           ["burningStateLog", rowIndex, "damageAllowed"],
           row.damageAllowed,
-          sourceTargetChildren[0]!.targetDamageMultiplier === 1,
+          sourceTargetChild.targetDamageMultiplier === 1,
           "Burning source-target damage policy"
         );
+        expectEqual(
+          context,
+          ["burningStateLog", rowIndex, "applicationAllowed"],
+          row.applicationAllowed,
+          sourceTargetChild.reactionAudit.icdAllowed,
+          "Burning source-target ICD decision"
+        );
+        if (
+          sourceTargetChild.reactionAudit.icdGroup === "burning"
+        ) {
+          expectAuraStateProjection(
+            context,
+            ["burningStateLog", rowIndex, "auraBefore"],
+            row.auraBefore,
+            sourceTargetChild.reactionAudit.auraBefore ?? [],
+            "Burning source-target auraBefore"
+          );
+          expectAuraGaugeProjection(
+            context,
+            ["burningStateLog", rowIndex, "auraApplied"],
+            row.auraApplied,
+            sourceTargetChild.reactionAudit.auraApplied ?? [],
+            "Burning source-target auraApplied"
+          );
+          expectAuraGaugeProjection(
+            context,
+            ["burningStateLog", rowIndex, "auraConsumed"],
+            row.auraConsumed,
+            sourceTargetChild.reactionAudit.auraConsumed ?? [],
+            "Burning source-target auraConsumed"
+          );
+          expectAuraStateProjection(
+            context,
+            ["burningStateLog", rowIndex, "auraAfter"],
+            row.auraAfter,
+            sourceTargetChild.reactionAudit.auraAfter ?? [],
+            "Burning source-target auraAfter"
+          );
+        }
       }
     } else if (row.operation === "tick-skipped") {
       if (
@@ -7207,17 +9452,836 @@ function validateBurningStateProjection(
     }
   }
 
-  for (const rows of tickRowsByTargetGeneration.values()) {
-    let expectedTickIndex = 1;
-    for (const row of rows) {
+  type ActiveBurningReplay = {
+    generation: number;
+    sourceTriggerDamageEventId: number;
+    damageSourceActorId: string;
+    fuelSourceActorId: string;
+    nextTickLocalFrame: number;
+    fuelExpiryLocalFrame: number;
+    lastTickIndex: number;
+  };
+  const activeBurningByTarget = new Map<
+    string,
+    ActiveBurningReplay
+  >();
+  const orderedBurningRows = [...result.burningStateLog].sort(
+    (left, right) =>
+      left.frame - right.frame ||
+      left.eventPriority - right.eventPriority ||
+      left.eventSequence - right.eventSequence ||
+      left.id - right.id
+  );
+  const callbackBeforeReactableTick =
+    result.config.targetTaskModel.mode === "target-phase-v1" ||
+    result.config.targetTaskModel.mode === "target-phase-v2" ||
+    result.config.targetTaskModel.mode === "target-phase-v3";
+
+  for (const row of orderedBurningRows) {
+    const rowPath = ["burningStateLog", row.id] satisfies IssuePath;
+    const active = activeBurningByTarget.get(row.targetId);
+    const trigger =
+      row.triggerDamageEventId === null
+        ? undefined
+        : damageEventById.get(row.triggerDamageEventId);
+    const sourceAudit = trigger?.reactionAudit.burningReaction;
+    const currentLocalFrame = row.targetFrame ?? row.frame;
+    const nextTickLocalFrame =
+      row.nextTickTargetFrame ?? row.nextTickFrame;
+    const fuelExpiryLocalFrame =
+      row.fuelExpiresAtTargetFrame ?? row.fuelExpiresAtFrame;
+    if (usesTargetHitlagClock) {
+      const rowClockState = burningClockStateAtCut(row.targetId, {
+        frame: row.frame,
+        eventPriority: row.eventPriority,
+        eventSequence: row.eventSequence
+      });
+      validateBurningGlobalDeadline(
+        rowClockState,
+        row.fuelExpiresAtFrame,
+        row.fuelExpiresAtTargetFrame,
+        [...rowPath, "fuelExpiresAtFrame"],
+        "Burning lifecycle Fuel global deadline target-clock projection"
+      );
+      validateBurningGlobalDeadline(
+        rowClockState,
+        row.nextTickFrame,
+        row.nextTickTargetFrame,
+        [...rowPath, "nextTickFrame"],
+        "Burning lifecycle next Tick global deadline target-clock projection"
+      );
+    }
+
+    if (
+      row.operation === "start" ||
+      row.operation === "refresh-fuel" ||
+      row.operation === "refresh-snapshot"
+    ) {
+      if (
+        trigger === undefined ||
+        sourceAudit === null ||
+        sourceAudit === undefined ||
+        sourceAudit.operation !== row.operation
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "triggerDamageEventId"],
+          `${row.operation} must backlink its exact Burning source audit`
+        );
+        continue;
+      }
+      if (
+        sourceAudit.blockedReason ===
+        "TARGET_MECHANICS_TRUNCATION"
+      ) {
+        if (active !== undefined) {
+          addIssue(
+            context,
+            [...rowPath, "blockedReason"],
+            "mechanics-truncated Burning start/refresh cannot implicitly remove an active stream; an earlier authoritative stop is required"
+          );
+        }
+        continue;
+      }
+      if (
+        nextTickLocalFrame === null ||
+        fuelExpiryLocalFrame === null ||
+        sourceAudit.fuelSourceActorId === null
+      ) {
+        addIssue(
+          context,
+          rowPath,
+          `${row.operation} requires active local tick and Fuel deadlines plus a Fuel owner`
+        );
+        continue;
+      }
+      if (row.operation === "start") {
+        if (active !== undefined) {
+          addIssue(
+            context,
+            [...rowPath, "operation"],
+            "Burning start cannot replace an active stream without an explicit terminal row"
+          );
+        }
+        expectEqual(
+          context,
+          [...rowPath, "nextTickTargetFrame"],
+          nextTickLocalFrame,
+          (sourceAudit.snapshotTargetFrame ??
+            sourceAudit.snapshotFrame) +
+            BURNING_TICK_INTERVAL_FRAMES,
+          "Burning first local tick deadline"
+        );
+        expectEqual(
+          context,
+          [...rowPath, "fuelSourceActorId"],
+          row.fuelSourceActorId,
+          trigger.sourceActorId,
+          "Burning initial Fuel owner"
+        );
+        activeBurningByTarget.set(row.targetId, {
+          generation: row.generation,
+          sourceTriggerDamageEventId: trigger.id,
+          damageSourceActorId: trigger.sourceActorId,
+          fuelSourceActorId: sourceAudit.fuelSourceActorId,
+          nextTickLocalFrame,
+          fuelExpiryLocalFrame,
+          lastTickIndex: 0
+        });
+        continue;
+      }
+
+      if (
+        active === undefined ||
+        active.generation !== row.generation
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "generation"],
+          `${row.operation} requires an active stream with the same generation`
+        );
+        continue;
+      }
       expectEqual(
         context,
-        ["burningStateLog", row.id, "tickIndex"],
+        [...rowPath, "nextTickTargetFrame"],
+        nextTickLocalFrame,
+        active.nextTickLocalFrame,
+        "Burning refresh cadence preservation"
+      );
+      if (row.operation === "refresh-snapshot") {
+        expectEqual(
+          context,
+          [...rowPath, "fuelSourceActorId"],
+          row.fuelSourceActorId,
+          active.fuelSourceActorId,
+          "Burning snapshot Fuel owner preservation"
+        );
+        expectEqual(
+          context,
+          [...rowPath, "fuelExpiresAtTargetFrame"],
+          fuelExpiryLocalFrame,
+          active.fuelExpiryLocalFrame,
+          "Burning snapshot Fuel deadline preservation"
+        );
+      } else {
+        expectEqual(
+          context,
+          [...rowPath, "fuelSourceActorId"],
+          row.fuelSourceActorId,
+          trigger.sourceActorId,
+          "Burning refreshed Fuel owner"
+        );
+      }
+      active.sourceTriggerDamageEventId = trigger.id;
+      active.damageSourceActorId = trigger.sourceActorId;
+      if (row.operation === "refresh-fuel") {
+        active.fuelSourceActorId = sourceAudit.fuelSourceActorId;
+        active.fuelExpiryLocalFrame = fuelExpiryLocalFrame;
+      }
+      continue;
+    }
+
+    if (
+      row.operation === "tick" ||
+      row.operation === "tick-skipped"
+    ) {
+      if (
+        active === undefined ||
+        active.generation !== row.generation
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "generation"],
+          "Burning callback requires an active stream with the same generation"
+        );
+        continue;
+      }
+      if (
+        currentLocalFrame > active.fuelExpiryLocalFrame ||
+        (!callbackBeforeReactableTick &&
+          currentLocalFrame === active.fuelExpiryLocalFrame)
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "targetFrame"],
+          callbackBeforeReactableTick
+            ? "Burning callback cannot execute after its Fuel expiry"
+            : "Burning callback must execute strictly before its Fuel expiry"
+        );
+      }
+      const expectedTickIndex = active.lastTickIndex + 1;
+      expectFieldEqual(
+        context,
+        rowPath,
+        "triggerDamageEventId",
+        row.triggerDamageEventId,
+        active.sourceTriggerDamageEventId,
+        "Burning callback trigger"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "damageSourceActorId",
+        row.damageSourceActorId,
+        active.damageSourceActorId,
+        "Burning callback damage source"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "fuelSourceActorId",
+        row.fuelSourceActorId,
+        active.fuelSourceActorId,
+        "Burning callback Fuel source"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "targetFrame",
+        currentLocalFrame,
+        active.nextTickLocalFrame,
+        "Burning callback local frame"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "tickIndex",
         row.tickIndex,
         expectedTickIndex,
-        "Burning tick index"
+        "Burning callback tick index"
       );
-      expectedTickIndex += 1;
+      expectFieldEqual(
+        context,
+        rowPath,
+        "fuelExpiresAtTargetFrame",
+        fuelExpiryLocalFrame,
+        active.fuelExpiryLocalFrame,
+        "Burning callback Fuel deadline"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "operation",
+        row.operation === "tick-skipped",
+        expectedTickIndex === BURNING_SKIPPED_TICK_INDEX,
+        "Burning counter-9 skip ownership"
+      );
+      expectFieldEqual(
+        context,
+        rowPath,
+        "nextTickTargetFrame",
+        nextTickLocalFrame,
+        currentLocalFrame + BURNING_TICK_INTERVAL_FRAMES,
+        "Burning 15-frame local cadence"
+      );
+      active.nextTickLocalFrame =
+        currentLocalFrame + BURNING_TICK_INTERVAL_FRAMES;
+      active.lastTickIndex = expectedTickIndex;
+      continue;
+    }
+
+    if (row.operation === "fuel-expire") {
+      if (
+        active === undefined ||
+        active.generation !== row.generation
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "generation"],
+          "Burning Fuel expiry requires its active stream"
+        );
+        continue;
+      } else {
+        expectFieldEqual(
+          context,
+          rowPath,
+          "triggerDamageEventId",
+          row.triggerDamageEventId,
+          active.sourceTriggerDamageEventId,
+          "Burning Fuel expiry trigger"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "damageSourceActorId",
+          row.damageSourceActorId,
+          active.damageSourceActorId,
+          "Burning Fuel expiry damage source"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "fuelSourceActorId",
+          row.fuelSourceActorId,
+          active.fuelSourceActorId,
+          "Burning Fuel expiry Fuel source"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "targetFrame",
+          currentLocalFrame,
+          active.fuelExpiryLocalFrame,
+          "Burning Fuel expiry local frame"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "triggerElement",
+          row.triggerElement,
+          null,
+          "Burning Fuel expiry trigger element"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "fuelExpiresAtFrame",
+          row.fuelExpiresAtFrame,
+          null,
+          "Burning Fuel expiry terminal global deadline"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "fuelExpiresAtTargetFrame",
+          row.fuelExpiresAtTargetFrame ?? null,
+          null,
+          "Burning Fuel expiry terminal local deadline"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "nextTickFrame",
+          row.nextTickFrame,
+          null,
+          "Burning Fuel expiry terminal global callback"
+        );
+        expectFieldEqual(
+          context,
+          rowPath,
+          "nextTickTargetFrame",
+          row.nextTickTargetFrame ?? null,
+          null,
+          "Burning Fuel expiry terminal local callback"
+        );
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "burningGaugeUnitsAfter",
+          row.burningGaugeUnitsAfter,
+          0,
+          "Burning Fuel expiry marker Gauge"
+        );
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "fuelGaugeUnitsAfter",
+          row.fuelGaugeUnitsAfter,
+          0,
+          "Burning Fuel expiry Fuel Gauge"
+        );
+        expectAuraGaugeProjection(
+          context,
+          [...rowPath, "auraApplied"],
+          row.auraApplied,
+          [],
+          "Burning Fuel expiry applied Aura"
+        );
+        const expectedAuraConsumed = row.auraBefore
+          .filter(
+            (before) =>
+              !row.auraAfter.some(
+                (after) => after.element === before.element
+              )
+          )
+          .map((entry) => ({
+            element: entry.element,
+            gaugeUnits: entry.gaugeUnits
+          }));
+        expectAuraGaugeProjection(
+          context,
+          [...rowPath, "auraConsumed"],
+          row.auraConsumed,
+          expectedAuraConsumed,
+          "Burning Fuel expiry consumed Aura"
+        );
+        const expiryPoints =
+          lifecyclePointByBurningStateId.get(row.id) ?? [];
+        const expiryPoint = expiryPoints[0];
+        if (
+          expiryPoints.length !== 1 ||
+          expiryPoint === undefined ||
+          !auraStateProjectionEqual(
+            row.auraBefore,
+            expiryPoint.auraBefore
+          ) ||
+          !auraStateProjectionEqual(
+            row.auraAfter,
+            expiryPoint.auraAfter
+          )
+        ) {
+          addIssue(
+            context,
+            [...rowPath, "auraBefore"],
+            "Burning Fuel expiry Aura snapshots must match its lifecycle point"
+          );
+        }
+        const markerBefore = row.auraBefore.find(
+          (entry) => entry.element === "burning"
+        )?.gaugeUnits ?? 0;
+        const fuelBefore = row.auraBefore.find(
+          (entry) => entry.element === "burningFuel"
+        )?.gaugeUnits ?? 0;
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "burningGaugeUnitsBefore",
+          row.burningGaugeUnitsBefore,
+          markerBefore,
+          "Burning Fuel expiry marker snapshot"
+        );
+        expectFieldNearlyEqual(
+          context,
+          rowPath,
+          "fuelGaugeUnitsBefore",
+          row.fuelGaugeUnitsBefore,
+          fuelBefore,
+          "Burning Fuel expiry Fuel snapshot"
+        );
+      }
+      activeBurningByTarget.delete(row.targetId);
+      continue;
+    }
+
+    if (row.operation === "stop") {
+      if (!authoritativeBurningStopRowIds.has(row.id)) {
+        continue;
+      }
+      if (active === undefined) {
+        addIssue(
+          context,
+          [...rowPath, "generation"],
+          "Burning stop requires its active stream with the same generation"
+        );
+        continue;
+      }
+      if (active.generation !== row.generation) {
+        addIssue(
+          context,
+          [...rowPath, "generation"],
+          "Burning stop requires its active stream with the same generation"
+        );
+        continue;
+      }
+      if (trigger === undefined) {
+        addIssue(
+          context,
+          [...rowPath, "triggerDamageEventId"],
+          "Burning stop must retain its authoritative source trigger"
+        );
+        continue;
+      }
+      if (
+        currentLocalFrame > active.fuelExpiryLocalFrame ||
+        (!callbackBeforeReactableTick &&
+          currentLocalFrame === active.fuelExpiryLocalFrame)
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "targetFrame"],
+          "Burning stop cannot replace a Fuel expiry that has already become active"
+        );
+      }
+      expectEqual(
+        context,
+        [...rowPath, "damageSourceActorId"],
+        row.damageSourceActorId,
+        active.damageSourceActorId,
+        "Burning terminal damage source"
+      );
+      expectEqual(
+        context,
+        [...rowPath, "fuelSourceActorId"],
+        row.fuelSourceActorId,
+        active.fuelSourceActorId,
+        "Burning terminal Fuel owner"
+      );
+      activeBurningByTarget.delete(row.targetId);
+    }
+  }
+
+  const runEndFrame = Math.round(result.config.duration * 60);
+  for (const [targetId, active] of activeBurningByTarget) {
+    const finalLocalFrame =
+      result.targetClockAudit.mode === "target-local-hitlag-v1"
+        ? (result.targetClockAudit.targets.find(
+            (target) => target.targetId === targetId
+          )?.finalTargetFrame ?? runEndFrame)
+        : runEndFrame;
+    if (active.fuelExpiryLocalFrame <= finalLocalFrame) {
+      addIssue(
+        context,
+        ["burningStateLog"],
+        `active Burning stream on ${targetId} is missing its Fuel expiry at local frame ${active.fuelExpiryLocalFrame}`
+      );
+    } else if (
+      active.nextTickLocalFrame < active.fuelExpiryLocalFrame &&
+      active.nextTickLocalFrame <= finalLocalFrame
+    ) {
+      addIssue(
+        context,
+        ["burningStateLog"],
+        `active Burning stream on ${targetId} is missing its in-range callback at local frame ${active.nextTickLocalFrame}`
+      );
+    }
+  }
+
+  const burningTickRowBySourceChildId = new Map<
+    number,
+    SimulationResult["burningStateLog"][number]
+  >();
+  const burningParentByChildId = new Map<
+    number,
+    SimulationResult["reactionDamageLog"][number]
+  >();
+  for (const parent of result.reactionDamageLog) {
+    if (
+      parent.reaction !== "burning" ||
+      parent.scheduleKind !== "burning-tick"
+    ) {
+      continue;
+    }
+    for (const damageEventId of parent.damageEventIds) {
+      burningParentByChildId.set(damageEventId, parent);
+    }
+    const ownerRows =
+      burningTickByReactionDamageId.get(parent.id) ?? [];
+    const ownerRow = ownerRows.find(
+      (row) => row.operation === "tick"
+    );
+    if (ownerRow !== undefined) {
+      let sourceChildId: number | undefined;
+      let sourceChildCount = 0;
+      for (const damageEventId of parent.damageEventIds) {
+        if (
+          damageEventById.get(damageEventId)?.targetId !==
+          ownerRow.targetId
+        ) {
+          continue;
+        }
+        sourceChildId = damageEventId;
+        sourceChildCount += 1;
+      }
+      if (sourceChildCount === 1 && sourceChildId !== undefined) {
+        burningTickRowBySourceChildId.set(
+          sourceChildId,
+          ownerRow
+        );
+      }
+    }
+  }
+
+  const compareDamageEventOrder = (
+    left: DamageEvent,
+    right: DamageEvent
+  ): number =>
+    left.frame - right.frame ||
+    left.eventPriority - right.eventPriority ||
+    left.eventSequence - right.eventSequence ||
+    left.id - right.id;
+  const earliestTruncationTriggerByTarget = new Map<
+    string,
+    DamageEvent
+  >();
+  for (const truncation of result.targetMechanicsTruncationLog) {
+    const trigger = damageEventById.get(
+      truncation.triggerDamageEventId
+    );
+    if (trigger === undefined) continue;
+    const earliest = earliestTruncationTriggerByTarget.get(
+      truncation.targetId
+    );
+    if (
+      earliest === undefined ||
+      compareDamageEventOrder(trigger, earliest) < 0
+    ) {
+      earliestTruncationTriggerByTarget.set(
+        truncation.targetId,
+        trigger
+      );
+    }
+  }
+  const auraBlockedPhasesByTarget = new Map<
+    string,
+    NonNullable<
+      SimulationResult["config"]["enemy"]["targetPhases"]
+    >
+  >();
+  for (const phase of result.config.enemy.targetPhases ?? []) {
+    if (phase.effects.aura !== "blocked") continue;
+    const phases = auraBlockedPhasesByTarget.get(phase.targetId) ?? [];
+    phases.push(phase);
+    auraBlockedPhasesByTarget.set(phase.targetId, phases);
+  }
+  const targetAuraBlockedAtFrame = (
+    targetId: string,
+    frame: number
+  ): boolean => {
+    const phases = auraBlockedPhasesByTarget.get(targetId);
+    if (phases === undefined) return false;
+    for (const phase of phases) {
+      if (frame >= phase.startFrame && frame < phase.endFrame) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const burningIcdByTarget = new Map<
+    string,
+    { windowStartFrame: number; hitCount: number }
+  >();
+  const burningApplicationChildren = result.damageEvents
+    .filter(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.reaction === "burning" &&
+        burningParentByChildId.has(event.id)
+    )
+    .sort(compareDamageEventOrder);
+
+  for (const child of burningApplicationChildren) {
+    const childPath = [
+      "damageEvents",
+      child.id,
+      "reactionAudit"
+    ] satisfies IssuePath;
+    const targetAuraBlocked = targetAuraBlockedAtFrame(
+      child.targetId,
+      child.frame
+    );
+    const earliestTruncationTrigger =
+      earliestTruncationTriggerByTarget.get(child.targetId);
+    const mechanicsTruncatedBefore =
+      earliestTruncationTrigger !== undefined &&
+      compareDamageEventOrder(earliestTruncationTrigger, child) < 0;
+    const ownerRow = burningTickRowBySourceChildId.get(child.id);
+    if (targetAuraBlocked || mechanicsTruncatedBefore) {
+      expectFieldEqual(
+        context,
+        childPath,
+        "icdAllowed",
+        child.reactionAudit.icdAllowed,
+        null,
+        "non-applying Burning child ICD decision"
+      );
+      expectFieldEqual(
+        context,
+        childPath,
+        "icdTag",
+        child.reactionAudit.icdTag,
+        null,
+        "non-applying Burning child ICD tag"
+      );
+      expectFieldEqual(
+        context,
+        childPath,
+        "icdGroup",
+        child.reactionAudit.icdGroup,
+        null,
+        "non-applying Burning child ICD group"
+      );
+      expectFieldEqual(
+        context,
+        childPath,
+        "applicationGaugeUnits",
+        child.reactionAudit.applicationGaugeUnits,
+        null,
+        "non-applying Burning child Gauge"
+      );
+      if (ownerRow !== undefined && targetAuraBlocked) {
+        const ownerPath = [
+          "burningStateLog",
+          ownerRow.id
+        ] satisfies IssuePath;
+        expectFieldEqual(
+          context,
+          ownerPath,
+          "applicationBlockedReason",
+          ownerRow.applicationBlockedReason,
+          "TARGET_AURA_BLOCKED",
+          "Aura-blocked Burning source callback"
+        );
+        expectFieldEqual(
+          context,
+          ownerPath,
+          "icdWindowStartFrame",
+          ownerRow.icdWindowStartFrame,
+          null,
+          "Aura-blocked Burning source ICD window"
+        );
+        expectFieldEqual(
+          context,
+          ownerPath,
+          "icdHitIndex",
+          ownerRow.icdHitIndex,
+          null,
+          "Aura-blocked Burning source ICD index"
+        );
+      }
+      continue;
+    }
+
+    const previous = burningIcdByTarget.get(child.targetId);
+    const startsNewWindow =
+      previous === undefined ||
+      child.frame - previous.windowStartFrame >=
+        BURNING_ICD_RESET_FRAMES;
+    const expectedWindowStartFrame = startsNewWindow
+      ? child.frame
+      : previous.windowStartFrame;
+    const expectedHitIndex = startsNewWindow
+      ? 0
+      : previous.hitCount;
+    const expectedApplicationAllowed =
+      BURNING_ICD_SEQUENCE[
+        Math.min(
+          expectedHitIndex,
+          BURNING_ICD_SEQUENCE.length - 1
+        )
+      ] ?? false;
+    if (previous === undefined || startsNewWindow) {
+      burningIcdByTarget.set(child.targetId, {
+        windowStartFrame: expectedWindowStartFrame,
+        hitCount: expectedHitIndex + 1
+      });
+    } else {
+      previous.hitCount = expectedHitIndex + 1;
+    }
+
+    expectFieldEqual(
+      context,
+      childPath,
+      "icdAllowed",
+      child.reactionAudit.icdAllowed,
+      expectedApplicationAllowed,
+      "Burning application ICD decision"
+    );
+    expectFieldEqual(
+      context,
+      childPath,
+      "icdTag",
+      child.reactionAudit.icdTag,
+      "burning-application",
+      "Burning application ICD tag"
+    );
+    expectFieldEqual(
+      context,
+      childPath,
+      "icdGroup",
+      child.reactionAudit.icdGroup,
+      "burning",
+      "Burning application ICD group"
+    );
+    expectFieldEqual(
+      context,
+      childPath,
+      "applicationGaugeUnits",
+      child.reactionAudit.applicationGaugeUnits,
+      BURNING_APPLICATION_GAUGE_UNITS,
+      "Burning application Gauge"
+    );
+    if (ownerRow !== undefined) {
+      const ownerPath = [
+        "burningStateLog",
+        ownerRow.id
+      ] satisfies IssuePath;
+      expectFieldEqual(
+        context,
+        ownerPath,
+        "icdWindowStartFrame",
+        ownerRow.icdWindowStartFrame,
+        expectedWindowStartFrame,
+        "Burning source ICD window"
+      );
+      expectFieldEqual(
+        context,
+        ownerPath,
+        "icdHitIndex",
+        ownerRow.icdHitIndex,
+        expectedHitIndex,
+        "Burning source ICD hit index"
+      );
+      expectFieldEqual(
+        context,
+        ownerPath,
+        "applicationBlockedReason",
+        ownerRow.applicationBlockedReason,
+        expectedApplicationAllowed
+          ? null
+          : "BURNING_APPLICATION_ICD",
+        "Burning source ICD block reason"
+      );
     }
   }
 
