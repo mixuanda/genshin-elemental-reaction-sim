@@ -1,4 +1,5 @@
 import {
+  assertTrustedSimulationResultV142,
   CURRENT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
@@ -10348,7 +10349,7 @@ function simulateConfig(
               activeSource?.triggerDamageEventId ?? null,
             reactionDamageLogId: null,
             damageEventId: null,
-            tickIndex,
+            tickIndex: null,
             auraBefore: prepared.auraBefore,
             auraConsumed: prepared.auraConsumed,
             auraAfter: prepared.auraAfter,
@@ -14790,8 +14791,8 @@ export function simulate(
       `targetTaskModel ${config.targetTaskModel.mode} requires compatibilityMode legal-frame-v1.`
     );
   }
-  if (!config.timeline) {
-    return simulateConfig(config, runtimeOptions);
-  }
-  return simulateLegalTimeline(config, runtimeOptions);
+  const result = config.timeline
+    ? simulateLegalTimeline(config, runtimeOptions)
+    : simulateConfig(config, runtimeOptions);
+  return assertTrustedSimulationResultV142(result);
 }

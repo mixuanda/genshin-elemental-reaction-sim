@@ -1,4 +1,8 @@
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  assertTrustedSimulationResultV142,
+  simulationResultV142Schema,
+  type SimConfig
+} from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -286,5 +290,42 @@ describe("target-local Hitlag and Superconduct status boundaries", () => {
       applied: true,
       extendedReactionStatusLogIds: []
     });
+  });
+
+  it("rejects missing or duplicate reciprocal Hitlag status links at both result boundaries", () => {
+    const result = simulate(
+      makeTargetHitlagSuperconductConfig({
+        hitlagFrame: 10
+      }),
+      { critMode: "noCrit" }
+    );
+
+    const missing = structuredClone(result);
+    missing.targetHitlagLog[0]!.extendedReactionStatusLogIds =
+      [];
+    missing.reactionStatusLog[0]!.endFrame -=
+      HITLAG_EXTENSION_FRAMES;
+    missing.reactionStatusLog[0]!.endTimeSeconds =
+      missing.reactionStatusLog[0]!.endFrame / 60;
+    expect(
+      simulationResultV142Schema.safeParse(missing).success
+    ).toBe(false);
+    expect(() =>
+      assertTrustedSimulationResultV142(missing)
+    ).toThrow(
+      /Trusted SimulationResult 1\.42 integrity validation failed/
+    );
+
+    const duplicate = structuredClone(result);
+    duplicate.targetHitlagLog[0]!.extendedReactionStatusLogIds =
+      [0, 0];
+    expect(
+      simulationResultV142Schema.safeParse(duplicate).success
+    ).toBe(false);
+    expect(() =>
+      assertTrustedSimulationResultV142(duplicate)
+    ).toThrow(
+      /Trusted SimulationResult 1\.42 integrity validation failed/
+    );
   });
 });

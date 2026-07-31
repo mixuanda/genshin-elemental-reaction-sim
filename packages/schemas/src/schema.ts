@@ -128,7 +128,7 @@ const rejectInheritedArrayEntries =
     }
     return input;
   };
-const rejectNonPlainJsonWire =
+export const rejectNonPlainJsonWire =
   (label: string) =>
   (input: unknown, context: z.RefinementCtx): unknown => {
     // Real SimulationResult wires stay far below these limits. They bound
@@ -569,14 +569,18 @@ export const damagePluginManifestEntrySchema = z
   })
   .strict();
 
-const simulationRunManifestValueSchema = z
+const simulationRunManifestV142ValueSchema = z
   .object({
     version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
       REPRODUCIBILITY_IDENTITY_ALGORITHM
     ),
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-    engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    ),
     dataVersion: wireNonEmptyStringSchema,
     configHash: fnv1a32ContentHashSchema,
     resolvedRuntimeOptions:
@@ -624,7 +628,7 @@ const simulationRunManifestValueSchema = z
     }
   });
 
-export const simulationRunManifestSchema = z.preprocess(
+export const simulationRunManifestV142Schema = z.preprocess(
   rejectInheritedWireFields(
     [
       "version",
@@ -634,8 +638,15 @@ export const simulationRunManifestSchema = z.preprocess(
     ],
     "runManifest"
   ),
-  simulationRunManifestValueSchema
+  simulationRunManifestV142ValueSchema
 );
+
+/**
+ * Current manifest alias. Keep frozen versioned schemas separate so advancing
+ * CURRENT cannot silently change persisted 1.42 result validation.
+ */
+export const simulationRunManifestSchema =
+  simulationRunManifestV142Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -12331,10 +12342,14 @@ export const legalTimelineConfigSchema = z
   })
   .strict();
 
-export const simConfigSchema = z
+export const simConfigV142Schema = z
   .object({
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-    engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    ),
     dataVersion: idSchema,
     randomSeed: idSchema,
     meta: z
@@ -13415,7 +13430,13 @@ export const simConfigSchema = z
   });
 
 /**
- * Result-reference validators must remain able to audit frozen 1.39–1.41
+ * Current config alias. A future schema bump must add a new frozen schema and
+ * move this alias; simConfigV142Schema itself remains immutable.
+ */
+export const simConfigSchema = simConfigV142Schema;
+
+/**
+ * Result-reference validators must remain able to audit frozen 1.39–1.42
  * payloads after CURRENT advances. The wire object is preserved verbatim; only
  * a temporary identity projection is upgraded for reuse of the complete
  * current config validator. Future fields remain forbidden on those frozen
@@ -13440,6 +13461,11 @@ const simResultConfigSchema = z
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
       wire.engineVersion ===
         EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    const exact142Identity =
+      wire.schemaVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -13497,7 +13523,9 @@ const simResultConfigSchema = z
               })
         }
       : wire;
-    const parsed = simConfigSchema.safeParse(projected);
+    const parsed = exact142Identity
+      ? simConfigV142Schema.safeParse(wire)
+      : simConfigSchema.safeParse(projected);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -13781,12 +13809,16 @@ const targetClockReactionStatusReferenceSchema = z
         message: "must equal endFrame / 60"
       });
     }
-    if (entry.endFrame <= entry.startFrame) {
+    if (
+      entry.endFrame < entry.startFrame ||
+      (entry.endFrame === entry.startFrame &&
+        entry.supersededAtFrame !== entry.startFrame)
+    ) {
       context.addIssue({
         code: "custom",
         path: ["endFrame"],
         message:
-          "Superconduct status uses a non-empty half-open frame interval"
+          "Superconduct status uses a non-empty half-open frame interval unless superseded by a same-frame refresh"
       });
     }
     if (

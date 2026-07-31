@@ -15,6 +15,7 @@ import {
   reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
   simConfigSchema,
+  simulationResultV142Schema,
   simulationRunManifestSchema,
   targetPhaseV2ResultReferencesSchema,
   targetStateTimelineSchema,
@@ -2254,6 +2255,90 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
         options
       );
 
+      expect(
+        simulationResultV142Schema.parse(result)
+      ).toEqual(result);
+      expect(
+        simulationResultV142Schema.parse(repeated)
+      ).toEqual(repeated);
+      if (scenarioId === "freezeShatter") {
+        const forged = structuredClone(result);
+        const frozen = forged.frozenStateLog[0];
+        if (frozen === undefined) {
+          throw new Error(
+            "Freeze/Shatter vector must expose frozen-state audit rows."
+          );
+        }
+        frozen.freezeResistance = 1.01;
+        expect(
+          simulationResultV142Schema.safeParse(forged).success
+        ).toBe(false);
+        const forgedTime = structuredClone(result);
+        forgedTime.frozenStateLog[0]!.timeSeconds += 0.01;
+        expect(
+          simulationResultV142Schema.safeParse(forgedTime).success
+        ).toBe(false);
+      }
+      if (scenarioId === "swirl") {
+        const forged = structuredClone(result);
+        const swirl = forged.damageEvents
+          .flatMap(
+            (event) => event.reactionAudit.swirlReactions
+          )
+          .at(0);
+        if (swirl === undefined) {
+          throw new Error(
+            "Swirl vector must expose a Swirl audit."
+          );
+        }
+        swirl.swirledElement =
+          swirl.swirledElement === "pyro" ? "hydro" : "pyro";
+        expect(
+          simulationResultV142Schema.safeParse(forged).success
+        ).toBe(false);
+      }
+      if (scenarioId === "crystallize") {
+        const forged = structuredClone(result);
+        const crystallize = forged.damageEvents
+          .map(
+            (event) =>
+              event.reactionAudit.crystallizeReaction
+          )
+          .find((audit) => audit !== null);
+        if (crystallize === undefined || crystallize === null) {
+          throw new Error(
+            "Crystallize vector must expose a Crystallize audit."
+          );
+        }
+        crystallize.crystallizedElement =
+          crystallize.crystallizedElement === "pyro"
+            ? "hydro"
+            : "pyro";
+        expect(
+          simulationResultV142Schema.safeParse(forged).success
+        ).toBe(false);
+      }
+      if (scenarioId === "catalyze") {
+        const forged = structuredClone(result);
+        const additive = forged.damageEvents
+          .map(
+            (event) =>
+              event.reactionAudit.catalyzeReaction?.additive
+          )
+          .find((audit) => audit !== null && audit !== undefined);
+        if (additive === undefined || additive === null) {
+          throw new Error(
+            "Catalyze vector must expose an additive audit."
+          );
+        }
+        additive.triggerElement =
+          additive.triggerElement === "electro"
+            ? "dendro"
+            : "electro";
+        expect(
+          simulationResultV142Schema.safeParse(forged).success
+        ).toBe(false);
+      }
       expect(result).toEqual(repeated);
       expect(result.config).toMatchObject({
         schemaVersion: "1.42.0",

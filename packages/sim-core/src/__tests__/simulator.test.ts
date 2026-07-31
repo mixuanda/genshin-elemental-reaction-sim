@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createVersionedContentHash,
+  simulationResultV142Schema,
   simulationRunManifestSchema
 } from "@genshin-dps-lab/schemas";
 import {
@@ -497,6 +498,58 @@ describe("deterministic event simulation", () => {
       { order: 0, index: 0 },
       { order: 1, index: 1 }
     ]);
+  });
+
+  it("preserves the code-plugin contract for explicit scaling overrides", () => {
+    const plugin = makeTestPlugin(
+      "scaling-override",
+      "1.0.0",
+      { behavior: "scaling-value-plus-one" },
+      () => ({
+        modifyDamage(context) {
+          return {
+            scalingValue:
+              context.damageInput.scalingValue + 1
+          };
+        }
+      })
+    );
+    const result = simulate(
+      makeConfig({
+        rotation: [
+          {
+            id: "plugin-scaling-hit",
+            actorId: "a",
+            name: "Plugin scaling hit",
+            at: 0,
+            hits: [
+              {
+                id: "hit",
+                offset: 0,
+                scaling: 1,
+                element: "pyro"
+              }
+            ]
+          }
+        ]
+      }),
+      {
+        plugins: [plugin],
+        critMode: "noCrit"
+      }
+    );
+    const event = result.damageEvents[0]!;
+    const snapshotAtk =
+      event.statsBeforeDamage.baseAtk *
+        (1 + event.statsBeforeDamage.atkPct) +
+      event.statsBeforeDamage.flatAtk;
+
+    expect(event.damageFactors.scalingValue).toBe(
+      snapshotAtk + 1
+    );
+    expect(
+      simulationResultV142Schema.parse(result)
+    ).toEqual(result);
   });
 
   it("creates fresh plugin runtime state for consecutive simulations", () => {

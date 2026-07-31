@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  assertTrustedSimulationResultV142,
+  simulationResultV142Schema,
+  type SimConfig,
+  type SimulationResult
+} from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
 import {
   calcCrystallizeShield,
@@ -14,6 +19,34 @@ function noIcd(gaugeUnits = 1) {
     icdTag: "crystallize-test",
     icdGroup: "no-icd" as const
   };
+}
+
+function expectCrystallizeMutationRejected(
+  result: SimulationResult,
+  mutate: (value: SimulationResult) => void,
+  expectedMessage?: RegExp
+): void {
+  const publicWire = structuredClone(result);
+  mutate(publicWire);
+  const parsed =
+    simulationResultV142Schema.safeParse(publicWire);
+  expect(parsed.success).toBe(false);
+  if (!parsed.success && expectedMessage !== undefined) {
+    expect(
+      parsed.error.issues
+        .map((issue) => issue.message)
+        .join("\n")
+    ).toMatch(expectedMessage);
+  }
+
+  const trustedResult = structuredClone(result);
+  mutate(trustedResult);
+  expect(() =>
+    assertTrustedSimulationResultV142(trustedResult)
+  ).toThrow(
+    expectedMessage ??
+      /Trusted SimulationResult 1\.42 integrity validation failed/
+  );
 }
 
 describe("AuraEngine Crystallize", () => {
@@ -483,6 +516,9 @@ describe("Crystallize shard and shield simulation", () => {
       frame: 54,
       sourceElementalMastery: 300
     });
+    expect(
+      simulationResultV142Schema.safeParse(result).success
+    ).toBe(true);
   });
 
   it("keeps shard positions reproducible and audits a pickup before spawn", () => {
@@ -588,5 +624,156 @@ describe("Crystallize shard and shield simulation", () => {
         previousShieldId: null
       }
     ]);
+  });
+
+  it("accepts the any-element pickup selector", () => {
+    const config = makeCrystallizeConfig({
+      pickupFrames: [54]
+    });
+    const pickup = config.timeline?.commands.find(
+      (command) => command.type === "pickUpCrystallize"
+    );
+    if (pickup?.type !== "pickUpCrystallize") {
+      throw new Error("expected a Crystallize pickup command");
+    }
+    pickup.element = "any";
+
+    const result = simulate(config, { critMode: "noCrit" });
+    expect(result.crystallizeShardLog).toMatchObject([
+      { operation: "spawn", element: "pyro" },
+      {
+        operation: "pickup",
+        element: "pyro",
+        success: true
+      }
+    ]);
+  });
+
+  it("rejects forged shard commands, shield identity, formula, expiry, and timeline projections at both boundaries", () => {
+    const result = simulate(
+      makeCrystallizeConfig({
+        triggerFrames: [0, 60],
+        pickupFrames: [54, 114],
+        duration: 18
+      }),
+      { critMode: "noCrit" }
+    );
+
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      const pickup = mutation.crystallizeShardLog.find(
+        (row) => row.operation === "pickup"
+      )!;
+      pickup.pickupCommandIndex = 0;
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      const pickupIndex =
+        mutation.crystallizeShardLog.findIndex(
+          (row) => row.operation === "pickup"
+        );
+      mutation.crystallizeShardLog.splice(pickupIndex, 1);
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      const overwrite = mutation.crystallizeShieldLog.find(
+        (row) => row.operation === "overwrite"
+      )!;
+      overwrite.operation = "add";
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      const overwrite = mutation.crystallizeShieldLog.find(
+        (row) => row.operation === "overwrite"
+      )!;
+      overwrite.previousShieldId = null;
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      mutation.crystallizeShieldLog[0]!.generalAbsorption += 1;
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      mutation.crystallizeShieldLog[0]!.sourceCharacterLevel = 1;
+    });
+    expectCrystallizeMutationRejected(
+      result,
+      (mutation) => {
+        for (const shard of mutation.crystallizeShardLog) {
+          if (shard.shardId !== null) {
+            shard.sourceElementalMastery = 777;
+          }
+        }
+        for (const shield of mutation.crystallizeShieldLog) {
+          const calculation = calcCrystallizeShield(
+            shield.sourceCharacterLevel,
+            777
+          );
+          shield.sourceElementalMastery = 777;
+          shield.baseHp = calculation.baseHp;
+          shield.elementalMasteryBonus =
+            calculation.elementalMasteryBonus;
+          shield.generalAbsorption =
+            calculation.generalAbsorption;
+          shield.matchingElementAbsorption =
+            calculation.matchingElementAbsorption;
+          shield.geoDamageAbsorption =
+            calculation.geoDamageAbsorption;
+          shield.currentBaseHp =
+            shield.operation === "add" ||
+            shield.operation === "overwrite"
+              ? calculation.baseHp
+              : 0;
+        }
+        for (const [index, point] of
+          mutation.crystallizeShieldTimeline.entries()) {
+          const shield = mutation.crystallizeShieldLog[index]!;
+          point.generalAbsorption =
+            point.shieldId === null
+              ? 0
+              : shield.currentBaseHp *
+                (1 + shield.elementalMasteryBonus);
+        }
+      },
+      /spawn-frame elemental mastery/
+    );
+    expectCrystallizeMutationRejected(
+      result,
+      (mutation) => {
+        for (const shield of mutation.crystallizeShieldLog) {
+          const forgedBaseHp = shield.baseHp + 123;
+          shield.baseHp = forgedBaseHp;
+          shield.generalAbsorption =
+            forgedBaseHp *
+            (1 + shield.elementalMasteryBonus);
+          shield.matchingElementAbsorption =
+            shield.generalAbsorption * 2.5;
+          shield.geoDamageAbsorption =
+            shield.generalAbsorption * 1.5;
+          shield.currentBaseHp =
+            shield.operation === "add" ||
+            shield.operation === "overwrite"
+              ? forgedBaseHp
+              : 0;
+        }
+        for (const [index, point] of
+          mutation.crystallizeShieldTimeline.entries()) {
+          const shield = mutation.crystallizeShieldLog[index]!;
+          point.generalAbsorption =
+            point.shieldId === null
+              ? 0
+              : shield.currentBaseHp *
+                (1 + shield.elementalMasteryBonus);
+        }
+      },
+      /formula baseHp/
+    );
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      const expiry = mutation.crystallizeShieldLog.find(
+        (row) => row.operation === "expire"
+      )!;
+      expiry.frame -= 1;
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      mutation.crystallizeShieldTimeline[0]!.id += 1;
+    });
+    expectCrystallizeMutationRejected(result, (mutation) => {
+      mutation.crystallizeShieldTimeline[0]!.generalAbsorption +=
+        1;
+    });
   });
 });

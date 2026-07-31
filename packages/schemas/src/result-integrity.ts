@@ -1,0 +1,7698 @@
+import type { RefinementCtx } from "zod";
+import {
+  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  type CharacterStats,
+  type DamageEvent,
+  type ScalingStat,
+  type SimulationResult,
+  type StatusTarget
+} from "./types";
+import {
+  canonicalStringify,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey
+} from "./reproducibility";
+import { calcCrystallizeShield } from "./crystallize";
+
+type IssuePath = Array<string | number>;
+
+const FLOAT_TOLERANCE = 1e-9;
+const AURA_GAUGE_EPSILON = 1e-10;
+const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
+const FROZEN_DECAY_ACCELERATION_PER_FRAME =
+  0.1 / (60 * 60);
+
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function totalScalingStat(
+  stats: CharacterStats,
+  stat: ScalingStat
+): number {
+  switch (stat) {
+    case "atk":
+      return stats.baseAtk * (1 + stats.atkPct) + stats.flatAtk;
+    case "hp":
+      return stats.baseHp * (1 + stats.hpPct) + stats.flatHp;
+    case "def":
+      return stats.baseDef * (1 + stats.defPct) + stats.flatDef;
+    case "em":
+      return stats.em;
+  }
+}
+
+function resistanceMultiplier(resistance: number): number {
+  if (resistance < 0) return 1 - resistance / 2;
+  if (resistance < 0.75) return 1 - resistance;
+  return 1 / (4 * resistance + 1);
+}
+
+function transformativeDamageElement(
+  reaction: SimulationResult["reactionDamageLog"][number]["reaction"]
+): DamageEvent["element"] {
+  switch (reaction) {
+    case "overload":
+    case "burning":
+      return "pyro";
+    case "superconduct":
+      return "cryo";
+    case "electroCharged":
+      return "electro";
+    case "shatter":
+      return "physical";
+    case "swirlPyro":
+      return "pyro";
+    case "swirlHydro":
+      return "hydro";
+    case "swirlCryo":
+      return "cryo";
+    case "swirlElectro":
+      return "electro";
+    case "bloom":
+    case "burgeon":
+    case "hyperbloom":
+      return "dendro";
+  }
+}
+
+function hasValidReactionDeliveryShape(
+  parent: SimulationResult["reactionDamageLog"][number]
+): boolean {
+  switch (parent.reaction) {
+    case "overload":
+    case "superconduct":
+      return (
+        parent.scheduleKind === "one-shot" &&
+        parent.targetingMode === "radius"
+      );
+    case "electroCharged":
+      return (
+        parent.scheduleKind === "periodic-tick" &&
+        (parent.targetingMode === "single-target" ||
+          parent.targetingMode ===
+            "electro-charged-nearby-wet")
+      );
+    case "burning":
+      return (
+        parent.scheduleKind === "burning-tick" &&
+        parent.targetingMode === "radius"
+      );
+    case "shatter":
+      return (
+        parent.scheduleKind === "one-shot" &&
+        parent.targetingMode === "single-target"
+      );
+    case "swirlPyro":
+    case "swirlHydro":
+    case "swirlCryo":
+    case "swirlElectro":
+      return (
+        (parent.scheduleKind === "swirl-self" &&
+          parent.targetingMode === "single-target") ||
+        (parent.scheduleKind === "swirl-propagation" &&
+          parent.targetingMode === "radius")
+      );
+    case "bloom":
+      return (
+        parent.scheduleKind === "dendro-core-bloom" &&
+        parent.targetingMode === "radius"
+      );
+    case "burgeon":
+      return (
+        parent.scheduleKind === "dendro-core-burgeon" &&
+        parent.targetingMode === "radius"
+      );
+    case "hyperbloom":
+      return (
+        parent.scheduleKind === "dendro-core-hyperbloom" &&
+        parent.targetingMode === "nearest-target-radius"
+      );
+  }
+}
+
+function nearlyEqual(left: number, right: number): boolean {
+  return (
+    Math.abs(left - right) <=
+    FLOAT_TOLERANCE *
+      Math.max(1, Math.abs(left), Math.abs(right))
+  );
+}
+
+function semanticEqual(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  return canonicalStringify(left) === canonicalStringify(right);
+}
+
+function addIssue(
+  context: RefinementCtx,
+  path: IssuePath,
+  message: string
+): void {
+  context.addIssue({
+    code: "custom",
+    path,
+    message
+  });
+}
+
+function expectNearlyEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: number,
+  expected: number,
+  label: string
+): void {
+  if (!nearlyEqual(actual, expected)) {
+    addIssue(
+      context,
+      path,
+      `${label} must equal ${expected}; received ${actual}`
+    );
+  }
+}
+
+function expectEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: unknown,
+  expected: unknown,
+  label: string
+): void {
+  if (actual !== expected) {
+    addIssue(
+      context,
+      path,
+      `${label} must equal ${String(expected)}; received ${String(actual)}`
+    );
+  }
+}
+
+function expectSemanticEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: unknown,
+  expected: unknown,
+  label: string
+): void {
+  if (!semanticEqual(actual, expected)) {
+    addIssue(context, path, `${label} does not match its source`);
+  }
+}
+
+function addToRecord(
+  record: Record<string, number>,
+  key: string,
+  value: number
+): void {
+  record[key] = (record[key] ?? 0) + value;
+}
+
+function compareFiniteRecord(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: Record<string, number>,
+  expected: Record<string, number>,
+  label: string
+): void {
+  const actualKeys = Object.keys(actual).sort();
+  const expectedKeys = Object.keys(expected).sort();
+  if (!semanticEqual(actualKeys, expectedKeys)) {
+    addIssue(
+      context,
+      path,
+      `${label} keys must match the authoritative aggregation`
+    );
+    return;
+  }
+  for (const key of expectedKeys) {
+    expectNearlyEqual(
+      context,
+      [...path, key],
+      actual[key] ?? Number.NaN,
+      expected[key] ?? Number.NaN,
+      `${label}.${key}`
+    );
+  }
+}
+
+function validateIdentity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  if (
+    result.schemaVersion !==
+    EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+  ) {
+    addIssue(
+      context,
+      ["schemaVersion"],
+      `must equal frozen schema ${EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION}`
+    );
+  }
+  if (
+    result.engineVersion !==
+    EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+  ) {
+    addIssue(
+      context,
+      ["engineVersion"],
+      `must equal frozen engine ${EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION}`
+    );
+  }
+  if (
+    result.config.schemaVersion !== result.schemaVersion ||
+    result.runManifest.schemaVersion !== result.schemaVersion
+  ) {
+    addIssue(
+      context,
+      ["config", "schemaVersion"],
+      "result, config, and run manifest schema identities must match"
+    );
+  }
+  if (
+    result.config.engineVersion !== result.engineVersion ||
+    result.runManifest.engineVersion !== result.engineVersion
+  ) {
+    addIssue(
+      context,
+      ["config", "engineVersion"],
+      "result, config, and run manifest engine identities must match"
+    );
+  }
+  if (
+    result.config.dataVersion !== result.dataVersion ||
+    result.runManifest.dataVersion !== result.dataVersion
+  ) {
+    addIssue(
+      context,
+      ["dataVersion"],
+      "result, config, and run manifest data versions must match"
+    );
+  }
+  if (
+    result.randomSeed !==
+      result.runManifest.resolvedRuntimeOptions.randomSeed
+  ) {
+    addIssue(
+      context,
+      ["randomSeed"],
+      "must equal the resolved run-manifest random seed"
+    );
+  }
+  if (
+    result.compatibilityMode !==
+    result.resolvedRuntimeOptions.compatibilityMode
+  ) {
+    addIssue(
+      context,
+      ["compatibilityMode"],
+      "must equal resolvedRuntimeOptions.compatibilityMode"
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["resolvedRuntimeOptions"],
+    result.resolvedRuntimeOptions,
+    result.runManifest.resolvedRuntimeOptions,
+    "resolved runtime options"
+  );
+  expectSemanticEqual(
+    context,
+    ["pluginManifest"],
+    result.pluginManifest,
+    result.runManifest.plugins,
+    "plugin manifest"
+  );
+  if (
+    result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+  ) {
+    addIssue(
+      context,
+      ["reproducibilityKey"],
+      "must equal runManifest.reproducibilityKey"
+    );
+  }
+  const expectedConfigHash = createSimulationConfigHash(
+    result.config
+  );
+  if (result.runManifest.configHash !== expectedConfigHash) {
+    addIssue(
+      context,
+      ["runManifest", "configHash"],
+      "must equal the canonical current config hash"
+    );
+  }
+  const {
+    reproducibilityKey: _ignoredReproducibilityKey,
+    ...identity
+  } = result.runManifest;
+  const expectedReproducibilityKey =
+    createSimulationReproducibilityKey(identity);
+  if (
+    result.runManifest.reproducibilityKey !==
+    expectedReproducibilityKey
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "reproducibilityKey"],
+      "must equal the canonical run-manifest identity hash"
+    );
+  }
+}
+
+function validateDamageEvent(
+  event: DamageEvent,
+  index: number,
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const path = ["damageEvents", index] satisfies IssuePath;
+  if (event.id !== index) {
+    addIssue(
+      context,
+      [...path, "id"],
+      "damage event IDs must be contiguous and index-addressable"
+    );
+  }
+  if (event.frame !== Math.round(event.timeSeconds * 60)) {
+    addIssue(
+      context,
+      [...path, "timeSeconds"],
+      "frame must equal Math.round(timeSeconds * 60)"
+    );
+  }
+  expectNearlyEqual(
+    context,
+    [...path, "time"],
+    event.time,
+    event.timeSeconds,
+    "legacy time alias"
+  );
+  if (event.second !== Math.floor(event.timeSeconds)) {
+    addIssue(
+      context,
+      [...path, "second"],
+      "must equal floor(timeSeconds)"
+    );
+  }
+  if (event.displayDamage !== Math.round(event.finalDamage)) {
+    addIssue(
+      context,
+      [...path, "displayDamage"],
+      "must equal Math.round(finalDamage)"
+    );
+  }
+  expectNearlyEqual(
+    context,
+    [...path, "damageComposition"],
+    event.damageComposition.direct +
+      event.damageComposition.additiveReaction +
+      event.damageComposition.transformativeReaction,
+    event.finalDamage,
+    "damage composition sum"
+  );
+  expectNearlyEqual(
+    context,
+    [...path, "finalDamage"],
+    event.finalDamage,
+    event.potentialDamage * event.targetDamageMultiplier,
+    "target-policy adjusted damage"
+  );
+  if (event.actorId !== event.sourceActorId) {
+    addIssue(
+      context,
+      [...path, "actorId"],
+      "must alias sourceActorId"
+    );
+  }
+  if (event.creditId !== event.creditOwnerId) {
+    addIssue(
+      context,
+      [...path, "creditId"],
+      "must alias creditOwnerId"
+    );
+  }
+  if (event.actorName !== event.creditOwnerName) {
+    addIssue(
+      context,
+      [...path, "actorName"],
+      "must alias creditOwnerName"
+    );
+  }
+  if (event.activeId !== event.activeCharacterId) {
+    addIssue(
+      context,
+      [...path, "activeId"],
+      "must alias activeCharacterId"
+    );
+  }
+  const factorAliases: Array<
+    [keyof DamageEvent, number, string]
+  > = [
+    ["scaling", event.damageFactors.scaling, "scaling"],
+    [
+      "scalingValue",
+      event.damageFactors.scalingValue,
+      "scalingValue"
+    ],
+    ["flat", event.damageFactors.flatDamage, "flatDamage"],
+    ["baseDamage", event.damageFactors.baseDamage, "baseDamage"],
+    ["dmgBonus", event.damageFactors.damageBonus, "damageBonus"],
+    [
+      "bonusFactor",
+      event.damageFactors.damageBonusMultiplier,
+      "damageBonusMultiplier"
+    ],
+    [
+      "defIgnore",
+      event.damageFactors.defenseIgnore,
+      "defenseIgnore"
+    ],
+    [
+      "defReduction",
+      event.damageFactors.defenseReduction,
+      "defenseReduction"
+    ],
+    [
+      "defenseFactor",
+      event.damageFactors.defenseMultiplier,
+      "defenseMultiplier"
+    ],
+    [
+      "effectiveRes",
+      event.damageFactors.effectiveResistance,
+      "effectiveResistance"
+    ],
+    [
+      "resFactor",
+      event.damageFactors.resistanceMultiplier,
+      "resistanceMultiplier"
+    ],
+    ["critRate", event.damageFactors.critRate, "critRate"],
+    ["critDmg", event.damageFactors.critDamage, "critDamage"],
+    [
+      "critFactor",
+      event.damageFactors.critMultiplier,
+      "critMultiplier"
+    ],
+    [
+      "reactionBase",
+      event.damageFactors.reactionBase,
+      "reactionBase"
+    ],
+    [
+      "emBonus",
+      event.damageFactors.elementalMasteryBonus,
+      "elementalMasteryBonus"
+    ],
+    [
+      "reactionBonus",
+      event.damageFactors.reactionBonus,
+      "reactionBonus"
+    ],
+    [
+      "reactionFactor",
+      event.kind === "direct"
+        ? event.damageFactors.amplifyingReactionMultiplier
+        : event.damageFactors.reactionBase *
+          (1 +
+            event.damageFactors.elementalMasteryBonus +
+            event.damageFactors.reactionBonus) *
+          event.damageFactors.amplifyingReactionMultiplier,
+      event.kind === "direct"
+        ? "amplifyingReactionMultiplier"
+        : "transformative reaction multiplier"
+    ],
+    [
+      "groupMultiplier",
+      event.damageFactors.groupMultiplier,
+      "groupMultiplier"
+    ]
+  ];
+  for (const [alias, expected, source] of factorAliases) {
+    expectNearlyEqual(
+      context,
+      [...path, alias],
+      event[alias] as number,
+      expected,
+      `legacy ${String(alias)} alias for ${source}`
+    );
+  }
+  const factors = event.damageFactors;
+  const hasDamagePlugin =
+    result.runManifest.plugins.length > 0;
+  if (
+    event.kind === "transformative-reaction" ||
+    !hasDamagePlugin
+  ) {
+    expectNearlyEqual(
+      context,
+      [...path, "damageFactors", "scalingValue"],
+      factors.scalingValue,
+      totalScalingStat(
+        event.statsBeforeDamage,
+        factors.scalingStat
+      ),
+      "snapshot scaling-stat value"
+    );
+  }
+  expectNearlyEqual(
+    context,
+    [...path, "damageFactors", "effectiveResistance"],
+    factors.effectiveResistance,
+    event.enemyStateBeforeHit.effectiveResistance,
+    "enemy-state effective resistance"
+  );
+  expectNearlyEqual(
+    context,
+    [...path, "damageFactors", "defenseReduction"],
+    factors.defenseReduction,
+    event.enemyStateBeforeHit.effectiveDefenseReduction,
+    "enemy-state effective defense reduction"
+  );
+  expectNearlyEqual(
+    context,
+    [...path, "damageFactors", "resistanceMultiplier"],
+    factors.resistanceMultiplier,
+    resistanceMultiplier(factors.effectiveResistance),
+    "resistance multiplier"
+  );
+  expectNearlyEqual(
+    context,
+    [...path, "damageFactors", "damageBonusMultiplier"],
+    factors.damageBonusMultiplier,
+    1 + factors.damageBonus,
+    "damage-bonus multiplier"
+  );
+  const formulaMultiplier =
+    factors.damageBonusMultiplier *
+    factors.defenseMultiplier *
+    factors.resistanceMultiplier *
+    factors.critMultiplier *
+    factors.amplifyingReactionMultiplier *
+    factors.groupMultiplier;
+  const scalingOwner = result.config.characters.find(
+    (character) => character.id === event.scalingOwnerId
+  );
+  if (scalingOwner === undefined) {
+    addIssue(
+      context,
+      [...path, "scalingOwnerId"],
+      `references missing scaling owner ${event.scalingOwnerId}`
+    );
+  } else {
+    const characterTerm = scalingOwner.level + 100;
+    const enemyTerm =
+      (event.enemyStateBeforeHit.level + 100) *
+      (1 + factors.defenseReduction) *
+      (1 - factors.defenseIgnore);
+    expectNearlyEqual(
+      context,
+      [...path, "damageFactors", "defenseMultiplier"],
+      factors.defenseMultiplier,
+      characterTerm / (characterTerm + enemyTerm),
+      "defense multiplier"
+    );
+  }
+  const expectedCritMultiplier =
+    result.resolvedRuntimeOptions.critMode === "allCrit"
+      ? 1 + factors.critDamage
+      : result.resolvedRuntimeOptions.critMode === "noCrit"
+        ? 1
+        : 1 + factors.critRate * factors.critDamage;
+  expectNearlyEqual(
+    context,
+    [...path, "damageFactors", "critMultiplier"],
+    factors.critMultiplier,
+    expectedCritMultiplier,
+    "critical-hit multiplier"
+  );
+  for (const [field, value, minimum, maximum] of [
+    ["defenseIgnore", factors.defenseIgnore, 0, 1],
+    ["defenseReduction", factors.defenseReduction, -1, 0.9],
+    ["critRate", factors.critRate, 0, 1],
+    ["critDamage", factors.critDamage, 0, Number.POSITIVE_INFINITY]
+  ] as const) {
+    if (value < minimum || value > maximum) {
+      addIssue(
+        context,
+        [...path, "damageFactors", field],
+        `must be within [${minimum}, ${maximum}]`
+      );
+    }
+  }
+  expectNearlyEqual(
+    context,
+    [...path, "potentialDamage"],
+    event.potentialDamage,
+    factors.baseDamage * formulaMultiplier,
+    "potential damage formula"
+  );
+
+  const additiveFactors = event.additiveReactionFactors;
+  if (additiveFactors !== null) {
+    const additiveAudit =
+      event.reactionAudit.catalyzeReaction?.additive;
+    const expectedElement =
+      additiveFactors.reaction === "aggravate"
+        ? "electro"
+        : "dendro";
+    expectEqual(
+      context,
+      [...path, "additiveReactionFactors", "sourceActorId"],
+      additiveFactors.sourceActorId,
+      event.sourceActorId,
+      "additive reaction source actor"
+    );
+    const expectedAdditiveBase =
+      additiveFactors.reaction === "aggravate" ? 1.15 : 1.25;
+    expectNearlyEqual(
+      context,
+      [...path, "additiveReactionFactors", "baseMultiplier"],
+      additiveFactors.baseMultiplier,
+      expectedAdditiveBase,
+      "additive reaction base multiplier"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        ...path,
+        "additiveReactionFactors",
+        "elementalMasteryBonus"
+      ],
+      additiveFactors.elementalMasteryBonus,
+      (5 * Math.max(0, additiveFactors.elementalMastery)) /
+        (1200 + Math.max(0, additiveFactors.elementalMastery)),
+      "additive elemental-mastery bonus"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "additiveReactionFactors", "flatDamage"],
+      additiveFactors.flatDamage,
+      additiveFactors.levelBaseDamage *
+        additiveFactors.baseMultiplier *
+        (1 +
+          additiveFactors.elementalMasteryBonus +
+          additiveFactors.reactionBonus),
+      "additive reaction flat-damage formula"
+    );
+    expectEqual(
+      context,
+      [...path, "additiveReactionFactors", "reaction"],
+      additiveAudit?.reaction,
+      additiveFactors.reaction,
+      "Catalyze audit reaction"
+    );
+    expectEqual(
+      context,
+      [...path, "reactionAudit", "reaction"],
+      event.reactionAudit.reaction,
+      additiveFactors.reaction,
+      "Catalyze primary reaction"
+    );
+    expectEqual(
+      context,
+      [...path, "element"],
+      event.element,
+      expectedElement,
+      "Catalyze damage element"
+    );
+    expectEqual(
+      context,
+      [
+        ...path,
+        "reactionAudit",
+        "catalyzeReaction",
+        "additive",
+        "triggerElement"
+      ],
+      additiveAudit?.triggerElement,
+      expectedElement,
+      "Catalyze trigger element"
+    );
+    const sourceActor = result.config.characters.find(
+      (character) => character.id === event.sourceActorId
+    );
+    if (sourceActor !== undefined) {
+      expectEqual(
+        context,
+        [
+          ...path,
+          "additiveReactionFactors",
+          "characterLevel"
+        ],
+        additiveFactors.characterLevel,
+        sourceActor.level,
+        "Catalyze source level"
+      );
+    }
+  }
+
+  const targetAdjustedMultiplier =
+    formulaMultiplier * event.targetDamageMultiplier;
+  const additiveContribution =
+    (additiveFactors?.appliedFlatDamage ?? 0) *
+    targetAdjustedMultiplier;
+  if (event.kind === "direct") {
+    const amplifyingEm = Math.max(0, event.em);
+    const expectedAmplifyingEmBonus =
+      factors.reactionBase === 1
+        ? 0
+        : (2.78 * amplifyingEm) / (1400 + amplifyingEm);
+    expectNearlyEqual(
+      context,
+      [...path, "damageFactors", "elementalMasteryBonus"],
+      factors.elementalMasteryBonus,
+      expectedAmplifyingEmBonus,
+      "amplifying elemental-mastery bonus"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        ...path,
+        "damageFactors",
+        "amplifyingReactionMultiplier"
+      ],
+      factors.amplifyingReactionMultiplier,
+      factors.reactionBase *
+        (1 +
+          factors.elementalMasteryBonus +
+          factors.reactionBonus),
+      "amplifying reaction multiplier"
+    );
+    if (factors.reactionBase === 1) {
+      expectNearlyEqual(
+        context,
+        [...path, "em"],
+        event.em,
+        event.statsBeforeDamage.em,
+        "non-amplifying elemental mastery"
+      );
+    }
+    expectEqual(
+      context,
+      [...path, "reaction"],
+      event.reaction,
+      event.reactionAudit.reaction,
+      "direct event reaction audit"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "damageFactors", "baseDamage"],
+      factors.baseDamage,
+      factors.scaling * factors.scalingValue +
+        factors.flatDamage,
+      "direct base-damage formula"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "damageComposition", "additiveReaction"],
+      event.damageComposition.additiveReaction,
+      additiveContribution,
+      "direct additive-reaction contribution"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "damageComposition", "direct"],
+      event.damageComposition.direct,
+      event.finalDamage - additiveContribution,
+      "direct non-additive contribution"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "damageComposition", "transformativeReaction"],
+      event.damageComposition.transformativeReaction,
+      0,
+      "direct transformative contribution"
+    );
+  } else {
+    const transformativeFactors =
+      event.transformativeReactionFactors;
+    if (transformativeFactors !== null) {
+      expectEqual(
+        context,
+        [...path, "damageFactors", "scaling"],
+        factors.scaling,
+        0,
+        "transformative damage scaling"
+      );
+      expectEqual(
+        context,
+        [...path, "damageFactors", "scalingStat"],
+        factors.scalingStat,
+        "em",
+        "transformative damage scaling stat"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", "scalingValue"],
+        factors.scalingValue,
+        transformativeFactors.elementalMastery,
+        "transformative damage scaling value"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "em"],
+        event.em,
+        transformativeFactors.elementalMastery,
+        "transformative elemental mastery"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "transformativeReactionFactors",
+          "elementalMasteryBonus"
+        ],
+        transformativeFactors.elementalMasteryBonus,
+        (16 *
+          Math.max(
+            0,
+            transformativeFactors.elementalMastery
+          )) /
+          (2000 +
+            Math.max(
+              0,
+              transformativeFactors.elementalMastery
+            )),
+        "transformative elemental-mastery bonus"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", "reactionBase"],
+        factors.reactionBase,
+        transformativeFactors.baseMultiplier,
+        "transformative reaction base"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "damageFactors",
+          "elementalMasteryBonus"
+        ],
+        factors.elementalMasteryBonus,
+        transformativeFactors.elementalMasteryBonus,
+        "transformative elemental-mastery factor"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", "reactionBonus"],
+        factors.reactionBonus,
+        transformativeFactors.reactionBonus,
+        "transformative reaction-bonus factor"
+      );
+      expectEqual(
+        context,
+        [...path, "reaction"],
+        event.reaction,
+        transformativeFactors.reaction,
+        "transformative event reaction factors"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "transformativeReactionFactors",
+          "preResistanceDamage"
+        ],
+        transformativeFactors.preResistanceDamage,
+        transformativeFactors.levelBaseDamage *
+          transformativeFactors.baseMultiplier *
+          (1 +
+            transformativeFactors.elementalMasteryBonus +
+            transformativeFactors.reactionBonus),
+        "transformative pre-resistance formula"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", "baseDamage"],
+        factors.baseDamage,
+        transformativeFactors.preResistanceDamage +
+          (additiveFactors?.appliedFlatDamage ?? 0),
+        "transformative combined base damage"
+      );
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", "flatDamage"],
+        factors.flatDamage,
+        additiveFactors?.appliedFlatDamage ?? 0,
+        "transformative additive flat damage"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "transformativeReactionFactors",
+          "effectiveResistance"
+        ],
+        transformativeFactors.effectiveResistance,
+        factors.effectiveResistance,
+        "transformative effective resistance"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "transformativeReactionFactors",
+          "resistanceMultiplier"
+        ],
+        transformativeFactors.resistanceMultiplier,
+        factors.resistanceMultiplier,
+        "transformative resistance multiplier"
+      );
+      const transformativeContribution =
+        transformativeFactors.preResistanceDamage *
+        targetAdjustedMultiplier;
+      expectNearlyEqual(
+        context,
+        [...path, "damageComposition", "direct"],
+        event.damageComposition.direct,
+        0,
+        "transformative direct contribution"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "damageComposition",
+          "additiveReaction"
+        ],
+        event.damageComposition.additiveReaction,
+        additiveContribution,
+        "nested additive-reaction contribution"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          ...path,
+          "damageComposition",
+          "transformativeReaction"
+        ],
+        event.damageComposition.transformativeReaction,
+        transformativeContribution,
+        "transformative contribution"
+      );
+    }
+    for (const [
+      factor,
+      expected
+    ] of [
+      ["scaling", 0],
+      ["damageBonus", 0],
+      ["damageBonusMultiplier", 1],
+      ["defenseIgnore", 1],
+      ["defenseMultiplier", 1],
+      ["critRate", 0],
+      ["critDamage", 0],
+      ["critMultiplier", 1]
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        [...path, "damageFactors", factor],
+        factors[factor],
+        expected,
+        `transformative ${factor}`
+      );
+    }
+  }
+  for (const [detailIndex, detail] of
+    event.flatDetails.entries()) {
+    expectNearlyEqual(
+      context,
+      [...path, "flatDetails", detailIndex, "amount"],
+      detail.amount,
+      detail.multiplier * detail.sourceValue,
+      "flat-damage detail amount"
+    );
+  }
+  const reactionTriggered =
+    event.reactionAudit.reactions.length > 0;
+  if (event.reactionAudit.triggered !== reactionTriggered) {
+    addIssue(
+      context,
+      [...path, "reactionAudit", "triggered"],
+      "must agree with reactionAudit.reaction"
+    );
+  }
+  if (
+    reactionTriggered &&
+    (event.reactionAudit.reaction === "none" ||
+      !event.reactionAudit.reactions.includes(
+        event.reactionAudit.reaction
+      ))
+  ) {
+    addIssue(
+      context,
+      [...path, "reactionAudit", "reaction"],
+      "must name one of the ordered reactions"
+    );
+  }
+  if (
+    !reactionTriggered &&
+    event.reactionAudit.reaction !== "none"
+  ) {
+    addIssue(
+      context,
+      [...path, "reactionAudit", "reaction"],
+      "must be none when no reaction triggered"
+    );
+  }
+  if (event.scalingStat !== event.damageFactors.scalingStat) {
+    addIssue(
+      context,
+      [...path, "scalingStat"],
+      "must alias damageFactors.scalingStat"
+    );
+  }
+  const resolution =
+    result.hitResolutionLog[event.targetResolutionId];
+  if (
+    resolution === undefined ||
+    resolution.id !== event.targetResolutionId ||
+    resolution.damageEventId !== event.id ||
+    resolution.targetId !== event.targetId
+  ) {
+    addIssue(
+      context,
+      [...path, "targetResolutionId"],
+      "must backlink a matching hit-resolution row"
+    );
+  } else {
+    for (const [field, expected] of [
+      ["frame", event.frame],
+      ["cycle", event.cycle],
+      ["sourceActorId", event.sourceActorId],
+      ["sourceActionId", event.actionId],
+      ["actionName", event.actionName],
+      ["hitId", event.hitId],
+      ["hitGroupId", event.hitGroupId],
+      ["hitLabel", event.hitLabel],
+      ["targetIndex", event.targetIndex],
+      ["targetCount", event.targetCount],
+      ["targetName", event.targetName],
+      ["element", event.element],
+      ["mechanicsStatus", event.mechanicsStatus]
+    ] as const) {
+      expectEqual(
+        context,
+        [
+          "hitResolutionLog",
+          event.targetResolutionId,
+          field
+        ],
+        resolution[field],
+        expected,
+        `hit-resolution ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      [
+        "hitResolutionLog",
+        event.targetResolutionId,
+        "timeSeconds"
+      ],
+      resolution.timeSeconds,
+      event.timeSeconds,
+      "hit-resolution time"
+    );
+    for (const [field, expected] of [
+      ["timelineCommandIndex", event.timelineCommandIndex],
+      ["sourceAbilityId", event.sourceAbilityId]
+    ] as const) {
+      expectEqual(
+        context,
+        [
+          "hitResolutionLog",
+          event.targetResolutionId,
+          field
+        ],
+        resolution[field],
+        expected,
+        `hit-resolution ${field}`
+      );
+    }
+    if (resolution.eventPriority !== undefined) {
+      expectNearlyEqual(
+        context,
+        [
+          "hitResolutionLog",
+          event.targetResolutionId,
+          "eventPriority"
+        ],
+        resolution.eventPriority,
+        event.eventPriority,
+        "hit-resolution event priority"
+      );
+    }
+    if (resolution.eventSequence !== undefined) {
+      expectEqual(
+        context,
+        [
+          "hitResolutionLog",
+          event.targetResolutionId,
+          "eventSequence"
+        ],
+        resolution.eventSequence,
+        event.eventSequence,
+        "hit-resolution event sequence"
+      );
+    }
+    expectEqual(
+      context,
+      [
+        "hitResolutionLog",
+        event.targetResolutionId,
+        "landed"
+      ],
+      resolution.landed,
+      true,
+      "damage-event hit-resolution landed flag"
+    );
+    expectEqual(
+      context,
+      [...path, "targetResolutionId"],
+      resolution.resolutionKind,
+      event.kind === "direct" ? "direct" : "reaction-damage",
+      "hit-resolution kind"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "hitResolutionLog",
+        event.targetResolutionId,
+        "potentialDamage"
+      ],
+      resolution.potentialDamage,
+      event.potentialDamage,
+      "hit-resolution potential damage"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "hitResolutionLog",
+        event.targetResolutionId,
+        "finalDamage"
+      ],
+      resolution.finalDamage,
+      event.finalDamage,
+      "hit-resolution final damage"
+    );
+    expectEqual(
+      context,
+      [
+        "hitResolutionLog",
+        event.targetResolutionId,
+        "displayDamage"
+      ],
+      resolution.displayDamage,
+      event.displayDamage,
+      "hit-resolution display damage"
+    );
+  }
+  if (
+    event.mechanicsStatus === "mechanics-truncated" &&
+    event.targetDamageMultiplier !== 0
+  ) {
+    addIssue(
+      context,
+      [...path, "targetDamageMultiplier"],
+      "mechanics-truncated damage must be excluded from totals"
+    );
+  }
+}
+
+function validateDamageAggregates(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  expectSemanticEqual(
+    context,
+    ["hitEvents"],
+    result.hitEvents,
+    result.damageEvents,
+    "hitEvents compatibility alias"
+  );
+
+  const byCharacter: Record<string, number> = {};
+  const hitCountByCharacter: Record<string, number> = {};
+  const bySkill = new Map<
+    string,
+    {
+      creditId: string;
+      actionName: string;
+      damage: number;
+      hits: number;
+    }
+  >();
+  const perSecond = Array.from(
+    { length: Math.ceil(result.config.duration) },
+    () => ({}) as Record<string, number>
+  );
+  const targetAggregates = new Map(
+    result.enemyTargets.map((target) => [
+      target.id,
+      {
+        damage: 0,
+        potentialDamage: 0,
+        damageEvents: 0,
+        landedChecks: 0,
+        missedChecks: 0,
+        immuneDamageEvents: 0
+      }
+    ])
+  );
+  let totalDamage = 0;
+  let reactedHits = 0;
+  let previousOrder:
+    | [frame: number, priority: number, sequence: number]
+    | undefined;
+
+  for (const [index, event] of result.damageEvents.entries()) {
+    validateDamageEvent(event, index, result, context);
+    const order = [
+      event.frame,
+      event.eventPriority,
+      event.eventSequence
+    ] satisfies [number, number, number];
+    if (
+      previousOrder !== undefined &&
+      (order[0] < previousOrder[0] ||
+        (order[0] === previousOrder[0] &&
+          order[1] < previousOrder[1]) ||
+        (order[0] === previousOrder[0] &&
+          order[1] === previousOrder[1] &&
+          order[2] < previousOrder[2]))
+    ) {
+      addIssue(
+        context,
+        ["damageEvents", index],
+        "damage events must use nondecreasing queue order"
+      );
+    }
+    previousOrder = order;
+    totalDamage += event.finalDamage;
+    const targetAggregate = targetAggregates.get(event.targetId);
+    if (targetAggregate === undefined) {
+      addIssue(
+        context,
+        ["damageEvents", index, "targetId"],
+        `references unknown target ${event.targetId}`
+      );
+    } else {
+      targetAggregate.damage += event.finalDamage;
+      targetAggregate.potentialDamage += event.potentialDamage;
+      targetAggregate.damageEvents += 1;
+      if (event.targetDamagePolicy === "immune") {
+        targetAggregate.immuneDamageEvents += 1;
+      }
+    }
+    addToRecord(
+      byCharacter,
+      event.creditOwnerId,
+      event.finalDamage
+    );
+    addToRecord(hitCountByCharacter, event.creditOwnerId, 1);
+    if (event.kind === "direct" && event.reaction !== "none") {
+      reactedHits += 1;
+    }
+    const skillKey = `${event.creditOwnerId}::${event.actionName}`;
+    const skill = bySkill.get(skillKey) ?? {
+      creditId: event.creditOwnerId,
+      actionName: event.actionName,
+      damage: 0,
+      hits: 0
+    };
+    skill.damage += event.finalDamage;
+    skill.hits += 1;
+    bySkill.set(skillKey, skill);
+    const bucket = perSecond[event.second];
+    if (bucket !== undefined) {
+      addToRecord(
+        bucket,
+        event.creditOwnerId,
+        event.finalDamage
+      );
+    }
+  }
+  for (const [index, resolution] of
+    result.hitResolutionLog.entries()) {
+    const targetAggregate = targetAggregates.get(
+      resolution.targetId
+    );
+    if (targetAggregate === undefined) {
+      addIssue(
+        context,
+        ["hitResolutionLog", index, "targetId"],
+        `references unknown target ${resolution.targetId}`
+      );
+      continue;
+    }
+    if (resolution.landed) {
+      targetAggregate.landedChecks += 1;
+    } else {
+      targetAggregate.missedChecks += 1;
+    }
+  }
+
+  expectNearlyEqual(
+    context,
+    ["totalDamage"],
+    result.totalDamage,
+    totalDamage,
+    "totalDamage"
+  );
+  expectNearlyEqual(
+    context,
+    ["dps"],
+    result.dps,
+    totalDamage / result.config.duration,
+    "DPS"
+  );
+  if (result.reactedHits !== reactedHits) {
+    addIssue(
+      context,
+      ["reactedHits"],
+      `must equal ${reactedHits} direct reacted hits`
+    );
+  }
+  compareFiniteRecord(
+    context,
+    ["byCharacter"],
+    result.byCharacter,
+    byCharacter,
+    "byCharacter"
+  );
+
+  const characterSummaries = result.config.characters
+    .map((character) => {
+      const damage = byCharacter[character.id] ?? 0;
+      return {
+        characterId: character.id,
+        damage,
+        hits: hitCountByCharacter[character.id] ?? 0,
+        dps: damage / result.config.duration,
+        share: totalDamage === 0 ? 0 : damage / totalDamage
+      };
+    })
+    .sort((left, right) => right.damage - left.damage);
+  expectSemanticEqual(
+    context,
+    ["characterSummaries"],
+    result.characterSummaries,
+    characterSummaries,
+    "character summaries"
+  );
+
+  const targetSummaries = result.enemyTargets.map((target) => {
+    const aggregate = targetAggregates.get(target.id);
+    if (aggregate === undefined) {
+      throw new Error(
+        `Missing aggregate for resolved target ${target.id}.`
+      );
+    }
+    return {
+      targetId: target.id,
+      targetName: target.name,
+      damage: aggregate.damage,
+      potentialDamage: aggregate.potentialDamage,
+      damageEvents: aggregate.damageEvents,
+      landedChecks: aggregate.landedChecks,
+      missedChecks: aggregate.missedChecks,
+      immuneDamageEvents: aggregate.immuneDamageEvents,
+      dps: aggregate.damage / result.config.duration,
+      share:
+        totalDamage === 0 ? 0 : aggregate.damage / totalDamage
+    };
+  });
+  expectSemanticEqual(
+    context,
+    ["targetSummaries"],
+    result.targetSummaries,
+    targetSummaries,
+    "target summaries"
+  );
+
+  const skillSummaries = [...bySkill.values()]
+    .map((skill) => ({
+      ...skill,
+      dps: skill.damage / result.config.duration,
+      share: totalDamage === 0 ? 0 : skill.damage / totalDamage
+    }))
+    .sort((left, right) => right.damage - left.damage);
+  expectSemanticEqual(
+    context,
+    ["bySkill"],
+    result.bySkill,
+    skillSummaries,
+    "skill summaries"
+  );
+  expectSemanticEqual(
+    context,
+    ["perSecond"],
+    result.perSecond,
+    perSecond,
+    "per-second aggregation"
+  );
+
+  if (result.damageCurve.length !== result.damageEvents.length) {
+    addIssue(
+      context,
+      ["damageCurve"],
+      "must contain one point per damage event"
+    );
+  }
+  const cumulativeByCharacter: Record<string, number> = {};
+  const cumulativeByComponent = {
+    direct: 0,
+    additiveReaction: 0,
+    transformativeReaction: 0
+  };
+  const cumulativeByReaction: Record<string, number> = {};
+  let cumulativeDamage = 0;
+  for (const [index, event] of result.damageEvents.entries()) {
+    cumulativeDamage += event.finalDamage;
+    addToRecord(
+      cumulativeByCharacter,
+      event.creditOwnerId,
+      event.finalDamage
+    );
+    cumulativeByComponent.direct +=
+      event.damageComposition.direct;
+    cumulativeByComponent.additiveReaction +=
+      event.damageComposition.additiveReaction;
+    cumulativeByComponent.transformativeReaction +=
+      event.damageComposition.transformativeReaction;
+    const transformativeReaction =
+      event.transformativeReactionFactors?.reaction;
+    if (transformativeReaction !== undefined) {
+      addToRecord(
+        cumulativeByReaction,
+        transformativeReaction,
+        event.damageComposition.transformativeReaction
+      );
+    }
+    const point = result.damageCurve[index];
+    if (point === undefined) continue;
+    for (const [field, expected] of [
+      ["damageEventId", event.id],
+      ["targetId", event.targetId],
+      ["targetName", event.targetName],
+      ["frame", event.frame],
+      ["sourceActorId", event.sourceActorId],
+      ["creditOwnerId", event.creditOwnerId]
+    ] as const) {
+      expectEqual(
+        context,
+        ["damageCurve", index, field],
+        point[field],
+        expected,
+        `damage curve ${field}`
+      );
+    }
+    for (const [field, expected] of [
+      ["timeSeconds", event.timeSeconds],
+      ["finalDamage", event.finalDamage],
+      ["cumulativeDamage", cumulativeDamage]
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        ["damageCurve", index, field],
+        point[field],
+        expected,
+        `damage curve ${field}`
+      );
+    }
+    compareFiniteRecord(
+      context,
+      ["damageCurve", index, "cumulativeByCharacter"],
+      point.cumulativeByCharacter,
+      cumulativeByCharacter,
+      "damage curve cumulativeByCharacter"
+    );
+    for (const component of [
+      "direct",
+      "additiveReaction",
+      "transformativeReaction"
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        [
+          "damageCurve",
+          index,
+          "cumulativeByComponent",
+          component
+        ],
+        point.cumulativeByComponent[component],
+        cumulativeByComponent[component],
+        `damage curve cumulativeByComponent.${component}`
+      );
+    }
+    compareFiniteRecord(
+      context,
+      ["damageCurve", index, "cumulativeByReaction"],
+      point.cumulativeByReaction,
+      cumulativeByReaction,
+      "damage curve cumulativeByReaction"
+    );
+  }
+}
+
+function validateAuraProjection(
+  result: SimulationResult,
+  context: RefinementCtx,
+  damageEventIds: ReadonlySet<number>
+): void {
+  let auraTimelineIndex = 0;
+  for (const [eventIndex, event] of result.damageEvents.entries()) {
+    const audit = event.reactionAudit;
+    const auraFields = [
+      audit.auraBefore,
+      audit.auraApplied,
+      audit.auraConsumed,
+      audit.auraAfter
+    ];
+    const hasAnyAuraProjection = auraFields.some(
+      (field) => field !== null
+    );
+    const hasCompleteAuraProjection = auraFields.every(
+      (field) => field !== null
+    );
+    if (hasAnyAuraProjection && !hasCompleteAuraProjection) {
+      addIssue(
+        context,
+        ["damageEvents", eventIndex, "reactionAudit"],
+        "Aura audit fields must be all-null or all-present"
+      );
+    }
+    if (!hasCompleteAuraProjection) continue;
+
+    const point = result.auraTimeline[auraTimelineIndex];
+    if (point === undefined) {
+      addIssue(
+        context,
+        ["auraTimeline"],
+        `missing projection for damage event ${event.id}`
+      );
+      auraTimelineIndex += 1;
+      continue;
+    }
+    for (const [field, expected] of [
+      ["damageEventId", event.id],
+      ["eventPriority", event.eventPriority],
+      ["eventSequence", event.eventSequence],
+      ["targetId", event.targetId],
+      ["targetName", event.targetName],
+      ["frame", event.frame],
+      ["sourceActorId", event.sourceActorId],
+      ["actionId", event.actionId],
+      ["hitId", event.hitId],
+      ["incomingElement", event.element],
+      ["icdAllowed", audit.icdAllowed],
+      ["reaction", audit.reaction]
+    ] as const) {
+      expectEqual(
+        context,
+        ["auraTimeline", auraTimelineIndex, field],
+        point[field],
+        expected,
+        `Aura timeline ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["auraTimeline", auraTimelineIndex, "timeSeconds"],
+      point.timeSeconds,
+      event.timeSeconds,
+      "Aura timeline time"
+    );
+    for (const [field, expected] of [
+      ["reactions", audit.reactions],
+      ["unsupportedReactions", audit.unsupportedReactions],
+      ["mechanicsTruncation", audit.mechanicsTruncation],
+      ["auraBefore", audit.auraBefore],
+      ["auraApplied", audit.auraApplied],
+      ["auraConsumed", audit.auraConsumed],
+      ["auraAfter", audit.auraAfter]
+    ] as const) {
+      expectSemanticEqual(
+        context,
+        ["auraTimeline", auraTimelineIndex, field],
+        point[field],
+        expected,
+        `Aura timeline ${field}`
+      );
+    }
+    auraTimelineIndex += 1;
+  }
+  if (auraTimelineIndex !== result.auraTimeline.length) {
+    addIssue(
+      context,
+      ["auraTimeline"],
+      `must contain exactly ${auraTimelineIndex} damage-event Aura projections`
+    );
+  }
+
+  const targetById = new Map(
+    result.enemyTargets.map((target) => [target.id, target])
+  );
+  const initialBoundaryByTarget = new Map<
+    string,
+    SimulationResult["targetStateTimeline"]["points"]
+  >();
+  const endBoundaryByTarget = new Map<
+    string,
+    SimulationResult["targetStateTimeline"]["points"]
+  >();
+  const applicationPointsByDamageEventId = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"]
+  >();
+  const linkTargets: Record<
+    Exclude<
+      SimulationResult["targetStateTimeline"]["points"][number]["links"][number]["kind"],
+      "damage-event"
+    >,
+    ReadonlySet<number>
+  > = {
+    "reaction-task-log": new Set(
+      result.reactionTaskLog.map((entry) => entry.id)
+    ),
+    "reaction-damage-log": new Set(
+      result.reactionDamageLog.map((entry) => entry.id)
+    ),
+    "periodic-reaction-log": new Set(
+      result.periodicReactionLog.map((entry) => entry.id)
+    ),
+    "frozen-state-log": new Set(
+      result.frozenStateLog.map((entry) => entry.id)
+    ),
+    "quicken-state-log": new Set(
+      result.quickenStateLog.map((entry) => entry.id)
+    ),
+    "burning-state-log": new Set(
+      result.burningStateLog.map((entry) => entry.id)
+    ),
+    "target-phase-log": new Set(
+      result.targetPhaseLog.map((entry) => entry.id)
+    ),
+    "target-mechanics-truncation-log": new Set(
+      result.targetMechanicsTruncationLog.map((entry) => entry.id)
+    )
+  };
+
+  for (const [pointIndex, point] of
+    result.targetStateTimeline.points.entries()) {
+    if (point.id !== pointIndex) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex, "id"],
+        "target-state timeline IDs must be contiguous and index-addressable"
+      );
+    }
+    const target = targetById.get(point.targetId);
+    if (
+      target === undefined ||
+      target.name !== point.targetName
+    ) {
+      addIssue(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          pointIndex,
+          "targetId"
+        ],
+        "target-state timeline target identity must match enemyTargets"
+      );
+    }
+    if (
+      point.primaryDamageEventId !== null &&
+      !damageEventIds.has(point.primaryDamageEventId)
+    ) {
+      addIssue(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          pointIndex,
+          "primaryDamageEventId"
+        ],
+        `references missing damage event ${point.primaryDamageEventId}`
+      );
+    }
+    for (const [linkIndex, link] of point.links.entries()) {
+      const valid =
+        link.kind === "damage-event"
+          ? damageEventIds.has(link.id)
+          : linkTargets[link.kind].has(link.id);
+      if (!valid) {
+        addIssue(
+          context,
+          [
+            "targetStateTimeline",
+            "points",
+            pointIndex,
+            "links",
+            linkIndex,
+            "id"
+          ],
+          `references missing ${link.kind} ${link.id}`
+        );
+      }
+    }
+    if (point.cause === "simulation-start") {
+      const boundaries =
+        initialBoundaryByTarget.get(point.targetId) ?? [];
+      boundaries.push(point);
+      initialBoundaryByTarget.set(point.targetId, boundaries);
+    } else if (point.cause === "simulation-end") {
+      const boundaries =
+        endBoundaryByTarget.get(point.targetId) ?? [];
+      boundaries.push(point);
+      endBoundaryByTarget.set(point.targetId, boundaries);
+    } else if (
+      (point.cause === "direct-hit-application" ||
+        point.cause === "reaction-damage-application") &&
+      point.primaryDamageEventId !== null
+    ) {
+      const applications =
+        applicationPointsByDamageEventId.get(
+          point.primaryDamageEventId
+        ) ?? [];
+      applications.push(point);
+      applicationPointsByDamageEventId.set(
+        point.primaryDamageEventId,
+        applications
+      );
+    }
+  }
+
+  for (const [auraIndex, auraPoint] of
+    result.auraTimeline.entries()) {
+    const event = result.damageEvents[auraPoint.damageEventId];
+    const applications =
+      applicationPointsByDamageEventId.get(
+        auraPoint.damageEventId
+      ) ?? [];
+    if (applications.length !== 1 || event === undefined) {
+      addIssue(
+        context,
+        ["auraTimeline", auraIndex, "damageEventId"],
+        `damage event ${auraPoint.damageEventId} must own exactly one target-state application point`
+      );
+      continue;
+    }
+    const application = applications[0]!;
+    const expectedCause =
+      event.kind === "direct"
+        ? "direct-hit-application"
+        : "reaction-damage-application";
+    const expectedEventType =
+      event.kind === "direct" ? "hit" : "reactionDamage";
+    for (const [field, expected] of [
+      ["cause", expectedCause],
+      ["eventType", expectedEventType],
+      ["eventPriority", event.eventPriority],
+      ["eventSequence", event.eventSequence],
+      ["targetId", auraPoint.targetId],
+      ["targetName", auraPoint.targetName],
+      ["frame", auraPoint.frame],
+      ["reaction", auraPoint.reaction]
+    ] as const) {
+      expectEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          application.id,
+          field
+        ],
+        application[field],
+        expected,
+        `target-state application ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      [
+        "targetStateTimeline",
+        "points",
+        application.id,
+        "timeSeconds"
+      ],
+      application.timeSeconds,
+      auraPoint.timeSeconds,
+      "target-state application time"
+    );
+    for (const [field, expected] of [
+      ["reactions", auraPoint.reactions],
+      ["auraBefore", auraPoint.auraBefore],
+      ["auraApplied", auraPoint.auraApplied],
+      ["auraConsumed", auraPoint.auraConsumed],
+      ["auraAfter", auraPoint.auraAfter]
+    ] as const) {
+      expectSemanticEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          application.id,
+          field
+        ],
+        application[field],
+        expected,
+        `target-state application ${field}`
+      );
+    }
+    const damageLinks = application.links.filter(
+      (link) =>
+        link.kind === "damage-event" &&
+        link.id === auraPoint.damageEventId
+    );
+    if (damageLinks.length !== 1) {
+      addIssue(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          application.id,
+          "links"
+        ],
+        "target-state application must backlink its damage event exactly once"
+      );
+    }
+  }
+
+  for (const [targetIndex, target] of
+    result.enemyTargets.entries()) {
+    const initialState = result.auraInitialStates[targetIndex];
+    const endState = result.auraEndStates[targetIndex];
+    const initialBoundaries =
+      initialBoundaryByTarget.get(target.id) ?? [];
+    const endBoundaries = endBoundaryByTarget.get(target.id) ?? [];
+    if (initialBoundaries.length !== 1) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points"],
+        `target ${target.id} must have exactly one simulation-start boundary`
+      );
+    }
+    if (endBoundaries.length !== 1) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points"],
+        `target ${target.id} must have exactly one simulation-end boundary`
+      );
+    }
+    const initialBoundary = initialBoundaries[0];
+    if (initialState !== undefined && initialBoundary !== undefined) {
+      expectEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          initialBoundary.id,
+          "frame"
+        ],
+        initialBoundary.frame,
+        initialState.frame,
+        "initial Aura boundary frame"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          initialBoundary.id,
+          "timeSeconds"
+        ],
+        initialBoundary.timeSeconds,
+        initialState.timeSeconds,
+        "initial Aura boundary time"
+      );
+      expectSemanticEqual(
+        context,
+        ["auraInitialStates", targetIndex, "aura"],
+        initialState.aura,
+        initialBoundary.auraAfter,
+        "initial Aura boundary"
+      );
+      expectSemanticEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          initialBoundary.id,
+          "auraBefore"
+        ],
+        initialBoundary.auraBefore,
+        initialState.aura,
+        "initial Aura boundary before-state"
+      );
+    }
+    const endBoundary = endBoundaries[0];
+    if (endState !== undefined && endBoundary !== undefined) {
+      expectEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          endBoundary.id,
+          "frame"
+        ],
+        endBoundary.frame,
+        endState.frame,
+        "final Aura boundary frame"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          endBoundary.id,
+          "timeSeconds"
+        ],
+        endBoundary.timeSeconds,
+        endState.timeSeconds,
+        "final Aura boundary time"
+      );
+      expectSemanticEqual(
+        context,
+        ["auraEndStates", targetIndex, "aura"],
+        endState.aura,
+        endBoundary.auraAfter,
+        "final Aura boundary"
+      );
+      expectSemanticEqual(
+        context,
+        [
+          "targetStateTimeline",
+          "points",
+          endBoundary.id,
+          "auraBefore"
+        ],
+        endBoundary.auraBefore,
+        endState.aura,
+        "final Aura boundary before-state"
+      );
+    }
+  }
+}
+
+function validateReactionBacklinks(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const reactionDamageById = new Map(
+    result.reactionDamageLog.map((entry) => [entry.id, entry])
+  );
+  const parentByDamageEventId = new Map<
+    number,
+    SimulationResult["reactionDamageLog"][number]
+  >();
+  const statusesByDamageEventId = new Map<
+    number,
+    SimulationResult["reactionStatusLog"]
+  >();
+  for (const status of result.reactionStatusLog) {
+    const statuses =
+      statusesByDamageEventId.get(
+        status.reactionDamageEventId
+      ) ?? [];
+    statuses.push(status);
+    statusesByDamageEventId.set(
+      status.reactionDamageEventId,
+      statuses
+    );
+  }
+
+  for (const [parentIndex, parent] of
+    result.reactionDamageLog.entries()) {
+    if (!hasValidReactionDeliveryShape(parent)) {
+      addIssue(
+        context,
+        ["reactionDamageLog", parentIndex, "scheduleKind"],
+        "reaction, scheduleKind, and targetingMode must use a supported delivery shape"
+      );
+    }
+    if (parent.triggerDamageEventId !== null) {
+      const triggerEvent = damageEventById.get(
+        parent.triggerDamageEventId
+      );
+      if (triggerEvent === undefined) {
+        addIssue(
+          context,
+          [
+            "reactionDamageLog",
+            parentIndex,
+            "triggerDamageEventId"
+          ],
+          `references missing damage event ${parent.triggerDamageEventId}`
+        );
+      } else if (
+        parent.scheduleKind !== "dendro-core-bloom"
+      ) {
+        expectEqual(
+          context,
+          ["reactionDamageLog", parentIndex, "triggerFrame"],
+          parent.triggerFrame,
+          triggerEvent.frame,
+          "reaction-damage trigger frame"
+        );
+      }
+      if (triggerEvent !== undefined) {
+        expectEqual(
+          context,
+          ["reactionDamageLog", parentIndex, "sourceActorId"],
+          parent.sourceActorId,
+          triggerEvent.sourceActorId,
+          "reaction-damage trigger source actor"
+        );
+        if (
+          parent.scheduleKind !== "dendro-core-bloom" &&
+          parent.scheduleKind !== "dendro-core-burgeon" &&
+          parent.scheduleKind !== "dendro-core-hyperbloom"
+        ) {
+          expectEqual(
+            context,
+            [
+              "reactionDamageLog",
+              parentIndex,
+              "sourceTargetId"
+            ],
+            parent.sourceTargetId,
+            triggerEvent.targetId,
+            "reaction-damage trigger source target"
+          );
+        }
+      }
+    }
+    if (
+      parent.damageEventIds.length !== parent.hitTargetIds.length
+    ) {
+      addIssue(
+        context,
+        ["reactionDamageLog", parentIndex, "damageEventIds"],
+        "reaction-damage children and hitTargetIds must have identical cardinality"
+      );
+    }
+    if (
+      parent.damageEventIds.length > 0 &&
+      (!parent.scheduled ||
+        !parent.withinSimulation ||
+        parent.blockedReason !== null)
+    ) {
+      addIssue(
+        context,
+        ["reactionDamageLog", parentIndex],
+        "a reaction-damage log with settled children must be scheduled, in-range, and unblocked"
+      );
+    }
+    for (const [damageIndex, damageEventId] of
+      parent.damageEventIds.entries()) {
+      const event = damageEventById.get(damageEventId);
+      if (event === undefined) continue;
+      if (parentByDamageEventId.has(damageEventId)) {
+        addIssue(
+          context,
+          [
+            "reactionDamageLog",
+            parentIndex,
+            "damageEventIds",
+            damageIndex
+          ],
+          `damage event ${damageEventId} is owned by multiple reaction-damage logs`
+        );
+      } else {
+        parentByDamageEventId.set(damageEventId, parent);
+      }
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "kind"],
+        event.kind,
+        "transformative-reaction",
+        "reaction-damage child kind"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "reaction"],
+        event.reaction,
+        parent.reaction,
+        "reaction-damage child outer reaction"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "element"],
+        event.element,
+        transformativeDamageElement(parent.reaction),
+        "reaction-damage child element"
+      );
+      expectEqual(
+        context,
+        [
+          "reactionDamageLog",
+          parentIndex,
+          "damageEventIds",
+          damageIndex
+        ],
+        event.transformativeReactionFactors?.reaction,
+        parent.reaction,
+        "reaction-damage child reaction"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "parentDamageEventId"],
+        event.parentDamageEventId,
+        parent.triggerDamageEventId,
+        "reaction-damage child trigger"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "sourceActorId"],
+        event.sourceActorId,
+        parent.sourceActorId,
+        "reaction-damage child source"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "frame"],
+        event.frame,
+        parent.damageFrame,
+        "reaction-damage child frame"
+      );
+      expectEqual(
+        context,
+        [
+          "reactionDamageLog",
+          parentIndex,
+          "hitTargetIds",
+          damageIndex
+        ],
+        parent.hitTargetIds[damageIndex],
+        event.targetId,
+        "reaction-damage hit target"
+      );
+    }
+    const triggerEvent =
+      parent.triggerDamageEventId === null
+        ? undefined
+        : damageEventById.get(parent.triggerDamageEventId);
+    const transformativeAudits =
+      triggerEvent?.reactionAudit.transformativeReactions ??
+      (triggerEvent?.reactionAudit.transformativeReaction === null ||
+      triggerEvent?.reactionAudit.transformativeReaction === undefined
+        ? []
+        : [triggerEvent.reactionAudit.transformativeReaction]);
+    const statusDefinition = transformativeAudits.find(
+      (audit) => audit.reaction === parent.reaction
+    )?.statusEffect;
+    const expectedStatusIds: number[] = [];
+    if (statusDefinition !== null && statusDefinition !== undefined) {
+      for (const damageEventId of parent.damageEventIds) {
+        const child = damageEventById.get(damageEventId);
+        if (child?.mechanicsStatus !== "authoritative") continue;
+        const statuses =
+          statusesByDamageEventId.get(damageEventId) ?? [];
+        if (statuses.length !== 1) {
+          addIssue(
+            context,
+            ["reactionDamageLog", parentIndex, "reactionStatusLogIds"],
+            `authoritative child ${damageEventId} must own exactly one reaction status`
+          );
+        } else {
+          expectedStatusIds.push(statuses[0]!.id);
+        }
+      }
+    }
+    expectSemanticEqual(
+      context,
+      ["reactionDamageLog", parentIndex, "reactionStatusLogIds"],
+      parent.reactionStatusLogIds,
+      expectedStatusIds,
+      "reaction-damage status children"
+    );
+    for (const [statusIndex, statusId] of
+      parent.reactionStatusLogIds.entries()) {
+      const status = result.reactionStatusLog[statusId];
+      if (
+        status === undefined ||
+        status.id !== statusId ||
+        !parent.damageEventIds.includes(
+          status.reactionDamageEventId
+        )
+      ) {
+        addIssue(
+          context,
+          [
+            "reactionDamageLog",
+            parentIndex,
+            "reactionStatusLogIds",
+            statusIndex
+          ],
+          `does not backlink a status owned by reaction-damage log ${parent.id}`
+        );
+      }
+    }
+  }
+
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    if (
+      event.kind === "transformative-reaction" &&
+      !parentByDamageEventId.has(event.id)
+    ) {
+      addIssue(
+        context,
+        ["damageEvents", eventIndex, "parentDamageEventId"],
+        "transformative damage event must belong to exactly one reaction-damage log"
+      );
+    }
+  }
+
+  const lastStatusByTargetAndKey = new Map<
+    string,
+    SimulationResult["reactionStatusLog"][number]
+  >();
+  const statusesByTargetAndKey = new Map<
+    string,
+    SimulationResult["reactionStatusLog"]
+  >();
+  const baseNaturalEndByStatusId = new Map<number, number>();
+  for (const [statusIndex, status] of
+    result.reactionStatusLog.entries()) {
+    const event = damageEventById.get(
+      status.reactionDamageEventId
+    );
+    const parent = parentByDamageEventId.get(
+      status.reactionDamageEventId
+    );
+    if (
+      event === undefined ||
+      parent === undefined ||
+      !parent.reactionStatusLogIds.includes(status.id)
+    ) {
+      addIssue(
+        context,
+        [
+          "reactionStatusLog",
+          statusIndex,
+          "reactionDamageEventId"
+        ],
+        "must backlink a reaction-damage child and its owning parent log"
+      );
+      continue;
+    }
+    for (const [field, expected] of [
+      ["reaction", parent.reaction],
+      ["targetId", event.targetId],
+      ["targetName", event.targetName],
+      ["startFrame", event.frame]
+    ] as const) {
+      expectEqual(
+        context,
+        ["reactionStatusLog", statusIndex, field],
+        status[field],
+        expected,
+        `reaction status ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["reactionStatusLog", statusIndex, "startTimeSeconds"],
+      status.startTimeSeconds,
+      event.timeSeconds,
+      "reaction status start time"
+    );
+    const triggerEvent =
+      parent.triggerDamageEventId === null
+        ? undefined
+        : damageEventById.get(parent.triggerDamageEventId);
+    const transformativeAudits =
+      triggerEvent?.reactionAudit.transformativeReactions ??
+      (triggerEvent?.reactionAudit.transformativeReaction === null ||
+      triggerEvent?.reactionAudit.transformativeReaction === undefined
+        ? []
+        : [triggerEvent.reactionAudit.transformativeReaction]);
+    const definition = transformativeAudits.find(
+      (audit) => audit.reaction === parent.reaction
+    )?.statusEffect;
+    if (definition === null || definition === undefined) {
+      addIssue(
+        context,
+        ["reactionStatusLog", statusIndex],
+        "reaction status must derive from its trigger audit definition"
+      );
+      continue;
+    }
+    for (const [field, expected] of [
+      ["key", definition.key],
+      ["label", definition.label],
+      ["element", definition.element]
+    ] as const) {
+      expectEqual(
+        context,
+        ["reactionStatusLog", statusIndex, field],
+        status[field],
+        expected,
+        `reaction status ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["reactionStatusLog", statusIndex, "resShred"],
+      status.resShred,
+      definition.resShred,
+      "reaction status resistance shred"
+    );
+    const hitlagExtensionFrames =
+      result.targetHitlagLog.reduce(
+        (total, hitlag) =>
+          hitlag.extendedReactionStatusLogIds.includes(status.id)
+            ? total + hitlag.extensionFrames
+            : total,
+        0
+      );
+    const naturalEndFrame =
+      status.startFrame +
+      definition.durationFrames +
+      hitlagExtensionFrames;
+    baseNaturalEndByStatusId.set(
+      status.id,
+      status.startFrame + definition.durationFrames
+    );
+    if (status.supersededAtFrame === null) {
+      expectEqual(
+        context,
+        ["reactionStatusLog", statusIndex, "endFrame"],
+        status.endFrame,
+        naturalEndFrame,
+        "reaction status natural end frame"
+      );
+    } else {
+      expectEqual(
+        context,
+        [
+          "reactionStatusLog",
+          statusIndex,
+          "supersededAtFrame"
+        ],
+        status.supersededAtFrame,
+        status.endFrame,
+        "reaction status superseded frame"
+      );
+      if (status.endFrame >= naturalEndFrame) {
+        addIssue(
+          context,
+          ["reactionStatusLog", statusIndex, "endFrame"],
+          "superseded status must end before its natural duration"
+        );
+      }
+    }
+    expectNearlyEqual(
+      context,
+      ["reactionStatusLog", statusIndex, "endTimeSeconds"],
+      status.endTimeSeconds,
+      status.endFrame / 60,
+      "reaction status end time"
+    );
+    const statusKey = `${status.targetId}\u0000${status.key}`;
+    const previous = lastStatusByTargetAndKey.get(statusKey);
+    if (
+      previous !== undefined &&
+      previous.endFrame > status.startFrame
+    ) {
+      addIssue(
+        context,
+        ["reactionStatusLog", statusIndex, "startFrame"],
+        "reaction statuses with the same target and key cannot overlap"
+      );
+    }
+    const expectedOperation =
+      previous?.supersededAtFrame === status.startFrame
+        ? "refresh"
+        : "apply";
+    expectEqual(
+      context,
+      ["reactionStatusLog", statusIndex, "operation"],
+      status.operation,
+      expectedOperation,
+      "reaction status operation"
+    );
+    lastStatusByTargetAndKey.set(statusKey, status);
+    const chain = statusesByTargetAndKey.get(statusKey) ?? [];
+    chain.push(status);
+    statusesByTargetAndKey.set(statusKey, chain);
+  }
+  for (const chain of statusesByTargetAndKey.values()) {
+    for (const [statusIndex, status] of chain.entries()) {
+      if (status.supersededAtFrame === null) continue;
+      const successor = chain[statusIndex + 1];
+      if (
+        successor === undefined ||
+        successor.startFrame !== status.supersededAtFrame ||
+        successor.operation !== "refresh"
+      ) {
+        addIssue(
+          context,
+          ["reactionStatusLog", status.id, "supersededAtFrame"],
+          "superseded reaction status must have an immediate reciprocal refresh at the same frame"
+        );
+      }
+    }
+  }
+  const projectedNaturalEndByStatusId = new Map(
+    baseNaturalEndByStatusId
+  );
+  for (const [hitlagIndex, hitlag] of
+    result.targetHitlagLog.entries()) {
+    expectNearlyEqual(
+      context,
+      ["targetHitlagLog", hitlagIndex, "timeSeconds"],
+      hitlag.timeSeconds,
+      hitlag.globalFrame / 60,
+      "target Hitlag time"
+    );
+    const expectedStatusIds =
+      hitlag.applied && hitlag.extensionFrames > 0
+        ? result.reactionStatusLog
+            .filter((status) => {
+              if (
+                status.reaction !== "superconduct" ||
+                status.targetId !== hitlag.targetId ||
+                status.targetName !== hitlag.targetName
+              ) {
+                return false;
+              }
+              const sourceEvent = damageEventById.get(
+                status.reactionDamageEventId
+              );
+              const createdBeforeHitlag =
+                sourceEvent !== undefined &&
+                (sourceEvent.frame < hitlag.globalFrame ||
+                  (sourceEvent.frame === hitlag.globalFrame &&
+                    (sourceEvent.eventPriority <
+                      hitlag.eventPriority ||
+                      (sourceEvent.eventPriority ===
+                        hitlag.eventPriority &&
+                        sourceEvent.eventSequence <
+                          hitlag.eventSequence))));
+              const naturalEnd =
+                projectedNaturalEndByStatusId.get(status.id);
+              const activeEnd =
+                naturalEnd === undefined
+                  ? undefined
+                  : Math.min(
+                      naturalEnd,
+                      status.supersededAtFrame ??
+                        Number.POSITIVE_INFINITY
+                    );
+              return (
+                createdBeforeHitlag &&
+                activeEnd !== undefined &&
+                activeEnd > hitlag.globalFrame
+              );
+            })
+            .map((status) => status.id)
+        : [];
+    expectSemanticEqual(
+      context,
+      [
+        "targetHitlagLog",
+        hitlagIndex,
+        "extendedReactionStatusLogIds"
+      ],
+      hitlag.extendedReactionStatusLogIds,
+      expectedStatusIds,
+      "target Hitlag active Superconduct status set"
+    );
+    for (const statusId of expectedStatusIds) {
+      const projectedEnd =
+        projectedNaturalEndByStatusId.get(statusId);
+      if (projectedEnd !== undefined) {
+        projectedNaturalEndByStatusId.set(
+          statusId,
+          projectedEnd + hitlag.extensionFrames
+        );
+      }
+    }
+  }
+
+  const periodicTickByKey = new Map<
+    string,
+    SimulationResult["periodicReactionLog"][number]
+  >();
+  const periodicTickByDamageEventId = new Map<
+    number,
+    SimulationResult["periodicReactionLog"][number]
+  >();
+  const periodicTicksByReactionDamageId = new Map<
+    number,
+    SimulationResult["periodicReactionLog"]
+  >();
+  const periodicStreamByTargetGeneration = new Map<
+    string,
+    {
+      nextTickIndex: number;
+    }
+  >();
+  const periodicTickKey = (
+    periodic: SimulationResult["periodicReactionLog"][number]
+  ): string =>
+    `${periodic.targetId}\u0000${periodic.generation}\u0000${periodic.tickIndex}`;
+  for (const [periodicIndex, periodic] of
+    result.periodicReactionLog.entries()) {
+    expectNearlyEqual(
+      context,
+      ["periodicReactionLog", periodicIndex, "timeSeconds"],
+      periodic.timeSeconds,
+      periodic.frame / 60,
+      "periodic reaction time"
+    );
+    if (
+      periodic.triggerDamageEventId !== null &&
+      !damageEventById.has(periodic.triggerDamageEventId)
+    ) {
+      addIssue(
+        context,
+        [
+          "periodicReactionLog",
+          periodicIndex,
+          "triggerDamageEventId"
+        ],
+        `references missing damage event ${periodic.triggerDamageEventId}`
+      );
+    }
+    const target = result.enemyTargets.find(
+      (candidate) => candidate.id === periodic.targetId
+    );
+    if (
+      target === undefined ||
+      target.name !== periodic.targetName
+    ) {
+      addIssue(
+        context,
+        ["periodicReactionLog", periodicIndex, "targetId"],
+        "periodic reaction target identity must match enemyTargets"
+      );
+    }
+    const explicitParent =
+      periodic.reactionDamageLogId === null
+        ? undefined
+        : reactionDamageById.get(periodic.reactionDamageLogId);
+    if (
+      periodic.reactionDamageLogId !== null &&
+      explicitParent === undefined
+    ) {
+      addIssue(
+        context,
+        [
+          "periodicReactionLog",
+          periodicIndex,
+          "reactionDamageLogId"
+        ],
+        `references missing reaction-damage log ${periodic.reactionDamageLogId}`
+      );
+    }
+    const isWaneOperation =
+      periodic.operation === "wane" ||
+      periodic.operation === "wane-skipped" ||
+      (periodic.operation === "stop" &&
+        periodic.waneFrame !== null);
+    if (
+      periodic.operation === "start" ||
+      periodic.operation === "refresh"
+    ) {
+      if (
+        periodic.reactionDamageLogId !== null ||
+        periodic.damageEventId !== null ||
+        periodic.tickIndex !== null ||
+        periodic.waneFrame !== null
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex],
+          `${periodic.operation} rows cannot own tick damage or Wane fields`
+        );
+      }
+      const trigger =
+        periodic.triggerDamageEventId === null
+          ? undefined
+          : damageEventById.get(periodic.triggerDamageEventId);
+      const audit = trigger?.reactionAudit.periodicReaction;
+      if (
+        trigger === undefined ||
+        audit === null ||
+        audit === undefined ||
+        audit.operation !== periodic.operation
+      ) {
+        addIssue(
+          context,
+          [
+            "periodicReactionLog",
+            periodicIndex,
+            "triggerDamageEventId"
+          ],
+          `${periodic.operation} must backlink its matching Electro-Charged audit`
+        );
+      } else {
+        for (const [field, expected] of [
+          ["generation", audit.generation],
+          ["frame", trigger.frame],
+          ["targetId", trigger.targetId],
+          ["targetName", trigger.targetName],
+          ["sourceActorId", trigger.sourceActorId],
+          ["nextTickFrame", audit.nextTickFrame],
+          [
+            "coexistenceExpiresAtFrame",
+            audit.coexistenceExpiresAtFrame
+          ]
+        ] as const) {
+          expectEqual(
+            context,
+            ["periodicReactionLog", periodicIndex, field],
+            periodic[field],
+            expected,
+            `periodic reaction ${field}`
+          );
+        }
+        expectSemanticEqual(
+          context,
+          ["periodicReactionLog", periodicIndex, "auraBefore"],
+          periodic.auraBefore,
+          trigger.reactionAudit.auraBefore ?? [],
+          "periodic reaction Aura before"
+        );
+        expectSemanticEqual(
+          context,
+          ["periodicReactionLog", periodicIndex, "auraConsumed"],
+          periodic.auraConsumed,
+          [],
+          "periodic reaction start/refresh Aura consumption"
+        );
+        expectSemanticEqual(
+          context,
+          ["periodicReactionLog", periodicIndex, "auraAfter"],
+          periodic.auraAfter,
+          trigger.reactionAudit.auraAfter ?? [],
+          "periodic reaction Aura after"
+        );
+        if (periodic.operation === "start") {
+          periodicStreamByTargetGeneration.set(
+            `${periodic.targetId}\u0000${periodic.generation}`,
+            { nextTickIndex: 0 }
+          );
+        }
+      }
+    } else if (periodic.operation === "tick") {
+      if (
+        periodic.reactionDamageLogId === null ||
+        periodic.damageEventId === null ||
+        periodic.tickIndex === null
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex],
+          "tick rows require reactionDamageLogId, damageEventId, and tickIndex"
+        );
+      } else {
+        const key = periodicTickKey(periodic);
+        if (periodicTickByKey.has(key)) {
+          addIssue(
+            context,
+            ["periodicReactionLog", periodicIndex, "tickIndex"],
+            "Electro-Charged target, generation, and tick index must be unique"
+          );
+        } else {
+          periodicTickByKey.set(key, periodic);
+        }
+        if (
+          periodicTickByDamageEventId.has(periodic.damageEventId)
+        ) {
+          addIssue(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "damageEventId"
+            ],
+            "Electro-Charged tick damage event must have one periodic owner"
+          );
+        } else {
+          periodicTickByDamageEventId.set(
+            periodic.damageEventId,
+            periodic
+          );
+        }
+        const owners =
+          periodicTicksByReactionDamageId.get(
+            periodic.reactionDamageLogId
+          ) ?? [];
+        owners.push(periodic);
+        periodicTicksByReactionDamageId.set(
+          periodic.reactionDamageLogId,
+          owners
+        );
+      }
+    } else if (periodic.operation === "tick-skipped") {
+      if (
+        periodic.reactionDamageLogId !== null ||
+        periodic.damageEventId !== null ||
+        periodic.tickIndex === null ||
+        periodic.waneFrame !== null
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex],
+          "tick-skipped rows require only tickIndex among tick ownership fields"
+        );
+      }
+    } else if (isWaneOperation) {
+      if (
+        periodic.reactionDamageLogId !== null ||
+        periodic.damageEventId === null ||
+        periodic.tickIndex === null ||
+        periodic.waneFrame !== periodic.frame
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex],
+          "Wane rows must reuse a tick child without owning its reaction-damage log"
+        );
+      }
+      const generationBoundWane =
+        result.config.reactionEngine?.mode === "aura-v8" ||
+        result.config.reactionEngine?.mode === "aura-v9";
+      const tick = generationBoundWane
+        ? periodicTickByKey.get(periodicTickKey(periodic))
+        : periodic.damageEventId === null
+          ? undefined
+          : periodicTickByDamageEventId.get(
+              periodic.damageEventId
+            );
+      if (
+        tick === undefined ||
+        tick.damageEventId !== periodic.damageEventId ||
+        tick.sourceActorId !== periodic.sourceActorId ||
+        tick.triggerDamageEventId !==
+          periodic.triggerDamageEventId
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "damageEventId"],
+          "Wane row must backlink the preceding tick of the same target, generation, and tick index"
+        );
+      }
+    } else if (
+      periodic.operation === "stop" &&
+      (periodic.reactionDamageLogId !== null ||
+        periodic.damageEventId !== null)
+    ) {
+      addIssue(
+        context,
+        ["periodicReactionLog", periodicIndex],
+        "non-Wane stop rows cannot own reaction damage"
+      );
+    }
+    if (explicitParent !== undefined) {
+      for (const [field, expected] of [
+        ["reaction", periodic.reaction],
+        ["sourceTargetId", periodic.targetId],
+        ["triggerDamageEventId", periodic.triggerDamageEventId]
+      ] as const) {
+        expectEqual(
+          context,
+          [
+            "periodicReactionLog",
+            periodicIndex,
+            "reactionDamageLogId"
+          ],
+          explicitParent[field],
+          expected,
+          `periodic reaction parent ${field}`
+        );
+      }
+      expectEqual(
+        context,
+        [
+          "reactionDamageLog",
+          explicitParent.id,
+          "scheduleKind"
+        ],
+        explicitParent.scheduleKind,
+        "periodic-tick",
+        "periodic reaction schedule kind"
+      );
+      if (periodic.operation === "tick") {
+        const trigger =
+          periodic.triggerDamageEventId === null
+            ? undefined
+            : damageEventById.get(
+                periodic.triggerDamageEventId
+              );
+        const sourceAudit =
+          trigger?.reactionAudit.periodicReaction;
+        if (
+          trigger === undefined ||
+          sourceAudit === null ||
+          sourceAudit === undefined
+        ) {
+          addIssue(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "triggerDamageEventId"
+            ],
+            "Electro-Charged tick must backlink its source stream audit"
+          );
+        } else {
+          for (const [field, expected] of [
+            ["generation", sourceAudit.generation],
+            ["sourceActorId", trigger.sourceActorId]
+          ] as const) {
+            expectEqual(
+              context,
+              ["periodicReactionLog", periodicIndex, field],
+              periodic[field],
+              expected,
+              `Electro-Charged tick source ${field}`
+            );
+          }
+        }
+        expectEqual(
+          context,
+          [
+            "reactionDamageLog",
+            explicitParent.id,
+            "damageFrame"
+          ],
+          explicitParent.damageFrame,
+          periodic.frame,
+          "periodic reaction damage frame"
+        );
+        expectEqual(
+          context,
+          [
+            "reactionDamageLog",
+            explicitParent.id,
+            "nextAvailableFrame"
+          ],
+          explicitParent.nextAvailableFrame,
+          periodic.nextTickFrame,
+          "periodic reaction next tick frame"
+        );
+      }
+      if (periodic.sourceActorId !== null) {
+        expectEqual(
+          context,
+          [
+            "reactionDamageLog",
+            explicitParent.id,
+            "sourceActorId"
+          ],
+          explicitParent.sourceActorId,
+          periodic.sourceActorId,
+          "periodic reaction source actor"
+        );
+      }
+    }
+    if (periodic.damageEventId !== null) {
+      const event = damageEventById.get(periodic.damageEventId);
+      const parent =
+        explicitParent ??
+        parentByDamageEventId.get(periodic.damageEventId);
+      if (
+        event === undefined ||
+        parent === undefined ||
+        !parent.damageEventIds.includes(periodic.damageEventId)
+      ) {
+        addIssue(
+          context,
+          [
+            "periodicReactionLog",
+            periodicIndex,
+            "damageEventId"
+          ],
+          "must backlink a child of the linked reaction-damage log"
+        );
+      } else {
+        if (periodic.triggerDamageEventId !== null) {
+          expectEqual(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "triggerDamageEventId"
+            ],
+            parent.triggerDamageEventId,
+            periodic.triggerDamageEventId,
+            "periodic damage trigger"
+          );
+        }
+        if (periodic.sourceActorId !== null) {
+          expectEqual(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "sourceActorId"
+            ],
+            parent.sourceActorId,
+            periodic.sourceActorId,
+            "periodic damage source actor"
+          );
+        }
+        expectEqual(
+          context,
+          [
+            "periodicReactionLog",
+            periodicIndex,
+            "damageEventId"
+          ],
+          event.targetId,
+          periodic.targetId,
+          "periodic damage target"
+        );
+        expectEqual(
+          context,
+          [
+            "periodicReactionLog",
+            periodicIndex,
+            "reaction"
+          ],
+          event.transformativeReactionFactors?.reaction,
+          periodic.reaction,
+          "periodic damage reaction"
+        );
+      }
+    }
+    if (
+      periodic.operation === "tick" ||
+      periodic.operation === "tick-skipped"
+    ) {
+      const streamKey = `${periodic.targetId}\u0000${periodic.generation}`;
+      const stream =
+        periodicStreamByTargetGeneration.get(streamKey);
+      if (stream === undefined) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "generation"],
+          "Electro-Charged tick must belong to a preceding start row of the same target and generation"
+        );
+      } else {
+        expectEqual(
+          context,
+          ["periodicReactionLog", periodicIndex, "tickIndex"],
+          periodic.tickIndex,
+          stream.nextTickIndex,
+          "Electro-Charged tick index"
+        );
+        stream.nextTickIndex += 1;
+      }
+    }
+  }
+  for (const [parentIndex, parent] of
+    result.reactionDamageLog.entries()) {
+    if (
+      parent.scheduleKind !== "periodic-tick" ||
+      parent.reaction !== "electroCharged"
+    ) {
+      continue;
+    }
+    const owners =
+      periodicTicksByReactionDamageId.get(parent.id) ?? [];
+    if (owners.length !== 1) {
+      addIssue(
+        context,
+        ["reactionDamageLog", parentIndex],
+        "Electro-Charged periodic-tick damage must have exactly one tick owner"
+      );
+    }
+  }
+}
+
+const SWIRL_DAMAGE_ELEMENT = {
+  swirlPyro: "pyro",
+  swirlHydro: "hydro",
+  swirlCryo: "cryo",
+  swirlElectro: "electro"
+} as const;
+
+type SwirlReactionName = keyof typeof SWIRL_DAMAGE_ELEMENT;
+
+function isSwirlReactionName(
+  reaction: string
+): reaction is SwirlReactionName {
+  return Object.prototype.hasOwnProperty.call(
+    SWIRL_DAMAGE_ELEMENT,
+    reaction
+  );
+}
+
+function cleanAuraGaugeUnits(value: number): number {
+  if (Math.abs(value) <= AURA_GAUGE_EPSILON) return 0;
+  return Number(value.toFixed(12));
+}
+
+function validateSwirlBacklinks(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const logIndexesByKey = new Map<string, number[]>();
+  const claimedLogIndexes = new Set<number>();
+  const deliveryKey = (
+    triggerDamageEventId: number,
+    reaction: SwirlReactionName,
+    scheduleKind: "swirl-self" | "swirl-propagation"
+  ): string =>
+    `${triggerDamageEventId}\u0000${reaction}\u0000${scheduleKind}`;
+
+  for (const [logIndex, log] of
+    result.reactionDamageLog.entries()) {
+    if (
+      log.triggerDamageEventId === null ||
+      !isSwirlReactionName(log.reaction) ||
+      (log.scheduleKind !== "swirl-self" &&
+        log.scheduleKind !== "swirl-propagation")
+    ) {
+      continue;
+    }
+    const key = deliveryKey(
+      log.triggerDamageEventId,
+      log.reaction,
+      log.scheduleKind
+    );
+    const indexes = logIndexesByKey.get(key) ?? [];
+    indexes.push(logIndex);
+    logIndexesByKey.set(key, indexes);
+  }
+
+  const damageGroupAttempts: Array<{
+    child: DamageEvent;
+    logIndex: number;
+    decisionIndex: number;
+    decision: SimulationResult["reactionDamageLog"][number]["damageGroupDecisions"][number];
+  }> = [];
+
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    const seenReactions = new Set<SwirlReactionName>();
+    for (const [auditIndex, audit] of
+      event.reactionAudit.swirlReactions.entries()) {
+      const auditPath = [
+        "damageEvents",
+        eventIndex,
+        "reactionAudit",
+        "swirlReactions",
+        auditIndex
+      ] satisfies IssuePath;
+      if (seenReactions.has(audit.reaction)) {
+        addIssue(
+          context,
+          [...auditPath, "reaction"],
+          "one damage event cannot repeat a Swirl reaction audit"
+        );
+      }
+      seenReactions.add(audit.reaction);
+      const expectedAuraConsumedGaugeUnits = Math.min(
+        audit.auraGaugeUnitsBefore,
+        audit.sourceGaugeUnitsBefore * 0.5
+      );
+      const expectedSourceGaugeUnitsSpent =
+        expectedAuraConsumedGaugeUnits / 0.5;
+      expectNearlyEqual(
+        context,
+        [...auditPath, "auraConsumedGaugeUnits"],
+        audit.auraConsumedGaugeUnits,
+        cleanAuraGaugeUnits(expectedAuraConsumedGaugeUnits),
+        "Swirl consumed Aura gauge"
+      );
+      expectNearlyEqual(
+        context,
+        [...auditPath, "sourceGaugeUnitsSpent"],
+        audit.sourceGaugeUnitsSpent,
+        cleanAuraGaugeUnits(expectedSourceGaugeUnitsSpent),
+        "Swirl spent source gauge"
+      );
+      expectNearlyEqual(
+        context,
+        [...auditPath, "sourceGaugeUnitsAfter"],
+        audit.sourceGaugeUnitsAfter,
+        cleanAuraGaugeUnits(
+          Math.max(
+            0,
+            audit.sourceGaugeUnitsBefore -
+              expectedSourceGaugeUnitsSpent
+          )
+        ),
+        "Swirl remaining source gauge"
+      );
+      expectNearlyEqual(
+        context,
+        [...auditPath, "auraGaugeUnitsAfter"],
+        audit.auraGaugeUnitsAfter,
+        cleanAuraGaugeUnits(
+          Math.max(
+            0,
+            audit.auraGaugeUnitsBefore -
+              expectedAuraConsumedGaugeUnits
+          )
+        ),
+        "Swirl remaining Aura gauge"
+      );
+      const expectedPropagatedGaugeUnits =
+        audit.sourceGaugeUnitsSpent + AURA_GAUGE_EPSILON <
+        audit.sourceGaugeUnitsBefore
+          ? 0.625 * audit.sourceGaugeUnitsSpent + 0.95
+          : 1.25 * audit.sourceGaugeUnitsBefore + 0.95;
+      expectNearlyEqual(
+        context,
+        [...auditPath, "propagatedGaugeUnits"],
+        audit.propagatedGaugeUnits,
+        cleanAuraGaugeUnits(expectedPropagatedGaugeUnits),
+        "Swirl propagated gauge formula"
+      );
+      expectEqual(
+        context,
+        [...auditPath, "swirledElement"],
+        audit.swirledElement,
+        SWIRL_DAMAGE_ELEMENT[audit.reaction],
+        "Swirl audit element"
+      );
+      expectEqual(
+        context,
+        [...auditPath, "selfDamageFrame"],
+        audit.selfDamageFrame,
+        event.frame + 1,
+        "Swirl self damage frame"
+      );
+      expectEqual(
+        context,
+        [...auditPath, "propagationDamageFrame"],
+        audit.propagationDamageFrame,
+        event.frame + 5,
+        "Swirl propagation damage frame"
+      );
+      expectEqual(
+        context,
+        [...auditPath, "scheduled"],
+        audit.scheduled,
+        audit.blockedReason === null,
+        "Swirl scheduling decision"
+      );
+      if (audit.scheduled) {
+        expectEqual(
+          context,
+          [...auditPath, "nextAvailableFrame"],
+          audit.nextAvailableFrame,
+          event.frame + 6,
+          "scheduled Swirl queue ready frame"
+        );
+      } else if (audit.nextAvailableFrame <= event.frame) {
+        addIssue(
+          context,
+          [...auditPath, "nextAvailableFrame"],
+          "queue-GCD-blocked Swirl requires a future ready frame"
+        );
+      }
+
+      for (const [scheduleKind, damageFrame] of [
+        ["swirl-self", audit.selfDamageFrame],
+        ["swirl-propagation", audit.propagationDamageFrame]
+      ] as const) {
+        const logIndexes =
+          logIndexesByKey.get(
+            deliveryKey(
+              event.id,
+              audit.reaction,
+              scheduleKind
+            )
+          ) ?? [];
+        if (logIndexes.length !== 1) {
+          addIssue(
+            context,
+            auditPath,
+            `Swirl audit must own exactly one ${scheduleKind} reaction-damage log`
+          );
+          continue;
+        }
+        const logIndex = logIndexes[0]!;
+        const log = result.reactionDamageLog[logIndex]!;
+        claimedLogIndexes.add(logIndex);
+        for (const [field, expected] of [
+          ["scheduled", audit.scheduled],
+          ["damageFrame", damageFrame],
+          ["blockedReason", audit.blockedReason],
+          ["nextAvailableFrame", audit.nextAvailableFrame]
+        ] as const) {
+          expectEqual(
+            context,
+            ["reactionDamageLog", logIndex, field],
+            log[field],
+            expected,
+            `${scheduleKind} log ${field}`
+          );
+        }
+        expectEqual(
+          context,
+          ["reactionDamageLog", logIndex, "withinSimulation"],
+          log.withinSimulation,
+          audit.scheduled &&
+            damageFrame <= Math.round(result.config.duration * 60),
+          `${scheduleKind} log simulation boundary`
+        );
+        if (scheduleKind === "swirl-self") {
+          expectEqual(
+            context,
+            [
+              "reactionDamageLog",
+              logIndex,
+              "applicationGaugeUnits"
+            ],
+            log.applicationGaugeUnits,
+            null,
+            "Swirl self application gauge"
+          );
+        } else if (log.applicationGaugeUnits === null) {
+          addIssue(
+            context,
+            [
+              "reactionDamageLog",
+              logIndex,
+              "applicationGaugeUnits"
+            ],
+            "Swirl propagation must carry its source audit gauge"
+          );
+        } else {
+          expectNearlyEqual(
+            context,
+            [
+              "reactionDamageLog",
+              logIndex,
+              "applicationGaugeUnits"
+            ],
+            log.applicationGaugeUnits,
+            audit.propagatedGaugeUnits,
+            "Swirl propagated gauge"
+          );
+        }
+
+        if (
+          log.damageGroupDecisions.length !==
+          log.damageEventIds.length
+        ) {
+          addIssue(
+            context,
+            [
+              "reactionDamageLog",
+              logIndex,
+              "damageGroupDecisions"
+            ],
+            "settled Swirl children require one ordered ReactionA decision each"
+          );
+        }
+        const expectedBlockedTargetIds: string[] = [];
+        for (const [decisionIndex, damageEventId] of
+          log.damageEventIds.entries()) {
+          const child = damageEventById.get(damageEventId);
+          const decision =
+            log.damageGroupDecisions[decisionIndex];
+          if (child === undefined || decision === undefined) {
+            continue;
+          }
+          if (scheduleKind === "swirl-propagation") {
+            const applicationGaugeUnits =
+              child.reactionAudit.applicationGaugeUnits;
+            if (
+              child.reactionAudit.model === "aura-engine" &&
+              applicationGaugeUnits === null
+            ) {
+              addIssue(
+                context,
+                [
+                  "damageEvents",
+                  damageEventId,
+                  "reactionAudit",
+                  "applicationGaugeUnits"
+                ],
+                "Aura-resolved Swirl propagation must retain its application gauge"
+              );
+            }
+            if (applicationGaugeUnits !== null) {
+              expectNearlyEqual(
+                context,
+                [
+                  "damageEvents",
+                  damageEventId,
+                  "reactionAudit",
+                  "applicationGaugeUnits"
+                ],
+                applicationGaugeUnits,
+                audit.propagatedGaugeUnits,
+                "Swirl child application gauge"
+              );
+              const auraApplied =
+                child.reactionAudit.auraApplied;
+              if (
+                auraApplied === null ||
+                auraApplied.length !== 1
+              ) {
+                addIssue(
+                  context,
+                  [
+                    "damageEvents",
+                    damageEventId,
+                    "reactionAudit",
+                    "auraApplied"
+                  ],
+                  "Swirl propagation application must expose exactly one applied Aura entry"
+                );
+              } else {
+                expectEqual(
+                  context,
+                  [
+                    "damageEvents",
+                    damageEventId,
+                    "reactionAudit",
+                    "auraApplied",
+                    0,
+                    "element"
+                  ],
+                  auraApplied[0]!.element,
+                  audit.swirledElement,
+                  "Swirl child applied Aura element"
+                );
+                expectNearlyEqual(
+                  context,
+                  [
+                    "damageEvents",
+                    damageEventId,
+                    "reactionAudit",
+                    "auraApplied",
+                    0,
+                    "gaugeUnits"
+                  ],
+                  auraApplied[0]!.gaugeUnits,
+                  audit.propagatedGaugeUnits,
+                  "Swirl child applied Aura gauge"
+                );
+              }
+            }
+          }
+          const childAudit =
+            child.reactionAudit.swirlDamageGroup;
+          const decisionPath = [
+            "reactionDamageLog",
+            logIndex,
+            "damageGroupDecisions",
+            decisionIndex
+          ] satisfies IssuePath;
+          for (const [field, expected] of [
+            ["reaction", log.reaction],
+            ["sourceActorId", child.sourceActorId],
+            ["targetId", child.targetId]
+          ] as const) {
+            expectEqual(
+              context,
+              [...decisionPath, field],
+              decision[field],
+              expected,
+              `Swirl ReactionA ${field}`
+            );
+          }
+          if (childAudit === null) {
+            addIssue(
+              context,
+              [
+                "damageEvents",
+                damageEventId,
+                "reactionAudit",
+                "swirlDamageGroup"
+              ],
+              "Swirl damage child must project its ReactionA decision"
+            );
+          } else {
+            for (const [field, expected] of [
+              ["reaction", decision.reaction],
+              [
+                "windowStartFrame",
+                decision.windowStartFrame
+              ],
+              ["hitIndex", decision.hitIndex],
+              ["resetFrames", decision.resetFrames],
+              ["damageAllowed", decision.damageAllowed],
+              ["blockedReason", decision.blockedReason]
+            ] as const) {
+              expectEqual(
+                context,
+                [
+                  "damageEvents",
+                  damageEventId,
+                  "reactionAudit",
+                  "swirlDamageGroup",
+                  field
+                ],
+                childAudit[field],
+                expected,
+                `Swirl child damage-group ${field}`
+              );
+            }
+            expectSemanticEqual(
+              context,
+              [
+                "damageEvents",
+                damageEventId,
+                "reactionAudit",
+                "swirlDamageGroup",
+                "sequence"
+              ],
+              childAudit.sequence,
+              decision.sequence,
+              "Swirl child damage-group sequence"
+            );
+          }
+          if (!decision.damageAllowed) {
+            expectedBlockedTargetIds.push(decision.targetId);
+          }
+          damageGroupAttempts.push({
+            child,
+            logIndex,
+            decisionIndex,
+            decision
+          });
+        }
+        expectSemanticEqual(
+          context,
+          [
+            "reactionDamageLog",
+            logIndex,
+            "damageGroupBlockedTargetIds"
+          ],
+          log.damageGroupBlockedTargetIds,
+          expectedBlockedTargetIds,
+          "Swirl blocked-target projection"
+        );
+      }
+    }
+  }
+
+  for (const [logIndex, log] of
+    result.reactionDamageLog.entries()) {
+    if (
+      (log.scheduleKind === "swirl-self" ||
+        log.scheduleKind === "swirl-propagation") &&
+      !claimedLogIndexes.has(logIndex)
+    ) {
+      addIssue(
+        context,
+        ["reactionDamageLog", logIndex, "triggerDamageEventId"],
+        "Swirl reaction-damage log must belong to exactly one source audit"
+      );
+    }
+  }
+
+  damageGroupAttempts.sort(
+    (left, right) =>
+      left.child.frame - right.child.frame ||
+      left.child.eventPriority - right.child.eventPriority ||
+      left.child.eventSequence - right.child.eventSequence ||
+      left.child.id - right.child.id
+  );
+  const windowByScope = new Map<
+    string,
+    { startFrame: number; attempts: number }
+  >();
+  for (const attempt of damageGroupAttempts) {
+    const scope = `${attempt.child.targetId}\u0000${attempt.child.sourceActorId}\u0000${attempt.child.reaction}`;
+    const previous = windowByScope.get(scope);
+    const startsNewWindow =
+      previous === undefined ||
+      attempt.child.frame - previous.startFrame >= 30;
+    const expectedStartFrame = startsNewWindow
+      ? attempt.child.frame
+      : previous.startFrame;
+    const expectedHitIndex = startsNewWindow
+      ? 0
+      : previous.attempts;
+    const expectedDamageAllowed = expectedHitIndex < 2;
+    const decisionPath = [
+      "reactionDamageLog",
+      attempt.logIndex,
+      "damageGroupDecisions",
+      attempt.decisionIndex
+    ] satisfies IssuePath;
+    for (const [field, expected] of [
+      ["windowStartFrame", expectedStartFrame],
+      ["hitIndex", expectedHitIndex],
+      ["resetFrames", 30],
+      ["damageAllowed", expectedDamageAllowed],
+      [
+        "blockedReason",
+        expectedDamageAllowed
+          ? null
+          : "REACTION_A_DAMAGE_ICD"
+      ]
+    ] as const) {
+      expectEqual(
+        context,
+        [...decisionPath, field],
+        attempt.decision[field],
+        expected,
+        `Swirl ReactionA replay ${field}`
+      );
+    }
+    expectSemanticEqual(
+      context,
+      [...decisionPath, "sequence"],
+      attempt.decision.sequence,
+      [true, true, false],
+      "Swirl ReactionA replay sequence"
+    );
+    windowByScope.set(scope, {
+      startFrame: expectedStartFrame,
+      attempts: expectedHitIndex + 1
+    });
+  }
+}
+
+function validateParticleBacklinks(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const actorIds = new Set(
+    result.config.characters.map((character) => character.id)
+  );
+  const particlesByTrigger = new Map<number, number[]>();
+  for (const [particleIndex, particle] of
+    result.particleEvents.entries()) {
+    if (
+      !actorIds.has(particle.sourceActorId) ||
+      particle.receiveFrame < particle.spawnFrame
+    ) {
+      addIssue(
+        context,
+        ["particleEvents", particleIndex],
+        "particle source must exist and receiveFrame cannot precede spawnFrame"
+      );
+    }
+    if (
+      (particle.triggerLogId === null) !==
+      (particle.triggerHitId === null)
+    ) {
+      addIssue(
+        context,
+        ["particleEvents", particleIndex, "triggerLogId"],
+        "triggerLogId and triggerHitId must be jointly null or present"
+      );
+    }
+    if (particle.triggerLogId === null) continue;
+    const trigger = result.particleTriggerLog[
+      particle.triggerLogId
+    ];
+    if (
+      trigger === undefined ||
+      trigger.id !== particle.triggerLogId ||
+      !trigger.triggered
+    ) {
+      addIssue(
+        context,
+        ["particleEvents", particleIndex, "triggerLogId"],
+        "must backlink a triggered particle hit-confirm row"
+      );
+      continue;
+    }
+    const children =
+      particlesByTrigger.get(trigger.id) ?? [];
+    children.push(particle.id);
+    particlesByTrigger.set(trigger.id, children);
+    for (const [field, expected] of [
+      ["sourceActorId", trigger.sourceActorId],
+      ["sourceActionId", trigger.sourceActionId],
+      ["source", trigger.source],
+      ["particleId", trigger.particleId],
+      ["cycle", trigger.cycle],
+      ["spawnFrame", trigger.frame],
+      ["triggerHitId", trigger.hitId]
+    ] as const) {
+      expectEqual(
+        context,
+        ["particleEvents", particleIndex, field],
+        particle[field],
+        expected,
+        `particle trigger ${field}`
+      );
+    }
+  }
+  for (const [triggerIndex, trigger] of
+    result.particleTriggerLog.entries()) {
+    if (!actorIds.has(trigger.sourceActorId)) {
+      addIssue(
+        context,
+        [
+          "particleTriggerLog",
+          triggerIndex,
+          "sourceActorId"
+        ],
+        `references missing actor ${trigger.sourceActorId}`
+      );
+    }
+    if (trigger.triggered !== (trigger.blockedReason === null)) {
+      addIssue(
+        context,
+        ["particleTriggerLog", triggerIndex, "triggered"],
+        "triggered must be the inverse of blockedReason"
+      );
+    }
+    const childCount =
+      particlesByTrigger.get(trigger.id)?.length ?? 0;
+    const expectedChildCount = trigger.triggered ? 1 : 0;
+    if (childCount !== expectedChildCount) {
+      addIssue(
+        context,
+        ["particleTriggerLog", triggerIndex],
+        `must own exactly ${expectedChildCount} particle event(s)`
+      );
+    }
+  }
+}
+
+function validateFrozenStateProjection(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  type AuraSnapshot =
+    SimulationResult["frozenStateLog"][number]["auraBefore"];
+  type FrozenStateRow =
+    SimulationResult["frozenStateLog"][number];
+
+  const targetById = new Map(
+    result.enemyTargets.map((target) => [target.id, target])
+  );
+  const frozenEntries = (aura: AuraSnapshot) =>
+    aura.filter((entry) => entry.element === "frozen");
+  const frozenGauge = (aura: AuraSnapshot): number =>
+    frozenEntries(aura).reduce(
+      (total, entry) => total + entry.gaugeUnits,
+      0
+    );
+  const expectSingleFrozenEntry = (
+    aura: AuraSnapshot,
+    path: IssuePath,
+    label: string
+  ): AuraSnapshot[number] | undefined => {
+    const entries = frozenEntries(aura);
+    if (entries.length > 1) {
+      addIssue(
+        context,
+        path,
+        `${label} must contain at most one Frozen Aura entry`
+      );
+    }
+    return entries[0];
+  };
+  const remainingFrozenFrames = (
+    gaugeUnits: number,
+    decayRatePerFrame: number,
+    freezeResistance: number
+  ): number | null => {
+    if (
+      gaugeUnits <= AURA_GAUGE_EPSILON ||
+      freezeResistance >= 1 ||
+      decayRatePerFrame < FROZEN_BASE_DECAY_PER_FRAME
+    ) {
+      return null;
+    }
+    let remaining = gaugeUnits;
+    let decayRate = decayRatePerFrame;
+    let frames = 0;
+    while (
+      remaining > AURA_GAUGE_EPSILON &&
+      frames <= 36_000
+    ) {
+      decayRate += FROZEN_DECAY_ACCELERATION_PER_FRAME;
+      remaining -= decayRate / (1 - freezeResistance);
+      frames += 1;
+    }
+    return remaining <= AURA_GAUGE_EPSILON ? frames : null;
+  };
+  const frozenGaugeAfterTicks = (
+    gaugeUnits: number,
+    decayRatePerFrame: number,
+    freezeResistance: number,
+    frames: number
+  ): number =>
+    gaugeUnits -
+    (frames * decayRatePerFrame +
+      (FROZEN_DECAY_ACCELERATION_PER_FRAME *
+        frames *
+        (frames + 1)) /
+        2) /
+      (1 - freezeResistance);
+  const validateActiveFrozenExpiry = ({
+    eventIndex,
+    row,
+    frozenGaugeAfter,
+    decayRatePerFrame,
+    freezeResistance,
+    expiresAtFrame
+  }: {
+    eventIndex: number;
+    row: FrozenStateRow;
+    frozenGaugeAfter: number;
+    decayRatePerFrame: number;
+    freezeResistance: number;
+    expiresAtFrame: number | null;
+  }): void => {
+    const auditPath = [
+      "damageEvents",
+      eventIndex,
+      "reactionAudit",
+      "frozenReaction"
+    ] satisfies IssuePath;
+    const frozenAfter = expectSingleFrozenEntry(
+      row.auraAfter,
+      ["frozenStateLog", row.id, "auraAfter"],
+      "Frozen state Aura after"
+    );
+    if (frozenGaugeAfter <= AURA_GAUGE_EPSILON) {
+      if (frozenAfter !== undefined || expiresAtFrame !== null) {
+        addIssue(
+          context,
+          [...auditPath, "expiresAtFrame"],
+          "depleted Frozen state cannot retain Aura or an expiry"
+        );
+      }
+      return;
+    }
+    if (
+      freezeResistance >= 1 ||
+      decayRatePerFrame < FROZEN_BASE_DECAY_PER_FRAME
+    ) {
+      addIssue(
+        context,
+        [...auditPath, "decayRatePerFrame"],
+        "active Frozen requires non-immune resistance and the modeled base-or-faster decay rate"
+      );
+      return;
+    }
+    const remainingFrames = remainingFrozenFrames(
+      frozenGaugeAfter,
+      decayRatePerFrame,
+      freezeResistance
+    );
+    if (
+      frozenAfter === undefined ||
+      expiresAtFrame === null ||
+      remainingFrames === null
+    ) {
+      addIssue(
+        context,
+        [...auditPath, "expiresAtFrame"],
+        "active Frozen requires one finite projected expiry"
+      );
+      return;
+    }
+    expectEqual(
+      context,
+      ["frozenStateLog", row.id, "auraAfter", "expiresAtFrame"],
+      frozenAfter.expiresAtFrame,
+      expiresAtFrame,
+      "Frozen Aura global expiry"
+    );
+    if (row.targetFrame === undefined) {
+      expectEqual(
+        context,
+        [...auditPath, "expiresAtFrame"],
+        expiresAtFrame,
+        row.frame + remainingFrames,
+        "Frozen global expiry"
+      );
+      return;
+    }
+    const expectedTargetExpiry =
+      row.targetFrame + remainingFrames;
+    expectEqual(
+      context,
+      ["frozenStateLog", row.id, "expiresAtTargetFrame"],
+      row.expiresAtTargetFrame,
+      expectedTargetExpiry,
+      "Frozen target-local expiry"
+    );
+    if (
+      result.targetClockAudit.mode ===
+      "target-local-hitlag-v1"
+    ) {
+      expectEqual(
+        context,
+        [
+          "frozenStateLog",
+          row.id,
+          "auraAfter",
+          "expiresAtTargetFrame"
+        ],
+        frozenAfter.expiresAtTargetFrame,
+        expectedTargetExpiry,
+        "Frozen Aura target-local expiry"
+      );
+    }
+  };
+
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const rowsByTrigger = new Map<
+    number,
+    SimulationResult["frozenStateLog"]
+  >();
+  const expiryPointsByFrozenStateId = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"]
+  >();
+  for (const point of result.targetStateTimeline.points) {
+    for (const link of point.links) {
+      if (link.kind !== "frozen-state-log") continue;
+      const points =
+        expiryPointsByFrozenStateId.get(link.id) ?? [];
+      points.push(point);
+      expiryPointsByFrozenStateId.set(link.id, points);
+    }
+  }
+  for (const row of result.frozenStateLog) {
+    if (row.triggerDamageEventId === null) continue;
+    const rows = rowsByTrigger.get(row.triggerDamageEventId) ?? [];
+    rows.push(row);
+    rowsByTrigger.set(row.triggerDamageEventId, rows);
+  }
+  const matchedRowIds = new Set<number>();
+  const latestFrozenRowByTarget = new Map<
+    string,
+    SimulationResult["frozenStateLog"][number]
+  >();
+
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    const frozen = event.reactionAudit.frozenReaction;
+    if (frozen !== null) {
+      const rows = (rowsByTrigger.get(event.id) ?? []).filter(
+        (row) => row.operation === frozen.operation
+      );
+      if (rows.length !== 1) {
+        addIssue(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "frozenReaction"
+          ],
+          "Frozen reaction audit must own exactly one matching frozen-state row"
+        );
+      } else {
+        const row = rows[0]!;
+        matchedRowIds.add(row.id);
+        const expectedReaction =
+          event.reactionAudit.reaction === "melt"
+            ? "melt"
+            : frozen.operation === "consume" &&
+                event.reactionAudit.reactions.includes(
+                  "superconduct"
+                )
+              ? "superconduct"
+              : event.reactionAudit.reaction === "swirlCryo"
+                ? "swirlCryo"
+                : event.reactionAudit.reaction ===
+                    "crystallizeCryo"
+                  ? "crystallizeCryo"
+                  : "freeze";
+        for (const [field, expected] of [
+          ["reaction", expectedReaction],
+          ["generation", frozen.generation],
+          ["operation", frozen.operation],
+          ["frame", event.frame],
+          ["targetId", event.targetId],
+          ["targetName", event.targetName],
+          ["sourceActorId", event.sourceActorId],
+          ["triggerDamageEventId", event.id],
+          ["expiresAtFrame", frozen.expiresAtFrame]
+        ] as const) {
+          expectEqual(
+            context,
+            ["frozenStateLog", row.id, field],
+            row[field],
+            expected,
+            `Frozen state ${field}`
+          );
+        }
+        for (const [field, expected] of [
+          ["timeSeconds", event.timeSeconds],
+          ["freezeResistance", frozen.freezeResistance],
+          ["generatedGaugeUnits", frozen.generatedGaugeUnits],
+          ["consumedGaugeUnits", frozen.consumedGaugeUnits]
+        ] as const) {
+          expectNearlyEqual(
+            context,
+            ["frozenStateLog", row.id, field],
+            row[field],
+            expected,
+            `Frozen state ${field}`
+          );
+        }
+        expectSemanticEqual(
+          context,
+          ["frozenStateLog", row.id, "auraBefore"],
+          row.auraBefore,
+          event.reactionAudit.auraBefore ?? [],
+          "Frozen state Aura before"
+        );
+        expectSemanticEqual(
+          context,
+          ["frozenStateLog", row.id, "auraAfter"],
+          row.auraAfter,
+          event.reactionAudit.auraAfter ?? [],
+          "Frozen state Aura after"
+        );
+        const target = targetById.get(event.targetId);
+        if (
+          target === undefined ||
+          !nearlyEqual(
+            frozen.freezeResistance,
+            target.freezeResistance
+          )
+        ) {
+          addIssue(
+            context,
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "frozenReaction",
+              "freezeResistance"
+            ],
+            "Frozen resistance must match the resolved target"
+          );
+        }
+        const auditAuraBefore =
+          event.reactionAudit.auraBefore ?? [];
+        const auditAuraAfter =
+          event.reactionAudit.auraAfter ?? [];
+        const frozenGaugeBefore =
+          frozenGauge(auditAuraBefore);
+        const frozenGaugeAfter =
+          frozenGauge(auditAuraAfter);
+        expectNearlyEqual(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "frozenReaction",
+            "frozenGaugeBefore"
+          ],
+          frozen.frozenGaugeBefore,
+          frozenGaugeBefore,
+          "Frozen gauge before"
+        );
+        expectNearlyEqual(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "frozenReaction",
+            "frozenGaugeAfter"
+          ],
+          frozen.frozenGaugeAfter,
+          frozenGaugeAfter,
+          "Frozen gauge after"
+        );
+        if (
+          frozen.decayRatePerFrame <
+          FROZEN_BASE_DECAY_PER_FRAME
+        ) {
+          addIssue(
+            context,
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "frozenReaction",
+              "decayRatePerFrame"
+            ],
+            "Frozen decay rate cannot be below the modeled base rate"
+          );
+        }
+        if (
+          frozen.operation === "start" ||
+          frozen.operation === "refresh"
+        ) {
+          const consumedFreezeAuraElement =
+            event.element === "hydro"
+              ? "cryo"
+              : event.element === "cryo"
+                ? "hydro"
+                : null;
+          const freezeAuraConsumed =
+            consumedFreezeAuraElement === null
+              ? 0
+              : (event.reactionAudit.auraConsumed ?? [])
+                  .filter(
+                    (entry) =>
+                      entry.element ===
+                      consumedFreezeAuraElement
+                  )
+                  .reduce(
+                    (total, entry) =>
+                      total + entry.gaugeUnits,
+                    0
+                  );
+          expectNearlyEqual(
+            context,
+            [
+              "damageEvents",
+              eventIndex,
+              "reactionAudit",
+              "frozenReaction",
+              "generatedGaugeUnits"
+            ],
+            frozen.generatedGaugeUnits,
+            2 * freezeAuraConsumed,
+            "Freeze generation from consumed opposing Aura"
+          );
+          const expectedAfter = Math.max(
+            frozen.frozenGaugeBefore,
+            frozen.generatedGaugeUnits
+          );
+          if (
+            frozen.generatedGaugeUnits <=
+              AURA_GAUGE_EPSILON ||
+            frozen.consumedGaugeUnits >
+              AURA_GAUGE_EPSILON ||
+            !nearlyEqual(
+              frozen.frozenGaugeAfter,
+              expectedAfter
+            ) ||
+            (frozen.operation === "start" &&
+              frozen.frozenGaugeBefore >
+                AURA_GAUGE_EPSILON) ||
+            (frozen.operation === "refresh" &&
+              frozen.frozenGaugeBefore <=
+                AURA_GAUGE_EPSILON)
+          ) {
+            addIssue(
+              context,
+              [
+                "damageEvents",
+                eventIndex,
+                "reactionAudit",
+                "frozenReaction",
+                "frozenGaugeAfter"
+              ],
+              `${frozen.operation} must preserve max(before, generated) Frozen gauge without consumption`
+            );
+          }
+        } else if (frozen.operation === "immune") {
+          if (
+            frozen.freezeResistance !== 1 ||
+            frozen.generatedGaugeUnits >
+              AURA_GAUGE_EPSILON ||
+            frozen.consumedGaugeUnits >
+              AURA_GAUGE_EPSILON ||
+            frozen.frozenGaugeBefore >
+              AURA_GAUGE_EPSILON ||
+            frozen.frozenGaugeAfter >
+              AURA_GAUGE_EPSILON ||
+            frozen.expiresAtFrame !== null
+          ) {
+            addIssue(
+              context,
+              [
+                "damageEvents",
+                eventIndex,
+                "reactionAudit",
+                "frozenReaction"
+              ],
+              "immune Freeze must leave no Frozen gauge or expiry at resistance 1"
+            );
+          }
+        } else {
+          if (
+            frozen.generatedGaugeUnits >
+              AURA_GAUGE_EPSILON ||
+            frozen.frozenGaugeBefore <=
+              AURA_GAUGE_EPSILON ||
+            frozen.consumedGaugeUnits >
+              frozen.frozenGaugeBefore +
+                AURA_GAUGE_EPSILON ||
+            !nearlyEqual(
+              frozen.frozenGaugeAfter,
+              Math.max(
+                0,
+                frozen.frozenGaugeBefore -
+                  frozen.consumedGaugeUnits
+              )
+            )
+          ) {
+            addIssue(
+              context,
+              [
+                "damageEvents",
+                eventIndex,
+                "reactionAudit",
+                "frozenReaction",
+                "frozenGaugeAfter"
+              ],
+              "Frozen consumption must conserve before - consumed = after"
+            );
+          }
+        }
+        validateActiveFrozenExpiry({
+          eventIndex,
+          row,
+          frozenGaugeAfter: frozen.frozenGaugeAfter,
+          decayRatePerFrame: frozen.decayRatePerFrame,
+          freezeResistance: frozen.freezeResistance,
+          expiresAtFrame: frozen.expiresAtFrame
+        });
+      }
+    }
+
+    const shatter = event.reactionAudit.shatterReaction;
+    if (shatter === null) continue;
+    const shatterGaugeBefore = frozenGauge(
+      shatter.auraBefore
+    );
+    const shatterGaugeAfterPoise = frozenGauge(
+      shatter.auraAfterPoise
+    );
+    const shatterGaugeAfter = frozenGauge(
+      shatter.auraAfter
+    );
+    for (const [field, actual, expected] of [
+      [
+        "frozenGaugeBefore",
+        shatter.frozenGaugeBefore,
+        shatterGaugeBefore
+      ],
+      [
+        "frozenGaugeAfterPoise",
+        shatter.frozenGaugeAfterPoise,
+        shatterGaugeAfterPoise
+      ],
+      [
+        "frozenGaugeAfter",
+        shatter.frozenGaugeAfter,
+        shatterGaugeAfter
+      ]
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "shatterReaction",
+          field
+        ],
+        actual,
+        expected,
+        `Shatter ${field}`
+      );
+    }
+    if (
+      shatter.poiseConsumedGaugeUnits >
+        shatter.frozenGaugeBefore +
+          AURA_GAUGE_EPSILON ||
+      !nearlyEqual(
+        shatter.frozenGaugeAfterPoise,
+        Math.max(
+          0,
+          shatter.frozenGaugeBefore -
+            shatter.poiseConsumedGaugeUnits
+        )
+      ) ||
+      shatter.shatterConsumedGaugeUnits >
+        shatter.frozenGaugeAfterPoise +
+          AURA_GAUGE_EPSILON ||
+      !nearlyEqual(
+        shatter.frozenGaugeAfter,
+        Math.max(
+          0,
+          shatter.frozenGaugeAfterPoise -
+            shatter.shatterConsumedGaugeUnits
+        )
+      )
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "shatterReaction",
+          "frozenGaugeAfter"
+        ],
+        "Shatter poise and reaction consumption must conserve Frozen gauge"
+      );
+    }
+    const finalFrozenEntry = expectSingleFrozenEntry(
+      shatter.auraAfter,
+      [
+        "damageEvents",
+        eventIndex,
+        "reactionAudit",
+        "shatterReaction",
+        "auraAfter"
+      ],
+      "Shatter Aura after"
+    );
+    if (shatter.frozenGaugeAfter > AURA_GAUGE_EPSILON) {
+      if (
+        finalFrozenEntry === undefined ||
+        shatter.expiresAtFrame === null
+      ) {
+        addIssue(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "shatterReaction",
+            "expiresAtFrame"
+          ],
+          "partially consumed Frozen must retain its Aura expiry"
+        );
+      } else {
+        expectEqual(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "shatterReaction",
+            "expiresAtFrame"
+          ],
+          shatter.expiresAtFrame,
+          finalFrozenEntry.expiresAtFrame,
+          "Shatter Frozen expiry"
+        );
+      }
+    } else if (
+      finalFrozenEntry !== undefined ||
+      shatter.expiresAtFrame !== null
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "shatterReaction",
+          "expiresAtFrame"
+        ],
+        "depleted Shatter Frozen state cannot retain Aura or an expiry"
+      );
+    }
+    const expectedShatterState =
+      shatter.frozenGaugeBefore <= AURA_GAUGE_EPSILON
+        ? "NO_FROZEN_AURA"
+        : shatter.frozenGaugeAfterPoise <=
+            AURA_GAUGE_EPSILON
+          ? "FROZEN_DEPLETED_BY_POISE"
+          : "TRIGGERED";
+    if (
+      (expectedShatterState === "NO_FROZEN_AURA" &&
+        (shatter.triggered ||
+          shatter.scheduled ||
+          shatter.blockedReason !== "NO_FROZEN_AURA" ||
+          shatter.poiseConsumedGaugeUnits >
+            AURA_GAUGE_EPSILON ||
+          shatter.shatterConsumedGaugeUnits >
+            AURA_GAUGE_EPSILON)) ||
+      (expectedShatterState ===
+        "FROZEN_DEPLETED_BY_POISE" &&
+        (shatter.triggered ||
+          shatter.scheduled ||
+          shatter.blockedReason !==
+            "FROZEN_DEPLETED_BY_POISE" ||
+          shatter.poiseConsumedGaugeUnits <=
+            AURA_GAUGE_EPSILON ||
+          shatter.shatterConsumedGaugeUnits >
+            AURA_GAUGE_EPSILON)) ||
+      (expectedShatterState === "TRIGGERED" &&
+        (!shatter.triggered ||
+          shatter.shatterConsumedGaugeUnits <=
+            AURA_GAUGE_EPSILON ||
+          (shatter.scheduled
+            ? shatter.blockedReason !== null
+            : shatter.blockedReason !==
+                "REACTION_DAMAGE_GCD" &&
+              shatter.blockedReason !==
+                "TARGET_MECHANICS_TRUNCATION")))
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "shatterReaction"
+        ],
+        "Shatter trigger state is inconsistent with its Frozen gauge transitions"
+      );
+    }
+    const shatterRows = rowsByTrigger.get(event.id) ?? [];
+    for (const operation of [
+      "poise-consume",
+      "shatter-consume"
+    ] as const) {
+      const expectedConsumed =
+        operation === "poise-consume"
+          ? shatter.poiseConsumedGaugeUnits
+          : shatter.shatterConsumedGaugeUnits;
+      const rows = shatterRows.filter(
+        (row) => row.operation === operation
+      );
+      const expectedCount =
+        expectedConsumed > 0 &&
+        event.reactionAudit.mechanicsTruncation === null
+          ? 1
+          : 0;
+      if (rows.length !== expectedCount) {
+        addIssue(
+          context,
+          [
+            "damageEvents",
+            eventIndex,
+            "reactionAudit",
+            "shatterReaction"
+          ],
+          `${operation} must own exactly ${expectedCount} frozen-state row(s)`
+        );
+        continue;
+      }
+      const row = rows[0];
+      if (row === undefined) continue;
+      matchedRowIds.add(row.id);
+      for (const [field, expected] of [
+        ["reaction", "shatter"],
+        ["generation", shatter.generation],
+        ["operation", operation],
+        ["frame", event.frame],
+        ["targetId", event.targetId],
+        ["targetName", event.targetName],
+        ["sourceActorId", event.sourceActorId],
+        ["triggerDamageEventId", event.id],
+        ["expiresAtFrame", shatter.expiresAtFrame]
+      ] as const) {
+        expectEqual(
+          context,
+          ["frozenStateLog", row.id, field],
+          row[field],
+          expected,
+          `Shatter Frozen state ${field}`
+        );
+      }
+      expectNearlyEqual(
+        context,
+        ["frozenStateLog", row.id, "consumedGaugeUnits"],
+        row.consumedGaugeUnits,
+        expectedConsumed,
+        "Shatter Frozen consumption"
+      );
+      expectNearlyEqual(
+        context,
+        ["frozenStateLog", row.id, "generatedGaugeUnits"],
+        row.generatedGaugeUnits,
+        0,
+        "Shatter Frozen generation"
+      );
+      expectSemanticEqual(
+        context,
+        ["frozenStateLog", row.id, "auraBefore"],
+        row.auraBefore,
+        operation === "poise-consume"
+          ? shatter.auraBefore
+          : shatter.auraAfterPoise,
+        "Shatter Frozen Aura before"
+      );
+      expectSemanticEqual(
+        context,
+        ["frozenStateLog", row.id, "auraAfter"],
+        row.auraAfter,
+        operation === "poise-consume"
+          ? shatter.auraAfterPoise
+          : shatter.auraAfter,
+        "Shatter Frozen Aura after"
+      );
+    }
+  }
+
+  for (const [rowIndex, row] of
+    result.frozenStateLog.entries()) {
+    const target = result.enemyTargets.find(
+      (candidate) => candidate.id === row.targetId
+    );
+    if (
+      target === undefined ||
+      target.name !== row.targetName
+    ) {
+      addIssue(
+        context,
+        ["frozenStateLog", rowIndex, "targetId"],
+        "Frozen state target identity must match enemyTargets"
+      );
+    }
+    if (
+      target !== undefined &&
+      !nearlyEqual(
+        row.freezeResistance,
+        target.freezeResistance
+      )
+    ) {
+      addIssue(
+        context,
+        ["frozenStateLog", rowIndex, "freezeResistance"],
+        "Frozen state resistance must match the resolved target"
+      );
+    }
+    if (
+      row.triggerDamageEventId !== null &&
+      !damageEventById.has(row.triggerDamageEventId)
+    ) {
+      addIssue(
+        context,
+        [
+          "frozenStateLog",
+          rowIndex,
+          "triggerDamageEventId"
+        ],
+        `references missing damage event ${row.triggerDamageEventId}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["frozenStateLog", rowIndex, "timeSeconds"],
+      row.timeSeconds,
+      row.frame / 60,
+      "Frozen state time"
+    );
+    const rowGaugeBefore = frozenGauge(row.auraBefore);
+    const rowGaugeAfter = frozenGauge(row.auraAfter);
+    expectSingleFrozenEntry(
+      row.auraBefore,
+      ["frozenStateLog", rowIndex, "auraBefore"],
+      "Frozen state Aura before"
+    );
+    const rowFrozenAfter = expectSingleFrozenEntry(
+      row.auraAfter,
+      ["frozenStateLog", rowIndex, "auraAfter"],
+      "Frozen state Aura after"
+    );
+    if (
+      row.operation === "start" ||
+      row.operation === "refresh"
+    ) {
+      const expectedAfter = Math.max(
+        rowGaugeBefore,
+        row.generatedGaugeUnits
+      );
+      if (
+        row.generatedGaugeUnits <= AURA_GAUGE_EPSILON ||
+        row.consumedGaugeUnits > AURA_GAUGE_EPSILON ||
+        !nearlyEqual(rowGaugeAfter, expectedAfter) ||
+        (row.operation === "start" &&
+          rowGaugeBefore > AURA_GAUGE_EPSILON) ||
+        (row.operation === "refresh" &&
+          rowGaugeBefore <= AURA_GAUGE_EPSILON) ||
+        row.reason !== null
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          `${row.operation} Frozen row must preserve max(before, generated) gauge without consumption`
+        );
+      }
+    } else if (row.operation === "immune") {
+      if (
+        row.freezeResistance !== 1 ||
+        row.generatedGaugeUnits > AURA_GAUGE_EPSILON ||
+        row.consumedGaugeUnits > AURA_GAUGE_EPSILON ||
+        rowGaugeBefore > AURA_GAUGE_EPSILON ||
+        rowGaugeAfter > AURA_GAUGE_EPSILON ||
+        row.expiresAtFrame !== null ||
+        row.reason !== "FREEZE_RESISTANCE_IMMUNE"
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          "immune Freeze row must retain no Frozen gauge or expiry"
+        );
+      }
+    } else if (
+      row.operation === "consume" ||
+      row.operation === "poise-consume" ||
+      row.operation === "shatter-consume"
+    ) {
+      const expectedAfter = Math.max(
+        0,
+        rowGaugeBefore - row.consumedGaugeUnits
+      );
+      if (
+        row.generatedGaugeUnits > AURA_GAUGE_EPSILON ||
+        rowGaugeBefore <= AURA_GAUGE_EPSILON ||
+        row.consumedGaugeUnits >
+          rowGaugeBefore + AURA_GAUGE_EPSILON ||
+        !nearlyEqual(rowGaugeAfter, expectedAfter)
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          `${row.operation} must conserve before - consumed = after Frozen gauge`
+        );
+      }
+      const expectedExtent =
+        rowGaugeAfter <= AURA_GAUGE_EPSILON
+          ? "FROZEN_CONSUMED"
+          : "FROZEN_PARTIALLY_CONSUMED";
+      const expectedReason =
+        row.operation === "poise-consume"
+          ? rowGaugeAfter <= AURA_GAUGE_EPSILON
+            ? "FROZEN_DEPLETED_BY_BLUNT_POISE"
+            : "FROZEN_PARTIALLY_CONSUMED_BY_BLUNT_POISE"
+          : row.operation === "shatter-consume"
+            ? `${expectedExtent}_BY_SHATTER`
+            : `${expectedExtent}_BY_${
+                row.reaction === "melt"
+                  ? "MELT"
+                  : row.reaction === "swirlCryo"
+                    ? "SWIRL"
+                    : row.reaction === "crystallizeCryo"
+                      ? "CRYSTALLIZE"
+                      : "SUPERCONDUCT"
+              }`;
+      if (row.reason !== expectedReason) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex, "reason"],
+          `${row.operation} reason must match its Frozen consumption extent`
+        );
+      }
+    }
+    if (
+      row.operation !== "expire" &&
+      row.operation !== "poise-consume"
+    ) {
+      if (rowGaugeAfter > AURA_GAUGE_EPSILON) {
+        if (
+          rowFrozenAfter === undefined ||
+          row.expiresAtFrame === null
+        ) {
+          addIssue(
+            context,
+            ["frozenStateLog", rowIndex, "expiresAtFrame"],
+            "active Frozen row requires one Aura expiry"
+          );
+        } else {
+          expectEqual(
+            context,
+            ["frozenStateLog", rowIndex, "expiresAtFrame"],
+            row.expiresAtFrame,
+            rowFrozenAfter.expiresAtFrame,
+            "Frozen row global expiry"
+          );
+          if (
+            row.targetFrame !== undefined &&
+            result.targetClockAudit.mode ===
+              "target-local-hitlag-v1"
+          ) {
+            expectEqual(
+              context,
+              [
+                "frozenStateLog",
+                rowIndex,
+                "expiresAtTargetFrame"
+              ],
+              row.expiresAtTargetFrame,
+              rowFrozenAfter.expiresAtTargetFrame,
+              "Frozen row target-local expiry"
+            );
+          }
+        }
+      } else if (
+        rowFrozenAfter !== undefined ||
+        row.expiresAtFrame !== null
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex, "expiresAtFrame"],
+          "depleted Frozen row cannot retain Aura or an expiry"
+        );
+      }
+    }
+    if (row.operation === "expire") {
+      if (
+        row.reaction !== "freeze" ||
+        row.generatedGaugeUnits !== 0 ||
+        row.consumedGaugeUnits !== 0 ||
+        row.expiresAtFrame !== null ||
+        row.reason !== "FROZEN_DECAY_EXPIRED" ||
+        rowGaugeBefore <= AURA_GAUGE_EPSILON ||
+        rowGaugeAfter > AURA_GAUGE_EPSILON ||
+        (row.targetFrame !== undefined &&
+          row.expiresAtTargetFrame !== null)
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          "Frozen expiry must be a zero-gauge terminal Freeze row"
+        );
+      }
+      const points =
+        expiryPointsByFrozenStateId.get(row.id) ?? [];
+      if (points.length !== 1) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          "Frozen expiry must own exactly one target-state expiry point"
+        );
+      } else {
+        const point = points[0]!;
+        for (const [field, expected] of [
+          ["cause", "frozen-expiry"],
+          ["frame", row.frame],
+          ["targetId", row.targetId],
+          ["targetName", row.targetName]
+        ] as const) {
+          expectEqual(
+            context,
+            ["frozenStateLog", rowIndex, field],
+            point[field],
+            expected,
+            `Frozen expiry point ${field}`
+          );
+        }
+        expectNearlyEqual(
+          context,
+          ["frozenStateLog", rowIndex, "timeSeconds"],
+          point.timeSeconds,
+          row.timeSeconds,
+          "Frozen expiry point time"
+        );
+        expectSemanticEqual(
+          context,
+          ["frozenStateLog", rowIndex, "auraBefore"],
+          row.auraBefore,
+          point.auraBefore,
+          "Frozen expiry Aura before"
+        );
+        expectSemanticEqual(
+          context,
+          ["frozenStateLog", rowIndex, "auraAfter"],
+          row.auraAfter,
+          point.auraAfter,
+          "Frozen expiry Aura after"
+        );
+        expectEqual(
+          context,
+          ["frozenStateLog", rowIndex, "targetFrame"],
+          row.targetFrame,
+          point.targetFrame,
+          "Frozen expiry target frame"
+        );
+      }
+      const expiringFrozen = expectSingleFrozenEntry(
+        row.auraBefore,
+        ["frozenStateLog", rowIndex, "auraBefore"],
+        "Frozen expiry Aura before"
+      );
+      if (expiringFrozen !== undefined) {
+        expectEqual(
+          context,
+          [
+            "frozenStateLog",
+            rowIndex,
+            "auraBefore",
+            "expiresAtFrame"
+          ],
+          expiringFrozen.expiresAtFrame,
+          row.frame,
+          "Frozen natural global expiry boundary"
+        );
+        if (
+          row.targetFrame !== undefined &&
+          result.targetClockAudit.mode ===
+            "target-local-hitlag-v1"
+        ) {
+          expectEqual(
+            context,
+            [
+              "frozenStateLog",
+              rowIndex,
+              "auraBefore",
+              "expiresAtTargetFrame"
+            ],
+            expiringFrozen.expiresAtTargetFrame,
+            row.targetFrame,
+            "Frozen natural target-local expiry boundary"
+          );
+        }
+      }
+      const previous = latestFrozenRowByTarget.get(row.targetId);
+      if (previous === undefined) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          "Frozen expiry requires a preceding active Frozen state"
+        );
+      } else {
+        expectEqual(
+          context,
+          ["frozenStateLog", rowIndex, "generation"],
+          row.generation,
+          previous.generation,
+          "Frozen expiry generation"
+        );
+        if (previous.targetFrame !== undefined) {
+          expectEqual(
+            context,
+            ["frozenStateLog", rowIndex, "targetFrame"],
+            row.targetFrame,
+            previous.expiresAtTargetFrame,
+            "Frozen target-local lifecycle deadline"
+          );
+        } else {
+          expectEqual(
+            context,
+            ["frozenStateLog", rowIndex, "frame"],
+            row.frame,
+            previous.expiresAtFrame,
+            "Frozen global lifecycle deadline"
+          );
+        }
+      }
+    } else if (!matchedRowIds.has(row.id)) {
+      addIssue(
+        context,
+        ["frozenStateLog", rowIndex],
+        "non-expiry Frozen state row must backlink its owning damage-event audit"
+      );
+    }
+    if (
+      row.operation === "expire" ||
+      !row.auraAfter.some((entry) => entry.element === "frozen")
+    ) {
+      latestFrozenRowByTarget.delete(row.targetId);
+    } else {
+      latestFrozenRowByTarget.set(row.targetId, row);
+    }
+  }
+
+  type FrozenDecayReplayState = {
+    localFrame: number;
+    decayRatePerFrame: number;
+    gaugeUnits: number;
+    active: boolean;
+  };
+  const decayReplayByTarget = new Map<
+    string,
+    FrozenDecayReplayState
+  >();
+  for (const [rowIndex, row] of
+    result.frozenStateLog.entries()) {
+    const localFrame = row.targetFrame ?? row.frame;
+    const target = targetById.get(row.targetId);
+    if (target === undefined) continue;
+    const previous =
+      decayReplayByTarget.get(row.targetId) ?? {
+        localFrame: 0,
+        decayRatePerFrame:
+          FROZEN_BASE_DECAY_PER_FRAME,
+        gaugeUnits: 0,
+        active: false
+      };
+    if (localFrame < previous.localFrame) {
+      addIssue(
+        context,
+        ["frozenStateLog", rowIndex, "targetFrame"],
+        "Frozen target-local lifecycle frames must be nondecreasing"
+      );
+      continue;
+    }
+    const elapsed = localFrame - previous.localFrame;
+    const rowGaugeBefore = frozenGauge(row.auraBefore);
+    const rowGaugeAfter = frozenGauge(row.auraAfter);
+
+    if (row.operation === "expire") {
+      if (
+        !previous.active ||
+        elapsed <= 0 ||
+        target.freezeResistance >= 1
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex],
+          "Frozen natural expiry requires a prior active non-immune decay state"
+        );
+        decayReplayByTarget.set(row.targetId, {
+          localFrame,
+          decayRatePerFrame:
+            previous.decayRatePerFrame,
+          gaugeUnits: 0,
+          active: false
+        });
+        continue;
+      }
+      const expectedRemainingFrames =
+        remainingFrozenFrames(
+          previous.gaugeUnits,
+          previous.decayRatePerFrame,
+          target.freezeResistance
+        );
+      expectEqual(
+        context,
+        ["frozenStateLog", rowIndex, "targetFrame"],
+        elapsed,
+        expectedRemainingFrames,
+        "Frozen natural expiry target-local duration"
+      );
+      const framesBeforeFinalTick = elapsed - 1;
+      const expectedGaugeBefore = frozenGaugeAfterTicks(
+        previous.gaugeUnits,
+        previous.decayRatePerFrame,
+        target.freezeResistance,
+        framesBeforeFinalTick
+      );
+      expectNearlyEqual(
+        context,
+        ["frozenStateLog", rowIndex, "auraBefore"],
+        rowGaugeBefore,
+        expectedGaugeBefore,
+        "Frozen natural expiry pre-final-tick gauge"
+      );
+      const decayRateBeforeFinalTick =
+        previous.decayRatePerFrame +
+        FROZEN_DECAY_ACCELERATION_PER_FRAME *
+          framesBeforeFinalTick;
+      const gaugeAfterFinalTick =
+        expectedGaugeBefore -
+        (decayRateBeforeFinalTick +
+          FROZEN_DECAY_ACCELERATION_PER_FRAME) /
+          (1 - target.freezeResistance);
+      if (gaugeAfterFinalTick > AURA_GAUGE_EPSILON) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex, "auraAfter"],
+          "Frozen natural expiry final tick must deplete the remaining gauge"
+        );
+      }
+      decayReplayByTarget.set(row.targetId, {
+        localFrame,
+        decayRatePerFrame:
+          decayRateBeforeFinalTick +
+          FROZEN_DECAY_ACCELERATION_PER_FRAME,
+        gaugeUnits: 0,
+        active: false
+      });
+      continue;
+    }
+
+    let expectedGaugeBefore = 0;
+    let expectedDecayRate = previous.decayRatePerFrame;
+    if (previous.active) {
+      expectedGaugeBefore = frozenGaugeAfterTicks(
+        previous.gaugeUnits,
+        previous.decayRatePerFrame,
+        target.freezeResistance,
+        elapsed
+      );
+      expectedDecayRate +=
+        FROZEN_DECAY_ACCELERATION_PER_FRAME * elapsed;
+      if (
+        expectedGaugeBefore <= AURA_GAUGE_EPSILON
+      ) {
+        addIssue(
+          context,
+          ["frozenStateLog", rowIndex, "auraBefore"],
+          "Frozen lifecycle cannot skip its natural expiry before a later mutation"
+        );
+      }
+    } else {
+      expectedDecayRate = Math.max(
+        FROZEN_BASE_DECAY_PER_FRAME,
+        previous.decayRatePerFrame -
+          2 *
+            FROZEN_DECAY_ACCELERATION_PER_FRAME *
+            elapsed
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["frozenStateLog", rowIndex, "auraBefore"],
+      rowGaugeBefore,
+      Math.max(0, expectedGaugeBefore),
+      "Frozen lifecycle replay gauge before"
+    );
+
+    const trigger =
+      row.triggerDamageEventId === null
+        ? undefined
+        : damageEventById.get(row.triggerDamageEventId);
+    const frozenAudit =
+      trigger?.reactionAudit.frozenReaction;
+    const ownsFrozenAudit =
+      frozenAudit !== null &&
+      frozenAudit !== undefined &&
+      frozenAudit.operation === row.operation &&
+      trigger?.frame === row.frame;
+    if (ownsFrozenAudit) {
+      expectNearlyEqual(
+        context,
+        [
+          "damageEvents",
+          trigger.id,
+          "reactionAudit",
+          "frozenReaction",
+          "decayRatePerFrame"
+        ],
+        frozenAudit.decayRatePerFrame,
+        expectedDecayRate,
+        "Frozen lifecycle replay decay rate"
+      );
+    }
+    decayReplayByTarget.set(row.targetId, {
+      localFrame,
+      decayRatePerFrame: ownsFrozenAudit
+        ? frozenAudit.decayRatePerFrame
+        : expectedDecayRate,
+      gaugeUnits: rowGaugeAfter,
+      active: rowGaugeAfter > AURA_GAUGE_EPSILON
+    });
+  }
+}
+
+interface CrystallizeEmBuffReplayEvent {
+  key: string;
+  targetId: string;
+  value: number;
+  startTimeSeconds: number;
+  endTimeSeconds: number;
+  actionOrder: number;
+  buffOrder: number;
+}
+
+function crystallizeBuffTargets(
+  result: SimulationResult,
+  actorId: string,
+  target: StatusTarget | undefined
+): string[] {
+  if (target === "team") {
+    return result.config.characters.map((character) => character.id);
+  }
+  if (target === "self" || target === undefined) {
+    return [actorId];
+  }
+  return Array.isArray(target) ? target : [target];
+}
+
+function buildCrystallizeEmBuffReplay(
+  result: SimulationResult
+): Map<string, CrystallizeEmBuffReplayEvent[]> {
+  const eventsByTarget = new Map<
+    string,
+    CrystallizeEmBuffReplayEvent[]
+  >();
+  const append = ({
+    actorId,
+    target,
+    key,
+    value,
+    startTimeSeconds,
+    endTimeSeconds,
+    actionOrder,
+    buffOrder
+  }: Omit<CrystallizeEmBuffReplayEvent, "targetId"> & {
+    actorId: string;
+    target: StatusTarget | undefined;
+  }): void => {
+    for (const targetId of crystallizeBuffTargets(
+      result,
+      actorId,
+      target
+    )) {
+      const events = eventsByTarget.get(targetId) ?? [];
+      events.push({
+        key: `${key}:${targetId}`,
+        targetId,
+        value,
+        startTimeSeconds,
+        endTimeSeconds,
+        actionOrder,
+        buffOrder
+      });
+      eventsByTarget.set(targetId, events);
+    }
+  };
+
+  for (const [actionOrder, action] of
+    result.actionLog.entries()) {
+    if (
+      action.timelineCommandIndex !== undefined &&
+      action.sourceAbilityId !== undefined
+    ) {
+      const ability = result.config.timeline?.abilities.find(
+        (candidate) =>
+          candidate.id === action.sourceAbilityId &&
+          candidate.actorId === action.actorId
+      );
+      for (const [buffOrder, buff] of (
+        ability?.buffs ?? []
+      ).entries()) {
+        if (buff.stat !== "em") continue;
+        const startTimeSeconds =
+          action.time + (buff.startFrame ?? 0) / 60;
+        append({
+          actorId: action.actorId,
+          target: buff.target,
+          key: buff.key ?? buff.stat,
+          value: buff.value,
+          startTimeSeconds,
+          endTimeSeconds:
+            startTimeSeconds + buff.durationFrames / 60,
+          actionOrder,
+          buffOrder
+        });
+      }
+      continue;
+    }
+
+    const definition = result.config.rotation.find(
+      (candidate) =>
+        candidate.id === action.actionId &&
+        candidate.actorId === action.actorId
+    );
+    for (const [buffOrder, buff] of (
+      definition?.buffs ?? []
+    ).entries()) {
+      if (buff.stat !== "em") continue;
+      const startTimeSeconds =
+        action.time + (buff.offset ?? 0);
+      append({
+        actorId: action.actorId,
+        target: buff.target,
+        key: buff.key ?? buff.stat,
+        value: buff.value,
+        startTimeSeconds,
+        endTimeSeconds: startTimeSeconds + buff.duration,
+        actionOrder,
+        buffOrder
+      });
+    }
+  }
+
+  for (const events of eventsByTarget.values()) {
+    events.sort(
+      (left, right) =>
+        left.startTimeSeconds - right.startTimeSeconds ||
+        left.actionOrder - right.actionOrder ||
+        left.buffOrder - right.buffOrder
+    );
+  }
+  return eventsByTarget;
+}
+
+function replayCrystallizeSpawnElementalMastery(
+  result: SimulationResult,
+  eventsByTarget: Map<
+    string,
+    CrystallizeEmBuffReplayEvent[]
+  >,
+  actorId: string,
+  spawnTimeSeconds: number
+): number | undefined {
+  const actor = result.config.characters.find(
+    (character) => character.id === actorId
+  );
+  if (actor === undefined) return undefined;
+  const activeByKey = new Map<
+    string,
+    CrystallizeEmBuffReplayEvent
+  >();
+  for (const event of eventsByTarget.get(actorId) ?? []) {
+    if (
+      event.startTimeSeconds > spawnTimeSeconds
+    ) {
+      break;
+    }
+    activeByKey.set(event.key, event);
+  }
+  let elementalMastery = actor.stats.em;
+  for (const event of activeByKey.values()) {
+    if (
+      event.endTimeSeconds >
+      spawnTimeSeconds + FLOAT_TOLERANCE
+    ) {
+      elementalMastery += event.value;
+    }
+  }
+  return elementalMastery;
+}
+
+function validateCrystallizeShardProjection(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  if (
+    result.crystallizeShardLog.length === 0 &&
+    result.crystallizeShieldLog.length === 0 &&
+    result.crystallizeShieldTimeline.length === 0
+  ) {
+    return;
+  }
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const actorIds = new Set(
+    result.config.characters.map((character) => character.id)
+  );
+  const targetIds = new Set(
+    result.enemyTargets.map((target) => target.id)
+  );
+  const actorById = new Map(
+    result.config.characters.map((character) => [
+      character.id,
+      character
+    ])
+  );
+  const spawnByShardId = new Map<
+    number,
+    SimulationResult["crystallizeShardLog"][number]
+  >();
+  const activeShards = new Map<
+    number,
+    SimulationResult["crystallizeShardLog"][number]
+  >();
+  const pickupRowsByCommandIndex = new Map<
+    number,
+    SimulationResult["crystallizeShardLog"]
+  >();
+  const pickupByShieldLogId = new Map<
+    number,
+    SimulationResult["crystallizeShardLog"][number]
+  >();
+  let nextShardId = 0;
+  const snapshotFields = [
+    "reaction",
+    "element",
+    "sourceActorId",
+    "sourceTargetId",
+    "triggerDamageEventId",
+    "triggerFrame",
+    "spawnedAtFrame",
+    "earliestPickupFrame",
+    "expiresAtFrame",
+    "position",
+    "spawnRadius",
+    "spawnAngleDegrees",
+    "sourceCharacterLevel",
+    "sourceElementalMastery"
+  ] as const;
+  const runEndFrame = Math.round(result.config.duration * 60);
+  const timeline = result.config.timeline;
+  const execution = result.timelineExecution;
+  const emBuffReplay = buildCrystallizeEmBuffReplay(result);
+
+  for (const [rowIndex, row] of
+    result.crystallizeShardLog.entries()) {
+    if (
+      row.sourceActorId !== null &&
+      !actorIds.has(row.sourceActorId)
+    ) {
+      addIssue(
+        context,
+        [
+          "crystallizeShardLog",
+          rowIndex,
+          "sourceActorId"
+        ],
+        `references missing actor ${row.sourceActorId}`
+      );
+    }
+    if (
+      row.sourceTargetId !== null &&
+      !targetIds.has(row.sourceTargetId)
+    ) {
+      addIssue(
+        context,
+        [
+          "crystallizeShardLog",
+          rowIndex,
+          "sourceTargetId"
+        ],
+        `references missing target ${row.sourceTargetId}`
+      );
+    }
+    if (
+      row.pickedUpByActorId !== null &&
+      !actorIds.has(row.pickedUpByActorId)
+    ) {
+      addIssue(
+        context,
+        [
+          "crystallizeShardLog",
+          rowIndex,
+          "pickedUpByActorId"
+        ],
+        `references missing actor ${row.pickedUpByActorId}`
+      );
+    }
+    if (
+      row.operation === "pickup" ||
+      row.operation === "pickup-attempt"
+    ) {
+      const commandIndex = row.pickupCommandIndex;
+      const command =
+        commandIndex === null
+          ? undefined
+          : timeline?.commands[commandIndex];
+      const commandResult =
+        commandIndex === null
+          ? undefined
+          : execution?.commandResults[commandIndex];
+      if (
+        commandIndex === null ||
+        command?.type !== "pickUpCrystallize" ||
+        commandResult === undefined ||
+        commandResult.commandIndex !== commandIndex ||
+        commandResult.commandType !== "pickUpCrystallize" ||
+        commandResult.status === "rejected" ||
+        commandResult.startFrame !== row.frame
+      ) {
+        addIssue(
+          context,
+          [
+            "crystallizeShardLog",
+            rowIndex,
+            "pickupCommandIndex"
+          ],
+          "pickup rows must backlink an executed Crystallize-pickup command at the same frame"
+        );
+      } else {
+        const rows =
+          pickupRowsByCommandIndex.get(commandIndex) ?? [];
+        rows.push(row);
+        pickupRowsByCommandIndex.set(commandIndex, rows);
+        const commandMatchesShard =
+          command.element === "any" ||
+          command.element === row.element;
+        if (
+          row.reason === "NO_MATCHING_SHARD"
+            ? row.element !== command.element
+            : !commandMatchesShard
+        ) {
+          addIssue(
+            context,
+            ["crystallizeShardLog", rowIndex, "element"],
+            "pickup shard element must match the linked command selector"
+          );
+        }
+      }
+    }
+    if (row.operation === "spawn" && row.shardId !== null) {
+      if (spawnByShardId.has(row.shardId)) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "shardId"],
+          `shard ${row.shardId} was spawned more than once`
+        );
+      } else {
+        spawnByShardId.set(row.shardId, row);
+      }
+      if (row.shardId !== nextShardId) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "shardId"],
+          `spawned shard IDs must be contiguous; expected ${nextShardId}`
+        );
+      }
+      nextShardId += 1;
+      if (activeShards.size >= 3) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "operation"],
+          "spawn cannot exceed the three-active-shard capacity without a preceding eviction"
+        );
+      }
+      const trigger =
+        row.triggerDamageEventId === null
+          ? undefined
+          : damageEventById.get(row.triggerDamageEventId);
+      const audit =
+        trigger?.reactionAudit.crystallizeReaction;
+      if (trigger === undefined || audit === null || audit === undefined) {
+        addIssue(
+          context,
+          [
+            "crystallizeShardLog",
+            rowIndex,
+            "triggerDamageEventId"
+          ],
+          "spawn must backlink a Crystallize damage-event audit"
+        );
+      } else {
+        for (const [field, expected] of [
+          ["reaction", audit.reaction],
+          ["element", audit.crystallizedElement],
+          ["sourceActorId", trigger.sourceActorId],
+          ["sourceTargetId", trigger.targetId],
+          ["triggerFrame", trigger.frame],
+          ["frame", audit.shardSpawnFrame],
+          ["earliestPickupFrame", audit.earliestPickupFrame],
+          ["expiresAtFrame", audit.shardExpiresAtFrame]
+        ] as const) {
+          expectEqual(
+            context,
+            ["crystallizeShardLog", rowIndex, field],
+            row[field],
+            expected,
+            `Crystallize shard spawn ${field}`
+          );
+        }
+      }
+      const actor =
+        row.sourceActorId === null
+          ? undefined
+          : actorById.get(row.sourceActorId);
+      if (actor !== undefined) {
+        expectEqual(
+          context,
+          [
+            "crystallizeShardLog",
+            rowIndex,
+            "sourceCharacterLevel"
+          ],
+          row.sourceCharacterLevel,
+          actor.level,
+          "Crystallize shard source character level"
+        );
+        const expectedElementalMastery =
+          replayCrystallizeSpawnElementalMastery(
+            result,
+            emBuffReplay,
+            actor.id,
+            row.timeSeconds
+          );
+        if (expectedElementalMastery !== undefined) {
+          expectNearlyEqual(
+            context,
+            [
+              "crystallizeShardLog",
+              rowIndex,
+              "sourceElementalMastery"
+            ],
+            row.sourceElementalMastery ?? Number.NaN,
+            expectedElementalMastery,
+            "Crystallize shard spawn-frame elemental mastery"
+          );
+        }
+      }
+      activeShards.set(row.shardId, row);
+    } else if (row.shardId !== null) {
+      const spawn = spawnByShardId.get(row.shardId);
+      if (spawn === undefined) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "shardId"],
+          `references shard ${row.shardId} before its spawn`
+        );
+      } else {
+        for (const field of snapshotFields) {
+          expectSemanticEqual(
+            context,
+            ["crystallizeShardLog", rowIndex, field],
+            row[field],
+            spawn[field],
+            `Crystallize shard snapshot ${field}`
+          );
+        }
+      }
+    }
+    if (row.operation === "pickup-attempt") {
+      const command =
+        row.pickupCommandIndex === null
+          ? undefined
+          : timeline?.commands[row.pickupCommandIndex];
+      if (row.reason === "TOO_EARLY") {
+        const active =
+          row.shardId === null
+            ? undefined
+            : activeShards.get(row.shardId);
+        if (
+          active === undefined ||
+          row.earliestPickupFrame === null ||
+          row.frame >= row.earliestPickupFrame
+        ) {
+          addIssue(
+            context,
+            ["crystallizeShardLog", rowIndex, "reason"],
+            "TOO_EARLY must reference an active shard before its earliest pickup frame"
+          );
+        }
+      } else if (row.reason === "NO_MATCHING_SHARD") {
+        const selector =
+          command?.type === "pickUpCrystallize"
+            ? command.element
+            : row.element;
+        const hasMatchingActiveShard = [...activeShards.values()].some(
+          (shard) =>
+            selector === "any" || shard.element === selector
+        );
+        if (
+          row.shardId !== null ||
+          hasMatchingActiveShard
+        ) {
+          addIssue(
+            context,
+            ["crystallizeShardLog", rowIndex, "reason"],
+            "NO_MATCHING_SHARD requires no active shard matching the command selector"
+          );
+        }
+      }
+    } else if (row.operation === "pickup") {
+      const active =
+        row.shardId === null
+          ? undefined
+          : activeShards.get(row.shardId);
+      if (
+        active === undefined ||
+        row.earliestPickupFrame === null ||
+        row.frame < row.earliestPickupFrame
+      ) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "operation"],
+          "pickup must consume one active, pickup-ready shard"
+        );
+      } else {
+        activeShards.delete(active.shardId!);
+      }
+    } else if (row.operation === "expire") {
+      const active =
+        row.shardId === null
+          ? undefined
+          : activeShards.get(row.shardId);
+      if (
+        active === undefined ||
+        row.expiresAtFrame === null ||
+        row.frame !== row.expiresAtFrame
+      ) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "operation"],
+          "expiry must terminate the active shard exactly at expiresAtFrame"
+        );
+      } else {
+        activeShards.delete(active.shardId!);
+      }
+    } else if (row.operation === "evict") {
+      const active =
+        row.shardId === null
+          ? undefined
+          : activeShards.get(row.shardId);
+      const oldest = [...activeShards.values()].sort(
+        (left, right) =>
+          (left.spawnedAtFrame ?? 0) -
+            (right.spawnedAtFrame ?? 0) ||
+          (left.shardId ?? 0) - (right.shardId ?? 0)
+      )[0];
+      const successor = result.crystallizeShardLog[rowIndex + 1];
+      if (
+        active === undefined ||
+        activeShards.size !== 3 ||
+        oldest?.shardId !== row.shardId ||
+        successor?.operation !== "spawn" ||
+        successor.frame !== row.frame
+      ) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "operation"],
+          "capacity eviction must remove the oldest of three active shards immediately before a same-frame spawn"
+        );
+      } else {
+        activeShards.delete(active.shardId!);
+      }
+    }
+    if (
+      row.operation === "pickup" &&
+      row.shieldLogId !== null
+    ) {
+      if (pickupByShieldLogId.has(row.shieldLogId)) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "shieldLogId"],
+          `shield log ${row.shieldLogId} is linked by more than one pickup`
+        );
+      } else {
+        pickupByShieldLogId.set(row.shieldLogId, row);
+      }
+      const shield = result.crystallizeShieldLog[row.shieldLogId];
+      if (
+        shield === undefined ||
+        shield.id !== row.shieldLogId
+      ) {
+        addIssue(
+          context,
+          ["crystallizeShardLog", rowIndex, "shieldLogId"],
+          `references missing shield log ${row.shieldLogId}`
+        );
+      } else {
+        for (const [field, expected] of [
+          ["shardId", row.shardId],
+          ["element", row.element],
+          ["sourceActorId", row.sourceActorId],
+          ["pickedUpByActorId", row.pickedUpByActorId],
+          [
+            "sourceCharacterLevel",
+            row.sourceCharacterLevel
+          ],
+          [
+            "sourceElementalMastery",
+            row.sourceElementalMastery
+          ],
+          ["frame", row.frame]
+        ] as const) {
+          expectEqual(
+            context,
+            ["crystallizeShieldLog", shield.id, field],
+            shield[field],
+            expected,
+            `Crystallize pickup shield ${field}`
+          );
+        }
+      }
+    }
+  }
+
+  for (const active of activeShards.values()) {
+    if (
+      active.expiresAtFrame !== null &&
+      active.expiresAtFrame <= runEndFrame
+    ) {
+      addIssue(
+        context,
+        [
+          "crystallizeShardLog",
+          active.id,
+          "expiresAtFrame"
+        ],
+        "active shard is missing its in-range terminal expiry"
+      );
+    }
+  }
+  for (const [commandIndex, command] of
+    (timeline?.commands ?? []).entries()) {
+    if (command.type !== "pickUpCrystallize") continue;
+    const commandResult = execution?.commandResults[commandIndex];
+    const rows = pickupRowsByCommandIndex.get(commandIndex) ?? [];
+    if (
+      commandResult !== undefined &&
+      commandResult.status !== "rejected" &&
+      commandResult.startFrame !== null &&
+      rows.length === 0
+    ) {
+      addIssue(
+        context,
+        [
+          "timelineExecution",
+          "commandResults",
+          commandIndex
+        ],
+        "executed Crystallize pickup command must emit a pickup or pickup-attempt audit"
+      );
+    }
+    if (
+      (commandResult === undefined ||
+        commandResult.status === "rejected") &&
+      rows.length !== 0
+    ) {
+      addIssue(
+        context,
+        ["crystallizeShardLog"],
+        `rejected or missing pickup command ${commandIndex} cannot own shard audit rows`
+      );
+    }
+  }
+
+  const shieldSnapshotFields = [
+    "shieldId",
+    "shardId",
+    "element",
+    "sourceActorId",
+    "pickedUpByActorId",
+    "sourceCharacterLevel",
+    "sourceElementalMastery",
+    "baseHp",
+    "elementalMasteryBonus",
+    "generalAbsorption",
+    "matchingElementAbsorption",
+    "geoDamageAbsorption",
+    "expiresAtFrame"
+  ] as const;
+  let activeShield:
+    | SimulationResult["crystallizeShieldLog"][number]
+    | null = null;
+  let nextShieldId = 0;
+  const playerDamageById = new Map(
+    result.playerDamageEvents.map((event) => [event.id, event])
+  );
+  if (
+    result.crystallizeShieldTimeline.length !==
+    result.crystallizeShieldLog.length
+  ) {
+    addIssue(
+      context,
+      ["crystallizeShieldTimeline"],
+      "shield timeline must contain exactly one point per shield log row"
+    );
+  }
+  for (const [shieldIndex, shield] of
+    result.crystallizeShieldLog.entries()) {
+    const spawn = spawnByShardId.get(shield.shardId);
+    if (
+      spawn === undefined ||
+      spawn.element !== shield.element ||
+      spawn.sourceActorId !== shield.sourceActorId
+    ) {
+      addIssue(
+        context,
+        ["crystallizeShieldLog", shieldIndex, "shardId"],
+        "shield must backlink its source Crystallize shard"
+      );
+    }
+    const creation =
+      shield.operation === "add" ||
+      shield.operation === "overwrite";
+    const absorption =
+      shield.operation === "absorb" ||
+      shield.operation === "break";
+    if (
+      !absorption &&
+      (shield.playerDamageEventId !== null ||
+        shield.incomingElement !== null ||
+        !nearlyEqual(shield.baseHpBeforeAbsorption, 0) ||
+        !nearlyEqual(shield.baseHpConsumed, 0) ||
+        !nearlyEqual(shield.baseHpAfterAbsorption, 0) ||
+        !nearlyEqual(shield.absorbedDamage, 0) ||
+        !nearlyEqual(shield.damageAfterShield, 0))
+    ) {
+      addIssue(
+        context,
+        [
+          "crystallizeShieldLog",
+          shieldIndex,
+          "playerDamageEventId"
+        ],
+        "add/overwrite/expire rows cannot carry absorption provenance"
+      );
+    }
+    if (creation) {
+      const pickup = pickupByShieldLogId.get(shield.id);
+      if (
+        pickup === undefined ||
+        pickup.shardId !== shield.shardId ||
+        pickup.frame !== shield.frame
+      ) {
+        addIssue(
+          context,
+          ["crystallizeShieldLog", shieldIndex],
+          "add/overwrite must be owned by exactly one same-frame shard pickup"
+        );
+      }
+      if (shield.shieldId !== nextShieldId) {
+        addIssue(
+          context,
+          ["crystallizeShieldLog", shieldIndex, "shieldId"],
+          `new shield IDs must be contiguous; expected ${nextShieldId}`
+        );
+      }
+      nextShieldId += 1;
+      const expectedOperation =
+        activeShield === null ? "add" : "overwrite";
+      const expectedPreviousShieldId =
+        activeShield?.shieldId ?? null;
+      expectEqual(
+        context,
+        ["crystallizeShieldLog", shieldIndex, "operation"],
+        shield.operation,
+        expectedOperation,
+        "Crystallize shield creation operation"
+      );
+      expectEqual(
+        context,
+        [
+          "crystallizeShieldLog",
+          shieldIndex,
+          "previousShieldId"
+        ],
+        shield.previousShieldId,
+        expectedPreviousShieldId,
+        "Crystallize overwritten shield identity"
+      );
+      expectNearlyEqual(
+        context,
+        [
+          "crystallizeShieldLog",
+          shieldIndex,
+          "currentBaseHp"
+        ],
+        shield.currentBaseHp,
+        shield.baseHp,
+        "new Crystallize shield base HP"
+      );
+      expectEqual(
+        context,
+        [
+          "crystallizeShieldLog",
+          shieldIndex,
+          "expiresAtFrame"
+        ],
+        shield.expiresAtFrame,
+        shield.frame + 906,
+        "Crystallize shield expiry frame"
+      );
+      activeShield = shield;
+    } else {
+      if (activeShield === null) {
+        addIssue(
+          context,
+          ["crystallizeShieldLog", shieldIndex, "shieldId"],
+          `${shield.operation} cannot reference an inactive shield`
+        );
+      } else {
+        for (const field of shieldSnapshotFields) {
+          expectSemanticEqual(
+            context,
+            ["crystallizeShieldLog", shieldIndex, field],
+            shield[field],
+            activeShield[field],
+            `Crystallize shield snapshot ${field}`
+          );
+        }
+      }
+      expectEqual(
+        context,
+        [
+          "crystallizeShieldLog",
+          shieldIndex,
+          "previousShieldId"
+        ],
+        shield.previousShieldId,
+        null,
+        "non-creation shield previousShieldId"
+      );
+      if (
+        shield.operation === "absorb" ||
+        shield.operation === "break"
+      ) {
+        if (activeShield !== null) {
+          expectNearlyEqual(
+            context,
+            [
+              "crystallizeShieldLog",
+              shieldIndex,
+              "baseHpBeforeAbsorption"
+            ],
+            shield.baseHpBeforeAbsorption,
+            activeShield.currentBaseHp,
+            "shield base HP before absorption"
+          );
+        }
+        expectNearlyEqual(
+          context,
+          [
+            "crystallizeShieldLog",
+            shieldIndex,
+            "baseHpAfterAbsorption"
+          ],
+          shield.baseHpAfterAbsorption,
+          shield.baseHpBeforeAbsorption -
+            shield.baseHpConsumed,
+          "shield absorption conservation"
+        );
+        expectNearlyEqual(
+          context,
+          [
+            "crystallizeShieldLog",
+            shieldIndex,
+            "currentBaseHp"
+          ],
+          shield.currentBaseHp,
+          shield.baseHpAfterAbsorption,
+          "shield current base HP after absorption"
+        );
+        const expectedOperation = nearlyEqual(
+          shield.baseHpAfterAbsorption,
+          0
+        )
+          ? "break"
+          : "absorb";
+        expectEqual(
+          context,
+          [
+            "crystallizeShieldLog",
+            shieldIndex,
+            "operation"
+          ],
+          shield.operation,
+          expectedOperation,
+          "shield absorption terminal operation"
+        );
+        const playerDamage =
+          shield.playerDamageEventId === null
+            ? undefined
+            : playerDamageById.get(
+                shield.playerDamageEventId
+              );
+        const resolution = playerDamage?.shieldResolution;
+        if (
+          playerDamage === undefined ||
+          resolution === undefined ||
+          playerDamage.frame !== shield.frame ||
+          playerDamage.eventPriority !== shield.eventPriority ||
+          playerDamage.eventSequence !== shield.eventSequence ||
+          resolution.shieldId !== shield.shieldId ||
+          resolution.incomingElement !== shield.incomingElement ||
+          !nearlyEqual(
+            resolution.baseHpBefore,
+            shield.baseHpBeforeAbsorption
+          ) ||
+          !nearlyEqual(
+            resolution.baseHpConsumed,
+            shield.baseHpConsumed
+          ) ||
+          !nearlyEqual(
+            resolution.baseHpAfter,
+            shield.baseHpAfterAbsorption
+          ) ||
+          !nearlyEqual(
+            resolution.absorbedDamage,
+            shield.absorbedDamage
+          ) ||
+          !nearlyEqual(
+            resolution.damageAfterShield,
+            shield.damageAfterShield
+          )
+        ) {
+          addIssue(
+            context,
+            [
+              "crystallizeShieldLog",
+              shieldIndex,
+              "playerDamageEventId"
+            ],
+            "shield absorption must exactly project its player damage event"
+          );
+        }
+        activeShield =
+          shield.operation === "break" ? null : shield;
+      } else if (shield.operation === "expire") {
+        if (
+          activeShield === null ||
+          shield.frame !== activeShield.expiresAtFrame ||
+          !nearlyEqual(shield.currentBaseHp, 0)
+        ) {
+          addIssue(
+            context,
+            ["crystallizeShieldLog", shieldIndex, "operation"],
+            "expiry must terminate the active shield exactly at its expiry frame"
+          );
+        }
+        activeShield = null;
+      }
+    }
+    const expectedShield = calcCrystallizeShield(
+      shield.sourceCharacterLevel,
+      shield.sourceElementalMastery
+    );
+    for (const [field, expected] of [
+      ["baseHp", expectedShield.baseHp],
+      [
+        "elementalMasteryBonus",
+        expectedShield.elementalMasteryBonus
+      ],
+      ["generalAbsorption", expectedShield.generalAbsorption],
+      [
+        "matchingElementAbsorption",
+        expectedShield.matchingElementAbsorption
+      ],
+      [
+        "geoDamageAbsorption",
+        expectedShield.geoDamageAbsorption
+      ]
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        ["crystallizeShieldLog", shieldIndex, field],
+        shield[field],
+        expected,
+        `Crystallize shield formula ${field}`
+      );
+    }
+    /*
+     * Keep these local conservation checks explicit as well: they make any
+     * future formula-version change fail closed even if only one derived
+     * projection is updated.
+     */
+    expectNearlyEqual(
+      context,
+      [
+        "crystallizeShieldLog",
+        shieldIndex,
+        "elementalMasteryBonus"
+      ],
+      shield.elementalMasteryBonus,
+      expectedShield.elementalMasteryBonus,
+      "Crystallize shield EM bonus"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "crystallizeShieldLog",
+        shieldIndex,
+        "generalAbsorption"
+      ],
+      shield.generalAbsorption,
+      shield.baseHp * (1 + shield.elementalMasteryBonus),
+      "Crystallize general absorption"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "crystallizeShieldLog",
+        shieldIndex,
+        "matchingElementAbsorption"
+      ],
+      shield.matchingElementAbsorption,
+      shield.generalAbsorption * 2.5,
+      "Crystallize matching-element absorption"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "crystallizeShieldLog",
+        shieldIndex,
+        "geoDamageAbsorption"
+      ],
+      shield.geoDamageAbsorption,
+      shield.generalAbsorption * 1.5,
+      "Crystallize Geo absorption"
+    );
+
+    const point = result.crystallizeShieldTimeline[shieldIndex];
+    if (point === undefined) continue;
+    for (const [field, expected] of [
+      ["frame", shield.frame],
+      ["timeSeconds", shield.timeSeconds],
+      ["eventPriority", shield.eventPriority],
+      ["eventSequence", shield.eventSequence],
+      ["operation", shield.operation],
+      ["playerDamageEventId", shield.playerDamageEventId],
+      [
+        "baseHpBeforeAbsorption",
+        shield.baseHpBeforeAbsorption
+      ],
+      [
+        "baseHpAfterAbsorption",
+        shield.baseHpAfterAbsorption
+      ],
+      ["absorbedDamage", shield.absorbedDamage],
+      ["damageAfterShield", shield.damageAfterShield]
+    ] as const) {
+      expectEqual(
+        context,
+        ["crystallizeShieldTimeline", shieldIndex, field],
+        point[field],
+        expected,
+        `Crystallize shield timeline ${field}`
+      );
+    }
+    expectEqual(
+      context,
+      [
+        "crystallizeShieldTimeline",
+        shieldIndex,
+        "intraEventSequence"
+      ],
+      point.intraEventSequence,
+      shield.intraEventSequence + 1,
+      "Crystallize shield timeline intra-event order"
+    );
+    const shieldSurvives =
+      shield.operation === "add" ||
+      shield.operation === "overwrite" ||
+      shield.operation === "absorb";
+    expectEqual(
+      context,
+      ["crystallizeShieldTimeline", shieldIndex, "shieldId"],
+      point.shieldId,
+      shieldSurvives ? shield.shieldId : null,
+      "Crystallize shield timeline active shield"
+    );
+    expectEqual(
+      context,
+      ["crystallizeShieldTimeline", shieldIndex, "element"],
+      point.element,
+      shieldSurvives ? shield.element : null,
+      "Crystallize shield timeline active element"
+    );
+    expectEqual(
+      context,
+      [
+        "crystallizeShieldTimeline",
+        shieldIndex,
+        "expiresAtFrame"
+      ],
+      point.expiresAtFrame,
+      shieldSurvives ? shield.expiresAtFrame : null,
+      "Crystallize shield timeline expiry"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "crystallizeShieldTimeline",
+        shieldIndex,
+        "generalAbsorption"
+      ],
+      point.generalAbsorption,
+      shieldSurvives
+        ? shield.currentBaseHp *
+            (1 + shield.elementalMasteryBonus)
+        : 0,
+      "Crystallize shield timeline remaining absorption"
+    );
+  }
+  if (
+    activeShield !== null &&
+    activeShield.expiresAtFrame <= runEndFrame
+  ) {
+    addIssue(
+      context,
+      [
+        "crystallizeShieldLog",
+        activeShield.id,
+        "expiresAtFrame"
+      ],
+      "active shield is missing its in-range expiry"
+    );
+  }
+}
+
+function validateBurningStateProjection(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const reactionDamageById = new Map(
+    result.reactionDamageLog.map((entry) => [entry.id, entry])
+  );
+  const burningTickByReactionDamageId = new Map<
+    number,
+    SimulationResult["burningStateLog"]
+  >();
+  const rowsByTrigger = new Map<
+    number,
+    SimulationResult["burningStateLog"]
+  >();
+  const lifecyclePointByBurningStateId = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"]
+  >();
+  const tickRowsByTargetGeneration = new Map<
+    string,
+    SimulationResult["burningStateLog"]
+  >();
+  for (const point of result.targetStateTimeline.points) {
+    for (const link of point.links) {
+      if (link.kind !== "burning-state-log") continue;
+      const points =
+        lifecyclePointByBurningStateId.get(link.id) ?? [];
+      points.push(point);
+      lifecyclePointByBurningStateId.set(link.id, points);
+    }
+  }
+  for (const row of result.burningStateLog) {
+    if (row.triggerDamageEventId !== null) {
+      const rows = rowsByTrigger.get(row.triggerDamageEventId) ?? [];
+      rows.push(row);
+      rowsByTrigger.set(row.triggerDamageEventId, rows);
+    }
+    if (row.reactionDamageLogId !== null) {
+      const rows =
+        burningTickByReactionDamageId.get(
+          row.reactionDamageLogId
+        ) ?? [];
+      rows.push(row);
+      burningTickByReactionDamageId.set(
+        row.reactionDamageLogId,
+        rows
+      );
+    }
+    if (
+      row.operation === "tick" ||
+      row.operation === "tick-skipped"
+    ) {
+      const key = `${row.targetId}\u0000${row.generation}`;
+      const rows = tickRowsByTargetGeneration.get(key) ?? [];
+      rows.push(row);
+      tickRowsByTargetGeneration.set(key, rows);
+    }
+  }
+
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    const audit = event.reactionAudit.burningReaction;
+    if (audit === null) continue;
+    const rows = (rowsByTrigger.get(event.id) ?? []).filter(
+      (row) => row.operation === audit.operation
+    );
+    if (rows.length !== 1) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "burningReaction"
+        ],
+        "Burning audit must own exactly one matching lifecycle row"
+      );
+      continue;
+    }
+    const row = rows[0]!;
+    for (const [field, expected] of [
+      ["reaction", audit.reaction],
+      ["generation", audit.generation],
+      ["operation", audit.operation],
+      ["frame", event.frame],
+      ["eventPriority", event.eventPriority],
+      ["eventSequence", event.eventSequence],
+      ["targetId", event.targetId],
+      ["targetName", event.targetName],
+      ["triggerElement", audit.triggerElement],
+      ["damageSourceActorId", audit.damageSourceActorId],
+      ["fuelSourceActorId", audit.fuelSourceActorId],
+      ["triggerDamageEventId", event.id],
+      ["fuelExpiresAtFrame", audit.fuelExpiresAtFrame],
+      ["nextTickFrame", audit.nextTickFrame],
+      ["clockModel", audit.clockModel],
+      ["hitlagStatus", audit.hitlagStatus],
+      ["selfDamageStatus", audit.selfDamageStatus]
+    ] as const) {
+      expectEqual(
+        context,
+        ["burningStateLog", row.id, field],
+        row[field],
+        expected,
+        `Burning lifecycle ${field}`
+      );
+    }
+    for (const [field, expected] of [
+      ["timeSeconds", event.timeSeconds],
+      [
+        "burningGaugeUnitsBefore",
+        audit.burningGaugeUnitsBefore
+      ],
+      ["burningGaugeUnitsAfter", audit.burningGaugeUnitsAfter],
+      ["fuelGaugeUnitsBefore", audit.fuelGaugeUnitsBefore],
+      ["fuelGaugeUnitsAfter", audit.fuelGaugeUnitsAfter],
+      ["fuelDecayPerFrame", audit.fuelDecayPerFrame]
+    ] as const) {
+      expectNearlyEqual(
+        context,
+        ["burningStateLog", row.id, field],
+        row[field],
+        expected,
+        `Burning lifecycle ${field}`
+      );
+    }
+    for (const [field, expected] of [
+      ["auraBefore", event.reactionAudit.auraBefore ?? []],
+      ["auraApplied", event.reactionAudit.auraApplied ?? []],
+      ["auraConsumed", event.reactionAudit.auraConsumed ?? []],
+      ["auraAfter", event.reactionAudit.auraAfter ?? []]
+    ] as const) {
+      expectSemanticEqual(
+        context,
+        ["burningStateLog", row.id, field],
+        row[field],
+        expected,
+        `Burning lifecycle ${field}`
+      );
+    }
+  }
+
+  for (const [rowIndex, row] of
+    result.burningStateLog.entries()) {
+    expectNearlyEqual(
+      context,
+      ["burningStateLog", rowIndex, "timeSeconds"],
+      row.timeSeconds,
+      row.frame / 60,
+      "Burning lifecycle time"
+    );
+    const target = result.enemyTargets.find(
+      (candidate) => candidate.id === row.targetId
+    );
+    if (
+      target === undefined ||
+      target.name !== row.targetName
+    ) {
+      addIssue(
+        context,
+        ["burningStateLog", rowIndex, "targetId"],
+        "Burning target identity must match enemyTargets"
+      );
+    }
+    if (
+      row.triggerDamageEventId !== null &&
+      !damageEventById.has(row.triggerDamageEventId)
+    ) {
+      addIssue(
+        context,
+        [
+          "burningStateLog",
+          rowIndex,
+          "triggerDamageEventId"
+        ],
+        `references missing damage event ${row.triggerDamageEventId}`
+      );
+    }
+    const isTick = row.operation === "tick";
+    if (
+      row.operation === "tick" ||
+      row.operation === "tick-skipped" ||
+      row.operation === "fuel-expire"
+    ) {
+      const points =
+        lifecyclePointByBurningStateId.get(row.id) ?? [];
+      if (points.length !== 1) {
+        addIssue(
+          context,
+          ["burningStateLog", rowIndex],
+          `${row.operation} must own exactly one target-state lifecycle point`
+        );
+      } else {
+        const point = points[0]!;
+        const expectedCause =
+          row.operation === "fuel-expire"
+            ? "burning-fuel-expiry"
+            : "burning-tick";
+        for (const [field, expected] of [
+          ["cause", expectedCause],
+          ["frame", row.frame],
+          ["targetId", row.targetId],
+          ["targetName", row.targetName],
+          ["eventPriority", row.eventPriority],
+          ["eventSequence", row.eventSequence]
+        ] as const) {
+          expectEqual(
+            context,
+            ["burningStateLog", rowIndex, field],
+            point[field],
+            expected,
+            `Burning lifecycle point ${field}`
+          );
+        }
+        expectNearlyEqual(
+          context,
+          ["burningStateLog", rowIndex, "timeSeconds"],
+          point.timeSeconds,
+          row.timeSeconds,
+          "Burning lifecycle point time"
+        );
+      }
+    }
+    if (isTick) {
+      if (
+        row.reactionDamageLogId === null ||
+        row.tickIndex === null ||
+        row.tickSkipped ||
+        row.skipReason !== null
+      ) {
+        addIssue(
+          context,
+          ["burningStateLog", rowIndex],
+          "Burning tick requires an owned reaction-damage log and non-skipped tick index"
+        );
+        continue;
+      }
+      const parent = reactionDamageById.get(
+        row.reactionDamageLogId
+      );
+      if (
+        parent === undefined ||
+        parent.reaction !== "burning" ||
+        parent.scheduleKind !== "burning-tick"
+      ) {
+        addIssue(
+          context,
+          [
+            "burningStateLog",
+            rowIndex,
+            "reactionDamageLogId"
+          ],
+          "Burning tick must backlink a burning-tick reaction-damage log"
+        );
+        continue;
+      }
+      const trigger =
+        row.triggerDamageEventId === null
+          ? undefined
+          : damageEventById.get(row.triggerDamageEventId);
+      const sourceAudit =
+        trigger?.reactionAudit.burningReaction;
+      if (
+        trigger === undefined ||
+        sourceAudit === null ||
+        sourceAudit === undefined
+      ) {
+        addIssue(
+          context,
+          [
+            "burningStateLog",
+            rowIndex,
+            "triggerDamageEventId"
+          ],
+          "Burning tick must backlink its source Burning audit"
+        );
+      } else {
+        for (const [field, expected] of [
+          ["generation", sourceAudit.generation],
+          ["damageSourceActorId", trigger.sourceActorId],
+          ["fuelSourceActorId", sourceAudit.fuelSourceActorId]
+        ] as const) {
+          expectEqual(
+            context,
+            ["burningStateLog", rowIndex, field],
+            row[field],
+            expected,
+            `Burning tick source ${field}`
+          );
+        }
+        expectNearlyEqual(
+          context,
+          [
+            "burningStateLog",
+            rowIndex,
+            "fuelDecayPerFrame"
+          ],
+          row.fuelDecayPerFrame,
+          sourceAudit.fuelDecayPerFrame,
+          "Burning tick source fuel decay"
+        );
+      }
+      for (const [field, expected] of [
+        ["sourceActorId", row.damageSourceActorId],
+        ["sourceTargetId", row.targetId],
+        ["triggerDamageEventId", row.triggerDamageEventId],
+        ["damageFrame", row.frame],
+        ["nextAvailableFrame", row.nextTickFrame]
+      ] as const) {
+        expectEqual(
+          context,
+          [
+            "reactionDamageLog",
+            parent.id,
+            field
+          ],
+          parent[field],
+          expected,
+          `Burning tick parent ${field}`
+        );
+      }
+      expectSemanticEqual(
+        context,
+        ["burningStateLog", rowIndex, "damageEventIds"],
+        row.damageEventIds,
+        parent.damageEventIds,
+        "Burning tick damage children"
+      );
+      const sourceTargetChildren = parent.damageEventIds
+        .map((damageEventId) =>
+          damageEventById.get(damageEventId)
+        )
+        .filter(
+          (
+            event
+          ): event is SimulationResult["damageEvents"][number] =>
+            event?.targetId === row.targetId
+        );
+      if (sourceTargetChildren.length !== 1) {
+        addIssue(
+          context,
+          ["burningStateLog", rowIndex, "damageAllowed"],
+          "Burning tick must have exactly one source-target damage child"
+        );
+      } else {
+        expectEqual(
+          context,
+          ["burningStateLog", rowIndex, "damageAllowed"],
+          row.damageAllowed,
+          sourceTargetChildren[0]!.targetDamageMultiplier === 1,
+          "Burning source-target damage policy"
+        );
+      }
+    } else if (row.operation === "tick-skipped") {
+      if (
+        row.reactionDamageLogId !== null ||
+        row.damageEventIds.length !== 0 ||
+        row.tickIndex === null ||
+        !row.tickSkipped ||
+        row.skipReason !== "COUNTER_9_SKIP"
+      ) {
+        addIssue(
+          context,
+          ["burningStateLog", rowIndex],
+          "Burning tick-skipped row cannot own damage and must identify counter-9 skip"
+        );
+      }
+    } else if (
+      row.reactionDamageLogId !== null ||
+      row.damageEventIds.length !== 0
+    ) {
+      addIssue(
+        context,
+        ["burningStateLog", rowIndex],
+        `${row.operation} Burning rows cannot own reaction damage`
+      );
+    }
+  }
+
+  for (const rows of tickRowsByTargetGeneration.values()) {
+    let expectedTickIndex = 1;
+    for (const row of rows) {
+      expectEqual(
+        context,
+        ["burningStateLog", row.id, "tickIndex"],
+        row.tickIndex,
+        expectedTickIndex,
+        "Burning tick index"
+      );
+      expectedTickIndex += 1;
+    }
+  }
+
+  for (const [parentIndex, parent] of
+    result.reactionDamageLog.entries()) {
+    if (parent.scheduleKind !== "burning-tick") continue;
+    const rows =
+      burningTickByReactionDamageId.get(parent.id) ?? [];
+    if (rows.length !== 1 || rows[0]?.operation !== "tick") {
+      addIssue(
+        context,
+        ["reactionDamageLog", parentIndex],
+        "burning-tick reaction damage must belong to exactly one Burning tick row"
+      );
+    }
+  }
+}
+
+function validateTimelineExecutionProjection(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const execution = result.timelineExecution;
+  const timeline = result.config.timeline;
+  if (execution === undefined) {
+    if (timeline !== undefined) {
+      addIssue(
+        context,
+        ["timelineExecution"],
+        "config.timeline requires a timeline execution audit"
+      );
+    }
+    return;
+  }
+  if (timeline === undefined) {
+    addIssue(
+      context,
+      ["timelineExecution"],
+      "cannot exist without config.timeline"
+    );
+    return;
+  }
+
+  expectEqual(
+    context,
+    ["compatibilityMode"],
+    result.compatibilityMode,
+    "legal-frame-v1",
+    "timeline compatibility mode"
+  );
+  for (const [field, expected] of [
+    ["mode", timeline.mode],
+    ["fps", timeline.fps],
+    ["legalityMode", timeline.legalityMode],
+    [
+      "initialActiveCharacterId",
+      timeline.initialActiveCharacterId
+    ]
+  ] as const) {
+    expectEqual(
+      context,
+      ["timelineExecution", field],
+      execution[field],
+      expected,
+      `timeline execution ${field}`
+    );
+  }
+  if (
+    execution.commandResults.length !== timeline.commands.length
+  ) {
+    addIssue(
+      context,
+      ["timelineExecution", "commandResults"],
+      `must contain one result for each of ${timeline.commands.length} config commands`
+    );
+  }
+
+  const failureByCommand = new Map<
+    number,
+    (typeof execution.failures)[number]
+  >();
+  for (const [index, failure] of execution.failures.entries()) {
+    if (failureByCommand.has(failure.commandIndex)) {
+      addIssue(
+        context,
+        ["timelineExecution", "failures", index, "commandIndex"],
+        "a command can own at most one failure"
+      );
+    }
+    failureByCommand.set(failure.commandIndex, failure);
+  }
+  const adjustmentsByCommand = new Map<
+    number,
+    Array<(typeof execution.adjustments)[number]>
+  >();
+  for (const [index, adjustment] of
+    execution.adjustments.entries()) {
+    if (timeline.commands[adjustment.commandIndex] === undefined) {
+      addIssue(
+        context,
+        [
+          "timelineExecution",
+          "adjustments",
+          index,
+          "commandIndex"
+        ],
+        "must reference a configured command"
+      );
+    }
+    const rows =
+      adjustmentsByCommand.get(adjustment.commandIndex) ?? [];
+    if (rows.some((row) => row.code === adjustment.code)) {
+      addIssue(
+        context,
+        ["timelineExecution", "adjustments", index, "code"],
+        "a command can own at most one adjustment of each kind"
+      );
+    }
+    rows.push(adjustment);
+    adjustmentsByCommand.set(adjustment.commandIndex, rows);
+  }
+
+  type TimelineState =
+    (typeof execution.stateLog)[number];
+  type ActiveTimelineState = {
+    actorId: string;
+    statusKey: string;
+    label: string;
+    expiresAtFrame: number;
+    commandIndex: number;
+    abilityId: string;
+  };
+  const expectedStateLog: TimelineState[] = [];
+  const activeStates = new Map<string, ActiveTimelineState>();
+  const durationFrames = Math.round(result.config.duration * 60);
+  let stateSequence = 0;
+  const scopedStateKey = (
+    actorId: string,
+    statusKey: string
+  ): string => `${actorId}\u0000${statusKey}`;
+  const expireStatesThrough = (frame: number): void => {
+    const cutoffFrame = Math.min(frame, durationFrames);
+    const expiring = [...activeStates.entries()]
+      .filter(([, state]) => state.expiresAtFrame <= cutoffFrame)
+      .sort(
+        (left, right) =>
+          left[1].expiresAtFrame - right[1].expiresAtFrame ||
+          left[1].commandIndex - right[1].commandIndex ||
+          left[1].statusKey.localeCompare(right[1].statusKey)
+      );
+    for (const [key, state] of expiring) {
+      if (activeStates.get(key) !== state) continue;
+      activeStates.delete(key);
+      expectedStateLog.push({
+        sequence: stateSequence++,
+        frame: state.expiresAtFrame,
+        timeSeconds: state.expiresAtFrame / 60,
+        operation: "expire",
+        actorId: state.actorId,
+        statusKey: state.statusKey,
+        label: state.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex: state.commandIndex,
+        abilityId: state.abilityId
+      });
+    }
+  };
+  const applyAbilityStates = (
+    ability: (typeof timeline.abilities)[number],
+    commandIndex: number,
+    startFrame: number
+  ): void => {
+    const definition = ability.timelineState;
+    if (definition === undefined) return;
+    for (const statusKey of definition.consumes ?? []) {
+      const key = scopedStateKey(ability.actorId, statusKey);
+      const state = activeStates.get(key);
+      if (state === undefined) continue;
+      activeStates.delete(key);
+      expectedStateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: startFrame / 60,
+        operation: "consume",
+        actorId: ability.actorId,
+        statusKey,
+        label: state.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
+    for (const statusKey of definition.clears ?? []) {
+      const key = scopedStateKey(ability.actorId, statusKey);
+      const state = activeStates.get(key);
+      if (state === undefined) continue;
+      activeStates.delete(key);
+      expectedStateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: startFrame / 60,
+        operation: "clear",
+        actorId: ability.actorId,
+        statusKey,
+        label: state.label,
+        expiresAtFrame: state.expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
+    for (const grant of definition.grants ?? []) {
+      const key = scopedStateKey(ability.actorId, grant.key);
+      const existing = activeStates.get(key);
+      const expiresAtFrame = startFrame + grant.durationFrames;
+      activeStates.set(key, {
+        actorId: ability.actorId,
+        statusKey: grant.key,
+        label: grant.label,
+        expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+      expectedStateLog.push({
+        sequence: stateSequence++,
+        frame: startFrame,
+        timeSeconds: startFrame / 60,
+        operation: existing === undefined ? "grant" : "replace",
+        actorId: ability.actorId,
+        statusKey: grant.key,
+        label: grant.label,
+        expiresAtFrame,
+        commandIndex,
+        abilityId: ability.id
+      });
+    }
+  };
+
+  type ExpectedAction = {
+    commandIndex: number;
+    frame: number;
+    actorId: string;
+    actionId: string;
+    action: string;
+    sourceAbilityId: string | undefined;
+    cancelFrame: number;
+    animationEndFrame: number;
+  };
+  const expectedActions = new Map<number, ExpectedAction>();
+  const acceptedAbilities = new Map<
+    number,
+    {
+      actorId: string;
+      abilityId: string;
+      startFrame: number;
+      cancelFrame: number;
+      animationEndFrame: number;
+      actionId: string;
+    }
+  >();
+  let cursor = 0;
+  let activeCharacterId = timeline.initialActiveCharacterId;
+
+  for (const [index, sourceCommand] of
+    timeline.commands.entries()) {
+    const command = execution.commandResults[index];
+    if (command === undefined) continue;
+    const path = [
+      "timelineExecution",
+      "commandResults",
+      index
+    ] satisfies IssuePath;
+    if (command.commandIndex !== index) {
+      addIssue(
+        context,
+        [...path, "commandIndex"],
+        "command results must preserve config command order"
+      );
+    }
+    expectEqual(
+      context,
+      [...path, "commandType"],
+      command.commandType,
+      sourceCommand.type,
+      "timeline command type"
+    );
+    expectEqual(
+      context,
+      [...path, "actorId"],
+      command.actorId,
+      "actorId" in sourceCommand
+        ? sourceCommand.actorId
+        : sourceCommand.type === "swap"
+          ? sourceCommand.characterId
+          : null,
+      "timeline command actor"
+    );
+    expectEqual(
+      context,
+      [...path, "abilityId"],
+      command.abilityId,
+      "abilityId" in sourceCommand
+        ? sourceCommand.abilityId
+        : null,
+      "timeline command ability"
+    );
+
+    const requestedFrame =
+      sourceCommand.type === "wait"
+        ? cursor
+        : (sourceCommand.atFrame ?? cursor);
+    expectEqual(
+      context,
+      [...path, "requestedFrame"],
+      command.requestedFrame,
+      requestedFrame,
+      "timeline requested frame"
+    );
+    const failure = failureByCommand.get(index);
+    const attemptedFrame =
+      command.startFrame ?? failure?.frame;
+    if (attemptedFrame === undefined) {
+      addIssue(
+        context,
+        [...path, "startFrame"],
+        "must expose an actual start frame or a matching failure frame"
+      );
+      continue;
+    }
+    const baseAttemptFrame = Math.max(cursor, requestedFrame);
+    const adjustments = adjustmentsByCommand.get(index) ?? [];
+    const overlap = adjustments.find(
+      (adjustment) => adjustment.code === "ACTION_OVERLAP"
+    );
+    if (requestedFrame < cursor) {
+      if (
+        overlap === undefined ||
+        overlap.requestedFrame !== requestedFrame ||
+        overlap.executedFrame !== cursor ||
+        overlap.waitedFrames !== cursor - requestedFrame
+      ) {
+        addIssue(
+          context,
+          ["timelineExecution", "adjustments"],
+          `command ${index} must record its action-overlap wait`
+        );
+      }
+    } else if (overlap !== undefined) {
+      addIssue(
+        context,
+        ["timelineExecution", "adjustments"],
+        `command ${index} has no action overlap to adjust`
+      );
+    }
+    const cooldown = adjustments.find(
+      (adjustment) =>
+        adjustment.code === "ABILITY_ON_COOLDOWN"
+    );
+    const expectedAttemptFrame =
+      cooldown === undefined
+        ? baseAttemptFrame
+        : cooldown.executedFrame;
+    if (
+      cooldown !== undefined &&
+      (cooldown.requestedFrame !== baseAttemptFrame ||
+        cooldown.executedFrame <= baseAttemptFrame ||
+        cooldown.waitedFrames !==
+          cooldown.executedFrame - baseAttemptFrame ||
+        sourceCommand.type === "wait" ||
+        sourceCommand.type === "swap" ||
+        sourceCommand.type === "pickUpCrystallize" ||
+        sourceCommand.type === "dash" ||
+        sourceCommand.type === "jump")
+    ) {
+      addIssue(
+        context,
+        ["timelineExecution", "adjustments"],
+        `command ${index} has an invalid cooldown adjustment`
+      );
+    }
+    expectEqual(
+      context,
+      [...path, "startFrame"],
+      attemptedFrame,
+      expectedAttemptFrame,
+      "timeline actual start frame"
+    );
+    expectEqual(
+      context,
+      [...path, "waitedFrames"],
+      command.waitedFrames,
+      attemptedFrame - requestedFrame,
+      "timeline waited frames"
+    );
+
+    if (sourceCommand.type !== "wait") {
+      cursor = attemptedFrame;
+      expireStatesThrough(attemptedFrame);
+    }
+    if (command.status === "rejected") {
+      if (
+        failure === undefined ||
+        command.failureCode === undefined ||
+        failure.code !== command.failureCode ||
+        failure.frame !== attemptedFrame
+      ) {
+        addIssue(
+          context,
+          path,
+          "rejected commands require one matching failure at the attempted frame"
+        );
+      }
+      if (
+        command.failureCode === "INSUFFICIENT_ENERGY"
+      ) {
+        expectEqual(
+          context,
+          [...path, "startFrame"],
+          command.startFrame,
+          attemptedFrame,
+          "energy-rejected command start"
+        );
+        expectEqual(
+          context,
+          [...path, "endFrame"],
+          command.endFrame,
+          attemptedFrame,
+          "energy-rejected command end"
+        );
+        expectNearlyEqual(
+          context,
+          [...path, "energyBefore"],
+          command.energyBefore ?? Number.NaN,
+          failure?.energyBefore ?? Number.NaN,
+          "energy-rejected command energy before"
+        );
+        expectNearlyEqual(
+          context,
+          [...path, "energyCost"],
+          command.energyCost ?? Number.NaN,
+          failure?.energyCost ?? Number.NaN,
+          "energy-rejected command energy cost"
+        );
+      } else if (
+        command.startFrame !== null ||
+        command.endFrame !== null
+      ) {
+        addIssue(
+          context,
+          [...path, "startFrame"],
+          "non-energy rejected commands cannot expose executed frame bounds"
+        );
+      }
+      if (
+        command.cancelFrame !== null ||
+        command.animationEndFrame !== null
+      ) {
+        addIssue(
+          context,
+          [...path, "cancelFrame"],
+          "rejected commands cannot expose action frame bounds"
+        );
+      }
+      continue;
+    }
+
+    if (failure !== undefined || command.failureCode !== undefined) {
+      addIssue(
+        context,
+        path,
+        "accepted commands cannot own a failure"
+      );
+    }
+    const expectedStatus =
+      attemptedFrame > requestedFrame ? "waited" : "executed";
+    expectEqual(
+      context,
+      [...path, "status"],
+      command.status,
+      expectedStatus,
+      "accepted timeline command status"
+    );
+
+    if (sourceCommand.type === "wait") {
+      const endFrame = attemptedFrame + sourceCommand.frames;
+      for (const [field, expected] of [
+        ["startFrame", attemptedFrame],
+        ["cancelFrame", null],
+        ["animationEndFrame", null],
+        ["endFrame", endFrame]
+      ] as const) {
+        expectEqual(
+          context,
+          [...path, field],
+          command[field],
+          expected,
+          `wait command ${field}`
+        );
+      }
+      cursor = endFrame;
+      expireStatesThrough(endFrame);
+      continue;
+    }
+    if (sourceCommand.type === "pickUpCrystallize") {
+      expectEqual(
+        context,
+        [...path, "endFrame"],
+        command.endFrame,
+        attemptedFrame,
+        "pickup command end"
+      );
+      continue;
+    }
+
+    let actionFrame = attemptedFrame;
+    let cancelFrame: number;
+    let animationEndFrame: number;
+    let actionId: string;
+    let actionName: string;
+    let sourceAbilityId: string | undefined;
+    if (sourceCommand.type === "swap") {
+      cancelFrame = attemptedFrame + timeline.swapFrames;
+      animationEndFrame = cancelFrame;
+      actionFrame = cancelFrame;
+      actionId = `__swap#${index}`;
+      actionName = `切换至 ${sourceCommand.characterId}`;
+      activeCharacterId = sourceCommand.characterId;
+    } else if (
+      sourceCommand.type === "dash" ||
+      sourceCommand.type === "jump"
+    ) {
+      cancelFrame = attemptedFrame + sourceCommand.frames;
+      animationEndFrame = cancelFrame;
+      actionId = `__${sourceCommand.type}#${index}`;
+      actionName =
+        sourceCommand.type === "dash" ? "冲刺" : "跳跃";
+    } else {
+      const configuredAbilityId = (
+        sourceCommand as { abilityId?: string }
+      ).abilityId;
+      const ability = timeline.abilities.find(
+        (candidate) =>
+          candidate.id === configuredAbilityId
+      );
+      if (ability === undefined) {
+        addIssue(
+          context,
+          [...path, "abilityId"],
+          "accepted ability command must reference a configured ability"
+        );
+        continue;
+      }
+      const nextType = timeline.commands[index + 1]?.type;
+      const followup =
+        nextType === undefined ||
+        nextType === "wait" ||
+        nextType === "pickUpCrystallize"
+          ? undefined
+          : nextType;
+      const cancelOffset =
+        (followup === undefined
+          ? undefined
+          : ability.cancelFrames?.[followup]) ??
+        ability.cancelFrame;
+      cancelFrame = attemptedFrame + cancelOffset;
+      animationEndFrame =
+        attemptedFrame + ability.animationEndFrame;
+      actionId = `${ability.id}#${index}`;
+      actionName = ability.name;
+      sourceAbilityId = ability.id;
+      acceptedAbilities.set(index, {
+        actorId: ability.actorId,
+        abilityId: ability.id,
+        startFrame: attemptedFrame,
+        cancelFrame,
+        animationEndFrame,
+        actionId
+      });
+      applyAbilityStates(ability, index, attemptedFrame);
+    }
+    for (const [field, expected] of [
+      ["startFrame", attemptedFrame],
+      ["cancelFrame", cancelFrame],
+      ["animationEndFrame", animationEndFrame],
+      ["endFrame", cancelFrame]
+    ] as const) {
+      expectEqual(
+        context,
+        [...path, field],
+        command[field],
+        expected,
+        `accepted command ${field}`
+      );
+    }
+    cursor = cancelFrame;
+    if (
+      sourceCommand.type === "swap" ||
+      sourceCommand.type === "dash" ||
+      sourceCommand.type === "jump"
+    ) {
+      expireStatesThrough(cancelFrame);
+    }
+    if (actionFrame / 60 <= result.config.duration) {
+      expectedActions.set(index, {
+        commandIndex: index,
+        frame: actionFrame,
+        actorId:
+          sourceCommand.type === "swap"
+            ? sourceCommand.characterId
+            : sourceCommand.actorId,
+        actionId,
+        action: actionName,
+        sourceAbilityId,
+        cancelFrame,
+        animationEndFrame
+      });
+    }
+  }
+
+  expireStatesThrough(durationFrames);
+  expectEqual(
+    context,
+    ["timelineExecution", "totalFrames"],
+    execution.totalFrames,
+    cursor,
+    "timeline terminal frame"
+  );
+  expectEqual(
+    context,
+    ["timelineExecution", "finalActiveCharacterId"],
+    execution.finalActiveCharacterId,
+    activeCharacterId,
+    "timeline final active character"
+  );
+  expectSemanticEqual(
+    context,
+    ["timelineExecution", "stateLog"],
+    execution.stateLog,
+    expectedStateLog,
+    "timeline state transition replay"
+  );
+
+  const actionsByCommand = new Map<
+    number,
+    Array<(typeof result.actionLog)[number]>
+  >();
+  for (const [index, action] of result.actionLog.entries()) {
+    if (action.timelineCommandIndex === undefined) continue;
+    const rows =
+      actionsByCommand.get(action.timelineCommandIndex) ?? [];
+    rows.push(action);
+    actionsByCommand.set(action.timelineCommandIndex, rows);
+    const expected = expectedActions.get(
+      action.timelineCommandIndex
+    );
+    if (expected === undefined) {
+      addIssue(
+        context,
+        ["actionLog", index, "timelineCommandIndex"],
+        "must reference one accepted action-producing timeline command"
+      );
+      continue;
+    }
+    for (const [field, value] of [
+      ["frame", expected.frame],
+      ["actorId", expected.actorId],
+      ["actionId", expected.actionId],
+      ["action", expected.action],
+      ["sourceAbilityId", expected.sourceAbilityId],
+      ["cancelFrame", expected.cancelFrame],
+      ["animationEndFrame", expected.animationEndFrame],
+      ["cycle", 0]
+    ] as const) {
+      expectEqual(
+        context,
+        ["actionLog", index, field],
+        action[field],
+        value,
+        `timeline action ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["actionLog", index, "time"],
+      action.time,
+      expected.frame / 60,
+      "timeline action time"
+    );
+  }
+  for (const [commandIndex] of expectedActions) {
+    if ((actionsByCommand.get(commandIndex) ?? []).length !== 1) {
+      addIssue(
+        context,
+        ["actionLog"],
+        `timeline command ${commandIndex} must own exactly one action row`
+      );
+    }
+  }
+
+  const skippedByCommand = new Map<
+    number,
+    Array<(typeof result.skippedActions)[number]>
+  >();
+  for (const [index, skipped] of
+    result.skippedActions.entries()) {
+    if (skipped.timelineCommandIndex === undefined) {
+      addIssue(
+        context,
+        ["skippedActions", index, "timelineCommandIndex"],
+        "legal timeline skipped actions must reference their command"
+      );
+      continue;
+    }
+    const rows =
+      skippedByCommand.get(skipped.timelineCommandIndex) ?? [];
+    rows.push(skipped);
+    skippedByCommand.set(skipped.timelineCommandIndex, rows);
+    const command =
+      execution.commandResults[skipped.timelineCommandIndex];
+    if (
+      command === undefined ||
+      command.status !== "rejected" ||
+      command.failureCode !== "INSUFFICIENT_ENERGY" ||
+      command.startFrame === null
+    ) {
+      addIssue(
+        context,
+        ["skippedActions", index, "timelineCommandIndex"],
+        "must reference an energy-rejected timeline command"
+      );
+      continue;
+    }
+    for (const [field, expected] of [
+      ["frame", command.startFrame],
+      ["actorId", command.actorId],
+      ["sourceAbilityId", command.abilityId],
+      ["actionId", `${command.abilityId}#${command.commandIndex}`],
+      ["energyBefore", command.energyBefore],
+      ["energyCost", command.energyCost],
+      ["cycle", 0]
+    ] as const) {
+      expectEqual(
+        context,
+        ["skippedActions", index, field],
+        skipped[field],
+        expected,
+        `timeline skipped action ${field}`
+      );
+    }
+    expectNearlyEqual(
+      context,
+      ["skippedActions", index, "time"],
+      skipped.time,
+      command.startFrame / 60,
+      "timeline skipped action time"
+    );
+  }
+  for (const command of execution.commandResults) {
+    const count = (
+      skippedByCommand.get(command.commandIndex) ?? []
+    ).length;
+    if (
+      command.failureCode === "INSUFFICIENT_ENERGY"
+        ? count !== 1
+        : count !== 0
+    ) {
+      addIssue(
+        context,
+        ["skippedActions"],
+        `timeline command ${command.commandIndex} has an invalid skipped-action cardinality`
+      );
+    }
+  }
+
+  for (const [index, event] of result.damageEvents.entries()) {
+    if (event.timelineCommandIndex === undefined) {
+      addIssue(
+        context,
+        ["damageEvents", index, "timelineCommandIndex"],
+        "legal timeline damage must reference its accepted ability command"
+      );
+      continue;
+    }
+    const ability = acceptedAbilities.get(
+      event.timelineCommandIndex
+    );
+    if (ability === undefined) {
+      addIssue(
+        context,
+        ["damageEvents", index, "timelineCommandIndex"],
+        "must reference an accepted ability command"
+      );
+      continue;
+    }
+    for (const [field, expected] of [
+      ["sourceActorId", ability.actorId],
+      ["sourceAbilityId", ability.abilityId],
+      ["actionId", ability.actionId],
+      ["actionStartFrame", ability.startFrame],
+      ["actionCancelFrame", ability.cancelFrame],
+      [
+        "actionAnimationEndFrame",
+        ability.animationEndFrame
+      ]
+    ] as const) {
+      expectEqual(
+        context,
+        ["damageEvents", index, field],
+        event[field],
+        expected,
+        `timeline damage ${field}`
+      );
+    }
+  }
+}
+
+function validateMechanicsAndBoundaries(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const damageEventIds = new Set(
+    result.damageEvents.map((event) => event.id)
+  );
+  const idLogs: Array<
+    [path: string, entries: Array<{ id: number }>]
+  > = [
+    ["hitResolutionLog", result.hitResolutionLog],
+    ["targetClockLog", result.targetClockLog],
+    ["targetHitlagLog", result.targetHitlagLog],
+    ["targetTaskPhaseLog", result.targetTaskPhaseLog],
+    ["targetPhaseLog", result.targetPhaseLog],
+    [
+      "targetMechanicsTruncationLog",
+      result.targetMechanicsTruncationLog
+    ],
+    ["reactionDamageLog", result.reactionDamageLog],
+    ["reactionTaskLog", result.reactionTaskLog],
+    ["reactionStatusLog", result.reactionStatusLog],
+    ["periodicReactionLog", result.periodicReactionLog],
+    ["frozenStateLog", result.frozenStateLog],
+    ["quickenStateLog", result.quickenStateLog],
+    ["burningStateLog", result.burningStateLog],
+    ["dendroCoreLog", result.dendroCoreLog],
+    ["dendroCoreContactLog", result.dendroCoreContactLog],
+    ["crystallizeShardLog", result.crystallizeShardLog],
+    ["crystallizeShieldLog", result.crystallizeShieldLog],
+    [
+      "crystallizeShieldTimeline",
+      result.crystallizeShieldTimeline
+    ],
+    [
+      "playerHitResolutionLog",
+      result.playerHitResolutionLog
+    ],
+    ["playerDamageEvents", result.playerDamageEvents],
+    ["energyLog", result.energyLog],
+    ["particleEvents", result.particleEvents],
+    ["particleTriggerLog", result.particleTriggerLog],
+    ["energyCurve", result.energyCurve]
+  ];
+  for (const [path, entries] of idLogs) {
+    for (const [index, entry] of entries.entries()) {
+      if (entry.id !== index) {
+        addIssue(
+          context,
+          [path, index, "id"],
+          `${path} IDs must be contiguous and index-addressable`
+        );
+      }
+    }
+  }
+  for (const [logIndex, entry] of
+    result.reactionDamageLog.entries()) {
+    for (const [referenceIndex, damageEventId] of
+      entry.damageEventIds.entries()) {
+      if (!damageEventIds.has(damageEventId)) {
+        addIssue(
+          context,
+          [
+            "reactionDamageLog",
+            logIndex,
+            "damageEventIds",
+            referenceIndex
+          ],
+          `references missing damage event ${damageEventId}`
+        );
+      }
+    }
+  }
+  validateAuraProjection(result, context, damageEventIds);
+  validateReactionBacklinks(result, context);
+  validateSwirlBacklinks(result, context);
+  validateParticleBacklinks(result, context);
+  validateFrozenStateProjection(result, context);
+  validateCrystallizeShardProjection(result, context);
+  validateBurningStateProjection(result, context);
+  validateTimelineExecutionProjection(result, context);
+  const expectedMechanicsStatus =
+    result.targetMechanicsTruncationLog.length === 0
+      ? "complete"
+      : "partial";
+  if (result.mechanicsStatus !== expectedMechanicsStatus) {
+    addIssue(
+      context,
+      ["mechanicsStatus"],
+      `must be ${expectedMechanicsStatus} for the truncation log`
+    );
+  }
+  const targetIdentity = result.enemyTargets.map((target) => ({
+    targetId: target.id,
+    targetName: target.name
+  }));
+  const initialIdentity = result.auraInitialStates.map(
+    ({ targetId, targetName }) => ({ targetId, targetName })
+  );
+  const endIdentity = result.auraEndStates.map(
+    ({ targetId, targetName }) => ({ targetId, targetName })
+  );
+  expectSemanticEqual(
+    context,
+    ["auraInitialStates"],
+    initialIdentity,
+    targetIdentity,
+    "initial Aura target projection"
+  );
+  expectSemanticEqual(
+    context,
+    ["auraEndStates"],
+    endIdentity,
+    targetIdentity,
+    "final Aura target projection"
+  );
+  const endFrame = Math.round(result.config.duration * 60);
+  for (const [index, state] of result.auraInitialStates.entries()) {
+    if (state.frame !== 0 || state.timeSeconds !== 0) {
+      addIssue(
+        context,
+        ["auraInitialStates", index, "frame"],
+        "initial Aura boundary must be at frame 0"
+      );
+    }
+  }
+  for (const [index, state] of result.auraEndStates.entries()) {
+    if (
+      state.frame !== endFrame ||
+      !nearlyEqual(state.timeSeconds, endFrame / 60)
+    ) {
+      addIssue(
+        context,
+        ["auraEndStates", index, "frame"],
+        "final Aura boundary must match simulation duration"
+      );
+    }
+  }
+}
+
+function validateEnergy(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const characterIds = result.config.characters.map(
+    (character) => character.id
+  );
+  const statIds = Object.keys(result.energyStats);
+  expectSemanticEqual(
+    context,
+    ["energyStats"],
+    [...statIds].sort(),
+    [...characterIds].sort(),
+    "energy summary character IDs"
+  );
+
+  const gainedByCharacter: Record<string, number> = {};
+  const fixedGainedByCharacter: Record<string, number> = {};
+  const particleGainedByCharacter: Record<string, number> = {};
+  const wastedByCharacter: Record<string, number> = {};
+  for (const entry of result.energyLog) {
+    addToRecord(
+      gainedByCharacter,
+      entry.receiverId,
+      entry.gainedEnergy
+    );
+    addToRecord(
+      wastedByCharacter,
+      entry.receiverId,
+      entry.wastedEnergy
+    );
+    addToRecord(
+      entry.kind === "fixed"
+        ? fixedGainedByCharacter
+        : particleGainedByCharacter,
+      entry.receiverId,
+      entry.gainedEnergy
+    );
+  }
+  const spentByCharacter: Record<string, number> = {};
+  for (const action of result.actionLog) {
+    addToRecord(
+      spentByCharacter,
+      action.actorId,
+      action.energyBefore - action.energyAfter
+    );
+  }
+  const skippedByCharacter: Record<string, number> = {};
+  for (const skipped of result.skippedActions) {
+    addToRecord(skippedByCharacter, skipped.actorId, 1);
+  }
+
+  const terminalEnergy =
+    result.energyCurve[result.energyCurve.length - 1]
+      ?.energyByCharacter;
+  if (terminalEnergy === undefined) {
+    addIssue(
+      context,
+      ["energyCurve"],
+      "must contain an initial and terminal energy projection"
+    );
+  }
+
+  for (const [index, character] of
+    result.config.characters.entries()) {
+    const path = ["energyStats", character.id] satisfies IssuePath;
+    const summary = result.energyStats[character.id];
+    if (summary === undefined) {
+      addIssue(
+        context,
+        path,
+        `missing energy summary for ${character.id}`
+      );
+      continue;
+    }
+    const expectedInitial =
+      result.resolvedRuntimeOptions.energyMode === "zero"
+        ? 0
+        : result.resolvedRuntimeOptions.energyMode === "full"
+          ? character.energyMax
+          : character.initialEnergy;
+    expectNearlyEqual(
+      context,
+      [...path, "initial"],
+      summary.initial,
+      expectedInitial,
+      "initial energy"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "gained"],
+      summary.gained,
+      gainedByCharacter[character.id] ?? 0,
+      "gained energy"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "fixedGained"],
+      summary.fixedGained,
+      fixedGainedByCharacter[character.id] ?? 0,
+      "fixed energy gained"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "particleGained"],
+      summary.particleGained,
+      particleGainedByCharacter[character.id] ?? 0,
+      "particle energy gained"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "wasted"],
+      summary.wasted,
+      wastedByCharacter[character.id] ?? 0,
+      "wasted energy"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "spent"],
+      summary.spent,
+      spentByCharacter[character.id] ?? 0,
+      "spent energy"
+    );
+    expectEqual(
+      context,
+      [...path, "skipped"],
+      summary.skipped,
+      skippedByCharacter[character.id] ?? 0,
+      "skipped action count"
+    );
+    expectNearlyEqual(
+      context,
+      [...path, "final"],
+      summary.final,
+      summary.initial + summary.gained - summary.spent,
+      "final energy balance"
+    );
+    if (terminalEnergy !== undefined) {
+      expectNearlyEqual(
+        context,
+        [
+          "energyCurve",
+          result.energyCurve.length - 1,
+          "energyByCharacter",
+          character.id
+        ],
+        terminalEnergy[character.id] ?? Number.NaN,
+        summary.final,
+        "terminal energy curve"
+      );
+    }
+    if (
+      index === 0 &&
+      result.energyCurve[0]?.kind !== "initial"
+    ) {
+      addIssue(
+        context,
+        ["energyCurve", 0, "kind"],
+        "first energy curve point must be initial"
+      );
+    }
+  }
+}
+
+/**
+ * Cross-field proof for the exact current SimulationResult wire.
+ *
+ * Leaf schemas own field domains and discriminated unions. This pass stays
+ * linear in result size and binds duplicated compatibility projections,
+ * aggregates, identities, and the principal event backlinks.
+ */
+export function validateSimulationResultV142Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentity(result, context);
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+}
+
+/**
+ * Zero-copy assertion for a SimulationResult produced inside sim-core.
+ *
+ * Internal results have already passed TypeScript construction and the
+ * mode-specific reaction/clock/player facets. Running the full public Zod
+ * wire schema here would clone several megabytes of timelines on every
+ * simulation. This trusted boundary reuses the exact same cross-field proof
+ * without cloning; untrusted JSON and persisted fixtures must still use
+ * simulationResultV142Schema.
+ */
+export function assertTrustedSimulationResultV142(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV142Integrity(result, context);
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${
+            issue.message
+          }`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.42 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}

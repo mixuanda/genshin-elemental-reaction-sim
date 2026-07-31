@@ -154,7 +154,7 @@ enemy: {
 
 两个 `resistances` 字段都是严格、完整的八键有限数表，不能省略某个元素或附加未知键。目标级 `resistance` 与 `resistances` 互斥；共享 `resistance` 继续必填，以便旧配置和没有逐元素表的目标确定性回退。每段伤害按其实际 `damageElement` 解析基础抗性，优先级固定为 `目标八项表 > 目标标量 > 共享八项表 > 共享标量`。直接伤害、增幅/激化后的普通伤害、超载/超导/感电/燃烧/绽放系等独立反应伤害、扩散伤害和物理伤害均复用同一选择函数；超导等减抗状态在选定的元素基础抗性之上继续应用。`enemyStateBeforeHit.baseResistance` 保存本段实际选中的值。运行时复用既有结果解析门，在一次 `simConfigSchema` 解析中同时校验具名目标的解析顺序、标量/表继承，以及每个 `DamageEvent.element` 对应的基础抗性；独立投影 Schema 也可供外部消费者验证结果。1.34 及更早对象即使从原型链继承 `resistances` 也会 fail-closed，避免非 JSON 输入绕过历史 wire contract。该表是场景输入契约，不是经来源核验的完整敌人抗性数据库。
 
-输出侧的 `SimulationRunManifest`、Burning/Quicken/Bloom 审计、核心 `reactionTaskLog`、冻结 v1 的 `targetTaskPhaseLog`、v2 的 `targetPhaseLog`、1.39 反应交付父链/碎冰日志引用、ReactionA/B 伤害组、草原核生命周期/接触/时间线、玩家空间命中/伤害/HP 时间线与汇总、结晶盾吸收/破裂、具名目标/逐击基础抗性、`targetClockAudit` / `targetClockLog` / `targetHitlagLog` 及其跨日志引用、`TargetStateTimeline` 等关键投影均有严格 Zod Schema，并使用模拟器实际生成的状态流做解析测试。两种目标相位日志按目标任务模式互斥；`TargetStateTimeline`、草原核时间线和玩家 HP 时间线分别拥有独立输出版本。严格引用 Schema 校验 ID 连续性、事件帧序、HP/盾量守恒、目标时钟回放守恒、目标注册顺序、对应相位中的 Aura 连续性、反应交付父链无环和双向外键、逐角色汇总与总计。完整 `SimulationResult` 目前仍由 TypeScript interface 约束，尚未建立覆盖全部输出字段的单一顶层运行时 Zod Schema；因此“可靠 Schema”声明只适用于输入配置和已显式注册的关键输出契约。
+输出侧的精确 1.42 `simulationResultV142Schema` 覆盖 `SimulationResult` 全部 65 个顶层字段；DamageEvent、ReactionAudit、反应/状态/实体生命周期、行动、能量/粒子、汇总、曲线、Aura 边界和合法时间线均有 strict 叶 Schema。统一完整性层先建立 ID 索引，再校验 result/config/manifest 身份及便利别名、逐击队列顺序、`displayDamage = round(finalDamage)`、三段伤害构成、命中与已注册机制的主要反应反链、总伤/DPS/反应命中、角色/目标/技能/逐秒汇总和完整伤害曲线；这里不把整条检查路径宣称为严格线性复杂度。Burning/Quicken/Bloom、核心 `reactionTaskLog`、冻结 v1/v2 目标相位、反应交付、ReactionA/B、草原核、玩家伤害/HP/结晶盾、目标时钟/Hitlag、EC cleanup/传播/cadence 与 `TargetStateTimeline` 的既有深层 facet 继续承担各机制的专门守恒。外部 JSON、持久化的完整 `SimulationResult` 以及未来新增的完整 result Fixture 必须走完整 Zod parse；现有 summary Golden 只校验冻结摘要和 SHA，并不是完整 `SimulationResult` parse 的证据。内部核心输出已由 TypeScript 和各机制 facet 构造，在 public `simulate()` 最终返回前调用 `assertTrustedSimulationResultV142()` 复用跨字段完整性规则而不深拷贝日志；该零拷贝可信断言不等同于完整 Zod parse，不能作为外部或持久化 wire 的验证边界。完整结构 Schema 仍不等于公式真值、角色数据库完整性或 gcsim 级精度，这些必须由公式测试、Golden、来源审计和机制向量分别证明。
 
 每次结果都返回 `runManifest`：
 
@@ -1006,7 +1006,7 @@ Milestone 5 已完成数据层基础和首批部分机制编译闭环，不等�
 3. 基础反应门稳定后，从冻结的 1.37 callback→Aura 衰减和 1.38 callback→同一目标 `Reactable.Tick` 边界继续补 Burning callback 内同步跨目标 Aura/反应命中与通用目标任务所有权，再决定 movement/phase、更多 Debuff/状态和敌方 AI 任务如何受 Hitlag；继续证明 Quicken→Bloom core zero-delay task、感电 `+10/+60` Tick 与 `+6` Wane、附着 ICD、ReactionA/B、草原核/结晶实体和玩家侧状态不被误归类或误冻。当前 v2 没有全目标 barrier，也不能声称完成同步跨目标 Burning；不得静默改写 v1–v9、legacy 或任何冻结 Golden。
 4. 在当前玩家反应自伤基础上，按独立版本加入玩家 Aura、敌方攻击与玩家侧反应，再逐项设计治疗、死亡/复活、动态 Max HP、角色移动、非结晶盾和护盾强效；`clamp-and-continue` 不能冒充正式死亡逻辑。
 5. 在快照阶段前建立可测试的 `OnBurning` 角色回调点，并以独立机制插件实现纳西妲 C2 的转化反应特殊暴击；未完成前继续输出明确限制，不向通用燃烧公式硬编码角色例外。
-6. 建立覆盖全部 `SimulationResult` 字段的版本化顶层 Zod Schema；同时为任意代码插件增加可选的构建产物/源码摘要验证，减少只信任自报 descriptor/contentHash 的边界。
+6. 维护已建立的版本化顶层 `SimulationResult` Schema：每次新增输出字段或判别分支都必须同步 strict 叶 Schema、跨字段 mutation 和真实结果向量；同时为任意代码插件增加可选的构建产物/源码摘要验证，减少只信任自报 descriptor/contentHash 的边界。
 7. 把完整角色/武器目录逐项推进到 `mechanics-mapped`：补齐技能命中拆段、倍率来源、ICD、动作/取消帧、快照、产球、命座、专武和圣遗物效果，并为每个正式条目提供测试向量。
 8. 建立版本化 `ShowcaseSnapshot -> ResolvedLoadout -> SimConfig` 管线，以 `skillDepotId` 优先消除旅行者/变体歧义，加入圣遗物目录与效果闸门，并用多个固定展示柜 Fixture 验证 UID 数据缺失/变更路径；“毕业站位”在标准核验前继续保持不可模拟占位。
 9. 在当前静态角色姿态、四类局部几何和目标线性移动模型上增加角色移动/转向命令、追踪/索敌语义和命令/AI 驱动的敌方位置更新，再建立有来源的具体 Boss 状态机。

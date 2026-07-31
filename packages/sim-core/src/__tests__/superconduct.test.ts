@@ -1,4 +1,6 @@
 import {
+  simulationResultV142Schema,
+  targetClockResultReferencesSchema,
   targetStateTimelineSchema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
@@ -219,6 +221,110 @@ function makeOrderedCryoPipelineConfig(): SimConfig {
           type: "skill",
           actorId: "cryo",
           abilityId: "ordered-cryo-pipeline"
+        }
+      ]
+    }
+  };
+}
+
+function makeSameFrameSuperconductRefreshConfig(): SimConfig {
+  const base = makeConfig();
+  const sourceTargets = [
+    {
+      id: "source-left",
+      name: "左侧超导源",
+      position: { x: 0, y: 0 },
+      initialAura: [
+        { element: "cryo" as const, gaugeUnits: 1 }
+      ]
+    },
+    {
+      id: "source-right",
+      name: "右侧超导源",
+      position: { x: 4, y: 0 },
+      initialAura: [
+        { element: "cryo" as const, gaugeUnits: 1 }
+      ]
+    }
+  ];
+
+  return {
+    ...base,
+    duration: 1,
+    cycleLength: 1,
+    targetClockModel: {
+      mode: "target-local-hitlag-v1"
+    },
+    enemy: {
+      level: 90,
+      resistance: 0.1,
+      defReduction: 0,
+      targets: [
+        ...sourceTargets,
+        {
+          id: "enemy-0",
+          name: "共同受击目标",
+          position: { x: 2, y: 0 }
+        }
+      ]
+    },
+    characters: [
+      {
+        ...base.characters[0]!,
+        id: "electro",
+        name: "Electro",
+        element: "electro",
+        level: 90,
+        stats: {
+          ...neutralStats,
+          baseAtk: 1000
+        }
+      }
+    ],
+    rotation: [],
+    reactionEngine: {
+      mode: "aura-v5"
+    },
+    timeline: {
+      mode: "legal-frame-v1",
+      fps: 60,
+      legalityMode: "strict",
+      initialActiveCharacterId: "electro",
+      swapFrames: 12,
+      abilities: [
+        {
+          id: "same-frame-superconducts",
+          actorId: "electro",
+          name: "同帧双超导",
+          kind: "skill",
+          cancelFrame: 1,
+          animationEndFrame: 1,
+          cooldownFrames: 0,
+          hits: sourceTargets.map((target, index) => ({
+            id: `superconduct-trigger-${index}`,
+            label: `超导触发 ${index}`,
+            frame: 0,
+            scaling: 1,
+            element: "electro" as const,
+            geometry: {
+              kind: "circle" as const,
+              coordinateSpace: "world" as const,
+              origin: target.position,
+              radius: 0.1
+            },
+            application: {
+              gaugeUnits: 1,
+              icdTag: `same-frame-superconduct-${index}`,
+              icdGroup: "no-icd" as const
+            }
+          }))
+        }
+      ],
+      commands: [
+        {
+          type: "skill",
+          actorId: "electro",
+          abilityId: "same-frame-superconducts"
         }
       ]
     }
@@ -495,6 +601,54 @@ describe("Superconduct simulation integration", () => {
         supersededAtFrame: null
       }
     ]);
+  });
+
+  it("records a same-frame refresh as an instantaneous superseded status accepted by result schemas", () => {
+    const result = simulate(
+      makeSameFrameSuperconductRefreshConfig(),
+      { critMode: "noCrit" }
+    );
+    const sharedStatuses = result.reactionStatusLog.filter(
+      (entry) => entry.targetId === "enemy-0"
+    );
+
+    expect(sharedStatuses).toHaveLength(2);
+    expect(sharedStatuses).toMatchObject([
+      {
+        startFrame: 1,
+        endFrame: 1,
+        operation: "apply",
+        supersededAtFrame: 1
+      },
+      {
+        startFrame: 1,
+        endFrame: 721,
+        operation: "refresh",
+        supersededAtFrame: null
+      }
+    ]);
+    expect(
+      sharedStatuses.map(
+        (entry) => entry.reactionDamageEventId
+      )
+    ).toEqual(
+      result.reactionDamageLog.map((entry) => {
+        const sharedDamageEventId = entry.damageEventIds.find(
+          (eventId) =>
+            result.damageEvents[eventId]?.targetId ===
+            "enemy-0"
+        );
+        expect(sharedDamageEventId).toBeDefined();
+        return sharedDamageEventId;
+      })
+    );
+
+    expect(
+      simulationResultV142Schema.safeParse(result).success
+    ).toBe(true);
+    expect(
+      targetClockResultReferencesSchema.safeParse(result).success
+    ).toBe(true);
   });
 
   it("applies ReactionA to only the first two of three overlapping explosions", () => {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  assertTrustedSimulationResultV142,
+  simulationResultV142Schema,
+  type SimConfig,
+  type SimulationResult
+} from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
 import {
   calcAmplifyingReactionMultiplier,
@@ -302,6 +307,25 @@ function makeSwirlSimulationConfig(
   };
 }
 
+function expectSwirlMutationRejected(
+  result: SimulationResult,
+  mutate: (mutation: SimulationResult) => void
+): void {
+  const publicWire = structuredClone(result);
+  mutate(publicWire);
+  expect(
+    simulationResultV142Schema.safeParse(publicWire).success
+  ).toBe(false);
+
+  const trustedResult = structuredClone(result);
+  mutate(trustedResult);
+  expect(() =>
+    assertTrustedSimulationResultV142(trustedResult)
+  ).toThrow(
+    /Trusted SimulationResult 1\.42 integrity validation failed/
+  );
+}
+
 interface NestedSwirlAmplifyingCase {
   label: string;
   swirledAura: "pyro" | "cryo";
@@ -402,6 +426,120 @@ function makeNestedSwirlAmplifyingConfig(
 }
 
 describe("Swirl simulation integration", () => {
+  it("rejects Swirl source-delivery and ReactionA projection drift at both result boundaries", () => {
+    const result = simulate(makeSwirlSimulationConfig(), {
+      critMode: "noCrit"
+    });
+
+    expectSwirlMutationRejected(result, (mutation) => {
+      const sourceAudit =
+        mutation.damageEvents[0]!.reactionAudit
+          .swirlReactions[0]!;
+      const propagation = mutation.reactionDamageLog.find(
+        (entry) =>
+          entry.scheduleKind === "swirl-propagation"
+      );
+      if (propagation?.applicationGaugeUnits === null ||
+          propagation === undefined) {
+        throw new Error(
+          "Swirl vector must expose a propagation application."
+        );
+      }
+      sourceAudit.propagatedGaugeUnits = 2.3;
+      propagation.applicationGaugeUnits = 2.3;
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const propagation = mutation.reactionDamageLog.find(
+        (entry) =>
+          entry.scheduleKind === "swirl-propagation"
+      );
+      if (propagation?.applicationGaugeUnits === null ||
+          propagation === undefined) {
+        throw new Error(
+          "Swirl vector must expose a propagation application."
+        );
+      }
+      propagation.applicationGaugeUnits += 0.1;
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      mutation.damageEvents[0]!.reactionAudit.swirlReactions[0]!
+        .selfDamageFrame += 1;
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      mutation.damageEvents[0]!.reactionAudit.swirlReactions[0]!
+        .scheduled = false;
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const child = mutation.damageEvents.find(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reaction === "swirlPyro"
+      );
+      if (child === undefined) {
+        throw new Error(
+          "Swirl vector must expose a reaction-damage child."
+        );
+      }
+      child.reaction = "swirlHydro";
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const child = mutation.damageEvents.find(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reaction === "swirlPyro"
+      );
+      if (child === undefined) {
+        throw new Error(
+          "Swirl vector must expose a reaction-damage child."
+        );
+      }
+      child.element = "hydro";
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const child = mutation.damageEvents.find(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reactionAudit.swirlDamageGroup !== null
+      );
+      if (child?.reactionAudit.swirlDamageGroup === null ||
+          child === undefined) {
+        throw new Error(
+          "Swirl vector must expose a child damage-group audit."
+        );
+      }
+      child.reactionAudit.swirlDamageGroup.reaction =
+        "swirlHydro";
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const child = mutation.damageEvents.find(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reactionAudit.swirlDamageGroup !== null
+      );
+      if (child?.reactionAudit.swirlDamageGroup === null ||
+          child === undefined) {
+        throw new Error(
+          "Swirl vector must expose a child damage-group audit."
+        );
+      }
+      child.reactionAudit.swirlDamageGroup.windowStartFrame += 1;
+    });
+    expectSwirlMutationRejected(result, (mutation) => {
+      const propagation = mutation.reactionDamageLog.find(
+        (entry) =>
+          entry.scheduleKind === "swirl-propagation" &&
+          entry.damageGroupDecisions.length > 0
+      );
+      const decision = propagation?.damageGroupDecisions[0];
+      if (decision === undefined) {
+        throw new Error(
+          "Swirl vector must expose a ReactionA decision."
+        );
+      }
+      decision.damageAllowed = !decision.damageAllowed;
+    });
+  });
+
   it("queues self and source-excluding propagation hits with secondary amplification", () => {
     const result = simulate(makeSwirlSimulationConfig(), {
       critMode: "allCrit"

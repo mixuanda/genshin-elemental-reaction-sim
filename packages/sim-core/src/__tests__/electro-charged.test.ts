@@ -1,4 +1,8 @@
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  assertTrustedSimulationResultV142,
+  simulationResultV142Schema,
+  type SimConfig
+} from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
@@ -293,6 +297,47 @@ describe("Electro-Charged simulation integration", () => {
           event.frame === 21
       )
     ).toBe(true);
+  });
+
+  it("keeps a Wane-callback stop distinct from a non-Wane stop and accepts the exact result wire", () => {
+    const config = makeElectroChargedConfig();
+    config.characters[1]!.element = "pyro";
+    config.characters[1]!.name = "Pyro B";
+    config.timeline!.swapFrames = 4;
+    config.timeline!.abilities[1]!.name = "Pyro stop before Wane";
+    config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
+    config.timeline!.abilities[1]!.hits![0]!.label =
+      "火在 Wane 前终止感电";
+    config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
+      auraV2RetainedGauge(12);
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const nonWaneStop = result.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "stop" && entry.frame === 12
+    );
+    const waneStop = result.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "stop" && entry.waneFrame === 16
+    );
+
+    expect(nonWaneStop).toMatchObject({
+      damageEventId: null,
+      tickIndex: null,
+      waneFrame: null,
+      reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+    });
+    expect(waneStop).toMatchObject({
+      frame: 16,
+      damageEventId: expect.any(Number),
+      tickIndex: 0,
+      waneFrame: 16,
+      reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
+    });
+    expect(
+      simulationResultV142Schema.safeParse(result).success
+    ).toBe(true);
+    expect(assertTrustedSimulationResultV142(result)).toBe(result);
   });
 
   it("keeps an already queued first tick after an early stop without wane or later ticks", () => {
