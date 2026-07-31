@@ -14,6 +14,8 @@ import {
   createSimulationReproducibilityKey
 } from "./reproducibility";
 import { calcCrystallizeShield } from "./crystallize";
+import { validateEnergyReplayIntegrity } from "./energy-replay-integrity";
+import { validateParticleProvenanceIntegrity } from "./particle-provenance-integrity";
 
 type IssuePath = Array<string | number>;
 
@@ -7403,6 +7405,7 @@ function validateMechanicsAndBoundaries(
   validateReactionBacklinks(result, context);
   validateSwirlBacklinks(result, context);
   validateParticleBacklinks(result, context);
+  validateParticleProvenanceIntegrity(result, context);
   validateFrozenStateProjection(result, context);
   validateCrystallizeShardProjection(result, context);
   validateBurningStateProjection(result, context);
@@ -7645,6 +7648,7 @@ export function validateSimulationResultV142Integrity(
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
   validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
 }
 
 /**

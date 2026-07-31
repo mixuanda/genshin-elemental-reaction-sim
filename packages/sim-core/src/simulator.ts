@@ -183,6 +183,8 @@ export function projectBloomBurningFuelExpiry(
 }
 
 const GEOMETRY_EPSILON = 1e-9;
+const ENERGY_COMPARISON_EPSILON = 1e-9;
+const ENERGY_DECIMAL_PLACES = 12;
 
 function resolveEnemyBaseResistance(
   target: SimulationResult["enemyTargets"][number],
@@ -1087,6 +1089,39 @@ function safeNumber(value: number | undefined, fallback = 0): number {
 
 function round(value: number, digits = 2): number {
   return Number(value.toFixed(digits));
+}
+
+function quantizeEnergy(value: number): number {
+  return round(value, ENERGY_DECIMAL_PLACES);
+}
+
+function assertNonNegativeFixedEnergyGains(config: SimConfig): void {
+  type FixedEnergyGainSource = Readonly<{
+    id: string;
+    energyGains?: readonly Readonly<{ amount: number }>[];
+  }>;
+  const actionGroups: ReadonlyArray<
+    readonly [
+      source: "rotation action" | "timeline ability",
+      actions: readonly FixedEnergyGainSource[]
+    ]
+  > = [
+    ["rotation action", config.rotation],
+    ["timeline ability", config.timeline?.abilities ?? []]
+  ];
+
+  for (const [source, actions] of actionGroups) {
+    for (const action of actions) {
+      for (const [gainIndex, gain] of (
+        action.energyGains ?? []
+      ).entries()) {
+        if (gain.amount >= 0) continue;
+        throw new Error(
+          `Invalid fixed energy gain in ${source} "${action.id}" at energyGains[${gainIndex}]: amount must be non-negative; energyGains cannot represent energy drains (received ${gain.amount}).`
+        );
+      }
+    }
+  }
 }
 
 function toFrame(timeSeconds: number): number {
@@ -7381,9 +7416,16 @@ function simulateConfig(
       const actor = characters.get(action.actorId);
       if (!actor) continue;
       activeCharacterId = actor.id;
-      const energyCost = Math.max(0, safeNumber(action.energyCost));
-      const currentEnergy = energies.get(actor.id) ?? 0;
-      if (energyCost > currentEnergy + 1e-9) {
+      const energyCost = quantizeEnergy(
+        Math.max(0, safeNumber(action.energyCost))
+      );
+      const currentEnergy = quantizeEnergy(
+        Math.max(0, energies.get(actor.id) ?? 0)
+      );
+      if (
+        energyCost >
+        currentEnergy + ENERGY_COMPARISON_EPSILON
+      ) {
         skippedActions.push({
           time: timeSeconds,
           frame: event.frame,
@@ -7407,11 +7449,22 @@ function simulateConfig(
         continue;
       }
 
-      const energyAfterCost = round(currentEnergy - energyCost, 12);
+      // Costs within the explicit comparison tolerance are legal, but their
+      // floating-point excess must never create negative energy. Account for
+      // the amount actually removed so actionLog and energyStats remain an
+      // exact replay pair.
+      const energyAfterCost = quantizeEnergy(
+        Math.max(0, currentEnergy - energyCost)
+      );
+      const energySpent = quantizeEnergy(
+        currentEnergy - energyAfterCost
+      );
       energies.set(actor.id, energyAfterCost);
       const energySummary = energyStats.get(actor.id);
       if (energySummary) {
-        energySummary.spent = round(energySummary.spent + energyCost, 12);
+        energySummary.spent = quantizeEnergy(
+          energySummary.spent + energySpent
+        );
       }
       if (energyCost > 0) {
         recordEnergyCurve(
@@ -14782,6 +14835,7 @@ export function simulate(
   runtimeOptions: SimulationRuntimeOptions = {}
 ): SimulationResult {
   const config = migrateConfig(rawConfig);
+  assertNonNegativeFixedEnergyGains(config);
   if (
     (config.targetTaskModel.mode === "target-phase-v1" ||
       config.targetTaskModel.mode === "target-phase-v2") &&

@@ -838,6 +838,27 @@ energyAfter
 
 粒子既可在声明帧直接生成，也可通过 `trigger: { kind: "hit-confirm", hitIds, internalCooldown }` 绑定一组命中。显式 fanout、圆形、旋转矩形、胶囊或填充扇形几何产生的所有目标先分别完成 Miss、阶段、伤害、Aura 和回调判定，再以同一 `hitGroupId` 聚合；只要至少一个目标允许命中回调，该逻辑命中只执行一次产球检查。`particleTriggerLog` 保存全部检查目标和确认目标，粒子 ICD 也只启动一次。当前几何读取静态施放者姿态和该次命中帧的声明式线性目标位置，不模拟高度、角色移动/转向、追踪弹道、粒子飞行碰撞或真实 Boss AI；UI 不重新计算触发条件。
 
+1.42 的结果完整性门按冻结引擎语义重放整条链：
+
+```text
+配置中的行动/技能
+→ 命中确认与粒子 ICD
+→ 粒子生成、固定种子数量与到达
+→ 每名角色的前后台、ER、上限和溢出结算
+→ 行动消耗、固定回能、energyStats
+→ energyCurve 的每一个状态点
+```
+
+公共 Zod Schema 和核心内部可信断言共享这组跨字段不变量；外部结果仍必须走完整 Zod。1.42 wire 没有 `particleEventId`、曲线来源外键或同帧 `eventSequence`，因此兼容校验只能依靠冻结的确定性顺序闭合重复事件，不能声称已经具备下一版的显式逐事件外键。负数 `energyGains.amount` 不被当作隐式扣能；1.42 执行入口对它 fail-closed。正式收窄输入域及独立的延迟扣能事件必须通过新 Schema 版本完成。
+
+固定 gcsim 提交 `ef41805d855a60b9e1035293584b85c085dc69e7` 的中央粒子公式继续支持上述 `3 / 2 / 1`、后台倍率、到达时 ER、全队分配和上限/溢出交叉核对，但其任务相位与 1.42 不同：
+
+- 1.42 固定为 `action/cost → buff/debuff → particleReceive`，所以同帧行动先检查能量。
+- 该 gcsim 提交先运行已排定的全局粒子任务，再在帧尾检查/执行行动。
+- 1.42 在行动开始立即扣能；该 gcsim 提交的普通爆发按角色定义的延迟帧扣除满额能量。
+
+因此这些顺序不得写成 gcsim parity 或官服真值。下一版应新增显式 `energyTaskModel`，保存 `(frame, scheduleSequence)`、粒子事件外键、行动/扣能事件外键，并以独立 Golden 覆盖“粒子到达、换人、爆发检查、延迟扣能”同帧组合；不得回写 1.42 Fixture。
+
 ### 6.3 Ability Blueprint 与部分机制闸门
 
 `packages/schemas/src/mechanics.ts` 定义版本化的 `AbilityBlueprint` 1.7 契约，并能把 1.0 / 1.1 / 1.2 / 1.3 / 1.4 / 1.5 / 1.6 输入迁移后再编译。每个技能映射必须包含：
