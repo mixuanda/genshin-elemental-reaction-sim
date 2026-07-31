@@ -156,7 +156,7 @@ enemy: {
 
 两个 `resistances` 字段都是严格、完整的八键有限数表，不能省略某个元素或附加未知键。目标级 `resistance` 与 `resistances` 互斥；共享 `resistance` 继续必填，以便旧配置和没有逐元素表的目标确定性回退。每段伤害按其实际 `damageElement` 解析基础抗性，优先级固定为 `目标八项表 > 目标标量 > 共享八项表 > 共享标量`。直接伤害、增幅/激化后的普通伤害、超载/超导/感电/燃烧/绽放系等独立反应伤害、扩散伤害和物理伤害均复用同一选择函数；超导等减抗状态在选定的元素基础抗性之上继续应用。`enemyStateBeforeHit.baseResistance` 保存本段实际选中的值。运行时复用既有结果解析门，在一次 `simConfigSchema` 解析中同时校验具名目标的解析顺序、标量/表继承，以及每个 `DamageEvent.element` 对应的基础抗性；独立投影 Schema 也可供外部消费者验证结果。1.34 及更早对象即使从原型链继承 `resistances` 也会 fail-closed，避免非 JSON 输入绕过历史 wire contract。该表是场景输入契约，不是经来源核验的完整敌人抗性数据库。
 
-输出侧当前的精确 1.44 `simulationResultV144Schema` 覆盖 `SimulationResult` 全部 65 个顶层字段，同时保留身份严格的冻结 `simulationResultV142Schema`。统一完整性层继续校验 result/config/manifest、ID/排序、个位显示、伤害构成、反链、汇总和曲线；1.44 另以专用 v3 integrity facet 绑定 callback owner、delivery 的 `eventPriority/eventSequence`、全注册敌人顺序 attempts、`before/after-reactable-tick`、`reactionDamageLog`、命中、伤害与 `TargetStateTimeline` reciprocal 外键，并拒绝接收目标相位篡夺 callback-owned hit。共享 public/trusted proof 还会从 `enemyTargets.initialAura` 重算 v1/v2 与 v3–v9 的规范化 Gauge、到期帧和来源槽；强制转化反应 child 的缩放/归属 owner 等于反应来源；从目标 Aura 时间线反向证明 Frozen 出现/消失边沿、生命周期 terminal/provenance，并禁止普通 Aura expiry 删除 Frozen；EC 则要求 start、带已建模原因的 ordinary stop、`Tick + 6f` Wane 及其时间线证据存在且唯一。外部 JSON 和持久化完整结果必须走完整 Zod parse；summary Golden 只校验冻结摘要和 SHA。public `simulate()` 最终返回前调用 `assertTrustedSimulationResultV144()` 做零拷贝跨字段断言；它不等同于完整 Zod parse，不能作为外部 wire 的验证边界。完整结构 Schema 仍不等于公式真值、角色数据库完整性或 gcsim 级精度。
+输出侧当前的精确 1.44 `simulationResultV144Schema` 覆盖 `SimulationResult` 全部 65 个顶层字段，同时保留身份严格的冻结 `simulationResultV142Schema`。统一完整性层继续校验 result/config/manifest、ID/排序、个位显示、伤害构成、反链、汇总和曲线；1.44 另以专用 v3 integrity facet 绑定 callback owner、delivery 的 `eventPriority/eventSequence`、全注册敌人顺序 attempts、`before/after-reactable-tick`、`reactionDamageLog`、命中、伤害与 `TargetStateTimeline` reciprocal 外键，并拒绝接收目标相位篡夺 callback-owned hit。共享 public/trusted proof 还会从 `enemyTargets.initialAura` 重算 v1/v2 与 v3–v9 的规范化 Gauge、到期帧和来源槽；强制转化反应 child 的缩放/归属 owner 等于反应来源；从目标 Aura 时间线反向证明 Frozen 出现/消失边沿、生命周期 terminal/provenance，并禁止普通 Aura expiry 删除 Frozen；EC 则要求 start、带已建模原因的 ordinary stop、`Tick + 6f` Wane 及其时间线证据存在且唯一。现有 EC 证明仍缺 ordinary stop→触发 audit 精确反链、Wane 每来源槽最多 `0.4U` 的消耗/reason/cadence 权威重放、canonical generation 与 public/shared trusted facet 一致性。外部 JSON 和持久化完整结果必须走完整 Zod parse；summary Golden 只校验冻结摘要和 SHA。public `simulate()` 最终返回前调用 `assertTrustedSimulationResultV144()` 做零拷贝跨字段断言；它不等同于完整 Zod parse，不能作为外部 wire 的验证边界。完整结构 Schema 仍不等于公式真值、角色数据库完整性或 gcsim 级精度。
 
 每次结果都返回 `runManifest`：
 
@@ -434,6 +434,8 @@ icdProfiles: {
 
 这不是特殊状态全排列证明。公开 `initialAura` 只能直接表达普通五元素，组合门不会直接注入 Frozen、Quicken、Burning Marker/Fuel，也不会执行后续 Tick、草原核或目标任务；这些状态继续由各自的顺序、生命周期、Golden 和交叉引用测试负责。冻结的 1.37 v1 门覆盖低 Fuel callback-before-decay、Hitlag 重投影、多目标顺序和 `targetTaskPhaseLog`；1.38 v2 门只覆盖 callback→同一目标 `Reactable.Tick` 与 `targetPhaseLog`。固定 gcsim 提交的 Reactable 顺序附近仍有 TODO，因此这些精确链只能标为 `fixed-gcsim-provisional`，不是官方或官服验证真值。
 
+旧 `aura-v2/v3` 与 `aura-v4` 的非 Pyro legacy 分支不会被静默升级为完整的有序多反应执行器；这些分支仍只结算历史首反应，`aura-v4` 已有的 Pyro 有序路径则保持原语义。但 fail-close 可达性预演必须遵守相同的来袭 Gauge 语义：Electro-Charged 是可达但不消费来袭 Gauge 的分支，所以 Hydro 在 Vaporize 后仍可能到达 EC，Electro 在 EC 后仍可能到达 Quicken；固定参考的 Cryo reverse Melt 减少 Pyro Aura，却不扣除来袭 Cryo，因此后续 Freeze 仍可能可达。若第二条可达分支尚未由该模式实现，目标以 `legacy-multi-reaction-order` 或 `non-pyro-multi-reaction-order` 截断，而不是返回 `unsupportedReactions: []` 的伪完整结果。Frozen Superconduct 是明确终止分支：它依次消耗普通 Cryo 与 Frozen 后丢弃剩余来袭 Electro，不能把余额再用于 Quicken。这个预演只证明“需要截断”，不生成第二反应伤害，也不是完整 Aura 求解器。
+
 目标本地时钟暂停普通五元素 Aura 的被动衰减/自然到期、Frozen 与 Quicken 的衰减/到期、Burning Fuel/依赖的草与激元素衰减以及每 15 个目标帧的 Burning Tick 链；在 v2 中，这些列明的自然到期转换可以由同一目标 `Reactable.Tick` 记录。感电的 `+10/+60` 伤害 Tick 和 `+6` Wane 仍是全局任务，只有水雷 Aura 共存的自然到期跟随目标时钟。附着 ICD、Overload/Superconduct/Shatter/Swirl/Crystallize 队列与 GCD、ReactionA/B、所有独立反应伤害、草原核生成/寿命/爆炸、结晶实体、行动/Buff/能量/粒子、目标 movement/phase 和玩家侧状态也仍按全局帧推进。
 
 #### 6.1.0 aura-v6 雷元素有序多反应链
@@ -700,7 +702,7 @@ GCD 被阻止时 Aura 和岩预算都不消耗。冻元素生成冰结晶，并�
 1. 先记录排序更早且已经支持的 Aura 消耗与同击内联效果；若其独立伤害尚未落地，则在截断边界明确标为 `TARGET_MECHANICS_TRUNCATION`、不得声称已排队；
 2. 把未支持分支写入 `unsupportedReactions` 与 `mechanicsTruncation`；
 3. 清空并锁定该目标 Aura，避免把任何保留状态继续当作真实燃烧/绽放结果；
-4. 保留触发当击的权威直接伤害和已经内联进该段的激化加算；不再排入依赖截断状态的后续独立事件。同帧后序及后续可独立求值的伤害事件保留公式 `potentialDamage`，但标记 `mechanics-truncated`、令 `finalDamage=0`，从总伤和 DPS 排除；依赖未知 Aura 的感电 Tick/削减和旧状态到期事件通过 generation 或截断守卫直接失效。
+4. 保留触发当击的权威直接伤害和已经内联进该段的激化加算；不再排入依赖截断状态的后续独立事件。同帧后序及后续可独立求值的伤害事件保留公式 `potentialDamage`，但标记 `mechanics-truncated`、令 `finalDamage=0`，从总伤和 DPS 排除。若首分支识别到感电、第二分支才证明必须截断，则保留已识别的父反应标签，但把 EC `periodicReaction` 清为 `null`，不建立或刷新周期流；依赖未知 Aura 的 tick、Wane、expiry 事件即使已留在 heap，也必须在写周期日志、伤害或目标时间线前由截断守卫逻辑取消。
 
 这是逐目标 fail-closed 截断；其他目标继续独立模拟。跨过边界的结果返回 `mechanicsStatus: "partial"` 与 `targetMechanicsTruncationLog`，网页也会显式警告“结果部分有效”。它不是绽放近似模型。该切片交叉核对固定提交 `b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541` 的 `pkg/reactable/catalyze.go`、`reactable.go` 与等级反应表。固定提交自身仍含反应顺序 TODO、草原核持续时间 `// ??` 注释和燃烧测试 TODO，所以 v3/v4 与下述 v5/v6/v7 都只声称固定代码路径交叉校验，不声称官方数值验证或完整 gcsim 精度。
 
@@ -720,6 +722,8 @@ Fuel decay = 0.4 / 60 U/f
 燃烧期间 Quicken decay = Fuel decay
 燃烧期间普通 Dendro decay = max(Fuel decay, 2 × 普通原生衰减)
 ```
+
+结果完整性重放把每个目标的首个物化流固定为 generation 1。`stop` / `fuel-expire` 行继续使用退出流 generation；AuraEngine 在终止时递增内部 generation，下一次 start 再递增，因此同目标的下一次合法 start 必须是退出 generation `+2`。目标本地时钟模式下，所有 `burningStateLog.targetFrame` 必须等于该事件切点重放出的目标帧。v3 在接收目标尚未执行该帧 `Reactable.Tick` 时，audit 的 `snapshotTargetFrame` 读取上一全局帧末尾的目标本地时钟，而 lifecycle 行绑定当前事件切点；无 Hitlag 时两者相差 1，若 Hitlag 覆盖 callback 则可以相同。这些规则关闭代次复用和局部排程整体平移，但尚未替代从 Ability 配置根重放完整 Burning Gauge/Fuel 候选。
 
 Fuel 自然耗尽事件在同帧命中之前处理；有效代次耗尽时移除 Fuel、Marker、普通草 Aura 和激元素。旧代次到期事件通过 generation 与期望到期帧失效。Marker 被蒸发、融化、超载、火扩散或火结晶消耗时，燃烧流立即停止并移除 Fuel，但保留当时剩余的普通草 Aura/激元素。该差异通过 `stopReason: "BURNING_AURA_CONSUMED"` 审计。
 
@@ -932,7 +936,7 @@ Vitest 发布门与验证清单（执行对应命令后方可报告结果）：
 - 默认 120 秒 Golden Fixture、1.30 Burning Golden、1.31–1.40 历史基础反应/状态/目标相位/递归碎冰/EC cleanup 向量继续只读保留。1.41 已冻结 `legacy-default-120s-1.41.golden.json`（SHA-256 `9768d8b0461bd641ed5a4097e1cfe4204e1d6db9e9a6453e75754eb1a90bf9c8`）与 `electro-charged-propagation-1.41.golden.json`（SHA-256 `b855f87f391a5f0dfd82e30a4666c8bb79a7777c94bc8f2bd675178fabdb0d18`）。前者锁定 `single-target-v1` 默认兼容；后者锁定当前传播候选/逐目标伤害合同。传播门仍须断言湿/干/范围外/位置未解析/伤害免疫、hurtbox 边界、逐元素抗性、同帧目标相位、现有副目标流的 owner/cadence 保持、不递归、不产生副目标 Wane、目标上限和重复运行确定性。未来新 Golden 摘要和 SHA 仍只能在运行校验后写入。
 - 1.42 已冻结 `legacy-default-120s-1.42.golden.json`（SHA-256 `ccb4bd071cbd5643f4a59dc41273801dd6e76a778bc876ea3ed6ab23266425df`）与 `electro-charged-global-cadence-1.42.golden.json`（SHA-256 `ed7a41b1bc67adb1908367172db2bcecd0e668dbdd9f214f14829adbb3375611`）。前者锁定 `1.42.0 / 1.42.0-ec-global-cadence-safety` 身份，同时保持历史 Aura 模式、`single-target-v1`、总伤 `41410555.13728799`、DPS `345087.9594773999`、269 命中、129 反应命中、3 跳过行动及完整逐击摘要不变；后者锁定 v9 长 Hitlag、恢复边界、dormant、逐来源 Wane、`ended-before-deadline` 和逐击伤害/曲线闭合。未来文件 SHA 仍只能在最终只读清单完成并现场复核后写入。
 - 1.44 已冻结 `legacy-default-120s-1.44.golden.json`（SHA-256 `e0c2e1475ec97b35bd0ee7bb1bf6b3bc0e505588e1ea76001b8011216d475d05`，`configHash = fnv1a32:dad42c01`，`reproducibilityKey = gdl-v2-fnv1a32-03487d7e`）与 `burning-callback-delivery-1.44.golden.json`（SHA-256 `4caf9609daac1fde41195399e5c3af8daca60e14849aa4c5195b286ae947da65`，场景 `configHash = fnv1a32:3aa2ff18`，`reproducibilityKey = gdl-v2-fnv1a32-ee7f1332`）。前者只升级身份，默认仍使用 `legacy-event-heap-v1`、历史 Aura 与 `single-target-v1`，总伤、DPS、角色/技能汇总、269 命中、129 反应命中、3 跳过行动和逐击 digest `b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f` 与 1.42/Vanilla 一致；后者锁定 v3 注册顺序 attempts、callback-owned 反链、F15 零延迟交付和 F16 正延迟 Overload 子反应。两份 1.42 Fixture SHA 保持不变，机制 Golden 仍只是 `fixed-gcsim-provisional`。
-- 本轮全量 Vitest 已实际运行并通过 `82` 个测试文件、`1122/1122` 项测试；未在此预写 build 或 Playwright 计数。
+- 本轮全量 Vitest 已实际运行并通过 `82` 个测试文件、`1133/1133` 项测试；未在此预写 build 或 Playwright 计数。
 - 整数帧行动、切人、命中追踪、显式冲刺/跳跃占用、按后续普攻/重击/战技/爆发/冲刺/跳跃/切人选择取消帧、未声明路径回退与动画结束帧。
 - 严格模式冷却拒绝和等待模式冷却调整。
 - 多充能次数、行动重叠与错误前台角色。

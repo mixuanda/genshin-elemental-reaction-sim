@@ -401,6 +401,154 @@ describe("AuraEngine Overload scheduling", () => {
 
 describe("AuraEngine legacy multi-reaction boundary", () => {
   it.each(["aura-v2", "aura-v3"] as const)(
+    "fails closed in %s when Hydro Vaporize can continue into non-consuming Electro-Charged",
+    (mode) => {
+      const audit = new AuraEngine({
+        mode,
+        initialAura: [
+          { element: "pyro", gaugeUnits: 1 },
+          { element: "electro", gaugeUnits: 1 }
+        ]
+      }).processHit({
+        frame: 0,
+        sourceActorId: "hydro",
+        element: "hydro",
+        application: noIcd(2)
+      });
+
+      expect(audit).toMatchObject({
+        reaction: "vaporize",
+        reactions: ["vaporize"],
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ],
+        mechanicsTruncation: {
+          operation: "trigger",
+          reason: "UNSUPPORTED_REACTION_ORDER",
+          unsupportedReactions: [
+            "legacy-multi-reaction-order"
+          ]
+        },
+        auraAfter: []
+      });
+    }
+  );
+
+  it("fails closed in aura-v3 when non-consuming Electro-Charged can continue into Quicken", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v3",
+      initialAura: [
+        { element: "hydro", gaugeUnits: 1 },
+        { element: "dendro", gaugeUnits: 1 }
+      ]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    });
+
+    expect(audit).toMatchObject({
+      reaction: "electroCharged",
+      reactions: ["electroCharged"],
+      unsupportedReactions: [
+        "legacy-multi-reaction-order"
+      ],
+      mechanicsTruncation: {
+        operation: "trigger",
+        reason: "UNSUPPORTED_REACTION_ORDER",
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ]
+      },
+      periodicReaction: null,
+      auraAfter: []
+    });
+    expect(audit.note).toContain(
+      "周期流未建立或刷新，首次伤害未排队"
+    );
+  });
+
+  it("fails closed in aura-v4 when Cryo reverse Melt can continue into Freeze without spending incoming Gauge", () => {
+    const audit = new AuraEngine({
+      mode: "aura-v4",
+      initialAura: [
+        { element: "pyro", gaugeUnits: 1 },
+        { element: "hydro", gaugeUnits: 1 }
+      ]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "cryo",
+      element: "cryo",
+      application: noIcd(0.5)
+    });
+
+    expect(audit).toMatchObject({
+      reaction: "reverseMelt",
+      reactions: ["reverseMelt"],
+      unsupportedReactions: [
+        "non-pyro-multi-reaction-order"
+      ],
+      mechanicsTruncation: {
+        operation: "trigger",
+        reason: "UNSUPPORTED_REACTION_ORDER",
+        unsupportedReactions: [
+          "non-pyro-multi-reaction-order"
+        ]
+      },
+      auraAfter: []
+    });
+  });
+
+  it("keeps legacy Frozen Superconduct terminal instead of inventing a residual Quicken branch", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v3",
+      initialAura: [{ element: "cryo", gaugeUnits: 2 }]
+    });
+    const freeze = engine.processHit({
+      frame: 0,
+      sourceActorId: "hydro",
+      element: "hydro",
+      application: noIcd(0.5)
+    });
+    const dendro = engine.processHit({
+      frame: 1,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd()
+    });
+    const superconduct = engine.processHit({
+      frame: 2,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd(2)
+    });
+
+    expect(freeze.reaction).toBe("freeze");
+    expect(dendro.reaction).toBe("none");
+    expect(superconduct).toMatchObject({
+      reaction: "superconduct",
+      reactions: ["superconduct"],
+      unsupportedReactions: [],
+      mechanicsTruncation: null,
+      catalyzeReaction: null,
+      frozenReaction: {
+        operation: "consume"
+      }
+    });
+    expect(
+      superconduct.auraAfter?.find(
+        (entry) => entry.element === "dendro"
+      )?.gaugeUnits
+    ).toBeGreaterThan(0);
+    expect(
+      superconduct.auraAfter?.find(
+        (entry) => entry.element === "frozen"
+      )?.gaugeUnits
+    ).toBeGreaterThan(0);
+  });
+
+  it.each(["aura-v2", "aura-v3"] as const)(
     "fails closed in %s when one incoming budget reaches multiple consuming reactions",
     (mode) => {
       const audit = new AuraEngine({

@@ -5578,8 +5578,73 @@ export class AuraEngine {
             input.element === "electro"
           ? "dendro"
           : null;
+    const dryRunOrderedReactionReachability = (
+      candidates: readonly ReactionRule[]
+    ): {
+      reachableReactionCount: number;
+      remainingGaugeUnits: number;
+    } => {
+      let remainingGaugeUnits = application.gaugeUnits;
+      let reachableReactionCount = 0;
+      let frozenProduced = false;
+      for (const candidate of candidates) {
+        if (remainingGaugeUnits <= AURA_EPSILON) break;
+        if (
+          frozenProduced &&
+          candidate.reaction === "electroCharged"
+        ) {
+          // TryAddEC rejects the post-Freeze Hydro branch while Frozen exists.
+          continue;
+        }
+        const auraGaugeUnits = this.mappedAuraGaugeUnits(
+          candidate.auraElement
+        );
+        if (auraGaugeUnits <= AURA_EPSILON) continue;
+
+        if (candidate.consumptionFactor <= 0) {
+          // Electro-Charged is a reachable ordered branch even after an
+          // earlier reaction: fixed gcsim marks the hit reacted and refreshes
+          // the EC stream without consuming the remaining incoming Gauge.
+          reachableReactionCount += 1;
+          continue;
+        }
+
+        const consumedGaugeUnits = Math.min(
+          auraGaugeUnits,
+          remainingGaugeUnits * candidate.consumptionFactor
+        );
+        if (consumedGaugeUnits <= AURA_EPSILON) continue;
+        reachableReactionCount += 1;
+        if (
+          candidate.reaction === "freeze" &&
+          this.freezeResistance < 1
+        ) {
+          frozenProduced = true;
+        }
+
+        // Fixed gcsim's Cryo reverse-Melt branch reduces Pyro Aura but leaves
+        // the incoming Cryo durability available for the later Freeze check.
+        if (
+          input.element === "cryo" &&
+          candidate.reaction === "reverseMelt"
+        ) {
+          continue;
+        }
+        remainingGaugeUnits = cleanGaugeUnits(
+          Math.max(
+            0,
+            remainingGaugeUnits -
+              consumedGaugeUnits / candidate.consumptionFactor
+          )
+        );
+      }
+      return {
+        reachableReactionCount,
+        remainingGaugeUnits
+      };
+    };
     // v2/v3 historically execute only eligibleRules[0]. If the remaining
-    // incoming budget can reach another consuming branch, preserve that
+    // incoming budget can reach another ordered branch, preserve that
     // compatibility result but fail closed instead of claiming completeness.
     if (
       (this.mode === "aura-v2" ||
@@ -5604,25 +5669,19 @@ export class AuraEngine {
                 }
               ]
             : eligibleRules;
-      let remainingGaugeUnits = application.gaugeUnits;
-      let reachableConsumingReactionCount = 0;
-      for (const candidate of legacyReactionCandidates) {
-        if (remainingGaugeUnits <= AURA_EPSILON) break;
-        if (candidate.consumptionFactor <= 0) continue;
-        const consumedGaugeUnits = Math.min(
-          this.mappedAuraGaugeUnits(candidate.auraElement),
-          remainingGaugeUnits * candidate.consumptionFactor
-        );
-        if (consumedGaugeUnits <= AURA_EPSILON) continue;
-        reachableConsumingReactionCount += 1;
-        remainingGaugeUnits = cleanGaugeUnits(
-          Math.max(
-            0,
-            remainingGaugeUnits -
-              consumedGaugeUnits / candidate.consumptionFactor
-          )
-        );
-      }
+      const legacyReachability = frozenSuperconduct
+        ? {
+            // The legacy Frozen-Superconduct branch consumes ordinary Cryo,
+            // then Frozen, and terminates without exposing any residual
+            // incoming Electro to Quicken or another ordered branch.
+            reachableReactionCount: 1,
+            remainingGaugeUnits: 0
+          }
+        : dryRunOrderedReactionReachability(
+            legacyReactionCandidates
+          );
+      let { reachableReactionCount, remainingGaugeUnits } =
+        legacyReachability;
       // Frozen is a distinct status Aura rather than an ordinary Cryo entry,
       // so it is absent from REACTION_RULES. After an earlier Pyro branch
       // such as Overload consumes only part of the incoming Gauge, the fixed
@@ -5640,7 +5699,7 @@ export class AuraEngine {
           remainingGaugeUnits * 2
         ) > AURA_EPSILON
       ) {
-        reachableConsumingReactionCount += 1;
+        reachableReactionCount += 1;
       }
       if (
         this.mode === "aura-v3" &&
@@ -5649,10 +5708,10 @@ export class AuraEngine {
         (this.auras.get("dendro")?.gaugeUnits ?? 0) >
           AURA_EPSILON
       ) {
-        reachableConsumingReactionCount += 1;
+        reachableReactionCount += 1;
       }
       if (
-        reachableConsumingReactionCount > 1 &&
+        reachableReactionCount > 1 &&
         !unsupportedReactions.includes(
           "legacy-multi-reaction-order"
         )
@@ -5673,24 +5732,12 @@ export class AuraEngine {
         input.element === "hydro" ||
         input.element === "electro")
     ) {
-      let remainingGaugeUnits = application.gaugeUnits;
-      let reachableReactionCount = 0;
-      for (const candidate of eligibleRules) {
-        if (remainingGaugeUnits <= AURA_EPSILON) break;
-        reachableReactionCount += 1;
-        if (candidate.consumptionFactor <= 0) continue;
-        const consumedGaugeUnits = Math.min(
-          this.mappedAuraGaugeUnits(candidate.auraElement),
-          remainingGaugeUnits * candidate.consumptionFactor
-        );
-        remainingGaugeUnits = cleanGaugeUnits(
-          Math.max(
-            0,
-            remainingGaugeUnits -
-              consumedGaugeUnits / candidate.consumptionFactor
-          )
-        );
-      }
+      const reachability =
+        dryRunOrderedReactionReachability(eligibleRules);
+      let {
+        reachableReactionCount,
+        remainingGaugeUnits
+      } = reachability;
       if (
         input.element === "electro" &&
         remainingGaugeUnits > AURA_EPSILON &&
@@ -5714,6 +5761,7 @@ export class AuraEngine {
     let bloomReactions: BloomReactionAudit[] = [];
 
     let periodicReaction: ReactionAudit["periodicReaction"] = null;
+    let periodicReactionBlockedByMechanicsTruncation = false;
     let frozenReaction: ReactionAudit["frozenReaction"] = null;
     if (usesOrderedPyroPipeline) {
       const consumeMappedAura = (
@@ -7234,6 +7282,18 @@ export class AuraEngine {
         blockedReason: "TARGET_MECHANICS_TRUNCATION"
       }));
     }
+    if (
+      mechanicsTruncation !== null &&
+      periodicReaction !== null &&
+      periodicReaction.operation !== "stop"
+    ) {
+      // EC start/refresh is a non-consuming periodic branch. Once the same
+      // hit proves that this legacy Aura mode cannot finish the ordered
+      // reaction chain, the target is fail-closed and no EC stream may be
+      // advertised or scheduled from that partial branch.
+      periodicReactionBlockedByMechanicsTruncation = true;
+      periodicReaction = null;
+    }
 
     const reactionNote =
       catalyzeReaction?.additive !== null &&
@@ -7251,9 +7311,11 @@ export class AuraEngine {
         : automaticReaction === "bloom"
           ? `绽放已按固定参考耐久顺序结算，并排队 ${bloomReactions.length} 个草原核生成请求。`
         : automaticReaction === "electroCharged"
-          ? periodicReaction?.operation === "start"
-            ? "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
-            : "感电共存 Aura 已刷新；Tick 节奏不重置，未来 Tick 归属更新为本次触发者。"
+          ? periodicReactionBlockedByMechanicsTruncation
+            ? "感电分支已由水雷共存识别，但同一命中随后进入目标机制截断；周期流未建立或刷新，首次伤害未排队。"
+            : periodicReaction?.operation === "start"
+              ? "感电由水雷共存自动判定；首次单目标伤害与后续 60 帧周期流已排队。"
+              : "感电共存 Aura 已刷新；Tick 节奏不重置，未来 Tick 归属更新为本次触发者。"
           : automaticReaction === "freeze"
             ? frozenReaction?.operation === "immune"
               ? "冻结反应已消耗冰/水 Aura；目标冻结抗性为 1，未生成冻元素耐久。"
@@ -7284,7 +7346,7 @@ export class AuraEngine {
                 candidate ===
                 "legacy-multi-reaction-order"
               ) {
-                return "检测到 aura-v2/v3 的同一入射元素量仍可继续触发多个消费反应；旧版单分支流程无法完整结算该顺序，因此目标已 fail-closed，后续 Aura 与伤害不得据此推断。";
+                return "检测到 aura-v2/v3 的同一入射元素量仍可继续触发多个有序反应；旧版单分支流程无法完整结算该顺序，因此目标已 fail-closed，后续 Aura 与伤害不得据此推断。";
               }
               return "检测到燃烧前提，但燃烧燃料、周期伤害和共存状态尚未实现；本次执行已支持且排序更早的反应后截断该草反应，未附着会被燃烧处理的入射元素。";
             })

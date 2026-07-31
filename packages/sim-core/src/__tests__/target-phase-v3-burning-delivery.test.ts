@@ -311,6 +311,71 @@ function makeHitlagConfig(): SimConfig {
   });
 }
 
+function makeBeforeReactableRecipientHitlagConfig(): SimConfig {
+  return makeV3Scenario({
+    id: "before-reactable-recipient-hitlag",
+    durationFrames: 30,
+    targets: [
+      {
+        id: OWNER_ID,
+        name: "Burning owner",
+        position: { x: 0, y: 0 },
+        hitboxRadius: 0,
+        initialAura: [
+          { element: "dendro", gaugeUnits: 1 }
+        ]
+      },
+      {
+        id: "paused-recipient",
+        name: "Paused callback recipient",
+        position: { x: 0.5, y: 0 },
+        hitboxRadius: 0
+      }
+    ],
+    targetClockModel: { mode: "target-local-hitlag-v1" },
+    hits: [
+      {
+        id: "start-owner-burning",
+        label: "Start owner Burning",
+        frame: 0,
+        scaling: 0,
+        element: "pyro",
+        geometry: {
+          kind: "circle",
+          coordinateSpace: "world",
+          origin: { x: 0, y: 0 },
+          radius: 0
+        },
+        application: {
+          gaugeUnits: 1,
+          icdTag: "start-owner-burning",
+          icdGroup: "no-icd"
+        }
+      },
+      {
+        id: "pause-recipient-with-dendro",
+        label: "Pause recipient with Dendro",
+        frame: 0,
+        scaling: 0,
+        element: "dendro",
+        targeting: {
+          targetId: "paused-recipient",
+          outcome: "landed"
+        },
+        application: {
+          gaugeUnits: 1,
+          icdTag: "pause-recipient-with-dendro",
+          icdGroup: "no-icd"
+        },
+        targetHitlag: {
+          haltFrames: 20,
+          factor: 0
+        }
+      }
+    ]
+  });
+}
+
 function makeOverloadChildConfig(): SimConfig {
   return makeV3Scenario({
     id: "overload-positive-delay-child",
@@ -620,6 +685,64 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         blockedReason: "TARGET_MISS"
       })
     ]);
+  });
+
+  it("keeps a before-Reactable Burning snapshot on the preceding target frame when Hitlag spans the callback", () => {
+    const result = simulate(
+      makeBeforeReactableRecipientHitlagConfig(),
+      { critMode: "noCrit" }
+    );
+    expectCurrentV144Result(result);
+
+    const { delivery } = burningDeliveryAt(result, 15, 1);
+    const recipientAttempt = attemptFor(
+      delivery,
+      "paused-recipient"
+    );
+    expect(recipientAttempt).toMatchObject({
+      applicationPhase: "before-reactable-tick",
+      outcome: "landed"
+    });
+    if (recipientAttempt.outcome !== "landed") {
+      throw new Error("Paused recipient must be landed.");
+    }
+
+    const callbackDamage =
+      result.damageEvents[recipientAttempt.damageEventId]!;
+    const burningAudit =
+      callbackDamage.reactionAudit.burningReaction;
+    const lifecycle = result.burningStateLog.find(
+      (entry) =>
+        entry.triggerDamageEventId === callbackDamage.id &&
+        entry.operation === "start"
+    );
+    expect(callbackDamage).toMatchObject({
+      frame: 15,
+      targetId: "paused-recipient",
+      reactionAudit: { reaction: "burning" }
+    });
+    expect(burningAudit).toMatchObject({
+      operation: "start",
+      snapshotFrame: 15,
+      snapshotTargetFrame: 0
+    });
+    expect(lifecycle).toMatchObject({
+      frame: 15,
+      targetFrame: 0,
+      targetId: "paused-recipient",
+      triggerDamageEventId: callbackDamage.id
+    });
+    expect(
+      result.targetHitlagLog.find(
+        (entry) =>
+          entry.targetId === "paused-recipient" &&
+          entry.hitId === "pause-recipient-with-dendro"
+      )
+    ).toMatchObject({
+      globalFrame: 0,
+      extensionFrames: 20,
+      applied: true
+    });
   });
 
   it("keeps an Overload child on the global heap at F16 instead of folding it into the F15 callback delivery", () => {

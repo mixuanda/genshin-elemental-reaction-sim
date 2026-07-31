@@ -3217,6 +3217,26 @@ function validateReactionBacklinks(
     }
   }
 
+  for (const [eventIndex, event] of result.damageEvents.entries()) {
+    const periodicAudit = event.reactionAudit.periodicReaction;
+    if (
+      event.reactionAudit.mechanicsTruncation !== null &&
+      periodicAudit !== null &&
+      periodicAudit.operation !== "stop"
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "periodicReaction"
+        ],
+        "target mechanics truncation cannot advertise an Electro-Charged start or refresh stream"
+      );
+    }
+  }
+
   const periodicTickByKey = new Map<
     string,
     SimulationResult["periodicReactionLog"][number]
@@ -7386,6 +7406,22 @@ function validateBurningStateProjection(
     return advanceBurningClock(state, cut.frame);
   };
 
+  const burningClockStateAtEndOfPreviousGlobalFrame = (
+    targetId: string,
+    globalFrame: number
+  ): BurningClockState =>
+    globalFrame === 0
+      ? {
+          globalFrame: 0,
+          targetFrame: 0,
+          frozenFrames: 0
+        }
+      : burningClockStateAtCut(targetId, {
+          frame: globalFrame - 1,
+          eventPriority: Number.MAX_SAFE_INTEGER,
+          eventSequence: Number.MAX_SAFE_INTEGER
+        });
+
   const validateBurningGlobalDeadline = (
     state: BurningClockState,
     globalDeadline: number | null,
@@ -7869,6 +7905,46 @@ function validateBurningStateProjection(
     }
   }
 
+  const orderedBurningRows = [...result.burningStateLog].sort(
+    (left, right) =>
+      left.frame - right.frame ||
+      left.eventPriority - right.eventPriority ||
+      left.eventSequence - right.eventSequence ||
+      left.id - right.id
+  );
+  const replayBurningBeforeEventCut = (
+    event: SimulationResult["damageEvents"][number]
+  ): {
+    activeGeneration: number | null;
+    nextStartGeneration: number;
+  } => {
+    let activeGeneration: number | null = null;
+    let materializedStartCount = 0;
+    for (const row of orderedBurningRows) {
+      if (row.targetId !== event.targetId) continue;
+      const beforeEventCut =
+        row.frame < event.frame ||
+        (row.frame === event.frame &&
+          (row.eventPriority < event.eventPriority ||
+            (row.eventPriority === event.eventPriority &&
+              row.eventSequence < event.eventSequence)));
+      if (!beforeEventCut) continue;
+      if (row.operation === "start") {
+        materializedStartCount += 1;
+        activeGeneration = row.generation;
+      } else if (
+        row.operation === "stop" ||
+        row.operation === "fuel-expire"
+      ) {
+        activeGeneration = null;
+      }
+    }
+    return {
+      activeGeneration,
+      nextStartGeneration: materializedStartCount * 2 + 1
+    };
+  };
+
   for (const [eventIndex, event] of
     result.damageEvents.entries()) {
     const audit = event.reactionAudit.burningReaction;
@@ -8015,6 +8091,23 @@ function validateBurningStateProjection(
         eventPriority: event.eventPriority,
         eventSequence: event.eventSequence
       });
+      const applicationPhase =
+        v3ApplicationPhaseByDamageEventId.get(event.id);
+      const expectedSnapshotTargetFrame =
+        applicationPhase === "before-reactable-tick"
+          ? burningClockStateAtEndOfPreviousGlobalFrame(
+              event.targetId,
+              event.frame
+            ).targetFrame
+          : auditClockState.targetFrame;
+      expectFieldEqual(
+        context,
+        auditPath,
+        "snapshotTargetFrame",
+        audit.snapshotTargetFrame,
+        expectedSnapshotTargetFrame,
+        "Burning audit snapshot target frame"
+      );
       validateBurningGlobalDeadline(
         auditClockState,
         audit.fuelExpiresAtFrame,
@@ -8276,6 +8369,174 @@ function validateBurningStateProjection(
       audit.blockedReason === "TARGET_MECHANICS_TRUNCATION" ||
       event.reactionAudit.mechanicsTruncation !== null
     ) {
+      const replayBefore = replayBurningBeforeEventCut(event);
+      const activeBefore = replayBefore.activeGeneration !== null;
+      const auraClaimsActive =
+        burningMarkerBefore && burningFuelBefore;
+      if (activeBefore !== auraClaimsActive) {
+        addIssue(
+          context,
+          auditPath,
+          "mechanics-truncated Burning audit pre-state must match the materialized lifecycle replay"
+        );
+      }
+      const ownedRows = rowsByTrigger.get(event.id) ?? [];
+      const truncationTerminalRows = ownedRows.filter(
+        (row) =>
+          row.operation === "stop" &&
+          row.reason === "TARGET_MECHANICS_TRUNCATION"
+      );
+      const expectedOperation: BurningReactionAudit["operation"] | null =
+        activeBefore
+          ? audit.triggerElement === "dendro"
+            ? "refresh-fuel"
+            : audit.triggerElement === "pyro"
+              ? "refresh-snapshot"
+              : "stop"
+          : audit.triggerElement === "pyro" ||
+              audit.triggerElement === "dendro"
+            ? "start"
+            : null;
+      if (expectedOperation === null) {
+        addIssue(
+          context,
+          [...auditPath, "operation"],
+          "mechanics-truncated Burning audit requires an active stream or a Pyro/Dendro start trigger"
+        );
+      } else {
+        expectFieldEqual(
+          context,
+          auditPath,
+          "operation",
+          audit.operation,
+          expectedOperation,
+          "mechanics-truncated Burning operation"
+        );
+        expectFieldEqual(
+          context,
+          auditPath,
+          "generation",
+          audit.generation,
+          replayBefore.activeGeneration ??
+            replayBefore.nextStartGeneration,
+          "mechanics-truncated Burning canonical generation"
+        );
+        expectFieldEqual(
+          context,
+          auditPath,
+          "reactionTriggered",
+          audit.reactionTriggered,
+          expectedOperation === "start",
+          "mechanics-truncated Burning reaction trigger"
+        );
+        expectFieldEqual(
+          context,
+          auditPath,
+          "fuelOperation",
+          audit.fuelOperation,
+          expectedOperation === "start"
+            ? "start"
+            : expectedOperation === "refresh-fuel"
+              ? "overwrite"
+              : expectedOperation === "refresh-snapshot"
+                ? "unchanged"
+                : "remove",
+          "mechanics-truncated Burning Fuel operation"
+        );
+      }
+      expectFieldEqual(
+        context,
+        auditPath,
+        "scheduled",
+        audit.scheduled,
+        false,
+        "mechanics-truncated Burning scheduling"
+      );
+      if (
+        audit.blockedReason === "TARGET_MECHANICS_TRUNCATION" &&
+        event.reactionAudit.mechanicsTruncation === null
+      ) {
+        addIssue(
+          context,
+          [...auditPath, "blockedReason"],
+          "TARGET_MECHANICS_TRUNCATION requires the parent mechanics-truncation audit"
+        );
+      }
+      if (
+        event.reactionAudit.mechanicsTruncation !== null &&
+        expectedOperation !== "stop" &&
+        audit.blockedReason !== "TARGET_MECHANICS_TRUNCATION"
+      ) {
+        addIssue(
+          context,
+          [...auditPath, "blockedReason"],
+          "mechanics-truncated Burning start/refresh must be explicitly blocked"
+        );
+      }
+      if (
+        expectedOperation === "stop" &&
+        audit.blockedReason !== null
+      ) {
+        addIssue(
+          context,
+          [...auditPath, "blockedReason"],
+          "mechanics-truncated Burning stop is an immediate terminal observation, not a blocked start/refresh"
+        );
+      }
+      if (audit.operation === "stop") {
+        if (replayBefore.activeGeneration === null) {
+          addIssue(
+            context,
+            [...auditPath, "operation"],
+            "mechanics-truncated Burning stop requires an active stream at the event cut"
+          );
+        } else {
+          expectFieldEqual(
+            context,
+            auditPath,
+            "generation",
+            audit.generation,
+            replayBefore.activeGeneration,
+            "mechanics-truncated Burning stop generation"
+          );
+        }
+        if (
+          truncationTerminalRows.length !== 1 ||
+          truncationTerminalRows[0]?.generation !==
+            replayBefore.activeGeneration
+        ) {
+          addIssue(
+            context,
+            auditPath,
+            "mechanics-truncated Burning stop requires one terminal row for the active generation"
+          );
+        }
+      } else {
+        if (
+          ownedRows.some((row) => row.operation === audit.operation)
+        ) {
+          addIssue(
+            context,
+            auditPath,
+            "mechanics-truncated Burning start/refresh cannot own a matching lifecycle row"
+          );
+        }
+        const expectedTerminalCount = activeBefore ? 1 : 0;
+        if (
+          truncationTerminalRows.length !== expectedTerminalCount ||
+          (activeBefore &&
+            truncationTerminalRows[0]?.generation !==
+              replayBefore.activeGeneration)
+        ) {
+          addIssue(
+            context,
+            auditPath,
+            activeBefore
+              ? "mechanics-truncated Burning refresh requires one terminal row for the active generation"
+              : "mechanics-truncated Burning start cannot materialize a terminal lifecycle row"
+          );
+        }
+      }
       // Mechanics truncation owns its one terminal lifecycle projection. The
       // simulator deliberately skips processBurningConsequences, so a nested
       // Burning start/refresh/stop audit does not own a second audit-shaped
@@ -8604,12 +8865,13 @@ function validateBurningStateProjection(
     const row = matchingRow;
     burningAuditOwnedRowIds.add(row.id);
     const rowPath = ["burningStateLog", row.id] satisfies IssuePath;
-    const applicationPhase =
-      v3ApplicationPhaseByDamageEventId.get(event.id);
     const expectedLifecycleLocalSnapshotFrame =
-      applicationPhase === "before-reactable-tick" &&
-      audit.snapshotTargetFrame !== undefined
-        ? audit.snapshotTargetFrame + 1
+      usesTargetHitlagClock
+        ? burningClockStateAtCut(event.targetId, {
+            frame: event.frame,
+            eventPriority: event.eventPriority,
+            eventSequence: event.eventSequence
+          }).targetFrame
         : audit.snapshotTargetFrame ?? audit.snapshotFrame;
     expectFieldEqual(
       context,
@@ -9465,13 +9727,10 @@ function validateBurningStateProjection(
     string,
     ActiveBurningReplay
   >();
-  const orderedBurningRows = [...result.burningStateLog].sort(
-    (left, right) =>
-      left.frame - right.frame ||
-      left.eventPriority - right.eventPriority ||
-      left.eventSequence - right.eventSequence ||
-      left.id - right.id
-  );
+  const nextBurningStartGenerationByTarget = new Map<
+    string,
+    number
+  >();
   const callbackBeforeReactableTick =
     result.config.targetTaskModel.mode === "target-phase-v1" ||
     result.config.targetTaskModel.mode === "target-phase-v2" ||
@@ -9496,6 +9755,14 @@ function validateBurningStateProjection(
         eventPriority: row.eventPriority,
         eventSequence: row.eventSequence
       });
+      expectFieldEqual(
+        context,
+        rowPath,
+        "targetFrame",
+        row.targetFrame,
+        rowClockState.targetFrame,
+        "Burning lifecycle target frame"
+      );
       validateBurningGlobalDeadline(
         rowClockState,
         row.fuelExpiresAtFrame,
@@ -9534,6 +9801,11 @@ function validateBurningStateProjection(
         sourceAudit.blockedReason ===
         "TARGET_MECHANICS_TRUNCATION"
       ) {
+        addIssue(
+          context,
+          [...rowPath, "triggerDamageEventId"],
+          "mechanics-truncated Burning start/refresh cannot materialize a lifecycle row"
+        );
         if (active !== undefined) {
           addIssue(
             context,
@@ -9556,6 +9828,16 @@ function validateBurningStateProjection(
         continue;
       }
       if (row.operation === "start") {
+        const expectedGeneration =
+          nextBurningStartGenerationByTarget.get(row.targetId) ?? 1;
+        expectFieldEqual(
+          context,
+          rowPath,
+          "generation",
+          row.generation,
+          expectedGeneration,
+          "Burning canonical start generation"
+        );
         if (active !== undefined) {
           addIssue(
             context,
@@ -9910,6 +10192,10 @@ function validateBurningStateProjection(
           "Burning Fuel expiry Fuel snapshot"
         );
       }
+      nextBurningStartGenerationByTarget.set(
+        row.targetId,
+        active.generation + 2
+      );
       activeBurningByTarget.delete(row.targetId);
       continue;
     }
@@ -9966,6 +10252,10 @@ function validateBurningStateProjection(
         row.fuelSourceActorId,
         active.fuelSourceActorId,
         "Burning terminal Fuel owner"
+      );
+      nextBurningStartGenerationByTarget.set(
+        row.targetId,
+        active.generation + 2
       );
       activeBurningByTarget.delete(row.targetId);
     }

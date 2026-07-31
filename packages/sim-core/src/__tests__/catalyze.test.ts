@@ -760,6 +760,92 @@ function makeCatalyzeSimulationConfig(): SimConfig {
 }
 
 describe("Catalyze simulation integration", () => {
+  it("does not advertise or schedule Electro-Charged when the same legacy hit fail-closes on Quicken", () => {
+    const config = makeCatalyzeSimulationConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.reactionEngine = {
+      mode: "aura-v3",
+      initialAura: [
+        { element: "hydro", gaugeUnits: 1 },
+        { element: "dendro", gaugeUnits: 1 }
+      ]
+    };
+    const ability = config.timeline!.abilities[0]!;
+    ability.cancelFrame = 1;
+    ability.animationEndFrame = 1;
+    ability.hits = [
+      {
+        ...ability.hits![0]!,
+        id: "ec-quicken-truncation",
+        label: "EC into Quicken truncation",
+        frame: 0,
+        element: "electro"
+      }
+    ];
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const trigger = result.damageEvents.find(
+      (event) => event.hitId === "ec-quicken-truncation"
+    );
+    expect(trigger?.reactionAudit).toMatchObject({
+      reaction: "electroCharged",
+      periodicReaction: null,
+      mechanicsTruncation: {
+        operation: "trigger",
+        unsupportedReactions: [
+          "legacy-multi-reaction-order"
+        ]
+      }
+    });
+    expect(result.periodicReactionLog).toEqual([]);
+    expect(
+      result.reactionDamageLog.filter(
+        (entry) => entry.reaction === "electroCharged"
+      )
+    ).toEqual([]);
+    expect(
+      result.targetStateTimeline.points.filter((point) =>
+        point.cause.startsWith("electro-charged-")
+      )
+    ).toEqual([]);
+    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+
+    const legalPeriodicAudit = new AuraEngine({
+      mode: "aura-v3",
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+    }).processHit({
+      frame: 0,
+      sourceActorId: "electro",
+      element: "electro",
+      application: noIcd()
+    }).periodicReaction;
+    if (legalPeriodicAudit === null || trigger === undefined) {
+      throw new Error(
+        "EC truncation fixture must expose its trigger and one legal periodic donor."
+      );
+    }
+    const forged = structuredClone(result);
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      if (event.id === trigger.id) {
+        event.reactionAudit.periodicReaction =
+          structuredClone(legalPeriodicAudit);
+      }
+    }
+    expect(simulationResultV144Schema.safeParse(forged).success).toBe(
+      false
+    );
+    expect(() =>
+      assertTrustedSimulationResultV144(forged)
+    ).toThrow(
+      /Trusted SimulationResult 1\.44 integrity validation failed/
+    );
+  });
+
   it("adds hit-time Catalyze flat damage before bonus, defense, resistance, and crit", () => {
     const result = simulate(makeCatalyzeSimulationConfig(), {
       critMode: "allCrit"
@@ -1316,8 +1402,8 @@ describe("Catalyze simulation integration", () => {
 
   it("drops an already queued Electro-Charged wane after the target truncates", () => {
     const config = makeCatalyzeSimulationConfig();
-    config.duration = 1;
-    config.cycleLength = 1;
+    config.duration = 10;
+    config.cycleLength = 10;
     config.reactionEngine = {
       mode: "aura-v3",
       initialAura: [{ element: "electro", gaugeUnits: 1 }]
@@ -1366,6 +1452,13 @@ describe("Catalyze simulation integration", () => {
           entry.operation === "stop" && entry.frame === 16
       )
     ).toBe(false);
+    expect(
+      result.targetStateTimeline.points.filter(
+        (point) =>
+          point.frame > 12 &&
+          point.cause.startsWith("electro-charged-")
+      )
+    ).toEqual([]);
   });
 
   it("does not claim Shatter damage was queued when the same hit truncates on Burning", () => {

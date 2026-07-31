@@ -139,6 +139,24 @@ function makeSameHitHitlagBurningConfig(): SimConfig {
   return config;
 }
 
+function makeTargetClockTruncationStopConfig(): SimConfig {
+  const config = makeSameTriggerTruncationStopConfig();
+  const pyroHit = config.timeline?.abilities[0]?.hits?.[0];
+  if (pyroHit === undefined) {
+    throw new Error("Truncation fixture must expose its Pyro hit.");
+  }
+  config.randomSeed =
+    "burning-result-integrity-target-clock-truncation-stop";
+  config.targetClockModel = {
+    mode: "target-local-hitlag-v1"
+  };
+  pyroHit.targetHitlag = {
+    haltFrames: 3,
+    factor: 0
+  };
+  return config;
+}
+
 function makeCrossActorStopConfig(): SimConfig {
   const base = makeConfig();
   const pyro = character(base.characters[0]!, "pyro-owner", "pyro");
@@ -222,6 +240,88 @@ function makeBlockedBurningStartConfig(): SimConfig {
   hit.element = "dendro";
   hit.application = application("blocked-burning-start-hit");
   return config;
+}
+
+function makeLateTargetClockBurningConfig(): SimConfig {
+  const config = makeActiveBurningConfig(1);
+  const burningAbility = config.timeline?.abilities[0];
+  const pyroHit = burningAbility?.hits?.[0];
+  if (burningAbility === undefined || pyroHit === undefined) {
+    throw new Error("Burning fixture must expose its Pyro hit.");
+  }
+  config.randomSeed = "burning-result-integrity-late-target-clock";
+  config.targetClockModel = {
+    mode: "target-local-hitlag-v1"
+  };
+  burningAbility.cancelFrame = 60;
+  burningAbility.animationEndFrame = 60;
+  pyroHit.frame = 59;
+  return config;
+}
+
+function makeBurningRestartConfig(): SimConfig {
+  const config = makeActiveBurningConfig(3);
+  const burningAbility = config.timeline?.abilities[0];
+  const firstPyroHit = burningAbility?.hits?.[0];
+  if (burningAbility === undefined || firstPyroHit === undefined) {
+    throw new Error("Burning fixture must expose its Pyro hit.");
+  }
+  config.randomSeed = "burning-result-integrity-restart";
+  burningAbility.cancelFrame = 180;
+  burningAbility.animationEndFrame = 180;
+  burningAbility.hits = [
+    firstPyroHit,
+    {
+      ...structuredClone(firstPyroHit),
+      id: "restart-burning-with-dendro",
+      label: "Restart Burning with Dendro",
+      frame: 178,
+      element: "dendro",
+      application: application("restart-burning-with-dendro")
+    },
+    {
+      ...structuredClone(firstPyroHit),
+      id: "refresh-restarted-burning-with-pyro",
+      label: "Refresh restarted Burning with Pyro",
+      frame: 179,
+      element: "pyro",
+      application: application(
+        "refresh-restarted-burning-with-pyro"
+      )
+    }
+  ];
+  return config;
+}
+
+function shiftBurningFuelAuraDeadlines(
+  result: SimulationResult,
+  offset: number
+): void {
+  const visited = new WeakSet<object>();
+  const visit = (value: unknown): void => {
+    if (value === null || typeof value !== "object") return;
+    if (visited.has(value)) return;
+    visited.add(value);
+    if (value === result.config) return;
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    const record = value as Record<string, unknown>;
+    if (record.element === "burningFuel") {
+      for (const field of [
+        "expiresAtFrame",
+        "expiresAtTargetFrame"
+      ] as const) {
+        const deadline = record[field];
+        if (typeof deadline === "number") {
+          record[field] = deadline + offset;
+        }
+      }
+    }
+    Object.values(record).forEach(visit);
+  };
+  visit(result);
 }
 
 function expectAcceptedAtBothBoundaries(
@@ -325,6 +425,183 @@ describe("Burning result integrity edge cases", () => {
       triggerElement: "cryo"
     });
     expectAcceptedAtBothBoundaries(result);
+  });
+
+  it("rejects a coordinated non-canonical generation for one Burning stream", () => {
+    const result = simulate(makeLateTargetClockBurningConfig(), {
+      critMode: "noCrit"
+    });
+    const burningAudits = [
+      ...result.damageEvents,
+      ...result.hitEvents
+    ].flatMap((event) => {
+      const audit = event.reactionAudit.burningReaction;
+      return audit === null ? [] : [audit];
+    });
+
+    expect(result.burningStateLog).toHaveLength(1);
+    expect(result.burningStateLog[0]).toMatchObject({
+      operation: "start",
+      generation: 1
+    });
+    expect(
+      burningAudits.every((audit) => audit.generation === 1)
+    ).toBe(true);
+    expectAcceptedAtBothBoundaries(result);
+
+    for (const audit of burningAudits) {
+      audit.generation = 7;
+    }
+    result.burningStateLog[0]!.generation = 7;
+    expectRejectedAtBothBoundaries(result);
+  });
+
+  it("accepts a post-expiry restart and rejects reusing the retired generation", () => {
+    const legal = simulate(makeBurningRestartConfig(), {
+      critMode: "noCrit"
+    });
+    const starts = legal.burningStateLog.filter(
+      (entry) => entry.operation === "start"
+    );
+    const firstExpiry = legal.burningStateLog.find(
+      (entry) =>
+        entry.operation === "fuel-expire" &&
+        entry.frame < (starts[1]?.frame ?? 0)
+    );
+
+    expect(starts.map((entry) => entry.generation)).toEqual([1, 3]);
+    expect(firstExpiry).toMatchObject({
+      operation: "fuel-expire",
+      generation: 1
+    });
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forged = structuredClone(legal);
+    const forgedStarts = forged.burningStateLog.filter(
+      (entry) => entry.operation === "start"
+    );
+    const retiredGeneration = forgedStarts[0]?.generation;
+    const restartedGeneration = forgedStarts[1]?.generation;
+    const restartFrame = forgedStarts[1]?.frame;
+    if (
+      retiredGeneration === undefined ||
+      restartedGeneration === undefined ||
+      restartFrame === undefined
+    ) {
+      throw new Error(
+        "Burning restart fixture must expose two materialized streams."
+      );
+    }
+    for (const row of forged.burningStateLog) {
+      if (
+        row.frame >= restartFrame &&
+        row.generation === restartedGeneration
+      ) {
+        row.generation = retiredGeneration;
+      }
+    }
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      const audit = event.reactionAudit.burningReaction;
+      if (
+        event.frame >= restartFrame &&
+        audit?.generation === restartedGeneration
+      ) {
+        audit.generation = retiredGeneration;
+      }
+    }
+    expectRejectedAtBothBoundaries(forged);
+  });
+
+  it("rejects a coordinated one-frame shift of the target-local Burning schedule", () => {
+    const legal = simulate(makeLateTargetClockBurningConfig(), {
+      critMode: "noCrit"
+    });
+    const legalAudit = legal.damageEvents.find(
+      (event) =>
+        event.reactionAudit.burningReaction?.operation === "start"
+    )?.reactionAudit.burningReaction;
+    const legalStart = legal.burningStateLog.find(
+      (entry) => entry.operation === "start"
+    );
+    expect(legalAudit).toMatchObject({
+      snapshotFrame: 59,
+      snapshotTargetFrame: 59,
+      firstTickFrame: 74,
+      firstTickTargetFrame: 74,
+      fuelExpiresAtFrame: 168,
+      fuelExpiresAtTargetFrame: 168
+    });
+    expect(legalStart).toMatchObject({
+      frame: 59,
+      targetFrame: 59,
+      nextTickFrame: 74,
+      nextTickTargetFrame: 74,
+      fuelExpiresAtFrame: 168,
+      fuelExpiresAtTargetFrame: 168
+    });
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forged = structuredClone(legal);
+    const burningAudits = new Set(
+      [...forged.damageEvents, ...forged.hitEvents].flatMap(
+        (event) => {
+          const audit = event.reactionAudit.burningReaction;
+          return audit === null ? [] : [audit];
+        }
+      )
+    );
+    for (const audit of burningAudits) {
+      if (
+        audit.snapshotTargetFrame === undefined ||
+        audit.firstTickFrame === null ||
+        audit.firstTickTargetFrame === undefined ||
+        audit.firstTickTargetFrame === null ||
+        audit.nextTickFrame === null ||
+        audit.nextTickTargetFrame === undefined ||
+        audit.nextTickTargetFrame === null ||
+        audit.fuelExpiresAtFrame === null ||
+        audit.fuelExpiresAtTargetFrame === undefined ||
+        audit.fuelExpiresAtTargetFrame === null
+      ) {
+        throw new Error(
+          "Late Burning fixture must expose its complete target-local schedule."
+        );
+      }
+      audit.snapshotTargetFrame -= 1;
+      audit.firstTickFrame -= 1;
+      audit.firstTickTargetFrame -= 1;
+      audit.nextTickFrame -= 1;
+      audit.nextTickTargetFrame -= 1;
+      audit.fuelExpiresAtFrame -= 1;
+      audit.fuelExpiresAtTargetFrame -= 1;
+    }
+    const forgedStart = forged.burningStateLog.find(
+      (entry) => entry.operation === "start"
+    );
+    if (
+      forgedStart?.targetFrame === undefined ||
+      forgedStart.nextTickFrame === null ||
+      forgedStart.nextTickTargetFrame === undefined ||
+      forgedStart.nextTickTargetFrame === null ||
+      forgedStart.fuelExpiresAtFrame === null ||
+      forgedStart.fuelExpiresAtTargetFrame === undefined ||
+      forgedStart.fuelExpiresAtTargetFrame === null
+    ) {
+      throw new Error(
+        "Late Burning lifecycle must expose its complete target-local schedule."
+      );
+    }
+    forgedStart.targetFrame -= 1;
+    forgedStart.nextTickFrame -= 1;
+    forgedStart.nextTickTargetFrame -= 1;
+    forgedStart.fuelExpiresAtFrame -= 1;
+    forgedStart.fuelExpiresAtTargetFrame -= 1;
+    shiftBurningFuelAuraDeadlines(forged, -1);
+
+    expectRejectedAtBothBoundaries(forged);
   });
 
   it("rejects a same-generation stop without authoritative provenance", () => {
@@ -670,6 +947,26 @@ describe("Burning result integrity edge cases", () => {
     );
   });
 
+  it("rejects target-frame drift on a truncation-owned Burning stop", () => {
+    const result = simulate(makeTargetClockTruncationStopConfig(), {
+      critMode: "noCrit"
+    });
+    const stop = result.burningStateLog.find(
+      (entry) =>
+        entry.operation === "stop" &&
+        entry.reason === "TARGET_MECHANICS_TRUNCATION"
+    );
+    if (stop?.targetFrame === undefined) {
+      throw new Error(
+        "Target-clock truncation fixture must expose its stop target frame."
+      );
+    }
+    expectAcceptedAtBothBoundaries(result);
+
+    stop.targetFrame += 1;
+    expectRejectedAtBothBoundaries(result);
+  });
+
   it("rejects changing an audit-owned cross-actor stop reason", () => {
     const result = simulate(makeCrossActorStopConfig(), {
       critMode: "noCrit"
@@ -780,6 +1077,22 @@ describe("Burning result integrity edge cases", () => {
       )
     ).toHaveLength(1);
     expectAcceptedAtBothBoundaries(result);
+
+    const forgedGeneration = structuredClone(result);
+    for (const event of [
+      ...forgedGeneration.damageEvents,
+      ...forgedGeneration.hitEvents
+    ]) {
+      const forgedAudit =
+        event.reactionAudit.burningReaction;
+      if (
+        event.id === hydroEvent.id &&
+        forgedAudit?.operation === "stop"
+      ) {
+        forgedAudit.generation = 7;
+      }
+    }
+    expectRejectedAtBothBoundaries(forgedGeneration);
   });
 
   it("accepts a mechanics-truncated Burning start without a lifecycle row", () => {
@@ -812,5 +1125,60 @@ describe("Burning result integrity edge cases", () => {
       )
     ).toHaveLength(1);
     expectAcceptedAtBothBoundaries(result);
+
+    const forged = structuredClone(result);
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      const audit = event.reactionAudit.burningReaction;
+      if (event.id === dendroEvent.id && audit?.operation === "start") {
+        audit.generation = 7;
+      }
+    }
+    expectRejectedAtBothBoundaries(forged);
+
+    const forgedOperation = structuredClone(result);
+    for (const event of [
+      ...forgedOperation.damageEvents,
+      ...forgedOperation.hitEvents
+    ]) {
+      const audit = event.reactionAudit.burningReaction;
+      if (event.id === dendroEvent.id && audit !== null) {
+        Object.assign(audit, {
+          operation: "refresh-fuel" as const,
+          generation: 7,
+          reactionTriggered: false,
+          fuelOperation: "overwrite" as const
+        });
+      }
+    }
+    expectRejectedAtBothBoundaries(forgedOperation);
+
+    const donor = simulate(makeActiveBurningConfig(1), {
+      critMode: "noCrit"
+    });
+    const donorStart = donor.burningStateLog.find(
+      (entry) => entry.operation === "start"
+    );
+    if (donorStart === undefined) {
+      throw new Error(
+        "Active Burning donor must expose one start lifecycle row."
+      );
+    }
+    const forgedLifecycle = structuredClone(result);
+    forgedLifecycle.burningStateLog.push({
+      ...structuredClone(donorStart),
+      id: forgedLifecycle.burningStateLog.length,
+      frame: dendroEvent.frame,
+      timeSeconds: dendroEvent.timeSeconds,
+      eventPriority: dendroEvent.eventPriority,
+      eventSequence: dendroEvent.eventSequence,
+      targetId: dendroEvent.targetId,
+      targetName: dendroEvent.targetName,
+      triggerDamageEventId: dendroEvent.id,
+      generation: 1
+    });
+    expectRejectedAtBothBoundaries(forgedLifecycle);
   });
 });

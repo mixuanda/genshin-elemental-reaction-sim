@@ -9634,7 +9634,13 @@ function simulateConfig(
       );
       const auraEngine = auraEngines?.get(targetId);
       const target = enemyTargetById.get(targetId);
-      if (!auraEngine || !target) continue;
+      if (
+        !auraEngine ||
+        !target ||
+        auraEngine.isMechanicsTruncated()
+      ) {
+        continue;
+      }
       const targetPhaseV2State =
         materializeTargetPhaseV2Decay(
           event.frame,
