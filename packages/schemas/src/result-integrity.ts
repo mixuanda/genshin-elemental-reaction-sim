@@ -4,6 +4,7 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  type AuraReactionEngineConfig,
   type CharacterStats,
   type DamageEvent,
   type ScalingStat,
@@ -24,9 +25,28 @@ type IssuePath = Array<string | number>;
 
 const FLOAT_TOLERANCE = 1e-9;
 const AURA_GAUGE_EPSILON = 1e-10;
+const NORMAL_AURA_RATIO = 0.8;
+const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
+const LEGACY_NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 6;
+const CURRENT_NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 150;
+const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
 const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
 const FROZEN_DECAY_ACCELERATION_PER_FRAME =
   0.1 / (60 * 60);
+
+function usesCurrentAuraDurability(
+  mode: AuraReactionEngineConfig["mode"] | undefined
+): boolean {
+  return (
+    mode === "aura-v3" ||
+    mode === "aura-v4" ||
+    mode === "aura-v5" ||
+    mode === "aura-v6" ||
+    mode === "aura-v7" ||
+    mode === "aura-v8" ||
+    mode === "aura-v9"
+  );
+}
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
@@ -1990,6 +2010,140 @@ function validateAuraProjection(
         "initial Aura boundary before-state"
       );
     }
+    if (initialState !== undefined) {
+      const configuredInitialAura = target.initialAura;
+      if (
+        initialState.aura.length !== configuredInitialAura.length
+      ) {
+        addIssue(
+          context,
+          ["auraInitialStates", targetIndex, "aura"],
+          "initial Aura must contain exactly the configured resolved elements"
+        );
+      }
+      const currentDurability = usesCurrentAuraDurability(
+        result.config.reactionEngine?.mode
+      );
+      const durabilityPerUnit = currentDurability
+        ? CURRENT_NORMAL_AURA_DURATION_PER_UNIT_FRAMES
+        : LEGACY_NORMAL_AURA_DURATION_PER_UNIT_FRAMES;
+      for (const [configuredIndex, configured] of
+        configuredInitialAura.entries()) {
+        const matches = initialState.aura.filter(
+          (entry) => entry.element === configured.element
+        );
+        if (matches.length !== 1) {
+          addIssue(
+            context,
+            ["auraInitialStates", targetIndex, "aura"],
+            `configured initial ${configured.element} Aura must own exactly one normalized state entry`
+          );
+          continue;
+        }
+        const actual = matches[0]!;
+        const expectedGauge =
+          configured.gaugeUnits * NORMAL_AURA_RATIO;
+        const expectedExpiryFrame = Math.max(
+          0,
+          Math.ceil(
+            NORMAL_AURA_BASE_DURATION_FRAMES +
+              durabilityPerUnit * configured.gaugeUnits -
+              1e-9
+          )
+        );
+        expectNearlyEqual(
+          context,
+          [
+            "auraInitialStates",
+            targetIndex,
+            "aura",
+            configuredIndex,
+            "gaugeUnits"
+          ],
+          actual.gaugeUnits,
+          expectedGauge,
+          "configured initial Aura normalization"
+        );
+        expectEqual(
+          context,
+          [
+            "auraInitialStates",
+            targetIndex,
+            "aura",
+            configuredIndex,
+            "expiresAtFrame"
+          ],
+          actual.expiresAtFrame,
+          expectedExpiryFrame,
+          "configured initial Aura global expiry"
+        );
+        if (
+          result.targetClockAudit.mode ===
+          "target-local-hitlag-v1"
+        ) {
+          expectEqual(
+            context,
+            [
+              "auraInitialStates",
+              targetIndex,
+              "aura",
+              configuredIndex,
+              "expiresAtTargetFrame"
+            ],
+            actual.expiresAtTargetFrame,
+            expectedExpiryFrame,
+            "configured initial Aura target-local expiry"
+          );
+        }
+        if (!currentDurability) {
+          if (actual.sourceSlots !== undefined) {
+            addIssue(
+              context,
+              [
+                "auraInitialStates",
+                targetIndex,
+                "aura",
+                configuredIndex,
+                "sourceSlots"
+              ],
+              "legacy initial Aura cannot expose current durability source slots"
+            );
+          }
+        } else if (
+          actual.sourceSlots === undefined ||
+          actual.sourceSlots.length !== 1 ||
+          actual.sourceSlots[0]?.sourceActorId !== "__initial__"
+        ) {
+          addIssue(
+            context,
+            [
+              "auraInitialStates",
+              targetIndex,
+              "aura",
+              configuredIndex,
+              "sourceSlots"
+            ],
+            "configured initial Aura must preserve its __initial__ source slot"
+          );
+        } else {
+          expectNearlyEqual(
+            context,
+            [
+              "auraInitialStates",
+              targetIndex,
+              "aura",
+              configuredIndex,
+              "sourceSlots",
+              0,
+              "gaugeUnits"
+            ],
+            actual.sourceSlots[0].gaugeUnits,
+            expectedGauge,
+            "configured initial Aura source-slot gauge"
+          );
+        }
+      }
+    }
     const endBoundary = endBoundaries[0];
     if (endState !== undefined && endBoundary !== undefined) {
       expectEqual(
@@ -2216,6 +2370,39 @@ function validateReactionBacklinks(
         parent.sourceActorId,
         "reaction-damage child source"
       );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "scalingOwnerId"],
+        event.scalingOwnerId,
+        parent.sourceActorId,
+        "reaction-damage child scaling owner"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "creditOwnerId"],
+        event.creditOwnerId,
+        parent.sourceActorId,
+        "reaction-damage child credit owner"
+      );
+      const sourceActor = result.config.characters.find(
+        (character) => character.id === parent.sourceActorId
+      );
+      if (sourceActor !== undefined) {
+        for (const field of [
+          "sourceActorName",
+          "scalingOwnerName",
+          "creditOwnerName",
+          "actorName"
+        ] as const) {
+          expectEqual(
+            context,
+            ["damageEvents", damageEventId, field],
+            event[field],
+            sourceActor.name,
+            `reaction-damage child ${field}`
+          );
+        }
+      }
       expectEqual(
         context,
         ["damageEvents", damageEventId, "frame"],
@@ -2598,12 +2785,38 @@ function validateReactionBacklinks(
       nextTickIndex: number;
     }
   >();
+  const periodicStartKeys = new Set<string>();
+  const ordinaryStopKeys = new Set<string>();
+  const waneCallbackKeys = new Set<string>();
+  const generationBoundWaneMode =
+    result.config.reactionEngine?.mode === "aura-v8" ||
+    result.config.reactionEngine?.mode === "aura-v9";
+  const periodicStreamKey = (
+    periodic: SimulationResult["periodicReactionLog"][number]
+  ): string => `${periodic.targetId}\u0000${periodic.generation}`;
   const periodicTickKey = (
     periodic: SimulationResult["periodicReactionLog"][number]
   ): string =>
     `${periodic.targetId}\u0000${periodic.generation}\u0000${periodic.tickIndex}`;
   for (const [periodicIndex, periodic] of
     result.periodicReactionLog.entries()) {
+    const streamKey = periodicStreamKey(periodic);
+    if (periodic.operation === "start") {
+      if (periodicStartKeys.has(streamKey)) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "generation"],
+          "Electro-Charged generation must have exactly one start row"
+        );
+      }
+      periodicStartKeys.add(streamKey);
+    } else if (!periodicStartKeys.has(streamKey)) {
+      addIssue(
+        context,
+        ["periodicReactionLog", periodicIndex, "generation"],
+        "Electro-Charged lifecycle row requires a preceding start for the same target and generation"
+      );
+    }
     expectNearlyEqual(
       context,
       ["periodicReactionLog", periodicIndex, "timeSeconds"],
@@ -2661,6 +2874,32 @@ function validateReactionBacklinks(
       periodic.operation === "wane-skipped" ||
       (periodic.operation === "stop" &&
         periodic.waneFrame !== null);
+    if (
+      periodic.operation === "stop" &&
+      periodic.waneFrame === null
+    ) {
+      if (ordinaryStopKeys.has(streamKey)) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "operation"],
+          "Electro-Charged generation can own at most one ordinary terminal stop"
+        );
+      }
+      ordinaryStopKeys.add(streamKey);
+    }
+    if (isWaneOperation && periodic.tickIndex !== null) {
+      const callbackKey = generationBoundWaneMode
+        ? periodicTickKey(periodic)
+        : `${periodic.targetId}\u0000${periodic.damageEventId ?? `row-${periodic.id}`}`;
+      if (waneCallbackKeys.has(callbackKey)) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "tickIndex"],
+          "Electro-Charged tick can own at most one Wane callback result"
+        );
+      }
+      waneCallbackKeys.add(callbackKey);
+    }
     if (
       periodic.operation === "start" ||
       periodic.operation === "refresh"
@@ -2822,10 +3061,7 @@ function validateReactionBacklinks(
           "Wane rows must reuse a tick child without owning its reaction-damage log"
         );
       }
-      const generationBoundWane =
-        result.config.reactionEngine?.mode === "aura-v8" ||
-        result.config.reactionEngine?.mode === "aura-v9";
-      const tick = generationBoundWane
+      const tick = generationBoundWaneMode
         ? periodicTickByKey.get(periodicTickKey(periodic))
         : periodic.damageEventId === null
           ? undefined
@@ -2843,6 +3079,14 @@ function validateReactionBacklinks(
           context,
           ["periodicReactionLog", periodicIndex, "damageEventId"],
           "Wane row must backlink the preceding tick of the same target, generation, and tick index"
+        );
+      } else {
+        expectEqual(
+          context,
+          ["periodicReactionLog", periodicIndex, "frame"],
+          periodic.frame,
+          tick.frame + ELECTRO_CHARGED_WANE_DELAY_FRAMES,
+          "Electro-Charged Wane callback delay"
         );
       }
     } else if (
@@ -3052,6 +3296,181 @@ function validateReactionBacklinks(
         );
         stream.nextTickIndex += 1;
       }
+    }
+  }
+
+  const ordinaryStopReasons = new Set([
+    "AURA_DECAY_EXPIRED",
+    "COEXISTING_AURA_MISSING",
+    "COEXISTING_AURA_REMOVED_BY_HIT",
+    "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM"
+  ]);
+  const isWaneCallback = (
+    periodic: SimulationResult["periodicReactionLog"][number]
+  ): boolean =>
+    periodic.operation === "wane" ||
+    periodic.operation === "wane-skipped" ||
+    (periodic.operation === "stop" &&
+      periodic.waneFrame !== null);
+  const waneTimelinePointIdsByPeriodicId = new Map<
+    number,
+    number[]
+  >();
+  for (const [pointIndex, point] of
+    result.targetStateTimeline.points.entries()) {
+    if (point.cause !== "electro-charged-wane") continue;
+    const periodicLinks = point.links.filter(
+      (link) => link.kind === "periodic-reaction-log"
+    );
+    const periodic =
+      periodicLinks.length === 1
+        ? result.periodicReactionLog[periodicLinks[0]!.id]
+        : undefined;
+    if (
+      periodicLinks.length !== 1 ||
+      periodic === undefined ||
+      !isWaneCallback(periodic) ||
+      periodic.frame !== point.frame ||
+      periodic.targetId !== point.targetId ||
+      periodic.targetName !== point.targetName ||
+      periodic.damageEventId !== point.primaryDamageEventId ||
+      point.eventType !== "periodicReactionWane" ||
+      point.eventPriority !== 6 ||
+      !semanticEqual(point.auraBefore, periodic.auraBefore) ||
+      !semanticEqual(point.auraConsumed, periodic.auraConsumed) ||
+      !semanticEqual(point.auraAfter, periodic.auraAfter)
+    ) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex, "links"],
+        "Electro-Charged Wane timeline point must own one exact Wane callback row"
+      );
+      continue;
+    }
+    const owners =
+      waneTimelinePointIdsByPeriodicId.get(periodic.id) ?? [];
+    owners.push(point.id);
+    waneTimelinePointIdsByPeriodicId.set(periodic.id, owners);
+  }
+
+  const simulationEndFrame = Math.round(
+    result.config.duration * 60
+  );
+  for (const [periodicIndex, periodic] of
+    result.periodicReactionLog.entries()) {
+    const streamKey = periodicStreamKey(periodic);
+    if (isWaneCallback(periodic)) {
+      if (
+        waneTimelinePointIdsByPeriodicId.get(periodic.id)
+          ?.length !== 1
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "id"],
+          "Electro-Charged Wane callback requires one reciprocal timeline point"
+        );
+      }
+      continue;
+    }
+    if (
+      periodic.operation === "stop" &&
+      periodic.waneFrame === null
+    ) {
+      if (
+        periodic.reason === null ||
+        !ordinaryStopReasons.has(periodic.reason)
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "reason"],
+          "ordinary Electro-Charged stop requires a modeled terminal reason"
+        );
+      }
+      const illegalSuccessor = result.periodicReactionLog
+        .slice(periodicIndex + 1)
+        .find((candidate) => {
+          if (periodicStreamKey(candidate) !== streamKey) {
+            return false;
+          }
+          if (
+            candidate.operation === "tick" &&
+            candidate.tickIndex === 0 &&
+            candidate.reason !== null &&
+            candidate.reason.startsWith("QUEUED_FIRST_TICK_")
+          ) {
+            return false;
+          }
+          if (isWaneCallback(candidate)) return false;
+          return (
+            candidate.operation === "refresh" ||
+            candidate.operation === "tick" ||
+            candidate.operation === "tick-skipped"
+          );
+        });
+      if (illegalSuccessor !== undefined) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "operation"],
+          `ordinary Electro-Charged stop cannot be followed by ${illegalSuccessor.operation} row ${illegalSuccessor.id} in the same generation`
+        );
+      }
+      continue;
+    }
+    if (
+      periodic.operation !== "tick" ||
+      periodic.damageEventId === null ||
+      periodic.waneFrame === null ||
+      periodic.waneFrame > simulationEndFrame
+    ) {
+      continue;
+    }
+    const truncatedBeforeCallback =
+      result.targetMechanicsTruncationLog.some(
+        (entry) =>
+          entry.targetId === periodic.targetId &&
+          entry.frame >= periodic.frame &&
+          entry.frame <= periodic.waneFrame!
+      );
+    const streamCancelledBeforeCallback =
+      generationBoundWaneMode &&
+      result.periodicReactionLog.some((candidate) => {
+        if (
+          candidate.targetId !== periodic.targetId ||
+          candidate.frame < periodic.frame ||
+          candidate.frame > periodic.waneFrame!
+        ) {
+          return false;
+        }
+        const replacementStart =
+          candidate.operation === "start" &&
+          candidate.generation !== periodic.generation;
+        const validTerminalStop =
+          candidate.generation === periodic.generation &&
+          candidate.operation === "stop" &&
+          candidate.waneFrame === null &&
+          candidate.reason !== null &&
+          ordinaryStopReasons.has(candidate.reason);
+        return replacementStart || validTerminalStop;
+      });
+    if (
+      truncatedBeforeCallback ||
+      streamCancelledBeforeCallback
+    ) {
+      continue;
+    }
+    const callbackRows = result.periodicReactionLog.filter(
+      (candidate) =>
+        isWaneCallback(candidate) &&
+        candidate.targetId === periodic.targetId &&
+        candidate.damageEventId === periodic.damageEventId &&
+        candidate.frame === periodic.waneFrame
+    );
+    if (callbackRows.length !== 1) {
+      addIssue(
+        context,
+        ["periodicReactionLog", periodicIndex, "waneFrame"],
+        "in-range Electro-Charged tick requires exactly one uncancelled Wane callback"
+      );
     }
   }
   for (const [parentIndex, parent] of
@@ -3734,6 +4153,9 @@ function validateFrozenStateProjection(
   const targetById = new Map(
     result.enemyTargets.map((target) => [target.id, target])
   );
+  const actorIds = new Set(
+    result.config.characters.map((character) => character.id)
+  );
   const frozenEntries = (aura: AuraSnapshot) =>
     aura.filter((entry) => entry.element === "frozen");
   const frozenGauge = (aura: AuraSnapshot): number =>
@@ -3956,6 +4378,94 @@ function validateFrozenStateProjection(
     rows.push(row);
     rowsByTrigger.set(row.triggerDamageEventId, rows);
   }
+
+  for (const [pointIndex, point] of
+    result.targetStateTimeline.points.entries()) {
+    const frozenBefore = frozenGauge(point.auraBefore);
+    const frozenAfter = frozenGauge(point.auraAfter);
+    const createsFrozen =
+      frozenBefore <= AURA_GAUGE_EPSILON &&
+      frozenAfter > AURA_GAUGE_EPSILON;
+    const removesFrozen =
+      frozenBefore > AURA_GAUGE_EPSILON &&
+      frozenAfter <= AURA_GAUGE_EPSILON;
+    if (
+      point.cause === "aura-natural-expiry" &&
+      removesFrozen
+    ) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex, "cause"],
+        "ordinary Aura expiry cannot remove Frozen; use the Frozen lifecycle callback"
+      );
+    }
+    if (createsFrozen) {
+      const startRows = result.frozenStateLog.filter(
+        (row) =>
+          row.targetId === point.targetId &&
+          row.frame === point.frame &&
+          row.operation === "start" &&
+          row.triggerDamageEventId ===
+            point.primaryDamageEventId &&
+          semanticEqual(row.auraBefore, point.auraBefore) &&
+          semanticEqual(row.auraAfter, point.auraAfter)
+      );
+      if (startRows.length !== 1) {
+        addIssue(
+          context,
+          ["targetStateTimeline", "points", pointIndex, "auraAfter"],
+          "Frozen appearance requires one input-owned Frozen start lifecycle row"
+        );
+      }
+    }
+    const explicitMechanicsTruncation =
+      point.cause === "target-mechanics-truncation" ||
+      (point.primaryDamageEventId !== null &&
+        result.targetMechanicsTruncationLog.some(
+          (entry) =>
+            entry.targetId === point.targetId &&
+            entry.frame === point.frame &&
+            entry.triggerDamageEventId ===
+              point.primaryDamageEventId
+        ));
+    if (!removesFrozen || explicitMechanicsTruncation) {
+      continue;
+    }
+    const terminalRows = result.frozenStateLog.filter((row) => {
+      if (
+        row.targetId !== point.targetId ||
+        row.frame !== point.frame ||
+        frozenGauge(row.auraAfter) > AURA_GAUGE_EPSILON ||
+        !semanticEqual(row.auraAfter, point.auraAfter)
+      ) {
+        return false;
+      }
+      if (point.cause === "frozen-expiry") {
+        return (
+          row.operation === "expire" &&
+          point.links.some(
+            (link) =>
+              link.kind === "frozen-state-log" &&
+              link.id === row.id
+          )
+        );
+      }
+      return (
+        point.primaryDamageEventId !== null &&
+        row.triggerDamageEventId === point.primaryDamageEventId &&
+        (row.operation === "consume" ||
+          row.operation === "poise-consume" ||
+          row.operation === "shatter-consume")
+      );
+    });
+    if (terminalRows.length !== 1) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex, "auraAfter"],
+        "Frozen disappearance requires one explicit expiry or consumption lifecycle owner"
+      );
+    }
+  }
   const matchedRowIds = new Set<number>();
   const latestFrozenRowByTarget = new Map<
     string,
@@ -3965,6 +4475,21 @@ function validateFrozenStateProjection(
   for (const [eventIndex, event] of
     result.damageEvents.entries()) {
     const frozen = event.reactionAudit.frozenReaction;
+    if (
+      event.reactionAudit.reactions.includes("freeze") &&
+      frozen === null
+    ) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "frozenReaction"
+        ],
+        "a recorded Freeze reaction must expose its Frozen lifecycle audit"
+      );
+    }
     if (frozen !== null) {
       const rows = (rowsByTrigger.get(event.id) ?? []).filter(
         (row) => row.operation === frozen.operation
@@ -4562,6 +5087,16 @@ function validateFrozenStateProjection(
         `references missing damage event ${row.triggerDamageEventId}`
       );
     }
+    if (
+      row.sourceActorId !== null &&
+      !actorIds.has(row.sourceActorId)
+    ) {
+      addIssue(
+        context,
+        ["frozenStateLog", rowIndex, "sourceActorId"],
+        `references missing actor ${row.sourceActorId}`
+      );
+    }
     expectNearlyEqual(
       context,
       ["frozenStateLog", rowIndex, "timeSeconds"],
@@ -4862,6 +5397,34 @@ function validateFrozenStateProjection(
             "Frozen global lifecycle deadline"
           );
         }
+        const hasSourceActor = row.sourceActorId !== null;
+        const hasTrigger = row.triggerDamageEventId !== null;
+        if (hasSourceActor !== hasTrigger) {
+          addIssue(
+            context,
+            ["frozenStateLog", rowIndex, "sourceActorId"],
+            "Frozen expiry provenance must be either a complete source/trigger pair or fully unavailable"
+          );
+        } else if (hasSourceActor && hasTrigger) {
+          expectEqual(
+            context,
+            ["frozenStateLog", rowIndex, "sourceActorId"],
+            row.sourceActorId,
+            previous.sourceActorId,
+            "Frozen expiry source snapshot"
+          );
+          expectEqual(
+            context,
+            [
+              "frozenStateLog",
+              rowIndex,
+              "triggerDamageEventId"
+            ],
+            row.triggerDamageEventId,
+            previous.triggerDamageEventId,
+            "Frozen expiry trigger snapshot"
+          );
+        }
       }
     } else if (!matchedRowIds.has(row.id)) {
       addIssue(
@@ -4877,6 +5440,43 @@ function validateFrozenStateProjection(
       latestFrozenRowByTarget.delete(row.targetId);
     } else {
       latestFrozenRowByTarget.set(row.targetId, row);
+    }
+  }
+
+  const endAuraByTarget = new Map(
+    result.auraEndStates.map((state) => [state.targetId, state.aura])
+  );
+  for (const target of result.enemyTargets) {
+    const activeLifecycle = latestFrozenRowByTarget.get(target.id);
+    const finalHasFrozen = (endAuraByTarget.get(target.id) ?? []).some(
+      (entry) =>
+        entry.element === "frozen" &&
+        entry.gaugeUnits > AURA_GAUGE_EPSILON
+    );
+    const truncatedAfterLifecycle =
+      activeLifecycle !== undefined &&
+      result.targetMechanicsTruncationLog.some(
+        (entry) =>
+          entry.targetId === target.id &&
+          entry.frame >= activeLifecycle.frame
+      );
+    if (
+      activeLifecycle !== undefined &&
+      !finalHasFrozen &&
+      !truncatedAfterLifecycle
+    ) {
+      addIssue(
+        context,
+        ["frozenStateLog", activeLifecycle.id],
+        "active Frozen lifecycle is missing an in-range terminal mutation"
+      );
+    }
+    if (activeLifecycle === undefined && finalHasFrozen) {
+      addIssue(
+        context,
+        ["auraEndStates", target.id, "aura"],
+        "terminal Frozen Aura is missing its originating lifecycle row"
+      );
     }
   }
 

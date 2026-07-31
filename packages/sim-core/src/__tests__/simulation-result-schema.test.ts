@@ -323,7 +323,12 @@ function makeElectroChargedIntegrityConfig(): SimConfig {
           ...neutralStats,
           baseAtk: 0
         }
-      }
+      },
+      character(
+        base.characters[0]!,
+        "spectator",
+        "cryo"
+      )
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v2" },
@@ -373,6 +378,13 @@ function makeFrozenExpiryIntegrityConfig(): SimConfig {
           outcome: "landed"
         },
         application: noIcd("freeze-trigger")
+      },
+      {
+        id: "neutral-witness",
+        label: "Unrelated neutral witness",
+        frame: 1,
+        scaling: 0,
+        element: "physical"
       }
     ]
   };
@@ -1229,6 +1241,126 @@ describe("exact current 1.44 SimulationResult schema", () => {
         forgedTick.tickIndex = 999;
       }
     );
+
+    expectRejectedByPublicAndTrusted(
+      electroChargedResult,
+      (mutation) => {
+        const start = mutation.periodicReactionLog.find(
+          (entry) => entry.operation === "start"
+        );
+        if (start === undefined) {
+          throw new Error(
+            "Electro-Charged result must expose a start row."
+          );
+        }
+        mutation.periodicReactionLog.push({
+          ...structuredClone(start),
+          id: mutation.periodicReactionLog.length,
+          generation: 999,
+          operation: "stop",
+          frame: 119,
+          timeSeconds: 119 / 60,
+          sourceActorId: null,
+          triggerDamageEventId: null,
+          reactionDamageLogId: null,
+          damageEventId: null,
+          tickIndex: null,
+          auraBefore: [],
+          auraConsumed: [],
+          auraAfter: [],
+          nextTickFrame: null,
+          coexistenceExpiresAtFrame: null,
+          waneFrame: null,
+          reason: "FORGED"
+        });
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      electroChargedResult,
+      (mutation) => {
+        const wane = mutation.periodicReactionLog.find(
+          (entry) =>
+            entry.operation === "wane" ||
+            entry.operation === "wane-skipped" ||
+            (entry.operation === "stop" &&
+              entry.waneFrame !== null)
+        );
+        if (wane === undefined) {
+          throw new Error(
+            "Electro-Charged result must expose a Wane callback."
+          );
+        }
+        mutation.periodicReactionLog.push({
+          ...structuredClone(wane),
+          id: mutation.periodicReactionLog.length
+        });
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      electroChargedResult,
+      (mutation) => {
+        const wane = mutation.periodicReactionLog.find(
+          (entry) =>
+            entry.operation === "wane" ||
+            entry.operation === "wane-skipped" ||
+            (entry.operation === "stop" &&
+              entry.waneFrame !== null)
+        );
+        if (wane === undefined) {
+          throw new Error(
+            "Electro-Charged result must expose a Wane callback."
+          );
+        }
+        wane.frame += 1;
+        wane.timeSeconds = wane.frame / 60;
+        wane.waneFrame = wane.frame;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      electroChargedResult,
+      (mutation) => {
+        const wane = mutation.periodicReactionLog.find(
+          (entry) => entry.operation === "wane"
+        );
+        if (wane === undefined) {
+          throw new Error(
+            "Electro-Charged result must expose a Wane mutation."
+          );
+        }
+        wane.operation = "stop";
+        wane.waneFrame = null;
+        wane.damageEventId = null;
+        wane.tickIndex = null;
+      }
+    );
+  });
+
+  it("rejects transformative-reaction scaling ownership transferred away from its source", () => {
+    expectRejectedByPublicAndTrusted(
+      electroChargedResult,
+      (mutation) => {
+        const child = mutation.damageEvents.find(
+          (event) =>
+            event.kind === "transformative-reaction" &&
+            event.reaction === "electroCharged"
+        );
+        const alias = mutation.hitEvents.find(
+          (event) => event.id === child?.id
+        );
+        if (child === undefined || alias === undefined) {
+          throw new Error(
+            "Electro-Charged result must expose a compatibility-linked damage child."
+          );
+        }
+        child.scalingOwnerId = "spectator";
+        child.scalingOwnerName = "spectator";
+        alias.scalingOwnerId = "spectator";
+        alias.scalingOwnerName = "spectator";
+      }
+    );
   });
 
   it("rejects Burning tick parent, child, and source drift at both result boundaries", () => {
@@ -1358,6 +1490,183 @@ describe("exact current 1.44 SimulationResult schema", () => {
           );
         }
         forgedExpiry.auraBefore[0]!.gaugeUnits += 0.1;
+      }
+    );
+  });
+
+  it("rejects erased Freeze audits and missing natural-expiry closure at both result boundaries", () => {
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        const expiry = mutation.frozenStateLog.find(
+          (entry) => entry.operation === "expire"
+        );
+        if (expiry === undefined) {
+          throw new Error(
+            "Frozen result must expose a natural expiry."
+          );
+        }
+        mutation.frozenStateLog = mutation.frozenStateLog
+          .filter((entry) => entry.id !== expiry.id)
+          .map((entry, id) => ({ ...entry, id }));
+        mutation.targetStateTimeline.points =
+          mutation.targetStateTimeline.points
+            .filter(
+              (point) =>
+                !point.links.some(
+                  (link) =>
+                    link.kind === "frozen-state-log" &&
+                    link.id === expiry.id
+                )
+            )
+            .map((point, id) => ({ ...point, id }));
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        for (const event of mutation.damageEvents) {
+          event.reactionAudit.frozenReaction = null;
+        }
+        for (const event of mutation.hitEvents) {
+          event.reactionAudit.frozenReaction = null;
+        }
+        mutation.frozenStateLog = [];
+        mutation.targetStateTimeline.points =
+          mutation.targetStateTimeline.points
+            .filter(
+              (point) =>
+                !point.links.some(
+                  (link) => link.kind === "frozen-state-log"
+                )
+            )
+            .map((point, id) => ({ ...point, id }));
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        for (const event of [
+          ...mutation.damageEvents,
+          ...mutation.hitEvents
+        ]) {
+          event.reaction = "none";
+          event.reactionAudit.triggered = false;
+          event.reactionAudit.reaction = "none";
+          event.reactionAudit.reactions = [];
+          event.reactionAudit.frozenReaction = null;
+        }
+        mutation.reactedHits = 0;
+        for (const point of mutation.auraTimeline) {
+          point.reaction = "none";
+          point.reactions = [];
+        }
+        for (const point of mutation.targetStateTimeline.points) {
+          if (point.primaryDamageEventId === 0) {
+            point.reaction = "none";
+            point.reactions = [];
+            point.links = point.links.filter(
+              (link) => link.kind !== "frozen-state-log"
+            );
+          }
+          if (point.cause === "frozen-expiry") {
+            point.pointKind = "derived";
+            point.cause = "aura-natural-expiry";
+            point.eventType = null;
+            point.eventPriority = null;
+            point.eventSequence = null;
+            point.intraEventSequence = null;
+            point.links = [];
+          }
+        }
+        mutation.frozenStateLog = [];
+      }
+    );
+  });
+
+  it("rejects forged or half-null Frozen expiry provenance", () => {
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        const expiry = mutation.frozenStateLog.find(
+          (entry) => entry.operation === "expire"
+        );
+        const unrelated = mutation.damageEvents.find(
+          (event) => event.reaction === "none"
+        );
+        if (expiry === undefined || unrelated === undefined) {
+          throw new Error(
+            "Frozen result must expose expiry and unrelated event provenance."
+          );
+        }
+        expiry.triggerDamageEventId = unrelated.id;
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        const expiry = mutation.frozenStateLog.find(
+          (entry) => entry.operation === "expire"
+        );
+        if (expiry === undefined) {
+          throw new Error(
+            "Frozen result must expose a natural expiry."
+          );
+        }
+        expiry.sourceActorId = "ghost";
+      }
+    );
+
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        const expiry = mutation.frozenStateLog.find(
+          (entry) => entry.operation === "expire"
+        );
+        if (expiry === undefined) {
+          throw new Error(
+            "Frozen result must expose a natural expiry."
+          );
+        }
+        expiry.sourceActorId = null;
+      }
+    );
+  });
+
+  it("binds normalized initial Aura to the resolved input target", () => {
+    expectRejectedByPublicAndTrusted(
+      frozenExpiryResult,
+      (mutation) => {
+        const initial = mutation.auraInitialStates[0]?.aura.find(
+          (entry) => entry.element === "cryo"
+        );
+        const boundary =
+          mutation.targetStateTimeline.points.find(
+            (point) =>
+              point.targetId === "enemy-0" &&
+              point.cause === "simulation-start"
+          );
+        const boundaryBefore = boundary?.auraBefore.find(
+          (entry) => entry.element === "cryo"
+        );
+        const boundaryAfter = boundary?.auraAfter.find(
+          (entry) => entry.element === "cryo"
+        );
+        if (
+          initial === undefined ||
+          boundaryBefore === undefined ||
+          boundaryAfter === undefined
+        ) {
+          throw new Error(
+            "Frozen result must expose normalized initial Cryo Aura."
+          );
+        }
+        initial.gaugeUnits = 0.4;
+        boundaryBefore.gaugeUnits = 0.4;
+        boundaryAfter.gaugeUnits = 0.4;
       }
     );
   });
