@@ -21,14 +21,18 @@ export const EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION =
   "1.42.0" as const;
 export const EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION =
   "1.42.0-ec-global-cadence-safety" as const;
+export const BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION =
+  "1.44.0" as const;
+export const BURNING_CALLBACK_DELIVERY_ENGINE_VERSION =
+  "1.44.0-burning-callback-delivery" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -355,7 +359,8 @@ export type TargetClockModel =
 export type TargetTaskModel =
   | { mode: "legacy-event-heap-v1" }
   | { mode: "target-phase-v1" }
-  | { mode: "target-phase-v2" };
+  | { mode: "target-phase-v2" }
+  | { mode: "target-phase-v3" };
 
 /**
  * Selects how zero-delay reaction damage is delivered relative to the hit
@@ -3171,6 +3176,73 @@ export interface TargetPhaseV2LogEntry {
   reactionTaskLogIds: number[];
 }
 
+/**
+ * One deterministic target application owned directly by a v3 Burning
+ * callback delivery. Every landed application owns a damage event even when
+ * its resolved damage is zero; misses and unresolved targets do not.
+ */
+interface TargetPhaseV3DeliveryAttemptBase {
+  /** Zero-based, contiguous order within the callback delivery. */
+  order: number;
+  targetId: TargetId;
+  targetOrder: number;
+  applicationPhase:
+    | "before-reactable-tick"
+    | "after-reactable-tick";
+}
+
+export type TargetPhaseV3DeliveryAttempt =
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "landed";
+      hitResolutionLogId: number;
+      damageEventId: number;
+      targetStateTimelinePointId: number;
+    })
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "miss";
+      hitResolutionLogId: number;
+      damageEventId: null;
+      targetStateTimelinePointId: null;
+    })
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "unresolved";
+      hitResolutionLogId: null;
+      damageEventId: null;
+      targetStateTimelinePointId: null;
+    });
+
+/**
+ * Complete cross-target Burning application projection delivered inline by
+ * one target-owned callback.
+ */
+export interface TargetPhaseV3Delivery {
+  model: "burning-callback-zero-delay-v1";
+  reactionDamageLogId: number;
+  eventPriority: number;
+  eventSequence: number;
+  attempts: TargetPhaseV3DeliveryAttempt[];
+}
+
+/**
+ * v3 preserves the v2 callback task wire and adds optional inline delivery.
+ * Cross-log integrity determines whether the referenced Burning operation was
+ * a real tick (delivery required) or a skipped/stopped/stale callback
+ * (delivery forbidden).
+ */
+export type TargetPhaseV3TargetTask = TargetPhaseV2TargetTask & {
+  delivery: TargetPhaseV3Delivery | null;
+};
+
+/**
+ * v3 retains the v2 QueueEnemyTask then Reactable.Tick boundary while making
+ * a Burning callback's cross-target application delivery explicit and inline.
+ */
+export interface TargetPhaseV3LogEntry
+  extends Omit<TargetPhaseV2LogEntry, "model" | "targetTasks"> {
+  model: "target-phase-v3";
+  targetTasks: TargetPhaseV3TargetTask[];
+}
+
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: string;
@@ -3203,8 +3275,10 @@ export interface SimulationResult {
   targetHitlagLog: TargetHitlagLogEntry[];
   /** Replayable target-owned task and Aura-decay phase boundaries. */
   targetTaskPhaseLog: TargetTaskPhaseLogEntry[];
-  /** Target-local QueueEnemyTask then Reactable.Tick boundaries for v2. */
-  targetPhaseLog: TargetPhaseV2LogEntry[];
+  /** Target-local QueueEnemyTask then Reactable.Tick boundaries for v2/v3. */
+  targetPhaseLog: Array<
+    TargetPhaseV2LogEntry | TargetPhaseV3LogEntry
+  >;
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */

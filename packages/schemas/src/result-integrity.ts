@@ -1,5 +1,7 @@
 import type { RefinementCtx } from "zod";
 import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   type CharacterStats,
@@ -16,6 +18,7 @@ import {
 import { calcCrystallizeShield } from "./crystallize";
 import { validateEnergyReplayIntegrity } from "./energy-replay-integrity";
 import { validateParticleProvenanceIntegrity } from "./particle-provenance-integrity";
+import { validateTargetPhaseV3Integrity } from "./target-phase-v3-integrity";
 
 type IssuePath = Array<string | number>;
 
@@ -239,33 +242,37 @@ function compareFiniteRecord(
   }
 }
 
-function validateIdentity(
+function validateIdentityForVersion(
   result: SimulationResult,
-  context: RefinementCtx
+  context: RefinementCtx,
+  expectedSchemaVersion: string,
+  expectedEngineVersion: string,
+  identityLabel: "frozen" | "current"
 ): void {
   if (
-    result.schemaVersion !==
-    EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+    (result.schemaVersion as string) !==
+    expectedSchemaVersion
   ) {
     addIssue(
       context,
       ["schemaVersion"],
-      `must equal frozen schema ${EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION}`
+      `must equal ${identityLabel} schema ${expectedSchemaVersion}`
     );
   }
   if (
-    result.engineVersion !==
-    EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    result.engineVersion !== expectedEngineVersion
   ) {
     addIssue(
       context,
       ["engineVersion"],
-      `must equal frozen engine ${EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION}`
+      `must equal ${identityLabel} engine ${expectedEngineVersion}`
     );
   }
   if (
-    result.config.schemaVersion !== result.schemaVersion ||
-    result.runManifest.schemaVersion !== result.schemaVersion
+    (result.config.schemaVersion as string) !==
+      (result.schemaVersion as string) ||
+    (result.runManifest.schemaVersion as string) !==
+      (result.schemaVersion as string)
   ) {
     addIssue(
       context,
@@ -363,6 +370,32 @@ function validateIdentity(
       "must equal the canonical run-manifest identity hash"
     );
   }
+}
+
+function validateIdentityV142(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityForVersion(
+    result,
+    context,
+    EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+    EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+    "frozen"
+  );
+}
+
+function validateIdentityV144(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityForVersion(
+    result,
+    context,
+    BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+    "current"
+  );
 }
 
 function validateDamageEvent(
@@ -3873,6 +3906,33 @@ function validateFrozenStateProjection(
   const damageEventById = new Map(
     result.damageEvents.map((event) => [event.id, event])
   );
+  const beforeReactableDeliveryDamageIds = new Set<number>();
+  const lastBeforeReactableDeliveryByTargetFrame = new Map<
+    string,
+    number
+  >();
+  for (const phase of result.targetPhaseLog) {
+    if (phase.model !== "target-phase-v3") continue;
+    for (const task of phase.targetTasks) {
+      const delivery = task.delivery;
+      if (delivery === null) continue;
+      for (const attempt of delivery.attempts) {
+        if (
+          attempt.outcome !== "landed" ||
+          attempt.applicationPhase !== "before-reactable-tick"
+        ) {
+          continue;
+        }
+        beforeReactableDeliveryDamageIds.add(
+          attempt.damageEventId
+        );
+        lastBeforeReactableDeliveryByTargetFrame.set(
+          `${attempt.targetId}\u0000${phase.globalFrame}`,
+          attempt.damageEventId
+        );
+      }
+    }
+  }
   const rowsByTrigger = new Map<
     number,
     SimulationResult["frozenStateLog"]
@@ -4852,6 +4912,18 @@ function validateFrozenStateProjection(
       continue;
     }
     const elapsed = localFrame - previous.localFrame;
+    const beforeReactableDelivery =
+      row.operation !== "expire" &&
+      row.triggerDamageEventId !== null &&
+      beforeReactableDeliveryDamageIds.has(
+        row.triggerDamageEventId
+      );
+    // A v3 inline delivery settles before this target's Reactable.Tick. Its
+    // audit observes the end of the prior local frame, so the current frame's
+    // ordinary Frozen decay must not be charged until after the mutation.
+    const elapsedBeforeMutation = beforeReactableDelivery
+      ? Math.max(0, elapsed - 1)
+      : elapsed;
     const rowGaugeBefore = frozenGauge(row.auraBefore);
     const rowGaugeAfter = frozenGauge(row.auraAfter);
 
@@ -4936,10 +5008,11 @@ function validateFrozenStateProjection(
         previous.gaugeUnits,
         previous.decayRatePerFrame,
         target.freezeResistance,
-        elapsed
+        elapsedBeforeMutation
       );
       expectedDecayRate +=
-        FROZEN_DECAY_ACCELERATION_PER_FRAME * elapsed;
+        FROZEN_DECAY_ACCELERATION_PER_FRAME *
+        elapsedBeforeMutation;
       if (
         expectedGaugeBefore <= AURA_GAUGE_EPSILON
       ) {
@@ -4952,10 +5025,10 @@ function validateFrozenStateProjection(
     } else {
       expectedDecayRate = Math.max(
         FROZEN_BASE_DECAY_PER_FRAME,
-        previous.decayRatePerFrame -
+            previous.decayRatePerFrame -
           2 *
             FROZEN_DECAY_ACCELERATION_PER_FRAME *
-            elapsed
+            elapsedBeforeMutation
       );
     }
     expectNearlyEqual(
@@ -4992,13 +5065,45 @@ function validateFrozenStateProjection(
         "Frozen lifecycle replay decay rate"
       );
     }
+    let replayGaugeAfter = rowGaugeAfter;
+    let replayDecayRate = ownsFrozenAudit
+      ? frozenAudit.decayRatePerFrame
+      : expectedDecayRate;
+    if (
+      beforeReactableDelivery &&
+      row.triggerDamageEventId !== null &&
+      lastBeforeReactableDeliveryByTargetFrame.get(
+        `${row.targetId}\u0000${row.frame}`
+      ) === row.triggerDamageEventId &&
+      !result.frozenStateLog
+        .slice(rowIndex + 1)
+        .some(
+          (later) =>
+            later.targetId === row.targetId &&
+            (later.targetFrame ?? later.frame) === localFrame
+        )
+    ) {
+      const recipientPhase = result.targetPhaseLog.find(
+        (phase) =>
+          phase.model === "target-phase-v3" &&
+          phase.globalFrame === row.frame &&
+          phase.targetId === row.targetId
+      );
+      if (recipientPhase !== undefined) {
+        replayGaugeAfter = frozenGauge(
+          recipientPhase.reactableTick.auraAfter
+        );
+        if (rowGaugeAfter > AURA_GAUGE_EPSILON) {
+          replayDecayRate +=
+            FROZEN_DECAY_ACCELERATION_PER_FRAME;
+        }
+      }
+    }
     decayReplayByTarget.set(row.targetId, {
       localFrame,
-      decayRatePerFrame: ownsFrozenAudit
-        ? frozenAudit.decayRatePerFrame
-        : expectedDecayRate,
-      gaugeUnits: rowGaugeAfter,
-      active: rowGaugeAfter > AURA_GAUGE_EPSILON
+      decayRatePerFrame: replayDecayRate,
+      gaugeUnits: replayGaugeAfter,
+      active: replayGaugeAfter > AURA_GAUGE_EPSILON
     });
   }
 }
@@ -7644,11 +7749,28 @@ export function validateSimulationResultV142Integrity(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
-  validateIdentity(result, context);
+  validateIdentityV142(result, context);
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
   validateEnergy(result, context);
   validateEnergyReplayIntegrity(result, context);
+}
+
+/**
+ * Cross-field proof for the exact 1.44 SimulationResult wire. Unchanged
+ * aggregates and mechanics reuse the frozen proof; only identity and v3
+ * callback ownership are version-specific.
+ */
+export function validateSimulationResultV144Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityV144(result, context);
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
+  validateTargetPhaseV3Integrity(result, context);
 }
 
 /**
@@ -7700,3 +7822,54 @@ export function assertTrustedSimulationResultV142(
   }
   return result;
 }
+
+/** Zero-copy assertion for current 1.44 results produced inside sim-core. */
+export function assertTrustedSimulationResultV144(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV144Integrity(result, context);
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${
+            issue.message
+          }`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.44 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
+/** Current aliases; versioned validators above remain frozen exports. */
+export const validateSimulationResultIntegrity =
+  validateSimulationResultV144Integrity;
+export const assertTrustedSimulationResult =
+  assertTrustedSimulationResultV144;
+export {
+  targetPhaseV3ResultReferencesSchema,
+  validateTargetPhaseV3Integrity
+} from "./target-phase-v3-integrity";

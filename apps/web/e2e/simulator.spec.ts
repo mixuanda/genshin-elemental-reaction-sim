@@ -112,8 +112,8 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.42.0",
-    engineVersion: "1.42.0-ec-global-cadence-safety",
+    schemaVersion: "1.44.0",
+    engineVersion: "1.44.0-burning-callback-delivery",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -176,9 +176,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.42.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.44.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.42.0-ec-global-cadence-safety"
+    "engine 1.44.0-burning-callback-delivery"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

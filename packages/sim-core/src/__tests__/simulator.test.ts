@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertTrustedSimulationResult,
+  assertTrustedSimulationResultV144,
   createVersionedContentHash,
-  simulationResultV142Schema,
+  simulationResultV144Schema,
   simulationRunManifestSchema
 } from "@genshin-dps-lab/schemas";
 import {
@@ -548,8 +550,10 @@ describe("deterministic event simulation", () => {
       snapshotAtk + 1
     );
     expect(
-      simulationResultV142Schema.parse(result)
+      simulationResultV144Schema.parse(result)
     ).toEqual(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 
   it("creates fresh plugin runtime state for consecutive simulations", () => {

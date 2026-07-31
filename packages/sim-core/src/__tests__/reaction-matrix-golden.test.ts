@@ -15,7 +15,7 @@ import {
   reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
   simConfigSchema,
-  simulationResultV142Schema,
+  simulationResultV144Schema,
   simulationRunManifestSchema,
   targetPhaseV2ResultReferencesSchema,
   targetStateTimelineSchema,
@@ -1287,8 +1287,10 @@ const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
 } as const satisfies Record<string, MatrixScenario>;
 
 const CLASSIC_REACTION_CLASS_COUNT = 16;
-const AURA_V9_CLASSIC_MATRIX_DIGEST =
-  "31d24feedf7aa283b687075c16634a2ba9bf2898c37173d0789e56e8f66781cb";
+// This digest intentionally excludes version/config-manifest identity so the
+// classic reaction semantics remain comparable across wire-version bumps.
+const AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST =
+  "54810c5ca0c1b8a92c5f0fa6412dbc0544e4741ce931c70b68a71cb02cb79d7f";
 
 function makeAuraV9MatrixConfig(
   scenarioId: string,
@@ -2217,11 +2219,11 @@ describe("1.35 provisional reaction-matrix Golden", () => {
   });
 });
 
-describe("1.42 aura-v9 classic reaction release gate", () => {
+describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.42.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.42.0-ec-global-cadence-safety"
+      "1.44.0-burning-callback-delivery"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2256,10 +2258,10 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
       );
 
       expect(
-        simulationResultV142Schema.parse(result)
+        simulationResultV144Schema.parse(result)
       ).toEqual(result);
       expect(
-        simulationResultV142Schema.parse(repeated)
+        simulationResultV144Schema.parse(repeated)
       ).toEqual(repeated);
       if (scenarioId === "freezeShatter") {
         const forged = structuredClone(result);
@@ -2271,12 +2273,12 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
         }
         frozen.freezeResistance = 1.01;
         expect(
-          simulationResultV142Schema.safeParse(forged).success
+          simulationResultV144Schema.safeParse(forged).success
         ).toBe(false);
         const forgedTime = structuredClone(result);
         forgedTime.frozenStateLog[0]!.timeSeconds += 0.01;
         expect(
-          simulationResultV142Schema.safeParse(forgedTime).success
+          simulationResultV144Schema.safeParse(forgedTime).success
         ).toBe(false);
       }
       if (scenarioId === "swirl") {
@@ -2294,7 +2296,7 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
         swirl.swirledElement =
           swirl.swirledElement === "pyro" ? "hydro" : "pyro";
         expect(
-          simulationResultV142Schema.safeParse(forged).success
+          simulationResultV144Schema.safeParse(forged).success
         ).toBe(false);
       }
       if (scenarioId === "crystallize") {
@@ -2315,7 +2317,7 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
             ? "hydro"
             : "pyro";
         expect(
-          simulationResultV142Schema.safeParse(forged).success
+          simulationResultV144Schema.safeParse(forged).success
         ).toBe(false);
       }
       if (scenarioId === "catalyze") {
@@ -2336,13 +2338,13 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
             ? "dendro"
             : "electro";
         expect(
-          simulationResultV142Schema.safeParse(forged).success
+          simulationResultV144Schema.safeParse(forged).success
         ).toBe(false);
       }
       expect(result).toEqual(repeated);
       expect(result.config).toMatchObject({
-        schemaVersion: "1.42.0",
-        engineVersion: "1.42.0-ec-global-cadence-safety",
+        schemaVersion: "1.44.0",
+        engineVersion: "1.44.0-burning-callback-delivery",
         reactionEngine: {
           mode: "aura-v9"
         },
@@ -2358,8 +2360,8 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
         }
       });
       expect(result.runManifest).toMatchObject({
-        schemaVersion: "1.42.0",
-        engineVersion: "1.42.0-ec-global-cadence-safety",
+        schemaVersion: "1.44.0",
+        engineVersion: "1.44.0-burning-callback-delivery",
         dataVersion: DATA_VERSION,
         resolvedRuntimeOptions: options
       });
@@ -2403,7 +2405,9 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
         totalDamage: result.totalDamage,
         damageEventCount: result.damageEvents.length,
         semanticDigest: sha256({
-          compactResult: compactResult(result),
+          compactResult: withoutSingleVersionIdentity(
+            compactResult(result)
+          ),
           targetTaskPhaseLog: result.targetTaskPhaseLog,
           targetPhaseLog: result.targetPhaseLog,
           reactionTaskLog: result.reactionTaskLog
@@ -2432,6 +2436,8 @@ describe("1.42 aura-v9 classic reaction release gate", () => {
     if (process.env.PRINT_AURA_V9_REACTION_MATRIX === "1") {
       console.log(`aura-v9 classic reaction digest: ${digest}`);
     }
-    expect(digest).toBe(AURA_V9_CLASSIC_MATRIX_DIGEST);
+    expect(digest).toBe(
+      AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST
+    );
   });
 });

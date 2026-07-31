@@ -1,6 +1,7 @@
 import {
-  assertTrustedSimulationResultV142,
-  simulationResultV142Schema,
+  assertTrustedSimulationResult,
+  assertTrustedSimulationResultV144,
+  simulationResultV144Schema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
@@ -335,9 +336,10 @@ describe("Electro-Charged simulation integration", () => {
       reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
     });
     expect(
-      simulationResultV142Schema.safeParse(result).success
+      simulationResultV144Schema.safeParse(result).success
     ).toBe(true);
-    expect(assertTrustedSimulationResultV142(result)).toBe(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 
   it("keeps an already queued first tick after an early stop without wane or later ticks", () => {

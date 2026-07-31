@@ -1,5 +1,5 @@
 import {
-  assertTrustedSimulationResultV142,
+  assertTrustedSimulationResult,
   CURRENT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
@@ -15,6 +15,8 @@ import {
   targetHitlagLogSchema,
   targetPhaseV2LogSchema,
   targetPhaseV2ResultReferencesSchema,
+  targetPhaseV3LogSchema,
+  targetPhaseV3ResultReferencesSchema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
   type AdditiveReactionFactors,
@@ -65,6 +67,10 @@ import {
   type TargetLifecycleTransition,
   type TargetPhaseV2LogEntry,
   type TargetPhaseV2TargetTask,
+  type TargetPhaseV3Delivery,
+  type TargetPhaseV3DeliveryAttempt,
+  type TargetPhaseV3LogEntry,
+  type TargetPhaseV3TargetTask,
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import {
@@ -191,6 +197,19 @@ function resolveEnemyBaseResistance(
   element: Element
 ): number {
   return target.resistances?.[element] ?? target.resistance;
+}
+
+function readReactionApplicationAura(
+  auraEngine: AuraEngine | null,
+  eventFrame: number,
+  preserveCurrentTargetState: boolean
+): AuraStateEntry[] {
+  if (auraEngine === null) return [];
+  return auraEngine.getAuraStateAt(
+    preserveCurrentTargetState
+      ? auraEngine.getCurrentFrame()
+      : eventFrame
+  );
 }
 
 const ENEMY_RESISTANCE_ELEMENTS = [
@@ -1304,14 +1323,16 @@ function simulateConfig(
       runtimeOptions.compatibilityMode ??
       (timelineExecution ||
       config.targetTaskModel.mode === "target-phase-v1" ||
-      config.targetTaskModel.mode === "target-phase-v2"
+      config.targetTaskModel.mode === "target-phase-v2" ||
+      config.targetTaskModel.mode === "target-phase-v3"
         ? "legal-frame-v1"
         : "legacy-v0.1"),
     randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
   };
   if (
     (config.targetTaskModel.mode === "target-phase-v1" ||
-      config.targetTaskModel.mode === "target-phase-v2") &&
+      config.targetTaskModel.mode === "target-phase-v2" ||
+      config.targetTaskModel.mode === "target-phase-v3") &&
     options.compatibilityMode !== "legal-frame-v1"
   ) {
     throw new Error(
@@ -1390,7 +1411,10 @@ function simulateConfig(
   const targetPhaseV1Enabled =
     config.targetTaskModel.mode === "target-phase-v1";
   const targetPhaseV2Enabled =
-    config.targetTaskModel.mode === "target-phase-v2";
+    config.targetTaskModel.mode === "target-phase-v2" ||
+    config.targetTaskModel.mode === "target-phase-v3";
+  const targetPhaseV3Enabled =
+    config.targetTaskModel.mode === "target-phase-v3";
   const auraV9Enabled = config.reactionEngine?.mode === "aura-v9";
   const electroChargedV9Fields = (
     cadenceStatus: "scheduled" | "dormant" | "stopped" | undefined,
@@ -1468,12 +1492,17 @@ function simulateConfig(
   const burningDamagePriorityForTarget = (
     targetId: string
   ): number =>
-    targetPhaseAuditEnabled
-      ? EVENT_PRIORITY.reactionDamage +
-        (enemyTargetOrderById.get(targetId) ?? 0) *
-          targetPhasePriorityStride
-      : burningTickPriorityForTarget(targetId) +
-        burningAtomicPriorityStride;
+    targetPhaseV3Enabled
+      // A v3 Burning root is a zero-delay child of this target's callback:
+      // later than the owner task, earlier than its Reactable.Tick decay.
+      ? targetPhaseV2TaskPriorityForTarget(targetId) +
+        targetPhasePriorityStride * 0.25
+      : targetPhaseAuditEnabled
+        ? EVENT_PRIORITY.reactionDamage +
+          (enemyTargetOrderById.get(targetId) ?? 0) *
+            targetPhasePriorityStride
+        : burningTickPriorityForTarget(targetId) +
+          burningAtomicPriorityStride;
   const lastMotionPositionByTarget = new Map(
     enemyTargets.map((target) => [
       target.id,
@@ -2393,10 +2422,14 @@ function simulateConfig(
     if (ids[ids.length - 1] !== id) ids.push(id);
   };
   const targetPhaseLog: SimulationResult["targetPhaseLog"] = [];
+  type TargetPhaseEntry =
+    | TargetPhaseV2LogEntry
+    | TargetPhaseV3LogEntry;
   interface TargetPhaseV2RuntimeState {
-    entry: TargetPhaseV2LogEntry;
+    entry: TargetPhaseEntry;
     emitted: boolean;
     decayMaterialized: boolean;
+    hasBeforeReactableInlineDelivery: boolean;
   }
   type TargetLifecycleTransitionInput =
     TargetLifecycleTransition extends infer TTransition
@@ -2410,7 +2443,7 @@ function simulateConfig(
   >();
   const lastEmittedTargetPhaseV2ByTarget = new Map<
     string,
-    TargetPhaseV2LogEntry
+    TargetPhaseEntry
   >();
   const emitTargetPhaseV2State = (
     state: TargetPhaseV2RuntimeState
@@ -2447,7 +2480,7 @@ function simulateConfig(
     targetId: string;
     globalFrame: number;
     emit: boolean;
-    auraBeforeOverride?: TargetPhaseV2LogEntry["auraBeforeTargetTasks"];
+    auraBeforeOverride?: TargetPhaseEntry["auraBeforeTargetTasks"];
   }): TargetPhaseV2RuntimeState | null => {
     if (!targetPhaseV2Enabled) return null;
     const key = targetTaskPhaseKey(globalFrame, targetId);
@@ -2477,8 +2510,10 @@ function simulateConfig(
       targetId,
       globalFrame
     );
-    const entry: TargetPhaseV2LogEntry = {
-      model: "target-phase-v2",
+    const entry: TargetPhaseEntry = {
+      model: targetPhaseV3Enabled
+        ? "target-phase-v3"
+        : "target-phase-v2",
       id: -1,
       targetId,
       targetName: target.name,
@@ -2502,14 +2537,15 @@ function simulateConfig(
     const state: TargetPhaseV2RuntimeState = {
       entry,
       emitted: false,
-      decayMaterialized: false
+      decayMaterialized: false,
+      hasBeforeReactableInlineDelivery: false
     };
     targetPhaseV2StateByKey.set(key, state);
     if (emit) emitTargetPhaseV2State(state);
     return state;
   };
   const appendTargetPhaseV2Reference = (
-    entry: TargetPhaseV2LogEntry | null,
+    entry: TargetPhaseEntry | null,
     field: "hitResolutionLogIds" | "reactionTaskLogIds",
     id: number
   ): void => {
@@ -2520,7 +2556,7 @@ function simulateConfig(
   const appendTargetPhaseV2Transition = (
     state: TargetPhaseV2RuntimeState,
     transition: TargetLifecycleTransitionInput,
-    auraAfter: TargetPhaseV2LogEntry["reactableTick"]["auraAfter"]
+    auraAfter: TargetPhaseEntry["reactableTick"]["auraAfter"]
   ): void => {
     emitTargetPhaseV2State(state);
     if (state.entry.reactableTick.transitions.length === 0) {
@@ -2616,6 +2652,13 @@ function simulateConfig(
   const targetMechanicsTruncationLog: SimulationResult["targetMechanicsTruncationLog"] =
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
+  const burningRootInlineDeliveryByReactionDamageLogId = new Map<
+    number,
+    {
+      ownerTargetOrder: number;
+      delivery: TargetPhaseV3Delivery;
+    }
+  >();
   const reactionTaskLog: SimulationResult["reactionTaskLog"] = [];
   const syncPendingElectroChargedCleanupCadence = ({
     targetId,
@@ -3420,7 +3463,11 @@ function simulateConfig(
     source: BurningSourceSnapshot;
     burningStateLogId: number;
     nextTickFrame: number | null;
-  }): void => {
+  }): {
+    reactionDamageLogId: number;
+    eventPriority: number;
+    eventSequence: number | null;
+  } => {
     const reactionDamageLogId = reactionDamageLog.length;
     const withinSimulation =
       frame <= Math.round(config.duration * 60);
@@ -3463,8 +3510,15 @@ function simulateConfig(
     if (burningLog !== undefined) {
       burningLog.reactionDamageLogId = reactionDamageLogId;
     }
-    if (!withinSimulation) return;
-    push(
+    const eventPriority = burningDamagePriorityForTarget(targetId);
+    if (!withinSimulation) {
+      return {
+        reactionDamageLogId,
+        eventPriority,
+        eventSequence: null
+      };
+    }
+    const eventSequence = push(
       frame / 60,
       "reactionDamage",
       {
@@ -3503,8 +3557,13 @@ function simulateConfig(
           burningStateLogId
         }
       } satisfies ReactionDamageEventPayload,
-      burningDamagePriorityForTarget(targetId)
+      eventPriority
     );
+    return {
+      reactionDamageLogId,
+      eventPriority,
+      eventSequence
+    };
   };
 
   const cleanup = (timeSeconds: number): void => {
@@ -3637,6 +3696,7 @@ function simulateConfig(
     // its pre-boundary snapshot for the typed transition below.
     if (
       state.entry.targetTasks.length === 0 &&
+      !state.hasBeforeReactableInlineDelivery &&
       !hasExactLifecycleBoundary
     ) {
       state.entry.auraBeforeTargetTasks =
@@ -3745,7 +3805,8 @@ function simulateConfig(
       });
     }
     if (
-      state.entry.targetTasks.length > 0 &&
+      (state.entry.targetTasks.length > 0 ||
+        state.hasBeforeReactableInlineDelivery) &&
       state.entry.reactableTick.transitions.length === 0 &&
       !hasExactLifecycleBoundary &&
       !auraStateSnapshotsEqual(
@@ -8873,6 +8934,16 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      if (
+        targetPhaseV3Enabled &&
+        result.operation === "stale"
+      ) {
+        // A callback-owned before-Reactable application can invalidate the
+        // queued lifecycle wake in the same target phase. Stale wakes are not
+        // authoritative Aura boundaries and therefore own no v3 timeline
+        // point or Reactable.Tick transition.
+        continue;
+      }
       const targetStateTimelinePointId =
         targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
@@ -9975,7 +10046,7 @@ function simulateConfig(
             )
           }
         : {};
-      const targetPhaseV2Task: TargetPhaseV2TargetTask | null =
+      const targetPhaseTaskBase: TargetPhaseV2TargetTask | null =
         targetPhaseV2State === null
           ? null
           : {
@@ -10000,13 +10071,26 @@ function simulateConfig(
               burningStateLogId: null,
               targetStateTimelinePointId
             };
+      let targetPhaseV2Task: TargetPhaseV2TargetTask | null = null;
+      let targetPhaseV3Task: TargetPhaseV3TargetTask | null = null;
       if (
         targetPhaseV2State !== null &&
-        targetPhaseV2Task !== null
+        targetPhaseTaskBase !== null
       ) {
-        targetPhaseV2State.entry.targetTasks.push(
-          targetPhaseV2Task
-        );
+        if (targetPhaseV2State.entry.model === "target-phase-v3") {
+          targetPhaseV3Task = {
+            ...targetPhaseTaskBase,
+            delivery: null
+          };
+          targetPhaseV2State.entry.targetTasks.push(
+            targetPhaseV3Task
+          );
+        } else {
+          targetPhaseV2Task = targetPhaseTaskBase;
+          targetPhaseV2State.entry.targetTasks.push(
+            targetPhaseV2Task
+          );
+        }
       }
       if (prepared.operation === "stale") continue;
       if (prepared.operation === "stop") {
@@ -10087,9 +10171,10 @@ function simulateConfig(
           "burningStateLogIds",
           burningStateLogId
         );
-        if (targetPhaseV2Task !== null) {
-          targetPhaseV2Task.burningStateLogId =
-            burningStateLogId;
+        const targetPhaseTask =
+          targetPhaseV3Task ?? targetPhaseV2Task;
+        if (targetPhaseTask !== null) {
+          targetPhaseTask.burningStateLogId = burningStateLogId;
         }
         activeBurningSources.delete(targetId);
         continue;
@@ -10170,12 +10255,13 @@ function simulateConfig(
         "burningStateLogIds",
         burningStateLogId
       );
-      if (targetPhaseV2Task !== null) {
-        targetPhaseV2Task.burningStateLogId =
-          burningStateLogId;
+      const targetPhaseTask =
+        targetPhaseV3Task ?? targetPhaseV2Task;
+      if (targetPhaseTask !== null) {
+        targetPhaseTask.burningStateLogId = burningStateLogId;
       }
       if (prepared.operation === "tick") {
-        scheduleBurningDamage({
+        const scheduledDelivery = scheduleBurningDamage({
           frame: event.frame,
           targetId,
           generation,
@@ -10184,6 +10270,33 @@ function simulateConfig(
           burningStateLogId,
           nextTickFrame: prepared.nextTickFrame
         });
+        if (targetPhaseV3Task !== null) {
+          if (scheduledDelivery.eventSequence === null) {
+            throw new Error(
+              `Inline Burning callback at frame ${event.frame} failed to queue its zero-delay delivery.`
+            );
+          }
+          const ownerTargetOrder =
+            enemyTargetOrderById.get(targetId);
+          if (ownerTargetOrder === undefined) {
+            throw new Error(
+              `Burning callback delivery could not resolve owner target order for "${targetId}".`
+            );
+          }
+          const delivery: TargetPhaseV3Delivery = {
+            model: "burning-callback-zero-delay-v1",
+            reactionDamageLogId:
+              scheduledDelivery.reactionDamageLogId,
+            eventPriority: scheduledDelivery.eventPriority,
+            eventSequence: scheduledDelivery.eventSequence,
+            attempts: []
+          };
+          targetPhaseV3Task.delivery = delivery;
+          burningRootInlineDeliveryByReactionDamageLogId.set(
+            scheduledDelivery.reactionDamageLogId,
+            { ownerTargetOrder, delivery }
+          );
+        }
       }
       if (prepared.nextTickFrame !== null) {
         scheduleBurningTickEvent(
@@ -10687,6 +10800,20 @@ function simulateConfig(
       const sourceActor = characters.get(actorId);
       const reactionLog = reactionDamageLog[reactionDamageLogId];
       if (!sourceActor || !reactionLog) continue;
+      const burningRootInlineDeliveryState =
+        burningRootInlineDeliveryByReactionDamageLogId.get(
+          reactionDamageLogId
+        );
+      if (
+        burningRootInlineDeliveryState !== undefined &&
+        (!targetPhaseV3Enabled ||
+          reaction !== "burning" ||
+          burningContext === undefined)
+      ) {
+        throw new Error(
+          `Inline Burning delivery ${reactionDamageLogId} escaped its target-phase-v3 root callback.`
+        );
+      }
       const stats =
         dendroCoreContext === undefined
           ? scheduledStats
@@ -11078,6 +11205,17 @@ function simulateConfig(
         }
       }
 
+      const inlineDeliveryLinksByTargetId =
+        burningRootInlineDeliveryState === undefined
+          ? null
+          : new Map<
+              string,
+              {
+                hitResolutionLogId: number;
+                damageEventId: number | null;
+                targetStateTimelinePointId: number | null;
+              }
+            >();
       let periodicDamageEventId: number | null = null;
       let periodicActualDamage = 0;
       const reactionHitResolutionLogIds: number[] = [];
@@ -11098,12 +11236,32 @@ function simulateConfig(
             ? nextIntraEventSequence()
             : 0
         });
-        const targetPhaseV2Entry =
+        const targetPhaseV2State =
           ensureTargetPhaseV2State({
             targetId: plan.targetId,
             globalFrame: event.frame,
             emit: true
-          })?.entry ?? null;
+          });
+        const targetPhaseV2Entry =
+          targetPhaseV2State?.entry ?? null;
+        let inlineApplicationPhase:
+          | "before-reactable-tick"
+          | "after-reactable-tick"
+          | null = null;
+        if (burningRootInlineDeliveryState !== undefined) {
+          const planTargetOrder =
+            enemyTargetOrderById.get(plan.targetId);
+          if (planTargetOrder === undefined) {
+            throw new Error(
+              `Reaction damage could not resolve target order for "${plan.targetId}".`
+            );
+          }
+          inlineApplicationPhase =
+            planTargetOrder <
+            burningRootInlineDeliveryState.ownerTargetOrder
+              ? "after-reactable-tick"
+              : "before-reactable-tick";
+        }
         const mechanicsTruncatedBefore =
           targetAuraEngine?.isMechanicsTruncated() ?? false;
         const mechanicsStatus: DamageEvent["mechanicsStatus"] =
@@ -11244,11 +11402,13 @@ function simulateConfig(
                 targetResolutionId
               );
             }
-            appendTargetPhaseV2Reference(
-              targetPhaseV2Entry,
-              "hitResolutionLogIds",
-              targetResolutionId
-            );
+            if (burningRootInlineDeliveryState === undefined) {
+              appendTargetPhaseV2Reference(
+                targetPhaseV2Entry,
+                "hitResolutionLogIds",
+                targetResolutionId
+              );
+            }
             return targetResolution;
           };
         let targetResolution:
@@ -11264,107 +11424,168 @@ function simulateConfig(
             (application !== undefined ||
               mechanicsTruncatedBefore)
               ? projectPlayerSelfDamageStatus(
-                  targetAuraEngine.processHit({
-                    frame: event.frame,
-                    sourceActorId: actorId,
-                    element: damageElement,
-                    ...(application === undefined
-                      ? {}
-                      : { application })
-                  })
+                  (burningRootInlineDeliveryState === undefined
+                    ? targetAuraEngine.processHit({
+                        frame: event.frame,
+                        sourceActorId: actorId,
+                        element: damageElement,
+                        ...(application === undefined
+                          ? {}
+                          : { application })
+                      })
+                    : targetAuraEngine.processHitAtCurrentTargetState({
+                        frame: event.frame,
+                        sourceActorId: actorId,
+                        element: damageElement,
+                        ...(application === undefined
+                          ? {}
+                          : { application })
+                      }))
                 )
               : null;
         let propagatedReactionAudit =
           recursiveShatterDeliveryEnabled
             ? null
             : resolvePropagatedReactionAudit();
+        const synchronizeInlinePreReactableAura = (): void => {
+          if (
+            inlineApplicationPhase !== "before-reactable-tick" ||
+            targetPhaseV2State === null ||
+            !plan.landed ||
+            targetAuraEngine === null
+          ) {
+            return;
+          }
+          if (targetPhaseV2State.decayMaterialized) {
+            throw new Error(
+              `Inline Burning delivery reached target "${plan.targetId}" after its Reactable.Tick boundary.`
+            );
+          }
+          const auraAfterInlineApplication =
+            propagatedReactionAudit?.auraAfter ??
+            readReactionApplicationAura(
+              targetAuraEngine,
+              event.frame,
+              true
+            );
+          if (
+            targetPhaseV2State.entry.targetTasks.length === 0 &&
+            !targetPhaseV2State.hasBeforeReactableInlineDelivery
+          ) {
+            const auraBeforeInlineApplication =
+              propagatedReactionAudit?.auraBefore ??
+              readReactionApplicationAura(
+                targetAuraEngine,
+                event.frame,
+                true
+              );
+            targetPhaseV2State.entry.auraBeforeTargetTasks =
+              deepClone(auraBeforeInlineApplication);
+          }
+          targetPhaseV2State.entry.auraAfterTargetTasks =
+            deepClone(auraAfterInlineApplication);
+          targetPhaseV2State.entry.reactableTick.auraBefore =
+            deepClone(auraAfterInlineApplication);
+          targetPhaseV2State.hasBeforeReactableInlineDelivery =
+            true;
+        };
+        if (!recursiveShatterDeliveryEnabled) {
+          synchronizeInlinePreReactableAura();
+        }
         let pendingReactionDamageEventId =
           damageEvents.length;
+        let reactionDamageApplicationTimelinePointId: number | null =
+          null;
         const recordReactionDamageApplication = (): void => {
           if (propagatedReactionAudit !== null) {
-            targetStateTimelineRecorder.recordEvent({
-              frame: event.frame,
-              timeSeconds,
-              targetId: plan.targetId,
-              targetName: targetProfile.name,
-              cause: "reaction-damage-application",
-              eventType: event.type,
-              eventPriority: event.priority,
-              eventSequence: event.sequence,
-              intraEventSequence: nextIntraEventSequence(),
-              reaction: propagatedReactionAudit.reaction,
-              reactions: propagatedReactionAudit.reactions,
-              primaryDamageEventId:
-                pendingReactionDamageEventId,
-              links: [
-                {
-                  kind: "damage-event",
-                  id: pendingReactionDamageEventId
-                },
-                {
-                  kind: "reaction-damage-log",
-                  id: reactionDamageLogId
-                },
-                ...(propagatedReactionAudit
-                  .mechanicsTruncation === null
-                  ? projectedQuickenDecayRebaseLogIds(
-                      propagatedReactionAudit
-                    ).map((id) => ({
-                      kind: "quicken-state-log" as const,
-                      id
-                    }))
-                  : [])
-              ],
-              auraBefore:
-                propagatedReactionAudit.auraBefore ?? [],
-              auraApplied:
-                propagatedReactionAudit.auraApplied ?? [],
-              auraConsumed:
-                propagatedReactionAudit.auraConsumed ?? [],
-              auraAfter:
-                propagatedReactionAudit.auraAfter ?? []
-            });
+            reactionDamageApplicationTimelinePointId =
+              targetStateTimelineRecorder.recordEvent({
+                frame: event.frame,
+                timeSeconds,
+                targetId: plan.targetId,
+                targetName: targetProfile.name,
+                cause: "reaction-damage-application",
+                eventType: event.type,
+                eventPriority: event.priority,
+                eventSequence: event.sequence,
+                intraEventSequence: nextIntraEventSequence(),
+                reaction: propagatedReactionAudit.reaction,
+                reactions: propagatedReactionAudit.reactions,
+                primaryDamageEventId:
+                  pendingReactionDamageEventId,
+                links: [
+                  {
+                    kind: "damage-event",
+                    id: pendingReactionDamageEventId
+                  },
+                  {
+                    kind: "reaction-damage-log",
+                    id: reactionDamageLogId
+                  },
+                  ...(propagatedReactionAudit
+                    .mechanicsTruncation === null
+                    ? projectedQuickenDecayRebaseLogIds(
+                        propagatedReactionAudit
+                      ).map((id) => ({
+                        kind: "quicken-state-log" as const,
+                        id
+                      }))
+                    : [])
+                ],
+                auraBefore:
+                  propagatedReactionAudit.auraBefore ?? [],
+                auraApplied:
+                  propagatedReactionAudit.auraApplied ?? [],
+                auraConsumed:
+                  propagatedReactionAudit.auraConsumed ?? [],
+                auraAfter:
+                  propagatedReactionAudit.auraAfter ?? []
+              });
           } else if (
             targetPhaseAuditEnabled &&
             plan.landed &&
             targetAuraEngine !== null
           ) {
-            const aura = targetAuraEngine.getAuraStateAt(
-              event.frame
-            );
-            targetStateTimelineRecorder.recordEvent({
-              frame: event.frame,
-              timeSeconds,
-              targetId: plan.targetId,
-              targetName: targetProfile.name,
-              cause: "reaction-damage-application",
-              eventType: event.type,
-              eventPriority: event.priority,
-              eventSequence: event.sequence,
-              intraEventSequence: nextIntraEventSequence(),
-              reaction:
-                electroChargedPropagationAudit !== null
-                  ? "electroCharged"
-                  : "none",
-              reactions:
-                electroChargedPropagationAudit !== null
-                  ? ["electroCharged"]
-                  : [],
-              primaryDamageEventId:
-                pendingReactionDamageEventId,
-              links: [
-                {
-                  kind: "damage-event",
-                  id: pendingReactionDamageEventId
-                },
-                {
-                  kind: "reaction-damage-log",
-                  id: reactionDamageLogId
-                }
-              ],
-              auraBefore: aura,
-              auraAfter: aura
-            });
+            const aura =
+              readReactionApplicationAura(
+                targetAuraEngine,
+                event.frame,
+                burningRootInlineDeliveryState !== undefined
+              );
+            reactionDamageApplicationTimelinePointId =
+              targetStateTimelineRecorder.recordEvent({
+                frame: event.frame,
+                timeSeconds,
+                targetId: plan.targetId,
+                targetName: targetProfile.name,
+                cause: "reaction-damage-application",
+                eventType: event.type,
+                eventPriority: event.priority,
+                eventSequence: event.sequence,
+                intraEventSequence: nextIntraEventSequence(),
+                reaction:
+                  electroChargedPropagationAudit !== null
+                    ? "electroCharged"
+                    : "none",
+                reactions:
+                  electroChargedPropagationAudit !== null
+                    ? ["electroCharged"]
+                    : [],
+                primaryDamageEventId:
+                  pendingReactionDamageEventId,
+                links: [
+                  {
+                    kind: "damage-event",
+                    id: pendingReactionDamageEventId
+                  },
+                  {
+                    kind: "reaction-damage-log",
+                    id: reactionDamageLogId
+                  }
+                ],
+                auraBefore: aura,
+                auraAfter: aura
+              });
           }
         };
         if (!recursiveShatterDeliveryEnabled) {
@@ -11548,7 +11769,11 @@ function simulateConfig(
           plan.landed &&
           reactionDamageAuraAllowed &&
           !mechanicsTruncatedBefore &&
-          targetAuraEngine !== null;
+          targetAuraEngine !== null &&
+          // The v3 root is fixed Pyro/default-strike damage and therefore
+          // cannot Shatter. Avoid the legacy helper's time-aware Aura advance
+          // before this callback-owned microstep reaches Reactable.Tick.
+          burningRootInlineDeliveryState === undefined;
         const nestedShatterState =
           shatterCheckAllowed
             ? targetAuraEngine.processShatterHit({
@@ -11612,7 +11837,11 @@ function simulateConfig(
           targetStateTimelineRecorder.synchronize(
             plan.targetId,
             event.frame,
-            targetAuraEngine.getAuraStateAt(event.frame)
+            readReactionApplicationAura(
+              targetAuraEngine,
+              event.frame,
+              burningRootInlineDeliveryState !== undefined
+            )
           );
         }
         if (
@@ -11693,6 +11922,7 @@ function simulateConfig(
         if (recursiveShatterDeliveryEnabled) {
           propagatedReactionAudit =
             resolvePropagatedReactionAudit();
+          synchronizeInlinePreReactableAura();
           if (
             nestedShatterState?.audit.triggered === true &&
             propagatedReactionAudit !== null &&
@@ -11724,6 +11954,14 @@ function simulateConfig(
         ) {
           electroChargedPropagationCandidate.hitResolutionLogId =
             targetResolutionId;
+        }
+        if (burningRootInlineDeliveryState !== undefined) {
+          inlineDeliveryLinksByTargetId?.set(plan.targetId, {
+            hitResolutionLogId: targetResolutionId,
+            damageEventId: null,
+            targetStateTimelinePointId:
+              reactionDamageApplicationTimelinePointId
+          });
         }
         if (!plan.landed) return;
 
@@ -12089,6 +12327,11 @@ function simulateConfig(
         targetResolution.potentialDamage = potentialDamage;
         targetResolution.finalDamage = finalDamage;
         targetResolution.displayDamage = displayDamage;
+        const inlineDeliveryLinks =
+          inlineDeliveryLinksByTargetId?.get(plan.targetId);
+        if (inlineDeliveryLinks !== undefined) {
+          inlineDeliveryLinks.damageEventId = damageEventId;
+        }
         if (burningContext !== undefined) {
           const burningLog =
             burningStateLog[
@@ -12316,6 +12559,93 @@ function simulateConfig(
           );
         }
       });
+      if (burningRootInlineDeliveryState !== undefined) {
+        const planByTargetId = new Map(
+          spatialPlans.map((plan) => [plan.targetId, plan])
+        );
+        const unresolvedTargetIds = new Set(
+          reactionLog.unresolvedTargetIds
+        );
+        burningRootInlineDeliveryState.delivery.attempts =
+          enemyTargets.map(
+            (target, targetOrder): TargetPhaseV3DeliveryAttempt => {
+              const applicationPhase =
+                targetOrder <
+                burningRootInlineDeliveryState.ownerTargetOrder
+                  ? "after-reactable-tick"
+                  : "before-reactable-tick";
+              const base = {
+                order: targetOrder,
+                targetId: target.id,
+                targetOrder,
+                applicationPhase
+              } as const;
+              const plan = planByTargetId.get(target.id);
+              const links =
+                inlineDeliveryLinksByTargetId?.get(target.id);
+              if (plan === undefined) {
+                if (
+                  !unresolvedTargetIds.has(target.id) ||
+                  links !== undefined
+                ) {
+                  throw new Error(
+                    `Inline Burning delivery did not classify target "${target.id}" as resolved or unresolved.`
+                  );
+                }
+                return {
+                  ...base,
+                  outcome: "unresolved",
+                  hitResolutionLogId: null,
+                  damageEventId: null,
+                  targetStateTimelinePointId: null
+                };
+              }
+              if (links === undefined) {
+                throw new Error(
+                  `Inline Burning delivery did not create a hit-resolution link for target "${target.id}".`
+                );
+              }
+              if (!plan.landed) {
+                if (
+                  links.damageEventId !== null ||
+                  links.targetStateTimelinePointId !== null
+                ) {
+                  throw new Error(
+                    `Inline Burning miss on target "${target.id}" unexpectedly mutated Aura or dealt damage.`
+                  );
+                }
+                return {
+                  ...base,
+                  outcome: "miss",
+                  hitResolutionLogId:
+                    links.hitResolutionLogId,
+                  damageEventId: null,
+                  targetStateTimelinePointId: null
+                };
+              }
+              if (
+                links.damageEventId === null ||
+                links.targetStateTimelinePointId === null
+              ) {
+                throw new Error(
+                  `Inline Burning hit on target "${target.id}" is missing its damage or Aura timeline link.`
+                );
+              }
+              return {
+                ...base,
+                outcome: "landed",
+                hitResolutionLogId:
+                  links.hitResolutionLogId,
+                damageEventId: links.damageEventId,
+                targetStateTimelinePointId:
+                  links.targetStateTimelinePointId
+              };
+            }
+          );
+        burningRootInlineDeliveryByReactionDamageLogId.delete(
+          reactionDamageLogId
+        );
+      }
       const playerSelfDamageReaction:
         | PlayerReactionSelfDamageKind
         | null =
@@ -14188,6 +14518,38 @@ function simulateConfig(
     entry.id = index;
   });
   if (targetPhaseV2Enabled) {
+    const preReactableDeliveryPointIdsByPhase = new Map<
+      string,
+      number[]
+    >();
+    if (targetPhaseV3Enabled) {
+      // These points remain owned by the source callback delivery, not by the
+      // recipient phase. They still extend the pre-Reactable boundary so the
+      // later decay point, rather than an inline application, carries any
+      // ordinary-durability bridge.
+      for (const ownerPhase of targetPhaseLog) {
+        if (ownerPhase.model !== "target-phase-v3") continue;
+        for (const task of ownerPhase.targetTasks) {
+          for (const attempt of task.delivery?.attempts ?? []) {
+            if (
+              attempt.applicationPhase !==
+                "before-reactable-tick" ||
+              attempt.targetStateTimelinePointId === null
+            ) {
+              continue;
+            }
+            const key = targetTaskPhaseKey(
+              ownerPhase.globalFrame,
+              attempt.targetId
+            );
+            const ids =
+              preReactableDeliveryPointIdsByPhase.get(key) ?? [];
+            ids.push(attempt.targetStateTimelinePointId);
+            preReactableDeliveryPointIdsByPhase.set(key, ids);
+          }
+        }
+      }
+    }
     for (const phase of targetPhaseLog) {
       for (const transition of phase.reactableTick.transitions) {
         if (transition.kind !== "electro-charged-cleanup") {
@@ -14224,11 +14586,17 @@ function simulateConfig(
           targetPhaseLink.id = phase.id;
         }
       }
-      const targetTaskPointIds = new Set(
-        phase.targetTasks.map(
+      const targetTaskPointIds = new Set([
+        ...phase.targetTasks.map(
           (task) => task.targetStateTimelinePointId
-        )
-      );
+        ),
+        ...(preReactableDeliveryPointIdsByPhase.get(
+          targetTaskPhaseKey(
+            phase.globalFrame,
+            phase.targetId
+          )
+        ) ?? [])
+      ]);
       const lastTargetTaskPointId =
         targetTaskPointIds.size === 0
           ? -1
@@ -14298,7 +14666,18 @@ function simulateConfig(
       }
     }
   }
-  targetPhaseV2LogSchema.parse(targetPhaseLog);
+  if (burningRootInlineDeliveryByReactionDamageLogId.size > 0) {
+    throw new Error(
+      `Inline Burning deliveries were not settled: ${[
+        ...burningRootInlineDeliveryByReactionDamageLogId.keys()
+      ].join(", ")}.`
+    );
+  }
+  if (targetPhaseV3Enabled) {
+    targetPhaseV3LogSchema.parse(targetPhaseLog);
+  } else {
+    targetPhaseV2LogSchema.parse(targetPhaseLog);
+  }
   const parsedTargetPhaseLog = targetPhaseLog;
 
   const simulationResult: SimulationResult = {
@@ -14532,7 +14911,11 @@ function simulateConfig(
   ) {
     electroChargedCleanupResultReferencesSchema.parse(simulationResult);
   }
-  if (targetPhaseV2Enabled) {
+  if (targetPhaseV3Enabled) {
+    targetPhaseV3ResultReferencesSchema.parse(
+      simulationResult
+    );
+  } else if (targetPhaseV2Enabled) {
     targetPhaseV2ResultReferencesSchema.parse(
       simulationResult
     );
@@ -14838,7 +15221,8 @@ export function simulate(
   assertNonNegativeFixedEnergyGains(config);
   if (
     (config.targetTaskModel.mode === "target-phase-v1" ||
-      config.targetTaskModel.mode === "target-phase-v2") &&
+      config.targetTaskModel.mode === "target-phase-v2" ||
+      config.targetTaskModel.mode === "target-phase-v3") &&
     runtimeOptions.compatibilityMode === "legacy-v0.1"
   ) {
     throw new Error(
@@ -14848,5 +15232,5 @@ export function simulate(
   const result = config.timeline
     ? simulateLegalTimeline(config, runtimeOptions)
     : simulateConfig(config, runtimeOptions);
-  return assertTrustedSimulationResultV142(result);
+  return assertTrustedSimulationResult(result);
 }

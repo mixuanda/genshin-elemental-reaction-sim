@@ -794,6 +794,15 @@ export class AuraEngine {
   } | null = null;
   private currentFrame = 0;
   /**
+   * A target-task callback may resolve a hit at the next global frame while
+   * Aura durability still represents the end of the preceding target Tick.
+   * Keep the event timestamp separate from `currentFrame`: advancing the
+   * shared clock here would consume the Reactable.Tick that must run after
+   * the callback. This override is only needed by mutations which otherwise
+   * infer their audit frame from `currentFrame`.
+   */
+  private currentStateHitFrame: number | null = null;
+  /**
    * During a running target Tick the shared clock has already advanced, while
    * Aura durability still represents the previous target frame. This override
    * preserves the fixed queue-before-decay boundary for expiry projections.
@@ -1116,7 +1125,7 @@ export class AuraEngine {
         AURA_EPSILON
     ) {
       this.stopBurning(
-        this.currentFrame,
+        this.currentStateHitFrame ?? this.currentFrame,
         "BURNING_AURA_CONSUMED",
         false
       );
@@ -5168,6 +5177,62 @@ export class AuraEngine {
 
   processHit(input: AuraHitInput): ReactionAudit {
     this.advanceTo(input.frame);
+    return this.processHitAtPreparedTargetState(input);
+  }
+
+  /**
+   * Resolve a hit against the target's currently materialized Aura state
+   * without advancing its global or target-local clock.
+   *
+   * A sparse target is lazily materialized only through `input.frame - 1`.
+   * The requested frame itself is never advanced here, so its target task can
+   * observe the F-1 state and the next ordinary time-aware operation remains
+   * responsible for the pending F Reactable.Tick. If another target-owned
+   * operation has already materialized F, the hit reads that current F state.
+   */
+  processHitAtCurrentTargetState(
+    input: AuraHitInput
+  ): ReactionAudit {
+    if (!Number.isSafeInteger(input.frame) || input.frame < 0) {
+      throw new Error(
+        `Current-state Aura hit frame must be a non-negative safe integer; got ${input.frame}`
+      );
+    }
+    if (input.frame < this.currentFrame) {
+      throw new Error(
+        `Current-state Aura hit frame ${input.frame} cannot precede the already materialized frame ${this.currentFrame}.`
+      );
+    }
+    if (this.currentStateHitFrame !== null) {
+      throw new Error(
+        `Current-state Aura hit processing is already active at frame ${this.currentStateHitFrame}.`
+      );
+    }
+    if (
+      this.targetClock !== null &&
+      this.targetClock.getState().globalFrame !== this.currentFrame
+    ) {
+      throw new Error(
+        `AuraEngine/target-clock drift before current-state hit: Aura is at global frame ${this.currentFrame}, clock is at ${this.targetClock.getState().globalFrame}.`
+      );
+    }
+
+    const precedingFrame = Math.max(0, input.frame - 1);
+    if (this.currentFrame < precedingFrame) {
+      this.advanceTo(precedingFrame);
+    }
+
+    this.currentStateHitFrame = input.frame;
+    try {
+      return this.processHitAtPreparedTargetState(input);
+    } finally {
+      this.currentStateHitFrame = null;
+    }
+  }
+
+  private processHitAtPreparedTargetState(
+    input: AuraHitInput
+  ): ReactionAudit {
     const auraBefore = this.snapshot();
     if (this.mechanicsTruncation !== null) {
       const mechanicsTruncation =

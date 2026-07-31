@@ -1,0 +1,2832 @@
+{
+  "fixtureVersion": "burning-callback-delivery-1.44",
+  "description": "Deterministic exact-1.44 target-phase-v3 Golden for synchronous multi-target Burning callback delivery and a positive-delay nested Overload child.",
+  "provenance": {
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "referenceProject": "genshinsim/gcsim",
+    "referenceCommit": "ef41805d855a60b9e1035293584b85c085dc69e7",
+    "officialServerTruth": false,
+    "completeGcsimParity": false,
+    "capturedAt": "2026-07-31",
+    "scope": "Burning owner callback order, explicit cross-target delivery attempts, cross-log backlinks, and separation of zero-delay callback work from positive-delay child reactions.",
+    "limitations": [
+      "This fixture is fixed-code regression evidence, not an official server measurement.",
+      "The pinned gcsim reference informs the provisional callback boundary; this fixture does not claim complete gcsim or game-mechanics parity.",
+      "Only the modeled Aura-v9, target-phase-v3, and deferred positive-delay delivery boundary is frozen here."
+    ]
+  },
+  "commonConfig": {
+    "schemaVersion": "1.44.0",
+    "engineVersion": "1.44.0-burning-callback-delivery",
+    "reactionEngine": {
+      "mode": "aura-v9"
+    },
+    "targetClockModel": {
+      "mode": "disabled"
+    },
+    "targetTaskModel": {
+      "mode": "target-phase-v3"
+    },
+    "reactionDeliveryModel": {
+      "mode": "deferred-event-heap-v1"
+    },
+    "timeline": {
+      "mode": "legal-frame-v1",
+      "fps": 60
+    }
+  },
+  "scenario": {
+    "identity": {
+      "schemaVersion": "1.44.0",
+      "engineVersion": "1.44.0-burning-callback-delivery",
+      "dataVersion": "burning-callback-delivery-provisional-1",
+      "randomSeed": "burning-callback-delivery-golden-seed",
+      "configHash": "fnv1a32:3aa2ff18",
+      "reproducibilityKey": "gdl-v2-fnv1a32-ee7f1332",
+      "runManifest": {
+        "version": "1.0.0",
+        "identityAlgorithm": "fnv1a32-v2",
+        "schemaVersion": "1.44.0",
+        "engineVersion": "1.44.0-burning-callback-delivery",
+        "dataVersion": "burning-callback-delivery-provisional-1",
+        "configHash": "fnv1a32:3aa2ff18",
+        "resolvedRuntimeOptions": {
+          "energyMode": "configured",
+          "critMode": "noCrit",
+          "compatibilityMode": "legal-frame-v1",
+          "randomSeed": "burning-callback-delivery-golden-seed"
+        },
+        "plugins": [],
+        "reproducibilityKey": "gdl-v2-fnv1a32-ee7f1332"
+      },
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "noCrit",
+        "compatibilityMode": "legal-frame-v1",
+        "randomSeed": "burning-callback-delivery-golden-seed"
+      },
+      "compatibilityMode": "legal-frame-v1",
+      "mechanicsStatus": "complete",
+      "configSemanticHash": "fe766a6c297103a697532282da6458695c772f839e13972f87520d6f3cd00882"
+    },
+    "config": {
+      "schemaVersion": "1.44.0",
+      "engineVersion": "1.44.0-burning-callback-delivery",
+      "dataVersion": "burning-callback-delivery-provisional-1",
+      "randomSeed": "burning-callback-delivery-golden-seed",
+      "meta": {
+        "name": "Burning callback delivery v1.44 Golden",
+        "version": "1.44.0",
+        "note": "Fixed-gcsim-provisional regression vector only; not official server truth or a claim of complete gcsim parity.",
+        "verificationStatus": "provisional"
+      },
+      "duration": 1,
+      "cycleLength": 1,
+      "enemy": {
+        "level": 90,
+        "resistance": 0.1,
+        "defReduction": 0,
+        "targets": [
+          {
+            "id": "electro-recipient",
+            "name": "Electro recipient before owner",
+            "initialAura": [
+              {
+                "element": "electro",
+                "gaugeUnits": 1
+              }
+            ],
+            "position": {
+              "x": 0.5,
+              "y": 0
+            },
+            "hitboxRadius": 0
+          },
+          {
+            "id": "enemy-0",
+            "name": "Burning owner",
+            "initialAura": [
+              {
+                "element": "dendro",
+                "gaugeUnits": 1
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "hitboxRadius": 0
+          },
+          {
+            "id": "plain-recipient",
+            "name": "Plain recipient after owner",
+            "position": {
+              "x": 0.75,
+              "y": 0
+            },
+            "hitboxRadius": 0
+          },
+          {
+            "id": "outside-radius",
+            "name": "Outside Burning radius",
+            "position": {
+              "x": 5,
+              "y": 0
+            },
+            "hitboxRadius": 0
+          },
+          {
+            "id": "unresolved-position",
+            "name": "Unresolved position",
+            "hitboxRadius": 0
+          }
+        ]
+      },
+      "characters": [
+        {
+          "id": "burning-driver",
+          "name": "Burning callback driver",
+          "element": "pyro",
+          "color": "#ff0000",
+          "level": 90,
+          "energyMax": 60,
+          "initialEnergy": 0,
+          "stats": {
+            "baseAtk": 0,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 100,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0.2,
+            "energyRecharge": 1
+          }
+        }
+      ],
+      "rotation": [],
+      "timeline": {
+        "mode": "legal-frame-v1",
+        "fps": 60,
+        "legalityMode": "strict",
+        "initialActiveCharacterId": "burning-driver",
+        "swapFrames": 1,
+        "abilities": [
+          {
+            "id": "start-burning",
+            "actorId": "burning-driver",
+            "name": "Start Burning",
+            "kind": "skill",
+            "cancelFrame": 1,
+            "animationEndFrame": 1,
+            "cooldownFrames": 0,
+            "hits": [
+              {
+                "id": "start-burning-hit",
+                "label": "Start Burning hit",
+                "scaling": 0,
+                "element": "pyro",
+                "targeting": {
+                  "targetId": "enemy-0",
+                  "outcome": "landed"
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icdTag": "start-burning",
+                  "icdGroup": "no-icd"
+                },
+                "frame": 0
+              }
+            ]
+          }
+        ],
+        "commands": [
+          {
+            "type": "skill",
+            "actorId": "burning-driver",
+            "abilityId": "start-burning",
+            "atFrame": 0
+          }
+        ]
+      },
+      "reactionEngine": {
+        "mode": "aura-v9"
+      },
+      "playerDamageModel": {
+        "mode": "disabled"
+      },
+      "targetClockModel": {
+        "mode": "disabled"
+      },
+      "targetTaskModel": {
+        "mode": "target-phase-v3"
+      },
+      "reactionDeliveryModel": {
+        "mode": "deferred-event-heap-v1"
+      },
+      "electroChargedPropagationModel": {
+        "mode": "nearby-wet-radius-v1",
+        "radius": 3,
+        "verificationStatus": "provisional"
+      }
+    },
+    "callback": {
+      "ownerPhase": {
+        "id": 2,
+        "model": "target-phase-v3",
+        "targetId": "enemy-0",
+        "globalFrame": 15,
+        "targetFrame": 15,
+        "targetOrder": 1,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.780350877193,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.780350877193
+              }
+            ]
+          }
+        ],
+        "auraAfterTargetTasks": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 584,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 0,
+          "toTargetFrame": 15,
+          "auraBefore": [
+            {
+              "element": "burning",
+              "gaugeUnits": 2,
+              "expiresAtFrame": null,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 2
+                }
+              ]
+            },
+            {
+              "element": "burningFuel",
+              "gaugeUnits": 0.706666666667,
+              "expiresAtFrame": 121,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.706666666667
+                }
+              ]
+            },
+            {
+              "element": "dendro",
+              "gaugeUnits": 0.7,
+              "expiresAtFrame": 120,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.7
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.798596491228,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.798596491228
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "burning",
+              "gaugeUnits": 2,
+              "expiresAtFrame": null,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 2
+                }
+              ]
+            },
+            {
+              "element": "burningFuel",
+              "gaugeUnits": 0.706666666667,
+              "expiresAtFrame": 121,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.706666666667
+                }
+              ]
+            },
+            {
+              "element": "dendro",
+              "gaugeUnits": 0.7,
+              "expiresAtFrame": 120,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.7
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.798596491228,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.798596491228
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [],
+        "reactionTaskLogIds": []
+      },
+      "ownerTask": {
+        "stage": "target-task",
+        "kind": "burning-tick",
+        "order": 0,
+        "eventType": "burningTick",
+        "eventPriority": 0.5833333333333334,
+        "eventSequence": 7,
+        "intraEventSequence": 0,
+        "generation": 1,
+        "tickIndex": 1,
+        "deadlineTargetFrame": 15,
+        "status": "applied",
+        "burningStateLogId": 1,
+        "targetStateTimelinePointId": 6,
+        "delivery": {
+          "model": "burning-callback-zero-delay-v1",
+          "reactionDamageLogId": 0,
+          "eventPriority": 0.6041666666666667,
+          "eventSequence": 10,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "electro-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 1,
+              "damageEventId": 1,
+              "targetStateTimelinePointId": 7
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 2,
+              "damageEventId": 2,
+              "targetStateTimelinePointId": 8
+            },
+            {
+              "order": 2,
+              "targetId": "plain-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 3,
+              "damageEventId": 3,
+              "targetStateTimelinePointId": 9
+            },
+            {
+              "order": 3,
+              "targetId": "outside-radius",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 4,
+              "damageEventId": null,
+              "targetStateTimelinePointId": null
+            },
+            {
+              "order": 4,
+              "targetId": "unresolved-position",
+              "targetOrder": 4,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "unresolved",
+              "hitResolutionLogId": null,
+              "damageEventId": null,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        }
+      },
+      "delivery": {
+        "model": "burning-callback-zero-delay-v1",
+        "reactionDamageLogId": 0,
+        "eventPriority": 0.6041666666666667,
+        "eventSequence": 10,
+        "attempts": [
+          {
+            "order": 0,
+            "targetId": "electro-recipient",
+            "targetOrder": 0,
+            "applicationPhase": "after-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 1,
+            "damageEventId": 1,
+            "targetStateTimelinePointId": 7
+          },
+          {
+            "order": 1,
+            "targetId": "enemy-0",
+            "targetOrder": 1,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 2,
+            "damageEventId": 2,
+            "targetStateTimelinePointId": 8
+          },
+          {
+            "order": 2,
+            "targetId": "plain-recipient",
+            "targetOrder": 2,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 3,
+            "damageEventId": 3,
+            "targetStateTimelinePointId": 9
+          },
+          {
+            "order": 3,
+            "targetId": "outside-radius",
+            "targetOrder": 3,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "miss",
+            "hitResolutionLogId": 4,
+            "damageEventId": null,
+            "targetStateTimelinePointId": null
+          },
+          {
+            "order": 4,
+            "targetId": "unresolved-position",
+            "targetOrder": 4,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "unresolved",
+            "hitResolutionLogId": null,
+            "damageEventId": null,
+            "targetStateTimelinePointId": null
+          }
+        ]
+      },
+      "burningState": {
+        "id": 1,
+        "reaction": "burning",
+        "generation": 1,
+        "operation": "tick",
+        "frame": 15,
+        "targetFrame": 15,
+        "timeSeconds": 0.25,
+        "eventPriority": 0.5833333333333334,
+        "eventSequence": 7,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "triggerElement": null,
+        "damageSourceActorId": "burning-driver",
+        "fuelSourceActorId": "burning-driver",
+        "triggerDamageEventId": 0,
+        "reactionDamageLogId": 0,
+        "damageEventIds": [
+          1,
+          2,
+          3
+        ],
+        "playerHitResolutionLogId": null,
+        "playerDamageEventId": null,
+        "tickIndex": 1,
+        "tickSkipped": false,
+        "skipReason": null,
+        "damageAllowed": true,
+        "burningGaugeUnitsBefore": 2,
+        "burningGaugeUnitsAfter": 2,
+        "fuelGaugeUnitsBefore": 0.713333333333,
+        "fuelGaugeUnitsAfter": 0.713333333333,
+        "fuelDecayPerFrame": 0.006666666666666667,
+        "fuelExpiresAtFrame": 121,
+        "callbackAuraBefore": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.780350877193,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.780350877193
+              }
+            ]
+          }
+        ],
+        "callbackAuraAfter": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.780350877193,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.780350877193
+              }
+            ]
+          }
+        ],
+        "auraBefore": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.780350877193,
+            "expiresAtFrame": 570,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.780350877193
+              }
+            ]
+          }
+        ],
+        "auraApplied": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 1,
+            "sourceActorId": "burning-driver"
+          }
+        ],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "burning",
+            "gaugeUnits": 2,
+            "expiresAtFrame": null,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 2
+              }
+            ]
+          },
+          {
+            "element": "burningFuel",
+            "gaugeUnits": 0.713333333333,
+            "expiresAtFrame": 121,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.713333333333
+              }
+            ]
+          },
+          {
+            "element": "dendro",
+            "gaugeUnits": 0.706666666667,
+            "expiresAtFrame": 120,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 0.706666666667
+              }
+            ]
+          },
+          {
+            "element": "pyro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 584,
+            "sourceSlots": [
+              {
+                "sourceActorId": "burning-driver",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ],
+        "nextTickFrame": 30,
+        "clockModel": "target-local-no-hitlag",
+        "hitlagStatus": "unsupported-enemy-hitlag",
+        "icdGroup": "burning",
+        "icdTag": "burning-application",
+        "icdScope": "global-target",
+        "icdWindowStartFrame": 15,
+        "icdHitIndex": 0,
+        "icdResetFrames": 120,
+        "icdApplicationSequence": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "applicationAllowed": true,
+        "applicationBlockedReason": null,
+        "selfDamageStatus": "unsupported-player-damage-model",
+        "reason": null
+      },
+      "rootReactionDamage": {
+        "id": 0,
+        "reaction": "burning",
+        "triggerDamageEventId": 0,
+        "triggerHitGroupId": null,
+        "sourceActorId": "burning-driver",
+        "sourceTargetId": "enemy-0",
+        "triggerFrame": 0,
+        "damageFrame": 15,
+        "scheduled": true,
+        "withinSimulation": true,
+        "blockedReason": null,
+        "nextAvailableFrame": 30,
+        "scheduleKind": "burning-tick",
+        "targetingMode": "radius",
+        "centerPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "radius": 1,
+        "sourceCoreId": null,
+        "sourceCoreLogId": null,
+        "selectionRadius": null,
+        "selectedTargetId": null,
+        "resolutionReason": null,
+        "applicationGaugeUnits": 1,
+        "excludedTargetIds": [],
+        "checkedTargetIds": [
+          "electro-recipient",
+          "enemy-0",
+          "plain-recipient",
+          "outside-radius"
+        ],
+        "hitTargetIds": [
+          "electro-recipient",
+          "enemy-0",
+          "plain-recipient"
+        ],
+        "unresolvedTargetIds": [
+          "unresolved-position"
+        ],
+        "damageGroupBlockedTargetIds": [],
+        "damageEventIds": [
+          1,
+          2,
+          3
+        ],
+        "playerHitResolutionLogIds": [],
+        "playerDamageEventIds": [],
+        "reactionStatusLogIds": [],
+        "damageGroupDecisions": []
+      },
+      "attempts": [
+        {
+          "attempt": {
+            "order": 0,
+            "targetId": "electro-recipient",
+            "targetOrder": 0,
+            "applicationPhase": "after-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 1,
+            "damageEventId": 1,
+            "targetStateTimelinePointId": 7
+          },
+          "hit": {
+            "id": 1,
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 1,
+            "sourceActorId": "burning-driver",
+            "sourceActionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetIndex": 0,
+            "targetCount": 4,
+            "targetId": "electro-recipient",
+            "targetingSource": "reaction-geometry",
+            "resolutionKind": "reaction-damage",
+            "targetPosition": {
+              "x": 0.5,
+              "y": 0
+            },
+            "geometryKind": "circle",
+            "geometryRadius": 1,
+            "outcome": "landed",
+            "landed": true,
+            "reason": null,
+            "targetEffectSource": "normal",
+            "damageEventId": 1,
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "damage": {
+            "id": 1,
+            "kind": "transformative-reaction",
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "parentDamageEventId": 0,
+            "sourceActorId": "burning-driver",
+            "actionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetResolutionId": 1,
+            "targetId": "electro-recipient",
+            "element": "pyro",
+            "reaction": "burning",
+            "reactionAudit": {
+              "reaction": "overload",
+              "reactions": [
+                "overload"
+              ],
+              "auraBefore": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.778947368421,
+                  "expiresAtFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.778947368421
+                    }
+                  ]
+                }
+              ],
+              "auraApplied": [
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 1,
+                  "sourceActorId": "burning-driver"
+                }
+              ],
+              "auraConsumed": [
+                {
+                  "element": "electro",
+                  "gaugeUnits": 0.778947368421,
+                  "sourceMutations": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnitsBefore": 0.778947368421,
+                      "consumedGaugeUnits": 0.778947368421,
+                      "gaugeUnitsAfter": 0
+                    }
+                  ]
+                }
+              ],
+              "auraAfter": []
+            },
+            "damageComposition": {
+              "direct": 0,
+              "additiveReaction": 0,
+              "transformativeReaction": 638.6824735714285
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "targetStateTimelinePoint": {
+            "id": 7,
+            "frame": 15,
+            "targetFrame": 15,
+            "targetId": "electro-recipient",
+            "pointKind": "mutation",
+            "cause": "reaction-damage-application",
+            "eventType": "reactionDamage",
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 0,
+            "reaction": "overload",
+            "reactions": [
+              "overload"
+            ],
+            "primaryDamageEventId": 1,
+            "links": [
+              {
+                "kind": "damage-event",
+                "id": 1
+              },
+              {
+                "kind": "reaction-damage-log",
+                "id": 0
+              }
+            ],
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.778947368421,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.778947368421
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.778947368421,
+                "sourceMutations": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnitsBefore": 0.778947368421,
+                    "consumedGaugeUnits": 0.778947368421,
+                    "gaugeUnitsAfter": 0
+                  }
+                ]
+              }
+            ],
+            "auraAfter": []
+          }
+        },
+        {
+          "attempt": {
+            "order": 1,
+            "targetId": "enemy-0",
+            "targetOrder": 1,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 2,
+            "damageEventId": 2,
+            "targetStateTimelinePointId": 8
+          },
+          "hit": {
+            "id": 2,
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 2,
+            "sourceActorId": "burning-driver",
+            "sourceActionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetIndex": 1,
+            "targetCount": 4,
+            "targetId": "enemy-0",
+            "targetingSource": "reaction-geometry",
+            "resolutionKind": "reaction-damage",
+            "targetPosition": {
+              "x": 0,
+              "y": 0
+            },
+            "geometryKind": "circle",
+            "geometryRadius": 1,
+            "outcome": "landed",
+            "landed": true,
+            "reason": null,
+            "targetEffectSource": "normal",
+            "damageEventId": 2,
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "damage": {
+            "id": 2,
+            "kind": "transformative-reaction",
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "parentDamageEventId": 0,
+            "sourceActorId": "burning-driver",
+            "actionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetResolutionId": 2,
+            "targetId": "enemy-0",
+            "element": "pyro",
+            "reaction": "burning",
+            "reactionAudit": {
+              "reaction": "none",
+              "reactions": [],
+              "auraBefore": [
+                {
+                  "element": "burning",
+                  "gaugeUnits": 2,
+                  "expiresAtFrame": null,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 2
+                    }
+                  ]
+                },
+                {
+                  "element": "burningFuel",
+                  "gaugeUnits": 0.713333333333,
+                  "expiresAtFrame": 121,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 0.713333333333
+                    }
+                  ]
+                },
+                {
+                  "element": "dendro",
+                  "gaugeUnits": 0.706666666667,
+                  "expiresAtFrame": 120,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.706666666667
+                    }
+                  ]
+                },
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 0.780350877193,
+                  "expiresAtFrame": 570,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 0.780350877193
+                    }
+                  ]
+                }
+              ],
+              "auraApplied": [
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 1,
+                  "sourceActorId": "burning-driver"
+                }
+              ],
+              "auraConsumed": [],
+              "auraAfter": [
+                {
+                  "element": "burning",
+                  "gaugeUnits": 2,
+                  "expiresAtFrame": null,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 2
+                    }
+                  ]
+                },
+                {
+                  "element": "burningFuel",
+                  "gaugeUnits": 0.713333333333,
+                  "expiresAtFrame": 121,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 0.713333333333
+                    }
+                  ]
+                },
+                {
+                  "element": "dendro",
+                  "gaugeUnits": 0.706666666667,
+                  "expiresAtFrame": 120,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "__initial__",
+                      "gaugeUnits": 0.706666666667
+                    }
+                  ]
+                },
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 584,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "damageComposition": {
+              "direct": 0,
+              "additiveReaction": 0,
+              "transformativeReaction": 638.6824735714285
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "targetStateTimelinePoint": {
+            "id": 8,
+            "frame": 15,
+            "targetFrame": 15,
+            "targetId": "enemy-0",
+            "pointKind": "mutation",
+            "cause": "reaction-damage-application",
+            "eventType": "reactionDamage",
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 1,
+            "reaction": "none",
+            "reactions": [],
+            "primaryDamageEventId": 2,
+            "links": [
+              {
+                "kind": "damage-event",
+                "id": 2
+              },
+              {
+                "kind": "reaction-damage-log",
+                "id": 0
+              }
+            ],
+            "auraBefore": [
+              {
+                "element": "burning",
+                "gaugeUnits": 2,
+                "expiresAtFrame": null,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 2
+                  }
+                ]
+              },
+              {
+                "element": "burningFuel",
+                "gaugeUnits": 0.713333333333,
+                "expiresAtFrame": 121,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.713333333333
+                  }
+                ]
+              },
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.706666666667,
+                "expiresAtFrame": 120,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.706666666667
+                  }
+                ]
+              },
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.780350877193,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.780350877193
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "burning",
+                "gaugeUnits": 2,
+                "expiresAtFrame": null,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 2
+                  }
+                ]
+              },
+              {
+                "element": "burningFuel",
+                "gaugeUnits": 0.713333333333,
+                "expiresAtFrame": 121,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.713333333333
+                  }
+                ]
+              },
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.706666666667,
+                "expiresAtFrame": 120,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.706666666667
+                  }
+                ]
+              },
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 584,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "attempt": {
+            "order": 2,
+            "targetId": "plain-recipient",
+            "targetOrder": 2,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "landed",
+            "hitResolutionLogId": 3,
+            "damageEventId": 3,
+            "targetStateTimelinePointId": 9
+          },
+          "hit": {
+            "id": 3,
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 3,
+            "sourceActorId": "burning-driver",
+            "sourceActionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetIndex": 2,
+            "targetCount": 4,
+            "targetId": "plain-recipient",
+            "targetingSource": "reaction-geometry",
+            "resolutionKind": "reaction-damage",
+            "targetPosition": {
+              "x": 0.75,
+              "y": 0
+            },
+            "geometryKind": "circle",
+            "geometryRadius": 1,
+            "outcome": "landed",
+            "landed": true,
+            "reason": null,
+            "targetEffectSource": "normal",
+            "damageEventId": 3,
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "damage": {
+            "id": 3,
+            "kind": "transformative-reaction",
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "parentDamageEventId": 0,
+            "sourceActorId": "burning-driver",
+            "actionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetResolutionId": 3,
+            "targetId": "plain-recipient",
+            "element": "pyro",
+            "reaction": "burning",
+            "reactionAudit": {
+              "reaction": "none",
+              "reactions": [],
+              "auraBefore": [],
+              "auraApplied": [
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 1,
+                  "sourceActorId": "burning-driver"
+                }
+              ],
+              "auraConsumed": [],
+              "auraAfter": [
+                {
+                  "element": "pyro",
+                  "gaugeUnits": 0.8,
+                  "expiresAtFrame": 584,
+                  "sourceSlots": [
+                    {
+                      "sourceActorId": "burning-driver",
+                      "gaugeUnits": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "damageComposition": {
+              "direct": 0,
+              "additiveReaction": 0,
+              "transformativeReaction": 638.6824735714285
+            },
+            "finalDamage": 638.6824735714285,
+            "displayDamage": 639
+          },
+          "targetStateTimelinePoint": {
+            "id": 9,
+            "frame": 15,
+            "targetFrame": 15,
+            "targetId": "plain-recipient",
+            "pointKind": "mutation",
+            "cause": "reaction-damage-application",
+            "eventType": "reactionDamage",
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 2,
+            "reaction": "none",
+            "reactions": [],
+            "primaryDamageEventId": 3,
+            "links": [
+              {
+                "kind": "damage-event",
+                "id": 3
+              },
+              {
+                "kind": "reaction-damage-log",
+                "id": 0
+              }
+            ],
+            "auraBefore": [],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 584,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "attempt": {
+            "order": 3,
+            "targetId": "outside-radius",
+            "targetOrder": 3,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "miss",
+            "hitResolutionLogId": 4,
+            "damageEventId": null,
+            "targetStateTimelinePointId": null
+          },
+          "hit": {
+            "id": 4,
+            "frame": 15,
+            "eventPriority": 0.6041666666666667,
+            "eventSequence": 10,
+            "intraEventSequence": 3,
+            "sourceActorId": "burning-driver",
+            "sourceActionId": "start-burning#0",
+            "hitId": "start-burning-hit:burning",
+            "targetIndex": 3,
+            "targetCount": 4,
+            "targetId": "outside-radius",
+            "targetingSource": "reaction-geometry",
+            "resolutionKind": "reaction-damage",
+            "targetPosition": {
+              "x": 5,
+              "y": 0
+            },
+            "geometryKind": "circle",
+            "geometryRadius": 1,
+            "outcome": "miss",
+            "landed": false,
+            "reason": "OUTSIDE_CIRCLE_GEOMETRY",
+            "targetEffectSource": "normal",
+            "damageEventId": null,
+            "finalDamage": 0,
+            "displayDamage": 0
+          },
+          "damage": null,
+          "targetStateTimelinePoint": null
+        },
+        {
+          "attempt": {
+            "order": 4,
+            "targetId": "unresolved-position",
+            "targetOrder": 4,
+            "applicationPhase": "before-reactable-tick",
+            "outcome": "unresolved",
+            "hitResolutionLogId": null,
+            "damageEventId": null,
+            "targetStateTimelinePointId": null
+          },
+          "hit": null,
+          "damage": null,
+          "targetStateTimelinePoint": null
+        }
+      ],
+      "rootDamageEvents": [
+        {
+          "id": 1,
+          "kind": "transformative-reaction",
+          "frame": 15,
+          "eventPriority": 0.6041666666666667,
+          "eventSequence": 10,
+          "parentDamageEventId": 0,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning",
+          "targetResolutionId": 1,
+          "targetId": "electro-recipient",
+          "element": "pyro",
+          "reaction": "burning",
+          "reactionAudit": {
+            "reaction": "overload",
+            "reactions": [
+              "overload"
+            ],
+            "auraBefore": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.778947368421,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.778947368421
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [
+              {
+                "element": "electro",
+                "gaugeUnits": 0.778947368421,
+                "sourceMutations": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnitsBefore": 0.778947368421,
+                    "consumedGaugeUnits": 0.778947368421,
+                    "gaugeUnitsAfter": 0
+                  }
+                ]
+              }
+            ],
+            "auraAfter": []
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639
+        },
+        {
+          "id": 2,
+          "kind": "transformative-reaction",
+          "frame": 15,
+          "eventPriority": 0.6041666666666667,
+          "eventSequence": 10,
+          "parentDamageEventId": 0,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning",
+          "targetResolutionId": 2,
+          "targetId": "enemy-0",
+          "element": "pyro",
+          "reaction": "burning",
+          "reactionAudit": {
+            "reaction": "none",
+            "reactions": [],
+            "auraBefore": [
+              {
+                "element": "burning",
+                "gaugeUnits": 2,
+                "expiresAtFrame": null,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 2
+                  }
+                ]
+              },
+              {
+                "element": "burningFuel",
+                "gaugeUnits": 0.713333333333,
+                "expiresAtFrame": 121,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.713333333333
+                  }
+                ]
+              },
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.706666666667,
+                "expiresAtFrame": 120,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.706666666667
+                  }
+                ]
+              },
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.780350877193,
+                "expiresAtFrame": 570,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.780350877193
+                  }
+                ]
+              }
+            ],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "burning",
+                "gaugeUnits": 2,
+                "expiresAtFrame": null,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 2
+                  }
+                ]
+              },
+              {
+                "element": "burningFuel",
+                "gaugeUnits": 0.713333333333,
+                "expiresAtFrame": 121,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.713333333333
+                  }
+                ]
+              },
+              {
+                "element": "dendro",
+                "gaugeUnits": 0.706666666667,
+                "expiresAtFrame": 120,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "__initial__",
+                    "gaugeUnits": 0.706666666667
+                  }
+                ]
+              },
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 584,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ]
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639
+        },
+        {
+          "id": 3,
+          "kind": "transformative-reaction",
+          "frame": 15,
+          "eventPriority": 0.6041666666666667,
+          "eventSequence": 10,
+          "parentDamageEventId": 0,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning",
+          "targetResolutionId": 3,
+          "targetId": "plain-recipient",
+          "element": "pyro",
+          "reaction": "burning",
+          "reactionAudit": {
+            "reaction": "none",
+            "reactions": [],
+            "auraBefore": [],
+            "auraApplied": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 1,
+                "sourceActorId": "burning-driver"
+              }
+            ],
+            "auraConsumed": [],
+            "auraAfter": [
+              {
+                "element": "pyro",
+                "gaugeUnits": 0.8,
+                "expiresAtFrame": 584,
+                "sourceSlots": [
+                  {
+                    "sourceActorId": "burning-driver",
+                    "gaugeUnits": 0.8
+                  }
+                ]
+              }
+            ]
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 638.6824735714285
+          },
+          "finalDamage": 638.6824735714285,
+          "displayDamage": 639
+        }
+      ]
+    },
+    "nestedOverload": {
+      "reactionDamage": {
+        "id": 1,
+        "reaction": "overload",
+        "triggerDamageEventId": 1,
+        "triggerHitGroupId": null,
+        "sourceActorId": "burning-driver",
+        "sourceTargetId": "electro-recipient",
+        "triggerFrame": 15,
+        "damageFrame": 16,
+        "scheduled": true,
+        "withinSimulation": true,
+        "blockedReason": null,
+        "nextAvailableFrame": 21,
+        "scheduleKind": "one-shot",
+        "targetingMode": "radius",
+        "centerPosition": {
+          "x": 0.5,
+          "y": 0
+        },
+        "radius": 3,
+        "sourceCoreId": null,
+        "sourceCoreLogId": null,
+        "selectionRadius": null,
+        "selectedTargetId": null,
+        "resolutionReason": null,
+        "applicationGaugeUnits": null,
+        "excludedTargetIds": [],
+        "checkedTargetIds": [
+          "electro-recipient",
+          "enemy-0",
+          "plain-recipient",
+          "outside-radius"
+        ],
+        "hitTargetIds": [
+          "electro-recipient",
+          "enemy-0",
+          "plain-recipient"
+        ],
+        "unresolvedTargetIds": [
+          "unresolved-position"
+        ],
+        "damageGroupBlockedTargetIds": [],
+        "damageEventIds": [
+          4,
+          5,
+          6
+        ],
+        "playerHitResolutionLogIds": [],
+        "playerDamageEventIds": [],
+        "reactionStatusLogIds": [],
+        "damageGroupDecisions": [
+          {
+            "reaction": "overload",
+            "sourceActorId": "burning-driver",
+            "targetId": "electro-recipient",
+            "windowStartFrame": 16,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          },
+          {
+            "reaction": "overload",
+            "sourceActorId": "burning-driver",
+            "targetId": "enemy-0",
+            "windowStartFrame": 16,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          },
+          {
+            "reaction": "overload",
+            "sourceActorId": "burning-driver",
+            "targetId": "plain-recipient",
+            "windowStartFrame": 16,
+            "hitIndex": 0,
+            "resetFrames": 30,
+            "sequence": [
+              true,
+              false
+            ],
+            "damageAllowed": true,
+            "blockedReason": null
+          }
+        ]
+      },
+      "triggerDamageEvent": {
+        "id": 1,
+        "kind": "transformative-reaction",
+        "frame": 15,
+        "eventPriority": 0.6041666666666667,
+        "eventSequence": 10,
+        "parentDamageEventId": 0,
+        "sourceActorId": "burning-driver",
+        "actionId": "start-burning#0",
+        "hitId": "start-burning-hit:burning",
+        "targetResolutionId": 1,
+        "targetId": "electro-recipient",
+        "element": "pyro",
+        "reaction": "burning",
+        "reactionAudit": {
+          "reaction": "overload",
+          "reactions": [
+            "overload"
+          ],
+          "auraBefore": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.778947368421,
+              "expiresAtFrame": 570,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.778947368421
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1,
+              "sourceActorId": "burning-driver"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "electro",
+              "gaugeUnits": 0.778947368421,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 0.778947368421,
+                  "consumedGaugeUnits": 0.778947368421,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": []
+        },
+        "damageComposition": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 638.6824735714285
+        },
+        "finalDamage": 638.6824735714285,
+        "displayDamage": 639
+      },
+      "hitResolutionRows": [
+        {
+          "id": 5,
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 1,
+          "sourceActorId": "burning-driver",
+          "sourceActionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetIndex": 0,
+          "targetCount": 4,
+          "targetId": "electro-recipient",
+          "targetingSource": "reaction-geometry",
+          "resolutionKind": "reaction-damage",
+          "targetPosition": {
+            "x": 0.5,
+            "y": 0
+          },
+          "geometryKind": "circle",
+          "geometryRadius": 3,
+          "outcome": "landed",
+          "landed": true,
+          "reason": null,
+          "targetEffectSource": "normal",
+          "damageEventId": 4,
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        },
+        {
+          "id": 6,
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 2,
+          "sourceActorId": "burning-driver",
+          "sourceActionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetIndex": 1,
+          "targetCount": 4,
+          "targetId": "enemy-0",
+          "targetingSource": "reaction-geometry",
+          "resolutionKind": "reaction-damage",
+          "targetPosition": {
+            "x": 0,
+            "y": 0
+          },
+          "geometryKind": "circle",
+          "geometryRadius": 3,
+          "outcome": "landed",
+          "landed": true,
+          "reason": null,
+          "targetEffectSource": "normal",
+          "damageEventId": 5,
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        },
+        {
+          "id": 7,
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 3,
+          "sourceActorId": "burning-driver",
+          "sourceActionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetIndex": 2,
+          "targetCount": 4,
+          "targetId": "plain-recipient",
+          "targetingSource": "reaction-geometry",
+          "resolutionKind": "reaction-damage",
+          "targetPosition": {
+            "x": 0.75,
+            "y": 0
+          },
+          "geometryKind": "circle",
+          "geometryRadius": 3,
+          "outcome": "landed",
+          "landed": true,
+          "reason": null,
+          "targetEffectSource": "normal",
+          "damageEventId": 6,
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        }
+      ],
+      "damageEvents": [
+        {
+          "id": 4,
+          "kind": "transformative-reaction",
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "parentDamageEventId": 1,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetResolutionId": 5,
+          "targetId": "electro-recipient",
+          "element": "pyro",
+          "reaction": "overload",
+          "reactionAudit": {
+            "reaction": "overload",
+            "reactions": [
+              "overload"
+            ],
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7025.5072092857135
+          },
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        },
+        {
+          "id": 5,
+          "kind": "transformative-reaction",
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "parentDamageEventId": 1,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetResolutionId": 6,
+          "targetId": "enemy-0",
+          "element": "pyro",
+          "reaction": "overload",
+          "reactionAudit": {
+            "reaction": "overload",
+            "reactions": [
+              "overload"
+            ],
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7025.5072092857135
+          },
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        },
+        {
+          "id": 6,
+          "kind": "transformative-reaction",
+          "frame": 16,
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "parentDamageEventId": 1,
+          "sourceActorId": "burning-driver",
+          "actionId": "start-burning#0",
+          "hitId": "start-burning-hit:burning:overload",
+          "targetResolutionId": 7,
+          "targetId": "plain-recipient",
+          "element": "pyro",
+          "reaction": "overload",
+          "reactionAudit": {
+            "reaction": "overload",
+            "reactions": [
+              "overload"
+            ],
+            "auraBefore": null,
+            "auraApplied": null,
+            "auraConsumed": null,
+            "auraAfter": null
+          },
+          "damageComposition": {
+            "direct": 0,
+            "additiveReaction": 0,
+            "transformativeReaction": 7025.5072092857135
+          },
+          "finalDamage": 7025.5072092857135,
+          "displayDamage": 7026
+        }
+      ],
+      "targetStateTimelinePoints": [
+        {
+          "id": 12,
+          "frame": 16,
+          "targetFrame": 16,
+          "targetId": "electro-recipient",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 4,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 4
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": []
+        },
+        {
+          "id": 13,
+          "frame": 16,
+          "targetFrame": 16,
+          "targetId": "enemy-0",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 1,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 5,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 5
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "burning",
+              "gaugeUnits": 2,
+              "expiresAtFrame": null,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 2
+                }
+              ]
+            },
+            {
+              "element": "burningFuel",
+              "gaugeUnits": 0.7,
+              "expiresAtFrame": 121,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.7
+                }
+              ]
+            },
+            {
+              "element": "dendro",
+              "gaugeUnits": 0.693333333333,
+              "expiresAtFrame": 120,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.693333333333
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.797192982456,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.797192982456
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "burning",
+              "gaugeUnits": 2,
+              "expiresAtFrame": null,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 2
+                }
+              ]
+            },
+            {
+              "element": "burningFuel",
+              "gaugeUnits": 0.7,
+              "expiresAtFrame": 121,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.7
+                }
+              ]
+            },
+            {
+              "element": "dendro",
+              "gaugeUnits": 0.693333333333,
+              "expiresAtFrame": 120,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 0.693333333333
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.797192982456,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.797192982456
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "frame": 16,
+          "targetFrame": 16,
+          "targetId": "plain-recipient",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 17,
+          "intraEventSequence": 2,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 6,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 6
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.797192982456,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.797192982456
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 0.797192982456,
+              "expiresAtFrame": 584,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "burning-driver",
+                  "gaugeUnits": 0.797192982456
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "owningTargetPhases": [
+        {
+          "id": 5,
+          "targetId": "electro-recipient",
+          "targetOrder": 0,
+          "hitResolutionLogIds": [
+            5
+          ],
+          "reactionTaskLogIds": []
+        },
+        {
+          "id": 6,
+          "targetId": "enemy-0",
+          "targetOrder": 1,
+          "hitResolutionLogIds": [
+            6
+          ],
+          "reactionTaskLogIds": []
+        },
+        {
+          "id": 7,
+          "targetId": "plain-recipient",
+          "targetOrder": 2,
+          "hitResolutionLogIds": [
+            7
+          ],
+          "reactionTaskLogIds": []
+        },
+        {
+          "id": 8,
+          "targetId": "outside-radius",
+          "targetOrder": 3,
+          "hitResolutionLogIds": [
+            8
+          ],
+          "reactionTaskLogIds": []
+        }
+      ]
+    },
+    "damageCurve": [
+      {
+        "damageEventId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 0,
+        "timeSeconds": 0,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 0,
+        "cumulativeDamage": 0,
+        "cumulativeByCharacter": {
+          "burning-driver": 0
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 1,
+        "targetId": "electro-recipient",
+        "targetName": "Electro recipient before owner",
+        "frame": 15,
+        "timeSeconds": 0.25,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 638.6824735714285,
+        "cumulativeByCharacter": {
+          "burning-driver": 638.6824735714285
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 638.6824735714285
+        },
+        "cumulativeByReaction": {
+          "burning": 638.6824735714285
+        }
+      },
+      {
+        "damageEventId": 2,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 15,
+        "timeSeconds": 0.25,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 1277.364947142857,
+        "cumulativeByCharacter": {
+          "burning-driver": 1277.364947142857
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 1277.364947142857
+        },
+        "cumulativeByReaction": {
+          "burning": 1277.364947142857
+        }
+      },
+      {
+        "damageEventId": 3,
+        "targetId": "plain-recipient",
+        "targetName": "Plain recipient after owner",
+        "frame": 15,
+        "timeSeconds": 0.25,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 1916.0474207142856,
+        "cumulativeByCharacter": {
+          "burning-driver": 1916.0474207142856
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 1916.0474207142856
+        },
+        "cumulativeByReaction": {
+          "burning": 1916.0474207142856
+        }
+      },
+      {
+        "damageEventId": 4,
+        "targetId": "electro-recipient",
+        "targetName": "Electro recipient before owner",
+        "frame": 16,
+        "timeSeconds": 0.26666666666666666,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 7025.5072092857135,
+        "cumulativeDamage": 8941.554629999999,
+        "cumulativeByCharacter": {
+          "burning-driver": 8941.554629999999
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 8941.554629999999
+        },
+        "cumulativeByReaction": {
+          "burning": 1916.0474207142856,
+          "overload": 7025.5072092857135
+        }
+      },
+      {
+        "damageEventId": 5,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 16,
+        "timeSeconds": 0.26666666666666666,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 7025.5072092857135,
+        "cumulativeDamage": 15967.061839285712,
+        "cumulativeByCharacter": {
+          "burning-driver": 15967.061839285712
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 15967.061839285712
+        },
+        "cumulativeByReaction": {
+          "burning": 1916.0474207142856,
+          "overload": 14051.014418571427
+        }
+      },
+      {
+        "damageEventId": 6,
+        "targetId": "plain-recipient",
+        "targetName": "Plain recipient after owner",
+        "frame": 16,
+        "timeSeconds": 0.26666666666666666,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 7025.5072092857135,
+        "cumulativeDamage": 22992.569048571426,
+        "cumulativeByCharacter": {
+          "burning-driver": 22992.569048571426
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 22992.569048571426
+        },
+        "cumulativeByReaction": {
+          "burning": 1916.0474207142856,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 7,
+        "targetId": "electro-recipient",
+        "targetName": "Electro recipient before owner",
+        "frame": 30,
+        "timeSeconds": 0.5,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 23631.251522142855,
+        "cumulativeByCharacter": {
+          "burning-driver": 23631.251522142855
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 23631.251522142855
+        },
+        "cumulativeByReaction": {
+          "burning": 2554.729894285714,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 8,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 30,
+        "timeSeconds": 0.5,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 24269.933995714284,
+        "cumulativeByCharacter": {
+          "burning-driver": 24269.933995714284
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 24269.933995714284
+        },
+        "cumulativeByReaction": {
+          "burning": 3193.4123678571427,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 9,
+        "targetId": "plain-recipient",
+        "targetName": "Plain recipient after owner",
+        "frame": 30,
+        "timeSeconds": 0.5,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 24908.616469285713,
+        "cumulativeByCharacter": {
+          "burning-driver": 24908.616469285713
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 24908.616469285713
+        },
+        "cumulativeByReaction": {
+          "burning": 3832.0948414285713,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 10,
+        "targetId": "electro-recipient",
+        "targetName": "Electro recipient before owner",
+        "frame": 45,
+        "timeSeconds": 0.75,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 25547.29894285714,
+        "cumulativeByCharacter": {
+          "burning-driver": 25547.29894285714
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 25547.29894285714
+        },
+        "cumulativeByReaction": {
+          "burning": 4470.777314999999,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 11,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 45,
+        "timeSeconds": 0.75,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 26185.98141642857,
+        "cumulativeByCharacter": {
+          "burning-driver": 26185.98141642857
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 26185.98141642857
+        },
+        "cumulativeByReaction": {
+          "burning": 5109.459788571428,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 12,
+        "targetId": "plain-recipient",
+        "targetName": "Plain recipient after owner",
+        "frame": 45,
+        "timeSeconds": 0.75,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 26824.66389,
+        "cumulativeByCharacter": {
+          "burning-driver": 26824.66389
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 26824.66389
+        },
+        "cumulativeByReaction": {
+          "burning": 5748.142262142857,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 13,
+        "targetId": "electro-recipient",
+        "targetName": "Electro recipient before owner",
+        "frame": 60,
+        "timeSeconds": 1,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 27463.34636357143,
+        "cumulativeByCharacter": {
+          "burning-driver": 27463.34636357143
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 27463.34636357143
+        },
+        "cumulativeByReaction": {
+          "burning": 6386.824735714286,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 14,
+        "targetId": "enemy-0",
+        "targetName": "Burning owner",
+        "frame": 60,
+        "timeSeconds": 1,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 28102.028837142858,
+        "cumulativeByCharacter": {
+          "burning-driver": 28102.028837142858
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 28102.028837142858
+        },
+        "cumulativeByReaction": {
+          "burning": 7025.507209285715,
+          "overload": 21076.52162785714
+        }
+      },
+      {
+        "damageEventId": 15,
+        "targetId": "plain-recipient",
+        "targetName": "Plain recipient after owner",
+        "frame": 60,
+        "timeSeconds": 1,
+        "sourceActorId": "burning-driver",
+        "creditOwnerId": "burning-driver",
+        "finalDamage": 638.6824735714285,
+        "cumulativeDamage": 28740.711310714287,
+        "cumulativeByCharacter": {
+          "burning-driver": 28740.711310714287
+        },
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 28740.711310714287
+        },
+        "cumulativeByReaction": {
+          "burning": 7664.189682857144,
+          "overload": 21076.52162785714
+        }
+      }
+    ],
+    "summary": {
+      "totalDamage": 28740.711310714287,
+      "dps": 28740.711310714287,
+      "displayDamageTotal": 28746,
+      "damageEventCount": 16,
+      "hitResolutionCount": 21,
+      "reactedHits": 1,
+      "skippedActionCount": 0,
+      "byCharacter": {
+        "burning-driver": 28740.711310714287
+      },
+      "bySkill": [
+        {
+          "creditId": "burning-driver",
+          "actionName": "Start Burning · 超载",
+          "damage": 21076.52162785714,
+          "hits": 3,
+          "dps": 21076.52162785714,
+          "share": 0.7333333333333332
+        },
+        {
+          "creditId": "burning-driver",
+          "actionName": "Start Burning · 燃烧",
+          "damage": 7664.189682857144,
+          "hits": 12,
+          "dps": 7664.189682857144,
+          "share": 0.2666666666666667
+        },
+        {
+          "creditId": "burning-driver",
+          "actionName": "Start Burning",
+          "damage": 0,
+          "hits": 1,
+          "dps": 0,
+          "share": 0
+        }
+      ],
+      "targetSummaries": [
+        {
+          "targetId": "electro-recipient",
+          "targetName": "Electro recipient before owner",
+          "damage": 9580.23710357143,
+          "potentialDamage": 9580.23710357143,
+          "damageEvents": 5,
+          "landedChecks": 5,
+          "missedChecks": 0,
+          "immuneDamageEvents": 0,
+          "dps": 9580.23710357143,
+          "share": 0.33333333333333337
+        },
+        {
+          "targetId": "enemy-0",
+          "targetName": "Burning owner",
+          "damage": 9580.23710357143,
+          "potentialDamage": 9580.23710357143,
+          "damageEvents": 6,
+          "landedChecks": 6,
+          "missedChecks": 0,
+          "immuneDamageEvents": 0,
+          "dps": 9580.23710357143,
+          "share": 0.33333333333333337
+        },
+        {
+          "targetId": "plain-recipient",
+          "targetName": "Plain recipient after owner",
+          "damage": 9580.23710357143,
+          "potentialDamage": 9580.23710357143,
+          "damageEvents": 5,
+          "landedChecks": 5,
+          "missedChecks": 0,
+          "immuneDamageEvents": 0,
+          "dps": 9580.23710357143,
+          "share": 0.33333333333333337
+        },
+        {
+          "targetId": "outside-radius",
+          "targetName": "Outside Burning radius",
+          "damage": 0,
+          "potentialDamage": 0,
+          "damageEvents": 0,
+          "landedChecks": 0,
+          "missedChecks": 5,
+          "immuneDamageEvents": 0,
+          "dps": 0,
+          "share": 0
+        },
+        {
+          "targetId": "unresolved-position",
+          "targetName": "Unresolved position",
+          "damage": 0,
+          "potentialDamage": 0,
+          "damageEvents": 0,
+          "landedChecks": 0,
+          "missedChecks": 0,
+          "immuneDamageEvents": 0,
+          "dps": 0,
+          "share": 0
+        }
+      ],
+      "damageByReaction": {
+        "burning": 7664.189682857144,
+        "overload": 21076.52162785714
+      },
+      "damageCurveEnd": {
+        "damageEventId": 15,
+        "frame": 60,
+        "cumulativeDamage": 28740.711310714287,
+        "cumulativeByComponent": {
+          "direct": 0,
+          "additiveReaction": 0,
+          "transformativeReaction": 28740.711310714287
+        },
+        "cumulativeByReaction": {
+          "burning": 7664.189682857144,
+          "overload": 21076.52162785714
+        }
+      }
+    }
+  },
+  "scenarioSha256": "f55e8c8ef0c98af5cba95847caac22aeb77da2224d09e337a54eaac1eebbb78a"
+}

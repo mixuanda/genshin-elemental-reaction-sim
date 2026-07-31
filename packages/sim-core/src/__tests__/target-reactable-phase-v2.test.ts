@@ -231,9 +231,16 @@ function projectTargetReactablePhaseScenario(
   boundaryFrame: number,
   abandonedWakeFrame: number | null = null
 ) {
-  const phases = result.targetPhaseLog.filter(
-    (entry) => entry.globalFrame === boundaryFrame
-  );
+  const phases = result.targetPhaseLog
+    .filter((entry) => entry.globalFrame === boundaryFrame)
+    .map((entry) => {
+      if (entry.model !== "target-phase-v2") {
+        throw new Error(
+          `Expected target-phase-v2 at frame ${boundaryFrame}; got ${entry.model}.`
+        );
+      }
+      return entry;
+    });
   const burningStateLogIds = new Set<number>();
   const frozenStateLogIds = new Set<number>();
   const quickenStateLogIds = new Set<number>();
@@ -568,6 +575,11 @@ function projectTargetReactablePhaseScenarioV139(
       if (phase === undefined) {
         throw new Error(
           `Missing target-phase-v2 owner for target Miss resolution ${hitResolution.id}.`
+        );
+      }
+      if (phase.model !== "target-phase-v2") {
+        throw new Error(
+          `Target Miss resolution ${hitResolution.id} was owned by ${phase.model}, not target-phase-v2.`
         );
       }
       return {
@@ -1036,7 +1048,13 @@ function phaseAt(
       entry.targetId === targetId
   );
   expect(matches).toHaveLength(1);
-  return matches[0]!;
+  const phase = matches[0];
+  if (phase === undefined || phase.model !== "target-phase-v2") {
+    throw new Error(
+      `Expected one target-phase-v2 entry for ${targetId} at frame ${globalFrame}.`
+    );
+  }
+  return phase;
 }
 
 function expectAuraOnlyDecreases(

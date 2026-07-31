@@ -1,5 +1,7 @@
 import {
+  assertTrustedSimulationResultV144,
   electroChargedCleanupResultReferencesSchema,
+  simulationResultV144Schema,
   type AuraReactionEngineConfig,
   type FrameHitDefinition,
   type SimConfig,
@@ -1360,6 +1362,43 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       cleanup.targetStateTimelinePointId,
       cleanup.targetStateTimelinePointId,
     ]);
+  });
+
+  it("keeps v3 natural-expiry cleanup typed backlinks even when both transitions share one point", () => {
+    const config = makeNaturalExpiryCollisionConfig();
+    config.targetTaskModel = { mode: "target-phase-v3" };
+    const base = simulate(config, { critMode: "noCrit" });
+    const cleanupTask = base.reactionTaskLog.find(
+      (task) => task.electroChargedCleanup?.outcome === "natural-expiry",
+    );
+    const cleanup = cleanupTask?.electroChargedCleanup;
+    if (
+      cleanupTask === undefined ||
+      cleanup?.outcome !== "natural-expiry"
+    ) {
+      throw new Error("Expected v3 natural-expiry cleanup collision.");
+    }
+    const forged = structuredClone(base);
+    const phase = forged.targetPhaseLog[cleanup.targetPhaseLogId];
+    if (phase?.model !== "target-phase-v3") {
+      throw new Error("Expected a target-phase-v3 cleanup owner.");
+    }
+    const cleanupTransition = phase.reactableTick.transitions.find(
+      (transition) =>
+        transition.kind === "electro-charged-cleanup" &&
+        transition.outcome === "natural-expiry",
+    );
+    if (cleanupTransition?.kind !== "electro-charged-cleanup") {
+      throw new Error("Expected a v3 cleanup transition.");
+    }
+    cleanupTransition.reactionTaskLogId = 999;
+
+    expect(simulationResultV144Schema.safeParse(forged).success).toBe(
+      false,
+    );
+    expect(() =>
+      assertTrustedSimulationResultV144(forged),
+    ).toThrow(/Electro-Charged cleanup transition/);
   });
 
   it("rejects forged natural-expiry stop and lifecycle observation fields", () => {

@@ -1,6 +1,6 @@
 import {
-  assertTrustedSimulationResultV142,
-  simulationResultV142Schema,
+  assertTrustedSimulationResultV144,
+  simulationResultV144Schema,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
@@ -15,7 +15,7 @@ function cloneResult(result: SimulationResult): SimulationResult {
 function expectAcceptedByPublicAndTrusted(
   result: SimulationResult
 ): void {
-  const parsed = simulationResultV142Schema.safeParse(result);
+  const parsed = simulationResultV144Schema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
@@ -29,7 +29,7 @@ function expectAcceptedByPublicAndTrusted(
     );
   }
   expect(() =>
-    assertTrustedSimulationResultV142(result)
+    assertTrustedSimulationResultV144(result)
   ).not.toThrow();
 }
 
@@ -42,7 +42,7 @@ function expectRejectedByPublicAndTrusted(
   const publicWire = cloneResult(result);
   mutate(publicWire);
   const publicResult =
-    simulationResultV142Schema.safeParse(publicWire);
+    simulationResultV144Schema.safeParse(publicWire);
   expect(
     publicResult.success,
     `${label}: public SimulationResult boundary`
@@ -59,10 +59,10 @@ function expectRejectedByPublicAndTrusted(
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
   expect(
-    () => assertTrustedSimulationResultV142(trustedResult),
+    () => assertTrustedSimulationResultV144(trustedResult),
     `${label}: trusted sim-core boundary`
   ).toThrow(
-    /Trusted SimulationResult 1\.42 integrity validation failed/
+    /Trusted SimulationResult 1\.44 integrity validation failed/
   );
 }
 
@@ -361,7 +361,7 @@ function forgeSharedIcdWinnerSwap(
   child.triggerHitId = secondTrigger.hitId;
 }
 
-describe("SimulationResult 1.42 particle provenance integrity", () => {
+describe("SimulationResult 1.44 particle provenance integrity", () => {
   it("rejects deletion of an out-of-window hit-confirm particle chain", () => {
     const result = simulate(makeHitConfirmedParticleConfig());
     expect(result.particleEvents).toMatchObject([
@@ -756,7 +756,7 @@ describe("SimulationResult 1.42 particle provenance integrity", () => {
     );
     const mutation = cloneResult(result);
     mutation.actionLog = [];
-    const parsed = simulationResultV142Schema.safeParse(mutation);
+    const parsed = simulationResultV144Schema.safeParse(mutation);
     expect(parsed.success).toBe(false);
     if (parsed.success) return;
     const occurrenceIssues = parsed.error.issues.filter(({ message }) =>
@@ -767,9 +767,9 @@ describe("SimulationResult 1.42 particle provenance integrity", () => {
     expect(occurrenceIssues).toHaveLength(1);
     expect(occurrenceIssues[0]?.message).toContain("4");
     expect(() =>
-      assertTrustedSimulationResultV142(mutation)
+      assertTrustedSimulationResultV144(mutation)
     ).toThrow(
-      /Trusted SimulationResult 1\.42 integrity validation failed/
+      /Trusted SimulationResult 1\.44 integrity validation failed/
     );
   });
 

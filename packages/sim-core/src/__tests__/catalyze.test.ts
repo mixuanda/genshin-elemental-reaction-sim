@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertTrustedSimulationResult,
+  assertTrustedSimulationResultV144,
   createVersionedContentHash,
-  simulationResultV142Schema,
+  simulationResultV144Schema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
@@ -1899,7 +1901,9 @@ describe("Catalyze simulation integration", () => {
     };
 
     const result = simulate(config, { critMode: "noCrit" });
-    expect(simulationResultV142Schema.parse(result)).toEqual(result);
+    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
     const expectedTransformative =
       calcTransformativeReactionDamage({
         characterLevel: 90,

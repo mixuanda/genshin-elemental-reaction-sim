@@ -8,6 +8,8 @@ import {
   auraSourceGaugeMutationSchema,
   auraStateEntrySchema,
   bloomReactionAuditSchema,
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   BURNING_REACTION_ENGINE_VERSION,
   BURNING_REACTION_SCHEMA_VERSION,
   burningReactionAuditSchema,
@@ -15,6 +17,7 @@ import {
   ConfigMigrationError,
   canonicalStringify,
   createSimulationConfigHash,
+  createSimulationReproducibilityKey,
   createSimulationRunManifest,
   createVersionedContentHash,
   crystallizeShieldLogEntrySchema,
@@ -79,6 +82,11 @@ import {
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   simulationRunManifestSchema,
+  simulationRunManifestV142Schema,
+  simulationRunManifestV144Schema,
+  simConfigSchema,
+  simConfigV142Schema,
+  simConfigV144Schema,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
@@ -98,6 +106,11 @@ import {
   targetPhaseV2LogSchema,
   targetPhaseV2ResultReferencesSchema,
   targetPhaseV2TargetTaskSchema,
+  targetPhaseV3DeliveryAttemptSchema,
+  targetPhaseV3DeliverySchema,
+  targetPhaseV3LogEntrySchema,
+  targetPhaseV3LogSchema,
+  targetPhaseV3TargetTaskSchema,
   TARGET_LOCAL_HITLAG_ENGINE_VERSION,
   TARGET_LOCAL_HITLAG_SCHEMA_VERSION,
   targetStateTimelinePointSchema,
@@ -150,6 +163,15 @@ const asPre139Wire = <T extends object>(
     T,
     "reactionDeliveryModel" | "electroChargedPropagationModel"
   >;
+};
+
+const withoutOwn = <
+  T extends object,
+  K extends keyof T
+>(value: T, key: K): Omit<T, K> => {
+  const clone = { ...value } as Record<PropertyKey, unknown>;
+  delete clone[key];
+  return clone as Omit<T, K>;
 };
 
 const validTargetStateTimeline = {
@@ -2845,12 +2867,12 @@ describe("1.34 general reaction order contract", () => {
   it("inherits aura-v5 legal-frame, target-position, and geometry boundaries", () => {
     const config = makeAuraV6Config();
     expect(() =>
-      migrateConfig({ ...config, timeline: undefined })
+      migrateConfig(withoutOwn(config, "timeline"))
     ).toThrow(/require timeline\.mode legal-frame-v1/);
     expect(() =>
       migrateConfig({
         ...config,
-        enemy: { ...config.enemy, targets: undefined }
+        enemy: withoutOwn(config.enemy, "targets")
       })
     ).toThrow(/aura-v6 requires enemy\.targets/);
     expect(() =>
@@ -2875,8 +2897,7 @@ describe("1.34 general reaction order contract", () => {
             {
               ...ability,
               hits: ability.hits.map((hit) => ({
-                ...hit,
-                geometry: undefined
+                ...withoutOwn(hit, "geometry")
               }))
             }
           ]
@@ -3184,10 +3205,10 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
     );
   });
 
-  it("strictly accepts all current modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.42.0");
+  it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.42.0-ec-global-cadence-safety"
+      "1.44.0-burning-callback-delivery"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -3239,8 +3260,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
     ).toEqual({ mode: "target-phase-v2" });
     expect(() =>
       migrateConfig({
-        ...makeAuraV7Config(),
-        timeline: undefined,
+        ...withoutOwn(makeAuraV7Config(), "timeline"),
         targetTaskModel: { mode: "target-phase-v2" }
       })
     ).toThrow(/requires timeline\.mode legal-frame-v1/);
@@ -4244,10 +4264,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION
+      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4419,8 +4439,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     );
     expect(() =>
       migrateConfig({
-        ...legal,
-        timeline: undefined
+        ...withoutOwn(legal, "timeline")
       })
     ).toThrow(
       /aura-v9 requires timeline\.mode legal-frame-v1 at 60 FPS/
@@ -4433,6 +4452,83 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toThrow(
       /aura-v9 requires targetTaskModel\.mode target-phase-v2/
     );
+  });
+
+  it("freezes 1.42, migrates it by identity only, and gates explicit 1.44 target-phase-v3", () => {
+    const frozenV142 = {
+      ...makeLegalAuraV7Config(),
+      schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+      reactionEngine: { mode: "aura-v9" as const },
+      targetTaskModel: { mode: "target-phase-v2" as const }
+    };
+    const parsedFrozenV142 = simConfigV142Schema.parse(frozenV142);
+    expect(parsedFrozenV142).toMatchObject({
+      schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+      targetTaskModel: { mode: "target-phase-v2" }
+    });
+
+    const migrated = migrateConfig(parsedFrozenV142);
+    expect(migrated).toEqual({
+      ...parsedFrozenV142,
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    });
+    expect(migrated.targetTaskModel).toEqual({
+      mode: "target-phase-v2"
+    });
+    expect(simConfigV144Schema.parse(migrated)).toEqual(migrated);
+
+    for (const mode of ["aura-v7", "aura-v8", "aura-v9"] as const) {
+      expect(
+        migrateConfig({
+          ...migrated,
+          reactionEngine: { mode },
+          targetTaskModel: { mode: "target-phase-v3" }
+        }).targetTaskModel
+      ).toEqual({ mode: "target-phase-v3" });
+    }
+    expect(() =>
+      migrateConfig({
+        ...withoutOwn(migrated, "timeline"),
+        targetTaskModel: { mode: "target-phase-v3" }
+      })
+    ).toThrow(/requires timeline\.mode legal-frame-v1/);
+    expect(() =>
+      migrateConfig({
+        ...migrated,
+        reactionEngine: { mode: "aura-v6" },
+        targetTaskModel: { mode: "target-phase-v3" }
+      })
+    ).toThrow(/requires reactionEngine\.mode aura-v7/);
+    expect(() =>
+      migrateConfig({
+        ...frozenV142,
+        targetTaskModel: { mode: "target-phase-v3" }
+      })
+    ).toThrow(/1\.42\.0.*target-phase-v2 model/);
+    expect(() =>
+      migrateConfig({
+        ...migrated,
+        targetTaskModel: Object.create({
+          mode: "target-phase-v3"
+        })
+      })
+    ).toThrow(/targetTaskModel: config must contain only plain JSON objects/);
+    expect(() =>
+      migrateConfig({
+        ...migrated,
+        schemaVersion: "1.43.0",
+        engineVersion: "1.43.0-unpublished"
+      })
+    ).toThrow();
+    expect(() =>
+      simConfigV144Schema.parse({
+        ...migrated,
+        burningCallbackModel: { mode: "unversioned" }
+      })
+    ).toThrow(/Unrecognized key/);
   });
 
   it("validates aura-v9 cleanup cadence state and the ended-before-deadline wire", () => {
@@ -4560,8 +4656,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
               ...targetedElectroAbility,
               hits: [
                 {
-                  ...targetedElectroAbility.hits[0],
-                  targeting: undefined
+                  ...withoutOwn(
+                    targetedElectroAbility.hits[0]!,
+                    "targeting"
+                  )
                 }
               ]
             }
@@ -7151,7 +7249,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           }
         )
       )
-    ).toThrow(/schemaVersion.*explicit own property/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
     expect(() =>
       migrateConfig(
         Object.assign(
@@ -7165,7 +7263,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           }
         )
       )
-    ).toThrow(/engineVersion.*explicit own property/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
     expect(() =>
       migrateConfig(
         Object.assign(
@@ -7179,7 +7277,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           }
         )
       )
-    ).toThrow(/reactionDeliveryModel.*explicit own/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
 
     const inheritedMode = Object.create({
       mode: "deferred-event-heap-v1"
@@ -7192,7 +7290,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         ...current,
         reactionDeliveryModel: inheritedMode
       })
-    ).toThrow(/reactionDeliveryModel\.mode.*explicit own/);
+    ).toThrow(/reactionDeliveryModel: config must contain only plain JSON objects/);
     expect(() =>
       migrateConfig({
         ...current,
@@ -7200,7 +7298,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           mode: "target-phase-v2"
         })
       })
-    ).toThrow(/targetTaskModel\.mode.*explicit own/);
+    ).toThrow(/targetTaskModel: config must contain only plain JSON objects/);
     expect(() =>
       migrateConfig({
         ...current,
@@ -7208,7 +7306,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           mode: "aura-v7"
         })
       })
-    ).toThrow(/reactionEngine\.mode.*explicit own/);
+    ).toThrow(/reactionEngine: config must contain only plain JSON objects/);
 
     const historical139 = {
       ...asPre139Wire(current),
@@ -7219,7 +7317,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDeliveryModel: inheritedMode
     };
     expect(() => migrateConfig(historical139)).toThrow(
-      /reactionDeliveryModel\.mode.*explicit own/
+      /reactionDeliveryModel: config must contain only plain JSON objects/
     );
     const {
       reactionDeliveryModel: _delivery,
@@ -7236,7 +7334,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           historicalPayload
         )
       )
-    ).toThrow(/reactionDeliveryModel.*explicit own/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
   });
 
   it("gates aura-v8 to the 1.40 legal target-phase-v2 boundary while preserving current aura-v7", () => {
@@ -7278,8 +7376,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toThrow(/aura-v8 requires targetTaskModel\.mode target-phase-v2/);
     expect(() =>
       migrateConfig({
-        ...legalV8,
-        timeline: undefined
+        ...withoutOwn(legalV8, "timeline")
       })
     ).toThrow(/aura-v8 requires timeline\.mode legal-frame-v1 at 60 FPS/);
   });
@@ -7350,7 +7447,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39 through 1\.42 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -7486,7 +7583,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39 through 1\.42 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 schema and engine identity/);
     }
   });
 
@@ -10855,7 +10952,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37 through 1\.42 identity/);
+    ).toThrow(/exact supported 1\.37 through 1\.42 or 1\.44 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -11856,6 +11953,125 @@ describe("1.38 target Reactable phase schema and references", () => {
     ).toThrow(/must be unique and follow natural Aura/);
   });
 
+  it("strictly validates v3 Burning delivery attempts without imposing v2 same-target Aura continuity", () => {
+    const delivery = {
+      model: "burning-callback-zero-delay-v1" as const,
+      reactionDamageLogId: 0,
+      eventPriority: 5,
+      eventSequence: 2,
+      attempts: [
+        {
+          order: 0,
+          targetId: "enemy-0",
+          targetOrder: 0,
+          applicationPhase: "before-reactable-tick" as const,
+          outcome: "landed" as const,
+          hitResolutionLogId: 0,
+          damageEventId: 0,
+          targetStateTimelinePointId: 2
+        },
+        {
+          order: 1,
+          targetId: "enemy-1",
+          targetOrder: 1,
+          applicationPhase: "after-reactable-tick" as const,
+          outcome: "unresolved" as const,
+          hitResolutionLogId: null,
+          damageEventId: null,
+          targetStateTimelinePointId: null
+        }
+      ]
+    };
+    expect(targetPhaseV3DeliverySchema.parse(delivery)).toEqual(
+      delivery
+    );
+    expect(
+      targetPhaseV3DeliveryAttemptSchema.parse({
+        ...delivery.attempts[0],
+        outcome: "miss",
+        damageEventId: null,
+        targetStateTimelinePointId: null
+      })
+    ).toMatchObject({ outcome: "miss" });
+    expect(() =>
+      targetPhaseV3DeliveryAttemptSchema.parse({
+        ...delivery.attempts[0],
+        outcome: "unresolved",
+        hitResolutionLogId: 0,
+        damageEventId: null,
+        targetStateTimelinePointId: null
+      })
+    ).toThrow();
+    expect(() =>
+      targetPhaseV3DeliverySchema.parse({
+        ...delivery,
+        attempts: [
+          delivery.attempts[0],
+          {
+            ...delivery.attempts[1],
+            order: 0,
+            targetId: "enemy-0"
+          }
+        ]
+      })
+    ).toThrow(/order must be contiguous|same target twice/);
+
+    const appliedTask = {
+      stage: "target-task" as const,
+      kind: "burning-tick" as const,
+      order: 0,
+      eventType: "burningTick" as const,
+      eventPriority: 0.5,
+      eventSequence: 1,
+      intraEventSequence: 0,
+      generation: 1,
+      tickIndex: 1,
+      deadlineTargetFrame: 10,
+      status: "applied" as const,
+      burningStateLogId: 0,
+      targetStateTimelinePointId: 1,
+      delivery
+    };
+    expect(targetPhaseV3TargetTaskSchema.parse(appliedTask)).toEqual(
+      appliedTask
+    );
+    expect(
+      targetPhaseV3TargetTaskSchema.parse({
+        ...appliedTask,
+        delivery: null
+      })
+    ).toMatchObject({ status: "applied", delivery: null });
+
+    const phase = structuredClone(
+      makeBridgeV2ReferenceResult().targetPhaseLog[0]
+    );
+    phase.model = "target-phase-v3";
+    phase.targetTasks = phase.targetTasks.map((task: object) => ({
+      ...task,
+      delivery: null
+    }));
+    phase.reactableTick.auraBefore = [
+      ...phase.reactableTick.auraBefore,
+      {
+        element: "hydro",
+        gaugeUnits: 0.2,
+        expiresAtFrame: 50,
+        expiresAtTargetFrame: 50
+      }
+    ];
+    phase.reactableTick.auraAfter = structuredClone(
+      phase.reactableTick.auraBefore
+    );
+    expect(targetPhaseV3LogEntrySchema.parse(phase)).toEqual(phase);
+    expect(targetPhaseV3LogSchema.parse([phase])).toEqual([phase]);
+    expect(() =>
+      targetPhaseV3LogEntrySchema.parse({
+        ...phase,
+        timeSeconds: 0
+      })
+    ).toThrow(/globalFrame \/ 60/);
+  });
+
   it("proves sparse and same-target-frame ordinary decay through one reciprocal phase bridge", () => {
     const result = makeBridgeV2ReferenceResult();
     expect(() =>
@@ -12298,6 +12514,83 @@ describe("1.38 target Reactable phase schema and references", () => {
         targetTaskPhaseResultReferencesSchema.parse(historical)
       ).toThrow(/cannot carry.*callback Aura/);
     }
+  });
+
+  it("fails closed when an exact 1.44 standalone v2 projection omits current fields", () => {
+    const makeExact144V2 = (): any => {
+      const result: any = structuredClone(
+        makeFrozenV2ReferenceResult()
+      );
+      result.schemaVersion =
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+      result.engineVersion =
+        BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+      result.config.schemaVersion =
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+      result.config.engineVersion =
+        BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+      result.config.electroChargedPropagationModel = {
+        mode: "single-target-v1"
+      };
+      return result;
+    };
+
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(
+        makeExact144V2()
+      )
+    ).not.toThrow();
+
+    for (const field of [
+      "targetPhaseLog",
+      "targetTaskPhaseLog"
+    ] as const) {
+      const missing = makeExact144V2();
+      delete missing[field];
+      const parsed =
+        targetPhaseV2ResultReferencesSchema.safeParse(missing);
+      expect(parsed.success).toBe(false);
+      if (!parsed.success) {
+        expect(
+          parsed.error.issues.some(
+            (issue) => issue.path.join(".") === field
+          )
+        ).toBe(true);
+      }
+    }
+
+    const missingTargetTaskModel = makeExact144V2();
+    delete missingTargetTaskModel.config.targetTaskModel;
+    const missingTargetTaskModelResult =
+      targetPhaseV2ResultReferencesSchema.safeParse(
+        missingTargetTaskModel
+      );
+    expect(missingTargetTaskModelResult.success).toBe(false);
+    if (!missingTargetTaskModelResult.success) {
+      expect(
+        missingTargetTaskModelResult.error.issues.some(
+          (issue) =>
+            issue.path.join(".") ===
+            "config.targetTaskModel"
+        )
+      ).toBe(true);
+    }
+
+    const v3 = makeExact144V2();
+    v3.config.targetTaskModel = { mode: "target-phase-v3" };
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(v3)
+    ).toThrow(/only validates target-phase-v2/);
+
+    const historicalV3: any = structuredClone(
+      makeFrozenV2ReferenceResult()
+    );
+    historicalV3.config.targetTaskModel = {
+      mode: "target-phase-v3"
+    };
+    expect(() =>
+      targetPhaseV2ResultReferencesSchema.parse(historicalV3)
+    ).toThrow(/only validates target-phase-v2/);
   });
 
   it("accepts all five typed lifecycle mappings and exact reciprocal links", () => {
@@ -13235,7 +13528,7 @@ describe("1.35 per-element enemy resistance schema", () => {
         enemy: inheritedSharedEnemy
       })
     ).toThrow(
-      /enemy\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+      /enemy: config must contain only plain JSON objects/
     );
     expect(() =>
       migrateConfig({
@@ -13246,7 +13539,7 @@ describe("1.35 per-element enemy resistance schema", () => {
         }
       })
     ).toThrow(
-      /enemy\.targets\.0\.resistances: schemaVersion "1\.34\.0" does not support per-element enemy resistance/
+      /enemy\.targets\.0: config must contain only plain JSON objects/
     );
   });
 });
@@ -13285,6 +13578,36 @@ describe("simulation run manifest contract", () => {
     expect(
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
+    expect(simulationRunManifestV144Schema.parse(manifest)).toEqual(
+      manifest
+    );
+    expect(() =>
+      simulationRunManifestV142Schema.parse(manifest)
+    ).toThrow();
+
+    const {
+      reproducibilityKey: _currentReproducibilityKey,
+      ...currentIdentity
+    } = manifest;
+    const frozenIdentity = {
+      ...currentIdentity,
+      schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    };
+    const frozenManifest = {
+      ...frozenIdentity,
+      reproducibilityKey: createSimulationReproducibilityKey(
+        frozenIdentity as unknown as Parameters<
+          typeof createSimulationReproducibilityKey
+        >[0]
+      )
+    };
+    expect(
+      simulationRunManifestV142Schema.parse(frozenManifest)
+    ).toEqual(frozenManifest);
+    expect(() =>
+      simulationRunManifestSchema.parse(frozenManifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestSchema.parse({
         ...manifest,
@@ -13377,6 +13700,122 @@ describe("versioned config schema", () => {
     expect(migrated.characters[0]?.stats.critRate).toBe(0.05);
   });
 
+  it("requires an acyclic recursively plain config wire before any version projection", () => {
+    const current = migrateConfig(legacyConfig);
+    const ordinaryJson = JSON.parse(
+      JSON.stringify(current)
+    ) as unknown;
+    expect(parseSimConfig(ordinaryJson)).toEqual(current);
+    expect(migrateConfig(ordinaryJson)).toEqual(current);
+    expect(simConfigSchema.safeParse(ordinaryJson).success).toBe(
+      true
+    );
+
+    const toNullPrototypeWire = (value: unknown): unknown => {
+      if (Array.isArray(value)) {
+        return value.map(toNullPrototypeWire);
+      }
+      if (typeof value !== "object" || value === null) {
+        return value;
+      }
+      const clone = Object.create(null) as Record<
+        string,
+        unknown
+      >;
+      for (const [key, entry] of Object.entries(value)) {
+        clone[key] = toNullPrototypeWire(entry);
+      }
+      return clone;
+    };
+    const nullPrototypeWire = toNullPrototypeWire(current);
+    expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
+    expect(migrateConfig(nullPrototypeWire)).toEqual(current);
+    expect(
+      simConfigV144Schema.safeParse(nullPrototypeWire).success
+    ).toBe(true);
+
+    const frozenV142 = {
+      ...current,
+      schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    };
+    expect(simConfigV142Schema.safeParse(frozenV142).success).toBe(
+      true
+    );
+    const v142Prototype = {};
+    Object.defineProperty(v142Prototype, "burningCallbackModel", {
+      value: { mode: "synchronous-zero-delay-v1" },
+      enumerable: false
+    });
+    const inheritedFutureV142 = Object.assign(
+      Object.create(v142Prototype),
+      frozenV142
+    );
+    // The frozen value schema intentionally remains unchanged. Persistence and
+    // import callers must enter through migrateConfig, which owns the wire gate.
+    expect(
+      simConfigV142Schema.safeParse(inheritedFutureV142).success
+    ).toBe(true);
+    expect(() => migrateConfig(inheritedFutureV142)).toThrow(
+      /plain JSON objects.*explicit own wire properties/
+    );
+
+    const currentPrototype = {};
+    Object.defineProperty(currentPrototype, "futureDeliveryModel", {
+      value: { mode: "v1" },
+      enumerable: false
+    });
+    const inheritedFutureCurrent = Object.assign(
+      Object.create(currentPrototype),
+      structuredClone(current)
+    );
+    expect(
+      simConfigV144Schema.safeParse(inheritedFutureCurrent).success
+    ).toBe(false);
+    expect(
+      simConfigSchema.safeParse(inheritedFutureCurrent).success
+    ).toBe(false);
+    expect(() => parseSimConfig(inheritedFutureCurrent)).toThrow(
+      /plain JSON objects.*explicit own wire properties/
+    );
+    expect(() => migrateConfig(inheritedFutureCurrent)).toThrow(
+      /plain JSON objects.*explicit own wire properties/
+    );
+
+    expect(() =>
+      migrateConfig({
+        ...current,
+        meta: { ...current.meta, note: new Date(0) }
+      })
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
+    class CustomEnemyProfile {}
+    expect(() =>
+      parseSimConfig({
+        ...current,
+        enemy: Object.assign(
+          new CustomEnemyProfile(),
+          current.enemy
+        )
+      })
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
+
+    const cyclic = structuredClone(current) as unknown as Record<
+      string,
+      unknown
+    >;
+    const cyclicMeta = cyclic.meta as Record<string, unknown>;
+    cyclicMeta.self = cyclicMeta;
+    expect(simConfigV144Schema.safeParse(cyclic).success).toBe(
+      false
+    );
+    expect(() => migrateConfig(cyclic)).toThrow(
+      /acyclic plain JSON wire/
+    );
+    expect(() => parseSimConfig(cyclic)).toThrow(
+      /acyclic plain JSON wire/
+    );
+  });
+
   it("fail-closes parseSimConfig on inherited current identities and nested discriminators", () => {
     const current = migrateConfig(legacyConfig);
     const legal = migrateConfig({
@@ -13412,10 +13851,10 @@ describe("versioned config schema", () => {
 
     expect(() =>
       parseSimConfig(inheritRootIdentity("schemaVersion"))
-    ).toThrow(/schemaVersion.*explicit own property/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
     expect(() =>
       parseSimConfig(inheritRootIdentity("engineVersion"))
-    ).toThrow(/engineVersion.*explicit own property/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
 
     const nestedFields = [
       ["reactionEngine", "mode"],
@@ -13444,7 +13883,7 @@ describe("versioned config schema", () => {
 
       expect(() => parseSimConfig(clone)).toThrow(
         new RegExp(
-          `${containerField}\\.${field}.*explicit own property`
+          `${containerField}: config must contain only plain JSON objects`
         )
       );
     }
@@ -13462,7 +13901,7 @@ describe("versioned config schema", () => {
           inheritedContainer
         )
       )
-    ).toThrow(/reactionDeliveryModel.*explicit own property/);
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
   });
 
   it("reports a precise field path before simulation", () => {
@@ -14031,7 +14470,7 @@ describe("versioned config schema", () => {
         rotation: [],
         timeline: legalTimeline,
         ...(contract.allowedMode === null
-          ? { reactionEngine: undefined }
+          ? {}
           : {
               reactionEngine: {
                 mode: contract.allowedMode
@@ -15722,12 +16161,16 @@ describe("versioned config schema", () => {
       undefined,
       "1.29.0-catalyze-reaction-unknown"
     ]) {
+      const historicalWire = {
+        ...asPre139Wire(current),
+        schemaVersion: "1.29.0"
+      };
       expect(() =>
-        migrateConfig({
-          ...asPre139Wire(current),
-          schemaVersion: "1.29.0",
-          engineVersion
-        })
+        migrateConfig(
+          engineVersion === undefined
+            ? historicalWire
+            : { ...historicalWire, engineVersion }
+        )
       ).toThrow(
         /schemaVersion "1\.29\.0" requires "1\.29\.0-catalyze-reaction"/
       );
@@ -15884,12 +16327,12 @@ describe("versioned config schema", () => {
       "aura-v5"
     );
     expect(() =>
-      migrateConfig({ ...validV5, timeline: undefined })
+      migrateConfig(withoutOwn(validV5, "timeline"))
     ).toThrow(/require timeline\.mode legal-frame-v1/);
     expect(() =>
       migrateConfig({
         ...validV5,
-        enemy: { ...current.enemy, targets: undefined }
+        enemy: withoutOwn(current.enemy, "targets")
       })
     ).toThrow(/aura-v5 requires enemy\.targets/);
     expect(() =>
@@ -15911,8 +16354,7 @@ describe("versioned config schema", () => {
               ...ability,
               hits: [
                 {
-                  ...ability.hits[0],
-                  geometry: undefined
+                  ...withoutOwn(ability.hits[0]!, "geometry")
                 }
               ]
             }
@@ -15932,9 +16374,10 @@ describe("versioned config schema", () => {
               ...ability,
               hits: [
                 {
-                  ...ability.hits[0],
-                  element: undefined,
-                  geometry: undefined
+                  ...withoutOwn(
+                    withoutOwn(ability.hits[0]!, "element"),
+                    "geometry"
+                  )
                 }
               ]
             }
@@ -15949,9 +16392,8 @@ describe("versioned config schema", () => {
       ...ability,
       hits: [
         {
-          ...ability.hits[0],
+          ...withoutOwn(ability.hits[0]!, "geometry"),
           element: "dendro" as const,
-          geometry: undefined
         }
       ]
     };

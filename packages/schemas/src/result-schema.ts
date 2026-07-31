@@ -1,10 +1,15 @@
 import { z } from "zod";
 import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   type SimulationResult
 } from "./types";
-import { validateSimulationResultV142Integrity } from "./result-integrity";
+import {
+  validateSimulationResultV142Integrity,
+  validateSimulationResultV144Integrity
+} from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
   auraGaugeEntrySchema,
@@ -41,13 +46,16 @@ import {
   resolvedSimulationRuntimeOptionsSchema,
   scalingStatSchema,
   simConfigV142Schema,
+  simConfigV144Schema,
   simulationRunManifestV142Schema,
+  simulationRunManifestV144Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
   targetHitlagLogSchema,
   targetPhaseV2LogSchema,
   targetPhaseV2ResultReferencesSchema,
+  targetPhaseV3LogSchema,
   targetStateTimelineSchema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
@@ -2200,3 +2208,162 @@ export const simulationResultV142Schema = z.preprocess(
 export type SimulationResultV142 = z.output<
   typeof simulationResultV142Schema
 >;
+
+/**
+ * Exact 1.44 result wire. The top-level field set is inherited from the
+ * frozen 1.42 shape, but identity, config, run manifest, and target-phase
+ * ownership are replaced explicitly. Reading `.shape` does not reuse the
+ * 1.42 refinements, so the frozen validator remains identity-exact.
+ */
+export const simulationResultV144ValueSchema = z
+  .object({
+    ...simulationResultV142ValueSchema.shape,
+    schemaVersion: z.literal(
+      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV144Schema,
+    config: simConfigV144Schema,
+    targetPhaseLog: z.union([
+      targetPhaseV2LogSchema,
+      targetPhaseV3LogSchema
+    ])
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => context.addIssue({ code: "custom", path, message });
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(["dataVersion"], "must equal config.dataVersion");
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV144Integrity(
+      result as unknown as SimulationResult,
+      context
+    );
+  });
+
+export const simulationResultV144Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.44"),
+  simulationResultV144ValueSchema
+);
+
+export type SimulationResultV144 = z.output<
+  typeof simulationResultV144Schema
+>;
+
+/** Current public result boundary. Frozen versioned schemas remain exported. */
+export const simulationResultSchema = simulationResultV144Schema;
+export type ParsedSimulationResult = SimulationResultV144;

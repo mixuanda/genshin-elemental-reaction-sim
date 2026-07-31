@@ -2,7 +2,7 @@ import {
   durinMeltPreset,
   particleEnergyDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
-import { assertTrustedSimulationResultV142 } from "@genshin-dps-lab/schemas";
+import { assertTrustedSimulationResultV144 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 
@@ -20,7 +20,7 @@ describe("public SimulationResult validation boundary", () => {
   it("validates the final legacy-compatible result without replacing runtime aliases", () => {
     const result = simulate(durinMeltPreset);
 
-    expect(assertTrustedSimulationResultV142(result)).toBe(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
     expect(result.compatibilityMode).toBe("legacy-v0.1");
     expectRuntimeAliasesArePreserved(result);
   });
@@ -33,7 +33,7 @@ describe("public SimulationResult validation boundary", () => {
     ).toBe(true);
     const result = simulate(particleEnergyDemoPreset);
 
-    expect(assertTrustedSimulationResultV142(result)).toBe(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
     expect(result.compatibilityMode).toBe("legal-frame-v1");
     expect(result.timelineExecution).toBeDefined();
     expectRuntimeAliasesArePreserved(result);
@@ -44,14 +44,14 @@ describe("public SimulationResult validation boundary", () => {
     const forgedTotal = structuredClone(result);
     forgedTotal.totalDamage += 1;
     expect(() =>
-      assertTrustedSimulationResultV142(forgedTotal)
+      assertTrustedSimulationResultV144(forgedTotal)
     ).toThrow(/totalDamage/);
 
     const forgedId = structuredClone(result);
     forgedId.damageEvents[0]!.id += 1;
     forgedId.hitEvents = forgedId.damageEvents;
     expect(() =>
-      assertTrustedSimulationResultV142(forgedId)
+      assertTrustedSimulationResultV144(forgedId)
     ).toThrow(/damageEvents\.0\.id/);
   });
 });

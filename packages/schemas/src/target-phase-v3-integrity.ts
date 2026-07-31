@@ -1,0 +1,1619 @@
+import { z, type RefinementCtx } from "zod";
+import { canonicalStringify } from "./reproducibility";
+import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  type AuraStateEntry,
+  type SimulationResult,
+  type TargetPhaseV3DeliveryAttempt,
+  type TargetPhaseV3LogEntry
+} from "./types";
+
+type IssuePath = Array<string | number>;
+
+const FLOAT_TOLERANCE = 1e-9;
+
+function approximatelyEqual(left: number, right: number): boolean {
+  return (
+    Math.abs(left - right) <=
+    FLOAT_TOLERANCE *
+      Math.max(1, Math.abs(left), Math.abs(right))
+  );
+}
+
+function semanticEqual(left: unknown, right: unknown): boolean {
+  return (
+    left === right ||
+    canonicalStringify(left) === canonicalStringify(right)
+  );
+}
+
+/**
+ * Reactable.Tick may decay gauges and source slots, but any added element,
+ * owner, durability, or deadline extension needs an explicit mutation point.
+ * Element removal is owned by the typed lifecycle transitions that follow.
+ */
+function ordinaryAuraDecayIssue(
+  before: readonly AuraStateEntry[],
+  after: readonly AuraStateEntry[],
+  expiredRemovalFrame?: number
+): string | null {
+  const beforeByElement = new Map(
+    before.map((entry) => [entry.element, entry])
+  );
+  const afterByElement = new Map(
+    after.map((entry) => [entry.element, entry])
+  );
+  if (
+    beforeByElement.size !== before.length ||
+    afterByElement.size !== after.length
+  ) {
+    return "Aura snapshots cannot contain duplicate elements";
+  }
+  for (const [element, beforeEntry] of beforeByElement) {
+    if (afterByElement.has(element)) continue;
+    const deadline =
+      beforeEntry.expiresAtTargetFrame ??
+      beforeEntry.expiresAtFrame;
+    if (
+      expiredRemovalFrame === undefined ||
+      deadline === null ||
+      deadline > expiredRemovalFrame
+    ) {
+      return expiredRemovalFrame === undefined
+        ? "ordinary Aura decay must preserve the element set until a typed lifecycle transition"
+        : `Aura clock advance cannot remove unexpired ${element}`;
+    }
+  }
+
+  for (const [element, afterEntry] of afterByElement) {
+    const beforeEntry = beforeByElement.get(element);
+    if (beforeEntry === undefined) {
+      return `Aura clock advance cannot add ${element}`;
+    }
+    if (
+      afterEntry.gaugeUnits > beforeEntry.gaugeUnits +
+        FLOAT_TOLERANCE
+    ) {
+      return `ordinary Aura decay cannot increase ${element} durability`;
+    }
+    const beforeDeadline =
+      beforeEntry.expiresAtTargetFrame ??
+      beforeEntry.expiresAtFrame;
+    const afterDeadline =
+      afterEntry.expiresAtTargetFrame ?? afterEntry.expiresAtFrame;
+    if (
+      beforeDeadline !== null &&
+      (afterDeadline === null || afterDeadline > beforeDeadline)
+    ) {
+      return `ordinary Aura decay cannot extend ${element} expiry`;
+    }
+    const beforeSlots = new Map(
+      (beforeEntry.sourceSlots ?? []).map((slot) => [
+        slot.sourceActorId,
+        slot.gaugeUnits
+      ])
+    );
+    if (
+      beforeSlots.size !== (beforeEntry.sourceSlots ?? []).length
+    ) {
+      return `${element} source slots must be unique by actor`;
+    }
+    const afterSlots = afterEntry.sourceSlots ?? [];
+    if (
+      new Set(afterSlots.map((slot) => slot.sourceActorId)).size !==
+      afterSlots.length
+    ) {
+      return `${element} source slots must be unique by actor`;
+    }
+    for (const slot of afterSlots) {
+      const beforeGauge = beforeSlots.get(slot.sourceActorId);
+      if (beforeGauge === undefined) {
+        return `ordinary Aura decay cannot add ${element} source owner ${slot.sourceActorId}`;
+      }
+      if (slot.gaugeUnits > beforeGauge + FLOAT_TOLERANCE) {
+        return `ordinary Aura decay cannot increase ${element} source owner ${slot.sourceActorId}`;
+      }
+    }
+  }
+  return null;
+}
+
+function addIssue(
+  context: RefinementCtx,
+  path: IssuePath,
+  message: string
+): void {
+  context.addIssue({ code: "custom", path, message });
+}
+
+function expectEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: unknown,
+  expected: unknown,
+  label: string
+): void {
+  if (actual !== expected) {
+    addIssue(
+      context,
+      path,
+      `${label} must equal ${String(expected)}; received ${String(actual)}`
+    );
+  }
+}
+
+function expectSemanticEqual(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: unknown,
+  expected: unknown,
+  label: string
+): void {
+  if (!semanticEqual(actual, expected)) {
+    addIssue(context, path, `${label} does not match its authoritative source`);
+  }
+}
+
+function callbackOwnedStop(
+  result: SimulationResult,
+  burningStateLogId: number
+): boolean {
+  return result.targetStateTimeline.points.some(
+    (point) =>
+      point.cause === "burning-tick" &&
+      point.eventType === "burningTick" &&
+      point.links.some(
+        (link) =>
+          link.kind === "burning-state-log" &&
+          link.id === burningStateLogId
+      )
+  );
+}
+
+function exactSingleLink(
+  links: Array<{ kind: string; id: number }>,
+  kind: string,
+  id: number
+): boolean {
+  return links.filter((link) => link.kind === kind && link.id === id)
+    .length === 1;
+}
+
+function exactLifecycleLinks(
+  actual: Array<{ kind: string; id: number }>,
+  expected: Array<{ kind: string; id: number }>
+): boolean {
+  const lifecycle = actual.filter(
+    (link) => link.kind !== "target-phase-log"
+  );
+  return (
+    lifecycle.length === expected.length &&
+    lifecycle.every(
+      (link, index) =>
+        link.kind === expected[index]?.kind &&
+        link.id === expected[index]?.id
+    )
+  );
+}
+
+/**
+ * Cross-log proof for the 1.44 target-phase-v3 Burning callback wire.
+ *
+ * The callback task is the ownership root. Its delivery is a distinct
+ * zero-delay micro-event between QueueEnemyTask and Reactable.Tick. This pass
+ * binds every registered target attempt to the reaction-damage parent, hit,
+ * damage, and target-state rows while keeping those rows out of recipient
+ * phase ownership.
+ */
+export function validateTargetPhaseV3Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const exactCurrentIdentity =
+    (result.schemaVersion as string) ===
+      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
+    result.engineVersion ===
+      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION &&
+    (result.config.schemaVersion as string) ===
+      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
+    result.config.engineVersion ===
+      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+  if (!exactCurrentIdentity) {
+    addIssue(
+      context,
+      ["schemaVersion"],
+      "target-phase-v3 integrity requires the exact current 1.44 schema and engine identity"
+    );
+    return;
+  }
+  const configuredV3 =
+    result.config.targetTaskModel.mode === "target-phase-v3";
+  const v3Phases = result.targetPhaseLog.filter(
+    (phase): phase is TargetPhaseV3LogEntry =>
+      phase.model === "target-phase-v3"
+  );
+
+  if (!configuredV3) {
+    if (v3Phases.length !== 0) {
+      addIssue(
+        context,
+        ["targetPhaseLog"],
+        "target-phase-v3 rows require config.targetTaskModel.mode=target-phase-v3"
+      );
+    }
+    return;
+  }
+
+  if (v3Phases.length !== result.targetPhaseLog.length) {
+    addIssue(
+      context,
+      ["targetPhaseLog"],
+      "target-phase-v3 configuration requires only strict target-phase-v3 rows"
+    );
+  }
+  if (
+    result.config.timeline?.mode !== "legal-frame-v1" ||
+    result.config.timeline.fps !== 60
+  ) {
+    addIssue(
+      context,
+      ["config", "timeline"],
+      "target-phase-v3 requires legal-frame-v1 at 60 FPS"
+    );
+  }
+  if (
+    result.config.reactionEngine?.mode !== "aura-v7" &&
+    result.config.reactionEngine?.mode !== "aura-v8" &&
+    result.config.reactionEngine?.mode !== "aura-v9"
+  ) {
+    addIssue(
+      context,
+      ["config", "reactionEngine", "mode"],
+      "target-phase-v3 requires aura-v7, aura-v8, or aura-v9"
+    );
+  }
+  if (result.targetTaskPhaseLog.length !== 0) {
+    addIssue(
+      context,
+      ["targetTaskPhaseLog"],
+      "target-phase-v3 requires the historical targetTaskPhaseLog projection to remain empty"
+    );
+  }
+
+  const targetById = new Map(
+    result.enemyTargets.map((target, targetOrder) => [
+      target.id,
+      { target, targetOrder }
+    ])
+  );
+  const burningById = new Map(
+    result.burningStateLog.map((entry) => [entry.id, entry])
+  );
+  const reactionDamageById = new Map(
+    result.reactionDamageLog.map((entry) => [entry.id, entry])
+  );
+  const hitById = new Map(
+    result.hitResolutionLog.map((entry) => [entry.id, entry])
+  );
+  const damageById = new Map(
+    result.damageEvents.map((entry) => [entry.id, entry])
+  );
+  const reactionTaskById = new Map(
+    result.reactionTaskLog.map((entry) => [entry.id, entry])
+  );
+  const frozenById = new Map(
+    result.frozenStateLog.map((entry) => [entry.id, entry])
+  );
+  const quickenById = new Map(
+    result.quickenStateLog.map((entry) => [entry.id, entry])
+  );
+  const periodicById = new Map(
+    result.periodicReactionLog.map((entry) => [entry.id, entry])
+  );
+  const timelinePointById = new Map(
+    result.targetStateTimeline.points.map((entry) => [entry.id, entry])
+  );
+  const phaseByFrameAndTarget = new Map(
+    v3Phases.map((phase) => [
+      `${phase.globalFrame}\u0000${phase.targetId}`,
+      phase
+    ])
+  );
+  const deliveryAuraPointsByRecipientPhase = new Map<
+    string,
+    Array<{
+      pointId: number;
+      applicationPhase:
+        | "before-reactable-tick"
+        | "after-reactable-tick";
+    }>
+  >();
+  for (const ownerPhase of v3Phases) {
+    for (const task of ownerPhase.targetTasks) {
+      for (const attempt of task.delivery?.attempts ?? []) {
+        if (attempt.outcome !== "landed") continue;
+        const key = `${ownerPhase.globalFrame}\u0000${attempt.targetId}`;
+        const references =
+          deliveryAuraPointsByRecipientPhase.get(key) ?? [];
+        references.push({
+          pointId: attempt.targetStateTimelinePointId,
+          applicationPhase: attempt.applicationPhase
+        });
+        deliveryAuraPointsByRecipientPhase.set(key, references);
+      }
+    }
+  }
+
+  const phaseClaimedHitIds = new Set<number>();
+  const phaseOwnedTimelinePointIds = new Set<number>();
+  const burningTaskOwners = new Map<number, IssuePath>();
+  const reactionDamageDeliveryOwners = new Map<number, IssuePath>();
+  const callbackHitOwners = new Map<number, IssuePath>();
+  const callbackDamageOwners = new Map<number, IssuePath>();
+  const callbackTimelineOwners = new Map<number, IssuePath>();
+  const phaseHitOwners = new Map<number, IssuePath>();
+  const phaseReactionTaskOwners = new Map<number, IssuePath>();
+  const frozenTransitionOwners = new Map<number, IssuePath>();
+  const quickenTransitionOwners = new Map<number, IssuePath>();
+  const burningFuelTransitionOwners = new Map<number, IssuePath>();
+  const periodicTransitionOwners = new Map<number, IssuePath>();
+
+  const claimUnique = (
+    owners: Map<number, IssuePath>,
+    id: number,
+    path: IssuePath,
+    label: string
+  ): void => {
+    const previous = owners.get(id);
+    if (previous !== undefined) {
+      addIssue(
+        context,
+        path,
+        `${label} ${id} is already owned at ${previous.join(".")}`
+      );
+      return;
+    }
+    owners.set(id, path);
+  };
+
+  for (const [phaseIndex, phase] of v3Phases.entries()) {
+    const phasePath = ["targetPhaseLog", phaseIndex] satisfies IssuePath;
+    const registeredTarget = targetById.get(phase.targetId);
+    if (
+      registeredTarget === undefined ||
+      registeredTarget.target.name !== phase.targetName ||
+      registeredTarget.targetOrder !== phase.targetOrder
+    ) {
+      addIssue(
+        context,
+        [...phasePath, "targetId"],
+        "target phase identity and targetOrder must match enemyTargets registration order"
+      );
+    }
+    for (const [referenceIndex, id] of
+      phase.hitResolutionLogIds.entries()) {
+      phaseClaimedHitIds.add(id);
+      const path = [
+        ...phasePath,
+        "hitResolutionLogIds",
+        referenceIndex
+      ] satisfies IssuePath;
+      claimUnique(
+        phaseHitOwners,
+        id,
+        path,
+        "phase-owned hit-resolution row"
+      );
+      const hit = hitById.get(id);
+      if (
+        hit === undefined ||
+        hit.targetId !== phase.targetId ||
+        hit.targetName !== phase.targetName ||
+        hit.frame !== phase.globalFrame ||
+        hit.eventPriority === undefined ||
+        hit.eventSequence === undefined ||
+        hit.intraEventSequence === undefined
+      ) {
+        addIssue(
+          context,
+          path,
+          "phase-owned hit-resolution row must match its target, frame, and event tuple"
+        );
+      }
+    }
+    for (const [referenceIndex, id] of
+      phase.reactionTaskLogIds.entries()) {
+      const path = [
+        ...phasePath,
+        "reactionTaskLogIds",
+        referenceIndex
+      ] satisfies IssuePath;
+      claimUnique(
+        phaseReactionTaskOwners,
+        id,
+        path,
+        "phase-owned reaction-task row"
+      );
+      const reactionTask = reactionTaskById.get(id);
+      if (
+        reactionTask === undefined ||
+        reactionTask.targetId !== phase.targetId ||
+        reactionTask.targetName !== phase.targetName ||
+        reactionTask.frame !== phase.globalFrame
+      ) {
+        addIssue(
+          context,
+          path,
+          "phase-owned reaction-task row must match its target and frame"
+        );
+      }
+    }
+    for (const task of phase.targetTasks) {
+      phaseOwnedTimelinePointIds.add(task.targetStateTimelinePointId);
+    }
+    for (const transition of phase.reactableTick.transitions) {
+      phaseOwnedTimelinePointIds.add(
+        transition.targetStateTimelinePointId
+      );
+    }
+
+    for (const [taskIndex, task] of phase.targetTasks.entries()) {
+      const taskPath = [
+        ...phasePath,
+        "targetTasks",
+        taskIndex
+      ] satisfies IssuePath;
+      const taskPoint = timelinePointById.get(
+        task.targetStateTimelinePointId
+      );
+
+      if (task.status === "stale") {
+        if (task.burningStateLogId !== null || task.delivery !== null) {
+          addIssue(
+            context,
+            taskPath,
+            "stale Burning callbacks cannot own a lifecycle row or delivery"
+          );
+        }
+        if (
+          taskPoint === undefined ||
+          taskPoint.links.length !== 0 ||
+          !semanticEqual(taskPoint.auraBefore, taskPoint.auraAfter)
+        ) {
+          addIssue(
+            context,
+            [...taskPath, "targetStateTimelinePointId"],
+            "stale Burning callbacks require one link-free unchanged timeline observation"
+          );
+        }
+        continue;
+      }
+
+      if (task.burningStateLogId === null) {
+        addIssue(
+          context,
+          [...taskPath, "burningStateLogId"],
+          "applied Burning callbacks require one lifecycle row"
+        );
+        continue;
+      }
+      claimUnique(
+        burningTaskOwners,
+        task.burningStateLogId,
+        [...taskPath, "burningStateLogId"],
+        "Burning lifecycle row"
+      );
+      const burning = burningById.get(task.burningStateLogId);
+      if (burning === undefined) {
+        addIssue(
+          context,
+          [...taskPath, "burningStateLogId"],
+          `references missing Burning lifecycle row ${task.burningStateLogId}`
+        );
+        continue;
+      }
+
+      for (const [field, expected] of [
+        ["targetId", phase.targetId],
+        ["targetName", phase.targetName],
+        ["frame", phase.globalFrame],
+        ["targetFrame", phase.targetFrame],
+        ["generation", task.generation],
+        ["tickIndex", task.tickIndex],
+        ["eventPriority", task.eventPriority],
+        ["eventSequence", task.eventSequence]
+      ] as const) {
+        expectEqual(
+          context,
+          ["burningStateLog", burning.id, field],
+          burning[field],
+          expected,
+          `callback Burning ${field}`
+        );
+      }
+      if (
+        burning.operation !== "tick" &&
+        burning.operation !== "tick-skipped" &&
+        burning.operation !== "stop"
+      ) {
+        addIssue(
+          context,
+          [...taskPath, "burningStateLogId"],
+          "target callback may only own tick, tick-skipped, or callback stop lifecycle rows"
+        );
+      }
+      if (
+        taskPoint === undefined ||
+        taskPoint.targetId !== phase.targetId ||
+        taskPoint.targetName !== phase.targetName ||
+        taskPoint.frame !== phase.globalFrame ||
+        taskPoint.targetFrame !== phase.targetFrame ||
+        taskPoint.cause !== "burning-tick" ||
+        taskPoint.eventType !== "burningTick" ||
+        taskPoint.eventPriority !== task.eventPriority ||
+        taskPoint.eventSequence !== task.eventSequence ||
+        taskPoint.intraEventSequence !== task.intraEventSequence ||
+        !exactSingleLink(
+          taskPoint.links,
+          "burning-state-log",
+          burning.id
+        ) ||
+        taskPoint.links.length !== 1
+      ) {
+        addIssue(
+          context,
+          [...taskPath, "targetStateTimelinePointId"],
+          "applied Burning callback requires its exact lifecycle timeline point"
+        );
+      }
+      if (
+        burning.callbackAuraBefore === undefined ||
+        burning.callbackAuraAfter === undefined ||
+        taskPoint === undefined ||
+        !semanticEqual(
+          burning.callbackAuraBefore,
+          taskPoint.auraBefore
+        ) ||
+        !semanticEqual(burning.callbackAuraAfter, taskPoint.auraAfter)
+      ) {
+        addIssue(
+          context,
+          ["burningStateLog", burning.id, "callbackAuraBefore"],
+          "Burning callback Aura snapshots must exactly project its task timeline point"
+        );
+      }
+
+      if (burning.operation !== "tick") {
+        if (task.delivery !== null) {
+          addIssue(
+            context,
+            [...taskPath, "delivery"],
+            `${burning.operation} Burning callbacks cannot own a damage delivery`
+          );
+        }
+        continue;
+      }
+      if (task.delivery === null) {
+        addIssue(
+          context,
+          [...taskPath, "delivery"],
+          "Burning tick callbacks require one inline zero-delay delivery"
+        );
+        continue;
+      }
+
+      const delivery = task.delivery;
+      const deliveryPath = [...taskPath, "delivery"] satisfies IssuePath;
+      claimUnique(
+        reactionDamageDeliveryOwners,
+        delivery.reactionDamageLogId,
+        [...deliveryPath, "reactionDamageLogId"],
+        "Burning callback delivery"
+      );
+      expectEqual(
+        context,
+        ["burningStateLog", burning.id, "reactionDamageLogId"],
+        burning.reactionDamageLogId,
+        delivery.reactionDamageLogId,
+        "Burning callback reaction-damage owner"
+      );
+
+      const priorityStride = 0.5 / (result.enemyTargets.length + 1);
+      const expectedTaskPriority = 0.5 + phase.targetOrder * priorityStride;
+      const expectedDeliveryPriority =
+        expectedTaskPriority + priorityStride * 0.25;
+      const reactableTickPriority =
+        expectedTaskPriority + priorityStride * 0.5;
+      if (!approximatelyEqual(task.eventPriority, expectedTaskPriority)) {
+        addIssue(
+          context,
+          [...taskPath, "eventPriority"],
+          "Burning callback priority must encode its registered target order"
+        );
+      }
+      if (
+        !approximatelyEqual(
+          delivery.eventPriority,
+          expectedDeliveryPriority
+        ) ||
+        !(delivery.eventPriority > task.eventPriority) ||
+        !(delivery.eventPriority < reactableTickPriority)
+      ) {
+        addIssue(
+          context,
+          [...deliveryPath, "eventPriority"],
+          "inline delivery priority must occupy its deterministic slot after the callback and before owner Reactable.Tick"
+        );
+      }
+      if (delivery.eventSequence <= task.eventSequence) {
+        addIssue(
+          context,
+          [...deliveryPath, "eventSequence"],
+          "inline delivery sequence must follow its callback sequence"
+        );
+      }
+
+      const reactionDamage = reactionDamageById.get(
+        delivery.reactionDamageLogId
+      );
+      if (
+        reactionDamage === undefined ||
+        reactionDamage.reaction !== "burning" ||
+        reactionDamage.scheduleKind !== "burning-tick" ||
+        reactionDamage.targetingMode !== "radius" ||
+        reactionDamage.sourceTargetId !== phase.targetId ||
+        reactionDamage.sourceActorId !== burning.damageSourceActorId ||
+        reactionDamage.triggerDamageEventId !==
+          burning.triggerDamageEventId ||
+        reactionDamage.damageFrame !== phase.globalFrame ||
+        !reactionDamage.scheduled ||
+        !reactionDamage.withinSimulation ||
+        reactionDamage.blockedReason !== null
+      ) {
+        addIssue(
+          context,
+          [...deliveryPath, "reactionDamageLogId"],
+          "inline delivery must backlink its exact settled Burning reaction-damage parent"
+        );
+        continue;
+      }
+
+      if (delivery.attempts.length !== result.enemyTargets.length) {
+        addIssue(
+          context,
+          [...deliveryPath, "attempts"],
+          "inline Burning delivery must audit every enemy in registration order"
+        );
+      }
+
+      const checkedTargetIds: string[] = [];
+      const hitTargetIds: string[] = [];
+      const unresolvedTargetIds: string[] = [];
+      const hitResolutionLogIds: number[] = [];
+      const damageEventIds: number[] = [];
+      let resolvedTargetIndex = 0;
+      const resolvedTargetCount = delivery.attempts.filter(
+        (attempt) => attempt.outcome !== "unresolved"
+      ).length;
+
+      for (const [attemptIndex, attempt] of delivery.attempts.entries()) {
+        const attemptPath = [
+          ...deliveryPath,
+          "attempts",
+          attemptIndex
+        ] satisfies IssuePath;
+        const registeredAttemptTarget = result.enemyTargets[attemptIndex];
+        if (
+          attempt.order !== attemptIndex ||
+          registeredAttemptTarget === undefined ||
+          attempt.targetId !== registeredAttemptTarget.id ||
+          attempt.targetOrder !== attemptIndex
+        ) {
+          addIssue(
+            context,
+            attemptPath,
+            "delivery attempts must be contiguous and exactly follow enemyTargets registration order"
+          );
+        }
+        const expectedApplicationPhase =
+          attempt.targetOrder < phase.targetOrder
+            ? "after-reactable-tick"
+            : "before-reactable-tick";
+        expectEqual(
+          context,
+          [...attemptPath, "applicationPhase"],
+          attempt.applicationPhase,
+          expectedApplicationPhase,
+          "Burning application phase"
+        );
+
+        if (attempt.outcome === "unresolved") {
+          unresolvedTargetIds.push(attempt.targetId);
+          if (
+            attempt.hitResolutionLogId !== null ||
+            attempt.damageEventId !== null ||
+            attempt.targetStateTimelinePointId !== null
+          ) {
+            addIssue(
+              context,
+              attemptPath,
+              "unresolved delivery attempts cannot claim hit, damage, or timeline rows"
+            );
+          }
+          continue;
+        }
+
+        const recipientPhase = phaseByFrameAndTarget.get(
+          `${phase.globalFrame}\u0000${attempt.targetId}`
+        );
+        if (recipientPhase === undefined) {
+          addIssue(
+            context,
+            attemptPath,
+            "resolved callback attempt requires its recipient target phase at the same frame"
+          );
+        }
+
+        checkedTargetIds.push(attempt.targetId);
+        hitResolutionLogIds.push(attempt.hitResolutionLogId);
+        claimUnique(
+          callbackHitOwners,
+          attempt.hitResolutionLogId,
+          [...attemptPath, "hitResolutionLogId"],
+          "callback-owned hit-resolution row"
+        );
+        const hit = hitById.get(attempt.hitResolutionLogId);
+        if (
+          hit === undefined ||
+          hit.targetId !== attempt.targetId ||
+          hit.frame !== phase.globalFrame ||
+          hit.resolutionKind !== "reaction-damage" ||
+          hit.eventPriority !== delivery.eventPriority ||
+          hit.eventSequence !== delivery.eventSequence ||
+          hit.targetIndex !== resolvedTargetIndex ||
+          hit.targetCount !== resolvedTargetCount ||
+          hit.landed !== (attempt.outcome === "landed") ||
+          hit.outcome !== attempt.outcome
+        ) {
+          addIssue(
+            context,
+            [...attemptPath, "hitResolutionLogId"],
+            "delivery attempt does not match its callback-owned hit resolution and micro-event tuple"
+          );
+        }
+        resolvedTargetIndex += 1;
+
+        if (attempt.outcome === "miss") {
+          if (
+            hit !== undefined &&
+            (hit.damageEventId !== null ||
+              hit.potentialDamage !== 0 ||
+              hit.finalDamage !== 0 ||
+              hit.displayDamage !== 0)
+          ) {
+            addIssue(
+              context,
+              [...attemptPath, "hitResolutionLogId"],
+              "missed Burning attempt cannot project damage"
+            );
+          }
+          continue;
+        }
+
+        hitTargetIds.push(attempt.targetId);
+        damageEventIds.push(attempt.damageEventId);
+        claimUnique(
+          callbackDamageOwners,
+          attempt.damageEventId,
+          [...attemptPath, "damageEventId"],
+          "callback-owned damage event"
+        );
+        claimUnique(
+          callbackTimelineOwners,
+          attempt.targetStateTimelinePointId,
+          [...attemptPath, "targetStateTimelinePointId"],
+          "callback-owned target-state point"
+        );
+        const damage = damageById.get(attempt.damageEventId);
+        if (
+          damage === undefined ||
+          hit?.damageEventId !== attempt.damageEventId ||
+          damage.targetResolutionId !== attempt.hitResolutionLogId ||
+          damage.targetId !== attempt.targetId ||
+          damage.frame !== phase.globalFrame ||
+          damage.eventPriority !== delivery.eventPriority ||
+          damage.eventSequence !== delivery.eventSequence ||
+          damage.kind !== "transformative-reaction" ||
+          damage.reaction !== "burning"
+        ) {
+          addIssue(
+            context,
+            [...attemptPath, "damageEventId"],
+            "landed attempt does not match its callback-owned Burning damage event"
+          );
+        }
+        const timelinePoint = timelinePointById.get(
+          attempt.targetStateTimelinePointId
+        );
+        if (
+          timelinePoint === undefined ||
+          timelinePoint.targetId !== attempt.targetId ||
+          timelinePoint.frame !== phase.globalFrame ||
+          timelinePoint.eventType !== "reactionDamage" ||
+          timelinePoint.eventPriority !== delivery.eventPriority ||
+          timelinePoint.eventSequence !== delivery.eventSequence ||
+          timelinePoint.cause !== "reaction-damage-application" ||
+          timelinePoint.primaryDamageEventId !== attempt.damageEventId ||
+          !exactSingleLink(
+            timelinePoint.links,
+            "damage-event",
+            attempt.damageEventId
+          ) ||
+          !exactSingleLink(
+            timelinePoint.links,
+            "reaction-damage-log",
+            reactionDamage.id
+          )
+        ) {
+          addIssue(
+            context,
+            [...attemptPath, "targetStateTimelinePointId"],
+            "landed attempt requires its exact callback-owned Aura timeline point and micro-event tuple"
+          );
+        }
+
+        if (
+          recipientPhase !== undefined &&
+          recipientPhase.hitResolutionLogIds.includes(
+            attempt.hitResolutionLogId
+          )
+        ) {
+          addIssue(
+            context,
+            [...attemptPath, "hitResolutionLogId"],
+            "callback-owned hit must not be claimed by the recipient target phase"
+          );
+        }
+      }
+
+      expectSemanticEqual(
+        context,
+        ["reactionDamageLog", reactionDamage.id, "checkedTargetIds"],
+        reactionDamage.checkedTargetIds,
+        checkedTargetIds,
+        "Burning delivery checked targets"
+      );
+      expectSemanticEqual(
+        context,
+        ["reactionDamageLog", reactionDamage.id, "hitTargetIds"],
+        reactionDamage.hitTargetIds,
+        hitTargetIds,
+        "Burning delivery landed targets"
+      );
+      expectSemanticEqual(
+        context,
+        ["reactionDamageLog", reactionDamage.id, "unresolvedTargetIds"],
+        reactionDamage.unresolvedTargetIds,
+        unresolvedTargetIds,
+        "Burning delivery unresolved targets"
+      );
+      expectSemanticEqual(
+        context,
+        ["reactionDamageLog", reactionDamage.id, "damageEventIds"],
+        reactionDamage.damageEventIds,
+        damageEventIds,
+        "Burning delivery damage children"
+      );
+      expectSemanticEqual(
+        context,
+        ["burningStateLog", burning.id, "damageEventIds"],
+        burning.damageEventIds,
+        damageEventIds,
+        "Burning callback damage children"
+      );
+      expectSemanticEqual(
+        context,
+        [...deliveryPath, "attempts"],
+        hitResolutionLogIds,
+        result.hitResolutionLog
+          .filter(
+            (hit) =>
+              hit.resolutionKind === "reaction-damage" &&
+              hit.frame === phase.globalFrame &&
+              hit.eventPriority === delivery.eventPriority &&
+              hit.eventSequence === delivery.eventSequence
+          )
+          .map((hit) => hit.id),
+        "Burning delivery micro-event hit rows"
+      );
+      expectSemanticEqual(
+        context,
+        [...deliveryPath, "attempts"],
+        damageEventIds,
+        result.damageEvents
+          .filter(
+            (damage) =>
+              damage.frame === phase.globalFrame &&
+              damage.eventPriority === delivery.eventPriority &&
+              damage.eventSequence === delivery.eventSequence &&
+              damage.kind === "transformative-reaction" &&
+              damage.reaction === "burning"
+          )
+          .map((damage) => damage.id),
+        "Burning delivery micro-event damage rows"
+      );
+      expectSemanticEqual(
+        context,
+        [...deliveryPath, "attempts"],
+        delivery.attempts
+          .filter(
+            (attempt): attempt is Extract<
+              TargetPhaseV3DeliveryAttempt,
+              { outcome: "landed" }
+            > => attempt.outcome === "landed"
+          )
+          .map((attempt) => attempt.targetStateTimelinePointId),
+        result.targetStateTimeline.points
+          .filter(
+            (point) =>
+              point.frame === phase.globalFrame &&
+              point.eventPriority === delivery.eventPriority &&
+              point.eventSequence === delivery.eventSequence &&
+              point.cause === "reaction-damage-application"
+          )
+          .map((point) => point.id),
+        "Burning delivery micro-event Aura timeline rows"
+      );
+      if (reactionDamage.excludedTargetIds.length !== 0) {
+        addIssue(
+          context,
+          ["reactionDamageLog", reactionDamage.id, "excludedTargetIds"],
+          "target-phase-v3 Burning fanout audits every registered enemy and cannot exclude targets"
+        );
+      }
+
+      // A direct equality check keeps coordinated replacement of every
+      // attempt reference from using a different delivery's rows.
+      const projectedAttemptTuple = delivery.attempts.map((attempt) => ({
+        targetId: attempt.targetId,
+        outcome: attempt.outcome,
+        hitResolutionLogId: attempt.hitResolutionLogId,
+        damageEventId: attempt.damageEventId,
+        targetStateTimelinePointId:
+          attempt.targetStateTimelinePointId
+      }));
+      const authoritativeAttemptTuple = result.enemyTargets.map(
+        (target) => {
+          const hitId = hitResolutionLogIds.find(
+            (id) => hitById.get(id)?.targetId === target.id
+          );
+          const damageId = damageEventIds.find(
+            (id) => damageById.get(id)?.targetId === target.id
+          );
+          const timelineId = [...callbackTimelineOwners.keys()].find(
+            (id) =>
+              timelinePointById.get(id)?.targetId === target.id &&
+              timelinePointById.get(id)?.eventSequence ===
+                delivery.eventSequence
+          );
+          const outcome: TargetPhaseV3DeliveryAttempt["outcome"] =
+            unresolvedTargetIds.includes(target.id)
+              ? "unresolved"
+              : hitTargetIds.includes(target.id)
+                ? "landed"
+                : "miss";
+          return {
+            targetId: target.id,
+            outcome,
+            hitResolutionLogId: hitId ?? null,
+            damageEventId: damageId ?? null,
+            targetStateTimelinePointId: timelineId ?? null
+          };
+        }
+      );
+      expectSemanticEqual(
+        context,
+        [...deliveryPath, "attempts"],
+        projectedAttemptTuple,
+        authoritativeAttemptTuple,
+        "Burning delivery attempt reference order"
+      );
+    }
+
+    const recipientAuraPointReferences =
+      deliveryAuraPointsByRecipientPhase.get(
+        `${phase.globalFrame}\u0000${phase.targetId}`
+      ) ?? [];
+    const preReactablePointIds = [
+      ...phase.targetTasks.map(
+        (task) => task.targetStateTimelinePointId
+      ),
+      ...recipientAuraPointReferences
+        .filter(
+          (reference) =>
+            reference.applicationPhase === "before-reactable-tick"
+        )
+        .map((reference) => reference.pointId)
+    ].sort((left, right) => left - right);
+    const firstPhaseBoundaryPointId = Math.min(
+      ...preReactablePointIds,
+      ...phase.reactableTick.transitions.map(
+        (transition) => transition.targetStateTimelinePointId
+      ),
+      Number.POSITIVE_INFINITY
+    );
+    let previousAuthoritativePoint:
+      | SimulationResult["targetStateTimeline"]["points"][number]
+      | undefined;
+    for (
+      let pointIndex = result.targetStateTimeline.points.length - 1;
+      pointIndex >= 0;
+      pointIndex -= 1
+    ) {
+      const candidate = result.targetStateTimeline.points[pointIndex]!;
+      if (
+        candidate.targetId === phase.targetId &&
+        candidate.id < firstPhaseBoundaryPointId &&
+        (candidate.frame < phase.globalFrame ||
+          (phase.globalFrame === 0 &&
+            candidate.frame === 0 &&
+            candidate.cause === "simulation-start"))
+      ) {
+        previousAuthoritativePoint = candidate;
+        break;
+      }
+    }
+    if (previousAuthoritativePoint === undefined) {
+      addIssue(
+        context,
+        [...phasePath, "auraBeforeTargetTasks"],
+        "target phase requires a preceding authoritative target-state point"
+      );
+    } else {
+      const sparseDecayIssue = ordinaryAuraDecayIssue(
+        previousAuthoritativePoint.auraAfter,
+        phase.auraBeforeTargetTasks,
+        phase.reactableTick.fromTargetFrame
+      );
+      if (sparseDecayIssue !== null) {
+        addIssue(
+          context,
+          [...phasePath, "auraBeforeTargetTasks"],
+          `target phase sparse clock advance is discontinuous: ${sparseDecayIssue}`
+        );
+      }
+    }
+    let preReactableAuraCursor = phase.auraBeforeTargetTasks;
+    for (const pointId of preReactablePointIds) {
+      const point = timelinePointById.get(pointId);
+      if (
+        point === undefined ||
+        point.targetId !== phase.targetId ||
+        point.frame !== phase.globalFrame ||
+        !semanticEqual(point.auraBefore, preReactableAuraCursor)
+      ) {
+        addIssue(
+          context,
+          [...phasePath, "auraAfterTargetTasks"],
+          "target tasks and before-Reactable callback deliveries must form one continuous Aura chain"
+        );
+        continue;
+      }
+      preReactableAuraCursor = point.auraAfter;
+    }
+    if (
+      !semanticEqual(
+        preReactableAuraCursor,
+        phase.auraAfterTargetTasks
+      )
+    ) {
+      addIssue(
+        context,
+        [...phasePath, "auraAfterTargetTasks"],
+        "auraAfterTargetTasks must equal the final task or before-Reactable delivery Aura"
+      );
+    }
+
+    const decayIssue = ordinaryAuraDecayIssue(
+      phase.auraAfterTargetTasks,
+      phase.reactableTick.auraBefore
+    );
+    if (decayIssue !== null) {
+      addIssue(
+        context,
+        [...phasePath, "reactableTick", "auraBefore"],
+        `unexplained pre-Reactable Aura mutation: ${decayIssue}`
+      );
+    }
+
+    let reactableAuraCursor = phase.reactableTick.auraBefore;
+    const visitedTransitionPointIds = new Set<number>();
+    for (const [transitionIndex, transition] of
+      phase.reactableTick.transitions.entries()) {
+      const previousTransition =
+        phase.reactableTick.transitions[transitionIndex - 1];
+      const naturalExpiryCleanupCollision =
+        transition.kind === "electro-charged-cleanup" &&
+        transition.outcome === "natural-expiry" &&
+        previousTransition?.kind === "electro-charged-expiry" &&
+        previousTransition.generation === transition.generation &&
+        previousTransition.deadlineTargetFrame ===
+          transition.deadlineTargetFrame &&
+        previousTransition.periodicReactionLogId ===
+          transition.periodicReactionLogId &&
+        previousTransition.targetStateTimelinePointId ===
+          transition.targetStateTimelinePointId;
+      const reusesTransitionPoint =
+        visitedTransitionPointIds.has(
+          transition.targetStateTimelinePointId
+        );
+      if (!reusesTransitionPoint) {
+        visitedTransitionPointIds.add(
+          transition.targetStateTimelinePointId
+        );
+      } else if (!naturalExpiryCleanupCollision) {
+        addIssue(
+          context,
+          [
+            ...phasePath,
+            "reactableTick",
+            "transitions",
+            transitionIndex,
+            "targetStateTimelinePointId"
+          ],
+          "only a natural Electro-Charged expiry and cleanup collision may reuse one timeline point"
+        );
+      }
+      const point = timelinePointById.get(
+        transition.targetStateTimelinePointId
+      );
+      const expectedCause =
+        transition.kind === "aura-natural-expiry"
+          ? "aura-natural-expiry"
+          : transition.kind === "frozen-expiry"
+            ? "frozen-expiry"
+            : transition.kind === "quicken-expiry"
+              ? "quicken-expiry"
+              : transition.kind === "burning-fuel-expiry"
+                ? "burning-fuel-expiry"
+                : transition.kind === "electro-charged-expiry"
+                  ? "electro-charged-expiry"
+                  : naturalExpiryCleanupCollision
+                    ? "electro-charged-expiry"
+                    : "electro-charged-cleanup";
+      if (
+        point === undefined ||
+        point.targetId !== phase.targetId ||
+        point.frame !== phase.globalFrame ||
+        point.targetFrame !== phase.targetFrame ||
+        point.cause !== expectedCause ||
+        (!reusesTransitionPoint &&
+          !semanticEqual(point.auraBefore, reactableAuraCursor))
+      ) {
+        addIssue(
+          context,
+          [...phasePath, "reactableTick", "transitions"],
+          "Reactable.Tick transitions must form one continuous Aura chain"
+        );
+        continue;
+      }
+
+      const transitionPath = [
+        ...phasePath,
+        "reactableTick",
+        "transitions",
+        transitionIndex
+      ] satisfies IssuePath;
+      if (transition.kind === "aura-natural-expiry") {
+        if (!exactLifecycleLinks(point.links, [])) {
+          addIssue(
+            context,
+            [...transitionPath, "targetStateTimelinePointId"],
+            "natural Aura expiry cannot claim an unrelated typed lifecycle log"
+          );
+        }
+      } else if (transition.kind === "frozen-expiry") {
+        claimUnique(
+          frozenTransitionOwners,
+          transition.frozenStateLogId,
+          [...transitionPath, "frozenStateLogId"],
+          "Frozen expiry lifecycle row"
+        );
+        const log = frozenById.get(transition.frozenStateLogId);
+        if (
+          log === undefined ||
+          log.operation !== "expire" ||
+          log.reason !== "FROZEN_DECAY_EXPIRED" ||
+          log.generation !== transition.generation ||
+          log.targetId !== phase.targetId ||
+          log.targetName !== phase.targetName ||
+          log.frame !== phase.globalFrame ||
+          log.targetFrame !== phase.targetFrame ||
+          !semanticEqual(log.auraBefore, point.auraBefore) ||
+          !semanticEqual(log.auraAfter, point.auraAfter) ||
+          !exactLifecycleLinks(point.links, [
+            {
+              kind: "frozen-state-log",
+              id: transition.frozenStateLogId
+            }
+          ])
+        ) {
+          addIssue(
+            context,
+            [...transitionPath, "frozenStateLogId"],
+            "Frozen expiry transition must backlink its exact expire row and timeline link"
+          );
+        }
+      } else if (transition.kind === "quicken-expiry") {
+        claimUnique(
+          quickenTransitionOwners,
+          transition.quickenStateLogId,
+          [...transitionPath, "quickenStateLogId"],
+          "Quicken expiry lifecycle row"
+        );
+        const log = quickenById.get(transition.quickenStateLogId);
+        if (
+          log === undefined ||
+          log.operation !== "expire" ||
+          log.reason !== "QUICKEN_DECAY_EXPIRED" ||
+          log.generation !== transition.generation ||
+          log.targetId !== phase.targetId ||
+          log.targetName !== phase.targetName ||
+          log.frame !== phase.globalFrame ||
+          log.targetFrame !== phase.targetFrame ||
+          !semanticEqual(log.auraBefore, point.auraBefore) ||
+          !semanticEqual(log.auraAfter, point.auraAfter) ||
+          !exactLifecycleLinks(point.links, [
+            {
+              kind: "quicken-state-log",
+              id: transition.quickenStateLogId
+            }
+          ])
+        ) {
+          addIssue(
+            context,
+            [...transitionPath, "quickenStateLogId"],
+            "Quicken expiry transition must backlink its exact expire row and timeline link"
+          );
+        }
+      } else if (transition.kind === "burning-fuel-expiry") {
+        claimUnique(
+          burningFuelTransitionOwners,
+          transition.burningStateLogId,
+          [...transitionPath, "burningStateLogId"],
+          "Burning Fuel expiry lifecycle row"
+        );
+        const burningLog = burningById.get(
+          transition.burningStateLogId
+        );
+        const expectedLinks: Array<{ kind: string; id: number }> = [
+          {
+            kind: "burning-state-log",
+            id: transition.burningStateLogId
+          }
+        ];
+        let validQuickenRows = true;
+        for (const [referenceIndex, quickenId] of
+          transition.quickenStateLogIds.entries()) {
+          claimUnique(
+            quickenTransitionOwners,
+            quickenId,
+            [
+              ...transitionPath,
+              "quickenStateLogIds",
+              referenceIndex
+            ],
+            "Burning-dependent Quicken lifecycle row"
+          );
+          const quickenLog = quickenById.get(quickenId);
+          if (
+            quickenLog === undefined ||
+            quickenLog.operation !== "remove" ||
+            quickenLog.reason !== "BURNING_FUEL_EXPIRED" ||
+            quickenLog.targetId !== phase.targetId ||
+            quickenLog.targetName !== phase.targetName ||
+            quickenLog.frame !== phase.globalFrame ||
+            quickenLog.targetFrame !== phase.targetFrame ||
+            !semanticEqual(quickenLog.auraBefore, point.auraBefore) ||
+            !semanticEqual(quickenLog.auraAfter, point.auraAfter)
+          ) {
+            validQuickenRows = false;
+          }
+          expectedLinks.push({
+            kind: "quicken-state-log",
+            id: quickenId
+          });
+        }
+        if (
+          burningLog === undefined ||
+          burningLog.operation !== "fuel-expire" ||
+          burningLog.reason !== "FUEL_EXPIRED" ||
+          burningLog.generation !== transition.generation ||
+          burningLog.targetId !== phase.targetId ||
+          burningLog.targetName !== phase.targetName ||
+          burningLog.frame !== phase.globalFrame ||
+          burningLog.targetFrame !== phase.targetFrame ||
+          !semanticEqual(burningLog.auraBefore, point.auraBefore) ||
+          !semanticEqual(burningLog.auraAfter, point.auraAfter) ||
+          !validQuickenRows ||
+          !exactLifecycleLinks(point.links, expectedLinks)
+        ) {
+          addIssue(
+            context,
+            [...transitionPath, "burningStateLogId"],
+            "Burning Fuel expiry transition must backlink its exact Burning and dependent Quicken rows"
+          );
+        }
+      } else if (transition.kind === "electro-charged-expiry") {
+        claimUnique(
+          periodicTransitionOwners,
+          transition.periodicReactionLogId,
+          [...transitionPath, "periodicReactionLogId"],
+          "Electro-Charged expiry lifecycle row"
+        );
+        const log = periodicById.get(
+          transition.periodicReactionLogId
+        );
+        if (
+          log === undefined ||
+          log.operation !== "stop" ||
+          log.reason !== "AURA_DECAY_EXPIRED" ||
+          log.generation !== transition.generation ||
+          log.targetId !== phase.targetId ||
+          log.targetName !== phase.targetName ||
+          log.frame !== phase.globalFrame ||
+          log.targetFrame !== phase.targetFrame ||
+          !semanticEqual(log.auraBefore, point.auraBefore) ||
+          !semanticEqual(log.auraAfter, point.auraAfter) ||
+          !exactLifecycleLinks(point.links, [
+            {
+              kind: "periodic-reaction-log",
+              id: transition.periodicReactionLogId
+            }
+          ])
+        ) {
+          addIssue(
+            context,
+            [...transitionPath, "periodicReactionLogId"],
+            "Electro-Charged expiry transition must backlink its exact stop row and timeline link"
+          );
+        }
+      } else {
+        const task = reactionTaskById.get(
+          transition.reactionTaskLogId
+        );
+        const cleanup = task?.electroChargedCleanup;
+        const cleanupMatches =
+          task !== undefined &&
+          task.targetId === phase.targetId &&
+          task.targetName === phase.targetName &&
+          cleanup !== undefined &&
+          cleanup !== null &&
+          cleanup.outcome !== "pending-at-end" &&
+          cleanup.generation === transition.generation &&
+          cleanup.deadlineTargetFrame ===
+            transition.deadlineTargetFrame &&
+          cleanup.resolvedGlobalFrame === phase.globalFrame &&
+          cleanup.resolvedTargetFrame === phase.targetFrame &&
+          cleanup.targetPhaseLogId === phase.id &&
+          cleanup.targetStateTimelinePointId ===
+            transition.targetStateTimelinePointId &&
+          cleanup.outcome === transition.outcome &&
+          cleanup.periodicReactionLogId ===
+            transition.periodicReactionLogId;
+        const expectedLinks: Array<{ kind: string; id: number }> = [];
+        if (transition.periodicReactionLogId !== null) {
+          expectedLinks.push({
+            kind: "periodic-reaction-log",
+            id: transition.periodicReactionLogId
+          });
+        }
+        if (
+          !cleanupMatches ||
+          !exactLifecycleLinks(point.links, expectedLinks)
+        ) {
+          addIssue(
+            context,
+            [...transitionPath, "reactionTaskLogId"],
+            "Electro-Charged cleanup transition must backlink its exact task audit, periodic row, and timeline point"
+          );
+        }
+      }
+      if (!reusesTransitionPoint) {
+        reactableAuraCursor = point.auraAfter;
+      }
+    }
+    if (!semanticEqual(reactableAuraCursor, phase.reactableTick.auraAfter)) {
+      addIssue(
+        context,
+        [...phasePath, "reactableTick", "auraAfter"],
+        "Reactable.Tick Aura must end at its final typed transition"
+      );
+    }
+
+    let postReactableAuraCursor = phase.reactableTick.auraAfter;
+    const postReactablePointIds = recipientAuraPointReferences
+      .filter(
+        (reference) =>
+          reference.applicationPhase === "after-reactable-tick"
+      )
+      .map((reference) => reference.pointId)
+      .sort((left, right) => left - right);
+    for (const pointId of postReactablePointIds) {
+      const point = timelinePointById.get(pointId);
+      if (
+        point === undefined ||
+        point.targetId !== phase.targetId ||
+        point.frame !== phase.globalFrame ||
+        !semanticEqual(point.auraBefore, postReactableAuraCursor)
+      ) {
+        addIssue(
+          context,
+          [...phasePath, "reactableTick", "auraAfter"],
+          "after-Reactable callback deliveries must continue from the phase Aura boundary"
+        );
+        continue;
+      }
+      postReactableAuraCursor = point.auraAfter;
+    }
+  }
+
+  for (const [rowIndex, burning] of result.burningStateLog.entries()) {
+    const callbackOwned =
+      burning.operation === "tick" ||
+      burning.operation === "tick-skipped" ||
+      (burning.operation === "stop" &&
+        callbackOwnedStop(result, burning.id));
+    const owner = burningTaskOwners.get(burning.id);
+    if (callbackOwned !== (owner !== undefined)) {
+      addIssue(
+        context,
+        ["burningStateLog", rowIndex, "id"],
+        callbackOwned
+          ? "callback-owned Burning lifecycle row requires exactly one v3 target task"
+          : "non-callback Burning lifecycle row cannot be claimed by a v3 target task"
+      );
+    }
+    if (
+      burning.operation === "tick" &&
+      burning.reactionDamageLogId !== null &&
+      !reactionDamageDeliveryOwners.has(
+        burning.reactionDamageLogId
+      )
+    ) {
+      addIssue(
+        context,
+        ["burningStateLog", rowIndex, "reactionDamageLogId"],
+        "Burning tick reaction damage requires exactly one v3 callback delivery"
+      );
+    }
+  }
+
+  for (const [rowIndex, reactionDamage] of
+    result.reactionDamageLog.entries()) {
+    const owned = reactionDamageDeliveryOwners.has(reactionDamage.id);
+    if (
+      (reactionDamage.scheduleKind === "burning-tick") !== owned
+    ) {
+      addIssue(
+        context,
+        ["reactionDamageLog", rowIndex, "id"],
+        reactionDamage.scheduleKind === "burning-tick"
+          ? "every target-phase-v3 burning-tick parent requires exactly one callback delivery"
+          : "v3 callback delivery cannot claim a non-Burning reaction parent"
+      );
+    }
+  }
+
+  const targetLifecycleCauses = new Set([
+    "aura-natural-expiry",
+    "frozen-expiry",
+    "quicken-expiry",
+    "burning-fuel-expiry",
+    "electro-charged-expiry",
+    "electro-charged-cleanup"
+  ]);
+  for (const [pointIndex, point] of
+    result.targetStateTimeline.points.entries()) {
+    if (
+      targetLifecycleCauses.has(point.cause) &&
+      !phaseOwnedTimelinePointIds.has(point.id)
+    ) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex, "id"],
+        `target lifecycle point ${point.id} (${point.cause}) requires exactly one Reactable.Tick transition`
+      );
+    }
+  }
+
+  for (const [hitId, ownerPath] of callbackHitOwners) {
+    if (phaseClaimedHitIds.has(hitId)) {
+      addIssue(
+        context,
+        ownerPath,
+        `callback-owned hit-resolution row ${hitId} is also claimed by a recipient target phase`
+      );
+    }
+  }
+  for (const [rowIndex, hit] of result.hitResolutionLog.entries()) {
+    if (
+      !callbackHitOwners.has(hit.id) &&
+      !phaseHitOwners.has(hit.id)
+    ) {
+      addIssue(
+        context,
+        ["hitResolutionLog", rowIndex, "id"],
+        `ordinary target-phase-v3 hit-resolution row ${hit.id} requires exactly one phase reference`
+      );
+    }
+  }
+  for (const [rowIndex, task] of result.reactionTaskLog.entries()) {
+    if (!phaseReactionTaskOwners.has(task.id)) {
+      addIssue(
+        context,
+        ["reactionTaskLog", rowIndex, "id"],
+        `target-phase-v3 reaction-task row ${task.id} requires exactly one phase reference`
+      );
+    }
+  }
+  for (const [pointId, ownerPath] of callbackTimelineOwners) {
+    if (phaseOwnedTimelinePointIds.has(pointId)) {
+      addIssue(
+        context,
+        ownerPath,
+        `callback-owned target-state point ${pointId} cannot double as a target task or Reactable.Tick transition`
+      );
+    }
+  }
+}
+
+/** Standalone internal/facet boundary; the full public wire stays in result-schema. */
+export const targetPhaseV3ResultReferencesSchema = z
+  .object({
+    schemaVersion: z.string(),
+    engineVersion: z.string(),
+    config: z
+      .object({
+        schemaVersion: z.string(),
+        engineVersion: z.string(),
+        targetTaskModel: z
+          .object({ mode: z.string() })
+          .passthrough(),
+        timeline: z
+          .object({ mode: z.string(), fps: z.number() })
+          .nullable()
+          .optional(),
+        reactionEngine: z
+          .object({ mode: z.string() })
+          .nullable()
+          .optional()
+      })
+      .passthrough(),
+    enemyTargets: z.array(z.unknown()),
+    targetPhaseLog: z.array(z.unknown()),
+    targetTaskPhaseLog: z.array(z.unknown()),
+    burningStateLog: z.array(z.unknown()),
+    reactionDamageLog: z.array(z.unknown()),
+    hitResolutionLog: z.array(z.unknown()),
+    damageEvents: z.array(z.unknown()),
+    targetStateTimeline: z
+      .object({ points: z.array(z.unknown()) })
+      .passthrough()
+  })
+  .passthrough()
+  .superRefine((result, context) => {
+    try {
+      validateTargetPhaseV3Integrity(
+        result as unknown as SimulationResult,
+        context
+      );
+    } catch {
+      addIssue(
+        context,
+        [],
+        "malformed target-phase-v3 result reference input"
+      );
+    }
+  });

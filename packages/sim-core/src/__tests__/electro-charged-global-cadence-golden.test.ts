@@ -1,15 +1,7 @@
 import { createHash } from "node:crypto";
-import {
-  linkSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync
-} from "node:fs";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 import {
   canonicalStringify,
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
   electroChargedCleanupResultReferencesSchema,
   electroChargedGlobalCadenceGoldenFixtureV142Schema,
   electroChargedGlobalCadenceGoldenScenarioIdsV142,
@@ -27,8 +19,6 @@ import { makeConfig, neutralStats } from "./fixtures";
 type CadenceGoldenScenarioId =
   (typeof electroChargedGlobalCadenceGoldenScenarioIdsV142)[number];
 
-const UPDATE_FLAG =
-  "UPDATE_EC_GLOBAL_CADENCE_V142_GOLDEN";
 const SCENARIO_IDS: CadenceGoldenScenarioId[] = [
   ...electroChargedGlobalCadenceGoldenScenarioIdsV142
 ];
@@ -391,86 +381,33 @@ type CadenceGoldenScenario = ReturnType<
   typeof projectScenario
 >;
 
-interface CadenceGoldenFixture {
-  fixtureVersion: "electro-charged-global-cadence-1.42";
-  description: string;
-  provenance: {
-    referenceProject: "genshinsim/gcsim";
-    referenceCommit: string;
-    mechanicsDataStatus: "fixed-gcsim-provisional";
-    capturedAt: string;
-    notes: string[];
-  };
-  commonConfig: {
-    schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-    engineVersion: typeof CURRENT_ENGINE_VERSION;
-    reactionEngine: { mode: "aura-v9" };
-    targetClockModel: {
-      mode: "target-local-hitlag-v1";
-    };
-    targetTaskModel: { mode: "target-phase-v2" };
-    reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1";
-    };
-    electroChargedPropagationModel: {
-      mode: "single-target-v1";
-    };
-    timeline: { mode: "legal-frame-v1"; fps: 60 };
-  };
-  scenarios: Record<
-    CadenceGoldenScenarioId,
-    CadenceGoldenScenario
-  >;
-  hashes: Record<CadenceGoldenScenarioId, string>;
-}
-
 function semanticHash(value: unknown): string {
   return createHash("sha256")
     .update(canonicalStringify(value))
     .digest("hex");
 }
 
-function atomicCreateJsonFixture(
-  outputUrl: URL,
-  value: unknown
-): void {
-  const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(
-    temporaryPath,
-    `${JSON.stringify(value, null, 2)}\n`,
-    { flag: "wx" }
-  );
-  try {
-    linkSync(temporaryPath, outputPath);
-  } catch (error) {
-    if (
-      error !== null &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "EEXIST"
-    ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
-    }
-    throw error;
-  } finally {
-    unlinkSync(temporaryPath);
+function withoutWireIdentity<
+  TScenario extends {
+    identity: {
+      schemaVersion: string;
+      engineVersion: string;
+      configHash: string;
+      reproducibilityKey: string;
+    };
   }
-}
-
-function loadOrCreateFixture(
-  generated: CadenceGoldenFixture
-): CadenceGoldenFixture {
-  if (process.env[UPDATE_FLAG] === "1") {
-    atomicCreateJsonFixture(FIXTURE_URL, generated);
-    return generated;
-  }
-  return JSON.parse(
-    readFileSync(FIXTURE_URL, "utf8")
-  ) as CadenceGoldenFixture;
+>(scenario: TScenario) {
+  const {
+    schemaVersion: _schemaVersion,
+    engineVersion: _engineVersion,
+    configHash: _configHash,
+    reproducibilityKey: _reproducibilityKey,
+    ...stableIdentity
+  } = scenario.identity;
+  return {
+    ...scenario,
+    identity: stableIdentity
+  };
 }
 
 function expectDamageConservation(
@@ -622,57 +559,16 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
     expect(Object.keys(scenarios).sort()).toEqual(
       [...SCENARIO_IDS].sort()
     );
-    const generated: CadenceGoldenFixture = {
-      fixtureVersion:
-        "electro-charged-global-cadence-1.42",
-      description:
-        "Deterministic exact-1.42 Aura-v9 Golden for independent F10/F70 global Electro-Charged callbacks, dormant cadence, delayed cleanup, terminal Wane backlinks, and per-hit damage output.",
-      provenance: {
-        referenceProject: "genshinsim/gcsim",
-        referenceCommit:
-          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-        mechanicsDataStatus: "fixed-gcsim-provisional",
-        capturedAt: "2026-07-30",
-        notes: [
-          "The pinned reference schedules the first F10 damage and F70 callback independently on global frames; enemy Hitlag freezes target-owned Aura time, not these callbacks.",
-          "Aura-v9 additionally guards generations, stale Wanes, dormant cadence, and cleanup backlinks; these safety rules must not be backported into frozen Aura-v8 output.",
-          "Every damage event, exact composition, nearest-integer display value, and core-produced damage curve point is retained and reconciled.",
-          "This fixture is provisional mechanics evidence, not official game data or a claim of complete gcsim parity."
-        ]
-      },
-      commonConfig: {
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION,
-        reactionEngine: { mode: "aura-v9" },
-        targetClockModel: {
-          mode: "target-local-hitlag-v1"
-        },
-        targetTaskModel: { mode: "target-phase-v2" },
-        reactionDeliveryModel: {
-          mode: "deferred-event-heap-v1"
-        },
-        electroChargedPropagationModel: {
-          mode: "single-target-v1"
-        },
-        timeline: { mode: "legal-frame-v1", fps: 60 }
-      },
-      scenarios,
-      hashes: Object.fromEntries(
-        SCENARIO_IDS.map((id) => [
-          id,
-          semanticHash(scenarios[id])
-        ])
-      ) as Record<CadenceGoldenScenarioId, string>
-    };
-    expect(
+    const fixture =
       electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
-        generated
-      )
-    ).toEqual(generated);
-    const fixture = generated;
+        JSON.parse(readFileSync(FIXTURE_URL, "utf8"))
+      );
     for (const id of SCENARIO_IDS) {
       expect(semanticHash(fixture.scenarios[id])).toBe(
         fixture.hashes[id]
+      );
+      expect(withoutWireIdentity(scenarios[id])).toEqual(
+        withoutWireIdentity(fixture.scenarios[id])
       );
     }
 
@@ -805,12 +701,5 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
         .map((event) => event.frame)
     ).toEqual([10, 70, 130]);
 
-    const persisted = loadOrCreateFixture(generated);
-    expect(
-      electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
-        persisted
-      )
-    ).toEqual(persisted);
-    expect(persisted).toEqual(generated);
   });
 });

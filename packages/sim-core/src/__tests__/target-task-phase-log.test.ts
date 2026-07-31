@@ -816,9 +816,9 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.42.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.42.0-ec-global-cadence-safety"
+      "1.44.0-burning-callback-delivery"
     );
 
     for (const scenarioId of scenarioIds) {
