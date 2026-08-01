@@ -290,6 +290,91 @@ describe("aura-v3 Dendro and Catalyze", () => {
     });
   });
 
+  it("keeps a standalone Spread audit symmetric and non-consuming", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v3",
+      initialAura: [{ element: "electro", gaugeUnits: 1 }]
+    });
+    engine.processHit({
+      frame: 0,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd()
+    });
+    const spread = engine.processHit({
+      frame: 1,
+      sourceActorId: "dendro",
+      element: "dendro",
+      application: noIcd()
+    });
+    const additive = spread.catalyzeReaction?.additive;
+
+    expect(spread).toMatchObject({
+      reaction: "spread",
+      reactions: ["spread"],
+      catalyzeReaction: {
+        quicken: null,
+        additive: {
+          reaction: "spread",
+          triggerElement: "dendro",
+          consumedQuickenGaugeUnits: 0
+        }
+      }
+    });
+    expect(additive?.quickenGaugeUnitsBefore).toBeGreaterThan(0);
+    expect(additive?.quickenGaugeUnitsAfter).toBeCloseTo(
+      additive?.quickenGaugeUnitsBefore ?? 0,
+      12
+    );
+  });
+
+  it("rejects coordinated shared-result additive Quicken Gauge drift", () => {
+    const result = simulate(makeCatalyzeSimulationConfig(), {
+      critMode: "allCrit"
+    });
+    const aggravate = result.damageEvents.find(
+      (event) => event.hitId === "aggravate-hit"
+    );
+    if (aggravate === undefined) {
+      throw new Error("Catalyze fixture must produce Aggravate.");
+    }
+    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+
+    for (const [quickenGaugeUnitsBefore, quickenGaugeUnitsAfter] of [
+      [0.8, 0.7],
+      [1e12, 1e12 - 1_000],
+      [5e-10, 0]
+    ] as const) {
+      const forged = structuredClone(result);
+      for (const event of [
+        ...forged.damageEvents,
+        ...forged.hitEvents
+      ]) {
+        if (event.id !== aggravate.id) continue;
+        const additive =
+          event.reactionAudit.catalyzeReaction?.additive;
+        if (additive === null || additive === undefined) {
+          throw new Error(
+            "Catalyze fixture must expose an additive audit."
+          );
+        }
+        additive.quickenGaugeUnitsBefore =
+          quickenGaugeUnitsBefore;
+        additive.quickenGaugeUnitsAfter =
+          quickenGaugeUnitsAfter;
+      }
+
+      expect(
+        simulationResultV144Schema.safeParse(forged).success
+      ).toBe(false);
+      expect(() =>
+        assertTrustedSimulationResultV144(forged)
+      ).toThrow(
+        /Trusted SimulationResult 1\.44 integrity validation failed/
+      );
+    }
+  });
+
   it("audits a weaker Quicken candidate without refreshing the existing state", () => {
     const engine = new AuraEngine({
       mode: "aura-v3",

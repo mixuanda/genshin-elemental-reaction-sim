@@ -5,6 +5,7 @@ import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro
 import legacyDefault120sGolden from "../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
 import legacyDefault120sGoldenV142 from "../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import {
+  additiveReactionAuditV142Schema,
   auraSourceGaugeMutationSchema,
   auraStateEntrySchema,
   bloomReactionAuditSchema,
@@ -16536,6 +16537,44 @@ describe("versioned config schema", () => {
         ]
       })
     ).toThrow(/expiry must match the scalar audit|complete Aura snapshot/);
+  });
+
+  it("requires additive Catalyze audits to preserve Quicken Gauge", () => {
+    for (const [reaction, triggerElement] of [
+      ["aggravate", "electro"],
+      ["spread", "dendro"]
+    ] as const) {
+      const audit = {
+        reaction,
+        triggerElement,
+        quickenGaugeUnitsBefore: 0.8,
+        quickenGaugeUnitsAfter: 0.8,
+        consumedQuickenGaugeUnits: 0 as const
+      };
+      expect(
+        additiveReactionAuditV142Schema.parse(audit)
+      ).toEqual(audit);
+      for (const quickenGaugeUnitsAfter of [
+        0.8 + 5e-10,
+        0.79,
+        0
+      ]) {
+        expect(() =>
+          additiveReactionAuditV142Schema.parse({
+            ...audit,
+            quickenGaugeUnitsAfter
+          })
+        ).toThrow(/cannot consume Quicken Gauge/);
+      }
+
+      expect(() =>
+        additiveReactionAuditV142Schema.parse({
+          ...audit,
+          quickenGaugeUnitsBefore: 1e12,
+          quickenGaugeUnitsAfter: 1e12 - 1_000
+        })
+      ).toThrow(/cannot consume Quicken Gauge/);
+    }
   });
 
   it("reconstructs Quicken lifecycle mutations from the state log", () => {

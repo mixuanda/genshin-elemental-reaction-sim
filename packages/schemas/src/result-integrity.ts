@@ -21,6 +21,7 @@ import {
 import { calcCrystallizeShield } from "./crystallize";
 import { validateEnergyReplayIntegrity } from "./energy-replay-integrity";
 import { validateParticleProvenanceIntegrity } from "./particle-provenance-integrity";
+import { targetPhaseV2ResultReferencesSchema } from "./schema";
 import { validateTargetPhaseV3Integrity } from "./target-phase-v3-integrity";
 
 type IssuePath = Array<string | number>;
@@ -2456,6 +2457,34 @@ function validateDamageEvent(
       expectedElement,
       "Catalyze trigger element"
     );
+    if (additiveAudit !== null && additiveAudit !== undefined) {
+      expectEqual(
+        context,
+        [
+          ...path,
+          "reactionAudit",
+          "catalyzeReaction",
+          "additive",
+          "consumedQuickenGaugeUnits"
+        ],
+        additiveAudit.consumedQuickenGaugeUnits,
+        0,
+        "additive Catalyze Quicken Gauge consumption"
+      );
+      expectEqual(
+        context,
+        [
+          ...path,
+          "reactionAudit",
+          "catalyzeReaction",
+          "additive",
+          "quickenGaugeUnitsAfter"
+        ],
+        additiveAudit.quickenGaugeUnitsAfter,
+        additiveAudit.quickenGaugeUnitsBefore,
+        "additive Catalyze Quicken Gauge conservation"
+      );
+    }
     const sourceActor = result.config.characters.find(
       (character) => character.id === event.sourceActorId
     );
@@ -4637,6 +4666,54 @@ function validateReactionBacklinks(
         );
       }
     }
+  }
+
+  const hasElectroChargedEvidence =
+    result.periodicReactionLog.length > 0 ||
+    result.damageEvents.some(
+      (event) =>
+        event.reaction === "electroCharged" ||
+        event.transformativeReactionFactors?.reaction ===
+          "electroCharged" ||
+        event.reactionAudit.reactions.includes(
+          "electroCharged"
+        ) ||
+        event.reactionAudit.periodicReaction !== null
+    ) ||
+    result.hitEvents.some(
+      (event) =>
+        event.reaction === "electroCharged" ||
+        event.transformativeReactionFactors?.reaction ===
+          "electroCharged" ||
+        event.reactionAudit.reactions.includes(
+          "electroCharged"
+        ) ||
+        event.reactionAudit.periodicReaction !== null
+    ) ||
+    result.reactionDamageLog.some(
+      (parent) =>
+        parent.reaction === "electroCharged" ||
+        parent.scheduleKind === "periodic-tick"
+    ) ||
+    result.reactionTaskLog.some(
+      (task) => task.electroChargedCleanup != null
+    ) ||
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    ) ||
+    result.targetStateTimeline.points.some(
+      (point) =>
+        point.cause === "electro-charged-wane" ||
+        point.links.some(
+          (link) => link.kind === "periodic-reaction-log"
+        )
+    );
+  if (!hasElectroChargedEvidence) {
+    return;
   }
 
   const electroChargedGlobalCadenceMode =
@@ -14091,7 +14168,11 @@ export function assertTrustedSimulationResultV142(
   return result;
 }
 
-/** Zero-copy assertion for current 1.44 results produced inside sim-core. */
+/**
+ * Trusted assertion for current 1.44 results produced inside sim-core.
+ * The common path is zero-copy; v2 results that contain an EC expiry or
+ * cleanup transition additionally run the dedicated reference facet.
+ */
 export function assertTrustedSimulationResultV144(
   result: SimulationResult
 ): SimulationResult {
@@ -14111,6 +14192,27 @@ export function assertTrustedSimulationResultV144(
     }
   } as unknown as RefinementCtx;
   validateSimulationResultV144Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
   if (issues.length !== 0) {
     const preview = issues
       .slice(0, 12)

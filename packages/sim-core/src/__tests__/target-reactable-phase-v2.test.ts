@@ -6,13 +6,15 @@ import type {
   TargetPhaseV2LogEntry
 } from "@genshin-dps-lab/schemas";
 import {
+  assertTrustedSimulationResultV144,
   canonicalStringify,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
-  TARGET_REACTABLE_PHASE_SCHEMA_VERSION
+  TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
+  simulationResultV144Schema
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
@@ -1686,6 +1688,59 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
       result,
       570
     );
+  });
+
+  it("rejects orphan EC expiry and cleanup transitions at both result boundaries", () => {
+    const result = simulate(
+      makeLifecycleScenarioConfig("quicken"),
+      { critMode: "noCrit" }
+    );
+    expect(result.periodicReactionLog).toHaveLength(0);
+    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+
+    for (const transition of [
+      {
+        stage: "reactable-tick",
+        kind: "electro-charged-expiry",
+        order: 0,
+        generation: 1,
+        deadlineTargetFrame: 0,
+        periodicReactionLogId: 999,
+        targetStateTimelinePointId: 999
+      },
+      {
+        stage: "reactable-tick",
+        kind: "electro-charged-cleanup",
+        order: 0,
+        generation: 1,
+        deadlineTargetFrame: 0,
+        reactionTaskLogId: 999,
+        targetStateTimelinePointId: 999,
+        outcome: "retain",
+        periodicReactionLogId: null
+      }
+    ] as const) {
+      const forged = structuredClone(result);
+      const phase = forged.targetPhaseLog[0];
+      if (phase === undefined) {
+        throw new Error(
+          "target-phase-v2 fixture must produce one target phase"
+        );
+      }
+      phase.reactableTick.transitions.push({
+        ...transition,
+        order: phase.reactableTick.transitions.length,
+        deadlineTargetFrame: phase.reactableTick.toTargetFrame
+      });
+
+      expect(
+        simulationResultV144Schema.safeParse(forged).success
+      ).toBe(false);
+      expect(() =>
+        assertTrustedSimulationResultV144(forged)
+      ).toThrow(/target phase v2 references/);
+    }
   });
 
   it("reprojects Frozen F176 to global F181 under H=5 without emitting the stale wake", () => {

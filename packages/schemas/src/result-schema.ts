@@ -276,6 +276,18 @@ export const additiveReactionAuditV142Schema = z
         message: `${audit.reaction} requires ${expectedElement}`
       });
     }
+    if (
+      audit.quickenGaugeUnitsAfter !==
+      audit.quickenGaugeUnitsBefore
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["quickenGaugeUnitsAfter"],
+        message:
+          `${audit.reaction} cannot consume Quicken Gauge; ` +
+          "quickenGaugeUnitsAfter must equal quickenGaugeUnitsBefore"
+      });
+    }
   });
 
 export const catalyzeReactionAuditV142Schema = z
