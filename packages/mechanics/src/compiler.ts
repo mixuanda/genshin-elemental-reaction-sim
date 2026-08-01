@@ -130,6 +130,14 @@ export function compileAbilityBlueprint(
             }
           }
         : {}),
+      ...(hit.directDamageGroup === undefined
+        ? {}
+        : {
+            directDamageGroup: {
+              icdTag: hit.directDamageGroup.icdTag,
+              icdGroup: hit.directDamageGroup.icdGroup
+            }
+          }),
       snapshot: hit.snapshot
     })),
     energyGains: blueprint.energyGains.map((gain, index) => ({

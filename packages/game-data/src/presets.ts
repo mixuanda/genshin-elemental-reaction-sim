@@ -4,6 +4,9 @@ import {
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
 
@@ -11,6 +14,13 @@ function createClassicReactionFormulaModel() {
   return {
     mode: "classic-formula-profile-v1",
     profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+  } as const;
+}
+
+function createFixedDirectDamageGroupModel() {
+  return {
+    mode: "fixed-gcsim-direct-damage-group-v1",
+    profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
   } as const;
 }
 
@@ -40,6 +50,7 @@ export const durinMeltPreset: SimConfig = {
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
+  directDamageGroupModel: createFixedDirectDamageGroupModel(),
   characters: [
     {
       id: "durin",
@@ -486,6 +497,7 @@ export const blankPreset: SimConfig = {
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
+  directDamageGroupModel: createFixedDirectDamageGroupModel(),
   characters: [
     {
       id: "a",
@@ -584,6 +596,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
+  directDamageGroupModel: createFixedDirectDamageGroupModel(),
   characters: [
     {
       id: "frame-a",
@@ -763,6 +776,7 @@ export const auraReactionDemoPreset: SimConfig = {
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
+  directDamageGroupModel: createFixedDirectDamageGroupModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -864,6 +878,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
+  directDamageGroupModel: createFixedDirectDamageGroupModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

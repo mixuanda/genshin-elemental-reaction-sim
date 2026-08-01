@@ -21,19 +21,23 @@ import {
   CURRENT_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+  REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResultV145,
+  assertTrustedSimulationResult,
   legacyDefault120sGoldenFixtureV142Schema,
   legacyDefault120sGoldenFixtureV144Schema,
   migrateConfig,
   playerDamageResultReferencesSchema,
   reactionFormulaModelSchema,
   reactionFormulaRootSchema,
-  simulationResultV145Schema,
+  simulationResultSchema,
   simulationRunManifestV145Schema
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_DAMAGE_GROUP_ROOT
+} from "@genshin-dps-lab/icd-profiles";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
 import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
 import goldenV134 from "../../../test-vectors/fixtures/legacy-default-120s-1.34.golden.json";
@@ -60,9 +64,9 @@ const BURNING_STATE_LOG_SHA256 =
 const BURNING_V142_REPRODUCIBILITY_KEY =
   "gdl-v2-fnv1a32-c728aa15";
 const BURNING_V142_CONFIG_HASH = "fnv1a32:ac41771e";
-const BURNING_V145_CONFIG_HASH = "fnv1a32:c55b2472";
-const BURNING_V145_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-03ea05ed";
+const BURNING_V146_CONFIG_HASH = "fnv1a32:ad3d3708";
+const BURNING_V146_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-c3075366";
 const FROZEN_FOUNDATION_FIXTURE_SHA256 = {
   "burning-aura-v4-1.30.golden.json":
     "adbb9a815163baa6667295298a6bad547be2a05a26f5139777ba73a21269867d",
@@ -382,7 +386,7 @@ const legacyDefault120sGoldenFixtureV145Schema = z
       fixture.runManifest.reproducibilityKey !==
         fixture.reproducibilityKey ||
       fixture.runManifest.version !==
-        SIMULATION_RUN_MANIFEST_VERSION ||
+        REACTION_FORMULA_RUN_MANIFEST_VERSION ||
       JSON.stringify(
         fixture.runManifest.resolvedRuntimeOptions
       ) !== JSON.stringify(fixture.options) ||
@@ -727,6 +731,10 @@ function makeLegacyDefaultV145CreationProbeFixture(
   result: ReturnType<typeof simulate>,
   frozenV144: LegacyDefaultV144Fixture
 ): LegacyDefaultV145Fixture {
+  const {
+    directDamageGroupRoot: _directDamageGroupRoot,
+    ...historicalRunManifest
+  } = result.runManifest;
   return legacyDefault120sGoldenFixtureV145Schema.parse({
     ...frozenV144,
     description: LEGACY_DEFAULT_V145_DESCRIPTION,
@@ -738,10 +746,11 @@ function makeLegacyDefaultV145CreationProbeFixture(
       officialServerTruth: false,
       completeGcsimParity: false
     },
-    schemaVersion: result.schemaVersion,
-    engineVersion: result.engineVersion,
-    configHash: result.runManifest.configHash,
-    reproducibilityKey: result.reproducibilityKey,
+    schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+    engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+    configHash: LEGACY_DEFAULT_V145_CONFIG_HASH,
+    reproducibilityKey:
+      LEGACY_DEFAULT_V145_REPRODUCIBILITY_KEY,
     options: result.resolvedRuntimeOptions,
     totalDamage: result.totalDamage,
     dps: result.dps,
@@ -773,7 +782,15 @@ function makeLegacyDefaultV145CreationProbeFixture(
     },
     targetPhaseLog: result.targetPhaseLog,
     reactionFormulaModel: result.config.reactionFormulaModel,
-    runManifest: result.runManifest
+    runManifest: {
+      ...historicalRunManifest,
+      version: REACTION_FORMULA_RUN_MANIFEST_VERSION,
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      configHash: LEGACY_DEFAULT_V145_CONFIG_HASH,
+      reproducibilityKey:
+        LEGACY_DEFAULT_V145_REPRODUCIBILITY_KEY
+    }
   });
 }
 
@@ -850,6 +867,7 @@ function v130CompatibilityResult(
     targetHitlagLog: _targetHitlagLog,
     targetTaskPhaseLog: _targetTaskPhaseLog,
     targetPhaseLog: _targetPhaseLog,
+    directDamageGroupLog: _directDamageGroupLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -872,7 +890,8 @@ function v130CompatibilityResult(
               key !== "targetTaskModel" &&
               key !== "reactionDeliveryModel" &&
               key !== "electroChargedPropagationModel" &&
-              key !== "reactionFormulaModel"
+              key !== "reactionFormulaModel" &&
+              key !== "directDamageGroupModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -919,6 +938,7 @@ function makeBurningGoldenConfig(): unknown {
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
     reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
     ...v130Base
   } = base;
   return {
@@ -1434,6 +1454,7 @@ describe("1.44 identity migration release gate", () => {
     });
     const {
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...historical
     } = current;
     return {
@@ -1462,7 +1483,9 @@ describe("1.44 identity migration release gate", () => {
         schemaVersion: CURRENT_SCHEMA_VERSION,
         engineVersion: CURRENT_ENGINE_VERSION,
         reactionFormulaModel:
-          makeConfig().reactionFormulaModel
+          makeConfig().reactionFormulaModel,
+        directDamageGroupModel:
+          makeConfig().directDamageGroupModel
       });
       expect(historical).toEqual(before);
     });
@@ -1484,7 +1507,9 @@ describe("1.44 identity migration release gate", () => {
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      reactionFormulaModel: makeConfig().reactionFormulaModel
+      reactionFormulaModel: makeConfig().reactionFormulaModel,
+      directDamageGroupModel:
+        makeConfig().directDamageGroupModel
     };
     expect(migrateConfig(currentAuraV8)).toEqual(
       currentAuraV8
@@ -1571,10 +1596,10 @@ describe("Vanilla v0.1 golden compatibility", () => {
             parsedGeneratedV144Fixture,
             goldenV142
           );
-    expect(simulationResultV145Schema.parse(result)).toEqual(
+    expect(simulationResultSchema.parse(result)).toEqual(
       result
     );
-    expect(assertTrustedSimulationResultV145(result)).toBe(
+    expect(assertTrustedSimulationResult(result)).toBe(
       result
     );
     const parsedGeneratedV145Fixture =
@@ -1751,19 +1776,13 @@ describe("Vanilla v0.1 golden compatibility", () => {
         completeGcsimParity: false
       }
     });
-    expect(result.schemaVersion).toBe(goldenV145.schemaVersion);
-    expect(result.engineVersion).toBe(goldenV145.engineVersion);
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(result.config.schemaVersion).toBe(
-      goldenV145.schemaVersion
+      CURRENT_SCHEMA_VERSION
     );
     expect(result.config.engineVersion).toBe(
-      goldenV145.engineVersion
-    );
-    expect(result.runManifest.configHash).toBe(
-      goldenV145.configHash
-    );
-    expect(result.reproducibilityKey).toBe(
-      goldenV145.reproducibilityKey
+      CURRENT_ENGINE_VERSION
     );
     expect(goldenV145.options).toEqual(goldenV144.options);
     expect(goldenV144.options).toEqual(goldenV142.options);
@@ -1819,8 +1838,9 @@ describe("Vanilla v0.1 golden compatibility", () => {
       plugins: [],
       reactionFormulaRoot:
         goldenV145.runManifest.reactionFormulaRoot,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       reproducibilityKey:
-        goldenV145.reproducibilityKey
+        result.reproducibilityKey
     });
     expect(
       reactionFormulaRootSchema.parse(
@@ -2260,14 +2280,14 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
-    expect(simulationResultV145Schema.parse(result)).toEqual(
+    expect(simulationResultSchema.parse(result)).toEqual(
       result
     );
-    expect(assertTrustedSimulationResultV145(result)).toBe(
+    expect(assertTrustedSimulationResult(result)).toBe(
       result
     );
     expect(result.runManifest.configHash).toBe(
-      BURNING_V145_CONFIG_HASH
+      BURNING_V146_CONFIG_HASH
     );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
@@ -2306,7 +2326,7 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V145_REPRODUCIBILITY_KEY
+      BURNING_V146_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
       version: SIMULATION_RUN_MANIFEST_VERSION,
@@ -2318,8 +2338,9 @@ describe("Burning aura-v4 provisional golden", () => {
       plugins: [],
       reactionFormulaRoot:
         result.runManifest.reactionFormulaRoot,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       reproducibilityKey:
-        BURNING_V145_REPRODUCIBILITY_KEY
+        BURNING_V146_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

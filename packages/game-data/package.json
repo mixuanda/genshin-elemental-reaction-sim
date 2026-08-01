@@ -9,6 +9,7 @@
     "./presets": "./src/presets.ts"
   },
   "dependencies": {
+    "@genshin-dps-lab/icd-profiles": "1.0.0",
     "@genshin-dps-lab/reaction-formulas": "1.0.0",
     "@genshin-dps-lab/schemas": "1.0.0"
   }

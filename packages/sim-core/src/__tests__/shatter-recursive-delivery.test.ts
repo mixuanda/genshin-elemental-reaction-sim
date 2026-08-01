@@ -9,6 +9,7 @@ import {
   type SimConfig,
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
+import * as schemaModule from "@genshin-dps-lab/schemas";
 import { describe, expect, it, vi } from "vitest";
 import shatterRecursiveDeliveryGoldenJson from "../../../test-vectors/fixtures/shatter-recursive-delivery-1.39.golden.json";
 import { AuraEngine } from "../aura";
@@ -814,12 +815,13 @@ describe("recursive zero-delay Shatter delivery", () => {
   });
 
   it("runs the delivery-reference validator before returning a recursive result", () => {
-    const originalParse =
-      reactionDeliveryResultReferencesSchema.parse.bind(
-        reactionDeliveryResultReferencesSchema,
-      );
-    const parseSpy = vi
-      .spyOn(reactionDeliveryResultReferencesSchema, "parse")
+    const originalAssert =
+      schemaModule.assertTrustedReactionDeliveryResultReferences;
+    const validationSpy = vi
+      .spyOn(
+        schemaModule,
+        "assertTrustedReactionDeliveryResultReferences",
+      )
       .mockImplementation((input) => {
         const forged = structuredClone(input) as SimulationResult;
         const child = forged.damageEvents.find(
@@ -828,7 +830,7 @@ describe("recursive zero-delay Shatter delivery", () => {
         if (child !== undefined) {
           child.parentDamageEventId = null;
         }
-        return originalParse(forged);
+        return originalAssert(forged);
       });
 
     try {
@@ -837,9 +839,9 @@ describe("recursive zero-delay Shatter delivery", () => {
           critMode: "noCrit",
         }),
       ).toThrow();
-      expect(parseSpy).toHaveBeenCalledOnce();
+      expect(validationSpy).toHaveBeenCalledOnce();
     } finally {
-      parseSpy.mockRestore();
+      validationSpy.mockRestore();
     }
   });
 

@@ -2,6 +2,11 @@ import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
   type ClassicReactionFormulaRoot
 } from "@genshin-dps-lab/reaction-formulas";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  type GcsimDamageGroupId,
+  type GcsimDamageGroupRoot
+} from "@genshin-dps-lab/icd-profiles";
 
 export const TARGET_TASK_PHASE_SCHEMA_VERSION =
   "1.37.0" as const;
@@ -34,14 +39,18 @@ export const REACTION_FORMULA_ROOT_SCHEMA_VERSION =
   "1.45.0" as const;
 export const REACTION_FORMULA_ROOT_ENGINE_VERSION =
   "1.45.0-reaction-formula-root" as const;
+export const DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION =
+  "1.46.0" as const;
+export const DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION =
+  "1.46.0-direct-damage-group-root" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  REACTION_FORMULA_ROOT_ENGINE_VERSION;
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -55,8 +64,17 @@ export const TARGET_LOCAL_HITLAG_ENGINE_VERSION =
 /** Frozen run-manifest wire used by the 1.42 and 1.44 result schemas. */
 export const LEGACY_SIMULATION_RUN_MANIFEST_VERSION =
   "1.0.0" as const;
-/** Current run-manifest wire; 1.1 adds the reaction-formula trust root. */
-export const SIMULATION_RUN_MANIFEST_VERSION = "1.1.0" as const;
+/** Frozen 1.45 run-manifest wire; 1.1 adds the reaction-formula trust root. */
+export const REACTION_FORMULA_RUN_MANIFEST_VERSION =
+  "1.1.0" as const;
+/** Current run-manifest wire; 1.2 also binds the direct-damage-group root. */
+export const SIMULATION_RUN_MANIFEST_VERSION = "1.2.0" as const;
+/**
+ * Public results can verify plugin trace structure and downstream arithmetic,
+ * but cannot replay arbitrary runtime plugin code from its declared manifest.
+ */
+export const DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION =
+  "structural-only-unverified-runtime-output-v1" as const;
 /**
  * This identity algorithm is intentionally versioned and non-cryptographic.
  * It detects ordinary configuration drift; it is not an integrity signature.
@@ -624,6 +642,16 @@ export interface HitDefinition {
   critDmg?: number;
   reactionBonus?: number;
   ampBase?: number;
+  /**
+   * Ordinary direct-damage group identity. This controls the fixed damage
+   * sequence multiplier and the generic OnEnemyHit signal only. It does not
+   * gate skill-owned particles or other attack callbacks. Elemental
+   * application and Aura ICD remain governed by `application`.
+   */
+  directDamageGroup?: {
+    icdTag: string;
+    icdGroup: GcsimDamageGroupId;
+  };
   groupMultiplier?: number;
 }
 
@@ -884,6 +912,17 @@ export interface ReactionFormulaModel {
   profileId: typeof CLASSIC_REACTION_FORMULA_PROFILE_ID;
 }
 
+/**
+ * Fixed ordinary direct-damage-group selection for the 1.46 boundary.
+ *
+ * The selected profile is provisional data from the pinned gcsim revision.
+ * It does not model elemental-application sequences or Aura ICD.
+ */
+export interface DirectDamageGroupModel {
+  mode: "fixed-gcsim-direct-damage-group-v1";
+  profileId: typeof GCSIM_DAMAGE_GROUP_PROFILE_ID;
+}
+
 interface SimConfigCommon {
   dataVersion: string;
   randomSeed: string;
@@ -936,12 +975,21 @@ export interface SimConfigV145 extends SimConfigCommon {
   reactionFormulaModel: ReactionFormulaModel;
 }
 
-export type SimConfig = SimConfigV145;
+/** Current 1.46 config shape. Both fixed mechanics roots bind configHash. */
+export interface SimConfigV146 extends SimConfigCommon {
+  schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+}
+
+export type SimConfig = SimConfigV146;
 
 export type VersionedSimConfig =
   | SimConfigV142
   | SimConfigV144
-  | SimConfigV145;
+  | SimConfigV145
+  | SimConfigV146;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1012,18 +1060,32 @@ export type ReactionFormulaRoot = ClassicReactionFormulaRoot;
 /** Current 1.45 run manifest. */
 export interface SimulationRunManifestV145
   extends SimulationRunManifestCommon {
-  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+  version: typeof REACTION_FORMULA_RUN_MANIFEST_VERSION;
   schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
   reactionFormulaRoot: ReactionFormulaRoot;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV145;
+/** Exact pinned direct-damage-group root embedded in 1.46 run manifests. */
+export type DirectDamageGroupRoot = GcsimDamageGroupRoot;
+
+/** Current 1.46 run manifest. */
+export interface SimulationRunManifestV146
+  extends SimulationRunManifestCommon {
+  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV146;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
   | SimulationRunManifestV144
-  | SimulationRunManifestV145;
+  | SimulationRunManifestV145
+  | SimulationRunManifestV146;
 
 export type SimulationEventType =
   | "action"
@@ -1712,6 +1774,68 @@ export interface DamageComposition {
   direct: number;
   additiveReaction: number;
   transformativeReaction: number;
+}
+
+/**
+ * Simulator-owned audit of one damage plugin's direct group-multiplier step.
+ *
+ * Arbitrary code plugins cannot be re-executed from a serialized result. This
+ * trace therefore binds the ordered manifest identity and the multiplier
+ * chain that the simulator actually observed; it is not a proof of the
+ * plugin's implementation semantics.
+ */
+export interface DirectDamageGroupPluginMultiplierTraceEntry {
+  pluginManifestIndex: number;
+  pluginId: string;
+  inputMultiplier: number;
+  outcome: "no-change" | "override";
+  outputMultiplier: number;
+}
+
+/**
+ * Replayable ordinary direct-damage-group decision for one landed target hit.
+ *
+ * A bypassed row preserves the configured/plugin multiplier audit while all
+ * group-state fields remain null. Elemental application is intentionally not
+ * represented here because it is an independent mechanic.
+ */
+export interface DirectDamageGroupLogEntry {
+  id: number;
+  damageEventId: number;
+  hitResolutionLogId: number;
+  frame: number;
+  sourceActorId: string;
+  targetId: TargetId;
+  hitId: string;
+  profileId: typeof GCSIM_DAMAGE_GROUP_PROFILE_ID;
+  evaluation: "bypassed" | "evaluated";
+  icdTag: string | null;
+  icdGroup: GcsimDamageGroupId | null;
+  /** Group used by the first hit that created the shared tag window. */
+  windowStartGroup: GcsimDamageGroupId | null;
+  resetFrames: number | null;
+  windowStartFrame: number | null;
+  resetAtFrame: number | null;
+  hitIndex: number | null;
+  sequenceIndex: number | null;
+  sequenceMultiplier: 0 | 1;
+  configuredMultiplier: number;
+  /** Configured multiplier presented to the plugin chain. */
+  prePluginMultiplier: number;
+  /** Plugin-chain output before applying the fixed sequence multiplier. */
+  postPluginMultiplier: number;
+  /**
+   * Ordered runtime multiplier trace, one row per plugin manifest. Its public
+   * proof is deliberately structural-only because executable plugin code is
+   * not serialized into the result.
+   */
+  pluginMultiplierTrace: DirectDamageGroupPluginMultiplierTraceEntry[];
+  pluginTraceVerification:
+    typeof DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION;
+  /** postPluginMultiplier multiplied by sequenceMultiplier. */
+  effectiveMultiplier: number;
+  /** Only the generic gcsim-style OnEnemyHit signal is gated by the sequence. */
+  damageGroupOnEnemyHitAllowed: boolean;
 }
 
 export interface DamageEvent {
@@ -3332,7 +3456,7 @@ export interface TargetPhaseV3LogEntry
 
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-  engineVersion: string;
+  engineVersion: typeof CURRENT_ENGINE_VERSION;
   dataVersion: string;
   randomSeed: string;
   /** Authoritative identity envelope for replaying this exact run. */
@@ -3352,6 +3476,8 @@ export interface SimulationResult {
   enemyTargets: ResolvedEnemyTargetProfile[];
   damageEvents: DamageEvent[];
   hitEvents: DamageEvent[];
+  /** Ordinary direct-damage sequence and hit-callback decisions. */
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
   /** Versioned target-clock mode and per-target final state. */
@@ -3442,7 +3568,8 @@ type VersionedSimulationResultIdentityFields =
   | "schemaVersion"
   | "engineVersion"
   | "config"
-  | "runManifest";
+  | "runManifest"
+  | "directDamageGroupLog";
 
 /**
  * Frozen 1.42 top-level result identity. Nested audit unions stay deliberately
@@ -3479,3 +3606,12 @@ export type SimulationResultForV145 = Omit<
   config: SimConfigV145;
   runManifest: SimulationRunManifestV145;
 };
+
+/** Current 1.46 top-level result identity and direct-damage-group audit. */
+export type SimulationResultForV146 = SimulationResult;
+
+export type VersionedSimulationResult =
+  | SimulationResultForV142
+  | SimulationResultForV144
+  | SimulationResultForV145
+  | SimulationResultForV146;

@@ -1,10 +1,17 @@
 import { z } from "zod";
 import {
   abilityCancelFramesSchema,
-  abilityTimelineStateSchema
+  abilityTimelineStateSchema,
+  directDamageGroupDefinitionSchema,
+  rejectNonPlainJsonWire
 } from "./schema";
 
-export const CURRENT_MECHANICS_SCHEMA_VERSION = "1.7.0" as const;
+export const DIRECT_DAMAGE_GROUP_MECHANICS_SCHEMA_VERSION =
+  "1.8.0" as const;
+export const CURRENT_MECHANICS_SCHEMA_VERSION =
+  DIRECT_DAMAGE_GROUP_MECHANICS_SCHEMA_VERSION;
+export const PRE_DIRECT_DAMAGE_GROUP_MECHANICS_SCHEMA_VERSION =
+  "1.7.0" as const;
 export const MOVEMENT_COMMAND_MECHANICS_SCHEMA_VERSION = "1.6.0" as const;
 export const HIT_PARTICLE_TRIGGER_MECHANICS_SCHEMA_VERSION =
   "1.5.0" as const;
@@ -42,34 +49,41 @@ export const talentParameterReferenceSchema = z
   })
   .strict();
 
-export const mappedHitBlueprintSchema = z
-  .object({
-    id: idSchema,
-    label: idSchema,
-    frame: z.number().int().min(0),
-    scalingRef: talentParameterReferenceSchema,
-    scalingStat: z.enum(["atk", "hp", "def", "em"]).default("atk"),
-    element: z.enum([
-      "pyro",
-      "cryo",
-      "hydro",
-      "electro",
-      "anemo",
-      "geo",
-      "dendro",
-      "physical"
-    ]),
-    application: z
-      .object({
-        gaugeUnits: finiteNumber.positive().max(20),
-        icdTag: idSchema,
-        icdGroup: idSchema
-      })
-      .strict()
-      .optional(),
-    snapshot: z.enum(["action", "hit"]).default("hit")
-  })
-  .strict();
+export const mappedHitBlueprintSchema = z.preprocess(
+  rejectNonPlainJsonWire("mapped hit blueprint"),
+  z
+    .object({
+      id: idSchema,
+      label: idSchema,
+      frame: z.number().int().min(0),
+      scalingRef: talentParameterReferenceSchema,
+      scalingStat: z
+        .enum(["atk", "hp", "def", "em"])
+        .default("atk"),
+      element: z.enum([
+        "pyro",
+        "cryo",
+        "hydro",
+        "electro",
+        "anemo",
+        "geo",
+        "dendro",
+        "physical"
+      ]),
+      application: z
+        .object({
+          gaugeUnits: finiteNumber.positive().max(20),
+          icdTag: idSchema,
+          icdGroup: idSchema
+        })
+        .strict()
+        .optional(),
+      directDamageGroup:
+        directDamageGroupDefinitionSchema.optional(),
+      snapshot: z.enum(["action", "hit"]).default("hit")
+    })
+    .strict()
+);
 
 export const mappedEnergyGainBlueprintSchema = z
   .object({
@@ -157,7 +171,7 @@ export const mappedParticleBlueprintSchema = z
     }
   });
 
-export const abilityBlueprintSchema = z
+const abilityBlueprintValueSchema = z
   .object({
     schemaVersion: z.literal(CURRENT_MECHANICS_SCHEMA_VERSION),
     mappingVersion: idSchema,
@@ -262,6 +276,21 @@ export const abilityBlueprintSchema = z
     });
   });
 
+const plainAbilityBlueprintWireSchema = z.preprocess(
+  rejectNonPlainJsonWire("ability blueprint"),
+  z.unknown()
+);
+
+/**
+ * Public blueprint parsing is a JSON-wire boundary. Sanitize the complete
+ * graph before any shaped Schema reads a property so inherited fields,
+ * accessors, cycles, symbols, and non-finite values fail closed.
+ */
+export const abilityBlueprintSchema = z.preprocess(
+  rejectNonPlainJsonWire("ability blueprint"),
+  abilityBlueprintValueSchema
+);
+
 export type MechanicsEvidence = z.infer<typeof mechanicsEvidenceSchema>;
 export type TalentParameterReference = z.infer<
   typeof talentParameterReferenceSchema
@@ -269,23 +298,36 @@ export type TalentParameterReference = z.infer<
 export type AbilityBlueprint = z.infer<typeof abilityBlueprintSchema>;
 
 export function migrateAbilityBlueprint(input: unknown): AbilityBlueprint {
+  // This must be the first operation: migration cannot inspect a version or
+  // spread an untrusted object because either operation may execute a getter.
+  const plainInput = plainAbilityBlueprintWireSchema.parse(input);
+  const plainBlueprint =
+    typeof plainInput === "object" && plainInput !== null
+      ? (plainInput as Record<string, unknown>)
+      : null;
   if (
-    typeof input === "object" &&
-    input !== null &&
-    "schemaVersion" in input &&
-    (input.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === ACTION_STATE_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion ===
+    plainBlueprint !== null &&
+    Object.hasOwn(plainBlueprint, "schemaVersion") &&
+    (plainBlueprint.schemaVersion === INITIAL_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
+        ACTION_STATE_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
+        FOLLOWUP_CANCEL_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
+        RUNTIME_ENERGY_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
+        FIXED_ENERGY_ICD_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
         HIT_PARTICLE_TRIGGER_MECHANICS_SCHEMA_VERSION ||
-      input.schemaVersion === MOVEMENT_COMMAND_MECHANICS_SCHEMA_VERSION)
+      plainBlueprint.schemaVersion ===
+        MOVEMENT_COMMAND_MECHANICS_SCHEMA_VERSION ||
+      plainBlueprint.schemaVersion ===
+        PRE_DIRECT_DAMAGE_GROUP_MECHANICS_SCHEMA_VERSION)
   ) {
-    return abilityBlueprintSchema.parse({
-      ...input,
+    return abilityBlueprintValueSchema.parse({
+      ...plainBlueprint,
       schemaVersion: CURRENT_MECHANICS_SCHEMA_VERSION
     });
   }
-  return abilityBlueprintSchema.parse(input);
+  return abilityBlueprintValueSchema.parse(plainInput);
 }

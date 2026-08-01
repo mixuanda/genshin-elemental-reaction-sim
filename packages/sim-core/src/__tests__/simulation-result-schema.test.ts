@@ -8,7 +8,8 @@ import {
   simulationResultV142Schema,
   simulationResultV144Schema,
   simulationResultV145Schema,
-  simulationResultV145ValueSchema,
+  simulationResultV146Schema,
+  simulationResultV146ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -566,7 +567,7 @@ function expectRejectedByPublicAndTrusted(
   mutate(trustedResult);
   expect(() =>
     assertTrustedSimulationResult(trustedResult)
-  ).toThrow(/Trusted SimulationResult 1\.45 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.46 integrity validation failed/);
 }
 
 function expectAccepted(result: SimulationResult): void {
@@ -620,7 +621,7 @@ beforeAll(() => {
   );
 });
 
-describe("exact current 1.45 SimulationResult schema", () => {
+describe("exact current 1.46 SimulationResult schema", () => {
   it("keeps persisted 1.42 and frozen 1.44 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(
@@ -635,14 +636,17 @@ describe("exact current 1.45 SimulationResult schema", () => {
     ).toBe(false);
     expect(
       simulationResultV145Schema.safeParse(defaultResult).success
+    ).toBe(false);
+    expect(
+      simulationResultV146Schema.safeParse(defaultResult).success
     ).toBe(true);
   });
 
-  it("keeps the exact 65-field shape and all 64 non-timeline fields required", () => {
+  it("keeps the exact 66-field shape and all 65 non-timeline fields required", () => {
     const schemaKeys = Object.keys(
-      simulationResultV145ValueSchema.shape
+      simulationResultV146ValueSchema.shape
     ).sort();
-    expect(schemaKeys).toHaveLength(65);
+    expect(schemaKeys).toHaveLength(66);
     expect(Object.keys(defaultResult).sort()).toEqual(
       schemaKeys.filter((key) => key !== "timelineExecution")
     );
@@ -802,8 +806,9 @@ describe("exact current 1.45 SimulationResult schema", () => {
     ).toBe(false);
 
     expectRejected(defaultResult, (mutation) => {
-      mutation.engineVersion =
-        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+      (
+        mutation as unknown as { engineVersion: string }
+      ).engineVersion = EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
     });
   });
 

@@ -3,11 +3,11 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   assertTrustedSimulationResultV144,
-  assertTrustedSimulationResultV145,
+  assertTrustedSimulationResult,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   simulationResultV144Schema,
-  simulationResultV145Schema,
+  simulationResultSchema,
   type SimulationResult,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
@@ -210,11 +210,11 @@ function expectFormulaRejection(
   result: SimulationResult,
   trustedMessage: RegExp
 ): void {
-  expect(simulationResultV145Schema.safeParse(result).success).toBe(
+  expect(simulationResultSchema.safeParse(result).success).toBe(
     false
   );
   expect(() =>
-    assertTrustedSimulationResultV145(result)
+    assertTrustedSimulationResult(result)
   ).toThrow(trustedMessage);
 }
 
@@ -227,15 +227,18 @@ function projectToFrozenV144(result: SimulationResult): unknown {
     BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   frozen.engineVersion =
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+  delete frozen.directDamageGroupLog;
   const config = frozen.config as Record<string, unknown>;
   config.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   config.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete config.reactionFormulaModel;
+  delete config.directDamageGroupModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   manifest.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete manifest.reactionFormulaRoot;
+  delete manifest.directDamageGroupRoot;
   manifest.configHash = createSimulationConfigHash(config);
   const {
     reproducibilityKey: _ignoredReproducibilityKey,
@@ -296,15 +299,15 @@ function damageFormulaMultiplier(
   );
 }
 
-describe("SimulationResult 1.45 reaction-formula root integrity", () => {
+describe("current SimulationResult reaction-formula root integrity", () => {
   it("accepts exact current results at both public and trusted boundaries", () => {
     const result = simulate(
       makeOneHitConfig("pyro", "cryo"),
       { critMode: "noCrit" }
     );
 
-    expect(simulationResultV145Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV145(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
     expectFrozenV144Accepts(result);
   });
 

@@ -8,13 +8,11 @@ import {
   canonicalStringify,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
-  REACTION_FORMULA_ROOT_ENGINE_VERSION,
-  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   simulationResultSchema,
-  simulationResultV145Schema,
+  simulationResultV146Schema,
   simulationRunManifestSchema,
-  simulationRunManifestV145Schema,
+  simulationRunManifestV146Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
@@ -526,35 +524,35 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.45 result and manifest boundaries", () => {
+  it("emits current simulations through the exact 1.46 result and manifest boundaries", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1")
     );
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.45.0-reaction-formula-root"
+      "1.46.0-direct-damage-group-root"
     );
     expect(result).toMatchObject({
-      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
       config: {
-        schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-        engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION
       }
     });
     expect(result.runManifest).toMatchObject({
       version: SIMULATION_RUN_MANIFEST_VERSION,
-      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
     });
     expect(
-      simulationRunManifestV145Schema.parse(result.runManifest)
+      simulationRunManifestV146Schema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
     expect(
       simulationRunManifestSchema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
-    expect(simulationResultV145Schema.parse(result)).toStrictEqual(
+    expect(simulationResultV146Schema.parse(result)).toStrictEqual(
       result
     );
     expect(simulationResultSchema.parse(result)).toStrictEqual(
@@ -859,9 +857,9 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.45.0-reaction-formula-root"
+      "1.46.0-direct-damage-group-root"
     );
 
     for (const scenarioId of scenarioIds) {

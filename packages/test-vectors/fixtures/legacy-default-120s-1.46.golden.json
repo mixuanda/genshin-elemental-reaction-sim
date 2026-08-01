@@ -1,0 +1,157 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Compact 1.46 direct-damage-group-root identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.",
+  "provenance": {
+    "source": "simulate(durinMeltPreset) cross-checked against the byte-frozen 1.45 default fixture and legacy/v0.1-vanilla baseline",
+    "capturedAt": "2026-08-01",
+    "verificationStatus": "provisional",
+    "note": "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.46 engine binds the fixed-gcsim-provisional ordinary direct-damage-group root. This default preset assigns no audited Damage Group descriptor, so all 269 direct-damage audit rows are explicit bypasses and the 1.45 damage numerics remain unchanged. This is neither official server truth nor complete gcsim parity, and elemental-application ICD is not covered by this fixture.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "schemaVersion": "1.46.0",
+  "engineVersion": "1.46.0-direct-damage-group-root",
+  "configHash": "fnv1a32:a6bb82c4",
+  "reproducibilityKey": "gdl-v2-fnv1a32-0441a6ea",
+  "options": {
+    "energyMode": "configured",
+    "critMode": "average",
+    "compatibilityMode": "legacy-v0.1",
+    "randomSeed": "legacy-default"
+  },
+  "totalDamage": 41410555.13728799,
+  "dps": 345087.9594773999,
+  "hitCount": 269,
+  "reactedHits": 129,
+  "skippedActionCount": 3,
+  "byCharacter": {
+    "nicole": 740338.5919263127,
+    "citlali": 77244.84267655843,
+    "durin": 38779268.124040276,
+    "lohen": 1813703.5786448019
+  },
+  "bySkill": [
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 Q",
+      "damage": 33960210.24410402,
+      "hits": 103
+    },
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 E",
+      "damage": 3173673.996688688,
+      "hits": 18
+    },
+    {
+      "creditId": "lohen",
+      "actionName": "洛恩站场输出",
+      "damage": 1813703.5786448019,
+      "hits": 78
+    },
+    {
+      "creditId": "durin",
+      "actionName": "尼可 Q",
+      "damage": 1645383.8832475687,
+      "hits": 10
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 Q",
+      "damage": 577890.9248479266,
+      "hits": 3
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 E",
+      "damage": 162447.66707838603,
+      "hits": 6
+    },
+    {
+      "creditId": "citlali",
+      "actionName": "茜特菈莉 E",
+      "damage": 77244.84267655843,
+      "hits": 51
+    }
+  ],
+  "legacyDamageEventsSha256": "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f",
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "targetClock": {
+    "config": {
+      "mode": "disabled"
+    },
+    "audit": {
+      "version": "1.0.0",
+      "mode": "disabled",
+      "hitlagStatus": "unsupported-enemy-hitlag",
+      "targets": []
+    },
+    "clockLog": [],
+    "hitlagLog": []
+  },
+  "targetTask": {
+    "config": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "phaseLog": []
+  },
+  "targetPhaseLog": [],
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "directDamageGroupAudit": {
+    "rowCount": 269,
+    "evaluatedCount": 0,
+    "bypassedCount": 269,
+    "canonicalSha256": "a9c1df34508e3fcdda365e3b6717460d618b263a2409ad843df2016de0ce0e88"
+  },
+  "runManifest": {
+    "version": "1.2.0",
+    "identityAlgorithm": "fnv1a32-v2",
+    "schemaVersion": "1.46.0",
+    "engineVersion": "1.46.0-direct-damage-group-root",
+    "dataVersion": "0.1.0-demo",
+    "configHash": "fnv1a32:a6bb82c4",
+    "resolvedRuntimeOptions": {
+      "energyMode": "configured",
+      "critMode": "average",
+      "compatibilityMode": "legacy-v0.1",
+      "randomSeed": "legacy-default"
+    },
+    "plugins": [],
+    "reactionFormulaRoot": {
+      "version": "1.0.0",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1",
+      "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+      "mechanicsDataStatus": "fixed-gcsim-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "officialServerTruth": false,
+      "completeGcsimParity": false
+    },
+    "directDamageGroupRoot": {
+      "version": "1.0.0",
+      "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+      "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+      "mechanicsDataStatus": "fixed-gcsim-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "damage-group-reset-and-damage-sequences-only",
+      "tailPolicy": "clamp-last",
+      "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+    },
+    "reproducibilityKey": "gdl-v2-fnv1a32-0441a6ea"
+  }
+}

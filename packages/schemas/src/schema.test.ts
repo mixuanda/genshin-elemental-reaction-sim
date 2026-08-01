@@ -4,12 +4,17 @@ import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_DAMAGE_GROUP_ROOT
+} from "@genshin-dps-lab/icd-profiles";
 import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
 import legacyDefault120sGolden from "../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
 import legacyDefault120sGoldenV142 from "../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import {
   additiveReactionAuditV142Schema,
+  assertTrustedReactionDeliveryResultReferences,
   auraSourceGaugeMutationSchema,
   auraStateEntrySchema,
   bloomReactionAuditSchema,
@@ -29,6 +34,8 @@ import {
   crystallizeShieldTimelinePointSchema,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
@@ -79,6 +86,7 @@ import {
   reactionDeliveryModelSchema,
   reactionFormulaModelSchema,
   reactionFormulaRootSchema,
+  REACTION_FORMULA_RUN_MANIFEST_VERSION,
   reactionDeliveryResultReferencesSchema,
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
@@ -93,10 +101,12 @@ import {
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
+  simulationRunManifestV146Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
   simConfigV145Schema,
+  simConfigV146Schema,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
@@ -161,6 +171,11 @@ const fixedReactionFormulaModel = {
   profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
 } as const;
 
+const fixedDirectDamageGroupModel = {
+  mode: "fixed-gcsim-direct-damage-group-v1",
+  profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T
 ): Omit<
@@ -168,23 +183,27 @@ const asPre139Wire = <T extends object>(
   | "reactionDeliveryModel"
   | "electroChargedPropagationModel"
   | "reactionFormulaModel"
+  | "directDamageGroupModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
     reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
     electroChargedPropagationModel?: unknown;
     reactionFormulaModel?: unknown;
+    directDamageGroupModel?: unknown;
   };
   return wire as Omit<
     T,
     | "reactionDeliveryModel"
     | "electroChargedPropagationModel"
     | "reactionFormulaModel"
+    | "directDamageGroupModel"
   >;
 };
 
@@ -964,6 +983,7 @@ describe("1.32 player reaction self-damage contract", () => {
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...wire132
     } = current;
     const historical = {
@@ -2280,6 +2300,7 @@ describe("1.33 target-local Hitlag contract", () => {
       SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
     delete frozen139Result.config.electroChargedPropagationModel;
     delete frozen139Result.config.reactionFormulaModel;
+    delete frozen139Result.config.directDamageGroupModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
@@ -2744,14 +2765,18 @@ describe("1.34 general reaction order contract", () => {
       electroChargedPropagationModel: {
         mode: "single-target-v1"
       },
-      reactionFormulaModel: fixedReactionFormulaModel
+      reactionFormulaModel: fixedReactionFormulaModel,
+      directDamageGroupModel: fixedDirectDamageGroupModel
     });
   });
 
   it("keeps 1.44 ampBase validation frozen but fail-closes its migration to 1.45", () => {
     const current = migrateConfig(legacyConfig);
     const frozenV144 = {
-      ...withoutOwn(current, "reactionFormulaModel"),
+      ...withoutOwn(
+        withoutOwn(current, "directDamageGroupModel"),
+        "reactionFormulaModel"
+      ),
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
       engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
       rotation: [
@@ -3108,6 +3133,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3140,7 +3166,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         electroChargedPropagationModel: {
           mode: "single-target-v1"
         },
-        reactionFormulaModel: fixedReactionFormulaModel
+        reactionFormulaModel: fixedReactionFormulaModel,
+        directDamageGroupModel: fixedDirectDamageGroupModel
       });
     }
 
@@ -3151,6 +3178,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       electroChargedPropagationModel:
         _currentElectroChargedPropagationModel,
       reactionFormulaModel: _currentReactionFormulaModel,
+      directDamageGroupModel: _currentDirectDamageGroupModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3258,9 +3286,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.45.0-reaction-formula-root"
+      "1.46.0-direct-damage-group-root"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4316,10 +4344,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_FORMULA_ROOT_SCHEMA_VERSION
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_FORMULA_ROOT_ENGINE_VERSION
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4406,6 +4434,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4422,7 +4451,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       electroChargedPropagationModel: {
         mode: "single-target-v1"
       },
-      reactionFormulaModel: fixedReactionFormulaModel
+      reactionFormulaModel: fixedReactionFormulaModel,
+      directDamageGroupModel: fixedDirectDamageGroupModel
     });
     expect(() =>
       migrateConfig({
@@ -4452,7 +4482,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     };
     const historical = {
       ...withoutOwn(
-        makeLegalAuraV7Config(),
+        withoutOwn(
+          makeLegalAuraV7Config(),
+          "directDamageGroupModel"
+        ),
         "reactionFormulaModel"
       ),
       schemaVersion:
@@ -4468,7 +4501,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      reactionFormulaModel: fixedReactionFormulaModel
+      reactionFormulaModel: fixedReactionFormulaModel,
+      directDamageGroupModel: fixedDirectDamageGroupModel
     });
     expect(() =>
       migrateConfig({
@@ -4512,10 +4546,13 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     );
   });
 
-  it("freezes 1.42/1.44 and migrates them by identity plus the fixed 1.45 formula profile", () => {
+  it("freezes 1.42/1.44 and migrates them by identity plus both fixed mechanics profiles", () => {
     const frozenV142 = {
       ...withoutOwn(
-        makeLegalAuraV7Config(),
+        withoutOwn(
+          makeLegalAuraV7Config(),
+          "directDamageGroupModel"
+        ),
         "reactionFormulaModel"
       ),
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
@@ -4543,12 +4580,13 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     const migratedFromV144 = migrateConfig(frozenV144);
     const expectedCurrent = {
       ...parsedFrozenV142,
-      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaModel: {
         mode: "classic-formula-profile-v1" as const,
         profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
-      }
+      },
+      directDamageGroupModel: fixedDirectDamageGroupModel
     };
     expect(migrated).toEqual(expectedCurrent);
     expect(migratedFromV144).toEqual(expectedCurrent);
@@ -4563,9 +4601,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV145Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV146Schema.parse(migrated)).toEqual(migrated);
     expect(simConfigSchema.parse(migrated)).toEqual(migrated);
     expect(() => simConfigV144Schema.parse(migrated)).toThrow();
+    expect(() => simConfigV145Schema.parse(migrated)).toThrow();
     expect(() => simConfigV145Schema.parse(frozenV144)).toThrow();
 
     const frozenV144TargetPhaseV3 = {
@@ -4586,6 +4625,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
       reactionFormulaModel: _currentFormulaModel,
+      directDamageGroupModel: _currentDirectDamageGroupModel,
       ...currentNumericalSemantics
     } = migratedTargetPhaseV3;
     const {
@@ -5683,6 +5723,26 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         targetClockLagged
       )
     ).toThrow(/target-clock|targetFrame|Aura witness/);
+  });
+
+  it("reuses the exact reaction-delivery cross-log proof at the trusted sim-core boundary", () => {
+    const parsed = reactionDeliveryResultReferencesSchema.parse(
+      makeNearbyWetPropagationReferenceResult()
+    );
+    expect(
+      assertTrustedReactionDeliveryResultReferences(parsed)
+    ).toBe(parsed);
+
+    const forged = structuredClone(parsed);
+    forged.config.engineVersion = "forged-engine";
+    expect(() =>
+      assertTrustedReactionDeliveryResultReferences(forged)
+    ).toThrow(
+      /Trusted reaction-delivery result reference validation failed/
+    );
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(forged)
+    ).toThrow(/engineVersion must match/);
   });
 
   it("fail-closes every exact 1.41 nearby-Wet trigger, child, clock, and periodic provenance edge", () => {
@@ -7219,6 +7279,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -7565,7 +7626,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, or 1\.45 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, 1\.45, or 1\.46 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -7701,7 +7762,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, or 1\.45 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, 1\.45, or 1\.46 schema and engine identity/);
     }
   });
 
@@ -11070,7 +11131,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37 through 1\.42, 1\.44, or 1\.45 identity/);
+    ).toThrow(/exact supported 1\.37 through 1\.42, 1\.44, 1\.45, or 1\.46 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -13669,6 +13730,7 @@ describe("simulation run manifest contract", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13697,9 +13759,12 @@ describe("simulation run manifest contract", () => {
     expect(
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
-    expect(simulationRunManifestV145Schema.parse(manifest)).toEqual(
+    expect(simulationRunManifestV146Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV145Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV144Schema.parse(manifest)
     ).toThrow();
@@ -13710,6 +13775,7 @@ describe("simulation run manifest contract", () => {
     const {
       reproducibilityKey: _currentReproducibilityKey,
       reactionFormulaRoot: _reactionFormulaRoot,
+      directDamageGroupRoot: _directDamageGroupRoot,
       version: _currentManifestVersion,
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
@@ -13756,6 +13822,25 @@ describe("simulation run manifest contract", () => {
     expect(() =>
       simulationRunManifestV145Schema.parse(frozenV144Manifest)
     ).toThrow();
+    const frozenV145Identity = {
+      ...frozenCommonIdentity,
+      version: REACTION_FORMULA_RUN_MANIFEST_VERSION,
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT
+    };
+    const frozenV145Manifest = {
+      ...frozenV145Identity,
+      reproducibilityKey: createSimulationReproducibilityKey(
+        frozenV145Identity
+      )
+    };
+    expect(
+      simulationRunManifestV145Schema.parse(frozenV145Manifest)
+    ).toEqual(frozenV145Manifest);
+    expect(() =>
+      simulationRunManifestV146Schema.parse(frozenV145Manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestSchema.parse({
         ...manifest,
@@ -13788,6 +13873,7 @@ describe("simulation run manifest contract", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       dataVersion: forgedFormulaConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedFormulaConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
@@ -13807,6 +13893,7 @@ describe("simulation run manifest contract", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13924,6 +14011,7 @@ describe("simulation run manifest contract", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14033,7 +14121,10 @@ describe("versioned config schema", () => {
     }
 
     const frozenV144 = {
-      ...withoutOwn(current, "reactionFormulaModel"),
+      ...withoutOwn(
+        withoutOwn(current, "directDamageGroupModel"),
+        "reactionFormulaModel"
+      ),
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
       engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
     };
@@ -14090,11 +14181,14 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV145Schema.safeParse(nullPrototypeWire).success
+      simConfigV146Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {
-      ...withoutOwn(current, "reactionFormulaModel"),
+      ...withoutOwn(
+        withoutOwn(current, "directDamageGroupModel"),
+        "reactionFormulaModel"
+      ),
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
       engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
     };

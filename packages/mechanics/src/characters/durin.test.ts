@@ -1,5 +1,8 @@
 import { simulate } from "@genshin-dps-lab/sim-core";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
 import { describe, expect, it } from "vitest";
@@ -24,19 +27,34 @@ const EXPECTED_REACTION_FORMULA_MODEL = {
   profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
 } as const;
 
-describe("Durin current formula identity", () => {
-  it("pins both authoring configs and compact presets to the fixed profile", () => {
-    expect([
-      createDurinBlackSkillAuditConfig().reactionFormulaModel,
-      createDurinWhiteSkillAuditConfig().reactionFormulaModel,
-      durinBlackSkillAuditPreset.reactionFormulaModel,
-      durinWhiteSkillAuditPreset.reactionFormulaModel
-    ]).toEqual([
-      EXPECTED_REACTION_FORMULA_MODEL,
-      EXPECTED_REACTION_FORMULA_MODEL,
-      EXPECTED_REACTION_FORMULA_MODEL,
-      EXPECTED_REACTION_FORMULA_MODEL
-    ]);
+const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
+  mode: "fixed-gcsim-direct-damage-group-v1",
+  profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+} as const;
+
+describe("Durin current mechanics-root identity", () => {
+  it("pins both authoring configs and compact presets to both fixed profiles", () => {
+    const configs = [
+      createDurinBlackSkillAuditConfig(),
+      createDurinWhiteSkillAuditConfig(),
+      durinBlackSkillAuditPreset,
+      durinWhiteSkillAuditPreset
+    ];
+
+    for (const config of configs) {
+      expect(config.reactionFormulaModel).toEqual(
+        EXPECTED_REACTION_FORMULA_MODEL
+      );
+      expect(config.directDamageGroupModel).toEqual(
+        EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
+      );
+      for (const ability of config.timeline?.abilities ?? []) {
+        for (const hit of ability.hits ?? []) {
+          expect(hit, `${config.meta.name}: ${hit.id ?? hit.label}`).not
+            .toHaveProperty("directDamageGroup");
+        }
+      }
+    }
   });
 });
 

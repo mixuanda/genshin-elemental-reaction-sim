@@ -1,6 +1,9 @@
 import {
+  assertTrustedReactionDeliveryResultReferences,
   assertTrustedSimulationResult,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
@@ -8,7 +11,6 @@ import {
   electroChargedCleanupResultReferencesSchema,
   migrateConfig,
   playerDamageResultReferencesSchema,
-  reactionDeliveryResultReferencesSchema,
   simulationRunManifestSchema,
   targetClockAuditSchema,
   targetClockLogSchema,
@@ -78,6 +80,9 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_DAMAGE_GROUP_ROOT
+} from "@genshin-dps-lab/icd-profiles";
+import {
   AURA_ENGINE_CONSTANTS,
   AuraEngine,
   type ElectroChargedCleanupResult,
@@ -143,6 +148,7 @@ import {
   TargetLocalClock,
   type TargetLocalClockState
 } from "./target-clock";
+import { DirectDamageGroupEngine } from "./direct-damage-group";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -1212,10 +1218,80 @@ function requireFinitePluginNumber(
 ): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     throw new Error(
-      `Damage plugin "${pluginId}" returned a non-finite ${field} override.`
+      `Damage plugin "${pluginId}" returned an invalid numeric ${field} override; expected a finite number.`
     );
   }
   return value;
+}
+
+const DAMAGE_PLUGIN_NUMERIC_CHANGE_FIELDS = [
+  "scaling",
+  "scalingValue",
+  "flatDamage",
+  "ordinaryFlatDamage",
+  "additiveReactionFlatDamage",
+  "damageBonus",
+  "characterLevel",
+  "enemyLevel",
+  "defenseReduction",
+  "defenseIgnore",
+  "effectiveResistance",
+  "critRate",
+  "critDamage",
+  "elementalMastery",
+  "reactionBonus",
+  "explicitReactionBase",
+  "groupMultiplier"
+] as const;
+
+const DAMAGE_PLUGIN_ALLOWED_CHANGE_FIELDS = new Set<string>([
+  ...DAMAGE_PLUGIN_NUMERIC_CHANGE_FIELDS,
+  "scalingStat",
+  "critMode",
+  "reaction"
+]);
+
+function assertPlainDamagePluginChanges(
+  changes: unknown,
+  pluginId: string
+): asserts changes is DamagePluginChanges {
+  if (
+    changes === null ||
+    typeof changes !== "object" ||
+    Array.isArray(changes) ||
+    Object.getPrototypeOf(changes) !== Object.prototype
+  ) {
+    throw new Error(
+      `Damage plugin "${pluginId}" must return undefined or a plain object of supported overrides.`
+    );
+  }
+  for (const key of Reflect.ownKeys(changes)) {
+    if (
+      typeof key !== "string" ||
+      !DAMAGE_PLUGIN_ALLOWED_CHANGE_FIELDS.has(key)
+    ) {
+      throw new Error(
+        `Damage plugin "${pluginId}" returned unknown override field "${String(key)}".`
+      );
+    }
+  }
+}
+
+function requirePluginEnumValue<const Value extends string>(
+  pluginId: string,
+  field: string,
+  value: unknown,
+  allowed: readonly Value[]
+): Value {
+  if (
+    typeof value !== "string" ||
+    !allowed.includes(value as Value)
+  ) {
+    throw new Error(
+      `Damage plugin "${pluginId}" returned an invalid ${field} override; expected one of ${allowed.join(", ")}.`
+    );
+  }
+  return value as Value;
 }
 
 function applyPluginChanges(
@@ -1226,15 +1302,17 @@ function applyPluginChanges(
   hasAdditiveReaction: boolean,
   schemaVersion: string
 ): AppliedDamagePluginChanges {
-  if (!changes) {
+  if (changes === undefined) {
     return {
       damageInput: input,
       flatDamageComponents
     };
   }
+  assertPlainDamagePluginChanges(changes, pluginId);
 
   if (
-    schemaVersion === REACTION_FORMULA_ROOT_SCHEMA_VERSION
+    schemaVersion === REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+    schemaVersion === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
   ) {
     assertFormulaBoundDamagePluginChanges(
       changes,
@@ -1271,6 +1349,41 @@ function applyPluginChanges(
     );
   }
 
+  for (const field of DAMAGE_PLUGIN_NUMERIC_CHANGE_FIELDS) {
+    if (!hasOwn(changes, field)) continue;
+    requireFinitePluginNumber(pluginId, field, changes[field]);
+  }
+  if (hasOwn(changes, "scalingStat")) {
+    requirePluginEnumValue(
+      pluginId,
+      "scalingStat",
+      changes.scalingStat,
+      ["atk", "hp", "def", "em"] as const
+    );
+  }
+  if (hasOwn(changes, "critMode")) {
+    requirePluginEnumValue(
+      pluginId,
+      "critMode",
+      changes.critMode,
+      ["average", "allCrit", "noCrit"] as const
+    );
+  }
+  if (hasOwn(changes, "reaction")) {
+    requirePluginEnumValue(
+      pluginId,
+      "reaction",
+      changes.reaction,
+      [
+        "none",
+        "melt",
+        "reverseMelt",
+        "vaporize",
+        "reverseVaporize"
+      ] as const
+    );
+  }
+
   const {
     flatDamage: legacyFlatDamage,
     ordinaryFlatDamage,
@@ -1283,26 +1396,14 @@ function applyPluginChanges(
     flatDamageComponents.additiveReactionFlatDamage;
 
   if (hasLegacyFlat) {
-    nextOrdinaryFlatDamage = requireFinitePluginNumber(
-      pluginId,
-      "flatDamage",
-      legacyFlatDamage
-    );
+    nextOrdinaryFlatDamage = legacyFlatDamage as number;
   }
   if (hasOrdinaryFlat) {
-    nextOrdinaryFlatDamage = requireFinitePluginNumber(
-      pluginId,
-      "ordinaryFlatDamage",
-      ordinaryFlatDamage
-    );
+    nextOrdinaryFlatDamage = ordinaryFlatDamage as number;
   }
   if (hasAdditiveFlat) {
     nextAdditiveReactionFlatDamage =
-      requireFinitePluginNumber(
-        pluginId,
-        "additiveReactionFlatDamage",
-        additiveReactionFlatDamage
-      );
+      additiveReactionFlatDamage as number;
     if (nextAdditiveReactionFlatDamage < 0) {
       throw new Error(
         `Damage plugin "${pluginId}" returned a negative additiveReactionFlatDamage override.`
@@ -1367,6 +1468,7 @@ function simulateConfig(
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(resultConfig),
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -1422,6 +1524,12 @@ function simulateConfig(
   });
   const enemyTargetById = new Map(
     enemyTargets.map((target) => [target.id, target])
+  );
+  const directDamageGroupEngines = new Map(
+    enemyTargets.map((target) => [
+      target.id,
+      new DirectDamageGroupEngine()
+    ])
   );
   const enemyTargetOrderById = new Map(
     enemyTargets.map((target, index) => [target.id, index])
@@ -2276,6 +2384,7 @@ function simulateConfig(
   const activeDebuffs: ActiveDebuff[] = [];
   const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
+  const directDamageGroupLog: SimulationResult["directDamageGroupLog"] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
   const targetClockLog: SimulationResult["targetClockLog"] = [];
   const targetHitlagLog: SimulationResult["targetHitlagLog"] = [];
@@ -13050,6 +13159,33 @@ function simulateConfig(
       continue;
     }
 
+    const configuredDirectDamageGroupMultiplier = safeNumber(
+      hit.groupMultiplier,
+      1
+    );
+    const directDamageGroupDecision =
+      hit.directDamageGroup === undefined
+        ? null
+        : directDamageGroupEngines
+            .get(targetId)!
+            .consumeLandedHit({
+              frame: event.frame,
+              sourceActorId: actorId,
+              icdTag: hit.directDamageGroup.icdTag,
+              icdGroup: hit.directDamageGroup.icdGroup
+            });
+    const directDamageGroupSequenceMultiplier: 0 | 1 =
+      directDamageGroupDecision === null ||
+      directDamageGroupDecision.sequenceMultiplier === 1
+        ? 1
+        : directDamageGroupDecision.sequenceMultiplier === 0
+          ? 0
+          : (() => {
+              throw new Error(
+                `Direct-damage group "${directDamageGroupDecision.icdGroup}" returned unsupported multiplier ${directDamageGroupDecision.sequenceMultiplier}.`
+              );
+            })();
+
     const stats =
       hit.snapshot === "action"
         ? deepClone(
@@ -13464,7 +13600,7 @@ function simulateConfig(
     }
     if (
       config.schemaVersion ===
-        REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
       hit.ampBase !== undefined
     ) {
       throw new Error(
@@ -13494,15 +13630,20 @@ function simulateConfig(
       // reaction. Only frozen pre-1.45 replay paths may forward ampBase;
       // the formula-root current path rejects it above.
       ...(config.schemaVersion ===
-          REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+          DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
           hit.ampBase === undefined ||
           (auraEngine !== null &&
             reactionAudit.model !== "manual-override")
         ? {}
         : { explicitReactionBase: hit.ampBase }),
-      groupMultiplier: safeNumber(hit.groupMultiplier, 1)
+      // Plugins observe and may replace the hit-authored multiplier. The fixed
+      // group sequence is applied after plugins so a zero slot cannot be
+      // revived by an absolute override.
+      groupMultiplier: configuredDirectDamageGroupMultiplier
     };
-    for (const plugin of plugins) {
+    const pluginMultiplierTrace: SimulationResult["directDamageGroupLog"][number]["pluginMultiplierTrace"] = [];
+    for (const [pluginManifestIndex, plugin] of plugins.entries()) {
+      const inputMultiplier = damageInput.groupMultiplier;
       const pluginChanges = plugin.runtime.modifyDamage({
         config,
         action,
@@ -13539,11 +13680,34 @@ function simulateConfig(
       damageInput = appliedChanges.damageInput;
       flatDamageComponents =
         appliedChanges.flatDamageComponents;
+      const outputMultiplier = damageInput.groupMultiplier;
+      pluginMultiplierTrace.push({
+        pluginManifestIndex,
+        pluginId: plugin.descriptor.id,
+        inputMultiplier,
+        // This is a multiplier-value trace, not a property-presence trace: an
+        // explicit override to the same value is semantically no change.
+        outcome:
+          outputMultiplier === inputMultiplier
+            ? "no-change"
+            : "override",
+        outputMultiplier
+      });
     }
     if (additiveReactionFactors !== null) {
       additiveReactionFactors.appliedFlatDamage =
         flatDamageComponents.additiveReactionFlatDamage;
     }
+
+    const pluginResolvedDirectDamageGroupMultiplier =
+      damageInput.groupMultiplier;
+    const effectiveDirectDamageGroupMultiplier =
+      pluginResolvedDirectDamageGroupMultiplier *
+      directDamageGroupSequenceMultiplier;
+    damageInput = {
+      ...damageInput,
+      groupMultiplier: effectiveDirectDamageGroupMultiplier
+    };
 
     const calculation = calcDamage(damageInput);
     const factors = calculation.factors;
@@ -13576,6 +13740,50 @@ function simulateConfig(
       additiveReaction: additiveReactionContribution,
       transformativeReaction: 0
     };
+    directDamageGroupLog.push({
+      id: directDamageGroupLog.length,
+      damageEventId,
+      hitResolutionLogId: targetResolutionId,
+      frame: event.frame,
+      sourceActorId: actorId,
+      targetId,
+      hitId,
+      profileId:
+        directDamageGroupDecision?.profileId ??
+        GCSIM_DAMAGE_GROUP_ROOT.profileId,
+      evaluation:
+        directDamageGroupDecision === null
+          ? "bypassed"
+          : "evaluated",
+      icdTag: directDamageGroupDecision?.icdTag ?? null,
+      icdGroup: directDamageGroupDecision?.icdGroup ?? null,
+      windowStartGroup:
+        directDamageGroupDecision?.windowStartGroup ?? null,
+      resetFrames:
+        directDamageGroupDecision?.resetFrames ?? null,
+      windowStartFrame:
+        directDamageGroupDecision?.windowStartFrame ?? null,
+      resetAtFrame:
+        directDamageGroupDecision?.resetAtFrame ?? null,
+      hitIndex: directDamageGroupDecision?.hitIndex ?? null,
+      sequenceIndex:
+        directDamageGroupDecision?.sequenceIndex ?? null,
+      sequenceMultiplier: directDamageGroupSequenceMultiplier,
+      configuredMultiplier:
+        configuredDirectDamageGroupMultiplier,
+      prePluginMultiplier:
+        configuredDirectDamageGroupMultiplier,
+      postPluginMultiplier:
+        pluginResolvedDirectDamageGroupMultiplier,
+      pluginMultiplierTrace,
+      pluginTraceVerification:
+        DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+      effectiveMultiplier:
+        effectiveDirectDamageGroupMultiplier,
+      damageGroupOnEnemyHitAllowed:
+        hitConfirmAllowed &&
+        directDamageGroupSequenceMultiplier > 0
+    });
     damageEvents.push({
       id: damageEventId,
       kind: "direct",
@@ -14780,6 +14988,7 @@ function simulateConfig(
     enemyTargets,
     damageEvents,
     hitEvents: damageEvents,
+    directDamageGroupLog,
     hitResolutionLog,
     targetClockAudit,
     targetClockLog: parsedTargetClockLog,
@@ -14854,7 +15063,7 @@ function simulateConfig(
       "single-target-v1 cannot emit Electro-Charged propagation candidate observations."
     );
   }
-  reactionDeliveryResultReferencesSchema.parse({
+  assertTrustedReactionDeliveryResultReferences({
     schemaVersion: simulationResult.schemaVersion,
     engineVersion: simulationResult.engineVersion,
     config: {

@@ -7,6 +7,9 @@ import {
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
 
 export const neutralStats: CharacterStats = {
   baseAtk: 1000,
@@ -51,6 +54,11 @@ export function makeConfig(
       mode: "classic-formula-profile-v1" as const,
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
     };
+  const directDamageGroupModel =
+    overrides.directDamageGroupModel ?? {
+      mode: "fixed-gcsim-direct-damage-group-v1" as const,
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -88,6 +96,7 @@ export function makeConfig(
     targetTaskModel,
     reactionDeliveryModel,
     electroChargedPropagationModel,
-    reactionFormulaModel
+    reactionFormulaModel,
+    directDamageGroupModel
   };
 }

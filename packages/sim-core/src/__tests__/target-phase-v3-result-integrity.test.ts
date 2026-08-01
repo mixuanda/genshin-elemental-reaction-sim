@@ -425,7 +425,7 @@ describe("target-phase-v3 result integrity", () => {
       critMode: "noCrit"
     });
 
-    expect(Object.keys(result)).toHaveLength(65);
+    expect(Object.keys(result)).toHaveLength(66);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
 

@@ -1,0 +1,11 @@
+{
+  "name": "@genshin-dps-lab/icd-profiles",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/icd-profiles/src/profile.test.ts"
+  },
+  "sideEffects": false
+}

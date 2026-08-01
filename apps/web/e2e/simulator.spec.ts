@@ -5,6 +5,9 @@ import {
   durinMeltPreset,
   legalTimelineDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
 
 test("runs, imports, explores, and exports the compatibility preset", async ({
   page
@@ -45,6 +48,13 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     mode: "classic-formula-profile-v1",
     profileId: "gcsim-b4ae769-classic-provisional-v1"
   });
+  const importedDirectDamageGroupModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().directDamageGroupModel
+  );
+  expect(importedDirectDamageGroupModel).toEqual({
+    mode: "fixed-gcsim-direct-damage-group-v1",
+    profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -76,6 +86,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     targetTaskModel?: unknown;
     reactionDeliveryModel?: unknown;
     reactionFormulaModel?: unknown;
+    directDamageGroupModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
@@ -86,9 +97,12 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(exportedConfig.reactionFormulaModel).toEqual(
     importedReactionFormulaModel
   );
+  expect(exportedConfig.directDamageGroupModel).toEqual(
+    importedDirectDamageGroupModel
+  );
 });
 
-test("migrates a 1.38 config to deferred reaction delivery and the fixed formula root", async ({
+test("migrates a 1.38 config to deferred delivery and both fixed mechanics roots", async ({
   page
 }) => {
   await page.goto("/");
@@ -104,6 +118,7 @@ test("migrates a 1.38 config to deferred reaction delivery and the fixed formula
   delete historicalConfig.reactionDeliveryModel;
   delete historicalConfig.electroChargedPropagationModel;
   delete historicalConfig.reactionFormulaModel;
+  delete historicalConfig.directDamageGroupModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -121,12 +136,13 @@ test("migrates a 1.38 config to deferred reaction delivery and the fixed formula
       reactionDeliveryModel: config.reactionDeliveryModel,
       electroChargedPropagationModel:
         config.electroChargedPropagationModel,
-      reactionFormulaModel: config.reactionFormulaModel
+      reactionFormulaModel: config.reactionFormulaModel,
+      directDamageGroupModel: config.directDamageGroupModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.45.0",
-    engineVersion: "1.45.0-reaction-formula-root",
+    schemaVersion: "1.46.0",
+    engineVersion: "1.46.0-direct-damage-group-root",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -136,6 +152,10 @@ test("migrates a 1.38 config to deferred reaction delivery and the fixed formula
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
       profileId: "gcsim-b4ae769-classic-provisional-v1"
+    },
+    directDamageGroupModel: {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
     }
   });
 });
@@ -220,9 +240,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.45.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.46.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.45.0-reaction-formula-root"
+    "engine 1.46.0-direct-damage-group-root"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

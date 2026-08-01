@@ -2,6 +2,7 @@ export * from "./aura";
 export * from "./bloom-gauge";
 export * from "./crystallize";
 export * from "./dendro-core";
+export * from "./direct-damage-group";
 export * from "./energy";
 export * from "./formulas";
 export * from "./legal-timeline";

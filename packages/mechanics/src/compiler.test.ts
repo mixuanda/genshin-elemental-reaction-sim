@@ -48,6 +48,38 @@ describe("ability blueprint compiler gates", () => {
     ]);
   });
 
+  it("preserves an explicit ordinary direct-damage-group descriptor", () => {
+    const blueprint = structuredClone(durinDenialOfDarknessBlueprint);
+    blueprint.hits[0]!.directDamageGroup = {
+      icdTag: "durin-denial-primary",
+      icdGroup: "default"
+    };
+
+    const compiled = compileAbilityBlueprint(blueprint, {
+      catalog: gameDataCatalog,
+      allowPartial: true
+    });
+
+    expect(compiled.ability.hits?.[0]?.directDamageGroup).toEqual({
+      icdTag: "durin-denial-primary",
+      icdGroup: "default"
+    });
+  });
+
+  it("does not synthesize direct-damage-group descriptors", () => {
+    const compiled = compileAbilityBlueprint(
+      durinDenialOfDarknessBlueprint,
+      {
+        catalog: gameDataCatalog,
+        allowPartial: true
+      }
+    );
+
+    for (const hit of compiled.ability.hits ?? []) {
+      expect(Object.hasOwn(hit, "directDamageGroup")).toBe(false);
+    }
+  });
+
   it("fails loudly with the exact broken source path", () => {
     const invalid = structuredClone(durinDenialOfDarknessBlueprint);
     invalid.hits[1]!.scalingRef.parameterKey = "missing";
@@ -127,7 +159,8 @@ describe("ability blueprint compiler gates", () => {
     "1.3.0",
     "1.4.0",
     "1.5.0",
-    "1.6.0"
+    "1.6.0",
+    "1.7.0"
   ])(
     "migrates mechanics schema %s before compiling",
     (schemaVersion) => {
@@ -139,12 +172,14 @@ describe("ability blueprint compiler gates", () => {
       expect(migrateAbilityBlueprint(previous).schemaVersion).toBe(
         CURRENT_MECHANICS_SCHEMA_VERSION
       );
-      expect(
-        compileAbilityBlueprint(previous, {
-          catalog: gameDataCatalog,
-          allowPartial: true
-        }).ability.id
-      ).toBe(durinEnterTransformationBlueprint.id);
+      const compiled = compileAbilityBlueprint(previous, {
+        catalog: gameDataCatalog,
+        allowPartial: true
+      }).ability;
+      expect(compiled.id).toBe(durinEnterTransformationBlueprint.id);
+      for (const hit of compiled.hits ?? []) {
+        expect(Object.hasOwn(hit, "directDamageGroup")).toBe(false);
+      }
     }
   );
 });

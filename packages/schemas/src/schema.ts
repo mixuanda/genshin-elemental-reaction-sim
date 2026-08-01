@@ -4,6 +4,12 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE,
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_DAMAGE_GROUP_ROOT,
+  type GcsimDamageGroupId
+} from "@genshin-dps-lab/icd-profiles";
+import {
   ACTOR_POSE_SCHEMA_VERSION,
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
@@ -18,6 +24,8 @@ import {
   CRYSTALLIZE_REACTION_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
   DENDRO_CORE_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
@@ -53,6 +61,7 @@ import {
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  REACTION_FORMULA_RUN_MANIFEST_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
@@ -74,6 +83,7 @@ import {
   type SimConfig,
   type SimConfigV144,
   type SimConfigV145,
+  type SimConfigV146,
   type SimulationRunManifest
 } from "./types";
 import {
@@ -531,6 +541,7 @@ const rejectInheritedVersionedResultIdentity = (
   for (const modelField of [
     "reactionEngine",
     "reactionFormulaModel",
+    "directDamageGroupModel",
     "targetClockModel",
     "targetTaskModel",
     "reactionDeliveryModel",
@@ -551,7 +562,10 @@ const rejectInheritedVersionedResultIdentity = (
         "mode",
         ["config", modelField, "mode"]
       );
-      if (modelField === "reactionFormulaModel") {
+      if (
+        modelField === "reactionFormulaModel" ||
+        modelField === "directDamageGroupModel"
+      ) {
         requireOwnWhenPresent(
           model as Record<string, unknown>,
           "profileId",
@@ -596,6 +610,53 @@ export const reactionFormulaModelSchema = z
   })
   .strict();
 
+export const directDamageGroupModelSchema = z
+  .object({
+    mode: z.literal("fixed-gcsim-direct-damage-group-v1"),
+    profileId: z.literal(GCSIM_DAMAGE_GROUP_PROFILE_ID)
+  })
+  .strict();
+
+const gcsimDamageGroupIds = GCSIM_DAMAGE_GROUP_PROFILE.groups.map(
+  (group) => group.id
+) as [GcsimDamageGroupId, ...GcsimDamageGroupId[]];
+
+export const directDamageGroupIdSchema = z.enum(
+  gcsimDamageGroupIds
+);
+
+const directDamageGroupTagSchema = wireNonEmptyStringSchema
+  .max(128)
+  .refine((value) => !/\p{Cc}/u.test(value), {
+    message: "must not contain control characters"
+  });
+
+const directDamageGroupDefinitionValueSchema = z
+  .object({
+    icdTag: directDamageGroupTagSchema,
+    icdGroup: directDamageGroupIdSchema
+  })
+  .strict()
+  .superRefine((group, context) => {
+    if (
+      group.icdGroup === "reaction-a" ||
+      group.icdGroup === "reaction-b" ||
+      group.icdGroup === "burning"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["icdGroup"],
+        message:
+          "is reserved for internal reaction delivery and cannot be declared on ordinary configured hits"
+      });
+    }
+  });
+
+export const directDamageGroupDefinitionSchema = z.preprocess(
+  rejectNonPlainJsonWire("directDamageGroup"),
+  directDamageGroupDefinitionValueSchema
+);
+
 const classicReactionFormulaRootCanonical = canonicalStringify(
   CLASSIC_REACTION_FORMULA_ROOT
 );
@@ -621,6 +682,34 @@ export const reactionFormulaRootSchema = z.preprocess(
     {
       message:
         "must exactly equal the compiled classic reaction-formula root"
+    }
+  )
+);
+
+const gcsimDirectDamageGroupRootCanonical = canonicalStringify(
+  GCSIM_DAMAGE_GROUP_ROOT
+);
+
+/**
+ * Exact compiled root for ordinary direct-damage groups. This profile remains
+ * provisional and deliberately excludes elemental-application sequences.
+ */
+export const directDamageGroupRootSchema = z.preprocess(
+  rejectNonPlainJsonWire("directDamageGroupRoot"),
+  z.custom<typeof GCSIM_DAMAGE_GROUP_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimDirectDamageGroupRootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled provisional direct-damage-group root"
     }
   )
 );
@@ -775,7 +864,7 @@ export const simulationRunManifestV144Schema = z.preprocess(
 
 const simulationRunManifestV145ValueSchema = z
   .object({
-    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    version: z.literal(REACTION_FORMULA_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
       REPRODUCIBILITY_IDENTITY_ALGORITHM
     ),
@@ -853,12 +942,94 @@ export const simulationRunManifestV145Schema = z.preprocess(
   simulationRunManifestV145ValueSchema
 );
 
+const simulationRunManifestV146ValueSchema = z
+  .object({
+    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    ),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV146Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV146ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV145Schema;
+  simulationRunManifestV146Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -873,14 +1044,20 @@ export function parseSimulationRunManifestForConfig(
   const formulaModel = reactionFormulaModelSchema.safeParse(
     config.reactionFormulaModel
   );
+  const damageGroupModel = directDamageGroupModelSchema.safeParse(
+    config.directDamageGroupModel
+  );
   if (
     !formulaModel.success ||
+    !damageGroupModel.success ||
     manifest.schemaVersion !== config.schemaVersion ||
     manifest.engineVersion !== config.engineVersion ||
     manifest.dataVersion !== config.dataVersion ||
     manifest.configHash !== createSimulationConfigHash(config) ||
     manifest.reactionFormulaRoot.profileId !==
-      formulaModel.data.profileId
+      formulaModel.data.profileId ||
+    manifest.directDamageGroupRoot.profileId !==
+      damageGroupModel.data.profileId
   ) {
     throw new Error(
       "Simulation run manifest is not bound to the supplied migrated config."
@@ -8836,13 +9013,31 @@ const hasExactReactionFormulaRootIdentity = (result: {
   result.config.engineVersion ===
     REACTION_FORMULA_ROOT_ENGINE_VERSION;
 
+const hasExactDirectDamageGroupRootIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion ===
+    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+  result.engineVersion ===
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+  result.config.engineVersion ===
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
     typeof hasExactBurningCallbackDeliveryIdentity
   >[0]
 ): boolean =>
   hasExactBurningCallbackDeliveryIdentity(result) ||
-  hasExactReactionFormulaRootIdentity(result);
+  hasExactReactionFormulaRootIdentity(result) ||
+  hasExactDirectDamageGroupRootIdentity(result);
 
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
@@ -8904,6 +9099,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [REACTION_FORMULA_ROOT_SCHEMA_VERSION]: {
     engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION]: {
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -9038,7 +9237,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       addMissingReferenceIssue(
         context,
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, 1.44, or 1.45 Dendro-core output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, 1.45, or 1.46 Dendro-core output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -9144,7 +9343,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           context,
           ["config", "targetTaskModel", "mode"],
           exact144Identity
-            ? `${auraMode} exact 1.44 or 1.45 Dendro-core output requires target-phase-v2 or target-phase-v3`
+            ? `${auraMode} exact 1.44, 1.45, or 1.46 Dendro-core output requires target-phase-v2 or target-phase-v3`
             : `${auraMode} historical Dendro-core output requires target-phase-v2`
         );
       }
@@ -14293,11 +14492,313 @@ export const simConfigV145Schema = z.preprocess(
   simConfigV145ValueSchema
 );
 
+const forEachDirectDamageGroupHit = (
+  wire: Record<string, unknown>,
+  visitor: (
+    hit: Record<string, unknown>,
+    path: Array<string | number>
+  ) => void
+): void => {
+  if (Array.isArray(wire.rotation)) {
+    wire.rotation.forEach((action, actionIndex) => {
+      if (!isRecord(action) || !Array.isArray(action.hits)) return;
+      action.hits.forEach((hit, hitIndex) => {
+        if (!isRecord(hit)) return;
+        visitor(hit, ["rotation", actionIndex, "hits", hitIndex]);
+      });
+    });
+  }
+  if (
+    isRecord(wire.timeline) &&
+    Array.isArray(wire.timeline.abilities)
+  ) {
+    wire.timeline.abilities.forEach((ability, abilityIndex) => {
+      if (!isRecord(ability) || !Array.isArray(ability.hits)) return;
+      ability.hits.forEach((hit, hitIndex) => {
+        if (!isRecord(hit)) return;
+        visitor(hit, [
+          "timeline",
+          "abilities",
+          abilityIndex,
+          "hits",
+          hitIndex
+        ]);
+      });
+    });
+  }
+};
+
+const stripDirectDamageGroupFromHit = (hit: unknown): unknown => {
+  if (!isRecord(hit)) return hit;
+  const {
+    directDamageGroup: _directDamageGroup,
+    ...frozenHit
+  } = hit;
+  return frozenHit;
+};
+
+/** Project the 1.46-only model and per-hit selector onto exact frozen 1.45. */
+const projectSimConfigV146ToV145 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    directDamageGroupModel: _directDamageGroupModel,
+    ...frozenWire
+  } = wire;
+  const projectedRotation = Array.isArray(frozenWire.rotation)
+    ? frozenWire.rotation.map((action) =>
+        isRecord(action) && Array.isArray(action.hits)
+          ? {
+              ...action,
+              hits: action.hits.map(stripDirectDamageGroupFromHit)
+            }
+          : action
+      )
+    : frozenWire.rotation;
+  const rawTimeline = frozenWire.timeline;
+  const projectedTimeline =
+    isRecord(rawTimeline) && Array.isArray(rawTimeline.abilities)
+      ? {
+          ...rawTimeline,
+          abilities: rawTimeline.abilities.map((ability) =>
+            isRecord(ability) && Array.isArray(ability.hits)
+              ? {
+                  ...ability,
+                  hits: ability.hits.map(
+                    stripDirectDamageGroupFromHit
+                  )
+                }
+              : ability
+          )
+        }
+      : rawTimeline;
+  return {
+    ...frozenWire,
+    schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+    engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+    rotation: projectedRotation,
+    ...(Object.prototype.hasOwnProperty.call(frozenWire, "timeline")
+      ? { timeline: projectedTimeline }
+      : {})
+  };
+};
+
+const restoreDirectDamageGroupHitArray = (
+  parsedHits: unknown,
+  rawHits: unknown
+): unknown => {
+  if (!Array.isArray(parsedHits) || !Array.isArray(rawHits)) {
+    return parsedHits;
+  }
+  return parsedHits.map((parsedHit, hitIndex) => {
+    const rawHit = rawHits[hitIndex];
+    if (
+      !isRecord(parsedHit) ||
+      !isRecord(rawHit) ||
+      !Object.prototype.hasOwnProperty.call(
+        rawHit,
+        "directDamageGroup"
+      )
+    ) {
+      return parsedHit;
+    }
+    return {
+      ...parsedHit,
+      directDamageGroup: directDamageGroupDefinitionSchema.parse(
+        rawHit.directDamageGroup
+      )
+    };
+  });
+};
+
+const restoreDirectDamageGroupHitOwner = (
+  parsedOwner: unknown,
+  rawOwner: unknown
+): unknown => {
+  if (!isRecord(parsedOwner) || !isRecord(rawOwner)) {
+    return parsedOwner;
+  }
+  if (!Array.isArray(parsedOwner.hits)) return parsedOwner;
+  return {
+    ...parsedOwner,
+    hits: restoreDirectDamageGroupHitArray(
+      parsedOwner.hits,
+      rawOwner.hits
+    )
+  };
+};
+
+const simConfigV146ValueSchema = z
+  .custom<SimConfigV146>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (
+      wire.schemaVersion !==
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION}`
+      });
+    }
+    if (
+      wire.engineVersion !==
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel = wire.directDamageGroupModel;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["directDamageGroupModel"],
+        message:
+          "requires the explicit compiled provisional direct-damage-group profile"
+      });
+    } else {
+      for (const field of ["mode", "profileId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: ["directDamageGroupModel", field],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel = directDamageGroupModelSchema.safeParse(
+        rawModel
+      );
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["directDamageGroupModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    forEachDirectDamageGroupHit(wire, (hit, path) => {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          hit,
+          "directDamageGroup"
+        )
+      ) {
+        return;
+      }
+      if (
+        !Object.prototype.hasOwnProperty.call(hit, "id") ||
+        typeof hit.id !== "string" ||
+        hit.id.trim().length === 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "id"],
+          message:
+            "must be an explicit non-empty hit id when directDamageGroup is declared"
+        });
+      }
+      const parsedGroup =
+        directDamageGroupDefinitionSchema.safeParse(
+          hit.directDamageGroup
+        );
+      if (!parsedGroup.success) {
+        for (const issue of parsedGroup.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: [...path, "directDamageGroup", ...issue.path]
+          });
+        }
+      }
+    });
+    const parsed = simConfigV145Schema.safeParse(
+      projectSimConfigV146ToV145(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({
+        ...issue,
+        path: issue.path
+      });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV145Schema.parse(
+      projectSimConfigV146ToV145(wire)
+    );
+    const rawRotation = Array.isArray(wire.rotation)
+      ? wire.rotation
+      : [];
+    const rotation = parsed.rotation.map((action, actionIndex) =>
+      restoreDirectDamageGroupHitOwner(
+        action,
+        rawRotation[actionIndex]
+      )
+    );
+    const rawTimeline = isRecord(wire.timeline)
+      ? wire.timeline
+      : undefined;
+    const timeline =
+      parsed.timeline === undefined || rawTimeline === undefined
+        ? parsed.timeline
+        : {
+            ...parsed.timeline,
+            abilities: parsed.timeline.abilities.map(
+              (ability, abilityIndex) =>
+                restoreDirectDamageGroupHitOwner(
+                  ability,
+                  Array.isArray(rawTimeline.abilities)
+                    ? rawTimeline.abilities[abilityIndex]
+                    : undefined
+                )
+            )
+          };
+    return {
+      ...parsed,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      directDamageGroupModel: directDamageGroupModelSchema.parse(
+        wire.directDamageGroupModel
+      ),
+      rotation,
+      ...(timeline === undefined ? {} : { timeline })
+    } as unknown as SimConfigV146;
+  });
+
+export const simConfigV146Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV146ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV145Schema;
+export const simConfigSchema = simConfigV146Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -14335,6 +14836,11 @@ const simResultConfigSchema = z
         BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
       wire.engineVersion ===
         BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+    const exact145Identity =
+      wire.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        REACTION_FORMULA_ROOT_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -14397,7 +14903,9 @@ const simResultConfigSchema = z
       ? simConfigV142Schema.safeParse(projected)
       : exact144Identity
         ? simConfigV144Schema.safeParse(wire)
-        : simConfigV145Schema.safeParse(wire);
+        : exact145Identity
+          ? simConfigV145Schema.safeParse(wire)
+          : simConfigV146Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -15240,7 +15748,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION]:
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   [REACTION_FORMULA_ROOT_SCHEMA_VERSION]:
-    REACTION_FORMULA_ROOT_ENGINE_VERSION
+    REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  [DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION]:
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -15461,7 +15971,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -15567,7 +16081,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, 1.44, or 1.45 target-task output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, 1.45, or 1.46 target-task output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -15615,7 +16129,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-task output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
+          "aura-v9 target-task output requires the exact 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
     }
@@ -15639,7 +16153,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 through 1.42, 1.44, or 1.45 target-task output requires an explicit cleanup audit or null"
+            "exact 1.40 through 1.42, 1.44, 1.45, or 1.46 target-task output requires an explicit cleanup audit or null"
           );
         }
         if (!exactEcCleanupIdentity && hasCleanupField) {
@@ -15804,7 +16318,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use an exact supported 1.37 through 1.42, 1.44, or 1.45 identity"
+          "target-phase-v1 result and config must use an exact supported 1.37 through 1.42, 1.44, 1.45, or 1.46 identity"
         );
       }
     }
@@ -15868,7 +16382,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       if (!hasExactBurningCallbackDeliveryOrCurrentIdentity(result)) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v3 requires the exact 1.44 or 1.45 schema and engine identity"
+          "target-phase-v3 requires the exact 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
       if (phases.length !== 0) {
@@ -16979,7 +17493,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, 1.44, or 1.45 target-phase output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, 1.45, or 1.46 target-phase output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -17024,7 +17538,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-phase output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
+          "aura-v9 target-phase output requires the exact 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
     }
@@ -17243,7 +17757,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -17334,7 +17852,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require an exact supported 1.38 through 1.42, 1.44, or 1.45 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38 through 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
       if (
@@ -17365,7 +17883,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40, 1.41, 1.42, 1.44, or 1.45 schema and engine identity"
+          "aura-v8 target-phase output requires the exact 1.40, 1.41, 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
       if (
@@ -17375,7 +17893,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-phase output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
+          "aura-v9 target-phase output requires the exact 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
         );
       }
       if (oldPhases.length !== 0) {
@@ -19426,7 +19944,7 @@ const electroChargedCleanupDamageEventReferenceSchema = z
   .passthrough();
 
 /**
- * Exact 1.40–1.42/1.44/1.45 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
+ * Exact 1.40–1.42/1.44–1.46 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
  * requested by Quicken→Bloom. This consumes a versioned config and the full
  * cleanup-owned logs while accepting unrelated SimulationResult fields.
  */
@@ -19439,14 +19957,16 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION),
       z.literal(EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION),
       z.literal(BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION),
-      z.literal(REACTION_FORMULA_ROOT_SCHEMA_VERSION)
+      z.literal(REACTION_FORMULA_ROOT_SCHEMA_VERSION),
+      z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
       z.literal(EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION),
       z.literal(EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION),
       z.literal(BURNING_CALLBACK_DELIVERY_ENGINE_VERSION),
-      z.literal(REACTION_FORMULA_ROOT_ENGINE_VERSION)
+      z.literal(REACTION_FORMULA_ROOT_ENGINE_VERSION),
+      z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -19526,7 +20046,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "engineVersion"],
-        "Electro-Charged cleanup requires exact matching 1.40 through 1.42, 1.44, or 1.45 result and config identity"
+        "Electro-Charged cleanup requires exact matching 1.40 through 1.42, 1.44, 1.45, or 1.46 result and config identity"
       );
     }
     const hasPropagationModel =
@@ -19546,7 +20066,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, 1.44, or 1.45 cleanup output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, 1.45, or 1.46 cleanup output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -19565,7 +20085,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v9 Electro-Charged cleanup requires exact 1.42, 1.44, or 1.45 identity"
+        "aura-v9 Electro-Charged cleanup requires exact 1.42, 1.44, 1.45, or 1.46 identity"
       );
     }
     if (
@@ -19583,7 +20103,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "targetTaskModel", "mode"],
-        "target-phase-v3 Electro-Charged cleanup requires exact 1.44 or 1.45 identity"
+        "target-phase-v3 Electro-Charged cleanup requires exact 1.44, 1.45, or 1.46 identity"
       );
     }
     if (
@@ -21552,22 +22072,7 @@ const shatterGaugeMatches = (
  * the sole exception: its child damage is committed first and may therefore
  * point forward to the direct or reaction-damage event that triggered it.
  */
-export const reactionDeliveryResultReferencesSchema = z.preprocess(
-  (input, context) => {
-    const cleanInput = rejectNonPlainJsonWire(
-      "reactionDeliveryResult"
-    )(
-      input,
-      context
-    );
-    rejectInheritedVersionedResultIdentity(
-      cleanInput,
-      context
-    );
-    return cleanInput;
-  },
-  z
-  .object({
+const reactionDeliveryResultReferencesValueSchema = z.object({
     schemaVersion: z.string(),
     engineVersion: z.string(),
     config: z
@@ -21627,9 +22132,16 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     targetStateTimeline: targetStateTimelineSchema.optional(),
     targetClockLog: targetClockLogSchema.optional(),
     targetHitlagLog: targetHitlagLogSchema.optional()
-  })
-  .passthrough()
-  .superRefine((result, context) => {
+  }).passthrough();
+
+type ReactionDeliveryResultReferencesValue = z.infer<
+  typeof reactionDeliveryResultReferencesValueSchema
+>;
+
+export function validateReactionDeliveryResultReferences(
+  result: ReactionDeliveryResultReferencesValue,
+  context: z.RefinementCtx<ReactionDeliveryResultReferencesValue>
+): void {
     const issue = (
       path: Array<string | number>,
       message: string
@@ -22076,7 +22588,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionDeliveryModel"],
-        "reaction delivery result requires an exact supported 1.39 through 1.42, 1.44, or 1.45 schema and engine identity"
+        "reaction delivery result requires an exact supported 1.39 through 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
       );
     }
     if (
@@ -22088,7 +22600,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v8 reaction-delivery output requires the exact 1.40, 1.41, 1.42, 1.44, or 1.45 schema and engine identity"
+        "aura-v8 reaction-delivery output requires the exact 1.40, 1.41, 1.42, 1.44, 1.45, or 1.46 schema and engine identity"
       );
     }
     if (
@@ -22121,7 +22633,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 reaction-delivery output requires exact 1.42, 1.44, or 1.45 identity"
+          "aura-v9 reaction-delivery output requires exact 1.42, 1.44, 1.45, or 1.46 identity"
         );
       }
     }
@@ -22131,7 +22643,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, 1.44, or 1.45 reaction-delivery output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, 1.45, or 1.46 reaction-delivery output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -22332,7 +22844,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["hitResolutionLog", entryIndex, "id"],
-            `exact 1.41/1.42/1.44/1.45 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
@@ -22340,7 +22852,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["damageEvents", entryIndex, "id"],
-            `exact 1.41/1.42/1.44/1.45 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
@@ -22358,19 +22870,19 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       if (configTargetClockModel === undefined) {
         issue(
           ["config", "targetClockModel"],
-          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires an explicit target clock model"
+          "exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet output requires an explicit target clock model"
         );
       }
       if (resultTargetClockLog === undefined) {
         issue(
           ["targetClockLog"],
-          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires a target-clock replay log"
+          "exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet output requires a target-clock replay log"
         );
       }
       if (resultTargetHitlagLog === undefined) {
         issue(
           ["targetHitlagLog"],
-          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires a target-Hitlag provenance log"
+          "exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet output requires a target-Hitlag provenance log"
         );
       }
       const targetClockLog = resultTargetClockLog ?? [];
@@ -22617,7 +23129,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex, "id"],
-          `exact 1.41/1.42/1.44/1.45 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
+          `exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
         );
       }
       if (
@@ -22631,7 +23143,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex],
-          "exact 1.41/1.42/1.44/1.45 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
+          "exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
         );
       }
       if (
@@ -22658,7 +23170,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               entryIndex,
               "reactionDamageLogId"
             ],
-            "exact 1.41/1.42/1.44/1.45 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
+            "exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
           );
         }
       }
@@ -25502,7 +26014,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               pointIndex,
               "cause"
             ],
-            "Electro-Charged propagation candidate observations are reserved for exact 1.41/1.42/1.44/1.45 nearby-Wet output"
+            "Electro-Charged propagation candidate observations are reserved for exact 1.41/1.42/1.44/1.45/1.46 nearby-Wet output"
           );
         } else if (
           !claimedPropagationObservationPointIds.has(
@@ -26356,7 +26868,74 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         cursor = damageById.get(cursor.parentDamageEventId);
       }
     });
-  })
+  }
+
+/**
+ * Zero-copy reaction-delivery assertion for values constructed inside
+ * sim-core. The public schema above remains the only boundary for imported or
+ * persisted JSON; it still performs recursive plain-wire and leaf validation
+ * before invoking this exact same cross-log refinement.
+ */
+export function assertTrustedReactionDeliveryResultReferences<T>(
+  result: T
+): T {
+  const trustedResult =
+    result as unknown as ReactionDeliveryResultReferencesValue;
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message:
+          issue.message ??
+          "invalid trusted reaction-delivery result reference"
+      });
+    }
+  } as unknown as z.RefinementCtx<ReactionDeliveryResultReferencesValue>;
+
+  validateReactionDeliveryResultReferences(
+    trustedResult,
+    context
+  );
+  if (issues.length !== 0) {
+    throw new Error(
+      `Trusted reaction-delivery result reference validation failed: ${issues
+        .map(
+          (issue) =>
+            `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+        )
+        .join("; ")}`
+    );
+  }
+  return result;
+}
+
+const reactionDeliveryResultReferencesRefinedValueSchema =
+  reactionDeliveryResultReferencesValueSchema.superRefine(
+    validateReactionDeliveryResultReferences
+  );
+
+export const reactionDeliveryResultReferencesSchema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire(
+      "reactionDeliveryResult"
+    )(
+      input,
+      context
+    );
+    rejectInheritedVersionedResultIdentity(
+      cleanInput,
+      context
+    );
+    return cleanInput;
+  },
+  reactionDeliveryResultReferencesRefinedValueSchema
 );
 
 const goldenAuraBoundarySchema = z
@@ -28870,6 +29449,10 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    directDamageGroupModel: {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
     }
   };
 }
@@ -28921,6 +29504,7 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
     const nestedOwnFields = [
       ["reactionEngine", ["mode"]],
       ["reactionFormulaModel", ["mode", "profileId"]],
+      ["directDamageGroupModel", ["mode", "profileId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -29209,6 +29793,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION]: {
     engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [REACTION_FORMULA_ROOT_SCHEMA_VERSION]: {
+    engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -29263,6 +29851,24 @@ function findEnemyElementalResistancesPath(
   return null;
 }
 
+function findDirectDamageGroupHitPath(
+  input: Record<string, unknown>
+): string | null {
+  let foundPath: string | null = null;
+  forEachDirectDamageGroupHit(input, (hit, path) => {
+    if (
+      foundPath === null &&
+      Object.prototype.hasOwnProperty.call(
+        hit,
+        "directDamageGroup"
+      )
+    ) {
+      foundPath = `${path.join(".")}.directDamageGroup`;
+    }
+  });
+  return foundPath;
+}
+
 export function migrateConfig(rawInput: unknown): SimConfig {
   const plainInput = parsePlainSimConfigWire(rawInput);
   if (!isRecord(plainInput)) {
@@ -29289,10 +29895,11 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
-  const isCurrentFormulaIdentity =
-    version === CURRENT_SCHEMA_VERSION;
+  const isFormulaIdentity =
+    version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   if (
-    !isCurrentFormulaIdentity &&
+    !isFormulaIdentity &&
     "reactionFormulaModel" in input
   ) {
     const historicalVersion =
@@ -29305,7 +29912,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       [issue]
     );
   }
-  if (isCurrentFormulaIdentity) {
+  if (isFormulaIdentity) {
     if (
       !Object.prototype.hasOwnProperty.call(
         input,
@@ -29336,8 +29943,63 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       }
     }
   }
+  const isCurrentDirectDamageGroupIdentity =
+    version === CURRENT_SCHEMA_VERSION;
+  const directDamageGroupHitPath =
+    findDirectDamageGroupHitPath(input);
+  if (
+    !isCurrentDirectDamageGroupIdentity &&
+    ("directDamageGroupModel" in input ||
+      directDamageGroupHitPath !== null)
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const field =
+      "directDamageGroupModel" in input
+        ? "directDamageGroupModel"
+        : directDamageGroupHitPath!;
+    const issue = `${field}: schemaVersion "${historicalVersion}" does not support ordinary direct-damage-group selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isCurrentDirectDamageGroupIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "directDamageGroupModel"
+      ) ||
+      !isRecord(input.directDamageGroupModel)
+    ) {
+      const issue =
+        `directDamageGroupModel: schemaVersion "${String(version)}" requires the explicit compiled provisional direct-damage-group profile`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "profileId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.directDamageGroupModel,
+          field
+        )
+      ) {
+        const issue =
+          `directDamageGroupModel.${field}: schemaVersion "${String(version)}" requires an explicit own direct-damage-group identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+  }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
     version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
     version === EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   if (
@@ -29760,11 +30422,36 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
   }
+  if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
+    const frozen = simConfigV145Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      directDamageGroupModel: {
+        mode: "fixed-gcsim-direct-damage-group-v1",
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+      }
+    });
+  }
   input = {
     ...input,
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    directDamageGroupModel: {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
     }
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {

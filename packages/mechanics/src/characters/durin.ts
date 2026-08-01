@@ -1,5 +1,8 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
 import {
@@ -421,6 +424,10 @@ export function createDurinBlackSkillAuditConfig(
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
     },
+    directDamageGroupModel: {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
     meta: {
@@ -534,6 +541,10 @@ export function createDurinWhiteSkillAuditConfig(
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    directDamageGroupModel: {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",

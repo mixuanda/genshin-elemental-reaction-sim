@@ -3,6 +3,9 @@ import {
   CURRENT_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
 import { describe, expect, it } from "vitest";
@@ -27,11 +30,16 @@ const EXPECTED_REACTION_FORMULA_MODEL = {
   profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
 } as const;
 
+const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
+  mode: "fixed-gcsim-direct-damage-group-v1",
+  profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+} as const;
+
 describe("game-data preset engine identity", () => {
-  it("propagates the exact 1.45 formula-root identity without opting built-in presets into unrelated mechanics modes", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
+  it("propagates the exact current mechanics-root identities without opting built-in presets into unrelated mechanics modes", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.45.0-reaction-formula-root"
+      "1.46.0-direct-damage-group-root"
     );
 
     for (const preset of presets) {
@@ -47,6 +55,10 @@ describe("game-data preset engine identity", () => {
         preset.meta.name
       ).toEqual(EXPECTED_REACTION_FORMULA_MODEL);
       expect(
+        preset.directDamageGroupModel,
+        preset.meta.name
+      ).toEqual(EXPECTED_DIRECT_DAMAGE_GROUP_MODEL);
+      expect(
         preset.reactionEngine?.mode,
         preset.meta.name
       ).not.toBe("aura-v9");
@@ -59,6 +71,22 @@ describe("game-data preset engine identity", () => {
       expect(preset.electroChargedPropagationModel).toEqual({
         mode: "single-target-v1"
       });
+    }
+  });
+
+  it("does not mislabel provisional preset hits as verified ordinary direct-damage groups", () => {
+    for (const preset of presets) {
+      const hits = [
+        ...preset.rotation.flatMap((action) => action.hits ?? []),
+        ...(preset.timeline?.abilities.flatMap(
+          (ability) => ability.hits ?? []
+        ) ?? [])
+      ];
+
+      for (const hit of hits) {
+        expect(hit, `${preset.meta.name}: ${hit.id ?? hit.label}`).not
+          .toHaveProperty("directDamageGroup");
+      }
     }
   });
 });

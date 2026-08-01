@@ -1,7 +1,15 @@
 import { z } from "zod";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE,
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  type GcsimDamageGroupId
+} from "@genshin-dps-lab/icd-profiles";
+import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
@@ -11,7 +19,8 @@ import {
 import {
   validateSimulationResultV142Integrity,
   validateSimulationResultV144Integrity,
-  validateSimulationResultV145Integrity
+  validateSimulationResultV145Integrity,
+  validateSimulationResultV146Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -51,9 +60,11 @@ import {
   simConfigV142Schema,
   simConfigV144Schema,
   simConfigV145Schema,
+  simConfigV146Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
+  simulationRunManifestV146Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -162,6 +173,14 @@ const particleElementSchema = z.enum([
   "neutral"
 ]);
 const particleKindSchema = z.enum(["particle", "orb"]);
+const directDamageGroupIds = new Set<string>(
+  GCSIM_DAMAGE_GROUP_PROFILE.groups.map((group) => group.id)
+);
+const directDamageGroupIdSchema = z.custom<GcsimDamageGroupId>(
+  (value) =>
+    typeof value === "string" && directDamageGroupIds.has(value),
+  "unknown fixed direct-damage group"
+);
 
 export const activeStatusSnapshotV142Schema = z
   .object({
@@ -1072,6 +1091,78 @@ export const hitResolutionLogEntryV142Schema = z
       });
     }
   });
+
+const directDamageGroupLogCommonV146Shape = {
+  id: nonNegativeIntegerSchema,
+  damageEventId: nonNegativeIntegerSchema,
+  hitResolutionLogId: nonNegativeIntegerSchema,
+  frame: frameSchema,
+  sourceActorId: nonEmptyStringSchema,
+  targetId: nonEmptyStringSchema,
+  hitId: nonEmptyStringSchema,
+  profileId: z.literal(GCSIM_DAMAGE_GROUP_PROFILE_ID),
+  configuredMultiplier: finiteNumberSchema,
+  prePluginMultiplier: finiteNumberSchema,
+  postPluginMultiplier: finiteNumberSchema,
+  pluginMultiplierTrace: z.array(
+    z
+      .object({
+        pluginManifestIndex: nonNegativeIntegerSchema,
+        pluginId: nonEmptyStringSchema,
+        inputMultiplier: finiteNumberSchema,
+        outcome: z.enum(["no-change", "override"]),
+        outputMultiplier: finiteNumberSchema
+      })
+      .strict()
+  ),
+  pluginTraceVerification: z.literal(
+    DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION
+  ),
+  effectiveMultiplier: finiteNumberSchema,
+  damageGroupOnEnemyHitAllowed: z.boolean()
+} as const;
+
+/**
+ * Exact 1.46 ordinary direct-damage-group audit wire.
+ *
+ * Bypassed hits still own a row so the log has a reversible one-to-one
+ * cardinality with landed ordinary direct DamageEvents. Stateful fields are
+ * deliberately null for bypass rows rather than carrying plausible-looking
+ * defaults that cannot be replayed.
+ */
+export const directDamageGroupLogEntryV146Schema =
+  z.discriminatedUnion("evaluation", [
+    z
+      .object({
+        ...directDamageGroupLogCommonV146Shape,
+        evaluation: z.literal("bypassed"),
+        icdTag: z.null(),
+        icdGroup: z.null(),
+        windowStartGroup: z.null(),
+        resetFrames: z.null(),
+        windowStartFrame: z.null(),
+        resetAtFrame: z.null(),
+        hitIndex: z.null(),
+        sequenceIndex: z.null(),
+        sequenceMultiplier: z.literal(1)
+      })
+      .strict(),
+    z
+      .object({
+        ...directDamageGroupLogCommonV146Shape,
+        evaluation: z.literal("evaluated"),
+        icdTag: nonEmptyStringSchema,
+        icdGroup: directDamageGroupIdSchema,
+        windowStartGroup: directDamageGroupIdSchema,
+        resetFrames: positiveIntegerSchema,
+        windowStartFrame: frameSchema,
+        resetAtFrame: frameSchema,
+        hitIndex: nonNegativeIntegerSchema,
+        sequenceIndex: nonNegativeIntegerSchema,
+        sequenceMultiplier: z.union([z.literal(0), z.literal(1)])
+      })
+      .strict()
+  ]);
 
 export const targetMechanicsTruncationLogEntryV142Schema = z
   .object({
@@ -2531,6 +2622,159 @@ export type SimulationResultV145 = z.output<
   typeof simulationResultV145Schema
 >;
 
+/**
+ * Exact current 1.46 result wire. All inherited 1.45 fields remain exact;
+ * this boundary adds only the fixed direct-damage-group identity and the
+ * required replay log.
+ */
+export const simulationResultV146ValueSchema = z
+  .object({
+    ...simulationResultV145ValueSchema.shape,
+    schemaVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV146Schema,
+    config: simConfigV146Schema,
+    directDamageGroupLog: z.array(
+      directDamageGroupLogEntryV146Schema
+    )
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => context.addIssue({ code: "custom", path, message });
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(["dataVersion"], "must equal config.dataVersion");
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV146Integrity(
+      result as unknown as SimulationResult,
+      context
+    );
+  });
+
+export const simulationResultV146Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.46"),
+  simulationResultV146ValueSchema
+);
+
+export type SimulationResultV146 = z.output<
+  typeof simulationResultV146Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema = simulationResultV145Schema;
-export type ParsedSimulationResult = SimulationResultV145;
+export const simulationResultSchema = simulationResultV146Schema;
+export type ParsedSimulationResult = SimulationResultV146;

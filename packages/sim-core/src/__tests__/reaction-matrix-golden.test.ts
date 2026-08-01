@@ -2221,9 +2221,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.45.0-reaction-formula-root"
+      "1.46.0-direct-damage-group-root"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2343,8 +2343,8 @@ describe("current aura-v9 classic reaction release gate", () => {
       }
       expect(result).toEqual(repeated);
       expect(result.config).toMatchObject({
-        schemaVersion: "1.45.0",
-        engineVersion: "1.45.0-reaction-formula-root",
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
         reactionEngine: {
           mode: "aura-v9"
         },
@@ -2360,8 +2360,8 @@ describe("current aura-v9 classic reaction release gate", () => {
         }
       });
       expect(result.runManifest).toMatchObject({
-        schemaVersion: "1.45.0",
-        engineVersion: "1.45.0-reaction-formula-root",
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
         dataVersion: DATA_VERSION,
         resolvedRuntimeOptions: options
       });

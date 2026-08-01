@@ -3,6 +3,8 @@ import { canonicalStringify } from "./reproducibility";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type AuraStateEntry,
@@ -420,7 +422,8 @@ function exactLifecycleLinks(
 
 /**
  * Cross-log proof for the target-phase-v3 Burning callback wire frozen by
- * 1.44 and reused unchanged by the exact 1.45 formula-root identity.
+ * 1.44 and reused unchanged by the exact 1.45 formula-root and 1.46
+ * direct-damage-group-root identities.
  *
  * The callback task is the ownership root. Its delivery is a distinct
  * zero-delay micro-event between QueueEnemyTask and Reactable.Tick. This pass
@@ -452,11 +455,16 @@ export function validateTargetPhaseV3Integrity(
       REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
     configEngineVersion ===
       REACTION_FORMULA_ROOT_ENGINE_VERSION;
-  if (!exactV144Identity && !exactV145Identity) {
+  const exactV146Identity =
+    resultSchemaVersion === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+    resultEngineVersion === DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION &&
+    configSchemaVersion === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+    configEngineVersion === DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  if (!exactV144Identity && !exactV145Identity && !exactV146Identity) {
     addIssue(
       context,
       ["schemaVersion"],
-      "target-phase-v3 integrity requires an exact 1.44 or 1.45 schema and engine identity"
+      "target-phase-v3 integrity requires an exact 1.44, 1.45, or 1.46 schema and engine identity"
     );
     return;
   }

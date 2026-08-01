@@ -62,7 +62,7 @@ function expectRejectedByPublicAndTrusted(
     () => assertTrustedSimulationResult(trustedResult),
     `${label}: trusted sim-core boundary`
   ).toThrow(
-    /Trusted SimulationResult 1\.45 integrity validation failed/
+    /Trusted SimulationResult 1\.46 integrity validation failed/
   );
 }
 
@@ -769,7 +769,7 @@ describe("current SimulationResult particle provenance integrity", () => {
     expect(() =>
       assertTrustedSimulationResult(mutation)
     ).toThrow(
-      /Trusted SimulationResult 1\.45 integrity validation failed/
+      /Trusted SimulationResult 1\.46 integrity validation failed/
     );
   });
 

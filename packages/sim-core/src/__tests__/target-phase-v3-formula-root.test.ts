@@ -206,7 +206,7 @@ describe("target-phase-v3 formula-root identity", () => {
     if (!parsed.success) {
       expect(
         parsed.error.issues.some((issue) =>
-          issue.message.includes("exact 1.44 or 1.45")
+          issue.message.includes("exact 1.44, 1.45, or 1.46")
         )
       ).toBe(true);
     }

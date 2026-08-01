@@ -5,10 +5,20 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_DAMAGE_GROUP_ROOT,
+  resolveDamageGroup,
+  type GcsimDamageGroupId
+} from "@genshin-dps-lab/icd-profiles";
+import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
@@ -17,6 +27,7 @@ import {
   type AuraStateEntry,
   type CharacterStats,
   type DamageEvent,
+  type HitDefinition,
   type ScalingStat,
   type SimulationResult,
   type StatusTarget
@@ -191,6 +202,9 @@ function hasValidReactionDeliveryShape(
 }
 
 function nearlyEqual(left: number, right: number): boolean {
+  if (!Number.isFinite(left) || !Number.isFinite(right)) {
+    return false;
+  }
   return (
     Math.abs(left - right) <=
     FLOAT_TOLERANCE *
@@ -2107,13 +2121,13 @@ function validateIdentityV145(
     "current"
   );
   if (
-    result.runManifest.version !==
-    SIMULATION_RUN_MANIFEST_VERSION
+    (result.runManifest.version as string) !==
+    REACTION_FORMULA_RUN_MANIFEST_VERSION
   ) {
     addIssue(
       context,
       ["runManifest", "version"],
-      `1.45 results require run-manifest version ${SIMULATION_RUN_MANIFEST_VERSION}`
+      `1.45 results require run-manifest version ${REACTION_FORMULA_RUN_MANIFEST_VERSION}`
     );
   }
   expectSemanticEqual(
@@ -2139,6 +2153,77 @@ function validateIdentityV145(
     result.runManifest.reactionFormulaRoot?.profileId,
     result.config.reactionFormulaModel?.profileId,
     "run-manifest/config reaction formula profile"
+  );
+}
+
+function validateIdentityV146(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityForVersion(
+    result,
+    context,
+    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !==
+    SIMULATION_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.46 results require run-manifest version ${SIMULATION_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot", "profileId"],
+    result.runManifest.reactionFormulaRoot?.profileId,
+    result.config.reactionFormulaModel?.profileId,
+    "run-manifest/config reaction formula profile"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot", "profileId"],
+    result.runManifest.directDamageGroupRoot?.profileId,
+    result.config.directDamageGroupModel?.profileId,
+    "run-manifest/config direct-damage-group profile"
   );
 }
 
@@ -2411,6 +2496,625 @@ function validateReactionFormulaProfileV145(
       expectedTransformativeReactionBase(delivery),
       "fixed-profile transformative base multiplier"
     );
+  }
+}
+
+type ConfiguredDirectDamageHit = Pick<
+  HitDefinition,
+  "id" | "groupMultiplier" | "directDamageGroup"
+>;
+
+interface ConfiguredDirectDamageHitLookup {
+  rotationHits: Map<string, ConfiguredDirectDamageHit[]>;
+  abilityHits: Map<string, ConfiguredDirectDamageHit[]>;
+}
+
+const RESERVED_INTERNAL_DAMAGE_GROUPS = new Set<string>([
+  "reaction-a",
+  "reaction-b",
+  "burning"
+]);
+
+function buildConfiguredDirectDamageHitLookup(
+  result: SimulationResult
+): ConfiguredDirectDamageHitLookup {
+  const rotationHits = new Map<
+    string,
+    ConfiguredDirectDamageHit[]
+  >();
+  for (const action of result.config.rotation) {
+    rotationHits.set(
+      JSON.stringify([action.actorId, action.id]),
+      [...(action.hits ?? [])]
+    );
+  }
+
+  const abilityHits = new Map<
+    string,
+    ConfiguredDirectDamageHit[]
+  >();
+  for (const ability of result.config.timeline?.abilities ?? []) {
+    abilityHits.set(
+      JSON.stringify([ability.actorId, ability.id]),
+      [...(ability.hits ?? [])]
+    );
+  }
+  return { rotationHits, abilityHits };
+}
+
+function parseConfiguredDirectDamageHitIndex(
+  event: DamageEvent
+): number | undefined {
+  // hitGroupId is simulator-authored as
+  // `${actionId}:${cycle}:${hitIndex}:${frame}`. actionId may itself contain
+  // colons, so splitting on ':' is ambiguous; bind the exact known prefix and
+  // suffix and parse only the remaining decimal index.
+  const prefix = `${event.actionId}:${event.cycle}:`;
+  const suffix = `:${event.frame}`;
+  if (
+    !event.hitGroupId.startsWith(prefix) ||
+    !event.hitGroupId.endsWith(suffix)
+  ) {
+    return undefined;
+  }
+  const indexText = event.hitGroupId.slice(
+    prefix.length,
+    event.hitGroupId.length - suffix.length
+  );
+  if (!/^(0|[1-9]\d*)$/.test(indexText)) {
+    return undefined;
+  }
+  const hitIndex = Number(indexText);
+  return Number.isSafeInteger(hitIndex) ? hitIndex : undefined;
+}
+
+function findConfiguredDirectDamageHit(
+  lookup: ConfiguredDirectDamageHitLookup,
+  event: DamageEvent
+): ConfiguredDirectDamageHit | undefined {
+  const hitIndex = parseConfiguredDirectDamageHitIndex(event);
+  if (hitIndex === undefined) return undefined;
+
+  let configuredHits: ConfiguredDirectDamageHit[] | undefined;
+  if (
+    event.timelineCommandIndex !== undefined &&
+    event.sourceAbilityId !== undefined
+  ) {
+    configuredHits = lookup.abilityHits.get(
+      JSON.stringify([
+        event.sourceActorId,
+        event.sourceAbilityId
+      ])
+    );
+  } else {
+    configuredHits = lookup.rotationHits.get(
+      JSON.stringify([
+        event.sourceActorId,
+        event.actionId
+      ])
+    );
+  }
+
+  const configuredHit = configuredHits?.[hitIndex];
+  if (configuredHit === undefined) return undefined;
+  const effectiveHitId =
+    configuredHit.id ?? `${event.actionId}:hit-${hitIndex}`;
+  return effectiveHitId === event.hitId
+    ? configuredHit
+    : undefined;
+}
+
+interface DirectDamageGroupReplayWindow {
+  startFrame: number;
+  resetAtFrame: number;
+  resetFrames: number;
+  startGroup: GcsimDamageGroupId;
+  hitCount: number;
+}
+
+/**
+ * Replays the exact ordinary direct-damage-group counter independently from
+ * sim-core. State is target + source actor + tag scoped; group intentionally
+ * does not participate in the key. The first hit fixes the active window's
+ * timer while each current hit selects its own damage sequence.
+ */
+function validateDirectDamageGroupV146(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const directEvents = result.damageEvents
+    .filter(
+      (event) =>
+        event.kind === "direct" &&
+        event.parentDamageEventId === null
+    )
+    .sort(
+      (left, right) =>
+        left.frame - right.frame ||
+        left.eventPriority - right.eventPriority ||
+        left.eventSequence - right.eventSequence ||
+        left.id - right.id
+    );
+
+  if (result.directDamageGroupLog.length !== directEvents.length) {
+    addIssue(
+      context,
+      ["directDamageGroupLog"],
+      "must contain exactly one row per landed ordinary direct damage event"
+    );
+  }
+
+  const loggedDamageEventIds = new Set<number>();
+  const configuredHitLookup = buildConfiguredDirectDamageHitLookup(
+    result
+  );
+  const replayWindows = new Map<
+    string,
+    DirectDamageGroupReplayWindow
+  >();
+
+  for (const [logIndex, log] of
+    result.directDamageGroupLog.entries()) {
+    const logPath = [
+      "directDamageGroupLog",
+      logIndex
+    ] satisfies IssuePath;
+    const expectedEvent = directEvents[logIndex];
+
+    expectEqual(
+      context,
+      [...logPath, "id"],
+      log.id,
+      logIndex,
+      "direct-damage-group log ID"
+    );
+    if (loggedDamageEventIds.has(log.damageEventId)) {
+      addIssue(
+        context,
+        [...logPath, "damageEventId"],
+        "must not duplicate another direct-damage-group backlink"
+      );
+    }
+    loggedDamageEventIds.add(log.damageEventId);
+
+    if (expectedEvent === undefined) {
+      addIssue(
+        context,
+        [...logPath, "damageEventId"],
+        "has no ordinary direct damage event at this stable replay position"
+      );
+      continue;
+    }
+    expectEqual(
+      context,
+      [...logPath, "damageEventId"],
+      log.damageEventId,
+      expectedEvent.id,
+      "stable direct damage event backlink"
+    );
+    expectEqual(
+      context,
+      [...logPath, "hitResolutionLogId"],
+      log.hitResolutionLogId,
+      expectedEvent.targetResolutionId,
+      "direct hit-resolution backlink"
+    );
+    expectEqual(
+      context,
+      [...logPath, "frame"],
+      log.frame,
+      expectedEvent.frame,
+      "direct-damage-group frame"
+    );
+    expectEqual(
+      context,
+      [...logPath, "sourceActorId"],
+      log.sourceActorId,
+      expectedEvent.sourceActorId,
+      "direct-damage-group source actor"
+    );
+    expectEqual(
+      context,
+      [...logPath, "targetId"],
+      log.targetId,
+      expectedEvent.targetId,
+      "direct-damage-group target"
+    );
+    expectEqual(
+      context,
+      [...logPath, "hitId"],
+      log.hitId,
+      expectedEvent.hitId,
+      "direct-damage-group hit"
+    );
+    expectEqual(
+      context,
+      [...logPath, "profileId"],
+      log.profileId,
+      GCSIM_DAMAGE_GROUP_PROFILE_ID,
+      "fixed direct-damage-group profile"
+    );
+
+    const resolution =
+      result.hitResolutionLog[expectedEvent.targetResolutionId];
+    if (
+      resolution === undefined ||
+      resolution.id !== expectedEvent.targetResolutionId ||
+      resolution.damageEventId !== expectedEvent.id ||
+      !resolution.landed ||
+      resolution.resolutionKind !== "direct"
+    ) {
+      addIssue(
+        context,
+        [...logPath, "hitResolutionLogId"],
+        "must backlink the landed direct hit-resolution row"
+      );
+    }
+
+    const configuredHit = findConfiguredDirectDamageHit(
+      configuredHitLookup,
+      expectedEvent
+    );
+    if (configuredHit === undefined) {
+      addIssue(
+        context,
+        [...logPath, "hitId"],
+        "must resolve to exactly one configured direct hit"
+      );
+      continue;
+    }
+    const configuredMultiplier =
+      configuredHit.groupMultiplier ?? 1;
+    expectNearlyEqual(
+      context,
+      [...logPath, "configuredMultiplier"],
+      log.configuredMultiplier,
+      configuredMultiplier,
+      "configured direct group multiplier"
+    );
+    expectNearlyEqual(
+      context,
+      [...logPath, "prePluginMultiplier"],
+      log.prePluginMultiplier,
+      configuredMultiplier,
+      "pre-plugin direct group multiplier"
+    );
+    expectEqual(
+      context,
+      [...logPath, "pluginTraceVerification"],
+      log.pluginTraceVerification,
+      DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+      "plugin trace verification boundary"
+    );
+
+    if (
+      log.pluginMultiplierTrace.length !==
+      result.pluginManifest.length
+    ) {
+      addIssue(
+        context,
+        [...logPath, "pluginMultiplierTrace"],
+        "must contain exactly one ordered row per plugin manifest entry"
+      );
+    }
+    let expectedPluginMultiplier = log.prePluginMultiplier;
+    for (const [traceIndex, trace] of
+      log.pluginMultiplierTrace.entries()) {
+      const tracePath = [
+        ...logPath,
+        "pluginMultiplierTrace",
+        traceIndex
+      ] satisfies IssuePath;
+      const manifestEntry = result.pluginManifest[traceIndex];
+      expectEqual(
+        context,
+        [...tracePath, "pluginManifestIndex"],
+        trace.pluginManifestIndex,
+        traceIndex,
+        "plugin multiplier trace manifest index"
+      );
+      if (manifestEntry === undefined) {
+        addIssue(
+          context,
+          [...tracePath, "pluginId"],
+          "has no plugin manifest entry at this execution position"
+        );
+      } else {
+        expectEqual(
+          context,
+          [...tracePath, "pluginManifestIndex"],
+          trace.pluginManifestIndex,
+          manifestEntry.index,
+          "plugin multiplier trace bound manifest index"
+        );
+        expectEqual(
+          context,
+          [...tracePath, "pluginId"],
+          trace.pluginId,
+          manifestEntry.id,
+          "plugin multiplier trace bound plugin identity"
+        );
+      }
+      if (!Number.isFinite(trace.inputMultiplier)) {
+        addIssue(
+          context,
+          [...tracePath, "inputMultiplier"],
+          "plugin multiplier trace input must be finite"
+        );
+      }
+      if (!Number.isFinite(trace.outputMultiplier)) {
+        addIssue(
+          context,
+          [...tracePath, "outputMultiplier"],
+          "plugin multiplier trace output must be finite"
+        );
+      }
+      expectEqual(
+        context,
+        [...tracePath, "inputMultiplier"],
+        trace.inputMultiplier,
+        expectedPluginMultiplier,
+        "ordered plugin multiplier trace input"
+      );
+      if (trace.outcome === "no-change") {
+        expectEqual(
+          context,
+          [...tracePath, "outputMultiplier"],
+          trace.outputMultiplier,
+          trace.inputMultiplier,
+          "no-change plugin multiplier trace output"
+        );
+      } else if (trace.outcome === "override") {
+        if (trace.outputMultiplier === trace.inputMultiplier) {
+          addIssue(
+            context,
+            [...tracePath, "outcome"],
+            "override requires a changed output multiplier"
+          );
+        }
+      } else {
+        addIssue(
+          context,
+          [...tracePath, "outcome"],
+          "must be no-change or override"
+        );
+      }
+      expectedPluginMultiplier = trace.outputMultiplier;
+    }
+    expectEqual(
+      context,
+      [...logPath, "postPluginMultiplier"],
+      log.postPluginMultiplier,
+      expectedPluginMultiplier,
+      "ordered plugin multiplier trace final output"
+    );
+
+    const configuredGroup = configuredHit.directDamageGroup;
+    let expectedSequenceMultiplier: 0 | 1 = 1;
+    if (configuredGroup === undefined) {
+      expectEqual(
+        context,
+        [...logPath, "evaluation"],
+        log.evaluation,
+        "bypassed",
+        "unconfigured direct-damage-group evaluation"
+      );
+      for (const field of [
+        "icdTag",
+        "icdGroup",
+        "windowStartGroup",
+        "resetFrames",
+        "windowStartFrame",
+        "resetAtFrame",
+        "hitIndex",
+        "sequenceIndex"
+      ] as const) {
+        expectEqual(
+          context,
+          [...logPath, field],
+          log[field],
+          null,
+          `bypassed direct-damage-group ${field}`
+        );
+      }
+      expectEqual(
+        context,
+        [...logPath, "sequenceMultiplier"],
+        log.sequenceMultiplier,
+        1,
+        "bypassed direct-damage-group sequence multiplier"
+      );
+    } else {
+      expectEqual(
+        context,
+        [...logPath, "evaluation"],
+        log.evaluation,
+        "evaluated",
+        "configured direct-damage-group evaluation"
+      );
+      if (
+        RESERVED_INTERNAL_DAMAGE_GROUPS.has(
+          configuredGroup.icdGroup
+        )
+      ) {
+        addIssue(
+          context,
+          [...logPath, "icdGroup"],
+          `${configuredGroup.icdGroup} is reserved for internal reaction delivery`
+        );
+        continue;
+      }
+
+      const currentGroup = resolveDamageGroup(
+        configuredGroup.icdGroup
+      );
+      const scope = JSON.stringify([
+        expectedEvent.targetId,
+        expectedEvent.sourceActorId,
+        configuredGroup.icdTag
+      ]);
+      let window = replayWindows.get(scope);
+      if (
+        window === undefined ||
+        expectedEvent.frame >= window.resetAtFrame
+      ) {
+        window = {
+          startFrame: expectedEvent.frame,
+          resetAtFrame:
+            expectedEvent.frame + currentGroup.resetFrames - 1,
+          resetFrames: currentGroup.resetFrames,
+          startGroup: currentGroup.id,
+          hitCount: 0
+        };
+      }
+      const expectedHitIndex = window.hitCount;
+      const expectedSequenceIndex = Math.min(
+        expectedHitIndex,
+        currentGroup.damageSequence.length - 1
+      );
+      expectedSequenceMultiplier = currentGroup.damageSequence[
+        expectedSequenceIndex
+      ] as 0 | 1;
+
+      expectEqual(
+        context,
+        [...logPath, "icdTag"],
+        log.icdTag,
+        configuredGroup.icdTag,
+        "configured direct-damage-group tag"
+      );
+      expectEqual(
+        context,
+        [...logPath, "icdGroup"],
+        log.icdGroup,
+        currentGroup.id,
+        "configured direct-damage-group ID"
+      );
+      expectEqual(
+        context,
+        [...logPath, "windowStartGroup"],
+        log.windowStartGroup,
+        window.startGroup,
+        "active window start group"
+      );
+      expectEqual(
+        context,
+        [...logPath, "resetFrames"],
+        log.resetFrames,
+        window.resetFrames,
+        "active window fixed reset timer"
+      );
+      expectEqual(
+        context,
+        [...logPath, "windowStartFrame"],
+        log.windowStartFrame,
+        window.startFrame,
+        "active window start frame"
+      );
+      expectEqual(
+        context,
+        [...logPath, "resetAtFrame"],
+        log.resetAtFrame,
+        window.startFrame + window.resetFrames - 1,
+        "active window reset boundary"
+      );
+      expectEqual(
+        context,
+        [...logPath, "hitIndex"],
+        log.hitIndex,
+        expectedHitIndex,
+        "active window hit index"
+      );
+      expectEqual(
+        context,
+        [...logPath, "sequenceIndex"],
+        log.sequenceIndex,
+        expectedSequenceIndex,
+        "tail-clamped damage sequence index"
+      );
+      expectEqual(
+        context,
+        [...logPath, "sequenceMultiplier"],
+        log.sequenceMultiplier,
+        expectedSequenceMultiplier,
+        "fixed damage sequence multiplier"
+      );
+
+      window.hitCount += 1;
+      replayWindows.set(scope, window);
+    }
+
+    expectNearlyEqual(
+      context,
+      [...logPath, "effectiveMultiplier"],
+      log.effectiveMultiplier,
+      log.postPluginMultiplier * expectedSequenceMultiplier,
+      "effective fixed-sequence multiplier"
+    );
+    expectNearlyEqual(
+      context,
+      [
+        "damageEvents",
+        expectedEvent.id,
+        "damageFactors",
+        "groupMultiplier"
+      ],
+      expectedEvent.damageFactors.groupMultiplier,
+      log.effectiveMultiplier,
+      "damage-event effective group multiplier"
+    );
+    expectNearlyEqual(
+      context,
+      ["damageEvents", expectedEvent.id, "groupMultiplier"],
+      expectedEvent.groupMultiplier,
+      log.effectiveMultiplier,
+      "damage-event group multiplier compatibility alias"
+    );
+
+    const expectedOnEnemyHitAllowed =
+      (resolution?.hitConfirmAllowed ?? false) &&
+      expectedSequenceMultiplier > 0;
+    expectEqual(
+      context,
+      [...logPath, "damageGroupOnEnemyHitAllowed"],
+      log.damageGroupOnEnemyHitAllowed,
+      expectedOnEnemyHitAllowed,
+      "generic OnEnemyHit damage-group gate"
+    );
+
+    if (expectedSequenceMultiplier === 0) {
+      for (const [field, actual] of [
+        ["potentialDamage", expectedEvent.potentialDamage],
+        ["finalDamage", expectedEvent.finalDamage],
+        ["damageComposition.direct", expectedEvent.damageComposition.direct],
+        [
+          "damageComposition.additiveReaction",
+          expectedEvent.damageComposition.additiveReaction
+        ],
+        [
+          "damageComposition.transformativeReaction",
+          expectedEvent.damageComposition.transformativeReaction
+        ]
+      ] as const) {
+        expectNearlyEqual(
+          context,
+          ["damageEvents", expectedEvent.id, ...field.split(".")],
+          actual,
+          0,
+          "zero-sequence direct damage output"
+        );
+      }
+    }
+  }
+
+  for (const event of directEvents) {
+    if (!loggedDamageEventIds.has(event.id)) {
+      addIssue(
+        context,
+        ["directDamageGroupLog"],
+        `missing landed ordinary direct damage event ${event.id}`
+      );
+    }
   }
 }
 
@@ -14464,6 +15168,25 @@ export function validateSimulationResultV145Integrity(
 }
 
 /**
+ * Cross-field proof for exact 1.46 results. The fixed 1.45 reaction-formula
+ * proof remains in force and the ordinary direct-damage-group log is replayed
+ * from config plus the compiled fixed profile.
+ */
+export function validateSimulationResultV146Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityV146(result, context);
+  validateReactionFormulaProfileV145(result, context);
+  validateDirectDamageGroupV146(result, context);
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
+  validateTargetPhaseV3Integrity(result, context);
+}
+
+/**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
  *
  * Internal results have already passed TypeScript construction and the
@@ -14641,11 +15364,73 @@ export function assertTrustedSimulationResultV145(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.46 fixed-root results. */
+export function assertTrustedSimulationResultV146(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV146Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${
+            issue.message
+          }`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.46 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV145Integrity;
+  validateSimulationResultV146Integrity;
 export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV145;
+  assertTrustedSimulationResultV146;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

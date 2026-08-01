@@ -21,6 +21,10 @@ import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_DAMAGE_GROUP_ROOT
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { defineDamageModifierPlugin } from "../plugins";
 import { simulate } from "../simulator";
@@ -30,10 +34,15 @@ const EXPECTED_FORMULA_MODEL = {
   mode: "classic-formula-profile-v1",
   profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
 } as const;
+const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
+  mode: "fixed-gcsim-direct-damage-group-v1",
+  profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+} as const;
 
 function asV144Input(config: SimConfig): unknown {
   const {
     reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
     ...legacyConfig
   } = structuredClone(config);
   return {
@@ -85,6 +94,9 @@ describe("reaction formula run-manifest root", () => {
       expect(config.reactionFormulaModel).toEqual(
         EXPECTED_FORMULA_MODEL
       );
+      expect(config.directDamageGroupModel).toEqual(
+        EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
+      );
     }
   });
 
@@ -93,6 +105,9 @@ describe("reaction formula run-manifest root", () => {
 
     expect(result.runManifest.reactionFormulaRoot).toEqual(
       CLASSIC_REACTION_FORMULA_ROOT
+    );
+    expect(result.runManifest.directDamageGroupRoot).toEqual(
+      GCSIM_DAMAGE_GROUP_ROOT
     );
     expect(result.runManifest.configHash).toBe(
       createSimulationConfigHash(result.config)
@@ -132,7 +147,7 @@ describe("reaction formula run-manifest root", () => {
     );
   });
 
-  it("migrates a 1.44 input into the fixed 1.45 formula profile", () => {
+  it("migrates a 1.44 input into both fixed 1.46 mechanics profiles", () => {
     const legacyInput = asV144Input(durinMeltPreset);
     const migrated = migrateConfig(legacyInput);
     const result = simulate(legacyInput);
@@ -140,13 +155,20 @@ describe("reaction formula run-manifest root", () => {
     expect(migrated).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      reactionFormulaModel: EXPECTED_FORMULA_MODEL
+      reactionFormulaModel: EXPECTED_FORMULA_MODEL,
+      directDamageGroupModel: EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
     });
     expect(result.config.reactionFormulaModel).toEqual(
       EXPECTED_FORMULA_MODEL
     );
+    expect(result.config.directDamageGroupModel).toEqual(
+      EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
+    );
     expect(result.runManifest.reactionFormulaRoot).toEqual(
       CLASSIC_REACTION_FORMULA_ROOT
+    );
+    expect(result.runManifest.directDamageGroupRoot).toEqual(
+      GCSIM_DAMAGE_GROUP_ROOT
     );
   });
 

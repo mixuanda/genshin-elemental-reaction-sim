@@ -3,8 +3,8 @@ import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   migrateConfig,
+  simConfigSchema,
   simConfigV144Schema,
-  simConfigV145Schema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { AURA_ENGINE_CONSTANTS, AuraEngine } from "../aura";
@@ -1469,7 +1469,7 @@ describe("Aura engine simulation integration", () => {
     );
   });
 
-  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.45", () => {
+  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.46", () => {
     const current = makeAuraTimelineConfig(false);
     current.reactionEngine = {
       mode: "aura-v1",
@@ -1481,6 +1481,7 @@ describe("Aura engine simulation integration", () => {
 
     const {
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...legacyPayload
     } = structuredClone(current);
     const frozenV144 = {
@@ -1495,7 +1496,7 @@ describe("Aura engine simulation integration", () => {
     expect(() => migrateConfig(frozenV144)).toThrow(
       /timeline\.abilities\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
     );
-    const currentParse = simConfigV145Schema.safeParse(current);
+    const currentParse = simConfigSchema.safeParse(current);
     expect(currentParse.success).toBe(false);
     if (!currentParse.success) {
       expect(currentParse.error.issues).toContainEqual(

@@ -10,12 +10,12 @@ import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResultV145,
+  assertTrustedSimulationResult,
   canonicalStringify,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   simConfigV144Schema,
-  simulationResultV145Schema,
+  simulationResultSchema,
   simulationRunManifestV144Schema,
   targetPhaseV3ResultReferencesSchema,
   type DamageEvent,
@@ -318,7 +318,7 @@ function projectAttempt(
 
 /**
  * The callback fixture is an exact 1.44 wire. Current simulations run under
- * 1.45 and bind the fixed formula profile in both config and run manifest, so
+ * 1.46 and bind both fixed mechanics profiles in config and run manifest, so
  * compare their unchanged callback semantics through an explicit frozen-1.44
  * identity projection instead of rewriting the historical fixture.
  */
@@ -327,6 +327,7 @@ function projectCurrentConfigToFrozenV144(
 ): SimConfigV144 {
   const {
     reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
     ...frozenCommon
   } = config;
   return simConfigV144Schema.parse({
@@ -807,10 +808,10 @@ describe("Burning callback delivery 1.44 Golden", () => {
       critMode: "noCrit"
     });
     expect(repeated).toStrictEqual(first);
-    expect(simulationResultV145Schema.parse(first)).toEqual(
+    expect(simulationResultSchema.parse(first)).toEqual(
       first
     );
-    expect(assertTrustedSimulationResultV145(first)).toBe(
+    expect(assertTrustedSimulationResult(first)).toBe(
       first
     );
     expect(

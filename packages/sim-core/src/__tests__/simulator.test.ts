@@ -3,16 +3,12 @@ import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV145,
   createVersionedContentHash,
   migrateConfig,
   simConfigSchema,
   simConfigV144Schema,
-  simConfigV145Schema,
   simulationResultSchema,
-  simulationResultV145Schema,
-  simulationRunManifestSchema,
-  simulationRunManifestV145Schema
+  simulationRunManifestSchema
 } from "@genshin-dps-lab/schemas";
 import {
   defineDamageModifierPlugin,
@@ -293,7 +289,7 @@ describe("deterministic event simulation", () => {
     });
   });
 
-  it("documents frozen 1.44 ampBase compatibility while current 1.45 fails closed", () => {
+  it("documents frozen 1.44 ampBase compatibility while current 1.46 fails closed", () => {
     const baseHit = {
       id: "legacy-explicit-base",
       offset: 0,
@@ -314,6 +310,7 @@ describe("deterministic event simulation", () => {
     });
     const {
       reactionFormulaModel: _reactionFormulaModel,
+      directDamageGroupModel: _directDamageGroupModel,
       ...legacyPayload
     } = structuredClone(currentWithLegacyOverride);
     const frozenV144WithAmpBase = {
@@ -331,9 +328,6 @@ describe("deterministic event simulation", () => {
     expect(() => migrateConfig(frozenV144WithAmpBase)).toThrow(
       /ampBase is forbidden by the 1\.45 formula-root contract/
     );
-    expect(() =>
-      simConfigV145Schema.parse(currentWithLegacyOverride)
-    ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
     expect(() =>
       simConfigSchema.parse(currentWithLegacyOverride)
     ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
@@ -370,9 +364,6 @@ describe("deterministic event simulation", () => {
     expect(second).toEqual(first);
     expect(first.reproducibilityKey).toMatch(
       /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
-    );
-    expect(first.runManifest).toEqual(
-      simulationRunManifestV145Schema.parse(first.runManifest)
     );
     expect(first.runManifest).toEqual(
       simulationRunManifestSchema.parse(first.runManifest)
@@ -560,11 +551,7 @@ describe("deterministic event simulation", () => {
     expect(event.damageFactors.scalingValue).toBe(
       snapshotAtk + 1
     );
-    expect(
-      simulationResultV145Schema.parse(result)
-    ).toEqual(result);
     expect(simulationResultSchema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV145(result)).toBe(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 
