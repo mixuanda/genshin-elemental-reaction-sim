@@ -22,6 +22,26 @@ const SAME_TARGET_GEOMETRY = {
   radius: 1,
 };
 
+function expectAcceptedAtBothResultBoundaries(
+  result: ReturnType<typeof simulate>,
+): void {
+  expect(simulationResultV144Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+}
+
+function expectRejectedAtBothResultBoundaries(
+  result: ReturnType<typeof simulate>,
+): void {
+  expect(simulationResultV144Schema.safeParse(result).success).toBe(
+    false,
+  );
+  expect(() =>
+    assertTrustedSimulationResultV144(result),
+  ).toThrow(
+    /Trusted SimulationResult 1\.44 integrity validation failed/,
+  );
+}
+
 function applicationHit({
   id,
   element,
@@ -720,6 +740,28 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       waneFrame: null,
       reason: "QUEUED_FIRST_TICK_AFTER_STREAM_STOP",
     });
+    expectAcceptedAtBothResultBoundaries(legacyResult);
+    const legacyWane = legacyResult.periodicReactionLog.find(
+      (entry) =>
+        entry.generation === 2 &&
+        entry.frame === 16 &&
+        entry.operation === "wane",
+    );
+    if (legacyWane === undefined) {
+      throw new Error("Expected the historical cross-generation Wane.");
+    }
+
+    const forgedTickIndex = structuredClone(legacyResult);
+    forgedTickIndex.periodicReactionLog[legacyWane.id]!.tickIndex = 1;
+    expectRejectedAtBothResultBoundaries(forgedTickIndex);
+
+    const forgedCallbackGeneration = structuredClone(legacyResult);
+    forgedCallbackGeneration.periodicReactionLog[
+      legacyWane.id
+    ]!.generation = 1;
+    expectRejectedAtBothResultBoundaries(
+      forgedCallbackGeneration,
+    );
 
     const result = simulate(
       makeLateCleanupConfig({
@@ -788,6 +830,27 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     expect(() =>
       electroChargedCleanupResultReferencesSchema.parse(result),
     ).not.toThrow();
+    expectAcceptedAtBothResultBoundaries(result);
+
+    const forgedRestartGeneration = structuredClone(result);
+    for (const event of [
+      ...forgedRestartGeneration.damageEvents,
+      ...forgedRestartGeneration.hitEvents,
+    ]) {
+      const audit = event.reactionAudit.periodicReaction;
+      if (audit?.generation === 2) audit.generation = 3;
+    }
+    for (const row of forgedRestartGeneration.periodicReactionLog) {
+      if (row.generation === 2) row.generation = 3;
+    }
+    for (const parent of forgedRestartGeneration.reactionDamageLog) {
+      if (parent.electroChargedPropagation?.generation === 2) {
+        parent.electroChargedPropagation.generation = 3;
+      }
+    }
+    expectRejectedAtBothResultBoundaries(
+      forgedRestartGeneration,
+    );
   });
 
   it("preserves the historical F16 wane when cleanup starts at F17, then suppresses F70", () => {

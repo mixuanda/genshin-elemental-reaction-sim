@@ -21,12 +21,14 @@ function makePropagationConfig({
   targets,
   hits,
   radius = 3,
-  durationFrames = 30
+  durationFrames = 30,
+  actorId = "ec-owner"
 }: {
   targets: EnemyTargetProfile[];
   hits?: FrameHitDefinition[];
   radius?: number;
   durationFrames?: number;
+  actorId?: string;
 }): SimConfig {
   const base = makeConfig();
   const template = base.characters[0]!;
@@ -46,7 +48,7 @@ function makePropagationConfig({
     characters: [
       {
         ...template,
-        id: "ec-owner",
+        id: actorId,
         name: "EC Owner",
         element: "electro",
         level: 90,
@@ -69,12 +71,12 @@ function makePropagationConfig({
       mode: "legal-frame-v1",
       fps: 60,
       legalityMode: "strict",
-      initialActiveCharacterId: "ec-owner",
+      initialActiveCharacterId: actorId,
       swapFrames: 1,
       abilities: [
         {
           id: "start-ec",
-          actorId: "ec-owner",
+          actorId,
           name: "Start EC",
           kind: "skill",
           cancelFrame: 11,
@@ -105,7 +107,7 @@ function makePropagationConfig({
       commands: [
         {
           type: "skill",
-          actorId: "ec-owner",
+          actorId,
           abilityId: "start-ec"
         }
       ]
@@ -212,6 +214,85 @@ describe("Electro-Charged nearby Wet propagation", () => {
         observation.targetFrame
       );
     }
+  });
+
+  it("matches Wane source mutations by actor identity when wire and insertion orders differ", () => {
+    const config = makePropagationConfig({
+      actorId: "0",
+      targets: [
+        {
+          id: SOURCE_ID,
+          name: "Source",
+          position: { x: 0, y: 0 },
+          initialAura: [
+            { element: "hydro", gaugeUnits: 1 }
+          ]
+        },
+        {
+          id: "wet-nearby",
+          name: "Wet nearby",
+          position: { x: 1, y: 0 },
+          initialAura: [
+            { element: "hydro", gaugeUnits: 1 }
+          ]
+        }
+      ],
+      hits: [
+        {
+          id: "hydro-overlap",
+          label: "Hydro overlap",
+          frame: 0,
+          scaling: 1,
+          element: "hydro",
+          geometry: {
+            kind: "circle",
+            coordinateSpace: "world",
+            origin: { x: 0, y: 0 },
+            radius: 0.01
+          },
+          application: electroApplication("hydro-overlap")
+        },
+        {
+          id: "start-ec-after-overlap",
+          label: "Start EC after overlap",
+          frame: 1,
+          scaling: 1,
+          element: "electro",
+          geometry: {
+            kind: "circle",
+            coordinateSpace: "world",
+            origin: { x: 0, y: 0 },
+            radius: 0.01
+          },
+          application: electroApplication(
+            "start-ec-after-overlap"
+          )
+        }
+      ]
+    });
+    config.reactionEngine = { mode: "aura-v9" };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const wane = result.periodicReactionLog.find(
+      (entry) =>
+        entry.targetId === SOURCE_ID && entry.operation === "wane"
+    );
+    const hydroBefore = wane?.auraBefore.find(
+      (entry) => entry.element === "hydro"
+    );
+    const hydroConsumed = wane?.auraConsumed.find(
+      (entry) => entry.element === "hydro"
+    );
+
+    expect(wane).toBeDefined();
+    expect(
+      hydroBefore?.sourceSlots?.map((slot) => slot.sourceActorId)
+    ).toEqual(["0", "__initial__"]);
+    expect(
+      hydroConsumed?.sourceMutations?.map(
+        (mutation) => mutation.sourceActorId
+      )
+    ).toEqual(["__initial__", "0"]);
   });
 
   it("selects every in-range Wet hurtbox at P5 and audits every registered candidate", () => {

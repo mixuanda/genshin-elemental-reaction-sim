@@ -1406,7 +1406,16 @@ function electroChargedWaneAuditMatches(
     }
     const beforeSlots = beforeEntry.sourceSlots ?? [];
     const mutations = consumedEntry.sourceMutations ?? [];
-    if (mutations.length !== beforeSlots.length) {
+    const mutationBySourceActorId = new Map(
+      mutations.map((mutation) => [
+        mutation.sourceActorId,
+        mutation
+      ])
+    );
+    if (
+      mutations.length !== beforeSlots.length ||
+      mutationBySourceActorId.size !== beforeSlots.length
+    ) {
       return false;
     }
     const expectedAfterSlots = beforeSlots
@@ -1428,15 +1437,15 @@ function electroChargedWaneAuditMatches(
       slotIndex += 1
     ) {
       const beforeSlot = beforeSlots[slotIndex]!;
-      const mutation = mutations[slotIndex];
+      const mutation = mutationBySourceActorId.get(
+        beforeSlot.sourceActorId
+      );
       const expectedConsumed = Math.min(
         waneGaugeUnits,
         beforeSlot.gaugeUnits
       );
       if (
         mutation === undefined ||
-        mutation.sourceActorId !==
-          beforeSlot.sourceActorId ||
         !approximatelyEqual(
           mutation.gaugeUnitsBefore,
           beforeSlot.gaugeUnits

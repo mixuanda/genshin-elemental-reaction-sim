@@ -158,6 +158,48 @@ function makeElectroChargedConfig(): SimConfig {
   };
 }
 
+function enableAuraV9(config: SimConfig): SimConfig {
+  config.reactionEngine = { mode: "aura-v9" };
+  config.targetTaskModel = { mode: "target-phase-v2" };
+  for (const ability of config.timeline?.abilities ?? []) {
+    for (const hit of ability.hits ?? []) {
+      delete hit.targeting;
+      hit.geometry = {
+        kind: "circle",
+        coordinateSpace: "world",
+        origin: { x: 0, y: 0 },
+        radius: 0
+      };
+    }
+  }
+  return config;
+}
+
+function expectAcceptedAtBothBoundaries(
+  result: ReturnType<typeof simulate>
+): void {
+  expect(simulationResultV144Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+}
+
+function expectRejectedAtBothBoundaries(
+  result: ReturnType<typeof simulate>,
+  expectedIssue?: RegExp
+): void {
+  const parsed = simulationResultV144Schema.safeParse(result);
+  expect(parsed.success).toBe(false);
+  if (!parsed.success && expectedIssue !== undefined) {
+    expect(
+      parsed.error.issues.map((issue) => issue.message).join("\n")
+    ).toMatch(expectedIssue);
+  }
+  expect(() =>
+    assertTrustedSimulationResultV144(result)
+  ).toThrow(
+    /Trusted SimulationResult 1\.44 integrity validation failed/
+  );
+}
+
 describe("Electro-Charged simulation integration", () => {
   it("emits every single-target tick and transfers future ownership on refresh", () => {
     const config = makeElectroChargedConfig();
@@ -298,6 +340,943 @@ describe("Electro-Charged simulation integration", () => {
           event.frame === 21
       )
     ).toBe(true);
+  });
+
+  it("closes an immediate hit-removal stop in both directions", () => {
+    const config = makeElectroChargedConfig();
+    config.characters[1]!.element = "pyro";
+    config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
+    config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
+      auraV2RetainedGauge(20, 0.4);
+    const legal = simulate(config, { critMode: "noCrit" });
+    const trigger = legal.damageEvents.find(
+      (event) =>
+        event.reactionAudit.periodicReaction?.operation === "stop"
+    );
+    const stop = legal.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "stop" &&
+        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+    );
+    if (trigger === undefined || stop === undefined) {
+      throw new Error(
+        "Immediate EC stop fixture must expose its trigger and terminal row."
+      );
+    }
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forgedSource = structuredClone(legal);
+    forgedSource.periodicReactionLog[stop.id]!.sourceActorId =
+      "electro-a";
+    expectRejectedAtBothBoundaries(forgedSource);
+
+    const missingAudit = structuredClone(legal);
+    for (const event of [
+      ...missingAudit.damageEvents,
+      ...missingAudit.hitEvents
+    ]) {
+      if (event.id === trigger.id) {
+        event.reactionAudit.periodicReaction = null;
+      }
+    }
+    expectRejectedAtBothBoundaries(missingAudit);
+
+    const launderedReason = structuredClone(legal);
+    launderedReason.periodicReactionLog[stop.id]!.reason =
+      "COEXISTING_AURA_MISSING";
+    for (const event of [
+      ...launderedReason.damageEvents,
+      ...launderedReason.hitEvents
+    ]) {
+      if (event.id === trigger.id) {
+        event.reactionAudit.periodicReaction = null;
+      }
+    }
+    expectRejectedAtBothBoundaries(launderedReason);
+
+    const detachedLaunderedReason = structuredClone(legal);
+    Object.assign(
+      detachedLaunderedReason.periodicReactionLog[stop.id]!,
+      {
+        reason: "COEXISTING_AURA_MISSING" as const,
+        triggerDamageEventId: null
+      }
+    );
+    for (const event of [
+      ...detachedLaunderedReason.damageEvents,
+      ...detachedLaunderedReason.hitEvents
+    ]) {
+      if (event.id === trigger.id) {
+        event.reactionAudit.periodicReaction = null;
+      }
+    }
+    expectRejectedAtBothBoundaries(detachedLaunderedReason);
+
+    const missingRow = structuredClone(legal);
+    missingRow.periodicReactionLog =
+      missingRow.periodicReactionLog.filter(
+        (entry) => entry.id !== stop.id
+      );
+    for (const point of missingRow.targetStateTimeline.points) {
+      point.links = point.links.filter(
+        (link) =>
+          !(
+            link.kind === "periodic-reaction-log" &&
+            link.id === stop.id
+          )
+      );
+    }
+    expectRejectedAtBothBoundaries(missingRow);
+  });
+
+  it("replays aura-v9 Wane consumption, reason, and cadence at the shared result boundary", () => {
+    const config = makeElectroChargedConfig();
+    config.reactionEngine = { mode: "aura-v9" };
+    config.targetTaskModel = { mode: "target-phase-v2" };
+    const startHit = config.timeline?.abilities[0]?.hits?.[0];
+    if (startHit === undefined) {
+      throw new Error("EC fixture must expose its starting hit.");
+    }
+    delete startHit.targeting;
+    startHit.geometry = {
+      kind: "circle",
+      coordinateSpace: "world",
+      origin: { x: 0, y: 0 },
+      radius: 0
+    };
+    const legal = simulate(config, { critMode: "noCrit" });
+    const wane = legal.periodicReactionLog.find(
+      (entry) => entry.operation === "wane"
+    );
+    const point = legal.targetStateTimeline.points.find(
+      (candidate) =>
+        candidate.links.some(
+          (link) =>
+            link.kind === "periodic-reaction-log" &&
+            link.id === wane?.id
+        )
+    );
+    if (wane === undefined || point === undefined) {
+      throw new Error(
+        "Aura-v9 EC fixture must expose its Wane row and timeline point."
+      );
+    }
+    expect(wane).toMatchObject({
+      frame: 16,
+      operation: "wane",
+      reason: null,
+      cadenceStatus: "scheduled",
+      waneListenerActive: true
+    });
+    expect(wane.auraConsumed.map((entry) => entry.element)).toEqual([
+      "hydro",
+      "electro"
+    ]);
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forgedConsumption = structuredClone(legal);
+    const forgedWane =
+      forgedConsumption.periodicReactionLog[wane.id]!;
+    forgedWane.auraConsumed[0]!.gaugeUnits += 0.1;
+    const forgedPoint =
+      forgedConsumption.targetStateTimeline.points[point.id]!;
+    forgedPoint.auraConsumed = structuredClone(
+      forgedWane.auraConsumed
+    );
+    expectRejectedAtBothBoundaries(forgedConsumption);
+
+    const forgedReason = structuredClone(legal);
+    forgedReason.periodicReactionLog[wane.id]!.reason =
+      "AURA_DEPLETED_BY_WANE";
+    expectRejectedAtBothBoundaries(forgedReason);
+
+    const forgedCadence = structuredClone(legal);
+    Object.assign(forgedCadence.periodicReactionLog[wane.id]!, {
+      cadenceStatus: "dormant" as const,
+      waneListenerActive: false
+    });
+    expectRejectedAtBothBoundaries(forgedCadence);
+
+    const start = legal.periodicReactionLog.find(
+      (entry) => entry.operation === "start"
+    );
+    const tick = legal.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "tick" &&
+        entry.damageEventId === wane.damageEventId
+    );
+    if (start === undefined || tick === undefined) {
+      throw new Error(
+        "Aura-v9 EC fixture must expose the owning start and tick rows."
+      );
+    }
+
+    const forgedStartCadence = structuredClone(legal);
+    Object.assign(
+      forgedStartCadence.periodicReactionLog[start.id]!,
+      {
+        cadenceStatus: "dormant" as const,
+        waneListenerActive: false
+      }
+    );
+    for (const event of [
+      ...forgedStartCadence.damageEvents,
+      ...forgedStartCadence.hitEvents
+    ]) {
+      if (event.id !== start.triggerDamageEventId) continue;
+      const audit = event.reactionAudit.periodicReaction;
+      if (audit?.operation === "start") {
+        audit.cadenceStatus = "dormant";
+        audit.waneListenerActive = false;
+      }
+    }
+    expectRejectedAtBothBoundaries(forgedStartCadence);
+
+    const forgedTickCadence = structuredClone(legal);
+    forgedTickCadence.periodicReactionLog[tick.id]!.cadenceStatus =
+      "dormant";
+    expectRejectedAtBothBoundaries(forgedTickCadence);
+
+    const missingTickBacklink = structuredClone(legal);
+    missingTickBacklink.periodicReactionLog[tick.id]!.waneFrame =
+      null;
+    expectRejectedAtBothBoundaries(missingTickBacklink);
+
+    const forgedStop = structuredClone(legal);
+    const forgedStopRow = forgedStop.periodicReactionLog[wane.id]!;
+    Object.assign(forgedStopRow, {
+      operation: "stop" as const,
+      auraConsumed: [],
+      auraAfter: structuredClone(forgedStopRow.auraBefore),
+      nextTickFrame: null,
+      coexistenceExpiresAtFrame: null,
+      reason: "COEXISTING_AURA_MISSING_BEFORE_WANE",
+      cadenceStatus: "stopped" as const,
+      waneListenerActive: false
+    });
+    const forgedStopPoint =
+      forgedStop.targetStateTimeline.points[point.id]!;
+    Object.assign(forgedStopPoint, {
+      pointKind: "observation" as const,
+      auraConsumed: [],
+      auraAfter: structuredClone(forgedStopRow.auraBefore)
+    });
+    expectRejectedAtBothBoundaries(forgedStop);
+
+    const forgedDeadlines = structuredClone(legal);
+    const forgedDeadlineWane =
+      forgedDeadlines.periodicReactionLog[wane.id]!;
+    for (const aura of forgedDeadlineWane.auraAfter) {
+      if (
+        (aura.element === "hydro" ||
+          aura.element === "electro") &&
+        aura.expiresAtFrame !== null
+      ) {
+        aura.expiresAtFrame += 100;
+      }
+    }
+    forgedDeadlineWane.coexistenceExpiresAtFrame = Math.min(
+      ...forgedDeadlineWane.auraAfter
+        .filter(
+          (aura) =>
+            aura.element === "hydro" ||
+            aura.element === "electro"
+        )
+        .map((aura) => aura.expiresAtFrame!)
+    );
+    forgedDeadlines.targetStateTimeline.points[point.id]!.auraAfter =
+      structuredClone(forgedDeadlineWane.auraAfter);
+    expectRejectedAtBothBoundaries(forgedDeadlines);
+  });
+
+  it("rejects a coordinated forged deadline on Hydro depleted by a terminal aura-v9 Wane", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.enemy.targets![0]!.initialAura = [
+      { element: "hydro", gaugeUnits: 1.30001856e-10 }
+    ];
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const legal = simulate(enableAuraV9(config), {
+      critMode: "noCrit"
+    });
+    const terminalWane = legal.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "wane" &&
+        entry.auraBefore.some((aura) => aura.element === "hydro") &&
+        !entry.auraAfter.some((aura) => aura.element === "hydro")
+    );
+    const terminalPoint = legal.targetStateTimeline.points.find(
+      (point) =>
+        point.links.some(
+          (link) =>
+            link.kind === "periodic-reaction-log" &&
+            link.id === terminalWane?.id
+        )
+    );
+    const hydroBefore = terminalWane?.auraBefore.find(
+      (aura) => aura.element === "hydro"
+    );
+    if (
+      terminalWane === undefined ||
+      terminalPoint === undefined ||
+      hydroBefore === undefined
+    ) {
+      throw new Error(
+        "Aura-v9 terminal fixture must deplete Hydro at its Wane callback."
+      );
+    }
+    expect(hydroBefore.expiresAtFrame).toBe(421);
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forged = structuredClone(legal);
+    const forgedHydro = forged.periodicReactionLog[
+      terminalWane.id
+    ]!.auraBefore.find((aura) => aura.element === "hydro");
+    const forgedPointHydro = forged.targetStateTimeline.points[
+      terminalPoint.id
+    ]!.auraBefore.find((aura) => aura.element === "hydro");
+    if (forgedHydro === undefined || forgedPointHydro === undefined) {
+      throw new Error(
+        "Forged terminal fixture must retain both reciprocal Hydro snapshots."
+      );
+    }
+    forgedHydro.expiresAtFrame = 9999;
+    forgedPointHydro.expiresAtFrame = 9999;
+
+    expectRejectedAtBothBoundaries(forged);
+  });
+
+  it("rejects a coordinated non-canonical first Electro-Charged generation", () => {
+    const legal = simulate(makeElectroChargedConfig(), {
+      critMode: "noCrit"
+    });
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forgedHistoricalCadence = structuredClone(legal);
+    const historicalStart =
+      forgedHistoricalCadence.periodicReactionLog.find(
+        (entry) => entry.operation === "start"
+      );
+    if (historicalStart === undefined) {
+      throw new Error("EC fixture must expose its start row.");
+    }
+    Object.assign(historicalStart, {
+      cadenceStatus: "scheduled" as const,
+      waneListenerActive: true
+    });
+    expectRejectedAtBothBoundaries(forgedHistoricalCadence);
+
+    const forged = structuredClone(legal);
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      const audit = event.reactionAudit.periodicReaction;
+      if (audit?.generation === 1) audit.generation = 7;
+    }
+    for (const row of forged.periodicReactionLog) {
+      if (row.generation === 1) row.generation = 7;
+    }
+    for (const parent of forged.reactionDamageLog) {
+      if (
+        parent.electroChargedPropagation?.generation === 1
+      ) {
+        parent.electroChargedPropagation.generation = 7;
+      }
+    }
+    expectRejectedAtBothBoundaries(forged);
+  });
+
+  it("requires a start audit to own its lifecycle row before the first tick", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start",
+        atFrame: 55
+      }
+    ];
+    const legal = simulate(config, { critMode: "noCrit" });
+    expect(
+      legal.periodicReactionLog.map((entry) => entry.operation)
+    ).toEqual(["start"]);
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forged = structuredClone(legal);
+    forged.periodicReactionLog = [];
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      const audit = event.reactionAudit.periodicReaction;
+      if (audit?.operation === "start") audit.generation = 7;
+    }
+    expectRejectedAtBothBoundaries(forged);
+  });
+
+  it("rejects coordinated suppression and deletion of a scheduled aura-v9 Wane", () => {
+    const legal = simulate(
+      enableAuraV9(makeElectroChargedConfig()),
+      { critMode: "noCrit" }
+    );
+    const tick = legal.periodicReactionLog.find(
+      (entry) => entry.operation === "tick" && entry.tickIndex === 0
+    );
+    const wane = legal.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "wane" &&
+        entry.generation === tick?.generation &&
+        entry.tickIndex === tick.tickIndex
+    );
+    const wanePoint = legal.targetStateTimeline.points.find(
+      (point) =>
+        point.links.some(
+          (link) =>
+            link.kind === "periodic-reaction-log" &&
+            link.id === wane?.id
+        )
+    );
+    if (tick === undefined || wane === undefined || wanePoint === undefined) {
+      throw new Error(
+        "Aura-v9 EC fixture must expose a scheduled first Wane callback."
+      );
+    }
+    expectAcceptedAtBothBoundaries(legal);
+
+    const suppressed = structuredClone(legal);
+    Object.assign(suppressed.periodicReactionLog[tick.id]!, {
+      waneFrame: null,
+      waneListenerActive: false
+    });
+    const forgedPoint =
+      suppressed.targetStateTimeline.points[wanePoint.id]!;
+    Object.assign(forgedPoint, {
+      pointKind: "observation" as const,
+      cause: "electro-charged-tick" as const,
+      eventType: "periodicReactionTick" as const,
+      auraConsumed: [],
+      auraAfter: structuredClone(forgedPoint.auraBefore)
+    });
+    forgedPoint.links = forgedPoint.links.map((link) =>
+      link.kind === "periodic-reaction-log" && link.id === wane.id
+        ? { kind: "periodic-reaction-log" as const, id: tick.id }
+        : link
+    );
+    suppressed.periodicReactionLog =
+      suppressed.periodicReactionLog.filter(
+        (entry) => entry.id !== wane.id
+      );
+    for (const [index, row] of
+      suppressed.periodicReactionLog.entries()) {
+      row.id = index;
+    }
+    for (const point of suppressed.targetStateTimeline.points) {
+      for (const link of point.links) {
+        if (
+          link.kind === "periodic-reaction-log" &&
+          link.id > wane.id
+        ) {
+          link.id -= 1;
+        }
+      }
+    }
+
+    expectRejectedAtBothBoundaries(
+      suppressed,
+      /pinned first tick listener/
+    );
+  });
+
+  it.each([
+    ["past", -10],
+    ["future", 10]
+  ] as const)(
+    "rejects a coordinated aura-v9 cadence drift into the %s",
+    (_direction, drift) => {
+      const legal = simulate(
+        enableAuraV9(makeElectroChargedConfig()),
+        { critMode: "noCrit" }
+      );
+      const firstTick = legal.periodicReactionLog.find(
+        (entry) =>
+          entry.operation === "tick" && entry.tickIndex === 0
+      );
+      const firstWane = legal.periodicReactionLog.find(
+        (entry) =>
+          entry.operation === "wane" &&
+          entry.generation === firstTick?.generation &&
+          entry.tickIndex === firstTick.tickIndex
+      );
+      const refresh = legal.periodicReactionLog.find(
+        (entry) => entry.operation === "refresh"
+      );
+      if (
+        firstTick === undefined ||
+        firstTick.nextTickFrame === null ||
+        firstWane === undefined ||
+        firstWane.nextTickFrame === null ||
+        refresh === undefined ||
+        refresh.nextTickFrame === null
+      ) {
+        throw new Error(
+          "Aura-v9 EC fixture must retain its first recurring cadence."
+        );
+      }
+      expectAcceptedAtBothBoundaries(legal);
+
+      const forged = structuredClone(legal);
+      forged.periodicReactionLog[firstTick.id]!.nextTickFrame =
+        firstTick.nextTickFrame + drift;
+      forged.periodicReactionLog[firstWane.id]!.nextTickFrame =
+        firstWane.nextTickFrame + drift;
+      forged.periodicReactionLog[refresh.id]!.nextTickFrame =
+        refresh.nextTickFrame + drift;
+      for (const event of [
+        ...forged.damageEvents,
+        ...forged.hitEvents
+      ]) {
+        if (event.id !== refresh.triggerDamageEventId) continue;
+        const audit = event.reactionAudit.periodicReaction;
+        if (
+          audit?.operation === "refresh" &&
+          audit.nextTickFrame !== null
+        ) {
+          audit.nextTickFrame += drift;
+        }
+      }
+
+      expectRejectedAtBothBoundaries(
+        forged,
+        /pinned first tick cadence/
+      );
+    }
+  );
+
+  it("rejects erasing a real aura-v9 start and inventing one on a non-reacting hit", () => {
+    const makeLateConfig = (hasHydroAura: boolean): SimConfig => {
+      const config = makeElectroChargedConfig();
+      config.duration = 1;
+      config.cycleLength = 1;
+      config.enemy.targets![0]!.initialAura = hasHydroAura
+        ? [{ element: "hydro", gaugeUnits: 1 }]
+        : [];
+      config.timeline!.commands = [
+        {
+          type: "skill",
+          actorId: "electro-a",
+          abilityId: "electro-start",
+          atFrame: 55
+        }
+      ];
+      return enableAuraV9(config);
+    };
+
+    const legalStart = simulate(makeLateConfig(true), {
+      critMode: "noCrit"
+    });
+    const startRow = legalStart.periodicReactionLog.find(
+      (entry) => entry.operation === "start"
+    );
+    const startTrigger = legalStart.damageEvents.find(
+      (event) =>
+        event.reactionAudit.periodicReaction?.operation === "start"
+    );
+    if (startRow === undefined || startTrigger === undefined) {
+      throw new Error("Late EC fixture must expose one real start.");
+    }
+    expectAcceptedAtBothBoundaries(legalStart);
+
+    const erased = structuredClone(legalStart);
+    erased.periodicReactionLog = [];
+    for (const event of [...erased.damageEvents, ...erased.hitEvents]) {
+      if (event.id === startTrigger.id) {
+        event.reactionAudit.periodicReaction = null;
+      }
+    }
+    for (const point of erased.targetStateTimeline.points) {
+      point.links = point.links.filter(
+        (link) => link.kind !== "periodic-reaction-log"
+      );
+    }
+    expectRejectedAtBothBoundaries(
+      erased,
+      /hit reaction requires a start or refresh lifecycle audit/
+    );
+
+    const noReaction = simulate(makeLateConfig(false), {
+      critMode: "noCrit"
+    });
+    const noReactionTrigger = noReaction.damageEvents.find(
+      (event) => event.kind === "direct"
+    );
+    if (noReactionTrigger === undefined) {
+      throw new Error("Non-reacting fixture must expose its direct hit.");
+    }
+    expect(noReactionTrigger.reactionAudit.reactions).toEqual([]);
+    expectAcceptedAtBothBoundaries(noReaction);
+
+    const invented = structuredClone(noReaction);
+    const inventedAudit = structuredClone(
+      startTrigger.reactionAudit.periodicReaction!
+    );
+    inventedAudit.coexistenceExpiresAtFrame = null;
+    for (const event of [
+      ...invented.damageEvents,
+      ...invented.hitEvents
+    ]) {
+      if (event.id === noReactionTrigger.id) {
+        event.reactionAudit.periodicReaction =
+          structuredClone(inventedAudit);
+      }
+    }
+    const inventedRow = structuredClone(startRow);
+    Object.assign(inventedRow, {
+      id: 0,
+      triggerDamageEventId: noReactionTrigger.id,
+      coexistenceExpiresAtFrame: null,
+      auraBefore: structuredClone(
+        noReactionTrigger.reactionAudit.auraBefore ?? []
+      ),
+      auraAfter: structuredClone(
+        noReactionTrigger.reactionAudit.auraAfter ?? []
+      )
+    });
+    invented.periodicReactionLog = [inventedRow];
+    expectRejectedAtBothBoundaries(
+      invented,
+      /start or refresh cannot be invented without an Electro-Charged hit reaction/
+    );
+  });
+
+  it("rejects an ordinary stop over coexisting Aura and aura-v9 hit-stop reason laundering", () => {
+    const retainedConfig = makeElectroChargedConfig();
+    retainedConfig.duration = 2;
+    retainedConfig.cycleLength = 2;
+    retainedConfig.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start",
+        atFrame: 55
+      }
+    ];
+    const retained = simulate(enableAuraV9(retainedConfig), {
+      critMode: "noCrit"
+    });
+    const retainedStart = retained.periodicReactionLog.find(
+      (entry) => entry.operation === "start"
+    );
+    const retainedWane = retained.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "wane" &&
+        entry.auraAfter.some((aura) => aura.element === "hydro") &&
+        entry.auraAfter.some((aura) => aura.element === "electro")
+    );
+    if (retainedStart === undefined || retainedWane === undefined) {
+      throw new Error(
+        "Aura-v9 retained fixture must expose a live post-Wane stream."
+      );
+    }
+    expectAcceptedAtBothBoundaries(retained);
+
+    const phantomStop = structuredClone(retained);
+    const stopRow = structuredClone(retainedStart);
+    Object.assign(stopRow, {
+      id: phantomStop.periodicReactionLog.length,
+      frame: 100,
+      timeSeconds: 100 / 60,
+      operation: "stop" as const,
+      reactionDamageLogId: null,
+      damageEventId: null,
+      tickIndex: null,
+      nextTickFrame: null,
+      coexistenceExpiresAtFrame: null,
+      waneFrame: null,
+      auraBefore: structuredClone(retainedWane.auraAfter),
+      auraConsumed: [],
+      auraAfter: structuredClone(retainedWane.auraAfter),
+      reason: "COEXISTING_AURA_MISSING" as const,
+      cadenceStatus: "stopped" as const,
+      waneListenerActive: false
+    });
+    phantomStop.periodicReactionLog.push(stopRow);
+    expectRejectedAtBothBoundaries(
+      phantomStop,
+      /missing-Aura stop must observe unchanged non-coexisting Aura/
+    );
+
+    const removalConfig = makeElectroChargedConfig();
+    removalConfig.characters[1]!.element = "pyro";
+    removalConfig.timeline!.abilities[1]!.hits![0]!.element = "pyro";
+    removalConfig.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
+      1;
+    const removal = simulate(enableAuraV9(removalConfig), {
+      critMode: "noCrit"
+    });
+    const removalTrigger = removal.damageEvents.find(
+      (event) =>
+        event.reactionAudit.periodicReaction?.operation === "stop"
+    );
+    const removalStop = removal.periodicReactionLog.find(
+      (entry) =>
+        entry.operation === "stop" &&
+        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+    );
+    if (removalTrigger === undefined || removalStop === undefined) {
+      throw new Error(
+        "Aura-v9 removal fixture must expose its hit-owned stop."
+      );
+    }
+    expectAcceptedAtBothBoundaries(removal);
+
+    const laundered = structuredClone(removal);
+    laundered.periodicReactionLog[removalStop.id]!.reason =
+      "COEXISTING_AURA_MISSING";
+    for (const event of [
+      ...laundered.damageEvents,
+      ...laundered.hitEvents
+    ]) {
+      if (event.id === removalTrigger.id) {
+        event.reactionAudit.periodicReaction = null;
+      }
+    }
+    expectRejectedAtBothBoundaries(
+      laundered,
+      /missing-Aura stop must observe unchanged non-coexisting Aura/
+    );
+  });
+
+  it("rejects a refresh that resumes the same generation after a terminal aura-v9 Wane", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.timeline!.abilities[0]!.hits![0]!.application!.gaugeUnits =
+      0.5;
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      },
+      { type: "wait", frames: 19 },
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const legal = simulate(enableAuraV9(config), {
+      critMode: "noCrit"
+    });
+    const starts = legal.periodicReactionLog.filter(
+      (entry) => entry.operation === "start"
+    );
+    const terminal = legal.periodicReactionLog.find(
+      (entry) =>
+        entry.generation === 1 &&
+        entry.operation === "wane" &&
+        entry.waneListenerActive === false
+    );
+    if (starts.length !== 2 || terminal === undefined) {
+      throw new Error(
+        "Aura-v9 restart fixture must terminate generation 1 before generation 2."
+      );
+    }
+    const replacementStart = starts[1]!;
+    expect(terminal.id).toBeLessThan(replacementStart.id);
+    expectAcceptedAtBothBoundaries(legal);
+
+    const forged = structuredClone(legal);
+    const forgedStart =
+      forged.periodicReactionLog[replacementStart.id]!;
+    Object.assign(forgedStart, {
+      operation: "refresh" as const,
+      generation: 1
+    });
+    for (const event of [
+      ...forged.damageEvents,
+      ...forged.hitEvents
+    ]) {
+      if (event.id !== replacementStart.triggerDamageEventId) continue;
+      const audit = event.reactionAudit.periodicReaction;
+      if (audit?.operation !== "start") continue;
+      Object.assign(audit, {
+        operation: "refresh" as const,
+        generation: 1,
+        firstDamageFrame: null
+      });
+    }
+    for (const row of forged.periodicReactionLog) {
+      if (row.id <= replacementStart.id || row.generation !== 2) {
+        continue;
+      }
+      row.generation = 1;
+      if (row.tickIndex !== null) row.tickIndex += 1;
+    }
+    for (const parent of forged.reactionDamageLog) {
+      const propagation = parent.electroChargedPropagation;
+      if (propagation?.generation !== 2) continue;
+      propagation.generation = 1;
+      propagation.tickIndex += 1;
+    }
+    for (const task of forged.reactionTaskLog) {
+      if (task.electroChargedCleanup?.generation === 2) {
+        task.electroChargedCleanup.generation = 1;
+      }
+    }
+
+    expectRejectedAtBothBoundaries(
+      forged,
+      /refresh requires the current active generation/
+    );
+  });
+
+  it("preserves the 1.44 sub-epsilon Wane wire while validating the depleted Aura", () => {
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.reactionEngine = { mode: "aura-v9" };
+    config.targetTaskModel = { mode: "target-phase-v2" };
+    config.enemy.targets![0]!.initialAura = [
+      { element: "hydro", gaugeUnits: 1.30001856e-10 }
+    ];
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const startHit = config.timeline!.abilities[0]!.hits![0]!;
+    delete startHit.targeting;
+    startHit.geometry = {
+      kind: "circle",
+      coordinateSpace: "world",
+      origin: { x: 0, y: 0 },
+      radius: 0
+    };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const wane = result.periodicReactionLog.find(
+      (entry) => entry.operation === "wane"
+    );
+    expect(wane?.auraConsumed.map((entry) => entry.element)).toEqual([
+      "electro"
+    ]);
+    expect(
+      wane?.auraBefore.find((entry) => entry.element === "hydro")
+        ?.gaugeUnits
+    ).toBe(1e-10);
+    expect(
+      wane?.auraAfter.some((entry) => entry.element === "hydro")
+    ).toBe(false);
+    expectAcceptedAtBothBoundaries(result);
+  });
+
+  it("accepts a retained Wane source slot that rounds exactly to the Aura epsilon", () => {
+    const nominalGaugeUnits = 0.5166150130762146;
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.reactionEngine = { mode: "aura-v9" };
+    config.targetTaskModel = { mode: "target-phase-v2" };
+    config.enemy.targets![0]!.initialAura = [
+      { element: "hydro", gaugeUnits: nominalGaugeUnits }
+    ];
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const startHit = config.timeline!.abilities[0]!.hits![0]!;
+    startHit.application!.gaugeUnits = nominalGaugeUnits;
+    delete startHit.targeting;
+    startHit.geometry = {
+      kind: "circle",
+      coordinateSpace: "world",
+      origin: { x: 0, y: 0 },
+      radius: 0
+    };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const wane = result.periodicReactionLog.find(
+      (entry) => entry.operation === "wane"
+    );
+    expect(wane?.auraBefore.map((entry) => entry.gaugeUnits)).toEqual([
+      0.4000000001,
+      0.4000000001
+    ]);
+    expect(wane?.auraAfter.map((entry) => entry.gaugeUnits)).toEqual([
+      1e-10,
+      1e-10
+    ]);
+    expect(
+      wane?.auraAfter.flatMap((entry) =>
+        (entry.sourceSlots ?? []).map((slot) => slot.gaugeUnits)
+      )
+    ).toEqual([1e-10, 1e-10]);
+    expectAcceptedAtBothBoundaries(result);
+  });
+
+  it("accepts a depleted Wane source slot whose rounded before Gauge straddles the Aura epsilon", () => {
+    const nominalGaugeUnits = 0.5166150130755722;
+    const config = makeElectroChargedConfig();
+    config.duration = 1;
+    config.cycleLength = 1;
+    config.reactionEngine = { mode: "aura-v9" };
+    config.targetTaskModel = { mode: "target-phase-v2" };
+    config.enemy.targets![0]!.initialAura = [
+      { element: "hydro", gaugeUnits: nominalGaugeUnits }
+    ];
+    config.timeline!.commands = [
+      {
+        type: "skill",
+        actorId: "electro-a",
+        abilityId: "electro-start"
+      }
+    ];
+    const startHit = config.timeline!.abilities[0]!.hits![0]!;
+    startHit.application!.gaugeUnits = nominalGaugeUnits;
+    delete startHit.targeting;
+    startHit.geometry = {
+      kind: "circle",
+      coordinateSpace: "world",
+      origin: { x: 0, y: 0 },
+      radius: 0
+    };
+
+    const result = simulate(config, { critMode: "noCrit" });
+    const wane = result.periodicReactionLog.find(
+      (entry) => entry.operation === "wane"
+    );
+    expect(wane?.auraBefore.map((entry) => entry.gaugeUnits)).toEqual([
+      0.4000000001,
+      0.4000000001
+    ]);
+    expect(wane?.auraConsumed).toHaveLength(2);
+    expect(wane?.auraConsumed).toSatisfy(
+      (entries: NonNullable<typeof wane>["auraConsumed"]) =>
+        entries.every(
+        (entry) =>
+          entry.sourceMutations?.every(
+            (mutation) => mutation.gaugeUnitsAfter === 0
+          )
+        )
+    );
+    expect(wane?.auraAfter).toEqual([]);
+    expectAcceptedAtBothBoundaries(result);
   });
 
   it("keeps a Wane-callback stop distinct from a non-Wane stop and accepts the exact result wire", () => {

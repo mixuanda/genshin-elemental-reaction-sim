@@ -27,11 +27,17 @@ type IssuePath = Array<string | number>;
 
 const FLOAT_TOLERANCE = 1e-9;
 const AURA_GAUGE_EPSILON = 1e-10;
+const AURA_GAUGE_ROUNDING_RADIUS = 0.5e-12;
+const AURA_DECAY_CEIL_BIAS = 1e-9;
 const NORMAL_AURA_RATIO = 0.8;
 const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
 const LEGACY_NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 6;
 const CURRENT_NORMAL_AURA_DURATION_PER_UNIT_FRAMES = 150;
+const ELECTRO_CHARGED_BASE_MULTIPLIER = 2;
+const ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES = 10;
+const ELECTRO_CHARGED_TICK_INTERVAL_FRAMES = 60;
 const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
+const ELECTRO_CHARGED_WANE_GAUGE_UNITS = 0.4;
 const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
 const FROZEN_DECAY_ACCELERATION_PER_FRAME =
   0.1 / (60 * 60);
@@ -183,6 +189,40 @@ function nearlyEqual(left: number, right: number): boolean {
   );
 }
 
+function canonicalSerializedAuraGauge(value: number): number {
+  return Number(value.toFixed(12));
+}
+
+function electroChargedWaneAfterGaugeCandidates(
+  beforeGaugeUnits: number
+): number[] {
+  if (
+    beforeGaugeUnits <= ELECTRO_CHARGED_WANE_GAUGE_UNITS
+  ) {
+    return [0];
+  }
+  const roundedResidual = canonicalSerializedAuraGauge(
+    beforeGaugeUnits - ELECTRO_CHARGED_WANE_GAUGE_UNITS
+  );
+  const rawResidualMinimum =
+    beforeGaugeUnits -
+    AURA_GAUGE_ROUNDING_RADIUS -
+    ELECTRO_CHARGED_WANE_GAUGE_UNITS;
+  const rawResidualMaximum =
+    beforeGaugeUnits +
+    AURA_GAUGE_ROUNDING_RADIUS -
+    ELECTRO_CHARGED_WANE_GAUGE_UNITS;
+  if (rawResidualMaximum <= AURA_GAUGE_EPSILON) {
+    return [0];
+  }
+  if (rawResidualMinimum > AURA_GAUGE_EPSILON) {
+    return [roundedResidual];
+  }
+  return roundedResidual === 0
+    ? [0]
+    : [0, roundedResidual];
+}
+
 function semanticEqual(left: unknown, right: unknown): boolean {
   if (left === right) return true;
   return canonicalStringify(left) === canonicalStringify(right);
@@ -290,6 +330,1388 @@ function auraGaugeProjectionEqual(
     }
   }
   return true;
+}
+
+function electroChargedCoexistenceExpiryFrame(
+  snapshot: readonly AuraStateEntry[]
+): number | null {
+  const hydro = snapshot.find(
+    (entry) =>
+      entry.element === "hydro" &&
+      entry.gaugeUnits >= AURA_GAUGE_EPSILON
+  );
+  const electro = snapshot.find(
+    (entry) =>
+      entry.element === "electro" &&
+      entry.gaugeUnits >= AURA_GAUGE_EPSILON
+  );
+  if (hydro === undefined || electro === undefined) return null;
+  const deadlines = [
+    hydro.expiresAtFrame,
+    electro.expiresAtFrame
+  ].filter((frame): frame is number => frame !== null);
+  return deadlines.length === 0 ? null : Math.min(...deadlines);
+}
+
+function hasElectroChargedCoexistence(
+  snapshot: readonly AuraStateEntry[]
+): boolean {
+  return (
+    snapshot.some(
+      (entry) =>
+        entry.element === "hydro" &&
+        entry.gaugeUnits >= AURA_GAUGE_EPSILON
+    ) &&
+    snapshot.some(
+      (entry) =>
+        entry.element === "electro" &&
+        entry.gaugeUnits >= AURA_GAUGE_EPSILON
+    )
+  );
+}
+
+function validateElectroChargedWaneAuraDeadline(
+  context: RefinementCtx,
+  path: IssuePath,
+  currentGlobalFrame: number,
+  currentTargetFrame: number | null,
+  before: AuraStateEntry,
+  after: AuraStateEntry
+): number | null {
+  if (
+    before.expiresAtFrame === null ||
+    after.expiresAtFrame === null
+  ) {
+    addIssue(
+      context,
+      path,
+      "Electro-Charged Wane normal Aura requires a finite decay deadline"
+    );
+    return null;
+  }
+
+  let beforeRemainingFrames: number;
+  let afterRemainingFrames: number;
+  let projectedFrozenFrames: number | null = null;
+  if (currentTargetFrame === null) {
+    if (
+      before.expiresAtTargetFrame !== undefined ||
+      after.expiresAtTargetFrame !== undefined
+    ) {
+      addIssue(
+        context,
+        path,
+        "global-clock Electro-Charged Wane Aura cannot claim target-local deadlines"
+      );
+    }
+    beforeRemainingFrames =
+      before.expiresAtFrame - currentGlobalFrame;
+    afterRemainingFrames =
+      after.expiresAtFrame - currentGlobalFrame;
+  } else {
+    if (
+      before.expiresAtTargetFrame === undefined ||
+      before.expiresAtTargetFrame === null ||
+      after.expiresAtTargetFrame === undefined ||
+      after.expiresAtTargetFrame === null
+    ) {
+      addIssue(
+        context,
+        path,
+        "Hitlag-aware Electro-Charged Wane Aura requires target-local decay deadlines"
+      );
+      return null;
+    }
+    beforeRemainingFrames =
+      before.expiresAtTargetFrame - currentTargetFrame;
+    afterRemainingFrames =
+      after.expiresAtTargetFrame - currentTargetFrame;
+    const frozenFramesBefore =
+      before.expiresAtFrame -
+      currentGlobalFrame -
+      beforeRemainingFrames;
+    const frozenFramesAfter =
+      after.expiresAtFrame -
+      currentGlobalFrame -
+      afterRemainingFrames;
+    projectedFrozenFrames = frozenFramesBefore;
+    if (frozenFramesBefore < 0 || frozenFramesAfter < 0) {
+      addIssue(
+        context,
+        path,
+        "Electro-Charged Wane target-clock projection cannot have negative pending Hitlag"
+      );
+    }
+    expectEqual(
+      context,
+      path,
+      frozenFramesAfter,
+      frozenFramesBefore,
+      "Electro-Charged Wane target-clock projection"
+    );
+  }
+
+  if (beforeRemainingFrames < 0 || afterRemainingFrames < 0) {
+    addIssue(
+      context,
+      path,
+      "Electro-Charged Wane retained Aura cannot have a past decay deadline"
+    );
+    return projectedFrozenFrames;
+  }
+
+  // Aura snapshots round Gauge to 12 decimal places, while the engine keeps
+  // the unrounded value and applies ceil(gauge / decay - 1e-9). Each rounded
+  // Gauge/deadline pair therefore implies an interval of possible decay
+  // rates. Before and after must admit at least one shared rate.
+  const beforeGaugeMinimum = Math.max(
+    AURA_GAUGE_EPSILON,
+    before.gaugeUnits - AURA_GAUGE_ROUNDING_RADIUS
+  );
+  const beforeGaugeMaximum =
+    before.gaugeUnits + AURA_GAUGE_ROUNDING_RADIUS;
+  const afterGaugeMinimum = Math.max(
+    AURA_GAUGE_EPSILON,
+    after.gaugeUnits - AURA_GAUGE_ROUNDING_RADIUS
+  );
+  const afterGaugeMaximum =
+    after.gaugeUnits + AURA_GAUGE_ROUNDING_RADIUS;
+  const decayInterval = (
+    gaugeMinimum: number,
+    gaugeMaximum: number,
+    remainingFrames: number
+  ): { minimum: number; maximum: number } =>
+    remainingFrames === 0
+      ? {
+          minimum:
+            gaugeMinimum / AURA_DECAY_CEIL_BIAS,
+          maximum: Number.POSITIVE_INFINITY
+        }
+      : {
+          minimum:
+            gaugeMinimum /
+            (remainingFrames + AURA_DECAY_CEIL_BIAS),
+          maximum:
+            gaugeMaximum /
+            (remainingFrames - 1 + AURA_DECAY_CEIL_BIAS)
+        };
+  const beforeDecay = decayInterval(
+    beforeGaugeMinimum,
+    beforeGaugeMaximum,
+    beforeRemainingFrames
+  );
+  const afterDecay = decayInterval(
+    afterGaugeMinimum,
+    afterGaugeMaximum,
+    afterRemainingFrames
+  );
+  const sharedDecayMinimum = Math.max(
+    beforeDecay.minimum,
+    afterDecay.minimum
+  );
+  const sharedDecayMaximum = Math.min(
+    beforeDecay.maximum,
+    afterDecay.maximum
+  );
+  if (
+    afterRemainingFrames > beforeRemainingFrames ||
+    (Number.isFinite(sharedDecayMaximum) &&
+      sharedDecayMinimum >= sharedDecayMaximum)
+  ) {
+    addIssue(
+      context,
+      path,
+      "Electro-Charged Wane Aura deadline must retain one feasible pre-Wane decay rate"
+    );
+  }
+  return projectedFrozenFrames;
+}
+
+function validateElectroChargedWaneAuraMutation(
+  context: RefinementCtx,
+  path: IssuePath,
+  currentGlobalFrame: number,
+  currentTargetFrame: number | null,
+  before: readonly AuraStateEntry[],
+  consumed: readonly AuraGaugeEntry[],
+  after: readonly AuraStateEntry[]
+): void {
+  const elements = ["hydro", "electro"] as const;
+  let sharedProjectedFrozenFrames: number | null = null;
+  const consumedElementIndexes = consumed.map((entry) =>
+    elements.indexOf(entry.element as (typeof elements)[number])
+  );
+  if (
+    consumedElementIndexes.some((index) => index < 0) ||
+    new Set(consumedElementIndexes).size !== consumed.length ||
+    consumedElementIndexes.some(
+      (index, position) =>
+        position > 0 &&
+        index <= consumedElementIndexes[position - 1]!
+    )
+  ) {
+    addIssue(
+      context,
+      path,
+      "Electro-Charged Wane consumption must be the canonical Hydro-then-Electro subsequence"
+    );
+    return;
+  }
+
+  for (const element of elements) {
+    const beforeEntries = before.filter(
+      (entry) => entry.element === element
+    );
+    const afterEntries = after.filter(
+      (entry) => entry.element === element
+    );
+    const consumedEntry = consumed.find(
+      (entry) => entry.element === element
+    );
+    const beforeEntry = beforeEntries[0];
+    if (
+      beforeEntries.length !== 1 ||
+      afterEntries.length > 1 ||
+      beforeEntry === undefined
+    ) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane requires one ${element} Aura before the callback`
+      );
+      continue;
+    }
+
+    const expectedConsumedGauge = Math.min(
+      ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+      beforeEntry.gaugeUnits
+    );
+    if (consumedEntry === undefined) {
+      if (expectedConsumedGauge > AURA_GAUGE_EPSILON) {
+        addIssue(
+          context,
+          path,
+          `Electro-Charged Wane cannot omit material ${element} consumption`
+        );
+      }
+      if (afterEntries.length !== 0) {
+        addIssue(
+          context,
+          path,
+          `Electro-Charged Wane omitted ${element} consumption must deplete that sub-epsilon wire Aura`
+        );
+      }
+      continue;
+    }
+    if (
+      expectedConsumedGauge <= AURA_GAUGE_EPSILON ||
+      consumedEntry.gaugeUnits !== expectedConsumedGauge
+    ) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane ${element} aggregate consumption must equal its fixed 0.4U budget at 12-digit Gauge precision`
+      );
+    }
+    if (consumedEntry.sourceActorId !== undefined) {
+      addIssue(
+        context,
+        path,
+        "Electro-Charged Wane aggregate consumption cannot claim one source actor"
+      );
+    }
+
+    const beforeSlots = beforeEntry.sourceSlots;
+    const afterEntry = afterEntries[0];
+    if (afterEntry !== undefined) {
+      const projectedFrozenFrames =
+        validateElectroChargedWaneAuraDeadline(
+          context,
+          path,
+          currentGlobalFrame,
+          currentTargetFrame,
+          beforeEntry,
+          afterEntry
+        );
+      if (projectedFrozenFrames !== null) {
+        if (sharedProjectedFrozenFrames === null) {
+          sharedProjectedFrozenFrames = projectedFrozenFrames;
+        } else {
+          expectEqual(
+            context,
+            path,
+            projectedFrozenFrames,
+            sharedProjectedFrozenFrames,
+            "Electro-Charged Wane shared target-clock projection"
+          );
+        }
+      }
+    }
+    if (beforeSlots === undefined) {
+      if (consumedEntry.sourceMutations !== undefined) {
+        addIssue(
+          context,
+          path,
+          `legacy ${element} Wane cannot invent source-slot mutations`
+        );
+      }
+      const afterCandidates =
+        electroChargedWaneAfterGaugeCandidates(
+          beforeEntry.gaugeUnits
+        );
+      if (afterEntry === undefined) {
+        if (!afterCandidates.includes(0)) {
+          addIssue(
+            context,
+            path,
+            `Electro-Charged Wane cannot remove retained ${element} Aura`
+          );
+        }
+      } else if (
+        afterEntry.sourceSlots !== undefined ||
+        afterEntry.gaugeUnits < AURA_GAUGE_EPSILON ||
+        !afterCandidates.includes(afterEntry.gaugeUnits)
+      ) {
+        addIssue(
+          context,
+          path,
+          `Electro-Charged Wane ${element} Aura does not match the fixed 0.4U reduction`
+        );
+      }
+      continue;
+    }
+
+    const mutations = consumedEntry.sourceMutations ?? [];
+    const mutationBySource = new Map(
+      mutations.map((mutation) => [
+        mutation.sourceActorId,
+        mutation
+      ])
+    );
+    if (
+      mutations.length !== beforeSlots.length ||
+      mutationBySource.size !== beforeSlots.length
+    ) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane must mutate every ${element} source slot exactly once`
+      );
+    }
+    const expectedAfterSlots = beforeSlots
+      .map((slot) => {
+        const slotConsumed = Math.min(
+          ELECTRO_CHARGED_WANE_GAUGE_UNITS,
+          slot.gaugeUnits
+        );
+        const afterCandidates =
+          electroChargedWaneAfterGaugeCandidates(
+            slot.gaugeUnits
+          );
+        const mutation = mutationBySource.get(slot.sourceActorId);
+        const mutationAfter = mutation?.gaugeUnitsAfter ?? 0;
+        if (
+          mutation === undefined ||
+          mutation.gaugeUnitsBefore !== slot.gaugeUnits ||
+          mutation.consumedGaugeUnits !== slotConsumed ||
+          !afterCandidates.includes(mutationAfter) ||
+          (mutationAfter > 0 &&
+            mutationAfter < AURA_GAUGE_EPSILON)
+        ) {
+          addIssue(
+            context,
+            path,
+            `Electro-Charged Wane ${element} source slot ${slot.sourceActorId} does not consume its fixed 0.4U budget`
+          );
+        }
+        return {
+          sourceActorId: slot.sourceActorId,
+          gaugeUnits: mutationAfter
+        };
+      })
+      .filter((slot) => slot.gaugeUnits > 0);
+
+    if (expectedAfterSlots.length === 0) {
+      if (afterEntry !== undefined) {
+        addIssue(
+          context,
+          path,
+          `Electro-Charged Wane must remove depleted ${element} source slots`
+        );
+      }
+      continue;
+    }
+    const afterSlots = afterEntry?.sourceSlots;
+    if (
+      afterEntry === undefined ||
+      afterSlots === undefined ||
+      afterSlots.length !== expectedAfterSlots.length
+    ) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane ${element} source-slot result is incomplete`
+      );
+      continue;
+    }
+    const afterBySource = new Map(
+      afterSlots.map((slot) => [slot.sourceActorId, slot])
+    );
+    if (afterBySource.size !== afterSlots.length) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane ${element} result contains duplicate source slots`
+      );
+    }
+    for (
+      let slotIndex = 0;
+      slotIndex < expectedAfterSlots.length;
+      slotIndex += 1
+    ) {
+      const expectedSlot = expectedAfterSlots[slotIndex]!;
+      const actualSlot = afterBySource.get(
+        expectedSlot.sourceActorId
+      );
+      if (
+        actualSlot === undefined ||
+        afterSlots[slotIndex]?.sourceActorId !==
+          expectedSlot.sourceActorId ||
+        actualSlot.gaugeUnits !== expectedSlot.gaugeUnits ||
+        actualSlot.gaugeUnits < AURA_GAUGE_EPSILON
+      ) {
+        addIssue(
+          context,
+          path,
+          `Electro-Charged Wane ${element} source slot ${expectedSlot.sourceActorId} has the wrong remaining Gauge`
+        );
+      }
+    }
+    const expectedAggregate = Math.max(
+      ...expectedAfterSlots.map((slot) => slot.gaugeUnits)
+    );
+    if (afterEntry.gaugeUnits !== expectedAggregate) {
+      addIssue(
+        context,
+        path,
+        `Electro-Charged Wane ${element} aggregate Gauge must equal its largest source slot`
+      );
+    }
+  }
+
+  const unaffectedBefore = before.filter(
+    (entry) =>
+      entry.element !== "hydro" && entry.element !== "electro"
+  );
+  const unaffectedAfter = after.filter(
+    (entry) =>
+      entry.element !== "hydro" && entry.element !== "electro"
+  );
+  if (!auraStateProjectionEqual(unaffectedBefore, unaffectedAfter)) {
+    addIssue(
+      context,
+      path,
+      "Electro-Charged Wane cannot mutate unrelated Aura"
+    );
+  }
+}
+
+type ElectroChargedPeriodicRow =
+  SimulationResult["periodicReactionLog"][number];
+
+interface ElectroChargedV9ReplayState {
+  targetId: string;
+  generation: number;
+  startFrame: number;
+  active: boolean;
+  listenerActive: boolean;
+  nextTickFrame: number | null;
+  sourceActorId: string | null;
+  triggerDamageEventId: number | null;
+  initialSourceActorId: string | null;
+  initialTriggerDamageEventId: number | null;
+}
+
+function validateElectroChargedV9LifecycleReplay(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  if (result.config.reactionEngine?.mode !== "aura-v9") {
+    return;
+  }
+
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const rowIndexById = new Map(
+    result.periodicReactionLog.map((row, index) => [row.id, index])
+  );
+  const tickByKey = new Map<string, ElectroChargedPeriodicRow>();
+  const wanePointByPeriodicId = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"][number]
+  >();
+  const previousTimelinePointById = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"][number]
+  >();
+  const latestTimelinePointByTarget = new Map<
+    string,
+    SimulationResult["targetStateTimeline"]["points"][number]
+  >();
+  for (const point of result.targetStateTimeline.points) {
+    const previousPoint = latestTimelinePointByTarget.get(
+      point.targetId
+    );
+    if (previousPoint !== undefined) {
+      previousTimelinePointById.set(point.id, previousPoint);
+    }
+    latestTimelinePointByTarget.set(point.targetId, point);
+    if (point.cause !== "electro-charged-wane") continue;
+    for (const link of point.links) {
+      if (link.kind === "periodic-reaction-log") {
+        wanePointByPeriodicId.set(link.id, point);
+      }
+    }
+  }
+  const appliedHitlagByTarget = new Map<
+    string,
+    SimulationResult["targetHitlagLog"]
+  >();
+  if (
+    result.config.targetClockModel.mode ===
+    "target-local-hitlag-v1"
+  ) {
+    for (const hitlag of result.targetHitlagLog) {
+      if (!hitlag.applied || hitlag.extensionFrames <= 0) continue;
+      const rows = appliedHitlagByTarget.get(hitlag.targetId) ?? [];
+      rows.push(hitlag);
+      appliedHitlagByTarget.set(hitlag.targetId, rows);
+    }
+    for (const rows of appliedHitlagByTarget.values()) {
+      rows.sort(
+        (left, right) =>
+          left.globalFrame - right.globalFrame ||
+          left.eventPriority - right.eventPriority ||
+          left.eventSequence - right.eventSequence ||
+          left.intraEventSequence - right.intraEventSequence ||
+          left.id - right.id
+      );
+    }
+  }
+  type TargetClockState = {
+    globalFrame: number;
+    targetFrame: number;
+    frozenFrames: number;
+  };
+  const advanceTargetClock = (
+    state: TargetClockState,
+    globalFrame: number
+  ): TargetClockState => {
+    const elapsed = globalFrame - state.globalFrame;
+    const consumedFrozenFrames = Math.min(
+      elapsed,
+      state.frozenFrames
+    );
+    return {
+      globalFrame,
+      targetFrame:
+        state.targetFrame + elapsed - consumedFrozenFrames,
+      frozenFrames: state.frozenFrames - consumedFrozenFrames
+    };
+  };
+  const targetClockAfterHitlagByTarget = new Map<
+    string,
+    TargetClockState[]
+  >();
+  for (const [targetId, hitlags] of appliedHitlagByTarget) {
+    let state: TargetClockState = {
+      globalFrame: 0,
+      targetFrame: 0,
+      frozenFrames: 0
+    };
+    const states: TargetClockState[] = [];
+    for (const hitlag of hitlags) {
+      state = advanceTargetClock(state, hitlag.globalFrame);
+      state = {
+        ...state,
+        frozenFrames: state.frozenFrames + hitlag.extensionFrames
+      };
+      states.push(state);
+    }
+    targetClockAfterHitlagByTarget.set(targetId, states);
+  }
+  const targetClockAtPoint = (
+    point: SimulationResult["targetStateTimeline"]["points"][number]
+  ): TargetClockState => {
+    const pointEventPriority =
+      point.eventPriority ?? Number.MAX_SAFE_INTEGER;
+    const pointEventSequence =
+      point.eventSequence ?? Number.MAX_SAFE_INTEGER;
+    const hitlags = appliedHitlagByTarget.get(point.targetId) ?? [];
+    let lower = 0;
+    let upper = hitlags.length;
+    while (lower < upper) {
+      const middle = Math.floor((lower + upper) / 2);
+      const hitlag = hitlags[middle]!;
+      const precedes =
+        hitlag.globalFrame < point.frame ||
+        (hitlag.globalFrame === point.frame &&
+          (hitlag.eventPriority < pointEventPriority ||
+            (hitlag.eventPriority === pointEventPriority &&
+              hitlag.eventSequence < pointEventSequence)));
+      if (precedes) {
+        lower = middle + 1;
+      } else {
+        upper = middle;
+      }
+    }
+    const state =
+      lower === 0
+        ? {
+            globalFrame: 0,
+            targetFrame: 0,
+            frozenFrames: 0
+          }
+        : targetClockAfterHitlagByTarget.get(point.targetId)![
+            lower - 1
+          ]!;
+    return advanceTargetClock(state, point.frame);
+  };
+  const stateByKey = new Map<
+    string,
+    ElectroChargedV9ReplayState
+  >();
+  const currentStateByTarget = new Map<
+    string,
+    ElectroChargedV9ReplayState
+  >();
+  const streamKey = (targetId: string, generation: number): string =>
+    `${targetId}\u0000${generation}`;
+  const tickKey = (
+    targetId: string,
+    generation: number,
+    tickIndex: number | null
+  ): string => `${streamKey(targetId, generation)}\u0000${tickIndex}`;
+  const rowPath = (row: ElectroChargedPeriodicRow): IssuePath => [
+    "periodicReactionLog",
+    rowIndexById.get(row.id) ?? row.id
+  ];
+  const expectRowField = <
+    Field extends keyof ElectroChargedPeriodicRow
+  >(
+    row: ElectroChargedPeriodicRow,
+    field: Field,
+    expected: ElectroChargedPeriodicRow[Field],
+    label: string
+  ): void => {
+    expectEqual(
+      context,
+      [...rowPath(row), field as string],
+      row[field],
+      expected,
+      label
+    );
+  };
+  const cleanupIntervalsByStream = new Map<
+    string,
+    Array<{ startFrame: number; endFrame: number }>
+  >();
+  for (const task of result.reactionTaskLog) {
+    const cleanup = task.electroChargedCleanup;
+    if (cleanup === null || cleanup === undefined) continue;
+    const key = `${task.targetId}\u0000${cleanup.generation}`;
+    const intervals = cleanupIntervalsByStream.get(key) ?? [];
+    intervals.push({
+      startFrame: task.frame,
+      endFrame:
+        cleanup.outcome === "pending-at-end"
+          ? Number.POSITIVE_INFINITY
+          : cleanup.resolvedGlobalFrame
+    });
+    cleanupIntervalsByStream.set(key, intervals);
+  }
+  const cleanupStartsByStream = new Map<string, number[]>();
+  const cleanupPrefixMaxEndsByStream = new Map<string, number[]>();
+  for (const [key, intervals] of cleanupIntervalsByStream) {
+    intervals.sort(
+      (left, right) =>
+        left.startFrame - right.startFrame ||
+        left.endFrame - right.endFrame
+    );
+    const starts: number[] = [];
+    const prefixMaxEnds: number[] = [];
+    let maximumEnd = Number.NEGATIVE_INFINITY;
+    for (const interval of intervals) {
+      starts.push(interval.startFrame);
+      maximumEnd = Math.max(maximumEnd, interval.endFrame);
+      prefixMaxEnds.push(maximumEnd);
+    }
+    cleanupStartsByStream.set(key, starts);
+    cleanupPrefixMaxEndsByStream.set(key, prefixMaxEnds);
+  }
+  const cleanupWasPendingAtFrame = (
+    targetId: string,
+    generation: number,
+    frame: number
+  ): boolean => {
+    const key = `${targetId}\u0000${generation}`;
+    const starts = cleanupStartsByStream.get(key) ?? [];
+    let lower = 0;
+    let upper = starts.length;
+    while (lower < upper) {
+      const middle = Math.floor((lower + upper) / 2);
+      if (starts[middle]! <= frame) {
+        lower = middle + 1;
+      } else {
+        upper = middle;
+      }
+    }
+    return (
+      lower > 0 &&
+      cleanupPrefixMaxEndsByStream.get(key)![lower - 1]! > frame
+    );
+  };
+
+  for (const [eventIndex, event] of result.damageEvents.entries()) {
+    const audit = event.reactionAudit;
+    const periodic = audit.periodicReaction;
+    const publishesElectroCharged =
+      audit.reactions.includes("electroCharged");
+    const eventPath = [
+      "damageEvents",
+      eventIndex,
+      "reactionAudit",
+      "periodicReaction"
+    ] satisfies IssuePath;
+    if (
+      audit.model === "aura-engine" &&
+      audit.mechanicsTruncation === null
+    ) {
+      if (
+        publishesElectroCharged &&
+        (periodic === null || periodic.operation === "stop")
+      ) {
+        addIssue(
+          context,
+          eventPath,
+          "aura-v9 Electro-Charged hit reaction requires a start or refresh lifecycle audit"
+        );
+      }
+      if (
+        periodic !== null &&
+        (periodic.operation === "start" ||
+          periodic.operation === "refresh") &&
+        !publishesElectroCharged
+      ) {
+        addIssue(
+          context,
+          eventPath,
+          "aura-v9 start or refresh cannot be invented without an Electro-Charged hit reaction"
+        );
+      }
+    }
+    if (
+      periodic?.operation === "start" ||
+      periodic?.operation === "refresh"
+    ) {
+      expectEqual(
+        context,
+        [...eventPath, "coexistenceExpiresAtFrame"],
+        periodic.coexistenceExpiresAtFrame,
+        electroChargedCoexistenceExpiryFrame(
+          audit.auraAfter ?? []
+        ),
+        "Electro-Charged hit coexistence deadline"
+      );
+    }
+    if (periodic?.operation === "stop") {
+      if (
+        !hasElectroChargedCoexistence(audit.auraBefore ?? []) ||
+        hasElectroChargedCoexistence(audit.auraAfter ?? [])
+      ) {
+        addIssue(
+          context,
+          eventPath,
+          "Electro-Charged hit stop requires pre-hit coexistence and post-hit removal"
+        );
+      }
+    }
+  }
+
+  for (const row of result.periodicReactionLog) {
+    if (row.operation === "tick" && row.tickIndex !== null) {
+      tickByKey.set(
+        tickKey(row.targetId, row.generation, row.tickIndex),
+        row
+      );
+    }
+  }
+
+  const closeState = (state: ElectroChargedV9ReplayState): void => {
+    state.active = false;
+    state.listenerActive = false;
+    state.nextTickFrame = null;
+    if (currentStateByTarget.get(state.targetId) === state) {
+      currentStateByTarget.delete(state.targetId);
+    }
+  };
+
+  for (const row of result.periodicReactionLog) {
+    const key = streamKey(row.targetId, row.generation);
+    const current = currentStateByTarget.get(row.targetId);
+    let state = stateByKey.get(key);
+
+    if (row.operation === "start") {
+      if (current?.active === true) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged start cannot replace an unterminated active generation"
+        );
+      }
+      expectRowField(row, "reason", null, "Electro-Charged start reason");
+      expectRowField(
+        row,
+        "nextTickFrame",
+        row.frame +
+          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        "Electro-Charged start global cadence"
+      );
+      expectRowField(
+        row,
+        "coexistenceExpiresAtFrame",
+        electroChargedCoexistenceExpiryFrame(row.auraAfter),
+        "Electro-Charged start coexistence deadline"
+      );
+      state = {
+        targetId: row.targetId,
+        generation: row.generation,
+        startFrame: row.frame,
+        active: true,
+        listenerActive: true,
+        nextTickFrame:
+          row.frame +
+          ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+        sourceActorId: row.sourceActorId,
+        triggerDamageEventId: row.triggerDamageEventId,
+        initialSourceActorId: row.sourceActorId,
+        initialTriggerDamageEventId: row.triggerDamageEventId
+      };
+      stateByKey.set(key, state);
+      currentStateByTarget.set(row.targetId, state);
+      continue;
+    }
+
+    if (state === undefined) {
+      addIssue(
+        context,
+        rowPath(row),
+        "Electro-Charged lifecycle replay requires its canonical start state"
+      );
+      continue;
+    }
+
+    if (row.operation === "refresh") {
+      if (!state.active || current !== state) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged refresh requires the current active generation"
+        );
+      }
+      expectRowField(
+        row,
+        "reason",
+        null,
+        "Electro-Charged refresh reason"
+      );
+      expectRowField(
+        row,
+        "nextTickFrame",
+        state.nextTickFrame,
+        "Electro-Charged refresh inherited cadence"
+      );
+      expectRowField(
+        row,
+        "cadenceStatus",
+        state.nextTickFrame === null ? "dormant" : "scheduled",
+        "Electro-Charged refresh cadence status"
+      );
+      expectRowField(
+        row,
+        "waneListenerActive",
+        state.listenerActive,
+        "Electro-Charged refresh listener state"
+      );
+      expectRowField(
+        row,
+        "coexistenceExpiresAtFrame",
+        electroChargedCoexistenceExpiryFrame(row.auraAfter),
+        "Electro-Charged refresh coexistence deadline"
+      );
+      state.sourceActorId = row.sourceActorId;
+      state.triggerDamageEventId = row.triggerDamageEventId;
+      continue;
+    }
+
+    const isWaneCallback =
+      row.waneFrame !== null &&
+      (row.operation === "wane" ||
+        row.operation === "wane-skipped" ||
+        row.operation === "stop");
+    if (isWaneCallback) {
+      const owningTick = tickByKey.get(
+        tickKey(row.targetId, row.generation, row.tickIndex)
+      );
+      const wanePoint = wanePointByPeriodicId.get(row.id);
+      const previousTimelinePoint =
+        wanePoint === undefined
+          ? undefined
+          : previousTimelinePointById.get(wanePoint.id);
+      for (const aura of row.auraBefore) {
+        if (
+          aura.element !== "hydro" &&
+          aura.element !== "electro"
+        ) {
+          continue;
+        }
+        const inheritedAura = previousTimelinePoint?.auraAfter.find(
+          (entry) => entry.element === aura.element
+        );
+        if (inheritedAura === undefined) {
+          addIssue(
+            context,
+            [...rowPath(row), "auraBefore"],
+            `Electro-Charged Wane ${aura.element} Aura requires an inherited pre-callback timeline state`
+          );
+          continue;
+        }
+        if (
+          result.config.targetClockModel.mode ===
+          "target-local-hitlag-v1"
+        ) {
+          expectEqual(
+            context,
+            [...rowPath(row), "auraBefore"],
+            aura.expiresAtTargetFrame,
+            inheritedAura.expiresAtTargetFrame,
+            `Electro-Charged Wane inherited ${aura.element} target deadline`
+          );
+        } else {
+          expectEqual(
+            context,
+            [...rowPath(row), "auraBefore"],
+            aura.expiresAtFrame,
+            inheritedAura.expiresAtFrame,
+            `Electro-Charged Wane inherited ${aura.element} global deadline`
+          );
+        }
+      }
+      if (
+        result.config.targetClockModel.mode ===
+        "target-local-hitlag-v1"
+      ) {
+        if (wanePoint === undefined) {
+          addIssue(
+            context,
+            rowPath(row),
+            "Hitlag-aware Electro-Charged Wane requires its timeline clock owner"
+          );
+        } else {
+          const clock = targetClockAtPoint(wanePoint);
+          expectEqual(
+            context,
+            [...rowPath(row), "targetFrame"],
+            wanePoint.targetFrame,
+            clock.targetFrame,
+            "Electro-Charged Wane replayed target frame"
+          );
+          for (const [snapshotName, snapshot] of [
+            ["auraBefore", row.auraBefore],
+            ["auraAfter", row.auraAfter]
+          ] as const) {
+            for (const aura of snapshot) {
+              if (
+                aura.element !== "hydro" &&
+                aura.element !== "electro"
+              ) {
+                continue;
+              }
+              if (
+                aura.expiresAtFrame === null ||
+                aura.expiresAtTargetFrame === undefined ||
+                aura.expiresAtTargetFrame === null
+              ) {
+                addIssue(
+                  context,
+                  [...rowPath(row), snapshotName],
+                  "Hitlag-aware Electro-Charged Wane normal Aura requires finite global and target deadlines"
+                );
+                continue;
+              }
+              const expectedGlobalDeadline =
+                aura.expiresAtTargetFrame <= clock.targetFrame
+                  ? clock.globalFrame
+                  : clock.globalFrame +
+                    clock.frozenFrames +
+                    aura.expiresAtTargetFrame -
+                    clock.targetFrame;
+              expectEqual(
+                context,
+                [...rowPath(row), snapshotName],
+                aura.expiresAtFrame,
+                expectedGlobalDeadline,
+                "Electro-Charged Wane replayed global deadline"
+              );
+            }
+          }
+        }
+      } else {
+        for (const [snapshotName, snapshot] of [
+          ["auraBefore", row.auraBefore],
+          ["auraAfter", row.auraAfter]
+        ] as const) {
+          for (const aura of snapshot) {
+            if (
+              (aura.element === "hydro" ||
+                aura.element === "electro") &&
+              aura.expiresAtTargetFrame !== undefined
+            ) {
+              addIssue(
+                context,
+                [...rowPath(row), snapshotName],
+                "global-clock Electro-Charged Wane Aura cannot claim a target-local deadline"
+              );
+            }
+          }
+        }
+      }
+      if (!state.active || current !== state) {
+        addIssue(
+          context,
+          rowPath(row),
+          "aura-v9 Wane callback requires the current active generation"
+        );
+      }
+      if (!state.listenerActive) {
+        addIssue(
+          context,
+          rowPath(row),
+          "aura-v9 Wane callback requires a replayed active listener"
+        );
+      }
+      if (owningTick !== undefined) {
+        expectRowField(
+          row,
+          "nextTickFrame",
+          row.operation === "wane" &&
+            hasElectroChargedCoexistence(row.auraAfter)
+            ? owningTick.nextTickFrame
+            : null,
+          "Electro-Charged Wane inherited cadence"
+        );
+      }
+      if (
+        row.operation === "wane" &&
+        hasElectroChargedCoexistence(row.auraAfter)
+      ) {
+        state.nextTickFrame = owningTick?.nextTickFrame ?? null;
+      } else {
+        closeState(state);
+      }
+      continue;
+    }
+
+    if (row.operation === "tick") {
+      const child =
+        row.damageEventId === null
+          ? undefined
+          : damageEventById.get(row.damageEventId);
+      if (row.tickIndex === 0) {
+        expectRowField(
+          row,
+          "frame",
+          state.startFrame +
+            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES,
+          "Electro-Charged pinned first damage frame"
+        );
+        expectRowField(
+          row,
+          "sourceActorId",
+          state.initialSourceActorId,
+          "Electro-Charged pinned first source"
+        );
+        expectRowField(
+          row,
+          "triggerDamageEventId",
+          state.initialTriggerDamageEventId,
+          "Electro-Charged pinned first trigger"
+        );
+        if (state.active && current === state) {
+          const coexistencePresent =
+            hasElectroChargedCoexistence(row.auraAfter);
+          if (!coexistencePresent) {
+            state.listenerActive = false;
+          }
+          const expectedReason = coexistencePresent
+            ? null
+            : cleanupWasPendingAtFrame(
+                  row.targetId,
+                  row.generation,
+                  row.frame
+                )
+              ? "QUEUED_FIRST_TICK_WHILE_CLEANUP_PENDING"
+              : "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED";
+          expectRowField(
+            row,
+            "reason",
+            expectedReason,
+            "Electro-Charged pinned first tick reason"
+          );
+          expectRowField(
+            row,
+            "nextTickFrame",
+            state.nextTickFrame,
+            "Electro-Charged pinned first tick cadence"
+          );
+          expectRowField(
+            row,
+            "cadenceStatus",
+            "scheduled",
+            "Electro-Charged pinned first tick cadence status"
+          );
+          expectRowField(
+            row,
+            "waneListenerActive",
+            state.listenerActive,
+            "Electro-Charged pinned first tick listener"
+          );
+        } else {
+          const replacement = current !== undefined && current !== state;
+          expectRowField(
+            row,
+            "reason",
+            replacement
+              ? "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED"
+              : "QUEUED_FIRST_TICK_AFTER_STREAM_STOP",
+            "Electro-Charged terminal pinned tick reason"
+          );
+          expectRowField(
+            row,
+            "nextTickFrame",
+            null,
+            "Electro-Charged terminal pinned tick cadence"
+          );
+          expectRowField(
+            row,
+            "cadenceStatus",
+            "stopped",
+            "Electro-Charged terminal pinned tick cadence status"
+          );
+          expectRowField(
+            row,
+            "waneListenerActive",
+            false,
+            "Electro-Charged terminal pinned tick listener"
+          );
+        }
+      } else {
+        if (!state.active || current !== state) {
+          addIssue(
+            context,
+            rowPath(row),
+            "Electro-Charged recurring tick requires the current active generation"
+          );
+        }
+        if (state.nextTickFrame === null) {
+          addIssue(
+            context,
+            [...rowPath(row), "frame"],
+            "Electro-Charged recurring tick cannot run without a scheduled callback"
+          );
+        } else {
+          expectRowField(
+            row,
+            "frame",
+            state.nextTickFrame,
+            "Electro-Charged recurring callback frame"
+          );
+        }
+        expectRowField(
+          row,
+          "reason",
+          null,
+          "Electro-Charged recurring tick reason"
+        );
+        expectRowField(
+          row,
+          "nextTickFrame",
+          row.frame + ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+          "Electro-Charged recurring cadence interval"
+        );
+        expectRowField(
+          row,
+          "cadenceStatus",
+          "scheduled",
+          "Electro-Charged recurring cadence status"
+        );
+        expectRowField(
+          row,
+          "waneListenerActive",
+          state.listenerActive,
+          "Electro-Charged recurring listener state"
+        );
+        expectRowField(
+          row,
+          "sourceActorId",
+          state.sourceActorId,
+          "Electro-Charged recurring source"
+        );
+        expectRowField(
+          row,
+          "triggerDamageEventId",
+          state.triggerDamageEventId,
+          "Electro-Charged recurring trigger"
+        );
+        state.nextTickFrame =
+          row.frame + ELECTRO_CHARGED_TICK_INTERVAL_FRAMES;
+      }
+      expectRowField(
+        row,
+        "coexistenceExpiresAtFrame",
+        electroChargedCoexistenceExpiryFrame(row.auraAfter),
+        "Electro-Charged tick coexistence deadline"
+      );
+      const expectedWaneFrame =
+        row.waneListenerActive === true &&
+        (child?.finalDamage ?? 0) > 0
+          ? row.frame + ELECTRO_CHARGED_WANE_DELAY_FRAMES
+          : null;
+      expectRowField(
+        row,
+        "waneFrame",
+        expectedWaneFrame,
+        "Electro-Charged replayed Wane scheduling"
+      );
+      continue;
+    }
+
+    if (row.operation === "tick-skipped") {
+      if (!state.active || current !== state) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged skipped tick requires the current active generation"
+        );
+      }
+      if (state.nextTickFrame === null) {
+        addIssue(
+          context,
+          [...rowPath(row), "frame"],
+          "Electro-Charged skipped tick cannot run without a scheduled callback"
+        );
+      } else {
+        expectRowField(
+          row,
+          "frame",
+          state.nextTickFrame,
+          "Electro-Charged skipped callback frame"
+        );
+      }
+      expectRowField(
+        row,
+        "reason",
+        "COEXISTING_AURA_MISSING_AT_GLOBAL_CALLBACK",
+        "Electro-Charged skipped tick reason"
+      );
+      if (hasElectroChargedCoexistence(row.auraAfter)) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged skipped tick requires missing coexistence"
+        );
+      }
+      state.listenerActive = false;
+      state.nextTickFrame = null;
+      continue;
+    }
+
+    if (row.operation === "stop") {
+      if (!state.active || current !== state) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged ordinary stop requires the current active generation"
+        );
+      }
+      if (row.reason === "COEXISTING_AURA_MISSING") {
+        if (state.nextTickFrame === null) {
+          addIssue(
+            context,
+            [...rowPath(row), "frame"],
+            "Electro-Charged missing-Aura stop requires a scheduled callback"
+          );
+        } else {
+          expectRowField(
+            row,
+            "frame",
+            state.nextTickFrame,
+            "Electro-Charged missing-Aura callback frame"
+          );
+        }
+        expectRowField(
+          row,
+          "sourceActorId",
+          state.sourceActorId,
+          "Electro-Charged missing-Aura source"
+        );
+        expectRowField(
+          row,
+          "triggerDamageEventId",
+          state.triggerDamageEventId,
+          "Electro-Charged missing-Aura trigger"
+        );
+        if (
+          hasElectroChargedCoexistence(row.auraBefore) ||
+          !auraStateProjectionEqual(row.auraBefore, row.auraAfter) ||
+          row.auraConsumed.length !== 0
+        ) {
+          addIssue(
+            context,
+            rowPath(row),
+            "Electro-Charged missing-Aura stop must observe unchanged non-coexisting Aura"
+          );
+        }
+      } else if (
+        row.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+      ) {
+        if (
+          !hasElectroChargedCoexistence(row.auraBefore) ||
+          hasElectroChargedCoexistence(row.auraAfter)
+        ) {
+          addIssue(
+            context,
+            rowPath(row),
+            "Electro-Charged hit stop must remove pre-hit coexistence"
+          );
+        }
+      } else if (
+        row.reason ===
+          "COEXISTING_AURA_REMOVED_BY_QUICKEN_BLOOM" &&
+        row.reactionTaskLogId === undefined
+      ) {
+        addIssue(
+          context,
+          rowPath(row),
+          "Electro-Charged cleanup stop requires its reaction-task owner"
+        );
+      }
+      closeState(state);
+    }
+  }
 }
 
 function orderedScalarArrayEqual(
@@ -3217,8 +4639,108 @@ function validateReactionBacklinks(
     }
   }
 
+  const electroChargedGlobalCadenceMode =
+    result.config.reactionEngine?.mode === "aura-v9";
   for (const [eventIndex, event] of result.damageEvents.entries()) {
     const periodicAudit = event.reactionAudit.periodicReaction;
+    if (periodicAudit !== null) {
+      const auditPath = [
+        "damageEvents",
+        eventIndex,
+        "reactionAudit",
+        "periodicReaction"
+      ] satisfies IssuePath;
+      for (const [field, expected] of [
+        ["damageElement", "electro"],
+        ["baseMultiplier", ELECTRO_CHARGED_BASE_MULTIPLIER],
+        [
+          "tickIntervalFrames",
+          ELECTRO_CHARGED_TICK_INTERVAL_FRAMES
+        ],
+        ["waneDelayFrames", ELECTRO_CHARGED_WANE_DELAY_FRAMES],
+        ["waneGaugeUnits", ELECTRO_CHARGED_WANE_GAUGE_UNITS]
+      ] as const) {
+        expectEqual(
+          context,
+          [...auditPath, field],
+          periodicAudit[field],
+          expected,
+          `Electro-Charged audit ${field}`
+        );
+      }
+      expectEqual(
+        context,
+        [...auditPath, "firstDamageFrame"],
+        periodicAudit.firstDamageFrame,
+        periodicAudit.operation === "start"
+          ? event.frame +
+              ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES
+          : null,
+        "Electro-Charged audit first damage frame"
+      );
+      if (periodicAudit.operation === "start") {
+        expectEqual(
+          context,
+          [...auditPath, "nextTickFrame"],
+          periodicAudit.nextTickFrame,
+          event.frame +
+            ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES +
+            ELECTRO_CHARGED_TICK_INTERVAL_FRAMES,
+          "Electro-Charged start next callback frame"
+        );
+      }
+      if (periodicAudit.operation === "stop") {
+        for (const field of [
+          "nextTickFrame",
+          "coexistenceExpiresAtFrame"
+        ] as const) {
+          expectEqual(
+            context,
+            [...auditPath, field],
+            periodicAudit[field],
+            null,
+            `Electro-Charged stop ${field}`
+          );
+        }
+      }
+      if (electroChargedGlobalCadenceMode) {
+        if (
+          periodicAudit.cadenceStatus === undefined ||
+          periodicAudit.waneListenerActive === undefined
+        ) {
+          addIssue(
+            context,
+            auditPath,
+            "aura-v9 Electro-Charged audits require cadence and Wane-listener state"
+          );
+        }
+        if (periodicAudit.operation === "stop") {
+          expectEqual(
+            context,
+            [...auditPath, "cadenceStatus"],
+            periodicAudit.cadenceStatus,
+            "stopped",
+            "Electro-Charged stop cadence"
+          );
+          expectEqual(
+            context,
+            [...auditPath, "waneListenerActive"],
+            periodicAudit.waneListenerActive,
+            false,
+            "Electro-Charged stop Wane listener"
+          );
+        }
+      } else if (
+        periodicAudit.cadenceStatus !== undefined ||
+        periodicAudit.waneListenerActive !== undefined
+      ) {
+        addIssue(
+          context,
+          auditPath,
+          "pre-aura-v9 Electro-Charged audits cannot claim global cadence state"
+        );
+      }
+    }
     if (
       event.reactionAudit.mechanicsTruncation !== null &&
       periodicAudit !== null &&
@@ -3256,7 +4778,23 @@ function validateReactionBacklinks(
     }
   >();
   const periodicStartKeys = new Set<string>();
+  const nextPeriodicStartGenerationByTarget = new Map<
+    string,
+    number
+  >();
+  const currentPeriodicGenerationByTarget = new Map<
+    string,
+    number
+  >();
+  const startOrRefreshRowsByAuditKey = new Map<
+    string,
+    SimulationResult["periodicReactionLog"]
+  >();
   const ordinaryStopKeys = new Set<string>();
+  const hitStopRowsByTriggerDamageEventId = new Map<
+    number,
+    SimulationResult["periodicReactionLog"]
+  >();
   const waneCallbackKeys = new Set<string>();
   const generationBoundWaneMode =
     result.config.reactionEngine?.mode === "aura-v8" ||
@@ -3268,10 +4806,164 @@ function validateReactionBacklinks(
     periodic: SimulationResult["periodicReactionLog"][number]
   ): string =>
     `${periodic.targetId}\u0000${periodic.generation}\u0000${periodic.tickIndex}`;
+  const periodicAuditKey = (
+    damageEventId: number,
+    operation: "start" | "refresh"
+  ): string => `${damageEventId}\u0000${operation}`;
+  const firstWaneTimelinePointByPeriodicId = new Map<
+    number,
+    SimulationResult["targetStateTimeline"]["points"][number]
+  >();
+  for (const point of result.targetStateTimeline.points) {
+    if (point.cause !== "electro-charged-wane") continue;
+    for (const link of point.links) {
+      if (
+        link.kind === "periodic-reaction-log" &&
+        !firstWaneTimelinePointByPeriodicId.has(link.id)
+      ) {
+        firstWaneTimelinePointByPeriodicId.set(link.id, point);
+      }
+    }
+  }
+  const historicalActiveCadenceRowByStream = new Map<
+    string,
+    SimulationResult["periodicReactionLog"][number]
+  >();
   for (const [periodicIndex, periodic] of
     result.periodicReactionLog.entries()) {
     const streamKey = periodicStreamKey(periodic);
+    const rowPath = [
+      "periodicReactionLog",
+      periodicIndex
+    ] satisfies IssuePath;
+    if (electroChargedGlobalCadenceMode) {
+      if (
+        periodic.cadenceStatus === undefined ||
+        periodic.waneListenerActive === undefined
+      ) {
+        addIssue(
+          context,
+          rowPath,
+          "aura-v9 Electro-Charged lifecycle rows require cadence and Wane-listener state"
+        );
+      } else if (periodic.operation === "start") {
+        expectEqual(
+          context,
+          [...rowPath, "cadenceStatus"],
+          periodic.cadenceStatus,
+          "scheduled",
+          "aura-v9 start cadence"
+        );
+        expectEqual(
+          context,
+          [...rowPath, "waneListenerActive"],
+          periodic.waneListenerActive,
+          true,
+          "aura-v9 start Wane listener"
+        );
+      } else if (periodic.operation === "refresh") {
+        const expectedStatus =
+          periodic.nextTickFrame === null
+            ? "dormant"
+            : "scheduled";
+        expectEqual(
+          context,
+          [...rowPath, "cadenceStatus"],
+          periodic.cadenceStatus,
+          expectedStatus,
+          "aura-v9 refresh cadence"
+        );
+        if (expectedStatus === "dormant") {
+          expectEqual(
+            context,
+            [...rowPath, "waneListenerActive"],
+            periodic.waneListenerActive,
+            false,
+            "aura-v9 dormant refresh Wane listener"
+          );
+        }
+      } else if (periodic.operation === "tick") {
+        const expectedStatus =
+          periodic.nextTickFrame === null
+            ? "stopped"
+            : "scheduled";
+        expectEqual(
+          context,
+          [...rowPath, "cadenceStatus"],
+          periodic.cadenceStatus,
+          expectedStatus,
+          "aura-v9 tick cadence"
+        );
+        if (expectedStatus === "stopped") {
+          expectEqual(
+            context,
+            [...rowPath, "waneListenerActive"],
+            periodic.waneListenerActive,
+            false,
+            "aura-v9 stopped tick Wane listener"
+          );
+        }
+      } else if (periodic.operation === "tick-skipped") {
+        expectEqual(
+          context,
+          [...rowPath, "cadenceStatus"],
+          periodic.cadenceStatus,
+          "dormant",
+          "aura-v9 skipped tick cadence"
+        );
+        expectEqual(
+          context,
+          [...rowPath, "waneListenerActive"],
+          periodic.waneListenerActive,
+          false,
+          "aura-v9 skipped tick Wane listener"
+        );
+      } else if (periodic.operation === "stop") {
+        expectEqual(
+          context,
+          [...rowPath, "cadenceStatus"],
+          periodic.cadenceStatus,
+          "stopped",
+          "aura-v9 terminal cadence"
+        );
+        expectEqual(
+          context,
+          [...rowPath, "waneListenerActive"],
+          periodic.waneListenerActive,
+          false,
+          "aura-v9 terminal Wane listener"
+        );
+      }
+    } else if (
+      periodic.cadenceStatus !== undefined ||
+      periodic.waneListenerActive !== undefined
+    ) {
+      addIssue(
+        context,
+        rowPath,
+        "pre-aura-v9 Electro-Charged lifecycle rows cannot claim global cadence state"
+      );
+    }
     if (periodic.operation === "start") {
+      const expectedGeneration =
+        nextPeriodicStartGenerationByTarget.get(
+          periodic.targetId
+        ) ?? 1;
+      expectEqual(
+        context,
+        ["periodicReactionLog", periodicIndex, "generation"],
+        periodic.generation,
+        expectedGeneration,
+        "Electro-Charged canonical start generation"
+      );
+      nextPeriodicStartGenerationByTarget.set(
+        periodic.targetId,
+        expectedGeneration + 1
+      );
+      currentPeriodicGenerationByTarget.set(
+        periodic.targetId,
+        periodic.generation
+      );
       if (periodicStartKeys.has(streamKey)) {
         addIssue(
           context,
@@ -3356,6 +5048,78 @@ function validateReactionBacklinks(
         );
       }
       ordinaryStopKeys.add(streamKey);
+      if (periodic.reason === "COEXISTING_AURA_MISSING") {
+        const activeCadenceRow =
+          historicalActiveCadenceRowByStream.get(streamKey);
+        if (
+          activeCadenceRow === undefined ||
+          activeCadenceRow.nextTickFrame === null
+        ) {
+          addIssue(
+            context,
+            ["periodicReactionLog", periodicIndex, "frame"],
+            "missing-Aura Electro-Charged stop requires a preceding scheduled callback"
+          );
+        } else {
+          expectEqual(
+            context,
+            ["periodicReactionLog", periodicIndex, "frame"],
+            periodic.frame,
+            activeCadenceRow.nextTickFrame,
+            "missing-Aura Electro-Charged callback frame"
+          );
+          expectEqual(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "sourceActorId"
+            ],
+            periodic.sourceActorId,
+            activeCadenceRow.sourceActorId,
+            "missing-Aura Electro-Charged source"
+          );
+          expectEqual(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "triggerDamageEventId"
+            ],
+            periodic.triggerDamageEventId,
+            activeCadenceRow.triggerDamageEventId,
+            "missing-Aura Electro-Charged trigger"
+          );
+        }
+        if (
+          hasElectroChargedCoexistence(periodic.auraBefore) ||
+          !auraStateProjectionEqual(
+            periodic.auraBefore,
+            periodic.auraAfter
+          ) ||
+          periodic.auraConsumed.length !== 0
+        ) {
+          addIssue(
+            context,
+            ["periodicReactionLog", periodicIndex, "reason"],
+            "missing-Aura Electro-Charged stop must observe unchanged non-coexisting Aura"
+          );
+        }
+      }
+      if (
+        periodic.reason === "COEXISTING_AURA_REMOVED_BY_HIT" &&
+        periodic.triggerDamageEventId !== null
+      ) {
+        const rows =
+          hitStopRowsByTriggerDamageEventId.get(
+            periodic.triggerDamageEventId
+          ) ?? [];
+        rows.push(periodic);
+        hitStopRowsByTriggerDamageEventId.set(
+          periodic.triggerDamageEventId,
+          rows
+        );
+      }
     }
     if (isWaneOperation && periodic.tickIndex !== null) {
       const callbackKey = generationBoundWaneMode
@@ -3374,6 +5138,15 @@ function validateReactionBacklinks(
       periodic.operation === "start" ||
       periodic.operation === "refresh"
     ) {
+      if (periodic.triggerDamageEventId !== null) {
+        const key = periodicAuditKey(
+          periodic.triggerDamageEventId,
+          periodic.operation
+        );
+        const rows = startOrRefreshRowsByAuditKey.get(key) ?? [];
+        rows.push(periodic);
+        startOrRefreshRowsByAuditKey.set(key, rows);
+      }
       if (
         periodic.reactionDamageLogId !== null ||
         periodic.damageEventId !== null ||
@@ -3417,7 +5190,9 @@ function validateReactionBacklinks(
           [
             "coexistenceExpiresAtFrame",
             audit.coexistenceExpiresAtFrame
-          ]
+          ],
+          ["cadenceStatus", audit.cadenceStatus],
+          ["waneListenerActive", audit.waneListenerActive]
         ] as const) {
           expectEqual(
             context,
@@ -3541,6 +5316,7 @@ function validateReactionBacklinks(
       if (
         tick === undefined ||
         tick.damageEventId !== periodic.damageEventId ||
+        tick.tickIndex !== periodic.tickIndex ||
         tick.sourceActorId !== periodic.sourceActorId ||
         tick.triggerDamageEventId !==
           periodic.triggerDamageEventId
@@ -3553,11 +5329,253 @@ function validateReactionBacklinks(
       } else {
         expectEqual(
           context,
+          ["periodicReactionLog", periodicIndex, "waneFrame"],
+          tick.waneFrame,
+          periodic.frame,
+          "Electro-Charged tick Wane backlink"
+        );
+        expectEqual(
+          context,
           ["periodicReactionLog", periodicIndex, "frame"],
           periodic.frame,
           tick.frame + ELECTRO_CHARGED_WANE_DELAY_FRAMES,
           "Electro-Charged Wane callback delay"
         );
+        const damageEvent =
+          periodic.damageEventId === null
+            ? undefined
+            : damageEventById.get(periodic.damageEventId);
+        const rowPath = [
+          "periodicReactionLog",
+          periodicIndex
+        ] satisfies IssuePath;
+        if (!generationBoundWaneMode) {
+          expectEqual(
+            context,
+            [...rowPath, "generation"],
+            periodic.generation,
+            currentPeriodicGenerationByTarget.get(
+              periodic.targetId
+            ),
+            "historical Electro-Charged Wane active generation"
+          );
+        }
+        if (electroChargedGlobalCadenceMode) {
+          expectEqual(
+            context,
+            [...rowPath, "waneListenerActive"],
+            tick.waneListenerActive,
+            true,
+            "aura-v9 Wane owning tick listener"
+          );
+        }
+        const hasCoexistingAuraBefore =
+          periodic.auraBefore.some(
+            (entry) => entry.element === "hydro"
+          ) &&
+          periodic.auraBefore.some(
+            (entry) => entry.element === "electro"
+          );
+        const actualDamage = damageEvent?.finalDamage ?? 0;
+        const expectedOperation = !hasCoexistingAuraBefore
+          ? "stop"
+          : actualDamage > 0
+            ? "wane"
+            : "wane-skipped";
+        expectEqual(
+          context,
+          [...rowPath, "operation"],
+          periodic.operation,
+          expectedOperation,
+          "Electro-Charged Wane operation from pre-callback Aura and actual damage"
+        );
+        if (
+          electroChargedGlobalCadenceMode &&
+          actualDamage <= 0
+        ) {
+          addIssue(
+            context,
+            [...rowPath, "damageEventId"],
+            "aura-v9 cannot publish a Wane callback for zero actual damage"
+          );
+        }
+        if (
+          periodic.operation === "wane" ||
+          periodic.operation === "wane-skipped"
+        ) {
+          if (periodic.operation === "wane") {
+            const waneTimelinePoint =
+              firstWaneTimelinePointByPeriodicId.get(periodic.id);
+            const targetClockEnabled =
+              result.config.targetClockModel.mode ===
+              "target-local-hitlag-v1";
+            const currentTargetFrame = targetClockEnabled
+              ? waneTimelinePoint?.targetFrame
+              : null;
+            if (
+              targetClockEnabled &&
+              currentTargetFrame === undefined
+            ) {
+              addIssue(
+                context,
+                [...rowPath, "auraAfter"],
+                "Hitlag-aware Electro-Charged Wane requires its target-frame timeline owner"
+              );
+            }
+            validateElectroChargedWaneAuraMutation(
+              context,
+              [...rowPath, "auraConsumed"],
+              periodic.frame,
+              currentTargetFrame ?? null,
+              periodic.auraBefore,
+              periodic.auraConsumed,
+              periodic.auraAfter
+            );
+          } else {
+            expectAuraGaugeProjection(
+              context,
+              [...rowPath, "auraConsumed"],
+              periodic.auraConsumed,
+              [],
+              "zero-damage Electro-Charged Wane consumption"
+            );
+            expectAuraStateProjection(
+              context,
+              [...rowPath, "auraAfter"],
+              periodic.auraAfter,
+              periodic.auraBefore,
+              "zero-damage Electro-Charged Wane Aura"
+            );
+          }
+          const retainsCoexistence =
+            periodic.auraAfter.some(
+              (entry) => entry.element === "hydro"
+            ) &&
+            periodic.auraAfter.some(
+              (entry) => entry.element === "electro"
+            );
+          const expectedReason =
+            periodic.operation === "wane-skipped"
+              ? "ZERO_ACTUAL_DAMAGE"
+              : retainsCoexistence
+                ? null
+                : "AURA_DEPLETED_BY_WANE";
+          const historicalActiveCadenceRow =
+            generationBoundWaneMode
+              ? undefined
+              : historicalActiveCadenceRowByStream.get(streamKey);
+          const expectedRetainedNextTickFrame =
+            generationBoundWaneMode
+              ? tick.nextTickFrame
+              : historicalActiveCadenceRow?.nextTickFrame ?? null;
+          expectEqual(
+            context,
+            [...rowPath, "reason"],
+            periodic.reason,
+            expectedReason,
+            "Electro-Charged Wane reason"
+          );
+          expectEqual(
+            context,
+            [...rowPath, "nextTickFrame"],
+            periodic.nextTickFrame,
+            retainsCoexistence
+              ? expectedRetainedNextTickFrame
+              : null,
+            "Electro-Charged post-Wane cadence"
+          );
+          expectEqual(
+            context,
+            [...rowPath, "coexistenceExpiresAtFrame"],
+            periodic.coexistenceExpiresAtFrame,
+            electroChargedCoexistenceExpiryFrame(
+              periodic.auraAfter
+            ),
+            "Electro-Charged post-Wane coexistence expiry"
+          );
+          if (
+            periodic.operation === "wane-skipped" &&
+            !retainsCoexistence
+          ) {
+            addIssue(
+              context,
+              [...rowPath, "auraAfter"],
+              "wane-skipped requires Hydro/Electro coexistence"
+            );
+          }
+          if (electroChargedGlobalCadenceMode) {
+            expectEqual(
+              context,
+              [...rowPath, "cadenceStatus"],
+              periodic.cadenceStatus,
+              retainsCoexistence ? "scheduled" : "stopped",
+              "aura-v9 post-Wane cadence status"
+            );
+            expectEqual(
+              context,
+              [...rowPath, "waneListenerActive"],
+              periodic.waneListenerActive,
+              retainsCoexistence,
+              "aura-v9 post-Wane listener state"
+            );
+          }
+        } else if (periodic.operation === "stop") {
+          expectAuraGaugeProjection(
+            context,
+            [...rowPath, "auraConsumed"],
+            periodic.auraConsumed,
+            [],
+            "pre-Wane terminal consumption"
+          );
+          expectAuraStateProjection(
+            context,
+            [...rowPath, "auraAfter"],
+            periodic.auraAfter,
+            periodic.auraBefore,
+            "pre-Wane terminal Aura"
+          );
+          for (const [field, expected] of [
+            ["nextTickFrame", null],
+            ["coexistenceExpiresAtFrame", null],
+            ["reason", "COEXISTING_AURA_MISSING_BEFORE_WANE"]
+          ] as const) {
+            expectEqual(
+              context,
+              [...rowPath, field],
+              periodic[field],
+              expected,
+              `pre-Wane terminal ${field}`
+            );
+          }
+          if (electroChargedGlobalCadenceMode) {
+            expectEqual(
+              context,
+              [...rowPath, "cadenceStatus"],
+              periodic.cadenceStatus,
+              "stopped",
+              "aura-v9 pre-Wane terminal cadence"
+            );
+            expectEqual(
+              context,
+              [...rowPath, "waneListenerActive"],
+              periodic.waneListenerActive,
+              false,
+              "aura-v9 pre-Wane terminal listener"
+            );
+          }
+        }
+        if (!electroChargedGlobalCadenceMode) {
+          if (
+            periodic.cadenceStatus !== undefined ||
+            periodic.waneListenerActive !== undefined
+          ) {
+            addIssue(
+              context,
+              rowPath,
+              "pre-aura-v9 Wane rows cannot claim global cadence state"
+            );
+          }
+        }
       }
     } else if (
       periodic.operation === "stop" &&
@@ -3767,6 +5785,141 @@ function validateReactionBacklinks(
         stream.nextTickIndex += 1;
       }
     }
+    if (
+      electroChargedGlobalCadenceMode &&
+      periodic.operation === "tick" &&
+      periodic.damageEventId !== null
+    ) {
+      const child = damageEventById.get(periodic.damageEventId);
+      const expectedWaneFrame =
+        periodic.waneListenerActive === true &&
+        (child?.finalDamage ?? 0) > 0
+          ? periodic.frame + ELECTRO_CHARGED_WANE_DELAY_FRAMES
+          : null;
+      expectEqual(
+        context,
+        ["periodicReactionLog", periodicIndex, "waneFrame"],
+        periodic.waneFrame,
+        expectedWaneFrame,
+        "aura-v9 tick Wane scheduling"
+      );
+    }
+    if (
+      (periodic.operation === "start" ||
+        periodic.operation === "refresh" ||
+        periodic.operation === "tick") &&
+      periodic.nextTickFrame !== null
+    ) {
+      historicalActiveCadenceRowByStream.set(streamKey, periodic);
+    }
+  }
+
+  for (const [eventIndex, event] of result.damageEvents.entries()) {
+    const audit = event.reactionAudit.periodicReaction;
+    if (
+      audit?.operation !== "start" &&
+      audit?.operation !== "refresh"
+    ) {
+      continue;
+    }
+    const rows =
+      startOrRefreshRowsByAuditKey.get(
+        periodicAuditKey(event.id, audit.operation)
+      ) ?? [];
+    if (rows.length !== 1) {
+      addIssue(
+        context,
+        [
+          "damageEvents",
+          eventIndex,
+          "reactionAudit",
+          "periodicReaction"
+        ],
+        `Electro-Charged ${audit.operation} audit must own exactly one lifecycle row`
+      );
+    }
+  }
+
+  for (const [eventIndex, event] of result.damageEvents.entries()) {
+    const audit = event.reactionAudit.periodicReaction;
+    if (audit?.operation !== "stop") continue;
+    const rows =
+      hitStopRowsByTriggerDamageEventId.get(event.id) ?? [];
+    const auditPath = [
+      "damageEvents",
+      eventIndex,
+      "reactionAudit",
+      "periodicReaction"
+    ] satisfies IssuePath;
+    if (event.reactionAudit.mechanicsTruncation !== null) {
+      if (rows.length !== 0) {
+        addIssue(
+          context,
+          auditPath,
+          "target mechanics truncation cannot also publish an Electro-Charged hit-removal terminal row"
+        );
+      }
+      continue;
+    }
+    if (rows.length !== 1) {
+      addIssue(
+        context,
+        auditPath,
+        "Electro-Charged stop audit must own exactly one hit-removal terminal row"
+      );
+      continue;
+    }
+    const row = rows[0]!;
+    const rowPath = [
+      "periodicReactionLog",
+      row.id
+    ] satisfies IssuePath;
+    for (const [field, expected] of [
+      ["generation", audit.generation],
+      ["frame", event.frame],
+      ["targetId", event.targetId],
+      ["targetName", event.targetName],
+      ["sourceActorId", event.sourceActorId],
+      ["triggerDamageEventId", event.id],
+      ["reactionDamageLogId", null],
+      ["damageEventId", null],
+      ["tickIndex", null],
+      ["nextTickFrame", null],
+      ["coexistenceExpiresAtFrame", null],
+      ["waneFrame", null],
+      ["reason", "COEXISTING_AURA_REMOVED_BY_HIT"],
+      ["cadenceStatus", audit.cadenceStatus],
+      ["waneListenerActive", audit.waneListenerActive]
+    ] as const) {
+      expectEqual(
+        context,
+        [...rowPath, field],
+        row[field],
+        expected,
+        `Electro-Charged hit stop ${field}`
+      );
+    }
+    expectAuraStateProjection(
+      context,
+      [...rowPath, "auraBefore"],
+      row.auraBefore,
+      event.reactionAudit.auraBefore ?? [],
+      "Electro-Charged hit stop Aura before"
+    );
+    expectAuraGaugeProjection(
+      context,
+      [...rowPath, "auraConsumed"],
+      row.auraConsumed,
+      event.reactionAudit.auraConsumed ?? [],
+      "Electro-Charged hit stop Aura consumption"
+    );
+    expectAuraStateProjection(
+      context,
+      [...rowPath, "auraAfter"],
+      row.auraAfter,
+      event.reactionAudit.auraAfter ?? [],
+      "Electro-Charged hit stop Aura after"
+    );
   }
 
   const ordinaryStopReasons = new Set([
@@ -3782,10 +5935,155 @@ function validateReactionBacklinks(
     periodic.operation === "wane-skipped" ||
     (periodic.operation === "stop" &&
       periodic.waneFrame !== null);
-  const waneTimelinePointIdsByPeriodicId = new Map<
+  const appendFrame = (
+    index: Map<string, number[]>,
+    key: string,
+    frame: number
+  ): void => {
+    const frames = index.get(key) ?? [];
+    frames.push(frame);
+    index.set(key, frames);
+  };
+  const lowerBound = (values: readonly number[], value: number): number => {
+    let lower = 0;
+    let upper = values.length;
+    while (lower < upper) {
+      const middle = Math.floor((lower + upper) / 2);
+      if (values[middle]! < value) {
+        lower = middle + 1;
+      } else {
+        upper = middle;
+      }
+    }
+    return lower;
+  };
+  const upperBound = (values: readonly number[], value: number): number => {
+    let lower = 0;
+    let upper = values.length;
+    while (lower < upper) {
+      const middle = Math.floor((lower + upper) / 2);
+      if (values[middle]! <= value) {
+        lower = middle + 1;
+      } else {
+        upper = middle;
+      }
+    }
+    return lower;
+  };
+  const countFramesInRange = (
+    frames: readonly number[] | undefined,
+    startFrame: number,
+    endFrame: number
+  ): number =>
+    frames === undefined
+      ? 0
+      : upperBound(frames, endFrame) -
+        lowerBound(frames, startFrame);
+  const waneCallbackDeliveryKey = (
+    targetId: string,
+    damageEventId: number | null,
+    frame: number
+  ): string => `${targetId}\u0000${damageEventId}\u0000${frame}`;
+  const waneCallbackCountByDeliveryKey = new Map<string, number>();
+  const startFramesByTarget = new Map<string, number[]>();
+  const startFramesByStream = new Map<string, number[]>();
+  const terminalStopFramesByStream = new Map<string, number[]>();
+  for (const periodic of result.periodicReactionLog) {
+    const streamKey = periodicStreamKey(periodic);
+    if (isWaneCallback(periodic)) {
+      const callbackKey = waneCallbackDeliveryKey(
+        periodic.targetId,
+        periodic.damageEventId,
+        periodic.frame
+      );
+      waneCallbackCountByDeliveryKey.set(
+        callbackKey,
+        (waneCallbackCountByDeliveryKey.get(callbackKey) ?? 0) + 1
+      );
+    }
+    if (periodic.operation === "start") {
+      appendFrame(
+        startFramesByTarget,
+        periodic.targetId,
+        periodic.frame
+      );
+      appendFrame(startFramesByStream, streamKey, periodic.frame);
+    }
+    if (
+      periodic.operation === "stop" &&
+      periodic.waneFrame === null &&
+      periodic.reason !== null &&
+      ordinaryStopReasons.has(periodic.reason)
+    ) {
+      appendFrame(
+        terminalStopFramesByStream,
+        streamKey,
+        periodic.frame
+      );
+    }
+  }
+  const truncationFramesByTarget = new Map<string, number[]>();
+  for (const truncation of result.targetMechanicsTruncationLog) {
+    appendFrame(
+      truncationFramesByTarget,
+      truncation.targetId,
+      truncation.frame
+    );
+  }
+  for (const index of [
+    startFramesByTarget,
+    startFramesByStream,
+    terminalStopFramesByStream,
+    truncationFramesByTarget
+  ]) {
+    for (const frames of index.values()) {
+      frames.sort((left, right) => left - right);
+    }
+  }
+  const illegalSuccessorAfterStopByIndex = new Map<
     number,
-    number[]
+    SimulationResult["periodicReactionLog"][number]
   >();
+  const nextIllegalSuccessorByStream = new Map<
+    string,
+    SimulationResult["periodicReactionLog"][number]
+  >();
+  for (
+    let periodicIndex = result.periodicReactionLog.length - 1;
+    periodicIndex >= 0;
+    periodicIndex -= 1
+  ) {
+    const periodic = result.periodicReactionLog[periodicIndex]!;
+    const streamKey = periodicStreamKey(periodic);
+    if (
+      periodic.operation === "stop" &&
+      periodic.waneFrame === null
+    ) {
+      const illegalSuccessor =
+        nextIllegalSuccessorByStream.get(streamKey);
+      if (illegalSuccessor !== undefined) {
+        illegalSuccessorAfterStopByIndex.set(
+          periodicIndex,
+          illegalSuccessor
+        );
+      }
+    }
+    const queuedFirstTick =
+      periodic.operation === "tick" &&
+      periodic.tickIndex === 0 &&
+      periodic.reason !== null &&
+      periodic.reason.startsWith("QUEUED_FIRST_TICK_");
+    if (
+      !queuedFirstTick &&
+      !isWaneCallback(periodic) &&
+      (periodic.operation === "refresh" ||
+        periodic.operation === "tick" ||
+        periodic.operation === "tick-skipped")
+    ) {
+      nextIllegalSuccessorByStream.set(streamKey, periodic);
+    }
+  }
+  const waneTimelinePointCountByPeriodicId = new Map<number, number>();
   for (const [pointIndex, point] of
     result.targetStateTimeline.points.entries()) {
     if (point.cause !== "electro-charged-wane") continue;
@@ -3803,6 +6101,10 @@ function validateReactionBacklinks(
       periodic.frame !== point.frame ||
       periodic.targetId !== point.targetId ||
       periodic.targetName !== point.targetName ||
+      point.pointKind !==
+        (periodic.operation === "wane"
+          ? "mutation"
+          : "observation") ||
       periodic.damageEventId !== point.primaryDamageEventId ||
       point.eventType !== "periodicReactionWane" ||
       point.eventPriority !== 6 ||
@@ -3817,10 +6119,10 @@ function validateReactionBacklinks(
       );
       continue;
     }
-    const owners =
-      waneTimelinePointIdsByPeriodicId.get(periodic.id) ?? [];
-    owners.push(point.id);
-    waneTimelinePointIdsByPeriodicId.set(periodic.id, owners);
+    waneTimelinePointCountByPeriodicId.set(
+      periodic.id,
+      (waneTimelinePointCountByPeriodicId.get(periodic.id) ?? 0) + 1
+    );
   }
 
   const simulationEndFrame = Math.round(
@@ -3831,8 +6133,7 @@ function validateReactionBacklinks(
     const streamKey = periodicStreamKey(periodic);
     if (isWaneCallback(periodic)) {
       if (
-        waneTimelinePointIdsByPeriodicId.get(periodic.id)
-          ?.length !== 1
+        waneTimelinePointCountByPeriodicId.get(periodic.id) !== 1
       ) {
         addIssue(
           context,
@@ -3856,27 +6157,42 @@ function validateReactionBacklinks(
           "ordinary Electro-Charged stop requires a modeled terminal reason"
         );
       }
-      const illegalSuccessor = result.periodicReactionLog
-        .slice(periodicIndex + 1)
-        .find((candidate) => {
-          if (periodicStreamKey(candidate) !== streamKey) {
-            return false;
-          }
-          if (
-            candidate.operation === "tick" &&
-            candidate.tickIndex === 0 &&
-            candidate.reason !== null &&
-            candidate.reason.startsWith("QUEUED_FIRST_TICK_")
-          ) {
-            return false;
-          }
-          if (isWaneCallback(candidate)) return false;
-          return (
-            candidate.operation === "refresh" ||
-            candidate.operation === "tick" ||
-            candidate.operation === "tick-skipped"
+      const terminalTrigger =
+        periodic.triggerDamageEventId === null
+          ? undefined
+          : damageEventById.get(periodic.triggerDamageEventId);
+      if (
+        periodic.reason !== "COEXISTING_AURA_REMOVED_BY_HIT" &&
+        terminalTrigger !== undefined &&
+        terminalTrigger.frame >= periodic.frame
+      ) {
+        addIssue(
+          context,
+          ["periodicReactionLog", periodicIndex, "reason"],
+          "non-hit Electro-Charged terminal rows must backlink an earlier stream source"
+        );
+      }
+      if (
+        periodic.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+      ) {
+        if (
+          terminalTrigger?.reactionAudit.periodicReaction
+            ?.operation !==
+          "stop"
+        ) {
+          addIssue(
+            context,
+            [
+              "periodicReactionLog",
+              periodicIndex,
+              "triggerDamageEventId"
+            ],
+            "hit-removal Electro-Charged stop must backlink its stop audit"
           );
-        });
+        }
+      }
+      const illegalSuccessor =
+        illegalSuccessorAfterStopByIndex.get(periodicIndex);
       if (illegalSuccessor !== undefined) {
         addIssue(
           context,
@@ -3895,47 +6211,44 @@ function validateReactionBacklinks(
       continue;
     }
     const truncatedBeforeCallback =
-      result.targetMechanicsTruncationLog.some(
-        (entry) =>
-          entry.targetId === periodic.targetId &&
-          entry.frame >= periodic.frame &&
-          entry.frame <= periodic.waneFrame!
-      );
+      countFramesInRange(
+        truncationFramesByTarget.get(periodic.targetId),
+        periodic.frame,
+        periodic.waneFrame
+      ) > 0;
     const streamCancelledBeforeCallback =
       generationBoundWaneMode &&
-      result.periodicReactionLog.some((candidate) => {
-        if (
-          candidate.targetId !== periodic.targetId ||
-          candidate.frame < periodic.frame ||
-          candidate.frame > periodic.waneFrame!
-        ) {
-          return false;
-        }
-        const replacementStart =
-          candidate.operation === "start" &&
-          candidate.generation !== periodic.generation;
-        const validTerminalStop =
-          candidate.generation === periodic.generation &&
-          candidate.operation === "stop" &&
-          candidate.waneFrame === null &&
-          candidate.reason !== null &&
-          ordinaryStopReasons.has(candidate.reason);
-        return replacementStart || validTerminalStop;
-      });
+      (countFramesInRange(
+        startFramesByTarget.get(periodic.targetId),
+        periodic.frame,
+        periodic.waneFrame
+      ) -
+        countFramesInRange(
+          startFramesByStream.get(streamKey),
+          periodic.frame,
+          periodic.waneFrame
+        ) >
+        0 ||
+        countFramesInRange(
+          terminalStopFramesByStream.get(streamKey),
+          periodic.frame,
+          periodic.waneFrame
+        ) > 0);
     if (
       truncatedBeforeCallback ||
       streamCancelledBeforeCallback
     ) {
       continue;
     }
-    const callbackRows = result.periodicReactionLog.filter(
-      (candidate) =>
-        isWaneCallback(candidate) &&
-        candidate.targetId === periodic.targetId &&
-        candidate.damageEventId === periodic.damageEventId &&
-        candidate.frame === periodic.waneFrame
-    );
-    if (callbackRows.length !== 1) {
+    const callbackCount =
+      waneCallbackCountByDeliveryKey.get(
+        waneCallbackDeliveryKey(
+          periodic.targetId,
+          periodic.damageEventId,
+          periodic.waneFrame
+        )
+      ) ?? 0;
+    if (callbackCount !== 1) {
       addIssue(
         context,
         ["periodicReactionLog", periodicIndex, "waneFrame"],
@@ -3961,6 +6274,7 @@ function validateReactionBacklinks(
       );
     }
   }
+  validateElectroChargedV9LifecycleReplay(result, context);
 }
 
 const SWIRL_DAMAGE_ELEMENT = {

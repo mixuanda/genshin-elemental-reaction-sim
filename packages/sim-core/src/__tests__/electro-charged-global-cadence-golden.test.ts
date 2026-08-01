@@ -1,12 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
+  assertTrustedSimulationResultV144,
   canonicalStringify,
   electroChargedCleanupResultReferencesSchema,
   electroChargedGlobalCadenceGoldenFixtureV142Schema,
   electroChargedGlobalCadenceGoldenScenarioIdsV142,
   playerDamageResultReferencesSchema,
   reactionDeliveryResultReferencesSchema,
+  simulationResultV144Schema,
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
   type SimConfig,
@@ -701,5 +703,111 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
         .map((event) => event.frame)
     ).toEqual([10, 70, 130]);
 
+  });
+
+  it("rejects coordinated per-source Wane and terminal-cadence drift", () => {
+    const legal = simulate(
+      makeLongHitlagConfig({
+        restoreFrame: 5,
+        restoreGaugeUnits: 0.5
+      }),
+      { critMode: "noCrit" }
+    );
+    const wane = legal.periodicReactionLog.find(
+      (row) => row.frame === 16 && row.operation === "wane"
+    );
+    const point = legal.targetStateTimeline.points.find(
+      (candidate) =>
+        candidate.links.some(
+          (link) =>
+            link.kind === "periodic-reaction-log" &&
+            link.id === wane?.id
+        )
+    );
+    const electroConsumption = wane?.auraConsumed.find(
+      (entry) => entry.element === "electro"
+    );
+    const driverMutation =
+      electroConsumption?.sourceMutations?.find(
+        (mutation) => mutation.sourceActorId === "driver"
+      );
+    if (
+      wane === undefined ||
+      point === undefined ||
+      electroConsumption === undefined ||
+      driverMutation === undefined
+    ) {
+      throw new Error(
+        "Expected the F16 multi-source terminal Wane proof."
+      );
+    }
+    for (const mutation of electroConsumption.sourceMutations ?? []) {
+      expect(mutation.consumedGaugeUnits).toBeCloseTo(
+        Math.min(0.4, mutation.gaugeUnitsBefore),
+        12
+      );
+    }
+    expect(simulationResultV144Schema.parse(legal)).toEqual(legal);
+    expect(assertTrustedSimulationResultV144(legal)).toBe(legal);
+
+    const forgedSource = structuredClone(legal);
+    const forgedWane = forgedSource.periodicReactionLog[wane.id]!;
+    const forgedElectro = forgedWane.auraConsumed.find(
+      (entry) => entry.element === "electro"
+    )!;
+    const forgedMutation = forgedElectro.sourceMutations!.find(
+      (mutation) => mutation.sourceActorId === "driver"
+    )!;
+    forgedMutation.consumedGaugeUnits = 0.3;
+    forgedMutation.gaugeUnitsAfter =
+      forgedMutation.gaugeUnitsBefore - 0.3;
+    const forgedElectroAfter = forgedWane.auraAfter.find(
+      (entry) => entry.element === "electro"
+    )!;
+    forgedElectroAfter.sourceSlots!.find(
+      (slot) => slot.sourceActorId === "driver"
+    )!.gaugeUnits = forgedMutation.gaugeUnitsAfter;
+    const forgedPoint =
+      forgedSource.targetStateTimeline.points[point.id]!;
+    forgedPoint.auraConsumed = structuredClone(
+      forgedWane.auraConsumed
+    );
+    forgedPoint.auraAfter = structuredClone(forgedWane.auraAfter);
+    expect(simulationResultV144Schema.safeParse(forgedSource).success).toBe(
+      false
+    );
+    expect(() =>
+      assertTrustedSimulationResultV144(forgedSource)
+    ).toThrow(/fixed 0\.4U budget/);
+
+    const forgedDeadlines = structuredClone(legal);
+    const forgedDeadlineWane =
+      forgedDeadlines.periodicReactionLog[wane.id]!;
+    const forgedDeadlineElectro =
+      forgedDeadlineWane.auraAfter.find(
+        (entry) => entry.element === "electro"
+      )!;
+    forgedDeadlineElectro.expiresAtFrame! += 100;
+    forgedDeadlineElectro.expiresAtTargetFrame! += 100;
+    forgedDeadlines.targetStateTimeline.points[point.id]!.auraAfter =
+      structuredClone(forgedDeadlineWane.auraAfter);
+    expect(
+      simulationResultV144Schema.safeParse(forgedDeadlines).success
+    ).toBe(false);
+    expect(() =>
+      assertTrustedSimulationResultV144(forgedDeadlines)
+    ).toThrow(/Aura deadline must retain/);
+
+    const forgedCadence = structuredClone(legal);
+    Object.assign(forgedCadence.periodicReactionLog[wane.id]!, {
+      cadenceStatus: "scheduled" as const,
+      waneListenerActive: true
+    });
+    expect(simulationResultV144Schema.safeParse(forgedCadence).success).toBe(
+      false
+    );
+    expect(() =>
+      assertTrustedSimulationResultV144(forgedCadence)
+    ).toThrow(/post-Wane cadence status/);
   });
 });
