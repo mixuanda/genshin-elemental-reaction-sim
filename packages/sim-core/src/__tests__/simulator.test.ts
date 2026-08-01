@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResultV145,
   createVersionedContentHash,
-  simulationResultV144Schema,
-  simulationRunManifestSchema
+  migrateConfig,
+  simConfigSchema,
+  simConfigV144Schema,
+  simConfigV145Schema,
+  simulationResultSchema,
+  simulationResultV145Schema,
+  simulationRunManifestSchema,
+  simulationRunManifestV145Schema
 } from "@genshin-dps-lab/schemas";
 import {
   defineDamageModifierPlugin,
@@ -285,7 +293,7 @@ describe("deterministic event simulation", () => {
     });
   });
 
-  it("replays the explicit legacy ampBase multiplier without inventing a reaction", () => {
+  it("documents frozen 1.44 ampBase compatibility while current 1.45 fails closed", () => {
     const baseHit = {
       id: "legacy-explicit-base",
       offset: 0,
@@ -293,45 +301,45 @@ describe("deterministic event simulation", () => {
       element: "pyro" as const,
       reaction: "none" as const
     };
-    const withoutOverride = simulate(
-      makeConfig({
-        rotation: [
-          {
-            id: "legacy-base",
-            actorId: "a",
-            name: "Legacy base",
-            at: 0,
-            hits: [baseHit]
-          }
-        ]
-      }),
-      { critMode: "noCrit" }
-    ).damageEvents[0]!;
-    const withOverride = simulate(
-      makeConfig({
-        rotation: [
-          {
-            id: "legacy-explicit",
-            actorId: "a",
-            name: "Legacy explicit base",
-            at: 0,
-            hits: [{ ...baseHit, ampBase: 2 }]
-          }
-        ]
-      }),
-      { critMode: "noCrit" }
-    ).damageEvents[0]!;
-
-    expect(withOverride.finalDamage).toBeCloseTo(
-      withoutOverride.finalDamage * 2,
-      12
-    );
-    expect(withOverride.reactionAudit).toMatchObject({
-      model: "none",
-      triggered: false,
-      reaction: "none",
-      reactions: []
+    const currentWithLegacyOverride = makeConfig({
+      rotation: [
+        {
+          id: "legacy-explicit",
+          actorId: "a",
+          name: "Legacy explicit base",
+          at: 0,
+          hits: [{ ...baseHit, ampBase: 2 }]
+        }
+      ]
     });
+    const {
+      reactionFormulaModel: _reactionFormulaModel,
+      ...legacyPayload
+    } = structuredClone(currentWithLegacyOverride);
+    const frozenV144WithAmpBase = {
+      ...legacyPayload,
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    };
+
+    // Exact 1.44 accepted ampBase as an explicit multiplier for legacy/manual
+    // debug runs without inventing a reaction. Migration must not silently
+    // carry that unrooted multiplier into the current fixed-formula contract.
+    expect(
+      simConfigV144Schema.parse(frozenV144WithAmpBase)
+    ).toEqual(frozenV144WithAmpBase);
+    expect(() => migrateConfig(frozenV144WithAmpBase)).toThrow(
+      /ampBase is forbidden by the 1\.45 formula-root contract/
+    );
+    expect(() =>
+      simConfigV145Schema.parse(currentWithLegacyOverride)
+    ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
+    expect(() =>
+      simConfigSchema.parse(currentWithLegacyOverride)
+    ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
+    expect(() => simulate(currentWithLegacyOverride)).toThrow(
+      /ampBase is forbidden by the 1\.45 formula-root contract/
+    );
   });
 
   it("truncates hits after the configured duration", () => {
@@ -362,6 +370,9 @@ describe("deterministic event simulation", () => {
     expect(second).toEqual(first);
     expect(first.reproducibilityKey).toMatch(
       /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
+    );
+    expect(first.runManifest).toEqual(
+      simulationRunManifestV145Schema.parse(first.runManifest)
     );
     expect(first.runManifest).toEqual(
       simulationRunManifestSchema.parse(first.runManifest)
@@ -550,9 +561,10 @@ describe("deterministic event simulation", () => {
       snapshotAtk + 1
     );
     expect(
-      simulationResultV144Schema.parse(result)
+      simulationResultV145Schema.parse(result)
     ).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResultV145(result)).toBe(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 

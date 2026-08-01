@@ -12,16 +12,27 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  SIMULATION_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV145,
   legacyDefault120sGoldenFixtureV142Schema,
   legacyDefault120sGoldenFixtureV144Schema,
   migrateConfig,
-  playerDamageResultReferencesSchema
+  playerDamageResultReferencesSchema,
+  reactionFormulaModelSchema,
+  reactionFormulaRootSchema,
+  simulationResultV145Schema,
+  simulationRunManifestV145Schema
 } from "@genshin-dps-lab/schemas";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
 import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
@@ -49,9 +60,9 @@ const BURNING_STATE_LOG_SHA256 =
 const BURNING_V142_REPRODUCIBILITY_KEY =
   "gdl-v2-fnv1a32-c728aa15";
 const BURNING_V142_CONFIG_HASH = "fnv1a32:ac41771e";
-const BURNING_V144_CONFIG_HASH = "fnv1a32:7897f9a3";
-const BURNING_V144_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-903091c5";
+const BURNING_V145_CONFIG_HASH = "fnv1a32:c55b2472";
+const BURNING_V145_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-03ea05ed";
 const FROZEN_FOUNDATION_FIXTURE_SHA256 = {
   "burning-aura-v4-1.30.golden.json":
     "adbb9a815163baa6667295298a6bad547be2a05a26f5139777ba73a21269867d",
@@ -126,12 +137,28 @@ const FROZEN_V144_FIXTURE_SHA256 = {
   "burning-callback-delivery-1.44.golden.json":
     "4caf9609daac1fde41195399e5c3af8daca60e14849aa4c5195b286ae947da65"
 } as const;
+const UPDATE_LEGACY_DEFAULT_V145_GOLDEN =
+  "UPDATE_LEGACY_DEFAULT_V145_GOLDEN";
+const FROZEN_V145_FIXTURE_SHA256 =
+  "ce59efca02ea2a895195139a3775ec0eeefe6b73414603ee8650e46b2e3c2167";
 const LEGACY_DEFAULT_V144_DESCRIPTION =
   "Compact 1.44 identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.";
 const LEGACY_DEFAULT_V144_SOURCE =
   "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.42 identity fixture";
 const LEGACY_DEFAULT_V144_NOTE =
   "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.44 engine adds opt-in fixed-gcsim-provisional Burning callback delivery, while this default preset preserves its historical deferred reaction mode, explicitly keeps single-target-v1, and freezes the complete 269-event damage digest to 1.42. This is neither official server truth nor complete gcsim parity.";
+const LEGACY_DEFAULT_V144_CONFIG_HASH = "fnv1a32:dad42c01";
+const LEGACY_DEFAULT_V144_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-03487d7e";
+const LEGACY_DEFAULT_V145_CONFIG_HASH = "fnv1a32:e53f9200";
+const LEGACY_DEFAULT_V145_REPRODUCIBILITY_KEY =
+  "gdl-v2-fnv1a32-b696a75d";
+const LEGACY_DEFAULT_V145_DESCRIPTION =
+  "Compact 1.45 reaction-formula-root identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.";
+const LEGACY_DEFAULT_V145_SOURCE =
+  "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.44 identity fixture";
+const LEGACY_DEFAULT_V145_NOTE =
+  "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.45 engine binds the fixed-gcsim-provisional classic reaction formula profile and full formula root, while this default preset preserves its historical deferred reaction mode, explicitly keeps single-target-v1, and freezes the complete 269-event damage digest to 1.44. This is neither official server truth nor complete gcsim parity.";
 const LEGACY_DEFAULT_V141_FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json",
   import.meta.url
@@ -142,6 +169,10 @@ const LEGACY_DEFAULT_V142_FIXTURE_URL = new URL(
 );
 const LEGACY_DEFAULT_V144_FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.44.golden.json",
+  import.meta.url
+);
+const LEGACY_DEFAULT_V145_FIXTURE_URL = new URL(
+  "../../../test-vectors/fixtures/legacy-default-120s-1.45.golden.json",
   import.meta.url
 );
 const LEGACY_DEFAULT_V140_FIXTURE_URL = new URL(
@@ -254,6 +285,122 @@ type LegacyDefaultV144Fixture = ReturnType<
   typeof legacyDefault120sGoldenFixtureV144Schema.parse
 >;
 
+function projectLegacyDefaultV145ToFrozenV144(
+  fixture: Record<string, unknown>
+): LegacyDefaultV144Fixture {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    runManifest: _runManifest,
+    ...historicalFields
+  } = fixture;
+  return legacyDefault120sGoldenFixtureV144Schema.parse({
+    ...historicalFields,
+    description: LEGACY_DEFAULT_V144_DESCRIPTION,
+    provenance: {
+      source: LEGACY_DEFAULT_V144_SOURCE,
+      capturedAt: "2026-07-31",
+      verificationStatus: "provisional",
+      note: LEGACY_DEFAULT_V144_NOTE,
+      officialServerTruth: false,
+      completeGcsimParity: false
+    },
+    schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+    configHash: LEGACY_DEFAULT_V144_CONFIG_HASH,
+    reproducibilityKey:
+      LEGACY_DEFAULT_V144_REPRODUCIBILITY_KEY
+  });
+}
+
+/**
+ * Strict local release schema for the compact 1.45 Golden. The exact 1.44
+ * schema remains the single source of truth for every historical result field;
+ * this boundary adds only the versioned formula selector and bound manifest.
+ */
+const legacyDefault120sGoldenFixtureV145Schema = z
+  .object({
+    fixtureVersion: z.literal("1.0.0"),
+    description: z.literal(LEGACY_DEFAULT_V145_DESCRIPTION),
+    provenance: z
+      .object({
+        source: z.literal(LEGACY_DEFAULT_V145_SOURCE),
+        capturedAt: z.literal("2026-08-01"),
+        verificationStatus: z.literal("provisional"),
+        note: z.literal(LEGACY_DEFAULT_V145_NOTE),
+        officialServerTruth: z.literal(false),
+        completeGcsimParity: z.literal(false)
+      })
+      .strict(),
+    schemaVersion: z.literal(
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_FORMULA_ROOT_ENGINE_VERSION
+    ),
+    configHash: z.literal(LEGACY_DEFAULT_V145_CONFIG_HASH),
+    reproducibilityKey: z.literal(
+      LEGACY_DEFAULT_V145_REPRODUCIBILITY_KEY
+    ),
+    options: z.any(),
+    totalDamage: z.number().finite(),
+    dps: z.number().finite(),
+    hitCount: z.number().int().nonnegative(),
+    reactedHits: z.number().int().nonnegative(),
+    skippedActionCount: z.number().int().nonnegative(),
+    byCharacter: z.any(),
+    bySkill: z.any(),
+    legacyDamageEventsSha256: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/),
+    reactionDeliveryModel: z.any(),
+    electroChargedPropagationModel: z.any(),
+    targetClock: z.any(),
+    targetTask: z.any(),
+    targetPhaseLog: z.any(),
+    reactionFormulaModel: reactionFormulaModelSchema,
+    runManifest: simulationRunManifestV145Schema
+  })
+  .strict()
+  .superRefine((fixture, context) => {
+    if (
+      !reactionFormulaRootSchema.safeParse(
+        fixture.runManifest.reactionFormulaRoot
+      ).success
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["runManifest", "reactionFormulaRoot"],
+        message: "must bind the exact compiled reaction formula root"
+      });
+    }
+    if (
+      fixture.runManifest.schemaVersion !==
+        fixture.schemaVersion ||
+      fixture.runManifest.engineVersion !==
+        fixture.engineVersion ||
+      fixture.runManifest.configHash !== fixture.configHash ||
+      fixture.runManifest.reproducibilityKey !==
+        fixture.reproducibilityKey ||
+      fixture.runManifest.version !==
+        SIMULATION_RUN_MANIFEST_VERSION ||
+      JSON.stringify(
+        fixture.runManifest.resolvedRuntimeOptions
+      ) !== JSON.stringify(fixture.options) ||
+      fixture.runManifest.plugins.length !== 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["runManifest"],
+        message:
+          "must bind the exact 1.45 identity, runtime options, empty plugin order, config hash, and reproducibility key"
+      });
+    }
+  });
+
+type LegacyDefaultV145Fixture = z.output<
+  typeof legacyDefault120sGoldenFixtureV145Schema
+>;
+
 function loadFrozenLegacyDefaultV141Fixture():
   LegacyDefaultV141Fixture {
   if (
@@ -324,6 +471,7 @@ function projectLegacyDefaultCompatibilitySemantics(
     | LegacyDefaultV141Fixture
     | LegacyDefaultV142Fixture
     | LegacyDefaultV144Fixture
+    | LegacyDefaultV145Fixture
 ) {
   return {
     options: fixture.options,
@@ -420,9 +568,9 @@ function loadOrCreateLegacyDefaultV144Fixture(
     }
     if (
       generatedFixture.schemaVersion !==
-        CURRENT_SCHEMA_VERSION ||
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
       generatedFixture.engineVersion !==
-        CURRENT_ENGINE_VERSION ||
+        BURNING_CALLBACK_DELIVERY_ENGINE_VERSION ||
       generatedFixture.provenance.officialServerTruth !== false ||
       generatedFixture.provenance.completeGcsimParity !== false ||
       generatedFixture.electroChargedPropagationModel.mode !==
@@ -484,10 +632,148 @@ function makeLegacyDefaultV144CreationProbeFixture(
       completeGcsimParity: false,
       note: LEGACY_DEFAULT_V144_NOTE
     },
-    schemaVersion: CURRENT_SCHEMA_VERSION,
-    engineVersion: CURRENT_ENGINE_VERSION,
+    schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     configHash: "fnv1a32:dad42c01",
     reproducibilityKey: "gdl-v2-fnv1a32-03487d7e"
+  });
+}
+
+function loadOrCreateLegacyDefaultV145Fixture(
+  generatedFixture: LegacyDefaultV145Fixture,
+  frozenV144: LegacyDefaultV144Fixture,
+  options: {
+    updateRequested?: boolean;
+    outputUrl?: URL;
+  } = {}
+): LegacyDefaultV145Fixture {
+  const updateRequested =
+    options.updateRequested ??
+    process.env[UPDATE_LEGACY_DEFAULT_V145_GOLDEN] === "1";
+  const outputUrl =
+    options.outputUrl ?? LEGACY_DEFAULT_V145_FIXTURE_URL;
+  const sourceBytes = readFileSync(
+    LEGACY_DEFAULT_V144_FIXTURE_URL
+  );
+  const sourceSha256 = byteSha256(sourceBytes);
+  if (
+    sourceSha256 !==
+    FROZEN_V144_FIXTURE_SHA256[
+      "legacy-default-120s-1.44.golden.json"
+    ]
+  ) {
+    throw new Error(
+      `Refusing to derive the 1.45 default fixture from an unfrozen 1.44 source: received ${sourceSha256}.`
+    );
+  }
+
+  const validateCompatibility = (
+    fixture: LegacyDefaultV145Fixture
+  ): void => {
+    const projected =
+      projectLegacyDefaultV145ToFrozenV144(fixture);
+    if (
+      JSON.stringify(projected) !== JSON.stringify(frozenV144)
+    ) {
+      throw new Error(
+        "The 1.45 default fixture changed the exact frozen 1.44 projection."
+      );
+    }
+    if (
+      fixture.reactionFormulaModel.profileId !==
+      fixture.runManifest.reactionFormulaRoot.profileId
+    ) {
+      throw new Error(
+        "The 1.45 default fixture formula selector is not bound to its manifest formula root."
+      );
+    }
+  };
+
+  if (updateRequested) {
+    const parsedGeneratedFixture =
+      legacyDefault120sGoldenFixtureV145Schema.parse(
+        generatedFixture
+      );
+    validateCompatibility(parsedGeneratedFixture);
+    const generatedBytes = serializeJsonFixture(
+      parsedGeneratedFixture
+    );
+    const generatedSha256 = byteSha256(generatedBytes);
+    if (generatedSha256 !== FROZEN_V145_FIXTURE_SHA256) {
+      throw new Error(
+        `Refusing to write the 1.45 default fixture because its generated bytes changed: received ${generatedSha256}.`
+      );
+    }
+    atomicCreateFixtureBytes(outputUrl, generatedBytes);
+    return parsedGeneratedFixture;
+  }
+
+  const frozenBytes = readFileSync(outputUrl);
+  const frozenSha256 = byteSha256(frozenBytes);
+  if (frozenSha256 !== FROZEN_V145_FIXTURE_SHA256) {
+    throw new Error(
+      `Frozen 1.45 default fixture changed: received ${frozenSha256}.`
+    );
+  }
+  const parsedFrozenFixture =
+    legacyDefault120sGoldenFixtureV145Schema.parse(
+      JSON.parse(frozenBytes.toString("utf8"))
+    );
+  validateCompatibility(parsedFrozenFixture);
+  return parsedFrozenFixture;
+}
+
+function makeLegacyDefaultV145CreationProbeFixture(
+  result: ReturnType<typeof simulate>,
+  frozenV144: LegacyDefaultV144Fixture
+): LegacyDefaultV145Fixture {
+  return legacyDefault120sGoldenFixtureV145Schema.parse({
+    ...frozenV144,
+    description: LEGACY_DEFAULT_V145_DESCRIPTION,
+    provenance: {
+      source: LEGACY_DEFAULT_V145_SOURCE,
+      capturedAt: "2026-08-01",
+      verificationStatus: "provisional",
+      note: LEGACY_DEFAULT_V145_NOTE,
+      officialServerTruth: false,
+      completeGcsimParity: false
+    },
+    schemaVersion: result.schemaVersion,
+    engineVersion: result.engineVersion,
+    configHash: result.runManifest.configHash,
+    reproducibilityKey: result.reproducibilityKey,
+    options: result.resolvedRuntimeOptions,
+    totalDamage: result.totalDamage,
+    dps: result.dps,
+    hitCount: result.damageEvents.length,
+    reactedHits: result.reactedHits,
+    skippedActionCount: result.skippedActions.length,
+    byCharacter: result.byCharacter,
+    bySkill: result.bySkill.map(
+      ({ creditId, actionName, damage, hits }) => ({
+        creditId,
+        actionName,
+        damage,
+        hits
+      })
+    ),
+    legacyDamageEventsSha256: sha256(result.damageEvents),
+    reactionDeliveryModel: result.config.reactionDeliveryModel,
+    electroChargedPropagationModel:
+      result.config.electroChargedPropagationModel,
+    targetClock: {
+      config: result.config.targetClockModel,
+      audit: result.targetClockAudit,
+      clockLog: result.targetClockLog,
+      hitlagLog: result.targetHitlagLog
+    },
+    targetTask: {
+      config: result.config.targetTaskModel,
+      phaseLog: result.targetTaskPhaseLog
+    },
+    targetPhaseLog: result.targetPhaseLog,
+    reactionFormulaModel: result.config.reactionFormulaModel,
+    runManifest: result.runManifest
   });
 }
 
@@ -585,7 +871,8 @@ function v130CompatibilityResult(
               key !== "targetClockModel" &&
               key !== "targetTaskModel" &&
               key !== "reactionDeliveryModel" &&
-              key !== "electroChargedPropagationModel"
+              key !== "electroChargedPropagationModel" &&
+              key !== "reactionFormulaModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -631,6 +918,7 @@ function makeBurningGoldenConfig(): unknown {
     reactionDeliveryModel: _reactionDeliveryModel,
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
+    reactionFormulaModel: _reactionFormulaModel,
     ...v130Base
   } = base;
   return {
@@ -850,6 +1138,18 @@ describe("frozen versioned fixture integrity", () => {
       ).toBe(expectedSha256);
     }
   });
+
+  it("keeps the 1.45 default release fixture byte-for-byte frozen", () => {
+    if (
+      process.env[UPDATE_LEGACY_DEFAULT_V145_GOLDEN] === "1" &&
+      !existsSync(fileURLToPath(LEGACY_DEFAULT_V145_FIXTURE_URL))
+    ) {
+      return;
+    }
+    expect(
+      byteSha256(readFileSync(LEGACY_DEFAULT_V145_FIXTURE_URL))
+    ).toBe(FROZEN_V145_FIXTURE_SHA256);
+  });
 });
 
 describe("default 1.44 Golden creation gate", () => {
@@ -969,6 +1269,132 @@ describe("default 1.44 Golden creation gate", () => {
   });
 });
 
+describe("default 1.45 Golden creation gate", () => {
+  function makeProbe(): {
+    generated: LegacyDefaultV145Fixture;
+    frozenV144: LegacyDefaultV144Fixture;
+  } {
+    const frozenV142 = loadOrCreateLegacyDefaultV142Fixture();
+    const generatedV144 =
+      makeLegacyDefaultV144CreationProbeFixture(frozenV142);
+    const frozenV144 = loadOrCreateLegacyDefaultV144Fixture(
+      generatedV144,
+      frozenV142
+    );
+    const result = simulate(durinMeltPreset, {
+      energyMode: "configured",
+      critMode: "average",
+      compatibilityMode: "legacy-v0.1",
+      randomSeed: "legacy-default"
+    });
+    return {
+      generated: makeLegacyDefaultV145CreationProbeFixture(
+        result,
+        frozenV144
+      ),
+      frozenV144
+    };
+  }
+
+  it("does not create a missing fixture without explicit UPDATE", () => {
+    const { generated, frozenV144 } = makeProbe();
+    const probeDirectory = mkdtempSync(
+      resolve(tmpdir(), "gdl-default-v145-no-update-")
+    );
+    const outputUrl = pathToFileURL(
+      resolve(probeDirectory, "missing.golden.json")
+    );
+    try {
+      expect(() =>
+        loadOrCreateLegacyDefaultV145Fixture(
+          generated,
+          frozenV144,
+          { updateRequested: false, outputUrl }
+        )
+      ).toThrow();
+      expect(existsSync(fileURLToPath(outputUrl))).toBe(false);
+    } finally {
+      rmSync(probeDirectory, {
+        recursive: true,
+        force: true
+      });
+    }
+  });
+
+  it("validates frozen source and output SHAs before atomic creation", () => {
+    const { generated, frozenV144 } = makeProbe();
+    const probeDirectory = mkdtempSync(
+      resolve(tmpdir(), "gdl-default-v145-update-")
+    );
+    const outputUrl = pathToFileURL(
+      resolve(probeDirectory, "missing.golden.json")
+    );
+    const driftedOutputUrl = pathToFileURL(
+      resolve(probeDirectory, "drifted.golden.json")
+    );
+    try {
+      expect(byteSha256(serializeJsonFixture(generated))).toBe(
+        FROZEN_V145_FIXTURE_SHA256
+      );
+      expect(
+        loadOrCreateLegacyDefaultV145Fixture(
+          generated,
+          frozenV144,
+          { updateRequested: true, outputUrl }
+        )
+      ).toEqual(generated);
+      expect(byteSha256(readFileSync(outputUrl))).toBe(
+        FROZEN_V145_FIXTURE_SHA256
+      );
+
+      expect(() =>
+        loadOrCreateLegacyDefaultV145Fixture(
+          { ...generated, totalDamage: generated.totalDamage + 1 },
+          frozenV144,
+          {
+            updateRequested: true,
+            outputUrl: driftedOutputUrl
+          }
+        )
+      ).toThrow();
+      expect(existsSync(fileURLToPath(driftedOutputUrl))).toBe(
+        false
+      );
+    } finally {
+      rmSync(probeDirectory, {
+        recursive: true,
+        force: true
+      });
+    }
+  });
+
+  it("atomically refuses to overwrite an existing fixture", () => {
+    const { generated, frozenV144 } = makeProbe();
+    const probeDirectory = mkdtempSync(
+      resolve(tmpdir(), "gdl-default-v145-no-overwrite-")
+    );
+    const outputUrl = pathToFileURL(
+      resolve(probeDirectory, "existing.golden.json")
+    );
+    try {
+      writeFileSync(outputUrl, "sentinel\n", { flag: "wx" });
+      expect(() =>
+        loadOrCreateLegacyDefaultV145Fixture(
+          generated,
+          frozenV144,
+          { updateRequested: true, outputUrl }
+        )
+      ).toThrow(/Refusing to overwrite frozen fixture/);
+      expect(readFileSync(outputUrl, "utf8")).toBe("sentinel\n");
+    } finally {
+      rmSync(probeDirectory, {
+        recursive: true,
+        force: true
+      });
+    }
+  });
+});
+
 describe("1.44 identity migration release gate", () => {
   function makeHistoricalV141Config(
     propagation:
@@ -1006,8 +1432,12 @@ describe("1.44 identity migration release gate", () => {
         commands: []
       }
     });
+    const {
+      reactionFormulaModel: _reactionFormulaModel,
+      ...historical
+    } = current;
     return {
-      ...current,
+      ...historical,
       schemaVersion:
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
       engineVersion:
@@ -1023,14 +1453,16 @@ describe("1.44 identity migration release gate", () => {
       verificationStatus: "provisional" as const
     }
   ]) {
-    it(`migrates exact 1.41 ${propagation.mode} by changing identity only`, () => {
+    it(`migrates exact 1.41 ${propagation.mode} by adding the pinned formula profile`, () => {
       const historical =
         makeHistoricalV141Config(propagation);
       const before = structuredClone(historical);
       expect(migrateConfig(historical)).toEqual({
         ...historical,
         schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION
+        engineVersion: CURRENT_ENGINE_VERSION,
+        reactionFormulaModel:
+          makeConfig().reactionFormulaModel
       });
       expect(historical).toEqual(before);
     });
@@ -1051,7 +1483,8 @@ describe("1.44 identity migration release gate", () => {
     const currentAuraV8 = {
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaModel: makeConfig().reactionFormulaModel
     };
     expect(migrateConfig(currentAuraV8)).toEqual(
       currentAuraV8
@@ -1093,54 +1526,11 @@ describe("Vanilla v0.1 golden compatibility", () => {
       loadFrozenLegacyDefaultV141Fixture();
     const goldenV142 =
       loadOrCreateLegacyDefaultV142Fixture();
-    const generatedV144Fixture = {
-      ...goldenV142,
-      description: LEGACY_DEFAULT_V144_DESCRIPTION,
-      provenance: {
-        ...goldenV142.provenance,
-        source: LEGACY_DEFAULT_V144_SOURCE,
-        capturedAt: "2026-07-31",
-        officialServerTruth: false as const,
-        completeGcsimParity: false as const,
-        note: LEGACY_DEFAULT_V144_NOTE
-      },
-      schemaVersion: result.schemaVersion,
-      engineVersion: result.engineVersion,
-      configHash: result.runManifest.configHash,
-      reproducibilityKey: result.reproducibilityKey,
-      options: {
-        energyMode: "configured" as const,
-        critMode: "average" as const,
-        compatibilityMode: "legacy-v0.1" as const,
-        randomSeed: golden.options.randomSeed
-      },
-      totalDamage: result.totalDamage,
-      dps: result.dps,
-      hitCount: result.damageEvents.length,
-      reactedHits: result.reactedHits,
-      skippedActionCount: result.skippedActions.length,
-      byCharacter: result.byCharacter,
-      bySkill: projectedBySkill,
-      legacyDamageEventsSha256: sha256(result.damageEvents),
-      targetClock: {
-        config: result.config.targetClockModel,
-        audit: result.targetClockAudit,
-        clockLog: result.targetClockLog,
-        hitlagLog: result.targetHitlagLog
-      },
-      targetTask: {
-        config: result.config.targetTaskModel,
-        phaseLog: result.targetTaskPhaseLog
-      },
-      targetPhaseLog: result.targetPhaseLog,
-      reactionDeliveryModel:
-        result.config.reactionDeliveryModel,
-      electroChargedPropagationModel:
-        result.config.electroChargedPropagationModel
-    } as unknown as LegacyDefaultV144Fixture;
-    expect(generatedV144Fixture).toMatchObject({
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
+    const parsedGeneratedV144Fixture =
+      makeLegacyDefaultV144CreationProbeFixture(goldenV142);
+    expect(parsedGeneratedV144Fixture).toMatchObject({
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
       totalDamage: 41410555.13728799,
       dps: 345087.9594773999,
       hitCount: 269,
@@ -1159,15 +1549,11 @@ describe("Vanilla v0.1 golden compatibility", () => {
     });
     expect(
       projectLegacyDefaultCompatibilitySemantics(
-        generatedV144Fixture
+        parsedGeneratedV144Fixture
       )
     ).toEqual(
       projectLegacyDefaultCompatibilitySemantics(goldenV142)
     );
-    const parsedGeneratedV144Fixture =
-      legacyDefault120sGoldenFixtureV144Schema.parse(
-        generatedV144Fixture
-      );
     expect(
       byteSha256(
         serializeJsonFixture(parsedGeneratedV144Fixture)
@@ -1185,6 +1571,24 @@ describe("Vanilla v0.1 golden compatibility", () => {
             parsedGeneratedV144Fixture,
             goldenV142
           );
+    expect(simulationResultV145Schema.parse(result)).toEqual(
+      result
+    );
+    expect(assertTrustedSimulationResultV145(result)).toBe(
+      result
+    );
+    const parsedGeneratedV145Fixture =
+      makeLegacyDefaultV145CreationProbeFixture(
+        result,
+        goldenV144
+      );
+    const goldenV145 =
+      process.env[UPDATE_LEGACY_DEFAULT_V145_GOLDEN] === "1"
+        ? parsedGeneratedV145Fixture
+        : loadOrCreateLegacyDefaultV145Fixture(
+            parsedGeneratedV145Fixture,
+            goldenV144
+          );
     expect(
       legacyDefault120sGoldenFixtureV142Schema.parse(
         goldenV142
@@ -1195,6 +1599,11 @@ describe("Vanilla v0.1 golden compatibility", () => {
         goldenV144
       )
     ).toEqual(goldenV144);
+    expect(
+      legacyDefault120sGoldenFixtureV145Schema.parse(
+        goldenV145
+      )
+    ).toEqual(goldenV145);
 
     expectRelativeClose(result.totalDamage, golden.totalDamage);
     expectRelativeClose(result.dps, golden.dps);
@@ -1299,8 +1708,8 @@ describe("Vanilla v0.1 golden compatibility", () => {
         "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f"
     });
     expect(goldenV144).toMatchObject({
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
       configHash: "fnv1a32:dad42c01",
       reproducibilityKey: "gdl-v2-fnv1a32-03487d7e",
       reactionDeliveryModel: {
@@ -1322,20 +1731,41 @@ describe("Vanilla v0.1 golden compatibility", () => {
         completeGcsimParity: false
       }
     });
-    expect(result.schemaVersion).toBe(goldenV144.schemaVersion);
-    expect(result.engineVersion).toBe(goldenV144.engineVersion);
+    expect(goldenV145).toMatchObject({
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      configHash: LEGACY_DEFAULT_V145_CONFIG_HASH,
+      reproducibilityKey:
+        LEGACY_DEFAULT_V145_REPRODUCIBILITY_KEY,
+      reactionFormulaModel: result.config.reactionFormulaModel,
+      totalDamage: 41410555.13728799,
+      dps: 345087.9594773999,
+      hitCount: 269,
+      reactedHits: 129,
+      skippedActionCount: 3,
+      legacyDamageEventsSha256:
+        "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f",
+      provenance: {
+        verificationStatus: "provisional",
+        officialServerTruth: false,
+        completeGcsimParity: false
+      }
+    });
+    expect(result.schemaVersion).toBe(goldenV145.schemaVersion);
+    expect(result.engineVersion).toBe(goldenV145.engineVersion);
     expect(result.config.schemaVersion).toBe(
-      goldenV144.schemaVersion
+      goldenV145.schemaVersion
     );
     expect(result.config.engineVersion).toBe(
-      goldenV144.engineVersion
+      goldenV145.engineVersion
     );
     expect(result.runManifest.configHash).toBe(
-      goldenV144.configHash
+      goldenV145.configHash
     );
     expect(result.reproducibilityKey).toBe(
-      goldenV144.reproducibilityKey
+      goldenV145.reproducibilityKey
     );
+    expect(goldenV145.options).toEqual(goldenV144.options);
     expect(goldenV144.options).toEqual(goldenV142.options);
     expect(goldenV142.options).toEqual(goldenV141.options);
     expect(goldenV141.options).toEqual(goldenV140.options);
@@ -1371,8 +1801,11 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(goldenV144.legacyDamageEventsSha256).toBe(
       goldenV142.legacyDamageEventsSha256
     );
+    expect(goldenV145.legacyDamageEventsSha256).toBe(
+      goldenV144.legacyDamageEventsSha256
+    );
     expect(result.runManifest).toMatchObject({
-      version: "1.0.0",
+      version: SIMULATION_RUN_MANIFEST_VERSION,
       identityAlgorithm: "fnv1a32-v2",
       configHash: expect.stringMatching(
         /^fnv1a32:[0-9a-f]{8}$/
@@ -1384,9 +1817,19 @@ describe("Vanilla v0.1 golden compatibility", () => {
         randomSeed: golden.options.randomSeed
       },
       plugins: [],
+      reactionFormulaRoot:
+        goldenV145.runManifest.reactionFormulaRoot,
       reproducibilityKey:
-        goldenV144.reproducibilityKey
+        goldenV145.reproducibilityKey
     });
+    expect(
+      reactionFormulaRootSchema.parse(
+        result.runManifest.reactionFormulaRoot
+      )
+    ).toEqual(result.runManifest.reactionFormulaRoot);
+    expect(result.config.reactionFormulaModel).toEqual(
+      goldenV145.reactionFormulaModel
+    );
     expect(result.resolvedRuntimeOptions).toBe(
       result.runManifest.resolvedRuntimeOptions
     );
@@ -1394,7 +1837,7 @@ describe("Vanilla v0.1 golden compatibility", () => {
       result.runManifest.plugins
     );
     expect(sha256(result.damageEvents)).toBe(
-      goldenV144.legacyDamageEventsSha256
+      goldenV145.legacyDamageEventsSha256
     );
     expect(result.config.targetClockModel).toEqual(
       { mode: "disabled" }
@@ -1406,28 +1849,33 @@ describe("Vanilla v0.1 golden compatibility", () => {
       targets: []
     });
     expect(result.targetClockLog).toEqual(
-      goldenV144.targetClock.clockLog
+      goldenV145.targetClock.clockLog
     );
     expect(result.targetHitlagLog).toEqual(
-      goldenV144.targetClock.hitlagLog
+      goldenV145.targetClock.hitlagLog
     );
     expect(result.config.targetTaskModel).toEqual(
-      goldenV144.targetTask.config
+      goldenV145.targetTask.config
     );
     expect(result.targetTaskPhaseLog).toEqual(
-      goldenV144.targetTask.phaseLog
+      goldenV145.targetTask.phaseLog
     );
     expect(result.targetPhaseLog).toEqual(
-      goldenV144.targetPhaseLog
+      goldenV145.targetPhaseLog
     );
     expect(result.config.reactionDeliveryModel).toEqual(
-      goldenV144.reactionDeliveryModel
+      goldenV145.reactionDeliveryModel
     );
     expect(result.config.electroChargedPropagationModel).toEqual(
-      goldenV144.electroChargedPropagationModel
+      goldenV145.electroChargedPropagationModel
     );
     expect(result.config.reactionEngine?.mode).not.toBe(
       "aura-v9"
+    );
+    expect(
+      projectLegacyDefaultCompatibilitySemantics(goldenV145)
+    ).toEqual(
+      projectLegacyDefaultCompatibilitySemantics(goldenV144)
     );
     expect(
       projectLegacyDefaultCompatibilitySemantics(goldenV144)
@@ -1573,19 +2021,30 @@ describe("Vanilla v0.1 golden compatibility", () => {
     ]);
     expect(result.reactedHits).toBe(golden.reactedHits);
     expect(result.skippedActions).toHaveLength(golden.skippedActionCount);
-    expect(result.totalDamage).toBe(goldenV144.totalDamage);
-    expect(result.dps).toBe(goldenV144.dps);
+    expect(result.totalDamage).toBe(goldenV145.totalDamage);
+    expect(result.dps).toBe(goldenV145.dps);
     expect(result.damageEvents).toHaveLength(
-      goldenV144.hitCount
+      goldenV145.hitCount
     );
-    expect(result.reactedHits).toBe(goldenV144.reactedHits);
+    expect(result.reactedHits).toBe(goldenV145.reactedHits);
     expect(result.skippedActions).toHaveLength(
-      goldenV144.skippedActionCount
+      goldenV145.skippedActionCount
     );
     expect(result.byCharacter).toEqual(
+      goldenV145.byCharacter
+    );
+    expect(projectedBySkill).toEqual(goldenV145.bySkill);
+    expect(goldenV145.totalDamage).toBe(goldenV144.totalDamage);
+    expect(goldenV145.dps).toBe(goldenV144.dps);
+    expect(goldenV145.hitCount).toBe(goldenV144.hitCount);
+    expect(goldenV145.reactedHits).toBe(goldenV144.reactedHits);
+    expect(goldenV145.skippedActionCount).toBe(
+      goldenV144.skippedActionCount
+    );
+    expect(goldenV145.byCharacter).toEqual(
       goldenV144.byCharacter
     );
-    expect(projectedBySkill).toEqual(goldenV144.bySkill);
+    expect(goldenV145.bySkill).toEqual(goldenV144.bySkill);
     expect(goldenV144.totalDamage).toBe(goldenV142.totalDamage);
     expect(goldenV144.dps).toBe(goldenV142.dps);
     expect(goldenV144.hitCount).toBe(goldenV142.hitCount);
@@ -1769,6 +2228,16 @@ describe("Vanilla v0.1 golden compatibility", () => {
         )
       ).toEqual(parsedGeneratedV144Fixture);
     }
+    if (
+      process.env[UPDATE_LEGACY_DEFAULT_V145_GOLDEN] === "1"
+    ) {
+      expect(
+        loadOrCreateLegacyDefaultV145Fixture(
+          parsedGeneratedV145Fixture,
+          goldenV144
+        )
+      ).toEqual(parsedGeneratedV145Fixture);
+    }
   });
 });
 
@@ -1791,8 +2260,14 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
+    expect(simulationResultV145Schema.parse(result)).toEqual(
+      result
+    );
+    expect(assertTrustedSimulationResultV145(result)).toBe(
+      result
+    );
     expect(result.runManifest.configHash).toBe(
-      BURNING_V144_CONFIG_HASH
+      BURNING_V145_CONFIG_HASH
     );
 
     expect(burningGolden.config.schemaVersion).toBe("1.30.0");
@@ -1831,18 +2306,20 @@ describe("Burning aura-v4 provisional golden", () => {
       "gdl-37da25f5"
     );
     expect(result.reproducibilityKey).toBe(
-      BURNING_V144_REPRODUCIBILITY_KEY
+      BURNING_V145_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
-      version: "1.0.0",
+      version: SIMULATION_RUN_MANIFEST_VERSION,
       identityAlgorithm: "fnv1a32-v2",
       configHash: expect.stringMatching(
         /^fnv1a32:[0-9a-f]{8}$/
       ),
       resolvedRuntimeOptions: options,
       plugins: [],
+      reactionFormulaRoot:
+        result.runManifest.reactionFormulaRoot,
       reproducibilityKey:
-        BURNING_V144_REPRODUCIBILITY_KEY
+        BURNING_V145_REPRODUCIBILITY_KEY
     });
     expect(sha256(result.damageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256

@@ -1,14 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResult,
   canonicalStringify,
   electroChargedCleanupResultReferencesSchema,
   electroChargedGlobalCadenceGoldenFixtureV142Schema,
   electroChargedGlobalCadenceGoldenScenarioIdsV142,
   playerDamageResultReferencesSchema,
   reactionDeliveryResultReferencesSchema,
-  simulationResultV144Schema,
+  simulationResultSchema,
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
   type SimConfig,
@@ -747,8 +747,8 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
         12
       );
     }
-    expect(simulationResultV144Schema.parse(legal)).toEqual(legal);
-    expect(assertTrustedSimulationResultV144(legal)).toBe(legal);
+    expect(simulationResultSchema.parse(legal)).toEqual(legal);
+    expect(assertTrustedSimulationResult(legal)).toBe(legal);
 
     const forgedSource = structuredClone(legal);
     const forgedWane = forgedSource.periodicReactionLog[wane.id]!;
@@ -773,11 +773,11 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       forgedWane.auraConsumed
     );
     forgedPoint.auraAfter = structuredClone(forgedWane.auraAfter);
-    expect(simulationResultV144Schema.safeParse(forgedSource).success).toBe(
+    expect(simulationResultSchema.safeParse(forgedSource).success).toBe(
       false
     );
     expect(() =>
-      assertTrustedSimulationResultV144(forgedSource)
+      assertTrustedSimulationResult(forgedSource)
     ).toThrow(/fixed 0\.4U budget/);
 
     const forgedDeadlines = structuredClone(legal);
@@ -792,10 +792,10 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
     forgedDeadlines.targetStateTimeline.points[point.id]!.auraAfter =
       structuredClone(forgedDeadlineWane.auraAfter);
     expect(
-      simulationResultV144Schema.safeParse(forgedDeadlines).success
+      simulationResultSchema.safeParse(forgedDeadlines).success
     ).toBe(false);
     expect(() =>
-      assertTrustedSimulationResultV144(forgedDeadlines)
+      assertTrustedSimulationResult(forgedDeadlines)
     ).toThrow(/Aura deadline must retain/);
 
     const forgedCadence = structuredClone(legal);
@@ -803,11 +803,11 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       cadenceStatus: "scheduled" as const,
       waneListenerActive: true
     });
-    expect(simulationResultV144Schema.safeParse(forgedCadence).success).toBe(
+    expect(simulationResultSchema.safeParse(forgedCadence).success).toBe(
       false
     );
     expect(() =>
-      assertTrustedSimulationResultV144(forgedCadence)
+      assertTrustedSimulationResult(forgedCadence)
     ).toThrow(/post-Wane cadence status/);
   });
 });

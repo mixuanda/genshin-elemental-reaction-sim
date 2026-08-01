@@ -2,11 +2,13 @@ import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResult,
   legacyDefault120sGoldenFixtureV142Schema,
+  simulationResultSchema,
   simulationResultV142Schema,
   simulationResultV144Schema,
-  simulationResultV144ValueSchema,
+  simulationResultV145Schema,
+  simulationResultV145ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -546,7 +548,7 @@ function expectRejected(
   const mutation = cloneResult(result);
   mutate(mutation);
   expect(
-    simulationResultV144Schema.safeParse(mutation).success
+    simulationResultSchema.safeParse(mutation).success
   ).toBe(false);
 }
 
@@ -557,18 +559,18 @@ function expectRejectedByPublicAndTrusted(
   const publicWire = cloneResult(result);
   mutate(publicWire);
   expect(
-    simulationResultV144Schema.safeParse(publicWire).success
+    simulationResultSchema.safeParse(publicWire).success
   ).toBe(false);
 
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
   expect(() =>
-    assertTrustedSimulationResultV144(trustedResult)
-  ).toThrow(/Trusted SimulationResult 1\.44 integrity validation failed/);
+    assertTrustedSimulationResult(trustedResult)
+  ).toThrow(/Trusted SimulationResult 1\.45 integrity validation failed/);
 }
 
 function expectAccepted(result: SimulationResult): void {
-  const parsed = simulationResultV144Schema.safeParse(result);
+  const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
@@ -618,8 +620,8 @@ beforeAll(() => {
   );
 });
 
-describe("exact current 1.44 SimulationResult schema", () => {
-  it("keeps the persisted 1.42 fixture and frozen result identity separate", () => {
+describe("exact current 1.45 SimulationResult schema", () => {
+  it("keeps persisted 1.42 and frozen 1.44 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(
         frozenGoldenV142
@@ -630,12 +632,15 @@ describe("exact current 1.44 SimulationResult schema", () => {
     ).toBe(false);
     expect(
       simulationResultV144Schema.safeParse(defaultResult).success
+    ).toBe(false);
+    expect(
+      simulationResultV145Schema.safeParse(defaultResult).success
     ).toBe(true);
   });
 
   it("keeps the exact 65-field shape and all 64 non-timeline fields required", () => {
     const schemaKeys = Object.keys(
-      simulationResultV144ValueSchema.shape
+      simulationResultV145ValueSchema.shape
     ).sort();
     expect(schemaKeys).toHaveLength(65);
     expect(Object.keys(defaultResult).sort()).toEqual(
@@ -650,7 +655,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
       ) as unknown as Record<string, unknown>;
       delete missing[key];
       expect(
-        simulationResultV144Schema.safeParse(missing).success,
+        simulationResultSchema.safeParse(missing).success,
         `missing required top-level field ${key}`
       ).toBe(false);
     }
@@ -695,7 +700,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     >;
     delete missing.damageCurve;
     expect(
-      simulationResultV144Schema.safeParse(missing).success
+      simulationResultSchema.safeParse(missing).success
     ).toBe(false);
 
     const unknown = cloneResult(defaultResult) as unknown as Record<
@@ -704,7 +709,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     >;
     unknown.unversionedResultField = true;
     expect(
-      simulationResultV144Schema.safeParse(unknown).success
+      simulationResultSchema.safeParse(unknown).success
     ).toBe(false);
   });
 
@@ -718,7 +723,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
       schemaVersion: inheritedVersion
     });
     expect(
-      simulationResultV144Schema.safeParse(inherited).success
+      simulationResultSchema.safeParse(inherited).success
     ).toBe(false);
 
     const accessor = cloneResult(
@@ -729,13 +734,13 @@ describe("exact current 1.44 SimulationResult schema", () => {
       get: () => defaultResult.totalDamage
     });
     expect(
-      simulationResultV144Schema.safeParse(accessor).success
+      simulationResultSchema.safeParse(accessor).success
     ).toBe(false);
 
     const sparse = cloneResult(defaultResult);
     delete sparse.damageEvents[0];
     expect(
-      simulationResultV144Schema.safeParse(sparse).success
+      simulationResultSchema.safeParse(sparse).success
     ).toBe(false);
 
     const cyclic = cloneResult(
@@ -743,7 +748,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     ) as unknown as Record<string, unknown>;
     cyclic.cycle = cyclic;
     expect(
-      simulationResultV144Schema.safeParse(cyclic).success
+      simulationResultSchema.safeParse(cyclic).success
     ).toBe(false);
   });
 
@@ -2118,7 +2123,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     expiry.triggerDamageEventId = null;
     expectAccepted(nullableExpiry);
     expect(
-      assertTrustedSimulationResultV144(nullableExpiry)
+      assertTrustedSimulationResult(nullableExpiry)
     ).toBe(nullableExpiry);
   });
 
@@ -2144,7 +2149,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     ]);
     expectAccepted(sameFrameSuperconductResult);
     expect(
-      assertTrustedSimulationResultV144(
+      assertTrustedSimulationResult(
         sameFrameSuperconductResult
       )
     ).toBe(sameFrameSuperconductResult);
@@ -2239,7 +2244,7 @@ describe("exact current 1.44 SimulationResult schema", () => {
     expect(auraV9Result.timelineExecution?.stateLog).toHaveLength(2);
     expectAccepted(auraV9Result);
     expect(
-      assertTrustedSimulationResultV144(auraV9Result)
+      assertTrustedSimulationResult(auraV9Result)
     ).toBe(auraV9Result);
   });
 

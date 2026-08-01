@@ -1,7 +1,7 @@
 import {
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResult,
   electroChargedCleanupResultReferencesSchema,
-  simulationResultV144Schema,
+  simulationResultSchema,
   type AuraReactionEngineConfig,
   type FrameHitDefinition,
   type SimConfig,
@@ -25,20 +25,20 @@ const SAME_TARGET_GEOMETRY = {
 function expectAcceptedAtBothResultBoundaries(
   result: ReturnType<typeof simulate>,
 ): void {
-  expect(simulationResultV144Schema.parse(result)).toEqual(result);
-  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
 function expectRejectedAtBothResultBoundaries(
   result: ReturnType<typeof simulate>,
 ): void {
-  expect(simulationResultV144Schema.safeParse(result).success).toBe(
+  expect(simulationResultSchema.safeParse(result).success).toBe(
     false,
   );
   expect(() =>
-    assertTrustedSimulationResultV144(result),
+    assertTrustedSimulationResult(result),
   ).toThrow(
-    /Trusted SimulationResult 1\.44 integrity validation failed/,
+    /Trusted SimulationResult 1\.45 integrity validation failed/,
   );
 }
 
@@ -1456,11 +1456,11 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     }
     cleanupTransition.reactionTaskLogId = 999;
 
-    expect(simulationResultV144Schema.safeParse(forged).success).toBe(
+    expect(simulationResultSchema.safeParse(forged).success).toBe(
       false,
     );
     expect(() =>
-      assertTrustedSimulationResultV144(forged),
+      assertTrustedSimulationResult(forged),
     ).toThrow(/Electro-Charged cleanup transition/);
   });
 

@@ -2,6 +2,9 @@ import {
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
 import { describe, expect, it } from "vitest";
 import {
   auraReactionDemoPreset,
@@ -19,11 +22,16 @@ const presets = [
   particleEnergyDemoPreset
 ];
 
+const EXPECTED_REACTION_FORMULA_MODEL = {
+  mode: "classic-formula-profile-v1",
+  profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+} as const;
+
 describe("game-data preset engine identity", () => {
-  it("propagates the exact 1.44 identity without opting built-in presets into aura-v9, target-phase-v3, or nearby Electro-Charged propagation", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
+  it("propagates the exact 1.45 formula-root identity without opting built-in presets into unrelated mechanics modes", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.44.0-burning-callback-delivery"
+      "1.45.0-reaction-formula-root"
     );
 
     for (const preset of presets) {
@@ -34,6 +42,10 @@ describe("game-data preset engine identity", () => {
         CURRENT_SCHEMA_VERSION,
         CURRENT_ENGINE_VERSION
       ]);
+      expect(
+        preset.reactionFormulaModel,
+        preset.meta.name
+      ).toEqual(EXPECTED_REACTION_FORMULA_MODEL);
       expect(
         preset.reactionEngine?.mode,
         preset.meta.name

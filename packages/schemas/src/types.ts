@@ -1,3 +1,8 @@
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID,
+  type ClassicReactionFormulaRoot
+} from "@genshin-dps-lab/reaction-formulas";
+
 export const TARGET_TASK_PHASE_SCHEMA_VERSION =
   "1.37.0" as const;
 export const TARGET_TASK_PHASE_ENGINE_VERSION =
@@ -25,14 +30,18 @@ export const BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION =
   "1.44.0" as const;
 export const BURNING_CALLBACK_DELIVERY_ENGINE_VERSION =
   "1.44.0-burning-callback-delivery" as const;
+export const REACTION_FORMULA_ROOT_SCHEMA_VERSION =
+  "1.45.0" as const;
+export const REACTION_FORMULA_ROOT_ENGINE_VERSION =
+  "1.45.0-reaction-formula-root" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+  REACTION_FORMULA_ROOT_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -43,7 +52,11 @@ export const GENERAL_REACTION_ORDER_ENGINE_VERSION =
 export const TARGET_LOCAL_HITLAG_SCHEMA_VERSION = "1.33.0" as const;
 export const TARGET_LOCAL_HITLAG_ENGINE_VERSION =
   "1.33.0-target-local-hitlag" as const;
-export const SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
+/** Frozen run-manifest wire used by the 1.42 and 1.44 result schemas. */
+export const LEGACY_SIMULATION_RUN_MANIFEST_VERSION =
+  "1.0.0" as const;
+/** Current run-manifest wire; 1.1 adds the reaction-formula trust root. */
+export const SIMULATION_RUN_MANIFEST_VERSION = "1.1.0" as const;
 /**
  * This identity algorithm is intentionally versioned and non-cryptographic.
  * It detects ordinary configuration drift; it is not an integrity signature.
@@ -860,9 +873,18 @@ export interface ConfigMeta {
   verificationStatus: VerificationStatus;
 }
 
-export interface SimConfig {
-  schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-  engineVersion: typeof CURRENT_ENGINE_VERSION;
+/**
+ * Fixed formula-profile selection for the 1.45 compatibility boundary.
+ *
+ * The profile is provisional reference data from the pinned gcsim revision;
+ * this identity does not assert official-server truth or complete parity.
+ */
+export interface ReactionFormulaModel {
+  mode: "classic-formula-profile-v1";
+  profileId: typeof CLASSIC_REACTION_FORMULA_PROFILE_ID;
+}
+
+interface SimConfigCommon {
   dataVersion: string;
   randomSeed: string;
   meta: ConfigMeta;
@@ -887,6 +909,39 @@ export interface SimConfig {
   electroChargedPropagationModel:
     ElectroChargedPropagationModel;
 }
+
+export type TargetTaskModelV142 = Exclude<
+  TargetTaskModel,
+  { mode: "target-phase-v3" }
+>;
+
+/** Exact persisted config shape for the frozen 1.42 wire. */
+export interface SimConfigV142
+  extends Omit<SimConfigCommon, "targetTaskModel"> {
+  schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
+  engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+  targetTaskModel: TargetTaskModelV142;
+}
+
+/** Exact persisted config shape for the frozen 1.44 wire. */
+export interface SimConfigV144 extends SimConfigCommon {
+  schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+  engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+}
+
+/** Current config shape. The formula profile participates in configHash. */
+export interface SimConfigV145 extends SimConfigCommon {
+  schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+}
+
+export type SimConfig = SimConfigV145;
+
+export type VersionedSimConfig =
+  | SimConfigV142
+  | SimConfigV144
+  | SimConfigV145;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -925,11 +980,8 @@ export interface DamagePluginManifestEntry
   index: number;
 }
 
-export interface SimulationRunManifest {
-  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+interface SimulationRunManifestCommon {
   identityAlgorithm: typeof REPRODUCIBILITY_IDENTITY_ALGORITHM;
-  schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-  engineVersion: typeof CURRENT_ENGINE_VERSION;
   dataVersion: string;
   /** Versioned, non-cryptographic fingerprint of the migrated config. */
   configHash: string;
@@ -937,6 +989,41 @@ export interface SimulationRunManifest {
   plugins: DamagePluginManifestEntry[];
   reproducibilityKey: string;
 }
+
+/** Exact run-manifest shape embedded in frozen 1.42 results. */
+export interface SimulationRunManifestV142
+  extends SimulationRunManifestCommon {
+  version: typeof LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
+  engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+}
+
+/** Exact run-manifest shape embedded in frozen 1.44 results. */
+export interface SimulationRunManifestV144
+  extends SimulationRunManifestCommon {
+  version: typeof LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+  engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+}
+
+/** Exact pinned formula root embedded in current run manifests. */
+export type ReactionFormulaRoot = ClassicReactionFormulaRoot;
+
+/** Current 1.45 run manifest. */
+export interface SimulationRunManifestV145
+  extends SimulationRunManifestCommon {
+  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV145;
+
+export type VersionedSimulationRunManifest =
+  | SimulationRunManifestV142
+  | SimulationRunManifestV144
+  | SimulationRunManifestV145;
 
 export type SimulationEventType =
   | "action"
@@ -3350,3 +3437,45 @@ export interface SimulationResult {
   auraEndStates: AuraEndState[];
   timelineExecution?: TimelineExecution;
 }
+
+type VersionedSimulationResultIdentityFields =
+  | "schemaVersion"
+  | "engineVersion"
+  | "config"
+  | "runManifest";
+
+/**
+ * Frozen 1.42 top-level result identity. Nested audit unions stay deliberately
+ * broad here; the exact frozen Zod schema remains the runtime authority.
+ */
+export type SimulationResultForV142 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
+  engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+  config: SimConfigV142;
+  runManifest: SimulationRunManifestV142;
+};
+
+/** Frozen 1.44 top-level result identity. */
+export type SimulationResultForV144 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+  engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+  config: SimConfigV144;
+  runManifest: SimulationRunManifestV144;
+};
+
+/** Current 1.45 top-level result identity. */
+export type SimulationResultForV145 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
+  config: SimConfigV145;
+  runManifest: SimulationRunManifestV145;
+};

@@ -1,7 +1,6 @@
 import {
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  simulationResultSchema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
@@ -178,15 +177,15 @@ function enableAuraV9(config: SimConfig): SimConfig {
 function expectAcceptedAtBothBoundaries(
   result: ReturnType<typeof simulate>
 ): void {
-  expect(simulationResultV144Schema.parse(result)).toEqual(result);
-  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+  expect(simulationResultSchema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
 function expectRejectedAtBothBoundaries(
   result: ReturnType<typeof simulate>,
   expectedIssue?: RegExp
 ): void {
-  const parsed = simulationResultV144Schema.safeParse(result);
+  const parsed = simulationResultSchema.safeParse(result);
   expect(parsed.success).toBe(false);
   if (!parsed.success && expectedIssue !== undefined) {
     expect(
@@ -194,9 +193,9 @@ function expectRejectedAtBothBoundaries(
     ).toMatch(expectedIssue);
   }
   expect(() =>
-    assertTrustedSimulationResultV144(result)
+    assertTrustedSimulationResult(result)
   ).toThrow(
-    /Trusted SimulationResult 1\.44 integrity validation failed/
+    /Trusted SimulationResult 1\.45 integrity validation failed/
   );
 }
 
@@ -1315,9 +1314,8 @@ describe("Electro-Charged simulation integration", () => {
       reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
     });
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 

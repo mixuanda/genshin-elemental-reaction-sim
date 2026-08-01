@@ -38,6 +38,13 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(importedReactionDeliveryModel).toEqual({
     mode: "deferred-event-heap-v1"
   });
+  const importedReactionFormulaModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().reactionFormulaModel
+  );
+  expect(importedReactionFormulaModel).toEqual({
+    mode: "classic-formula-profile-v1",
+    profileId: "gcsim-b4ae769-classic-provisional-v1"
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -68,6 +75,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   ) as {
     targetTaskModel?: unknown;
     reactionDeliveryModel?: unknown;
+    reactionFormulaModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
@@ -75,9 +83,12 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(exportedConfig.reactionDeliveryModel).toEqual(
     importedReactionDeliveryModel
   );
+  expect(exportedConfig.reactionFormulaModel).toEqual(
+    importedReactionFormulaModel
+  );
 });
 
-test("migrates a 1.38 config to deferred reaction delivery", async ({
+test("migrates a 1.38 config to deferred reaction delivery and the fixed formula root", async ({
   page
 }) => {
   await page.goto("/");
@@ -92,6 +103,7 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
   };
   delete historicalConfig.reactionDeliveryModel;
   delete historicalConfig.electroChargedPropagationModel;
+  delete historicalConfig.reactionFormulaModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -108,19 +120,51 @@ test("migrates a 1.38 config to deferred reaction delivery", async ({
       engineVersion: config.engineVersion,
       reactionDeliveryModel: config.reactionDeliveryModel,
       electroChargedPropagationModel:
-        config.electroChargedPropagationModel
+        config.electroChargedPropagationModel,
+      reactionFormulaModel: config.reactionFormulaModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.44.0",
-    engineVersion: "1.44.0-burning-callback-delivery",
+    schemaVersion: "1.45.0",
+    engineVersion: "1.45.0-reaction-formula-root",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
     electroChargedPropagationModel: {
       mode: "single-target-v1"
+    },
+    reactionFormulaModel: {
+      mode: "classic-formula-profile-v1",
+      profileId: "gcsim-b4ae769-classic-provisional-v1"
     }
   });
+});
+
+test("rejects a 1.38 wire polluted by the current reaction formula model", async ({
+  page
+}) => {
+  await page.goto("/");
+  const pollutedHistoricalConfig = structuredClone(
+    durinMeltPreset
+  ) as unknown as Record<string, unknown>;
+  pollutedHistoricalConfig.schemaVersion = "1.38.0";
+  pollutedHistoricalConfig.engineVersion =
+    "1.38.0-target-reactable-phase";
+  delete pollutedHistoricalConfig.reactionDeliveryModel;
+  delete pollutedHistoricalConfig.electroChargedPropagationModel;
+
+  await page.locator("#importInput").setInputFiles({
+    name: "durin-compatibility-preset-1.38-polluted.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(pollutedHistoricalConfig))
+  });
+
+  await expect(page.locator("#jsonError")).toContainText(
+    "reactionFormulaModel"
+  );
+  await expect(page.locator("#jsonError")).toContainText(
+    'schemaVersion "1.38.0" does not support reaction-formula profile selection'
+  );
 });
 
 test("shows a field path for an invalid config", async ({ page }) => {
@@ -176,9 +220,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.44.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.45.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.44.0-burning-callback-delivery"
+    "engine 1.45.0-reaction-formula-root"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

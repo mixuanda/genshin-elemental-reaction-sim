@@ -1,4 +1,7 @@
 import { simulate } from "@genshin-dps-lab/sim-core";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
 import { describe, expect, it } from "vitest";
 import {
   compileDurinBlackSkillAuditAbilities,
@@ -15,6 +18,27 @@ import {
   durinWhiteSkillAuditDisclosure,
   durinWhiteSkillAuditPreset
 } from "./durin-audit";
+
+const EXPECTED_REACTION_FORMULA_MODEL = {
+  mode: "classic-formula-profile-v1",
+  profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+} as const;
+
+describe("Durin current formula identity", () => {
+  it("pins both authoring configs and compact presets to the fixed profile", () => {
+    expect([
+      createDurinBlackSkillAuditConfig().reactionFormulaModel,
+      createDurinWhiteSkillAuditConfig().reactionFormulaModel,
+      durinBlackSkillAuditPreset.reactionFormulaModel,
+      durinWhiteSkillAuditPreset.reactionFormulaModel
+    ]).toEqual([
+      EXPECTED_REACTION_FORMULA_MODEL,
+      EXPECTED_REACTION_FORMULA_MODEL,
+      EXPECTED_REACTION_FORMULA_MODEL,
+      EXPECTED_REACTION_FORMULA_MODEL
+    ]);
+  });
+});
 
 describe("Durin black E partial mechanics audit vector", () => {
   it("retains evidence and unresolved-mechanics disclosure", () => {

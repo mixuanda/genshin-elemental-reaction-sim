@@ -1,5 +1,8 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
+import {
   CURRENT_ENGINE_VERSION,
   CURRENT_MECHANICS_SCHEMA_VERSION,
   CURRENT_SCHEMA_VERSION,
@@ -414,6 +417,10 @@ export function createDurinBlackSkillAuditConfig(
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: CURRENT_ENGINE_VERSION,
+    reactionFormulaModel: {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
     meta: {
@@ -524,6 +531,10 @@ export function createDurinWhiteSkillAuditConfig(
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: CURRENT_ENGINE_VERSION,
+    reactionFormulaModel: {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",
     meta: {

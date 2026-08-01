@@ -1,6 +1,7 @@
 import {
   assertTrustedSimulationResult,
   CURRENT_SCHEMA_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
   dendroCoreResultReferencesSchema,
@@ -74,6 +75,9 @@ import {
   type TimelineExecution
 } from "@genshin-dps-lab/schemas";
 import {
+  CLASSIC_REACTION_FORMULA_ROOT
+} from "@genshin-dps-lab/reaction-formulas";
+import {
   AURA_ENGINE_CONSTANTS,
   AuraEngine,
   type ElectroChargedCleanupResult,
@@ -99,6 +103,9 @@ import type {
   DamageModifierPlugin,
   DamagePluginChanges,
   DamageModifierPluginRuntime
+} from "./plugins";
+import {
+  assertFormulaBoundDamagePluginChanges
 } from "./plugins";
 import {
   compileLegalTimeline,
@@ -1216,13 +1223,23 @@ function applyPluginChanges(
   flatDamageComponents: DamageFlatComponents,
   changes: DamagePluginChanges | void,
   pluginId: string,
-  hasAdditiveReaction: boolean
+  hasAdditiveReaction: boolean,
+  schemaVersion: string
 ): AppliedDamagePluginChanges {
   if (!changes) {
     return {
       damageInput: input,
       flatDamageComponents
     };
+  }
+
+  if (
+    schemaVersion === REACTION_FORMULA_ROOT_SCHEMA_VERSION
+  ) {
+    assertFormulaBoundDamagePluginChanges(
+      changes,
+      pluginId
+    );
   }
 
   const hasLegacyFlat = hasOwn(changes, "flatDamage");
@@ -1349,6 +1366,7 @@ function simulateConfig(
       engineVersion: config.engineVersion,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(resultConfig),
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -13444,6 +13462,15 @@ function simulateConfig(
         liveReactionSourceStats.reactionBonus +
         safeNumber(hit.reactionBonus);
     }
+    if (
+      config.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+      hit.ampBase !== undefined
+    ) {
+      throw new Error(
+        `Hit "${hit.id ?? hit.label}" cannot provide ampBase for schema ${REACTION_FORMULA_ROOT_SCHEMA_VERSION}; amplifying multipliers are bound to the fixed reaction-formula root.`
+      );
+    }
     let damageInput: DamageCalculationInput = {
       scaling: hit.scaling,
       scalingStat,
@@ -13464,8 +13491,11 @@ function simulateConfig(
       elementalMastery: amplifyingElementalMastery,
       reactionBonus: amplifyingReactionBonus,
       // Formal Aura runs derive their amplifying base from the audited
-      // reaction. ampBase remains available only to legacy/manual debug runs.
-      ...(hit.ampBase === undefined ||
+      // reaction. Only frozen pre-1.45 replay paths may forward ampBase;
+      // the formula-root current path rejects it above.
+      ...(config.schemaVersion ===
+          REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+          hit.ampBase === undefined ||
           (auraEngine !== null &&
             reactionAudit.model !== "manual-override")
         ? {}
@@ -13503,7 +13533,8 @@ function simulateConfig(
         flatDamageComponents,
         pluginChanges,
         plugin.descriptor.id,
-        additiveReactionFactors !== null
+        additiveReactionFactors !== null,
+        config.schemaVersion
       );
       damageInput = appliedChanges.damageInput;
       flatDamageComponents =

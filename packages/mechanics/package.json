@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@genshin-dps-lab/game-data": "1.0.0",
+    "@genshin-dps-lab/reaction-formulas": "1.0.0",
     "@genshin-dps-lab/schemas": "1.0.0",
     "@genshin-dps-lab/sim-core": "1.0.0"
   }

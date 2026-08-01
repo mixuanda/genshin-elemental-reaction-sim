@@ -3,6 +3,8 @@ import { canonicalStringify } from "./reproducibility";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type AuraStateEntry,
   type SimulationResult,
   type TargetPhaseV3DeliveryAttempt,
@@ -417,7 +419,8 @@ function exactLifecycleLinks(
 }
 
 /**
- * Cross-log proof for the 1.44 target-phase-v3 Burning callback wire.
+ * Cross-log proof for the target-phase-v3 Burning callback wire frozen by
+ * 1.44 and reused unchanged by the exact 1.45 formula-root identity.
  *
  * The callback task is the ownership root. Its delivery is a distinct
  * zero-delay micro-event between QueueEnemyTask and Reactable.Tick. This pass
@@ -429,20 +432,31 @@ export function validateTargetPhaseV3Integrity(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
-  const exactCurrentIdentity =
-    (result.schemaVersion as string) ===
-      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
-    result.engineVersion ===
+  const resultSchemaVersion = result.schemaVersion as string;
+  const resultEngineVersion = result.engineVersion as string;
+  const configSchemaVersion = result.config.schemaVersion as string;
+  const configEngineVersion = result.config.engineVersion as string;
+  const exactV144Identity =
+    resultSchemaVersion === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
+    resultEngineVersion ===
       BURNING_CALLBACK_DELIVERY_ENGINE_VERSION &&
-    (result.config.schemaVersion as string) ===
+    configSchemaVersion ===
       BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
-    result.config.engineVersion ===
+    configEngineVersion ===
       BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
-  if (!exactCurrentIdentity) {
+  const exactV145Identity =
+    resultSchemaVersion === REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+    resultEngineVersion ===
+      REACTION_FORMULA_ROOT_ENGINE_VERSION &&
+    configSchemaVersion ===
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+    configEngineVersion ===
+      REACTION_FORMULA_ROOT_ENGINE_VERSION;
+  if (!exactV144Identity && !exactV145Identity) {
     addIssue(
       context,
       ["schemaVersion"],
-      "target-phase-v3 integrity requires the exact current 1.44 schema and engine identity"
+      "target-phase-v3 integrity requires an exact 1.44 or 1.45 schema and engine identity"
     );
     return;
   }

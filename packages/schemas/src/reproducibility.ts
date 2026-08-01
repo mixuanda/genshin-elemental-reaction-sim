@@ -1,13 +1,21 @@
 import {
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
   SIMULATION_RUN_MANIFEST_VERSION,
-  type SimulationRunManifest
+  type SimulationRunManifest,
+  type SimulationRunManifestV142,
+  type SimulationRunManifestV144
 } from "./types";
 
-type SimulationRunIdentity = Omit<
+type CurrentSimulationRunIdentity = Omit<
   SimulationRunManifest,
   "reproducibilityKey"
 >;
+type FrozenSimulationRunIdentity =
+  | Omit<SimulationRunManifestV142, "reproducibilityKey">
+  | Omit<SimulationRunManifestV144, "reproducibilityKey">;
+type VersionedSimulationRunIdentity =
+  | FrozenSimulationRunIdentity
+  | CurrentSimulationRunIdentity;
 
 function canonicalize(
   value: unknown,
@@ -103,12 +111,16 @@ export function createVersionedContentHash(
 export function createSimulationConfigHash(
   config: unknown
 ): string {
+  // Current configs carry reactionFormulaModel, so the canonical full-config
+  // encoding binds the selected fixed profile without a parallel hash path.
   return createVersionedContentHash(config);
 }
 
 export function createSimulationReproducibilityKey(
-  identity: SimulationRunIdentity
+  identity: VersionedSimulationRunIdentity
 ): string {
+  // The current identity includes reactionFormulaRoot. Frozen 1.42/1.44
+  // identities remain accepted so their persisted keys can still be checked.
   return `gdl-v2-fnv1a32-${fnv1a32Hex(
     canonicalStringify(identity)
   )}`;
@@ -116,14 +128,14 @@ export function createSimulationReproducibilityKey(
 
 export function createSimulationRunManifest(
   input: Omit<
-    SimulationRunIdentity,
+    CurrentSimulationRunIdentity,
     "version" | "identityAlgorithm"
   >
 ): SimulationRunManifest {
-  const identity: SimulationRunIdentity = {
+  const identity: CurrentSimulationRunIdentity = {
+    ...input,
     version: SIMULATION_RUN_MANIFEST_VERSION,
-    identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM,
-    ...input
+    identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM
   };
   return {
     ...identity,

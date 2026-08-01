@@ -1,7 +1,6 @@
 import {
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  simulationResultSchema,
   targetClockResultReferencesSchema,
   targetStateTimelineSchema,
   type SimConfig
@@ -646,9 +645,8 @@ describe("Superconduct simulation integration", () => {
     );
 
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
     expect(
       targetClockResultReferencesSchema.safeParse(result).success

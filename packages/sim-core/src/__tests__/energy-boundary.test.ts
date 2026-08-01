@@ -1,7 +1,7 @@
 import {
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResult,
   migrateConfig,
-  simulationResultV144Schema
+  simulationResultSchema
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
@@ -54,7 +54,7 @@ describe("energy accounting boundaries", () => {
       expect(summary.final).toBeGreaterThanOrEqual(0);
       expect(result.energyCurve.at(-1)?.energyByCharacter.a).toBe(0);
       expect(
-        simulationResultV144Schema.safeParse(result).success
+        simulationResultSchema.safeParse(result).success
       ).toBe(true);
     }
   );
@@ -76,7 +76,7 @@ describe("energy accounting boundaries", () => {
       action.energyBefore - action.energyAfter
     );
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
   });
 
@@ -107,10 +107,10 @@ describe("energy accounting boundaries", () => {
     expect(result.skippedActions).toHaveLength(0);
     expect(result.energyCurve).toHaveLength(1);
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).not.toThrow();
   });
 
@@ -178,10 +178,10 @@ describe("energy accounting boundaries", () => {
     });
     expect(result.energyCurve).toHaveLength(1);
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).not.toThrow();
   });
 
@@ -234,10 +234,10 @@ describe("energy accounting boundaries", () => {
     expect(result.skippedActions).toHaveLength(0);
     expect(result.energyCurve).toHaveLength(1);
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).not.toThrow();
   });
 

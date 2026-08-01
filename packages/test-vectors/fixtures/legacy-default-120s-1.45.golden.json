@@ -1,0 +1,134 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Compact 1.45 reaction-formula-root identity and result envelope for the frozen Vanilla v0.1 default 120-second compatibility baseline.",
+  "provenance": {
+    "source": "simulate(durinMeltPreset) cross-checked against legacy/v0.1-vanilla/app.js, legacy-default-120s.golden.json, and the frozen 1.44 identity fixture",
+    "capturedAt": "2026-08-01",
+    "verificationStatus": "provisional",
+    "note": "Regression baseline only. Character and equipment values are illustrative magic numbers, not verified game data. The 1.45 engine binds the fixed-gcsim-provisional classic reaction formula profile and full formula root, while this default preset preserves its historical deferred reaction mode, explicitly keeps single-target-v1, and freezes the complete 269-event damage digest to 1.44. This is neither official server truth nor complete gcsim parity.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "schemaVersion": "1.45.0",
+  "engineVersion": "1.45.0-reaction-formula-root",
+  "configHash": "fnv1a32:e53f9200",
+  "reproducibilityKey": "gdl-v2-fnv1a32-b696a75d",
+  "options": {
+    "energyMode": "configured",
+    "critMode": "average",
+    "compatibilityMode": "legacy-v0.1",
+    "randomSeed": "legacy-default"
+  },
+  "totalDamage": 41410555.13728799,
+  "dps": 345087.9594773999,
+  "hitCount": 269,
+  "reactedHits": 129,
+  "skippedActionCount": 3,
+  "byCharacter": {
+    "nicole": 740338.5919263127,
+    "citlali": 77244.84267655843,
+    "durin": 38779268.124040276,
+    "lohen": 1813703.5786448019
+  },
+  "bySkill": [
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 Q",
+      "damage": 33960210.24410402,
+      "hits": 103
+    },
+    {
+      "creditId": "durin",
+      "actionName": "杜林 黑 E",
+      "damage": 3173673.996688688,
+      "hits": 18
+    },
+    {
+      "creditId": "lohen",
+      "actionName": "洛恩站场输出",
+      "damage": 1813703.5786448019,
+      "hits": 78
+    },
+    {
+      "creditId": "durin",
+      "actionName": "尼可 Q",
+      "damage": 1645383.8832475687,
+      "hits": 10
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 Q",
+      "damage": 577890.9248479266,
+      "hits": 3
+    },
+    {
+      "creditId": "nicole",
+      "actionName": "尼可 E",
+      "damage": 162447.66707838603,
+      "hits": 6
+    },
+    {
+      "creditId": "citlali",
+      "actionName": "茜特菈莉 E",
+      "damage": 77244.84267655843,
+      "hits": 51
+    }
+  ],
+  "legacyDamageEventsSha256": "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f",
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "targetClock": {
+    "config": {
+      "mode": "disabled"
+    },
+    "audit": {
+      "version": "1.0.0",
+      "mode": "disabled",
+      "hitlagStatus": "unsupported-enemy-hitlag",
+      "targets": []
+    },
+    "clockLog": [],
+    "hitlagLog": []
+  },
+  "targetTask": {
+    "config": {
+      "mode": "legacy-event-heap-v1"
+    },
+    "phaseLog": []
+  },
+  "targetPhaseLog": [],
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "runManifest": {
+    "version": "1.1.0",
+    "identityAlgorithm": "fnv1a32-v2",
+    "schemaVersion": "1.45.0",
+    "engineVersion": "1.45.0-reaction-formula-root",
+    "dataVersion": "0.1.0-demo",
+    "configHash": "fnv1a32:e53f9200",
+    "resolvedRuntimeOptions": {
+      "energyMode": "configured",
+      "critMode": "average",
+      "compatibilityMode": "legacy-v0.1",
+      "randomSeed": "legacy-default"
+    },
+    "plugins": [],
+    "reactionFormulaRoot": {
+      "version": "1.0.0",
+      "profileId": "gcsim-b4ae769-classic-provisional-v1",
+      "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+      "mechanicsDataStatus": "fixed-gcsim-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "officialServerTruth": false,
+      "completeGcsimParity": false
+    },
+    "reproducibilityKey": "gdl-v2-fnv1a32-b696a75d"
+  }
+}

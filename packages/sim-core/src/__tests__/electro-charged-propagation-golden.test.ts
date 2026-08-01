@@ -14,7 +14,10 @@ import {
   CURRENT_SCHEMA_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV145,
   reactionDeliveryResultReferencesSchema,
+  simulationResultV145Schema,
   targetPhaseV2ResultReferencesSchema,
   type SimConfig,
   type SimulationResult
@@ -369,15 +372,19 @@ function normalizeIdentityForFrozenV141(
   scenario: PropagationGoldenScenario,
   result: SimulationResult
 ): FrozenV141PropagationGoldenScenario {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    ...frozenConfigCommon
+  } = result.config;
   const frozenConfigHash = createSimulationConfigHash({
-    ...result.config,
+    ...frozenConfigCommon,
     schemaVersion:
       EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
     engineVersion:
       EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
   });
   const frozenRunIdentity = {
-    version: result.runManifest.version,
+    version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
     identityAlgorithm:
       result.runManifest.identityAlgorithm,
     schemaVersion:
@@ -479,6 +486,16 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
     const first = simulate(config, { critMode: "noCrit" });
     const repeated = simulate(config, { critMode: "noCrit" });
 
+    expect(simulationResultV145Schema.parse(first)).toEqual(
+      first
+    );
+    expect(simulationResultV145Schema.parse(repeated)).toEqual(
+      repeated
+    );
+    expect(assertTrustedSimulationResultV145(first)).toBe(first);
+    expect(assertTrustedSimulationResultV145(repeated)).toBe(
+      repeated
+    );
     expect(
       reactionDeliveryResultReferencesSchema.parse(first)
     ).toEqual(first);

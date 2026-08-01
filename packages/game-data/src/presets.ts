@@ -3,6 +3,16 @@ import {
   CURRENT_SCHEMA_VERSION,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
+
+function createClassicReactionFormulaModel() {
+  return {
+    mode: "classic-formula-profile-v1",
+    profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+  } as const;
+}
 
 /**
  * Compatibility fixture data copied from Vanilla v0.1.
@@ -29,6 +39,7 @@ export const durinMeltPreset: SimConfig = {
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
+  reactionFormulaModel: createClassicReactionFormulaModel(),
   characters: [
     {
       id: "durin",
@@ -474,6 +485,7 @@ export const blankPreset: SimConfig = {
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
+  reactionFormulaModel: createClassicReactionFormulaModel(),
   characters: [
     {
       id: "a",
@@ -571,6 +583,7 @@ export const legalTimelineDemoPreset: SimConfig = {
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
+  reactionFormulaModel: createClassicReactionFormulaModel(),
   characters: [
     {
       id: "frame-a",
@@ -749,6 +762,7 @@ export const auraReactionDemoPreset: SimConfig = {
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
+  reactionFormulaModel: createClassicReactionFormulaModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -849,6 +863,7 @@ export const particleEnergyDemoPreset: SimConfig = {
   targetTaskModel: { mode: "legacy-event-heap-v1" },
   reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
   electroChargedPropagationModel: { mode: "single-target-v1" },
+  reactionFormulaModel: createClassicReactionFormulaModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

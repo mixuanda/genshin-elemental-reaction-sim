@@ -3,6 +3,9 @@ import {
   CURRENT_SCHEMA_VERSION,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
 
 export const durinBlackSkillAuditDisclosure = {
   mappingVersion: "durin-gcsim-b4ae769d7c1c.7",
@@ -51,6 +54,10 @@ export const durinBlackSkillAuditDisclosure = {
 export const durinBlackSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
+  reactionFormulaModel: {
+    mode: "classic-formula-profile-v1",
+    profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+  },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
   randomSeed: "durin-black-e-audit-v1",
@@ -322,6 +329,10 @@ export const durinWhiteSkillAuditDisclosure = {
 export const durinWhiteSkillAuditPreset: SimConfig = {
   schemaVersion: CURRENT_SCHEMA_VERSION,
   engineVersion: CURRENT_ENGINE_VERSION,
+  reactionFormulaModel: {
+    mode: "classic-formula-profile-v1",
+    profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+  },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
   randomSeed: "durin-white-e-audit-v1",

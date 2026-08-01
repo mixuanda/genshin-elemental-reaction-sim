@@ -4,11 +4,14 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type SimulationResult
 } from "./types";
 import {
   validateSimulationResultV142Integrity,
-  validateSimulationResultV144Integrity
+  validateSimulationResultV144Integrity,
+  validateSimulationResultV145Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -47,8 +50,10 @@ import {
   scalingStatSchema,
   simConfigV142Schema,
   simConfigV144Schema,
+  simConfigV145Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
+  simulationRunManifestV145Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -2376,6 +2381,156 @@ export type SimulationResultV144 = z.output<
   typeof simulationResultV144Schema
 >;
 
+/**
+ * Exact 1.45 result wire. The event/timeline fields remain byte-compatible
+ * with 1.44; only the versioned config and manifest identities advance. The
+ * fixed-profile integrity pass derives formula inputs from compiled data.
+ */
+export const simulationResultV145ValueSchema = z
+  .object({
+    ...simulationResultV144ValueSchema.shape,
+    schemaVersion: z.literal(
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_FORMULA_ROOT_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV145Schema,
+    config: simConfigV145Schema
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => context.addIssue({ code: "custom", path, message });
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(["dataVersion"], "must equal config.dataVersion");
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV145Integrity(
+      result as unknown as SimulationResult,
+      context
+    );
+  });
+
+export const simulationResultV145Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.45"),
+  simulationResultV145ValueSchema
+);
+
+export type SimulationResultV145 = z.output<
+  typeof simulationResultV145Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema = simulationResultV144Schema;
-export type ParsedSimulationResult = SimulationResultV144;
+export const simulationResultSchema = simulationResultV145Schema;
+export type ParsedSimulationResult = SimulationResultV145;

@@ -29,6 +29,10 @@ import type {
   TargetMechanicsTruncationAudit,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE,
+  resolveTransformativeBaseMultiplier
+} from "@genshin-dps-lab/reaction-formulas";
 import { resolveBloomGauge } from "./bloom-gauge";
 import {
   TargetLocalClock,
@@ -82,30 +86,37 @@ const DEFAULT_ICD_SEQUENCE = [
 const OVERLOAD_DAMAGE_GCD_FRAMES = 6;
 const OVERLOAD_DAMAGE_DELAY_FRAMES = 1;
 const OVERLOAD_DAMAGE_RADIUS = 3;
-const OVERLOAD_BASE_MULTIPLIER = 2.75;
+const OVERLOAD_BASE_MULTIPLIER =
+  CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+    .overload;
 const SUPERCONDUCT_DAMAGE_GCD_FRAMES = 6;
 const SUPERCONDUCT_DAMAGE_DELAY_FRAMES = 1;
 const SUPERCONDUCT_DAMAGE_RADIUS = 3;
-const SUPERCONDUCT_BASE_MULTIPLIER = 1.5;
+const SUPERCONDUCT_BASE_MULTIPLIER =
+  CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+    .superconduct;
 const SUPERCONDUCT_PHYSICAL_RES_SHRED = 0.4;
 const SUPERCONDUCT_STATUS_DURATION_FRAMES = 720;
 const ELECTRO_CHARGED_FIRST_DAMAGE_DELAY_FRAMES = 10;
 const ELECTRO_CHARGED_TICK_INTERVAL_FRAMES = 60;
 const ELECTRO_CHARGED_WANE_DELAY_FRAMES = 6;
 const ELECTRO_CHARGED_WANE_GAUGE_UNITS = 0.4;
-const ELECTRO_CHARGED_BASE_MULTIPLIER = 2;
+const ELECTRO_CHARGED_BASE_MULTIPLIER =
+  CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+    .electroCharged;
 const FROZEN_BASE_DECAY_PER_FRAME = 0.4 / 60;
 const FROZEN_DECAY_ACCELERATION_PER_FRAME = 0.1 / (60 * 60);
 const FROZEN_POISE_DAMAGE_TO_GAUGE_UNITS = 0.15 / 25;
 const SHATTER_GAUGE_CONSUMPTION_UNITS = 200 / 25;
 const SHATTER_DAMAGE_GCD_FRAMES = 12;
-const SHATTER_BASE_MULTIPLIER = 3;
+const SHATTER_BASE_MULTIPLIER =
+  CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+    .shatter;
 const SWIRL_AURA_CONSUMPTION_FACTOR = 0.5;
 const SWIRL_QUEUE_GCD_FRAMES = 6;
 const SWIRL_SELF_DAMAGE_DELAY_FRAMES = 1;
 const SWIRL_PROPAGATION_DELAY_FRAMES = 5;
 const SWIRL_RADIUS = 5;
-const SWIRL_BASE_MULTIPLIER = 0.6;
 const CRYSTALLIZE_AURA_CONSUMPTION_FACTOR = 0.5;
 const CRYSTALLIZE_QUEUE_GCD_FRAMES = 60;
 const CRYSTALLIZE_SHARD_SPAWN_DELAY_FRAMES = 23;
@@ -117,7 +128,9 @@ const BURNING_FUEL_INCOMING_DENDRO_RATIO = 0.8;
 const BURNING_FUEL_MIN_DECAY_PER_FRAME = 0.4 / 60;
 const BURNING_TICK_INTERVAL_FRAMES = 15;
 const BURNING_SKIPPED_TICK_INDEX = 9;
-const BURNING_BASE_MULTIPLIER = 0.25;
+const BURNING_BASE_MULTIPLIER =
+  CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+    .burning;
 const BURNING_RADIUS = 1;
 const BURNING_APPLICATION_GAUGE_UNITS = 1;
 const BLOOM_CORE_SPAWN_DELAY_FRAMES = 30;
@@ -4815,9 +4828,13 @@ export class AuraEngine {
           input.frame + SWIRL_SELF_DAMAGE_DELAY_FRAMES,
         propagationDamageFrame:
           input.frame + SWIRL_PROPAGATION_DELAY_FRAMES,
-        selfBaseMultiplier: SWIRL_BASE_MULTIPLIER,
+        selfBaseMultiplier:
+          resolveTransformativeBaseMultiplier(reaction),
         propagationBaseMultiplier:
-          swirledElement === "hydro" ? 0 : SWIRL_BASE_MULTIPLIER,
+          resolveTransformativeBaseMultiplier(
+            reaction,
+            "propagation"
+          ),
         radius: SWIRL_RADIUS
       });
       return true;

@@ -1,9 +1,17 @@
 import type { RefinementCtx } from "zod";
 import {
+  CLASSIC_REACTION_FORMULA_PROFILE,
+  CLASSIC_REACTION_FORMULA_PROFILE_ID,
+  CLASSIC_REACTION_FORMULA_ROOT
+} from "@genshin-dps-lab/reaction-formulas";
+import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  SIMULATION_RUN_MANIFEST_VERSION,
   type AuraGaugeEntry,
   type AuraReactionEngineConfig,
   type AuraStateEntry,
@@ -2085,6 +2093,325 @@ function validateIdentityV144(
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     "current"
   );
+}
+
+function validateIdentityV145(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityForVersion(
+    result,
+    context,
+    REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+    REACTION_FORMULA_ROOT_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !==
+    SIMULATION_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.45 results require run-manifest version ${SIMULATION_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot", "profileId"],
+    result.runManifest.reactionFormulaRoot?.profileId,
+    result.config.reactionFormulaModel?.profileId,
+    "run-manifest/config reaction formula profile"
+  );
+}
+
+type ReactionDamageDelivery =
+  SimulationResult["reactionDamageLog"][number];
+
+function expectedAmplifyingReactionBase(
+  reaction: DamageEvent["reaction"]
+): number {
+  switch (reaction) {
+    case "melt":
+    case "reverseMelt":
+    case "vaporize":
+    case "reverseVaporize":
+      return CLASSIC_REACTION_FORMULA_PROFILE
+        .amplifyingBaseMultipliers[reaction];
+    default:
+      return CLASSIC_REACTION_FORMULA_PROFILE
+        .amplifyingBaseMultipliers.none;
+  }
+}
+
+function deliveryKindMatchesReaction(
+  delivery: ReactionDamageDelivery
+): boolean {
+  switch (delivery.reaction) {
+    case "overload":
+    case "superconduct":
+    case "shatter":
+      return delivery.scheduleKind === "one-shot";
+    case "electroCharged":
+      return delivery.scheduleKind === "periodic-tick";
+    case "burning":
+      return delivery.scheduleKind === "burning-tick";
+    case "swirlPyro":
+    case "swirlHydro":
+    case "swirlCryo":
+    case "swirlElectro":
+      return (
+        delivery.scheduleKind === "swirl-self" ||
+        delivery.scheduleKind === "swirl-propagation"
+      );
+    case "bloom":
+      return delivery.scheduleKind === "dendro-core-bloom";
+    case "burgeon":
+      return delivery.scheduleKind === "dendro-core-burgeon";
+    case "hyperbloom":
+      return delivery.scheduleKind === "dendro-core-hyperbloom";
+  }
+}
+
+function expectedTransformativeReactionBase(
+  delivery: ReactionDamageDelivery
+): number {
+  if (
+    delivery.scheduleKind === "swirl-propagation" &&
+    (delivery.reaction === "swirlPyro" ||
+      delivery.reaction === "swirlHydro" ||
+      delivery.reaction === "swirlCryo" ||
+      delivery.reaction === "swirlElectro")
+  ) {
+    return CLASSIC_REACTION_FORMULA_PROFILE
+      .swirlPropagationBaseMultipliers[delivery.reaction];
+  }
+  return CLASSIC_REACTION_FORMULA_PROFILE
+    .transformativeBaseMultipliers[delivery.reaction];
+}
+
+function fixedLevelBaseDamage(
+  characterLevel: number
+): number | undefined {
+  return CLASSIC_REACTION_FORMULA_PROFILE.levelBaseDamageByLevel[
+    characterLevel - 1
+  ];
+}
+
+/**
+ * 1.45 fixed-profile proof.
+ *
+ * These checks deliberately derive every immutable input from the compiled
+ * profile, the config character level, and the reaction-delivery owner. They
+ * never accept another duplicated result field as the formula authority.
+ */
+function validateReactionFormulaProfileV145(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const characterById = new Map(
+    result.config.characters.map((character) => [
+      character.id,
+      character
+    ])
+  );
+  const deliveryByDamageEventId = new Map<
+    number,
+    ReactionDamageDelivery
+  >();
+  for (const delivery of result.reactionDamageLog) {
+    for (const damageEventId of delivery.damageEventIds) {
+      deliveryByDamageEventId.set(damageEventId, delivery);
+    }
+  }
+
+  for (const [eventIndex, event] of
+    result.damageEvents.entries()) {
+    const eventPath = [
+      "damageEvents",
+      eventIndex
+    ] satisfies IssuePath;
+    const sourceCharacter = characterById.get(
+      event.sourceActorId
+    );
+
+    if (event.kind === "direct") {
+      expectEqual(
+        context,
+        [...eventPath, "damageFactors", "reactionBase"],
+        event.damageFactors.reactionBase,
+        expectedAmplifyingReactionBase(event.reaction),
+        "fixed-profile amplifying reaction base"
+      );
+    }
+
+    const additive = event.additiveReactionFactors;
+    if (additive !== null) {
+      if (sourceCharacter === undefined) {
+        addIssue(
+          context,
+          [...eventPath, "sourceActorId"],
+          "formula proof requires a configured source character"
+        );
+      } else {
+        expectEqual(
+          context,
+          [
+            ...eventPath,
+            "additiveReactionFactors",
+            "characterLevel"
+          ],
+          additive.characterLevel,
+          sourceCharacter.level,
+          "fixed-profile additive source level"
+        );
+        const expectedLevelBase = fixedLevelBaseDamage(
+          sourceCharacter.level
+        );
+        if (expectedLevelBase === undefined) {
+          addIssue(
+            context,
+            [
+              ...eventPath,
+              "additiveReactionFactors",
+              "characterLevel"
+            ],
+            "fixed-profile additive level must be within 1..100"
+          );
+        } else {
+          expectEqual(
+            context,
+            [
+              ...eventPath,
+              "additiveReactionFactors",
+              "levelBaseDamage"
+            ],
+            additive.levelBaseDamage,
+            expectedLevelBase,
+            "fixed-profile additive level base damage"
+          );
+        }
+      }
+      expectEqual(
+        context,
+        [
+          ...eventPath,
+          "additiveReactionFactors",
+          "baseMultiplier"
+        ],
+        additive.baseMultiplier,
+        CLASSIC_REACTION_FORMULA_PROFILE.additiveBaseMultipliers[
+          additive.reaction
+        ],
+        "fixed-profile additive reaction base multiplier"
+      );
+    }
+
+    const transformative =
+      event.transformativeReactionFactors;
+    if (transformative === null) continue;
+    if (sourceCharacter === undefined) {
+      addIssue(
+        context,
+        [...eventPath, "sourceActorId"],
+        "formula proof requires a configured reaction source"
+      );
+    } else {
+      expectEqual(
+        context,
+        [
+          ...eventPath,
+          "transformativeReactionFactors",
+          "characterLevel"
+        ],
+        transformative.characterLevel,
+        sourceCharacter.level,
+        "fixed-profile transformative source level"
+      );
+      const expectedLevelBase = fixedLevelBaseDamage(
+        sourceCharacter.level
+      );
+      if (expectedLevelBase === undefined) {
+        addIssue(
+          context,
+          [
+            ...eventPath,
+            "transformativeReactionFactors",
+            "characterLevel"
+          ],
+          "fixed-profile transformative level must be within 1..100"
+        );
+      } else {
+        expectEqual(
+          context,
+          [
+            ...eventPath,
+            "transformativeReactionFactors",
+            "levelBaseDamage"
+          ],
+          transformative.levelBaseDamage,
+          expectedLevelBase,
+          "fixed-profile transformative level base damage"
+        );
+      }
+    }
+    const delivery = deliveryByDamageEventId.get(event.id);
+    if (delivery === undefined) {
+      addIssue(
+        context,
+        [...eventPath, "parentDamageEventId"],
+        "fixed-profile transformative damage requires a delivery owner"
+      );
+      continue;
+    }
+    if (!deliveryKindMatchesReaction(delivery)) {
+      addIssue(
+        context,
+        ["reactionDamageLog", delivery.id, "scheduleKind"],
+        `delivery kind ${delivery.scheduleKind} is not valid for ${delivery.reaction}`
+      );
+      continue;
+    }
+    expectEqual(
+      context,
+      [
+        ...eventPath,
+        "transformativeReactionFactors",
+        "reaction"
+      ],
+      transformative.reaction,
+      delivery.reaction,
+      "fixed-profile reaction delivery label"
+    );
+    expectEqual(
+      context,
+      [
+        ...eventPath,
+        "transformativeReactionFactors",
+        "baseMultiplier"
+      ],
+      transformative.baseMultiplier,
+      expectedTransformativeReactionBase(delivery),
+      "fixed-profile transformative base multiplier"
+    );
+  }
 }
 
 function validateDamageEvent(
@@ -14119,6 +14446,24 @@ export function validateSimulationResultV144Integrity(
 }
 
 /**
+ * Cross-field proof for exact 1.45 results. The 1.44 mechanics proof remains
+ * unchanged; this boundary additionally binds the config, run manifest, and
+ * every reaction-formula input to the compiled fixed profile.
+ */
+export function validateSimulationResultV145Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityV145(result, context);
+  validateReactionFormulaProfileV145(result, context);
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
+  validateTargetPhaseV3Integrity(result, context);
+}
+
+/**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
  *
  * Internal results have already passed TypeScript construction and the
@@ -14234,11 +14579,73 @@ export function assertTrustedSimulationResultV144(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.45 fixed-profile results. */
+export function assertTrustedSimulationResultV145(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV145Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${
+            issue.message
+          }`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.45 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV144Integrity;
+  validateSimulationResultV145Integrity;
 export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV144;
+  assertTrustedSimulationResultV145;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

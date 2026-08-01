@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID,
+  CLASSIC_REACTION_FORMULA_ROOT
+} from "@genshin-dps-lab/reaction-formulas";
+import {
   ACTOR_POSE_SCHEMA_VERSION,
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
@@ -33,6 +37,7 @@ import {
   HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
   ICD_PROFILE_SCHEMA_VERSION,
   INITIAL_TYPED_SCHEMA_VERSION,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   LEGACY_SCHEMA_VERSION,
   MOVEMENT_COMMAND_SCHEMA_VERSION,
   MULTI_TARGET_REGISTRY_SCHEMA_VERSION,
@@ -46,6 +51,8 @@ import {
   QUICKEN_BLOOM_TASK_SCHEMA_VERSION,
   RUNTIME_ENERGY_SCHEMA_VERSION,
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
@@ -65,9 +72,12 @@ import {
   TARGET_TASK_PHASE_SCHEMA_VERSION,
   TIMELINE_STATE_CLEAR_SCHEMA_VERSION,
   type SimConfig,
+  type SimConfigV144,
+  type SimConfigV145,
   type SimulationRunManifest
 } from "./types";
 import {
+  canonicalStringify,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   createVersionedContentHash
@@ -520,6 +530,7 @@ const rejectInheritedVersionedResultIdentity = (
   ]);
   for (const modelField of [
     "reactionEngine",
+    "reactionFormulaModel",
     "targetClockModel",
     "targetTaskModel",
     "reactionDeliveryModel",
@@ -540,6 +551,13 @@ const rejectInheritedVersionedResultIdentity = (
         "mode",
         ["config", modelField, "mode"]
       );
+      if (modelField === "reactionFormulaModel") {
+        requireOwnWhenPresent(
+          model as Record<string, unknown>,
+          "profileId",
+          ["config", modelField, "profileId"]
+        );
+      }
     }
   }
   return input;
@@ -571,9 +589,45 @@ export const damagePluginManifestEntrySchema = z
   })
   .strict();
 
+export const reactionFormulaModelSchema = z
+  .object({
+    mode: z.literal("classic-formula-profile-v1"),
+    profileId: z.literal(CLASSIC_REACTION_FORMULA_PROFILE_ID)
+  })
+  .strict();
+
+const classicReactionFormulaRootCanonical = canonicalStringify(
+  CLASSIC_REACTION_FORMULA_ROOT
+);
+
+/**
+ * The current manifest binds the complete compiled formula root, not merely a
+ * user-provided profile name. Canonical equality permits ordinary JSON key
+ * order while rejecting every value, field, or provenance change.
+ */
+export const reactionFormulaRootSchema = z.preprocess(
+  rejectNonPlainJsonWire("reactionFormulaRoot"),
+  z.custom<typeof CLASSIC_REACTION_FORMULA_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          classicReactionFormulaRootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled classic reaction-formula root"
+    }
+  )
+);
+
 const simulationRunManifestV142ValueSchema = z
   .object({
-    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    version: z.literal(LEGACY_SIMULATION_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
       REPRODUCIBILITY_IDENTITY_ALGORITHM
     ),
@@ -649,7 +703,7 @@ export const simulationRunManifestV142Schema = z.preprocess(
 
 const simulationRunManifestV144ValueSchema = z
   .object({
-    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    version: z.literal(LEGACY_SIMULATION_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
       REPRODUCIBILITY_IDENTITY_ALGORITHM
     ),
@@ -719,12 +773,92 @@ export const simulationRunManifestV144Schema = z.preprocess(
   simulationRunManifestV144ValueSchema
 );
 
+const simulationRunManifestV145ValueSchema = z
+  .object({
+    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_FORMULA_ROOT_ENGINE_VERSION
+    ),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV145Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV145ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV144Schema;
+  simulationRunManifestV145Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -736,11 +870,17 @@ export function parseSimulationRunManifestForConfig(
   config: SimConfig
 ): SimulationRunManifest {
   const manifest = simulationRunManifestSchema.parse(input);
+  const formulaModel = reactionFormulaModelSchema.safeParse(
+    config.reactionFormulaModel
+  );
   if (
+    !formulaModel.success ||
     manifest.schemaVersion !== config.schemaVersion ||
     manifest.engineVersion !== config.engineVersion ||
     manifest.dataVersion !== config.dataVersion ||
-    manifest.configHash !== createSimulationConfigHash(config)
+    manifest.configHash !== createSimulationConfigHash(config) ||
+    manifest.reactionFormulaRoot.profileId !==
+      formulaModel.data.profileId
   ) {
     throw new Error(
       "Simulation run manifest is not bound to the supplied migrated config."
@@ -8681,6 +8821,29 @@ const hasExactBurningCallbackDeliveryIdentity = (result: {
   result.config.engineVersion ===
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
 
+const hasExactReactionFormulaRootIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion === REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+  result.engineVersion === REACTION_FORMULA_ROOT_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+  result.config.engineVersion ===
+    REACTION_FORMULA_ROOT_ENGINE_VERSION;
+
+const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
+  result: Parameters<
+    typeof hasExactBurningCallbackDeliveryIdentity
+  >[0]
+): boolean =>
+  hasExactBurningCallbackDeliveryIdentity(result) ||
+  hasExactReactionFormulaRootIdentity(result);
+
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
     string,
@@ -8737,6 +8900,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION]: {
     engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [REACTION_FORMULA_ROOT_SCHEMA_VERSION]: {
+    engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -8837,7 +9004,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION) ||
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const auraRevision =
       auraMode === undefined
         ? null
@@ -8861,7 +9028,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       result.config.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exact144Identity =
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exactPropagationIdentity =
       exact141Identity || exact142Identity || exact144Identity;
     if (
@@ -8871,7 +9038,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       addMissingReferenceIssue(
         context,
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, or 1.44 Dendro-core output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, or 1.45 Dendro-core output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -8977,7 +9144,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           context,
           ["config", "targetTaskModel", "mode"],
           exact144Identity
-            ? `${auraMode} exact 1.44 Dendro-core output requires target-phase-v2 or target-phase-v3`
+            ? `${auraMode} exact 1.44 or 1.45 Dendro-core output requires target-phase-v2 or target-phase-v3`
             : `${auraMode} historical Dendro-core output requires target-phase-v2`
         );
       }
@@ -13880,7 +14047,7 @@ const projectSimConfigV144ToV142 = (
 };
 
 const simConfigV144ValueSchema = z
-  .custom<SimConfig>((value) => isRecord(value), {
+  .custom<SimConfigV144>((value) => isRecord(value), {
     message: "expected a simulation config object"
   })
   .superRefine((config, context) => {
@@ -13944,7 +14111,7 @@ const simConfigV144ValueSchema = z
       targetTaskModel: targetTaskModelSchema.parse(
         wire.targetTaskModel
       )
-    } as SimConfig;
+    } as SimConfigV144;
   });
 
 export const simConfigV144Schema = z.preprocess(
@@ -13962,10 +14129,175 @@ export const simConfigV144Schema = z.preprocess(
 );
 
 /**
- * Current config alias. A future schema bump must add a new frozen schema and
- * move this alias; simConfigV142Schema and simConfigV144Schema remain frozen.
+ * 1.45 adds only the fixed formula-profile identity. Every pre-existing
+ * numerical and cross-field rule is projected onto the exact frozen 1.44
+ * validator; the transform restores only the new identity and model.
  */
-export const simConfigSchema = simConfigV144Schema;
+const projectSimConfigV145ToV144 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    ...frozenWire
+  } = wire;
+  return {
+    ...frozenWire,
+    schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+  };
+};
+
+const simConfigV145ValueSchema = z
+  .custom<SimConfigV145>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (
+      wire.schemaVersion !== REACTION_FORMULA_ROOT_SCHEMA_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${REACTION_FORMULA_ROOT_SCHEMA_VERSION}`
+      });
+    }
+    if (
+      wire.engineVersion !== REACTION_FORMULA_ROOT_ENGINE_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${REACTION_FORMULA_ROOT_ENGINE_VERSION}`
+      });
+    }
+
+    const rawReactionFormulaModel = wire.reactionFormulaModel;
+    if (!isRecord(rawReactionFormulaModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionFormulaModel"],
+        message:
+          "requires the explicit compiled classic reaction-formula profile"
+      });
+    } else {
+      for (const field of ["mode", "profileId"] as const) {
+        if (
+          !Object.prototype.hasOwnProperty.call(
+            rawReactionFormulaModel,
+            field
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["reactionFormulaModel", field],
+            message:
+              "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel = reactionFormulaModelSchema.safeParse(
+        rawReactionFormulaModel
+      );
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["reactionFormulaModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    const rejectAmpBase = (
+      hit: unknown,
+      path: Array<string | number>
+    ): void => {
+      if (
+        isRecord(hit) &&
+        Object.prototype.hasOwnProperty.call(hit, "ampBase")
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "ampBase"],
+          message:
+            "ampBase is forbidden by the 1.45 formula-root contract; amplifying multipliers come only from the compiled profile"
+        });
+      }
+    };
+    if (Array.isArray(wire.rotation)) {
+      wire.rotation.forEach((action, actionIndex) => {
+        if (!isRecord(action) || !Array.isArray(action.hits)) return;
+        action.hits.forEach((hit, hitIndex) => {
+          rejectAmpBase(hit, [
+            "rotation",
+            actionIndex,
+            "hits",
+            hitIndex
+          ]);
+        });
+      });
+    }
+    if (isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)) {
+      wire.timeline.abilities.forEach((ability, abilityIndex) => {
+        if (!isRecord(ability) || !Array.isArray(ability.hits)) return;
+        ability.hits.forEach((hit, hitIndex) => {
+          rejectAmpBase(hit, [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex
+          ]);
+        });
+      });
+    }
+
+    const parsed = simConfigV144Schema.safeParse(
+      projectSimConfigV145ToV144(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({
+        ...issue,
+        path: issue.path
+      });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV144Schema.parse(
+      projectSimConfigV145ToV144(wire)
+    );
+    return {
+      ...parsed,
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      reactionFormulaModel: reactionFormulaModelSchema.parse(
+        wire.reactionFormulaModel
+      )
+    } as SimConfigV145;
+  });
+
+export const simConfigV145Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      ["schemaVersion", "engineVersion", "reactionFormulaModel"],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV145ValueSchema
+);
+
+/**
+ * Current config alias. A future schema bump must add a new frozen schema and
+ * move this alias; the explicit V142/V144/V145 schemas remain frozen.
+ */
+export const simConfigSchema = simConfigV145Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -13998,6 +14330,11 @@ const simResultConfigSchema = z
         EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
       wire.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    const exact144Identity =
+      wire.schemaVersion ===
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -14058,7 +14395,9 @@ const simResultConfigSchema = z
       : wire;
     const parsed = exact142Identity || exactHistoricalIdentity
       ? simConfigV142Schema.safeParse(projected)
-      : simConfigV144Schema.safeParse(wire);
+      : exact144Identity
+        ? simConfigV144Schema.safeParse(wire)
+        : simConfigV145Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -14899,7 +15238,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION]:
     EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   [BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION]:
-    BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  [REACTION_FORMULA_ROOT_SCHEMA_VERSION]:
+    REACTION_FORMULA_ROOT_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -15116,7 +15457,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -15191,7 +15536,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION) ||
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exact141TargetTaskIdentity =
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
@@ -15211,7 +15556,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.config.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exact144TargetTaskIdentity =
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exactPropagationTargetTaskIdentity =
       exact141TargetTaskIdentity ||
       exact142TargetTaskIdentity ||
@@ -15222,7 +15567,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, or 1.44 target-task output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, or 1.45 target-task output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -15270,7 +15615,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-task output requires the exact 1.42 or 1.44 schema and engine identity"
+          "aura-v9 target-task output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
         );
       }
     }
@@ -15294,7 +15639,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
               taskIndex,
               "electroChargedCleanup"
             ],
-            "exact 1.40 through 1.42 or 1.44 target-task output requires an explicit cleanup audit or null"
+            "exact 1.40 through 1.42, 1.44, or 1.45 target-task output requires an explicit cleanup audit or null"
           );
         }
         if (!exactEcCleanupIdentity && hasCleanupField) {
@@ -15447,7 +15792,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
       const burningCallbackDeliveryIdentity =
-        hasExactBurningCallbackDeliveryIdentity(result);
+        hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
       if (
         !frozenV1Identity &&
         !migratedCurrentIdentity &&
@@ -15459,7 +15804,7 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v1 result and config must use an exact supported 1.37 through 1.42 or 1.44 identity"
+          "target-phase-v1 result and config must use an exact supported 1.37 through 1.42, 1.44, or 1.45 identity"
         );
       }
     }
@@ -15520,10 +15865,10 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       return;
     }
     if (mode === "target-phase-v3") {
-      if (!hasExactBurningCallbackDeliveryIdentity(result)) {
+      if (!hasExactBurningCallbackDeliveryOrCurrentIdentity(result)) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v3 requires the exact 1.44 schema and engine identity"
+          "target-phase-v3 requires the exact 1.44 or 1.45 schema and engine identity"
         );
       }
       if (phases.length !== 0) {
@@ -16603,7 +16948,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION) ||
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exact141TargetPhaseIdentity =
       result.schemaVersion ===
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION &&
@@ -16623,7 +16968,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.config.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exact144TargetPhaseIdentity =
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exactPropagationTargetPhaseIdentity =
       exact141TargetPhaseIdentity ||
       exact142TargetPhaseIdentity ||
@@ -16634,7 +16979,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, or 1.44 target-phase output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, or 1.45 target-phase output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -16679,7 +17024,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-phase output requires the exact 1.42 or 1.44 schema and engine identity"
+          "aura-v9 target-phase output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
         );
       }
     }
@@ -16894,7 +17239,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+        BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_FORMULA_ROOT_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -16974,7 +17323,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
       const exact144Identity =
-        hasExactBurningCallbackDeliveryIdentity(result);
+        hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
       if (
         !exact138Identity &&
         !exact139Identity &&
@@ -16985,7 +17334,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "schemaVersion"],
-          "target-phase-v2 result and config require an exact supported 1.38 through 1.42 or 1.44 schema and engine identity"
+          "target-phase-v2 result and config require an exact supported 1.38 through 1.42, 1.44, or 1.45 schema and engine identity"
         );
       }
       if (
@@ -17016,7 +17365,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v8 target-phase output requires the exact 1.40, 1.41, 1.42, or 1.44 schema and engine identity"
+          "aura-v8 target-phase output requires the exact 1.40, 1.41, 1.42, 1.44, or 1.45 schema and engine identity"
         );
       }
       if (
@@ -17026,7 +17375,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 target-phase output requires the exact 1.42 or 1.44 schema and engine identity"
+          "aura-v9 target-phase output requires the exact 1.42, 1.44, or 1.45 schema and engine identity"
         );
       }
       if (oldPhases.length !== 0) {
@@ -18858,7 +19207,7 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION &&
         result.config.engineVersion ===
           EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION) ||
-        hasExactBurningCallbackDeliveryIdentity(result)) &&
+        hasExactBurningCallbackDeliveryOrCurrentIdentity(result)) &&
       result.config.reactionEngine?.mode === "aura-v9";
     periodicReactionLog.forEach((entry, index) => {
       const owner = periodicOwnerById.get(entry.id);
@@ -19077,7 +19426,7 @@ const electroChargedCleanupDamageEventReferenceSchema = z
   .passthrough();
 
 /**
- * Exact 1.40–1.42/1.44 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
+ * Exact 1.40–1.42/1.44/1.45 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
  * requested by Quicken→Bloom. This consumes a versioned config and the full
  * cleanup-owned logs while accepting unrelated SimulationResult fields.
  */
@@ -19089,13 +19438,15 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(EC_NEXT_TARGET_TICK_SCHEMA_VERSION),
       z.literal(EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION),
       z.literal(EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION),
-      z.literal(BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION)
+      z.literal(BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION),
+      z.literal(REACTION_FORMULA_ROOT_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
       z.literal(EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION),
       z.literal(EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION),
-      z.literal(BURNING_CALLBACK_DELIVERY_ENGINE_VERSION)
+      z.literal(BURNING_CALLBACK_DELIVERY_ENGINE_VERSION),
+      z.literal(REACTION_FORMULA_ROOT_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -19163,7 +19514,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       result.config.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exact144Identity =
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     const exactAuraV9Identity =
       (exact142Identity || exact144Identity) &&
       result.config.reactionEngine?.mode === "aura-v9";
@@ -19175,7 +19526,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "engineVersion"],
-        "Electro-Charged cleanup requires exact matching 1.40 through 1.42 or 1.44 result and config identity"
+        "Electro-Charged cleanup requires exact matching 1.40 through 1.42, 1.44, or 1.45 result and config identity"
       );
     }
     const hasPropagationModel =
@@ -19195,7 +19546,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, or 1.44 cleanup output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, or 1.45 cleanup output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -19214,7 +19565,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v9 Electro-Charged cleanup requires exact 1.42 or 1.44 identity"
+        "aura-v9 Electro-Charged cleanup requires exact 1.42, 1.44, or 1.45 identity"
       );
     }
     if (
@@ -19232,7 +19583,7 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "targetTaskModel", "mode"],
-        "target-phase-v3 Electro-Charged cleanup requires exact 1.44 identity"
+        "target-phase-v3 Electro-Charged cleanup requires exact 1.44 or 1.45 identity"
       );
     }
     if (
@@ -21715,7 +22066,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       result.config.engineVersion ===
         EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
     const exact144Identity =
-      hasExactBurningCallbackDeliveryIdentity(result);
+      hasExactBurningCallbackDeliveryOrCurrentIdentity(result);
     if (
       !exact139Identity &&
       !exact140Identity &&
@@ -21725,7 +22076,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionDeliveryModel"],
-        "reaction delivery result requires an exact supported 1.39 through 1.42 or 1.44 schema and engine identity"
+        "reaction delivery result requires an exact supported 1.39 through 1.42, 1.44, or 1.45 schema and engine identity"
       );
     }
     if (
@@ -21737,7 +22088,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "reactionEngine", "mode"],
-        "aura-v8 reaction-delivery output requires the exact 1.40, 1.41, 1.42, or 1.44 schema and engine identity"
+        "aura-v8 reaction-delivery output requires the exact 1.40, 1.41, 1.42, 1.44, or 1.45 schema and engine identity"
       );
     }
     if (
@@ -21770,7 +22121,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["config", "reactionEngine", "mode"],
-          "aura-v9 reaction-delivery output requires exact 1.42 or 1.44 identity"
+          "aura-v9 reaction-delivery output requires exact 1.42, 1.44, or 1.45 identity"
         );
       }
     }
@@ -21780,7 +22131,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
     ) {
       issue(
         ["config", "electroChargedPropagationModel"],
-        "exact 1.41, 1.42, or 1.44 reaction-delivery output requires an explicit Electro-Charged propagation model"
+        "exact 1.41, 1.42, 1.44, or 1.45 reaction-delivery output requires an explicit Electro-Charged propagation model"
       );
     }
     if (
@@ -21981,7 +22332,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["hitResolutionLog", entryIndex, "id"],
-            `exact 1.41/1.42/1.44 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42/1.44/1.45 nearby-Wet hit-resolution ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
@@ -21989,7 +22340,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
         if (entry.id !== entryIndex) {
           issue(
             ["damageEvents", entryIndex, "id"],
-            `exact 1.41/1.42/1.44 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
+            `exact 1.41/1.42/1.44/1.45 nearby-Wet damage-event ids must be zero-based and contiguous; expected ${entryIndex}`
           );
         }
       });
@@ -22007,19 +22358,19 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       if (configTargetClockModel === undefined) {
         issue(
           ["config", "targetClockModel"],
-          "exact 1.41/1.42/1.44 nearby-Wet output requires an explicit target clock model"
+          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires an explicit target clock model"
         );
       }
       if (resultTargetClockLog === undefined) {
         issue(
           ["targetClockLog"],
-          "exact 1.41/1.42/1.44 nearby-Wet output requires a target-clock replay log"
+          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires a target-clock replay log"
         );
       }
       if (resultTargetHitlagLog === undefined) {
         issue(
           ["targetHitlagLog"],
-          "exact 1.41/1.42/1.44 nearby-Wet output requires a target-Hitlag provenance log"
+          "exact 1.41/1.42/1.44/1.45 nearby-Wet output requires a target-Hitlag provenance log"
         );
       }
       const targetClockLog = resultTargetClockLog ?? [];
@@ -22266,7 +22617,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex, "id"],
-          `exact 1.41/1.42/1.44 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
+          `exact 1.41/1.42/1.44/1.45 nearby-Wet periodic ids must be zero-based and contiguous; expected ${entryIndex}`
         );
       }
       if (
@@ -22280,7 +22631,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
       ) {
         issue(
           ["periodicReactionLog", entryIndex],
-          "exact 1.41/1.42/1.44 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
+          "exact 1.41/1.42/1.44/1.45 nearby-Wet tick rows require non-null source, trigger, reaction-damage, source-child, and tick-index parents"
         );
       }
       if (
@@ -22307,7 +22658,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               entryIndex,
               "reactionDamageLogId"
             ],
-            "exact 1.41/1.42/1.44 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
+            "exact 1.41/1.42/1.44/1.45 nearby-Wet tick row requires its reciprocal propagation reaction-damage parent"
           );
         }
       }
@@ -25151,7 +25502,7 @@ export const reactionDeliveryResultReferencesSchema = z.preprocess(
               pointIndex,
               "cause"
             ],
-            "Electro-Charged propagation candidate observations are reserved for exact 1.41/1.42/1.44 nearby-Wet output"
+            "Electro-Charged propagation candidate observations are reserved for exact 1.41/1.42/1.44/1.45 nearby-Wet output"
           );
         } else if (
           !claimedPropagationObservationPointIds.has(
@@ -28515,6 +28866,10 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
     electroChargedPropagationModel: {
       mode: "single-target-v1"
+    },
+    reactionFormulaModel: {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
     }
   };
 }
@@ -28565,6 +28920,7 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
 
     const nestedOwnFields = [
       ["reactionEngine", ["mode"]],
+      ["reactionFormulaModel", ["mode", "profileId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -28849,6 +29205,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION]: {
     engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION]: {
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -28929,8 +29289,56 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
+  const isCurrentFormulaIdentity =
+    version === CURRENT_SCHEMA_VERSION;
+  if (
+    !isCurrentFormulaIdentity &&
+    "reactionFormulaModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionFormulaModel: schemaVersion "${historicalVersion}" does not support reaction-formula profile selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isCurrentFormulaIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "reactionFormulaModel"
+      ) ||
+      !isRecord(input.reactionFormulaModel)
+    ) {
+      const issue =
+        `reactionFormulaModel: schemaVersion "${String(version)}" requires the explicit compiled classic reaction-formula profile`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "profileId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.reactionFormulaModel,
+          field
+        )
+      ) {
+        const issue =
+          `reactionFormulaModel.${field}: schemaVersion "${String(version)}" requires an explicit own formula-profile identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+  }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
     version === EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   if (
     !isCurrentOrFrozenV142 &&
@@ -29351,6 +29759,20 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  input = {
+    ...input,
+    reactionFormulaModel: {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    }
+  };
+  if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {
+    return parseSimConfig({
+      ...input,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
   }
   if (version === EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION) {
     return parseSimConfig({

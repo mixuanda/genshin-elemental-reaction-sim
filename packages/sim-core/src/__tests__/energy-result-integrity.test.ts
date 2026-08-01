@@ -1,6 +1,6 @@
 import {
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
   type AbilityDefinition,
   type SimConfig,
   type SimulationResult
@@ -16,7 +16,7 @@ function cloneResult(result: SimulationResult): SimulationResult {
 function expectAcceptedByPublicAndTrusted(
   result: SimulationResult
 ): void {
-  const parsed = simulationResultV144Schema.safeParse(result);
+  const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
@@ -30,7 +30,7 @@ function expectAcceptedByPublicAndTrusted(
     );
   }
   expect(() =>
-    assertTrustedSimulationResultV144(result)
+    assertTrustedSimulationResult(result)
   ).not.toThrow();
 }
 
@@ -42,17 +42,17 @@ function expectRejectedByPublicAndTrusted(
   const publicWire = cloneResult(result);
   mutate(publicWire);
   expect(
-    simulationResultV144Schema.safeParse(publicWire).success,
+    simulationResultSchema.safeParse(publicWire).success,
     `${label}: public SimulationResult boundary`
   ).toBe(false);
 
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
   expect(
-    () => assertTrustedSimulationResultV144(trustedResult),
+    () => assertTrustedSimulationResult(trustedResult),
     `${label}: trusted sim-core boundary`
   ).toThrow(
-    /Trusted SimulationResult 1\.44 integrity validation failed/
+    /Trusted SimulationResult 1\.45 integrity validation failed/
   );
 }
 
@@ -518,7 +518,7 @@ beforeAll(() => {
   );
 });
 
-describe("SimulationResult 1.44 energy replay integrity", () => {
+describe("current SimulationResult energy replay integrity", () => {
   it("accepts compact legacy and legal energy audit vectors", () => {
     expect(legacyResult.compatibilityMode).toBe("legacy-v0.1");
     expect(legalResult.compatibilityMode).toBe("legal-frame-v1");

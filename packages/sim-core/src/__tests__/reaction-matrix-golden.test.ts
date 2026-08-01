@@ -15,7 +15,7 @@ import {
   reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
   simConfigSchema,
-  simulationResultV144Schema,
+  simulationResultSchema,
   simulationRunManifestSchema,
   targetPhaseV2ResultReferencesSchema,
   targetStateTimelineSchema,
@@ -2221,9 +2221,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.44.0-burning-callback-delivery"
+      "1.45.0-reaction-formula-root"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2258,10 +2258,10 @@ describe("current aura-v9 classic reaction release gate", () => {
       );
 
       expect(
-        simulationResultV144Schema.parse(result)
+        simulationResultSchema.parse(result)
       ).toEqual(result);
       expect(
-        simulationResultV144Schema.parse(repeated)
+        simulationResultSchema.parse(repeated)
       ).toEqual(repeated);
       if (scenarioId === "freezeShatter") {
         const forged = structuredClone(result);
@@ -2273,12 +2273,12 @@ describe("current aura-v9 classic reaction release gate", () => {
         }
         frozen.freezeResistance = 1.01;
         expect(
-          simulationResultV144Schema.safeParse(forged).success
+          simulationResultSchema.safeParse(forged).success
         ).toBe(false);
         const forgedTime = structuredClone(result);
         forgedTime.frozenStateLog[0]!.timeSeconds += 0.01;
         expect(
-          simulationResultV144Schema.safeParse(forgedTime).success
+          simulationResultSchema.safeParse(forgedTime).success
         ).toBe(false);
       }
       if (scenarioId === "swirl") {
@@ -2296,7 +2296,7 @@ describe("current aura-v9 classic reaction release gate", () => {
         swirl.swirledElement =
           swirl.swirledElement === "pyro" ? "hydro" : "pyro";
         expect(
-          simulationResultV144Schema.safeParse(forged).success
+          simulationResultSchema.safeParse(forged).success
         ).toBe(false);
       }
       if (scenarioId === "crystallize") {
@@ -2317,7 +2317,7 @@ describe("current aura-v9 classic reaction release gate", () => {
             ? "hydro"
             : "pyro";
         expect(
-          simulationResultV144Schema.safeParse(forged).success
+          simulationResultSchema.safeParse(forged).success
         ).toBe(false);
       }
       if (scenarioId === "catalyze") {
@@ -2338,13 +2338,13 @@ describe("current aura-v9 classic reaction release gate", () => {
             ? "dendro"
             : "electro";
         expect(
-          simulationResultV144Schema.safeParse(forged).success
+          simulationResultSchema.safeParse(forged).success
         ).toBe(false);
       }
       expect(result).toEqual(repeated);
       expect(result.config).toMatchObject({
-        schemaVersion: "1.44.0",
-        engineVersion: "1.44.0-burning-callback-delivery",
+        schemaVersion: "1.45.0",
+        engineVersion: "1.45.0-reaction-formula-root",
         reactionEngine: {
           mode: "aura-v9"
         },
@@ -2360,8 +2360,8 @@ describe("current aura-v9 classic reaction release gate", () => {
         }
       });
       expect(result.runManifest).toMatchObject({
-        schemaVersion: "1.44.0",
-        engineVersion: "1.44.0-burning-callback-delivery",
+        schemaVersion: "1.45.0",
+        engineVersion: "1.45.0-reaction-formula-root",
         dataVersion: DATA_VERSION,
         resolvedRuntimeOptions: options
       });

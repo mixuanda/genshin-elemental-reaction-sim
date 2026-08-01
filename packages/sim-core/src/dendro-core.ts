@@ -1,3 +1,7 @@
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE
+} from "@genshin-dps-lab/reaction-formulas";
+
 /**
  * Pure Dendro-core entity state.
  *
@@ -19,9 +23,15 @@ export const DENDRO_CORE_CONSTANTS = Object.freeze({
   burgeonRadius: 5,
   hyperbloomSelectionRadius: 15,
   hyperbloomDamageRadius: 1,
-  bloomMultiplier: 2,
-  burgeonMultiplier: 3,
-  hyperbloomMultiplier: 3,
+  bloomMultiplier:
+    CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+      .bloom,
+  burgeonMultiplier:
+    CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+      .burgeon,
+  hyperbloomMultiplier:
+    CLASSIC_REACTION_FORMULA_PROFILE.transformativeBaseMultipliers
+      .hyperbloom,
   mechanicsDataStatus: "fixed-gcsim-provisional",
   // Raw entity-layer default. simulate() projects the configured player
   // damage capability into public audits and Dendro-core logs.

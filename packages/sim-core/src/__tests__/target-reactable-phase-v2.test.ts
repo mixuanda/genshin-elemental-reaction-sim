@@ -6,7 +6,7 @@ import type {
   TargetPhaseV2LogEntry
 } from "@genshin-dps-lab/schemas";
 import {
-  assertTrustedSimulationResultV144,
+  assertTrustedSimulationResult,
   canonicalStringify,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
@@ -14,7 +14,7 @@ import {
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
-  simulationResultV144Schema
+  simulationResultSchema
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
@@ -1696,8 +1696,8 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
       { critMode: "noCrit" }
     );
     expect(result.periodicReactionLog).toHaveLength(0);
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
 
     for (const transition of [
       {
@@ -1735,10 +1735,10 @@ describe("target-phase-v2 target callback to Reactable.Tick ordering", () => {
       });
 
       expect(
-        simulationResultV144Schema.safeParse(forged).success
+        simulationResultSchema.safeParse(forged).success
       ).toBe(false);
       expect(() =>
-        assertTrustedSimulationResultV144(forged)
+        assertTrustedSimulationResult(forged)
       ).toThrow(/target phase v2 references/);
     }
   });

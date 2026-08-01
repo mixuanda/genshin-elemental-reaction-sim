@@ -1,6 +1,6 @@
 import {
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
@@ -259,7 +259,7 @@ function ownershipParts(result: SimulationResult) {
 function expectAcceptedAtBothBoundaries(
   result: SimulationResult
 ): void {
-  const parsed = simulationResultV144Schema.safeParse(result);
+  const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
@@ -272,19 +272,19 @@ function expectAcceptedAtBothBoundaries(
       )
     );
   }
-  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
 function expectRejectedAtBothBoundaries(
   result: SimulationResult
 ): void {
-  expect(simulationResultV144Schema.safeParse(result).success).toBe(
+  expect(simulationResultSchema.safeParse(result).success).toBe(
     false
   );
   expect(() =>
-    assertTrustedSimulationResultV144(result)
+    assertTrustedSimulationResult(result)
   ).toThrow(
-    /Trusted SimulationResult 1\.44 integrity validation failed/
+    /Trusted SimulationResult 1\.45 integrity validation failed/
   );
 }
 

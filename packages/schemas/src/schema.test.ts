@@ -1,5 +1,9 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID,
+  CLASSIC_REACTION_FORMULA_ROOT
+} from "@genshin-dps-lab/reaction-formulas";
 import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
 import legacyDefault120sGolden from "../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
@@ -56,6 +60,7 @@ import {
   goldenFixtureEnvelopeV141Schema,
   legacyDefault120sGoldenFixtureV141Schema,
   legacyDefault120sGoldenFixtureV142Schema,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   migrateConfig,
   parseSimConfig,
   parseSimulationRunManifestForConfig,
@@ -72,6 +77,8 @@ import {
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
   reactionDeliveryModelSchema,
+  reactionFormulaModelSchema,
+  reactionFormulaRootSchema,
   reactionDeliveryResultReferencesSchema,
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
@@ -85,9 +92,13 @@ import {
   simulationRunManifestSchema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
+  simulationRunManifestV145Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
+  simConfigV145Schema,
+  REACTION_FORMULA_ROOT_ENGINE_VERSION,
+  REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   TARGET_TASK_PHASE_ENGINE_VERSION,
@@ -145,24 +156,35 @@ const legacyConfig = {
   rotation: []
 };
 
+const fixedReactionFormulaModel = {
+  mode: "classic-formula-profile-v1",
+  profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T
 ): Omit<
   T,
-  "reactionDeliveryModel" | "electroChargedPropagationModel"
+  | "reactionDeliveryModel"
+  | "electroChargedPropagationModel"
+  | "reactionFormulaModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
+    reactionFormulaModel: _reactionFormulaModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
     electroChargedPropagationModel?: unknown;
+    reactionFormulaModel?: unknown;
   };
   return wire as Omit<
     T,
-    "reactionDeliveryModel" | "electroChargedPropagationModel"
+    | "reactionDeliveryModel"
+    | "electroChargedPropagationModel"
+    | "reactionFormulaModel"
   >;
 };
 
@@ -941,6 +963,7 @@ describe("1.32 player reaction self-damage contract", () => {
       reactionDeliveryModel: _reactionDeliveryModel,
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
+      reactionFormulaModel: _reactionFormulaModel,
       ...wire132
     } = current;
     const historical = {
@@ -2256,6 +2279,7 @@ describe("1.33 target-local Hitlag contract", () => {
     frozen139Result.config.engineVersion =
       SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION;
     delete frozen139Result.config.electroChargedPropagationModel;
+    delete frozen139Result.config.reactionFormulaModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
@@ -2719,13 +2743,17 @@ describe("1.34 general reaction order contract", () => {
       },
       electroChargedPropagationModel: {
         mode: "single-target-v1"
-      }
+      },
+      reactionFormulaModel: fixedReactionFormulaModel
     });
   });
 
-  it("preserves the frozen compatibility ampBase multiplier across 1.35 to 1.36", () => {
-    const current = migrateConfig({
-      ...legacyConfig,
+  it("keeps 1.44 ampBase validation frozen but fail-closes its migration to 1.45", () => {
+    const current = migrateConfig(legacyConfig);
+    const frozenV144 = {
+      ...withoutOwn(current, "reactionFormulaModel"),
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
       rotation: [
         {
           id: "legacy-amp-base",
@@ -2743,24 +2771,44 @@ describe("1.34 general reaction order contract", () => {
           ]
         }
       ]
-    });
-    const historical = {
-      ...asPre139Wire(current),
-      schemaVersion: ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
-      engineVersion: ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION
     };
 
-    expect(migrateConfig(historical)).toEqual({
-      ...historical,
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
-      reactionDeliveryModel: {
-        mode: "deferred-event-heap-v1"
-      },
-      electroChargedPropagationModel: {
-        mode: "single-target-v1"
+    expect(simConfigV144Schema.parse(frozenV144)).toEqual(
+      frozenV144
+    );
+    expect(() => migrateConfig(frozenV144)).toThrow(
+      /rotation\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
+    );
+
+    const {
+      ampBase: _ampBase,
+      ...profileDerivedHit
+    } = frozenV144.rotation[0]!.hits![0]!;
+    const profileDerivedV144 = {
+      ...frozenV144,
+      rotation: [
+        {
+          ...frozenV144.rotation[0]!,
+          hits: [
+            {
+              ...profileDerivedHit,
+              reaction: "melt" as const
+            }
+          ]
+        }
+      ]
+    };
+    const migratedProfileDerived = migrateConfig(
+      profileDerivedV144
+    );
+    expect(migratedProfileDerived.rotation[0]?.hits?.[0]).toMatchObject(
+      {
+        reaction: "melt"
       }
-    });
+    );
+    expect(
+      migratedProfileDerived.rotation[0]?.hits?.[0]?.ampBase
+    ).toBeUndefined();
   });
 
   it("fails closed on aura-v7 or a forged engine under the frozen 1.35 identity", () => {
@@ -3059,6 +3107,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       reactionDeliveryModel: _reactionDeliveryModel,
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
+      reactionFormulaModel: _reactionFormulaModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3090,7 +3139,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         },
         electroChargedPropagationModel: {
           mode: "single-target-v1"
-        }
+        },
+        reactionFormulaModel: fixedReactionFormulaModel
       });
     }
 
@@ -3100,6 +3150,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       reactionDeliveryModel: _currentReactionDeliveryModel,
       electroChargedPropagationModel:
         _currentElectroChargedPropagationModel,
+      reactionFormulaModel: _currentReactionFormulaModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3207,9 +3258,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.44.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.45.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.44.0-burning-callback-delivery"
+      "1.45.0-reaction-formula-root"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4265,10 +4316,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+      REACTION_FORMULA_ROOT_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4354,6 +4405,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     const {
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
+      reactionFormulaModel: _reactionFormulaModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4369,7 +4421,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       electroChargedPropagationModel: {
         mode: "single-target-v1"
-      }
+      },
+      reactionFormulaModel: fixedReactionFormulaModel
     });
     expect(() =>
       migrateConfig({
@@ -4398,7 +4451,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       verificationStatus: "provisional" as const
     };
     const historical = {
-      ...makeLegalAuraV7Config(),
+      ...withoutOwn(
+        makeLegalAuraV7Config(),
+        "reactionFormulaModel"
+      ),
       schemaVersion:
         EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
       engineVersion:
@@ -4411,7 +4467,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrateConfig(historical)).toEqual({
       ...historical,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaModel: fixedReactionFormulaModel
     });
     expect(() =>
       migrateConfig({
@@ -4455,9 +4512,12 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     );
   });
 
-  it("freezes 1.42, migrates it by identity only, and gates explicit 1.44 target-phase-v3", () => {
+  it("freezes 1.42/1.44 and migrates them by identity plus the fixed 1.45 formula profile", () => {
     const frozenV142 = {
-      ...makeLegalAuraV7Config(),
+      ...withoutOwn(
+        makeLegalAuraV7Config(),
+        "reactionFormulaModel"
+      ),
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
       engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
       reactionEngine: { mode: "aura-v9" as const },
@@ -4470,16 +4530,72 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       targetTaskModel: { mode: "target-phase-v2" }
     });
 
-    const migrated = migrateConfig(parsedFrozenV142);
-    expect(migrated).toEqual({
+    const frozenV144 = {
       ...parsedFrozenV142,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
       engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
-    });
+    };
+    expect(simConfigV144Schema.parse(frozenV144)).toEqual(
+      frozenV144
+    );
+
+    const migrated = migrateConfig(parsedFrozenV142);
+    const migratedFromV144 = migrateConfig(frozenV144);
+    const expectedCurrent = {
+      ...parsedFrozenV142,
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
+      reactionFormulaModel: {
+        mode: "classic-formula-profile-v1" as const,
+        profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+      }
+    };
+    expect(migrated).toEqual(expectedCurrent);
+    expect(migratedFromV144).toEqual(expectedCurrent);
+    expect(() =>
+      migrateConfig({
+        ...frozenV144,
+        engineVersion: "1.44.0-forged"
+      })
+    ).toThrow(
+      /schemaVersion "1\.44\.0" requires "1\.44\.0-burning-callback-delivery"/
+    );
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV144Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV145Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigSchema.parse(migrated)).toEqual(migrated);
+    expect(() => simConfigV144Schema.parse(migrated)).toThrow();
+    expect(() => simConfigV145Schema.parse(frozenV144)).toThrow();
+
+    const frozenV144TargetPhaseV3 = {
+      ...frozenV144,
+      targetTaskModel: { mode: "target-phase-v3" as const }
+    };
+    expect(
+      simConfigV144Schema.parse(frozenV144TargetPhaseV3)
+        .targetTaskModel
+    ).toEqual({ mode: "target-phase-v3" });
+    const migratedTargetPhaseV3 = migrateConfig(
+      frozenV144TargetPhaseV3
+    );
+    expect(migratedTargetPhaseV3.targetTaskModel).toEqual({
+      mode: "target-phase-v3"
+    });
+    const {
+      schemaVersion: _currentSchemaVersion,
+      engineVersion: _currentEngineVersion,
+      reactionFormulaModel: _currentFormulaModel,
+      ...currentNumericalSemantics
+    } = migratedTargetPhaseV3;
+    const {
+      schemaVersion: _frozenSchemaVersion,
+      engineVersion: _frozenEngineVersion,
+      ...frozenNumericalSemantics
+    } = frozenV144TargetPhaseV3;
+    expect(currentNumericalSemantics).toEqual(
+      frozenNumericalSemantics
+    );
 
     for (const mode of ["aura-v7", "aura-v8", "aura-v9"] as const) {
       expect(
@@ -4526,7 +4642,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     ).toThrow();
     expect(() =>
       simConfigV144Schema.parse({
-        ...migrated,
+        ...frozenV144,
         burningCallbackModel: { mode: "unversioned" }
       })
     ).toThrow(/Unrecognized key/);
@@ -7102,6 +7218,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDeliveryModel: _reactionDeliveryModel,
       electroChargedPropagationModel:
         _electroChargedPropagationModel,
+      reactionFormulaModel: _reactionFormulaModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -7448,7 +7565,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, or 1\.45 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -7584,7 +7701,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, or 1\.45 schema and engine identity/);
     }
   });
 
@@ -10953,7 +11070,7 @@ describe("1.37 target task phase result references", () => {
       targetTaskPhaseResultReferencesSchema.parse(
         forgedEngineIdentity
       )
-    ).toThrow(/exact supported 1\.37 through 1\.42 or 1\.44 identity/);
+    ).toThrow(/exact supported 1\.37 through 1\.42, 1\.44, or 1\.45 identity/);
 
     const wrongClockMode = makeReferenceResult();
     wrongClockMode.config.targetClockModel.mode =
@@ -13551,6 +13668,7 @@ describe("simulation run manifest contract", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13579,35 +13697,64 @@ describe("simulation run manifest contract", () => {
     expect(
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
-    expect(simulationRunManifestV144Schema.parse(manifest)).toEqual(
+    expect(simulationRunManifestV145Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV144Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV142Schema.parse(manifest)
     ).toThrow();
 
     const {
       reproducibilityKey: _currentReproducibilityKey,
-      ...currentIdentity
+      reactionFormulaRoot: _reactionFormulaRoot,
+      version: _currentManifestVersion,
+      schemaVersion: _currentSchemaVersion,
+      engineVersion: _currentEngineVersion,
+      ...frozenCommonIdentity
     } = manifest;
-    const frozenIdentity = {
-      ...currentIdentity,
+    const frozenV142Identity = {
+      ...frozenCommonIdentity,
+      version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
       engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
     };
-    const frozenManifest = {
-      ...frozenIdentity,
+    const frozenV142Manifest = {
+      ...frozenV142Identity,
       reproducibilityKey: createSimulationReproducibilityKey(
-        frozenIdentity as unknown as Parameters<
+        frozenV142Identity as unknown as Parameters<
           typeof createSimulationReproducibilityKey
         >[0]
       )
     };
     expect(
-      simulationRunManifestV142Schema.parse(frozenManifest)
-    ).toEqual(frozenManifest);
+      simulationRunManifestV142Schema.parse(frozenV142Manifest)
+    ).toEqual(frozenV142Manifest);
     expect(() =>
-      simulationRunManifestSchema.parse(frozenManifest)
+      simulationRunManifestSchema.parse(frozenV142Manifest)
+    ).toThrow();
+
+    const frozenV144Identity = {
+      ...frozenCommonIdentity,
+      version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    };
+    const frozenV144Manifest = {
+      ...frozenV144Identity,
+      reproducibilityKey: createSimulationReproducibilityKey(
+        frozenV144Identity as unknown as Parameters<
+          typeof createSimulationReproducibilityKey
+        >[0]
+      )
+    };
+    expect(
+      simulationRunManifestV144Schema.parse(frozenV144Manifest)
+    ).toEqual(frozenV144Manifest);
+    expect(() =>
+      simulationRunManifestV145Schema.parse(frozenV144Manifest)
     ).toThrow();
     expect(() =>
       simulationRunManifestSchema.parse({
@@ -13630,6 +13777,137 @@ describe("simulation run manifest contract", () => {
         randomSeed: "changed-config-seed"
       })
     ).toThrow(/not bound to the supplied migrated config/);
+    const forgedFormulaConfig = {
+      ...config,
+      reactionFormulaModel: {
+        ...config.reactionFormulaModel,
+        profileId: "latest"
+      }
+    };
+    const forgedFormulaManifest = createSimulationRunManifest({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      dataVersion: forgedFormulaConfig.dataVersion,
+      configHash: createSimulationConfigHash(forgedFormulaConfig),
+      resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
+      plugins: manifest.plugins
+    });
+    expect(() =>
+      parseSimulationRunManifestForConfig(
+        forgedFormulaManifest,
+        forgedFormulaConfig as unknown as typeof config
+      )
+    ).toThrow(/not bound to the supplied migrated config/);
+  });
+
+  it("requires the exact compiled 1.45 formula root even after a coherent manifest re-key", () => {
+    const config = migrateConfig(legacyConfig);
+    const manifest = createSimulationRunManifest({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      dataVersion: config.dataVersion,
+      configHash: createSimulationConfigHash(config),
+      resolvedRuntimeOptions: {
+        energyMode: "configured",
+        critMode: "average",
+        compatibilityMode: "legacy-v0.1",
+        randomSeed: config.randomSeed
+      },
+      plugins: []
+    });
+    expect(CLASSIC_REACTION_FORMULA_ROOT).toEqual({
+      version: "1.0.0",
+      profileId: "gcsim-b4ae769-classic-provisional-v1",
+      contentHash:
+        "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+      mechanicsDataStatus: "fixed-gcsim-provisional",
+      sourceProject: "genshinsim/gcsim",
+      sourceRevision:
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      officialServerTruth: false,
+      completeGcsimParity: false
+    });
+    expect(
+      reactionFormulaRootSchema.parse(
+        structuredClone(CLASSIC_REACTION_FORMULA_ROOT)
+      )
+    ).toEqual(CLASSIC_REACTION_FORMULA_ROOT);
+
+    const coherentlyRekey = (
+      candidate: Record<string, unknown>
+    ): Record<string, unknown> => {
+      const {
+        reproducibilityKey: _reproducibilityKey,
+        ...identity
+      } = candidate;
+      return {
+        ...identity,
+        reproducibilityKey: createSimulationReproducibilityKey(
+          identity as unknown as Parameters<
+            typeof createSimulationReproducibilityKey
+          >[0]
+        )
+      };
+    };
+    const rootMutations: Array<Record<string, unknown>> = [
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        profileId: "user-selected-profile"
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        contentHash: `sha256:${"0".repeat(64)}`
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        mechanicsDataStatus: "verified"
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        officialServerTruth: true
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        completeGcsimParity: true
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        sourceRevision: "latest"
+      },
+      {
+        ...CLASSIC_REACTION_FORMULA_ROOT,
+        extraTrustClaim: true
+      }
+    ];
+    for (const reactionFormulaRoot of rootMutations) {
+      const rekeyed = coherentlyRekey({
+        ...manifest,
+        reactionFormulaRoot
+      });
+      expect(() =>
+        simulationRunManifestV145Schema.parse(rekeyed)
+      ).toThrow(
+        /must exactly equal the compiled classic reaction-formula root|Unrecognized key/
+      );
+    }
+
+    const missingRoot = { ...manifest } as Record<string, unknown>;
+    delete missingRoot.reactionFormulaRoot;
+    expect(() =>
+      simulationRunManifestV145Schema.parse(
+        coherentlyRekey(missingRoot)
+      )
+    ).toThrow(/reactionFormulaRoot/);
+    expect(() =>
+      simulationRunManifestV145Schema.parse(
+        coherentlyRekey({
+          ...manifest,
+          version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION
+        })
+      )
+    ).toThrow();
   });
 
   it("requires exact plugin order and unique plugin ids", () => {
@@ -13645,6 +13923,7 @@ describe("simulation run manifest contract", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13699,6 +13978,85 @@ describe("versioned config schema", () => {
     expect(migrated.randomSeed).toBe("legacy-default");
     expect(migrated.meta.verificationStatus).toBe("provisional");
     expect(migrated.characters[0]?.stats.critRate).toBe(0.05);
+    expect(migrated.reactionFormulaModel).toEqual({
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    });
+  });
+
+  it("requires the exact explicit 1.45 formula profile and rejects it on frozen wires", () => {
+    const current = migrateConfig(legacyConfig);
+    expect(
+      reactionFormulaModelSchema.parse(
+        current.reactionFormulaModel
+      )
+    ).toEqual(current.reactionFormulaModel);
+
+    const missingModel = {
+      ...current
+    } as Record<string, unknown>;
+    delete missingModel.reactionFormulaModel;
+    expect(() => parseSimConfig(missingModel)).toThrow(
+      /reactionFormulaModel/
+    );
+    expect(() => migrateConfig(missingModel)).toThrow(
+      /reactionFormulaModel/
+    );
+
+    for (const reactionFormulaModel of [
+      {
+        mode: "manual-override-v1",
+        profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+      },
+      {
+        mode: "classic-formula-profile-v1",
+        profileId: "latest"
+      },
+      {
+        mode: "classic-formula-profile-v1",
+        profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID,
+        status: "verified"
+      }
+    ]) {
+      expect(() =>
+        parseSimConfig({
+          ...current,
+          reactionFormulaModel
+        })
+      ).toThrow();
+      expect(() =>
+        migrateConfig({
+          ...current,
+          reactionFormulaModel
+        })
+      ).toThrow();
+    }
+
+    const frozenV144 = {
+      ...withoutOwn(current, "reactionFormulaModel"),
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    };
+    expect(simConfigV144Schema.parse(frozenV144)).toEqual(
+      frozenV144
+    );
+    expect(() =>
+      migrateConfig({
+        ...frozenV144,
+        reactionFormulaModel: current.reactionFormulaModel
+      })
+    ).toThrow(/schemaVersion "1\.44\.0" does not support/);
+
+    const inheritedModel = Object.create({
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    }) as Record<string, unknown>;
+    expect(() =>
+      migrateConfig({
+        ...current,
+        reactionFormulaModel: inheritedModel
+      })
+    ).toThrow(/plain JSON objects.*explicit own wire properties/);
   });
 
   it("requires an acyclic recursively plain config wire before any version projection", () => {
@@ -13732,11 +14090,11 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV144Schema.safeParse(nullPrototypeWire).success
+      simConfigV145Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {
-      ...current,
+      ...withoutOwn(current, "reactionFormulaModel"),
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
       engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
     };
@@ -13771,7 +14129,7 @@ describe("versioned config schema", () => {
       structuredClone(current)
     );
     expect(
-      simConfigV144Schema.safeParse(inheritedFutureCurrent).success
+      simConfigV145Schema.safeParse(inheritedFutureCurrent).success
     ).toBe(false);
     expect(
       simConfigSchema.safeParse(inheritedFutureCurrent).success
@@ -13806,7 +14164,7 @@ describe("versioned config schema", () => {
     >;
     const cyclicMeta = cyclic.meta as Record<string, unknown>;
     cyclicMeta.self = cyclicMeta;
-    expect(simConfigV144Schema.safeParse(cyclic).success).toBe(
+    expect(simConfigV145Schema.safeParse(cyclic).success).toBe(
       false
     );
     expect(() => migrateConfig(cyclic)).toThrow(
@@ -18966,7 +19324,6 @@ describe("versioned config schema", () => {
       ...withHit({
         element: "dendro",
         reactionOverride: "melt",
-        ampBase: 2,
         application: {
           gaugeUnits: 1,
           icdTag: "dendro",
@@ -18981,7 +19338,24 @@ describe("versioned config schema", () => {
     expect(
       parsed.timeline?.abilities[0]?.hits?.[0]?.reactionOverride
     ).toBe("melt");
-    expect(parsed.timeline?.abilities[0]?.hits?.[0]?.ampBase).toBe(2);
+    expect(() =>
+      migrateConfig({
+        ...withHit({
+          element: "dendro",
+          reactionOverride: "melt",
+          ampBase: 2,
+          application: {
+            gaugeUnits: 1,
+            icdTag: "dendro",
+            icdGroup: "no-icd"
+          }
+        }),
+        reactionEngine: {
+          mode: "aura-v3",
+          debugAllowReactionOverride: true
+        }
+      })
+    ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
 
     const legacyAmpBaseConfig = {
       ...legacyConfig,
@@ -19003,23 +19377,23 @@ describe("versioned config schema", () => {
         }
       ]
     };
-    const legacyAmpBaseParsed = migrateConfig(legacyAmpBaseConfig);
-    expect(legacyAmpBaseParsed.rotation[0]?.hits?.[0]).toMatchObject({
-      reaction: "none",
-      ampBase: 2
-    });
-
-    const legacyParsed = migrateConfig({
-      ...legacyAmpBaseConfig,
-      rotation: legacyAmpBaseConfig.rotation.map((action) => ({
-        ...action,
-        hits: action.hits.map((hit) => ({
-          ...hit,
-          reaction: "melt" as const
+    expect(() => migrateConfig(legacyAmpBaseConfig)).toThrow(
+      /rotation\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
+    );
+    expect(() =>
+      migrateConfig({
+        ...legacyAmpBaseConfig,
+        rotation: legacyAmpBaseConfig.rotation.map((action) => ({
+          ...action,
+          hits: action.hits.map((hit) => ({
+            ...hit,
+            reaction: "melt" as const
+          }))
         }))
-      }))
-    });
-    expect(legacyParsed.rotation[0]?.hits?.[0]?.ampBase).toBe(2);
+      })
+    ).toThrow(
+      /rotation\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
+    );
   });
 
   it("validates blunt strike and poise damage in both action formats", () => {

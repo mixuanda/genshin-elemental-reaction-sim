@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  simulationResultSchema,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
@@ -29,8 +28,7 @@ function expectCrystallizeMutationRejected(
 ): void {
   const publicWire = structuredClone(result);
   mutate(publicWire);
-  const parsed =
-    simulationResultV144Schema.safeParse(publicWire);
+  const parsed = simulationResultSchema.safeParse(publicWire);
   expect(parsed.success).toBe(false);
   if (!parsed.success && expectedMessage !== undefined) {
     expect(
@@ -40,22 +38,13 @@ function expectCrystallizeMutationRejected(
     ).toMatch(expectedMessage);
   }
 
-  const trustedV144Result = structuredClone(result);
-  mutate(trustedV144Result);
+  const trustedResult = structuredClone(result);
+  mutate(trustedResult);
   expect(() =>
-    assertTrustedSimulationResultV144(trustedV144Result)
+    assertTrustedSimulationResult(trustedResult)
   ).toThrow(
     expectedMessage ??
-      /Trusted SimulationResult 1\.44 integrity validation failed/
-  );
-
-  const trustedCurrentResult = structuredClone(result);
-  mutate(trustedCurrentResult);
-  expect(() =>
-    assertTrustedSimulationResult(trustedCurrentResult)
-  ).toThrow(
-    expectedMessage ??
-      /Trusted SimulationResult 1\.44 integrity validation failed/
+      /Trusted SimulationResult 1\.45 integrity validation failed/
   );
 }
 
@@ -527,9 +516,8 @@ describe("Crystallize shard and shield simulation", () => {
       sourceElementalMastery: 300
     });
     expect(
-      simulationResultV144Schema.safeParse(result).success
+      simulationResultSchema.safeParse(result).success
     ).toBe(true);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 

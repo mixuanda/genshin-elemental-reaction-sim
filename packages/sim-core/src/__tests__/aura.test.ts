@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import {
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  migrateConfig,
+  simConfigV144Schema,
+  simConfigV145Schema,
+  type SimConfig
+} from "@genshin-dps-lab/schemas";
 import { AURA_ENGINE_CONSTANTS, AuraEngine } from "../aura";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -1462,27 +1469,54 @@ describe("Aura engine simulation integration", () => {
     );
   });
 
-  it("preserves ampBase for an explicitly enabled debug reaction override", () => {
-    const config = makeAuraTimelineConfig(false);
-    config.reactionEngine = {
+  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.45", () => {
+    const current = makeAuraTimelineConfig(false);
+    current.reactionEngine = {
       mode: "aura-v1",
       debugAllowReactionOverride: true
     };
-    config.timeline!.abilities[0]!.hits![0]!.reactionOverride =
+    current.timeline!.abilities[0]!.hits![0]!.reactionOverride =
       "melt";
-    config.timeline!.abilities[0]!.hits![0]!.ampBase = 2.5;
+    current.timeline!.abilities[0]!.hits![0]!.ampBase = 2.5;
 
-    const result = simulate(config, { critMode: "noCrit" });
+    const {
+      reactionFormulaModel: _reactionFormulaModel,
+      ...legacyPayload
+    } = structuredClone(current);
+    const frozenV144 = {
+      ...legacyPayload,
+      schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    };
 
-    expect(result.damageEvents[0]).toMatchObject({
-      reaction: "melt",
-      reactionAudit: {
-        model: "manual-override"
-      },
-      damageFactors: {
-        reactionBase: 2.5
-      }
-    });
+    expect(simConfigV144Schema.parse(frozenV144)).toEqual(
+      frozenV144
+    );
+    expect(() => migrateConfig(frozenV144)).toThrow(
+      /timeline\.abilities\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
+    );
+    const currentParse = simConfigV145Schema.safeParse(current);
+    expect(currentParse.success).toBe(false);
+    if (!currentParse.success) {
+      expect(currentParse.error.issues).toContainEqual(
+        expect.objectContaining({
+          path: [
+            "timeline",
+            "abilities",
+            0,
+            "hits",
+            0,
+            "ampBase"
+          ],
+          message: expect.stringMatching(
+            /ampBase is forbidden by the 1\.45 formula-root contract/
+          )
+        })
+      );
+    }
+    expect(() => simulate(current, { critMode: "noCrit" })).toThrow(
+      /timeline\.abilities\.0\.hits\.0\.ampBase: ampBase is forbidden by the 1\.45 formula-root contract/
+    );
   });
 
   it.each(["aura-v2", "aura-v3"] as const)(

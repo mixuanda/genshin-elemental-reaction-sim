@@ -1,7 +1,6 @@
 import {
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  simulationResultSchema,
   type EnemyTargetProfile,
   type FrameHitDefinition,
   type SimConfig,
@@ -124,13 +123,10 @@ function makeV3Scenario({
   };
 }
 
-function expectCurrentV144Result(
+function expectCurrentResult(
   result: SimulationResult
 ): void {
-  expect(simulationResultV144Schema.parse(result)).toEqual(
-    result
-  );
-  expect(assertTrustedSimulationResultV144(result)).toBe(
+  expect(simulationResultSchema.parse(result)).toEqual(
     result
   );
   expect(assertTrustedSimulationResult(result)).toBe(result);
@@ -503,7 +499,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         makeFrozenBoundaryConfig(ownerBeforeRecipient),
         { critMode: "noCrit" }
       );
-      expectCurrentV144Result(result);
+      expectCurrentResult(result);
 
       const { phase: ownerPhase, task, delivery } =
         burningDeliveryAt(result, 176, 8);
@@ -609,7 +605,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
     const result = simulate(makeHitlagConfig(), {
       critMode: "noCrit"
     });
-    expectCurrentV144Result(result);
+    expectCurrentResult(result);
 
     const { phase, task, delivery } = burningDeliveryAt(
       result,
@@ -692,7 +688,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
       makeBeforeReactableRecipientHitlagConfig(),
       { critMode: "noCrit" }
     );
-    expectCurrentV144Result(result);
+    expectCurrentResult(result);
 
     const { delivery } = burningDeliveryAt(result, 15, 1);
     const recipientAttempt = attemptFor(
@@ -749,7 +745,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
     const result = simulate(makeOverloadChildConfig(), {
       critMode: "noCrit"
     });
-    expectCurrentV144Result(result);
+    expectCurrentResult(result);
 
     const { delivery } = burningDeliveryAt(result, 15, 1);
     const recipientAttempt = attemptFor(
@@ -818,7 +814,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
     const result = simulate(makeAttemptCoverageConfig(), {
       critMode: "noCrit"
     });
-    expectCurrentV144Result(result);
+    expectCurrentResult(result);
 
     const { delivery } = burningDeliveryAt(result, 15, 1);
     expect(delivery.attempts).toEqual([
@@ -884,8 +880,8 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
     const first = simulate(config, { critMode: "noCrit" });
     const second = simulate(config, { critMode: "noCrit" });
 
-    expectCurrentV144Result(first);
-    expectCurrentV144Result(second);
+    expectCurrentResult(first);
+    expectCurrentResult(second);
     expect(second).toStrictEqual(first);
   });
 });

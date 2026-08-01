@@ -4,6 +4,9 @@ import {
   type CharacterStats,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
+import {
+  CLASSIC_REACTION_FORMULA_PROFILE_ID
+} from "@genshin-dps-lab/reaction-formulas";
 
 export const neutralStats: CharacterStats = {
   baseAtk: 1000,
@@ -43,6 +46,11 @@ export function makeConfig(
     overrides.electroChargedPropagationModel ?? {
       mode: "single-target-v1" as const
     };
+  const reactionFormulaModel =
+    overrides.reactionFormulaModel ?? {
+      mode: "classic-formula-profile-v1" as const,
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -79,6 +87,7 @@ export function makeConfig(
     targetClockModel,
     targetTaskModel,
     reactionDeliveryModel,
-    electroChargedPropagationModel
+    electroChargedPropagationModel,
+    reactionFormulaModel
   };
 }

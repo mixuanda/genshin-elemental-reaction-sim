@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./src/index.ts",
   "dependencies": {
+    "@genshin-dps-lab/reaction-formulas": "1.0.0",
     "@genshin-dps-lab/schemas": "1.0.0"
   }
 }
-

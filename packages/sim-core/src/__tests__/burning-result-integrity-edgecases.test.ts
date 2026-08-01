@@ -1,6 +1,6 @@
 import {
-  assertTrustedSimulationResultV144,
-  simulationResultV144Schema,
+  assertTrustedSimulationResult,
+  simulationResultSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -327,7 +327,7 @@ function shiftBurningFuelAuraDeadlines(
 function expectAcceptedAtBothBoundaries(
   result: SimulationResult
 ): void {
-  const parsed = simulationResultV144Schema.safeParse(result);
+  const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
@@ -340,18 +340,18 @@ function expectAcceptedAtBothBoundaries(
       )
     );
   }
-  expect(assertTrustedSimulationResultV144(result)).toBe(result);
+  expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
 function expectRejectedAtBothBoundaries(
   result: SimulationResult
 ): void {
-  expect(simulationResultV144Schema.safeParse(result).success).toBe(
+  expect(simulationResultSchema.safeParse(result).success).toBe(
     false
   );
   expect(() =>
-    assertTrustedSimulationResultV144(result)
-  ).toThrow(/Trusted SimulationResult 1\.44 integrity validation failed/);
+    assertTrustedSimulationResult(result)
+  ).toThrow(/Trusted SimulationResult 1\.45 integrity validation failed/);
 }
 
 function appendUnownedStop(
@@ -705,7 +705,7 @@ describe("Burning result integrity edge cases", () => {
     startEvent.reactionAudit.burningReaction = null;
     startAlias.reactionAudit.burningReaction = null;
 
-    const parsed = simulationResultV144Schema.safeParse(result);
+    const parsed = simulationResultSchema.safeParse(result);
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.issues).toContainEqual(
@@ -722,9 +722,9 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.44 integrity validation failed/
+      /Trusted SimulationResult 1\.45 integrity validation failed/
     );
   });
 
@@ -922,7 +922,7 @@ describe("Burning result integrity edge cases", () => {
     aliasAudit.nextTickFrame = driftedDeadline;
     start.nextTickFrame = driftedDeadline;
 
-    const parsed = simulationResultV144Schema.safeParse(result);
+    const parsed = simulationResultSchema.safeParse(result);
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.issues).toContainEqual(
@@ -941,9 +941,9 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.44 integrity validation failed/
+      /Trusted SimulationResult 1\.45 integrity validation failed/
     );
   });
 
@@ -1021,7 +1021,7 @@ describe("Burning result integrity edge cases", () => {
       );
     }
 
-    const parsed = simulationResultV144Schema.safeParse(result);
+    const parsed = simulationResultSchema.safeParse(result);
     expect(parsed.success).toBe(false);
     if (!parsed.success) {
       expect(parsed.error.issues).toContainEqual(
@@ -1038,9 +1038,9 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() =>
-      assertTrustedSimulationResultV144(result)
+      assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.44 integrity validation failed/
+      /Trusted SimulationResult 1\.45 integrity validation failed/
     );
   });
 

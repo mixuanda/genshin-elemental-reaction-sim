@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   assertTrustedSimulationResult,
-  assertTrustedSimulationResultV144,
   createVersionedContentHash,
-  simulationResultV144Schema,
+  simulationResultSchema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
@@ -338,7 +337,7 @@ describe("aura-v3 Dendro and Catalyze", () => {
     if (aggravate === undefined) {
       throw new Error("Catalyze fixture must produce Aggravate.");
     }
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
 
     for (const [quickenGaugeUnitsBefore, quickenGaugeUnitsAfter] of [
       [0.8, 0.7],
@@ -365,12 +364,12 @@ describe("aura-v3 Dendro and Catalyze", () => {
       }
 
       expect(
-        simulationResultV144Schema.safeParse(forged).success
+        simulationResultSchema.safeParse(forged).success
       ).toBe(false);
       expect(() =>
-        assertTrustedSimulationResultV144(forged)
+        assertTrustedSimulationResult(forged)
       ).toThrow(
-        /Trusted SimulationResult 1\.44 integrity validation failed/
+        /Trusted SimulationResult 1\.45 integrity validation failed/
       );
     }
   });
@@ -894,8 +893,8 @@ describe("Catalyze simulation integration", () => {
         point.cause.startsWith("electro-charged-")
       )
     ).toEqual([]);
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
 
     const legalPeriodicAudit = new AuraEngine({
       mode: "aura-v3",
@@ -921,13 +920,13 @@ describe("Catalyze simulation integration", () => {
           structuredClone(legalPeriodicAudit);
       }
     }
-    expect(simulationResultV144Schema.safeParse(forged).success).toBe(
+    expect(simulationResultSchema.safeParse(forged).success).toBe(
       false
     );
     expect(() =>
-      assertTrustedSimulationResultV144(forged)
+      assertTrustedSimulationResult(forged)
     ).toThrow(
-      /Trusted SimulationResult 1\.44 integrity validation failed/
+      /Trusted SimulationResult 1\.45 integrity validation failed/
     );
   });
 
@@ -2079,8 +2078,7 @@ describe("Catalyze simulation integration", () => {
     };
 
     const result = simulate(config, { critMode: "noCrit" });
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
     const expectedTransformative =
       calcTransformativeReactionDamage({

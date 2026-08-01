@@ -33,7 +33,7 @@ export interface DamageFlatComponents {
  * Aggravate/Spread hits because a total-flat override cannot say which
  * component changed.
  */
-export type DamagePluginChanges = Omit<
+export type LegacyDamagePluginChanges = Omit<
   Partial<DamageCalculationInput>,
   "flatDamage"
 > & {
@@ -41,6 +41,41 @@ export type DamagePluginChanges = Omit<
   ordinaryFlatDamage?: number;
   additiveReactionFlatDamage?: number;
 };
+
+/**
+ * Formula-bound damage changes accepted by the current simulation path.
+ *
+ * Reaction identity and its amplifying base are owned by the audited Aura
+ * result and the fixed reaction-formula profile. They are intentionally not
+ * plugin extension points. `LegacyDamagePluginChanges` remains available so
+ * frozen result versions can be replayed without silently changing their
+ * historical plugin contract.
+ */
+export type FormulaBoundDamagePluginChanges = Omit<
+  LegacyDamagePluginChanges,
+  "reaction" | "explicitReactionBase"
+>;
+
+/**
+ * Historical public alias retained for source compatibility. The simulator
+ * must call `assertFormulaBoundDamagePluginChanges` before applying changes on
+ * the current formula-profile path.
+ */
+export type DamagePluginChanges = LegacyDamagePluginChanges;
+
+export function assertFormulaBoundDamagePluginChanges(
+  changes: DamagePluginChanges | void,
+  pluginId: string
+): asserts changes is FormulaBoundDamagePluginChanges | void {
+  if (changes === undefined) return;
+  for (const field of ["reaction", "explicitReactionBase"] as const) {
+    if (Object.prototype.hasOwnProperty.call(changes, field)) {
+      throw new Error(
+        `Damage plugin "${pluginId}" cannot override formula-bound field "${field}".`
+      );
+    }
+  }
+}
 
 export interface DamagePluginContext {
   config: SimConfig;

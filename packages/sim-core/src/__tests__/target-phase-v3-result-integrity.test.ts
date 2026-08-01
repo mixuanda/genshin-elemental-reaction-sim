@@ -1,10 +1,12 @@
 import {
+  assertTrustedSimulationResult,
   assertTrustedSimulationResultV142,
   assertTrustedSimulationResultV144,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  simulationResultSchema,
   simulationResultV142Schema,
   simulationResultV144Schema,
   targetPhaseV3ResultReferencesSchema,
@@ -396,11 +398,11 @@ function deliveredTasks(
 function expectBothBoundariesToReject(
   result: SimulationResult
 ): void {
-  expect(simulationResultV144Schema.safeParse(result).success).toBe(
+  expect(simulationResultSchema.safeParse(result).success).toBe(
     false
   );
   expect(() =>
-    assertTrustedSimulationResultV144(result)
+    assertTrustedSimulationResult(result)
   ).toThrow(/integrity validation failed/);
 }
 
@@ -424,8 +426,8 @@ describe("target-phase-v3 result integrity", () => {
     });
 
     expect(Object.keys(result)).toHaveLength(65);
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
 
     const deliveries = deliveredTasks(result);
     // One-second legal-frame runs include the F60 boundary, so the
@@ -491,8 +493,8 @@ describe("target-phase-v3 result integrity", () => {
       }
     ];
     const result = simulate(config, { critMode: "noCrit" });
-    expect(simulationResultV144Schema.parse(result)).toEqual(result);
-    expect(assertTrustedSimulationResultV144(result)).toBe(result);
+    expect(simulationResultSchema.parse(result)).toEqual(result);
+    expect(assertTrustedSimulationResult(result)).toBe(result);
 
     const delivery = deliveredTasks(result)[0]!.task.delivery;
     const attempt = delivery.attempts.find(
@@ -922,13 +924,19 @@ describe("target-phase-v3 result integrity", () => {
     ).toBe(false);
   });
 
-  it("keeps the frozen 1.42 boundaries identity-exact", () => {
+  it("keeps the frozen 1.42 and 1.44 boundaries identity-exact", () => {
     const current = simulate(makeTargetPhaseV3BurningConfig());
     expect(simulationResultV142Schema.safeParse(current).success).toBe(
+      false
+    );
+    expect(simulationResultV144Schema.safeParse(current).success).toBe(
       false
     );
     expect(() =>
       assertTrustedSimulationResultV142(current)
     ).toThrow(/frozen schema 1\.42\.0/);
+    expect(() =>
+      assertTrustedSimulationResultV144(current)
+    ).toThrow(/integrity validation failed/);
   });
 });

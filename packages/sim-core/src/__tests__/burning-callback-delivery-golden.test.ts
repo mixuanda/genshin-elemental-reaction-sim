@@ -7,16 +7,23 @@ import {
 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
-  assertTrustedSimulationResultV144,
+  BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+  BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV145,
   canonicalStringify,
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  simulationResultV144Schema,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
+  simConfigV144Schema,
+  simulationResultV145Schema,
+  simulationRunManifestV144Schema,
   targetPhaseV3ResultReferencesSchema,
   type DamageEvent,
   type HitResolutionLogEntry,
   type SimConfig,
+  type SimConfigV144,
   type SimulationResult,
+  type SimulationRunManifestV144,
   type TargetPhaseV3DeliveryAttempt,
   type TargetPhaseV3LogEntry,
   type TargetStateTimelinePoint
@@ -309,9 +316,58 @@ function projectAttempt(
   };
 }
 
+/**
+ * The callback fixture is an exact 1.44 wire. Current simulations run under
+ * 1.45 and bind the fixed formula profile in both config and run manifest, so
+ * compare their unchanged callback semantics through an explicit frozen-1.44
+ * identity projection instead of rewriting the historical fixture.
+ */
+function projectCurrentConfigToFrozenV144(
+  config: SimConfig
+): SimConfigV144 {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    ...frozenCommon
+  } = config;
+  return simConfigV144Schema.parse({
+    ...frozenCommon,
+    schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+  });
+}
+
+function projectCurrentManifestToFrozenV144(
+  result: SimulationResult,
+  frozenConfig: SimConfigV144
+): SimulationRunManifestV144 {
+  const identity = {
+    version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+    identityAlgorithm: result.runManifest.identityAlgorithm,
+    schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
+    dataVersion: result.runManifest.dataVersion,
+    configHash: createSimulationConfigHash(frozenConfig),
+    resolvedRuntimeOptions:
+      result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins
+  } satisfies Omit<
+    SimulationRunManifestV144,
+    "reproducibilityKey"
+  >;
+  return simulationRunManifestV144Schema.parse({
+    ...identity,
+    reproducibilityKey:
+      createSimulationReproducibilityKey(identity)
+  });
+}
+
 function projectBurningCallbackScenario(
   result: SimulationResult
 ) {
+  const frozenConfig =
+    projectCurrentConfigToFrozenV144(result.config);
+  const frozenManifest =
+    projectCurrentManifestToFrozenV144(result, frozenConfig);
   const ownerPhase = requireOne(
     result.targetPhaseLog.filter(
       (phase): phase is TargetPhaseV3LogEntry =>
@@ -433,20 +489,21 @@ function projectBurningCallbackScenario(
 
   return {
     identity: {
-      schemaVersion: result.schemaVersion,
-      engineVersion: result.engineVersion,
+      schemaVersion: frozenManifest.schemaVersion,
+      engineVersion: frozenManifest.engineVersion,
       dataVersion: result.dataVersion,
       randomSeed: result.randomSeed,
-      configHash: result.runManifest.configHash,
-      reproducibilityKey: result.reproducibilityKey,
-      runManifest: result.runManifest,
+      configHash: frozenManifest.configHash,
+      reproducibilityKey:
+        frozenManifest.reproducibilityKey,
+      runManifest: frozenManifest,
       resolvedRuntimeOptions:
         result.resolvedRuntimeOptions,
       compatibilityMode: result.compatibilityMode,
       mechanicsStatus: result.mechanicsStatus,
-      configSemanticHash: semanticHash(result.config)
+      configSemanticHash: semanticHash(frozenConfig)
     },
-    config: result.config,
+    config: frozenConfig,
     callback: {
       ownerPhase: {
         id: ownerPhase.id,
@@ -548,8 +605,10 @@ interface BurningCallbackGoldenFixture {
     limitations: string[];
   };
   commonConfig: {
-    schemaVersion: typeof CURRENT_SCHEMA_VERSION;
-    engineVersion: typeof CURRENT_ENGINE_VERSION;
+    schemaVersion:
+      typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+    engineVersion:
+      typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
     reactionEngine: { mode: "aura-v9" };
     targetClockModel: { mode: "disabled" };
     targetTaskModel: { mode: "target-phase-v3" };
@@ -748,10 +807,10 @@ describe("Burning callback delivery 1.44 Golden", () => {
       critMode: "noCrit"
     });
     expect(repeated).toStrictEqual(first);
-    expect(simulationResultV144Schema.parse(first)).toEqual(
+    expect(simulationResultV145Schema.parse(first)).toEqual(
       first
     );
-    expect(assertTrustedSimulationResultV144(first)).toBe(
+    expect(assertTrustedSimulationResultV145(first)).toBe(
       first
     );
     expect(
@@ -781,8 +840,8 @@ describe("Burning callback delivery 1.44 Golden", () => {
         ]
       },
       commonConfig: {
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION,
+        schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+        engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
         reactionEngine: { mode: "aura-v9" },
         targetClockModel: { mode: "disabled" },
         targetTaskModel: { mode: "target-phase-v3" },
