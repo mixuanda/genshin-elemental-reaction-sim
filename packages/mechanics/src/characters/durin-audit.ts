@@ -5,7 +5,8 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -69,6 +70,10 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   elementalApplicationIcdModel: {
     mode: "fixed-gcsim-elemental-application-v1",
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  },
+  reactionOwnedElementalApplicationModel: {
+    mode: "fixed-gcsim-reaction-owned-application-v1",
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
@@ -361,6 +366,10 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
   elementalApplicationIcdModel: {
     mode: "fixed-gcsim-elemental-application-v1",
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  },
+  reactionOwnedElementalApplicationModel: {
+    mode: "fixed-gcsim-reaction-owned-application-v1",
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",

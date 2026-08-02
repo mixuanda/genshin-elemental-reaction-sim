@@ -1,6 +1,6 @@
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
-  type ClassicReactionFormulaRoot
+  type ClassicReactionFormulaRoot,
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
@@ -8,58 +8,54 @@ import {
   type GcsimDamageGroupRoot,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   type GcsimElementalApplicationRoot,
-  type PublicGcsimElementalApplicationGroupId
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  type GcsimReactionOwnedApplicationBinding,
+  type GcsimReactionOwnedApplicationPolicyRoot,
+  type GcsimSwirlPropagationElement,
+  type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
 
-export const TARGET_TASK_PHASE_SCHEMA_VERSION =
-  "1.37.0" as const;
+export const TARGET_TASK_PHASE_SCHEMA_VERSION = "1.37.0" as const;
 export const TARGET_TASK_PHASE_ENGINE_VERSION =
   "1.37.0-target-task-phase" as const;
-export const TARGET_REACTABLE_PHASE_SCHEMA_VERSION =
-  "1.38.0" as const;
+export const TARGET_REACTABLE_PHASE_SCHEMA_VERSION = "1.38.0" as const;
 export const TARGET_REACTABLE_PHASE_ENGINE_VERSION =
   "1.38.0-target-reactable-phase" as const;
-export const SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION =
-  "1.39.0" as const;
+export const SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION = "1.39.0" as const;
 export const SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION =
   "1.39.0-shatter-recursive-delivery" as const;
 export const EC_NEXT_TARGET_TICK_SCHEMA_VERSION = "1.40.0" as const;
 export const EC_NEXT_TARGET_TICK_ENGINE_VERSION =
   "1.40.0-ec-next-target-tick-cleanup" as const;
-export const EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION =
-  "1.41.0" as const;
+export const EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION = "1.41.0" as const;
 export const EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION =
   "1.41.0-ec-secondary-wet-propagation" as const;
-export const EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION =
-  "1.42.0" as const;
+export const EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION = "1.42.0" as const;
 export const EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION =
   "1.42.0-ec-global-cadence-safety" as const;
-export const BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION =
-  "1.44.0" as const;
+export const BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION = "1.44.0" as const;
 export const BURNING_CALLBACK_DELIVERY_ENGINE_VERSION =
   "1.44.0-burning-callback-delivery" as const;
-export const REACTION_FORMULA_ROOT_SCHEMA_VERSION =
-  "1.45.0" as const;
+export const REACTION_FORMULA_ROOT_SCHEMA_VERSION = "1.45.0" as const;
 export const REACTION_FORMULA_ROOT_ENGINE_VERSION =
   "1.45.0-reaction-formula-root" as const;
-export const DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION =
-  "1.46.0" as const;
+export const DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION = "1.46.0" as const;
 export const DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION =
   "1.46.0-direct-damage-group-root" as const;
-export const ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION =
-  "1.47.0" as const;
+export const ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION = "1.47.0" as const;
 export const ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION =
   "1.47.0-elemental-application-icd-root" as const;
-export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
-  "1.36.0" as const;
+export const REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION = "1.48.0" as const;
+export const REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION =
+  "1.48.0-reaction-owned-application-root" as const;
+export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION = "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
-export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
-  "1.35.0" as const;
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION = "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
 export const GENERAL_REACTION_ORDER_SCHEMA_VERSION = "1.34.0" as const;
@@ -69,19 +65,17 @@ export const TARGET_LOCAL_HITLAG_SCHEMA_VERSION = "1.33.0" as const;
 export const TARGET_LOCAL_HITLAG_ENGINE_VERSION =
   "1.33.0-target-local-hitlag" as const;
 /** Frozen run-manifest wire used by the 1.42 and 1.44 result schemas. */
-export const LEGACY_SIMULATION_RUN_MANIFEST_VERSION =
-  "1.0.0" as const;
+export const LEGACY_SIMULATION_RUN_MANIFEST_VERSION = "1.0.0" as const;
 /** Frozen 1.45 run-manifest wire; 1.1 adds the reaction-formula trust root. */
-export const REACTION_FORMULA_RUN_MANIFEST_VERSION =
-  "1.1.0" as const;
+export const REACTION_FORMULA_RUN_MANIFEST_VERSION = "1.1.0" as const;
 /** Frozen 1.46 run-manifest wire; 1.2 binds the direct-damage-group root. */
-export const DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION =
-  "1.2.0" as const;
-/** Current run-manifest wire; 1.3 also binds the application-ICD root. */
-export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION =
-  "1.3.0" as const;
+export const DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION = "1.2.0" as const;
+/** Frozen 1.47 run-manifest wire; 1.3 binds the direct-application ICD root. */
+export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION = "1.3.0" as const;
+/** Current run-manifest wire; 1.4 also binds the reaction-owned policy root. */
+export const REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION = "1.4.0" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION =
-  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION;
+  REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -92,16 +86,13 @@ export const DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION =
  * This identity algorithm is intentionally versioned and non-cryptographic.
  * It detects ordinary configuration drift; it is not an integrity signature.
  */
-export const REPRODUCIBILITY_IDENTITY_ALGORITHM =
-  "fnv1a32-v2" as const;
+export const REPRODUCIBILITY_IDENTITY_ALGORITHM = "fnv1a32-v2" as const;
 export const BURNING_REACTION_SCHEMA_VERSION = "1.30.0" as const;
 export const BURNING_REACTION_ENGINE_VERSION =
   "1.30.0-burning-reaction" as const;
 export const DENDRO_CORE_SCHEMA_VERSION = "1.31.0" as const;
-export const DENDRO_CORE_ENGINE_VERSION =
-  "1.31.0-dendro-cores" as const;
-export const PLAYER_REACTION_DAMAGE_SCHEMA_VERSION =
-  "1.32.0" as const;
+export const DENDRO_CORE_ENGINE_VERSION = "1.31.0-dendro-cores" as const;
+export const PLAYER_REACTION_DAMAGE_SCHEMA_VERSION = "1.32.0" as const;
 export const PLAYER_REACTION_DAMAGE_ENGINE_VERSION =
   "1.32.0-player-reaction-damage" as const;
 export const CATALYZE_REACTION_SCHEMA_VERSION = "1.29.0" as const;
@@ -149,27 +140,15 @@ export type Element =
   | "physical";
 
 export type AmplifyingReaction =
-  | "none"
-  | "melt"
-  | "reverseMelt"
-  | "vaporize"
-  | "reverseVaporize";
+  "none" | "melt" | "reverseMelt" | "vaporize" | "reverseVaporize";
 
-export type OneShotTransformativeReaction =
-  | "overload"
-  | "superconduct";
+export type OneShotTransformativeReaction = "overload" | "superconduct";
 export type PeriodicTransformativeReaction = "electroCharged";
 export type BurningReaction = "burning";
-export type DendroCoreReaction =
-  | "bloom"
-  | "burgeon"
-  | "hyperbloom";
+export type DendroCoreReaction = "bloom" | "burgeon" | "hyperbloom";
 export type ShatterReaction = "shatter";
 export type SwirlReaction =
-  | "swirlPyro"
-  | "swirlHydro"
-  | "swirlCryo"
-  | "swirlElectro";
+  "swirlPyro" | "swirlHydro" | "swirlCryo" | "swirlElectro";
 export type CrystallizeReaction =
   | "crystallizePyro"
   | "crystallizeHydro"
@@ -184,9 +163,7 @@ export type UnsupportedMechanicsBranch =
   | "non-pyro-multi-reaction-order";
 /** @deprecated Use UnsupportedMechanicsBranch for new integrations. */
 export type UnsupportedDendroReaction = UnsupportedMechanicsBranch;
-export type MechanicsResolutionStatus =
-  | "authoritative"
-  | "mechanics-truncated";
+export type MechanicsResolutionStatus = "authoritative" | "mechanics-truncated";
 export type SimulationMechanicsStatus = "complete" | "partial";
 export type TransformativeReaction =
   | OneShotTransformativeReaction
@@ -196,9 +173,7 @@ export type TransformativeReaction =
   | SwirlReaction
   | DendroCoreReaction;
 export type NonDamageReaction =
-  | "freeze"
-  | QuickenReaction
-  | CrystallizeReaction;
+  "freeze" | QuickenReaction | CrystallizeReaction;
 export type ReactionType =
   | AmplifyingReaction
   | TransformativeReaction
@@ -214,22 +189,14 @@ export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
 export type AbilityKind = "skill" | "burst" | "normal" | "charge";
-export type AbilityFollowupKind =
-  | AbilityKind
-  | "dash"
-  | "jump"
-  | "swap";
+export type AbilityFollowupKind = AbilityKind | "dash" | "jump" | "swap";
 export type AuraElement = Extract<
   Element,
   "pyro" | "cryo" | "hydro" | "electro"
 >;
 export type PersistentAuraElement = AuraElement | "dendro";
 export type AuraStateElement =
-  | PersistentAuraElement
-  | "quicken"
-  | "frozen"
-  | "burning"
-  | "burningFuel";
+  PersistentAuraElement | "quicken" | "frozen" | "burning" | "burningFuel";
 export type IcdGroup = string;
 export type ParticleElement = Exclude<Element, "physical"> | "neutral";
 export type ParticleKind = "particle" | "orb";
@@ -239,13 +206,9 @@ export type TargetDamagePolicy = "normal" | "immune";
 export type TargetAuraPolicy = "normal" | "blocked";
 export type TargetHitConfirmPolicy = "normal" | "blocked";
 export type PlayerReactionSelfDamageKind =
-  | "burning"
-  | "bloom"
-  | "burgeon"
-  | "hyperbloom";
+  "burning" | "bloom" | "burgeon" | "hyperbloom";
 export type PlayerSelfDamageStatus =
-  | "unsupported-player-damage-model"
-  | "modeled-player-reaction-damage";
+  "unsupported-player-damage-model" | "modeled-player-reaction-damage";
 
 export interface PlayerElementalResistances {
   pyro: number;
@@ -289,8 +252,7 @@ export interface ReactionSelfPlayerDamageModel {
 }
 
 export type PlayerDamageModel =
-  | DisabledPlayerDamageModel
-  | ReactionSelfPlayerDamageModel;
+  DisabledPlayerDamageModel | ReactionSelfPlayerDamageModel;
 
 export interface TargetEffectPolicy {
   damage: TargetDamagePolicy;
@@ -374,8 +336,58 @@ export interface ElementalApplication {
  * persisted V146/V147 configs remain separately exact.
  */
 export type AnyElementalApplication =
-  | ElementalApplication
-  | LegacyElementalApplicationV146;
+  ElementalApplication | LegacyElementalApplicationV146;
+
+/**
+ * Closed engine-owned channel set for reaction-derived applications.
+ * Callers cannot supply an ICD tag, group, element override, or policy id.
+ */
+export type TrustedReactionElementalApplicationChannel =
+  | { kind: "burning-tick" }
+  | {
+      kind: "swirl-propagation";
+      element: GcsimSwirlPropagationElement;
+    };
+
+/**
+ * Narrow input accepted by the trusted reaction-application state machine.
+ * Burning has no authorable Gauge field: the policy fixes it at 1U. Swirl
+ * alone carries the Gauge propagated by the owning reaction calculation.
+ */
+export type TrustedReactionElementalApplicationInput =
+  | {
+      frame: number;
+      sourceActorId: string;
+      channel: { kind: "burning-tick" };
+    }
+  | {
+      frame: number;
+      sourceActorId: string;
+      channel: {
+        kind: "swirl-propagation";
+        element: GcsimSwirlPropagationElement;
+      };
+      nominalGaugeUnits: number;
+    };
+
+/**
+ * Auditable selector derived from a trusted channel and the compiled policy.
+ * This is output provenance, never a user-authorable persisted hit selector.
+ */
+export type TrustedReactionElementalApplicationSelector =
+  | {
+      mode: "fixed-gcsim-reaction-owned-application-v1";
+      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+      channel: { kind: "burning-tick" };
+    }
+  | {
+      mode: "fixed-gcsim-reaction-owned-application-v1";
+      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+      channel: {
+        kind: "swirl-propagation";
+        element: GcsimSwirlPropagationElement;
+      };
+    };
 
 export interface InitialAuraApplication {
   element: PersistentAuraElement;
@@ -427,8 +439,7 @@ export interface AuraReactionEngineConfig {
  * the reaction rule set.
  */
 export type TargetClockModel =
-  | { mode: "disabled" }
-  | { mode: "target-local-hitlag-v1" };
+  { mode: "disabled" } | { mode: "target-local-hitlag-v1" };
 
 /**
  * Selects how target-owned tasks share the simulator's ordering boundary.
@@ -655,9 +666,7 @@ export interface TargetHitlagDefinition {
   factor: number;
 }
 
-export interface HitDefinition<
-  TApplication = ElementalApplication
-> {
+export interface HitDefinition<TApplication = ElementalApplication> {
   id?: string;
   offset: number;
   label?: string;
@@ -786,9 +795,7 @@ export interface ParticleDefinition {
   };
 }
 
-export interface ActionDefinition<
-  TApplication = ElementalApplication
-> {
+export interface ActionDefinition<TApplication = ElementalApplication> {
   id: string;
   actorId: string;
   name: string;
@@ -815,9 +822,10 @@ export type RotationCommand = ActionDefinition<ElementalApplication>;
 export type LegacyRotationCommandV146 =
   ActionDefinition<LegacyElementalApplicationV146>;
 
-export type FrameHitDefinition<
-  TApplication = ElementalApplication
-> = Omit<HitDefinition<TApplication>, "offset"> & {
+export type FrameHitDefinition<TApplication = ElementalApplication> = Omit<
+  HitDefinition<TApplication>,
+  "offset"
+> & {
   frame: number;
 };
 
@@ -885,9 +893,7 @@ export interface AbilityTimelineState {
   grants?: TimelineStateGrant[];
 }
 
-export interface AbilityDefinition<
-  TApplication = ElementalApplication
-> {
+export interface AbilityDefinition<TApplication = ElementalApplication> {
   id: string;
   actorId: string;
   name: string;
@@ -950,9 +956,7 @@ export type LegalTimelineCommand =
   | TimelineAbilityCommand
   | TimelineCrystallizePickupCommand;
 
-export interface LegalTimelineConfig<
-  TApplication = ElementalApplication
-> {
+export interface LegalTimelineConfig<TApplication = ElementalApplication> {
   mode: "legal-frame-v1";
   fps: 60;
   legalityMode: TimelineLegalityMode;
@@ -1000,9 +1004,19 @@ export interface ElementalApplicationIcdModel {
   profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
 }
 
-interface SimConfigCommon<
-  TApplication = ElementalApplication
-> {
+/**
+ * Fixed, engine-owned reaction application policy selected by 1.48 configs.
+ *
+ * This model is deliberately not an authorable per-hit selector. Trusted
+ * reaction channels resolve their tag, group, element, and Gauge rules from
+ * the compiled policy root.
+ */
+export interface ReactionOwnedElementalApplicationModel {
+  mode: "fixed-gcsim-reaction-owned-application-v1";
+  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+}
+
+interface SimConfigCommon<TApplication = ElementalApplication> {
   dataVersion: string;
   randomSeed: string;
   meta: ConfigMeta;
@@ -1024,8 +1038,7 @@ interface SimConfigCommon<
   /** Every pre-1.39 configuration migrates to deferred heap delivery. */
   reactionDeliveryModel: ReactionDeliveryModel;
   /** Every pre-1.41 configuration migrates to source-only EC damage. */
-  electroChargedPropagationModel:
-    ElectroChargedPropagationModel;
+  electroChargedPropagationModel: ElectroChargedPropagationModel;
 }
 
 export type TargetTaskModelV142 = Exclude<
@@ -1034,41 +1047,37 @@ export type TargetTaskModelV142 = Exclude<
 >;
 
 /** Exact persisted config shape for the frozen 1.42 wire. */
-export interface SimConfigV142
-  extends Omit<
-    SimConfigCommon<LegacyElementalApplicationV146>,
-    "targetTaskModel"
-  > {
+export interface SimConfigV142 extends Omit<
+  SimConfigCommon<LegacyElementalApplicationV146>,
+  "targetTaskModel"
+> {
   schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
   targetTaskModel: TargetTaskModelV142;
 }
 
 /** Exact persisted config shape for the frozen 1.44 wire. */
-export interface SimConfigV144
-  extends SimConfigCommon<LegacyElementalApplicationV146> {
+export interface SimConfigV144 extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
 }
 
 /** Frozen 1.45 config shape. The formula profile participates in configHash. */
-export interface SimConfigV145
-  extends SimConfigCommon<LegacyElementalApplicationV146> {
+export interface SimConfigV145 extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
   reactionFormulaModel: ReactionFormulaModel;
 }
 
 /** Frozen 1.46 config shape. Both fixed mechanics roots bind configHash. */
-export interface SimConfigV146
-  extends SimConfigCommon<LegacyElementalApplicationV146> {
+export interface SimConfigV146 extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   reactionFormulaModel: ReactionFormulaModel;
   directDamageGroupModel: DirectDamageGroupModel;
 }
 
-/** Current 1.47 config. All elemental applications use explicit selectors. */
+/** Frozen 1.47 config. All configured applications use explicit selectors. */
 export interface SimConfigV147 extends SimConfigCommon {
   schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
   engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
@@ -1077,14 +1086,25 @@ export interface SimConfigV147 extends SimConfigCommon {
   elementalApplicationIcdModel: ElementalApplicationIcdModel;
 }
 
-export type SimConfig = SimConfigV147;
+/** Current 1.48 config binds the exact trusted reaction-application policy. */
+export interface SimConfigV148 extends SimConfigCommon {
+  schemaVersion: typeof REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
+}
+
+export type SimConfig = SimConfigV148;
 
 export type VersionedSimConfig =
   | SimConfigV142
   | SimConfigV144
   | SimConfigV145
   | SimConfigV146
-  | SimConfigV147;
+  | SimConfigV147
+  | SimConfigV148;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1115,8 +1135,7 @@ export interface DamagePluginDescriptor {
   contentHash: string;
 }
 
-export interface DamagePluginManifestEntry
-  extends DamagePluginDescriptor {
+export interface DamagePluginManifestEntry extends DamagePluginDescriptor {
   /** Execution order. Plugin ordering is semantic and is never sorted. */
   order: number;
   /** Redundant array-position guard used by the strict runtime Schema. */
@@ -1134,16 +1153,14 @@ interface SimulationRunManifestCommon {
 }
 
 /** Exact run-manifest shape embedded in frozen 1.42 results. */
-export interface SimulationRunManifestV142
-  extends SimulationRunManifestCommon {
+export interface SimulationRunManifestV142 extends SimulationRunManifestCommon {
   version: typeof LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
 }
 
 /** Exact run-manifest shape embedded in frozen 1.44 results. */
-export interface SimulationRunManifestV144
-  extends SimulationRunManifestCommon {
+export interface SimulationRunManifestV144 extends SimulationRunManifestCommon {
   version: typeof LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
@@ -1153,8 +1170,7 @@ export interface SimulationRunManifestV144
 export type ReactionFormulaRoot = ClassicReactionFormulaRoot;
 
 /** Frozen 1.45 run manifest. */
-export interface SimulationRunManifestV145
-  extends SimulationRunManifestCommon {
+export interface SimulationRunManifestV145 extends SimulationRunManifestCommon {
   version: typeof REACTION_FORMULA_RUN_MANIFEST_VERSION;
   schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
@@ -1165,8 +1181,7 @@ export interface SimulationRunManifestV145
 export type DirectDamageGroupRoot = GcsimDamageGroupRoot;
 
 /** Frozen 1.46 run manifest. */
-export interface SimulationRunManifestV146
-  extends SimulationRunManifestCommon {
+export interface SimulationRunManifestV146 extends SimulationRunManifestCommon {
   version: typeof DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION;
   schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
@@ -1175,12 +1190,10 @@ export interface SimulationRunManifestV146
 }
 
 /** Exact pinned elemental-application ICD root embedded in 1.47 manifests. */
-export type ElementalApplicationIcdRoot =
-  GcsimElementalApplicationRoot;
+export type ElementalApplicationIcdRoot = GcsimElementalApplicationRoot;
 
-/** Current 1.47 run manifest binds all three fixed mechanics roots. */
-export interface SimulationRunManifestV147
-  extends SimulationRunManifestCommon {
+/** Frozen 1.47 run manifest binds the first three fixed mechanics roots. */
+export interface SimulationRunManifestV147 extends SimulationRunManifestCommon {
   version: typeof ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION;
   schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
   engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
@@ -1189,14 +1202,30 @@ export interface SimulationRunManifestV147
   elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV147;
+/** Exact pinned reaction-owned application policy root embedded in 1.48. */
+export type ReactionOwnedElementalApplicationRoot =
+  GcsimReactionOwnedApplicationPolicyRoot;
+
+/** Current 1.48 run manifest binds all four fixed mechanics roots. */
+export interface SimulationRunManifestV148 extends SimulationRunManifestCommon {
+  version: typeof REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV148;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
   | SimulationRunManifestV144
   | SimulationRunManifestV145
   | SimulationRunManifestV146
-  | SimulationRunManifestV147;
+  | SimulationRunManifestV147
+  | SimulationRunManifestV148;
 
 export type SimulationEventType =
   | "action"
@@ -1290,11 +1319,7 @@ export interface AuraSourceGaugeMutation {
 }
 
 export interface ReactionAudit {
-  model:
-    | "none"
-    | "manual-override"
-    | "aura-engine"
-    | "reaction-damage";
+  model: "none" | "manual-override" | "aura-engine" | "reaction-damage";
   triggered: boolean;
   reaction: ReactionType;
   /** Ordered reactions observed on this hit; preserves valid multi-reactions. */
@@ -1347,9 +1372,7 @@ export interface TargetMechanicsTruncationAudit {
   unsupportedReactions: UnsupportedDendroReaction[];
   /** Aura state discarded when the unsupported branch was first reached. */
   discardedAura: AuraStateEntry[];
-  reason:
-    | "UNSUPPORTED_DENDRO_REACTION"
-    | "UNSUPPORTED_REACTION_ORDER";
+  reason: "UNSUPPORTED_DENDRO_REACTION" | "UNSUPPORTED_REACTION_ORDER";
 }
 
 export interface QuickenReactionAudit {
@@ -1394,15 +1417,10 @@ export interface CatalyzeReactionAudit {
 }
 
 export type BurningReactionOperation =
-  | "start"
-  | "refresh-fuel"
-  | "refresh-snapshot"
-  | "stop";
+  "start" | "refresh-fuel" | "refresh-snapshot" | "stop";
 
 export type QuickenDecayEndCause =
-  | "QUICKEN_DECAY"
-  | "BURNING_FUEL_EXPIRED"
-  | null;
+  "QUICKEN_DECAY" | "BURNING_FUEL_EXPIRED" | null;
 
 /**
  * Quicken lifetime change caused by a Burning/Fuel boundary.
@@ -1461,12 +1479,8 @@ export interface BurningReactionAudit {
   quickenStateMutation: QuickenDecayMutationAudit;
   snapshotFrame: number;
   snapshotTargetFrame?: number;
-  clockModel:
-    | "target-local-no-hitlag"
-    | "target-local-hitlag-v1";
-  hitlagStatus:
-    | "unsupported-enemy-hitlag"
-    | "modeled-enemy-hitlag";
+  clockModel: "target-local-no-hitlag" | "target-local-hitlag-v1";
+  hitlagStatus: "unsupported-enemy-hitlag" | "modeled-enemy-hitlag";
   firstTickFrame: number | null;
   nextTickFrame: number | null;
   firstTickTargetFrame?: number | null;
@@ -1485,11 +1499,7 @@ export interface BurningReactionAudit {
  * more than one record, so ReactionAudit owns an ordered array.
  */
 export interface BloomQuickenStateMutationAudit {
-  operation:
-    | "none"
-    | "decay-rebase"
-    | "partial-consume"
-    | "remove";
+  operation: "none" | "decay-rebase" | "partial-consume" | "remove";
   generationBefore: number;
   generationAfter: number;
   decayPerFrameBefore: number;
@@ -1510,10 +1520,7 @@ export interface BloomQuickenStateMutationAudit {
  * Reactable.Tick purges the dependent state on the next frame.
  */
 export interface BloomBurningFuelStateMutationAudit {
-  operation:
-    | "none"
-    | "expiry-rebase"
-    | "deplete-pending-purge";
+  operation: "none" | "expiry-rebase" | "deplete-pending-purge";
   generation: number | null;
   decayPerFrame: number;
   expiresAtFrameBefore: number | null;
@@ -1554,9 +1561,7 @@ export interface BloomReactionAudit {
 }
 
 export type ReactionTaskBlockedReason =
-  | "MISSING_QUICKEN"
-  | "MISSING_HYDRO"
-  | "TARGET_MECHANICS_TRUNCATION";
+  "MISSING_QUICKEN" | "MISSING_HYDRO" | "TARGET_MECHANICS_TRUNCATION";
 
 interface ElectroChargedCleanupAuditBase {
   generation: number;
@@ -1678,8 +1683,7 @@ export interface QuickenBloomFollowupTaskLogEntry {
   mechanicsDataStatus: "fixed-gcsim-provisional";
 }
 
-export type ReactionTaskLogEntry =
-  QuickenBloomFollowupTaskLogEntry;
+export type ReactionTaskLogEntry = QuickenBloomFollowupTaskLogEntry;
 
 export interface TransformativeReactionAudit {
   reaction: OneShotTransformativeReaction;
@@ -1688,10 +1692,7 @@ export interface TransformativeReactionAudit {
   damageFrame: number;
   radius: number;
   baseMultiplier: number;
-  blockedReason:
-    | "REACTION_DAMAGE_GCD"
-    | "TARGET_MECHANICS_TRUNCATION"
-    | null;
+  blockedReason: "REACTION_DAMAGE_GCD" | "TARGET_MECHANICS_TRUNCATION" | null;
   nextAvailableFrame: number;
   statusEffect: ReactionStatusEffectDefinition | null;
 }
@@ -1941,8 +1942,7 @@ export interface DirectDamageGroupLogEntry {
    * not serialized into the result.
    */
   pluginMultiplierTrace: DirectDamageGroupPluginMultiplierTraceEntry[];
-  pluginTraceVerification:
-    typeof DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION;
+  pluginTraceVerification: typeof DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION;
   /** postPluginMultiplier multiplied by sequenceMultiplier. */
   effectiveMultiplier: number;
   /** Only the generic gcsim-style OnEnemyHit signal is gated by the sequence. */
@@ -1950,9 +1950,19 @@ export interface DirectDamageGroupLogEntry {
 }
 
 export type ElementalApplicationIcdSkippedReason =
+  "miss" | "target-aura-blocked" | "no-aura-engine" | "mechanics-truncated";
+
+/**
+ * Closed skip set for trusted reaction-owned delivery in 1.48.
+ *
+ * A trusted Burning/Swirl delivery can only be scheduled by an Aura engine,
+ * so `no-aura-engine` is a fail-closed invariant violation rather than a
+ * serializable reaction-owned outcome. The wider 1.47 configured-hit reason
+ * remains frozen above for compatibility.
+ */
+export type ReactionOwnedElementalApplicationIcdSkippedReasonV148 =
   | "miss"
   | "target-aura-blocked"
-  | "no-aura-engine"
   | "mechanics-truncated";
 
 /**
@@ -1963,6 +1973,16 @@ export interface ElementalApplicationIcdSkippedDecision {
   kind: "skipped";
   evaluated: false;
   reason: ElementalApplicationIcdSkippedReason;
+  consumed: false;
+  applicationMultiplier: 0;
+  allowed: false;
+}
+
+/** Exact skipped decision admitted by a trusted 1.48 reaction-owned row. */
+export interface ReactionOwnedElementalApplicationIcdSkippedDecisionV148 {
+  kind: "skipped";
+  evaluated: false;
+  reason: ReactionOwnedElementalApplicationIcdSkippedReasonV148;
   consumed: false;
   applicationMultiplier: 0;
   allowed: false;
@@ -2034,21 +2054,80 @@ export interface ElementalApplicationFixedGcsimDecision {
   hitIndex: number;
   sequenceIndex: number;
   tailPolicy: "clamp";
-  resetSchedulePolicy:
-    "window-start-plus-reset-frames-minus-one";
+  resetSchedulePolicy: "window-start-plus-reset-frames-minus-one";
 }
 
-export type ElementalApplicationIcdDecision =
+/**
+ * Trusted numeric decision derived only from the compiled reaction-owned
+ * policy. Burning and Swirl propagation consume reserved fixed ICD groups;
+ * neither can be selected by an ordinary configured hit.
+ */
+interface ElementalApplicationReactionFixedGcsimDecisionBase {
+  kind: "reaction-fixed-gcsim";
+  evaluated: true;
+  consumed: true;
+  applicationMultiplier: number;
+  allowed: boolean;
+  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+  profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
+  resetFrames: number;
+  windowStartFrame: number;
+  resetAtFrame: number;
+  hitIndex: number;
+  sequenceIndex: number;
+  tailPolicy: "clamp";
+  resetSchedulePolicy: "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one";
+}
+
+/** Target-global fixed Burning window selected by the trusted tick channel. */
+export interface ElementalApplicationReactionBurningFixedGcsimDecision extends ElementalApplicationReactionFixedGcsimDecisionBase {
+  scope: "trusted-target-global-burning-projection";
+  icdTag: Extract<
+    GcsimReactionOwnedApplicationBinding,
+    { sourceKind: "burning-tick" }
+  >["sourceIcdTag"];
+  groupId: "burning";
+  windowStartGroupId: "burning";
+}
+
+/** Actor-tag fixed ReactionA window selected by a trusted Swirl channel. */
+export interface ElementalApplicationReactionSwirlFixedGcsimDecision extends ElementalApplicationReactionFixedGcsimDecisionBase {
+  scope: "actor-tag";
+  icdTag: Extract<
+    GcsimReactionOwnedApplicationBinding,
+    { sourceKind: "swirl-propagation" }
+  >["sourceIcdTag"];
+  groupId: "reaction-a";
+  windowStartGroupId: "reaction-a";
+}
+
+/** Closed union which preserves each trusted channel's scope/tag/group tuple. */
+export type ElementalApplicationReactionFixedGcsimDecision =
+  | ElementalApplicationReactionBurningFixedGcsimDecision
+  | ElementalApplicationReactionSwirlFixedGcsimDecision;
+
+/** Closed decision union for trusted 1.48 reaction-owned application rows. */
+export type ReactionOwnedElementalApplicationIcdDecisionV148 =
+  | ReactionOwnedElementalApplicationIcdSkippedDecisionV148
+  | ElementalApplicationReactionFixedGcsimDecision;
+
+/** Exact direct/configured application decision union frozen at 1.47. */
+export type ElementalApplicationIcdDecisionV147 =
   | ElementalApplicationIcdSkippedDecision
   | ElementalApplicationNoIcdDecision
   | ElementalApplicationLegacyProfileDecision
   | ElementalApplicationFixedGcsimDecision;
 
+/** Current unified decision union, including trusted reaction channels. */
+export type ElementalApplicationIcdDecision =
+  | ElementalApplicationIcdDecisionV147
+  | ElementalApplicationReactionFixedGcsimDecision;
+
 /**
  * One auditable decision for each target attempt of a configured direct-hit
  * elemental application. Reaction-owned applications are outside 1.47.
  */
-export interface ElementalApplicationIcdLogEntry {
+export interface ElementalApplicationIcdLogEntryV147 {
   id: number;
   sourceKind: "configured-direct-hit";
   hitResolutionLogId: number;
@@ -2062,10 +2141,65 @@ export interface ElementalApplicationIcdLogEntry {
   selector: ElementalApplicationIcdSelector;
   nominalGaugeUnits: number;
   effectiveGaugeUnits: number;
-  decision: ElementalApplicationIcdDecision;
+  decision: ElementalApplicationIcdDecisionV147;
 }
 
-export interface DamageEvent {
+interface ReactionOwnedElementalApplicationIcdLogEntryV148Base {
+  id: number;
+  reactionDamageLogId: number;
+  hitResolutionLogId: number;
+  damageEventId: number | null;
+  frame: number;
+  eventPriority: number;
+  eventSequence: number;
+  /** Zero-based, contiguous order in the owning reaction delivery. */
+  attemptIndex: number;
+  attemptCount: number;
+  deliveryPhase:
+    "reaction-damage-event" | "before-reactable-tick" | "after-reactable-tick";
+  sourceActorId: string;
+  targetId: TargetId;
+  hitId: string;
+  hitGroupId: string;
+  nominalGaugeUnits: number;
+  effectiveGaugeUnits: number;
+  decision: ReactionOwnedElementalApplicationIcdDecisionV148;
+}
+
+/** Trusted fixed Burning application target attempt. */
+export interface BurningElementalApplicationIcdLogEntryV148 extends ReactionOwnedElementalApplicationIcdLogEntryV148Base {
+  sourceKind: "burning-tick";
+  selector: Extract<
+    TrustedReactionElementalApplicationSelector,
+    { channel: { kind: "burning-tick" } }
+  >;
+  element: "pyro";
+}
+
+/** Trusted fixed Swirl propagation application target attempt. */
+export interface SwirlPropagationElementalApplicationIcdLogEntryV148 extends ReactionOwnedElementalApplicationIcdLogEntryV148Base {
+  sourceKind: "swirl-propagation";
+  selector: Extract<
+    TrustedReactionElementalApplicationSelector,
+    { channel: { kind: "swirl-propagation" } }
+  >;
+  element: GcsimSwirlPropagationElement;
+}
+
+export type ReactionOwnedElementalApplicationIcdLogEntryV148 =
+  | BurningElementalApplicationIcdLogEntryV148
+  | SwirlPropagationElementalApplicationIcdLogEntryV148;
+
+/** Current unified application log; the 1.47 direct row remains unchanged. */
+export type ElementalApplicationIcdLogEntryV148 =
+  | ElementalApplicationIcdLogEntryV147
+  | ReactionOwnedElementalApplicationIcdLogEntryV148;
+
+export type ElementalApplicationIcdLogEntry =
+  ElementalApplicationIcdLogEntryV148;
+
+/** Exact damage-event wire frozen at 1.47. */
+export interface DamageEventV147 {
   id: number;
   kind: "direct" | "transformative-reaction";
   /** Authoritative event-queue ordering used by result timelines. */
@@ -2155,6 +2289,13 @@ export interface DamageEvent {
   debuffs: string[];
 }
 
+/** Current damage event with a reciprocal unified-application audit link. */
+export interface DamageEventV148 extends DamageEventV147 {
+  elementalApplicationIcdLogId: number | null;
+}
+
+export type DamageEvent = DamageEventV148;
+
 export interface SkippedAction {
   time: number;
   frame: number;
@@ -2230,16 +2371,14 @@ export interface ParticleTriggerLogEntry {
   confirmedTargetIds: TargetId[];
   triggered: boolean;
   blockedReason:
-    | "INTERNAL_COOLDOWN"
-    | "TARGET_MISS"
-    | "TARGET_HIT_CONFIRM_BLOCKED"
-    | null;
+    "INTERNAL_COOLDOWN" | "TARGET_MISS" | "TARGET_HIT_CONFIRM_BLOCKED" | null;
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
   internalCooldownReadyFrame: number | null;
 }
 
-export interface HitResolutionLogEntry {
+/** Exact hit-resolution wire frozen at 1.47. */
+export interface HitResolutionLogEntryV147 {
   id: number;
   frame: number;
   timeSeconds: number;
@@ -2303,6 +2442,14 @@ export interface HitResolutionLogEntry {
   timelineCommandIndex?: number;
   sourceAbilityId?: string;
 }
+
+/** Current hit-resolution row with reciprocal reaction/application links. */
+export interface HitResolutionLogEntryV148 extends HitResolutionLogEntryV147 {
+  reactionDamageLogId: number | null;
+  elementalApplicationIcdLogId: number | null;
+}
+
+export type HitResolutionLogEntry = HitResolutionLogEntryV148;
 
 export interface TargetPhaseTimelineEntry extends TargetPhaseDefinition {
   startTimeSeconds: number;
@@ -2436,10 +2583,7 @@ export interface AuraTimelinePoint {
  * of joining the legacy state logs heuristically.
  */
 export type TargetStateTimelinePointKind =
-  | "boundary"
-  | "derived"
-  | "observation"
-  | "mutation";
+  "boundary" | "derived" | "observation" | "mutation";
 
 export type TargetStateTimelineCause =
   | "simulation-start"
@@ -2532,17 +2676,11 @@ export interface TargetMechanicsTruncationLogEntry {
   triggerDamageEventId: number;
   unsupportedReactions: UnsupportedDendroReaction[];
   discardedAura: AuraStateEntry[];
-  reason:
-    | "UNSUPPORTED_DENDRO_REACTION"
-    | "UNSUPPORTED_REACTION_ORDER";
+  reason: "UNSUPPORTED_DENDRO_REACTION" | "UNSUPPORTED_REACTION_ORDER";
 }
 
 export interface ReactionADamageGroupAudit {
-  reaction:
-    | SwirlReaction
-    | DendroCoreReaction
-    | "shatter"
-    | "superconduct";
+  reaction: SwirlReaction | DendroCoreReaction | "shatter" | "superconduct";
   sourceActorId: string;
   targetId: TargetId;
   windowStartFrame: number;
@@ -2566,8 +2704,7 @@ export interface ReactionBDamageGroupAudit {
 }
 
 export type ReactionDamageGroupAudit =
-  | ReactionADamageGroupAudit
-  | ReactionBDamageGroupAudit;
+  ReactionADamageGroupAudit | ReactionBDamageGroupAudit;
 
 export type ElectroChargedPropagationCandidateReason =
   | "SOURCE_STREAM_TARGET"
@@ -2602,13 +2739,13 @@ export interface ElectroChargedPropagationAudit {
   eventPriority: number;
   eventSequence: number;
   radius: number;
-  selectionMode:
-    "all-in-range-registration-order-v1";
+  selectionMode: "all-in-range-registration-order-v1";
   sourcePosition: { x: number; y: number } | null;
   candidates: ElectroChargedPropagationCandidateAudit[];
 }
 
-export interface ReactionDamageLogEntry {
+/** Exact queued reaction-damage audit wire frozen at 1.47. */
+export interface ReactionDamageLogEntryV147 {
   id: number;
   reaction: TransformativeReaction;
   triggerDamageEventId: number | null;
@@ -2643,8 +2780,7 @@ export interface ReactionDamageLogEntry {
     | "nearest-target-radius"
     | "electro-charged-nearby-wet";
   /** Exact 1.41 audit for provisional EC nearby-Wet propagation. */
-  electroChargedPropagation?:
-    ElectroChargedPropagationAudit;
+  electroChargedPropagation?: ElectroChargedPropagationAudit;
   centerPosition: { x: number; y: number } | null;
   radius: number;
   /** Dendro-core source and Hyperbloom selection audit. */
@@ -2668,6 +2804,14 @@ export interface ReactionDamageLogEntry {
   damageGroupDecisions: ReactionDamageGroupAudit[];
 }
 
+/** Current reaction-damage audit with complete reciprocal target-attempt links. */
+export interface ReactionDamageLogEntryV148 extends ReactionDamageLogEntryV147 {
+  hitResolutionLogIds: number[];
+  elementalApplicationIcdLogIds: number[];
+}
+
+export type ReactionDamageLogEntry = ReactionDamageLogEntryV148;
+
 export interface DendroCoreLogBase {
   id: number;
   coreId: number;
@@ -2683,24 +2827,16 @@ export interface DendroCoreLogBase {
   coreDurationFrames: 300;
   hitboxRadius: 2;
   maxActiveCores: 5;
-  clockModel:
-    | "global-frame-no-hitlag"
-    | "global-frame-gadget-v1";
-  hitlagStatus:
-    | "unsupported-enemy-hitlag"
-    | "not-affected-by-enemy-hitlag";
+  clockModel: "global-frame-no-hitlag" | "global-frame-gadget-v1";
+  hitlagStatus: "unsupported-enemy-hitlag" | "not-affected-by-enemy-hitlag";
   mechanicsDataStatus: "fixed-gcsim-provisional";
   selfDamageStatus: PlayerSelfDamageStatus;
 }
 
-export interface DendroCoreSpawnScheduledLogEntry
-  extends DendroCoreLogBase {
+export interface DendroCoreSpawnScheduledLogEntry extends DendroCoreLogBase {
   operation: "spawn-scheduled";
   /** Bloom can originate from a direct hit, propagation, or queued follow-up. */
-  eventType:
-    | "hit"
-    | "reactionDamage"
-    | "quickenBloomFollowup";
+  eventType: "hit" | "reactionDamage" | "quickenBloomFollowup";
   /** Present only when the Bloom audit is owned by reactionTaskLog. */
   reactionTaskLogId?: number;
   bloomReactionIndex: number;
@@ -2724,11 +2860,7 @@ export interface DendroCoreSpawnLogEntry extends DendroCoreLogBase {
 
 export interface DendroCoreRemovalLogEntry extends DendroCoreLogBase {
   operation: "expire" | "evict" | "consume";
-  eventType:
-    | "dendroCoreExpiry"
-    | "dendroCoreSpawn"
-    | "hit"
-    | "reactionDamage";
+  eventType: "dendroCoreExpiry" | "dendroCoreSpawn" | "hit" | "reactionDamage";
   reaction: DendroCoreReaction;
   reactionDamageLogId: number;
   playerHitResolutionLogId: number | null;
@@ -2788,11 +2920,7 @@ export interface DendroCoreTimelinePoint {
   id: number;
   frame: number;
   timeSeconds: number;
-  eventType:
-    | "dendroCoreSpawn"
-    | "dendroCoreExpiry"
-    | "hit"
-    | "reactionDamage";
+  eventType: "dendroCoreSpawn" | "dendroCoreExpiry" | "hit" | "reactionDamage";
   eventPriority: number;
   eventSequence: number;
   intraEventSequence: number;
@@ -2965,12 +3093,8 @@ export interface BurningStateLogEntry {
   /** Stable same-frame ordering copied from the scheduled simulator event. */
   eventPriority: number;
   eventSequence: number;
-  clockModel:
-    | "target-local-no-hitlag"
-    | "target-local-hitlag-v1";
-  hitlagStatus:
-    | "unsupported-enemy-hitlag"
-    | "modeled-enemy-hitlag";
+  clockModel: "target-local-no-hitlag" | "target-local-hitlag-v1";
+  hitlagStatus: "unsupported-enemy-hitlag" | "modeled-enemy-hitlag";
   targetId: TargetId;
   targetName: string;
   triggerElement: Element | null;
@@ -3021,13 +3145,11 @@ export interface BurningStateLogEntry {
     false,
     false,
     false,
-    false
+    false,
   ];
   applicationAllowed: boolean | null;
   applicationBlockedReason:
-    | "BURNING_APPLICATION_ICD"
-    | "TARGET_AURA_BLOCKED"
-    | null;
+    "BURNING_APPLICATION_ICD" | "TARGET_AURA_BLOCKED" | null;
   selfDamageStatus: PlayerSelfDamageStatus;
   reason: BurningStopReason;
 }
@@ -3140,10 +3262,7 @@ export interface PlayerDamageEvent {
   displayDamage: number;
 }
 
-export type PlayerHpTimelineOperation =
-  | "initial"
-  | "damage"
-  | "simulation-end";
+export type PlayerHpTimelineOperation = "initial" | "damage" | "simulation-end";
 
 export interface PlayerHpTimelinePoint {
   id: number;
@@ -3179,11 +3298,7 @@ export interface PlayerHpSummary {
 }
 
 export type CrystallizeShardOperation =
-  | "spawn"
-  | "pickup-attempt"
-  | "pickup"
-  | "expire"
-  | "evict";
+  "spawn" | "pickup-attempt" | "pickup" | "expire" | "evict";
 
 export interface CrystallizeShardLogEntry {
   id: number;
@@ -3220,11 +3335,7 @@ export interface CrystallizeShardLogEntry {
 }
 
 export type CrystallizeShieldOperation =
-  | "add"
-  | "overwrite"
-  | "absorb"
-  | "break"
-  | "expire";
+  "add" | "overwrite" | "absorb" | "break" | "expire";
 
 export interface CrystallizeShieldLogEntry {
   id: number;
@@ -3477,18 +3588,17 @@ interface TargetTaskPhaseLogEntryBase {
  * One target-owned phase at a global-frame boundary. The discriminant records
  * whether the phase was woken by a target callback or by incoming work.
  */
-export type TargetTaskPhaseLogEntry =
-  TargetTaskPhaseLogEntryBase &
-    (
-      | {
-          wakeKind: "burning-tick";
-          eventType: "burningTick";
-        }
-      | {
-          wakeKind: "incoming";
-          eventType: "hit" | "reactionDamage";
-        }
-    );
+export type TargetTaskPhaseLogEntry = TargetTaskPhaseLogEntryBase &
+  (
+    | {
+        wakeKind: "burning-tick";
+        eventType: "burningTick";
+      }
+    | {
+        wakeKind: "incoming";
+        eventType: "hit" | "reactionDamage";
+      }
+  );
 
 /**
  * One Burning callback executed by the target-local task queue before the
@@ -3574,10 +3684,7 @@ export type TargetLifecycleTransition =
       targetStateTimelinePointId: number;
     } & (
       | {
-          outcome:
-            | "stop"
-            | "natural-expiry"
-            | "ended-before-deadline";
+          outcome: "stop" | "natural-expiry" | "ended-before-deadline";
           periodicReactionLogId: number;
         }
       | {
@@ -3624,12 +3731,10 @@ interface TargetPhaseV3DeliveryAttemptBase {
   order: number;
   targetId: TargetId;
   targetOrder: number;
-  applicationPhase:
-    | "before-reactable-tick"
-    | "after-reactable-tick";
+  applicationPhase: "before-reactable-tick" | "after-reactable-tick";
 }
 
-export type TargetPhaseV3DeliveryAttempt =
+export type TargetPhaseV3DeliveryAttemptV147 =
   | (TargetPhaseV3DeliveryAttemptBase & {
       outcome: "landed";
       hitResolutionLogId: number;
@@ -3650,16 +3755,54 @@ export type TargetPhaseV3DeliveryAttempt =
     });
 
 /**
+ * Current inline Burning delivery attempt. Landed and missed target checks
+ * both own unified application-log rows; unresolved candidates do not.
+ */
+export type TargetPhaseV3DeliveryAttemptV148 =
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "landed";
+      hitResolutionLogId: number;
+      damageEventId: number;
+      elementalApplicationIcdLogId: number;
+      targetStateTimelinePointId: number;
+    })
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "miss";
+      hitResolutionLogId: number;
+      damageEventId: null;
+      elementalApplicationIcdLogId: number;
+      targetStateTimelinePointId: null;
+    })
+  | (TargetPhaseV3DeliveryAttemptBase & {
+      outcome: "unresolved";
+      hitResolutionLogId: null;
+      damageEventId: null;
+      elementalApplicationIcdLogId: null;
+      targetStateTimelinePointId: null;
+    });
+
+export type TargetPhaseV3DeliveryAttempt = TargetPhaseV3DeliveryAttemptV148;
+
+/**
  * Complete cross-target Burning application projection delivered inline by
  * one target-owned callback.
  */
-export interface TargetPhaseV3Delivery {
+export interface TargetPhaseV3DeliveryV147 {
   model: "burning-callback-zero-delay-v1";
   reactionDamageLogId: number;
   eventPriority: number;
   eventSequence: number;
-  attempts: TargetPhaseV3DeliveryAttempt[];
+  attempts: TargetPhaseV3DeliveryAttemptV147[];
 }
+
+export interface TargetPhaseV3DeliveryV148 extends Omit<
+  TargetPhaseV3DeliveryV147,
+  "attempts"
+> {
+  attempts: TargetPhaseV3DeliveryAttemptV148[];
+}
+
+export type TargetPhaseV3Delivery = TargetPhaseV3DeliveryV148;
 
 /**
  * v3 preserves the v2 callback task wire and adds optional inline delivery.
@@ -3667,19 +3810,37 @@ export interface TargetPhaseV3Delivery {
  * a real tick (delivery required) or a skipped/stopped/stale callback
  * (delivery forbidden).
  */
-export type TargetPhaseV3TargetTask = TargetPhaseV2TargetTask & {
-  delivery: TargetPhaseV3Delivery | null;
+export type TargetPhaseV3TargetTaskV147 = TargetPhaseV2TargetTask & {
+  delivery: TargetPhaseV3DeliveryV147 | null;
 };
+
+export type TargetPhaseV3TargetTaskV148 = TargetPhaseV2TargetTask & {
+  delivery: TargetPhaseV3DeliveryV148 | null;
+};
+
+export type TargetPhaseV3TargetTask = TargetPhaseV3TargetTaskV148;
 
 /**
  * v3 retains the v2 QueueEnemyTask then Reactable.Tick boundary while making
  * a Burning callback's cross-target application delivery explicit and inline.
  */
-export interface TargetPhaseV3LogEntry
-  extends Omit<TargetPhaseV2LogEntry, "model" | "targetTasks"> {
+export interface TargetPhaseV3LogEntryV147 extends Omit<
+  TargetPhaseV2LogEntry,
+  "model" | "targetTasks"
+> {
   model: "target-phase-v3";
-  targetTasks: TargetPhaseV3TargetTask[];
+  targetTasks: TargetPhaseV3TargetTaskV147[];
 }
+
+export interface TargetPhaseV3LogEntryV148 extends Omit<
+  TargetPhaseV2LogEntry,
+  "model" | "targetTasks"
+> {
+  model: "target-phase-v3";
+  targetTasks: TargetPhaseV3TargetTaskV148[];
+}
+
+export type TargetPhaseV3LogEntry = TargetPhaseV3LogEntryV148;
 
 export interface SimulationResult {
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
@@ -3701,14 +3862,14 @@ export interface SimulationResult {
   actorPoses: ActorPoseDefinition[];
   /** Effective per-target stats after applying shared enemy defaults. */
   enemyTargets: ResolvedEnemyTargetProfile[];
-  damageEvents: DamageEvent[];
-  hitEvents: DamageEvent[];
+  damageEvents: DamageEventV148[];
+  hitEvents: DamageEventV148[];
   /** Ordinary direct-damage sequence and hit-callback decisions. */
   directDamageGroupLog: DirectDamageGroupLogEntry[];
   /** Numeric elemental-application ICD decisions for configured target attempts. */
-  elementalApplicationIcdLog: ElementalApplicationIcdLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV148[];
   /** Every scheduled target check, including misses that did no damage. */
-  hitResolutionLog: HitResolutionLogEntry[];
+  hitResolutionLog: HitResolutionLogEntryV148[];
   /** Versioned target-clock mode and per-target final state. */
   targetClockAudit: TargetClockAudit;
   /** Compact, replayable target-clock transitions. */
@@ -3718,13 +3879,11 @@ export interface SimulationResult {
   /** Replayable target-owned task and Aura-decay phase boundaries. */
   targetTaskPhaseLog: TargetTaskPhaseLogEntry[];
   /** Target-local QueueEnemyTask then Reactable.Tick boundaries for v2/v3. */
-  targetPhaseLog: Array<
-    TargetPhaseV2LogEntry | TargetPhaseV3LogEntry
-  >;
+  targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
-  reactionDamageLog: ReactionDamageLogEntry[];
+  reactionDamageLog: ReactionDamageLogEntryV148[];
   /** Deferred live-Aura reaction operations in execution order. */
   reactionTaskLog: ReactionTaskLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
@@ -3799,11 +3958,25 @@ type VersionedSimulationResultIdentityFields =
   | "config"
   | "runManifest"
   | "directDamageGroupLog"
-  | "elementalApplicationIcdLog";
+  | "elementalApplicationIcdLog"
+  | "damageEvents"
+  | "hitEvents"
+  | "hitResolutionLog"
+  | "reactionDamageLog"
+  | "targetPhaseLog";
+
+type FrozenV147NestedResultLogs = {
+  damageEvents: DamageEventV147[];
+  hitEvents: DamageEventV147[];
+  hitResolutionLog: HitResolutionLogEntryV147[];
+  reactionDamageLog: ReactionDamageLogEntryV147[];
+  targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV147>;
+};
 
 /**
- * Frozen 1.42 top-level result identity. Nested audit unions stay deliberately
- * broad here; the exact frozen Zod schema remains the runtime authority.
+ * Frozen 1.42 top-level result identity. Shared nested wires are projected to
+ * the last pre-unified 1.47 shapes; exact frozen Zod schemas remain runtime
+ * authority for fields introduced after each historical boundary.
  */
 export type SimulationResultForV142 = Omit<
   SimulationResult,
@@ -3813,7 +3986,7 @@ export type SimulationResultForV142 = Omit<
   engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
   config: SimConfigV142;
   runManifest: SimulationRunManifestV142;
-};
+} & FrozenV147NestedResultLogs;
 
 /** Frozen 1.44 top-level result identity. */
 export type SimulationResultForV144 = Omit<
@@ -3824,7 +3997,7 @@ export type SimulationResultForV144 = Omit<
   engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   config: SimConfigV144;
   runManifest: SimulationRunManifestV144;
-};
+} & FrozenV147NestedResultLogs;
 
 /** Frozen 1.45 top-level result identity. */
 export type SimulationResultForV145 = Omit<
@@ -3835,7 +4008,7 @@ export type SimulationResultForV145 = Omit<
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
   config: SimConfigV145;
   runManifest: SimulationRunManifestV145;
-};
+} & FrozenV147NestedResultLogs;
 
 /** Frozen 1.46 result identity and direct-damage-group audit. */
 export type SimulationResultForV146 = Omit<
@@ -3847,14 +4020,28 @@ export type SimulationResultForV146 = Omit<
   config: SimConfigV146;
   runManifest: SimulationRunManifestV146;
   directDamageGroupLog: DirectDamageGroupLogEntry[];
-};
+} & FrozenV147NestedResultLogs;
 
-/** Current 1.47 result identity and elemental-application ICD audit. */
-export type SimulationResultForV147 = SimulationResult;
+/** Frozen 1.47 result identity and direct-only application audit. */
+export type SimulationResultForV147 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+  config: SimConfigV147;
+  runManifest: SimulationRunManifestV147;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV147[];
+} & FrozenV147NestedResultLogs;
+
+/** Current 1.48 result identity and unified reaction-owned application audit. */
+export type SimulationResultForV148 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
   | SimulationResultForV144
   | SimulationResultForV145
   | SimulationResultForV146
-  | SimulationResultForV147;
+  | SimulationResultForV147
+  | SimulationResultForV148;

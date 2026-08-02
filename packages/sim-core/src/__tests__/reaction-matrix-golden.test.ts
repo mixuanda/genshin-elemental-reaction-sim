@@ -571,13 +571,14 @@ function compactEvent(event: SimulationResult["damageEvents"][number]) {
 const V147_APPLICATION_WIRE_ONLY_KEYS = new Set([
   "applicationIcdDecision",
   "applicationIcdLogId",
+  "elementalApplicationIcdLogId",
   "applicationMultiplier",
   "nominalApplicationGaugeUnits",
   "effectiveApplicationGaugeUnits"
 ]);
 
 /**
- * Keep the 1.42 classic-reaction semantic digest stable across the 1.47
+ * Keep the 1.42 classic-reaction semantic digest stable across the 1.48
  * application-ICD wire bump. The old digest intentionally proves reaction,
  * Aura, damage, and task behavior; it must not rotate merely because a
  * no-ICD selector moved from legacy tag/group fields into a top-level audit
@@ -593,8 +594,13 @@ function stripV147ApplicationWireOnlyFields(
   );
 }
 
+type ClassicReactionDamageSemanticProjection =
+  | "historical-v147"
+  | "current-v148";
+
 function classicReactionDamageEventsForSemanticDigest(
-  result: SimulationResult
+  result: SimulationResult,
+  projection: ClassicReactionDamageSemanticProjection
 ): unknown {
   const noIcdApplicationByDamageEventId = new Map(
     result.elementalApplicationIcdLog
@@ -602,6 +608,26 @@ function classicReactionDamageEventsForSemanticDigest(
         (entry) =>
           entry.damageEventId !== null &&
           entry.decision.kind === "no-icd"
+      )
+      .map((entry) => [entry.damageEventId!, entry] as const)
+  );
+  const allowedReactionOwnedSwirlByDamageEventId = new Map(
+    result.elementalApplicationIcdLog
+      .filter(
+        (entry) =>
+          entry.sourceKind === "swirl-propagation" &&
+          entry.damageEventId !== null &&
+          entry.decision.kind === "reaction-fixed-gcsim" &&
+          entry.decision.allowed
+      )
+      .map((entry) => [entry.damageEventId!, entry] as const)
+  );
+  const reactionOwnedBurningByDamageEventId = new Map(
+    result.elementalApplicationIcdLog
+      .filter(
+        (entry) =>
+          entry.sourceKind === "burning-tick" &&
+          entry.damageEventId !== null
       )
       .map((entry) => [entry.damageEventId!, entry] as const)
   );
@@ -621,6 +647,62 @@ function classicReactionDamageEventsForSemanticDigest(
     const application = noIcdApplicationByDamageEventId.get(
       event.id
     );
+    const legacyPropagationNote =
+      normalized.reactionAudit.note === undefined
+        ? {}
+        : {
+            note: normalized.reactionAudit.note
+              .replace("可信反应附着", "附着")
+              .replace("反应伤害。", "扩散伤害。")
+          };
+    const reactionOwnedBurningApplication =
+      reactionOwnedBurningByDamageEventId.get(event.id);
+    if (
+      projection === "historical-v147" &&
+      reactionOwnedBurningApplication !== undefined &&
+      event.kind === "transformative-reaction" &&
+      event.reaction === "burning"
+    ) {
+      return {
+        ...normalized,
+        reactionAudit: {
+          ...normalized.reactionAudit,
+          // V1.47 exposed the fixed Burning selector through these legacy
+          // fields and always reported nominal, rather than effective, Gauge.
+          icdAllowed:
+            reactionOwnedBurningApplication.decision.allowed,
+          icdTag: "burning-application",
+          icdGroup: "burning",
+          applicationGaugeUnits:
+            reactionOwnedBurningApplication.nominalGaugeUnits,
+          ...legacyPropagationNote
+        }
+      };
+    }
+    const reactionOwnedSwirlApplication =
+      allowedReactionOwnedSwirlByDamageEventId.get(event.id);
+    if (
+      projection === "historical-v147" &&
+      reactionOwnedSwirlApplication !== undefined &&
+      event.kind === "transformative-reaction" &&
+      event.reaction.startsWith("swirl")
+    ) {
+      return {
+        ...normalized,
+        reactionAudit: {
+          ...normalized.reactionAudit,
+          // V1.47 modeled an allowed Swirl propagation as a no-ICD
+          // application. Reconstruct only that reviewed, allowed branch;
+          // blocked V1.48 trusted applications remain visibly different.
+          icdAllowed: true,
+          icdTag: event.reaction,
+          icdGroup: "no-icd",
+          applicationGaugeUnits:
+            reactionOwnedSwirlApplication.nominalGaugeUnits,
+          ...legacyPropagationNote
+        }
+      };
+    }
     if (application === undefined || event.kind !== "direct") {
       return normalized;
     }
@@ -640,7 +722,53 @@ function classicReactionDamageEventsForSemanticDigest(
   });
 }
 
-function compactResult(result: SimulationResult) {
+function classicReactionHitResolutionForSemanticDigest(
+  result: SimulationResult
+): unknown {
+  return result.hitResolutionLog.map((entry) => {
+    const {
+      reactionDamageLogId: _reactionDamageLogId,
+      elementalApplicationIcdLogId: _applicationLogId,
+      ...frozen
+    } = entry;
+    if (
+      entry.resolutionKind !== "reaction-damage" ||
+      result.config.targetTaskModel.mode !==
+        "legacy-event-heap-v1"
+    ) {
+      return frozen;
+    }
+    const {
+      eventPriority: _eventPriority,
+      eventSequence: _eventSequence,
+      intraEventSequence: _intraEventSequence,
+      ...legacyReactionResolution
+    } = frozen;
+    // Before 1.48 legacy-event-heap reaction-damage rows omitted these
+    // scheduling coordinates. Target-phase v2 already projected them, so
+    // keep those values in the current classic-reaction release digest.
+    return legacyReactionResolution;
+  });
+}
+
+function classicReactionDamageLogForSemanticDigest(
+  result: SimulationResult
+): unknown {
+  return result.reactionDamageLog.map((entry) => {
+    const {
+      hitResolutionLogIds: _hitResolutionLogIds,
+      elementalApplicationIcdLogIds: _applicationLogIds,
+      ...frozen
+    } = entry;
+    return frozen;
+  });
+}
+
+function compactResult(
+  result: SimulationResult,
+  applicationProjection: ClassicReactionDamageSemanticProjection =
+    "historical-v147"
+) {
   const timeline = result.config.timeline;
   if (timeline?.mode !== "legal-frame-v1") {
     throw new Error("Reaction matrix requires a legal timeline.");
@@ -852,10 +980,17 @@ function compactResult(result: SimulationResult) {
       config: sha256(result.config),
       runManifest: sha256(result.runManifest),
       damageEvents: sha256(
-        classicReactionDamageEventsForSemanticDigest(result)
+        classicReactionDamageEventsForSemanticDigest(
+          result,
+          applicationProjection
+        )
       ),
-      hitResolutionLog: sha256(result.hitResolutionLog),
-      reactionDamageLog: sha256(result.reactionDamageLog),
+      hitResolutionLog: sha256(
+        classicReactionHitResolutionForSemanticDigest(result)
+      ),
+      reactionDamageLog: sha256(
+        classicReactionDamageLogForSemanticDigest(result)
+      ),
       stateLogs: sha256({
         periodicReactionLog: result.periodicReactionLog,
         frozenStateLog: result.frozenStateLog,
@@ -1360,10 +1495,12 @@ const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
 } as const satisfies Record<string, MatrixScenario>;
 
 const CLASSIC_REACTION_CLASS_COUNT = 16;
-// This digest intentionally excludes version/config-manifest identity so the
-// classic reaction semantics remain comparable across wire-version bumps.
+// This current-release digest excludes version/config-manifest identity and
+// reciprocal wire backlinks, while retaining the trusted 1.48 Burning/Swirl
+// application semantics. Historical fixture comparisons use the explicit
+// V1.47 compatibility projection instead.
 const AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST =
-  "54810c5ca0c1b8a92c5f0fa6412dbc0544e4741ce931c70b68a71cb02cb79d7f";
+  "0f3c885f1dbf0c5499d7e26ac913471caca1a821876aa312d3eb4945364babe5";
 
 function makeAuraV9MatrixConfig(
   scenarioId: string,
@@ -2144,7 +2281,10 @@ describe("1.35 provisional reaction-matrix Golden", () => {
           runManifest: _playerDamageRunManifestHash,
           ...playerDamageSemanticHashes
         } = playerDamageHashes as Record<string, string>;
-        expect(compact.hashes).toMatchObject(
+        expect(
+          compact.hashes,
+          `frozen reaction vector ${scenarioId}`
+        ).toMatchObject(
           playerDamageSemanticHashes
         );
 
@@ -2294,9 +2434,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.47.0-elemental-application-icd-root"
+      "1.48.0-reaction-owned-application-root"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2479,7 +2619,7 @@ describe("current aura-v9 classic reaction release gate", () => {
         damageEventCount: result.damageEvents.length,
         semanticDigest: sha256({
           compactResult: withoutSingleVersionIdentity(
-            compactResult(result)
+            compactResult(result, "current-v148")
           ),
           targetTaskPhaseLog: result.targetTaskPhaseLog,
           targetPhaseLog: result.targetPhaseLog,

@@ -5,7 +5,8 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -29,6 +30,13 @@ function createFixedElementalApplicationIcdModel() {
   return {
     mode: "fixed-gcsim-elemental-application-v1",
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  } as const;
+}
+
+function createFixedReactionOwnedElementalApplicationModel() {
+  return {
+    mode: "fixed-gcsim-reaction-owned-application-v1",
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   } as const;
 }
 
@@ -61,6 +69,8 @@ export const durinMeltPreset: SimConfig = {
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
   elementalApplicationIcdModel:
     createFixedElementalApplicationIcdModel(),
+  reactionOwnedElementalApplicationModel:
+    createFixedReactionOwnedElementalApplicationModel(),
   characters: [
     {
       id: "durin",
@@ -510,6 +520,8 @@ export const blankPreset: SimConfig = {
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
   elementalApplicationIcdModel:
     createFixedElementalApplicationIcdModel(),
+  reactionOwnedElementalApplicationModel:
+    createFixedReactionOwnedElementalApplicationModel(),
   characters: [
     {
       id: "a",
@@ -611,6 +623,8 @@ export const legalTimelineDemoPreset: SimConfig = {
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
   elementalApplicationIcdModel:
     createFixedElementalApplicationIcdModel(),
+  reactionOwnedElementalApplicationModel:
+    createFixedReactionOwnedElementalApplicationModel(),
   characters: [
     {
       id: "frame-a",
@@ -793,6 +807,8 @@ export const auraReactionDemoPreset: SimConfig = {
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
   elementalApplicationIcdModel:
     createFixedElementalApplicationIcdModel(),
+  reactionOwnedElementalApplicationModel:
+    createFixedReactionOwnedElementalApplicationModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -899,6 +915,8 @@ export const particleEnergyDemoPreset: SimConfig = {
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
   elementalApplicationIcdModel:
     createFixedElementalApplicationIcdModel(),
+  reactionOwnedElementalApplicationModel:
+    createFixedReactionOwnedElementalApplicationModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

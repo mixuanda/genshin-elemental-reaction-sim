@@ -16,13 +16,13 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResult,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV147,
   elementalApplicationIcdDecisionV147Schema,
   elementalApplicationIcdSelectorSchema,
-  simulationResultSchema,
+  simulationResultV147Schema,
   type AbilityDefinition,
   type FrameHitDefinition,
   type SimConfig,
@@ -32,6 +32,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { simulate } from "../simulator";
+import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { makeConfig } from "./fixtures";
 
 const PREVIEW_FLAG =
@@ -266,7 +267,7 @@ const fixtureSchema = z
     elementalApplicationIcdLogCanonicalSha256: sha256Schema,
     damageEventsCanonicalSha256: sha256Schema,
     targetTimelineCanonicalSha256: sha256Schema,
-    result: simulationResultSchema
+    result: simulationResultV147Schema
   })
   .strict()
   .superRefine((fixture, context) => {
@@ -283,10 +284,12 @@ const fixtureSchema = z
       });
     }
     if (
-      fixture.result.schemaVersion !== CURRENT_SCHEMA_VERSION ||
-      fixture.result.engineVersion !== CURRENT_ENGINE_VERSION ||
+      fixture.result.schemaVersion !==
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
+      fixture.result.engineVersion !==
+        ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION ||
       fixture.result.runManifest.version !==
-        SIMULATION_RUN_MANIFEST_VERSION ||
+        ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION ||
       fixture.result.randomSeed !== VECTOR_SEED ||
       fixture.result.runManifest.plugins.length !== 0 ||
       JSON.stringify(
@@ -486,7 +489,9 @@ const OPTIONS = {
 } as const;
 
 function runVector() {
-  return simulate(makeVectorConfig(), OPTIONS);
+  return projectSimulationResultV148ToV147(
+    simulate(makeVectorConfig(), OPTIONS)
+  );
 }
 
 function targetTimelineProjection(
@@ -680,8 +685,8 @@ describe("1.47 elemental-application ICD Golden", () => {
       const result = runVector();
       const repeated = runVector();
       expect(repeated).toEqual(result);
-      expect(simulationResultSchema.parse(result)).toEqual(result);
-      expect(assertTrustedSimulationResult(result)).toBe(result);
+      expect(simulationResultV147Schema.parse(result)).toEqual(result);
+      expect(assertTrustedSimulationResultV147(result)).toBe(result);
       expect(decisionProjection(result)).toEqual(
         EXPECTED_DECISIONS
       );

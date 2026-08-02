@@ -1,0 +1,3963 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Reviewed 1.48 trusted reaction-owned elemental-application vector for Burning ticks and Pyro Swirl AoE propagation.",
+  "provenance": {
+    "source": "Synthetic engine vector bound to genshinsim/gcsim b4ae769 Burning, Swirl, enemy attack, and target ICD source paths",
+    "capturedAt": "2026-08-02",
+    "verificationStatus": "provisional",
+    "note": "This fixture validates deterministic simulator ownership, ICD state, Aura delivery, ordering, and reciprocal audit links only. It is not official server truth or complete gcsim parity, and it does not verify character data, particles, action frames, arbitrary Aura/ICD behavior, or every reaction mechanic.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "policyRoot": {
+    "version": "1.0.0",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+    "contentHash": "sha256:50abcc04ad7bc55510e5786cbc3ace5105238e5fb2dea8e0944cd95708c80acc",
+    "mechanicsDataStatus": "fixed-gcsim-provisional",
+    "sourceProject": "genshinsim/gcsim",
+    "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "elementalApplicationRootRef": {
+      "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+      "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+    },
+    "officialServerTruth": false,
+    "completeGcsimParity": false,
+    "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+    "resetTimerDataSource": "referenced-elemental-application-root",
+    "sameFrameOrdering": "provisional-source-task-insertion-dependent",
+    "provisional": true
+  },
+  "scenarios": {
+    "burning": {
+      "identity": {
+        "schemaVersion": "1.48.0",
+        "engineVersion": "1.48.0-reaction-owned-application-root",
+        "dataVersion": "synthetic-reaction-owned-burning-1.48",
+        "configHash": "fnv1a32:63b2b855",
+        "reproducibilityKey": "gdl-v2-fnv1a32-f0ca34a9",
+        "randomSeed": "synthetic-reaction-owned-burning-1.48"
+      },
+      "totals": {
+        "totalDamage": 17244.42678642858,
+        "dps": 6386.824735714288,
+        "damageEventCount": 28,
+        "hitResolutionCount": 40,
+        "reactionDamageCount": 9,
+        "elementalApplicationCount": 40
+      },
+      "reactionOwnedApplications": [
+        {
+          "id": 4,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 0,
+          "hitResolutionLogId": 4,
+          "damageEventId": 1,
+          "frame": 15,
+          "eventPriority": 0.625,
+          "eventSequence": 12,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 1,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 4
+          },
+          "hitReciprocalApplicationLogId": 4
+        },
+        {
+          "id": 5,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 0,
+          "hitResolutionLogId": 5,
+          "damageEventId": 2,
+          "frame": 15,
+          "eventPriority": 0.625,
+          "eventSequence": 12,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 2,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 5
+          },
+          "hitReciprocalApplicationLogId": 5
+        },
+        {
+          "id": 6,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 0,
+          "hitResolutionLogId": 6,
+          "damageEventId": 3,
+          "frame": 15,
+          "eventPriority": 0.625,
+          "eventSequence": 12,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 3,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 6
+          },
+          "hitReciprocalApplicationLogId": 6
+        },
+        {
+          "id": 7,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 0,
+          "hitResolutionLogId": 7,
+          "damageEventId": null,
+          "frame": 15,
+          "eventPriority": 0.625,
+          "eventSequence": 12,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 7
+        },
+        {
+          "id": 8,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 8,
+          "damageEventId": 4,
+          "frame": 30,
+          "eventPriority": 0.625,
+          "eventSequence": 18,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 4,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 8
+          },
+          "hitReciprocalApplicationLogId": 8
+        },
+        {
+          "id": 9,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 9,
+          "damageEventId": 5,
+          "frame": 30,
+          "eventPriority": 0.625,
+          "eventSequence": 18,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 5,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 9
+          },
+          "hitReciprocalApplicationLogId": 9
+        },
+        {
+          "id": 10,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 10,
+          "damageEventId": 6,
+          "frame": 30,
+          "eventPriority": 0.625,
+          "eventSequence": 18,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 6,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 10
+          },
+          "hitReciprocalApplicationLogId": 10
+        },
+        {
+          "id": 11,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 11,
+          "damageEventId": null,
+          "frame": 30,
+          "eventPriority": 0.625,
+          "eventSequence": 18,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 11
+        },
+        {
+          "id": 12,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 2,
+          "hitResolutionLogId": 12,
+          "damageEventId": 7,
+          "frame": 45,
+          "eventPriority": 0.625,
+          "eventSequence": 24,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 2,
+            "sequenceIndex": 2,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 7,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 12
+          },
+          "hitReciprocalApplicationLogId": 12
+        },
+        {
+          "id": 13,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 2,
+          "hitResolutionLogId": 13,
+          "damageEventId": 8,
+          "frame": 45,
+          "eventPriority": 0.625,
+          "eventSequence": 24,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 2,
+            "sequenceIndex": 2,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 8,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 13
+          },
+          "hitReciprocalApplicationLogId": 13
+        },
+        {
+          "id": 14,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 2,
+          "hitResolutionLogId": 14,
+          "damageEventId": 9,
+          "frame": 45,
+          "eventPriority": 0.625,
+          "eventSequence": 24,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 2,
+            "sequenceIndex": 2,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 9,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 14
+          },
+          "hitReciprocalApplicationLogId": 14
+        },
+        {
+          "id": 15,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 2,
+          "hitResolutionLogId": 15,
+          "damageEventId": null,
+          "frame": 45,
+          "eventPriority": 0.625,
+          "eventSequence": 24,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 15
+        },
+        {
+          "id": 16,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 16,
+          "damageEventId": 10,
+          "frame": 60,
+          "eventPriority": 0.625,
+          "eventSequence": 30,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 3,
+            "sequenceIndex": 3,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 10,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 16
+          },
+          "hitReciprocalApplicationLogId": 16
+        },
+        {
+          "id": 17,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 17,
+          "damageEventId": 11,
+          "frame": 60,
+          "eventPriority": 0.625,
+          "eventSequence": 30,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 3,
+            "sequenceIndex": 3,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 11,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 17
+          },
+          "hitReciprocalApplicationLogId": 17
+        },
+        {
+          "id": 18,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 18,
+          "damageEventId": 12,
+          "frame": 60,
+          "eventPriority": 0.625,
+          "eventSequence": 30,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 3,
+            "sequenceIndex": 3,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 12,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 18
+          },
+          "hitReciprocalApplicationLogId": 18
+        },
+        {
+          "id": 19,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 19,
+          "damageEventId": null,
+          "frame": 60,
+          "eventPriority": 0.625,
+          "eventSequence": 30,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 19
+        },
+        {
+          "id": 20,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 4,
+          "hitResolutionLogId": 20,
+          "damageEventId": 13,
+          "frame": 75,
+          "eventPriority": 0.625,
+          "eventSequence": 36,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 4,
+            "sequenceIndex": 4,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 13,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 20
+          },
+          "hitReciprocalApplicationLogId": 20
+        },
+        {
+          "id": 21,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 4,
+          "hitResolutionLogId": 21,
+          "damageEventId": 14,
+          "frame": 75,
+          "eventPriority": 0.625,
+          "eventSequence": 36,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 4,
+            "sequenceIndex": 4,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 14,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 21
+          },
+          "hitReciprocalApplicationLogId": 21
+        },
+        {
+          "id": 22,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 4,
+          "hitResolutionLogId": 22,
+          "damageEventId": 15,
+          "frame": 75,
+          "eventPriority": 0.625,
+          "eventSequence": 36,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 4,
+            "sequenceIndex": 4,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 15,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 22
+          },
+          "hitReciprocalApplicationLogId": 22
+        },
+        {
+          "id": 23,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 4,
+          "hitResolutionLogId": 23,
+          "damageEventId": null,
+          "frame": 75,
+          "eventPriority": 0.625,
+          "eventSequence": 36,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 23
+        },
+        {
+          "id": 24,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 24,
+          "damageEventId": 16,
+          "frame": 90,
+          "eventPriority": 0.625,
+          "eventSequence": 42,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 5,
+            "sequenceIndex": 5,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 16,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 24
+          },
+          "hitReciprocalApplicationLogId": 24
+        },
+        {
+          "id": 25,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 25,
+          "damageEventId": 17,
+          "frame": 90,
+          "eventPriority": 0.625,
+          "eventSequence": 42,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 5,
+            "sequenceIndex": 5,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 17,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 25
+          },
+          "hitReciprocalApplicationLogId": 25
+        },
+        {
+          "id": 26,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 26,
+          "damageEventId": 18,
+          "frame": 90,
+          "eventPriority": 0.625,
+          "eventSequence": 42,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 5,
+            "sequenceIndex": 5,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 18,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 26
+          },
+          "hitReciprocalApplicationLogId": 26
+        },
+        {
+          "id": 27,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 27,
+          "damageEventId": null,
+          "frame": 90,
+          "eventPriority": 0.625,
+          "eventSequence": 42,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 27
+        },
+        {
+          "id": 28,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 6,
+          "hitResolutionLogId": 28,
+          "damageEventId": 19,
+          "frame": 105,
+          "eventPriority": 0.625,
+          "eventSequence": 48,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 6,
+            "sequenceIndex": 6,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 19,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 28
+          },
+          "hitReciprocalApplicationLogId": 28
+        },
+        {
+          "id": 29,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 6,
+          "hitResolutionLogId": 29,
+          "damageEventId": 20,
+          "frame": 105,
+          "eventPriority": 0.625,
+          "eventSequence": 48,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 6,
+            "sequenceIndex": 6,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 20,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 29
+          },
+          "hitReciprocalApplicationLogId": 29
+        },
+        {
+          "id": 30,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 6,
+          "hitResolutionLogId": 30,
+          "damageEventId": 21,
+          "frame": 105,
+          "eventPriority": 0.625,
+          "eventSequence": 48,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 6,
+            "sequenceIndex": 6,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 21,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 30
+          },
+          "hitReciprocalApplicationLogId": 30
+        },
+        {
+          "id": 31,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 6,
+          "hitResolutionLogId": 31,
+          "damageEventId": null,
+          "frame": 105,
+          "eventPriority": 0.625,
+          "eventSequence": 48,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 31
+        },
+        {
+          "id": 32,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 32,
+          "damageEventId": 22,
+          "frame": 120,
+          "eventPriority": 0.625,
+          "eventSequence": 54,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 7,
+            "sequenceIndex": 7,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 22,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 32
+          },
+          "hitReciprocalApplicationLogId": 32
+        },
+        {
+          "id": 33,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 33,
+          "damageEventId": 23,
+          "frame": 120,
+          "eventPriority": 0.625,
+          "eventSequence": 54,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 7,
+            "sequenceIndex": 7,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 23,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 33
+          },
+          "hitReciprocalApplicationLogId": 33
+        },
+        {
+          "id": 34,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 34,
+          "damageEventId": 24,
+          "frame": 120,
+          "eventPriority": 0.625,
+          "eventSequence": 54,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 0,
+            "allowed": false,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 15,
+            "resetAtFrame": 134,
+            "hitIndex": 7,
+            "sequenceIndex": 7,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 24,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 34
+          },
+          "hitReciprocalApplicationLogId": 34
+        },
+        {
+          "id": 35,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 35,
+          "damageEventId": null,
+          "frame": 120,
+          "eventPriority": 0.625,
+          "eventSequence": 54,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 35
+        },
+        {
+          "id": 36,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 8,
+          "hitResolutionLogId": 36,
+          "damageEventId": 25,
+          "frame": 150,
+          "eventPriority": 0.625,
+          "eventSequence": 63,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "after-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "early-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 150,
+            "resetAtFrame": 269,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 25,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 36
+          },
+          "hitReciprocalApplicationLogId": 36
+        },
+        {
+          "id": 37,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 8,
+          "hitResolutionLogId": 37,
+          "damageEventId": 26,
+          "frame": 150,
+          "eventPriority": 0.625,
+          "eventSequence": 63,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "enemy-0",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 150,
+            "resetAtFrame": 269,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 26,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 37
+          },
+          "hitReciprocalApplicationLogId": 37
+        },
+        {
+          "id": 38,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 8,
+          "hitResolutionLogId": 38,
+          "damageEventId": 27,
+          "frame": 150,
+          "eventPriority": 0.625,
+          "eventSequence": 63,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "late-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 1,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 120,
+            "windowStartFrame": 150,
+            "resetAtFrame": 269,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "trusted-target-global-burning-projection",
+            "icdTag": "ICDTagBurningDamage",
+            "groupId": "burning",
+            "windowStartGroupId": "burning"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 27,
+            "reaction": "burning",
+            "finalDamage": 638.6824735714285,
+            "reciprocalApplicationLogId": 38
+          },
+          "hitReciprocalApplicationLogId": 38
+        },
+        {
+          "id": 39,
+          "sourceKind": "burning-tick",
+          "reactionDamageLogId": 8,
+          "hitResolutionLogId": 39,
+          "damageEventId": null,
+          "frame": 150,
+          "eventPriority": 0.625,
+          "eventSequence": 63,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "before-reactable-tick",
+          "sourceActorId": "pyro-driver",
+          "targetId": "far-recipient",
+          "hitId": "start-burning-hit:burning:burning",
+          "hitGroupId": "start-burning#0:0:0:0:burning:0:burning:2",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "burning-tick"
+            }
+          },
+          "nominalGaugeUnits": 1,
+          "effectiveGaugeUnits": 0,
+          "decision": {
+            "kind": "skipped",
+            "evaluated": false,
+            "reason": "miss",
+            "consumed": false,
+            "applicationMultiplier": 0,
+            "allowed": false
+          },
+          "hitOutcome": "miss",
+          "linkedDamage": null,
+          "hitReciprocalApplicationLogId": 39
+        }
+      ],
+      "reactionDamage": [
+        {
+          "id": 0,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 15,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            1,
+            2,
+            3
+          ],
+          "hitResolutionLogIds": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "elementalApplicationIcdLogIds": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "id": 1,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 30,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            4,
+            5,
+            6
+          ],
+          "hitResolutionLogIds": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "elementalApplicationIcdLogIds": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "id": 2,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 45,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            7,
+            8,
+            9
+          ],
+          "hitResolutionLogIds": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "elementalApplicationIcdLogIds": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "id": 3,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 60,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            10,
+            11,
+            12
+          ],
+          "hitResolutionLogIds": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "elementalApplicationIcdLogIds": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        {
+          "id": 4,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 75,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            13,
+            14,
+            15
+          ],
+          "hitResolutionLogIds": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "elementalApplicationIcdLogIds": [
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        {
+          "id": 5,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 90,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            16,
+            17,
+            18
+          ],
+          "hitResolutionLogIds": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "elementalApplicationIcdLogIds": [
+            24,
+            25,
+            26,
+            27
+          ]
+        },
+        {
+          "id": 6,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 105,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            19,
+            20,
+            21
+          ],
+          "hitResolutionLogIds": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "elementalApplicationIcdLogIds": [
+            28,
+            29,
+            30,
+            31
+          ]
+        },
+        {
+          "id": 7,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 120,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            22,
+            23,
+            24
+          ],
+          "hitResolutionLogIds": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "elementalApplicationIcdLogIds": [
+            32,
+            33,
+            34,
+            35
+          ]
+        },
+        {
+          "id": 8,
+          "reaction": "burning",
+          "sourceActorId": "pyro-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 150,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "burning-tick",
+          "applicationGaugeUnits": 1,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient",
+            "far-recipient"
+          ],
+          "hitTargetIds": [
+            "early-recipient",
+            "enemy-0",
+            "late-recipient"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            25,
+            26,
+            27
+          ],
+          "hitResolutionLogIds": [
+            36,
+            37,
+            38,
+            39
+          ],
+          "elementalApplicationIcdLogIds": [
+            36,
+            37,
+            38,
+            39
+          ]
+        }
+      ],
+      "burningDeliveries": [
+        {
+          "frame": 15,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 1,
+          "reactionDamageLogId": 0,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 4,
+              "damageEventId": 1,
+              "elementalApplicationIcdLogId": 4,
+              "targetStateTimelinePointId": 6
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 5,
+              "damageEventId": 2,
+              "elementalApplicationIcdLogId": 5,
+              "targetStateTimelinePointId": 7
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 6,
+              "damageEventId": 3,
+              "elementalApplicationIcdLogId": 6,
+              "targetStateTimelinePointId": 8
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 7,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 7,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 30,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 2,
+          "reactionDamageLogId": 1,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 8,
+              "damageEventId": 4,
+              "elementalApplicationIcdLogId": 8,
+              "targetStateTimelinePointId": 12
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 9,
+              "damageEventId": 5,
+              "elementalApplicationIcdLogId": 9,
+              "targetStateTimelinePointId": 13
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 10,
+              "damageEventId": 6,
+              "elementalApplicationIcdLogId": 10,
+              "targetStateTimelinePointId": 14
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 11,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 11,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 45,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 3,
+          "reactionDamageLogId": 2,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 12,
+              "damageEventId": 7,
+              "elementalApplicationIcdLogId": 12,
+              "targetStateTimelinePointId": 18
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 13,
+              "damageEventId": 8,
+              "elementalApplicationIcdLogId": 13,
+              "targetStateTimelinePointId": 19
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 14,
+              "damageEventId": 9,
+              "elementalApplicationIcdLogId": 14,
+              "targetStateTimelinePointId": 20
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 15,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 15,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 60,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 4,
+          "reactionDamageLogId": 3,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 16,
+              "damageEventId": 10,
+              "elementalApplicationIcdLogId": 16,
+              "targetStateTimelinePointId": 24
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 17,
+              "damageEventId": 11,
+              "elementalApplicationIcdLogId": 17,
+              "targetStateTimelinePointId": 25
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 18,
+              "damageEventId": 12,
+              "elementalApplicationIcdLogId": 18,
+              "targetStateTimelinePointId": 26
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 19,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 19,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 75,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 5,
+          "reactionDamageLogId": 4,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 20,
+              "damageEventId": 13,
+              "elementalApplicationIcdLogId": 20,
+              "targetStateTimelinePointId": 30
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 21,
+              "damageEventId": 14,
+              "elementalApplicationIcdLogId": 21,
+              "targetStateTimelinePointId": 31
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 22,
+              "damageEventId": 15,
+              "elementalApplicationIcdLogId": 22,
+              "targetStateTimelinePointId": 32
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 23,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 23,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 90,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 6,
+          "reactionDamageLogId": 5,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 24,
+              "damageEventId": 16,
+              "elementalApplicationIcdLogId": 24,
+              "targetStateTimelinePointId": 36
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 25,
+              "damageEventId": 17,
+              "elementalApplicationIcdLogId": 25,
+              "targetStateTimelinePointId": 37
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 26,
+              "damageEventId": 18,
+              "elementalApplicationIcdLogId": 26,
+              "targetStateTimelinePointId": 38
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 27,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 27,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 105,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 7,
+          "reactionDamageLogId": 6,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 28,
+              "damageEventId": 19,
+              "elementalApplicationIcdLogId": 28,
+              "targetStateTimelinePointId": 42
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 29,
+              "damageEventId": 20,
+              "elementalApplicationIcdLogId": 29,
+              "targetStateTimelinePointId": 43
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 30,
+              "damageEventId": 21,
+              "elementalApplicationIcdLogId": 30,
+              "targetStateTimelinePointId": 44
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 31,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 31,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 120,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 8,
+          "reactionDamageLogId": 7,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 32,
+              "damageEventId": 22,
+              "elementalApplicationIcdLogId": 32,
+              "targetStateTimelinePointId": 48
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 33,
+              "damageEventId": 23,
+              "elementalApplicationIcdLogId": 33,
+              "targetStateTimelinePointId": 49
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 34,
+              "damageEventId": 24,
+              "elementalApplicationIcdLogId": 34,
+              "targetStateTimelinePointId": 50
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 35,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 35,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        },
+        {
+          "frame": 150,
+          "ownerTargetId": "enemy-0",
+          "tickIndex": 10,
+          "reactionDamageLogId": 8,
+          "attempts": [
+            {
+              "order": 0,
+              "targetId": "early-recipient",
+              "targetOrder": 0,
+              "applicationPhase": "after-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 36,
+              "damageEventId": 25,
+              "elementalApplicationIcdLogId": 36,
+              "targetStateTimelinePointId": 56
+            },
+            {
+              "order": 1,
+              "targetId": "enemy-0",
+              "targetOrder": 1,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 37,
+              "damageEventId": 26,
+              "elementalApplicationIcdLogId": 37,
+              "targetStateTimelinePointId": 57
+            },
+            {
+              "order": 2,
+              "targetId": "late-recipient",
+              "targetOrder": 2,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "landed",
+              "hitResolutionLogId": 38,
+              "damageEventId": 27,
+              "elementalApplicationIcdLogId": 38,
+              "targetStateTimelinePointId": 58
+            },
+            {
+              "order": 3,
+              "targetId": "far-recipient",
+              "targetOrder": 3,
+              "applicationPhase": "before-reactable-tick",
+              "outcome": "miss",
+              "hitResolutionLogId": 39,
+              "damageEventId": null,
+              "elementalApplicationIcdLogId": 39,
+              "targetStateTimelinePointId": null
+            }
+          ]
+        }
+      ],
+      "canonicalSha256": {
+        "damageEvents": "dfb725ddb5dfad217a1b0cfd24d8616ad452af70f33e146d59b0635399629539",
+        "hitResolutionLog": "87f02bc2a712c0494b610853ebf06058760424af2f6741ef717abb8284fb4d3c",
+        "reactionDamageLog": "58926532d3cdbc1dd46f13953b352b735243c239f5f2c6fc2b57286f371b1000",
+        "elementalApplicationIcdLog": "388ad56a6bc0c98c056fddbe29caf39ee4f950d66c291762cfabe86ece904d0a",
+        "targetStateTimeline": "ce4f2d73aa846b458dc4ae19ca4b31e7ed7767a3aa7bb758eb2fd22063f37760",
+        "targetPhaseLog": "aacbe367496db12b5a29bf1ac5b4b561d955b5e532dacf58076d332c6ea167a1"
+      }
+    },
+    "swirl": {
+      "identity": {
+        "schemaVersion": "1.48.0",
+        "engineVersion": "1.48.0-reaction-owned-application-root",
+        "dataVersion": "synthetic-reaction-owned-swirl-1.48",
+        "configHash": "fnv1a32:30969b44",
+        "reproducibilityKey": "gdl-v2-fnv1a32-53053f69",
+        "randomSeed": "synthetic-reaction-owned-swirl-1.48"
+      },
+      "totals": {
+        "totalDamage": 22992.569048571426,
+        "dps": 22992.569048571426,
+        "damageEventCount": 24,
+        "hitResolutionCount": 24,
+        "reactionDamageCount": 8,
+        "elementalApplicationCount": 20
+      },
+      "reactionOwnedApplications": [
+        {
+          "id": 1,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 2,
+          "damageEventId": 2,
+          "frame": 5,
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-1",
+          "hitId": "swirl-hit-0:swirlPyro",
+          "hitGroupId": "swirl-0#0:0:0:0:swirlPyro:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 2,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 1
+          },
+          "hitReciprocalApplicationLogId": 1
+        },
+        {
+          "id": 2,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 3,
+          "damageEventId": 3,
+          "frame": 5,
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-2",
+          "hitId": "swirl-hit-0:swirlPyro",
+          "hitGroupId": "swirl-0#0:0:0:0:swirlPyro:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 3,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 2
+          },
+          "hitReciprocalApplicationLogId": 2
+        },
+        {
+          "id": 3,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 4,
+          "damageEventId": 4,
+          "frame": 5,
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-3",
+          "hitId": "swirl-hit-0:swirlPyro",
+          "hitGroupId": "swirl-0#0:0:0:0:swirlPyro:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 4,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 3
+          },
+          "hitReciprocalApplicationLogId": 3
+        },
+        {
+          "id": 4,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 5,
+          "damageEventId": 5,
+          "frame": 5,
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "shared-target",
+          "hitId": "swirl-hit-0:swirlPyro",
+          "hitGroupId": "swirl-0#0:0:0:0:swirlPyro:0",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 5,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 4
+          },
+          "hitReciprocalApplicationLogId": 4
+        },
+        {
+          "id": 6,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 8,
+          "damageEventId": 8,
+          "frame": 11,
+          "eventPriority": 5,
+          "eventSequence": 29,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "enemy-0",
+          "hitId": "swirl-hit-1:swirlPyro",
+          "hitGroupId": "swirl-1#1:0:0:6:swirlPyro:6",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 11,
+            "resetAtFrame": 40,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 8,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 6
+          },
+          "hitReciprocalApplicationLogId": 6
+        },
+        {
+          "id": 7,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 9,
+          "damageEventId": 9,
+          "frame": 11,
+          "eventPriority": 5,
+          "eventSequence": 29,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-2",
+          "hitId": "swirl-hit-1:swirlPyro",
+          "hitGroupId": "swirl-1#1:0:0:6:swirlPyro:6",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 9,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 7
+          },
+          "hitReciprocalApplicationLogId": 7
+        },
+        {
+          "id": 8,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 10,
+          "damageEventId": 10,
+          "frame": 11,
+          "eventPriority": 5,
+          "eventSequence": 29,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-3",
+          "hitId": "swirl-hit-1:swirlPyro",
+          "hitGroupId": "swirl-1#1:0:0:6:swirlPyro:6",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 10,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 8
+          },
+          "hitReciprocalApplicationLogId": 8
+        },
+        {
+          "id": 9,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 11,
+          "damageEventId": 11,
+          "frame": 11,
+          "eventPriority": 5,
+          "eventSequence": 29,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "shared-target",
+          "hitId": "swirl-hit-1:swirlPyro",
+          "hitGroupId": "swirl-1#1:0:0:6:swirlPyro:6",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 11,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 9
+          },
+          "hitReciprocalApplicationLogId": 9
+        },
+        {
+          "id": 11,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 14,
+          "damageEventId": 14,
+          "frame": 17,
+          "eventPriority": 5,
+          "eventSequence": 47,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "enemy-0",
+          "hitId": "swirl-hit-2:swirlPyro",
+          "hitGroupId": "swirl-2#2:0:0:12:swirlPyro:12",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 11,
+            "resetAtFrame": 40,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 14,
+            "reaction": "swirlPyro",
+            "finalDamage": 0,
+            "reciprocalApplicationLogId": 11
+          },
+          "hitReciprocalApplicationLogId": 11
+        },
+        {
+          "id": 12,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 15,
+          "damageEventId": 15,
+          "frame": 17,
+          "eventPriority": 5,
+          "eventSequence": 47,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-1",
+          "hitId": "swirl-hit-2:swirlPyro",
+          "hitGroupId": "swirl-2#2:0:0:12:swirlPyro:12",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 1,
+            "sequenceIndex": 1,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 15,
+            "reaction": "swirlPyro",
+            "finalDamage": 0,
+            "reciprocalApplicationLogId": 12
+          },
+          "hitReciprocalApplicationLogId": 12
+        },
+        {
+          "id": 13,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 16,
+          "damageEventId": 16,
+          "frame": 17,
+          "eventPriority": 5,
+          "eventSequence": 47,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-3",
+          "hitId": "swirl-hit-2:swirlPyro",
+          "hitGroupId": "swirl-2#2:0:0:12:swirlPyro:12",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 2,
+            "sequenceIndex": 2,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 16,
+            "reaction": "swirlPyro",
+            "finalDamage": 0,
+            "reciprocalApplicationLogId": 13
+          },
+          "hitReciprocalApplicationLogId": 13
+        },
+        {
+          "id": 14,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 5,
+          "hitResolutionLogId": 17,
+          "damageEventId": 17,
+          "frame": 17,
+          "eventPriority": 5,
+          "eventSequence": 47,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "shared-target",
+          "hitId": "swirl-hit-2:swirlPyro",
+          "hitGroupId": "swirl-2#2:0:0:12:swirlPyro:12",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 5,
+            "resetAtFrame": 34,
+            "hitIndex": 2,
+            "sequenceIndex": 2,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 17,
+            "reaction": "swirlPyro",
+            "finalDamage": 0,
+            "reciprocalApplicationLogId": 14
+          },
+          "hitReciprocalApplicationLogId": 14
+        },
+        {
+          "id": 16,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 20,
+          "damageEventId": 20,
+          "frame": 41,
+          "eventPriority": 5,
+          "eventSequence": 65,
+          "attemptIndex": 0,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "enemy-0",
+          "hitId": "swirl-hit-3:swirlPyro",
+          "hitGroupId": "swirl-3#3:0:0:36:swirlPyro:18",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 41,
+            "resetAtFrame": 70,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 20,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 16
+          },
+          "hitReciprocalApplicationLogId": 16
+        },
+        {
+          "id": 17,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 21,
+          "damageEventId": 21,
+          "frame": 41,
+          "eventPriority": 5,
+          "eventSequence": 65,
+          "attemptIndex": 1,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-1",
+          "hitId": "swirl-hit-3:swirlPyro",
+          "hitGroupId": "swirl-3#3:0:0:36:swirlPyro:18",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 41,
+            "resetAtFrame": 70,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 21,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 17
+          },
+          "hitReciprocalApplicationLogId": 17
+        },
+        {
+          "id": 18,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 22,
+          "damageEventId": 22,
+          "frame": 41,
+          "eventPriority": 5,
+          "eventSequence": 65,
+          "attemptIndex": 2,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "swirl-source-2",
+          "hitId": "swirl-hit-3:swirlPyro",
+          "hitGroupId": "swirl-3#3:0:0:36:swirlPyro:18",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 41,
+            "resetAtFrame": 70,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 22,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 18
+          },
+          "hitReciprocalApplicationLogId": 18
+        },
+        {
+          "id": 19,
+          "sourceKind": "swirl-propagation",
+          "reactionDamageLogId": 7,
+          "hitResolutionLogId": 23,
+          "damageEventId": 23,
+          "frame": 41,
+          "eventPriority": 5,
+          "eventSequence": 65,
+          "attemptIndex": 3,
+          "attemptCount": 4,
+          "deliveryPhase": "reaction-damage-event",
+          "sourceActorId": "anemo-driver",
+          "targetId": "shared-target",
+          "hitId": "swirl-hit-3:swirlPyro",
+          "hitGroupId": "swirl-3#3:0:0:36:swirlPyro:18",
+          "element": "pyro",
+          "selector": {
+            "mode": "fixed-gcsim-reaction-owned-application-v1",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "channel": {
+              "kind": "swirl-propagation",
+              "element": "pyro"
+            }
+          },
+          "nominalGaugeUnits": 2.2,
+          "effectiveGaugeUnits": 2.2,
+          "decision": {
+            "kind": "reaction-fixed-gcsim",
+            "evaluated": true,
+            "consumed": true,
+            "applicationMultiplier": 1,
+            "allowed": true,
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v1",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "resetFrames": 30,
+            "windowStartFrame": 41,
+            "resetAtFrame": 70,
+            "hitIndex": 0,
+            "sequenceIndex": 0,
+            "tailPolicy": "clamp",
+            "resetSchedulePolicy": "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            "scope": "actor-tag",
+            "icdTag": "ICDTagSwirlPyro",
+            "groupId": "reaction-a",
+            "windowStartGroupId": "reaction-a"
+          },
+          "hitOutcome": "landed",
+          "linkedDamage": {
+            "id": 23,
+            "reaction": "swirlPyro",
+            "finalDamage": 1532.8379365714284,
+            "reciprocalApplicationLogId": 19
+          },
+          "hitReciprocalApplicationLogId": 19
+        }
+      ],
+      "reactionDamage": [
+        {
+          "id": 0,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 1,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-self",
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "enemy-0"
+          ],
+          "hitTargetIds": [
+            "enemy-0"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            1
+          ],
+          "hitResolutionLogIds": [
+            1
+          ],
+          "elementalApplicationIcdLogIds": []
+        },
+        {
+          "id": 1,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "enemy-0",
+          "damageFrame": 5,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-propagation",
+          "applicationGaugeUnits": 2.2,
+          "excludedTargetIds": [
+            "enemy-0"
+          ],
+          "checkedTargetIds": [
+            "swirl-source-1",
+            "swirl-source-2",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "hitTargetIds": [
+            "swirl-source-1",
+            "swirl-source-2",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "hitResolutionLogIds": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "elementalApplicationIcdLogIds": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "id": 2,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-1",
+          "damageFrame": 7,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-self",
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "swirl-source-1"
+          ],
+          "hitTargetIds": [
+            "swirl-source-1"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            7
+          ],
+          "hitResolutionLogIds": [
+            7
+          ],
+          "elementalApplicationIcdLogIds": []
+        },
+        {
+          "id": 3,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-1",
+          "damageFrame": 11,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-propagation",
+          "applicationGaugeUnits": 2.2,
+          "excludedTargetIds": [
+            "swirl-source-1"
+          ],
+          "checkedTargetIds": [
+            "enemy-0",
+            "swirl-source-2",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "hitTargetIds": [
+            "enemy-0",
+            "swirl-source-2",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "hitResolutionLogIds": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "elementalApplicationIcdLogIds": [
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "id": 4,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-2",
+          "damageFrame": 13,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-self",
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "swirl-source-2"
+          ],
+          "hitTargetIds": [
+            "swirl-source-2"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [
+            "swirl-source-2"
+          ],
+          "damageEventIds": [
+            13
+          ],
+          "hitResolutionLogIds": [
+            13
+          ],
+          "elementalApplicationIcdLogIds": []
+        },
+        {
+          "id": 5,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-2",
+          "damageFrame": 17,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-propagation",
+          "applicationGaugeUnits": 2.2,
+          "excludedTargetIds": [
+            "swirl-source-2"
+          ],
+          "checkedTargetIds": [
+            "enemy-0",
+            "swirl-source-1",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "hitTargetIds": [
+            "enemy-0",
+            "swirl-source-1",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [
+            "enemy-0",
+            "swirl-source-1",
+            "swirl-source-3",
+            "shared-target"
+          ],
+          "damageEventIds": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "hitResolutionLogIds": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "elementalApplicationIcdLogIds": [
+            11,
+            12,
+            13,
+            14
+          ]
+        },
+        {
+          "id": 6,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-3",
+          "damageFrame": 37,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-self",
+          "applicationGaugeUnits": null,
+          "excludedTargetIds": [],
+          "checkedTargetIds": [
+            "swirl-source-3"
+          ],
+          "hitTargetIds": [
+            "swirl-source-3"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            19
+          ],
+          "hitResolutionLogIds": [
+            19
+          ],
+          "elementalApplicationIcdLogIds": []
+        },
+        {
+          "id": 7,
+          "reaction": "swirlPyro",
+          "sourceActorId": "anemo-driver",
+          "sourceTargetId": "swirl-source-3",
+          "damageFrame": 41,
+          "scheduled": true,
+          "withinSimulation": true,
+          "scheduleKind": "swirl-propagation",
+          "applicationGaugeUnits": 2.2,
+          "excludedTargetIds": [
+            "swirl-source-3"
+          ],
+          "checkedTargetIds": [
+            "enemy-0",
+            "swirl-source-1",
+            "swirl-source-2",
+            "shared-target"
+          ],
+          "hitTargetIds": [
+            "enemy-0",
+            "swirl-source-1",
+            "swirl-source-2",
+            "shared-target"
+          ],
+          "unresolvedTargetIds": [],
+          "damageGroupBlockedTargetIds": [],
+          "damageEventIds": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "hitResolutionLogIds": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "elementalApplicationIcdLogIds": [
+            16,
+            17,
+            18,
+            19
+          ]
+        }
+      ],
+      "burningDeliveries": [],
+      "canonicalSha256": {
+        "damageEvents": "c93013cc402c817f7ed971eac91cbd14ff515426fc429919a270f37feca7c8a0",
+        "hitResolutionLog": "2ef907ec5ff3d8398326a2ce4d83cc475122710356944db522796fb2aa61a6f5",
+        "reactionDamageLog": "a9357ab35bc45dc6446c38aa1c96ddf412db1d8d0267529a33a3b1f6164c0a84",
+        "elementalApplicationIcdLog": "7f18c61188e4ac0493e585e3e3e20cca1262d0b69ad290248dd3b454d538197b",
+        "targetStateTimeline": "be8378cd8d5a538db706131fd6b5954dd245b5509879d7f2bf024af581939f95",
+        "targetPhaseLog": "6eb2e21798df39d74b34fc3968001961dec1919d45e753f1ca044c2fedcd0de1"
+      }
+    }
+  }
+}

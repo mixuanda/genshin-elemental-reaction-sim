@@ -120,7 +120,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.47 integrity validation failed/
+    /Trusted SimulationResult 1\.48 integrity validation failed/
   );
 }
 
@@ -131,7 +131,7 @@ function expectRejectedByTrustedOnly(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.47 integrity validation failed/
+    /Trusted SimulationResult 1\.48 integrity validation failed/
   );
 }
 
@@ -152,6 +152,7 @@ function projectCurrentBypassResultToV145(
   config.engineVersion = REACTION_FORMULA_ROOT_ENGINE_VERSION;
   delete config.directDamageGroupModel;
   delete config.elementalApplicationIcdModel;
+  delete config.reactionOwnedElementalApplicationModel;
 
   const manifest = projected.runManifest as Record<string, unknown>;
   manifest.version = REACTION_FORMULA_RUN_MANIFEST_VERSION;
@@ -159,6 +160,7 @@ function projectCurrentBypassResultToV145(
   manifest.engineVersion = REACTION_FORMULA_ROOT_ENGINE_VERSION;
   delete manifest.directDamageGroupRoot;
   delete manifest.elementalApplicationIcdRoot;
+  delete manifest.reactionOwnedElementalApplicationRoot;
   manifest.configHash = createSimulationConfigHash(
     config as unknown as VersionedSimConfig
   );
@@ -173,6 +175,19 @@ function projectCurrentBypassResultToV145(
   );
   manifest.reproducibilityKey = key;
   projected.reproducibilityKey = key;
+  for (const collection of ["damageEvents", "hitEvents"] as const) {
+    for (const entry of projected[collection] as Array<
+      Record<string, unknown>
+    >) {
+      delete entry.elementalApplicationIcdLogId;
+    }
+  }
+  for (const entry of projected.hitResolutionLog as Array<
+    Record<string, unknown>
+  >) {
+    delete entry.reactionDamageLogId;
+    delete entry.elementalApplicationIcdLogId;
+  }
   return projected;
 }
 

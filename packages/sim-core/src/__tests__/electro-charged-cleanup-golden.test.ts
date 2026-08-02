@@ -158,7 +158,7 @@ function expectCurrentApplicationContract(
 
 function projectDamageEventsToFrozenNoIcd(
   result: SimulationResult
-): SimulationResult["damageEvents"] {
+) {
   const legacyAuditByDamageEventId = new Map(
     result.elementalApplicationIcdLog.flatMap((entry) =>
       entry.damageEventId === null ||
@@ -176,7 +176,12 @@ function projectDamageEventsToFrozenNoIcd(
           ]
     )
   );
-  return result.damageEvents.map((event) => {
+  return result.damageEvents.map((currentEvent) => {
+    const {
+      elementalApplicationIcdLogId:
+        _elementalApplicationIcdLogId,
+      ...event
+    } = currentEvent;
     const legacyAudit = legacyAuditByDamageEventId.get(event.id);
     return legacyAudit === undefined
       ? event
@@ -188,6 +193,19 @@ function projectDamageEventsToFrozenNoIcd(
           }
         };
   });
+}
+
+function projectReactionDamageLogToFrozenV147(
+  result: SimulationResult
+) {
+  return result.reactionDamageLog.map(
+    ({
+      hitResolutionLogIds: _hitResolutionLogIds,
+      elementalApplicationIcdLogIds:
+        _elementalApplicationIcdLogIds,
+      ...entry
+    }) => entry
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -236,6 +254,8 @@ function projectCurrentConfigToFrozenV140(
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel: _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
     ...frozenConfig
@@ -389,7 +409,8 @@ function projectCleanupScenario(result: SimulationResult) {
     periodicElectroCharged: result.periodicReactionLog.filter(
       (entry) => entry.reaction === "electroCharged"
     ),
-    reactionDamageLog: result.reactionDamageLog,
+    reactionDamageLog:
+      projectReactionDamageLogToFrozenV147(result),
     damageEvents: frozenDamageEvents,
     cleanupTimelinePoints:
       result.targetStateTimeline.points.filter(

@@ -233,6 +233,28 @@ function canonicalSha256(value: unknown): string {
   return byteSha256(JSON.stringify(canonicalize(value)));
 }
 
+/** Remove only fields introduced after the frozen 1.46 result wire. */
+function projectResultToFrozenV146Wire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectResultToFrozenV146Wire);
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(
+        ([key]) =>
+          key !== "elementalApplicationIcdLogId" &&
+          key !== "elementalApplicationIcdLogIds"
+      )
+      .map(([key, entry]) => [
+        key,
+        projectResultToFrozenV146Wire(entry)
+      ])
+  );
+}
+
 function atomicCreateFixture(outputUrl: URL, bytes: string): void {
   const outputPath = fileURLToPath(outputUrl);
   const temporaryPath =
@@ -377,10 +399,9 @@ function decisionProjection(
 function makeFixture(
   result: ReturnType<typeof runVector>
 ): DamageGroupFixture {
-  const projected = structuredClone(result) as unknown as Record<
-    string,
-    unknown
-  >;
+  const projected = projectResultToFrozenV146Wire(
+    structuredClone(result)
+  ) as Record<string, unknown>;
   delete projected.elementalApplicationIcdLog;
   projected.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   projected.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
@@ -391,6 +412,7 @@ function makeFixture(
   projectedConfig.engineVersion =
     DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   delete projectedConfig.elementalApplicationIcdModel;
+  delete projectedConfig.reactionOwnedElementalApplicationModel;
 
   const projectedManifest = projected.runManifest as Record<
     string,
@@ -406,6 +428,12 @@ function makeFixture(
   projectedManifest.reproducibilityKey =
     VECTOR_REPRODUCIBILITY_KEY;
   delete projectedManifest.elementalApplicationIcdRoot;
+  delete projectedManifest.reactionOwnedElementalApplicationRoot;
+  for (const entry of projected.hitResolutionLog as Array<
+    Record<string, unknown>
+  >) {
+    delete entry.reactionDamageLogId;
+  }
   projected.reproducibilityKey = VECTOR_REPRODUCIBILITY_KEY;
 
   const frozenResult = simulationResultV146Schema.parse(projected);
@@ -502,7 +530,11 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
     expect(canonicalSha256(result.directDamageGroupLog)).toBe(
       frozen.directDamageGroupLogCanonicalSha256
     );
-    expect(canonicalSha256(result.damageEvents)).toBe(
+    expect(
+      canonicalSha256(
+        projectResultToFrozenV146Wire(result.damageEvents)
+      )
+    ).toBe(
       frozen.damageEventsCanonicalSha256
     );
 

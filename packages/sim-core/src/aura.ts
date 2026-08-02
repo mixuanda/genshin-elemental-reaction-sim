@@ -14,6 +14,8 @@ import type {
   Element,
   AnyElementalApplication,
   ElementalApplicationIcdDecision,
+  ElementalApplicationIcdDecisionV147,
+  ElementalApplicationReactionFixedGcsimDecision,
   IcdProfile,
   OneShotTransformativeReaction,
   PersistentAuraElement,
@@ -28,6 +30,7 @@ import type {
   SwirlReaction,
   SwirlReactionAudit,
   TargetMechanicsTruncationAudit,
+  TrustedReactionElementalApplicationInput,
   TransformativeReaction
 } from "@genshin-dps-lab/schemas";
 import {
@@ -41,7 +44,10 @@ import {
   type TargetHitlagInput,
   type TargetLocalClockState
 } from "./target-clock";
-import { ElementalApplicationIcdEngine } from "./elemental-application-icd";
+import {
+  ElementalApplicationIcdEngine,
+  prepareTrustedReactionElementalApplicationAttempt
+} from "./elemental-application-icd";
 
 const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
@@ -516,6 +522,27 @@ export interface AuraHitInput {
   reactionOverride?: AmplifyingReaction;
 }
 
+/**
+ * Aura's closed reaction-owned input. Element, Gauge policy, tag, and group
+ * are derived from the trusted channel; callers cannot provide a generic
+ * application selector or reaction override.
+ */
+export type AuraReactionOwnedHitInput =
+  TrustedReactionElementalApplicationInput;
+
+type PreparedApplicationSource =
+  | Readonly<{ kind: "configured" }>
+  | Readonly<{
+      kind: "reaction-owned";
+      input: AuraReactionOwnedHitInput;
+    }>;
+
+type PublicAuraHitEntryKind =
+  | "configured"
+  | "configured-current-state"
+  | "reaction-owned"
+  | "reaction-owned-current-state";
+
 export interface QuickenBloomFollowupInput {
   frame: number;
   sourceActorId: string;
@@ -626,6 +653,44 @@ function isAuraApplicationElement(
       mode === "aura-v9") &&
       element === "dendro")
   );
+}
+
+function reactionOwnedNominalGaugeUnits(
+  input: TrustedReactionElementalApplicationInput
+): number {
+  if (input.channel.kind === "burning-tick") {
+    return BURNING_APPLICATION_GAUGE_UNITS;
+  }
+  return (
+    input as Extract<
+      TrustedReactionElementalApplicationInput,
+      { channel: { kind: "swirl-propagation" } }
+    >
+  ).nominalGaugeUnits;
+}
+
+function snapshotConfiguredApplication(
+  application: AnyElementalApplication
+): AnyElementalApplication {
+  if (
+    application === null ||
+    typeof application !== "object" ||
+    Array.isArray(application)
+  ) {
+    return application;
+  }
+  const snapshot = { ...application } as unknown as Record<string, unknown>;
+  if (
+    "icd" in snapshot &&
+    snapshot.icd !== null &&
+    typeof snapshot.icd === "object" &&
+    !Array.isArray(snapshot.icd)
+  ) {
+    snapshot.icd = Object.freeze({
+      ...(snapshot.icd as Record<string, unknown>)
+    });
+  }
+  return Object.freeze(snapshot) as unknown as AnyElementalApplication;
 }
 
 function usesAuraV3Durability(
@@ -806,6 +871,14 @@ export class AuraEngine {
   private lastElementalApplicationIcdDecision:
     | Readonly<ElementalApplicationIcdDecision>
     | null = null;
+  private lastConfiguredElementalApplicationIcdDecision:
+    | Readonly<ElementalApplicationIcdDecisionV147>
+    | null = null;
+  private lastReactionOwnedElementalApplicationIcdDecision:
+    | Readonly<ElementalApplicationReactionFixedGcsimDecision>
+    | null = null;
+  private activePublicHitEntry: PublicAuraHitEntryKind | null = null;
+  private reentrantPublicHitAttempted = false;
   private lastBurningStop: {
     fromGeneration: number;
     frame: number;
@@ -990,12 +1063,56 @@ export class AuraEngine {
   }
 
   /**
-   * Returns the most recent configured/low-level application decision made by
-   * this target-local Aura engine. Calls which skip application return null
-   * and never advance the underlying state machine.
+   * Returns the decision produced by the most recent configured or trusted
+   * reaction-owned public hit entry. Every public entry clears all decision
+   * getters before validation, so null always means this call made no
+   * decision rather than exposing a stale prior hit.
    */
   getLastElementalApplicationIcdDecision(): Readonly<ElementalApplicationIcdDecision> | null {
     return this.lastElementalApplicationIcdDecision;
+  }
+
+  getLastConfiguredElementalApplicationIcdDecision(): Readonly<ElementalApplicationIcdDecisionV147> | null {
+    return this.lastConfiguredElementalApplicationIcdDecision;
+  }
+
+  getLastReactionOwnedElementalApplicationIcdDecision(): Readonly<ElementalApplicationReactionFixedGcsimDecision> | null {
+    return this.lastReactionOwnedElementalApplicationIcdDecision;
+  }
+
+  private clearLastElementalApplicationDecisions(): void {
+    this.lastElementalApplicationIcdDecision = null;
+    this.lastConfiguredElementalApplicationIcdDecision = null;
+    this.lastReactionOwnedElementalApplicationIcdDecision = null;
+    this.lastBurningApplicationIcdDecision = null;
+  }
+
+  private runPublicHitEntry<T>(
+    entry: PublicAuraHitEntryKind,
+    process: () => T
+  ): T {
+    if (this.activePublicHitEntry !== null) {
+      this.reentrantPublicHitAttempted = true;
+      throw new Error(
+        `Aura hit processing is already active in the ${this.activePublicHitEntry} entry; reentrant ${entry} processing is forbidden.`
+      );
+    }
+    this.activePublicHitEntry = entry;
+    this.reentrantPublicHitAttempted = false;
+    try {
+      return process();
+    } finally {
+      this.activePublicHitEntry = null;
+      this.reentrantPublicHitAttempted = false;
+    }
+  }
+
+  private assertNoReentrantPublicHit(): void {
+    if (this.reentrantPublicHitAttempted) {
+      throw new Error(
+        "Aura hit input attempted reentrant processing during normalization; Aura time, state, and ICD counters were not advanced."
+      );
+    }
   }
 
   private triggerMechanicsTruncation(
@@ -4658,7 +4775,7 @@ export class AuraEngine {
     };
   }
 
-  private resolveElementalApplication(
+  private resolveConfiguredElementalApplication(
     frame: number,
     sourceActorId: string,
     application: AnyElementalApplication
@@ -4667,12 +4784,13 @@ export class AuraEngine {
     application: ResolvedElementalApplication;
   }> {
     const decision =
-      this.elementalApplicationIcdEngine.consumeAttempt({
+      this.elementalApplicationIcdEngine.consumeDirectAttempt({
         frame,
         sourceActorId,
         application
       });
     this.lastElementalApplicationIcdDecision = decision;
+    this.lastConfiguredElementalApplicationIcdDecision = decision;
     if (
       decision.kind === "legacy-profile" &&
       decision.profileId === "burning"
@@ -4701,6 +4819,36 @@ export class AuraEngine {
             : decision.kind === "fixed-gcsim"
               ? decision.groupId
               : legacyWire?.icdGroup ?? null
+      }
+    };
+  }
+
+  private resolveReactionOwnedElementalApplication(
+    input: AuraReactionOwnedHitInput
+  ): Readonly<{
+    decision: Readonly<ElementalApplicationReactionFixedGcsimDecision>;
+    application: ResolvedElementalApplication;
+  }> {
+    const decision =
+      this.elementalApplicationIcdEngine.consumeReactionAttempt(input);
+    this.lastElementalApplicationIcdDecision = decision;
+    this.lastReactionOwnedElementalApplicationIcdDecision = decision;
+    if (input.channel.kind === "burning-tick") {
+      this.lastBurningApplicationIcdDecision = {
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        allowed: decision.allowed
+      };
+    }
+    const nominalGaugeUnits =
+      reactionOwnedNominalGaugeUnits(input);
+    return {
+      decision,
+      application: {
+        gaugeUnits:
+          nominalGaugeUnits * decision.applicationMultiplier,
+        icdTag: decision.icdTag,
+        icdGroup: decision.groupId
       }
     };
   }
@@ -5214,9 +5362,39 @@ export class AuraEngine {
     };
   }
 
+  processConfiguredHit(input: AuraHitInput): ReactionAudit {
+    return this.runPublicHitEntry("configured", () => {
+      this.clearLastElementalApplicationDecisions();
+      const prepared = this.prepareConfiguredAuraHitInput(input);
+      this.assertNoReentrantPublicHit();
+      this.advanceTo(prepared.frame);
+      return this.processHitAtPreparedTargetState(prepared, {
+        kind: "configured"
+      });
+    });
+  }
+
+  /**
+   * @deprecated Use processConfiguredHit. This alias never resolves a trusted
+   * reaction-owned channel and therefore cannot enter its state namespace.
+   */
   processHit(input: AuraHitInput): ReactionAudit {
-    this.advanceTo(input.frame);
-    return this.processHitAtPreparedTargetState(input);
+    return this.processConfiguredHit(input);
+  }
+
+  processReactionOwnedHit(
+    input: AuraReactionOwnedHitInput
+  ): ReactionAudit {
+    return this.runPublicHitEntry("reaction-owned", () => {
+      this.clearLastElementalApplicationDecisions();
+      const prepared = this.prepareReactionOwnedAuraHitInput(input);
+      this.assertNoReentrantPublicHit();
+      this.advanceTo(prepared.hitInput.frame);
+      return this.processHitAtPreparedTargetState(prepared.hitInput, {
+        kind: "reaction-owned",
+        input: prepared.input
+      });
+    });
   }
 
   /**
@@ -5229,8 +5407,99 @@ export class AuraEngine {
    * responsible for the pending F Reactable.Tick. If another target-owned
    * operation has already materialized F, the hit reads that current F state.
    */
+  processConfiguredHitAtCurrentTargetState(
+    input: AuraHitInput
+  ): ReactionAudit {
+    return this.runPublicHitEntry("configured-current-state", () => {
+      this.clearLastElementalApplicationDecisions();
+      const prepared = this.prepareConfiguredAuraHitInput(input);
+      this.assertNoReentrantPublicHit();
+      return this.processHitAtCurrentTargetStateInternal(prepared, {
+        kind: "configured"
+      });
+    });
+  }
+
+  /** @deprecated Use processConfiguredHitAtCurrentTargetState. */
   processHitAtCurrentTargetState(
     input: AuraHitInput
+  ): ReactionAudit {
+    return this.processConfiguredHitAtCurrentTargetState(input);
+  }
+
+  processReactionOwnedHitAtCurrentTargetState(
+    input: AuraReactionOwnedHitInput
+  ): ReactionAudit {
+    return this.runPublicHitEntry("reaction-owned-current-state", () => {
+      this.clearLastElementalApplicationDecisions();
+      const prepared = this.prepareReactionOwnedAuraHitInput(input);
+      this.assertNoReentrantPublicHit();
+      return this.processHitAtCurrentTargetStateInternal(prepared.hitInput, {
+        kind: "reaction-owned",
+        input: prepared.input
+      });
+    });
+  }
+
+  private prepareConfiguredAuraHitInput(
+    input: AuraHitInput
+  ): Readonly<AuraHitInput> {
+    if (input === null || typeof input !== "object" || Array.isArray(input)) {
+      throw new TypeError("Configured Aura hit must be an object.");
+    }
+    const frame = input.frame;
+    const sourceActorId = input.sourceActorId;
+    const element = input.element;
+    const rawApplication = input.application;
+    const reactionOverride = input.reactionOverride;
+    const application =
+      rawApplication === undefined
+        ? undefined
+        : snapshotConfiguredApplication(rawApplication);
+    const prepared: AuraHitInput = {
+      frame,
+      sourceActorId,
+      element,
+      ...(application === undefined ? {} : { application }),
+      ...(reactionOverride === undefined ? {} : { reactionOverride })
+    };
+    if (
+      application !== undefined &&
+      isAuraApplicationElement(element, this.mode)
+    ) {
+      this.elementalApplicationIcdEngine.validateDirectAttempt({
+        frame,
+        sourceActorId,
+        application
+      });
+    }
+    return Object.freeze(prepared);
+  }
+
+  private prepareReactionOwnedAuraHitInput(
+    input: AuraReactionOwnedHitInput
+  ): Readonly<{
+    hitInput: Readonly<AuraHitInput>;
+    input: Readonly<AuraReactionOwnedHitInput>;
+  }> {
+    // Full strict validation happens before Aura time advancement. The engine
+    // repeats the validation immediately before consuming the isolated ICD
+    // state, keeping both public layers fail-closed.
+    const prepared =
+      prepareTrustedReactionElementalApplicationAttempt(input);
+    return Object.freeze({
+      hitInput: Object.freeze({
+        frame: prepared.input.frame,
+        sourceActorId: prepared.input.sourceActorId,
+        element: prepared.element
+      }),
+      input: prepared.input
+    });
+  }
+
+  private processHitAtCurrentTargetStateInternal(
+    input: AuraHitInput,
+    applicationSource: PreparedApplicationSource
   ): ReactionAudit {
     if (!Number.isSafeInteger(input.frame) || input.frame < 0) {
       throw new Error(
@@ -5263,16 +5532,19 @@ export class AuraEngine {
 
     this.currentStateHitFrame = input.frame;
     try {
-      return this.processHitAtPreparedTargetState(input);
+      return this.processHitAtPreparedTargetState(
+        input,
+        applicationSource
+      );
     } finally {
       this.currentStateHitFrame = null;
     }
   }
 
   private processHitAtPreparedTargetState(
-    input: AuraHitInput
+    input: AuraHitInput,
+    applicationSource: PreparedApplicationSource
   ): ReactionAudit {
-    this.lastElementalApplicationIcdDecision = null;
     const auraBefore = this.snapshot();
     if (this.mechanicsTruncation !== null) {
       const mechanicsTruncation =
@@ -5309,10 +5581,14 @@ export class AuraEngine {
     }
     const electroChargedWasActive =
       this.electroChargedActive;
-    const configuredApplication = input.application;
+    const configuredApplication =
+      applicationSource.kind === "configured"
+        ? input.application
+        : undefined;
 
     if (
-      !configuredApplication ||
+      (applicationSource.kind === "configured" &&
+        !configuredApplication) ||
       !isAuraApplicationElement(input.element, this.mode)
     ) {
       const override =
@@ -5354,16 +5630,26 @@ export class AuraEngine {
     }
 
     const resolvedApplication =
-      this.resolveElementalApplication(
-        input.frame,
-        input.sourceActorId,
-        configuredApplication
-      );
+      applicationSource.kind === "configured"
+        ? this.resolveConfiguredElementalApplication(
+            input.frame,
+            input.sourceActorId,
+            configuredApplication!
+          )
+        : this.resolveReactionOwnedElementalApplication(
+            applicationSource.input
+          );
     const { application, decision } = resolvedApplication;
     const icdAllowed = decision.allowed;
-    const reactionOwnedBurningApplication =
-      !("icd" in configuredApplication) &&
-      configuredApplication.icdGroup === "burning";
+    const legacyDirectBurningApplication =
+      applicationSource.kind === "configured" &&
+      configuredApplication !== undefined &&
+        !("icd" in configuredApplication) &&
+        configuredApplication.icdGroup === "burning";
+    const nominalGaugeUnits =
+      applicationSource.kind === "reaction-owned"
+        ? reactionOwnedNominalGaugeUnits(applicationSource.input)
+        : configuredApplication!.gaugeUnits;
     if (!icdAllowed) {
       return {
         model: "aura-engine",
@@ -5375,8 +5661,8 @@ export class AuraEngine {
         icdAllowed,
         icdTag: application.icdTag,
         icdGroup: application.icdGroup,
-        applicationGaugeUnits: reactionOwnedBurningApplication
-          ? configuredApplication.gaugeUnits
+        applicationGaugeUnits: legacyDirectBurningApplication
+          ? nominalGaugeUnits
           : application.gaugeUnits,
         auraBefore,
         auraApplied: [],

@@ -5,7 +5,9 @@ import {
   simulationResultSchema,
   simulationResultV146ValueSchema,
   simulationResultV147Schema,
-  simulationResultV147ValueSchema
+  simulationResultV147ValueSchema,
+  simulationResultV148Schema,
+  simulationResultV148ValueSchema
 } from "./result-schema";
 
 const noIcdRow = {
@@ -227,7 +229,7 @@ describe("elemental-application ICD result leaf schema", () => {
     ).toBe(false);
   });
 
-  it("keeps the 1.46 top-level field set frozen while CURRENT advances", () => {
+  it("keeps the 1.46 and 1.47 top-level field sets frozen while CURRENT advances", () => {
     expect(
       Object.prototype.hasOwnProperty.call(
         simulationResultV146ValueSchema.shape,
@@ -240,6 +242,15 @@ describe("elemental-application ICD result leaf schema", () => {
         "elementalApplicationIcdLog"
       )
     ).toBe(true);
-    expect(simulationResultSchema).toBe(simulationResultV147Schema);
+    expect(
+      simulationResultV147ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    ).toBe(elementalApplicationIcdLogEntryV147Schema);
+    expect(
+      simulationResultV148ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    ).not.toBe(elementalApplicationIcdLogEntryV147Schema);
+    expect(simulationResultSchema).toBe(simulationResultV148Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV147Schema);
   });
 });

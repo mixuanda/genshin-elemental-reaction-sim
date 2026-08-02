@@ -1,7 +1,8 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -442,6 +443,10 @@ export function createDurinBlackSkillAuditConfig(
       mode: "fixed-gcsim-elemental-application-v1",
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     },
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
     meta: {
@@ -563,6 +568,10 @@ export function createDurinWhiteSkillAuditConfig(
     elementalApplicationIcdModel: {
       mode: "fixed-gcsim-elemental-application-v1",
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",

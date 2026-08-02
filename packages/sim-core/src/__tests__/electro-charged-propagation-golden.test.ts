@@ -295,7 +295,7 @@ function expectCurrentApplicationContract(
 
 function projectDamageEventsToFrozenNoIcd(
   result: SimulationResult
-): SimulationResult["damageEvents"] {
+) {
   const legacyAuditByDamageEventId = new Map(
     result.elementalApplicationIcdLog.flatMap((entry) =>
       entry.damageEventId === null ||
@@ -313,7 +313,12 @@ function projectDamageEventsToFrozenNoIcd(
           ]
     )
   );
-  return result.damageEvents.map((event) => {
+  return result.damageEvents.map((currentEvent) => {
+    const {
+      elementalApplicationIcdLogId:
+        _elementalApplicationIcdLogId,
+      ...event
+    } = currentEvent;
     const legacyAudit = legacyAuditByDamageEventId.get(event.id);
     return legacyAudit === undefined
       ? event
@@ -327,16 +332,43 @@ function projectDamageEventsToFrozenNoIcd(
   });
 }
 
+function projectReactionDamageLogToFrozenV147(
+  result: SimulationResult
+) {
+  return result.reactionDamageLog.map(
+    ({
+      hitResolutionLogIds: _hitResolutionLogIds,
+      elementalApplicationIcdLogIds:
+        _elementalApplicationIcdLogIds,
+      ...entry
+    }) => entry
+  );
+}
+
+function projectHitResolutionLogToFrozenV147(
+  result: SimulationResult
+) {
+  return result.hitResolutionLog.map(
+    ({
+      reactionDamageLogId: _reactionDamageLogId,
+      elementalApplicationIcdLogId:
+        _elementalApplicationIcdLogId,
+      ...entry
+    }) => entry
+  );
+}
+
 function projectPropagationScenario(
   result: SimulationResult
 ) {
   const frozenDamageEvents =
     projectDamageEventsToFrozenNoIcd(result);
-  const reactionDamage = result.reactionDamageLog.filter(
-    (entry) =>
-      entry.reaction === "electroCharged" &&
-      entry.withinSimulation
-  );
+  const reactionDamage =
+    projectReactionDamageLogToFrozenV147(result).filter(
+      (entry) =>
+        entry.reaction === "electroCharged" &&
+        entry.withinSimulation
+    );
   const reactionDamageIds = new Set(
     reactionDamage.map((entry) => entry.id)
   );
@@ -428,7 +460,7 @@ function projectPropagationScenario(
       (event) => propagationDamageEventIds.has(event.id)
     ),
     relevantHitResolutions:
-      result.hitResolutionLog.filter(
+      projectHitResolutionLogToFrozenV147(result).filter(
         (entry) =>
           relevantHitResolutionIds.has(entry.id) ||
           (entry.damageEventId !== null &&
@@ -478,6 +510,8 @@ function normalizeIdentityForFrozenV141(
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...frozenConfigCommon
   } = result.config;
   const legacyWire = structuredClone(frozenConfigCommon);

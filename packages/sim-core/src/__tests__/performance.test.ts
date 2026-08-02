@@ -4,6 +4,10 @@ import {
   durinMeltPreset,
   particleEnergyDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
+import {
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+} from "@genshin-dps-lab/icd-profiles";
 import type {
   SimConfig,
   SimulationResult
@@ -83,60 +87,93 @@ function sha256(value: unknown): string {
     .digest("hex");
 }
 
-const V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS = new Set([
+const POST_V146_DAMAGE_EVENT_WIRE_ONLY_FIELDS = new Set([
   "applicationIcdDecision",
   "applicationIcdLogId",
+  "elementalApplicationIcdLogId",
   "applicationMultiplier",
   "nominalApplicationGaugeUnits",
   "effectiveApplicationGaugeUnits"
 ]);
 
+interface FrozenV146ReactionAuditOverride {
+  icdAllowed: boolean;
+  icdTag: string;
+  icdGroup: "no-icd" | "burning";
+  applicationGaugeUnits?: number;
+  note?: string;
+}
+
 /** Keep the sustained-Burning performance sentinel on frozen 1.46 semantics. */
 function projectDamageEventsToFrozenV146(
   result: SimulationResult
 ): unknown[] {
-  const legacyAuditByDamageEventId = new Map(
-    result.elementalApplicationIcdLog.flatMap((entry) => {
-      if (
-        entry.damageEventId === null ||
-        entry.selector.mode !== "no-icd-v1"
-      ) {
-        return [];
+  const frozenV146AuditByDamageEventId = new Map<
+    number,
+    FrozenV146ReactionAuditOverride
+  >(
+    result.elementalApplicationIcdLog.flatMap(
+      (
+        entry
+      ): Array<
+        readonly [number, FrozenV146ReactionAuditOverride]
+      > => {
+        if (entry.damageEventId === null) {
+          return [];
+        }
+        if (entry.sourceKind === "burning-tick") {
+          return [
+            [
+              entry.damageEventId,
+              {
+                icdAllowed: entry.decision.allowed,
+                icdTag: "burning-application",
+                icdGroup: "burning",
+                applicationGaugeUnits: entry.nominalGaugeUnits,
+                note:
+                  "燃烧范围传播：先以 1U 附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的扩散伤害。"
+              }
+            ] as const
+          ];
+        }
+        if (entry.selector.mode !== "no-icd-v1") return [];
+        const legacyIcdTag =
+          entry.hitId === "pyro-start"
+            ? "burning-performance-start"
+            : entry.hitId.startsWith("dendro-refresh-")
+              ? entry.hitId.replace(
+                  "dendro-refresh-",
+                  "burning-refresh-"
+                )
+              : null;
+        if (legacyIcdTag === null) {
+          throw new Error(
+            `Unknown sustained-Burning hit ${entry.hitId} in frozen performance projection.`
+          );
+        }
+        return [
+          [
+            entry.damageEventId,
+            {
+              icdAllowed: entry.decision.allowed,
+              icdTag: legacyIcdTag,
+              icdGroup: "no-icd"
+            }
+          ] as const
+        ];
       }
-      const legacyIcdTag =
-        entry.hitId === "pyro-start"
-          ? "burning-performance-start"
-          : entry.hitId.startsWith("dendro-refresh-")
-            ? entry.hitId.replace(
-                "dendro-refresh-",
-                "burning-refresh-"
-              )
-            : null;
-      if (legacyIcdTag === null) {
-        throw new Error(
-          `Unknown sustained-Burning hit ${entry.hitId} in frozen performance projection.`
-        );
-      }
-      return [
-        [
-          entry.damageEventId,
-          {
-            icdAllowed: entry.decision.allowed,
-            icdTag: legacyIcdTag,
-            icdGroup: "no-icd" as const
-          }
-        ] as const
-      ];
-    })
+    )
   );
   return result.damageEvents.map((event) => {
     const withoutApplicationAudit = Object.fromEntries(
       Object.entries(event).filter(
-        ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
+        ([key]) => !POST_V146_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
       )
     );
     const reactionAudit = event.reactionAudit;
-    const legacyAudit = legacyAuditByDamageEventId.get(event.id);
+    const legacyAudit = frozenV146AuditByDamageEventId.get(
+      event.id
+    );
     return reactionAudit === null || legacyAudit === undefined
       ? withoutApplicationAudit
       : {
@@ -144,7 +181,8 @@ function projectDamageEventsToFrozenV146(
           reactionAudit: Object.fromEntries(
             [
               ...Object.entries(reactionAudit).filter(
-                ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
+                ([key]) =>
+                  !POST_V146_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
               ),
               ...Object.entries(legacyAudit)
             ]
@@ -309,6 +347,17 @@ describe("simulation performance", () => {
     );
     const targetStateTimelinePoints =
       probe.targetStateTimeline.points;
+    const burningApplications =
+      probe.elementalApplicationIcdLog.filter(
+        (entry) => entry.sourceKind === "burning-tick"
+      );
+    const allowedBurningApplications = burningApplications.filter(
+      (entry) => entry.decision.allowed
+    );
+    const blockedBurningApplications = burningApplications.filter(
+      (entry) => !entry.decision.allowed
+    );
+    const burningApplicationHash = sha256(burningApplications);
     const sustainedOutputHash = sha256({
       totalDamage: probe.totalDamage,
       dps: probe.dps,
@@ -318,10 +367,29 @@ describe("simulation performance", () => {
       targetStateTimeline: probe.targetStateTimeline
     });
 
+    process.stdout.write(
+      `120s sustained-Burning output probe: totalDamage=${probe.totalDamage} dps=${probe.dps} ticks=${burningTicks.length} applications=${burningApplications.length} allowedApplications=${allowedBurningApplications.length} blockedApplications=${blockedBurningApplications.length} applicationHash=${burningApplicationHash} frozenV146ProjectionHash=${sustainedOutputHash}\n`
+    );
+
     expect(burningTicks).toHaveLength(479);
+    expect(burningApplications).toHaveLength(479);
+    expect(allowedBurningApplications).toHaveLength(60);
+    expect(blockedBurningApplications).toHaveLength(419);
+    expect(burningApplicationHash).toBe(
+      "60b3b32508e8dab91a95bf2f8e8dc455171dc7bc2e0534927d9a987a0a32e011"
+    );
     expect(fuelRefreshes).toHaveLength(119);
     expect(targetStateTimelinePoints).toHaveLength(1198);
     expect(probe.quickenStateLog).toEqual([]);
+    expect(
+      config.reactionOwnedElementalApplicationModel
+    ).toEqual({
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+    });
+    expect(
+      probe.runManifest.reactionOwnedElementalApplicationRoot
+    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
     expect(sustainedOutputHash).toBe(
       "d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65"
     );

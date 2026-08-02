@@ -8,7 +8,9 @@ import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
@@ -98,6 +100,11 @@ import {
   reactionFormulaModelSchema,
   reactionFormulaRootSchema,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  reactionOwnedElementalApplicationModelSchema,
+  reactionOwnedElementalApplicationRootSchema,
   reactionDeliveryResultReferencesSchema,
   reactionADamageGroupAuditSchema,
   reactionBDamageGroupAuditSchema,
@@ -114,12 +121,17 @@ import {
   simulationRunManifestV145Schema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
+  simulationRunManifestV148Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
   simConfigV145Schema,
   simConfigV146Schema,
   simConfigV147Schema,
+  simConfigV148Schema,
+  trustedReactionElementalApplicationChannelSchema,
+  trustedReactionElementalApplicationInputSchema,
+  trustedReactionElementalApplicationSelectorSchema,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
@@ -194,6 +206,11 @@ const fixedElementalApplicationIcdModel = {
   profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } as const;
 
+const fixedReactionOwnedElementalApplicationModel = {
+  mode: "fixed-gcsim-reaction-owned-application-v1",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T
 ): Omit<
@@ -203,6 +220,7 @@ const asPre139Wire = <T extends object>(
   | "reactionFormulaModel"
   | "directDamageGroupModel"
   | "elementalApplicationIcdModel"
+  | "reactionOwnedElementalApplicationModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
@@ -212,6 +230,8 @@ const asPre139Wire = <T extends object>(
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
@@ -219,6 +239,7 @@ const asPre139Wire = <T extends object>(
     reactionFormulaModel?: unknown;
     directDamageGroupModel?: unknown;
     elementalApplicationIcdModel?: unknown;
+    reactionOwnedElementalApplicationModel?: unknown;
   };
   const projectHit = (hit: unknown): unknown => {
     if (
@@ -320,6 +341,7 @@ const asPre139Wire = <T extends object>(
     | "reactionFormulaModel"
     | "directDamageGroupModel"
     | "elementalApplicationIcdModel"
+    | "reactionOwnedElementalApplicationModel"
   >;
 };
 
@@ -1102,6 +1124,8 @@ describe("1.32 player reaction self-damage contract", () => {
       directDamageGroupModel: _directDamageGroupModel,
       elementalApplicationIcdModel:
         _elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _reactionOwnedElementalApplicationModel,
       ...wire132
     } = current;
     const historical = {
@@ -2420,6 +2444,8 @@ describe("1.33 target-local Hitlag contract", () => {
     delete frozen139Result.config.reactionFormulaModel;
     delete frozen139Result.config.directDamageGroupModel;
     delete frozen139Result.config.elementalApplicationIcdModel;
+    delete frozen139Result.config
+      .reactionOwnedElementalApplicationModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
@@ -2887,7 +2913,9 @@ describe("1.34 general reaction order contract", () => {
       reactionFormulaModel: fixedReactionFormulaModel,
       directDamageGroupModel: fixedDirectDamageGroupModel,
       elementalApplicationIcdModel:
-        fixedElementalApplicationIcdModel
+        fixedElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        fixedReactionOwnedElementalApplicationModel
     });
   });
 
@@ -2896,7 +2924,13 @@ describe("1.34 general reaction order contract", () => {
     const frozenV144 = {
       ...withoutOwn(
         withoutOwn(
-          withoutOwn(current, "elementalApplicationIcdModel"),
+          withoutOwn(
+            withoutOwn(
+              current,
+              "reactionOwnedElementalApplicationModel"
+            ),
+            "elementalApplicationIcdModel"
+          ),
           "directDamageGroupModel"
         ),
         "reactionFormulaModel"
@@ -3260,6 +3294,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       directDamageGroupModel: _directDamageGroupModel,
       elementalApplicationIcdModel:
         _elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _reactionOwnedElementalApplicationModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3295,7 +3331,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         reactionFormulaModel: fixedReactionFormulaModel,
         directDamageGroupModel: fixedDirectDamageGroupModel,
         elementalApplicationIcdModel:
-          fixedElementalApplicationIcdModel
+          fixedElementalApplicationIcdModel,
+        reactionOwnedElementalApplicationModel:
+          fixedReactionOwnedElementalApplicationModel
       });
     }
 
@@ -3309,6 +3347,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       directDamageGroupModel: _currentDirectDamageGroupModel,
       elementalApplicationIcdModel:
         _currentElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _currentReactionOwnedElementalApplicationModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3416,9 +3456,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.47.0-elemental-application-icd-root"
+      "1.48.0-reaction-owned-application-root"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4474,10 +4514,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4567,6 +4607,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       directDamageGroupModel: _directDamageGroupModel,
       elementalApplicationIcdModel:
         _elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _reactionOwnedElementalApplicationModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4586,7 +4628,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionFormulaModel: fixedReactionFormulaModel,
       directDamageGroupModel: fixedDirectDamageGroupModel,
       elementalApplicationIcdModel:
-        fixedElementalApplicationIcdModel
+        fixedElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        fixedReactionOwnedElementalApplicationModel
     });
     expect(() =>
       migrateConfig({
@@ -4618,7 +4662,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       ...withoutOwn(
         withoutOwn(
           withoutOwn(
-            makeLegalAuraV7Config(),
+            withoutOwn(
+              makeLegalAuraV7Config(),
+              "reactionOwnedElementalApplicationModel"
+            ),
             "elementalApplicationIcdModel"
           ),
           "directDamageGroupModel"
@@ -4641,7 +4688,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionFormulaModel: fixedReactionFormulaModel,
       directDamageGroupModel: fixedDirectDamageGroupModel,
       elementalApplicationIcdModel:
-        fixedElementalApplicationIcdModel
+        fixedElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        fixedReactionOwnedElementalApplicationModel
     });
     expect(() =>
       migrateConfig({
@@ -4690,7 +4739,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       ...withoutOwn(
         withoutOwn(
           withoutOwn(
-            makeLegalAuraV7Config(),
+            withoutOwn(
+              makeLegalAuraV7Config(),
+              "reactionOwnedElementalApplicationModel"
+            ),
             "elementalApplicationIcdModel"
           ),
           "directDamageGroupModel"
@@ -4730,7 +4782,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       },
       directDamageGroupModel: fixedDirectDamageGroupModel,
       elementalApplicationIcdModel:
-        fixedElementalApplicationIcdModel
+        fixedElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        fixedReactionOwnedElementalApplicationModel
     };
     expect(migrated).toEqual(expectedCurrent);
     expect(migratedFromV144).toEqual(expectedCurrent);
@@ -4745,7 +4799,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV147Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV148Schema.parse(migrated)).toEqual(migrated);
     expect(simConfigSchema.parse(migrated)).toEqual(migrated);
     expect(() => simConfigV144Schema.parse(migrated)).toThrow();
     expect(() => simConfigV145Schema.parse(migrated)).toThrow();
@@ -4772,6 +4826,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       directDamageGroupModel: _currentDirectDamageGroupModel,
       elementalApplicationIcdModel:
         _currentElementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _currentReactionOwnedElementalApplicationModel,
       ...currentNumericalSemantics
     } = migratedTargetPhaseV3;
     const {
@@ -7431,6 +7487,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       directDamageGroupModel: _directDamageGroupModel,
       elementalApplicationIcdModel:
         _elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        _reactionOwnedElementalApplicationModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -7777,7 +7835,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           engineVersion: TARGET_REACTABLE_PHASE_ENGINE_VERSION
         }
       })
-    ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, 1\.45, or 1\.46 schema and engine identity/);
+    ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 through 1\.48 schema and engine identity/);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse({
         ...recursive,
@@ -7913,7 +7971,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
             engineVersion
           }
         })
-      ).toThrow(/requires an exact supported 1\.39 through 1\.42, 1\.44, 1\.45, or 1\.46 schema and engine identity/);
+      ).toThrow(/requires an exact supported 1\.39 through 1\.42 or 1\.44 through 1\.48 schema and engine identity/);
     }
   });
 
@@ -13884,6 +13942,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13913,11 +13973,14 @@ describe("simulation run manifest contract", () => {
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
     expect(manifest.version).toBe(
-      ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION
+      REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION
     );
-    expect(simulationRunManifestV147Schema.parse(manifest)).toEqual(
+    expect(simulationRunManifestV148Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV147Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV146Schema.parse(manifest)
     ).toThrow();
@@ -13937,6 +14000,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: _directDamageGroupRoot,
       elementalApplicationIcdRoot:
         _elementalApplicationIcdRoot,
+      reactionOwnedElementalApplicationRoot:
+        _reactionOwnedElementalApplicationRoot,
       version: _currentManifestVersion,
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
@@ -14022,6 +14087,28 @@ describe("simulation run manifest contract", () => {
     expect(() =>
       simulationRunManifestV147Schema.parse(frozenV146Manifest)
     ).toThrow();
+    const frozenV147Identity = {
+      ...frozenCommonIdentity,
+      version: ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT
+    };
+    const frozenV147Manifest = {
+      ...frozenV147Identity,
+      reproducibilityKey: createSimulationReproducibilityKey(
+        frozenV147Identity
+      )
+    };
+    expect(
+      simulationRunManifestV147Schema.parse(frozenV147Manifest)
+    ).toEqual(frozenV147Manifest);
+    expect(() =>
+      simulationRunManifestSchema.parse(frozenV147Manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestSchema.parse({
         ...manifest,
@@ -14057,6 +14144,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: forgedFormulaConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedFormulaConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
@@ -14082,6 +14171,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: forgedApplicationConfig.dataVersion,
       configHash: createSimulationConfigHash(
         forgedApplicationConfig
@@ -14093,6 +14184,36 @@ describe("simulation run manifest contract", () => {
       parseSimulationRunManifestForConfig(
         forgedApplicationManifest,
         forgedApplicationConfig as unknown as typeof config
+      )
+    ).toThrow(/not bound to the supplied migrated config/);
+    const forgedReactionOwnedConfig = {
+      ...config,
+      reactionOwnedElementalApplicationModel: {
+        ...config.reactionOwnedElementalApplicationModel,
+        policyId: "latest"
+      }
+    };
+    const forgedReactionOwnedManifest =
+      createSimulationRunManifest({
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION,
+        reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+        directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+        elementalApplicationIcdRoot:
+          GCSIM_ELEMENTAL_APPLICATION_ROOT,
+        reactionOwnedElementalApplicationRoot:
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+        dataVersion: forgedReactionOwnedConfig.dataVersion,
+        configHash: createSimulationConfigHash(
+          forgedReactionOwnedConfig
+        ),
+        resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
+        plugins: manifest.plugins
+      });
+    expect(() =>
+      parseSimulationRunManifestForConfig(
+        forgedReactionOwnedManifest,
+        forgedReactionOwnedConfig as unknown as typeof config
       )
     ).toThrow(/not bound to the supplied migrated config/);
 
@@ -14107,7 +14228,7 @@ describe("simulation run manifest contract", () => {
       }
     };
     expect(() =>
-      simulationRunManifestV147Schema.parse({
+      simulationRunManifestV148Schema.parse({
         ...applicationRootIdentity,
         reproducibilityKey: createSimulationReproducibilityKey(
           applicationRootIdentity as unknown as Parameters<
@@ -14117,6 +14238,29 @@ describe("simulation run manifest contract", () => {
       })
     ).toThrow(
       /must exactly equal the compiled provisional elemental-application ICD root/
+    );
+
+    const {
+      reproducibilityKey: _policyRootKey,
+      ...policyRootIdentity
+    } = {
+      ...manifest,
+      reactionOwnedElementalApplicationRoot: {
+        ...GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+        policyId: "latest"
+      }
+    };
+    expect(() =>
+      simulationRunManifestV148Schema.parse({
+        ...policyRootIdentity,
+        reproducibilityKey: createSimulationReproducibilityKey(
+          policyRootIdentity as unknown as Parameters<
+            typeof createSimulationReproducibilityKey
+          >[0]
+        )
+      })
+    ).toThrow(
+      /must exactly equal the compiled provisional reaction-owned elemental-application policy root/
     );
   });
 
@@ -14129,6 +14273,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14249,6 +14395,8 @@ describe("simulation run manifest contract", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14310,14 +14458,166 @@ describe("versioned config schema", () => {
     expect(migrated.elementalApplicationIcdModel).toEqual(
       fixedElementalApplicationIcdModel
     );
+    expect(
+      migrated.reactionOwnedElementalApplicationModel
+    ).toEqual(fixedReactionOwnedElementalApplicationModel);
+  });
+
+  it("migrates exact 1.47 to 1.48 by changing only identity and injecting the fixed reaction policy", () => {
+    const current = migrateConfig(legacyConfig);
+    const {
+      reactionOwnedElementalApplicationModel: _currentPolicy,
+      ...currentWithoutPolicy
+    } = current;
+    const frozenV147 = {
+      ...currentWithoutPolicy,
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    };
+
+    expect(simConfigV147Schema.parse(frozenV147)).toEqual(
+      frozenV147
+    );
+    expect(() => simConfigV148Schema.parse(frozenV147)).toThrow(
+      /reactionOwnedElementalApplicationModel/
+    );
+
+    const migrated = migrateConfig(frozenV147);
+    const {
+      reactionOwnedElementalApplicationModel,
+      schemaVersion,
+      engineVersion,
+      ...migratedPayload
+    } = migrated;
+    const {
+      schemaVersion: _frozenSchemaVersion,
+      engineVersion: _frozenEngineVersion,
+      ...frozenPayload
+    } = frozenV147;
+    expect(migratedPayload).toEqual(frozenPayload);
+    expect(schemaVersion).toBe(
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
+    );
+    expect(engineVersion).toBe(
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    );
+    expect(reactionOwnedElementalApplicationModel).toEqual(
+      fixedReactionOwnedElementalApplicationModel
+    );
+
+    expect(() =>
+      migrateConfig({
+        ...frozenV147,
+        reactionOwnedElementalApplicationModel:
+          fixedReactionOwnedElementalApplicationModel
+      })
+    ).toThrow(
+      /schemaVersion "1\.47\.0" does not support reaction-owned elemental-application policy selection/
+    );
+    expect(() =>
+      migrateConfig({
+        ...legacyConfig,
+        reactionOwnedElementalApplicationModel:
+          fixedReactionOwnedElementalApplicationModel
+      })
+    ).toThrow(
+      /schemaVersion "0\.1\.0" does not support reaction-owned elemental-application policy selection/
+    );
+    expect(() =>
+      migrateConfig({
+        ...frozenV147,
+        engineVersion: CURRENT_ENGINE_VERSION
+      })
+    ).toThrow(/schemaVersion "1\.47\.0" requires/);
+  });
+
+  it("strictly validates the 1.48 trusted reaction policy model and closed channels", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
+    );
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    );
+    expect(
+      reactionOwnedElementalApplicationModelSchema.parse(
+        fixedReactionOwnedElementalApplicationModel
+      )
+    ).toEqual(fixedReactionOwnedElementalApplicationModel);
+    expect(
+      reactionOwnedElementalApplicationRootSchema.parse(
+        structuredClone(
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+        )
+      )
+    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
+    expect(
+      trustedReactionElementalApplicationChannelSchema.parse({
+        kind: "burning-tick"
+      })
+    ).toEqual({ kind: "burning-tick" });
+    expect(
+      trustedReactionElementalApplicationInputSchema.parse({
+        frame: 0,
+        sourceActorId: "actor",
+        channel: {
+          kind: "swirl-propagation",
+          element: "pyro"
+        },
+        nominalGaugeUnits: 1
+      })
+    ).toMatchObject({ nominalGaugeUnits: 1 });
+    expect(() =>
+      trustedReactionElementalApplicationInputSchema.parse({
+        frame: 0,
+        sourceActorId: "actor",
+        channel: { kind: "burning-tick" },
+        nominalGaugeUnits: 2
+      })
+    ).toThrow(/Unrecognized key/);
+    expect(() =>
+      trustedReactionElementalApplicationInputSchema.parse({
+        frame: 0,
+        sourceActorId: "actor",
+        channel: {
+          kind: "swirl-propagation",
+          element: "pyro"
+        }
+      })
+    ).toThrow(/nominalGaugeUnits/);
+    expect(() =>
+      trustedReactionElementalApplicationSelectorSchema.parse({
+        ...fixedReactionOwnedElementalApplicationModel,
+        channel: { kind: "burning-tick" },
+        icdTag: "forged",
+        groupId: "default"
+      })
+    ).toThrow(/Unrecognized key/);
+    const current = migrateConfig(legacyConfig);
+    expect(() =>
+      parseSimConfig(
+        withoutOwn(
+          current,
+          "reactionOwnedElementalApplicationModel"
+        )
+      )
+    ).toThrow(/reactionOwnedElementalApplicationModel/);
+    expect(() =>
+      parseSimConfig({
+        ...current,
+        reactionOwnedElementalApplicationModel: {
+          ...fixedReactionOwnedElementalApplicationModel,
+          policyId: "latest"
+        }
+      })
+    ).toThrow(/reactionOwnedElementalApplicationModel/);
   });
 
   it("strictly validates the 1.47 application model and public fixed selectors", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    expect(ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION).toBe(
+      "1.47.0"
     );
-    expect(CURRENT_ENGINE_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    expect(ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION).toBe(
+      "1.47.0-elemental-application-icd-root"
     );
     expect(
       elementalApplicationIcdModelSchema.parse(
@@ -14557,6 +14857,8 @@ describe("versioned config schema", () => {
     const current = migrateConfig(legacyConfig);
     const {
       elementalApplicationIcdModel: _applicationModel,
+      reactionOwnedElementalApplicationModel:
+        _reactionOwnedApplicationModel,
       ...currentWithoutApplicationModel
     } = current;
     const frozenRotationV146 = {
@@ -14761,7 +15063,13 @@ describe("versioned config schema", () => {
     const frozenV144 = {
       ...withoutOwn(
         withoutOwn(
-          withoutOwn(current, "elementalApplicationIcdModel"),
+          withoutOwn(
+            withoutOwn(
+              current,
+              "reactionOwnedElementalApplicationModel"
+            ),
+            "elementalApplicationIcdModel"
+          ),
           "directDamageGroupModel"
         ),
         "reactionFormulaModel"
@@ -14822,13 +15130,19 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV147Schema.safeParse(nullPrototypeWire).success
+      simConfigV148Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {
       ...withoutOwn(
         withoutOwn(
-          withoutOwn(current, "elementalApplicationIcdModel"),
+          withoutOwn(
+            withoutOwn(
+              current,
+              "reactionOwnedElementalApplicationModel"
+            ),
+            "elementalApplicationIcdModel"
+          ),
           "directDamageGroupModel"
         ),
         "reactionFormulaModel"

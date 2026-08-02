@@ -265,6 +265,56 @@ function projectToFrozenV144(result: SimulationResult): unknown {
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete frozen.directDamageGroupLog;
   delete frozen.elementalApplicationIcdLog;
+  for (const collectionName of ["damageEvents", "hitEvents"] as const) {
+    const collection = frozen[collectionName];
+    if (!Array.isArray(collection)) continue;
+    for (const entry of collection) {
+      if (entry !== null && typeof entry === "object") {
+        delete (entry as Record<string, unknown>)
+          .elementalApplicationIcdLogId;
+      }
+    }
+  }
+  const hitResolutionLog = frozen.hitResolutionLog;
+  if (Array.isArray(hitResolutionLog)) {
+    for (const entry of hitResolutionLog) {
+      if (entry === null || typeof entry !== "object") continue;
+      const record = entry as Record<string, unknown>;
+      delete record.reactionDamageLogId;
+      delete record.elementalApplicationIcdLogId;
+    }
+  }
+  const reactionDamageLog = frozen.reactionDamageLog;
+  if (Array.isArray(reactionDamageLog)) {
+    for (const entry of reactionDamageLog) {
+      if (entry === null || typeof entry !== "object") continue;
+      const record = entry as Record<string, unknown>;
+      delete record.hitResolutionLogIds;
+      delete record.elementalApplicationIcdLogIds;
+    }
+  }
+  const targetPhaseLog = frozen.targetPhaseLog;
+  if (Array.isArray(targetPhaseLog)) {
+    for (const phase of targetPhaseLog) {
+      if (phase === null || typeof phase !== "object") continue;
+      const targetTasks = (phase as Record<string, unknown>)
+        .targetTasks;
+      if (!Array.isArray(targetTasks)) continue;
+      for (const task of targetTasks) {
+        if (task === null || typeof task !== "object") continue;
+        const delivery = (task as Record<string, unknown>).delivery;
+        if (delivery === null || typeof delivery !== "object") continue;
+        const attempts = (delivery as Record<string, unknown>).attempts;
+        if (!Array.isArray(attempts)) continue;
+        for (const attempt of attempts) {
+          if (attempt !== null && typeof attempt === "object") {
+            delete (attempt as Record<string, unknown>)
+              .elementalApplicationIcdLogId;
+          }
+        }
+      }
+    }
+  }
   const config = projectApplicationsToFrozenWire(
     frozen.config
   ) as Record<string, unknown>;
@@ -274,6 +324,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete config.reactionFormulaModel;
   delete config.directDamageGroupModel;
   delete config.elementalApplicationIcdModel;
+  delete config.reactionOwnedElementalApplicationModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
@@ -281,6 +332,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete manifest.reactionFormulaRoot;
   delete manifest.directDamageGroupRoot;
   delete manifest.elementalApplicationIcdRoot;
+  delete manifest.reactionOwnedElementalApplicationRoot;
   manifest.configHash = createSimulationConfigHash(config);
   const {
     reproducibilityKey: _ignoredReproducibilityKey,

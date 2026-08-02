@@ -25,7 +25,9 @@ import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { defineDamageModifierPlugin } from "../plugins";
@@ -43,6 +45,10 @@ const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
 const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
   mode: "fixed-gcsim-elemental-application-v1",
   profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+} as const;
+const EXPECTED_REACTION_OWNED_APPLICATION_MODEL = {
+  mode: "fixed-gcsim-reaction-owned-application-v1",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } as const;
 
 function projectApplicationsToLegacyWire(value: unknown): unknown {
@@ -95,6 +101,8 @@ function asV144Input(config: SimConfig): unknown {
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...legacyConfig
   } = structuredClone(config);
   return {
@@ -155,6 +163,9 @@ describe("reaction formula run-manifest root", () => {
       expect(config.elementalApplicationIcdModel).toEqual(
         EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
       );
+      expect(config.reactionOwnedElementalApplicationModel).toEqual(
+        EXPECTED_REACTION_OWNED_APPLICATION_MODEL
+      );
     }
   });
 
@@ -170,6 +181,9 @@ describe("reaction formula run-manifest root", () => {
     expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
       GCSIM_ELEMENTAL_APPLICATION_ROOT
     );
+    expect(
+      result.runManifest.reactionOwnedElementalApplicationRoot
+    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
     expect(result.runManifest.configHash).toBe(
       createSimulationConfigHash(result.config)
     );
@@ -219,7 +233,9 @@ describe("reaction formula run-manifest root", () => {
       reactionFormulaModel: EXPECTED_FORMULA_MODEL,
       directDamageGroupModel: EXPECTED_DIRECT_DAMAGE_GROUP_MODEL,
       elementalApplicationIcdModel:
-        EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
+        EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL,
+      reactionOwnedElementalApplicationModel:
+        EXPECTED_REACTION_OWNED_APPLICATION_MODEL
     });
     expect(result.config.reactionFormulaModel).toEqual(
       EXPECTED_FORMULA_MODEL
@@ -230,6 +246,9 @@ describe("reaction formula run-manifest root", () => {
     expect(result.config.elementalApplicationIcdModel).toEqual(
       EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
     );
+    expect(result.config.reactionOwnedElementalApplicationModel).toEqual(
+      EXPECTED_REACTION_OWNED_APPLICATION_MODEL
+    );
     expect(result.runManifest.reactionFormulaRoot).toEqual(
       CLASSIC_REACTION_FORMULA_ROOT
     );
@@ -239,6 +258,9 @@ describe("reaction formula run-manifest root", () => {
     expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
       GCSIM_ELEMENTAL_APPLICATION_ROOT
     );
+    expect(
+      result.runManifest.reactionOwnedElementalApplicationRoot
+    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
   });
 
   it("preserves the default 120-second damage semantics", () => {
@@ -318,7 +340,7 @@ describe("reaction formula run-manifest root", () => {
       expect(() =>
         simulate(oneHitConfig(), { plugins: [plugin] })
       ).toThrow(
-        /Trusted SimulationResult 1\.47 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/
+        /Trusted SimulationResult 1\.48 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/
       );
     }
   );

@@ -7,6 +7,8 @@ import {
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type AuraStateEntry,
@@ -422,10 +424,188 @@ function exactLifecycleLinks(
   );
 }
 
+export interface TargetPhaseV3BurningApplicationReferenceIssue {
+  path: Array<string | number>;
+  message: string;
+}
+
+/**
+ * Focused 1.48 four-way reference replay for one callback-owned Burning
+ * delivery. It is kept pure so coordinated-link mutation tests do not need to
+ * import the simulator back into the schema package.
+ */
+export function collectTargetPhaseV3BurningApplicationReferenceIssues({
+  delivery,
+  reactionDamage,
+  hitResolutionLog,
+  damageEvents,
+  elementalApplicationIcdLog
+}: {
+  delivery: NonNullable<
+    TargetPhaseV3LogEntry["targetTasks"][number]["delivery"]
+  >;
+  reactionDamage: SimulationResult["reactionDamageLog"][number];
+  hitResolutionLog: SimulationResult["hitResolutionLog"];
+  damageEvents: SimulationResult["damageEvents"];
+  elementalApplicationIcdLog:
+    SimulationResult["elementalApplicationIcdLog"];
+}): TargetPhaseV3BurningApplicationReferenceIssue[] {
+  const issues: TargetPhaseV3BurningApplicationReferenceIssue[] = [];
+  const add = (path: IssuePath, message: string): void => {
+    issues.push({ path, message });
+  };
+  const hitById = new Map(
+    hitResolutionLog.map((entry) => [entry.id, entry])
+  );
+  const damageById = new Map(
+    damageEvents.map((entry) => [entry.id, entry])
+  );
+  const applicationById = new Map(
+    elementalApplicationIcdLog.map((entry) => [entry.id, entry])
+  );
+  const resolvedAttempts = delivery.attempts.filter(
+    (attempt) => attempt.outcome !== "unresolved"
+  );
+  const expectedHitIds: number[] = [];
+  const expectedApplicationIds: number[] = [];
+  const claimedApplicationIds = new Set<number>();
+
+  let resolvedAttemptIndex = 0;
+  for (const [attemptIndex, attempt] of
+    delivery.attempts.entries()) {
+    const attemptPath = [
+      "attempts",
+      attemptIndex
+    ] satisfies IssuePath;
+    if (attempt.outcome === "unresolved") {
+      if (attempt.elementalApplicationIcdLogId !== null) {
+        add(
+          [...attemptPath, "elementalApplicationIcdLogId"],
+          "unresolved Burning delivery attempt cannot claim an application row"
+        );
+      }
+      continue;
+    }
+
+    expectedHitIds.push(attempt.hitResolutionLogId);
+    expectedApplicationIds.push(
+      attempt.elementalApplicationIcdLogId
+    );
+    if (
+      claimedApplicationIds.has(
+        attempt.elementalApplicationIcdLogId
+      )
+    ) {
+      add(
+        [...attemptPath, "elementalApplicationIcdLogId"],
+        "Burning delivery application row cannot be claimed by two attempts"
+      );
+    }
+    claimedApplicationIds.add(
+      attempt.elementalApplicationIcdLogId
+    );
+
+    const hit = hitById.get(attempt.hitResolutionLogId);
+    if (
+      hit === undefined ||
+      hit.reactionDamageLogId !== reactionDamage.id ||
+      hit.elementalApplicationIcdLogId !==
+        attempt.elementalApplicationIcdLogId ||
+      hit.damageEventId !== attempt.damageEventId
+    ) {
+      add(
+        [...attemptPath, "hitResolutionLogId"],
+        "Burning delivery hit must reciprocally link its reaction, application, and damage rows"
+      );
+    }
+
+    const application = applicationById.get(
+      attempt.elementalApplicationIcdLogId
+    );
+    if (
+      application === undefined ||
+      application.sourceKind !== "burning-tick" ||
+      application.reactionDamageLogId !== reactionDamage.id ||
+      application.hitResolutionLogId !==
+        attempt.hitResolutionLogId ||
+      application.damageEventId !== attempt.damageEventId ||
+      application.frame !== reactionDamage.damageFrame ||
+      application.eventPriority !== delivery.eventPriority ||
+      application.eventSequence !== delivery.eventSequence ||
+      application.attemptIndex !== resolvedAttemptIndex ||
+      application.attemptCount !== resolvedAttempts.length ||
+      application.deliveryPhase !== attempt.applicationPhase ||
+      application.sourceActorId !== reactionDamage.sourceActorId ||
+      application.targetId !== attempt.targetId ||
+      application.hitId !== hit?.hitId ||
+      application.hitGroupId !== hit?.hitGroupId ||
+      application.element !== "pyro" ||
+      application.nominalGaugeUnits !==
+        BURNING_APPLICATION_GAUGE_UNITS ||
+      application.selector.channel.kind !== "burning-tick"
+    ) {
+      add(
+        [...attemptPath, "elementalApplicationIcdLogId"],
+        "Burning delivery application row must match its attempt, hit, reaction, and micro-event tuple"
+      );
+    }
+
+    if (attempt.outcome === "landed") {
+      const damage = damageById.get(attempt.damageEventId);
+      if (
+        damage === undefined ||
+        damage.targetResolutionId !==
+          attempt.hitResolutionLogId ||
+        damage.elementalApplicationIcdLogId !==
+          attempt.elementalApplicationIcdLogId
+      ) {
+        add(
+          [...attemptPath, "damageEventId"],
+          "landed Burning delivery damage must reciprocally link its hit and application rows"
+        );
+      }
+    }
+    resolvedAttemptIndex += 1;
+  }
+
+  if (
+    !semanticEqual(
+      reactionDamage.hitResolutionLogIds,
+      expectedHitIds
+    )
+  ) {
+    add(
+      [
+        "reactionDamageLog",
+        reactionDamage.id,
+        "hitResolutionLogIds"
+      ],
+      "Burning reaction parent must list every resolved delivery hit in attempt order"
+    );
+  }
+  if (
+    !semanticEqual(
+      reactionDamage.elementalApplicationIcdLogIds,
+      expectedApplicationIds
+    )
+  ) {
+    add(
+      [
+        "reactionDamageLog",
+        reactionDamage.id,
+        "elementalApplicationIcdLogIds"
+      ],
+      "Burning reaction parent must list every resolved delivery application in attempt order"
+    );
+  }
+
+  return issues;
+}
+
 /**
  * Cross-log proof for the target-phase-v3 Burning callback wire frozen by
- * 1.44 and reused unchanged by the exact 1.45 formula-root and 1.46
- * direct-damage-group-root identities.
+ * 1.44 and reused by the exact 1.45-1.47 identities. Exact 1.48 adds the
+ * reaction-owned application row and its reciprocal attempt references.
  *
  * The callback task is the ownership root. Its delivery is a distinct
  * zero-delay micro-event between QueueEnemyTask and Reactable.Tick. This pass
@@ -467,16 +647,26 @@ export function validateTargetPhaseV3Integrity(
     resultEngineVersion === ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION &&
     configSchemaVersion === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
     configEngineVersion === ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+  const exactV148Identity =
+    resultSchemaVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
+    resultEngineVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION &&
+    configSchemaVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
+    configEngineVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
   if (
     !exactV144Identity &&
     !exactV145Identity &&
     !exactV146Identity &&
-    !exactV147Identity
+    !exactV147Identity &&
+    !exactV148Identity
   ) {
     addIssue(
       context,
       ["schemaVersion"],
-      "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, or 1.47 schema and engine identity"
+      "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, 1.47, or 1.48 schema and engine identity"
     );
     return;
   }
@@ -566,6 +756,14 @@ export function validateTargetPhaseV3Integrity(
   const damageById = new Map(
     result.damageEvents.map((entry) => [entry.id, entry])
   );
+  const applicationById = new Map(
+    exactV148Identity
+      ? (result.elementalApplicationIcdLog ?? []).map((entry) => [
+          entry.id,
+          entry
+        ])
+      : []
+  );
   const reactionTaskById = new Map(
     result.reactionTaskLog.map((entry) => [entry.id, entry])
   );
@@ -647,6 +845,7 @@ export function validateTargetPhaseV3Integrity(
   const reactionDamageDeliveryOwners = new Map<number, IssuePath>();
   const callbackHitOwners = new Map<number, IssuePath>();
   const callbackDamageOwners = new Map<number, IssuePath>();
+  const callbackApplicationOwners = new Map<number, IssuePath>();
   const callbackTimelineOwners = new Map<number, IssuePath>();
   const phaseHitOwners = new Map<number, IssuePath>();
   const phaseReactionTaskOwners = new Map<number, IssuePath>();
@@ -1045,6 +1244,7 @@ export function validateTargetPhaseV3Integrity(
       const unresolvedTargetIds: string[] = [];
       const hitResolutionLogIds: number[] = [];
       const damageEventIds: number[] = [];
+      const elementalApplicationIcdLogIds: number[] = [];
       let resolvedTargetIndex = 0;
       const resolvedTargetCount = delivery.attempts.filter(
         (attempt) => attempt.outcome !== "unresolved"
@@ -1408,6 +1608,17 @@ export function validateTargetPhaseV3Integrity(
             );
           }
         }
+        if (exactV148Identity) {
+          const applicationId =
+            attempt.elementalApplicationIcdLogId;
+          elementalApplicationIcdLogIds.push(applicationId);
+          claimUnique(
+            callbackApplicationOwners,
+            applicationId,
+            [...attemptPath, "elementalApplicationIcdLogId"],
+            "callback-owned elemental-application row"
+          );
+        }
         resolvedTargetIndex += 1;
 
         if (attempt.outcome === "miss") {
@@ -1526,6 +1737,26 @@ export function validateTargetPhaseV3Integrity(
         }
       }
 
+      if (exactV148Identity) {
+        for (const issue of
+          collectTargetPhaseV3BurningApplicationReferenceIssues({
+            delivery,
+            reactionDamage,
+            hitResolutionLog: result.hitResolutionLog,
+            damageEvents: result.damageEvents,
+            elementalApplicationIcdLog:
+              result.elementalApplicationIcdLog ?? []
+          })) {
+          addIssue(
+            context,
+            issue.path[0] === "attempts"
+              ? [...deliveryPath, ...issue.path]
+              : issue.path,
+            issue.message
+          );
+        }
+      }
+
       expectSemanticEqual(
         context,
         ["reactionDamageLog", reactionDamage.id, "checkedTargetIds"],
@@ -1629,6 +1860,12 @@ export function validateTargetPhaseV3Integrity(
         outcome: attempt.outcome,
         hitResolutionLogId: attempt.hitResolutionLogId,
         damageEventId: attempt.damageEventId,
+        ...(exactV148Identity
+          ? {
+              elementalApplicationIcdLogId:
+                attempt.elementalApplicationIcdLogId
+            }
+          : {}),
         targetStateTimelinePointId:
           attempt.targetStateTimelinePointId
       }));
@@ -1640,6 +1877,11 @@ export function validateTargetPhaseV3Integrity(
           const damageId = damageEventIds.find(
             (id) => damageById.get(id)?.targetId === target.id
           );
+          const applicationId =
+            elementalApplicationIcdLogIds.find(
+              (id) =>
+                applicationById.get(id)?.targetId === target.id
+            );
           const timelineId = [...callbackTimelineOwners.keys()].find(
             (id) =>
               timelinePointById.get(id)?.targetId === target.id &&
@@ -1657,6 +1899,12 @@ export function validateTargetPhaseV3Integrity(
             outcome,
             hitResolutionLogId: hitId ?? null,
             damageEventId: damageId ?? null,
+            ...(exactV148Identity
+              ? {
+                  elementalApplicationIcdLogId:
+                    applicationId ?? null
+                }
+              : {}),
             targetStateTimelinePointId: timelineId ?? null
           };
         }
@@ -2155,6 +2403,22 @@ export function validateTargetPhaseV3Integrity(
     }
   }
 
+  if (exactV148Identity) {
+    for (const [rowIndex, application] of
+      (result.elementalApplicationIcdLog ?? []).entries()) {
+      if (
+        application.sourceKind === "burning-tick" &&
+        !callbackApplicationOwners.has(application.id)
+      ) {
+        addIssue(
+          context,
+          ["elementalApplicationIcdLog", rowIndex, "id"],
+          `target-phase-v3 Burning application row ${application.id} requires exactly one callback delivery attempt`
+        );
+      }
+    }
+  }
+
   const targetLifecycleCauses = new Set([
     "aura-natural-expiry",
     "frozen-expiry",
@@ -2245,6 +2509,7 @@ export const targetPhaseV3ResultReferencesSchema = z
     targetTaskPhaseLog: z.array(z.unknown()),
     burningStateLog: z.array(z.unknown()),
     reactionDamageLog: z.array(z.unknown()),
+    elementalApplicationIcdLog: z.array(z.unknown()).optional(),
     hitResolutionLog: z.array(z.unknown()),
     damageEvents: z.array(z.unknown()),
     targetStateTimeline: z

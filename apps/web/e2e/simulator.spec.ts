@@ -7,7 +7,8 @@ import {
 } from "@genshin-dps-lab/game-data/presets";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 
 function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
@@ -109,6 +110,15 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     mode: "fixed-gcsim-elemental-application-v1",
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   });
+  const importedReactionOwnedElementalApplicationModel = await page.evaluate(
+    () =>
+      window.GenshinDpsLab.getConfig()
+        .reactionOwnedElementalApplicationModel
+  );
+  expect(importedReactionOwnedElementalApplicationModel).toEqual({
+    mode: "fixed-gcsim-reaction-owned-application-v1",
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -142,6 +152,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     reactionFormulaModel?: unknown;
     directDamageGroupModel?: unknown;
     elementalApplicationIcdModel?: unknown;
+    reactionOwnedElementalApplicationModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
@@ -157,6 +168,9 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   );
   expect(exportedConfig.elementalApplicationIcdModel).toEqual(
     importedElementalApplicationIcdModel
+  );
+  expect(exportedConfig.reactionOwnedElementalApplicationModel).toEqual(
+    importedReactionOwnedElementalApplicationModel
   );
 });
 
@@ -178,6 +192,7 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
   delete historicalConfig.reactionFormulaModel;
   delete historicalConfig.directDamageGroupModel;
   delete historicalConfig.elementalApplicationIcdModel;
+  delete historicalConfig.reactionOwnedElementalApplicationModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -198,12 +213,14 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       reactionFormulaModel: config.reactionFormulaModel,
       directDamageGroupModel: config.directDamageGroupModel,
       elementalApplicationIcdModel:
-        config.elementalApplicationIcdModel
+        config.elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        config.reactionOwnedElementalApplicationModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.47.0",
-    engineVersion: "1.47.0-elemental-application-icd-root",
+    schemaVersion: "1.48.0",
+    engineVersion: "1.48.0-reaction-owned-application-root",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -221,6 +238,10 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
     elementalApplicationIcdModel: {
       mode: "fixed-gcsim-elemental-application-v1",
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     }
   });
 });
@@ -239,6 +260,7 @@ test("rejects a 1.38 wire polluted by the current reaction formula model", async
   delete pollutedHistoricalConfig.electroChargedPropagationModel;
   delete pollutedHistoricalConfig.directDamageGroupModel;
   delete pollutedHistoricalConfig.elementalApplicationIcdModel;
+  delete pollutedHistoricalConfig.reactionOwnedElementalApplicationModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
@@ -307,9 +329,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.47.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.48.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.47.0-elemental-application-icd-root"
+    "engine 1.48.0-reaction-owned-application-root"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

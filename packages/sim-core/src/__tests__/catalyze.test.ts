@@ -368,7 +368,7 @@ describe("aura-v3 Dendro and Catalyze", () => {
       expect(() =>
         assertTrustedSimulationResult(forged)
       ).toThrow(
-        /Trusted SimulationResult 1\.47 integrity validation failed/
+        /Trusted SimulationResult 1\.48 integrity validation failed/
       );
     }
   });
@@ -928,7 +928,7 @@ describe("Catalyze simulation integration", () => {
     expect(() =>
       assertTrustedSimulationResult(forged)
     ).toThrow(
-      /Trusted SimulationResult 1\.47 integrity validation failed/
+      /Trusted SimulationResult 1\.48 integrity validation failed/
     );
   });
 

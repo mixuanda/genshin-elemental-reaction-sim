@@ -2,6 +2,11 @@
   "name": "@genshin-dps-lab/test-vectors",
   "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "golden:v148:default:preview": "node scripts/generate-legacy-default-v148.mjs --preview",
+    "golden:v148:default:freeze": "UPDATE_LEGACY_DEFAULT_V148_GOLDEN=1 node scripts/generate-legacy-default-v148.mjs",
+    "golden:v148:reactions:preview": "node scripts/generate-reaction-owned-application-v148.mjs --preview",
+    "golden:v148:reactions:freeze": "UPDATE_REACTION_OWNED_APPLICATION_V148_GOLDEN=1 node scripts/generate-reaction-owned-application-v148.mjs"
+  }
 }
-

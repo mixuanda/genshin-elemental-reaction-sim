@@ -268,6 +268,40 @@ function projectTimelinePoint(entry: TargetStateTimelinePoint) {
   };
 }
 
+function projectAttemptWireToFrozenV144(
+  attempt: TargetPhaseV3DeliveryAttempt
+) {
+  const {
+    elementalApplicationIcdLogId:
+      _elementalApplicationIcdLogId,
+    ...frozenAttempt
+  } = attempt;
+  return frozenAttempt;
+}
+
+function projectDeliveryToFrozenV144<
+  T extends { attempts: TargetPhaseV3DeliveryAttempt[] }
+>(delivery: T) {
+  return {
+    ...delivery,
+    attempts: delivery.attempts.map(
+      projectAttemptWireToFrozenV144
+    )
+  };
+}
+
+function projectReactionDamageToFrozenV144(
+  entry: SimulationResult["reactionDamageLog"][number]
+) {
+  const {
+    hitResolutionLogIds: _hitResolutionLogIds,
+    elementalApplicationIcdLogIds:
+      _elementalApplicationIcdLogIds,
+    ...frozenEntry
+  } = entry;
+  return frozenEntry;
+}
+
 function projectAttempt(
   result: SimulationResult,
   attempt: TargetPhaseV3DeliveryAttempt
@@ -301,7 +335,7 @@ function projectAttempt(
     );
   }
   return {
-    attempt,
+    attempt: projectAttemptWireToFrozenV144(attempt),
     hit: hit === null || hit === undefined
       ? null
       : projectHit(hit),
@@ -329,6 +363,8 @@ function projectCurrentConfigToFrozenV144(
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...frozenCommon
   } = config;
   const legacyWire = structuredClone(frozenCommon);
@@ -411,6 +447,8 @@ function projectBurningCallbackScenario(
     );
   }
   const delivery = ownerTask.delivery;
+  const frozenDelivery =
+    projectDeliveryToFrozenV144(delivery);
   const burningState =
     ownerTask.burningStateLogId === null
       ? undefined
@@ -541,17 +579,24 @@ function projectBurningCallbackScenario(
         reactionTaskLogIds:
           ownerPhase.reactionTaskLogIds
       },
-      ownerTask,
-      delivery,
+      ownerTask: {
+        ...ownerTask,
+        delivery: frozenDelivery
+      },
+      delivery: frozenDelivery,
       burningState,
-      rootReactionDamage,
+      rootReactionDamage:
+        projectReactionDamageToFrozenV144(
+          rootReactionDamage
+        ),
       attempts: delivery.attempts.map((attempt) =>
         projectAttempt(result, attempt)
       ),
       rootDamageEvents
     },
     nestedOverload: {
-      reactionDamage: overload,
+      reactionDamage:
+        projectReactionDamageToFrozenV144(overload),
       triggerDamageEvent: projectDamage(overloadTrigger),
       hitResolutionRows: overloadHitResolutionRows,
       damageEvents: overloadDamageEvents,

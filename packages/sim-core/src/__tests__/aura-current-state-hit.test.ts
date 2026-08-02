@@ -225,7 +225,7 @@ describe("AuraEngine current-state hit boundary", () => {
         ...input,
         frame: Number.NaN
       })
-    ).toThrow(/non-negative safe integer/);
+    ).toThrow(/Elemental application frame must be finite/);
     expect(engine.getCurrentFrame()).toBe(10);
     expect(engine.getAuraStateAt(10)).toEqual([]);
 

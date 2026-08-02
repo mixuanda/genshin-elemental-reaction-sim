@@ -368,6 +368,8 @@ function projectCurrentConfigToFrozenV146(
   const {
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...currentWithoutApplicationModel
   } = structuredClone(config);
   const projected = projectApplicationsToFrozenV146Wire(
@@ -388,6 +390,8 @@ function projectCurrentManifestToFrozenV146(
   const {
     elementalApplicationIcdRoot:
       _elementalApplicationIcdRoot,
+    reactionOwnedElementalApplicationRoot:
+      _reactionOwnedElementalApplicationRoot,
     reproducibilityKey: _currentReproducibilityKey,
     ...currentIdentity
   } = result.runManifest;
@@ -424,6 +428,28 @@ function projectCurrentDamageEventsToFrozenV146(
     ) ?? [])
   ];
   const projected = structuredClone(result.damageEvents);
+  const postV146Fields = [
+    "applicationIcdDecision",
+    "applicationIcdLogId",
+    "elementalApplicationIcdLogId",
+    "applicationMultiplier",
+    "nominalApplicationGaugeUnits",
+    "effectiveApplicationGaugeUnits"
+  ] as const;
+  for (const event of projected) {
+    const eventRecord = event as unknown as Record<
+      string,
+      unknown
+    >;
+    const auditRecord = event.reactionAudit as unknown as Record<
+      string,
+      unknown
+    >;
+    for (const field of postV146Fields) {
+      delete eventRecord[field];
+      delete auditRecord[field];
+    }
+  }
   for (const row of result.elementalApplicationIcdLog) {
     if (row.damageEventId === null) continue;
     const event = projected[row.damageEventId];
@@ -435,6 +461,30 @@ function projectCurrentDamageEventsToFrozenV146(
     ) {
       throw new Error(
         `Cannot project dangling elemental-application audit row ${row.id} onto frozen 1.46 damage events.`
+      );
+    }
+    if (row.sourceKind === "burning-tick") {
+      if (
+        row.element !== "pyro" ||
+        row.nominalGaugeUnits !== 1 ||
+        event.reactionAudit.icdAllowed !== row.decision.allowed
+      ) {
+        throw new Error(
+          `Reaction-owned Burning audit row ${row.id} cannot be represented by the frozen 1.46 wire.`
+        );
+      }
+      event.reactionAudit.icdAllowed = row.decision.allowed;
+      event.reactionAudit.icdTag = "burning-application";
+      event.reactionAudit.icdGroup = "burning";
+      event.reactionAudit.applicationGaugeUnits =
+        row.nominalGaugeUnits;
+      event.reactionAudit.note =
+        "燃烧范围传播：先以 1U 附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的扩散伤害。";
+      continue;
+    }
+    if (row.sourceKind === "swirl-propagation") {
+      throw new Error(
+        "Frozen 1.46 damage projection has no audited Swirl-propagation downgrade contract."
       );
     }
     const matches = configuredHits.filter(
@@ -953,6 +1003,8 @@ function makeLegacyDefaultV145CreationProbeFixture(
     directDamageGroupRoot: _directDamageGroupRoot,
     elementalApplicationIcdRoot:
       _elementalApplicationIcdRoot,
+    reactionOwnedElementalApplicationRoot:
+      _reactionOwnedElementalApplicationRoot,
     ...historicalRunManifest
   } = result.runManifest;
   return legacyDefault120sGoldenFixtureV145Schema.parse({
@@ -986,7 +1038,12 @@ function makeLegacyDefaultV145CreationProbeFixture(
         hits
       })
     ),
-    legacyDamageEventsSha256: sha256(result.damageEvents),
+    legacyDamageEventsSha256: sha256(
+      projectCurrentDamageEventsToFrozenV146(
+        result,
+        projectCurrentConfigToFrozenV146(result.config)
+      )
+    ),
     reactionDeliveryModel: result.config.reactionDeliveryModel,
     electroChargedPropagationModel:
       result.config.electroChargedPropagationModel,
@@ -1070,6 +1127,41 @@ function v130CompatibilityResult(
   reproducibilityKey: string,
   frozenConfig?: SimConfigV146
 ): unknown {
+  const frozenDamageEvents =
+    frozenConfig === undefined
+      ? result.damageEvents
+      : projectCurrentDamageEventsToFrozenV146(
+          result,
+          frozenConfig
+        );
+  const frozenHitResolutionLog = result.hitResolutionLog.map(
+    (entry) => {
+      const {
+        reactionDamageLogId: _reactionDamageLogId,
+        elementalApplicationIcdLogId:
+          _elementalApplicationIcdLogId,
+        ...withoutV148Backlinks
+      } = entry;
+      if (entry.resolutionKind !== "reaction-damage") {
+        return withoutV148Backlinks;
+      }
+      const {
+        eventPriority: _eventPriority,
+        eventSequence: _eventSequence,
+        intraEventSequence: _intraEventSequence,
+        ...frozenEntry
+      } = withoutV148Backlinks;
+      return frozenEntry;
+    }
+  );
+  const frozenReactionDamageLog = result.reactionDamageLog.map(
+    ({
+      hitResolutionLogIds: _hitResolutionLogIds,
+      elementalApplicationIcdLogIds:
+        _elementalApplicationIcdLogIds,
+      ...frozenEntry
+    }) => frozenEntry
+  );
   const {
     targetStateTimeline: _targetStateTimeline,
     dendroCoreLog: _dendroCoreLog,
@@ -1101,6 +1193,10 @@ function v130CompatibilityResult(
   return stripV131QuickenLifecycleAudit(
     stripV132BurningSkipAuditCorrection({
       ...preDendroCoreResult,
+      damageEvents: frozenDamageEvents,
+      hitEvents: frozenDamageEvents,
+      hitResolutionLog: frozenHitResolutionLog,
+      reactionDamageLog: frozenReactionDamageLog,
       schemaVersion: "1.30.0",
       engineVersion: "1.30.0-burning-reaction",
       reproducibilityKey,
@@ -1117,7 +1213,9 @@ function v130CompatibilityResult(
               key !== "electroChargedPropagationModel" &&
               key !== "reactionFormulaModel" &&
               key !== "directDamageGroupModel" &&
-              key !== "elementalApplicationIcdModel"
+              key !== "elementalApplicationIcdModel" &&
+              key !==
+                "reactionOwnedElementalApplicationModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -1167,6 +1265,8 @@ function makeBurningGoldenConfig(): unknown {
     directDamageGroupModel: _directDamageGroupModel,
     elementalApplicationIcdModel:
       _elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
     ...v130Base
   } = base;
   return {
@@ -1717,7 +1817,9 @@ describe("1.44 identity migration release gate", () => {
         directDamageGroupModel:
           makeConfig().directDamageGroupModel,
         elementalApplicationIcdModel:
-          makeConfig().elementalApplicationIcdModel
+          makeConfig().elementalApplicationIcdModel,
+        reactionOwnedElementalApplicationModel:
+          makeConfig().reactionOwnedElementalApplicationModel
       });
       expect(historical).toEqual(before);
     });
@@ -1743,7 +1845,9 @@ describe("1.44 identity migration release gate", () => {
       directDamageGroupModel:
         makeConfig().directDamageGroupModel,
       elementalApplicationIcdModel:
-        makeConfig().elementalApplicationIcdModel
+        makeConfig().elementalApplicationIcdModel,
+      reactionOwnedElementalApplicationModel:
+        makeConfig().reactionOwnedElementalApplicationModel
     };
     expect(migrateConfig(currentAuraV8)).toEqual(
       currentAuraV8
@@ -2090,9 +2194,14 @@ describe("Vanilla v0.1 golden compatibility", () => {
     expect(result.pluginManifest).toBe(
       result.runManifest.plugins
     );
-    expect(sha256(result.damageEvents)).toBe(
-      goldenV145.legacyDamageEventsSha256
-    );
+    expect(
+      sha256(
+        projectCurrentDamageEventsToFrozenV146(
+          result,
+          projectCurrentConfigToFrozenV146(result.config)
+        )
+      )
+    ).toBe(goldenV145.legacyDamageEventsSha256);
     expect(result.config.targetClockModel).toEqual(
       { mode: "disabled" }
     );
@@ -2173,7 +2282,8 @@ describe("Vanilla v0.1 golden compatibility", () => {
       sha256(
         v130CompatibilityResult(
           result,
-          LEGACY_V130_REPRODUCIBILITY_KEY
+          LEGACY_V130_REPRODUCIBILITY_KEY,
+          projectCurrentConfigToFrozenV146(result.config)
         )
       )
     ).toBe(
@@ -2608,9 +2718,7 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(sha256(result.burningStateLog)).toBe(
       BURNING_STATE_LOG_SHA256
     );
-    expect(
-      sha256(
-        v130CompatibilityResult(
+    const v130Probe = v130CompatibilityResult(
           {
             ...result,
             damageEvents: frozenV146DamageEvents,
@@ -2618,9 +2726,8 @@ describe("Burning aura-v4 provisional golden", () => {
           },
           burningGolden.reproducibilityKey,
           frozenV146Config
-        )
-      )
-    ).toBe(
+        );
+    expect(sha256(v130Probe)).toBe(
       BURNING_V130_COMPATIBILITY_SHA256
     );
     expectNoDendroCoreOutput(result);

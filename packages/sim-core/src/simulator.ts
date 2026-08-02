@@ -4,7 +4,6 @@ import {
   CURRENT_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
-  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
@@ -19,7 +18,7 @@ import {
   targetHitlagLogSchema,
   targetPhaseV2LogSchema,
   targetPhaseV2ResultReferencesSchema,
-  targetPhaseV3LogSchema,
+  targetPhaseV3LogV148Schema,
   targetPhaseV3ResultReferencesSchema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
@@ -42,7 +41,8 @@ import {
   type DendroCoreReaction,
   type Element,
   type ElementalApplication,
-  type ElementalApplicationIcdDecision,
+  type ElementalApplicationIcdDecisionV147,
+  type ReactionOwnedElementalApplicationIcdDecisionV148,
   type ElectroChargedCleanupAudit,
   type ElectroChargedPropagationAudit,
   type ElectroChargedPropagationCandidateAudit,
@@ -50,7 +50,6 @@ import {
   type HitGeometry,
   type HitDefinition,
   type HitTargeting,
-  type LegacyElementalApplicationV146,
   type ParticleDefinition,
   type ReactionAudit,
   type ReactionADamageGroupAudit,
@@ -78,14 +77,15 @@ import {
   type TargetPhaseV3DeliveryAttempt,
   type TargetPhaseV3LogEntry,
   type TargetPhaseV3TargetTask,
-  type TimelineExecution
+  type TimelineExecution,
+  type TrustedReactionElementalApplicationChannel
 } from "@genshin-dps-lab/schemas";
-import {
-  CLASSIC_REACTION_FORMULA_ROOT
-} from "@genshin-dps-lab/reaction-formulas";
+import { CLASSIC_REACTION_FORMULA_ROOT } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
   AURA_ENGINE_CONSTANTS,
@@ -154,6 +154,10 @@ import {
   type TargetLocalClockState
 } from "./target-clock";
 import { DirectDamageGroupEngine } from "./direct-damage-group";
+import {
+  skippedConfiguredElementalApplicationDecision,
+  skippedReactionOwnedElementalApplicationDecision
+} from "./elemental-application-decision";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -185,23 +189,6 @@ export const EVENT_PRIORITY = {
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly DamageModifierPlugin[];
-}
-
-function skippedElementalApplicationDecision(
-  reason:
-    | "miss"
-    | "target-aura-blocked"
-    | "no-aura-engine"
-    | "mechanics-truncated"
-): ElementalApplicationIcdDecision {
-  return {
-    kind: "skipped",
-    evaluated: false,
-    reason,
-    consumed: false,
-    applicationMultiplier: 0,
-    allowed: false
-  };
 }
 
 export function projectBloomBurningFuelExpiry(
@@ -793,8 +780,11 @@ interface ReactionDamageEventPayload {
   snapshot: DamageEvent["snapshot"];
   cycle: number;
   reactionDamageLogId: number;
-  /** Reaction-owned application wire; it is outside the generic 1.47 log. */
-  application?: LegacyElementalApplicationV146;
+  /** Closed, engine-owned reaction application channel. */
+  reactionApplication?: {
+    channel: TrustedReactionElementalApplicationChannel;
+    nominalGaugeUnits: number;
+  };
   excludedTargetIds?: string[];
   swirlContext?: {
     scheduleKind: "swirl-self" | "swirl-propagation";
@@ -1492,8 +1482,9 @@ function simulateConfig(
       configHash: createSimulationConfigHash(resultConfig),
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
-      elementalApplicationIcdRoot:
-        GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -2434,15 +2425,16 @@ function simulateConfig(
     hitGroupId: string;
     element: Element;
     application: ElementalApplication;
-    decision: Readonly<ElementalApplicationIcdDecision>;
-  }): void => {
+    decision: Readonly<ElementalApplicationIcdDecisionV147>;
+  }): number => {
     if (element === "physical") {
       throw new Error(
         `Configured elemental application "${hitGroupId}" cannot use physical damage.`
       );
     }
+    const id = elementalApplicationIcdLog.length;
     elementalApplicationIcdLog.push({
-      id: elementalApplicationIcdLog.length,
+      id,
       sourceKind: "configured-direct-hit",
       hitResolutionLogId,
       damageEventId,
@@ -2455,10 +2447,160 @@ function simulateConfig(
       selector: { ...application.icd },
       nominalGaugeUnits: application.gaugeUnits,
       effectiveGaugeUnits:
-        application.gaugeUnits *
-        decision.applicationMultiplier,
+        application.gaugeUnits * decision.applicationMultiplier,
       decision: { ...decision }
     });
+    return id;
+  };
+  const appendReactionOwnedElementalApplicationIcdLog = ({
+    reactionDamageLogId,
+    hitResolutionLogId,
+    damageEventId,
+    frame,
+    eventPriority,
+    eventSequence,
+    attemptIndex,
+    attemptCount,
+    deliveryPhase,
+    sourceActorId,
+    targetId,
+    hitId,
+    hitGroupId,
+    damageElement,
+    reactionApplication,
+    decision
+  }: {
+    reactionDamageLogId: number;
+    hitResolutionLogId: number;
+    damageEventId: number | null;
+    frame: number;
+    eventPriority: number;
+    eventSequence: number;
+    attemptIndex: number;
+    attemptCount: number;
+    deliveryPhase:
+      | "reaction-damage-event"
+      | "before-reactable-tick"
+      | "after-reactable-tick";
+    sourceActorId: string;
+    targetId: string;
+    hitId: string;
+    hitGroupId: string;
+    damageElement: Element;
+    reactionApplication: NonNullable<
+      ReactionDamageEventPayload["reactionApplication"]
+    >;
+    decision: Readonly<ReactionOwnedElementalApplicationIcdDecisionV148>;
+  }): number => {
+    const runtimeDecision = decision as unknown as {
+      kind?: unknown;
+      reason?: unknown;
+    };
+    if (
+      runtimeDecision.kind !== "skipped" &&
+      runtimeDecision.kind !== "reaction-fixed-gcsim"
+    ) {
+      throw new Error(
+        `Reaction-owned application "${hitGroupId}" returned the direct-only decision kind "${String(runtimeDecision.kind)}".`
+      );
+    }
+    if (
+      runtimeDecision.kind === "skipped" &&
+      runtimeDecision.reason !== "miss" &&
+      runtimeDecision.reason !== "target-aura-blocked" &&
+      runtimeDecision.reason !== "mechanics-truncated"
+    ) {
+      throw new Error(
+        `Reaction-owned application "${hitGroupId}" returned the impossible skip reason "${String(runtimeDecision.reason)}".`
+      );
+    }
+    const expectedElement =
+      reactionApplication.channel.kind === "burning-tick"
+        ? "pyro"
+        : reactionApplication.channel.element;
+    if (damageElement !== expectedElement) {
+      throw new Error(
+        `Reaction-owned application "${hitGroupId}" expected ${expectedElement} damage but received ${damageElement}.`
+      );
+    }
+    if (
+      reactionApplication.channel.kind === "burning-tick" &&
+      reactionApplication.nominalGaugeUnits !==
+        AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits
+    ) {
+      throw new Error(
+        "Reaction-owned Burning application Gauge must remain fixed by the policy."
+      );
+    }
+
+    const id = elementalApplicationIcdLog.length;
+    if (reactionApplication.channel.kind === "burning-tick") {
+      elementalApplicationIcdLog.push({
+        id,
+        sourceKind: "burning-tick",
+        reactionDamageLogId,
+        hitResolutionLogId,
+        damageEventId,
+        frame,
+        eventPriority,
+        eventSequence,
+        attemptIndex,
+        attemptCount,
+        deliveryPhase,
+        sourceActorId,
+        targetId,
+        hitId,
+        hitGroupId,
+        element: "pyro",
+        selector: {
+          mode: "fixed-gcsim-reaction-owned-application-v1",
+          policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+          channel: { kind: "burning-tick" }
+        },
+        nominalGaugeUnits: reactionApplication.nominalGaugeUnits,
+        effectiveGaugeUnits:
+          reactionApplication.nominalGaugeUnits *
+          decision.applicationMultiplier,
+        decision: { ...decision }
+      });
+    } else {
+      elementalApplicationIcdLog.push({
+        id,
+        sourceKind: "swirl-propagation",
+        reactionDamageLogId,
+        hitResolutionLogId,
+        damageEventId,
+        frame,
+        eventPriority,
+        eventSequence,
+        attemptIndex,
+        attemptCount,
+        deliveryPhase,
+        sourceActorId,
+        targetId,
+        hitId,
+        hitGroupId,
+        element: reactionApplication.channel.element,
+        selector: {
+          mode: "fixed-gcsim-reaction-owned-application-v1",
+          policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+          channel: deepClone(reactionApplication.channel)
+        },
+        nominalGaugeUnits: reactionApplication.nominalGaugeUnits,
+        effectiveGaugeUnits:
+          reactionApplication.nominalGaugeUnits *
+          decision.applicationMultiplier,
+        decision: { ...decision }
+      });
+    }
+    const reactionLog = reactionDamageLog[reactionDamageLogId];
+    if (reactionLog === undefined) {
+      throw new Error(
+        `Reaction-owned application ${id} references missing reaction-damage log ${reactionDamageLogId}.`
+      );
+    }
+    reactionLog.elementalApplicationIcdLogIds.push(id);
+    return id;
   };
   const targetClockLog: SimulationResult["targetClockLog"] = [];
   const targetHitlagLog: SimulationResult["targetHitlagLog"] = [];
@@ -3605,6 +3747,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      hitResolutionLogIds: [],
+      elementalApplicationIcdLogIds: [],
       playerHitResolutionLogIds: [],
       playerDamageEventIds: [],
       reactionStatusLogIds: [],
@@ -3702,6 +3846,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      hitResolutionLogIds: [],
+      elementalApplicationIcdLogIds: [],
       playerHitResolutionLogIds: [],
       playerDamageEventIds: [],
       reactionStatusLogIds: [],
@@ -3743,15 +3889,13 @@ function simulateConfig(
       elementalMastery: source.elementalMastery,
       reactionBonus: source.reactionBonus,
       sourceBuffStatuses: deepClone(source.sourceBuffStatuses),
-      snapshot: source.snapshot,
-      cycle: source.cycle,
-      reactionDamageLogId,
-      application: {
-        gaugeUnits:
-          AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits,
-        icdTag: "burning-application",
-        icdGroup: "burning"
-      },
+        snapshot: source.snapshot,
+        cycle: source.cycle,
+        reactionDamageLogId,
+        reactionApplication: {
+          channel: { kind: "burning-tick" },
+          nominalGaugeUnits: AURA_ENGINE_CONSTANTS.burningApplicationGaugeUnits
+        },
         burningContext: {
           generation,
           tickIndex,
@@ -4826,6 +4970,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      hitResolutionLogIds: [],
+      elementalApplicationIcdLogIds: [],
       playerHitResolutionLogIds: [],
       playerDamageEventIds: [],
       reactionStatusLogIds: [],
@@ -5529,6 +5675,8 @@ function simulateConfig(
       unresolvedTargetIds: [],
       damageGroupBlockedTargetIds: [],
       damageEventIds: [],
+      hitResolutionLogIds: [],
+      elementalApplicationIcdLogIds: [],
       playerHitResolutionLogIds: [],
       playerDamageEventIds: [],
       reactionStatusLogIds: [],
@@ -5659,7 +5807,7 @@ function simulateConfig(
           centerPosition: null,
           radius: 0,
           baseMultiplier: audit.selfBaseMultiplier,
-          application: undefined,
+          reactionApplication: undefined,
           excludedTargetIds: [] as string[]
         },
         {
@@ -5669,11 +5817,13 @@ function simulateConfig(
           centerPosition: deepClone(centerPosition),
           radius: audit.radius,
           baseMultiplier: audit.propagationBaseMultiplier,
-          application: {
-            gaugeUnits: audit.propagatedGaugeUnits,
-            icdTag: audit.reaction,
-            icdGroup: "no-icd"
-          } satisfies LegacyElementalApplicationV146,
+          reactionApplication: {
+            channel: {
+              kind: "swirl-propagation" as const,
+              element: audit.swirledElement
+            },
+            nominalGaugeUnits: audit.propagatedGaugeUnits
+          },
           excludedTargetIds: [sourceTargetId]
         }
       ];
@@ -5705,13 +5855,15 @@ function simulateConfig(
           selectedTargetId: null,
           resolutionReason: null,
           applicationGaugeUnits:
-            attack.application?.gaugeUnits ?? null,
+            attack.reactionApplication?.nominalGaugeUnits ?? null,
           excludedTargetIds: deepClone(attack.excludedTargetIds),
           checkedTargetIds: [],
           hitTargetIds: [],
           unresolvedTargetIds: [],
           damageGroupBlockedTargetIds: [],
           damageEventIds: [],
+          hitResolutionLogIds: [],
+          elementalApplicationIcdLogIds: [],
           playerHitResolutionLogIds: [],
           playerDamageEventIds: [],
           reactionStatusLogIds: [],
@@ -5741,9 +5893,11 @@ function simulateConfig(
           snapshot,
           cycle,
           reactionDamageLogId,
-          ...(attack.application === undefined
+          ...(attack.reactionApplication === undefined
             ? {}
-            : { application: deepClone(attack.application) }),
+            : {
+                reactionApplication: deepClone(attack.reactionApplication)
+              }),
           excludedTargetIds: deepClone(attack.excludedTargetIds),
           swirlContext: {
             scheduleKind: attack.scheduleKind,
@@ -6288,6 +6442,8 @@ function simulateConfig(
         unresolvedTargetIds: [],
         damageGroupBlockedTargetIds: [],
         damageEventIds: [],
+        hitResolutionLogIds: [],
+        elementalApplicationIcdLogIds: [],
         playerHitResolutionLogIds: [],
         playerDamageEventIds: [],
         reactionStatusLogIds: [],
@@ -6833,25 +6989,19 @@ function simulateConfig(
     }
 
     const targetResolutionId = hitResolutionLog.length;
-    const targetPosition = resolveTargetPosition(
-      sourceTargetId,
-      frame
-    );
-    const targetResolution: SimulationResult["hitResolutionLog"][number] =
-      {
-        id: targetResolutionId,
-        frame,
-        timeSeconds,
-        ...(targetPhaseAuditEnabled
-          ? {
-              eventPriority,
-              eventSequence,
-              intraEventSequence: nextIntraEventSequence()
-            }
-          : {}),
-        cycle,
-        sourceActorId: actorId,
-        sourceActionId: action.id,
+    const targetPosition = resolveTargetPosition(sourceTargetId, frame);
+    const targetResolution: SimulationResult["hitResolutionLog"][number] = {
+      id: targetResolutionId,
+      reactionDamageLogId,
+      elementalApplicationIcdLogId: null,
+      frame,
+      timeSeconds,
+      eventPriority,
+      eventSequence,
+      intraEventSequence: nextIntraEventSequence(),
+      cycle,
+      sourceActorId: actorId,
+      sourceActionId: action.id,
         actionName: reactionActionName,
         hitId: reactionHitId,
         hitGroupId: reactionHitGroupId,
@@ -6903,9 +7053,10 @@ function simulateConfig(
             }),
         ...(action.sourceAbilityId === undefined
           ? {}
-          : { sourceAbilityId: action.sourceAbilityId })
-      };
+        : { sourceAbilityId: action.sourceAbilityId })
+    };
     hitResolutionLog.push(targetResolution);
+    reactionLog.hitResolutionLogIds.push(targetResolutionId);
     if (
       targetTaskPhaseEntry?.wakeKind === "incoming" &&
       targetTaskPhaseEntry.eventType === "reactionDamage"
@@ -7057,6 +7208,7 @@ function simulateConfig(
     );
     damageEvents.push({
       id: childDamageEventId,
+      elementalApplicationIcdLogId: null,
       kind: "transformative-reaction",
       eventPriority,
       eventSequence,
@@ -7308,7 +7460,7 @@ function simulateConfig(
     hitId,
     hitGroupId,
     element,
-    application,
+    applicationGaugeUnits,
     reactionBonusDelta,
     hitResolutionLogIds,
     triggerDamageEventIds,
@@ -7326,7 +7478,7 @@ function simulateConfig(
     hitId: string;
     hitGroupId: string;
     element: Element;
-    application: AnyElementalApplication | undefined;
+    applicationGaugeUnits: number | null;
     reactionBonusDelta: number;
     hitResolutionLogIds: number[];
     triggerDamageEventIds: number[];
@@ -7346,8 +7498,8 @@ function simulateConfig(
         config.reactionEngine?.mode !== "aura-v8" &&
         config.reactionEngine?.mode !== "aura-v9") ||
       (element !== "pyro" && element !== "electro") ||
-      application === undefined ||
-      application.gaugeUnits <= 0
+      applicationGaugeUnits === null ||
+      applicationGaugeUnits <= 0
     ) {
       return;
     }
@@ -7546,7 +7698,7 @@ function simulateConfig(
         hitId,
         hitGroupId,
         element,
-        application: hit.application,
+        applicationGaugeUnits: hit.application?.gaugeUnits ?? null,
         reactionBonusDelta: safeNumber(hit.reactionBonus),
         hitResolutionLogIds: aggregate.hitResolutionLogIds,
         triggerDamageEventIds: aggregate.triggerDamageEventIds,
@@ -11047,7 +11199,7 @@ function simulateConfig(
         reactionDamageLogId,
         periodicContext,
         burningContext,
-        application,
+        reactionApplication,
         excludedTargetIds = [],
         swirlContext,
         dendroCoreContext
@@ -11468,6 +11620,7 @@ function simulateConfig(
               {
                 hitResolutionLogId: number;
                 damageEventId: number | null;
+                elementalApplicationIcdLogId: number | null;
                 targetStateTimelinePointId: number | null;
               }
             >();
@@ -11544,15 +11697,13 @@ function simulateConfig(
             const targetResolution: SimulationResult["hitResolutionLog"][number] =
               {
                 id: targetResolutionId,
+                reactionDamageLogId,
+                elementalApplicationIcdLogId: null,
                 frame: event.frame,
                 timeSeconds,
-                ...(targetPhaseAuditEnabled
-                  ? {
-                      eventPriority: event.priority,
-                      eventSequence: event.sequence,
-                      intraEventSequence
-                    }
-                  : {}),
+                eventPriority: event.priority,
+                eventSequence: event.sequence,
+                intraEventSequence,
                 cycle,
                 sourceActorId: actorId,
                 sourceActionId: action.id,
@@ -11620,7 +11771,7 @@ function simulateConfig(
                 mechanicsStatus,
                 auraAllowed:
                   plan.landed &&
-                  application !== undefined &&
+                  reactionApplication !== undefined &&
                   reactionDamageAuraAllowed,
                 hitConfirmAllowed: false,
                 damageEventId: null,
@@ -11642,14 +11793,11 @@ function simulateConfig(
                     })
               };
             hitResolutionLog.push(targetResolution);
-            reactionHitResolutionLogIds.push(
-              targetResolutionId
-            );
+            reactionHitResolutionLogIds.push(targetResolutionId);
+            reactionLog.hitResolutionLogIds.push(targetResolutionId);
             if (
-              targetTaskPhaseEntry?.wakeKind ===
-                "incoming" &&
-              targetTaskPhaseEntry.eventType ===
-                "reactionDamage"
+              targetTaskPhaseEntry?.wakeKind === "incoming" &&
+              targetTaskPhaseEntry.eventType === "reactionDamage"
             ) {
               appendTargetTaskPhaseReference(
                 targetTaskPhaseEntry,
@@ -11673,35 +11821,81 @@ function simulateConfig(
           : null;
         const resolvePropagatedReactionAudit =
           (): ReactionAudit | null =>
-            plan.landed &&
-            reactionDamageAuraAllowed &&
-            targetAuraEngine !== null &&
-            (application !== undefined ||
-              mechanicsTruncatedBefore)
-              ? projectPlayerSelfDamageStatus(
-                  (burningRootInlineDeliveryState === undefined
-                    ? targetAuraEngine.processHit({
-                        frame: event.frame,
-                        sourceActorId: actorId,
-                        element: damageElement,
-                        ...(application === undefined
-                          ? {}
-                          : { application })
-                      })
-                    : targetAuraEngine.processHitAtCurrentTargetState({
-                        frame: event.frame,
-                        sourceActorId: actorId,
-                        element: damageElement,
-                        ...(application === undefined
-                          ? {}
-                          : { application })
-                      }))
-                )
-              : null;
-        let propagatedReactionAudit =
-          recursiveShatterDeliveryEnabled
-            ? null
-            : resolvePropagatedReactionAudit();
+          plan.landed &&
+          reactionDamageAuraAllowed &&
+          targetAuraEngine !== null &&
+          reactionApplication !== undefined &&
+          !mechanicsTruncatedBefore
+            ? projectPlayerSelfDamageStatus(
+                burningRootInlineDeliveryState === undefined
+                  ? targetAuraEngine.processReactionOwnedHit(
+                      reactionApplication.channel.kind === "burning-tick"
+                        ? {
+                            frame: event.frame,
+                            sourceActorId: actorId,
+                            channel: reactionApplication.channel
+                          }
+                        : {
+                            frame: event.frame,
+                            sourceActorId: actorId,
+                            channel: reactionApplication.channel,
+                            nominalGaugeUnits:
+                              reactionApplication.nominalGaugeUnits
+                          }
+                    )
+                  : targetAuraEngine.processReactionOwnedHitAtCurrentTargetState(
+                      reactionApplication.channel.kind === "burning-tick"
+                        ? {
+                            frame: event.frame,
+                            sourceActorId: actorId,
+                            channel: reactionApplication.channel
+                          }
+                        : {
+                            frame: event.frame,
+                            sourceActorId: actorId,
+                            channel: reactionApplication.channel,
+                            nominalGaugeUnits:
+                              reactionApplication.nominalGaugeUnits
+                          }
+                    )
+              )
+            : null;
+        let propagatedReactionAudit = recursiveShatterDeliveryEnabled
+          ? null
+          : resolvePropagatedReactionAudit();
+        const readReactionApplicationIcdDecision =
+          (): Readonly<ReactionOwnedElementalApplicationIcdDecisionV148> | null => {
+            if (reactionApplication === undefined) return null;
+            if (targetAuraEngine === null) {
+              throw new Error(
+                `Reaction-owned application "${resolvedReactionHitGroupId}" cannot be delivered on target "${plan.targetId}" without an Aura engine.`
+              );
+            }
+            if (!plan.landed) {
+              return skippedReactionOwnedElementalApplicationDecision("miss");
+            }
+            if (!reactionDamageAuraAllowed) {
+              return skippedReactionOwnedElementalApplicationDecision(
+                "target-aura-blocked"
+              );
+            }
+            if (mechanicsTruncatedBefore) {
+              return skippedReactionOwnedElementalApplicationDecision(
+                "mechanics-truncated"
+              );
+            }
+            const decision =
+              targetAuraEngine.getLastReactionOwnedElementalApplicationIcdDecision();
+            if (decision === null) {
+              throw new Error(
+                `Aura engine did not expose a reaction-owned elemental-application ICD decision for "${resolvedReactionHitGroupId}" on target "${plan.targetId}".`
+              );
+            }
+            return decision;
+          };
+        let reactionApplicationIcdDecision = recursiveShatterDeliveryEnabled
+          ? null
+          : readReactionApplicationIcdDecision();
         const synchronizeInlinePreReactableAura = (): void => {
           if (
             inlineApplicationPhase !== "before-reactable-tick" ||
@@ -11846,13 +12040,6 @@ function simulateConfig(
         if (!recursiveShatterDeliveryEnabled) {
           recordReactionDamageApplication();
         }
-        let burningApplicationIcdDecision =
-          !recursiveShatterDeliveryEnabled &&
-          application?.icdGroup === "burning" &&
-          propagatedReactionAudit?.icdGroup === "burning"
-            ? targetAuraEngine?.getLastBurningApplicationIcdDecision() ??
-              null
-            : null;
         const swirlDamageGroup =
           plan.landed && swirlContext !== undefined
             ? resolveSwirlDamageGroup({
@@ -12188,25 +12375,62 @@ function simulateConfig(
             );
           }
           recordReactionDamageApplication();
-          burningApplicationIcdDecision =
-            application?.icdGroup === "burning" &&
-            propagatedReactionAudit?.icdGroup ===
-              "burning"
-              ? (targetAuraEngine
-                  ?.getLastBurningApplicationIcdDecision() ??
-                null)
-              : null;
+          reactionApplicationIcdDecision = readReactionApplicationIcdDecision();
         }
-        targetResolution ??=
-          appendParentReactionHitResolution();
+        targetResolution ??= appendParentReactionHitResolution();
         const targetResolutionId = targetResolution.id;
-        const electroChargedPropagationCandidate =
-          electroChargedPropagationCandidateByTargetId?.get(
+        const appendReactionOwnedApplicationForTarget = (
+          damageEventId: number | null
+        ): number | null => {
+          if (reactionApplication === undefined) return null;
+          if (reactionApplicationIcdDecision === null) {
+            throw new Error(
+              `Reaction-owned application "${resolvedReactionHitGroupId}" is missing its decision on target "${plan.targetId}".`
+            );
+          }
+          const elementalApplicationIcdLogId =
+            appendReactionOwnedElementalApplicationIcdLog({
+              reactionDamageLogId,
+              hitResolutionLogId: targetResolutionId,
+              damageEventId,
+              frame: event.frame,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              attemptIndex: targetIndex,
+              attemptCount: spatialPlans.length,
+              deliveryPhase: inlineApplicationPhase ?? "reaction-damage-event",
+              sourceActorId: actorId,
+              targetId: plan.targetId,
+              hitId: resolvedReactionHitId,
+              hitGroupId: resolvedReactionHitGroupId,
+              damageElement,
+              reactionApplication,
+              decision: reactionApplicationIcdDecision
+            });
+          targetResolution.elementalApplicationIcdLogId =
+            elementalApplicationIcdLogId;
+          if (damageEventId !== null) {
+            const damageEvent = damageEvents[damageEventId];
+            if (damageEvent === undefined) {
+              throw new Error(
+                `Reaction-owned application ${elementalApplicationIcdLogId} references missing damage event ${damageEventId}.`
+              );
+            }
+            damageEvent.elementalApplicationIcdLogId =
+              elementalApplicationIcdLogId;
+          }
+          const inlineDeliveryLinks = inlineDeliveryLinksByTargetId?.get(
             plan.targetId
           );
-        if (
-          electroChargedPropagationCandidate !== undefined
-        ) {
+          if (inlineDeliveryLinks !== undefined) {
+            inlineDeliveryLinks.elementalApplicationIcdLogId =
+              elementalApplicationIcdLogId;
+          }
+          return elementalApplicationIcdLogId;
+        };
+        const electroChargedPropagationCandidate =
+          electroChargedPropagationCandidateByTargetId?.get(plan.targetId);
+        if (electroChargedPropagationCandidate !== undefined) {
           electroChargedPropagationCandidate.hitResolutionLogId =
             targetResolutionId;
         }
@@ -12214,11 +12438,14 @@ function simulateConfig(
           inlineDeliveryLinksByTargetId?.set(plan.targetId, {
             hitResolutionLogId: targetResolutionId,
             damageEventId: null,
-            targetStateTimelinePointId:
-              reactionDamageApplicationTimelinePointId
+            elementalApplicationIcdLogId: null,
+            targetStateTimelinePointId: reactionDamageApplicationTimelinePointId
           });
         }
-        if (!plan.landed) return;
+        if (!plan.landed) {
+          appendReactionOwnedApplicationForTarget(null);
+          return;
+        }
 
         const debuffState = getDebuffState(
           timeSeconds,
@@ -12455,14 +12682,15 @@ function simulateConfig(
           shatterReaction: nestedShatterState?.audit ?? null,
           swirlDamageGroup,
           note:
-            application === undefined
+            reactionApplication === undefined
               ? `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。`
               : reactionDamageAuraAllowed
-                ? `${reactionLabel}范围传播：先以 ${application.gaugeUnits}U 附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的扩散伤害。`
+                ? `${reactionLabel}范围传播：先以 ${reactionApplication.nominalGaugeUnits}U 可信反应附着处理目标 Aura 与二次反应，再结算不暴击、无视防御的反应伤害。`
                 : `${reactionLabel}范围传播命中，但目标阶段阻止了元素附着；扩散伤害仍按目标伤害策略结算。`
         };
         damageEvents.push({
           id: damageEventId,
+          elementalApplicationIcdLogId: null,
           kind: "transformative-reaction",
           eventPriority: event.priority,
           eventSequence: event.sequence,
@@ -12587,18 +12815,16 @@ function simulateConfig(
         if (inlineDeliveryLinks !== undefined) {
           inlineDeliveryLinks.damageEventId = damageEventId;
         }
+        appendReactionOwnedApplicationForTarget(damageEventId);
         if (burningContext !== undefined) {
-          const burningLog =
-            burningStateLog[
-              burningContext.burningStateLogId
-            ];
+          const burningLog = burningStateLog[burningContext.burningStateLogId];
           if (burningLog !== undefined) {
             burningLog.damageEventIds.push(damageEventId);
             if (plan.targetId === sourceTargetId) {
               burningLog.damageAllowed =
                 damageAllowed && !mechanicsTruncatedBefore;
               if (
-                application?.icdGroup === "burning" &&
+                reactionApplication?.channel.kind === "burning-tick" &&
                 !reactionDamageAuraAllowed
               ) {
                 burningLog.applicationAllowed = null;
@@ -12627,10 +12853,15 @@ function simulateConfig(
                     ? "BURNING_APPLICATION_ICD"
                     : null;
                 burningLog.icdWindowStartFrame =
-                  burningApplicationIcdDecision?.windowStartFrame ??
-                  null;
+                  reactionApplicationIcdDecision?.kind ===
+                  "reaction-fixed-gcsim"
+                    ? reactionApplicationIcdDecision.windowStartFrame
+                    : null;
                 burningLog.icdHitIndex =
-                  burningApplicationIcdDecision?.hitIndex ?? null;
+                  reactionApplicationIcdDecision?.kind ===
+                  "reaction-fixed-gcsim"
+                    ? reactionApplicationIcdDecision.hitIndex
+                    : null;
               }
             }
           }
@@ -12849,53 +13080,56 @@ function simulateConfig(
                 }
                 return {
                   ...base,
-                  outcome: "unresolved",
-                  hitResolutionLogId: null,
-                  damageEventId: null,
-                  targetStateTimelinePointId: null
-                };
-              }
+                outcome: "unresolved",
+                hitResolutionLogId: null,
+                damageEventId: null,
+                elementalApplicationIcdLogId: null,
+                targetStateTimelinePointId: null
+              };
+            }
               if (links === undefined) {
                 throw new Error(
                   `Inline Burning delivery did not create a hit-resolution link for target "${target.id}".`
                 );
               }
-              if (!plan.landed) {
-                if (
-                  links.damageEventId !== null ||
-                  links.targetStateTimelinePointId !== null
-                ) {
-                  throw new Error(
+            if (!plan.landed) {
+              if (
+                links.damageEventId !== null ||
+                links.elementalApplicationIcdLogId === null ||
+                links.targetStateTimelinePointId !== null
+              ) {
+                throw new Error(
                     `Inline Burning miss on target "${target.id}" unexpectedly mutated Aura or dealt damage.`
                   );
                 }
                 return {
                   ...base,
-                  outcome: "miss",
-                  hitResolutionLogId:
-                    links.hitResolutionLogId,
-                  damageEventId: null,
-                  targetStateTimelinePointId: null
-                };
-              }
-              if (
-                links.damageEventId === null ||
-                links.targetStateTimelinePointId === null
-              ) {
-                throw new Error(
+                outcome: "miss",
+                hitResolutionLogId: links.hitResolutionLogId,
+                damageEventId: null,
+                elementalApplicationIcdLogId:
+                  links.elementalApplicationIcdLogId,
+                targetStateTimelinePointId: null
+              };
+            }
+            if (
+              links.damageEventId === null ||
+              links.elementalApplicationIcdLogId === null ||
+              links.targetStateTimelinePointId === null
+            ) {
+              throw new Error(
                   `Inline Burning hit on target "${target.id}" is missing its damage or Aura timeline link.`
                 );
               }
               return {
                 ...base,
-                outcome: "landed",
-                hitResolutionLogId:
-                  links.hitResolutionLogId,
-                damageEventId: links.damageEventId,
-                targetStateTimelinePointId:
-                  links.targetStateTimelinePointId
-              };
-            }
+              outcome: "landed",
+              hitResolutionLogId: links.hitResolutionLogId,
+              damageEventId: links.damageEventId,
+              elementalApplicationIcdLogId: links.elementalApplicationIcdLogId,
+              targetStateTimelinePointId: links.targetStateTimelinePointId
+            };
+          }
           );
         burningRootInlineDeliveryByReactionDamageLogId.delete(
           reactionDamageLogId
@@ -12963,12 +13197,10 @@ function simulateConfig(
           hitId: `${resolvedReactionHitId}:reaction-damage-log-${reactionDamageLogId}`,
           hitGroupId: `${resolvedReactionHitGroupId}:reaction-damage-log-${reactionDamageLogId}`,
           element: damageElement,
-          application,
-          reactionBonusDelta:
-            reactionBonus - stats.reactionBonus,
+          applicationGaugeUnits: reactionApplication?.nominalGaugeUnits ?? null,
+          reactionBonusDelta: reactionBonus - stats.reactionBonus,
           hitResolutionLogIds: reactionHitResolutionLogIds,
-          triggerDamageEventIds:
-            reactionTriggerDamageEventIds,
+          triggerDamageEventIds: reactionTriggerDamageEventIds,
           triggerReactionDamageLogId: reactionDamageLogId,
           resolvedGeometry:
             targetingMode === "radius" &&
@@ -13134,6 +13366,8 @@ function simulateConfig(
     const targetResolutionId = hitResolutionLog.length;
     const targetResolution: SimulationResult["hitResolutionLog"][number] = {
       id: targetResolutionId,
+      reactionDamageLogId: null,
+      elementalApplicationIcdLogId: null,
       frame: event.frame,
       timeSeconds,
       ...(targetPhaseAuditEnabled
@@ -13210,18 +13444,19 @@ function simulateConfig(
     );
     if (!targetResolution.landed) {
       if (hit.application !== undefined) {
-        appendElementalApplicationIcdLog({
-          hitResolutionLogId: targetResolutionId,
-          damageEventId: null,
-          frame: event.frame,
-          sourceActorId: actorId,
-          targetId,
-          hitId,
-          hitGroupId,
-          element,
-          application: hit.application,
-          decision: skippedElementalApplicationDecision("miss")
-        });
+        targetResolution.elementalApplicationIcdLogId =
+          appendElementalApplicationIcdLog({
+            hitResolutionLogId: targetResolutionId,
+            damageEventId: null,
+            frame: event.frame,
+            sourceActorId: actorId,
+            targetId,
+            hitId,
+            hitGroupId,
+            element,
+            application: hit.application,
+            decision: skippedConfiguredElementalApplicationDecision("miss")
+          });
       }
       completeHitTarget({
         actorId,
@@ -13527,7 +13762,7 @@ function simulateConfig(
                 : "反应由命中配置手工指定；未运行 Aura/ICD 合法性判断。"
           }
         : auraAllowed
-          ? auraEngine.processHit({
+          ? auraEngine.processConfiguredHit({
               frame: event.frame,
               sourceActorId: actorId,
               element,
@@ -13539,7 +13774,7 @@ function simulateConfig(
                 : { reactionOverride: hit.reactionOverride })
             })
           : {
-              ...auraEngine.processHit({
+              ...auraEngine.processConfiguredHit({
                 frame: event.frame,
                 sourceActorId: actorId,
                 element
@@ -13553,16 +13788,16 @@ function simulateConfig(
       hit.application === undefined
         ? null
         : !auraAllowed
-          ? skippedElementalApplicationDecision(
+          ? skippedConfiguredElementalApplicationDecision(
               "target-aura-blocked"
             )
           : auraEngine === null
-            ? skippedElementalApplicationDecision("no-aura-engine")
+            ? skippedConfiguredElementalApplicationDecision("no-aura-engine")
             : mechanicsTruncatedBefore
-              ? skippedElementalApplicationDecision(
+              ? skippedConfiguredElementalApplicationDecision(
                   "mechanics-truncated"
                 )
-              : auraEngine.getLastElementalApplicationIcdDecision();
+              : auraEngine.getLastConfiguredElementalApplicationIcdDecision();
     if (
       hit.application !== undefined &&
       elementalApplicationIcdDecision === null
@@ -13705,12 +13940,10 @@ function simulateConfig(
       // lands. scalingOwnerId only selects the ordinary direct-damage panel.
       amplifyingElementalMastery = reactionSourceSnapshot.em;
       amplifyingReactionBonus =
-        liveReactionSourceStats.reactionBonus +
-        safeNumber(hit.reactionBonus);
+        liveReactionSourceStats.reactionBonus + safeNumber(hit.reactionBonus);
     }
     if (
-      config.schemaVersion ===
-        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+      config.schemaVersion === CURRENT_SCHEMA_VERSION &&
       hit.ampBase !== undefined
     ) {
       throw new Error(
@@ -13739,11 +13972,9 @@ function simulateConfig(
       // Formal Aura runs derive their amplifying base from the audited
       // reaction. Only frozen pre-1.45 replay paths may forward ampBase;
       // the formula-root current path rejects it above.
-      ...(config.schemaVersion ===
-          ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
-          hit.ampBase === undefined ||
-          (auraEngine !== null &&
-            reactionAudit.model !== "manual-override")
+      ...(config.schemaVersion === CURRENT_SCHEMA_VERSION ||
+      hit.ampBase === undefined ||
+      (auraEngine !== null && reactionAudit.model !== "manual-override")
         ? {}
         : { explicitReactionBase: hit.ampBase }),
       // Plugins observe and may replace the hit-authored multiplier. The fixed
@@ -13896,6 +14127,7 @@ function simulateConfig(
     });
     damageEvents.push({
       id: damageEventId,
+      elementalApplicationIcdLogId: null,
       kind: "direct",
       eventPriority: event.priority,
       eventSequence: event.sequence,
@@ -13991,7 +14223,7 @@ function simulateConfig(
       hit.application !== undefined &&
       elementalApplicationIcdDecision !== null
     ) {
-      appendElementalApplicationIcdLog({
+      const elementalApplicationIcdLogId = appendElementalApplicationIcdLog({
         hitResolutionLogId: targetResolutionId,
         damageEventId,
         frame: event.frame,
@@ -14003,6 +14235,10 @@ function simulateConfig(
         application: hit.application,
         decision: elementalApplicationIcdDecision
       });
+      targetResolution.elementalApplicationIcdLogId =
+        elementalApplicationIcdLogId;
+      damageEvents[damageEventId]!.elementalApplicationIcdLogId =
+        elementalApplicationIcdLogId;
     }
     recordTargetMechanicsTruncation({
       audit: reactionAudit,
@@ -14247,12 +14483,14 @@ function simulateConfig(
         excludedTargetIds: [],
         checkedTargetIds: [],
         hitTargetIds: [],
-        unresolvedTargetIds: [],
-        damageGroupBlockedTargetIds: [],
-        damageEventIds: [],
-        playerHitResolutionLogIds: [],
-        playerDamageEventIds: [],
-        reactionStatusLogIds: [],
+          unresolvedTargetIds: [],
+          damageGroupBlockedTargetIds: [],
+          damageEventIds: [],
+          hitResolutionLogIds: [],
+          elementalApplicationIcdLogIds: [],
+          playerHitResolutionLogIds: [],
+          playerDamageEventIds: [],
+          reactionStatusLogIds: [],
         damageGroupDecisions: []
       });
       if (withinSimulation) {
@@ -15089,7 +15327,7 @@ function simulateConfig(
     );
   }
   if (targetPhaseV3Enabled) {
-    targetPhaseV3LogSchema.parse(targetPhaseLog);
+    targetPhaseV3LogV148Schema.parse(targetPhaseLog);
   } else {
     targetPhaseV2LogSchema.parse(targetPhaseLog);
   }

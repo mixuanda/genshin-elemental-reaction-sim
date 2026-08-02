@@ -819,6 +819,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         outcome: "landed",
         hitResolutionLogId: expect.any(Number),
         damageEventId: expect.any(Number),
+        elementalApplicationIcdLogId: expect.any(Number),
         targetStateTimelinePointId: expect.any(Number)
       }),
       expect.objectContaining({
@@ -829,6 +830,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         outcome: "landed",
         hitResolutionLogId: expect.any(Number),
         damageEventId: expect.any(Number),
+        elementalApplicationIcdLogId: expect.any(Number),
         targetStateTimelinePointId: expect.any(Number)
       }),
       {
@@ -839,6 +841,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         outcome: "miss",
         hitResolutionLogId: expect.any(Number),
         damageEventId: null,
+        elementalApplicationIcdLogId: expect.any(Number),
         targetStateTimelinePointId: null
       },
       {
@@ -849,6 +852,7 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
         outcome: "unresolved",
         hitResolutionLogId: null,
         damageEventId: null,
+        elementalApplicationIcdLogId: null,
         targetStateTimelinePointId: null
       }
     ]);
@@ -866,6 +870,41 @@ describe("target-phase-v3 synchronous Burning delivery", () => {
       hitTargetIds: ["before-owner", OWNER_ID],
       unresolvedTargetIds: ["unresolved-position"]
     });
+    const applicationIds = delivery.attempts.flatMap((attempt) =>
+      attempt.elementalApplicationIcdLogId === null
+        ? []
+        : [attempt.elementalApplicationIcdLogId]
+    );
+    expect(reactionLog.elementalApplicationIcdLogIds).toEqual(
+      applicationIds
+    );
+    for (const attempt of delivery.attempts) {
+      const applicationId =
+        attempt.elementalApplicationIcdLogId;
+      if (applicationId === null) {
+        expect(attempt.hitResolutionLogId).toBeNull();
+        expect(attempt.damageEventId).toBeNull();
+        continue;
+      }
+      const application =
+        result.elementalApplicationIcdLog[applicationId]!;
+      expect(application).toMatchObject({
+        id: applicationId,
+        reactionDamageLogId: delivery.reactionDamageLogId,
+        hitResolutionLogId: attempt.hitResolutionLogId,
+        damageEventId: attempt.damageEventId
+      });
+      expect(
+        result.hitResolutionLog[attempt.hitResolutionLogId!]
+          ?.elementalApplicationIcdLogId
+      ).toBe(applicationId);
+      if (attempt.damageEventId !== null) {
+        expect(
+          result.damageEvents[attempt.damageEventId]
+            ?.elementalApplicationIcdLogId
+        ).toBe(applicationId);
+      }
+    }
   });
 
   it("is byte-for-byte deterministic for identical config, data identity, and seed", () => {

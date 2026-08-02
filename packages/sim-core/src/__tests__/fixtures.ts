@@ -9,7 +9,8 @@ import {
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 
 export const neutralStats: CharacterStats = {
@@ -65,6 +66,11 @@ export function makeConfig(
       mode: "fixed-gcsim-elemental-application-v1" as const,
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     };
+  const reactionOwnedElementalApplicationModel =
+    overrides.reactionOwnedElementalApplicationModel ?? {
+      mode: "fixed-gcsim-reaction-owned-application-v1" as const,
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -104,6 +110,7 @@ export function makeConfig(
     electroChargedPropagationModel,
     reactionFormulaModel,
     directDamageGroupModel,
-    elementalApplicationIcdModel
+    elementalApplicationIcdModel,
+    reactionOwnedElementalApplicationModel
   };
 }

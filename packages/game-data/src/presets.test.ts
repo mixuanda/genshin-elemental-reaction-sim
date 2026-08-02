@@ -4,7 +4,8 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -41,11 +42,16 @@ const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
   profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } as const;
 
+const EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL = {
+  mode: "fixed-gcsim-reaction-owned-application-v1",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+} as const;
+
 describe("game-data preset engine identity", () => {
   it("propagates the exact current mechanics-root identities without opting built-in presets into unrelated mechanics modes", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.47.0-elemental-application-icd-root"
+      "1.48.0-reaction-owned-application-root"
     );
 
     for (const preset of presets) {
@@ -68,6 +74,12 @@ describe("game-data preset engine identity", () => {
         preset.elementalApplicationIcdModel,
         preset.meta.name
       ).toEqual(EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL);
+      expect(
+        preset.reactionOwnedElementalApplicationModel,
+        preset.meta.name
+      ).toEqual(
+        EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL
+      );
       expect(
         preset.reactionEngine?.mode,
         preset.meta.name

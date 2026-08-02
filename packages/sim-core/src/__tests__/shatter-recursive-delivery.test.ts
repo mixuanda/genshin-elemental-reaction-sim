@@ -40,6 +40,15 @@ const V147_APPLICATION_WIRE_ONLY_KEYS = new Set([
   "effectiveApplicationGaugeUnits",
 ]);
 
+const V148_DAMAGE_EVENT_WIRE_ONLY_KEYS = new Set([
+  "elementalApplicationIcdLogId",
+]);
+
+const V148_REACTION_DAMAGE_LOG_WIRE_ONLY_KEYS = new Set([
+  "hitResolutionLogIds",
+  "elementalApplicationIcdLogIds",
+]);
+
 const SHATTER_V146_NO_ICD_TAG_BY_HIT_ID = {
   "hydro-freeze-hit": "freeze",
   "refreeze-cryo": "refreeze-cryo",
@@ -58,11 +67,21 @@ function stripV147ApplicationWireOnlyFields(
   );
 }
 
+function stripWireOnlyFields(
+  value: Record<string, unknown>,
+  keys: ReadonlySet<string>,
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([key]) => !keys.has(key)),
+  );
+}
+
 /**
  * Preserve the frozen 1.39/V146 damage-event digest across the 1.47
- * application-ICD wire bump. Only the DamageEvent and ReactionAudit wire
- * surfaces are stripped; recursive stripping would erase a real mechanics
- * decision's applicationMultiplier and weaken the Golden.
+ * application-ICD and 1.48 reciprocal-link wire bumps. Only the DamageEvent
+ * and ReactionAudit wire surfaces are stripped; recursive stripping would
+ * erase a real mechanics decision's applicationMultiplier and weaken the
+ * Golden.
  */
 function shatterDamageEventsForV146SemanticDigest(
   result: SimulationResult,
@@ -80,8 +99,11 @@ function shatterDamageEventsForV146SemanticDigest(
 
   return result.damageEvents.map((event) => {
     const normalized = {
-      ...stripV147ApplicationWireOnlyFields(
-        event as unknown as Record<string, unknown>,
+      ...stripWireOnlyFields(
+        stripV147ApplicationWireOnlyFields(
+          event as unknown as Record<string, unknown>,
+        ),
+        V148_DAMAGE_EVENT_WIRE_ONLY_KEYS,
       ),
       reactionAudit: stripV147ApplicationWireOnlyFields(
         event.reactionAudit as unknown as Record<string, unknown>,
@@ -114,6 +136,22 @@ function shatterDamageEventsForV146SemanticDigest(
       },
     };
   });
+}
+
+/**
+ * V148 adds reciprocal hit/application backlinks to each reaction-delivery
+ * row. Shatter owns no reaction-side elemental application, so projecting
+ * those new empty/link-only arrays preserves the frozen V146 semantics.
+ */
+function shatterReactionDamageLogForV146SemanticDigest(
+  result: SimulationResult,
+): unknown {
+  return result.reactionDamageLog.map((entry) =>
+    stripWireOnlyFields(
+      entry as unknown as Record<string, unknown>,
+      V148_REACTION_DAMAGE_LOG_WIRE_ONLY_KEYS,
+    ),
+  );
 }
 
 function projectShatterResult(result: SimulationResult) {
@@ -196,7 +234,7 @@ function projectShatterResult(result: SimulationResult) {
         shatterDamageEventsForV146SemanticDigest(result),
       ),
       reactionDamageLog: sha256(
-        result.reactionDamageLog,
+        shatterReactionDamageLogForV146SemanticDigest(result),
       ),
       damageCurve: sha256(result.damageCurve),
     },
@@ -858,14 +896,15 @@ describe("recursive zero-delay Shatter delivery", () => {
   });
 
   it("fails closed if a parent application newly crosses the mechanics-truncation boundary", () => {
-    const originalProcessHit = AuraEngine.prototype.processHit;
+    const originalProcessConfiguredHit =
+      AuraEngine.prototype.processConfiguredHit;
     const processHitSpy = vi
-      .spyOn(AuraEngine.prototype, "processHit")
+      .spyOn(AuraEngine.prototype, "processConfiguredHit")
       .mockImplementation(function (
         this: AuraEngine,
-        input: Parameters<AuraEngine["processHit"]>[0],
+        input: Parameters<AuraEngine["processConfiguredHit"]>[0],
       ) {
-        const audit = originalProcessHit.call(this, input);
+        const audit = originalProcessConfiguredHit.call(this, input);
         if (input.sourceActorId !== "crusher") {
           return audit;
         }

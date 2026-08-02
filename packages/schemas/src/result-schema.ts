@@ -4,6 +4,7 @@ import {
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   type GcsimDamageGroupId,
   type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
@@ -19,8 +20,16 @@ import {
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-  type ElementalApplicationIcdDecision,
-  type ElementalApplicationIcdLogEntry,
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  type BurningElementalApplicationIcdLogEntryV148,
+  type ElementalApplicationIcdLogEntryV148,
+  type ElementalApplicationIcdDecisionV147,
+  type ElementalApplicationIcdLogEntryV147,
+  type ElementalApplicationReactionFixedGcsimDecision,
+  type ReactionOwnedElementalApplicationIcdSkippedDecisionV148,
+  type SwirlPropagationElementalApplicationIcdLogEntryV148,
+  type TargetPhaseV3DeliveryAttemptV148,
   type SimulationResult
 } from "./types";
 import {
@@ -28,7 +37,8 @@ import {
   validateSimulationResultV144Integrity,
   validateSimulationResultV145Integrity,
   validateSimulationResultV146Integrity,
-  validateSimulationResultV147Integrity
+  validateSimulationResultV147Integrity,
+  validateSimulationResultV148Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -71,18 +81,23 @@ import {
   simConfigV145Schema,
   simConfigV146Schema,
   simConfigV147Schema,
+  simConfigV148Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
+  simulationRunManifestV148Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
   targetHitlagLogSchema,
   targetPhaseV2LogSchema,
   targetPhaseV2ResultReferencesSchema,
+  targetPhaseV3DeliverySchema,
+  targetPhaseV3LogEntrySchema,
   targetPhaseV3LogSchema,
+  targetPhaseV3TargetTaskSchema,
   targetStateTimelineSchema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
@@ -1272,7 +1287,7 @@ export const elementalApplicationIcdDecisionV147Schema = z
           "must equal the decision window start plus its versioned reset schedule"
       });
     }
-  }) satisfies z.ZodType<ElementalApplicationIcdDecision>;
+  }) satisfies z.ZodType<ElementalApplicationIcdDecisionV147>;
 
 const elementalApplicationElementV147Schema = z.enum([
   "pyro",
@@ -1428,7 +1443,7 @@ export const elementalApplicationIcdLogEntryV147Schema = z
         }
       }
     }
-  }) satisfies z.ZodType<ElementalApplicationIcdLogEntry>;
+  }) satisfies z.ZodType<ElementalApplicationIcdLogEntryV147>;
 
 const directDamageGroupLogCommonV146Shape = {
   id: nonNegativeIntegerSchema,
@@ -3266,6 +3281,744 @@ export type SimulationResultV147 = z.output<
   typeof simulationResultV147Schema
 >;
 
+/* ------------------------------------------------------------------------- */
+/* 1.48 reaction-owned elemental-application result wire                     */
+/* ------------------------------------------------------------------------- */
+
+const trustedReactionApplicationSelectorBaseShape = {
+  mode: z.literal("fixed-gcsim-reaction-owned-application-v1"),
+  policyId: z.literal(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID),
+} as const;
+
+export const burningTickElementalApplicationSelectorV148Schema = z
+  .object({
+    ...trustedReactionApplicationSelectorBaseShape,
+    channel: z.object({ kind: z.literal("burning-tick") }).strict(),
+  })
+  .strict();
+
+const swirlPropagationElementV148Schema = z.enum([
+  "pyro",
+  "hydro",
+  "cryo",
+  "electro",
+]);
+
+export const swirlPropagationElementalApplicationSelectorV148Schema = z
+  .object({
+    ...trustedReactionApplicationSelectorBaseShape,
+    channel: z
+      .object({
+        kind: z.literal("swirl-propagation"),
+        element: swirlPropagationElementV148Schema,
+      })
+      .strict(),
+  })
+  .strict();
+
+/** A reaction-owned attempt which was never presented to an ICD window. */
+export const reactionOwnedElementalApplicationSkippedDecisionV148Schema = z
+  .object({
+    kind: z.literal("skipped"),
+    evaluated: z.literal(false),
+    reason: z.enum(["miss", "target-aura-blocked", "mechanics-truncated"]),
+    consumed: z.literal(false),
+    applicationMultiplier: z.literal(0),
+    allowed: z.literal(false),
+  })
+  .strict() satisfies z.ZodType<ReactionOwnedElementalApplicationIcdSkippedDecisionV148>;
+
+/**
+ * Complete numeric decision emitted by the trusted reaction-owned state
+ * machine. Reserved groups remain unavailable to configured direct hits.
+ */
+const elementalApplicationReactionFixedGcsimDecisionCommonV148Shape = {
+  kind: z.literal("reaction-fixed-gcsim"),
+  evaluated: z.literal(true),
+  consumed: z.literal(true),
+  applicationMultiplier: nonNegativeFiniteNumberSchema,
+  allowed: z.boolean(),
+  policyId: z.literal(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID),
+  profileId: z.literal(GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID),
+  windowStartFrame: nonNegativeSafeIntegerSchema,
+  resetAtFrame: nonNegativeSafeIntegerSchema,
+  hitIndex: nonNegativeSafeIntegerSchema,
+  sequenceIndex: nonNegativeSafeIntegerSchema,
+  tailPolicy: z.literal("clamp"),
+  resetSchedulePolicy: z.literal(
+    "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+  ),
+} as const;
+
+export const elementalApplicationReactionFixedGcsimDecisionV148Schema = z
+  .discriminatedUnion("groupId", [
+    z
+      .object({
+        ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
+        scope: z.literal("trusted-target-global-burning-projection"),
+        icdTag: z.literal("ICDTagBurningDamage"),
+        groupId: z.literal("burning"),
+        windowStartGroupId: z.literal("burning"),
+        resetFrames: z.literal(120),
+      })
+      .strict(),
+    z
+      .object({
+        ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
+        scope: z.literal("actor-tag"),
+        icdTag: z.enum([
+          "ICDTagSwirlPyro",
+          "ICDTagSwirlHydro",
+          "ICDTagSwirlCryo",
+          "ICDTagSwirlElectro",
+        ]),
+        groupId: z.literal("reaction-a"),
+        windowStartGroupId: z.literal("reaction-a"),
+        resetFrames: z.literal(30),
+      })
+      .strict(),
+  ])
+  .superRefine((decision, context) => {
+    const issue = (path: Array<string | number>, message: string): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (decision.allowed !== decision.applicationMultiplier > 0) {
+      issue(["allowed"], "must equal applicationMultiplier > 0");
+    }
+    const expectedResetAtFrame =
+      decision.windowStartFrame + decision.resetFrames - 1;
+    if (
+      !Number.isSafeInteger(expectedResetAtFrame) ||
+      decision.resetAtFrame !== expectedResetAtFrame
+    ) {
+      issue(["resetAtFrame"], "must equal windowStartFrame + resetFrames - 1");
+    }
+    if (decision.sequenceIndex > decision.hitIndex) {
+      issue(["sequenceIndex"], "cannot exceed hitIndex");
+    }
+
+    const isBurning = decision.groupId === "burning";
+    const expectedFinalSequenceIndex = isBurning ? 7 : 9;
+    const expectedSequenceIndex = Math.min(
+      decision.hitIndex,
+      expectedFinalSequenceIndex,
+    );
+    if (decision.sequenceIndex !== expectedSequenceIndex) {
+      issue(["sequenceIndex"], "must equal the clamped trusted sequence index");
+    }
+    const expectedMultiplier = isBurning && expectedSequenceIndex > 0 ? 0 : 1;
+    if (decision.applicationMultiplier !== expectedMultiplier) {
+      issue(
+        ["applicationMultiplier"],
+        "must equal the trusted fixed sequence multiplier",
+      );
+    }
+  }) satisfies z.ZodType<ElementalApplicationReactionFixedGcsimDecision>;
+
+export const reactionOwnedElementalApplicationIcdDecisionV148Schema =
+  z.discriminatedUnion("kind", [
+    reactionOwnedElementalApplicationSkippedDecisionV148Schema,
+    elementalApplicationReactionFixedGcsimDecisionV148Schema,
+  ]);
+
+const reactionOwnedElementalApplicationLogCommonV148Shape = {
+  id: nonNegativeSafeIntegerSchema,
+  reactionDamageLogId: nonNegativeSafeIntegerSchema,
+  hitResolutionLogId: nonNegativeSafeIntegerSchema,
+  damageEventId: nonNegativeSafeIntegerSchema.nullable(),
+  frame: nonNegativeSafeIntegerSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeSafeIntegerSchema,
+  attemptIndex: nonNegativeSafeIntegerSchema,
+  attemptCount: positiveSafeIntegerSchema,
+  deliveryPhase: z.enum([
+    "reaction-damage-event",
+    "before-reactable-tick",
+    "after-reactable-tick",
+  ]),
+  sourceActorId: nonEmptyStringSchema,
+  targetId: nonEmptyStringSchema,
+  hitId: nonEmptyStringSchema,
+  hitGroupId: nonEmptyStringSchema,
+  nominalGaugeUnits: positiveFiniteNumberSchema,
+  effectiveGaugeUnits: nonNegativeFiniteNumberSchema,
+  decision: reactionOwnedElementalApplicationIcdDecisionV148Schema,
+} as const;
+
+type ReactionOwnedApplicationRowForLocalValidation = {
+  sourceKind: "burning-tick" | "swirl-propagation";
+  frame: number;
+  attemptIndex: number;
+  attemptCount: number;
+  deliveryPhase:
+    "reaction-damage-event" | "before-reactable-tick" | "after-reactable-tick";
+  damageEventId: number | null;
+  element: "pyro" | "hydro" | "cryo" | "electro";
+  nominalGaugeUnits: number;
+  effectiveGaugeUnits: number;
+  selector:
+    | z.output<typeof burningTickElementalApplicationSelectorV148Schema>
+    | z.output<typeof swirlPropagationElementalApplicationSelectorV148Schema>;
+  decision: z.output<
+    typeof reactionOwnedElementalApplicationIcdDecisionV148Schema
+  >;
+};
+
+function validateReactionOwnedApplicationRowLocalIdentities(
+  entry: ReactionOwnedApplicationRowForLocalValidation,
+  context: z.RefinementCtx,
+): void {
+  const issue = (path: Array<string | number>, message: string): void =>
+    context.addIssue({ code: "custom", path, message });
+
+  if (entry.attemptIndex >= entry.attemptCount) {
+    issue(["attemptIndex"], "must be less than attemptCount");
+  }
+  if (
+    entry.sourceKind === "swirl-propagation" &&
+    entry.deliveryPhase !== "reaction-damage-event"
+  ) {
+    issue(
+      ["deliveryPhase"],
+      "Swirl propagation must use reaction-damage-event delivery",
+    );
+  }
+
+  const missed =
+    entry.decision.kind === "skipped" && entry.decision.reason === "miss";
+  if (missed && entry.damageEventId !== null) {
+    issue(["damageEventId"], "misses cannot own damage output");
+  }
+  if (!missed && entry.damageEventId === null) {
+    issue(
+      ["damageEventId"],
+      "landed reaction-owned attempts require a damage event",
+    );
+  }
+
+  const expectedEffectiveGaugeUnits =
+    entry.nominalGaugeUnits * entry.decision.applicationMultiplier;
+  const gaugeTolerance =
+    1e-12 * Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
+  if (
+    !Number.isFinite(expectedEffectiveGaugeUnits) ||
+    Math.abs(entry.effectiveGaugeUnits - expectedEffectiveGaugeUnits) >
+      gaugeTolerance
+  ) {
+    issue(
+      ["effectiveGaugeUnits"],
+      "must approximately equal nominalGaugeUnits * decision.applicationMultiplier",
+    );
+  }
+
+  if (entry.decision.kind === "skipped") return;
+
+  const isBurning = entry.sourceKind === "burning-tick";
+  const expectedScope = isBurning
+    ? "trusted-target-global-burning-projection"
+    : "actor-tag";
+  const expectedGroup = isBurning ? "burning" : "reaction-a";
+  const expectedResetFrames = isBurning ? 120 : 30;
+  const expectedIcdTag = isBurning
+    ? "ICDTagBurningDamage"
+    : `ICDTagSwirl${entry.element[0]!.toUpperCase() + entry.element.slice(1)}`;
+
+  if (entry.decision.scope !== expectedScope) {
+    issue(["decision", "scope"], `must equal ${expectedScope}`);
+  }
+  if (entry.decision.icdTag !== expectedIcdTag) {
+    issue(
+      ["decision", "icdTag"],
+      "must equal the trusted source channel ICD tag",
+    );
+  }
+  if (entry.decision.groupId !== expectedGroup) {
+    issue(["decision", "groupId"], `must equal ${expectedGroup}`);
+  }
+  if (entry.decision.windowStartGroupId !== expectedGroup) {
+    issue(["decision", "windowStartGroupId"], `must equal ${expectedGroup}`);
+  }
+  if (entry.decision.resetFrames !== expectedResetFrames) {
+    issue(["decision", "resetFrames"], `must equal ${expectedResetFrames}`);
+  }
+  if (
+    entry.decision.windowStartFrame > entry.frame ||
+    entry.decision.resetAtFrame <= entry.frame
+  ) {
+    issue(
+      ["decision", "windowStartFrame"],
+      "active window must start no later than this frame and reset after it",
+    );
+  }
+
+  const finalSequenceIndex = isBurning ? 7 : 9;
+  const expectedSequenceIndex = Math.min(
+    entry.decision.hitIndex,
+    finalSequenceIndex,
+  );
+  if (entry.decision.sequenceIndex !== expectedSequenceIndex) {
+    issue(
+      ["decision", "sequenceIndex"],
+      "must equal the clamped trusted sequence index",
+    );
+  }
+  const expectedMultiplier = isBurning && expectedSequenceIndex > 0 ? 0 : 1;
+  if (entry.decision.applicationMultiplier !== expectedMultiplier) {
+    issue(
+      ["decision", "applicationMultiplier"],
+      "must equal the trusted fixed sequence multiplier",
+    );
+  }
+}
+
+export const burningTickElementalApplicationIcdLogEntryV148Schema = z
+  .object({
+    ...reactionOwnedElementalApplicationLogCommonV148Shape,
+    sourceKind: z.literal("burning-tick"),
+    selector: burningTickElementalApplicationSelectorV148Schema,
+    element: z.literal("pyro"),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (entry.nominalGaugeUnits !== 1) {
+      context.addIssue({
+        code: "custom",
+        path: ["nominalGaugeUnits"],
+        message: "Burning tick application Gauge is fixed at 1U",
+      });
+    }
+    validateReactionOwnedApplicationRowLocalIdentities(entry, context);
+  }) satisfies z.ZodType<BurningElementalApplicationIcdLogEntryV148>;
+
+export const swirlPropagationElementalApplicationIcdLogEntryV148Schema = z
+  .object({
+    ...reactionOwnedElementalApplicationLogCommonV148Shape,
+    sourceKind: z.literal("swirl-propagation"),
+    selector: swirlPropagationElementalApplicationSelectorV148Schema,
+    element: swirlPropagationElementV148Schema,
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (entry.selector.channel.element !== entry.element) {
+      context.addIssue({
+        code: "custom",
+        path: ["selector", "channel", "element"],
+        message: "must equal the propagated element",
+      });
+    }
+    validateReactionOwnedApplicationRowLocalIdentities(entry, context);
+  }) satisfies z.ZodType<SwirlPropagationElementalApplicationIcdLogEntryV148>;
+
+/** Exact unified 1.48 log union; the configured-direct branch is 1.47. */
+export const elementalApplicationIcdLogEntryV148Schema = z.discriminatedUnion(
+  "sourceKind",
+  [
+    elementalApplicationIcdLogEntryV147Schema,
+    burningTickElementalApplicationIcdLogEntryV148Schema,
+    swirlPropagationElementalApplicationIcdLogEntryV148Schema,
+  ],
+) satisfies z.ZodType<ElementalApplicationIcdLogEntryV148>;
+
+function forwardSchemaIssues(
+  label: string,
+  parsed: z.ZodSafeParseResult<unknown>,
+  context: z.RefinementCtx,
+): void {
+  if (parsed.success) return;
+  for (const nestedIssue of parsed.error.issues) {
+    context.addIssue({
+      code: "custom",
+      path: [...nestedIssue.path],
+      message: `${label}: ${nestedIssue.message}`,
+    });
+  }
+}
+
+/** 1.48 damage event; all 1.47 fields remain exact. */
+export const damageEventV148Schema = z
+  .object({
+    ...damageEventV142Schema.shape,
+    elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema.nullable(),
+  })
+  .strict()
+  .superRefine((event, context) => {
+    const {
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+      ...frozenEvent
+    } = event;
+    forwardSchemaIssues(
+      "frozen 1.47 damage event",
+      damageEventV142Schema.safeParse(frozenEvent),
+      context,
+    );
+  });
+
+/** 1.48 target resolution with reciprocal reaction/application links. */
+export const hitResolutionLogEntryV148Schema = z
+  .object({
+    ...hitResolutionLogEntryV142Schema.shape,
+    reactionDamageLogId: nonNegativeSafeIntegerSchema.nullable(),
+    elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema.nullable(),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const {
+      reactionDamageLogId: _reactionDamageLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+      ...frozenEntry
+    } = entry;
+    forwardSchemaIssues(
+      "frozen 1.47 hit resolution",
+      hitResolutionLogEntryV142Schema.safeParse(frozenEntry),
+      context,
+    );
+    if (
+      (entry.resolutionKind === "reaction-damage") !==
+      (entry.reactionDamageLogId !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionDamageLogId"],
+        message: "must be present exactly for reaction-damage resolutions",
+      });
+    }
+  });
+
+/** 1.48 reaction owner with deterministic reciprocal target-attempt arrays. */
+export const reactionDamageLogEntryV148Schema = z
+  .object({
+    ...reactionDamageLogEntryV142Schema.shape,
+    hitResolutionLogIds: z.array(nonNegativeSafeIntegerSchema),
+    elementalApplicationIcdLogIds: z.array(nonNegativeSafeIntegerSchema),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const {
+      hitResolutionLogIds: _hitResolutionLogIds,
+      elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
+      ...frozenEntry
+    } = entry;
+    forwardSchemaIssues(
+      "frozen 1.47 reaction damage row",
+      reactionDamageLogEntryV142Schema.safeParse(frozenEntry),
+      context,
+    );
+    for (const [field, ids] of [
+      ["hitResolutionLogIds", entry.hitResolutionLogIds],
+      ["elementalApplicationIcdLogIds", entry.elementalApplicationIcdLogIds],
+    ] as const) {
+      if (new Set(ids).size !== ids.length) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "must not contain duplicate ids",
+        });
+      }
+    }
+  });
+
+const targetPhaseV3DeliveryAttemptBaseV148Shape = {
+  order: nonNegativeSafeIntegerSchema,
+  targetId: nonEmptyStringSchema,
+  targetOrder: nonNegativeSafeIntegerSchema,
+  applicationPhase: z.enum(["before-reactable-tick", "after-reactable-tick"]),
+} as const;
+
+export const targetPhaseV3DeliveryAttemptV148Schema = z.discriminatedUnion(
+  "outcome",
+  [
+    z
+      .object({
+        ...targetPhaseV3DeliveryAttemptBaseV148Shape,
+        outcome: z.literal("landed"),
+        hitResolutionLogId: nonNegativeSafeIntegerSchema,
+        damageEventId: nonNegativeSafeIntegerSchema,
+        elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema,
+        targetStateTimelinePointId: nonNegativeSafeIntegerSchema,
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV3DeliveryAttemptBaseV148Shape,
+        outcome: z.literal("miss"),
+        hitResolutionLogId: nonNegativeSafeIntegerSchema,
+        damageEventId: z.null(),
+        elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema,
+        targetStateTimelinePointId: z.null(),
+      })
+      .strict(),
+    z
+      .object({
+        ...targetPhaseV3DeliveryAttemptBaseV148Shape,
+        outcome: z.literal("unresolved"),
+        hitResolutionLogId: z.null(),
+        damageEventId: z.null(),
+        elementalApplicationIcdLogId: z.null(),
+        targetStateTimelinePointId: z.null(),
+      })
+      .strict(),
+  ],
+) satisfies z.ZodType<TargetPhaseV3DeliveryAttemptV148>;
+
+type ParsedTargetPhaseV3DeliveryAttemptV148 = z.output<
+  typeof targetPhaseV3DeliveryAttemptV148Schema
+>;
+
+function projectTargetPhaseV3DeliveryAttemptToV147(
+  attempt: ParsedTargetPhaseV3DeliveryAttemptV148,
+): Omit<
+  ParsedTargetPhaseV3DeliveryAttemptV148,
+  "elementalApplicationIcdLogId"
+> {
+  const {
+    elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+    ...frozenAttempt
+  } = attempt;
+  return frozenAttempt;
+}
+
+export const targetPhaseV3DeliveryV148Schema = z
+  .object({
+    ...targetPhaseV3DeliverySchema.shape,
+    attempts: z.array(targetPhaseV3DeliveryAttemptV148Schema),
+  })
+  .strict()
+  .superRefine((delivery, context) => {
+    const projectedDelivery = {
+      ...delivery,
+      attempts: delivery.attempts.map(
+        projectTargetPhaseV3DeliveryAttemptToV147,
+      ),
+    };
+    forwardSchemaIssues(
+      "frozen 1.47 target-phase-v3 delivery",
+      targetPhaseV3DeliverySchema.safeParse(projectedDelivery),
+      context,
+    );
+    const applicationIds = delivery.attempts.flatMap((attempt) =>
+      attempt.elementalApplicationIcdLogId === null
+        ? []
+        : [attempt.elementalApplicationIcdLogId],
+    );
+    if (new Set(applicationIds).size !== applicationIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["attempts"],
+        message:
+          "one Burning callback delivery cannot reuse an application log id",
+      });
+    }
+  });
+
+export const targetPhaseV3TargetTaskV148Schema = z
+  .object({
+    ...targetPhaseV3TargetTaskSchema.shape,
+    delivery: targetPhaseV3DeliveryV148Schema.nullable(),
+  })
+  .strict()
+  .superRefine((task, context) => {
+    const projectedTask = {
+      ...task,
+      delivery:
+        task.delivery === null
+          ? null
+          : {
+              ...task.delivery,
+              attempts: task.delivery.attempts.map(
+                projectTargetPhaseV3DeliveryAttemptToV147,
+              ),
+            },
+    };
+    forwardSchemaIssues(
+      "frozen 1.47 target-phase-v3 task",
+      targetPhaseV3TargetTaskSchema.safeParse(projectedTask),
+      context,
+    );
+  });
+
+export const targetPhaseV3LogEntryV148Schema = z
+  .object({
+    ...targetPhaseV3LogEntrySchema.shape,
+    targetTasks: z.array(targetPhaseV3TargetTaskV148Schema),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const projectedEntry = {
+      ...entry,
+      targetTasks: entry.targetTasks.map((task) => ({
+        ...task,
+        delivery:
+          task.delivery === null
+            ? null
+            : {
+                ...task.delivery,
+                attempts: task.delivery.attempts.map(
+                  projectTargetPhaseV3DeliveryAttemptToV147,
+                ),
+              },
+      })),
+    };
+    forwardSchemaIssues(
+      "frozen 1.47 target-phase-v3 entry",
+      targetPhaseV3LogEntrySchema.safeParse(projectedEntry),
+      context,
+    );
+  });
+
+export const targetPhaseV3LogV148Schema = z
+  .array(targetPhaseV3LogEntryV148Schema)
+  .superRefine((entries, context) => {
+    const projectedEntries = entries.map((entry) => ({
+      ...entry,
+      targetTasks: entry.targetTasks.map((task) => ({
+        ...task,
+        delivery:
+          task.delivery === null
+            ? null
+            : {
+                ...task.delivery,
+                attempts: task.delivery.attempts.map(
+                  projectTargetPhaseV3DeliveryAttemptToV147,
+                ),
+              },
+      })),
+    }));
+    forwardSchemaIssues(
+      "frozen 1.47 target-phase-v3 log",
+      targetPhaseV3LogSchema.safeParse(projectedEntries),
+      context,
+    );
+  });
+
+/**
+ * Exact current 1.48 result wire. Every inherited 1.47 field remains exact;
+ * only the versioned identity and the six explicitly replaced audit fields
+ * advance. In particular, the frozen 1.47 schemas never accept reciprocal
+ * IDs or reaction-owned application rows.
+ */
+export const simulationResultV148ValueSchema = z
+  .object({
+    ...simulationResultV147ValueSchema.shape,
+    schemaVersion: z.literal(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION),
+    engineVersion: z.literal(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION),
+    runManifest: simulationRunManifestV148Schema,
+    config: simConfigV148Schema,
+    damageEvents: z.array(damageEventV148Schema),
+    hitEvents: z.array(damageEventV148Schema),
+    hitResolutionLog: z.array(hitResolutionLogEntryV148Schema),
+    reactionDamageLog: z.array(reactionDamageLogEntryV148Schema),
+    elementalApplicationIcdLog: z.array(
+      elementalApplicationIcdLogEntryV148Schema,
+    ),
+    targetPhaseLog: z.union([
+      targetPhaseV2LogSchema,
+      targetPhaseV3LogV148Schema,
+    ]),
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (path: Array<string | number>, message: string): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(["engineVersion"], "must equal config.engineVersion");
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(["dataVersion"], "must equal config.dataVersion");
+    }
+    if (result.randomSeed !== result.resolvedRuntimeOptions.randomSeed) {
+      issue(["randomSeed"], "must equal resolvedRuntimeOptions.randomSeed");
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode",
+      );
+    }
+    if (result.reproducibilityKey !== result.runManifest.reproducibilityKey) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey",
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(["pluginManifest"], "must equal runManifest.plugins");
+    }
+    const validateFacet = (label: string, schema: z.ZodType): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`,
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema,
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema,
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema,
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema,
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema,
+    );
+    validateFacet("target clock references", targetClockResultReferencesSchema);
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet("Dendro core references", dendroCoreResultReferencesSchema);
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null,
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged",
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema,
+      );
+    }
+    validateSimulationResultV148Integrity(
+      result as unknown as SimulationResult,
+      context,
+    );
+  });
+
+export const simulationResultV148Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.48"),
+  simulationResultV148ValueSchema,
+);
+
+export type SimulationResultV148 = z.output<typeof simulationResultV148Schema>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema = simulationResultV147Schema;
-export type ParsedSimulationResult = SimulationResultV147;
+export const simulationResultSchema = simulationResultV148Schema;
+export type ParsedSimulationResult = SimulationResultV148;

@@ -5,6 +5,8 @@ import {
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   targetPhaseV3ResultReferencesSchema,
@@ -135,17 +137,17 @@ function cloneWithIdentity(
 }
 
 describe("target-phase-v3 formula-root identity", () => {
-  it("accepts exact 1.47 and preserves the exact 1.44-1.46 callback semantics", () => {
+  it("accepts exact 1.48 and preserves the exact 1.44-1.47 callback semantics", () => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
       critMode: "noCrit"
     });
 
     expect(current).toMatchObject({
-      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
-      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+      schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
       config: {
-        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
-        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
       }
     });
 
@@ -182,6 +184,14 @@ describe("target-phase-v3 formula-root identity", () => {
     });
     expect(
       targetPhaseV3ResultReferencesSchema.safeParse(exactV146).success
+    ).toBe(true);
+
+    const exactV147 = cloneWithIdentity(current, {
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    });
+    expect(
+      targetPhaseV3ResultReferencesSchema.safeParse(exactV147).success
     ).toBe(true);
   });
 
@@ -222,23 +232,23 @@ describe("target-phase-v3 formula-root identity", () => {
     {
       label: "mixed current result and frozen config generations",
       resultIdentity: {
-        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
-        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
       },
       configIdentity: {
-        schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
-        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
       }
     },
     {
       label: "mixed current schema and frozen engine generations",
       resultIdentity: {
-        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
-        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
       },
       configIdentity: {
-        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
-        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
       }
     }
   ])("fails closed for $label", ({ resultIdentity, configIdentity }) => {
@@ -256,7 +266,9 @@ describe("target-phase-v3 formula-root identity", () => {
     if (!parsed.success) {
       expect(
         parsed.error.issues.some((issue) =>
-          issue.message.includes("exact 1.44, 1.45, 1.46, or 1.47")
+          issue.message.includes(
+            "exact 1.44, 1.45, 1.46, 1.47, or 1.48"
+          )
         )
       ).toBe(true);
     }

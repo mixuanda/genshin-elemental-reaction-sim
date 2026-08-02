@@ -3,18 +3,20 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  type PublicGcsimElementalApplicationGroupId
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
-  CLASSIC_REACTION_FORMULA_ROOT
+  CLASSIC_REACTION_FORMULA_ROOT,
 } from "@genshin-dps-lab/reaction-formulas";
 import { describe, expect, expectTypeOf, it } from "vitest";
 
 import {
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
-  createSimulationRunManifest
+  createSimulationRunManifest,
 } from "./reproducibility";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
@@ -29,22 +31,36 @@ import {
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
   LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   type DirectDamageGroupLogEntry,
   type ElementalApplication,
   type ElementalApplicationIcdLogEntry,
+  type ElementalApplicationIcdLogEntryV147,
+  type ElementalApplicationIcdLogEntryV148,
+  type ElementalApplicationReactionFixedGcsimDecision,
+  type DamageEventV147,
+  type DamageEventV148,
+  type HitResolutionLogEntryV147,
+  type HitResolutionLogEntryV148,
+  type ReactionDamageLogEntryV147,
+  type ReactionDamageLogEntryV148,
   type LegacyElementalApplicationV146,
   type SimulationResultForV145,
   type SimulationResultForV146,
   type SimulationResultForV147,
+  type SimulationResultForV148,
   type SimulationRunManifestV142,
   type SimulationRunManifestV144,
   type SimulationRunManifestV145,
-  type SimulationRunManifestV146
+  type SimulationRunManifestV146,
+  type SimulationRunManifestV147,
 } from "./types";
 
 const commonIdentity = {
@@ -55,50 +71,80 @@ const commonIdentity = {
     energyMode: "configured" as const,
     critMode: "average" as const,
     compatibilityMode: "legacy-v0.1" as const,
-    randomSeed: "repro-test-seed"
+    randomSeed: "repro-test-seed",
   },
-  plugins: []
+  plugins: [],
 };
 
 describe("versioned reproducibility identities", () => {
-  it("binds all three fixed mechanics roots in the current 1.47 manifest", () => {
+  it("keeps trusted Burning and Swirl decision tuples disjoint in TypeScript", () => {
+    type BurningDecision = Extract<
+      ElementalApplicationReactionFixedGcsimDecision,
+      { scope: "trusted-target-global-burning-projection" }
+    >;
+    type SwirlDecision = Extract<
+      ElementalApplicationReactionFixedGcsimDecision,
+      { scope: "actor-tag" }
+    >;
+
+    expectTypeOf<
+      BurningDecision["icdTag"]
+    >().toEqualTypeOf<"ICDTagBurningDamage">();
+    expectTypeOf<BurningDecision["groupId"]>().toEqualTypeOf<"burning">();
+    expectTypeOf<SwirlDecision["icdTag"]>().toEqualTypeOf<
+      | "ICDTagSwirlPyro"
+      | "ICDTagSwirlHydro"
+      | "ICDTagSwirlCryo"
+      | "ICDTagSwirlElectro"
+    >();
+    expectTypeOf<SwirlDecision["groupId"]>().toEqualTypeOf<"reaction-a">();
+    expectTypeOf<
+      Extract<
+        ElementalApplicationReactionFixedGcsimDecision,
+        {
+          scope: "trusted-target-global-burning-projection";
+          icdTag: "ICDTagSwirlPyro";
+        }
+      >
+    >().toEqualTypeOf<never>();
+
+  });
+
+  it("binds all four fixed mechanics roots in the current 1.48 manifest", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
-      elementalApplicationIcdRoot:
-        GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       dataVersion: commonIdentity.dataVersion,
       configHash: commonIdentity.configHash,
       resolvedRuntimeOptions: commonIdentity.resolvedRuntimeOptions,
-      plugins: commonIdentity.plugins
+      plugins: commonIdentity.plugins,
     });
 
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
     );
     expect(manifest.version).toBe(SIMULATION_RUN_MANIFEST_VERSION);
-    expect(manifest.version).toBe("1.3.0");
-    expect(manifest.reactionFormulaRoot).toBe(
-      CLASSIC_REACTION_FORMULA_ROOT
-    );
-    expect(manifest.directDamageGroupRoot).toBe(
-      GCSIM_DAMAGE_GROUP_ROOT
-    );
+    expect(manifest.version).toBe("1.4.0");
+    expect(manifest.reactionFormulaRoot).toBe(CLASSIC_REACTION_FORMULA_ROOT);
+    expect(manifest.directDamageGroupRoot).toBe(GCSIM_DAMAGE_GROUP_ROOT);
     expect(manifest.elementalApplicationIcdRoot).toBe(
-      GCSIM_ELEMENTAL_APPLICATION_ROOT
+      GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    );
+    expect(manifest.reactionOwnedElementalApplicationRoot).toBe(
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
     );
 
-    const {
-      reproducibilityKey: _reproducibilityKey,
-      ...identity
-    } = manifest;
+    const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;
     expect(manifest.reproducibilityKey).toBe(
-      createSimulationReproducibilityKey(identity)
+      createSimulationReproducibilityKey(identity),
     );
     const forgedContentHash = `sha256:${"0".repeat(64)}`;
     const forgedIdentities = [
@@ -106,32 +152,39 @@ describe("versioned reproducibility identities", () => {
         ...identity,
         reactionFormulaRoot: {
           ...identity.reactionFormulaRoot,
-          contentHash: forgedContentHash
-        }
+          contentHash: forgedContentHash,
+        },
       },
       {
         ...identity,
         directDamageGroupRoot: {
           ...identity.directDamageGroupRoot,
-          contentHash: forgedContentHash
-        }
+          contentHash: forgedContentHash,
+        },
       },
       {
         ...identity,
         elementalApplicationIcdRoot: {
           ...identity.elementalApplicationIcdRoot,
-          contentHash: forgedContentHash
-        }
-      }
+          contentHash: forgedContentHash,
+        },
+      },
+      {
+        ...identity,
+        reactionOwnedElementalApplicationRoot: {
+          ...identity.reactionOwnedElementalApplicationRoot,
+          contentHash: forgedContentHash,
+        },
+      },
     ] as unknown as Array<typeof identity>;
     for (const forgedIdentity of forgedIdentities) {
-      expect(
-        createSimulationReproducibilityKey(forgedIdentity)
-      ).not.toBe(manifest.reproducibilityKey);
+      expect(createSimulationReproducibilityKey(forgedIdentity)).not.toBe(
+        manifest.reproducibilityKey,
+      );
     }
   });
 
-  it("retains exact 1.42, 1.44, 1.45, and 1.46 identities", () => {
+  it("retains exact 1.42, 1.44, 1.45, 1.46, and 1.47 identities", () => {
     const frozenV142Identity: Omit<
       SimulationRunManifestV142,
       "reproducibilityKey"
@@ -139,7 +192,7 @@ describe("versioned reproducibility identities", () => {
       ...commonIdentity,
       version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
-      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
     };
     const frozenV144Identity: Omit<
       SimulationRunManifestV144,
@@ -148,7 +201,7 @@ describe("versioned reproducibility identities", () => {
       ...commonIdentity,
       version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
-      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     };
     const frozenV145Identity: Omit<
       SimulationRunManifestV145,
@@ -158,7 +211,7 @@ describe("versioned reproducibility identities", () => {
       version: REACTION_FORMULA_RUN_MANIFEST_VERSION,
       schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
       engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
-      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
     };
     const frozenV146Identity: Omit<
       SimulationRunManifestV146,
@@ -169,28 +222,41 @@ describe("versioned reproducibility identities", () => {
       schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
       engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
-      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+    };
+    const frozenV147Identity: Omit<
+      SimulationRunManifestV147,
+      "reproducibilityKey"
+    > = {
+      ...commonIdentity,
+      version: ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
     };
 
     expect(frozenV145Identity.version).toBe("1.1.0");
     expect("directDamageGroupRoot" in frozenV142Identity).toBe(false);
     expect("directDamageGroupRoot" in frozenV144Identity).toBe(false);
     expect("directDamageGroupRoot" in frozenV145Identity).toBe(false);
-    expect("elementalApplicationIcdRoot" in frozenV146Identity).toBe(
-      false
+    expect("elementalApplicationIcdRoot" in frozenV146Identity).toBe(false);
+    expect("reactionOwnedElementalApplicationRoot" in frozenV147Identity).toBe(
+      false,
     );
-    expect(
-      [
-        createSimulationReproducibilityKey(frozenV142Identity),
-        createSimulationReproducibilityKey(frozenV144Identity),
-        createSimulationReproducibilityKey(frozenV145Identity),
-        createSimulationReproducibilityKey(frozenV146Identity)
-      ]
-    ).toEqual([
+    expect([
+      createSimulationReproducibilityKey(frozenV142Identity),
+      createSimulationReproducibilityKey(frozenV144Identity),
+      createSimulationReproducibilityKey(frozenV145Identity),
+      createSimulationReproducibilityKey(frozenV146Identity),
+      createSimulationReproducibilityKey(frozenV147Identity),
+    ]).toEqual([
       "gdl-v2-fnv1a32-a82adc28",
       "gdl-v2-fnv1a32-452a4d63",
       "gdl-v2-fnv1a32-322d4ab9",
-      "gdl-v2-fnv1a32-cba353ae"
+      "gdl-v2-fnv1a32-cba353ae",
+      "gdl-v2-fnv1a32-ee6a05c7",
     ]);
   });
 
@@ -198,24 +264,28 @@ describe("versioned reproducibility identities", () => {
     const configIdentity = {
       reactionFormulaModel: {
         mode: "classic-formula-profile-v1",
-        profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+        profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID,
       },
       directDamageGroupModel: {
         mode: "fixed-gcsim-direct-damage-group-v1",
-        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
       },
       elementalApplicationIcdModel: {
         mode: "fixed-gcsim-elemental-application-v1",
-        profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+        profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+      },
+      reactionOwnedElementalApplicationModel: {
+        mode: "fixed-gcsim-reaction-owned-application-v1",
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
       },
       configuredApplication: {
         gaugeUnits: 1,
         icd: {
           mode: "fixed-gcsim-application-v1",
           icdTag: "skill",
-          groupId: "default"
-        }
-      }
+          groupId: "default",
+        },
+      },
     };
 
     expect(
@@ -223,18 +293,27 @@ describe("versioned reproducibility identities", () => {
         ...configIdentity,
         directDamageGroupModel: {
           ...configIdentity.directDamageGroupModel,
-          profileId: "forged-profile"
-        }
-      })
+          profileId: "forged-profile",
+        },
+      }),
+    ).not.toBe(createSimulationConfigHash(configIdentity));
+    expect(
+      createSimulationConfigHash({
+        ...configIdentity,
+        reactionOwnedElementalApplicationModel: {
+          ...configIdentity.reactionOwnedElementalApplicationModel,
+          policyId: "forged-reaction-policy",
+        },
+      }),
     ).not.toBe(createSimulationConfigHash(configIdentity));
     expect(
       createSimulationConfigHash({
         ...configIdentity,
         elementalApplicationIcdModel: {
           ...configIdentity.elementalApplicationIcdModel,
-          profileId: "forged-application-profile"
-        }
-      })
+          profileId: "forged-application-profile",
+        },
+      }),
     ).not.toBe(createSimulationConfigHash(configIdentity));
     expect(
       createSimulationConfigHash({
@@ -243,10 +322,10 @@ describe("versioned reproducibility identities", () => {
           ...configIdentity.configuredApplication,
           icd: {
             ...configIdentity.configuredApplication.icd,
-            groupId: "nahida-skill"
-          }
-        }
-      })
+            groupId: "nahida-skill",
+          },
+        },
+      }),
     ).not.toBe(createSimulationConfigHash(configIdentity));
   });
 });
@@ -278,6 +357,48 @@ describe("direct-damage-group audit identity", () => {
     >().toEqualTypeOf<true>();
   });
 
+  it("freezes 1.47 nested logs while 1.48 exposes reciprocal unified links", () => {
+    expectTypeOf<
+      SimulationResultForV147["damageEvents"][number]
+    >().toEqualTypeOf<DamageEventV147>();
+    expectTypeOf<
+      SimulationResultForV148["damageEvents"][number]
+    >().toEqualTypeOf<DamageEventV148>();
+    expectTypeOf<
+      SimulationResultForV147["hitResolutionLog"][number]
+    >().toEqualTypeOf<HitResolutionLogEntryV147>();
+    expectTypeOf<
+      SimulationResultForV148["hitResolutionLog"][number]
+    >().toEqualTypeOf<HitResolutionLogEntryV148>();
+    expectTypeOf<
+      SimulationResultForV147["reactionDamageLog"][number]
+    >().toEqualTypeOf<ReactionDamageLogEntryV147>();
+    expectTypeOf<
+      SimulationResultForV148["reactionDamageLog"][number]
+    >().toEqualTypeOf<ReactionDamageLogEntryV148>();
+    expectTypeOf<
+      SimulationResultForV147["elementalApplicationIcdLog"][number]
+    >().toEqualTypeOf<ElementalApplicationIcdLogEntryV147>();
+    expectTypeOf<
+      SimulationResultForV148["elementalApplicationIcdLog"][number]
+    >().toEqualTypeOf<ElementalApplicationIcdLogEntryV148>();
+
+    expectTypeOf<
+      "elementalApplicationIcdLogId" extends keyof DamageEventV147
+        ? true
+        : false
+    >().toEqualTypeOf<false>();
+    expectTypeOf<
+      DamageEventV148["elementalApplicationIcdLogId"]
+    >().toEqualTypeOf<number | null>();
+    expectTypeOf<
+      HitResolutionLogEntryV148["reactionDamageLogId"]
+    >().toEqualTypeOf<number | null>();
+    expectTypeOf<
+      ReactionDamageLogEntryV148["elementalApplicationIcdLogIds"]
+    >().toEqualTypeOf<number[]>();
+  });
+
   it("records the group that opened a shared tag window", () => {
     const evaluated: DirectDamageGroupLogEntry = {
       id: 0,
@@ -302,10 +423,9 @@ describe("direct-damage-group audit identity", () => {
       prePluginMultiplier: 0.75,
       postPluginMultiplier: 0.75,
       pluginMultiplierTrace: [],
-      pluginTraceVerification:
-        DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+      pluginTraceVerification: DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
       effectiveMultiplier: 0,
-      damageGroupOnEnemyHitAllowed: false
+      damageGroupOnEnemyHitAllowed: false,
     };
     const bypassed: DirectDamageGroupLogEntry = {
       ...evaluated,
@@ -326,7 +446,7 @@ describe("direct-damage-group audit identity", () => {
       prePluginMultiplier: 0.75,
       postPluginMultiplier: 0.75,
       effectiveMultiplier: 0.75,
-      damageGroupOnEnemyHitAllowed: true
+      damageGroupOnEnemyHitAllowed: true,
     };
 
     expect(evaluated.windowStartGroup).toBe("reaction-a");
@@ -373,7 +493,7 @@ describe("elemental-application ICD audit identity", () => {
       selector: {
         mode: "fixed-gcsim-application-v1",
         icdTag: "skill",
-        groupId: "nahida-skill"
+        groupId: "nahida-skill",
       },
       nominalGaugeUnits: 1,
       effectiveGaugeUnits: 1.5,
@@ -394,9 +514,8 @@ describe("elemental-application ICD audit identity", () => {
         hitIndex: 0,
         sequenceIndex: 0,
         tailPolicy: "clamp",
-        resetSchedulePolicy:
-          "window-start-plus-reset-frames-minus-one"
-      }
+        resetSchedulePolicy: "window-start-plus-reset-frames-minus-one",
+      },
     };
 
     expect(fixed.decision.applicationMultiplier).toBe(1.5);

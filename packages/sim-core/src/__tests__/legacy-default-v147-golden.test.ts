@@ -17,20 +17,21 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResult,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV147,
   directDamageGroupModelSchema,
   elementalApplicationIcdModelSchema,
   reactionFormulaModelSchema,
-  simulationResultSchema,
+  simulationResultV147Schema,
   simulationRunManifestV147Schema
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import frozenV146Json from "../../../test-vectors/fixtures/legacy-default-120s-1.46.golden.json";
+import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { simulate } from "../simulator";
 
 const PREVIEW_FLAG =
@@ -100,8 +101,12 @@ const fixtureSchema = z
         completeGcsimParity: z.literal(false)
       })
       .strict(),
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-    engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    ),
     configHash: z.string().regex(/^fnv1a32:[0-9a-f]{8}$/),
     reproducibilityKey: z
       .string()
@@ -173,7 +178,7 @@ const fixtureSchema = z
   .superRefine((fixture, context) => {
     if (
       fixture.runManifest.version !==
-        SIMULATION_RUN_MANIFEST_VERSION ||
+        ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION ||
       fixture.runManifest.schemaVersion !== fixture.schemaVersion ||
       fixture.runManifest.engineVersion !== fixture.engineVersion ||
       fixture.runManifest.configHash !== fixture.configHash ||
@@ -411,7 +416,7 @@ function frozenV146CompatibilityProjection() {
 }
 
 function makeFixture(
-  result: ReturnType<typeof simulate>
+  result: ReturnType<typeof runDefault>
 ): DefaultV147Fixture {
   const evaluatedCount = result.directDamageGroupLog.filter(
     (entry) => entry.evaluation === "evaluated"
@@ -576,12 +581,14 @@ function loadPreviewOrCreateFixture(
 }
 
 function runDefault() {
-  return simulate(durinMeltPreset, {
-    energyMode: "configured",
-    critMode: "average",
-    compatibilityMode: "legacy-v0.1",
-    randomSeed: "legacy-default"
-  });
+  return projectSimulationResultV148ToV147(
+    simulate(durinMeltPreset, {
+      energyMode: "configured",
+      critMode: "average",
+      compatibilityMode: "legacy-v0.1",
+      randomSeed: "legacy-default"
+    })
+  );
 }
 
 const candidateEnabled =
@@ -649,8 +656,8 @@ describe("default 1.47 elemental-application ICD Golden", () => {
       const result = runDefault();
       const repeated = runDefault();
       expect(repeated).toEqual(result);
-      expect(simulationResultSchema.parse(result)).toEqual(result);
-      expect(assertTrustedSimulationResult(result)).toBe(result);
+      expect(simulationResultV147Schema.parse(result)).toEqual(result);
+      expect(assertTrustedSimulationResultV147(result)).toBe(result);
 
       const generated = makeFixture(result);
       const frozen = loadPreviewOrCreateFixture(generated);

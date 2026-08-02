@@ -73,6 +73,9 @@ const NULL_LEGACY_COMPATIBILITY_REFERENCE_FIELDS = new Set([
   "playerHitResolutionLogId",
   "playerDamageEventId"
 ]);
+const POST_V146_DAMAGE_EVENT_FIELDS = new Set([
+  "elementalApplicationIcdLogId"
+]);
 
 const fixtureSchema = z
   .object({
@@ -229,6 +232,9 @@ function legacyDamageEventCanonicalize(value: unknown): unknown {
         .sort()
         .filter((key) => {
           const field = record[key];
+          if (POST_V146_DAMAGE_EVENT_FIELDS.has(key)) {
+            return false;
+          }
           if (
             EMPTY_LEGACY_COMPATIBILITY_ARRAY_FIELDS.has(key) &&
             Array.isArray(field) &&
@@ -337,6 +343,8 @@ function makeFixture(
   ).length;
   const {
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
+    reactionOwnedElementalApplicationRoot:
+      _reactionOwnedElementalApplicationRoot,
     ...currentManifestWithoutApplicationRoot
   } = result.runManifest;
   const frozenRunManifest = {
