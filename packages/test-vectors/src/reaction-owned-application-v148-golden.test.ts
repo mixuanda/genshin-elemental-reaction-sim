@@ -29,6 +29,8 @@ import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const PREVIEW_FLAG = "PREVIEW_REACTION_OWNED_APPLICATION_V148_GOLDEN";
 const UPDATE_FLAG = "UPDATE_REACTION_OWNED_APPLICATION_V148_GOLDEN";
@@ -47,12 +49,14 @@ function noIcd(gaugeUnits = 1) {
 }
 
 function makeBurningApplicationConfig(): SimConfig {
-  const base = makeConfig({
-    basicReactionSchedulerModel: {
-      mode: "legacy-immediate-basic-reaction-scheduler-v1",
-      policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
-    },
-  });
+  const base = withV152CompatibilityPolicies(
+    makeConfig({
+      basicReactionSchedulerModel: {
+        mode: "legacy-immediate-basic-reaction-scheduler-v1",
+        policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+      },
+    }),
+  );
   const durationFrames = 162;
   return {
     ...base,
@@ -166,12 +170,14 @@ function makeBurningApplicationConfig(): SimConfig {
 }
 
 function makeSwirlApplicationConfig(): SimConfig {
-  const base = makeConfig({
-    basicReactionSchedulerModel: {
-      mode: "legacy-immediate-basic-reaction-scheduler-v1",
-      policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
-    },
-  });
+  const base = withV152CompatibilityPolicies(
+    makeConfig({
+      basicReactionSchedulerModel: {
+        mode: "legacy-immediate-basic-reaction-scheduler-v1",
+        policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+      },
+    }),
+  );
   const sourceTargets = [
     "enemy-0",
     "swirl-source-1",
@@ -407,10 +413,12 @@ function runScenarios() {
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
           projectSimulationResultV152ToV151(
-            simulate(makeBurningApplicationConfig(), {
-              critMode: "noCrit",
-              randomSeed: "synthetic-reaction-owned-burning-1.48",
-            }),
+            projectSimulationResultV153ToV152(
+              simulate(makeBurningApplicationConfig(), {
+                critMode: "noCrit",
+                randomSeed: "synthetic-reaction-owned-burning-1.48",
+              }),
+            ),
           ),
         ),
       ),
@@ -419,10 +427,12 @@ function runScenarios() {
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
           projectSimulationResultV152ToV151(
-            simulate(makeSwirlApplicationConfig(), {
-              critMode: "noCrit",
-              randomSeed: "synthetic-reaction-owned-swirl-1.48",
-            }),
+            projectSimulationResultV153ToV152(
+              simulate(makeSwirlApplicationConfig(), {
+                critMode: "noCrit",
+                randomSeed: "synthetic-reaction-owned-swirl-1.48",
+              }),
+            ),
           ),
         ),
       ),

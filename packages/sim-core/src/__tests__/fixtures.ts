@@ -14,7 +14,9 @@ import {
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE
 } from "@genshin-dps-lab/icd-profiles";
 
 export const neutralStats: CharacterStats = {
@@ -90,6 +92,10 @@ export function makeConfig(
       mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
       policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
     };
+  const callbackBusModel = overrides.callbackBusModel ?? {
+    mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+    policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
+  };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -133,6 +139,7 @@ export function makeConfig(
     reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel,
     basicReactionSchedulerModel,
-    freezeBrokenAttackModel
+    freezeBrokenAttackModel,
+    callbackBusModel
   };
 }

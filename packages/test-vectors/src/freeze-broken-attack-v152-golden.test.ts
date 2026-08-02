@@ -4,6 +4,8 @@ import {
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
@@ -21,7 +23,7 @@ import {
   simulationRunManifestV152Schema,
   type AbilityDefinition,
   type Element,
-  type FreezeBrokenAttackModel,
+  type FreezeBrokenAttackModelV152,
   type SimConfig,
   type SimulationResultForV152,
 } from "@genshin-dps-lab/schemas";
@@ -38,6 +40,7 @@ import {
   canonicalSha256,
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
 
 const PREVIEW_FLAG = "PREVIEW_FREEZE_BROKEN_ATTACK_V152_GOLDEN";
 const UPDATE_FLAG = "UPDATE_FREEZE_BROKEN_ATTACK_V152_GOLDEN";
@@ -51,12 +54,12 @@ const FIXTURE_URL = new URL(
 const V1_MODEL = {
   mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
-} as const satisfies FreezeBrokenAttackModel;
+} as const satisfies FreezeBrokenAttackModelV152;
 
 const V2_MODEL = {
   mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-} as const satisfies FreezeBrokenAttackModel;
+} as const satisfies FreezeBrokenAttackModelV152;
 
 type ScenarioSlug =
   | "natural-decay"
@@ -337,7 +340,7 @@ const NEGATIVE_SCENARIOS = {
 function bindScenarioIdentity(
   base: SimConfig,
   slug: ScenarioSlug,
-  model: FreezeBrokenAttackModel,
+  model: FreezeBrokenAttackModelV152,
 ): SimConfig {
   const policy =
     model.mode === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE ? "v1" : "v2";
@@ -347,6 +350,10 @@ function bindScenarioIdentity(
     dataVersion: identity,
     randomSeed: identity,
     freezeBrokenAttackModel: model,
+    callbackBusModel: {
+      mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+      policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+    },
     meta: {
       name: `V1.52 Freeze Broken ${slug}`,
       version: "1.52.0",
@@ -357,18 +364,20 @@ function bindScenarioIdentity(
 
 function runScenario(
   definition: ScenarioDefinition,
-  model: FreezeBrokenAttackModel,
+  model: FreezeBrokenAttackModelV152,
 ): SimulationResultForV152 {
   const config = bindScenarioIdentity(
     definition.makeConfig(),
     definition.slug,
     model,
   );
-  return simulate(config, {
-    compatibilityMode: "legal-frame-v1",
-    critMode: "noCrit",
-    randomSeed: config.randomSeed,
-  });
+  return projectSimulationResultV153ToV152(
+    simulate(config, {
+      compatibilityMode: "legal-frame-v1",
+      critMode: "noCrit",
+      randomSeed: config.randomSeed,
+    }),
+  );
 }
 
 function combatOutputView(result: SimulationResultForV152) {

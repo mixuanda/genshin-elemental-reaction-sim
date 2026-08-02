@@ -286,7 +286,7 @@ describe("deterministic event simulation", () => {
     });
   });
 
-  it("documents frozen 1.44 ampBase compatibility while current 1.52 fails closed", () => {
+  it("documents frozen 1.44 ampBase compatibility while current 1.53 fails closed", () => {
     const baseHit = {
       id: "legacy-explicit-base",
       offset: 0,
@@ -314,6 +314,7 @@ describe("deterministic event simulation", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...legacyPayload
     } = structuredClone(currentWithLegacyOverride);
     const frozenV144WithAmpBase = {

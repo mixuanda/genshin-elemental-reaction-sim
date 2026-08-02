@@ -5,6 +5,8 @@ import {
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
@@ -15,8 +17,8 @@ import {
   createSimulationReproducibilityKey,
   simulationResultV151Schema,
   simulationResultV152Schema,
-  type FreezeBrokenAttackModel,
-  type FreezeBrokenAttackRoot,
+  type FreezeBrokenAttackModelV152,
+  type FreezeBrokenAttackRootV152,
   type SimConfig,
   type SimulationResultForV152,
   type SimulationRunManifestV152,
@@ -29,6 +31,7 @@ import {
 } from "../../sim-core/src/__tests__/fixtures";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
 
 const NO_CRIT = {
   compatibilityMode: "legal-frame-v1",
@@ -39,21 +42,37 @@ const NO_CRIT = {
 const LEGACY_FREEZE_BROKEN = {
   mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
-} as const satisfies FreezeBrokenAttackModel;
+} as const satisfies FreezeBrokenAttackModelV152;
 
 const FIXED_FREEZE_BROKEN = {
   mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-} as const satisfies FreezeBrokenAttackModel;
+} as const satisfies FreezeBrokenAttackModelV152;
 
-function runEmpty(model: FreezeBrokenAttackModel) {
-  return simulate(makeConfig({ freezeBrokenAttackModel: model }), NO_CRIT);
+const LEGACY_CALLBACK_BUS = {
+  mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+} as const;
+
+function runEmpty(model: FreezeBrokenAttackModelV152) {
+  return projectSimulationResultV153ToV152(
+    simulate(
+      makeConfig({
+        freezeBrokenAttackModel: model,
+        callbackBusModel: LEGACY_CALLBACK_BUS,
+      }),
+      NO_CRIT,
+    ),
+  );
 }
 
 function makeNaturalExpiryConfig(
-  freezeBrokenAttackModel: FreezeBrokenAttackModel,
+  freezeBrokenAttackModel: FreezeBrokenAttackModelV152,
 ): SimConfig {
-  const base = makeConfig({ freezeBrokenAttackModel });
+  const base = makeConfig({
+    freezeBrokenAttackModel,
+    callbackBusModel: LEGACY_CALLBACK_BUS,
+  });
   const template = base.characters[0]!;
   return {
     ...base,
@@ -125,14 +144,16 @@ function makeNaturalExpiryConfig(
   };
 }
 
-function runNaturalExpiry(model: FreezeBrokenAttackModel) {
-  return simulate(makeNaturalExpiryConfig(model), NO_CRIT);
+function runNaturalExpiry(model: FreezeBrokenAttackModelV152) {
+  return projectSimulationResultV153ToV152(
+    simulate(makeNaturalExpiryConfig(model), NO_CRIT),
+  );
 }
 
 function rebindFreezeBrokenPolicy(
   result: SimulationResultForV152,
-  model: FreezeBrokenAttackModel,
-  root: FreezeBrokenAttackRoot,
+  model: FreezeBrokenAttackModelV152,
+  root: FreezeBrokenAttackRootV152,
 ): SimulationResultForV152 {
   const rebound = structuredClone(result);
   rebound.config.freezeBrokenAttackModel = model;

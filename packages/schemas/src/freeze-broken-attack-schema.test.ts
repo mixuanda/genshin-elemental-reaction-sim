@@ -7,6 +7,8 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT
@@ -17,6 +19,8 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   createSimulationRunManifest,
@@ -64,6 +68,7 @@ const runtimeOptions = {
 function freezeAsV151() {
   const {
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...frozen
   } = migrateConfig(legacyConfig);
   return simConfigV151Schema.parse({
@@ -74,8 +79,14 @@ function freezeAsV151() {
 }
 
 function makeNativeV152() {
+  const {
+    callbackBusModel: _callbackBusModel,
+    ...frozen
+  } = migrateConfig(legacyConfig);
   return simConfigV152Schema.parse({
-    ...migrateConfig(legacyConfig),
+    ...frozen,
+    schemaVersion: FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
+    engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
     freezeBrokenAttackModel: {
       mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
       policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
@@ -84,9 +95,11 @@ function makeNativeV152() {
 }
 
 describe("1.52 Freeze Broken attack identity", () => {
-  it("advances only the current config and manifest identities", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION);
-    expect(CURRENT_ENGINE_VERSION).toBe(FREEZE_BROKEN_ATTACK_ENGINE_VERSION);
+  it("keeps the exact 1.52 identity frozen after current advances", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(CALLBACK_BUS_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).toBe(CALLBACK_BUS_ENGINE_VERSION);
+    expect(CURRENT_SCHEMA_VERSION).not.toBe(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).not.toBe(FREEZE_BROKEN_ATTACK_ENGINE_VERSION);
     expect(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION).toBe("1.52.0");
     expect(FREEZE_BROKEN_ATTACK_ENGINE_VERSION).toBe(
       "1.52.0-freeze-broken-attack"
@@ -98,8 +111,8 @@ describe("1.52 Freeze Broken attack identity", () => {
     const frozen = freezeAsV151();
     const migrated = migrateConfig(frozen);
 
-    expect(migrated.schemaVersion).toBe(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe(FREEZE_BROKEN_ATTACK_ENGINE_VERSION);
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(migrated.freezeBrokenAttackModel).toEqual({
       mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
       policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
@@ -107,6 +120,10 @@ describe("1.52 Freeze Broken attack identity", () => {
     expect(migrated.basicReactionSchedulerModel).toEqual(
       frozen.basicReactionSchedulerModel
     );
+    expect(migrated.callbackBusModel).toEqual({
+      mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+      policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
+    });
   });
 
   it("requires an explicit native 1.52 policy and rejects future fields", () => {
@@ -148,6 +165,15 @@ describe("1.52 Freeze Broken attack identity", () => {
         freezeBrokenAttackModel: native.freezeBrokenAttackModel
       })
     ).toThrow(/does not support Freeze Broken attack policy selection/);
+    expect(
+      simConfigV152Schema.safeParse({
+        ...native,
+        callbackBusModel: {
+          mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+          policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
+        }
+      }).success
+    ).toBe(false);
   });
 
   it("binds the seventh manifest root to the selected policy", () => {

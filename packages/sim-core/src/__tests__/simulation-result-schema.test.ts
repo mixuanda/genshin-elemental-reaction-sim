@@ -14,6 +14,8 @@ import {
   simulationResultV151Schema,
   simulationResultV152Schema,
   simulationResultV152ValueSchema,
+  simulationResultV153Schema,
+  simulationResultV153ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -21,6 +23,7 @@ import {
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import frozenGoldenV142 from "../../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { beforeAll, describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -539,7 +542,7 @@ function expectRejectedByPublicAndTrusted(
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
   expect(() => assertTrustedSimulationResult(trustedResult)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -588,8 +591,8 @@ beforeAll(() => {
   );
 });
 
-describe("exact current 1.52 SimulationResult schema", () => {
-  it("keeps persisted 1.42 and frozen 1.44-1.50 result identities separate", () => {
+describe("exact current 1.53 SimulationResult schema", () => {
+  it("keeps persisted 1.42 and frozen 1.44-1.52 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(frozenGoldenV142)
         .success,
@@ -615,18 +618,50 @@ describe("exact current 1.52 SimulationResult schema", () => {
     expect(simulationResultV151Schema.safeParse(defaultResult).success).toBe(
       false,
     );
-    expect(simulationResultSchema).toBe(simulationResultV152Schema);
+    expect(simulationResultV152Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+
+    const projectedV152 = projectSimulationResultV153ToV152(
+      sameFrameSuperconductResult,
+    );
+    expect(simulationResultV152Schema.safeParse(projectedV152).success).toBe(
+      true,
+    );
+    expect(simulationResultV153Schema.safeParse(projectedV152).success).toBe(
+      false,
+    );
+    expect("callbackBusModel" in projectedV152.config).toBe(false);
+    expect("callbackBusRoot" in projectedV152.runManifest).toBe(false);
+    expect("callbackRegistrationLog" in projectedV152).toBe(false);
+    expect("callbackDeliveryLog" in projectedV152).toBe(false);
+
+    expect(simulationResultSchema).toBe(simulationResultV153Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV152Schema);
   });
 
-  it("keeps the exact 70-field shape and all 69 non-timeline fields required", () => {
+  it("keeps the exact 72-field shape and all 71 non-timeline fields required", () => {
     const schemaKeys = Object.keys(
-      simulationResultV152ValueSchema.shape,
+      simulationResultV153ValueSchema.shape,
     ).sort();
-    expect(schemaKeys).toHaveLength(70);
+    expect(schemaKeys).toHaveLength(72);
+    expect(
+      Object.keys(simulationResultV153ValueSchema.shape).filter(
+        (key) =>
+          !Object.prototype.hasOwnProperty.call(
+            simulationResultV152ValueSchema.shape,
+            key,
+          ),
+      ),
+    ).toEqual(["callbackRegistrationLog", "callbackDeliveryLog"]);
+    expect(schemaKeys).toContain("callbackRegistrationLog");
+    expect(schemaKeys).toContain("callbackDeliveryLog");
     expect(Object.keys(defaultResult).sort()).toEqual(
       schemaKeys.filter((key) => key !== "timelineExecution"),
     );
     expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys);
+    expect(defaultResult.callbackRegistrationLog).toEqual([]);
+    expect(defaultResult.callbackDeliveryLog).toEqual([]);
 
     for (const key of schemaKeys) {
       if (key === "timelineExecution") continue;

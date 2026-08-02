@@ -15,6 +15,7 @@ import {
 import { describe, expect, it } from "vitest";
 
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { defineDamageModifierPlugin } from "../plugins";
 import { simulate } from "../simulator";
 import { makeConfig } from "./fixtures";
@@ -119,7 +120,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -130,7 +131,7 @@ function expectRejectedByTrustedOnly(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -138,7 +139,9 @@ function projectCurrentBypassResultToV145(
   result: SimulationResult,
 ): Record<string, unknown> {
   const projected = structuredClone(
-    projectSimulationResultV152ToV151(result),
+    projectSimulationResultV152ToV151(
+      projectSimulationResultV153ToV152(result),
+    ),
   ) as unknown as Record<string, unknown>;
   delete projected.directDamageGroupLog;
   delete projected.elementalApplicationIcdLog;

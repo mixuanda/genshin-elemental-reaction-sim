@@ -17,6 +17,9 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
@@ -32,7 +35,9 @@ import {
   auraStateEntrySchema,
   bloomReactionAuditSchema,
   BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
-  FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_RUN_MANIFEST_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   BURNING_REACTION_ENGINE_VERSION,
@@ -250,6 +255,11 @@ const legacyFreezeBrokenAttackModel = {
   policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
 } as const;
 
+const legacyCallbackBusModel = {
+  mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T,
 ): Omit<
@@ -263,6 +273,7 @@ const asPre139Wire = <T extends object>(
   | "reactionDamageGroupModel"
   | "basicReactionSchedulerModel"
   | "freezeBrokenAttackModel"
+  | "callbackBusModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
@@ -275,6 +286,7 @@ const asPre139Wire = <T extends object>(
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
@@ -286,6 +298,7 @@ const asPre139Wire = <T extends object>(
     reactionDamageGroupModel?: unknown;
     basicReactionSchedulerModel?: unknown;
     freezeBrokenAttackModel?: unknown;
+    callbackBusModel?: unknown;
   };
   const projectHit = (hit: unknown): unknown => {
     if (
@@ -391,6 +404,7 @@ const asPre139Wire = <T extends object>(
     | "reactionDamageGroupModel"
     | "basicReactionSchedulerModel"
     | "freezeBrokenAttackModel"
+    | "callbackBusModel"
   >;
 };
 
@@ -1158,6 +1172,7 @@ describe("1.32 player reaction self-damage contract", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...wire132
     } = current;
     const historical = {
@@ -2436,6 +2451,7 @@ describe("1.33 target-local Hitlag contract", () => {
     delete frozen139Result.config.reactionDamageGroupModel;
     delete frozen139Result.config.basicReactionSchedulerModel;
     delete frozen139Result.config.freezeBrokenAttackModel;
+    delete frozen139Result.config.callbackBusModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result),
     ).not.toThrow();
@@ -2882,6 +2898,7 @@ describe("1.34 general reaction order contract", () => {
       reactionDamageGroupModel: fixedReactionDamageGroupModel,
       basicReactionSchedulerModel: legacyBasicReactionSchedulerModel,
       freezeBrokenAttackModel: legacyFreezeBrokenAttackModel,
+      callbackBusModel: legacyCallbackBusModel,
     });
   });
 
@@ -2894,7 +2911,10 @@ describe("1.34 general reaction order contract", () => {
             withoutOwn(
               withoutOwn(
                 withoutOwn(
-                  withoutOwn(current, "freezeBrokenAttackModel"),
+                  withoutOwn(
+                    withoutOwn(current, "callbackBusModel"),
+                    "freezeBrokenAttackModel",
+                  ),
                   "reactionDamageGroupModel",
                 ),
                 "reactionOwnedElementalApplicationModel",
@@ -3255,6 +3275,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3295,6 +3316,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         reactionDamageGroupModel: fixedReactionDamageGroupModel,
         basicReactionSchedulerModel: legacyBasicReactionSchedulerModel,
         freezeBrokenAttackModel: legacyFreezeBrokenAttackModel,
+        callbackBusModel: legacyCallbackBusModel,
       });
     }
 
@@ -3311,6 +3333,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
       reactionDamageGroupModel: _currentReactionDamageGroupModel,
       basicReactionSchedulerModel: _currentBasicReactionSchedulerModel,
       freezeBrokenAttackModel: _currentFreezeBrokenAttackModel,
+      callbackBusModel: _currentCallbackBusModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3410,8 +3433,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(CURRENT_SCHEMA_VERSION).toBe(CALLBACK_BUS_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).toBe(CALLBACK_BUS_ENGINE_VERSION);
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
@@ -4443,8 +4466,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION).toBe(
       "1.39.0-shatter-recursive-delivery",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(CURRENT_SCHEMA_VERSION).toBe(CALLBACK_BUS_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).toBe(CALLBACK_BUS_ENGINE_VERSION);
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
@@ -4538,6 +4561,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4562,6 +4586,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: fixedReactionDamageGroupModel,
       basicReactionSchedulerModel: legacyBasicReactionSchedulerModel,
       freezeBrokenAttackModel: legacyFreezeBrokenAttackModel,
+      callbackBusModel: legacyCallbackBusModel,
     });
     expect(() =>
       migrateConfig({
@@ -4597,7 +4622,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
               withoutOwn(
                 withoutOwn(
                   withoutOwn(
-                    makeLegalAuraV7Config(),
+                    withoutOwn(
+                      makeLegalAuraV7Config(),
+                      "callbackBusModel",
+                    ),
                     "freezeBrokenAttackModel",
                   ),
                   "reactionDamageGroupModel",
@@ -4631,6 +4659,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: fixedReactionDamageGroupModel,
       basicReactionSchedulerModel: legacyBasicReactionSchedulerModel,
       freezeBrokenAttackModel: legacyFreezeBrokenAttackModel,
+      callbackBusModel: legacyCallbackBusModel,
     });
     expect(() =>
       migrateConfig({
@@ -4675,7 +4704,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
               withoutOwn(
                 withoutOwn(
                   withoutOwn(
-                    makeLegalAuraV7Config(),
+                    withoutOwn(
+                      makeLegalAuraV7Config(),
+                      "callbackBusModel",
+                    ),
                     "freezeBrokenAttackModel",
                   ),
                   "reactionDamageGroupModel",
@@ -4726,6 +4758,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: fixedReactionDamageGroupModel,
       basicReactionSchedulerModel: legacyBasicReactionSchedulerModel,
       freezeBrokenAttackModel: legacyFreezeBrokenAttackModel,
+      callbackBusModel: legacyCallbackBusModel,
     };
     expect(migrated).toEqual(expectedCurrent);
     expect(migratedFromV144).toEqual(expectedCurrent);
@@ -4740,7 +4773,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2",
     });
-    expect(simConfigV152Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigSchema.parse(migrated)).toEqual(migrated);
+    expect(() => simConfigV152Schema.parse(migrated)).toThrow();
     expect(() => simConfigV151Schema.parse(migrated)).toThrow();
     expect(() => simConfigV150Schema.parse(migrated)).toThrow();
     expect(() => simConfigV149Schema.parse(migrated)).toThrow();
@@ -4772,6 +4806,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: _currentReactionDamageGroupModel,
       basicReactionSchedulerModel: _currentBasicReactionSchedulerModel,
       freezeBrokenAttackModel: _currentFreezeBrokenAttackModel,
+      callbackBusModel: _currentCallbackBusModel,
       ...currentNumericalSemantics
     } = migratedTargetPhaseV3;
     const {
@@ -7097,6 +7132,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -12911,6 +12947,7 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -12931,6 +12968,8 @@ describe("simulation run manifest contract", () => {
           }),
         },
       ],
+      pluginCapabilities: ["damage-modifier"],
+      pluginCallbackSubscriptions: [[]],
     });
 
     expect(simulationRunManifestSchema.parse(manifest)).toEqual(manifest);
@@ -12941,9 +12980,9 @@ describe("simulation run manifest contract", () => {
       "1.6.0",
     );
     expect(manifest.version).toBe(
-      FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+      CALLBACK_BUS_RUN_MANIFEST_VERSION,
     );
-    expect(simulationRunManifestV152Schema.parse(manifest)).toEqual(manifest);
+    expect(() => simulationRunManifestV152Schema.parse(manifest)).toThrow();
     expect(() => simulationRunManifestV151Schema.parse(manifest)).toThrow();
     expect(() => simulationRunManifestV150Schema.parse(manifest)).toThrow();
     expect(() => simulationRunManifestV149Schema.parse(manifest)).toThrow();
@@ -12964,6 +13003,9 @@ describe("simulation run manifest contract", () => {
       reactionDamageGroupRoot: _reactionDamageGroupRoot,
       basicReactionSchedulerRoot: _basicReactionSchedulerRoot,
       freezeBrokenAttackRoot: _freezeBrokenAttackRoot,
+      callbackBusRoot: _callbackBusRoot,
+      pluginCapabilities: _pluginCapabilities,
+      pluginCallbackSubscriptions: _pluginCallbackSubscriptions,
       version: _currentManifestVersion,
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
@@ -13105,10 +13147,13 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: forgedFormulaConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedFormulaConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
       plugins: manifest.plugins,
+      pluginCapabilities: manifest.pluginCapabilities,
+      pluginCallbackSubscriptions: manifest.pluginCallbackSubscriptions,
     });
     expect(() =>
       parseSimulationRunManifestForConfig(
@@ -13136,10 +13181,13 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: forgedApplicationConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedApplicationConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
       plugins: manifest.plugins,
+      pluginCapabilities: manifest.pluginCapabilities,
+      pluginCallbackSubscriptions: manifest.pluginCallbackSubscriptions,
     });
     expect(() =>
       parseSimulationRunManifestForConfig(
@@ -13167,10 +13215,13 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: forgedReactionOwnedConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedReactionOwnedConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
       plugins: manifest.plugins,
+      pluginCapabilities: manifest.pluginCapabilities,
+      pluginCallbackSubscriptions: manifest.pluginCallbackSubscriptions,
     });
     expect(() =>
       parseSimulationRunManifestForConfig(
@@ -13238,6 +13289,7 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13247,6 +13299,8 @@ describe("simulation run manifest contract", () => {
         randomSeed: config.randomSeed,
       },
       plugins: [],
+      pluginCapabilities: [],
+      pluginCallbackSubscriptions: [],
     });
     expect(CLASSIC_REACTION_FORMULA_ROOT).toEqual({
       version: "1.0.0",
@@ -13357,6 +13411,7 @@ describe("simulation run manifest contract", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13369,6 +13424,8 @@ describe("simulation run manifest contract", () => {
         { order: 1, index: 0, ...descriptor },
         { order: 1, index: 1, ...descriptor },
       ],
+      pluginCapabilities: ["damage-modifier", "damage-modifier"],
+      pluginCallbackSubscriptions: [[], []],
     });
 
     expect(() => simulationRunManifestSchema.parse(manifest)).toThrow(
@@ -13432,7 +13489,10 @@ describe("versioned config schema", () => {
     expect(() =>
       migrateConfig({
         ...withoutOwn(
-          withoutOwn(current, "freezeBrokenAttackModel"),
+          withoutOwn(
+            withoutOwn(current, "callbackBusModel"),
+            "freezeBrokenAttackModel",
+          ),
           "basicReactionSchedulerModel",
         ),
         schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -13450,6 +13510,7 @@ describe("versioned config schema", () => {
       reactionDamageGroupModel: _currentReactionDamageGroupModel,
       basicReactionSchedulerModel: _currentBasicReactionSchedulerModel,
       freezeBrokenAttackModel: _currentFreezeBrokenAttackModel,
+      callbackBusModel: _currentCallbackBusModel,
       ...currentWithoutPolicy
     } = current;
     const frozenV147 = {
@@ -13469,6 +13530,7 @@ describe("versioned config schema", () => {
       reactionDamageGroupModel,
       basicReactionSchedulerModel,
       freezeBrokenAttackModel,
+      callbackBusModel,
       schemaVersion,
       engineVersion,
       ...migratedPayload
@@ -13488,6 +13550,7 @@ describe("versioned config schema", () => {
     expect(freezeBrokenAttackModel).toEqual(
       legacyFreezeBrokenAttackModel,
     );
+    expect(callbackBusModel).toEqual(legacyCallbackBusModel);
     expect(basicReactionSchedulerModel).toEqual(
       legacyBasicReactionSchedulerModel,
     );
@@ -13519,8 +13582,8 @@ describe("versioned config schema", () => {
   });
 
   it("strictly validates the current trusted reaction policy models and closed channels", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(CURRENT_SCHEMA_VERSION).toBe(CALLBACK_BUS_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).toBe(CALLBACK_BUS_ENGINE_VERSION);
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
@@ -13835,6 +13898,7 @@ describe("versioned config schema", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...currentWithoutApplicationModel
     } = current;
     const frozenRotationV146 = {
@@ -14033,7 +14097,10 @@ describe("versioned config schema", () => {
             withoutOwn(
               withoutOwn(
                 withoutOwn(
-                  withoutOwn(current, "freezeBrokenAttackModel"),
+                  withoutOwn(
+                    withoutOwn(current, "callbackBusModel"),
+                    "freezeBrokenAttackModel",
+                  ),
                   "reactionDamageGroupModel",
                 ),
                 "reactionOwnedElementalApplicationModel",
@@ -14092,7 +14159,7 @@ describe("versioned config schema", () => {
     const nullPrototypeWire = toNullPrototypeWire(current);
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
-    expect(simConfigV152Schema.safeParse(nullPrototypeWire).success).toBe(true);
+    expect(simConfigV152Schema.safeParse(nullPrototypeWire).success).toBe(false);
     expect(simConfigV151Schema.safeParse(nullPrototypeWire).success).toBe(
       false,
     );
@@ -14101,7 +14168,10 @@ describe("versioned config schema", () => {
     );
     const frozenV150 = {
       ...withoutOwn(
-        withoutOwn(current, "freezeBrokenAttackModel"),
+        withoutOwn(
+          withoutOwn(current, "callbackBusModel"),
+          "freezeBrokenAttackModel",
+        ),
         "basicReactionSchedulerModel",
       ),
       schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -14118,7 +14188,10 @@ describe("versioned config schema", () => {
             withoutOwn(
               withoutOwn(
                 withoutOwn(
-                  withoutOwn(current, "freezeBrokenAttackModel"),
+                  withoutOwn(
+                    withoutOwn(current, "callbackBusModel"),
+                    "freezeBrokenAttackModel",
+                  ),
                   "reactionDamageGroupModel",
                 ),
                 "reactionOwnedElementalApplicationModel",

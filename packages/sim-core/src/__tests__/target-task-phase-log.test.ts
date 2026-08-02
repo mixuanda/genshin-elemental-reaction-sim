@@ -25,6 +25,7 @@ import {
   simulationResultV150Schema,
   simulationResultV151Schema,
   simulationResultV152Schema,
+  simulationResultV153Schema,
   simulationRunManifestSchema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
@@ -33,6 +34,7 @@ import {
   simulationRunManifestV150Schema,
   simulationRunManifestV151Schema,
   simulationRunManifestV152Schema,
+  simulationRunManifestV153Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION,
 } from "@genshin-dps-lab/schemas";
@@ -516,7 +518,7 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.52 result and manifest boundaries", () => {
+  it("emits current simulations through the exact 1.53 result and manifest boundaries", () => {
     const result = simulate(makeTargetTaskPhaseLogConfig("target-phase-v1"));
 
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
@@ -526,9 +528,9 @@ describe("target task phase replay log", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
       "1.6.0",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
-    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.8.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.53.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.53.0-callback-bus");
+    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.9.0");
     expect(result).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -547,9 +549,9 @@ describe("target task phase replay log", () => {
       basicReactionSchedulerRoot: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
     });
     expect(
-      simulationRunManifestV152Schema.parse(result.runManifest),
+      simulationRunManifestV153Schema.parse(result.runManifest),
     ).toStrictEqual(result.runManifest);
-    expect(simulationRunManifestSchema).toBe(simulationRunManifestV152Schema);
+    expect(simulationRunManifestSchema).toBe(simulationRunManifestV153Schema);
     expect(simulationRunManifestSchema.parse(result.runManifest)).toStrictEqual(
       result.runManifest,
     );
@@ -569,10 +571,13 @@ describe("target task phase replay log", () => {
       simulationRunManifestV151Schema.safeParse(result.runManifest).success,
     ).toBe(false);
     expect(
+      simulationRunManifestV152Schema.safeParse(result.runManifest).success,
+    ).toBe(false);
+    expect(
       simulationRunManifestV146Schema.safeParse(result.runManifest).success,
     ).toBe(false);
-    expect(simulationResultV152Schema.parse(result)).toStrictEqual(result);
-    expect(simulationResultSchema).toBe(simulationResultV152Schema);
+    expect(simulationResultV153Schema.parse(result)).toStrictEqual(result);
+    expect(simulationResultSchema).toBe(simulationResultV153Schema);
     expect(simulationResultSchema.parse(result)).toStrictEqual(result);
     expect(simulationResultV146Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV147Schema.safeParse(result).success).toBe(false);
@@ -580,6 +585,7 @@ describe("target task phase replay log", () => {
     expect(simulationResultV149Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV150Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV151Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV152Schema.safeParse(result).success).toBe(false);
   });
 
   it("keeps the frozen legacy event heap free of target-phase rows", () => {
@@ -837,8 +843,8 @@ describe("target task phase replay log", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.53.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.53.0-callback-bus");
 
     for (const scenarioId of scenarioIds) {
       const currentScenario = scenarios[scenarioId];

@@ -405,7 +405,7 @@ describe("target-phase-v3 result integrity", () => {
       critMode: "noCrit",
     });
 
-    expect(Object.keys(result)).toHaveLength(70);
+    expect(Object.keys(result)).toHaveLength(72);
     expect(result.freezeBrokenAttackLog).toEqual([]);
     expect(result.runManifest.freezeBrokenAttackRoot).toEqual(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,

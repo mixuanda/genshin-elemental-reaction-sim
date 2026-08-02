@@ -36,6 +36,8 @@ import {
 } from "./reviewed-golden";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const PREVIEW_FLAG = "PREVIEW_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
 const UPDATE_FLAG = "UPDATE_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
@@ -203,7 +205,7 @@ const fixtureSchema = z
   .strict();
 
 function makeRepeatedReactionConfig(reaction: ReactionVector): SimConfig {
-  const base = makeConfig();
+  const base = withV152CompatibilityPolicies(makeConfig());
   const auraElement: Element = reaction === "superconduct" ? "cryo" : "pyro";
   const identity = `synthetic-reaction-damage-group-${reaction}-1.50`;
 
@@ -297,10 +299,12 @@ function runScenario(reaction: ReactionVector): SimulationResultForV150 {
   const randomSeed = `synthetic-reaction-damage-group-${reaction}-1.50`;
   return projectSimulationResultV151ToV150(
     projectSimulationResultV152ToV151(
-      simulate(makeRepeatedReactionConfig(reaction), {
-        critMode: "noCrit",
-        randomSeed,
-      }),
+      projectSimulationResultV153ToV152(
+        simulate(makeRepeatedReactionConfig(reaction), {
+          critMode: "noCrit",
+          randomSeed,
+        }),
+      ),
     ),
   );
 }

@@ -270,6 +270,8 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete frozen.reactionDamageGroupResetLog;
   delete frozen.basicReactionSchedulerLog;
   delete frozen.freezeBrokenAttackLog;
+  delete frozen.callbackRegistrationLog;
+  delete frozen.callbackDeliveryLog;
   for (const collectionName of ["damageEvents", "hitEvents"] as const) {
     const collection = frozen[collectionName];
     if (!Array.isArray(collection)) continue;
@@ -361,6 +363,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete config.reactionDamageGroupModel;
   delete config.basicReactionSchedulerModel;
   delete config.freezeBrokenAttackModel;
+  delete config.callbackBusModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
@@ -372,6 +375,9 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete manifest.reactionDamageGroupRoot;
   delete manifest.basicReactionSchedulerRoot;
   delete manifest.freezeBrokenAttackRoot;
+  delete manifest.callbackBusRoot;
+  delete manifest.pluginCapabilities;
+  delete manifest.pluginCallbackSubscriptions;
   manifest.configHash = createSimulationConfigHash(config);
   const { reproducibilityKey: _ignoredReproducibilityKey, ...identity } =
     manifest;

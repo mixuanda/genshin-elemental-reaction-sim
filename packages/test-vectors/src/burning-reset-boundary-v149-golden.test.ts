@@ -28,6 +28,8 @@ import {
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const PREVIEW_FLAG = "PREVIEW_BURNING_RESET_BOUNDARY_V149_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BURNING_RESET_BOUNDARY_V149_GOLDEN";
@@ -72,7 +74,7 @@ function noIcd(gaugeUnits: number) {
  * accidentally start or refresh a sibling stream through the 1m Burning AoE.
  */
 function makeBoundaryConfig(policy: PolicyVariant): SimConfig {
-  const base = makeConfig();
+  const base = withV152CompatibilityPolicies(makeConfig());
   const starts = [
     { ownerId: "owner-a", frame: 0 },
     { ownerId: "owner-b", frame: 119 },
@@ -334,12 +336,16 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
   const projected = {
     v1Compatibility: projectSimulationResultV150ToV149(
       projectSimulationResultV151ToV150(
-        projectSimulationResultV152ToV151(results.v1Compatibility),
+        projectSimulationResultV152ToV151(
+          projectSimulationResultV153ToV152(results.v1Compatibility),
+        ),
       ),
     ),
     v2Corrected: projectSimulationResultV150ToV149(
       projectSimulationResultV151ToV150(
-        projectSimulationResultV152ToV151(results.v2Corrected),
+        projectSimulationResultV152ToV151(
+          projectSimulationResultV153ToV152(results.v2Corrected),
+        ),
       ),
     ),
   };

@@ -36,6 +36,8 @@ import {
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE
 } from "@genshin-dps-lab/icd-profiles";
@@ -621,7 +623,7 @@ function stripV147ApplicationWireOnlyFields(
 
 type ClassicReactionDamageSemanticProjection =
   | "historical-v147"
-  | "current-v152";
+  | "current-v153";
 
 function targetStateTimelineForSemanticDigest(
   result: SimulationResult,
@@ -951,7 +953,7 @@ function compactResult(
               blockedReason: decision.blockedReason
             }))
       })),
-      ...(applicationProjection === "current-v152"
+      ...(applicationProjection === "current-v153"
         ? {
             basicReactionScheduler:
               result.basicReactionSchedulerLog,
@@ -1619,11 +1621,13 @@ const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
 } as const satisfies Record<string, MatrixScenario>;
 
 const CLASSIC_REACTION_CLASS_COUNT = 16;
-// This provisional 1.52 digest excludes version/config-manifest identity but
-// retains scheduler-v2 attack/commit rows, reciprocal pairing, and deferred
-// Aura-attachment timeline semantics. It covers only the classic matrix and
-// does not claim Lunar, complete gcsim, or official-server parity. Historical
-// fixture comparisons use the explicit V1.47 compatibility projection.
+// This current 1.53 gate intentionally retains the provisional 1.52 semantic
+// digest by selecting Freeze V2 with callback bus V1. It excludes
+// version/config-manifest identity but retains scheduler-v2 attack/commit rows,
+// reciprocal pairing, and deferred Aura-attachment timeline semantics. It
+// covers only the classic matrix and does not claim Lunar, complete gcsim, or
+// official-server parity. Historical fixture comparisons use the explicit
+// V1.47 compatibility projection.
 const AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST =
   "4ff615ccf2cff65f33837cb7a1c7bc9e2b1d2c9967061718027e0e0f638a8325";
 
@@ -1651,11 +1655,11 @@ function makeAuraV9MatrixConfig(
     ...config,
     meta: {
       ...config.meta,
-      name: `Reaction matrix 1.52 · ${scenarioId}`,
-      version: "1.52.0",
+      name: `Reaction matrix 1.53 · ${scenarioId}`,
+      version: "1.53.0",
       verificationStatus: "provisional",
       note:
-        `Provisional 1.52 aura-v9 classic-reaction release gate; ` +
+        `Current 1.53 aura-v9 classic-reaction compatibility gate; ` +
         `fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; ` +
         "narrow scheduler coverage only; not official game truth, " +
         "complete gcsim parity, or Lunar-reaction coverage."
@@ -1670,6 +1674,10 @@ function makeAuraV9MatrixConfig(
     freezeBrokenAttackModel: {
       mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
       policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+    },
+    callbackBusModel: {
+      mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+      policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
     },
     electroChargedPropagationModel: {
       mode: "single-target-v1"
@@ -2591,9 +2599,9 @@ describe("current aura-v9 classic reaction release gate", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary"
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.53.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.52.0-freeze-broken-attack"
+      "1.53.0-callback-bus"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2835,6 +2843,10 @@ describe("current aura-v9 classic reaction release gate", () => {
           mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
           policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
         },
+        callbackBusModel: {
+          mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+          policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
+        },
         timeline: {
           mode: "legal-frame-v1",
           fps: 60
@@ -2850,6 +2862,9 @@ describe("current aura-v9 classic reaction release gate", () => {
         },
         freezeBrokenAttackRoot: {
           policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+        },
+        callbackBusRoot: {
+          policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
         }
       });
       expect(result.timelineExecution?.failures).toEqual([]);
@@ -2895,7 +2910,7 @@ describe("current aura-v9 classic reaction release gate", () => {
         damageEventCount: result.damageEvents.length,
         semanticDigest: sha256({
           compactResult: withoutSingleVersionIdentity(
-            compactResult(result, "current-v152")
+            compactResult(result, "current-v153")
           ),
           targetTaskPhaseLog: result.targetTaskPhaseLog,
           targetPhaseLog: result.targetPhaseLog,

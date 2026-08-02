@@ -8,6 +8,7 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -90,6 +91,7 @@ const makeV146Config = () => {
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...unchanged
   } = current;
   return simConfigV146Schema.parse({
@@ -218,7 +220,7 @@ describe("1.46 direct-damage-group config wire", () => {
         id?: string;
       }
     ).id;
-    expect(() => parseSimConfig(rotationWithoutId)).toThrow(
+    expect(() => migrateConfig(rotationWithoutId)).toThrow(
       /explicit non-empty hit id/,
     );
 
@@ -228,7 +230,7 @@ describe("1.46 direct-damage-group config wire", () => {
         id?: string;
       }
     ).id;
-    expect(() => parseSimConfig(timelineWithoutId)).toThrow(
+    expect(() => migrateConfig(timelineWithoutId)).toThrow(
       /explicit non-empty hit id/,
     );
 
@@ -400,6 +402,7 @@ describe("1.46 direct-damage-group config wire", () => {
       reactionDamageGroupModel: _newReactionDamageGroupModel,
       basicReactionSchedulerModel: _newBasicReactionSchedulerModel,
       freezeBrokenAttackModel: _newFreezeBrokenAttackModel,
+      callbackBusModel: _newCallbackBusModel,
       ...newSemantics
     } = migrated;
     expect(newSemantics).toEqual(oldSemantics);
@@ -431,6 +434,8 @@ describe("1.46 run-manifest exact roots", () => {
         randomSeed: config.randomSeed,
       },
       plugins: [],
+      pluginCapabilities: [],
+      pluginCallbackSubscriptions: [],
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
@@ -441,6 +446,7 @@ describe("1.46 run-manifest exact roots", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
     });
   };
 

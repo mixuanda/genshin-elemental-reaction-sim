@@ -7,15 +7,19 @@ import {
 } from "@genshin-dps-lab/game-data/presets";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
@@ -160,8 +164,15 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     () => window.GenshinDpsLab.getConfig().freezeBrokenAttackModel,
   );
   expect(importedFreezeBrokenAttackModel).toEqual({
-    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  });
+  const importedCallbackBusModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().callbackBusModel,
+  );
+  expect(importedCallbackBusModel).toEqual({
+    mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+    policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID,
   });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
@@ -201,6 +212,8 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   const exportedConfig = JSON.parse(
     await readFile(downloadedPath!, "utf8"),
   ) as {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
     targetTaskModel?: unknown;
     reactionDeliveryModel?: unknown;
     reactionFormulaModel?: unknown;
@@ -210,7 +223,10 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     reactionDamageGroupModel?: unknown;
     basicReactionSchedulerModel?: unknown;
     freezeBrokenAttackModel?: unknown;
+    callbackBusModel?: unknown;
   };
+  expect(exportedConfig.schemaVersion).toBe("1.53.0");
+  expect(exportedConfig.engineVersion).toBe("1.53.0-callback-bus");
   expect(exportedConfig.targetTaskModel).toEqual(importedTargetTaskModel);
   expect(exportedConfig.reactionDeliveryModel).toEqual(
     importedReactionDeliveryModel,
@@ -236,6 +252,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(exportedConfig.freezeBrokenAttackModel).toEqual(
     importedFreezeBrokenAttackModel,
   );
+  expect(exportedConfig.callbackBusModel).toEqual(importedCallbackBusModel);
 });
 
 test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots", async ({
@@ -260,6 +277,7 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
   delete historicalConfig.reactionDamageGroupModel;
   delete historicalConfig.basicReactionSchedulerModel;
   delete historicalConfig.freezeBrokenAttackModel;
+  delete historicalConfig.callbackBusModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -284,11 +302,12 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       reactionDamageGroupModel: config.reactionDamageGroupModel,
       basicReactionSchedulerModel: config.basicReactionSchedulerModel,
       freezeBrokenAttackModel: config.freezeBrokenAttackModel,
+      callbackBusModel: config.callbackBusModel,
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.52.0",
-    engineVersion: "1.52.0-freeze-broken-attack",
+    schemaVersion: "1.53.0",
+    engineVersion: "1.53.0-callback-bus",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1",
     },
@@ -323,6 +342,10 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
       policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
     },
+    callbackBusModel: {
+      mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+      policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+    },
   });
 });
 
@@ -343,6 +366,7 @@ test("rejects a 1.38 wire polluted by the current reaction formula model", async
   delete pollutedHistoricalConfig.reactionDamageGroupModel;
   delete pollutedHistoricalConfig.basicReactionSchedulerModel;
   delete pollutedHistoricalConfig.freezeBrokenAttackModel;
+  delete pollutedHistoricalConfig.callbackBusModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
@@ -411,9 +435,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用",
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.52.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.53.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.52.0-freeze-broken-attack",
+    "engine 1.53.0-callback-bus",
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -3389,6 +3413,27 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         frame: entry.frame,
         consumedGaugeUnits: entry.consumedGaugeUnits,
       })),
+      callbackBus: result
+        ? {
+            registrations: result.callbackRegistrationLog.length,
+            eventKinds: result.callbackDeliveryLog.map(
+              (entry) => entry.eventKind,
+            ),
+            phases: result.callbackDeliveryLog.map(
+              (entry) => entry.phase.kind,
+            ),
+            subscriberAttemptCounts: result.callbackDeliveryLog.map(
+              (entry) => entry.subscriberAttempts.length,
+            ),
+            linkedFreezeBrokenAttackLogIds: result.callbackDeliveryLog.map(
+              (entry) => entry.freezeBrokenAttackLogId,
+            ),
+            freezeBrokenAttackRows: result.freezeBrokenAttackLog.length,
+            syntheticDamageEvents: result.damageEvents.filter(
+              (event) => event.actionName === "Freeze Broken",
+            ).length,
+          }
+        : null,
     };
   });
   expect(audit).toMatchObject({
@@ -3418,7 +3463,36 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         consumedGaugeUnits: expect.any(Number),
       },
     ],
+    callbackBus: {
+      registrations: 0,
+      eventKinds: [
+        "on-aura-durability-depleted-frozen",
+        "on-apply-attack-freeze-broken",
+        "on-enemy-hit-freeze-broken",
+        "on-enemy-damage-freeze-broken-zero",
+        "attack-callback-freeze-broken",
+      ],
+      phases: [
+        "same-call-stack-immediate",
+        "same-call-stack-immediate",
+        "same-call-stack-immediate",
+        "zero-delay-core-task",
+        "zero-delay-core-task",
+      ],
+      subscriberAttemptCounts: [0, 0, 0, 0, 0],
+      linkedFreezeBrokenAttackLogIds: [0, 0, 0, 0, 0],
+      freezeBrokenAttackRows: 1,
+      syntheticDamageEvents: 0,
+    },
   });
+
+  const callbackLogCloneIsIsolated = await page.evaluate(() => {
+    const firstRead = window.GenshinDpsLab.getLastResult();
+    if (firstRead === null) return false;
+    firstRead.callbackDeliveryLog.length = 0;
+    return window.GenshinDpsLab.getLastResult()?.callbackDeliveryLog.length === 5;
+  });
+  expect(callbackLogCloneIsIsolated).toBe(true);
 
   await page.locator("#frozenStateBody tr").nth(1).click();
   await expect(page.locator("#hitDetail")).toContainText("碎冰触发检查");

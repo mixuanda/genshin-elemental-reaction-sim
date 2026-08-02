@@ -1,26 +1,38 @@
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_VERSION =
   "1.0.0" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_VERSION = "2.0.0" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_VERSION = "3.0.0" as const;
 
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID =
   "legacy-no-freeze-broken-attack-callback-v1" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID =
   "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID =
+  "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3" as const;
 
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE =
   "legacy-no-freeze-broken-attack-callback" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE =
   "fixed-gcsim-freeze-broken-attack-normalized-v2" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE =
+  "fixed-gcsim-freeze-broken-callback-dispatch-v3" as const;
 
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_SOURCE_REVISION =
   "genshin-dps-lab-1.51.0-local-baseline" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_SOURCE_REVISION =
+  "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION =
   "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const;
 
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_COVERAGE =
   "legacy-no-freeze-broken-callback-only" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_COVERAGE =
   "freeze-depletion-callback-trigger-sources-and-local-normalization-only" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_COVERAGE =
+  "freeze-depletion-callback-bus-dispatch-and-local-normalization-only" as const;
+
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID =
+  "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2" as const;
 
 export const GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES = [
   "natural-decay",
@@ -229,10 +241,113 @@ export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE = deepFreeze({
   },
 } as const);
 
+/**
+ * V3 executes the locally normalized Freeze Broken observability sequence
+ * through the versioned callback bus. It deliberately remains narrower than
+ * gcsim: the bus phases are auditable, but there is no synthetic damage hit,
+ * RNG draw, enemy physics, or Mona bubble/impulse side effect.
+ */
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE = deepFreeze({
+  ...GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
+  version: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_VERSION,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  mechanicsStatus: "partial",
+  callbackSurface: "versioned-callback-bus-dispatch-audit",
+  callbackDisposition: "callback-bus-dispatched-normalized",
+  requiredCallbackBusPolicyId:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID,
+  localNormalization: {
+    executionStatus: "callback-bus-dispatched-normalized",
+    auditDisposition: "structured-callback-bus-dispatch-log",
+    depletionThreshold: 0.0000000001,
+    depletionComparator: "positive-to-less-than-or-equal",
+    positiveTransitionGuard: "required",
+    callbackSurface: "versioned-callback-bus-dispatch-audit",
+    terminalSources: GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES,
+    terminalSourceCount: 5,
+    callbackCardinality:
+      "exactly-once-per-positive-to-depleted-transition",
+    exactThresholdDuplicateDisposition: "collapse-to-one",
+    dispatchSequence: [
+      "on-aura-durability-depleted-frozen",
+      "on-apply-attack-freeze-broken",
+      "on-enemy-hit-freeze-broken",
+      "on-enemy-damage-freeze-broken-zero",
+      "attack-callback-freeze-broken",
+    ],
+    dispatchPhases: {
+      auraDurabilityDepleted: "same-call-stack-synchronous",
+      applyAttack:
+        "same-call-stack-synchronous-after-aura-durability-depleted",
+      enemyHit: "same-call-stack-synchronous-after-apply-attack",
+      enemyDamage: "zero-delay-end-of-frame",
+      attackCallback: "zero-delay-end-of-frame-after-enemy-damage",
+    },
+    attackCallbackDisposition:
+      "audit-dispatch-phase-without-local-attack-callback-side-effects",
+    rngDisposition: "consume-none",
+    damageEventDisposition: "emit-none",
+    damageLogDisposition: "emit-none",
+    hitResolutionDisposition: "emit-none",
+    syntheticAttackDisposition: "do-not-materialize-as-damage-attack",
+    physicsDisposition: "not-modeled",
+    impulseDisposition: "not-modeled",
+    monaBubbleDisposition: "excluded",
+  },
+  scope: {
+    includedMechanics: [
+      "natural-frozen-decay-depletion-trigger",
+      "poise-depletion-trigger",
+      "shatter-depletion-trigger",
+      "swirl-frozen-depletion-trigger",
+      "crystallize-frozen-depletion-trigger",
+      "positive-to-depleted-transition-guard",
+      "exactly-once-freeze-broken-callback-dispatch",
+      "synchronous-aura-depleted-apply-attack-enemy-hit-dispatch",
+      "zero-delay-end-of-frame-enemy-damage-attack-callback-audit-dispatch",
+      "structured-callback-bus-dispatch-audit",
+      "local-no-rng-no-damage-event-no-hit-resolution-normalization",
+    ],
+    excludedMechanics: [
+      "melt-as-freeze-broken-trigger",
+      "superconduct-as-freeze-broken-trigger",
+      "official-live-server-freeze-break-semantics",
+      "complete-gcsim-freeze-aura-task-and-impulse-parity",
+      "general-enemy-physics-and-impulse-system",
+      "mona-bubble-electro-charged-live-server-parity",
+      "callback-subscriber-side-effects",
+      "mona-bubble-and-impulse-bus",
+      "synthetic-freeze-broken-damage-event",
+      "synthetic-freeze-broken-hit-resolution",
+      "synthetic-freeze-broken-crit-rng-draw",
+      "damage-formulas-and-character-attack-modifiers",
+      "ui-and-damage-event-rendering",
+    ],
+  },
+  provisional: true,
+  provenance: {
+    mechanicsDataStatus: GCSIM_MECHANICS_DATA_STATUS,
+    sourceProject: GCSIM_SOURCE_PROJECT,
+    sourceRevision: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION,
+    sourceFiles:
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE.provenance.sourceFiles,
+    normalization:
+      "callback-bus-dispatched-exactly-once-non-damage-without-rng-or-physics",
+    mechanicsImplementationStatus: "partial",
+    officialServerTruth: false,
+    completeGcsimParity: false,
+    coverage: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_COVERAGE,
+    provisional: true,
+  },
+} as const);
+
 export type LegacyFreezeBrokenAttackPolicyV1Profile =
   typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_PROFILE;
 export type GcsimFreezeBrokenAttackPolicyV2Profile =
   typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE;
+export type GcsimFreezeBrokenAttackPolicyV3Profile =
+  typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE;
 export type GcsimFreezeBrokenAttackTriggerSource =
   (typeof GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES)[number];
 export type GcsimFreezeBrokenAttackExcludedReactionSource =
@@ -302,11 +417,20 @@ export function canonicalGcsimFreezeBrokenAttackPolicyV2PayloadJson(): string {
   );
 }
 
+export function canonicalGcsimFreezeBrokenAttackPolicyV3PayloadJson(): string {
+  return canonicalJson(
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
+    new Set(),
+  );
+}
+
 // Literals are independently derived from the canonical policy payload bytes.
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_CONTENT_SHA256 =
   "sha256:2831fac7a15189b772db58c245ffd8091b1128b5fd5ea516885f03a99961c838" as const;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_CONTENT_SHA256 =
   "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14" as const;
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256 =
+  "sha256:7c6b09c56e2e70fcdee5907045cdd29e1c81474c700c0685c6b3684a34eb298b" as const;
 
 export const LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT = deepFreeze({
   version: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_VERSION,
@@ -377,16 +501,86 @@ export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT = deepFreeze({
   provisional: true,
 } as const);
 
+export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT = deepFreeze({
+  version: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_VERSION,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  contentHash: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256,
+  mechanicsDataStatus: GCSIM_MECHANICS_DATA_STATUS,
+  sourceProject: GCSIM_SOURCE_PROJECT,
+  sourceRevision: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION,
+  pinnedGcsimReference: true,
+  mechanicsStatus: "partial",
+  callbackSurface: "versioned-callback-bus-dispatch-audit",
+  callbackDisposition: "callback-bus-dispatched-normalized",
+  requiredCallbackBusPolicyId:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID,
+  triggerSources: GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES,
+  excludedReactionSources:
+    GCSIM_FREEZE_BROKEN_ATTACK_EXCLUDED_REACTION_SOURCES,
+  executionStatus:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .executionStatus,
+  auditDisposition:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .auditDisposition,
+  callbackCardinality:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .callbackCardinality,
+  dispatchSequence:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .dispatchSequence,
+  dispatchPhases:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .dispatchPhases,
+  normalizedDepletionThreshold:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .depletionThreshold,
+  normalizedDepletionComparator:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .depletionComparator,
+  rngDisposition:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .rngDisposition,
+  damageEventDisposition:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .damageEventDisposition,
+  hitResolutionDisposition:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .hitResolutionDisposition,
+  physicsDisposition:
+    GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+      .physicsDisposition,
+  intentionalDeviations: [
+    "collapse-zero-durability-duplicate-to-exactly-once",
+    "consume-no-crit-rng",
+    "emit-no-synthetic-damage-event",
+    "emit-no-synthetic-hit-resolution",
+    "normalize-depletion-threshold-from-1e-11-to-1e-10",
+    "model-no-general-enemy-physics-or-impulse",
+    "callback-subscriber-side-effects-unimplemented",
+    "mona-bubble-and-impulse-side-effects-unimplemented",
+  ],
+  officialServerTruth: false,
+  completeGcsimParity: false,
+  coverage: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_COVERAGE,
+  provisional: true,
+} as const);
+
 export type LegacyFreezeBrokenAttackPolicyV1Root =
   typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT;
 export type GcsimFreezeBrokenAttackPolicyV2Root =
   typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT;
+export type GcsimFreezeBrokenAttackPolicyV3Root =
+  typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT;
 export type FreezeBrokenAttackPolicyRoot =
   | LegacyFreezeBrokenAttackPolicyV1Root
-  | GcsimFreezeBrokenAttackPolicyV2Root;
+  | GcsimFreezeBrokenAttackPolicyV2Root
+  | GcsimFreezeBrokenAttackPolicyV3Root;
 export type FreezeBrokenAttackPolicyId =
   | typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
-  | typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID;
+  | typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+  | typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID;
 
 export function resolveFreezeBrokenAttackPolicyRoot(
   policyId: typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
@@ -394,6 +588,9 @@ export function resolveFreezeBrokenAttackPolicyRoot(
 export function resolveFreezeBrokenAttackPolicyRoot(
   policyId: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
 ): GcsimFreezeBrokenAttackPolicyV2Root;
+export function resolveFreezeBrokenAttackPolicyRoot(
+  policyId: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+): GcsimFreezeBrokenAttackPolicyV3Root;
 export function resolveFreezeBrokenAttackPolicyRoot(
   policyId: FreezeBrokenAttackPolicyId,
 ): FreezeBrokenAttackPolicyRoot;
@@ -409,31 +606,34 @@ export function resolveFreezeBrokenAttackPolicyRoot(
   if (policyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID) {
     return GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT;
   }
+  if (policyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID) {
+    return GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT;
+  }
   throw new RangeError(`unknown Freeze Broken attack policy: ${policyId}`);
 }
 
 export const FREEZE_BROKEN_ATTACK_POLICY_VERSION =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_VERSION;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_VERSION;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_ID =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_MODE =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_SOURCE_REVISION =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_SOURCE_REVISION;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_COVERAGE =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_COVERAGE;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_COVERAGE;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_PROFILE =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_CONTENT_SHA256 =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_CONTENT_SHA256;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256;
 export const GCSIM_FREEZE_BROKEN_ATTACK_POLICY_ROOT =
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT;
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT;
 
 export type GcsimFreezeBrokenAttackPolicyProfile =
-  GcsimFreezeBrokenAttackPolicyV2Profile;
+  GcsimFreezeBrokenAttackPolicyV3Profile;
 export type GcsimFreezeBrokenAttackPolicyRoot =
-  GcsimFreezeBrokenAttackPolicyV2Root;
+  GcsimFreezeBrokenAttackPolicyV3Root;
 
 export function canonicalFreezeBrokenAttackPolicyPayloadJson(): string {
-  return canonicalGcsimFreezeBrokenAttackPolicyV2PayloadJson();
+  return canonicalGcsimFreezeBrokenAttackPolicyV3PayloadJson();
 }

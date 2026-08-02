@@ -1,4 +1,6 @@
 import {
+  FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+  FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
   REPRODUCIBILITY_IDENTITY_ALGORITHM,
   SIMULATION_RUN_MANIFEST_VERSION,
   type SimulationRunManifest,
@@ -11,10 +13,15 @@ import {
   type SimulationRunManifestV149,
   type SimulationRunManifestV150,
   type SimulationRunManifestV151,
-  type SimulationRunManifestV152
+  type SimulationRunManifestV152,
+  type SimulationRunManifestV153
 } from "./types";
 
 type CurrentSimulationRunIdentity = Omit<
+  SimulationRunManifestV153,
+  "reproducibilityKey"
+>;
+type FrozenV152SimulationRunIdentity = Omit<
   SimulationRunManifestV152,
   "reproducibilityKey"
 >;
@@ -27,7 +34,8 @@ type FrozenSimulationRunIdentity =
   | Omit<SimulationRunManifestV148, "reproducibilityKey">
   | Omit<SimulationRunManifestV149, "reproducibilityKey">
   | Omit<SimulationRunManifestV150, "reproducibilityKey">
-  | Omit<SimulationRunManifestV151, "reproducibilityKey">;
+  | Omit<SimulationRunManifestV151, "reproducibilityKey">
+  | Omit<SimulationRunManifestV152, "reproducibilityKey">;
 type VersionedSimulationRunIdentity =
   | FrozenSimulationRunIdentity
   | CurrentSimulationRunIdentity;
@@ -134,7 +142,7 @@ export function createSimulationConfigHash(
 export function createSimulationReproducibilityKey(
   identity: VersionedSimulationRunIdentity
 ): string {
-  // The current identity includes all seven mechanics roots and each exact
+  // The current identity includes all eight mechanics roots and each exact
   // policy selection. Frozen identities remain accepted verbatim.
   return `gdl-v2-fnv1a32-${fnv1a32Hex(
     canonicalStringify(identity)
@@ -146,15 +154,36 @@ export function createSimulationRunManifest(
     CurrentSimulationRunIdentity,
     "version" | "identityAlgorithm"
   >
-): SimulationRunManifest {
-  const identity: CurrentSimulationRunIdentity = {
+): SimulationRunManifest;
+export function createSimulationRunManifest(
+  input: Omit<
+    FrozenV152SimulationRunIdentity,
+    "version" | "identityAlgorithm"
+  >
+): SimulationRunManifestV152;
+export function createSimulationRunManifest(
+  input:
+    | Omit<
+        CurrentSimulationRunIdentity,
+        "version" | "identityAlgorithm"
+      >
+    | Omit<
+        FrozenV152SimulationRunIdentity,
+        "version" | "identityAlgorithm"
+      >
+): SimulationRunManifest | SimulationRunManifestV152 {
+  const version =
+    input.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION
+      ? FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION
+      : SIMULATION_RUN_MANIFEST_VERSION;
+  const identity = {
     ...input,
-    version: SIMULATION_RUN_MANIFEST_VERSION,
+    version,
     identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM
-  };
+  } as CurrentSimulationRunIdentity | FrozenV152SimulationRunIdentity;
   return {
     ...identity,
     reproducibilityKey:
       createSimulationReproducibilityKey(identity)
-  };
+  } as SimulationRunManifest | SimulationRunManifestV152;
 }

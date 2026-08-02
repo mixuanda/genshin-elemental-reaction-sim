@@ -61,6 +61,7 @@ function freezeAsV150() {
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...payload
   } = current;
   return simConfigV150Schema.parse({
@@ -73,6 +74,7 @@ function freezeAsV150() {
 function makeNativeV151() {
   const {
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...frozen
   } = migrateConfig(legacyConfig);
   return simConfigV151Schema.parse({

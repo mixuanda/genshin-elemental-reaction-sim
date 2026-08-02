@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 import {
   canonicalFreezeBrokenAttackPolicyPayloadJson,
   canonicalGcsimFreezeBrokenAttackPolicyV2PayloadJson,
+  canonicalGcsimFreezeBrokenAttackPolicyV3PayloadJson,
   canonicalLegacyFreezeBrokenAttackPolicyV1PayloadJson,
   FREEZE_BROKEN_ATTACK_POLICY_VERSION,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_EXCLUDED_REACTION_SOURCES,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_CONTENT_SHA256,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_ID,
@@ -17,6 +19,13 @@ import {
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_SOURCE_REVISION,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION,
   GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_CONTENT_SHA256,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
@@ -25,6 +34,7 @@ import {
   resolveFreezeBrokenAttackPolicyRoot,
   type FreezeBrokenAttackPolicyRoot,
   type GcsimFreezeBrokenAttackPolicyV2Root,
+  type GcsimFreezeBrokenAttackPolicyV3Root,
   type LegacyFreezeBrokenAttackPolicyV1Root,
 } from "./index";
 
@@ -232,19 +242,144 @@ describe("versioned Freeze Broken attack policy roots", () => {
     expect(typedRoot.intentionalDeviations).toHaveLength(6);
   });
 
-  it("makes V2 current while resolving both discriminated roots fail-closed", () => {
-    expect(FREEZE_BROKEN_ATTACK_POLICY_VERSION).toBe("2.0.0");
+  it("dispatches V3 through the required callback bus with five exactly-once terminal sources", () => {
+    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE).toMatchObject({
+      version: "3.0.0",
+      policyId:
+        "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3",
+      mode: "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+      mechanicsStatus: "partial",
+      callbackSurface: "versioned-callback-bus-dispatch-audit",
+      callbackDisposition: "callback-bus-dispatched-normalized",
+      requiredCallbackBusPolicyId:
+        "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2",
+      triggerSources: GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES,
+      localNormalization: {
+        executionStatus: "callback-bus-dispatched-normalized",
+        auditDisposition: "structured-callback-bus-dispatch-log",
+        depletionThreshold: 0.0000000001,
+        depletionComparator: "positive-to-less-than-or-equal",
+        positiveTransitionGuard: "required",
+        terminalSources: GCSIM_FREEZE_BROKEN_ATTACK_TRIGGER_SOURCES,
+        terminalSourceCount: 5,
+        callbackCardinality:
+          "exactly-once-per-positive-to-depleted-transition",
+        exactThresholdDuplicateDisposition: "collapse-to-one",
+      },
+    });
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID,
+    ).toBe(GCSIM_CALLBACK_BUS_POLICY_V2_ID);
+    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE).toBe(
+      "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+    );
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+        .terminalSources,
+    ).toEqual([
+      "natural-decay",
+      "poise",
+      "shatter",
+      "swirl-frozen",
+      "crystallize-frozen",
+    ]);
+    expect(
+      new Set(
+        GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+          .terminalSources,
+      ).size,
+    ).toBe(5);
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+        .terminalSources,
+    ).not.toContain("melt");
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+        .terminalSources,
+    ).not.toContain("superconduct");
+
+    const typedRoot: GcsimFreezeBrokenAttackPolicyV3Root =
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT;
+    expect(typedRoot).toMatchObject({
+      callbackDisposition: "callback-bus-dispatched-normalized",
+      requiredCallbackBusPolicyId:
+        GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_REQUIRED_CALLBACK_BUS_POLICY_ID,
+      callbackCardinality:
+        "exactly-once-per-positive-to-depleted-transition",
+      normalizedDepletionComparator: "positive-to-less-than-or-equal",
+    });
+  });
+
+  it("pins the V3 synchronous and zero-delay dispatch phases without materializing damage", () => {
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+        .dispatchSequence,
+    ).toEqual([
+      "on-aura-durability-depleted-frozen",
+      "on-apply-attack-freeze-broken",
+      "on-enemy-hit-freeze-broken",
+      "on-enemy-damage-freeze-broken-zero",
+      "attack-callback-freeze-broken",
+    ]);
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+        .dispatchPhases,
+    ).toEqual({
+      auraDurabilityDepleted: "same-call-stack-synchronous",
+      applyAttack:
+        "same-call-stack-synchronous-after-aura-durability-depleted",
+      enemyHit: "same-call-stack-synchronous-after-apply-attack",
+      enemyDamage: "zero-delay-end-of-frame",
+      attackCallback: "zero-delay-end-of-frame-after-enemy-damage",
+    });
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization,
+    ).toMatchObject({
+      rngDisposition: "consume-none",
+      damageEventDisposition: "emit-none",
+      damageLogDisposition: "emit-none",
+      hitResolutionDisposition: "emit-none",
+      syntheticAttackDisposition: "do-not-materialize-as-damage-attack",
+      physicsDisposition: "not-modeled",
+      impulseDisposition: "not-modeled",
+      monaBubbleDisposition: "excluded",
+    });
+    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT).toMatchObject({
+      rngDisposition: "consume-none",
+      damageEventDisposition: "emit-none",
+      hitResolutionDisposition: "emit-none",
+      physicsDisposition: "not-modeled",
+      officialServerTruth: false,
+      completeGcsimParity: false,
+      provisional: true,
+    });
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.scope.excludedMechanics,
+    ).toEqual(
+      expect.arrayContaining([
+        "general-enemy-physics-and-impulse-system",
+        "callback-subscriber-side-effects",
+        "mona-bubble-and-impulse-bus",
+        "synthetic-freeze-broken-damage-event",
+        "synthetic-freeze-broken-hit-resolution",
+        "synthetic-freeze-broken-crit-rng-draw",
+      ]),
+    );
+  });
+
+  it("makes V3 current while resolving all discriminated roots fail-closed", () => {
+    expect(FREEZE_BROKEN_ATTACK_POLICY_VERSION).toBe("3.0.0");
     expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_ID).toBe(
-      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
     );
     expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_PROFILE).toBe(
-      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
     );
     expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_ROOT).toBe(
-      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
     );
     expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_CONTENT_SHA256).toBe(
-      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_CONTENT_SHA256,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256,
     );
 
     const v1 = resolveFreezeBrokenAttackPolicyRoot(
@@ -253,10 +388,14 @@ describe("versioned Freeze Broken attack policy roots", () => {
     const v2 = resolveFreezeBrokenAttackPolicyRoot(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
     );
-    const roots: FreezeBrokenAttackPolicyRoot[] = [v1, v2];
+    const v3 = resolveFreezeBrokenAttackPolicyRoot(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+    );
+    const roots: FreezeBrokenAttackPolicyRoot[] = [v1, v2, v3];
     expect(roots).toEqual([
       LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
     ]);
     expect(() =>
       resolveFreezeBrokenAttackPolicyRoot("unknown-freeze-broken-policy"),
@@ -268,21 +407,30 @@ describe("versioned Freeze Broken attack policy roots", () => {
       canonicalLegacyFreezeBrokenAttackPolicyV1PayloadJson();
     const v2Payload =
       canonicalGcsimFreezeBrokenAttackPolicyV2PayloadJson();
+    const v3Payload =
+      canonicalGcsimFreezeBrokenAttackPolicyV3PayloadJson();
     expect(JSON.parse(v1Payload)).toEqual(
       LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_PROFILE,
     );
     expect(JSON.parse(v2Payload)).toEqual(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
     );
+    expect(JSON.parse(v3Payload)).toEqual(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
+    );
     expect(Buffer.byteLength(v1Payload)).toBe(832);
     expect(Buffer.byteLength(v2Payload)).toBe(4302);
+    expect(Buffer.byteLength(v3Payload)).toBe(5309);
     expect(sha256(v1Payload)).toBe(
       LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_CONTENT_SHA256,
     );
     expect(sha256(v2Payload)).toBe(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_CONTENT_SHA256,
     );
-    expect(canonicalFreezeBrokenAttackPolicyPayloadJson()).toBe(v2Payload);
+    expect(sha256(v3Payload)).toBe(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_CONTENT_SHA256,
+    );
+    expect(canonicalFreezeBrokenAttackPolicyPayloadJson()).toBe(v3Payload);
   });
 
   it("deep-freezes profiles and roots and rejects mutation attacks", () => {
@@ -297,6 +445,8 @@ describe("versioned Freeze Broken attack policy roots", () => {
       LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
     ]) {
       assertDeepFrozen(value);
     }
@@ -319,12 +469,19 @@ describe("versioned Freeze Broken attack policy roots", () => {
           .intentionalDeviations as unknown as string[]
       )[0] = "none";
     }).toThrow(TypeError);
+    expect(() => {
+      (
+        GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.localNormalization
+          .dispatchSequence as unknown as string[]
+      ).push("damage-log-freeze-broken");
+    }).toThrow(TypeError);
   });
 
   it("refuses official-server and complete-gcsim parity claims", () => {
     for (const profile of [
       LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_PROFILE,
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE,
     ]) {
       expect(profile.provenance).toMatchObject({
         officialServerTruth: false,
@@ -335,12 +492,30 @@ describe("versioned Freeze Broken attack policy roots", () => {
     expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_SOURCE_REVISION).toBe(
       "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
     );
+    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_SOURCE_REVISION).toBe(
+      "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    );
     expect(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE.provenance
         .mechanicsImplementationStatus,
     ).toBe("partial");
     expect(
       GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_PROFILE.scope.excludedMechanics,
+    ).toEqual(
+      expect.arrayContaining([
+        "official-live-server-freeze-break-semantics",
+        "complete-gcsim-freeze-aura-task-and-impulse-parity",
+        "mona-bubble-electro-charged-live-server-parity",
+        "callback-subscriber-side-effects",
+        "mona-bubble-and-impulse-bus",
+      ]),
+    );
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.provenance
+        .mechanicsImplementationStatus,
+    ).toBe("partial");
+    expect(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_PROFILE.scope.excludedMechanics,
     ).toEqual(
       expect.arrayContaining([
         "official-live-server-freeze-break-semantics",

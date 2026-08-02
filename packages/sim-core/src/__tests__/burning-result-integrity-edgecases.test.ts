@@ -337,7 +337,7 @@ function expectAcceptedAtBothBoundaries(result: SimulationResult): void {
 function expectRejectedAtBothBoundaries(result: SimulationResult): void {
   expect(simulationResultSchema.safeParse(result).success).toBe(false);
   expect(() => assertTrustedSimulationResult(result)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -691,7 +691,7 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() => assertTrustedSimulationResult(result)).toThrow(
-      /Trusted SimulationResult 1\.52 integrity validation failed/,
+      /Trusted SimulationResult 1\.53 integrity validation failed/,
     );
   });
 
@@ -901,7 +901,7 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() => assertTrustedSimulationResult(result)).toThrow(
-      /Trusted SimulationResult 1\.52 integrity validation failed/,
+      /Trusted SimulationResult 1\.53 integrity validation failed/,
     );
   });
 
@@ -992,7 +992,7 @@ describe("Burning result integrity edge cases", () => {
       );
     }
     expect(() => assertTrustedSimulationResult(result)).toThrow(
-      /Trusted SimulationResult 1\.52 integrity validation failed/,
+      /Trusted SimulationResult 1\.53 integrity validation failed/,
     );
   });
 

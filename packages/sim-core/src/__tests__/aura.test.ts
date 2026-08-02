@@ -1409,7 +1409,7 @@ describe("Aura engine simulation integration", () => {
     );
   });
 
-  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.52", () => {
+  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.53", () => {
     const current = makeAuraTimelineConfig(false);
     current.reactionEngine = {
       mode: "aura-v1",
@@ -1427,6 +1427,7 @@ describe("Aura engine simulation integration", () => {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       basicReactionSchedulerModel: _basicReactionSchedulerModel,
       freezeBrokenAttackModel: _freezeBrokenAttackModel,
+      callbackBusModel: _callbackBusModel,
       ...legacyPayload
     } = structuredClone(current);
     const frozenApplication =

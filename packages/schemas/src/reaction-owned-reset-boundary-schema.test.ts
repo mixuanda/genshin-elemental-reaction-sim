@@ -29,6 +29,7 @@ import {
   type SimConfigV150,
   type SimConfigV151,
   type SimConfigV152,
+  type SimConfigV153,
   type SimulationRunManifestV148,
   type SimulationRunManifestV149,
 } from "./index";
@@ -61,7 +62,7 @@ const runtimeOptions = {
 };
 
 function freezeAsV149(
-  config: SimConfigV150 | SimConfigV151 | SimConfigV152
+  config: SimConfigV150 | SimConfigV151 | SimConfigV152 | SimConfigV153
 ): SimConfigV149 {
   const {
     reactionDamageGroupModel: _reactionDamageGroupModel,
@@ -70,10 +71,12 @@ function freezeAsV149(
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...payload
   } = withPossibleScheduler as typeof withPossibleScheduler & {
     basicReactionSchedulerModel?: unknown;
     freezeBrokenAttackModel?: unknown;
+    callbackBusModel?: unknown;
   };
   return simConfigV149Schema.parse({
     ...payload,

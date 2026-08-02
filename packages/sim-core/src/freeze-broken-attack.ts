@@ -38,6 +38,10 @@ export interface FreezeBrokenAttackAuditInput {
   triggerEventPriority: number;
   triggerEventSequence: number;
   intraEventSequence: number;
+  callbackDeliveryLogIds?: Readonly<{
+    sync: [number, number, number];
+    endOfFrame: [number, number];
+  }>;
 }
 
 function frozenGauge(
@@ -108,7 +112,10 @@ export function classifyFreezeBrokenAttackTransition(
   entry: FrozenStateLogEntry,
 ): FreezeBrokenAttackClassification | null {
   if (mode === "legacy-no-freeze-broken-attack-callback") return null;
-  if (mode !== "fixed-gcsim-freeze-broken-attack-normalized-v2") {
+  if (
+    mode !== "fixed-gcsim-freeze-broken-attack-normalized-v2" &&
+    mode !== "fixed-gcsim-freeze-broken-callback-dispatch-v3"
+  ) {
     throw new RangeError(`unknown Freeze Broken attack mode: ${String(mode)}`);
   }
 
@@ -143,7 +150,7 @@ export function buildFreezeBrokenAttackLogEntry(
   if (classification === null) return null;
 
   const entry = input.frozenStateEntry;
-  return {
+  const common = {
     id: input.id,
     frame: entry.frame,
     ...(entry.targetFrame === undefined
@@ -186,6 +193,48 @@ export function buildFreezeBrokenAttackLogEntry(
       sourceIsSim: true,
       doNotLog: true,
     },
+    damageEventId: null,
+    hitResolutionLogId: null,
+  } as const;
+
+  if (input.mode === "fixed-gcsim-freeze-broken-callback-dispatch-v3") {
+    if (input.callbackDeliveryLogIds === undefined) {
+      throw new Error(
+        "Freeze Broken V3 audit construction requires all five callback delivery log IDs.",
+      );
+    }
+    return {
+      ...common,
+      syncPhase: {
+        disposition: "callback-bus-dispatched-normalized",
+        referencePhase: "same-call-stack-immediate",
+        order: [
+          "on-aura-durability-depleted-frozen",
+          "on-apply-attack-freeze-broken",
+          "on-enemy-hit-freeze-broken",
+          "damage-log-freeze-broken",
+        ],
+        callbackDeliveryLogIds: input.callbackDeliveryLogIds.sync,
+      },
+      endOfFramePhase: {
+        disposition: "callback-bus-dispatched-normalized",
+        referencePhase: "zero-delay-core-task",
+        order: [
+          "apply-zero-damage",
+          "on-enemy-damage-freeze-broken-zero",
+          "attack-callbacks-none-supplied",
+        ],
+        callbackDeliveryLogIds: input.callbackDeliveryLogIds.endOfFrame,
+        damage: 0,
+        relativeToTriggerEnemyDamage:
+          input.depletionDamageEventId === null ? "not-applicable" : "before",
+      },
+      executionStatus: "callback-bus-dispatched-normalized",
+    };
+  }
+
+  return {
+    ...common,
     syncPhase: {
       disposition: "reference-audit-only-not-dispatched",
       referencePhase: "same-call-stack-immediate",
@@ -209,8 +258,6 @@ export function buildFreezeBrokenAttackLogEntry(
         input.depletionDamageEventId === null ? "not-applicable" : "before",
     },
     executionStatus: "reference-audit-only-not-dispatched",
-    damageEventId: null,
-    hitResolutionLogId: null,
   };
 }
 

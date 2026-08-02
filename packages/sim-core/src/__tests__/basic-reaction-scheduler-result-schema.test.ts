@@ -9,6 +9,7 @@ import {
   simulationResultV150Schema,
   simulationResultV151Schema,
   simulationResultV152Schema,
+  simulationResultV153Schema,
   type BasicReactionSchedulerModel,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
@@ -16,6 +17,7 @@ import { describe, expect, it } from "vitest";
 
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -158,9 +160,12 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
       }
     ]);
     expect(simulationResultV152Schema.safeParse(result).success).toBe(
-      true
+      false
     );
     expect(simulationResultV151Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV153Schema.safeParse(result).success).toBe(
+      true
+    );
     expect(simulationResultSchema.safeParse(result).success).toBe(
       true
     );
@@ -174,7 +179,7 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
     ): void => {
       const wire = structuredClone(result);
       mutate(wire);
-      expect(simulationResultV152Schema.safeParse(wire).success).toBe(
+      expect(simulationResultV153Schema.safeParse(wire).success).toBe(
         false
       );
     };
@@ -226,21 +231,21 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
     modelForgery.config.basicReactionSchedulerModel =
       LEGACY_SCHEDULER;
     expect(
-      simulationResultV152Schema.safeParse(modelForgery).success
+      simulationResultV153Schema.safeParse(modelForgery).success
     ).toBe(false);
 
     const rootForgery = structuredClone(result);
     rootForgery.runManifest.basicReactionSchedulerRoot =
       LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT;
     expect(
-      simulationResultV152Schema.safeParse(rootForgery).success
+      simulationResultV153Schema.safeParse(rootForgery).success
     ).toBe(false);
 
     const rowForgery: unknown = structuredClone(result);
     (rowForgery as any).basicReactionSchedulerLog[0].futureField =
       true;
     expect(
-      simulationResultV152Schema.safeParse(rowForgery).success
+      simulationResultV153Schema.safeParse(rowForgery).success
     ).toBe(false);
   });
 
@@ -257,7 +262,7 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
       );
     }
     expect(
-      simulationResultV152Schema.safeParse(missingLegacyProof)
+      simulationResultV153Schema.safeParse(missingLegacyProof)
         .success
     ).toBe(false);
 
@@ -299,7 +304,7 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
         );
     }
     expect(
-      simulationResultV152Schema.safeParse(missingAttempt).success
+      simulationResultV153Schema.safeParse(missingAttempt).success
     ).toBe(false);
   });
 
@@ -309,7 +314,9 @@ describe("1.51 basic-reaction scheduler public result schema", () => {
       false
     );
     const frozen = projectSimulationResultV151ToV150(
-      projectSimulationResultV152ToV151(currentLegacy),
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(currentLegacy)
+      ),
     );
     expect(simulationResultV150Schema.safeParse(frozen).success).toBe(
       true

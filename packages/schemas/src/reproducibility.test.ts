@@ -1,12 +1,17 @@
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
@@ -14,6 +19,9 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
@@ -32,6 +40,9 @@ import {
   BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
   BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_RUN_MANIFEST_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
@@ -83,6 +94,7 @@ import {
   type SimulationResultForV149,
   type SimulationResultForV151,
   type SimulationResultForV152,
+  type SimulationResultForV153,
   type SimulationRunManifestV142,
   type SimulationRunManifestV144,
   type SimulationRunManifestV145,
@@ -92,6 +104,7 @@ import {
   type SimulationRunManifestV149,
   type SimulationRunManifestV150,
   type SimulationRunManifestV151,
+  type SimulationRunManifestV152,
 } from "./types";
 
 const commonIdentity = {
@@ -141,7 +154,7 @@ describe("versioned reproducibility identities", () => {
 
   });
 
-  it("binds all seven fixed mechanics roots in the current 1.52 manifest", () => {
+  it("binds all eight fixed mechanics roots in the current 1.53 manifest", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -155,20 +168,23 @@ describe("versioned reproducibility identities", () => {
       basicReactionSchedulerRoot:
         GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
       freezeBrokenAttackRoot:
-        GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+        GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
+      callbackBusRoot: GCSIM_CALLBACK_BUS_POLICY_V2_ROOT,
       dataVersion: commonIdentity.dataVersion,
       configHash: commonIdentity.configHash,
       resolvedRuntimeOptions: commonIdentity.resolvedRuntimeOptions,
       plugins: commonIdentity.plugins,
+      pluginCapabilities: [],
+      pluginCallbackSubscriptions: [],
     });
 
-    expect(CURRENT_SCHEMA_VERSION).toBe(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION);
-    expect(CURRENT_ENGINE_VERSION).toBe(FREEZE_BROKEN_ATTACK_ENGINE_VERSION);
+    expect(CURRENT_SCHEMA_VERSION).toBe(CALLBACK_BUS_SCHEMA_VERSION);
+    expect(CURRENT_ENGINE_VERSION).toBe(CALLBACK_BUS_ENGINE_VERSION);
     expect(manifest.version).toBe(SIMULATION_RUN_MANIFEST_VERSION);
     expect(manifest.version).toBe(
-      FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+      CALLBACK_BUS_RUN_MANIFEST_VERSION,
     );
-    expect(manifest.version).toBe("1.8.0");
+    expect(manifest.version).toBe("1.9.0");
     expect(manifest.reactionFormulaRoot).toBe(CLASSIC_REACTION_FORMULA_ROOT);
     expect(manifest.directDamageGroupRoot).toBe(GCSIM_DAMAGE_GROUP_ROOT);
     expect(manifest.elementalApplicationIcdRoot).toBe(
@@ -184,7 +200,10 @@ describe("versioned reproducibility identities", () => {
       GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
     );
     expect(manifest.freezeBrokenAttackRoot).toBe(
-      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
+    );
+    expect(manifest.callbackBusRoot).toBe(
+      GCSIM_CALLBACK_BUS_POLICY_V2_ROOT,
     );
 
     const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;
@@ -242,6 +261,13 @@ describe("versioned reproducibility identities", () => {
           contentHash: forgedContentHash,
         },
       },
+      {
+        ...identity,
+        callbackBusRoot: {
+          ...identity.callbackBusRoot,
+          contentHash: forgedContentHash,
+        },
+      },
     ] as unknown as Array<typeof identity>;
     for (const forgedIdentity of forgedIdentities) {
       expect(createSimulationReproducibilityKey(forgedIdentity)).not.toBe(
@@ -255,6 +281,7 @@ describe("versioned reproducibility identities", () => {
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
       freezeBrokenAttackRoot:
         LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
+      callbackBusRoot: LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
     };
     expect(createSimulationReproducibilityKey(v1Identity)).not.toBe(
       manifest.reproducibilityKey,
@@ -270,7 +297,7 @@ describe("versioned reproducibility identities", () => {
     ).not.toBe(createSimulationReproducibilityKey(v1Identity));
   });
 
-  it("retains exact historical identities through the frozen 1.51 wire", () => {
+  it("retains exact historical identities through the frozen 1.52 wire", () => {
     const frozenV142Identity: Omit<
       SimulationRunManifestV142,
       "reproducibilityKey"
@@ -378,6 +405,16 @@ describe("versioned reproducibility identities", () => {
       basicReactionSchedulerRoot:
         GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
     };
+    const frozenV152Identity: Omit<
+      SimulationRunManifestV152,
+      "reproducibilityKey"
+    > = {
+      ...frozenV151Identity,
+      version: FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+      schemaVersion: FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
+      engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+      freezeBrokenAttackRoot: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+    };
 
     expect(frozenV145Identity.version).toBe("1.1.0");
     expect("directDamageGroupRoot" in frozenV142Identity).toBe(false);
@@ -390,6 +427,7 @@ describe("versioned reproducibility identities", () => {
     expect("reactionDamageGroupRoot" in frozenV149Identity).toBe(false);
     expect("basicReactionSchedulerRoot" in frozenV150Identity).toBe(false);
     expect("freezeBrokenAttackRoot" in frozenV151Identity).toBe(false);
+    expect("callbackBusRoot" in frozenV152Identity).toBe(false);
     expect([
       createSimulationReproducibilityKey(frozenV142Identity),
       createSimulationReproducibilityKey(frozenV144Identity),
@@ -400,6 +438,7 @@ describe("versioned reproducibility identities", () => {
       createSimulationReproducibilityKey(frozenV149Identity),
       createSimulationReproducibilityKey(frozenV150Identity),
       createSimulationReproducibilityKey(frozenV151Identity),
+      createSimulationReproducibilityKey(frozenV152Identity),
     ]).toEqual([
       "gdl-v2-fnv1a32-a82adc28",
       "gdl-v2-fnv1a32-452a4d63",
@@ -410,6 +449,7 @@ describe("versioned reproducibility identities", () => {
       "gdl-v2-fnv1a32-fd502d2b",
       "gdl-v2-fnv1a32-89f61b57",
       "gdl-v2-fnv1a32-29871774",
+      "gdl-v2-fnv1a32-ee85c2fe",
     ]);
   });
 
@@ -440,8 +480,12 @@ describe("versioned reproducibility identities", () => {
         policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ID,
       },
       freezeBrokenAttackModel: {
-        mode: "fixed-gcsim-freeze-broken-attack-normalized-v2",
-        policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+        mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+        policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+      },
+      callbackBusModel: {
+        mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+        policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID,
       },
       configuredApplication: {
         gaugeUnits: 1,
@@ -459,6 +503,15 @@ describe("versioned reproducibility identities", () => {
         directDamageGroupModel: {
           ...configIdentity.directDamageGroupModel,
           profileId: "forged-profile",
+        },
+      }),
+    ).not.toBe(createSimulationConfigHash(configIdentity));
+    expect(
+      createSimulationConfigHash({
+        ...configIdentity,
+        callbackBusModel: {
+          mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+          policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID,
         },
       }),
     ).not.toBe(createSimulationConfigHash(configIdentity));
@@ -543,6 +596,15 @@ describe("direct-damage-group audit identity", () => {
         ? true
         : false
     >().toEqualTypeOf<true>();
+  });
+
+  it("adds only callback audit tables at the 1.53 result boundary", () => {
+    expectTypeOf<
+      Exclude<keyof SimulationResultForV153, keyof SimulationResultForV152>
+    >().toEqualTypeOf<"callbackRegistrationLog" | "callbackDeliveryLog">();
+    expectTypeOf<
+      Exclude<keyof SimulationResultForV152, keyof SimulationResultForV153>
+    >().toEqualTypeOf<never>();
   });
 
   it("keeps the 1.46-only log out of frozen result types", () => {

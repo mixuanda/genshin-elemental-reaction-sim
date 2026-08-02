@@ -56,7 +56,7 @@ function expectRejectedByPublicAndTrusted(
   expect(
     () => assertTrustedSimulationResult(trustedResult),
     `${label}: trusted sim-core boundary`,
-  ).toThrow(/Trusted SimulationResult 1\.52 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.53 integrity validation failed/);
 }
 
 function makeHitConfirmedParticleConfig(
@@ -733,7 +733,7 @@ describe("current SimulationResult particle provenance integrity", () => {
     expect(occurrenceIssues).toHaveLength(1);
     expect(occurrenceIssues[0]?.message).toContain("4");
     expect(() => assertTrustedSimulationResult(mutation)).toThrow(
-      /Trusted SimulationResult 1\.52 integrity validation failed/,
+      /Trusted SimulationResult 1\.53 integrity validation failed/,
     );
   });
 });

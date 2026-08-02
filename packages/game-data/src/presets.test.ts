@@ -6,11 +6,14 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
@@ -59,8 +62,13 @@ const EXPECTED_BASIC_REACTION_SCHEDULER_MODEL = {
 } as const;
 
 const EXPECTED_FREEZE_BROKEN_ATTACK_MODEL = {
-  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+} as const;
+
+const EXPECTED_CALLBACK_BUS_MODEL = {
+  mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID,
 } as const;
 
 describe("game-data preset engine identity", () => {
@@ -69,8 +77,8 @@ describe("game-data preset engine identity", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.53.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.53.0-callback-bus");
     expect(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID).toBe(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
     );
@@ -83,12 +91,22 @@ describe("game-data preset engine identity", () => {
       officialServerTruth: false,
       completeGcsimParity: false,
     });
-    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT).toMatchObject({
-      version: "2.0.0",
-      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+    expect(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT).toMatchObject({
+      version: "3.0.0",
+      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
       contentHash:
-        "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14",
+        "sha256:7c6b09c56e2e70fcdee5907045cdd29e1c81474c700c0685c6b3684a34eb298b",
+      mechanicsStatus: "partial",
+      officialServerTruth: false,
+      completeGcsimParity: false,
+    });
+    expect(GCSIM_CALLBACK_BUS_POLICY_V2_ROOT).toMatchObject({
+      version: "2.0.0",
+      mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+      policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+      contentHash:
+        "sha256:e9a07c467716a1b5bf63859945262a3abc3c54ae7407f124d0a68cc7ec380696",
       mechanicsStatus: "partial",
       officialServerTruth: false,
       completeGcsimParity: false,
@@ -117,6 +135,9 @@ describe("game-data preset engine identity", () => {
       );
       expect(preset.freezeBrokenAttackModel, preset.meta.name).toEqual(
         EXPECTED_FREEZE_BROKEN_ATTACK_MODEL,
+      );
+      expect(preset.callbackBusModel, preset.meta.name).toEqual(
+        EXPECTED_CALLBACK_BUS_MODEL,
       );
       expect(preset.reactionEngine?.mode, preset.meta.name).not.toBe("aura-v9");
       expect(preset.targetTaskModel).toEqual({

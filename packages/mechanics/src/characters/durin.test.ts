@@ -1,7 +1,11 @@
 import { simulate } from "@genshin-dps-lab/sim-core";
 import {
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -44,6 +48,16 @@ const EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL = {
   policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } as const;
 
+const EXPECTED_FREEZE_BROKEN_ATTACK_MODEL = {
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID
+} as const;
+
+const EXPECTED_CALLBACK_BUS_MODEL = {
+  mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
+} as const;
+
 describe("Durin current mechanics-root identity", () => {
   it("pins authoring configs and compact presets to all fixed roots", () => {
     const configs = [
@@ -66,6 +80,10 @@ describe("Durin current mechanics-root identity", () => {
       expect(config.reactionOwnedElementalApplicationModel).toEqual(
         EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL
       );
+      expect(config.freezeBrokenAttackModel).toEqual(
+        EXPECTED_FREEZE_BROKEN_ATTACK_MODEL
+      );
+      expect(config.callbackBusModel).toEqual(EXPECTED_CALLBACK_BUS_MODEL);
       for (const ability of config.timeline?.abilities ?? []) {
         for (const hit of ability.hits ?? []) {
           expect(hit, `${config.meta.name}: ${hit.id ?? hit.label}`).not

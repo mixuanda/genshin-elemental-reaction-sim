@@ -33,6 +33,7 @@ import {
   type SimConfigV150,
   type SimConfigV151,
   type SimConfigV152,
+  type SimConfigV153,
   type SimulationRunManifestV149,
   type SimulationRunManifestV150
 } from "./index";
@@ -65,13 +66,14 @@ const runtimeOptions = {
 };
 
 function freezeAsV150(
-  config: SimConfigV151 | SimConfigV152
+  config: SimConfigV151 | SimConfigV152 | SimConfigV153
 ): SimConfigV150 {
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...payload
-  } = config as SimConfigV152;
+  } = config as SimConfigV153;
   return simConfigV150Schema.parse({
     ...payload,
     schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -80,7 +82,7 @@ function freezeAsV150(
 }
 
 function freezeAsV149(
-  config: SimConfigV150 | SimConfigV151 | SimConfigV152
+  config: SimConfigV150 | SimConfigV151 | SimConfigV152 | SimConfigV153
 ): SimConfigV149 {
   const {
     reactionDamageGroupModel: _reactionDamageGroupModel,
@@ -89,10 +91,12 @@ function freezeAsV149(
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...payload
   } = withPossibleScheduler as typeof withPossibleScheduler & {
     basicReactionSchedulerModel?: unknown;
     freezeBrokenAttackModel?: unknown;
+    callbackBusModel?: unknown;
   };
   return simConfigV149Schema.parse({
     ...payload,
@@ -125,10 +129,8 @@ function createV149Manifest(config: SimConfigV149) {
 
 describe("1.50 reaction damage-group reset-boundary identity", () => {
   it("keeps 1.50 frozen after the current identity advances", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
-    expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.52.0-freeze-broken-attack"
-    );
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.53.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.53.0-callback-bus");
     expect(CURRENT_SCHEMA_VERSION).not.toBe(
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
     );

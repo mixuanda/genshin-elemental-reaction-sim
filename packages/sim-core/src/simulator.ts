@@ -1,6 +1,7 @@
 import {
   assertTrustedReactionDeliveryResultReferences,
   assertTrustedSimulationResult,
+  CALLBACK_SUBSCRIBER_OUTCOME_VERIFICATION,
   CURRENT_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
@@ -34,10 +35,15 @@ import {
   type BloomReactionAudit,
   type BuffDefinition,
   type BuffStat,
+  type CallbackBusEventKindV153,
+  type CallbackDeliveryLogEntryV153,
+  type CallbackSubscriberAttemptV153,
+  type CallbackSubscriberOutcomeV153,
   type CharacterStats,
   type CrystallizeReaction,
   type CrystallizeReactionAudit,
   type DamageEvent,
+  type DamagePluginDescriptor,
   type DamagePluginManifestEntry,
   type DebuffDefinition,
   type DendroCoreReaction,
@@ -53,6 +59,7 @@ import {
   type HitDefinition,
   type HitTargeting,
   type ParticleDefinition,
+  type PluginCapabilityV153,
   type ReactionAudit,
   type ReactionADamageGroupDecisionAuditV150,
   type ReactionBDamageGroupDecisionAuditV150,
@@ -71,6 +78,7 @@ import {
   type SimulationEvent,
   type SimulationOptions,
   type SimulationResult,
+  type SimulationRunManifest,
   type TargetClockLogEntry,
   type TargetClockSummary,
   type TargetHitlagLogEntry,
@@ -89,6 +97,7 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   resolveBasicReactionSchedulerPolicyRoot,
+  resolveCallbackBusPolicyRoot,
   resolveFreezeBrokenAttackPolicyRoot,
   resolveReactionDamageGroupPolicyRoot,
   resolveReactionOwnedApplicationPolicyRoot,
@@ -122,7 +131,8 @@ import type {
   DamageModifierPluginRuntime
 } from "./plugins";
 import {
-  assertFormulaBoundDamagePluginChanges
+  assertFormulaBoundDamagePluginChanges,
+  defineDamageModifierPlugin,
 } from "./plugins";
 import {
   compileLegalTimeline,
@@ -174,6 +184,20 @@ import {
   buildFreezeBrokenAttackLogEntry,
   classifyFreezeBrokenAttackTransition,
 } from "./freeze-broken-attack";
+import { FreezeBrokenCallbackAuditBuffer } from "./freeze-broken-callback-log";
+import {
+  TypedCallbackBus,
+  type CallbackBusCompletedDeliveryAttempt,
+} from "./callback-bus";
+import {
+  defineCallbackSubscriberPluginV153,
+  isCallbackSubscriberPluginV153,
+  isDamageModifierPluginV153,
+  type CallbackSubscriberPluginContextV153,
+  type CallbackSubscriberPluginRuntimeV153,
+  type FreezeBrokenCallbackPayloadMapV153,
+  type SimulationRuntimePluginV153,
+} from "./callback-plugins";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -201,12 +225,13 @@ export const EVENT_PRIORITY = {
   reactionDamage: 5,
   reactionDamageGroupReset: 5,
   reactionAuraAttachment: 5,
+  freezeBrokenCallback: 5.5,
   periodicReactionWane: 6,
   crystallizePickup: 7
 } as const;
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
-  plugins?: readonly DamageModifierPlugin[];
+  plugins?: readonly SimulationRuntimePluginV153[];
 }
 
 export function projectBloomBurningFuelExpiry(
@@ -953,6 +978,27 @@ interface FrozenExpiryEventPayload {
   expectedExpiryFrame: number;
 }
 
+interface FreezeBrokenCallbackEventPayload {
+  freezeBrokenAttackLogId: number;
+}
+
+interface FreezeBrokenCallbackDispatchSource {
+  freezeBrokenAttackLogId: number;
+  frozenStateEntry: SimulationResult["frozenStateLog"][number];
+  depletionDamageEventId: number | null;
+  sourceFreezeDamageEventId: number | null;
+  triggerEventType: SimulationEvent["type"];
+  triggerEventPriority: number;
+  triggerEventSequence: number;
+  triggerIntraEventSequence: number;
+}
+
+interface PendingFreezeBrokenCallback {
+  source: FreezeBrokenCallbackDispatchSource;
+  syncCallbackDeliveryLogIds: [number, number, number];
+  taskSequence: number;
+}
+
 interface QuickenExpiryEventPayload {
   targetId: string;
   generation: number;
@@ -1070,6 +1116,14 @@ type InternalEventBase =
   | SimulationEvent<CrystallizePickupEventPayload>
   | SimulationEvent<CrystallizeShieldExpiryEventPayload>
   | {
+      type: "freezeBrokenCallback";
+      timeSeconds: number;
+      frame: number;
+      priority: number;
+      sequence: number;
+      payload: FreezeBrokenCallbackEventPayload;
+    }
+  | {
       type: "targetDecay";
       timeSeconds: number;
       frame: number;
@@ -1084,6 +1138,8 @@ interface TargetLocalTaskDeadline {
 }
 
 type InternalEvent = InternalEventBase & {
+  /** Internal-only heap order; public/audit eventSequence remains unchanged. */
+  queueOrderSequence?: number;
   /**
    * Immutable target-local deadline for the logical task. `frame` is only the
    * current global wake-up projection and may move after later Hitlag.
@@ -1205,8 +1261,159 @@ function toFrame(timeSeconds: number): number {
   return Math.round(timeSeconds * 60);
 }
 
+function requireOwnDataProperty(
+  value: object,
+  key: PropertyKey,
+  label: string,
+): unknown {
+  const property = Object.getOwnPropertyDescriptor(value, key);
+  if (property === undefined || !("value" in property)) {
+    throw new TypeError(`${label} must be an own data property.`);
+  }
+  return property.value;
+}
+
+function normalizeRuntimePluginDescriptor(
+  value: unknown,
+  pluginIndex: number,
+): DamagePluginDescriptor {
+  if (value === null || typeof value !== "object") {
+    throw new TypeError(
+      `Runtime plugin ${pluginIndex} descriptor must be an object.`,
+    );
+  }
+  return Object.freeze({
+    id: requireOwnDataProperty(
+      value,
+      "id",
+      `Runtime plugin ${pluginIndex} descriptor.id`,
+    ) as string,
+    version: requireOwnDataProperty(
+      value,
+      "version",
+      `Runtime plugin ${pluginIndex} descriptor.version`,
+    ) as string,
+    kind: requireOwnDataProperty(
+      value,
+      "kind",
+      `Runtime plugin ${pluginIndex} descriptor.kind`,
+    ) as DamagePluginDescriptor["kind"],
+    contentHash: requireOwnDataProperty(
+      value,
+      "contentHash",
+      `Runtime plugin ${pluginIndex} descriptor.contentHash`,
+    ) as string,
+  });
+}
+
+/**
+ * Takes one immutable authority snapshot before any manifest or runtime work.
+ *
+ * Executable plugin objects are untrusted inputs. Re-reading an accessor-backed
+ * `capability` could otherwise let one object declare callback-only authority
+ * in the reproducibility identity and later execute as a damage modifier.
+ */
+function normalizeRuntimePlugins(
+  plugins: readonly SimulationRuntimePluginV153[],
+): readonly SimulationRuntimePluginV153[] {
+  return Object.freeze(
+    plugins.map((plugin, pluginIndex) => {
+      if (plugin === null || typeof plugin !== "object") {
+        throw new TypeError(`Runtime plugin ${pluginIndex} must be an object.`);
+      }
+      const capabilityProperty = Object.getOwnPropertyDescriptor(
+        plugin,
+        "capability",
+      );
+      if (
+        capabilityProperty === undefined &&
+        "capability" in plugin
+      ) {
+        throw new TypeError(
+          `Runtime plugin ${pluginIndex} capability must not be inherited.`,
+        );
+      }
+      if (
+        capabilityProperty !== undefined &&
+        !("value" in capabilityProperty)
+      ) {
+        throw new TypeError(
+          `Runtime plugin ${pluginIndex} capability must be an own data property.`,
+        );
+      }
+
+      const descriptor = normalizeRuntimePluginDescriptor(
+        requireOwnDataProperty(
+          plugin,
+          "descriptor",
+          `Runtime plugin ${pluginIndex} descriptor`,
+        ),
+        pluginIndex,
+      );
+      const createRuntime = requireOwnDataProperty(
+        plugin,
+        "createRuntime",
+        `Runtime plugin ${pluginIndex} createRuntime`,
+      );
+      if (typeof createRuntime !== "function") {
+        throw new TypeError(
+          `Runtime plugin ${pluginIndex} createRuntime must be a function.`,
+        );
+      }
+
+      if (capabilityProperty === undefined) {
+        return defineDamageModifierPlugin(
+          descriptor,
+          createRuntime as () => DamageModifierPluginRuntime,
+        );
+      }
+      if (capabilityProperty.value !== "callback-subscriber") {
+        throw new TypeError(
+          `Runtime plugin ${pluginIndex} has unsupported capability ${String(capabilityProperty.value)}.`,
+        );
+      }
+      const subscriptions = requireOwnDataProperty(
+        plugin,
+        "subscriptions",
+        `Runtime plugin ${pluginIndex} subscriptions`,
+      );
+      if (!Array.isArray(subscriptions)) {
+        throw new TypeError(
+          `Runtime plugin ${pluginIndex} subscriptions must be an array.`,
+        );
+      }
+      const normalizedSubscriptions = subscriptions.map(
+        (subscription, subscriptionIndex) => {
+          if (subscription === null || typeof subscription !== "object") {
+            throw new TypeError(
+              `Runtime plugin ${pluginIndex} subscription ${subscriptionIndex} must be an object.`,
+            );
+          }
+          return Object.freeze({
+            eventKind: requireOwnDataProperty(
+              subscription,
+              "eventKind",
+              `Runtime plugin ${pluginIndex} subscription ${subscriptionIndex}.eventKind`,
+            ) as CallbackBusEventKindV153,
+            subscriberKey: requireOwnDataProperty(
+              subscription,
+              "subscriberKey",
+              `Runtime plugin ${pluginIndex} subscription ${subscriptionIndex}.subscriberKey`,
+            ) as string,
+          });
+        },
+      );
+      return defineCallbackSubscriberPluginV153(
+        descriptor,
+        normalizedSubscriptions,
+        createRuntime as () => CallbackSubscriberPluginRuntimeV153,
+      );
+    }),
+  );
+}
+
 function createPluginManifest(
-  plugins: readonly DamageModifierPlugin[]
+  plugins: readonly SimulationRuntimePluginV153[]
 ): DamagePluginManifestEntry[] {
   return plugins.map((plugin, index) => ({
     order: index,
@@ -1218,15 +1425,40 @@ function createPluginManifest(
   }));
 }
 
+function createPluginCapabilities(
+  plugins: readonly SimulationRuntimePluginV153[]
+): PluginCapabilityV153[] {
+  return plugins.map((plugin) =>
+    isCallbackSubscriberPluginV153(plugin)
+      ? "callback-subscriber"
+      : "damage-modifier"
+  );
+}
+
+function createPluginCallbackSubscriptions(
+  plugins: readonly SimulationRuntimePluginV153[]
+): SimulationRunManifest["pluginCallbackSubscriptions"] {
+  return plugins.map((plugin) =>
+    isCallbackSubscriberPluginV153(plugin)
+      ? plugin.subscriptions.map((subscription) => ({
+          eventKind: subscription.eventKind,
+          subscriberKey: subscription.subscriberKey
+        }))
+      : []
+  );
+}
+
 interface ActiveDamageModifierPlugin {
+  pluginManifestIndex: number;
   descriptor: DamageModifierPlugin["descriptor"];
   runtime: DamageModifierPluginRuntime;
 }
 
 function instantiateDamagePlugins(
-  plugins: readonly DamageModifierPlugin[]
+  plugins: readonly SimulationRuntimePluginV153[]
 ): ActiveDamageModifierPlugin[] {
-  return plugins.map((plugin) => {
+  return plugins.flatMap((plugin, pluginManifestIndex) => {
+    if (!isDamageModifierPluginV153(plugin)) return [];
     const runtime = plugin.createRuntime();
     if (
       runtime === null ||
@@ -1237,11 +1469,179 @@ function instantiateDamagePlugins(
         `Damage plugin "${plugin.descriptor.id}" returned an invalid runtime.`
       );
     }
-    return {
+    return [{
+      pluginManifestIndex,
       descriptor: plugin.descriptor,
       runtime
-    };
+    }];
   });
+}
+
+interface FreezeBrokenCallbackDispatchContext {
+  eventIndex: 0 | 1 | 2 | 3 | 4;
+  eventKind: CallbackBusEventKindV153;
+  frame: number;
+  targetFrame: number | null;
+  timeSeconds: number;
+  targetId: SimulationResult["frozenStateLog"][number]["targetId"];
+  targetName: string;
+  generation: number;
+  sourceFrozenStateLogId: number;
+  freezeBrokenAttackLogId: number;
+  payload: Readonly<
+    FreezeBrokenCallbackPayloadMapV153[CallbackBusEventKindV153]
+  >;
+}
+
+type FreezeBrokenCallbackDispatchPayloads = {
+  [Kind in CallbackBusEventKindV153]: FreezeBrokenCallbackDispatchContext;
+};
+
+type FreezeBrokenCallbackOutcomes = {
+  [Kind in CallbackBusEventKindV153]: CallbackSubscriberOutcomeV153;
+};
+
+interface FreezeBrokenCallbackEventIndexByKind {
+  "on-aura-durability-depleted-frozen": 0;
+  "on-apply-attack-freeze-broken": 1;
+  "on-enemy-hit-freeze-broken": 2;
+  "on-enemy-damage-freeze-broken-zero": 3;
+  "attack-callback-freeze-broken": 4;
+}
+
+interface CallbackPluginSource {
+  pluginManifestIndex: number;
+  pluginId: string;
+}
+
+interface ActiveCallbackBus {
+  bus: TypedCallbackBus<
+    FreezeBrokenCallbackDispatchPayloads,
+    FreezeBrokenCallbackOutcomes
+  >;
+  registrationSourceByLogId: Map<number, CallbackPluginSource>;
+  subscriptionSourceById: Map<number, CallbackPluginSource>;
+}
+
+function exactObjectKeys(
+  value: Record<string, unknown>,
+  expected: readonly string[],
+): boolean {
+  const actual = Object.keys(value).sort();
+  const sortedExpected = [...expected].sort();
+  return (
+    actual.length === sortedExpected.length &&
+    actual.every((key, index) => key === sortedExpected[index])
+  );
+}
+
+function validateCallbackSubscriberOutcome(
+  value: unknown,
+  context: CallbackSubscriberPluginContextV153,
+  pluginId: string,
+): CallbackSubscriberOutcomeV153 {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    (Object.getPrototypeOf(value) !== Object.prototype &&
+      Object.getPrototypeOf(value) !== null)
+  ) {
+    throw new Error(
+      `Callback plugin "${pluginId}" must return a plain structured outcome.`,
+    );
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    record.kind === "no-side-effect" &&
+    exactObjectKeys(record, ["kind"])
+  ) {
+    return Object.freeze({ kind: "no-side-effect" });
+  }
+  if (
+    record.kind === "freeze-broken-audit" &&
+    exactObjectKeys(record, [
+      "kind",
+      "freezeBrokenAttackLogId",
+      "sourceFrozenStateLogId",
+    ]) &&
+    record.freezeBrokenAttackLogId === context.freezeBrokenAttackLogId &&
+    record.sourceFrozenStateLogId === context.sourceFrozenStateLogId
+  ) {
+    return Object.freeze({
+      kind: "freeze-broken-audit",
+      freezeBrokenAttackLogId: context.freezeBrokenAttackLogId,
+      sourceFrozenStateLogId: context.sourceFrozenStateLogId,
+    });
+  }
+  throw new Error(
+    `Callback plugin "${pluginId}" returned an invalid outcome for ${context.eventKind}; audit references must match the current Freeze Broken context exactly.`,
+  );
+}
+
+function instantiateCallbackBus(
+  plugins: readonly SimulationRuntimePluginV153[],
+  enabled: boolean,
+): ActiveCallbackBus {
+  const bus = new TypedCallbackBus<
+    FreezeBrokenCallbackDispatchPayloads,
+    FreezeBrokenCallbackOutcomes
+  >();
+  const registrationSourceByLogId = new Map<number, CallbackPluginSource>();
+  const subscriptionSourceById = new Map<number, CallbackPluginSource>();
+
+  for (const [pluginManifestIndex, plugin] of plugins.entries()) {
+    if (!isCallbackSubscriberPluginV153(plugin)) continue;
+    if (!enabled) {
+      throw new Error(
+        `Callback plugin "${plugin.descriptor.id}" requires callbackBusModel fixed-gcsim-versioned-callback-bus-v2.`,
+      );
+    }
+    const runtime = plugin.createRuntime();
+    if (
+      runtime === null ||
+      typeof runtime !== "object" ||
+      typeof runtime.handleCallback !== "function"
+    ) {
+      throw new Error(
+        `Callback plugin "${plugin.descriptor.id}" returned an invalid runtime.`,
+      );
+    }
+    const source = {
+      pluginManifestIndex,
+      pluginId: plugin.descriptor.id,
+    };
+    for (const subscription of plugin.subscriptions) {
+      const registration = bus.subscribe(
+        subscription.eventKind,
+        subscription.subscriberKey,
+        (dispatchContext) => {
+          const context = Object.freeze({
+            ...dispatchContext,
+            payload: Object.freeze({ ...dispatchContext.payload }),
+            subscriberKey: subscription.subscriberKey,
+          }) as CallbackSubscriberPluginContextV153;
+          return validateCallbackSubscriberOutcome(
+            runtime.handleCallback(context),
+            context,
+            plugin.descriptor.id,
+          );
+        },
+      );
+      registrationSourceByLogId.set(registration.id, source);
+      if (registration.currentSubscriptionId === null) {
+        throw new Error(
+          `Callback plugin "${plugin.descriptor.id}" produced an inactive subscription.`,
+        );
+      }
+      subscriptionSourceById.set(registration.currentSubscriptionId, source);
+    }
+  }
+
+  return {
+    bus,
+    registrationSourceByLogId,
+    subscriptionSourceById,
+  };
 }
 
 interface AppliedDamagePluginChanges {
@@ -1502,8 +1902,14 @@ function simulateConfig(
       `targetTaskModel ${config.targetTaskModel.mode} requires compatibilityMode legal-frame-v1.`
     );
   }
-  const pluginDefinitions = runtimeOptions.plugins ?? [];
+  const pluginDefinitions = normalizeRuntimePlugins(
+    runtimeOptions.plugins ?? [],
+  );
   const pluginManifest = createPluginManifest(
+    pluginDefinitions
+  );
+  const pluginCapabilities = createPluginCapabilities(pluginDefinitions);
+  const pluginCallbackSubscriptions = createPluginCallbackSubscriptions(
     pluginDefinitions
   );
   const runManifest = simulationRunManifestSchema.parse(
@@ -1529,11 +1935,37 @@ function simulateConfig(
       freezeBrokenAttackRoot: resolveFreezeBrokenAttackPolicyRoot(
         config.freezeBrokenAttackModel.policyId,
       ),
+      callbackBusRoot: resolveCallbackBusPolicyRoot(
+        config.callbackBusModel.policyId,
+      ),
       resolvedRuntimeOptions: options,
-      plugins: pluginManifest
+      plugins: pluginManifest,
+      pluginCapabilities,
+      pluginCallbackSubscriptions
     })
   );
-  const plugins = instantiateDamagePlugins(pluginDefinitions);
+  const damagePluginsByManifestIndex = new Map(
+    instantiateDamagePlugins(pluginDefinitions).map((plugin) => [
+      plugin.pluginManifestIndex,
+      plugin,
+    ]),
+  );
+  const callbackBusEnabled =
+    config.callbackBusModel.mode ===
+    "fixed-gcsim-versioned-callback-bus-v2";
+  if (
+    config.freezeBrokenAttackModel.mode ===
+      "fixed-gcsim-freeze-broken-callback-dispatch-v3" &&
+    !callbackBusEnabled
+  ) {
+    throw new Error(
+      "Freeze Broken V3 requires callbackBusModel fixed-gcsim-versioned-callback-bus-v2.",
+    );
+  }
+  const callbackRuntime = instantiateCallbackBus(
+    pluginDefinitions,
+    callbackBusEnabled,
+  );
   const random = new SeededRandom(options.randomSeed);
   const crystallizeRandom = new SeededRandom(
     `${options.randomSeed}:crystallize-shard-position-v1`
@@ -2267,10 +2699,13 @@ function simulateConfig(
     return (
       timeOrder ||
       left.priority - right.priority ||
-      left.sequence - right.sequence
+      (left.queueOrderSequence ?? left.sequence) -
+        (right.queueOrderSequence ?? right.sequence)
     );
   });
   let sequence = 0;
+  let freezeBrokenCallbackTaskSequence = 1_000_000_000;
+  const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
   const push = <TPayload>(
     timeSeconds: number,
     type: InternalEvent["type"],
@@ -2291,6 +2726,38 @@ function simulateConfig(
       return eventSequence;
     }
     return null;
+  };
+  const pushFreezeBrokenCallback = (
+    timeSeconds: number,
+    payload: FreezeBrokenCallbackEventPayload,
+    priority: number,
+    triggerEventSequence: number,
+  ): number | null => {
+    if (timeSeconds > config.duration + 1e-9) return null;
+    const frame = toFrame(timeSeconds);
+    const taskSequence = freezeBrokenCallbackTaskSequence++;
+    const sameTriggerIndex =
+      freezeBrokenCallbackCountByTriggerSequence.get(triggerEventSequence) ?? 0;
+    if (sameTriggerIndex >= 500_000) {
+      throw new Error(
+        `Freeze Broken callback trigger ${triggerEventSequence} exceeded its local FIFO capacity.`,
+      );
+    }
+    freezeBrokenCallbackCountByTriggerSequence.set(
+      triggerEventSequence,
+      sameTriggerIndex + 1,
+    );
+    queue.push({
+      timeSeconds: frameNative ? frame / 60 : timeSeconds,
+      frame,
+      priority,
+      type: "freezeBrokenCallback",
+      payload,
+      sequence: taskSequence,
+      queueOrderSequence:
+        triggerEventSequence + 0.5 + sameTriggerIndex / 1_000_000,
+    });
+    return taskSequence;
   };
   const pushTargetLocal = <TPayload>(
     projectedGlobalFrame: number,
@@ -3104,7 +3571,162 @@ function simulateConfig(
     [];
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
   const freezeBrokenAttackLog: SimulationResult["freezeBrokenAttackLog"] = [];
+  const freezeBrokenCallbackAuditBuffer =
+    new FreezeBrokenCallbackAuditBuffer();
+  const callbackDeliveryLog: SimulationResult["callbackDeliveryLog"] = [];
+  const callbackDeliveryLogIdByEmissionId = new Map<number, number>();
+  const pendingFreezeBrokenCallbacks = new Map<
+    number,
+    PendingFreezeBrokenCallback
+  >();
   const emittedFreezeBrokenTerminalRows = new Set<number>();
+
+  const appendFreezeBrokenCallbackDelivery = <
+    Kind extends CallbackBusEventKindV153,
+  >({
+    eventKind,
+    eventIndex,
+    payload,
+    source,
+    eventPriority,
+    eventSequence,
+    intraEventSequence,
+    parentCallbackDeliveryLogId,
+    phase,
+  }: {
+    eventKind: Kind;
+    eventIndex: FreezeBrokenCallbackEventIndexByKind[Kind];
+    payload: FreezeBrokenCallbackPayloadMapV153[Kind];
+    source: FreezeBrokenCallbackDispatchSource;
+    eventPriority: number;
+    eventSequence: number;
+    intraEventSequence: number;
+    parentCallbackDeliveryLogId: number | null;
+    phase: CallbackDeliveryLogEntryV153["phase"];
+  }): number => {
+    if (!callbackBusEnabled) {
+      throw new Error(
+        "Freeze Broken callback dispatch requires the versioned callback bus.",
+      );
+    }
+    const frozenStateEntry = source.frozenStateEntry;
+    const frozenPayload = Object.freeze({ ...payload });
+    const dispatchContext = Object.freeze({
+      eventKind,
+      eventIndex,
+      frame: frozenStateEntry.frame,
+      targetFrame: frozenStateEntry.targetFrame ?? null,
+      timeSeconds: frozenStateEntry.timeSeconds,
+      targetId: frozenStateEntry.targetId,
+      targetName: frozenStateEntry.targetName,
+      generation: frozenStateEntry.generation,
+      sourceFrozenStateLogId: frozenStateEntry.id,
+      freezeBrokenAttackLogId: source.freezeBrokenAttackLogId,
+      payload: frozenPayload,
+    }) as unknown as FreezeBrokenCallbackDispatchPayloads[Kind];
+    const dispatch = callbackRuntime.bus.dispatch(eventKind, dispatchContext);
+    const callbackDeliveryLogId = callbackDeliveryLog.length;
+    callbackDeliveryLogIdByEmissionId.set(
+      dispatch.emissionId,
+      callbackDeliveryLogId,
+    );
+    const subscriberAttempts: CallbackSubscriberAttemptV153[] =
+      dispatch.attempts.map(
+        (
+          attempt: CallbackBusCompletedDeliveryAttempt<
+            Kind,
+            CallbackSubscriberOutcomeV153
+          >,
+        ) => {
+          const pluginSource =
+            callbackRuntime.subscriptionSourceById.get(
+              attempt.subscriptionId,
+            );
+          return {
+            index: attempt.attemptIndex,
+            slotIndex: attempt.slotIndex,
+            registrationLogId: attempt.registrationLogId,
+            subscriptionId: attempt.subscriptionId,
+            subscriberKey: attempt.subscriberKey,
+            pluginManifestIndex:
+              pluginSource?.pluginManifestIndex ?? null,
+            pluginId: pluginSource?.pluginId ?? null,
+            status: "completed",
+            outcomeVerification:
+              CALLBACK_SUBSCRIBER_OUTCOME_VERIFICATION,
+            outcome: attempt.outcome,
+          };
+        },
+      );
+    const row = {
+      id: callbackDeliveryLogId,
+      eventIndex,
+      eventKind,
+      registryRevision: dispatch.registryRevision,
+      frame: frozenStateEntry.frame,
+      ...(frozenStateEntry.targetFrame === undefined
+        ? {}
+        : { targetFrame: frozenStateEntry.targetFrame }),
+      timeSeconds: frozenStateEntry.timeSeconds,
+      targetId: frozenStateEntry.targetId,
+      targetName: frozenStateEntry.targetName,
+      generation: frozenStateEntry.generation,
+      sourceFrozenStateLogId: frozenStateEntry.id,
+      freezeBrokenAttackLogId: source.freezeBrokenAttackLogId,
+      triggerEventType: source.triggerEventType,
+      triggerEventPriority: source.triggerEventPriority,
+      triggerEventSequence: source.triggerEventSequence,
+      triggerIntraEventSequence: source.triggerIntraEventSequence,
+      eventPriority,
+      eventSequence,
+      intraEventSequence,
+      parentCallbackDeliveryLogId,
+      phase,
+      payload: frozenPayload,
+      subscriberAttempts,
+    } as unknown as CallbackDeliveryLogEntryV153;
+    callbackDeliveryLog.push(row);
+    return callbackDeliveryLogId;
+  };
+
+  const projectCallbackRegistrationLog =
+    (): SimulationResult["callbackRegistrationLog"] =>
+      callbackRuntime.bus.getRegistrationLog().map((entry) => {
+        const pluginSource =
+          callbackRuntime.registrationSourceByLogId.get(entry.id);
+        return {
+          id: entry.id,
+          registryRevision: entry.registryRevision,
+          eventKind: entry.eventKind,
+          subscriberKey: entry.subscriberKey,
+          slotIndex: entry.slotIndex,
+          operation: entry.operation,
+          previousSubscriptionId: entry.previousSubscriptionId,
+          currentSubscriptionId: entry.currentSubscriptionId,
+          sourceKind: pluginSource === undefined ? "core" : "plugin",
+          pluginManifestIndex:
+            pluginSource?.pluginManifestIndex ?? null,
+          pluginId: pluginSource?.pluginId ?? null,
+          subscriberAttemptRefs: entry.subscriberAttemptRefs.map(
+            (reference) => {
+              const callbackDeliveryLogId =
+                callbackDeliveryLogIdByEmissionId.get(
+                  reference.emissionId,
+                );
+              if (callbackDeliveryLogId === undefined) {
+                throw new Error(
+                  `Callback emission ${reference.emissionId} is missing its delivery audit row.`,
+                );
+              }
+              return {
+                callbackDeliveryLogId,
+                attemptIndex: reference.attemptIndex,
+              };
+            },
+          ),
+        };
+      });
+
   const appendFreezeBrokenAttackAudit = ({
     frozenStateEntry,
     depletionDamageEventId,
@@ -3137,6 +3759,90 @@ function simulateConfig(
     emittedFreezeBrokenTerminalRows.add(
       classification.terminalFrozenStateLogId,
     );
+    const triggerIntraEventSequence = nextIntraEventSequence();
+    if (
+      config.freezeBrokenAttackModel.mode ===
+      "fixed-gcsim-freeze-broken-callback-dispatch-v3"
+    ) {
+      const freezeBrokenAttackLogId =
+        freezeBrokenCallbackAuditBuffer.reserve();
+      const source: FreezeBrokenCallbackDispatchSource = {
+        freezeBrokenAttackLogId,
+        frozenStateEntry: deepClone(frozenStateEntry),
+        depletionDamageEventId,
+        sourceFreezeDamageEventId,
+        triggerEventType,
+        triggerEventPriority,
+        triggerEventSequence,
+        triggerIntraEventSequence,
+      };
+      const auraDepletedDeliveryLogId =
+        appendFreezeBrokenCallbackDelivery({
+          eventKind: "on-aura-durability-depleted-frozen",
+          eventIndex: 0,
+          payload: {
+            kind: "frozen-durability-depleted",
+            element: "frozen",
+          },
+          source,
+          eventPriority: triggerEventPriority,
+          eventSequence: triggerEventSequence,
+          intraEventSequence: 0,
+          parentCallbackDeliveryLogId: null,
+          phase: { kind: "same-call-stack-immediate" },
+        });
+      const applyAttackDeliveryLogId =
+        appendFreezeBrokenCallbackDelivery({
+          eventKind: "on-apply-attack-freeze-broken",
+          eventIndex: 1,
+          payload: {
+            kind: "freeze-broken-attack",
+            ability: "Freeze Broken",
+          },
+          source,
+          eventPriority: triggerEventPriority,
+          eventSequence: triggerEventSequence,
+          intraEventSequence: 1,
+          parentCallbackDeliveryLogId: auraDepletedDeliveryLogId,
+          phase: { kind: "same-call-stack-immediate" },
+        });
+      const enemyHitDeliveryLogId =
+        appendFreezeBrokenCallbackDelivery({
+          eventKind: "on-enemy-hit-freeze-broken",
+          eventIndex: 2,
+          payload: {
+            kind: "freeze-broken-attack",
+            ability: "Freeze Broken",
+          },
+          source,
+          eventPriority: triggerEventPriority,
+          eventSequence: triggerEventSequence,
+          intraEventSequence: 2,
+          parentCallbackDeliveryLogId: applyAttackDeliveryLogId,
+          phase: { kind: "same-call-stack-immediate" },
+        });
+      const taskSequence = pushFreezeBrokenCallback(
+        frozenStateEntry.timeSeconds,
+        { freezeBrokenAttackLogId },
+        triggerEventPriority,
+        triggerEventSequence,
+      );
+      if (taskSequence === null) {
+        throw new Error(
+          `Freeze Broken callback task ${freezeBrokenAttackLogId} fell outside the simulation duration.`,
+        );
+      }
+      pendingFreezeBrokenCallbacks.set(freezeBrokenAttackLogId, {
+        source,
+        syncCallbackDeliveryLogIds: [
+          auraDepletedDeliveryLogId,
+          applyAttackDeliveryLogId,
+          enemyHitDeliveryLogId,
+        ],
+        taskSequence,
+      });
+      return;
+    }
     const auditEntry = buildFreezeBrokenAttackLogEntry({
       id: freezeBrokenAttackLog.length,
       mode: config.freezeBrokenAttackModel.mode,
@@ -3147,7 +3853,7 @@ function simulateConfig(
       triggerEventType,
       triggerEventPriority,
       triggerEventSequence,
-      intraEventSequence: nextIntraEventSequence(),
+      intraEventSequence: triggerIntraEventSequence,
     });
     if (auditEntry === null) {
       throw new Error(
@@ -8126,6 +8832,118 @@ function simulateConfig(
     if (!event) break;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
+    if (event.type === "freezeBrokenCallback") {
+      const { freezeBrokenAttackLogId } =
+        event.payload as FreezeBrokenCallbackEventPayload;
+      const pending = pendingFreezeBrokenCallbacks.get(
+        freezeBrokenAttackLogId,
+      );
+      if (
+        pending === undefined ||
+        pending.taskSequence !== event.sequence ||
+        pending.source.frozenStateEntry.frame !== event.frame ||
+        pending.source.frozenStateEntry.timeSeconds !== event.timeSeconds ||
+        pending.source.triggerEventPriority !== event.priority
+      ) {
+        throw new Error(
+          `Freeze Broken callback task ${freezeBrokenAttackLogId} is missing or mismatched.`,
+        );
+      }
+      const scheduledAfterCallbackDeliveryLogId =
+        pending.syncCallbackDeliveryLogIds[2];
+      const referenceRelativeToTriggerEnemyDamage =
+        pending.source.depletionDamageEventId === null
+          ? "not-applicable"
+          : "before";
+      const enemyDamageDeliveryLogId =
+        appendFreezeBrokenCallbackDelivery({
+          eventKind: "on-enemy-damage-freeze-broken-zero",
+          eventIndex: 3,
+          payload: {
+            kind: "freeze-broken-zero-damage",
+            ability: "Freeze Broken",
+            actualDamage: 0,
+            crit: null,
+            rngDisposition: "not-consumed",
+          },
+          source: pending.source,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: 0,
+          parentCallbackDeliveryLogId:
+            scheduledAfterCallbackDeliveryLogId,
+          phase: {
+            kind: "zero-delay-core-task",
+            scheduledAfterCallbackDeliveryLogId,
+            taskSequence: event.sequence,
+            delayFrames: 0,
+            referenceRelativeToTriggerEnemyDamage,
+            localExecutionRelativeToTriggerEvent: "after-current-event",
+          },
+        });
+      const attackCallbackDeliveryLogId =
+        appendFreezeBrokenCallbackDelivery({
+          eventKind: "attack-callback-freeze-broken",
+          eventIndex: 4,
+          payload: {
+            kind: "freeze-broken-attack-callback",
+            ability: "Freeze Broken",
+            suppliedCallbackCount: 0,
+          },
+          source: pending.source,
+          eventPriority: event.priority,
+          eventSequence: event.sequence,
+          intraEventSequence: 1,
+          parentCallbackDeliveryLogId: enemyDamageDeliveryLogId,
+          phase: {
+            kind: "zero-delay-core-task",
+            scheduledAfterCallbackDeliveryLogId,
+            taskSequence: event.sequence,
+            delayFrames: 0,
+            referenceRelativeToTriggerEnemyDamage,
+            localExecutionRelativeToTriggerEvent: "after-current-event",
+          },
+        });
+      const auditEntry = buildFreezeBrokenAttackLogEntry({
+        id: freezeBrokenAttackLogId,
+        mode: config.freezeBrokenAttackModel.mode,
+        frozenStateEntry: pending.source.frozenStateEntry,
+        resolvedActorId: config.characters[0]!.id,
+        depletionDamageEventId:
+          pending.source.depletionDamageEventId,
+        sourceFreezeDamageEventId:
+          pending.source.sourceFreezeDamageEventId,
+        triggerEventType: pending.source.triggerEventType,
+        triggerEventPriority: pending.source.triggerEventPriority,
+        triggerEventSequence: pending.source.triggerEventSequence,
+        intraEventSequence:
+          pending.source.triggerIntraEventSequence,
+        callbackDeliveryLogIds: {
+          sync: pending.syncCallbackDeliveryLogIds,
+          endOfFrame: [
+            enemyDamageDeliveryLogId,
+            attackCallbackDeliveryLogId,
+          ],
+        },
+      });
+      if (
+        auditEntry === null ||
+        auditEntry.executionStatus !==
+          "callback-bus-dispatched-normalized"
+      ) {
+        throw new Error(
+          `Freeze Broken callback task ${freezeBrokenAttackLogId} failed to build its V3 audit row.`,
+        );
+      }
+      freezeBrokenCallbackAuditBuffer.settle(
+        freezeBrokenAttackLogId,
+        auditEntry,
+      );
+      pendingFreezeBrokenCallbacks.delete(freezeBrokenAttackLogId);
+      // This zero-delay callback task is audit-only. It must not wake Aura
+      // decay, target clocks, target cleanup, damage, hit, or RNG machinery.
+      continue;
+    }
     if (event.type === "reactionDamageGroupReset") {
       const { resetLogId, task } =
         event.payload as ReactionDamageGroupResetEventPayload;
@@ -14656,8 +15474,22 @@ function simulateConfig(
       groupMultiplier: configuredDirectDamageGroupMultiplier
     };
     const pluginMultiplierTrace: SimulationResult["directDamageGroupLog"][number]["pluginMultiplierTrace"] = [];
-    for (const [pluginManifestIndex, plugin] of plugins.entries()) {
+    for (const [pluginManifestIndex, definition] of pluginDefinitions.entries()) {
       const inputMultiplier = damageInput.groupMultiplier;
+      const plugin = damagePluginsByManifestIndex.get(pluginManifestIndex);
+      if (plugin === undefined) {
+        // Callback-only plugins retain their position in the historical
+        // unified manifest. This explicit no-change capability placeholder is
+        // not a modifyDamage invocation and grants no damage authority.
+        pluginMultiplierTrace.push({
+          pluginManifestIndex,
+          pluginId: definition.descriptor.id,
+          inputMultiplier,
+          outcome: "no-change",
+          outputMultiplier: inputMultiplier,
+        });
+        continue;
+      }
       const pluginChanges = plugin.runtime.modifyDamage({
         config,
         action,
@@ -16024,6 +16856,19 @@ function simulateConfig(
       ].join(", ")}.`
     );
   }
+  if (pendingFreezeBrokenCallbacks.size > 0) {
+    throw new Error(
+      `Freeze Broken callback tasks were not settled: ${[
+        ...pendingFreezeBrokenCallbacks.keys(),
+      ].join(", ")}.`,
+    );
+  }
+  const settledFreezeBrokenAttackLog =
+    config.freezeBrokenAttackModel.mode ===
+    "fixed-gcsim-freeze-broken-callback-dispatch-v3"
+      ? freezeBrokenCallbackAuditBuffer.assertSettled()
+      : freezeBrokenAttackLog;
+  const callbackRegistrationLog = projectCallbackRegistrationLog();
   const unsettledSchedulerAttachment =
     basicReactionSchedulerLog.find(
       (entry) =>
@@ -16056,7 +16901,7 @@ function simulateConfig(
     compatibilityMode: options.compatibilityMode,
     mechanicsStatus:
       targetMechanicsTruncationLog.length === 0 &&
-      freezeBrokenAttackLog.length === 0
+      settledFreezeBrokenAttackLog.length === 0
         ? "complete"
         : "partial",
     config: resultConfig,
@@ -16076,7 +16921,9 @@ function simulateConfig(
     reactionDamageLog,
     reactionDamageGroupResetLog,
     basicReactionSchedulerLog,
-    freezeBrokenAttackLog,
+    freezeBrokenAttackLog: settledFreezeBrokenAttackLog,
+    callbackRegistrationLog,
+    callbackDeliveryLog,
     reactionTaskLog,
     reactionStatusLog,
     periodicReactionLog,

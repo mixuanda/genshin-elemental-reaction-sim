@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
-    "test": "vitest run --root ../.. packages/icd-profiles/src/profile.test.ts packages/icd-profiles/src/application-profile.test.ts packages/icd-profiles/src/reaction-owned-application-policy.test.ts packages/icd-profiles/src/reaction-damage-group-policy.test.ts packages/icd-profiles/src/freeze-broken-attack-policy.test.ts"
+    "test": "vitest run --root ../.. packages/icd-profiles/src/profile.test.ts packages/icd-profiles/src/application-profile.test.ts packages/icd-profiles/src/reaction-owned-application-policy.test.ts packages/icd-profiles/src/reaction-damage-group-policy.test.ts packages/icd-profiles/src/freeze-broken-attack-policy.test.ts packages/icd-profiles/src/callback-bus-policy.test.ts"
   },
   "sideEffects": false
 }

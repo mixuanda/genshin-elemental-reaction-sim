@@ -28,6 +28,8 @@ import { z } from "zod";
 
 import frozenV145Json from "../../../test-vectors/fixtures/legacy-default-120s-1.45.golden.json";
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "../../../test-vectors/src/v152-compatibility-config";
 import { simulate } from "../simulator";
 
 const UPDATE_FLAG = "UPDATE_LEGACY_DEFAULT_V146_GOLDEN";
@@ -308,7 +310,9 @@ function frozenV145CompatibilityProjection() {
 function makeFixture(
   currentResult: ReturnType<typeof simulate>,
 ): DefaultV146Fixture {
-  const result = projectSimulationResultV152ToV151(currentResult);
+  const result = projectSimulationResultV152ToV151(
+    projectSimulationResultV153ToV152(currentResult),
+  );
   const evaluatedCount = result.directDamageGroupLog.filter(
     (entry) => entry.evaluation === "evaluated",
   ).length;
@@ -441,7 +445,7 @@ function loadOrCreateFixture(
 }
 
 function runDefault() {
-  return simulate(durinMeltPreset, {
+  return simulate(withV152CompatibilityPolicies(durinMeltPreset), {
     energyMode: "configured",
     critMode: "average",
     compatibilityMode: "legacy-v0.1",

@@ -22,6 +22,8 @@ import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const NO_CRIT = {
   critMode: "noCrit",
@@ -31,7 +33,9 @@ const NO_CRIT = {
 function makeThreeBloomConfig(
   reactionDamageGroupModel: ReactionDamageGroupModel,
 ): SimConfig {
-  const base = makeConfig({ reactionDamageGroupModel });
+  const base = withV152CompatibilityPolicies(
+    makeConfig({ reactionDamageGroupModel }),
+  );
   const hydro = {
     ...base.characters[0]!,
     id: "hydro",
@@ -193,7 +197,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
     const currentV150 = projectSimulationResultV151ToV150(
-      projectSimulationResultV152ToV151(current),
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(current),
+      ),
     );
     const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
@@ -257,7 +263,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
     const currentV150 = projectSimulationResultV151ToV150(
-      projectSimulationResultV152ToV151(current),
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(current),
+      ),
     );
     const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
@@ -280,7 +288,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     expect(active.playerDamageEvents.length).toBeGreaterThan(0);
     expect(active.reactionDamageGroupResetLog.length).toBeGreaterThan(0);
     const activeV150 = projectSimulationResultV151ToV150(
-      projectSimulationResultV152ToV151(active),
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(active),
+      ),
     );
     expect(() => projectSimulationResultV150ToV149(activeV150)).toThrow(
       /no faithful V1\.49 wire projection/,
@@ -298,9 +308,14 @@ describe("V1.50 to frozen V1.49 result projection", () => {
       /no faithful V1\.49 wire projection/,
     );
 
-    const inactive = simulate(makeConfig(), NO_CRIT);
+    const inactive = simulate(
+      withV152CompatibilityPolicies(makeConfig()),
+      NO_CRIT,
+    );
     const inactiveV150 = projectSimulationResultV151ToV150(
-      projectSimulationResultV152ToV151(inactive),
+      projectSimulationResultV152ToV151(
+        projectSimulationResultV153ToV152(inactive),
+      ),
     );
     expect(() =>
       projectSimulationResultV150ToV149({

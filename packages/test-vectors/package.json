@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "golden:v153:default:preview": "node scripts/generate-legacy-default-v153.mjs --preview",
+    "golden:v153:default:freeze": "UPDATE_LEGACY_DEFAULT_V153_GOLDEN=1 node scripts/generate-legacy-default-v153.mjs",
     "golden:v152:freeze-broken-attack:preview": "node scripts/generate-freeze-broken-attack-v152.mjs --preview",
     "golden:v152:freeze-broken-attack:freeze": "UPDATE_FREEZE_BROKEN_ATTACK_V152_GOLDEN=1 node scripts/generate-freeze-broken-attack-v152.mjs",
     "golden:v151:basic-reaction-scheduler:preview": "node scripts/generate-basic-reaction-scheduler-v151.mjs --preview",

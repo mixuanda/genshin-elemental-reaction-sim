@@ -65,6 +65,8 @@ import goldenV141Json from "../../../test-vectors/fixtures/legacy-default-120s-1
 import goldenV142Json from "../../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "../../../test-vectors/src/v152-compatibility-config";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -364,6 +366,7 @@ function projectCurrentConfigToFrozenV146(
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...currentWithoutApplicationModel
   } = structuredClone(config);
   const projected = projectApplicationsToFrozenV146Wire(
@@ -381,7 +384,9 @@ function projectCurrentManifestToFrozenV146(
   result: ReturnType<typeof simulate>,
   frozenConfig: SimConfigV146,
 ): SimulationRunManifestV146 {
-  const historicalResult = projectSimulationResultV152ToV151(result);
+  const historicalResult = projectSimulationResultV152ToV151(
+    projectSimulationResultV153ToV152(result),
+  );
   const {
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
@@ -912,7 +917,9 @@ function makeLegacyDefaultV145CreationProbeFixture(
   result: ReturnType<typeof simulate>,
   frozenV144: LegacyDefaultV144Fixture,
 ): LegacyDefaultV145Fixture {
-  const historicalResult = projectSimulationResultV152ToV151(result);
+  const historicalResult = projectSimulationResultV152ToV151(
+    projectSimulationResultV153ToV152(result),
+  );
   const {
     directDamageGroupRoot: _directDamageGroupRoot,
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
@@ -1085,6 +1092,8 @@ function v130CompatibilityResult(
     reactionDamageGroupResetLog: _reactionDamageGroupResetLog,
     basicReactionSchedulerLog: _basicReactionSchedulerLog,
     freezeBrokenAttackLog: _freezeBrokenAttackLog,
+    callbackRegistrationLog: _callbackRegistrationLog,
+    callbackDeliveryLog: _callbackDeliveryLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -1116,7 +1125,8 @@ function v130CompatibilityResult(
               key !== "elementalApplicationIcdModel" &&
               key !== "reactionOwnedElementalApplicationModel" &&
               key !== "reactionDamageGroupModel" &&
-              key !== "basicReactionSchedulerModel",
+              key !== "basicReactionSchedulerModel" &&
+              key !== "callbackBusModel",
           ),
         ),
         schemaVersion: "1.30.0",
@@ -1165,6 +1175,7 @@ function makeBurningGoldenConfig(): unknown {
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...v130Base
   } = base;
   return {
@@ -1487,7 +1498,7 @@ describe("default 1.45 Golden creation gate", () => {
       generatedV144,
       frozenV142,
     );
-    const result = simulate(durinMeltPreset, {
+    const result = simulate(withV152CompatibilityPolicies(durinMeltPreset), {
       energyMode: "configured",
       critMode: "average",
       compatibilityMode: "legacy-v0.1",
@@ -1677,6 +1688,7 @@ describe("1.44 identity migration release gate", () => {
           mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
           policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
         },
+        callbackBusModel: makeConfig().callbackBusModel,
       });
       expect(historical).toEqual(before);
     });
@@ -1704,6 +1716,7 @@ describe("1.44 identity migration release gate", () => {
       reactionDamageGroupModel: makeConfig().reactionDamageGroupModel,
       basicReactionSchedulerModel: makeConfig().basicReactionSchedulerModel,
       freezeBrokenAttackModel: makeConfig().freezeBrokenAttackModel,
+      callbackBusModel: makeConfig().callbackBusModel,
     };
     expect(migrateConfig(currentAuraV8)).toEqual(currentAuraV8);
     expect(migrateConfig(currentAuraV8).reactionEngine?.mode).toBe("aura-v8");
@@ -1718,8 +1731,14 @@ describe("Vanilla v0.1 golden compatibility", () => {
       compatibilityMode: "legacy-v0.1",
       randomSeed: golden.options.randomSeed,
     } as const;
-    const result = simulate(durinMeltPreset, options);
-    const repeated = simulate(durinMeltPreset, options);
+    const result = simulate(
+      withV152CompatibilityPolicies(durinMeltPreset),
+      options,
+    );
+    const repeated = simulate(
+      withV152CompatibilityPolicies(durinMeltPreset),
+      options,
+    );
     expect(repeated).toEqual(result);
     expect(playerDamageResultReferencesSchema.parse(result)).toEqual(result);
     expect(playerDamageResultReferencesSchema.parse(repeated)).toEqual(

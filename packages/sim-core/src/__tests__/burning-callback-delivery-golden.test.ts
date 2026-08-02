@@ -28,6 +28,7 @@ import { GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID } from "@genshin-dps-lab/icd-p
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "../../../test-vectors/src/project-v153-to-v152";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -360,6 +361,7 @@ function projectCurrentConfigToFrozenV144(config: SimConfig): SimConfigV144 {
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...frozenCommon
   } = config;
   const legacyWire = structuredClone(frozenCommon);
@@ -796,7 +798,9 @@ describe("Burning callback delivery 1.44 Golden", () => {
     expect(assertTrustedSimulationResult(first)).toBe(first);
     const frozenV149TargetPhaseFacet = projectSimulationResultV150ToV149(
       projectSimulationResultV151ToV150(
-        projectSimulationResultV152ToV151(first),
+        projectSimulationResultV152ToV151(
+          projectSimulationResultV153ToV152(first),
+        ),
       ),
     );
     expect(

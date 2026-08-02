@@ -7,9 +7,15 @@ import {
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ROOT,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
@@ -25,6 +31,9 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ROOT,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
@@ -41,6 +50,9 @@ import {
   BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
   BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_RUN_MANIFEST_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   BURNING_REACTION_ENGINE_VERSION,
@@ -133,9 +145,12 @@ import {
   type SimConfigV150,
   type SimConfigV151,
   type SimConfigV152,
+  type SimConfigV153,
   type SimulationRunManifest,
   type SimulationRunManifestV150,
-  type SimulationRunManifestV151
+  type SimulationRunManifestV151,
+  type SimulationRunManifestV152,
+  type SimulationRunManifestV153
 } from "./types";
 import {
   canonicalStringify,
@@ -784,9 +799,42 @@ export const freezeBrokenAttackModelV2Schema = z
   })
   .strict();
 
+export const freezeBrokenAttackModelV3Schema = z
+  .object({
+    mode: z.literal(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE),
+    policyId: z.literal(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID)
+  })
+  .strict();
+
+/** Frozen 1.52 wire union; V3 is a 1.53-only callback-bus contract. */
+export const freezeBrokenAttackModelV152Schema = z.discriminatedUnion(
+  "mode",
+  [freezeBrokenAttackModelV1Schema, freezeBrokenAttackModelV2Schema]
+);
+
 export const freezeBrokenAttackModelSchema = z.discriminatedUnion("mode", [
   freezeBrokenAttackModelV1Schema,
-  freezeBrokenAttackModelV2Schema
+  freezeBrokenAttackModelV2Schema,
+  freezeBrokenAttackModelV3Schema
+]);
+
+export const callbackBusModelV1Schema = z
+  .object({
+    mode: z.literal(LEGACY_CALLBACK_BUS_POLICY_V1_MODE),
+    policyId: z.literal(LEGACY_CALLBACK_BUS_POLICY_V1_ID)
+  })
+  .strict();
+
+export const callbackBusModelV2Schema = z
+  .object({
+    mode: z.literal(GCSIM_CALLBACK_BUS_POLICY_V2_MODE),
+    policyId: z.literal(GCSIM_CALLBACK_BUS_POLICY_V2_ID)
+  })
+  .strict();
+
+export const callbackBusModelSchema = z.discriminatedUnion("mode", [
+  callbackBusModelV1Schema,
+  callbackBusModelV2Schema
 ]);
 
 const swirlPropagationElementSchema = z.enum([
@@ -1212,7 +1260,7 @@ export const basicReactionSchedulerRootV2Schema = z.preprocess(
     },
     {
       message:
-        "must exactly equal the compiled current basic-reaction scheduler root"
+        "must exactly equal the compiled V2 basic-reaction scheduler root"
     }
   )
 );
@@ -1227,6 +1275,9 @@ const legacyFreezeBrokenAttackV1RootCanonical = canonicalStringify(
 );
 const gcsimFreezeBrokenAttackV2RootCanonical = canonicalStringify(
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT
+);
+const gcsimFreezeBrokenAttackV3RootCanonical = canonicalStringify(
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT
 );
 
 export const freezeBrokenAttackRootV1Schema = z.preprocess(
@@ -1264,14 +1315,81 @@ export const freezeBrokenAttackRootV2Schema = z.preprocess(
     },
     {
       message:
-        "must exactly equal the compiled current Freeze Broken attack root"
+        "must exactly equal the compiled V2 Freeze Broken attack root"
     }
   )
 );
 
-export const freezeBrokenAttackRootSchema = z.union([
+export const freezeBrokenAttackRootV3Schema = z.preprocess(
+  rejectNonPlainJsonWire("freezeBrokenAttackRoot"),
+  z.custom<typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimFreezeBrokenAttackV3RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled V3 Freeze Broken attack root"
+    }
+  )
+);
+
+/** Frozen 1.52 root union. */
+export const freezeBrokenAttackRootV152Schema = z.union([
   freezeBrokenAttackRootV1Schema,
   freezeBrokenAttackRootV2Schema
+]);
+
+export const freezeBrokenAttackRootSchema = z.union([
+  freezeBrokenAttackRootV1Schema,
+  freezeBrokenAttackRootV2Schema,
+  freezeBrokenAttackRootV3Schema
+]);
+
+const legacyCallbackBusV1RootCanonical = canonicalStringify(
+  LEGACY_CALLBACK_BUS_POLICY_V1_ROOT
+);
+const gcsimCallbackBusV2RootCanonical = canonicalStringify(
+  GCSIM_CALLBACK_BUS_POLICY_V2_ROOT
+);
+
+export const callbackBusRootV1Schema = z.preprocess(
+  rejectNonPlainJsonWire("callbackBusRoot"),
+  z.custom<typeof LEGACY_CALLBACK_BUS_POLICY_V1_ROOT>(
+    (value) => {
+      try {
+        return canonicalStringify(value) === legacyCallbackBusV1RootCanonical;
+      } catch {
+        return false;
+      }
+    },
+    { message: "must exactly equal the compiled legacy callback-bus root" }
+  )
+);
+
+export const callbackBusRootV2Schema = z.preprocess(
+  rejectNonPlainJsonWire("callbackBusRoot"),
+  z.custom<typeof GCSIM_CALLBACK_BUS_POLICY_V2_ROOT>(
+    (value) => {
+      try {
+        return canonicalStringify(value) === gcsimCallbackBusV2RootCanonical;
+      } catch {
+        return false;
+      }
+    },
+    { message: "must exactly equal the compiled current callback-bus root" }
+  )
+);
+
+export const callbackBusRootSchema = z.union([
+  callbackBusRootV1Schema,
+  callbackBusRootV2Schema
 ]);
 
 const simulationRunManifestV142ValueSchema = z
@@ -2046,7 +2164,7 @@ const simulationRunManifestV152ValueSchema = z
       reactionOwnedElementalApplicationRootSchema,
     reactionDamageGroupRoot: reactionDamageGroupRootSchema,
     basicReactionSchedulerRoot: basicReactionSchedulerRootSchema,
-    freezeBrokenAttackRoot: freezeBrokenAttackRootSchema,
+    freezeBrokenAttackRoot: freezeBrokenAttackRootV152Schema,
     reproducibilityKey: z
       .string()
       .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
@@ -2107,12 +2225,193 @@ export const simulationRunManifestV152Schema = z.preprocess(
   simulationRunManifestV152ValueSchema
 );
 
+const simulationRunManifestV153ValueSchema = z
+  .object({
+    version: z.literal(CALLBACK_BUS_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(REPRODUCIBILITY_IDENTITY_ALGORITHM),
+    schemaVersion: z.literal(CALLBACK_BUS_SCHEMA_VERSION),
+    engineVersion: z.literal(CALLBACK_BUS_ENGINE_VERSION),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions: resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    pluginCapabilities: z.array(
+      z.enum(["damage-modifier", "callback-subscriber"])
+    ),
+    pluginCallbackSubscriptions: z.array(
+      z.array(
+        z
+          .object({
+            eventKind: z.enum([
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callback-freeze-broken"
+            ]),
+            subscriberKey: wireNonEmptyStringSchema
+          })
+          .strict()
+      )
+    ),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot: elementalApplicationIcdRootSchema,
+    reactionOwnedElementalApplicationRoot:
+      reactionOwnedElementalApplicationRootSchema,
+    reactionDamageGroupRoot: reactionDamageGroupRootSchema,
+    basicReactionSchedulerRoot: basicReactionSchedulerRootSchema,
+    freezeBrokenAttackRoot: freezeBrokenAttackRootSchema,
+    callbackBusRoot: callbackBusRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    if (manifest.pluginCapabilities.length !== manifest.plugins.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["pluginCapabilities"],
+        message: "must contain exactly one capability per plugin entry"
+      });
+    }
+    if (
+      manifest.pluginCallbackSubscriptions.length !== manifest.plugins.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["pluginCallbackSubscriptions"],
+        message:
+          "must contain exactly one ordered subscription list per plugin entry"
+      });
+    }
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+
+      const capability = manifest.pluginCapabilities[index];
+      const subscriptions = manifest.pluginCallbackSubscriptions[index];
+      if (
+        capability === "damage-modifier" &&
+        subscriptions !== undefined &&
+        subscriptions.length !== 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["pluginCallbackSubscriptions", index],
+          message: "damage-modifier plugin slots must not declare callbacks"
+        });
+      }
+      if (subscriptions !== undefined) {
+        const declaredBindings = new Set<string>();
+        for (const [subscriptionIndex, subscription] of
+          subscriptions.entries()) {
+          const binding = `${subscription.eventKind}\u0000${subscription.subscriberKey}`;
+          if (declaredBindings.has(binding)) {
+            context.addIssue({
+              code: "custom",
+              path: [
+                "pluginCallbackSubscriptions",
+                index,
+                subscriptionIndex
+              ],
+              message:
+                "must not duplicate an eventKind/subscriberKey binding within one plugin slot"
+            });
+          }
+          declaredBindings.add(binding);
+        }
+      }
+    }
+
+    const freezePolicyId = manifest.freezeBrokenAttackRoot.policyId;
+    const callbackBusPolicyId = manifest.callbackBusRoot.policyId;
+    const legacyCompatible =
+      (freezePolicyId === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID ||
+        freezePolicyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID) &&
+      callbackBusPolicyId === LEGACY_CALLBACK_BUS_POLICY_V1_ID;
+    const callbackDispatched =
+      freezePolicyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID &&
+      callbackBusPolicyId === GCSIM_CALLBACK_BUS_POLICY_V2_ID;
+    if (!legacyCompatible && !callbackDispatched) {
+      context.addIssue({
+        code: "custom",
+        path: ["callbackBusRoot", "policyId"],
+        message:
+          "callback-bus root is not a legal pair for the selected Freeze Broken attack root"
+      });
+    }
+    if (
+      callbackBusPolicyId === LEGACY_CALLBACK_BUS_POLICY_V1_ID &&
+      manifest.pluginCapabilities.includes("callback-subscriber")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["pluginCapabilities"],
+        message:
+          "callback-subscriber capability requires the fixed callback bus V2"
+      });
+    }
+
+    const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;
+    const expectedKey = createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message: "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV153Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(input, context);
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot",
+        "reactionOwnedElementalApplicationRoot",
+        "reactionDamageGroupRoot",
+        "basicReactionSchedulerRoot",
+        "freezeBrokenAttackRoot",
+        "callbackBusRoot",
+        "pluginCapabilities",
+        "pluginCallbackSubscriptions"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV153ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
- * CURRENT cannot silently change persisted 1.42 result validation.
+ * CURRENT cannot silently change persisted result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV152Schema;
+  simulationRunManifestV153Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -2130,14 +2429,19 @@ export function parseSimulationRunManifestForConfig(
 export function parseSimulationRunManifestForConfig(
   input: unknown,
   config: SimConfigV152
-): SimulationRunManifest;
+): SimulationRunManifestV152;
 export function parseSimulationRunManifestForConfig(
   input: unknown,
-  config: SimConfigV150 | SimConfigV151 | SimConfigV152
+  config: SimConfigV153
+): SimulationRunManifestV153;
+export function parseSimulationRunManifestForConfig(
+  input: unknown,
+  config: SimConfigV150 | SimConfigV151 | SimConfigV152 | SimConfigV153
 ):
   | SimulationRunManifestV150
   | SimulationRunManifestV151
-  | SimulationRunManifest {
+  | SimulationRunManifestV152
+  | SimulationRunManifestV153 {
   const isFrozenV150 =
     config.schemaVersion ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
@@ -2146,11 +2450,16 @@ export function parseSimulationRunManifestForConfig(
   const isFrozenV151 =
     config.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
     config.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+  const isFrozenV152 =
+    config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+    config.engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
   const manifest = isFrozenV150
     ? simulationRunManifestV150Schema.parse(input)
     : isFrozenV151
       ? simulationRunManifestV151Schema.parse(input)
-      : simulationRunManifestV152Schema.parse(input);
+      : isFrozenV152
+        ? simulationRunManifestV152Schema.parse(input)
+        : simulationRunManifestV153Schema.parse(input);
   const formulaModel = reactionFormulaModelSchema.safeParse(
     config.reactionFormulaModel
   );
@@ -2211,14 +2520,29 @@ export function parseSimulationRunManifestForConfig(
     }
   }
   if (!isFrozenV150 && !isFrozenV151) {
-    const freezeBrokenModel = freezeBrokenAttackModelSchema.safeParse(
-      config.freezeBrokenAttackModel
-    );
+    const freezeBrokenModel = (isFrozenV152
+      ? freezeBrokenAttackModelV152Schema
+      : freezeBrokenAttackModelSchema
+    ).safeParse(config.freezeBrokenAttackModel);
     if (
       !freezeBrokenModel.success ||
       !("freezeBrokenAttackRoot" in manifest) ||
       manifest.freezeBrokenAttackRoot.policyId !==
         freezeBrokenModel.data.policyId
+    ) {
+      throw new Error(
+        "Simulation run manifest is not bound to the supplied migrated config."
+      );
+    }
+  }
+  if (!isFrozenV150 && !isFrozenV151 && !isFrozenV152) {
+    const callbackBusModel = callbackBusModelSchema.safeParse(
+      config.callbackBusModel
+    );
+    if (
+      !callbackBusModel.success ||
+      !("callbackBusRoot" in manifest) ||
+      manifest.callbackBusRoot.policyId !== callbackBusModel.data.policyId
     ) {
       throw new Error(
         "Simulation run manifest is not bound to the supplied migrated config."
@@ -10642,6 +10966,19 @@ const hasExactFreezeBrokenAttackIdentity = (result: {
   result.config?.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
   result.config.engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
 
+const hasExactCallbackBusIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION &&
+  result.engineVersion === CALLBACK_BUS_ENGINE_VERSION &&
+  result.config?.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION &&
+  result.config.engineVersion === CALLBACK_BUS_ENGINE_VERSION;
+
 const hasReactionDamageGroupTaskOrderIdentity = (
   result: Parameters<
     typeof hasExactReactionDamageGroupResetBoundaryIdentity
@@ -10649,7 +10986,8 @@ const hasReactionDamageGroupTaskOrderIdentity = (
 ): boolean =>
   hasExactReactionDamageGroupResetBoundaryIdentity(result) ||
   hasExactBasicReactionSchedulerIdentity(result) ||
-  hasExactFreezeBrokenAttackIdentity(result);
+  hasExactFreezeBrokenAttackIdentity(result) ||
+  hasExactCallbackBusIdentity(result);
 
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
@@ -10753,6 +11091,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [FREEZE_BROKEN_ATTACK_SCHEMA_VERSION]: {
     engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [CALLBACK_BUS_SCHEMA_VERSION]: {
+    engineVersion: CALLBACK_BUS_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -17379,7 +17721,7 @@ const simConfigV152ValueSchema = z
 
     const rawModel = wire.freezeBrokenAttackModel;
     let parsedModel:
-      | ReturnType<typeof freezeBrokenAttackModelSchema.safeParse>
+      | ReturnType<typeof freezeBrokenAttackModelV152Schema.safeParse>
       | undefined;
     if (!isRecord(rawModel)) {
       context.addIssue({
@@ -17398,7 +17740,7 @@ const simConfigV152ValueSchema = z
           });
         }
       }
-      parsedModel = freezeBrokenAttackModelSchema.safeParse(rawModel);
+      parsedModel = freezeBrokenAttackModelV152Schema.safeParse(rawModel);
       if (!parsedModel.success) {
         for (const issue of parsedModel.error.issues) {
           context.addIssue({
@@ -17455,11 +17797,169 @@ export const simConfigV152Schema = z.preprocess(
   simConfigV152ValueSchema
 );
 
+/** Project the 1.53 callback-bus identity onto frozen 1.52 for common checks. */
+const projectSimConfigV153ToV152 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    callbackBusModel: _callbackBusModel,
+    freezeBrokenAttackModel,
+    ...frozenWire
+  } = wire;
+  const projectedFreezeBrokenAttackModel =
+    isRecord(freezeBrokenAttackModel) &&
+    freezeBrokenAttackModel.policyId ===
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID
+      ? {
+          mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+          policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+        }
+      : freezeBrokenAttackModel;
+  return {
+    ...frozenWire,
+    schemaVersion: FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
+    engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+    freezeBrokenAttackModel: projectedFreezeBrokenAttackModel
+  };
+};
+
+const simConfigV153ValueSchema = z
+  .custom<SimConfigV153>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .transform((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (wire.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${CALLBACK_BUS_SCHEMA_VERSION}`
+      });
+    }
+    if (wire.engineVersion !== CALLBACK_BUS_ENGINE_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${CALLBACK_BUS_ENGINE_VERSION}`
+      });
+    }
+
+    const parseExplicitModel = <T extends z.ZodTypeAny>(
+      field: "freezeBrokenAttackModel" | "callbackBusModel",
+      schema: T
+    ) => {
+      const rawModel = wire[field];
+      if (!isRecord(rawModel)) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "requires an explicit compiled policy selection"
+        });
+        return undefined;
+      }
+      for (const property of ["mode", "policyId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, property)) {
+          context.addIssue({
+            code: "custom",
+            path: [field, property],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel = schema.safeParse(rawModel);
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: [field, ...issue.path]
+          });
+        }
+      }
+      return parsedModel;
+    };
+
+    const freezeBrokenModel = parseExplicitModel(
+      "freezeBrokenAttackModel",
+      freezeBrokenAttackModelSchema
+    );
+    const callbackBusModel = parseExplicitModel(
+      "callbackBusModel",
+      callbackBusModelSchema
+    );
+    if (freezeBrokenModel?.success && callbackBusModel?.success) {
+      const freezePolicyId = freezeBrokenModel.data.policyId;
+      const callbackPolicyId = callbackBusModel.data.policyId;
+      const legacyCompatible =
+        (freezePolicyId === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID ||
+          freezePolicyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID) &&
+        callbackPolicyId === LEGACY_CALLBACK_BUS_POLICY_V1_ID;
+      const callbackDispatched =
+        freezePolicyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID &&
+        callbackPolicyId === GCSIM_CALLBACK_BUS_POLICY_V2_ID;
+      if (!legacyCompatible && !callbackDispatched) {
+        context.addIssue({
+          code: "custom",
+          path: ["callbackBusModel", "policyId"],
+          message:
+            "callback-bus policy is not a legal pair for the selected Freeze Broken attack policy"
+        });
+      }
+    }
+
+    const parsed = simConfigV152Schema.safeParse(
+      projectSimConfigV153ToV152(wire)
+    );
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
+    }
+
+    if (
+      !parsed.success ||
+      freezeBrokenModel?.success !== true ||
+      callbackBusModel?.success !== true ||
+      context.issues.length > 0
+    ) {
+      return z.NEVER;
+    }
+
+    return {
+      ...parsed.data,
+      schemaVersion: CALLBACK_BUS_SCHEMA_VERSION,
+      engineVersion: CALLBACK_BUS_ENGINE_VERSION,
+      freezeBrokenAttackModel: freezeBrokenModel.data,
+      callbackBusModel: callbackBusModel.data
+    } as SimConfigV153;
+  });
+
+export const simConfigV153Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(input, context);
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel",
+        "reactionOwnedElementalApplicationModel",
+        "reactionDamageGroupModel",
+        "basicReactionSchedulerModel",
+        "freezeBrokenAttackModel",
+        "callbackBusModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV153ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
- * move this alias; the explicit V142/V144/V145 schemas remain frozen.
+ * move this alias; every explicit historical schema remains frozen.
  */
-export const simConfigSchema = simConfigV152Schema;
+export const simConfigSchema = simConfigV153Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -17530,6 +18030,9 @@ const simResultConfigSchema = z
     const exact151Identity =
       wire.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
       wire.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+    const exact152Identity =
+      wire.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+      wire.engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -17606,7 +18109,9 @@ const simResultConfigSchema = z
                     ? simConfigV150Schema.safeParse(wire)
                     : exact151Identity
                       ? simConfigV151Schema.safeParse(wire)
-                      : simConfigV152Schema.safeParse(wire);
+                      : exact152Identity
+                        ? simConfigV152Schema.safeParse(wire)
+                        : simConfigV153Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -18463,7 +18968,8 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [BASIC_REACTION_SCHEDULER_SCHEMA_VERSION]:
     BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
   [FREEZE_BROKEN_ATTACK_SCHEMA_VERSION]:
-    FREEZE_BROKEN_ATTACK_ENGINE_VERSION
+    FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+  [CALLBACK_BUS_SCHEMA_VERSION]: CALLBACK_BUS_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -18709,7 +19215,9 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.config.schemaVersion ===
         BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
       result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
-      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+      result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION ||
+      result.config.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -20516,7 +21024,9 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.config.schemaVersion ===
         BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
       result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
-      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+      result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION ||
+      result.config.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -22759,7 +23269,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
       ),
       z.literal(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION),
-      z.literal(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION)
+      z.literal(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION),
+      z.literal(CALLBACK_BUS_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -22775,7 +23286,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
       ),
       z.literal(BASIC_REACTION_SCHEDULER_ENGINE_VERSION),
-      z.literal(FREEZE_BROKEN_ATTACK_ENGINE_VERSION)
+      z.literal(FREEZE_BROKEN_ATTACK_ENGINE_VERSION),
+      z.literal(CALLBACK_BUS_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -32423,6 +32935,11 @@ const LEGACY_FREEZE_BROKEN_ATTACK_MODEL = {
   policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
 } as const;
 
+const LEGACY_CALLBACK_BUS_MODEL = {
+  mode: LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
+  policyId: LEGACY_CALLBACK_BUS_POLICY_V1_ID
+} as const;
+
 function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unknown> {
   const meta = isRecord(input.meta) ? input.meta : {};
   const migratedApplications =
@@ -32441,6 +32958,7 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     basicReactionSchedulerModel:
       LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
     freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+    callbackBusModel: LEGACY_CALLBACK_BUS_MODEL,
     meta: {
       name:
         typeof meta.name === "string" && meta.name
@@ -32558,6 +33076,7 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
       ["reactionDamageGroupModel", ["mode", "policyId"]],
       ["basicReactionSchedulerModel", ["mode", "policyId"]],
       ["freezeBrokenAttackModel", ["mode", "policyId"]],
+      ["callbackBusModel", ["mode", "policyId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -32989,8 +33508,56 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
+  const isCallbackBusIdentity = version === CALLBACK_BUS_SCHEMA_VERSION;
+  if (!isCallbackBusIdentity && "callbackBusModel" in input) {
+    const historicalVersion =
+      version === undefined ? LEGACY_SCHEMA_VERSION : String(version);
+    const issue = `callbackBusModel: schemaVersion "${historicalVersion}" does not support callback-bus policy selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isCallbackBusIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(input, "callbackBusModel") ||
+      !isRecord(input.callbackBusModel)
+    ) {
+      const issue =
+        `callbackBusModel: schemaVersion "${String(version)}" requires an explicit callback-bus policy`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "policyId"] as const) {
+      if (!Object.prototype.hasOwnProperty.call(input.callbackBusModel, field)) {
+        const issue =
+          `callbackBusModel.${field}: schemaVersion "${String(version)}" requires an explicit own policy identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+    const parsedCallbackBusModel = callbackBusModelSchema.safeParse(
+      input.callbackBusModel
+    );
+    if (!parsedCallbackBusModel.success) {
+      const issues = formatZodError(parsedCallbackBusModel.error).map(
+        (issue) => `callbackBusModel.${issue}`
+      );
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+  }
   const isFreezeBrokenAttackIdentity =
-    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+    version === CALLBACK_BUS_SCHEMA_VERSION;
   if (
     !isFreezeBrokenAttackIdentity &&
     "freezeBrokenAttackModel" in input
@@ -33034,9 +33601,10 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       }
     }
     const parsedFreezeBrokenAttackModel =
-      freezeBrokenAttackModelSchema.safeParse(
-        input.freezeBrokenAttackModel
-      );
+      (version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION
+        ? freezeBrokenAttackModelV152Schema
+        : freezeBrokenAttackModelSchema
+      ).safeParse(input.freezeBrokenAttackModel);
     if (!parsedFreezeBrokenAttackModel.success) {
       const issues = formatZodError(
         parsedFreezeBrokenAttackModel.error
@@ -33051,7 +33619,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isBasicReactionSchedulerIdentity =
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
-    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+    version === CALLBACK_BUS_SCHEMA_VERSION;
   if (
     !isBasicReactionSchedulerIdentity &&
     "basicReactionSchedulerModel" in input
@@ -33116,6 +33685,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     findElementalApplicationIcdSelectorPath(input);
   const isElementalApplicationIcdIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
@@ -33173,6 +33743,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isReactionOwnedApplicationIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
@@ -33247,6 +33818,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     version ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === CURRENT_SCHEMA_VERSION;
   if (
     !isReactionDamageGroupIdentity &&
@@ -33312,6 +33884,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
@@ -33366,6 +33939,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentDirectDamageGroupIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
@@ -33426,6 +34000,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
     version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
@@ -33849,6 +34424,24 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   ) {
     return parseSimConfig(migrateLegacyConfig(input));
   }
+  if (version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION) {
+    const frozen = simConfigV152Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
+    });
+  }
   if (version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) {
     const frozen = simConfigV151Schema.safeParse(input);
     if (!frozen.success) {
@@ -33864,7 +34457,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       ...frozen.data,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (
@@ -33891,7 +34485,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       engineVersion: CURRENT_ENGINE_VERSION,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (version === CURRENT_SCHEMA_VERSION) {
@@ -33919,7 +34514,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION) {
@@ -33941,7 +34537,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION) {
@@ -33967,7 +34564,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION) {
@@ -33999,7 +34597,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
@@ -34035,7 +34634,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
         LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+      callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
     });
   }
   input = {
@@ -34060,7 +34660,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       LEGACY_REACTION_DAMAGE_GROUP_MODEL,
     basicReactionSchedulerModel:
       LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
-    freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+    freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
+    callbackBusModel: LEGACY_CALLBACK_BUS_MODEL
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {
     return parseSimConfig({

@@ -1,0 +1,743 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Native V1.53 callback-bus identity and exact 120-second default compatibility baseline.",
+  "provenance": {
+    "source": "simulate(durinMeltPreset) with Freeze Broken V3 and callback bus V2",
+    "capturedAt": "2026-08-02",
+    "verificationStatus": "reviewed-provisional",
+    "note": "Regression baseline only. Character, weapon, artifact, and action values remain illustrative magic numbers rather than verified game data. The default Melt preset has no terminal Frozen transition, so the V1.53 callback sidecar is empty and its complete combat projection must equal the frozen V1.52 compatibility run. This is neither official server truth nor complete gcsim parity.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "currentIdentity": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "runManifestVersion": "1.9.0",
+    "dataVersion": "0.1.0-demo",
+    "randomSeed": "legacy-default",
+    "configHash": "fnv1a32:db7a4a8e",
+    "reproducibilityKey": "gdl-v2-fnv1a32-584649fa",
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+      "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3"
+    },
+    "callbackBusModel": {
+      "mode": "fixed-gcsim-versioned-callback-bus-v2",
+      "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2"
+    },
+    "runManifest": {
+      "version": "1.9.0",
+      "identityAlgorithm": "fnv1a32-v2",
+      "schemaVersion": "1.53.0",
+      "engineVersion": "1.53.0-callback-bus",
+      "dataVersion": "0.1.0-demo",
+      "configHash": "fnv1a32:db7a4a8e",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "average",
+        "compatibilityMode": "legacy-v0.1",
+        "randomSeed": "legacy-default"
+      },
+      "plugins": [],
+      "pluginCapabilities": [],
+      "pluginCallbackSubscriptions": [],
+      "reactionFormulaRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1",
+        "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false
+      },
+      "directDamageGroupRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "damage-group-reset-and-damage-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      },
+      "elementalApplicationIcdRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "elemental-application-reset-and-numeric-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+        "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+        "provisional": true
+      },
+      "reactionOwnedElementalApplicationRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+        "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "elementalApplicationRootRef": {
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+        "resetTimerDataSource": "referenced-elemental-application-root",
+        "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+        "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+        "provisional": true
+      },
+      "reactionDamageGroupRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "damageGroupRootRef": {
+          "version": "1.0.0",
+          "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+          "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+          "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "tailPolicy": "clamp-last",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+        "scopeKeyFields": [
+          "receivingTargetId",
+          "sourceActorId",
+          "icdTag"
+        ],
+        "damageSourceInScopeKey": false,
+        "resetBoundary": "scheduled-reset-task",
+        "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+        "resetFrameOffsetAdjustment": -1,
+        "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+        "schedulerProvenance": "provisional-not-complete",
+        "provisional": true
+      },
+      "basicReactionSchedulerRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+        "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+        "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+        "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+        "attackResolutionPhase": "immediate-core-task",
+        "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+        "includedReactions": [
+          "burning",
+          "swirl"
+        ],
+        "intentionalDeviations": [
+          "burning-monotonic-generation-guard"
+        ],
+        "provisional": true
+      },
+      "freezeBrokenAttackRoot": {
+        "version": "3.0.0",
+        "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3",
+        "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+        "contentHash": "sha256:7c6b09c56e2e70fcdee5907045cdd29e1c81474c700c0685c6b3684a34eb298b",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "callbackSurface": "versioned-callback-bus-dispatch-audit",
+        "callbackDisposition": "callback-bus-dispatched-normalized",
+        "requiredCallbackBusPolicyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2",
+        "triggerSources": [
+          "natural-decay",
+          "poise",
+          "shatter",
+          "swirl-frozen",
+          "crystallize-frozen"
+        ],
+        "excludedReactionSources": [
+          "melt",
+          "superconduct"
+        ],
+        "executionStatus": "callback-bus-dispatched-normalized",
+        "auditDisposition": "structured-callback-bus-dispatch-log",
+        "callbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+        "dispatchSequence": [
+          "on-aura-durability-depleted-frozen",
+          "on-apply-attack-freeze-broken",
+          "on-enemy-hit-freeze-broken",
+          "on-enemy-damage-freeze-broken-zero",
+          "attack-callback-freeze-broken"
+        ],
+        "dispatchPhases": {
+          "auraDurabilityDepleted": "same-call-stack-synchronous",
+          "applyAttack": "same-call-stack-synchronous-after-aura-durability-depleted",
+          "enemyHit": "same-call-stack-synchronous-after-apply-attack",
+          "enemyDamage": "zero-delay-end-of-frame",
+          "attackCallback": "zero-delay-end-of-frame-after-enemy-damage"
+        },
+        "normalizedDepletionThreshold": 1e-10,
+        "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "hitResolutionDisposition": "emit-none",
+        "physicsDisposition": "not-modeled",
+        "intentionalDeviations": [
+          "collapse-zero-durability-duplicate-to-exactly-once",
+          "consume-no-crit-rng",
+          "emit-no-synthetic-damage-event",
+          "emit-no-synthetic-hit-resolution",
+          "normalize-depletion-threshold-from-1e-11-to-1e-10",
+          "model-no-general-enemy-physics-or-impulse",
+          "callback-subscriber-side-effects-unimplemented",
+          "mona-bubble-and-impulse-side-effects-unimplemented"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-depletion-callback-bus-dispatch-and-local-normalization-only",
+        "provisional": true
+      },
+      "callbackBusRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2",
+        "mode": "fixed-gcsim-versioned-callback-bus-v2",
+        "contentHash": "sha256:e9a07c467716a1b5bf63859945262a3abc3c54ae7407f124d0a68cc7ec380696",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "implementationStatus": "typed-deterministic-normalized-provisional",
+        "dispatchSurface": "freeze-broken-attack-only",
+        "eventKinds": [
+          "on-aura-durability-depleted",
+          "on-apply-attack",
+          "on-enemy-hit",
+          "on-enemy-damage",
+          "attack-callback"
+        ],
+        "phaseOrder": [
+          {
+            "ordinal": 0,
+            "eventKind": "on-aura-durability-depleted",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "before-on-apply-attack"
+          },
+          {
+            "ordinal": 1,
+            "eventKind": "on-apply-attack",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "after-aura-depleted-before-on-enemy-hit"
+          },
+          {
+            "ordinal": 2,
+            "eventKind": "on-enemy-hit",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "after-on-apply-attack-before-zero-delay-task"
+          },
+          {
+            "ordinal": 3,
+            "eventKind": "on-enemy-damage",
+            "deliveryPhase": "zero-delay-end-of-frame-task",
+            "relativeOrder": "before-attack-callback"
+          },
+          {
+            "ordinal": 4,
+            "eventKind": "attack-callback",
+            "deliveryPhase": "same-zero-delay-end-of-frame-task",
+            "relativeOrder": "after-on-enemy-damage"
+          }
+        ],
+        "deliveryOrdering": "active-slot-insertion-order",
+        "duplicateKeyDisposition": "replace-handler-in-original-slot-without-reordering",
+        "unsubscribeDisposition": "set-handler-null-and-retain-slot-tombstone",
+        "mutationDuringDispatchDisposition": "reject",
+        "reentrantDispatchDisposition": "reject",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "intentionalDeviations": [
+          "reject-subscription-mutation-during-dispatch",
+          "reject-reentrant-dispatch",
+          "consume-no-freeze-broken-crit-rng",
+          "emit-no-freeze-broken-damage-event",
+          "audit-empty-attack-callback-phase",
+          "expose-readonly-context-and-structured-outcomes-only"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-broken-five-phase-callback-dispatch-and-subscriber-lifecycle-only",
+        "provisional": true
+      },
+      "reproducibilityKey": "gdl-v2-fnv1a32-584649fa"
+    }
+  },
+  "baseline": {
+    "options": {
+      "energyMode": "configured",
+      "critMode": "average",
+      "compatibilityMode": "legacy-v0.1",
+      "randomSeed": "legacy-default"
+    },
+    "totalDamage": 41410555.13728799,
+    "dps": 345087.9594773999,
+    "hitCount": 269,
+    "reactedHits": 129,
+    "skippedActionCount": 3,
+    "byCharacter": {
+      "nicole": 740338.5919263127,
+      "citlali": 77244.84267655843,
+      "durin": 38779268.124040276,
+      "lohen": 1813703.5786448019
+    },
+    "byAbility": [
+      {
+        "creditId": "durin",
+        "actionName": "杜林 黑 Q",
+        "damage": 33960210.24410402,
+        "hits": 103
+      },
+      {
+        "creditId": "durin",
+        "actionName": "杜林 黑 E",
+        "damage": 3173673.996688688,
+        "hits": 18
+      },
+      {
+        "creditId": "lohen",
+        "actionName": "洛恩站场输出",
+        "damage": 1813703.5786448019,
+        "hits": 78
+      },
+      {
+        "creditId": "durin",
+        "actionName": "尼可 Q",
+        "damage": 1645383.8832475687,
+        "hits": 10
+      },
+      {
+        "creditId": "nicole",
+        "actionName": "尼可 Q",
+        "damage": 577890.9248479266,
+        "hits": 3
+      },
+      {
+        "creditId": "nicole",
+        "actionName": "尼可 E",
+        "damage": 162447.66707838603,
+        "hits": 6
+      },
+      {
+        "creditId": "citlali",
+        "actionName": "茜特菈莉 E",
+        "damage": 77244.84267655843,
+        "hits": 51
+      }
+    ]
+  },
+  "callbackSidecarAudit": {
+    "freezeBrokenAttackRowCount": 0,
+    "callbackRegistrationRowCount": 0,
+    "callbackDeliveryRowCount": 0,
+    "freezeBrokenAttackCanonicalSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "callbackRegistrationCanonicalSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "callbackDeliveryCanonicalSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "combatAudit": {
+    "projectionCanonicalSha256": "c01d9d4100d79cbccbcaf4a2a7a38b7f88d42915832fdc34a8b23880a8380345",
+    "damageEventsCanonicalSha256": "fdc919a2837738e5a0d643b1d1e75c9d950722e2b5860b1b4ff600361a93d294",
+    "hitResolutionLogCanonicalSha256": "52b02ad6cca372ed604784bab13e1d69624cc76f902f9e416426e73259ba30f2",
+    "damageCurveCanonicalSha256": "42346652d9b2be6ffa4651ba582ce83e94f52d82bcc7cce09fee281257b5e5cf",
+    "actionLogCanonicalSha256": "3e55710af4e217230ee5565f55e940cbea5dde9c43bcebdcaaeb4954aee58d89",
+    "skippedActionsCanonicalSha256": "2d85b812a7c686dfa10dd8190cc109e39e36042d5dccdea5fdffb6e99ca40738"
+  },
+  "v152Compatibility": {
+    "schemaVersion": "1.52.0",
+    "engineVersion": "1.52.0-freeze-broken-attack",
+    "runManifestVersion": "1.8.0",
+    "configHash": "fnv1a32:d5ff8c6f",
+    "reproducibilityKey": "gdl-v2-fnv1a32-800355a4",
+    "freezeBrokenAttackModel": {
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+    },
+    "freezeBrokenAttackRoot": {
+      "version": "2.0.0",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2",
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "contentHash": "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14",
+      "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pinnedGcsimReference": true,
+      "mechanicsStatus": "partial",
+      "callbackSurface": "audit-only-until-callback-bus-bubble-and-impulse-implementation",
+      "callbackDisposition": "reference-audit-only-not-dispatched",
+      "triggerSources": [
+        "natural-decay",
+        "poise",
+        "shatter",
+        "swirl-frozen",
+        "crystallize-frozen"
+      ],
+      "excludedReactionSources": [
+        "melt",
+        "superconduct"
+      ],
+      "executionStatus": "reference-audit-only-not-dispatched",
+      "auditDisposition": "reference-audit-only-not-dispatched",
+      "plannedCallbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+      "normalizedDepletionThreshold": 1e-10,
+      "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+      "rngDisposition": "consume-none",
+      "damageEventDisposition": "emit-none",
+      "intentionalDeviations": [
+        "collapse-zero-durability-duplicate-to-exactly-once",
+        "consume-no-crit-rng",
+        "emit-no-synthetic-damage-event",
+        "normalize-depletion-threshold-from-1e-11-to-1e-10",
+        "callback-subscriber-side-effects-unimplemented",
+        "mona-bubble-and-impulse-bus-unimplemented"
+      ],
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "freeze-depletion-callback-trigger-sources-and-local-normalization-only",
+      "provisional": true
+    },
+    "runManifest": {
+      "version": "1.8.0",
+      "identityAlgorithm": "fnv1a32-v2",
+      "schemaVersion": "1.52.0",
+      "engineVersion": "1.52.0-freeze-broken-attack",
+      "dataVersion": "0.1.0-demo",
+      "configHash": "fnv1a32:d5ff8c6f",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "average",
+        "compatibilityMode": "legacy-v0.1",
+        "randomSeed": "legacy-default"
+      },
+      "plugins": [],
+      "reactionFormulaRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1",
+        "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false
+      },
+      "directDamageGroupRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "damage-group-reset-and-damage-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      },
+      "elementalApplicationIcdRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "elemental-application-reset-and-numeric-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+        "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+        "provisional": true
+      },
+      "reactionOwnedElementalApplicationRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+        "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "elementalApplicationRootRef": {
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+        "resetTimerDataSource": "referenced-elemental-application-root",
+        "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+        "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+        "provisional": true
+      },
+      "reactionDamageGroupRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "damageGroupRootRef": {
+          "version": "1.0.0",
+          "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+          "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+          "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "tailPolicy": "clamp-last",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+        "scopeKeyFields": [
+          "receivingTargetId",
+          "sourceActorId",
+          "icdTag"
+        ],
+        "damageSourceInScopeKey": false,
+        "resetBoundary": "scheduled-reset-task",
+        "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+        "resetFrameOffsetAdjustment": -1,
+        "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+        "schedulerProvenance": "provisional-not-complete",
+        "provisional": true
+      },
+      "basicReactionSchedulerRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+        "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+        "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+        "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+        "attackResolutionPhase": "immediate-core-task",
+        "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+        "includedReactions": [
+          "burning",
+          "swirl"
+        ],
+        "intentionalDeviations": [
+          "burning-monotonic-generation-guard"
+        ],
+        "provisional": true
+      },
+      "freezeBrokenAttackRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2",
+        "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+        "contentHash": "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "callbackSurface": "audit-only-until-callback-bus-bubble-and-impulse-implementation",
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "triggerSources": [
+          "natural-decay",
+          "poise",
+          "shatter",
+          "swirl-frozen",
+          "crystallize-frozen"
+        ],
+        "excludedReactionSources": [
+          "melt",
+          "superconduct"
+        ],
+        "executionStatus": "reference-audit-only-not-dispatched",
+        "auditDisposition": "reference-audit-only-not-dispatched",
+        "plannedCallbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+        "normalizedDepletionThreshold": 1e-10,
+        "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "intentionalDeviations": [
+          "collapse-zero-durability-duplicate-to-exactly-once",
+          "consume-no-crit-rng",
+          "emit-no-synthetic-damage-event",
+          "normalize-depletion-threshold-from-1e-11-to-1e-10",
+          "callback-subscriber-side-effects-unimplemented",
+          "mona-bubble-and-impulse-bus-unimplemented"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-depletion-callback-trigger-sources-and-local-normalization-only",
+        "provisional": true
+      },
+      "reproducibilityKey": "gdl-v2-fnv1a32-800355a4"
+    },
+    "baseline": {
+      "options": {
+        "energyMode": "configured",
+        "critMode": "average",
+        "compatibilityMode": "legacy-v0.1",
+        "randomSeed": "legacy-default"
+      },
+      "totalDamage": 41410555.13728799,
+      "dps": 345087.9594773999,
+      "hitCount": 269,
+      "reactedHits": 129,
+      "skippedActionCount": 3,
+      "byCharacter": {
+        "nicole": 740338.5919263127,
+        "citlali": 77244.84267655843,
+        "durin": 38779268.124040276,
+        "lohen": 1813703.5786448019
+      },
+      "byAbility": [
+        {
+          "creditId": "durin",
+          "actionName": "杜林 黑 Q",
+          "damage": 33960210.24410402,
+          "hits": 103
+        },
+        {
+          "creditId": "durin",
+          "actionName": "杜林 黑 E",
+          "damage": 3173673.996688688,
+          "hits": 18
+        },
+        {
+          "creditId": "lohen",
+          "actionName": "洛恩站场输出",
+          "damage": 1813703.5786448019,
+          "hits": 78
+        },
+        {
+          "creditId": "durin",
+          "actionName": "尼可 Q",
+          "damage": 1645383.8832475687,
+          "hits": 10
+        },
+        {
+          "creditId": "nicole",
+          "actionName": "尼可 Q",
+          "damage": 577890.9248479266,
+          "hits": 3
+        },
+        {
+          "creditId": "nicole",
+          "actionName": "尼可 E",
+          "damage": 162447.66707838603,
+          "hits": 6
+        },
+        {
+          "creditId": "citlali",
+          "actionName": "茜特菈莉 E",
+          "damage": 77244.84267655843,
+          "hits": 51
+        }
+      ]
+    },
+    "combatProjectionCanonicalSha256": "c01d9d4100d79cbccbcaf4a2a7a38b7f88d42915832fdc34a8b23880a8380345"
+  },
+  "historicalV149": {
+    "fixtureByteSha256": "961505ccb95b536c3563ebeb95ec114f236f3872850df2cb98e5bc8bb5218931",
+    "baseline": {
+      "options": {
+        "energyMode": "configured",
+        "critMode": "average",
+        "compatibilityMode": "legacy-v0.1",
+        "randomSeed": "legacy-default"
+      },
+      "totalDamage": 41410555.13728799,
+      "dps": 345087.9594773999,
+      "hitCount": 269,
+      "reactedHits": 129,
+      "skippedActionCount": 3,
+      "byCharacter": {
+        "nicole": 740338.5919263127,
+        "citlali": 77244.84267655843,
+        "durin": 38779268.124040276,
+        "lohen": 1813703.5786448019
+      },
+      "byAbility": [
+        {
+          "creditId": "durin",
+          "actionName": "杜林 黑 Q",
+          "damage": 33960210.24410402,
+          "hits": 103
+        },
+        {
+          "creditId": "durin",
+          "actionName": "杜林 黑 E",
+          "damage": 3173673.996688688,
+          "hits": 18
+        },
+        {
+          "creditId": "lohen",
+          "actionName": "洛恩站场输出",
+          "damage": 1813703.5786448019,
+          "hits": 78
+        },
+        {
+          "creditId": "durin",
+          "actionName": "尼可 Q",
+          "damage": 1645383.8832475687,
+          "hits": 10
+        },
+        {
+          "creditId": "nicole",
+          "actionName": "尼可 Q",
+          "damage": 577890.9248479266,
+          "hits": 3
+        },
+        {
+          "creditId": "nicole",
+          "actionName": "尼可 E",
+          "damage": 162447.66707838603,
+          "hits": 6
+        },
+        {
+          "creditId": "citlali",
+          "actionName": "茜特菈莉 E",
+          "damage": 77244.84267655843,
+          "hits": 51
+        }
+      ]
+    }
+  },
+  "limitations": {
+    "defaultPresetTerminalFrozenTransitionCount": 0,
+    "covered": [
+      "current-native-default-reproducibility-identity",
+      "exact-default-damage-and-hit-aggregates",
+      "complete-v153-v152-combat-projection-equality",
+      "empty-callback-sidecar-for-default-melt-preset"
+    ],
+    "omitted": [
+      "official-character-weapon-and-artifact-data-validation",
+      "complete-aura-icd-particle-and-action-frame-parity",
+      "official-server-validation",
+      "complete-gcsim-parity"
+    ]
+  }
+}

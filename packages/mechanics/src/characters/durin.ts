@@ -1,10 +1,12 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -460,8 +462,12 @@ export function createDurinBlackSkillAuditConfig(
       policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
     },
     freezeBrokenAttackModel: {
-      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID
+    },
+    callbackBusModel: {
+      mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+      policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
@@ -598,8 +604,12 @@ export function createDurinWhiteSkillAuditConfig(
       policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
     },
     freezeBrokenAttackModel: {
-      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID
+    },
+    callbackBusModel: {
+      mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+      policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",

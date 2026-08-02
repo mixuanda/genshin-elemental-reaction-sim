@@ -490,6 +490,7 @@ function normalizeIdentityForFrozenV141(
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     ...frozenConfigCommon
   } = result.config;
   const legacyWire = structuredClone(frozenConfigCommon);

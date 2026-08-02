@@ -35,6 +35,8 @@ import {
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const PREVIEW_FLAG = "PREVIEW_BASIC_REACTION_SCHEDULER_V151_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BASIC_REACTION_SCHEDULER_V151_GOLDEN";
@@ -88,9 +90,7 @@ const scenarioSchema = z
         dataVersion: z.string().min(1),
         randomSeed: z.string().min(1),
         configHash: z.string().regex(/^fnv1a32:[0-9a-f]{8}$/),
-        reproducibilityKey: z
-          .string()
-          .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
+        reproducibilityKey: z.string().regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
         selectedModel: basicReactionSchedulerModelSchema,
         selectedRoot: basicReactionSchedulerRootSchema,
         runManifest: simulationRunManifestV151Schema,
@@ -128,9 +128,7 @@ const fixtureSchema = z
     provenance: z
       .object({
         sourceProject: z.literal("genshinsim/gcsim"),
-        sourceRevision: z.literal(
-          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-        ),
+        sourceRevision: z.literal("b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"),
         capturedAt: z.literal("2026-08-02"),
         verificationStatus: z.literal("reviewed-provisional"),
         note: z.string().min(1),
@@ -345,11 +343,13 @@ function runScenario(
 ): SimulationResultForV151 {
   const config = makeSameFrameMixedSwirlConfig(model);
   return projectSimulationResultV152ToV151(
-    simulate(config, {
-      compatibilityMode: "legal-frame-v1",
-      critMode: "noCrit",
-      randomSeed: config.randomSeed,
-    }),
+    projectSimulationResultV153ToV152(
+      simulate(withV152CompatibilityPolicies(config), {
+        compatibilityMode: "legal-frame-v1",
+        critMode: "noCrit",
+        randomSeed: config.randomSeed,
+      }),
+    ),
   );
 }
 
@@ -368,9 +368,7 @@ function scenarioFixture(result: SimulationResultForV151) {
       sourceActorId: event.sourceActorId as "anemo-pyro" | "anemo-cryo",
       targetId: "enemy-0" as const,
       reaction: event.reaction as "swirlPyro" | "swirlCryo",
-      nestedReaction: event.reactionAudit.reaction as
-        | "none"
-        | "reverseMelt",
+      nestedReaction: event.reactionAudit.reaction as "none" | "reverseMelt",
       finalDamage: event.finalDamage,
       displayDamage: event.displayDamage,
     }));
@@ -441,8 +439,7 @@ function makeFixture(
       "Reviewed V1.51 same-frame mixed-Swirl scheduler Golden comparing the frozen immediate-attachment compatibility mode with the deferred zero-delay attachment mode.",
     provenance: {
       sourceProject: "genshinsim/gcsim" as const,
-      sourceRevision:
-        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const,
+      sourceRevision: "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const,
       capturedAt: "2026-08-02" as const,
       verificationStatus: "reviewed-provisional" as const,
       note: "The V2 attack-then-zero-delay-attachment order is source-derived from pinned gcsim scheduler and enemy attack paths. The legacy scenario freezes prior local behavior. Neither scenario is official server truth or a claim of complete gcsim parity.",
@@ -529,9 +526,7 @@ describe("Basic reaction scheduler 1.51 Golden review gate", () => {
       return;
     }
     expect(exists).toBe(true);
-    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(
-      REVIEWED_FIXTURE_SHA256,
-    );
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
   });
 });
 

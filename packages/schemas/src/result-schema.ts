@@ -20,6 +20,8 @@ import {
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
@@ -57,6 +59,7 @@ import {
   type SimulationResultForV150,
   type SimulationResultForV151,
   type SimulationResultForV152,
+  type SimulationResultForV153,
   type VersionedSimulationResult
 } from "./types";
 import {
@@ -69,10 +72,27 @@ import {
   validateSimulationResultV149Integrity,
   validateSimulationResultV150Integrity,
   validateSimulationResultV151Integrity,
-  validateSimulationResultV152Integrity
+  validateSimulationResultV152Integrity,
+  validateSimulationResultV153Integrity
 } from "./result-integrity";
-import { freezeBrokenAttackLogEntrySchema } from "./freeze-broken-attack-result-schema";
-export { freezeBrokenAttackLogEntrySchema } from "./freeze-broken-attack-result-schema";
+import {
+  freezeBrokenAttackLogEntrySchema,
+  freezeBrokenAttackLogEntryV153Schema
+} from "./freeze-broken-attack-result-schema";
+export {
+  freezeBrokenAttackLogEntrySchema,
+  freezeBrokenAttackLogEntryV153Schema
+} from "./freeze-broken-attack-result-schema";
+import {
+  callbackDeliveryLogEntryV153Schema,
+  callbackRegistrationLogEntryV153Schema
+} from "./callback-bus-result-schema";
+export {
+  callbackBusEventKindV153Schema,
+  callbackDeliveryLogEntryV153Schema,
+  callbackRegistrationLogEntryV153Schema,
+  callbackSubscriberAttemptV153Schema
+} from "./callback-bus-result-schema";
 import {
   actorPoseDefinitionSchema,
   auraGaugeEntrySchema,
@@ -121,6 +141,7 @@ import {
   simConfigV150Schema,
   simConfigV151Schema,
   simConfigV152Schema,
+  simConfigV153Schema,
   simulationEventTypeSchema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
@@ -132,6 +153,7 @@ import {
   simulationRunManifestV150Schema,
   simulationRunManifestV151Schema,
   simulationRunManifestV152Schema,
+  simulationRunManifestV153Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -6902,10 +6924,120 @@ export type SimulationResultV152 = z.output<
   typeof simulationResultV152Schema
 >;
 
+/** Current 1.53 result wire with strict callback registry and delivery logs. */
+export const simulationResultV153ValueSchema = z
+  .object({
+    ...simulationResultV152ValueSchema.shape,
+    schemaVersion: z.literal(CALLBACK_BUS_SCHEMA_VERSION),
+    engineVersion: z.literal(CALLBACK_BUS_ENGINE_VERSION),
+    runManifest: simulationRunManifestV153Schema,
+    config: simConfigV153Schema,
+    freezeBrokenAttackLog: z.array(
+      z.union([
+        freezeBrokenAttackLogEntrySchema,
+        freezeBrokenAttackLogEntryV153Schema
+      ])
+    ),
+    callbackRegistrationLog: z.array(
+      callbackRegistrationLogEntryV153Schema
+    ),
+    callbackDeliveryLog: z.array(callbackDeliveryLogEntryV153Schema)
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const frozenReferenceView =
+      projectV150ResultForFrozenReferenceFacets(
+        result as unknown as SimulationResultForV150
+      );
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType,
+      view: unknown = frozenReferenceView
+    ): void => {
+      const parsed = schema.safeParse(view);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema,
+        result
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV153Integrity(
+      result as SimulationResultForV153,
+      context
+    );
+  });
+
+export const simulationResultV153Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.53"),
+  simulationResultV153ValueSchema
+);
+
+export type SimulationResultV153 = z.output<
+  typeof simulationResultV153Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema =
-  simulationResultV152Schema;
-export type ParsedSimulationResult = SimulationResultV152;
+export const simulationResultSchema = simulationResultV153Schema;
+export type ParsedSimulationResult = SimulationResultV153;
 
 /** Strict public parser for exact frozen/current result identities. */
 export function parseVersionedSimulationResult(
@@ -6920,6 +7052,14 @@ export function parseVersionedSimulationResult(
   const wire = cleanInput;
   const schemaVersion = wire.schemaVersion;
   const engineVersion = wire.engineVersion;
+  if (
+    schemaVersion === CALLBACK_BUS_SCHEMA_VERSION &&
+    engineVersion === CALLBACK_BUS_ENGINE_VERSION
+  ) {
+    return simulationResultV153Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
   if (
     schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
     engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION

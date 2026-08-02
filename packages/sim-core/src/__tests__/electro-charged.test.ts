@@ -191,7 +191,7 @@ function expectRejectedAtBothBoundaries(
     ).toMatch(expectedIssue);
   }
   expect(() => assertTrustedSimulationResult(result)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 

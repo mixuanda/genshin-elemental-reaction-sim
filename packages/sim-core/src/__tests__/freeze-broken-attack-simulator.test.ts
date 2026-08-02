@@ -1,6 +1,10 @@
 import {
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
@@ -10,8 +14,8 @@ import type {
   SimConfig,
 } from "@genshin-dps-lab/schemas";
 import {
-  assertTrustedSimulationResultV152,
-  simulationResultV152Schema,
+  assertTrustedSimulationResultV153,
+  simulationResultV153Schema,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it, vi } from "vitest";
 
@@ -27,6 +31,16 @@ const V1_MODEL = {
 const V2_MODEL = {
   mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+} as const;
+
+const V3_MODEL = {
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+} as const;
+
+const BUS_V2_MODEL = {
+  mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+  policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID,
 } as const;
 
 type FreezeBrokenModel = SimConfig["freezeBrokenAttackModel"];
@@ -249,6 +263,14 @@ function withModel(config: SimConfig, model: FreezeBrokenModel): SimConfig {
   return { ...structuredClone(config), freezeBrokenAttackModel: model };
 }
 
+function withV3(config: SimConfig): SimConfig {
+  return {
+    ...structuredClone(config),
+    freezeBrokenAttackModel: V3_MODEL,
+    callbackBusModel: BUS_V2_MODEL,
+  };
+}
+
 function expectNoCombatOutputDelta(
   v1: ReturnType<typeof simulate>,
   v2: ReturnType<typeof simulate>,
@@ -284,9 +306,9 @@ function requireFreezeBrokenRow(result: SimulationOutput) {
 }
 
 function expectPublicAndTrustedResultRejected(result: SimulationOutput): void {
-  expect(simulationResultV152Schema.safeParse(result).success).toBe(false);
-  expect(() => assertTrustedSimulationResultV152(result)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+  expect(simulationResultV153Schema.safeParse(result).success).toBe(false);
+  expect(() => assertTrustedSimulationResultV153(result)).toThrow(
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -402,7 +424,7 @@ function simulateWithRandomTrace(config: SimConfig): {
   }
 }
 
-describe("Freeze Broken V1.52 simulator matrix", () => {
+describe("Freeze Broken V1.53 compatibility simulator matrix", () => {
   it.each(ELIGIBLE_SCENARIOS)(
     "emits exactly one audit-only V2 row for $name",
     ({ config, reaction, operation, sourceFreezeDamageEventId }) => {
@@ -449,6 +471,38 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
     },
   );
 
+  it.each(ELIGIBLE_SCENARIOS)(
+    "dispatches exactly five V3 callback phases for $name",
+    ({ config, reaction, operation }) => {
+      const base = config();
+      const v2 = simulate(withModel(base, V2_MODEL), { critMode: "noCrit" });
+      const v3 = simulate(withV3(base), { critMode: "noCrit" });
+
+      expect(v3.freezeBrokenAttackLog).toHaveLength(1);
+      expect(v3.freezeBrokenAttackLog[0]).toMatchObject({
+        id: 0,
+        reaction,
+        depletionOperation: operation,
+        executionStatus: "callback-bus-dispatched-normalized",
+        syncPhase: { callbackDeliveryLogIds: [0, 1, 2] },
+        endOfFramePhase: { callbackDeliveryLogIds: [3, 4] },
+        damageEventId: null,
+        hitResolutionLogId: null,
+      });
+      expect(v3.callbackRegistrationLog).toEqual([]);
+      expect(v3.callbackDeliveryLog.map((entry) => entry.eventIndex)).toEqual([
+        0, 1, 2, 3, 4,
+      ]);
+      expect(
+        v3.callbackDeliveryLog.every(
+          (entry) => entry.subscriberAttempts.length === 0,
+        ),
+      ).toBe(true);
+      expect(v3.mechanicsStatus).toBe("partial");
+      expectNoCombatOutputDelta(v2, v3);
+    },
+  );
+
   it.each([
     {
       name: "Melt",
@@ -471,20 +525,22 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
       reaction: "superconduct",
     },
   ])("excludes terminal $name consumption", ({ followup, reaction }) => {
-    const result = simulate(makeFreezeBrokenConfig({ followups: [followup] }), {
-      critMode: "noCrit",
-    });
+    const result = simulate(
+      withV3(makeFreezeBrokenConfig({ followups: [followup] })),
+      { critMode: "noCrit" },
+    );
 
     expect(result.frozenStateLog).toContainEqual(
       expect.objectContaining({ reaction, operation: "consume" }),
     );
     expect(result.freezeBrokenAttackLog).toEqual([]);
+    expect(result.callbackDeliveryLog).toEqual([]);
     expect(result.mechanicsStatus).toBe("complete");
   });
 
   it("does not trigger on partial Frozen consumption", () => {
     const result = simulate(
-      makeFreezeBrokenConfig({
+      withV3(makeFreezeBrokenConfig({
         followups: [
           {
             id: "partial-swirl",
@@ -493,7 +549,7 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
             gaugeUnits: 1,
           },
         ],
-      }),
+      })),
       { critMode: "noCrit" },
     );
 
@@ -507,6 +563,7 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
       }),
     );
     expect(result.freezeBrokenAttackLog).toEqual([]);
+    expect(result.callbackDeliveryLog).toEqual([]);
     expect(result.mechanicsStatus).toBe("complete");
   });
 
@@ -556,18 +613,18 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
       }),
     ]);
     expect(result.mechanicsStatus).toBe("partial");
-    expect(simulationResultV152Schema.safeParse(result).success).toBe(true);
+    expect(simulationResultV153Schema.safeParse(result).success).toBe(true);
 
     const forgedLegacyPrimaryLabelProjection = structuredClone(result);
     forgedLegacyPrimaryLabelProjection.frozenStateLog.find(
       (entry) => entry.triggerDamageEventId === mixedHit?.id,
     )!.reaction = "freeze";
     expect(
-      simulationResultV152Schema.safeParse(forgedLegacyPrimaryLabelProjection)
+      simulationResultV153Schema.safeParse(forgedLegacyPrimaryLabelProjection)
         .success,
     ).toBe(false);
     expect(() =>
-      assertTrustedSimulationResultV152(forgedLegacyPrimaryLabelProjection),
+      assertTrustedSimulationResultV153(forgedLegacyPrimaryLabelProjection),
     ).toThrow(/Frozen state reaction must equal swirlCryo; received freeze/);
   });
 
@@ -661,6 +718,7 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
     // live seeded-RNG probe after the ordinary average-crit hit.
     const v1 = simulateWithRandomTrace(withModel(config, V1_MODEL));
     const v2 = simulateWithRandomTrace(withModel(config, V2_MODEL));
+    const v3 = simulateWithRandomTrace(withV3(config));
     const v2Audit = requireFreezeBrokenRow(v2.result);
     const v1Probe = v1.result.damageEvents.find(
       (event) => event.hitId === "post-expiry-rng-probe-hit",
@@ -671,6 +729,7 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
 
     expect(v1.randomTrace.length).toBeGreaterThan(0);
     expect(v2.randomTrace).toEqual(v1.randomTrace);
+    expect(v3.randomTrace).toEqual(v2.randomTrace);
     expect(v2Probe?.frame).toBeGreaterThan(v2Audit.frame);
     expect(v2Probe).toEqual(v1Probe);
     expect(v2.result.particleEvents).toEqual(v1.result.particleEvents);
@@ -678,5 +737,13 @@ describe("Freeze Broken V1.52 simulator matrix", () => {
     expect(v2.result.energyLog).toEqual(v1.result.energyLog);
     expect(v2.result.energyStats).toEqual(v1.result.energyStats);
     expectNoCombatOutputDelta(v1.result, v2.result);
+    expect(v3.result.particleEvents).toEqual(v2.result.particleEvents);
+    expect(v3.result.particleTriggerLog).toEqual(
+      v2.result.particleTriggerLog,
+    );
+    expect(v3.result.energyLog).toEqual(v2.result.energyLog);
+    expect(v3.result.energyStats).toEqual(v2.result.energyStats);
+    expect(v3.result.callbackDeliveryLog).toHaveLength(5);
+    expectNoCombatOutputDelta(v2.result, v3.result);
   });
 });

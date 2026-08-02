@@ -5,10 +5,12 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
-  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -60,8 +62,15 @@ function createFixedBasicReactionSchedulerModel() {
 
 function createFixedFreezeBrokenAttackModel() {
   return {
-    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
-    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID
+  } as const;
+}
+
+function createFixedCallbackBusModel() {
+  return {
+    mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
+    policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
   } as const;
 }
 
@@ -102,6 +111,8 @@ export const durinMeltPreset: SimConfig = {
     createFixedBasicReactionSchedulerModel(),
   freezeBrokenAttackModel:
     createFixedFreezeBrokenAttackModel(),
+  callbackBusModel:
+    createFixedCallbackBusModel(),
   characters: [
     {
       id: "durin",
@@ -559,6 +570,8 @@ export const blankPreset: SimConfig = {
     createFixedBasicReactionSchedulerModel(),
   freezeBrokenAttackModel:
     createFixedFreezeBrokenAttackModel(),
+  callbackBusModel:
+    createFixedCallbackBusModel(),
   characters: [
     {
       id: "a",
@@ -668,6 +681,8 @@ export const legalTimelineDemoPreset: SimConfig = {
     createFixedBasicReactionSchedulerModel(),
   freezeBrokenAttackModel:
     createFixedFreezeBrokenAttackModel(),
+  callbackBusModel:
+    createFixedCallbackBusModel(),
   characters: [
     {
       id: "frame-a",
@@ -858,6 +873,8 @@ export const auraReactionDemoPreset: SimConfig = {
     createFixedBasicReactionSchedulerModel(),
   freezeBrokenAttackModel:
     createFixedFreezeBrokenAttackModel(),
+  callbackBusModel:
+    createFixedCallbackBusModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -972,6 +989,8 @@ export const particleEnergyDemoPreset: SimConfig = {
     createFixedBasicReactionSchedulerModel(),
   freezeBrokenAttackModel:
     createFixedFreezeBrokenAttackModel(),
+  callbackBusModel:
+    createFixedCallbackBusModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

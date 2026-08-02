@@ -26,7 +26,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 
@@ -37,7 +37,7 @@ function expectRejectedByTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.52 integrity validation failed/,
+    /Trusted SimulationResult 1\.53 integrity validation failed/,
   );
 }
 

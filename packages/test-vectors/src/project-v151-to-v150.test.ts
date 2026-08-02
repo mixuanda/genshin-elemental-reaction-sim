@@ -22,6 +22,8 @@ import {
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
+import { projectSimulationResultV153ToV152 } from "./project-v153-to-v152";
+import { withV152CompatibilityPolicies } from "./v152-compatibility-config";
 
 const NO_CRIT = {
   compatibilityMode: "legal-frame-v1",
@@ -42,7 +44,9 @@ const DEFERRED_SCHEDULER = {
 function makeSingleSwirlConfig(
   basicReactionSchedulerModel: BasicReactionSchedulerModel,
 ): SimConfig {
-  const base = makeConfig({ basicReactionSchedulerModel });
+  const base = withV152CompatibilityPolicies(
+    makeConfig({ basicReactionSchedulerModel }),
+  );
   const anemo = {
     ...base.characters[0]!,
     id: "anemo",
@@ -124,13 +128,22 @@ function makeSingleSwirlConfig(
 
 function runEmpty(model: BasicReactionSchedulerModel) {
   return projectSimulationResultV152ToV151(
-    simulate(makeConfig({ basicReactionSchedulerModel: model }), NO_CRIT),
+    projectSimulationResultV153ToV152(
+      simulate(
+        withV152CompatibilityPolicies(
+          makeConfig({ basicReactionSchedulerModel: model }),
+        ),
+        NO_CRIT,
+      ),
+    ),
   );
 }
 
 function runSingleSwirl(model: BasicReactionSchedulerModel) {
   return projectSimulationResultV152ToV151(
-    simulate(makeSingleSwirlConfig(model), NO_CRIT),
+    projectSimulationResultV153ToV152(
+      simulate(makeSingleSwirlConfig(model), NO_CRIT),
+    ),
   );
 }
 
@@ -159,21 +172,14 @@ describe("V1.51 to frozen V1.50 result projection", () => {
         Object.hasOwn(projected.config, "basicReactionSchedulerModel"),
       ).toBe(false);
       expect(
-        Object.hasOwn(
-          projected.runManifest,
-          "basicReactionSchedulerRoot",
-        ),
+        Object.hasOwn(projected.runManifest, "basicReactionSchedulerRoot"),
       ).toBe(false);
-      expect(Object.hasOwn(projected, "basicReactionSchedulerLog")).toBe(
-        false,
-      );
+      expect(Object.hasOwn(projected, "basicReactionSchedulerLog")).toBe(false);
       expect(projected.runManifest.configHash).toBe(
         createSimulationConfigHash(projected.config),
       );
-      const {
-        reproducibilityKey: _reproducibilityKey,
-        ...manifestIdentity
-      } = projected.runManifest;
+      const { reproducibilityKey: _reproducibilityKey, ...manifestIdentity } =
+        projected.runManifest;
       expect(projected.reproducibilityKey).toBe(
         createSimulationReproducibilityKey(manifestIdentity),
       );
@@ -201,17 +207,14 @@ describe("V1.51 to frozen V1.50 result projection", () => {
       ),
     ).toBe(true);
 
-    const projected = projectSimulationResultV151ToV150(
-      current,
-    );
+    const projected = projectSimulationResultV151ToV150(current);
     expect(simulationResultV150Schema.parse(projected)).toEqual(projected);
     expect(Object.hasOwn(projected, "basicReactionSchedulerLog")).toBe(false);
     expect(
       projected.targetStateTimeline.points.some((point) =>
         point.links.some(
           (link) =>
-            (link as { kind: string }).kind ===
-            "basic-reaction-scheduler-log",
+            (link as { kind: string }).kind === "basic-reaction-scheduler-log",
         ),
       ),
     ).toBe(false);
@@ -226,9 +229,9 @@ describe("V1.51 to frozen V1.50 result projection", () => {
         },
       ],
     } as SimulationResultForV151;
-    expect(() =>
-      projectSimulationResultV151ToV150(incompatibleV1Row),
-    ).toThrow(/scheduler|legacy-immediate|disposition/i);
+    expect(() => projectSimulationResultV151ToV150(incompatibleV1Row)).toThrow(
+      /scheduler|legacy-immediate|disposition/i,
+    );
   });
 
   it("fails closed whenever V2 produced scheduler rows", () => {
@@ -294,9 +297,9 @@ describe("V1.51 to frozen V1.50 result projection", () => {
   ] as const)("rejects a V2 1.51-only timeline %s", (_label, mutate, error) => {
     const current = runEmpty(DEFERRED_SCHEDULER);
     expect(current.targetStateTimeline.points.length).toBeGreaterThan(0);
-    expect(() =>
-      projectSimulationResultV151ToV150(mutate(current)),
-    ).toThrow(error);
+    expect(() => projectSimulationResultV151ToV150(mutate(current))).toThrow(
+      error,
+    );
   });
 
   it("rejects a config/root scheduler policy mismatch before stripping identity", () => {
@@ -334,8 +337,7 @@ describe("V1.51 to frozen V1.50 result projection", () => {
         basicReactionSchedulerRoot: { contentHash: string };
       };
     };
-    forged.runManifest.basicReactionSchedulerRoot.contentHash =
-      `sha256:${"0".repeat(64)}`;
+    forged.runManifest.basicReactionSchedulerRoot.contentHash = `sha256:${"0".repeat(64)}`;
 
     expect(() =>
       projectSimulationResultV151ToV150(

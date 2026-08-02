@@ -269,6 +269,7 @@ function projectCurrentConfigToFrozenV140(
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    callbackBusModel: _callbackBusModel,
     electroChargedPropagationModel: _electroChargedPropagationModel,
     ...frozenConfig
   } = structuredClone(config);

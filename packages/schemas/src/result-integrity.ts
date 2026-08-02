@@ -6,12 +6,14 @@ import {
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_CALLBACK_BUS_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
   GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
@@ -19,9 +21,12 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_ID,
+  LEGACY_CALLBACK_BUS_POLICY_V1_MODE,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   resolveBasicReactionSchedulerPolicyRoot,
+  resolveCallbackBusPolicyRoot,
   resolveDamageGroup,
   resolveElementalApplicationGroup,
   resolveFreezeBrokenAttackPolicyRoot,
@@ -37,6 +42,9 @@ import {
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  CALLBACK_BUS_ENGINE_VERSION,
+  CALLBACK_BUS_RUN_MANIFEST_VERSION,
+  CALLBACK_BUS_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
@@ -77,6 +85,7 @@ import {
   type SimulationResultForV150,
   type SimulationResultForV151,
   type SimulationResultForV152,
+  type SimulationResultForV153,
   type StatusTarget
 } from "./types";
 import {
@@ -90,6 +99,7 @@ import { validateParticleProvenanceIntegrity } from "./particle-provenance-integ
 import { targetPhaseV2ResultReferencesSchema } from "./schema";
 import { validateTargetPhaseV3Integrity } from "./target-phase-v3-integrity";
 import { validateFreezeBrokenAttackIntegrity } from "./freeze-broken-attack-integrity";
+import { validateCallbackBusV153Integrity } from "./callback-bus-result-integrity";
 
 type IssuePath = Array<string | number>;
 
@@ -3371,7 +3381,7 @@ function validateIdentityV152(
     | undefined;
 } {
   validateIdentityForVersion(
-    result,
+    result as unknown as SimulationResult,
     context,
     FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
     FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
@@ -3383,6 +3393,320 @@ function validateIdentityV152(
       ["runManifest", "version"],
       `1.52 results require run-manifest version ${FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION}`
     );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+
+  const reactionOwnedPolicy = selectedReactionOwnedReplayPolicyV149(
+    result as unknown as SimulationResult,
+    context
+  );
+  if (reactionOwnedPolicy !== undefined) {
+    const expectedRoot =
+      reactionOwnedPolicy.policyId ===
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+        ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+        : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT;
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionOwnedElementalApplicationRoot"],
+      result.runManifest.reactionOwnedElementalApplicationRoot,
+      expectedRoot,
+      "selected reaction-owned elemental-application root"
+    );
+  }
+
+  const reactionDamageGroupPolicy = selectedReactionDamageGroupReplayPolicyV150(
+    result as unknown as SimulationResult,
+    context
+  );
+  if (reactionDamageGroupPolicy !== undefined) {
+    const expectedRoot = resolveReactionDamageGroupPolicyRoot(
+      reactionDamageGroupPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "reactionDamageGroupModel"],
+      result.config.reactionDamageGroupModel,
+      reactionDamageGroupPolicy,
+      "selected reaction damage-group policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot"],
+      result.runManifest.reactionDamageGroupRoot,
+      expectedRoot,
+      "selected reaction damage-group root"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot", "damageGroupRootRef"],
+      result.runManifest.reactionDamageGroupRoot.damageGroupRootRef,
+      {
+        version: GCSIM_DAMAGE_GROUP_ROOT.version,
+        profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
+        contentHash: GCSIM_DAMAGE_GROUP_ROOT.contentHash,
+        sourceRevision: GCSIM_DAMAGE_GROUP_ROOT.sourceRevision,
+        tailPolicy: GCSIM_DAMAGE_GROUP_ROOT.tailPolicy,
+        resetSchedulePolicy: GCSIM_DAMAGE_GROUP_ROOT.resetSchedulePolicy
+      },
+      "reaction damage-group nested direct-group root"
+    );
+  }
+
+  const basicReactionSchedulerPolicy =
+    selectedBasicReactionSchedulerReplayPolicyV151(
+      result as unknown as SimulationResultForV151,
+      context
+    );
+  if (basicReactionSchedulerPolicy !== undefined) {
+    const expectedRoot = resolveBasicReactionSchedulerPolicyRoot(
+      basicReactionSchedulerPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "basicReactionSchedulerModel"],
+      result.config.basicReactionSchedulerModel,
+      basicReactionSchedulerPolicy,
+      "selected basic-reaction scheduler policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot"],
+      result.runManifest.basicReactionSchedulerRoot,
+      expectedRoot,
+      "selected basic-reaction scheduler root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot", "policyId"],
+      result.runManifest.basicReactionSchedulerRoot.policyId,
+      basicReactionSchedulerPolicy.policyId,
+      "run-manifest/config basic-reaction scheduler policy"
+    );
+  }
+
+  const freezeBrokenAttackPolicy =
+    selectedFreezeBrokenAttackReplayPolicyV152(result, context);
+  if (freezeBrokenAttackPolicy !== undefined) {
+    const expectedRoot = resolveFreezeBrokenAttackPolicyRoot(
+      freezeBrokenAttackPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "freezeBrokenAttackModel"],
+      result.config.freezeBrokenAttackModel,
+      freezeBrokenAttackPolicy,
+      "selected Freeze Broken attack policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "freezeBrokenAttackRoot"],
+      result.runManifest.freezeBrokenAttackRoot,
+      expectedRoot,
+      "selected Freeze Broken attack root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "freezeBrokenAttackRoot", "policyId"],
+      result.runManifest.freezeBrokenAttackRoot.policyId,
+      freezeBrokenAttackPolicy.policyId,
+      "run-manifest/config Freeze Broken attack policy"
+    );
+  }
+
+  return {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy,
+    freezeBrokenAttackPolicy
+  };
+}
+
+function validateIdentityV153(
+  result: SimulationResultForV153,
+  context: RefinementCtx
+): {
+  reactionOwnedPolicy: ReactionOwnedReplayPolicy | undefined;
+  reactionDamageGroupPolicy: ReactionDamageGroupReplayPolicyV150 | undefined;
+  basicReactionSchedulerPolicy:
+    | BasicReactionSchedulerReplayPolicyV151
+    | undefined;
+} {
+  validateIdentityForVersion(
+    result,
+    context,
+    CALLBACK_BUS_SCHEMA_VERSION,
+    CALLBACK_BUS_ENGINE_VERSION,
+    "current"
+  );
+  if (result.runManifest.version !== CALLBACK_BUS_RUN_MANIFEST_VERSION) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.53 results require run-manifest version ${CALLBACK_BUS_RUN_MANIFEST_VERSION}`
+    );
+  }
+  if (
+    result.runManifest.pluginCapabilities.length !==
+    result.pluginManifest.length
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "pluginCapabilities"],
+      "must contain exactly one capability per plugin manifest entry"
+    );
+  }
+  if (
+    result.runManifest.pluginCallbackSubscriptions.length !==
+    result.pluginManifest.length
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "pluginCallbackSubscriptions"],
+      "must contain exactly one ordered subscription list per plugin manifest entry"
+    );
+  }
+  const supportedCallbackEvents = new Set([
+    "on-aura-durability-depleted-frozen",
+    "on-apply-attack-freeze-broken",
+    "on-enemy-hit-freeze-broken",
+    "on-enemy-damage-freeze-broken-zero",
+    "attack-callback-freeze-broken"
+  ]);
+  for (const [index, capability] of
+    result.runManifest.pluginCapabilities.entries()) {
+    const subscriptions =
+      result.runManifest.pluginCallbackSubscriptions[index];
+    if (
+      capability !== "damage-modifier" &&
+      capability !== "callback-subscriber"
+    ) {
+      addIssue(
+        context,
+        ["runManifest", "pluginCapabilities", index],
+        "must be damage-modifier or callback-subscriber"
+      );
+    }
+    if (
+      capability === "callback-subscriber" &&
+      result.config.callbackBusModel.mode ===
+        LEGACY_CALLBACK_BUS_POLICY_V1_MODE
+    ) {
+      addIssue(
+        context,
+        ["runManifest", "pluginCapabilities", index],
+        "callback-subscriber capability requires the fixed callback bus V2"
+      );
+    }
+    if (
+      capability === "damage-modifier" &&
+      subscriptions !== undefined &&
+      subscriptions.length !== 0
+    ) {
+      addIssue(
+        context,
+        ["runManifest", "pluginCallbackSubscriptions", index],
+        "damage-modifier plugin slots must not declare callback subscriptions"
+      );
+    }
+    const bindingKeys = new Set<string>();
+    for (const [subscriptionIndex, subscription] of
+      (subscriptions ?? []).entries()) {
+      const path = [
+        "runManifest",
+        "pluginCallbackSubscriptions",
+        index,
+        subscriptionIndex
+      ] as const;
+      const keys = Object.keys(subscription).sort();
+      if (
+        keys.length !== 2 ||
+        keys[0] !== "eventKind" ||
+        keys[1] !== "subscriberKey"
+      ) {
+        addIssue(
+          context,
+          [...path],
+          "callback subscription must contain exactly eventKind and subscriberKey own keys"
+        );
+      }
+      if (!supportedCallbackEvents.has(subscription.eventKind)) {
+        addIssue(
+          context,
+          [...path, "eventKind"],
+          "must select a supported V1.53 callback event"
+        );
+      }
+      if (
+        typeof subscription.subscriberKey !== "string" ||
+        subscription.subscriberKey.trim().length === 0
+      ) {
+        addIssue(
+          context,
+          [...path, "subscriberKey"],
+          "must not be blank"
+        );
+      }
+      const binding = `${subscription.eventKind}\u0000${subscription.subscriberKey}`;
+      if (bindingKeys.has(binding)) {
+        addIssue(
+          context,
+          [...path],
+          "must not duplicate an eventKind/subscriberKey binding within one plugin slot"
+        );
+      }
+      bindingKeys.add(binding);
+    }
   }
   expectSemanticEqual(
     context,
@@ -3516,49 +3840,66 @@ function validateIdentityV152(
       expectedRoot,
       "selected basic-reaction scheduler root"
     );
-    expectEqual(
-      context,
-      ["runManifest", "basicReactionSchedulerRoot", "policyId"],
-      result.runManifest.basicReactionSchedulerRoot.policyId,
-      basicReactionSchedulerPolicy.policyId,
-      "run-manifest/config basic-reaction scheduler policy"
-    );
   }
 
-  const freezeBrokenAttackPolicy =
-    selectedFreezeBrokenAttackReplayPolicyV152(result, context);
-  if (freezeBrokenAttackPolicy !== undefined) {
-    const expectedRoot = resolveFreezeBrokenAttackPolicyRoot(
-      freezeBrokenAttackPolicy.policyId
-    );
-    expectSemanticEqual(
+  const freezeModel = result.config.freezeBrokenAttackModel;
+  const expectedFreezePolicyId =
+    freezeModel.mode === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE
+      ? LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
+      : freezeModel.mode === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE
+        ? GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+        : GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V3_ID;
+  expectEqual(
+    context,
+    ["config", "freezeBrokenAttackModel", "policyId"],
+    freezeModel.policyId,
+    expectedFreezePolicyId,
+    "Freeze Broken attack mode/policy binding"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "freezeBrokenAttackRoot"],
+    result.runManifest.freezeBrokenAttackRoot,
+    resolveFreezeBrokenAttackPolicyRoot(expectedFreezePolicyId),
+    "selected Freeze Broken attack root"
+  );
+
+  const callbackModel = result.config.callbackBusModel;
+  const expectedCallbackPolicyId =
+    callbackModel.mode === LEGACY_CALLBACK_BUS_POLICY_V1_MODE
+      ? LEGACY_CALLBACK_BUS_POLICY_V1_ID
+      : GCSIM_CALLBACK_BUS_POLICY_V2_ID;
+  expectEqual(
+    context,
+    ["config", "callbackBusModel", "policyId"],
+    callbackModel.policyId,
+    expectedCallbackPolicyId,
+    "callback bus mode/policy binding"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "callbackBusRoot"],
+    result.runManifest.callbackBusRoot,
+    resolveCallbackBusPolicyRoot(expectedCallbackPolicyId),
+    "selected callback bus root"
+  );
+  const legalPolicyPair =
+    (expectedFreezePolicyId === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID ||
+      expectedFreezePolicyId === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID)
+      ? expectedCallbackPolicyId === LEGACY_CALLBACK_BUS_POLICY_V1_ID
+      : expectedCallbackPolicyId === GCSIM_CALLBACK_BUS_POLICY_V2_ID;
+  if (!legalPolicyPair) {
+    addIssue(
       context,
-      ["config", "freezeBrokenAttackModel"],
-      result.config.freezeBrokenAttackModel,
-      freezeBrokenAttackPolicy,
-      "selected Freeze Broken attack policy"
-    );
-    expectSemanticEqual(
-      context,
-      ["runManifest", "freezeBrokenAttackRoot"],
-      result.runManifest.freezeBrokenAttackRoot,
-      expectedRoot,
-      "selected Freeze Broken attack root"
-    );
-    expectEqual(
-      context,
-      ["runManifest", "freezeBrokenAttackRoot", "policyId"],
-      result.runManifest.freezeBrokenAttackRoot.policyId,
-      freezeBrokenAttackPolicy.policyId,
-      "run-manifest/config Freeze Broken attack policy"
+      ["config", "callbackBusModel", "policyId"],
+      "callback bus policy is not a legal pair for the selected Freeze Broken policy"
     );
   }
 
   return {
     reactionOwnedPolicy,
     reactionDamageGroupPolicy,
-    basicReactionSchedulerPolicy,
-    freezeBrokenAttackPolicy
+    basicReactionSchedulerPolicy
   };
 }
 
@@ -5753,6 +6094,18 @@ function validateDirectDamageGroupV146(
           context,
           [...tracePath, "outcome"],
           "must be no-change or override"
+        );
+      }
+      if (
+        result.runManifest.pluginCapabilities?.[traceIndex] ===
+          "callback-subscriber" &&
+        (trace.outcome !== "no-change" ||
+          trace.outputMultiplier !== trace.inputMultiplier)
+      ) {
+        addIssue(
+          context,
+          [...tracePath, "outcome"],
+          "callback-subscriber capability requires a no-change direct-damage placeholder"
         );
       }
       expectedPluginMultiplier = trace.outputMultiplier;
@@ -9051,7 +9404,8 @@ function validateDamageAggregates(
   context: RefinementCtx
 ): void {
   const reservesFreezeBrokenAttack =
-    result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+    (result.schemaVersion as string) === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+    result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION;
 
   expectSemanticEqual(
     context,
@@ -9095,7 +9449,12 @@ function validateDamageAggregates(
       character
     ])
   );
-  const hasDamagePlugin = result.runManifest.plugins.length > 0;
+  const hasDamagePlugin =
+    result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+      ? result.runManifest.pluginCapabilities.some(
+          (capability) => capability === "damage-modifier"
+        )
+      : result.runManifest.plugins.length > 0;
   let totalDamage = 0;
   let reactedHits = 0;
   let previousFrame: number | undefined;
@@ -12826,7 +13185,8 @@ function validateSwirlBacklinks(
                 ((result.schemaVersion as string) ===
                   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
                   (result.schemaVersion as string) ===
-                    FREEZE_BROKEN_ATTACK_SCHEMA_VERSION)
+                    FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+                  result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION)
                   ? (result.basicReactionSchedulerLog ?? []).find(
                       (row) =>
                         row.kind === "swirl-attack-resolution" &&
@@ -19102,7 +19462,8 @@ function validateBurningStateProjection(
         (result.schemaVersion as string) ===
           BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
         (result.schemaVersion as string) ===
-          FREEZE_BROKEN_ATTACK_SCHEMA_VERSION) &&
+          FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+        result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION) &&
       child.elementalApplicationIcdLogId !== null
         ? result.elementalApplicationIcdLog[
             child.elementalApplicationIcdLogId
@@ -20254,8 +20615,9 @@ function validateMechanicsAndBoundaries(
   const rawResult = result as unknown as Record<string, unknown>;
   const rawConfig = rawResult.config;
   const rawFreezeBrokenAttackLog = rawResult.freezeBrokenAttackLog;
-  const hasReferenceOnlyFreezeBrokenAudit =
-    rawResult.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+  const hasPartialFreezeBrokenAudit =
+    (rawResult.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+      rawResult.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION) &&
     rawConfig !== null &&
     typeof rawConfig === "object" &&
     !Array.isArray(rawConfig) &&
@@ -20268,19 +20630,19 @@ function validateMechanicsAndBoundaries(
     (
       (rawConfig as Record<string, unknown>)
         .freezeBrokenAttackModel as Record<string, unknown>
-    ).mode === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE &&
+    ).mode !== LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE &&
     Array.isArray(rawFreezeBrokenAttackLog) &&
     rawFreezeBrokenAttackLog.length !== 0;
   const expectedMechanicsStatus =
     result.targetMechanicsTruncationLog.length !== 0 ||
-    hasReferenceOnlyFreezeBrokenAudit
+    hasPartialFreezeBrokenAudit
       ? "partial"
       : "complete";
   if (result.mechanicsStatus !== expectedMechanicsStatus) {
     addIssue(
       context,
       ["mechanicsStatus"],
-      `must be ${expectedMechanicsStatus} for truncation and reference-only Freeze Broken audit status`
+      `must be ${expectedMechanicsStatus} for truncation and partial Freeze Broken audit status`
     );
   }
   const targetIdentity = result.enemyTargets.map((target) => ({
@@ -20558,8 +20920,14 @@ export function validateSimulationResultV146Integrity(
   context: RefinementCtx
 ): void {
   validateIdentityV146(result, context);
-  validateReactionFormulaProfileV145(result, context);
-  validateDirectDamageGroupV146(result, context);
+  validateReactionFormulaProfileV145(
+    result as unknown as SimulationResult,
+    context
+  );
+  validateDirectDamageGroupV146(
+    result as unknown as SimulationResult,
+    context
+  );
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
   validateEnergy(result, context);
@@ -20661,15 +21029,21 @@ export function validateSimulationResultV149Integrity(
   validateDirectDamageGroupV146(result, context);
   if (replayPolicy !== undefined) {
     validateElementalApplicationIcdReactionOwned(
-      result,
+      result as unknown as SimulationResult,
       context,
       replayPolicy
     );
   }
-  validateDamageAggregates(result, context);
-  validateMechanicsAndBoundaries(result, context);
-  validateEnergy(result, context);
-  validateEnergyReplayIntegrity(result, context);
+  validateDamageAggregates(result as unknown as SimulationResult, context);
+  validateMechanicsAndBoundaries(
+    result as unknown as SimulationResult,
+    context
+  );
+  validateEnergy(result as unknown as SimulationResult, context);
+  validateEnergyReplayIntegrity(
+    result as unknown as SimulationResult,
+    context
+  );
   // Do not project 1.49 to 1.48: the full v3 proof owns the exact identity
   // gate and every Burning callback/application reciprocal reference.
   validateTargetPhaseV3Integrity(result, context);
@@ -20789,6 +21163,75 @@ export function validateSimulationResultV152Integrity(
     basicReactionSchedulerPolicy,
     freezeBrokenAttackPolicy
   } = validateIdentityV152(result, context);
+  validateReactionFormulaProfileV145(
+    result as unknown as SimulationResult,
+    context
+  );
+  validateDirectDamageGroupV146(
+    result as unknown as SimulationResult,
+    context
+  );
+  if (reactionOwnedPolicy !== undefined) {
+    validateElementalApplicationIcdReactionOwned(
+      result as unknown as SimulationResult,
+      context,
+      reactionOwnedPolicy
+    );
+  }
+  if (reactionDamageGroupPolicy !== undefined) {
+    validateReactionDamageGroupV150(
+      result as unknown as SimulationResultForV150,
+      reactionDamageGroupPolicy,
+      context
+    );
+  }
+  if (basicReactionSchedulerPolicy !== undefined) {
+    validateBasicReactionSchedulerV151(
+      result as unknown as SimulationResultForV151,
+      basicReactionSchedulerPolicy,
+      context
+    );
+  }
+  if (freezeBrokenAttackPolicy !== undefined) {
+    validateFreezeBrokenAttackIntegrity(result, context);
+  }
+  validateDamageAggregates(result as unknown as SimulationResult, context);
+  validateMechanicsAndBoundaries(
+    result as unknown as SimulationResult,
+    context
+  );
+  validateEnergy(result as unknown as SimulationResult, context);
+  validateEnergyReplayIntegrity(
+    result as unknown as SimulationResult,
+    context
+  );
+  const frozenTargetPhaseIdentityResult = {
+    ...result,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    config: {
+      ...result.config,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    }
+  } as unknown as SimulationResult;
+  validateTargetPhaseV3Integrity(frozenTargetPhaseIdentityResult, context);
+}
+
+/**
+ * Cross-field proof for exact 1.53 results. The inherited mechanics remain
+ * authoritative while the eighth root binds deterministic callback registry
+ * replay and five-phase Freeze Broken V3 delivery.
+ */
+export function validateSimulationResultV153Integrity(
+  result: SimulationResultForV153,
+  context: RefinementCtx
+): void {
+  const {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy
+  } = validateIdentityV153(result, context);
   validateReactionFormulaProfileV145(result, context);
   validateDirectDamageGroupV146(result, context);
   if (reactionOwnedPolicy !== undefined) {
@@ -20812,9 +21255,7 @@ export function validateSimulationResultV152Integrity(
       context
     );
   }
-  if (freezeBrokenAttackPolicy !== undefined) {
-    validateFreezeBrokenAttackIntegrity(result, context);
-  }
+  validateCallbackBusV153Integrity(result, context);
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
   validateEnergy(result, context);
@@ -21438,10 +21879,62 @@ export function assertTrustedSimulationResultV152(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.53 callback-bus results. */
+export function assertTrustedSimulationResultV153(
+  result: SimulationResultForV153
+): SimulationResultForV153 {
+  const issues: Array<{ path: PropertyKey[]; message: string }> = [];
+  const context = {
+    addIssue(issue: { path?: PropertyKey[]; message?: string }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV153Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12 ? `; ${issues.length - 12} additional issue(s)` : "";
+    throw new Error(
+      `Trusted SimulationResult 1.53 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV152Integrity;
-export const assertTrustedSimulationResult = assertTrustedSimulationResultV152;
+  validateSimulationResultV153Integrity;
+export const assertTrustedSimulationResult = assertTrustedSimulationResultV153;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity
