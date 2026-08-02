@@ -9,6 +9,8 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type AuraStateEntry,
@@ -656,17 +658,29 @@ export function validateTargetPhaseV3Integrity(
       REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
     configEngineVersion ===
       REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+  const exactV149Identity =
+    resultSchemaVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+    resultEngineVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION &&
+    configSchemaVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+    configEngineVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+  const hasReactionOwnedApplicationIdentity =
+    exactV148Identity || exactV149Identity;
   if (
     !exactV144Identity &&
     !exactV145Identity &&
     !exactV146Identity &&
     !exactV147Identity &&
-    !exactV148Identity
+    !exactV148Identity &&
+    !exactV149Identity
   ) {
     addIssue(
       context,
       ["schemaVersion"],
-      "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, 1.47, or 1.48 schema and engine identity"
+      "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, 1.47, 1.48, or 1.49 schema and engine identity"
     );
     return;
   }
@@ -757,7 +771,7 @@ export function validateTargetPhaseV3Integrity(
     result.damageEvents.map((entry) => [entry.id, entry])
   );
   const applicationById = new Map(
-    exactV148Identity
+    hasReactionOwnedApplicationIdentity
       ? (result.elementalApplicationIcdLog ?? []).map((entry) => [
           entry.id,
           entry
@@ -1608,7 +1622,7 @@ export function validateTargetPhaseV3Integrity(
             );
           }
         }
-        if (exactV148Identity) {
+        if (hasReactionOwnedApplicationIdentity) {
           const applicationId =
             attempt.elementalApplicationIcdLogId;
           elementalApplicationIcdLogIds.push(applicationId);
@@ -1737,7 +1751,7 @@ export function validateTargetPhaseV3Integrity(
         }
       }
 
-      if (exactV148Identity) {
+      if (hasReactionOwnedApplicationIdentity) {
         for (const issue of
           collectTargetPhaseV3BurningApplicationReferenceIssues({
             delivery,
@@ -1860,7 +1874,7 @@ export function validateTargetPhaseV3Integrity(
         outcome: attempt.outcome,
         hitResolutionLogId: attempt.hitResolutionLogId,
         damageEventId: attempt.damageEventId,
-        ...(exactV148Identity
+        ...(hasReactionOwnedApplicationIdentity
           ? {
               elementalApplicationIcdLogId:
                 attempt.elementalApplicationIcdLogId
@@ -1899,7 +1913,7 @@ export function validateTargetPhaseV3Integrity(
             outcome,
             hitResolutionLogId: hitId ?? null,
             damageEventId: damageId ?? null,
-            ...(exactV148Identity
+            ...(hasReactionOwnedApplicationIdentity
               ? {
                   elementalApplicationIcdLogId:
                     applicationId ?? null
@@ -2403,7 +2417,7 @@ export function validateTargetPhaseV3Integrity(
     }
   }
 
-  if (exactV148Identity) {
+  if (hasReactionOwnedApplicationIdentity) {
     for (const [rowIndex, application] of
       (result.elementalApplicationIcdLog ?? []).entries()) {
       if (

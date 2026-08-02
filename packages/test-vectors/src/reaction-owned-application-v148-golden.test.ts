@@ -1,13 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  assertTrustedSimulationResult,
-  simulationResultSchema,
+  assertTrustedSimulationResultV148,
+  simulationResultV148Schema,
   type SimConfig,
-  type SimulationResult
+  type SimulationResultForV148
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 
@@ -22,6 +23,7 @@ import {
   loadPreviewOrCreateReviewedGolden
 } from "./reviewed-golden";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
+import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 
 const PREVIEW_FLAG =
   "PREVIEW_REACTION_OWNED_APPLICATION_V148_GOLDEN";
@@ -100,6 +102,10 @@ function makeBurningApplicationConfig(): SimConfig {
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    },
     targetTaskModel: { mode: "target-phase-v3" },
     reactionDeliveryModel: { mode: "deferred-event-heap-v1" },
     timeline: {
@@ -204,6 +210,10 @@ function makeSwirlApplicationConfig(): SimConfig {
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    },
     targetTaskModel: { mode: "target-phase-v2" },
     timeline: {
       mode: "legal-frame-v1",
@@ -244,36 +254,67 @@ function makeSwirlApplicationConfig(): SimConfig {
   };
 }
 
-function reactionApplicationProjection(result: SimulationResult) {
+function reactionApplicationProjection(
+  result: SimulationResultForV148
+) {
   return result.elementalApplicationIcdLog
     .filter((entry) => entry.sourceKind !== "configured-direct-hit")
-    .map((entry) => ({
-      ...entry,
-      hitOutcome:
-        result.hitResolutionLog[entry.hitResolutionLogId]?.outcome ??
-        null,
-      linkedDamage:
-        entry.damageEventId === null
-          ? null
+    .map((entry) => {
+      const decision =
+        entry.decision.kind === "skipped"
+          ? entry.decision
           : {
-              id: entry.damageEventId,
-              reaction:
-                result.damageEvents[entry.damageEventId]?.reaction ??
-                null,
-              finalDamage:
-                result.damageEvents[entry.damageEventId]
-                  ?.finalDamage ?? null,
-              reciprocalApplicationLogId:
-                result.damageEvents[entry.damageEventId]
-                  ?.elementalApplicationIcdLogId ?? null
-            },
-      hitReciprocalApplicationLogId:
-        result.hitResolutionLog[entry.hitResolutionLogId]
-          ?.elementalApplicationIcdLogId ?? null
-    }));
+              kind: entry.decision.kind,
+              evaluated: entry.decision.evaluated,
+              consumed: entry.decision.consumed,
+              applicationMultiplier:
+                entry.decision.applicationMultiplier,
+              allowed: entry.decision.allowed,
+              policyId: entry.decision.policyId,
+              profileId: entry.decision.profileId,
+              resetFrames: entry.decision.resetFrames,
+              windowStartFrame: entry.decision.windowStartFrame,
+              resetAtFrame: entry.decision.resetAtFrame,
+              hitIndex: entry.decision.hitIndex,
+              sequenceIndex: entry.decision.sequenceIndex,
+              tailPolicy: entry.decision.tailPolicy,
+              resetSchedulePolicy:
+                entry.decision.resetSchedulePolicy,
+              scope: entry.decision.scope,
+              icdTag: entry.decision.icdTag,
+              groupId: entry.decision.groupId,
+              windowStartGroupId:
+                entry.decision.windowStartGroupId
+            };
+      return {
+        ...entry,
+        decision,
+        hitOutcome:
+          result.hitResolutionLog[entry.hitResolutionLogId]
+            ?.outcome ?? null,
+        linkedDamage:
+          entry.damageEventId === null
+            ? null
+            : {
+                id: entry.damageEventId,
+                reaction:
+                  result.damageEvents[entry.damageEventId]
+                    ?.reaction ?? null,
+                finalDamage:
+                  result.damageEvents[entry.damageEventId]
+                    ?.finalDamage ?? null,
+                reciprocalApplicationLogId:
+                  result.damageEvents[entry.damageEventId]
+                    ?.elementalApplicationIcdLogId ?? null
+              },
+        hitReciprocalApplicationLogId:
+          result.hitResolutionLog[entry.hitResolutionLogId]
+            ?.elementalApplicationIcdLogId ?? null
+      };
+    });
 }
 
-function reactionDamageProjection(result: SimulationResult) {
+function reactionDamageProjection(result: SimulationResultForV148) {
   return result.reactionDamageLog.map((entry) => ({
     id: entry.id,
     reaction: entry.reaction,
@@ -297,7 +338,7 @@ function reactionDamageProjection(result: SimulationResult) {
   }));
 }
 
-function burningDeliveryProjection(result: SimulationResult) {
+function burningDeliveryProjection(result: SimulationResultForV148) {
   return result.targetPhaseLog.flatMap((phase) =>
     phase.model !== "target-phase-v3"
       ? []
@@ -318,7 +359,7 @@ function burningDeliveryProjection(result: SimulationResult) {
   );
 }
 
-function scenarioFixture(result: SimulationResult) {
+function scenarioFixture(result: SimulationResultForV148) {
   return {
     identity: {
       schemaVersion: result.schemaVersion,
@@ -358,14 +399,18 @@ function scenarioFixture(result: SimulationResult) {
 
 function runScenarios() {
   return {
-    burning: simulate(makeBurningApplicationConfig(), {
-      critMode: "noCrit",
-      randomSeed: "synthetic-reaction-owned-burning-1.48"
-    }),
-    swirl: simulate(makeSwirlApplicationConfig(), {
-      critMode: "noCrit",
-      randomSeed: "synthetic-reaction-owned-swirl-1.48"
-    })
+    burning: projectSimulationResultV149ToV148(
+      simulate(makeBurningApplicationConfig(), {
+        critMode: "noCrit",
+        randomSeed: "synthetic-reaction-owned-burning-1.48"
+      })
+    ),
+    swirl: projectSimulationResultV149ToV148(
+      simulate(makeSwirlApplicationConfig(), {
+        critMode: "noCrit",
+        randomSeed: "synthetic-reaction-owned-swirl-1.48"
+      })
+    )
   };
 }
 
@@ -384,7 +429,7 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
       officialServerTruth: false as const,
       completeGcsimParity: false as const
     },
-    policyRoot: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+    policyRoot: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
     scenarios: {
       burning: scenarioFixture(results.burning),
       swirl: scenarioFixture(results.swirl)
@@ -392,12 +437,12 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
   };
 }
 
-function expectCurrentTrusted(result: SimulationResult): void {
-  expect(simulationResultSchema.parse(result)).toEqual(result);
-  expect(assertTrustedSimulationResult(result)).toBe(result);
+function expectV148Trusted(result: SimulationResultForV148): void {
+  expect(simulationResultV148Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV148(result)).toBe(result);
 }
 
-function expectBurningSemantics(result: SimulationResult): void {
+function expectBurningSemantics(result: SimulationResultForV148): void {
   const rows = result.elementalApplicationIcdLog.filter(
     (entry) => entry.sourceKind === "burning-tick"
   );
@@ -471,7 +516,7 @@ function expectBurningSemantics(result: SimulationResult): void {
   }
 }
 
-function expectSwirlSemantics(result: SimulationResult): void {
+function expectSwirlSemantics(result: SimulationResultForV148): void {
   const rows = result.elementalApplicationIcdLog.filter(
     (entry) => entry.sourceKind === "swirl-propagation"
   );
@@ -570,8 +615,8 @@ describe("reaction-owned application 1.48 Golden", () => {
       const results = runScenarios();
       const repeated = runScenarios();
       expect(repeated).toEqual(results);
-      expectCurrentTrusted(results.burning);
-      expectCurrentTrusted(results.swirl);
+      expectV148Trusted(results.burning);
+      expectV148Trusted(results.swirl);
       expectBurningSemantics(results.burning);
       expectSwirlSemantics(results.swirl);
       expect(() =>

@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "golden:v149:default:preview": "node scripts/generate-legacy-default-v149.mjs --preview",
+    "golden:v149:default:freeze": "UPDATE_LEGACY_DEFAULT_V149_GOLDEN=1 node scripts/generate-legacy-default-v149.mjs",
+    "golden:v149:burning-reset-boundary:preview": "node scripts/generate-burning-reset-boundary-v149.mjs --preview",
+    "golden:v149:burning-reset-boundary:freeze": "UPDATE_BURNING_RESET_BOUNDARY_V149_GOLDEN=1 node scripts/generate-burning-reset-boundary-v149.mjs",
     "golden:v148:default:preview": "node scripts/generate-legacy-default-v148.mjs --preview",
     "golden:v148:default:freeze": "UPDATE_LEGACY_DEFAULT_V148_GOLDEN=1 node scripts/generate-legacy-default-v148.mjs",
     "golden:v148:reactions:preview": "node scripts/generate-reaction-owned-application-v148.mjs --preview",

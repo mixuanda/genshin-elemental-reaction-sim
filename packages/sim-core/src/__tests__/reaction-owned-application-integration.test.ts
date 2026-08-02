@@ -411,7 +411,7 @@ describe("reaction-owned elemental application integration", () => {
         attemptCount: 2,
         deliveryPhase: "reaction-damage-event",
         selector: {
-          mode: "fixed-gcsim-reaction-owned-application-v1",
+          mode: "fixed-gcsim-reaction-owned-application-v2",
           channel: { kind: "swirl-propagation", element },
         },
         decision: {

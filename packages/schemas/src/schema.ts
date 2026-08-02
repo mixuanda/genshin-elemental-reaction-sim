@@ -12,6 +12,8 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   type GcsimDamageGroupId,
   type GcsimSwirlPropagationElement,
   type PublicGcsimElementalApplicationGroupId
@@ -76,6 +78,9 @@ import {
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
@@ -99,6 +104,7 @@ import {
   type SimConfigV146,
   type SimConfigV147,
   type SimConfigV148,
+  type SimConfigV149,
   type SimulationRunManifest
 } from "./types";
 import {
@@ -641,16 +647,34 @@ export const elementalApplicationIcdModelSchema = z
   })
   .strict();
 
-export const reactionOwnedElementalApplicationModelSchema = z
+export const reactionOwnedElementalApplicationModelV1Schema = z
   .object({
     mode: z.literal(
       "fixed-gcsim-reaction-owned-application-v1"
+    ),
+    policyId: z.literal(
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    )
+  })
+  .strict();
+
+export const reactionOwnedElementalApplicationModelV2Schema = z
+  .object({
+    mode: z.literal(
+      "fixed-gcsim-reaction-owned-application-v2"
     ),
     policyId: z.literal(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     )
   })
   .strict();
+
+/** Current 1.49 wire admits an explicit v1 or v2 policy selection. */
+export const reactionOwnedElementalApplicationModelSchema =
+  z.discriminatedUnion("mode", [
+    reactionOwnedElementalApplicationModelV1Schema,
+    reactionOwnedElementalApplicationModelV2Schema
+  ]);
 
 const swirlPropagationElementSchema = z.enum([
   "pyro",
@@ -699,7 +723,7 @@ export const trustedReactionElementalApplicationInputSchema =
       .strict()
   ]);
 
-export const trustedReactionElementalApplicationSelectorSchema =
+export const trustedReactionElementalApplicationSelectorV1Schema =
   z.union([
     z
       .object({
@@ -707,7 +731,7 @@ export const trustedReactionElementalApplicationSelectorSchema =
           "fixed-gcsim-reaction-owned-application-v1"
         ),
         policyId: z.literal(
-          GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
         ),
         channel: z
           .object({ kind: z.literal("burning-tick") })
@@ -720,6 +744,39 @@ export const trustedReactionElementalApplicationSelectorSchema =
           "fixed-gcsim-reaction-owned-application-v1"
         ),
         policyId: z.literal(
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+        ),
+        channel: z
+          .object({
+            kind: z.literal("swirl-propagation"),
+            element: swirlPropagationElementSchema
+          })
+          .strict()
+      })
+      .strict()
+  ]);
+
+export const trustedReactionElementalApplicationSelectorV2Schema =
+  z.union([
+    z
+      .object({
+        mode: z.literal(
+          "fixed-gcsim-reaction-owned-application-v2"
+        ),
+        policyId: z.literal(
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+        ),
+        channel: z
+          .object({ kind: z.literal("burning-tick") })
+          .strict()
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal(
+          "fixed-gcsim-reaction-owned-application-v2"
+        ),
+        policyId: z.literal(
           GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
         ),
         channel: z
@@ -730,6 +787,12 @@ export const trustedReactionElementalApplicationSelectorSchema =
           .strict()
       })
       .strict()
+  ]);
+
+export const trustedReactionElementalApplicationSelectorSchema =
+  z.union([
+    trustedReactionElementalApplicationSelectorV1Schema,
+    trustedReactionElementalApplicationSelectorV2Schema
   ]);
 
 const gcsimDamageGroupIds = GCSIM_DAMAGE_GROUP_PROFILE.groups.map(
@@ -868,13 +931,44 @@ export const elementalApplicationIcdRootSchema = z.preprocess(
   )
 );
 
+const gcsimReactionOwnedApplicationV1RootCanonical =
+  canonicalStringify(
+    GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+  );
+
 const gcsimReactionOwnedApplicationRootCanonical =
   canonicalStringify(
     GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
   );
 
-/** Exact compiled policy root for trusted Burning/Swirl applications. */
-export const reactionOwnedElementalApplicationRootSchema =
+/** Exact compiled v1 policy root frozen into 1.48 manifests. */
+export const reactionOwnedElementalApplicationRootV148Schema =
+  z.preprocess(
+    rejectNonPlainJsonWire(
+      "reactionOwnedElementalApplicationRoot"
+    ),
+    z.custom<
+      typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+    >(
+      (value) => {
+        try {
+          return (
+            canonicalStringify(value) ===
+            gcsimReactionOwnedApplicationV1RootCanonical
+          );
+        } catch {
+          return false;
+        }
+      },
+      {
+        message:
+          "must exactly equal the compiled provisional reaction-owned elemental-application policy root"
+      }
+    )
+  );
+
+/** Exact compiled current v2 root. */
+export const reactionOwnedElementalApplicationRootV2Schema =
   z.preprocess(
     rejectNonPlainJsonWire(
       "reactionOwnedElementalApplicationRoot"
@@ -894,10 +988,16 @@ export const reactionOwnedElementalApplicationRootSchema =
       },
       {
         message:
-          "must exactly equal the compiled provisional reaction-owned elemental-application policy root"
+          "must exactly equal the compiled provisional v2 reaction-owned elemental-application policy root"
       }
     )
   );
+
+/** Current 1.49 root union; config binding chooses exactly one branch. */
+export const reactionOwnedElementalApplicationRootSchema = z.union([
+  reactionOwnedElementalApplicationRootV148Schema,
+  reactionOwnedElementalApplicationRootV2Schema
+]);
 
 const simulationRunManifestV142ValueSchema = z
   .object({
@@ -1318,7 +1418,7 @@ const simulationRunManifestV148ValueSchema = z
     elementalApplicationIcdRoot:
       elementalApplicationIcdRootSchema,
     reactionOwnedElementalApplicationRoot:
-      reactionOwnedElementalApplicationRootSchema,
+      reactionOwnedElementalApplicationRootV148Schema,
     reproducibilityKey: z
       .string()
       .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
@@ -1384,12 +1484,102 @@ export const simulationRunManifestV148Schema = z.preprocess(
   simulationRunManifestV148ValueSchema
 );
 
+const simulationRunManifestV149ValueSchema = z
+  .object({
+    version: z.literal(
+      REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION
+    ),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    ),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot:
+      elementalApplicationIcdRootSchema,
+    reactionOwnedElementalApplicationRoot:
+      reactionOwnedElementalApplicationRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV149Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot",
+        "reactionOwnedElementalApplicationRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV149ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV148Schema;
+  simulationRunManifestV149Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -9479,6 +9669,23 @@ const hasExactReactionOwnedApplicationRootIdentity = (result: {
   result.config.engineVersion ===
     REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
 
+const hasExactReactionOwnedResetBoundaryIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion ===
+    REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+  result.engineVersion ===
+    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+  result.config.engineVersion ===
+    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
     typeof hasExactBurningCallbackDeliveryIdentity
@@ -9488,7 +9695,8 @@ const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   hasExactReactionFormulaRootIdentity(result) ||
   hasExactDirectDamageGroupRootIdentity(result) ||
   hasExactElementalApplicationIcdRootIdentity(result) ||
-  hasExactReactionOwnedApplicationRootIdentity(result);
+  hasExactReactionOwnedApplicationRootIdentity(result) ||
+  hasExactReactionOwnedResetBoundaryIdentity(result);
 
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
@@ -9562,6 +9770,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION]: {
     engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]: {
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -15685,7 +15897,7 @@ const simConfigV148ValueSchema = z
         }
       }
       const parsedModel =
-        reactionOwnedElementalApplicationModelSchema.safeParse(
+        reactionOwnedElementalApplicationModelV1Schema.safeParse(
           rawModel
         );
       if (!parsedModel.success) {
@@ -15719,7 +15931,7 @@ const simConfigV148ValueSchema = z
       schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
       engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
       reactionOwnedElementalApplicationModel:
-        reactionOwnedElementalApplicationModelSchema.parse(
+        reactionOwnedElementalApplicationModelV1Schema.parse(
           wire.reactionOwnedElementalApplicationModel
         )
     } as SimConfigV148;
@@ -15746,11 +15958,138 @@ export const simConfigV148Schema = z.preprocess(
   simConfigV148ValueSchema
 );
 
+/** Project the 1.49 policy identity onto the exact frozen 1.47 common wire. */
+const projectSimConfigV149ToV147 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    reactionOwnedElementalApplicationModel:
+      _reactionOwnedElementalApplicationModel,
+    ...frozenWire
+  } = wire;
+  return {
+    ...frozenWire,
+    schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+    engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+  };
+};
+
+const simConfigV149ValueSchema = z
+  .custom<SimConfigV149>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (
+      wire.schemaVersion !==
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION}`
+      });
+    }
+    if (
+      wire.engineVersion !==
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel =
+      wire.reactionOwnedElementalApplicationModel;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionOwnedElementalApplicationModel"],
+        message:
+          "requires an explicit compiled v1 or v2 reaction-owned elemental-application policy"
+      });
+    } else {
+      for (const field of ["mode", "policyId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: [
+              "reactionOwnedElementalApplicationModel",
+              field
+            ],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel =
+        reactionOwnedElementalApplicationModelSchema.safeParse(
+          rawModel
+        );
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: [
+              "reactionOwnedElementalApplicationModel",
+              ...issue.path
+            ]
+          });
+        }
+      }
+    }
+
+    const parsed = simConfigV147Schema.safeParse(
+      projectSimConfigV149ToV147(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({ ...issue, path: issue.path });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV147Schema.parse(
+      projectSimConfigV149ToV147(wire)
+    );
+    return {
+      ...parsed,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      reactionOwnedElementalApplicationModel:
+        reactionOwnedElementalApplicationModelSchema.parse(
+          wire.reactionOwnedElementalApplicationModel
+        )
+    } as SimConfigV149;
+  });
+
+export const simConfigV149Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel",
+        "reactionOwnedElementalApplicationModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV149ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV148Schema;
+export const simConfigSchema = simConfigV149Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -15803,6 +16142,11 @@ const simResultConfigSchema = z
         ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
       wire.engineVersion ===
         ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+    const exact148Identity =
+      wire.schemaVersion ===
+        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -15871,7 +16215,9 @@ const simResultConfigSchema = z
             ? simConfigV146Schema.safeParse(wire)
             : exact147Identity
               ? simConfigV147Schema.safeParse(wire)
-              : simConfigV148Schema.safeParse(wire);
+              : exact148Identity
+                ? simConfigV148Schema.safeParse(wire)
+                : simConfigV149Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -16720,7 +17066,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION]:
     ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   [REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION]:
-    REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]:
+    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -16953,7 +17301,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -18747,7 +19099,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -20984,7 +21340,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(REACTION_FORMULA_ROOT_SCHEMA_VERSION),
       z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION),
       z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION),
-      z.literal(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION)
+      z.literal(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION),
+      z.literal(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -20994,7 +21351,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(REACTION_FORMULA_ROOT_ENGINE_VERSION),
       z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION),
       z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION),
-      z.literal(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION)
+      z.literal(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION),
+      z.literal(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -30578,7 +30936,7 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     }
   };
 }
@@ -30936,6 +31294,10 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION]: {
     engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION]: {
+    engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -31058,6 +31420,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     findElementalApplicationIcdSelectorPath(input);
   const isElementalApplicationIcdIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
   if (
     !isElementalApplicationIcdIdentity &&
@@ -31110,7 +31473,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const isReactionOwnedApplicationIdentity =
-    version === CURRENT_SCHEMA_VERSION;
+    version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
   if (
     !isReactionOwnedApplicationIdentity &&
     "reactionOwnedElementalApplicationModel" in input
@@ -31156,7 +31520,10 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       }
     }
     const parsedReactionOwnedModel =
-      reactionOwnedElementalApplicationModelSchema.safeParse(
+      (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
+        ? reactionOwnedElementalApplicationModelV1Schema
+        : reactionOwnedElementalApplicationModelSchema
+      ).safeParse(
         input.reactionOwnedElementalApplicationModel
       );
     if (!parsedReactionOwnedModel.success) {
@@ -31176,6 +31543,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
     version === REACTION_FORMULA_ROOT_SCHEMA_VERSION;
@@ -31226,6 +31594,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentDirectDamageGroupIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   const directDamageGroupHitPath =
@@ -31282,6 +31651,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
     version === REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
@@ -31707,6 +32077,23 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
   }
+  if (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION) {
+    const frozen = simConfigV148Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  }
   if (version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION) {
     const frozen = simConfigV147Schema.safeParse(input);
     if (!frozen.success) {
@@ -31724,7 +32111,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       }
     });
   }
@@ -31751,7 +32138,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       },
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       }
     });
   }
@@ -31782,7 +32169,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       },
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       }
     });
   }
@@ -31802,7 +32189,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     }
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {

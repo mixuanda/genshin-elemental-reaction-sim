@@ -12,6 +12,8 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION
 } from "./types";
@@ -191,6 +193,10 @@ describe("target-phase-v3 exact result identity", () => {
     [
       REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
       REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    ],
+    [
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
     ]
   ])("accepts the exact %s result/config pair", (schemaVersion, engineVersion) => {
     expect(
@@ -254,6 +260,18 @@ describe("target-phase-v3 exact result identity", () => {
       "1.48.0-reaction-owned-application-root-forged",
       REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
       "1.48.0-reaction-owned-application-root-forged"
+    ],
+    [
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    ],
+    [
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      "1.49.0-reaction-owned-reset-boundary-forged",
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      "1.49.0-reaction-owned-reset-boundary-forged"
     ]
   ])(
     "rejects a forged or mixed result/config identity %#",
@@ -278,7 +296,7 @@ describe("target-phase-v3 exact result identity", () => {
           expect.objectContaining({
             path: ["schemaVersion"],
             message:
-              "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, 1.47, or 1.48 schema and engine identity"
+              "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, 1.47, 1.48, or 1.49 schema and engine identity"
           })
         ])
       );

@@ -2434,9 +2434,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.48.0-reaction-owned-application-root"
+      "1.49.0-reaction-owned-reset-boundary"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 

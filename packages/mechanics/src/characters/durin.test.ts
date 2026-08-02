@@ -1,7 +1,8 @@
 import { simulate } from "@genshin-dps-lab/sim-core";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -38,6 +39,11 @@ const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
   profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } as const;
 
+const EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL = {
+  mode: "fixed-gcsim-reaction-owned-application-v2",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+} as const;
+
 describe("Durin current mechanics-root identity", () => {
   it("pins authoring configs and compact presets to all fixed roots", () => {
     const configs = [
@@ -56,6 +62,9 @@ describe("Durin current mechanics-root identity", () => {
       );
       expect(config.elementalApplicationIcdModel).toEqual(
         EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
+      );
+      expect(config.reactionOwnedElementalApplicationModel).toEqual(
+        EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL
       );
       for (const ability of config.timeline?.abilities ?? []) {
         for (const hit of ability.hits ?? []) {

@@ -5,6 +5,7 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -38,12 +39,16 @@ import {
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   type DirectDamageGroupLogEntry,
   type ElementalApplication,
   type ElementalApplicationIcdLogEntry,
   type ElementalApplicationIcdLogEntryV147,
   type ElementalApplicationIcdLogEntryV148,
+  type ElementalApplicationIcdLogEntryV149,
   type ElementalApplicationReactionFixedGcsimDecision,
   type DamageEventV147,
   type DamageEventV148,
@@ -56,11 +61,13 @@ import {
   type SimulationResultForV146,
   type SimulationResultForV147,
   type SimulationResultForV148,
+  type SimulationResultForV149,
   type SimulationRunManifestV142,
   type SimulationRunManifestV144,
   type SimulationRunManifestV145,
   type SimulationRunManifestV146,
   type SimulationRunManifestV147,
+  type SimulationRunManifestV148,
 } from "./types";
 
 const commonIdentity = {
@@ -110,7 +117,7 @@ describe("versioned reproducibility identities", () => {
 
   });
 
-  it("binds all four fixed mechanics roots in the current 1.48 manifest", () => {
+  it("binds all four fixed mechanics roots in the current 1.49 manifest", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -126,13 +133,13 @@ describe("versioned reproducibility identities", () => {
     });
 
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
     );
     expect(manifest.version).toBe(SIMULATION_RUN_MANIFEST_VERSION);
-    expect(manifest.version).toBe("1.4.0");
+    expect(manifest.version).toBe("1.5.0");
     expect(manifest.reactionFormulaRoot).toBe(CLASSIC_REACTION_FORMULA_ROOT);
     expect(manifest.directDamageGroupRoot).toBe(GCSIM_DAMAGE_GROUP_ROOT);
     expect(manifest.elementalApplicationIcdRoot).toBe(
@@ -184,7 +191,7 @@ describe("versioned reproducibility identities", () => {
     }
   });
 
-  it("retains exact 1.42, 1.44, 1.45, 1.46, and 1.47 identities", () => {
+  it("retains exact 1.42, 1.44, 1.45, 1.46, 1.47, and 1.48 identities", () => {
     const frozenV142Identity: Omit<
       SimulationRunManifestV142,
       "reproducibilityKey"
@@ -236,6 +243,20 @@ describe("versioned reproducibility identities", () => {
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
     };
+    const frozenV148Identity: Omit<
+      SimulationRunManifestV148,
+      "reproducibilityKey"
+    > = {
+      ...commonIdentity,
+      version: REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+      schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+    };
 
     expect(frozenV145Identity.version).toBe("1.1.0");
     expect("directDamageGroupRoot" in frozenV142Identity).toBe(false);
@@ -251,12 +272,14 @@ describe("versioned reproducibility identities", () => {
       createSimulationReproducibilityKey(frozenV145Identity),
       createSimulationReproducibilityKey(frozenV146Identity),
       createSimulationReproducibilityKey(frozenV147Identity),
+      createSimulationReproducibilityKey(frozenV148Identity),
     ]).toEqual([
       "gdl-v2-fnv1a32-a82adc28",
       "gdl-v2-fnv1a32-452a4d63",
       "gdl-v2-fnv1a32-322d4ab9",
       "gdl-v2-fnv1a32-cba353ae",
       "gdl-v2-fnv1a32-ee6a05c7",
+      "gdl-v2-fnv1a32-fe4848e6",
     ]);
   });
 
@@ -275,7 +298,7 @@ describe("versioned reproducibility identities", () => {
         profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
       },
       reactionOwnedElementalApplicationModel: {
-        mode: "fixed-gcsim-reaction-owned-application-v1",
+        mode: "fixed-gcsim-reaction-owned-application-v2",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
       },
       configuredApplication: {
@@ -382,6 +405,9 @@ describe("direct-damage-group audit identity", () => {
     expectTypeOf<
       SimulationResultForV148["elementalApplicationIcdLog"][number]
     >().toEqualTypeOf<ElementalApplicationIcdLogEntryV148>();
+    expectTypeOf<
+      SimulationResultForV149["elementalApplicationIcdLog"][number]
+    >().toEqualTypeOf<ElementalApplicationIcdLogEntryV149>();
 
     expectTypeOf<
       "elementalApplicationIcdLogId" extends keyof DamageEventV147

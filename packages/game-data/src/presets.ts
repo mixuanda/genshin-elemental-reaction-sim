@@ -35,7 +35,7 @@ function createFixedElementalApplicationIcdModel() {
 
 function createFixedReactionOwnedElementalApplicationModel() {
   return {
-    mode: "fixed-gcsim-reaction-owned-application-v1",
+    mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   } as const;
 }

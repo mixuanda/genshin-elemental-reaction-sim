@@ -68,7 +68,7 @@ export function makeConfig(
     };
   const reactionOwnedElementalApplicationModel =
     overrides.reactionOwnedElementalApplicationModel ?? {
-      mode: "fixed-gcsim-reaction-owned-application-v1" as const,
+      mode: "fixed-gcsim-reaction-owned-application-v2" as const,
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     };
 

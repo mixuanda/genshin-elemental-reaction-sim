@@ -46,7 +46,8 @@ import {
   type SimulationRunManifestV146
 } from "@genshin-dps-lab/schemas";
 import {
-  GCSIM_DAMAGE_GROUP_ROOT
+  GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
 import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
@@ -1819,7 +1820,11 @@ describe("1.44 identity migration release gate", () => {
         elementalApplicationIcdModel:
           makeConfig().elementalApplicationIcdModel,
         reactionOwnedElementalApplicationModel:
-          makeConfig().reactionOwnedElementalApplicationModel
+          {
+            mode: "fixed-gcsim-reaction-owned-application-v1",
+            policyId:
+              GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+          }
       });
       expect(historical).toEqual(before);
     });

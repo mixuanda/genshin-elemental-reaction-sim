@@ -10,7 +10,9 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
@@ -103,6 +105,7 @@ import {
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   reactionOwnedElementalApplicationModelSchema,
   reactionOwnedElementalApplicationRootSchema,
   reactionDeliveryResultReferencesSchema,
@@ -122,6 +125,7 @@ import {
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
+  simulationRunManifestV149Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
@@ -129,6 +133,7 @@ import {
   simConfigV146Schema,
   simConfigV147Schema,
   simConfigV148Schema,
+  simConfigV149Schema,
   trustedReactionElementalApplicationChannelSchema,
   trustedReactionElementalApplicationInputSchema,
   trustedReactionElementalApplicationSelectorSchema,
@@ -208,7 +213,7 @@ const fixedElementalApplicationIcdModel = {
 
 const fixedReactionOwnedElementalApplicationModel = {
   mode: "fixed-gcsim-reaction-owned-application-v1",
-  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } as const;
 
 const asPre139Wire = <T extends object>(
@@ -3456,9 +3461,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.48.0-reaction-owned-application-root"
+      "1.49.0-reaction-owned-reset-boundary"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4513,11 +4518,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION).toBe(
       "1.39.0-shatter-recursive-delivery"
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
-    );
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+      "1.49.0-reaction-owned-reset-boundary"
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4799,7 +4802,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV148Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV149Schema.parse(migrated)).toEqual(migrated);
+    expect(() => simConfigV148Schema.parse(migrated)).toThrow();
     expect(simConfigSchema.parse(migrated)).toEqual(migrated);
     expect(() => simConfigV144Schema.parse(migrated)).toThrow();
     expect(() => simConfigV145Schema.parse(migrated)).toThrow();
@@ -13943,7 +13947,7 @@ describe("simulation run manifest contract", () => {
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
-        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13973,11 +13977,14 @@ describe("simulation run manifest contract", () => {
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
     expect(manifest.version).toBe(
-      REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION
+      REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION
     );
-    expect(simulationRunManifestV148Schema.parse(manifest)).toEqual(
+    expect(simulationRunManifestV149Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV148Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV147Schema.parse(manifest)
     ).toThrow();
@@ -14463,7 +14470,7 @@ describe("versioned config schema", () => {
     ).toEqual(fixedReactionOwnedElementalApplicationModel);
   });
 
-  it("migrates exact 1.47 to 1.48 by changing only identity and injecting the fixed reaction policy", () => {
+  it("migrates exact 1.47 to current by changing only identity and injecting v1", () => {
     const current = migrateConfig(legacyConfig);
     const {
       reactionOwnedElementalApplicationModel: _currentPolicy,
@@ -14495,12 +14502,8 @@ describe("versioned config schema", () => {
       ...frozenPayload
     } = frozenV147;
     expect(migratedPayload).toEqual(frozenPayload);
-    expect(schemaVersion).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
-    );
-    expect(engineVersion).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
-    );
+    expect(schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(reactionOwnedElementalApplicationModel).toEqual(
       fixedReactionOwnedElementalApplicationModel
     );
@@ -14531,12 +14534,10 @@ describe("versioned config schema", () => {
     ).toThrow(/schemaVersion "1\.47\.0" requires/);
   });
 
-  it("strictly validates the 1.48 trusted reaction policy model and closed channels", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
-    );
+  it("strictly validates the current trusted reaction policy models and closed channels", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+      "1.49.0-reaction-owned-reset-boundary"
     );
     expect(
       reactionOwnedElementalApplicationModelSchema.parse(
@@ -15130,7 +15131,7 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV148Schema.safeParse(nullPrototypeWire).success
+      simConfigV149Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {

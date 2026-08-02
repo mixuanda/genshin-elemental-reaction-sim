@@ -32,6 +32,7 @@ import { z } from "zod";
 
 import frozenV146Json from "../../../test-vectors/fixtures/legacy-default-120s-1.46.golden.json";
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
+import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { simulate } from "../simulator";
 
 const PREVIEW_FLAG =
@@ -582,12 +583,14 @@ function loadPreviewOrCreateFixture(
 
 function runDefault() {
   return projectSimulationResultV148ToV147(
-    simulate(durinMeltPreset, {
-      energyMode: "configured",
-      critMode: "average",
-      compatibilityMode: "legacy-v0.1",
-      randomSeed: "legacy-default"
-    })
+    projectSimulationResultV149ToV148(
+      simulate(durinMeltPreset, {
+        energyMode: "configured",
+        critMode: "average",
+        compatibilityMode: "legacy-v0.1",
+        randomSeed: "legacy-default"
+      })
+    )
   );
 }
 

@@ -5,6 +5,7 @@ import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   type GcsimDamageGroupId,
   type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
@@ -22,15 +23,23 @@ import {
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   type BurningElementalApplicationIcdLogEntryV148,
+  type BurningElementalApplicationIcdLogEntryV149,
   type ElementalApplicationIcdLogEntryV148,
+  type ElementalApplicationIcdLogEntryV149,
   type ElementalApplicationIcdDecisionV147,
   type ElementalApplicationIcdLogEntryV147,
-  type ElementalApplicationReactionFixedGcsimDecision,
+  type ElementalApplicationReactionFixedGcsimDecisionV148,
+  type ElementalApplicationReactionFixedGcsimDecisionV149,
   type ReactionOwnedElementalApplicationIcdSkippedDecisionV148,
   type SwirlPropagationElementalApplicationIcdLogEntryV148,
+  type SwirlPropagationElementalApplicationIcdLogEntryV149,
   type TargetPhaseV3DeliveryAttemptV148,
-  type SimulationResult
+  type SimulationResult,
+  type SimulationResultForV148,
+  type VersionedSimulationResult
 } from "./types";
 import {
   validateSimulationResultV142Integrity,
@@ -38,7 +47,8 @@ import {
   validateSimulationResultV145Integrity,
   validateSimulationResultV146Integrity,
   validateSimulationResultV147Integrity,
-  validateSimulationResultV148Integrity
+  validateSimulationResultV148Integrity,
+  validateSimulationResultV149Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -65,6 +75,7 @@ import {
   playerHpSummarySchema,
   playerHpTimelineSchema,
   playerSelfDamageStatusSchema,
+  parseSimulationRunManifestForConfig,
   point2DSchema,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
@@ -82,12 +93,14 @@ import {
   simConfigV146Schema,
   simConfigV147Schema,
   simConfigV148Schema,
+  simConfigV149Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
+  simulationRunManifestV149Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -105,10 +118,13 @@ import {
 } from "./schema";
 
 const finiteNumberSchema = z.number().finite();
-const nonNegativeFiniteNumberSchema = finiteNumberSchema.nonnegative();
-const positiveFiniteNumberSchema = finiteNumberSchema.positive();
+const nonNegativeFiniteNumberSchema =
+  finiteNumberSchema.nonnegative();
+const positiveFiniteNumberSchema =
+  finiteNumberSchema.positive();
 const integerSchema = z.number().int();
-const nonNegativeIntegerSchema = integerSchema.nonnegative();
+const nonNegativeIntegerSchema =
+  integerSchema.nonnegative();
 const positiveIntegerSchema = integerSchema.positive();
 const nonNegativeSafeIntegerSchema = integerSchema
   .finite()
@@ -130,7 +146,8 @@ const nonEmptyStringSchema = z
   .refine((value) => value.trim().length > 0, {
     message: "must not be blank"
   });
-const nullableNonEmptyStringSchema = nonEmptyStringSchema.nullable();
+const nullableNonEmptyStringSchema =
+  nonEmptyStringSchema.nullable();
 const nonNegativeFiniteRecordSchema = z.record(
   nonEmptyStringSchema,
   nonNegativeFiniteNumberSchema
@@ -183,7 +200,10 @@ const crystallizeReactionSchema = z.enum([
   "crystallizeCryo",
   "crystallizeElectro"
 ]);
-const additiveReactionSchema = z.enum(["aggravate", "spread"]);
+const additiveReactionSchema = z.enum([
+  "aggravate",
+  "spread"
+]);
 const unsupportedMechanicsBranchSchema = z.enum([
   "burning",
   "bloom",
@@ -214,11 +234,13 @@ const particleKindSchema = z.enum(["particle", "orb"]);
 const directDamageGroupIds = new Set<string>(
   GCSIM_DAMAGE_GROUP_PROFILE.groups.map((group) => group.id)
 );
-const directDamageGroupIdSchema = z.custom<GcsimDamageGroupId>(
-  (value) =>
-    typeof value === "string" && directDamageGroupIds.has(value),
-  "unknown fixed direct-damage group"
-);
+const directDamageGroupIdSchema =
+  z.custom<GcsimDamageGroupId>(
+    (value) =>
+      typeof value === "string" &&
+      directDamageGroupIds.has(value),
+    "unknown fixed direct-damage group"
+  );
 const publicElementalApplicationGroupIds = new Set<string>(
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS
 );
@@ -468,7 +490,8 @@ export const shatterReactionAuditV142Schema = z
     frozenGaugeBefore: nonNegativeFiniteNumberSchema,
     poiseConsumedGaugeUnits: nonNegativeFiniteNumberSchema,
     frozenGaugeAfterPoise: nonNegativeFiniteNumberSchema,
-    shatterConsumedGaugeUnits: nonNegativeFiniteNumberSchema,
+    shatterConsumedGaugeUnits:
+      nonNegativeFiniteNumberSchema,
     frozenGaugeAfter: nonNegativeFiniteNumberSchema,
     auraBefore: z.array(auraStateEntrySchema),
     auraAfterPoise: z.array(auraStateEntrySchema),
@@ -490,12 +513,15 @@ export const swirlReactionAuditV142Schema = z
     auraGaugeUnitsAfter: nonNegativeFiniteNumberSchema,
     propagatedGaugeUnits: nonNegativeFiniteNumberSchema,
     scheduled: z.boolean(),
-    blockedReason: z.literal("REACTION_QUEUE_GCD").nullable(),
+    blockedReason: z
+      .literal("REACTION_QUEUE_GCD")
+      .nullable(),
     nextAvailableFrame: frameSchema,
     selfDamageFrame: frameSchema,
     propagationDamageFrame: frameSchema,
     selfBaseMultiplier: nonNegativeFiniteNumberSchema,
-    propagationBaseMultiplier: nonNegativeFiniteNumberSchema,
+    propagationBaseMultiplier:
+      nonNegativeFiniteNumberSchema,
     radius: nonNegativeFiniteNumberSchema
   })
   .strict()
@@ -562,7 +588,9 @@ export const crystallizeReactionAuditV142Schema = z
     auraConsumedGaugeUnits: nonNegativeFiniteNumberSchema,
     auraGaugeUnitsAfter: nonNegativeFiniteNumberSchema,
     scheduled: z.boolean(),
-    blockedReason: z.literal("REACTION_QUEUE_GCD").nullable(),
+    blockedReason: z
+      .literal("REACTION_QUEUE_GCD")
+      .nullable(),
     nextAvailableFrame: frameSchema,
     shardSpawnFrame: frameSchema,
     earliestPickupFrame: frameSchema,
@@ -634,14 +662,19 @@ export const reactionAuditV142Schema = z
       .optional(),
     transformativeReaction:
       transformativeReactionAuditSchema.nullable(),
-    periodicReaction: periodicReactionAuditV142Schema.nullable(),
-    frozenReaction: frozenReactionAuditV142Schema.nullable(),
-    shatterReaction: shatterReactionAuditV142Schema.nullable(),
+    periodicReaction:
+      periodicReactionAuditV142Schema.nullable(),
+    frozenReaction:
+      frozenReactionAuditV142Schema.nullable(),
+    shatterReaction:
+      shatterReactionAuditV142Schema.nullable(),
     swirlReactions: z.array(swirlReactionAuditV142Schema),
-    swirlDamageGroup: swirlDamageGroupAuditV142Schema.nullable(),
+    swirlDamageGroup:
+      swirlDamageGroupAuditV142Schema.nullable(),
     crystallizeReaction:
       crystallizeReactionAuditV142Schema.nullable(),
-    catalyzeReaction: catalyzeReactionAuditV142Schema.nullable(),
+    catalyzeReaction:
+      catalyzeReactionAuditV142Schema.nullable(),
     burningReaction: burningReactionAuditSchema.nullable(),
     bloomReactions: z.array(bloomReactionAuditSchema),
     note: nonEmptyStringSchema.optional()
@@ -652,7 +685,8 @@ export const reactionAuditV142Schema = z
       context.addIssue({
         code: "custom",
         path: ["reaction"],
-        message: "a triggered reaction cannot use reaction=none"
+        message:
+          "a triggered reaction cannot use reaction=none"
       });
     }
     if (
@@ -751,7 +785,8 @@ export const damageEventV142Schema = z
     kind: z.enum(["direct", "transformative-reaction"]),
     eventPriority: nonNegativeFiniteNumberSchema,
     eventSequence: nonNegativeIntegerSchema,
-    parentDamageEventId: nonNegativeIntegerSchema.nullable(),
+    parentDamageEventId:
+      nonNegativeIntegerSchema.nullable(),
     sourceActorId: nonEmptyStringSchema,
     scalingOwnerId: nonEmptyStringSchema,
     creditOwnerId: nonEmptyStringSchema,
@@ -764,7 +799,10 @@ export const damageEventV142Schema = z
     targetId: nonEmptyStringSchema,
     targetName: nonEmptyStringSchema,
     targetDamagePolicy: z.enum(["normal", "immune"]),
-    targetDamageMultiplier: z.union([z.literal(0), z.literal(1)]),
+    targetDamageMultiplier: z.union([
+      z.literal(0),
+      z.literal(1)
+    ]),
     mechanicsStatus: mechanicsResolutionStatusSchema,
     potentialDamage: nonNegativeFiniteNumberSchema,
     frame: frameSchema,
@@ -792,7 +830,8 @@ export const damageEventV142Schema = z
     snapshot: z.enum(["action", "hit"]),
     cycle: nonNegativeIntegerSchema,
     flatDetails: z.array(flatDamageDetailV142Schema),
-    timelineCommandIndex: nonNegativeIntegerSchema.optional(),
+    timelineCommandIndex:
+      nonNegativeIntegerSchema.optional(),
     sourceAbilityId: nonEmptyStringSchema.optional(),
     actionStartFrame: frameSchema.optional(),
     actionCancelFrame: frameSchema.optional(),
@@ -842,7 +881,9 @@ export const damageEventV142Schema = z
       Math.abs(left - right) <=
       1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
 
-    if (event.frame !== Math.round(event.timeSeconds * 60)) {
+    if (
+      event.frame !== Math.round(event.timeSeconds * 60)
+    ) {
       issue(
         ["timeSeconds"],
         "must round to frame at 60 FPS"
@@ -854,7 +895,9 @@ export const damageEventV142Schema = z
     if (event.second !== Math.floor(event.timeSeconds)) {
       issue(["second"], "must equal floor(timeSeconds)");
     }
-    if (event.displayDamage !== Math.round(event.finalDamage)) {
+    if (
+      event.displayDamage !== Math.round(event.finalDamage)
+    ) {
       issue(
         ["displayDamage"],
         "must equal Math.round(finalDamage)"
@@ -893,9 +936,7 @@ export const damageEventV142Schema = z
         "immune targets require multiplier 0"
       );
     }
-    if (
-      event.targetIndex >= event.targetCount
-    ) {
+    if (event.targetIndex >= event.targetCount) {
       issue(
         ["targetIndex"],
         "must be less than targetCount"
@@ -933,7 +974,11 @@ export const damageEventV142Schema = z
       ["creditId", event.creditId, event.creditOwnerId],
       ["actorName", event.actorName, event.creditOwnerName],
       ["activeId", event.activeId, event.activeCharacterId],
-      ["scaling", event.scaling, event.damageFactors.scaling],
+      [
+        "scaling",
+        event.scaling,
+        event.damageFactors.scaling
+      ],
       [
         "scalingStat",
         event.scalingStat,
@@ -1023,7 +1068,10 @@ export const damageEventV142Schema = z
     ];
     for (const [field, actual, expected] of aliases) {
       if (actual !== expected) {
-        issue([field], `must equal damageFactors/${field} source`);
+        issue(
+          [field],
+          `must equal damageFactors/${field} source`
+        );
       }
     }
   });
@@ -1068,14 +1116,19 @@ export const hitResolutionLogEntryV142Schema = z
     geometryOrigin: point2DSchema.nullable(),
     geometryStart: point2DSchema.nullable(),
     geometryEnd: point2DSchema.nullable(),
-    geometryRadius: nonNegativeFiniteNumberSchema.nullable(),
-    geometryHalfWidth: nonNegativeFiniteNumberSchema.nullable(),
-    geometryHalfHeight: nonNegativeFiniteNumberSchema.nullable(),
+    geometryRadius:
+      nonNegativeFiniteNumberSchema.nullable(),
+    geometryHalfWidth:
+      nonNegativeFiniteNumberSchema.nullable(),
+    geometryHalfHeight:
+      nonNegativeFiniteNumberSchema.nullable(),
     geometryRotationDegrees: finiteNumberSchema.nullable(),
     geometryDirectionDegrees: finiteNumberSchema.nullable(),
     geometryAngleDegrees: finiteNumberSchema.nullable(),
-    geometryDistance: nonNegativeFiniteNumberSchema.nullable(),
-    geometryThreshold: nonNegativeFiniteNumberSchema.nullable(),
+    geometryDistance:
+      nonNegativeFiniteNumberSchema.nullable(),
+    geometryThreshold:
+      nonNegativeFiniteNumberSchema.nullable(),
     outcome: z.enum(["landed", "miss"]),
     landed: z.boolean(),
     reason: nullableNonEmptyStringSchema,
@@ -1093,12 +1146,15 @@ export const hitResolutionLogEntryV142Schema = z
     potentialDamage: nonNegativeFiniteNumberSchema,
     finalDamage: nonNegativeFiniteNumberSchema,
     displayDamage: nonNegativeIntegerSchema,
-    timelineCommandIndex: nonNegativeIntegerSchema.optional(),
+    timelineCommandIndex:
+      nonNegativeIntegerSchema.optional(),
     sourceAbilityId: nonEmptyStringSchema.optional()
   })
   .strict()
   .superRefine((entry, context) => {
-    if (entry.frame !== Math.round(entry.timeSeconds * 60)) {
+    if (
+      entry.frame !== Math.round(entry.timeSeconds * 60)
+    ) {
       context.addIssue({
         code: "custom",
         path: ["timeSeconds"],
@@ -1119,7 +1175,9 @@ export const hitResolutionLogEntryV142Schema = z
         message: "must be less than targetCount"
       });
     }
-    if (entry.displayDamage !== Math.round(entry.finalDamage)) {
+    if (
+      entry.displayDamage !== Math.round(entry.finalDamage)
+    ) {
       context.addIssue({
         code: "custom",
         path: ["displayDamage"],
@@ -1262,10 +1320,16 @@ export const elementalApplicationIcdDecisionV147Schema = z
       .strict()
   ])
   .superRefine((decision, context) => {
-    if (decision.kind === "skipped" || decision.kind === "no-icd") {
+    if (
+      decision.kind === "skipped" ||
+      decision.kind === "no-icd"
+    ) {
       return;
     }
-    if (decision.allowed !== (decision.applicationMultiplier > 0)) {
+    if (
+      decision.allowed !==
+      decision.applicationMultiplier > 0
+    ) {
       context.addIssue({
         code: "custom",
         path: ["allowed"],
@@ -1274,7 +1338,9 @@ export const elementalApplicationIcdDecisionV147Schema = z
     }
     const expectedResetAtFrame =
       decision.kind === "fixed-gcsim"
-        ? decision.windowStartFrame + decision.resetFrames - 1
+        ? decision.windowStartFrame +
+          decision.resetFrames -
+          1
         : decision.windowStartFrame + decision.resetFrames;
     if (
       !Number.isSafeInteger(expectedResetAtFrame) ||
@@ -1338,7 +1404,8 @@ export const elementalApplicationIcdLogEntryV147Schema = z
     }
     if (
       statefulDecision !== null &&
-      statefulDecision.sequenceIndex > statefulDecision.hitIndex
+      statefulDecision.sequenceIndex >
+        statefulDecision.hitIndex
     ) {
       context.addIssue({
         code: "custom",
@@ -1354,25 +1421,30 @@ export const elementalApplicationIcdLogEntryV147Schema = z
         context.addIssue({
           code: "custom",
           path: ["damageEventId"],
-          message: "missed application attempts cannot own a damage event"
+          message:
+            "missed application attempts cannot own a damage event"
         });
       }
     } else if (entry.damageEventId === null) {
       context.addIssue({
         code: "custom",
         path: ["damageEventId"],
-        message: "landed configured direct-hit attempts require a damage event"
+        message:
+          "landed configured direct-hit attempts require a damage event"
       });
     }
 
     const expectedEffectiveGaugeUnits =
-      entry.nominalGaugeUnits * entry.decision.applicationMultiplier;
+      entry.nominalGaugeUnits *
+      entry.decision.applicationMultiplier;
     const gaugeTolerance =
-      1e-12 * Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
+      1e-12 *
+      Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
     if (
       !Number.isFinite(expectedEffectiveGaugeUnits) ||
       Math.abs(
-        entry.effectiveGaugeUnits - expectedEffectiveGaugeUnits
+        entry.effectiveGaugeUnits -
+          expectedEffectiveGaugeUnits
       ) > gaugeTolerance
     ) {
       context.addIssue({
@@ -1390,11 +1462,14 @@ export const elementalApplicationIcdLogEntryV147Schema = z
       context.addIssue({
         code: "custom",
         path: ["decision", "kind"],
-        message: "no-icd decision requires the no-icd-v1 selector"
+        message:
+          "no-icd decision requires the no-icd-v1 selector"
       });
     }
     if (entry.decision.kind === "legacy-profile") {
-      if (entry.selector.mode !== "legacy-boolean-profile-v1") {
+      if (
+        entry.selector.mode !== "legacy-boolean-profile-v1"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["decision", "kind"],
@@ -1402,14 +1477,19 @@ export const elementalApplicationIcdLogEntryV147Schema = z
             "legacy-profile decision requires a legacy-boolean-profile-v1 selector"
         });
       } else {
-        if (entry.decision.icdTag !== entry.selector.icdTag) {
+        if (
+          entry.decision.icdTag !== entry.selector.icdTag
+        ) {
           context.addIssue({
             code: "custom",
             path: ["decision", "icdTag"],
             message: "must equal selector.icdTag"
           });
         }
-        if (entry.decision.profileId !== entry.selector.profileId) {
+        if (
+          entry.decision.profileId !==
+          entry.selector.profileId
+        ) {
           context.addIssue({
             code: "custom",
             path: ["decision", "profileId"],
@@ -1419,7 +1499,9 @@ export const elementalApplicationIcdLogEntryV147Schema = z
       }
     }
     if (entry.decision.kind === "fixed-gcsim") {
-      if (entry.selector.mode !== "fixed-gcsim-application-v1") {
+      if (
+        entry.selector.mode !== "fixed-gcsim-application-v1"
+      ) {
         context.addIssue({
           code: "custom",
           path: ["decision", "kind"],
@@ -1427,14 +1509,18 @@ export const elementalApplicationIcdLogEntryV147Schema = z
             "fixed-gcsim decision requires a fixed-gcsim-application-v1 selector"
         });
       } else {
-        if (entry.decision.icdTag !== entry.selector.icdTag) {
+        if (
+          entry.decision.icdTag !== entry.selector.icdTag
+        ) {
           context.addIssue({
             code: "custom",
             path: ["decision", "icdTag"],
             message: "must equal selector.icdTag"
           });
         }
-        if (entry.decision.groupId !== entry.selector.groupId) {
+        if (
+          entry.decision.groupId !== entry.selector.groupId
+        ) {
           context.addIssue({
             code: "custom",
             path: ["decision", "groupId"],
@@ -1512,7 +1598,10 @@ export const directDamageGroupLogEntryV146Schema =
         resetAtFrame: frameSchema,
         hitIndex: nonNegativeIntegerSchema,
         sequenceIndex: nonNegativeIntegerSchema,
-        sequenceMultiplier: z.union([z.literal(0), z.literal(1)])
+        sequenceMultiplier: z.union([
+          z.literal(0),
+          z.literal(1)
+        ])
       })
       .strict()
   ]);
@@ -1543,7 +1632,8 @@ export const reactionDamageLogEntryV142Schema = z
   .object({
     id: nonNegativeIntegerSchema,
     reaction: transformativeReactionSchema,
-    triggerDamageEventId: nonNegativeIntegerSchema.nullable(),
+    triggerDamageEventId:
+      nonNegativeIntegerSchema.nullable(),
     triggerHitGroupId: nullableNonEmptyStringSchema,
     sourceActorId: nonEmptyStringSchema,
     sourceTargetId: nonEmptyStringSchema,
@@ -1581,7 +1671,8 @@ export const reactionDamageLogEntryV142Schema = z
     radius: nonNegativeFiniteNumberSchema,
     sourceCoreId: nonNegativeIntegerSchema.nullable(),
     sourceCoreLogId: nonNegativeIntegerSchema.nullable(),
-    selectionRadius: nonNegativeFiniteNumberSchema.nullable(),
+    selectionRadius:
+      nonNegativeFiniteNumberSchema.nullable(),
     selectedTargetId: nullableNonEmptyStringSchema,
     resolutionReason: z
       .literal("NO_TARGET_IN_RANGE")
@@ -1592,7 +1683,9 @@ export const reactionDamageLogEntryV142Schema = z
     checkedTargetIds: z.array(nonEmptyStringSchema),
     hitTargetIds: z.array(nonEmptyStringSchema),
     unresolvedTargetIds: z.array(nonEmptyStringSchema),
-    damageGroupBlockedTargetIds: z.array(nonEmptyStringSchema),
+    damageGroupBlockedTargetIds: z.array(
+      nonEmptyStringSchema
+    ),
     damageEventIds: z.array(nonNegativeIntegerSchema),
     playerHitResolutionLogIds: z.array(
       nonNegativeIntegerSchema
@@ -1613,7 +1706,8 @@ export const reactionDamageLogEntryV142Schema = z
       });
     }
     if (
-      entry.targetingMode === "electro-charged-nearby-wet" &&
+      entry.targetingMode ===
+        "electro-charged-nearby-wet" &&
       entry.electroChargedPropagation === undefined
     ) {
       context.addIssue({
@@ -1624,7 +1718,8 @@ export const reactionDamageLogEntryV142Schema = z
       });
     }
     if (
-      entry.targetingMode !== "electro-charged-nearby-wet" &&
+      entry.targetingMode !==
+        "electro-charged-nearby-wet" &&
       entry.electroChargedPropagation !== undefined
     ) {
       context.addIssue({
@@ -1669,14 +1764,17 @@ export const reactionStatusLogEntryV142Schema = z
       });
     }
     if (
-      Math.abs(entry.startTimeSeconds - entry.startFrame / 60) >
-        1e-9 ||
-      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) > 1e-9
+      Math.abs(
+        entry.startTimeSeconds - entry.startFrame / 60
+      ) > 1e-9 ||
+      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) >
+        1e-9
     ) {
       context.addIssue({
         code: "custom",
         path: ["startTimeSeconds"],
-        message: "status times must equal their frame boundaries / 60"
+        message:
+          "status times must equal their frame boundaries / 60"
       });
     }
     if (
@@ -1712,9 +1810,11 @@ export const periodicReactionLogEntryV142Schema = z
     targetId: nonEmptyStringSchema,
     targetName: nonEmptyStringSchema,
     sourceActorId: nullableNonEmptyStringSchema,
-    triggerDamageEventId: nonNegativeIntegerSchema.nullable(),
+    triggerDamageEventId:
+      nonNegativeIntegerSchema.nullable(),
     reactionTaskLogId: nonNegativeIntegerSchema.optional(),
-    reactionDamageLogId: nonNegativeIntegerSchema.nullable(),
+    reactionDamageLogId:
+      nonNegativeIntegerSchema.nullable(),
     damageEventId: nonNegativeIntegerSchema.nullable(),
     tickIndex: nonNegativeIntegerSchema.nullable(),
     auraBefore: z.array(auraStateEntrySchema),
@@ -1731,7 +1831,9 @@ export const periodicReactionLogEntryV142Schema = z
   })
   .strict()
   .superRefine((entry, context) => {
-    if (Math.abs(entry.timeSeconds - entry.frame / 60) > 1e-9) {
+    if (
+      Math.abs(entry.timeSeconds - entry.frame / 60) > 1e-9
+    ) {
       context.addIssue({
         code: "custom",
         path: ["timeSeconds"],
@@ -1756,7 +1858,10 @@ export const periodicReactionLogEntryV142Schema = z
       entry.operation === "wane-skipped" ||
       (entry.operation === "stop" &&
         entry.waneFrame !== null);
-    if (operationOwnsTickIndex !== (entry.tickIndex !== null)) {
+    if (
+      operationOwnsTickIndex !==
+      (entry.tickIndex !== null)
+    ) {
       context.addIssue({
         code: "custom",
         path: ["tickIndex"],
@@ -1793,7 +1898,8 @@ export const frozenStateLogEntryV142Schema = z
     targetId: nonEmptyStringSchema,
     targetName: nonEmptyStringSchema,
     sourceActorId: nullableNonEmptyStringSchema,
-    triggerDamageEventId: nonNegativeIntegerSchema.nullable(),
+    triggerDamageEventId:
+      nonNegativeIntegerSchema.nullable(),
     freezeResistance: finiteNumberSchema.min(0).max(1),
     generatedGaugeUnits: nonNegativeFiniteNumberSchema,
     consumedGaugeUnits: nonNegativeFiniteNumberSchema,
@@ -1805,7 +1911,9 @@ export const frozenStateLogEntryV142Schema = z
   })
   .strict()
   .superRefine((entry, context) => {
-    if (Math.abs(entry.timeSeconds - entry.frame / 60) > 1e-9) {
+    if (
+      Math.abs(entry.timeSeconds - entry.frame / 60) > 1e-9
+    ) {
       context.addIssue({
         code: "custom",
         path: ["timeSeconds"],
@@ -1852,7 +1960,8 @@ export const crystallizeShardLogEntryV142Schema = z
     element: z.union([auraElementSchema, z.literal("any")]),
     sourceActorId: nullableNonEmptyStringSchema,
     sourceTargetId: nullableNonEmptyStringSchema,
-    triggerDamageEventId: nonNegativeIntegerSchema.nullable(),
+    triggerDamageEventId:
+      nonNegativeIntegerSchema.nullable(),
     triggerFrame: nullableFrameSchema,
     spawnedAtFrame: nullableFrameSchema,
     earliestPickupFrame: nullableFrameSchema,
@@ -1936,7 +2045,8 @@ export const crystallizeShardLogEntryV142Schema = z
         context.addIssue({
           code: "custom",
           path: ["operation"],
-          message: "spawn must emit one successful complete shard snapshot"
+          message:
+            "spawn must emit one successful complete shard snapshot"
         });
       }
       return;
@@ -1953,7 +2063,8 @@ export const crystallizeShardLogEntryV142Schema = z
         context.addIssue({
           code: "custom",
           path: ["operation"],
-          message: "pickup must emit a successful shard-to-shield transition"
+          message:
+            "pickup must emit a successful shard-to-shield transition"
         });
       }
       return;
@@ -1978,7 +2089,8 @@ export const crystallizeShardLogEntryV142Schema = z
         context.addIssue({
           code: "custom",
           path: ["operation"],
-          message: "pickup-attempt must describe TOO_EARLY or NO_MATCHING_SHARD"
+          message:
+            "pickup-attempt must describe TOO_EARLY or NO_MATCHING_SHARD"
         });
       }
       return;
@@ -2033,14 +2145,17 @@ export const targetPhaseTimelineEntryV142Schema = z
       });
     }
     if (
-      Math.abs(entry.startTimeSeconds - entry.startFrame / 60) >
-        1e-9 ||
-      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) > 1e-9
+      Math.abs(
+        entry.startTimeSeconds - entry.startFrame / 60
+      ) > 1e-9 ||
+      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) >
+        1e-9
     ) {
       context.addIssue({
         code: "custom",
         path: ["startTimeSeconds"],
-        message: "timeline times must equal their frame boundaries / 60"
+        message:
+          "timeline times must equal their frame boundaries / 60"
       });
     }
   });
@@ -2067,14 +2182,17 @@ export const targetMotionTimelineEntryV142Schema = z
       });
     }
     if (
-      Math.abs(entry.startTimeSeconds - entry.startFrame / 60) >
-        1e-9 ||
-      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) > 1e-9
+      Math.abs(
+        entry.startTimeSeconds - entry.startFrame / 60
+      ) > 1e-9 ||
+      Math.abs(entry.endTimeSeconds - entry.endFrame / 60) >
+        1e-9
     ) {
       context.addIssue({
         code: "custom",
         path: ["startTimeSeconds"],
-        message: "timeline times must equal their frame boundaries / 60"
+        message:
+          "timeline times must equal their frame boundaries / 60"
       });
     }
   });
@@ -2091,7 +2209,8 @@ export const skippedActionV142Schema = z
     energyBefore: nonNegativeFiniteNumberSchema,
     energyCost: nonNegativeFiniteNumberSchema,
     cycle: nonNegativeIntegerSchema,
-    timelineCommandIndex: nonNegativeIntegerSchema.optional(),
+    timelineCommandIndex:
+      nonNegativeIntegerSchema.optional(),
     sourceAbilityId: nonEmptyStringSchema.optional()
   })
   .strict();
@@ -2106,7 +2225,8 @@ export const actionLogEntryV142Schema = z
     cycle: nonNegativeIntegerSchema,
     energyBefore: nonNegativeFiniteNumberSchema,
     energyAfter: nonNegativeFiniteNumberSchema,
-    timelineCommandIndex: nonNegativeIntegerSchema.optional(),
+    timelineCommandIndex:
+      nonNegativeIntegerSchema.optional(),
     sourceAbilityId: nonEmptyStringSchema.optional(),
     cancelFrame: frameSchema.optional(),
     animationEndFrame: frameSchema.optional()
@@ -2155,7 +2275,9 @@ export const energyLogEntryV142Schema = z
     baseEnergyPerParticle:
       nonNegativeFiniteNumberSchema.nullable(),
     applied: z.boolean(),
-    blockedReason: z.literal("INTERNAL_COOLDOWN").nullable(),
+    blockedReason: z
+      .literal("INTERNAL_COOLDOWN")
+      .nullable(),
     internalCooldownKey: nullableNonEmptyStringSchema,
     internalCooldownDurationFrames: nullableFrameSchema,
     internalCooldownReadyFrame: nullableFrameSchema
@@ -2367,10 +2489,7 @@ export const timelineFailureV142Schema = z
 export const timelineAdjustmentV142Schema = z
   .object({
     commandIndex: nonNegativeIntegerSchema,
-    code: z.enum([
-      "ACTION_OVERLAP",
-      "ABILITY_ON_COOLDOWN"
-    ]),
+    code: z.enum(["ACTION_OVERLAP", "ABILITY_ON_COOLDOWN"]),
     requestedFrame: frameSchema,
     executedFrame: frameSchema,
     waitedFrames: nonNegativeIntegerSchema,
@@ -2426,7 +2545,9 @@ export const timelineExecutionV142Schema = z
     initialActiveCharacterId: nonEmptyStringSchema,
     finalActiveCharacterId: nonEmptyStringSchema,
     totalFrames: nonNegativeIntegerSchema,
-    commandResults: z.array(timelineCommandResultV142Schema),
+    commandResults: z.array(
+      timelineCommandResultV142Schema
+    ),
     adjustments: z.array(timelineAdjustmentV142Schema),
     failures: z.array(timelineFailureV142Schema),
     stateLog: z.array(timelineStateLogEntryV142Schema)
@@ -2446,7 +2567,9 @@ export const simulationResultV142ValueSchema = z
     runManifest: simulationRunManifestV142Schema,
     resolvedRuntimeOptions:
       resolvedSimulationRuntimeOptionsSchema,
-    pluginManifest: z.array(damagePluginManifestEntrySchema),
+    pluginManifest: z.array(
+      damagePluginManifestEntrySchema
+    ),
     reproducibilityKey: nonEmptyStringSchema,
     compatibilityMode: z.enum([
       "legacy-v0.1",
@@ -2458,7 +2581,9 @@ export const simulationResultV142ValueSchema = z
     enemyTargets: z.array(resolvedEnemyTargetProfileSchema),
     damageEvents: z.array(damageEventV142Schema),
     hitEvents: z.array(damageEventV142Schema),
-    hitResolutionLog: z.array(hitResolutionLogEntryV142Schema),
+    hitResolutionLog: z.array(
+      hitResolutionLogEntryV142Schema
+    ),
     targetClockAudit: targetClockAuditSchema,
     targetClockLog: targetClockLogSchema,
     targetHitlagLog: targetHitlagLogSchema,
@@ -2537,22 +2662,29 @@ export const simulationResultV142ValueSchema = z
     targetStateTimeline: targetStateTimelineSchema,
     auraInitialStates: z.array(auraEndStateV142Schema),
     auraEndStates: z.array(auraEndStateV142Schema),
-    timelineExecution: timelineExecutionV142Schema.optional()
+    timelineExecution:
+      timelineExecutionV142Schema.optional()
   })
   .strict()
   .superRefine((result, context) => {
     const issue = (
       path: Array<string | number>,
       message: string
-    ): void => context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
       issue(
         ["engineVersion"],
         "must equal config.engineVersion"
       );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
     if (
       result.randomSeed !==
@@ -2697,15 +2829,21 @@ export const simulationResultV144ValueSchema = z
     const issue = (
       path: Array<string | number>,
       message: string
-    ): void => context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
       issue(
         ["engineVersion"],
         "must equal config.engineVersion"
       );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
     if (
       result.randomSeed !==
@@ -2769,7 +2907,10 @@ export const simulationResultV144ValueSchema = z
       "target task phase references",
       targetTaskPhaseResultReferencesSchema
     );
-    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
       validateFacet(
         "target phase v2 references",
         targetPhaseV2ResultReferencesSchema
@@ -2847,15 +2988,21 @@ export const simulationResultV145ValueSchema = z
     const issue = (
       path: Array<string | number>,
       message: string
-    ): void => context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
       issue(
         ["engineVersion"],
         "must equal config.engineVersion"
       );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
     if (
       result.randomSeed !==
@@ -2919,7 +3066,10 @@ export const simulationResultV145ValueSchema = z
       "target task phase references",
       targetTaskPhaseResultReferencesSchema
     );
-    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
       validateFacet(
         "target phase v2 references",
         targetPhaseV2ResultReferencesSchema
@@ -3000,15 +3150,21 @@ export const simulationResultV146ValueSchema = z
     const issue = (
       path: Array<string | number>,
       message: string
-    ): void => context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
       issue(
         ["engineVersion"],
         "must equal config.engineVersion"
       );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
     if (
       result.randomSeed !==
@@ -3072,7 +3228,10 @@ export const simulationResultV146ValueSchema = z
       "target task phase references",
       targetTaskPhaseResultReferencesSchema
     );
-    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
       validateFacet(
         "target phase v2 references",
         targetPhaseV2ResultReferencesSchema
@@ -3153,15 +3312,21 @@ export const simulationResultV147ValueSchema = z
     const issue = (
       path: Array<string | number>,
       message: string
-    ): void => context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
       issue(
         ["engineVersion"],
         "must equal config.engineVersion"
       );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
     if (
       result.randomSeed !==
@@ -3225,7 +3390,10 @@ export const simulationResultV147ValueSchema = z
       "target task phase references",
       targetTaskPhaseResultReferencesSchema
     );
-    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
       validateFacet(
         "target phase v2 references",
         targetPhaseV2ResultReferencesSchema
@@ -3286,163 +3454,209 @@ export type SimulationResultV147 = z.output<
 /* ------------------------------------------------------------------------- */
 
 const trustedReactionApplicationSelectorBaseShape = {
-  mode: z.literal("fixed-gcsim-reaction-owned-application-v1"),
-  policyId: z.literal(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID),
+  mode: z.literal(
+    "fixed-gcsim-reaction-owned-application-v1"
+  ),
+  policyId: z.literal(
+    GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+  )
 } as const;
 
-export const burningTickElementalApplicationSelectorV148Schema = z
-  .object({
-    ...trustedReactionApplicationSelectorBaseShape,
-    channel: z.object({ kind: z.literal("burning-tick") }).strict(),
-  })
-  .strict();
+export const burningTickElementalApplicationSelectorV148Schema =
+  z
+    .object({
+      ...trustedReactionApplicationSelectorBaseShape,
+      channel: z
+        .object({ kind: z.literal("burning-tick") })
+        .strict()
+    })
+    .strict();
 
 const swirlPropagationElementV148Schema = z.enum([
   "pyro",
   "hydro",
   "cryo",
-  "electro",
+  "electro"
 ]);
 
-export const swirlPropagationElementalApplicationSelectorV148Schema = z
-  .object({
-    ...trustedReactionApplicationSelectorBaseShape,
-    channel: z
-      .object({
-        kind: z.literal("swirl-propagation"),
-        element: swirlPropagationElementV148Schema,
-      })
-      .strict(),
-  })
-  .strict();
+export const swirlPropagationElementalApplicationSelectorV148Schema =
+  z
+    .object({
+      ...trustedReactionApplicationSelectorBaseShape,
+      channel: z
+        .object({
+          kind: z.literal("swirl-propagation"),
+          element: swirlPropagationElementV148Schema
+        })
+        .strict()
+    })
+    .strict();
 
 /** A reaction-owned attempt which was never presented to an ICD window. */
-export const reactionOwnedElementalApplicationSkippedDecisionV148Schema = z
-  .object({
-    kind: z.literal("skipped"),
-    evaluated: z.literal(false),
-    reason: z.enum(["miss", "target-aura-blocked", "mechanics-truncated"]),
-    consumed: z.literal(false),
-    applicationMultiplier: z.literal(0),
-    allowed: z.literal(false),
-  })
-  .strict() satisfies z.ZodType<ReactionOwnedElementalApplicationIcdSkippedDecisionV148>;
+export const reactionOwnedElementalApplicationSkippedDecisionV148Schema =
+  z
+    .object({
+      kind: z.literal("skipped"),
+      evaluated: z.literal(false),
+      reason: z.enum([
+        "miss",
+        "target-aura-blocked",
+        "mechanics-truncated"
+      ]),
+      consumed: z.literal(false),
+      applicationMultiplier: z.literal(0),
+      allowed: z.literal(false)
+    })
+    .strict() satisfies z.ZodType<ReactionOwnedElementalApplicationIcdSkippedDecisionV148>;
 
 /**
  * Complete numeric decision emitted by the trusted reaction-owned state
  * machine. Reserved groups remain unavailable to configured direct hits.
  */
-const elementalApplicationReactionFixedGcsimDecisionCommonV148Shape = {
-  kind: z.literal("reaction-fixed-gcsim"),
-  evaluated: z.literal(true),
-  consumed: z.literal(true),
-  applicationMultiplier: nonNegativeFiniteNumberSchema,
-  allowed: z.boolean(),
-  policyId: z.literal(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID),
-  profileId: z.literal(GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID),
-  windowStartFrame: nonNegativeSafeIntegerSchema,
-  resetAtFrame: nonNegativeSafeIntegerSchema,
-  hitIndex: nonNegativeSafeIntegerSchema,
-  sequenceIndex: nonNegativeSafeIntegerSchema,
-  tailPolicy: z.literal("clamp"),
-  resetSchedulePolicy: z.literal(
-    "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
-  ),
-} as const;
+const elementalApplicationReactionFixedGcsimDecisionCommonV148Shape =
+  {
+    kind: z.literal("reaction-fixed-gcsim"),
+    evaluated: z.literal(true),
+    consumed: z.literal(true),
+    applicationMultiplier: nonNegativeFiniteNumberSchema,
+    allowed: z.boolean(),
+    policyId: z.literal(
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    ),
+    profileId: z.literal(
+      GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    ),
+    windowStartFrame: nonNegativeSafeIntegerSchema,
+    resetAtFrame: nonNegativeSafeIntegerSchema,
+    hitIndex: nonNegativeSafeIntegerSchema,
+    sequenceIndex: nonNegativeSafeIntegerSchema,
+    tailPolicy: z.literal("clamp"),
+    resetSchedulePolicy: z.literal(
+      "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one"
+    )
+  } as const;
 
-export const elementalApplicationReactionFixedGcsimDecisionV148Schema = z
-  .discriminatedUnion("groupId", [
-    z
-      .object({
-        ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
-        scope: z.literal("trusted-target-global-burning-projection"),
-        icdTag: z.literal("ICDTagBurningDamage"),
-        groupId: z.literal("burning"),
-        windowStartGroupId: z.literal("burning"),
-        resetFrames: z.literal(120),
-      })
-      .strict(),
-    z
-      .object({
-        ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
-        scope: z.literal("actor-tag"),
-        icdTag: z.enum([
-          "ICDTagSwirlPyro",
-          "ICDTagSwirlHydro",
-          "ICDTagSwirlCryo",
-          "ICDTagSwirlElectro",
-        ]),
-        groupId: z.literal("reaction-a"),
-        windowStartGroupId: z.literal("reaction-a"),
-        resetFrames: z.literal(30),
-      })
-      .strict(),
-  ])
-  .superRefine((decision, context) => {
-    const issue = (path: Array<string | number>, message: string): void =>
-      context.addIssue({ code: "custom", path, message });
-    if (decision.allowed !== decision.applicationMultiplier > 0) {
-      issue(["allowed"], "must equal applicationMultiplier > 0");
-    }
-    const expectedResetAtFrame =
-      decision.windowStartFrame + decision.resetFrames - 1;
-    if (
-      !Number.isSafeInteger(expectedResetAtFrame) ||
-      decision.resetAtFrame !== expectedResetAtFrame
-    ) {
-      issue(["resetAtFrame"], "must equal windowStartFrame + resetFrames - 1");
-    }
-    if (decision.sequenceIndex > decision.hitIndex) {
-      issue(["sequenceIndex"], "cannot exceed hitIndex");
-    }
+export const elementalApplicationReactionFixedGcsimDecisionV148Schema =
+  z
+    .discriminatedUnion("groupId", [
+      z
+        .object({
+          ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
+          scope: z.literal(
+            "trusted-target-global-burning-projection"
+          ),
+          icdTag: z.literal("ICDTagBurningDamage"),
+          groupId: z.literal("burning"),
+          windowStartGroupId: z.literal("burning"),
+          resetFrames: z.literal(120)
+        })
+        .strict(),
+      z
+        .object({
+          ...elementalApplicationReactionFixedGcsimDecisionCommonV148Shape,
+          scope: z.literal("actor-tag"),
+          icdTag: z.enum([
+            "ICDTagSwirlPyro",
+            "ICDTagSwirlHydro",
+            "ICDTagSwirlCryo",
+            "ICDTagSwirlElectro"
+          ]),
+          groupId: z.literal("reaction-a"),
+          windowStartGroupId: z.literal("reaction-a"),
+          resetFrames: z.literal(30)
+        })
+        .strict()
+    ])
+    .superRefine((decision, context) => {
+      const issue = (
+        path: Array<string | number>,
+        message: string
+      ): void =>
+        context.addIssue({ code: "custom", path, message });
+      if (
+        decision.allowed !==
+        decision.applicationMultiplier > 0
+      ) {
+        issue(
+          ["allowed"],
+          "must equal applicationMultiplier > 0"
+        );
+      }
+      const expectedResetAtFrame =
+        decision.windowStartFrame +
+        decision.resetFrames -
+        1;
+      if (
+        !Number.isSafeInteger(expectedResetAtFrame) ||
+        decision.resetAtFrame !== expectedResetAtFrame
+      ) {
+        issue(
+          ["resetAtFrame"],
+          "must equal windowStartFrame + resetFrames - 1"
+        );
+      }
+      if (decision.sequenceIndex > decision.hitIndex) {
+        issue(["sequenceIndex"], "cannot exceed hitIndex");
+      }
 
-    const isBurning = decision.groupId === "burning";
-    const expectedFinalSequenceIndex = isBurning ? 7 : 9;
-    const expectedSequenceIndex = Math.min(
-      decision.hitIndex,
-      expectedFinalSequenceIndex,
-    );
-    if (decision.sequenceIndex !== expectedSequenceIndex) {
-      issue(["sequenceIndex"], "must equal the clamped trusted sequence index");
-    }
-    const expectedMultiplier = isBurning && expectedSequenceIndex > 0 ? 0 : 1;
-    if (decision.applicationMultiplier !== expectedMultiplier) {
-      issue(
-        ["applicationMultiplier"],
-        "must equal the trusted fixed sequence multiplier",
+      const isBurning = decision.groupId === "burning";
+      const expectedFinalSequenceIndex = isBurning ? 7 : 9;
+      const expectedSequenceIndex = Math.min(
+        decision.hitIndex,
+        expectedFinalSequenceIndex
       );
-    }
-  }) satisfies z.ZodType<ElementalApplicationReactionFixedGcsimDecision>;
+      if (
+        decision.sequenceIndex !== expectedSequenceIndex
+      ) {
+        issue(
+          ["sequenceIndex"],
+          "must equal the clamped trusted sequence index"
+        );
+      }
+      const expectedMultiplier =
+        isBurning && expectedSequenceIndex > 0 ? 0 : 1;
+      if (
+        decision.applicationMultiplier !==
+        expectedMultiplier
+      ) {
+        issue(
+          ["applicationMultiplier"],
+          "must equal the trusted fixed sequence multiplier"
+        );
+      }
+    }) satisfies z.ZodType<ElementalApplicationReactionFixedGcsimDecisionV148>;
 
 export const reactionOwnedElementalApplicationIcdDecisionV148Schema =
   z.discriminatedUnion("kind", [
     reactionOwnedElementalApplicationSkippedDecisionV148Schema,
-    elementalApplicationReactionFixedGcsimDecisionV148Schema,
+    elementalApplicationReactionFixedGcsimDecisionV148Schema
   ]);
 
-const reactionOwnedElementalApplicationLogCommonV148Shape = {
-  id: nonNegativeSafeIntegerSchema,
-  reactionDamageLogId: nonNegativeSafeIntegerSchema,
-  hitResolutionLogId: nonNegativeSafeIntegerSchema,
-  damageEventId: nonNegativeSafeIntegerSchema.nullable(),
-  frame: nonNegativeSafeIntegerSchema,
-  eventPriority: nonNegativeFiniteNumberSchema,
-  eventSequence: nonNegativeSafeIntegerSchema,
-  attemptIndex: nonNegativeSafeIntegerSchema,
-  attemptCount: positiveSafeIntegerSchema,
-  deliveryPhase: z.enum([
-    "reaction-damage-event",
-    "before-reactable-tick",
-    "after-reactable-tick",
-  ]),
-  sourceActorId: nonEmptyStringSchema,
-  targetId: nonEmptyStringSchema,
-  hitId: nonEmptyStringSchema,
-  hitGroupId: nonEmptyStringSchema,
-  nominalGaugeUnits: positiveFiniteNumberSchema,
-  effectiveGaugeUnits: nonNegativeFiniteNumberSchema,
-  decision: reactionOwnedElementalApplicationIcdDecisionV148Schema,
-} as const;
+const reactionOwnedElementalApplicationLogCommonV148Shape =
+  {
+    id: nonNegativeSafeIntegerSchema,
+    reactionDamageLogId: nonNegativeSafeIntegerSchema,
+    hitResolutionLogId: nonNegativeSafeIntegerSchema,
+    damageEventId: nonNegativeSafeIntegerSchema.nullable(),
+    frame: nonNegativeSafeIntegerSchema,
+    eventPriority: nonNegativeFiniteNumberSchema,
+    eventSequence: nonNegativeSafeIntegerSchema,
+    attemptIndex: nonNegativeSafeIntegerSchema,
+    attemptCount: positiveSafeIntegerSchema,
+    deliveryPhase: z.enum([
+      "reaction-damage-event",
+      "before-reactable-tick",
+      "after-reactable-tick"
+    ]),
+    sourceActorId: nonEmptyStringSchema,
+    targetId: nonEmptyStringSchema,
+    hitId: nonEmptyStringSchema,
+    hitGroupId: nonEmptyStringSchema,
+    nominalGaugeUnits: positiveFiniteNumberSchema,
+    effectiveGaugeUnits: nonNegativeFiniteNumberSchema,
+    decision:
+      reactionOwnedElementalApplicationIcdDecisionV148Schema
+  } as const;
 
 type ReactionOwnedApplicationRowForLocalValidation = {
   sourceKind: "burning-tick" | "swirl-propagation";
@@ -3450,28 +3664,43 @@ type ReactionOwnedApplicationRowForLocalValidation = {
   attemptIndex: number;
   attemptCount: number;
   deliveryPhase:
-    "reaction-damage-event" | "before-reactable-tick" | "after-reactable-tick";
+    | "reaction-damage-event"
+    | "before-reactable-tick"
+    | "after-reactable-tick";
   damageEventId: number | null;
   element: "pyro" | "hydro" | "cryo" | "electro";
   nominalGaugeUnits: number;
   effectiveGaugeUnits: number;
   selector:
-    | z.output<typeof burningTickElementalApplicationSelectorV148Schema>
-    | z.output<typeof swirlPropagationElementalApplicationSelectorV148Schema>;
-  decision: z.output<
-    typeof reactionOwnedElementalApplicationIcdDecisionV148Schema
-  >;
+    | {
+        channel: { kind: "burning-tick" };
+      }
+    | {
+        channel: {
+          kind: "swirl-propagation";
+          element: "pyro" | "hydro" | "cryo" | "electro";
+        };
+      };
+  decision:
+    | ReactionOwnedElementalApplicationIcdSkippedDecisionV148
+    | ElementalApplicationReactionFixedGcsimDecisionV149;
 };
 
 function validateReactionOwnedApplicationRowLocalIdentities(
   entry: ReactionOwnedApplicationRowForLocalValidation,
-  context: z.RefinementCtx,
+  context: z.RefinementCtx
 ): void {
-  const issue = (path: Array<string | number>, message: string): void =>
+  const issue = (
+    path: Array<string | number>,
+    message: string
+  ): void =>
     context.addIssue({ code: "custom", path, message });
 
   if (entry.attemptIndex >= entry.attemptCount) {
-    issue(["attemptIndex"], "must be less than attemptCount");
+    issue(
+      ["attemptIndex"],
+      "must be less than attemptCount"
+    );
   }
   if (
     entry.sourceKind === "swirl-propagation" &&
@@ -3479,34 +3708,42 @@ function validateReactionOwnedApplicationRowLocalIdentities(
   ) {
     issue(
       ["deliveryPhase"],
-      "Swirl propagation must use reaction-damage-event delivery",
+      "Swirl propagation must use reaction-damage-event delivery"
     );
   }
 
   const missed =
-    entry.decision.kind === "skipped" && entry.decision.reason === "miss";
+    entry.decision.kind === "skipped" &&
+    entry.decision.reason === "miss";
   if (missed && entry.damageEventId !== null) {
-    issue(["damageEventId"], "misses cannot own damage output");
+    issue(
+      ["damageEventId"],
+      "misses cannot own damage output"
+    );
   }
   if (!missed && entry.damageEventId === null) {
     issue(
       ["damageEventId"],
-      "landed reaction-owned attempts require a damage event",
+      "landed reaction-owned attempts require a damage event"
     );
   }
 
   const expectedEffectiveGaugeUnits =
-    entry.nominalGaugeUnits * entry.decision.applicationMultiplier;
+    entry.nominalGaugeUnits *
+    entry.decision.applicationMultiplier;
   const gaugeTolerance =
-    1e-12 * Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
+    1e-12 *
+    Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
   if (
     !Number.isFinite(expectedEffectiveGaugeUnits) ||
-    Math.abs(entry.effectiveGaugeUnits - expectedEffectiveGaugeUnits) >
-      gaugeTolerance
+    Math.abs(
+      entry.effectiveGaugeUnits -
+        expectedEffectiveGaugeUnits
+    ) > gaugeTolerance
   ) {
     issue(
       ["effectiveGaugeUnits"],
-      "must approximately equal nominalGaugeUnits * decision.applicationMultiplier",
+      "must approximately equal nominalGaugeUnits * decision.applicationMultiplier"
     );
   }
 
@@ -3516,119 +3753,387 @@ function validateReactionOwnedApplicationRowLocalIdentities(
   const expectedScope = isBurning
     ? "trusted-target-global-burning-projection"
     : "actor-tag";
-  const expectedGroup = isBurning ? "burning" : "reaction-a";
+  const expectedGroup = isBurning
+    ? "burning"
+    : "reaction-a";
   const expectedResetFrames = isBurning ? 120 : 30;
   const expectedIcdTag = isBurning
     ? "ICDTagBurningDamage"
     : `ICDTagSwirl${entry.element[0]!.toUpperCase() + entry.element.slice(1)}`;
 
   if (entry.decision.scope !== expectedScope) {
-    issue(["decision", "scope"], `must equal ${expectedScope}`);
+    issue(
+      ["decision", "scope"],
+      `must equal ${expectedScope}`
+    );
   }
   if (entry.decision.icdTag !== expectedIcdTag) {
     issue(
       ["decision", "icdTag"],
-      "must equal the trusted source channel ICD tag",
+      "must equal the trusted source channel ICD tag"
     );
   }
   if (entry.decision.groupId !== expectedGroup) {
-    issue(["decision", "groupId"], `must equal ${expectedGroup}`);
+    issue(
+      ["decision", "groupId"],
+      `must equal ${expectedGroup}`
+    );
   }
   if (entry.decision.windowStartGroupId !== expectedGroup) {
-    issue(["decision", "windowStartGroupId"], `must equal ${expectedGroup}`);
+    issue(
+      ["decision", "windowStartGroupId"],
+      `must equal ${expectedGroup}`
+    );
   }
   if (entry.decision.resetFrames !== expectedResetFrames) {
-    issue(["decision", "resetFrames"], `must equal ${expectedResetFrames}`);
+    issue(
+      ["decision", "resetFrames"],
+      `must equal ${expectedResetFrames}`
+    );
   }
+  const attemptBeforeBoundaryReset =
+    entry.sourceKind === "burning-tick" &&
+    entry.decision.resetSchedulePolicy ===
+      "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one";
   if (
     entry.decision.windowStartFrame > entry.frame ||
-    entry.decision.resetAtFrame <= entry.frame
+    (attemptBeforeBoundaryReset
+      ? entry.decision.resetAtFrame < entry.frame
+      : entry.decision.resetAtFrame <= entry.frame)
   ) {
     issue(
       ["decision", "windowStartFrame"],
-      "active window must start no later than this frame and reset after it",
+      "active window must start no later than this frame and reset after it"
     );
   }
 
   const finalSequenceIndex = isBurning ? 7 : 9;
   const expectedSequenceIndex = Math.min(
     entry.decision.hitIndex,
-    finalSequenceIndex,
+    finalSequenceIndex
   );
-  if (entry.decision.sequenceIndex !== expectedSequenceIndex) {
+  if (
+    entry.decision.sequenceIndex !== expectedSequenceIndex
+  ) {
     issue(
       ["decision", "sequenceIndex"],
-      "must equal the clamped trusted sequence index",
+      "must equal the clamped trusted sequence index"
     );
   }
-  const expectedMultiplier = isBurning && expectedSequenceIndex > 0 ? 0 : 1;
-  if (entry.decision.applicationMultiplier !== expectedMultiplier) {
+  const expectedMultiplier =
+    isBurning && expectedSequenceIndex > 0 ? 0 : 1;
+  if (
+    entry.decision.applicationMultiplier !==
+    expectedMultiplier
+  ) {
     issue(
       ["decision", "applicationMultiplier"],
-      "must equal the trusted fixed sequence multiplier",
+      "must equal the trusted fixed sequence multiplier"
     );
   }
 }
 
-export const burningTickElementalApplicationIcdLogEntryV148Schema = z
-  .object({
-    ...reactionOwnedElementalApplicationLogCommonV148Shape,
-    sourceKind: z.literal("burning-tick"),
-    selector: burningTickElementalApplicationSelectorV148Schema,
-    element: z.literal("pyro"),
-  })
-  .strict()
-  .superRefine((entry, context) => {
-    if (entry.nominalGaugeUnits !== 1) {
-      context.addIssue({
-        code: "custom",
-        path: ["nominalGaugeUnits"],
-        message: "Burning tick application Gauge is fixed at 1U",
-      });
-    }
-    validateReactionOwnedApplicationRowLocalIdentities(entry, context);
-  }) satisfies z.ZodType<BurningElementalApplicationIcdLogEntryV148>;
+export const burningTickElementalApplicationIcdLogEntryV148Schema =
+  z
+    .object({
+      ...reactionOwnedElementalApplicationLogCommonV148Shape,
+      sourceKind: z.literal("burning-tick"),
+      selector:
+        burningTickElementalApplicationSelectorV148Schema,
+      element: z.literal("pyro")
+    })
+    .strict()
+    .superRefine((entry, context) => {
+      if (entry.nominalGaugeUnits !== 1) {
+        context.addIssue({
+          code: "custom",
+          path: ["nominalGaugeUnits"],
+          message:
+            "Burning tick application Gauge is fixed at 1U"
+        });
+      }
+      validateReactionOwnedApplicationRowLocalIdentities(
+        entry,
+        context
+      );
+    }) satisfies z.ZodType<BurningElementalApplicationIcdLogEntryV148>;
 
-export const swirlPropagationElementalApplicationIcdLogEntryV148Schema = z
-  .object({
+export const swirlPropagationElementalApplicationIcdLogEntryV148Schema =
+  z
+    .object({
+      ...reactionOwnedElementalApplicationLogCommonV148Shape,
+      sourceKind: z.literal("swirl-propagation"),
+      selector:
+        swirlPropagationElementalApplicationSelectorV148Schema,
+      element: swirlPropagationElementV148Schema
+    })
+    .strict()
+    .superRefine((entry, context) => {
+      if (
+        entry.selector.channel.element !== entry.element
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["selector", "channel", "element"],
+          message: "must equal the propagated element"
+        });
+      }
+      validateReactionOwnedApplicationRowLocalIdentities(
+        entry,
+        context
+      );
+    }) satisfies z.ZodType<SwirlPropagationElementalApplicationIcdLogEntryV148>;
+
+const trustedReactionApplicationSelectorV2BaseShape = {
+  mode: z.literal(
+    "fixed-gcsim-reaction-owned-application-v2"
+  ),
+  policyId: z.literal(
+    GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  )
+} as const;
+
+export const burningTickElementalApplicationSelectorV149Schema =
+  z
+    .object({
+      ...trustedReactionApplicationSelectorV2BaseShape,
+      channel: z
+        .object({ kind: z.literal("burning-tick") })
+        .strict()
+    })
+    .strict();
+
+export const swirlPropagationElementalApplicationSelectorV149Schema =
+  z
+    .object({
+      ...trustedReactionApplicationSelectorV2BaseShape,
+      channel: z
+        .object({
+          kind: z.literal("swirl-propagation"),
+          element: swirlPropagationElementV148Schema
+        })
+        .strict()
+    })
+    .strict();
+
+const elementalApplicationReactionFixedGcsimDecisionCommonV149Shape =
+  {
+    kind: z.literal("reaction-fixed-gcsim"),
+    evaluated: z.literal(true),
+    consumed: z.literal(true),
+    applicationMultiplier: nonNegativeFiniteNumberSchema,
+    allowed: z.boolean(),
+    policyId: z.literal(
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+    ),
+    profileId: z.literal(
+      GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    ),
+    windowStartFrame: nonNegativeSafeIntegerSchema,
+    resetAtFrame: nonNegativeSafeIntegerSchema,
+    hitIndex: nonNegativeSafeIntegerSchema,
+    sequenceIndex: nonNegativeSafeIntegerSchema,
+    tailPolicy: z.literal("clamp")
+  } as const;
+
+export const elementalApplicationReactionFixedGcsimDecisionV149Schema =
+  z
+    .discriminatedUnion("groupId", [
+      z
+        .object({
+          ...elementalApplicationReactionFixedGcsimDecisionCommonV149Shape,
+          scope: z.literal(
+            "trusted-target-global-burning-projection"
+          ),
+          icdTag: z.literal("ICDTagBurningDamage"),
+          groupId: z.literal("burning"),
+          windowStartGroupId: z.literal("burning"),
+          resetFrames: z.literal(120),
+          resetSchedulePolicy: z.literal(
+            "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one"
+          )
+        })
+        .strict(),
+      z
+        .object({
+          ...elementalApplicationReactionFixedGcsimDecisionCommonV149Shape,
+          scope: z.literal("actor-tag"),
+          icdTag: z.enum([
+            "ICDTagSwirlPyro",
+            "ICDTagSwirlHydro",
+            "ICDTagSwirlCryo",
+            "ICDTagSwirlElectro"
+          ]),
+          groupId: z.literal("reaction-a"),
+          windowStartGroupId: z.literal("reaction-a"),
+          resetFrames: z.literal(30),
+          resetSchedulePolicy: z.literal(
+            "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one"
+          )
+        })
+        .strict()
+    ])
+    .superRefine((decision, context) => {
+      const issue = (
+        path: Array<string | number>,
+        message: string
+      ): void =>
+        context.addIssue({ code: "custom", path, message });
+      if (
+        decision.allowed !==
+        decision.applicationMultiplier > 0
+      ) {
+        issue(
+          ["allowed"],
+          "must equal applicationMultiplier > 0"
+        );
+      }
+      const expectedResetAtFrame =
+        decision.windowStartFrame +
+        decision.resetFrames -
+        1;
+      if (
+        !Number.isSafeInteger(expectedResetAtFrame) ||
+        decision.resetAtFrame !== expectedResetAtFrame
+      ) {
+        issue(
+          ["resetAtFrame"],
+          "must equal windowStartFrame + resetFrames - 1"
+        );
+      }
+      if (decision.sequenceIndex > decision.hitIndex) {
+        issue(["sequenceIndex"], "cannot exceed hitIndex");
+      }
+      const isBurning = decision.groupId === "burning";
+      const expectedSequenceIndex = Math.min(
+        decision.hitIndex,
+        isBurning ? 7 : 9
+      );
+      if (
+        decision.sequenceIndex !== expectedSequenceIndex
+      ) {
+        issue(
+          ["sequenceIndex"],
+          "must equal the clamped trusted sequence index"
+        );
+      }
+      const expectedMultiplier =
+        isBurning && expectedSequenceIndex > 0 ? 0 : 1;
+      if (
+        decision.applicationMultiplier !==
+        expectedMultiplier
+      ) {
+        issue(
+          ["applicationMultiplier"],
+          "must equal the trusted fixed sequence multiplier"
+        );
+      }
+    });
+
+export const reactionOwnedElementalApplicationIcdDecisionV149Schema =
+  z.union([
+    reactionOwnedElementalApplicationIcdDecisionV148Schema,
+    elementalApplicationReactionFixedGcsimDecisionV149Schema
+  ]);
+
+const reactionOwnedElementalApplicationLogCommonV149Shape =
+  {
     ...reactionOwnedElementalApplicationLogCommonV148Shape,
-    sourceKind: z.literal("swirl-propagation"),
-    selector: swirlPropagationElementalApplicationSelectorV148Schema,
-    element: swirlPropagationElementV148Schema,
-  })
-  .strict()
-  .superRefine((entry, context) => {
-    if (entry.selector.channel.element !== entry.element) {
-      context.addIssue({
-        code: "custom",
-        path: ["selector", "channel", "element"],
-        message: "must equal the propagated element",
-      });
-    }
-    validateReactionOwnedApplicationRowLocalIdentities(entry, context);
-  }) satisfies z.ZodType<SwirlPropagationElementalApplicationIcdLogEntryV148>;
+    decision: z.union([
+      reactionOwnedElementalApplicationSkippedDecisionV148Schema,
+      elementalApplicationReactionFixedGcsimDecisionV149Schema
+    ])
+  } as const;
+
+const burningTickElementalApplicationIcdLogEntryV149OnlySchema =
+  z
+    .object({
+      ...reactionOwnedElementalApplicationLogCommonV149Shape,
+      sourceKind: z.literal("burning-tick"),
+      selector:
+        burningTickElementalApplicationSelectorV149Schema,
+      element: z.literal("pyro")
+    })
+    .strict()
+    .superRefine((entry, context) => {
+      if (entry.nominalGaugeUnits !== 1) {
+        context.addIssue({
+          code: "custom",
+          path: ["nominalGaugeUnits"],
+          message:
+            "Burning tick application Gauge is fixed at 1U"
+        });
+      }
+      validateReactionOwnedApplicationRowLocalIdentities(
+        entry,
+        context
+      );
+    });
+
+const swirlPropagationElementalApplicationIcdLogEntryV149OnlySchema =
+  z
+    .object({
+      ...reactionOwnedElementalApplicationLogCommonV149Shape,
+      sourceKind: z.literal("swirl-propagation"),
+      selector:
+        swirlPropagationElementalApplicationSelectorV149Schema,
+      element: swirlPropagationElementV148Schema
+    })
+    .strict()
+    .superRefine((entry, context) => {
+      if (
+        entry.selector.channel.element !== entry.element
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["selector", "channel", "element"],
+          message: "must equal the propagated element"
+        });
+      }
+      validateReactionOwnedApplicationRowLocalIdentities(
+        entry,
+        context
+      );
+    });
+
+export const burningTickElementalApplicationIcdLogEntryV149Schema =
+  z.union([
+    burningTickElementalApplicationIcdLogEntryV148Schema,
+    burningTickElementalApplicationIcdLogEntryV149OnlySchema
+  ]) satisfies z.ZodType<BurningElementalApplicationIcdLogEntryV149>;
+
+export const swirlPropagationElementalApplicationIcdLogEntryV149Schema =
+  z.union([
+    swirlPropagationElementalApplicationIcdLogEntryV148Schema,
+    swirlPropagationElementalApplicationIcdLogEntryV149OnlySchema
+  ]) satisfies z.ZodType<SwirlPropagationElementalApplicationIcdLogEntryV149>;
 
 /** Exact unified 1.48 log union; the configured-direct branch is 1.47. */
-export const elementalApplicationIcdLogEntryV148Schema = z.discriminatedUnion(
-  "sourceKind",
-  [
+export const elementalApplicationIcdLogEntryV148Schema =
+  z.discriminatedUnion("sourceKind", [
     elementalApplicationIcdLogEntryV147Schema,
     burningTickElementalApplicationIcdLogEntryV148Schema,
-    swirlPropagationElementalApplicationIcdLogEntryV148Schema,
-  ],
-) satisfies z.ZodType<ElementalApplicationIcdLogEntryV148>;
+    swirlPropagationElementalApplicationIcdLogEntryV148Schema
+  ]) satisfies z.ZodType<ElementalApplicationIcdLogEntryV148>;
+
+export const elementalApplicationIcdLogEntryV149Schema =
+  z.union([
+    elementalApplicationIcdLogEntryV147Schema,
+    burningTickElementalApplicationIcdLogEntryV149Schema,
+    swirlPropagationElementalApplicationIcdLogEntryV149Schema
+  ]) satisfies z.ZodType<ElementalApplicationIcdLogEntryV149>;
 
 function forwardSchemaIssues(
   label: string,
   parsed: z.ZodSafeParseResult<unknown>,
-  context: z.RefinementCtx,
+  context: z.RefinementCtx
 ): void {
   if (parsed.success) return;
   for (const nestedIssue of parsed.error.issues) {
     context.addIssue({
       code: "custom",
       path: [...nestedIssue.path],
-      message: `${label}: ${nestedIssue.message}`,
+      message: `${label}: ${nestedIssue.message}`
     });
   }
 }
@@ -3637,18 +4142,20 @@ function forwardSchemaIssues(
 export const damageEventV148Schema = z
   .object({
     ...damageEventV142Schema.shape,
-    elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema.nullable(),
+    elementalApplicationIcdLogId:
+      nonNegativeSafeIntegerSchema.nullable()
   })
   .strict()
   .superRefine((event, context) => {
     const {
-      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId:
+        _elementalApplicationIcdLogId,
       ...frozenEvent
     } = event;
     forwardSchemaIssues(
       "frozen 1.47 damage event",
       damageEventV142Schema.safeParse(frozenEvent),
-      context,
+      context
     );
   });
 
@@ -3656,20 +4163,25 @@ export const damageEventV148Schema = z
 export const hitResolutionLogEntryV148Schema = z
   .object({
     ...hitResolutionLogEntryV142Schema.shape,
-    reactionDamageLogId: nonNegativeSafeIntegerSchema.nullable(),
-    elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema.nullable(),
+    reactionDamageLogId:
+      nonNegativeSafeIntegerSchema.nullable(),
+    elementalApplicationIcdLogId:
+      nonNegativeSafeIntegerSchema.nullable()
   })
   .strict()
   .superRefine((entry, context) => {
     const {
       reactionDamageLogId: _reactionDamageLogId,
-      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId:
+        _elementalApplicationIcdLogId,
       ...frozenEntry
     } = entry;
     forwardSchemaIssues(
       "frozen 1.47 hit resolution",
-      hitResolutionLogEntryV142Schema.safeParse(frozenEntry),
-      context,
+      hitResolutionLogEntryV142Schema.safeParse(
+        frozenEntry
+      ),
+      context
     );
     if (
       (entry.resolutionKind === "reaction-damage") !==
@@ -3678,7 +4190,8 @@ export const hitResolutionLogEntryV148Schema = z
       context.addIssue({
         code: "custom",
         path: ["reactionDamageLogId"],
-        message: "must be present exactly for reaction-damage resolutions",
+        message:
+          "must be present exactly for reaction-damage resolutions"
       });
     }
   });
@@ -3687,30 +4200,40 @@ export const hitResolutionLogEntryV148Schema = z
 export const reactionDamageLogEntryV148Schema = z
   .object({
     ...reactionDamageLogEntryV142Schema.shape,
-    hitResolutionLogIds: z.array(nonNegativeSafeIntegerSchema),
-    elementalApplicationIcdLogIds: z.array(nonNegativeSafeIntegerSchema),
+    hitResolutionLogIds: z.array(
+      nonNegativeSafeIntegerSchema
+    ),
+    elementalApplicationIcdLogIds: z.array(
+      nonNegativeSafeIntegerSchema
+    )
   })
   .strict()
   .superRefine((entry, context) => {
     const {
       hitResolutionLogIds: _hitResolutionLogIds,
-      elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
+      elementalApplicationIcdLogIds:
+        _elementalApplicationIcdLogIds,
       ...frozenEntry
     } = entry;
     forwardSchemaIssues(
       "frozen 1.47 reaction damage row",
-      reactionDamageLogEntryV142Schema.safeParse(frozenEntry),
-      context,
+      reactionDamageLogEntryV142Schema.safeParse(
+        frozenEntry
+      ),
+      context
     );
     for (const [field, ids] of [
       ["hitResolutionLogIds", entry.hitResolutionLogIds],
-      ["elementalApplicationIcdLogIds", entry.elementalApplicationIcdLogIds],
+      [
+        "elementalApplicationIcdLogIds",
+        entry.elementalApplicationIcdLogIds
+      ]
     ] as const) {
       if (new Set(ids).size !== ids.length) {
         context.addIssue({
           code: "custom",
           path: [field],
-          message: "must not contain duplicate ids",
+          message: "must not contain duplicate ids"
         });
       }
     }
@@ -3720,20 +4243,24 @@ const targetPhaseV3DeliveryAttemptBaseV148Shape = {
   order: nonNegativeSafeIntegerSchema,
   targetId: nonEmptyStringSchema,
   targetOrder: nonNegativeSafeIntegerSchema,
-  applicationPhase: z.enum(["before-reactable-tick", "after-reactable-tick"]),
+  applicationPhase: z.enum([
+    "before-reactable-tick",
+    "after-reactable-tick"
+  ])
 } as const;
 
-export const targetPhaseV3DeliveryAttemptV148Schema = z.discriminatedUnion(
-  "outcome",
-  [
+export const targetPhaseV3DeliveryAttemptV148Schema =
+  z.discriminatedUnion("outcome", [
     z
       .object({
         ...targetPhaseV3DeliveryAttemptBaseV148Shape,
         outcome: z.literal("landed"),
         hitResolutionLogId: nonNegativeSafeIntegerSchema,
         damageEventId: nonNegativeSafeIntegerSchema,
-        elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema,
-        targetStateTimelinePointId: nonNegativeSafeIntegerSchema,
+        elementalApplicationIcdLogId:
+          nonNegativeSafeIntegerSchema,
+        targetStateTimelinePointId:
+          nonNegativeSafeIntegerSchema
       })
       .strict(),
     z
@@ -3742,8 +4269,9 @@ export const targetPhaseV3DeliveryAttemptV148Schema = z.discriminatedUnion(
         outcome: z.literal("miss"),
         hitResolutionLogId: nonNegativeSafeIntegerSchema,
         damageEventId: z.null(),
-        elementalApplicationIcdLogId: nonNegativeSafeIntegerSchema,
-        targetStateTimelinePointId: z.null(),
+        elementalApplicationIcdLogId:
+          nonNegativeSafeIntegerSchema,
+        targetStateTimelinePointId: z.null()
       })
       .strict(),
     z
@@ -3753,24 +4281,24 @@ export const targetPhaseV3DeliveryAttemptV148Schema = z.discriminatedUnion(
         hitResolutionLogId: z.null(),
         damageEventId: z.null(),
         elementalApplicationIcdLogId: z.null(),
-        targetStateTimelinePointId: z.null(),
+        targetStateTimelinePointId: z.null()
       })
-      .strict(),
-  ],
-) satisfies z.ZodType<TargetPhaseV3DeliveryAttemptV148>;
+      .strict()
+  ]) satisfies z.ZodType<TargetPhaseV3DeliveryAttemptV148>;
 
 type ParsedTargetPhaseV3DeliveryAttemptV148 = z.output<
   typeof targetPhaseV3DeliveryAttemptV148Schema
 >;
 
 function projectTargetPhaseV3DeliveryAttemptToV147(
-  attempt: ParsedTargetPhaseV3DeliveryAttemptV148,
+  attempt: ParsedTargetPhaseV3DeliveryAttemptV148
 ): Omit<
   ParsedTargetPhaseV3DeliveryAttemptV148,
   "elementalApplicationIcdLogId"
 > {
   const {
-    elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
+    elementalApplicationIcdLogId:
+      _elementalApplicationIcdLogId,
     ...frozenAttempt
   } = attempt;
   return frozenAttempt;
@@ -3779,32 +4307,39 @@ function projectTargetPhaseV3DeliveryAttemptToV147(
 export const targetPhaseV3DeliveryV148Schema = z
   .object({
     ...targetPhaseV3DeliverySchema.shape,
-    attempts: z.array(targetPhaseV3DeliveryAttemptV148Schema),
+    attempts: z.array(
+      targetPhaseV3DeliveryAttemptV148Schema
+    )
   })
   .strict()
   .superRefine((delivery, context) => {
     const projectedDelivery = {
       ...delivery,
       attempts: delivery.attempts.map(
-        projectTargetPhaseV3DeliveryAttemptToV147,
-      ),
+        projectTargetPhaseV3DeliveryAttemptToV147
+      )
     };
     forwardSchemaIssues(
       "frozen 1.47 target-phase-v3 delivery",
-      targetPhaseV3DeliverySchema.safeParse(projectedDelivery),
-      context,
+      targetPhaseV3DeliverySchema.safeParse(
+        projectedDelivery
+      ),
+      context
     );
-    const applicationIds = delivery.attempts.flatMap((attempt) =>
-      attempt.elementalApplicationIcdLogId === null
-        ? []
-        : [attempt.elementalApplicationIcdLogId],
+    const applicationIds = delivery.attempts.flatMap(
+      (attempt) =>
+        attempt.elementalApplicationIcdLogId === null
+          ? []
+          : [attempt.elementalApplicationIcdLogId]
     );
-    if (new Set(applicationIds).size !== applicationIds.length) {
+    if (
+      new Set(applicationIds).size !== applicationIds.length
+    ) {
       context.addIssue({
         code: "custom",
         path: ["attempts"],
         message:
-          "one Burning callback delivery cannot reuse an application log id",
+          "one Burning callback delivery cannot reuse an application log id"
       });
     }
   });
@@ -3812,7 +4347,7 @@ export const targetPhaseV3DeliveryV148Schema = z
 export const targetPhaseV3TargetTaskV148Schema = z
   .object({
     ...targetPhaseV3TargetTaskSchema.shape,
-    delivery: targetPhaseV3DeliveryV148Schema.nullable(),
+    delivery: targetPhaseV3DeliveryV148Schema.nullable()
   })
   .strict()
   .superRefine((task, context) => {
@@ -3824,21 +4359,23 @@ export const targetPhaseV3TargetTaskV148Schema = z
           : {
               ...task.delivery,
               attempts: task.delivery.attempts.map(
-                projectTargetPhaseV3DeliveryAttemptToV147,
-              ),
-            },
+                projectTargetPhaseV3DeliveryAttemptToV147
+              )
+            }
     };
     forwardSchemaIssues(
       "frozen 1.47 target-phase-v3 task",
-      targetPhaseV3TargetTaskSchema.safeParse(projectedTask),
-      context,
+      targetPhaseV3TargetTaskSchema.safeParse(
+        projectedTask
+      ),
+      context
     );
   });
 
 export const targetPhaseV3LogEntryV148Schema = z
   .object({
     ...targetPhaseV3LogEntrySchema.shape,
-    targetTasks: z.array(targetPhaseV3TargetTaskV148Schema),
+    targetTasks: z.array(targetPhaseV3TargetTaskV148Schema)
   })
   .strict()
   .superRefine((entry, context) => {
@@ -3852,15 +4389,15 @@ export const targetPhaseV3LogEntryV148Schema = z
             : {
                 ...task.delivery,
                 attempts: task.delivery.attempts.map(
-                  projectTargetPhaseV3DeliveryAttemptToV147,
-                ),
-              },
-      })),
+                  projectTargetPhaseV3DeliveryAttemptToV147
+                )
+              }
+      }))
     };
     forwardSchemaIssues(
       "frozen 1.47 target-phase-v3 entry",
       targetPhaseV3LogEntrySchema.safeParse(projectedEntry),
-      context,
+      context
     );
   });
 
@@ -3877,15 +4414,15 @@ export const targetPhaseV3LogV148Schema = z
             : {
                 ...task.delivery,
                 attempts: task.delivery.attempts.map(
-                  projectTargetPhaseV3DeliveryAttemptToV147,
-                ),
-              },
-      })),
+                  projectTargetPhaseV3DeliveryAttemptToV147
+                )
+              }
+      }))
     }));
     forwardSchemaIssues(
       "frozen 1.47 target-phase-v3 log",
       targetPhaseV3LogSchema.safeParse(projectedEntries),
-      context,
+      context
     );
   });
 
@@ -3898,34 +4435,59 @@ export const targetPhaseV3LogV148Schema = z
 export const simulationResultV148ValueSchema = z
   .object({
     ...simulationResultV147ValueSchema.shape,
-    schemaVersion: z.literal(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION),
-    engineVersion: z.literal(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    ),
     runManifest: simulationRunManifestV148Schema,
     config: simConfigV148Schema,
     damageEvents: z.array(damageEventV148Schema),
     hitEvents: z.array(damageEventV148Schema),
-    hitResolutionLog: z.array(hitResolutionLogEntryV148Schema),
-    reactionDamageLog: z.array(reactionDamageLogEntryV148Schema),
+    hitResolutionLog: z.array(
+      hitResolutionLogEntryV148Schema
+    ),
+    reactionDamageLog: z.array(
+      reactionDamageLogEntryV148Schema
+    ),
     elementalApplicationIcdLog: z.array(
-      elementalApplicationIcdLogEntryV148Schema,
+      elementalApplicationIcdLogEntryV148Schema
     ),
     targetPhaseLog: z.union([
       targetPhaseV2LogSchema,
-      targetPhaseV3LogV148Schema,
-    ]),
+      targetPhaseV3LogV148Schema
+    ])
   })
   .strict()
   .superRefine((result, context) => {
-    const issue = (path: Array<string | number>, message: string): void =>
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void =>
       context.addIssue({ code: "custom", path, message });
-    if (result.engineVersion !== result.config.engineVersion) {
-      issue(["engineVersion"], "must equal config.engineVersion");
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
     }
     if (result.dataVersion !== result.config.dataVersion) {
-      issue(["dataVersion"], "must equal config.dataVersion");
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
     }
-    if (result.randomSeed !== result.resolvedRuntimeOptions.randomSeed) {
-      issue(["randomSeed"], "must equal resolvedRuntimeOptions.randomSeed");
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
     }
     if (
       result.compatibilityMode !==
@@ -3933,55 +4495,70 @@ export const simulationResultV148ValueSchema = z
     ) {
       issue(
         ["compatibilityMode"],
-        "must equal resolvedRuntimeOptions.compatibilityMode",
+        "must equal resolvedRuntimeOptions.compatibilityMode"
       );
     }
-    if (result.reproducibilityKey !== result.runManifest.reproducibilityKey) {
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
       issue(
         ["reproducibilityKey"],
-        "must equal runManifest.reproducibilityKey",
+        "must equal runManifest.reproducibilityKey"
       );
     }
     if (
       JSON.stringify(result.pluginManifest) !==
       JSON.stringify(result.runManifest.plugins)
     ) {
-      issue(["pluginManifest"], "must equal runManifest.plugins");
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
     }
-    const validateFacet = (label: string, schema: z.ZodType): void => {
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
       const parsed = schema.safeParse(result);
       if (parsed.success) return;
       for (const facetIssue of parsed.error.issues) {
         context.addIssue({
           code: "custom",
           path: [...facetIssue.path],
-          message: `${label}: ${facetIssue.message}`,
+          message: `${label}: ${facetIssue.message}`
         });
       }
     };
     validateFacet(
       "enemy target references",
-      enemyTargetsResultReferencesSchema,
+      enemyTargetsResultReferencesSchema
     );
     validateFacet(
       "reaction delivery references",
-      reactionDeliveryResultReferencesSchema,
+      reactionDeliveryResultReferencesSchema
     );
     validateFacet(
       "target task phase references",
-      targetTaskPhaseResultReferencesSchema,
+      targetTaskPhaseResultReferencesSchema
     );
-    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
       validateFacet(
         "target phase v2 references",
-        targetPhaseV2ResultReferencesSchema,
+        targetPhaseV2ResultReferencesSchema
       );
     }
     validateFacet(
       "player damage references",
-      playerDamageResultReferencesSchema,
+      playerDamageResultReferencesSchema
     );
-    validateFacet("target clock references", targetClockResultReferencesSchema);
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
     const auraMode = result.config.reactionEngine?.mode;
     if (
       auraMode === "aura-v5" ||
@@ -3990,35 +4567,333 @@ export const simulationResultV148ValueSchema = z
       auraMode === "aura-v8" ||
       auraMode === "aura-v9"
     ) {
-      validateFacet("Dendro core references", dendroCoreResultReferencesSchema);
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
     }
     if (
       (auraMode === "aura-v8" || auraMode === "aura-v9") &&
       (result.reactionTaskLog.some(
-        (task) => task.electroChargedCleanup !== null,
+        (task) => task.electroChargedCleanup !== null
       ) ||
         result.periodicReactionLog.some(
-          (entry) => entry.reaction === "electroCharged",
+          (entry) => entry.reaction === "electroCharged"
         ))
     ) {
       validateFacet(
         "Electro-Charged cleanup references",
-        electroChargedCleanupResultReferencesSchema,
+        electroChargedCleanupResultReferencesSchema
       );
     }
     validateSimulationResultV148Integrity(
-      result as unknown as SimulationResult,
-      context,
+      result as unknown as SimulationResultForV148,
+      context
     );
   });
 
 export const simulationResultV148Schema = z.preprocess(
   rejectNonPlainJsonWire("SimulationResult 1.48"),
-  simulationResultV148ValueSchema,
+  simulationResultV148ValueSchema
 );
 
-export type SimulationResultV148 = z.output<typeof simulationResultV148Schema>;
+export type SimulationResultV148 = z.output<
+  typeof simulationResultV148Schema
+>;
+
+/** Current 1.49 result wire with an explicit v1/v2 reset-boundary policy. */
+export const simulationResultV149ValueSchema = z
+  .object({
+    ...simulationResultV148ValueSchema.shape,
+    schemaVersion: z.literal(
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV149Schema,
+    config: simConfigV149Schema,
+    elementalApplicationIcdLog: z.array(
+      elementalApplicationIcdLogEntryV149Schema
+    )
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    try {
+      parseSimulationRunManifestForConfig(
+        result.runManifest,
+        result.config
+      );
+    } catch (error) {
+      issue(
+        ["runManifest"],
+        error instanceof Error
+          ? error.message
+          : "is not bound to the supplied migrated config"
+      );
+    }
+
+    const selectedPolicy =
+      result.config.reactionOwnedElementalApplicationModel;
+    for (const [
+      index,
+      entry
+    ] of result.elementalApplicationIcdLog.entries()) {
+      if (entry.sourceKind === "configured-direct-hit")
+        continue;
+      if (
+        entry.selector.mode !== selectedPolicy.mode ||
+        entry.selector.policyId !== selectedPolicy.policyId
+      ) {
+        issue(
+          ["elementalApplicationIcdLog", index, "selector"],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+      if (
+        entry.decision.kind === "reaction-fixed-gcsim" &&
+        entry.decision.policyId !== selectedPolicy.policyId
+      ) {
+        issue(
+          [
+            "elementalApplicationIcdLog",
+            index,
+            "decision",
+            "policyId"
+          ],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+    }
+
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV149Integrity(
+      result as unknown as SimulationResult,
+      context
+    );
+  });
+
+export const simulationResultV149Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.49"),
+  simulationResultV149ValueSchema
+);
+
+export type SimulationResultV149 = z.output<
+  typeof simulationResultV149Schema
+>;
 
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema = simulationResultV148Schema;
-export type ParsedSimulationResult = SimulationResultV148;
+export const simulationResultSchema =
+  simulationResultV149Schema;
+export type ParsedSimulationResult = SimulationResultV149;
+
+/** Strict public parser for exact frozen/current result identities. */
+export function parseVersionedSimulationResult(
+  input: unknown
+): VersionedSimulationResult {
+  const cleanInput = z
+    .preprocess(
+      rejectNonPlainJsonWire("SimulationResult"),
+      z.record(z.string(), z.unknown())
+    )
+    .parse(input);
+  const wire = cleanInput;
+  const schemaVersion = wire.schemaVersion;
+  const engineVersion = wire.engineVersion;
+  if (
+    schemaVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+    engineVersion ===
+      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+  ) {
+    return simulationResultV149Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
+    engineVersion ===
+      REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+  ) {
+    return simulationResultV148Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+    engineVersion ===
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+  ) {
+    return simulationResultV147Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+    engineVersion ===
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+  ) {
+    return simulationResultV146Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
+    engineVersion === REACTION_FORMULA_ROOT_ENGINE_VERSION
+  ) {
+    return simulationResultV145Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION &&
+    engineVersion ===
+      BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+  ) {
+    return simulationResultV144Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
+  if (
+    schemaVersion ===
+      EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION &&
+    engineVersion ===
+      EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+  ) {
+    return simulationResultV142Schema.parse(
+      cleanInput
+    ) as unknown as VersionedSimulationResult;
+  }
+  throw new Error(
+    `Unsupported SimulationResult identity ${String(schemaVersion)} / ${String(engineVersion)}`
+  );
+}

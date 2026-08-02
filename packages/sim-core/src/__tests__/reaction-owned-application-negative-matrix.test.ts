@@ -5,7 +5,7 @@ import {
   type SimConfig,
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
-import { GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID } from "@genshin-dps-lab/icd-profiles";
+import { GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 
 import { simulate } from "../simulator";
@@ -81,7 +81,7 @@ function makeMatrixConfig(
   const base = makeConfig({
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
     },
   });
   const durationFrames = Math.max(60, scenario.durationFrames);
@@ -172,7 +172,7 @@ function makeMatrixConfig(
     },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
     },
   };
 }
@@ -526,7 +526,7 @@ describe("reaction-owned elemental application public matrix", () => {
       effectiveGaugeUnits: 1,
       selector: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
         channel: { kind: "burning-tick" },
       },
       decision: {
@@ -615,7 +615,7 @@ describe("reaction-owned elemental application public matrix", () => {
       effectiveGaugeUnits: 2.2,
       selector: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
         channel: {
           kind: "swirl-propagation",
           element: "pyro",

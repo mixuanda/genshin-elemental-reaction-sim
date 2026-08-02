@@ -350,7 +350,7 @@ function expectRejectedAtBothBoundaries(
   );
   expect(() =>
     assertTrustedSimulationResult(result)
-  ).toThrow(/Trusted SimulationResult 1\.48 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.49 integrity validation failed/);
 }
 
 function appendUnownedStop(
@@ -723,7 +723,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.48 integrity validation failed/
+      /Trusted SimulationResult 1\.49 integrity validation failed/
     );
   });
 
@@ -942,7 +942,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.48 integrity validation failed/
+      /Trusted SimulationResult 1\.49 integrity validation failed/
     );
   });
 
@@ -1039,7 +1039,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.48 integrity validation failed/
+      /Trusted SimulationResult 1\.49 integrity validation failed/
     );
   });
 

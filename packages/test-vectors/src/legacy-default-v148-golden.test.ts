@@ -11,20 +11,21 @@ import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResult,
-  simulationResultSchema
+  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  assertTrustedSimulationResultV148,
+  simulationResultV148Schema
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 
 import frozenV147 from "../fixtures/legacy-default-120s-1.47.golden.json";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
+import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import {
   atomicCreateGolden,
   byteSha256,
@@ -151,12 +152,14 @@ function legacyDamageEventsSha256(value: unknown): string {
 }
 
 function runDefault() {
-  return simulate(durinMeltPreset, {
-    energyMode: "configured",
-    critMode: "average",
-    compatibilityMode: "legacy-v0.1",
-    randomSeed: "legacy-default"
-  });
+  return projectSimulationResultV149ToV148(
+    simulate(durinMeltPreset, {
+      energyMode: "configured",
+      critMode: "average",
+      compatibilityMode: "legacy-v0.1",
+      randomSeed: "legacy-default"
+    })
+  );
 }
 
 function v147CompatibilityProjection(
@@ -353,17 +356,21 @@ describe("default 1.48 reaction-owned application Golden", () => {
     () => {
       const result = runDefault();
       expect(runDefault()).toEqual(result);
-      expect(simulationResultSchema.parse(result)).toEqual(result);
-      expect(assertTrustedSimulationResult(result)).toBe(result);
-      expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
-      expect(CURRENT_ENGINE_VERSION).toBe(
+      expect(simulationResultV148Schema.parse(result)).toEqual(result);
+      expect(assertTrustedSimulationResultV148(result)).toBe(result);
+      expect(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION).toBe(
+        "1.48.0"
+      );
+      expect(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION).toBe(
         "1.48.0-reaction-owned-application-root"
       );
-      expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.4.0");
+      expect(REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION).toBe(
+        "1.4.0"
+      );
       expect(result.runManifest.version).toBe("1.4.0");
       expect(
         result.runManifest.reactionOwnedElementalApplicationRoot
-      ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
+      ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT);
       expect(v147CompatibilityProjection(result)).toEqual(
         frozenV147CompatibilityProjection()
       );

@@ -9,11 +9,13 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
   resolveDamageGroup,
   resolveElementalApplicationGroup,
-  resolveReactionOwnedApplicationBinding,
+  resolveReactionOwnedApplicationBindingForPolicy,
   type GcsimDamageGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -31,6 +33,9 @@ import {
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
@@ -45,6 +50,7 @@ import {
   type ScalingStat,
   type SimulationResult,
   type SimulationResultForV147,
+  type SimulationResultForV148,
   type StatusTarget
 } from "./types";
 import {
@@ -2353,7 +2359,7 @@ function validateIdentityV148(
     "current"
   );
   if (
-    result.runManifest.version !==
+    (result.runManifest.version as string) !==
     REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION
   ) {
     addIssue(
@@ -2442,7 +2448,7 @@ function validateIdentityV148(
     context,
     ["runManifest", "reactionOwnedElementalApplicationRoot"],
     result.runManifest.reactionOwnedElementalApplicationRoot,
-    GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+    GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
     "compiled reaction-owned elemental-application policy root"
   );
   expectSemanticEqual(
@@ -2451,7 +2457,7 @@ function validateIdentityV148(
     result.config.reactionOwnedElementalApplicationModel,
     {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     },
     "compiled reaction-owned elemental-application policy selection"
   );
@@ -2467,6 +2473,225 @@ function validateIdentityV148(
     "run-manifest/config reaction-owned elemental-application policy"
   );
 }
+
+type ReactionOwnedReplayPolicy = {
+  mode:
+    | "fixed-gcsim-reaction-owned-application-v1"
+    | "fixed-gcsim-reaction-owned-application-v2";
+  policyId:
+    | typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    | typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID;
+};
+
+const REACTION_OWNED_REPLAY_POLICY_V1 = {
+  mode: "fixed-gcsim-reaction-owned-application-v1",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+} as const satisfies ReactionOwnedReplayPolicy;
+
+const REACTION_OWNED_REPLAY_POLICY_V2 = {
+  mode: "fixed-gcsim-reaction-owned-application-v2",
+  policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID
+} as const satisfies ReactionOwnedReplayPolicy;
+
+function selectedReactionOwnedReplayPolicyV149(
+  result: SimulationResult,
+  context: RefinementCtx
+): ReactionOwnedReplayPolicy | undefined {
+  const rawModel = (
+    result.config as unknown as Record<string, unknown>
+  ).reactionOwnedElementalApplicationModel;
+  if (
+    rawModel === null ||
+    typeof rawModel !== "object" ||
+    Array.isArray(rawModel)
+  ) {
+    addIssue(
+      context,
+      ["config", "reactionOwnedElementalApplicationModel"],
+      "1.49 results require an explicit v1 or v2 reaction-owned elemental-application model"
+    );
+    return undefined;
+  }
+  const model = rawModel as {
+    mode?: unknown;
+    policyId?: unknown;
+  };
+  let selected: ReactionOwnedReplayPolicy | undefined;
+  if (model.mode === REACTION_OWNED_REPLAY_POLICY_V1.mode) {
+    selected = REACTION_OWNED_REPLAY_POLICY_V1;
+  } else if (
+    model.mode === REACTION_OWNED_REPLAY_POLICY_V2.mode
+  ) {
+    selected = REACTION_OWNED_REPLAY_POLICY_V2;
+  } else {
+    addIssue(
+      context,
+      [
+        "config",
+        "reactionOwnedElementalApplicationModel",
+        "mode"
+      ],
+      "1.49 results require an explicit v1 or v2 reaction-owned elemental-application mode"
+    );
+    return undefined;
+  }
+
+  expectEqual(
+    context,
+    [
+      "config",
+      "reactionOwnedElementalApplicationModel",
+      "policyId"
+    ],
+    model.policyId,
+    selected.policyId,
+    "reaction-owned elemental-application mode/policy binding"
+  );
+  return selected;
+}
+
+function validateIdentityV149(
+  result: SimulationResult,
+  context: RefinementCtx
+): ReactionOwnedReplayPolicy | undefined {
+  validateIdentityForVersion(
+    result,
+    context,
+    REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !==
+    REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.49 results require run-manifest version ${REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot", "profileId"],
+    result.runManifest.reactionFormulaRoot?.profileId,
+    result.config.reactionFormulaModel?.profileId,
+    "run-manifest/config reaction formula profile"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot", "profileId"],
+    result.runManifest.directDamageGroupRoot?.profileId,
+    result.config.directDamageGroupModel?.profileId,
+    "run-manifest/config direct-damage-group profile"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+  expectEqual(
+    context,
+    [
+      "runManifest",
+      "elementalApplicationIcdRoot",
+      "profileId"
+    ],
+    result.runManifest.elementalApplicationIcdRoot
+      ?.profileId,
+    result.config.elementalApplicationIcdModel?.profileId,
+    "run-manifest/config elemental-application ICD profile"
+  );
+
+  const selected = selectedReactionOwnedReplayPolicyV149(
+    result,
+    context
+  );
+  if (selected === undefined) return undefined;
+  const expectedRoot =
+    selected.policyId ===
+    GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+      ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+      : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT;
+  expectSemanticEqual(
+    context,
+    ["config", "reactionOwnedElementalApplicationModel"],
+    result.config.reactionOwnedElementalApplicationModel,
+    selected,
+    "selected reaction-owned elemental-application policy"
+  );
+  expectSemanticEqual(
+    context,
+    [
+      "runManifest",
+      "reactionOwnedElementalApplicationRoot"
+    ],
+    result.runManifest
+      .reactionOwnedElementalApplicationRoot,
+    expectedRoot,
+    "selected reaction-owned elemental-application root"
+  );
+  expectEqual(
+    context,
+    [
+      "runManifest",
+      "reactionOwnedElementalApplicationRoot",
+      "policyId"
+    ],
+    result.runManifest.reactionOwnedElementalApplicationRoot
+      ?.policyId,
+    selected.policyId,
+    "run-manifest/config reaction-owned elemental-application policy"
+  );
+  return selected;
+}
+
 
 type ReactionDamageDelivery =
   SimulationResult["reactionDamageLog"][number];
@@ -4739,9 +4964,10 @@ function swirlPropagationElement(
  * from their queued delivery plus HitResolution provenance, then both sources
  * are merged by the authoritative global HitResolution ID.
  */
-function validateElementalApplicationIcdV148(
+function validateElementalApplicationIcdReactionOwned(
   result: SimulationResult,
-  context: RefinementCtx
+  context: RefinementCtx,
+  replayPolicy: ReactionOwnedReplayPolicy
 ): void {
   const directRows = result.elementalApplicationIcdLog
     .filter(
@@ -4843,14 +5069,35 @@ function validateElementalApplicationIcdV148(
     }
   }
 
-  const reactionOwnerByResolutionId = new Map<number, number>();
+  const reactionOwnerByResolutionId = new Map<
+    number,
+    number
+  >();
+  const reactionParentIdByDamageEventId = new Map<
+    number,
+    number
+  >();
+  for (const parent of result.reactionDamageLog) {
+    for (const damageEventId of parent.damageEventIds) {
+      reactionParentIdByDamageEventId.set(
+        damageEventId,
+        parent.id
+      );
+    }
+  }
+  const reactionQueueOwnerByEventSequence = new Map<
+    number,
+    number
+  >();
   const reactionSourceKindById = new Map<
     number,
     "burning-tick" | "swirl-propagation"
   >();
 
-  for (const [parentIndex, parent] of
-    result.reactionDamageLog.entries()) {
+  for (const [
+    parentIndex,
+    parent
+  ] of result.reactionDamageLog.entries()) {
     const parentPath = [
       "reactionDamageLog",
       parentIndex
@@ -4868,6 +5115,81 @@ function validateElementalApplicationIcdV148(
         resolution.resolutionKind === "reaction-damage" &&
         resolution.reactionDamageLogId === parent.id
     );
+    let parentEventPriority: number | undefined;
+    let parentEventSequence: number | undefined;
+    for (const resolution of ownedResolutions) {
+      const resolutionPath = [
+        "hitResolutionLog",
+        resolution.id
+      ] satisfies IssuePath;
+      if (
+        resolution.eventPriority === undefined ||
+        resolution.eventSequence === undefined
+      ) {
+        addIssue(
+          context,
+          [...resolutionPath, "eventPriority"],
+          "V1.48 reaction-damage HitResolution requires its queue event tuple"
+        );
+        continue;
+      }
+      if (
+        parentEventPriority === undefined ||
+        parentEventSequence === undefined
+      ) {
+        parentEventPriority = resolution.eventPriority;
+        parentEventSequence = resolution.eventSequence;
+        continue;
+      }
+      expectEqual(
+        context,
+        [...resolutionPath, "eventPriority"],
+        resolution.eventPriority,
+        parentEventPriority,
+        "reaction-damage parent queue event priority"
+      );
+      expectEqual(
+        context,
+        [...resolutionPath, "eventSequence"],
+        resolution.eventSequence,
+        parentEventSequence,
+        "reaction-damage parent queue event sequence"
+      );
+    }
+    if (parentEventSequence !== undefined) {
+      const existingOwner =
+        reactionQueueOwnerByEventSequence.get(
+          parentEventSequence
+        );
+      const triggerOwnerId =
+        parent.triggerDamageEventId === null
+          ? undefined
+          : reactionParentIdByDamageEventId.get(
+              parent.triggerDamageEventId
+            );
+      const sharesRecursiveShatterDelivery =
+        result.config.reactionDeliveryModel.mode ===
+          "shatter-recursive-zero-delay-v1" &&
+        parent.reaction === "shatter" &&
+        existingOwner !== undefined &&
+        triggerOwnerId === existingOwner;
+      if (
+        existingOwner !== undefined &&
+        existingOwner !== parent.id &&
+        !sharesRecursiveShatterDelivery
+      ) {
+        addIssue(
+          context,
+          [...parentPath, "hitResolutionLogIds"],
+          `reaction-damage queue event sequence ${parentEventSequence} is already owned by independent parent ${existingOwner}`
+        );
+      } else {
+        reactionQueueOwnerByEventSequence.set(
+          parentEventSequence,
+          existingOwner ?? parent.id
+        );
+      }
+    }
     expectSemanticEqual(
       context,
       [...parentPath, "hitResolutionLogIds"],
@@ -4920,9 +5242,11 @@ function validateElementalApplicationIcdV148(
     ) {
       sourceKind = "burning-tick";
       element = "pyro";
-      const binding = resolveReactionOwnedApplicationBinding(
-        "burning-tick"
-      );
+      const binding =
+        resolveReactionOwnedApplicationBindingForPolicy(
+          replayPolicy.policyId,
+          "burning-tick"
+        );
       nominalGaugeUnits =
         binding.gauge.kind === "fixed"
           ? binding.gauge.units
@@ -5039,8 +5363,8 @@ function validateElementalApplicationIcdV148(
     }
 
     const selector = {
-      mode: "fixed-gcsim-reaction-owned-application-v1" as const,
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+      mode: replayPolicy.mode,
+      policyId: replayPolicy.policyId,
       channel:
         sourceKind === "burning-tick"
           ? ({ kind: "burning-tick" } as const)
@@ -5279,8 +5603,12 @@ function validateElementalApplicationIcdV148(
     let expectedDecision: unknown;
     const binding =
       expected.sourceKind === "burning-tick"
-        ? resolveReactionOwnedApplicationBinding("burning-tick")
-        : resolveReactionOwnedApplicationBinding(
+        ? resolveReactionOwnedApplicationBindingForPolicy(
+            replayPolicy.policyId,
+            "burning-tick"
+          )
+        : resolveReactionOwnedApplicationBindingForPolicy(
+            replayPolicy.policyId,
             "swirl-propagation",
             expected.element
           );
@@ -5310,9 +5638,15 @@ function validateElementalApplicationIcdV148(
               binding.sourceIcdTag
             ]);
       let window = targetWindows.get(scopeKey);
+      const attemptBeforeCoreReset =
+        replayPolicy.policyId ===
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID &&
+        expected.sourceKind === "burning-tick";
       if (
         window === undefined ||
-        expected.resolution.frame >= window.resetAtFrame
+        (attemptBeforeCoreReset
+          ? expected.resolution.frame > window.resetAtFrame
+          : expected.resolution.frame >= window.resetAtFrame)
       ) {
         window = {
           startFrame: expected.resolution.frame,
@@ -5339,7 +5673,7 @@ function validateElementalApplicationIcdV148(
           expected.sourceKind === "burning-tick"
             ? "trusted-target-global-burning-projection"
             : "actor-tag",
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+        policyId: replayPolicy.policyId,
         profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
         icdTag: binding.sourceIcdTag,
         groupId: group.id,
@@ -5350,8 +5684,9 @@ function validateElementalApplicationIcdV148(
         hitIndex,
         sequenceIndex,
         tailPolicy: "clamp",
-        resetSchedulePolicy:
-          "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one"
+        resetSchedulePolicy: attemptBeforeCoreReset
+          ? "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one"
+          : "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one"
       };
       window.hitCount += 1;
       targetWindows.set(scopeKey, window);
@@ -5469,6 +5804,18 @@ function validateElementalApplicationIcdV148(
       );
     }
   }
+}
+
+/** Frozen 1.48 replay: v1 selector/root and reset-attempt `>=` semantics. */
+function validateElementalApplicationIcdV148(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateElementalApplicationIcdReactionOwned(
+    result,
+    context,
+    REACTION_OWNED_REPLAY_POLICY_V1
+  );
 }
 
 function validateDamageEvent(
@@ -16192,9 +16539,11 @@ function validateBurningStateProjection(
       compareDamageEventOrder(earliestTruncationTrigger, child) < 0;
     const ownerRow = burningTickRowBySourceChildId.get(child.id);
     const reactionOwnedApplication =
-      result.schemaVersion ===
-          REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
-        child.elementalApplicationIcdLogId !== null
+      ((result.schemaVersion as string) ===
+        REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
+        (result.schemaVersion as string) ===
+          REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION) &&
+      child.elementalApplicationIcdLogId !== null
         ? result.elementalApplicationIcdLog[
             child.elementalApplicationIcdLogId
           ]
@@ -17687,20 +18036,52 @@ export function validateSimulationResultV147Integrity(
  * from their trusted schedule, policy root, and HitResolution ordering.
  */
 export function validateSimulationResultV148Integrity(
+  result: SimulationResultForV148,
+  context: RefinementCtx
+): void {
+  const frozenResult = result as unknown as SimulationResult;
+  validateIdentityV148(frozenResult, context);
+  validateReactionFormulaProfileV145(frozenResult, context);
+  validateDirectDamageGroupV146(frozenResult, context);
+  validateElementalApplicationIcdV148(frozenResult, context);
+  validateDamageAggregates(frozenResult, context);
+  validateMechanicsAndBoundaries(frozenResult, context);
+  validateEnergy(frozenResult, context);
+  validateEnergyReplayIntegrity(frozenResult, context);
+  validateTargetPhaseV3Integrity(frozenResult, context);
+}
+
+/**
+ * Cross-field proof for exact 1.49 results. Direct rows retain the frozen
+ * 1.47 replay. Reaction-owned rows are replayed under the explicit v1/v2
+ * config selection, with selector, decision, manifest root, and channel reset
+ * boundary all required to close over that same selected policy.
+ */
+export function validateSimulationResultV149Integrity(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
-  validateIdentityV148(result, context);
+  const replayPolicy = validateIdentityV149(
+    result,
+    context
+  );
   validateReactionFormulaProfileV145(result, context);
   validateDirectDamageGroupV146(result, context);
-  validateElementalApplicationIcdV148(result, context);
+  if (replayPolicy !== undefined) {
+    validateElementalApplicationIcdReactionOwned(
+      result,
+      context,
+      replayPolicy
+    );
+  }
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
   validateEnergy(result, context);
   validateEnergyReplayIntegrity(result, context);
+  // Do not project 1.49 to 1.48: the full v3 proof owns the exact identity
+  // gate and every Burning callback/application reciprocal reference.
   validateTargetPhaseV3Integrity(result, context);
 }
-
 /**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
  *
@@ -18012,8 +18393,8 @@ export function assertTrustedSimulationResultV147(
 
 /** Trusted, zero-copy assertion for current 1.48 fixed-root results. */
 export function assertTrustedSimulationResultV148(
-  result: SimulationResult
-): SimulationResult {
+  result: SimulationResultForV148
+): SimulationResultForV148 {
   const issues: Array<{
     path: PropertyKey[];
     message: string;
@@ -18024,14 +18405,16 @@ export function assertTrustedSimulationResultV148(
       message?: string;
     }): void {
       issues.push({
-        path: issue.path === undefined ? [] : [...issue.path],
+        path:
+          issue.path === undefined ? [] : [...issue.path],
         message: issue.message ?? "invalid SimulationResult"
       });
     }
   } as unknown as RefinementCtx;
   validateSimulationResultV148Integrity(result, context);
   const hasElectroChargedTargetPhaseV2Transition =
-    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.config.targetTaskModel.mode ===
+      "target-phase-v2" &&
     result.targetPhaseLog.some((phase) =>
       phase.reactableTick.transitions.some(
         (transition) =>
@@ -18043,7 +18426,8 @@ export function assertTrustedSimulationResultV148(
     const targetPhaseReferences =
       targetPhaseV2ResultReferencesSchema.safeParse(result);
     if (!targetPhaseReferences.success) {
-      for (const issue of targetPhaseReferences.error.issues) {
+      for (const issue of targetPhaseReferences.error
+        .issues) {
         issues.push({
           path: [...issue.path],
           message: `target phase v2 references: ${issue.message}`
@@ -18056,9 +18440,7 @@ export function assertTrustedSimulationResultV148(
       .slice(0, 12)
       .map(
         (issue) =>
-          `${issue.path.map(String).join(".") || "<root>"}: ${
-            issue.message
-          }`
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
       )
       .join("; ");
     const remainder =
@@ -18072,11 +18454,74 @@ export function assertTrustedSimulationResultV148(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.49 policy-selected results. */
+export function assertTrustedSimulationResultV149(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path:
+          issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV149Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode ===
+      "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error
+        .issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.49 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV148Integrity;
+  validateSimulationResultV149Integrity;
 export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV148;
+  assertTrustedSimulationResultV149;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

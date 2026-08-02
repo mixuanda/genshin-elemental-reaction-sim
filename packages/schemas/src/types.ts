@@ -9,8 +9,11 @@ import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   type GcsimElementalApplicationRoot,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   type GcsimReactionOwnedApplicationBinding,
+  type GcsimReactionOwnedApplicationV1Binding,
   type GcsimReactionOwnedApplicationPolicyRoot,
+  type GcsimReactionOwnedApplicationPolicyV1Root,
   type GcsimSwirlPropagationElement,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
@@ -48,13 +51,16 @@ export const ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION =
 export const REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION = "1.48.0" as const;
 export const REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION =
   "1.48.0-reaction-owned-application-root" as const;
+export const REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION = "1.49.0" as const;
+export const REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION =
+  "1.49.0-reaction-owned-reset-boundary" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION = "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION = "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
@@ -72,10 +78,12 @@ export const REACTION_FORMULA_RUN_MANIFEST_VERSION = "1.1.0" as const;
 export const DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION = "1.2.0" as const;
 /** Frozen 1.47 run-manifest wire; 1.3 binds the direct-application ICD root. */
 export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION = "1.3.0" as const;
-/** Current run-manifest wire; 1.4 also binds the reaction-owned policy root. */
+/** Frozen 1.48 run-manifest wire; 1.4 binds the first reaction-owned root. */
 export const REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION = "1.4.0" as const;
+/** Current run-manifest wire; 1.5 admits an explicit v1/v2 policy root. */
+export const REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION = "1.5.0" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION =
-  REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION;
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -374,20 +382,40 @@ export type TrustedReactionElementalApplicationInput =
  * Auditable selector derived from a trusted channel and the compiled policy.
  * This is output provenance, never a user-authorable persisted hit selector.
  */
-export type TrustedReactionElementalApplicationSelector =
+export type TrustedReactionElementalApplicationSelectorV1 =
   | {
       mode: "fixed-gcsim-reaction-owned-application-v1";
-      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID;
       channel: { kind: "burning-tick" };
     }
   | {
       mode: "fixed-gcsim-reaction-owned-application-v1";
+      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID;
+      channel: {
+        kind: "swirl-propagation";
+        element: GcsimSwirlPropagationElement;
+      };
+    };
+
+export type TrustedReactionElementalApplicationSelectorV2 =
+  | {
+      mode: "fixed-gcsim-reaction-owned-application-v2";
+      policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+      channel: { kind: "burning-tick" };
+    }
+  | {
+      mode: "fixed-gcsim-reaction-owned-application-v2";
       policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
       channel: {
         kind: "swirl-propagation";
         element: GcsimSwirlPropagationElement;
       };
     };
+
+/** Current selector union; persisted 1.49 runs retain the selected policy. */
+export type TrustedReactionElementalApplicationSelector =
+  | TrustedReactionElementalApplicationSelectorV1
+  | TrustedReactionElementalApplicationSelectorV2;
 
 export interface InitialAuraApplication {
   element: PersistentAuraElement;
@@ -1011,10 +1039,23 @@ export interface ElementalApplicationIcdModel {
  * reaction channels resolve their tag, group, element, and Gauge rules from
  * the compiled policy root.
  */
-export interface ReactionOwnedElementalApplicationModel {
+export interface ReactionOwnedElementalApplicationModelV1 {
   mode: "fixed-gcsim-reaction-owned-application-v1";
+  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID;
+}
+
+export interface ReactionOwnedElementalApplicationModelV2 {
+  mode: "fixed-gcsim-reaction-owned-application-v2";
   policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
 }
+
+/**
+ * Current 1.49 selection. Migration may retain v1 exactly; newly constructed
+ * configs select v2 explicitly.
+ */
+export type ReactionOwnedElementalApplicationModel =
+  | ReactionOwnedElementalApplicationModelV1
+  | ReactionOwnedElementalApplicationModelV2;
 
 interface SimConfigCommon<TApplication = ElementalApplication> {
   dataVersion: string;
@@ -1093,10 +1134,20 @@ export interface SimConfigV148 extends SimConfigCommon {
   reactionFormulaModel: ReactionFormulaModel;
   directDamageGroupModel: DirectDamageGroupModel;
   elementalApplicationIcdModel: ElementalApplicationIcdModel;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModelV1;
+}
+
+/** Current 1.49 config preserves an explicit v1/v2 policy choice. */
+export interface SimConfigV149 extends SimConfigCommon {
+  schemaVersion: typeof REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
   reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
 }
 
-export type SimConfig = SimConfigV148;
+export type SimConfig = SimConfigV149;
 
 export type VersionedSimConfig =
   | SimConfigV142
@@ -1104,7 +1155,8 @@ export type VersionedSimConfig =
   | SimConfigV145
   | SimConfigV146
   | SimConfigV147
-  | SimConfigV148;
+  | SimConfigV148
+  | SimConfigV149;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1202,9 +1254,9 @@ export interface SimulationRunManifestV147 extends SimulationRunManifestCommon {
   elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
 }
 
-/** Exact pinned reaction-owned application policy root embedded in 1.48. */
-export type ReactionOwnedElementalApplicationRoot =
-  GcsimReactionOwnedApplicationPolicyRoot;
+/** Exact pinned v1 policy root embedded in frozen 1.48 manifests. */
+export type ReactionOwnedElementalApplicationRootV148 =
+  GcsimReactionOwnedApplicationPolicyV1Root;
 
 /** Current 1.48 run manifest binds all four fixed mechanics roots. */
 export interface SimulationRunManifestV148 extends SimulationRunManifestCommon {
@@ -1214,10 +1266,28 @@ export interface SimulationRunManifestV148 extends SimulationRunManifestCommon {
   reactionFormulaRoot: ReactionFormulaRoot;
   directDamageGroupRoot: DirectDamageGroupRoot;
   elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
-  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV148;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV148;
+/** Current compiled v2 root; migration may retain the exact frozen v1 root. */
+export type ReactionOwnedElementalApplicationRoot =
+  GcsimReactionOwnedApplicationPolicyRoot;
+export type ReactionOwnedElementalApplicationRootV149 =
+  | ReactionOwnedElementalApplicationRootV148
+  | ReactionOwnedElementalApplicationRoot;
+
+/** Current 1.49 run manifest binds the explicitly selected policy root. */
+export interface SimulationRunManifestV149 extends SimulationRunManifestCommon {
+  version: typeof REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV149;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV149;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
@@ -1225,7 +1295,8 @@ export type VersionedSimulationRunManifest =
   | SimulationRunManifestV145
   | SimulationRunManifestV146
   | SimulationRunManifestV147
-  | SimulationRunManifestV148;
+  | SimulationRunManifestV148
+  | SimulationRunManifestV149;
 
 export type SimulationEventType =
   | "action"
@@ -2062,13 +2133,13 @@ export interface ElementalApplicationFixedGcsimDecision {
  * policy. Burning and Swirl propagation consume reserved fixed ICD groups;
  * neither can be selected by an ordinary configured hit.
  */
-interface ElementalApplicationReactionFixedGcsimDecisionBase {
+interface ElementalApplicationReactionFixedGcsimDecisionV148Base {
   kind: "reaction-fixed-gcsim";
   evaluated: true;
   consumed: true;
   applicationMultiplier: number;
   allowed: boolean;
-  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID;
   profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
   resetFrames: number;
   windowStartFrame: number;
@@ -2080,10 +2151,10 @@ interface ElementalApplicationReactionFixedGcsimDecisionBase {
 }
 
 /** Target-global fixed Burning window selected by the trusted tick channel. */
-export interface ElementalApplicationReactionBurningFixedGcsimDecision extends ElementalApplicationReactionFixedGcsimDecisionBase {
+export interface ElementalApplicationReactionBurningFixedGcsimDecisionV148 extends ElementalApplicationReactionFixedGcsimDecisionV148Base {
   scope: "trusted-target-global-burning-projection";
   icdTag: Extract<
-    GcsimReactionOwnedApplicationBinding,
+    GcsimReactionOwnedApplicationV1Binding,
     { sourceKind: "burning-tick" }
   >["sourceIcdTag"];
   groupId: "burning";
@@ -2091,10 +2162,10 @@ export interface ElementalApplicationReactionBurningFixedGcsimDecision extends E
 }
 
 /** Actor-tag fixed ReactionA window selected by a trusted Swirl channel. */
-export interface ElementalApplicationReactionSwirlFixedGcsimDecision extends ElementalApplicationReactionFixedGcsimDecisionBase {
+export interface ElementalApplicationReactionSwirlFixedGcsimDecisionV148 extends ElementalApplicationReactionFixedGcsimDecisionV148Base {
   scope: "actor-tag";
   icdTag: Extract<
-    GcsimReactionOwnedApplicationBinding,
+    GcsimReactionOwnedApplicationV1Binding,
     { sourceKind: "swirl-propagation" }
   >["sourceIcdTag"];
   groupId: "reaction-a";
@@ -2102,14 +2173,64 @@ export interface ElementalApplicationReactionSwirlFixedGcsimDecision extends Ele
 }
 
 /** Closed union which preserves each trusted channel's scope/tag/group tuple. */
+export type ElementalApplicationReactionFixedGcsimDecisionV148 =
+  | ElementalApplicationReactionBurningFixedGcsimDecisionV148
+  | ElementalApplicationReactionSwirlFixedGcsimDecisionV148;
+
+interface ElementalApplicationReactionFixedGcsimDecisionV149Base extends Omit<
+  ElementalApplicationReactionFixedGcsimDecisionV148Base,
+  "policyId" | "resetSchedulePolicy"
+> {
+  policyId: typeof GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID;
+}
+
+/** v2 Burning attempts are evaluated before the same-frame core reset. */
+export interface ElementalApplicationReactionBurningFixedGcsimDecisionV149 extends ElementalApplicationReactionFixedGcsimDecisionV149Base {
+  scope: "trusted-target-global-burning-projection";
+  icdTag: Extract<
+    GcsimReactionOwnedApplicationBinding,
+    { sourceKind: "burning-tick" }
+  >["sourceIcdTag"];
+  groupId: "burning";
+  windowStartGroupId: "burning";
+  resetSchedulePolicy: "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one";
+}
+
+/** v2 Swirl retains reset-before-attempt at the exact boundary frame. */
+export interface ElementalApplicationReactionSwirlFixedGcsimDecisionV149 extends ElementalApplicationReactionFixedGcsimDecisionV149Base {
+  scope: "actor-tag";
+  icdTag: Extract<
+    GcsimReactionOwnedApplicationBinding,
+    { sourceKind: "swirl-propagation" }
+  >["sourceIcdTag"];
+  groupId: "reaction-a";
+  windowStartGroupId: "reaction-a";
+  resetSchedulePolicy: "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one";
+}
+
+export type ElementalApplicationReactionFixedGcsimDecisionV149 =
+  | ElementalApplicationReactionFixedGcsimDecisionV148
+  | ElementalApplicationReactionBurningFixedGcsimDecisionV149
+  | ElementalApplicationReactionSwirlFixedGcsimDecisionV149;
+
+export type ElementalApplicationReactionBurningFixedGcsimDecision =
+  | ElementalApplicationReactionBurningFixedGcsimDecisionV148
+  | ElementalApplicationReactionBurningFixedGcsimDecisionV149;
+export type ElementalApplicationReactionSwirlFixedGcsimDecision =
+  | ElementalApplicationReactionSwirlFixedGcsimDecisionV148
+  | ElementalApplicationReactionSwirlFixedGcsimDecisionV149;
 export type ElementalApplicationReactionFixedGcsimDecision =
-  | ElementalApplicationReactionBurningFixedGcsimDecision
-  | ElementalApplicationReactionSwirlFixedGcsimDecision;
+  ElementalApplicationReactionFixedGcsimDecisionV149;
 
 /** Closed decision union for trusted 1.48 reaction-owned application rows. */
 export type ReactionOwnedElementalApplicationIcdDecisionV148 =
   | ReactionOwnedElementalApplicationIcdSkippedDecisionV148
-  | ElementalApplicationReactionFixedGcsimDecision;
+  | ElementalApplicationReactionFixedGcsimDecisionV148;
+
+/** 1.49 admits exact v1 or v2 rows according to the persisted model. */
+export type ReactionOwnedElementalApplicationIcdDecisionV149 =
+  | ReactionOwnedElementalApplicationIcdSkippedDecisionV148
+  | ElementalApplicationReactionFixedGcsimDecisionV149;
 
 /** Exact direct/configured application decision union frozen at 1.47. */
 export type ElementalApplicationIcdDecisionV147 =
@@ -2121,7 +2242,7 @@ export type ElementalApplicationIcdDecisionV147 =
 /** Current unified decision union, including trusted reaction channels. */
 export type ElementalApplicationIcdDecision =
   | ElementalApplicationIcdDecisionV147
-  | ElementalApplicationReactionFixedGcsimDecision;
+  | ElementalApplicationReactionFixedGcsimDecisionV149;
 
 /**
  * One auditable decision for each target attempt of a configured direct-hit
@@ -2170,7 +2291,7 @@ interface ReactionOwnedElementalApplicationIcdLogEntryV148Base {
 export interface BurningElementalApplicationIcdLogEntryV148 extends ReactionOwnedElementalApplicationIcdLogEntryV148Base {
   sourceKind: "burning-tick";
   selector: Extract<
-    TrustedReactionElementalApplicationSelector,
+    TrustedReactionElementalApplicationSelectorV1,
     { channel: { kind: "burning-tick" } }
   >;
   element: "pyro";
@@ -2180,7 +2301,7 @@ export interface BurningElementalApplicationIcdLogEntryV148 extends ReactionOwne
 export interface SwirlPropagationElementalApplicationIcdLogEntryV148 extends ReactionOwnedElementalApplicationIcdLogEntryV148Base {
   sourceKind: "swirl-propagation";
   selector: Extract<
-    TrustedReactionElementalApplicationSelector,
+    TrustedReactionElementalApplicationSelectorV1,
     { channel: { kind: "swirl-propagation" } }
   >;
   element: GcsimSwirlPropagationElement;
@@ -2190,13 +2311,46 @@ export type ReactionOwnedElementalApplicationIcdLogEntryV148 =
   | BurningElementalApplicationIcdLogEntryV148
   | SwirlPropagationElementalApplicationIcdLogEntryV148;
 
+interface ReactionOwnedElementalApplicationIcdLogEntryV149Base extends Omit<
+  ReactionOwnedElementalApplicationIcdLogEntryV148Base,
+  "decision"
+> {
+  decision: ReactionOwnedElementalApplicationIcdDecisionV149;
+}
+
+export interface BurningElementalApplicationIcdLogEntryV149 extends ReactionOwnedElementalApplicationIcdLogEntryV149Base {
+  sourceKind: "burning-tick";
+  selector: Extract<
+    TrustedReactionElementalApplicationSelector,
+    { channel: { kind: "burning-tick" } }
+  >;
+  element: "pyro";
+}
+
+export interface SwirlPropagationElementalApplicationIcdLogEntryV149 extends ReactionOwnedElementalApplicationIcdLogEntryV149Base {
+  sourceKind: "swirl-propagation";
+  selector: Extract<
+    TrustedReactionElementalApplicationSelector,
+    { channel: { kind: "swirl-propagation" } }
+  >;
+  element: GcsimSwirlPropagationElement;
+}
+
+export type ReactionOwnedElementalApplicationIcdLogEntryV149 =
+  | BurningElementalApplicationIcdLogEntryV149
+  | SwirlPropagationElementalApplicationIcdLogEntryV149;
+
 /** Current unified application log; the 1.47 direct row remains unchanged. */
 export type ElementalApplicationIcdLogEntryV148 =
   | ElementalApplicationIcdLogEntryV147
   | ReactionOwnedElementalApplicationIcdLogEntryV148;
 
+export type ElementalApplicationIcdLogEntryV149 =
+  | ElementalApplicationIcdLogEntryV147
+  | ReactionOwnedElementalApplicationIcdLogEntryV149;
+
 export type ElementalApplicationIcdLogEntry =
-  ElementalApplicationIcdLogEntryV148;
+  ElementalApplicationIcdLogEntryV149;
 
 /** Exact damage-event wire frozen at 1.47. */
 export interface DamageEventV147 {
@@ -3867,7 +4021,7 @@ export interface SimulationResult {
   /** Ordinary direct-damage sequence and hit-callback decisions. */
   directDamageGroupLog: DirectDamageGroupLogEntry[];
   /** Numeric elemental-application ICD decisions for configured target attempts. */
-  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV148[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV149[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntryV148[];
   /** Versioned target-clock mode and per-target final state. */
@@ -3973,6 +4127,14 @@ type FrozenV147NestedResultLogs = {
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV147>;
 };
 
+type FrozenV148NestedResultLogs = {
+  damageEvents: DamageEventV148[];
+  hitEvents: DamageEventV148[];
+  hitResolutionLog: HitResolutionLogEntryV148[];
+  reactionDamageLog: ReactionDamageLogEntryV148[];
+  targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
+};
+
 /**
  * Frozen 1.42 top-level result identity. Shared nested wires are projected to
  * the last pre-unified 1.47 shapes; exact frozen Zod schemas remain runtime
@@ -4035,8 +4197,21 @@ export type SimulationResultForV147 = Omit<
   elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV147[];
 } & FrozenV147NestedResultLogs;
 
-/** Current 1.48 result identity and unified reaction-owned application audit. */
-export type SimulationResultForV148 = SimulationResult;
+/** Frozen 1.48 result identity and unified reaction-owned application audit. */
+export type SimulationResultForV148 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+  config: SimConfigV148;
+  runManifest: SimulationRunManifestV148;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV148[];
+} & FrozenV148NestedResultLogs;
+
+/** Current 1.49 result identity and explicit reset-boundary policy audit. */
+export type SimulationResultForV149 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
@@ -4044,4 +4219,5 @@ export type VersionedSimulationResult =
   | SimulationResultForV145
   | SimulationResultForV146
   | SimulationResultForV147
-  | SimulationResultForV148;
+  | SimulationResultForV148
+  | SimulationResultForV149;

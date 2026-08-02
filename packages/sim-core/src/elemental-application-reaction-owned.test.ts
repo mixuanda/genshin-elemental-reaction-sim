@@ -217,6 +217,74 @@ describe("reaction-owned elemental application namespace", () => {
     });
   });
 
+  it("keeps standalone direct validation mutation-free under caught reentry", () => {
+    const engine = new ElementalApplicationIcdEngine();
+    let nestedDirectError: unknown = null;
+    let nestedReactionError: unknown = null;
+
+    const reentrantFrame = {
+      get frame() {
+        try {
+          engine.consumeReactionAttempt(burning(50, "nested-reaction"));
+        } catch (error) {
+          nestedReactionError = error;
+        }
+        return 100;
+      },
+      sourceActorId: "validation-forger",
+      application: FIXED_DIRECT
+    };
+    expect(() =>
+      engine.validateDirectAttempt(
+        reentrantFrame as unknown as Parameters<
+          ElementalApplicationIcdEngine["validateDirectAttempt"]
+        >[0]
+      )
+    ).toThrow(/attempted reentrant consumption/);
+    expect(String(nestedReactionError)).toMatch(
+      /reentrant reaction-owned consumption is forbidden/
+    );
+
+    const reentrantActor = {
+      frame: 100,
+      get sourceActorId() {
+        try {
+          engine.consumeDirectAttempt({
+            frame: 50,
+            sourceActorId: "nested-direct",
+            application: FIXED_DIRECT
+          });
+        } catch (error) {
+          nestedDirectError = error;
+        }
+        return "validation-forger";
+      },
+      application: FIXED_DIRECT
+    };
+    expect(() =>
+      engine.validateDirectAttempt(
+        reentrantActor as unknown as Parameters<
+          ElementalApplicationIcdEngine["validateDirectAttempt"]
+        >[0]
+      )
+    ).toThrow(/attempted reentrant consumption/);
+    expect(String(nestedDirectError)).toMatch(
+      /reentrant direct consumption is forbidden/
+    );
+
+    expect(engine.consumeReactionAttempt(burning(0, "valid-reaction"))).toMatchObject({
+      hitIndex: 0,
+      applicationMultiplier: 1
+    });
+    expect(
+      engine.consumeDirectAttempt({
+        frame: 0,
+        sourceActorId: "valid-direct",
+        application: FIXED_DIRECT
+      })
+    ).toMatchObject({ hitIndex: 0, applicationMultiplier: 1 });
+  });
+
   it("captures direct selector accessors before committing its isolated state", () => {
     const engine = new ElementalApplicationIcdEngine();
     let tagReads = 0;

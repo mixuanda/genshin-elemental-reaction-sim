@@ -5,8 +5,8 @@ import {
   particleEnergyDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
 import {
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import type {
   SimConfig,
@@ -192,7 +192,12 @@ function projectDamageEventsToFrozenV146(
 }
 
 function makeSustainedBurningPerformanceConfig(): SimConfig {
-  const base = makeConfig();
+  const base = makeConfig({
+    reactionOwnedElementalApplicationModel: {
+      mode: "fixed-gcsim-reaction-owned-application-v1",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    }
+  });
   const refreshHits = Array.from(
     { length: 119 },
     (_, index) => ({
@@ -385,11 +390,11 @@ describe("simulation performance", () => {
       config.reactionOwnedElementalApplicationModel
     ).toEqual({
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     });
     expect(
       probe.runManifest.reactionOwnedElementalApplicationRoot
-    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
+    ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT);
     expect(sustainedOutputHash).toBe(
       "d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65"
     );

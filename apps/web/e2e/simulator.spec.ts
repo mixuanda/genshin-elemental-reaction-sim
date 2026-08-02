@@ -8,7 +8,8 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 
 function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
@@ -116,7 +117,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
         .reactionOwnedElementalApplicationModel
   );
   expect(importedReactionOwnedElementalApplicationModel).toEqual({
-    mode: "fixed-gcsim-reaction-owned-application-v1",
+    mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   });
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -219,8 +220,8 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.48.0",
-    engineVersion: "1.48.0-reaction-owned-application-root",
+    schemaVersion: "1.49.0",
+    engineVersion: "1.49.0-reaction-owned-reset-boundary",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -241,7 +242,7 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
     },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     }
   });
 });
@@ -329,9 +330,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.48.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.49.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.48.0-reaction-owned-application-root"
+    "engine 1.49.0-reaction-owned-reset-boundary"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

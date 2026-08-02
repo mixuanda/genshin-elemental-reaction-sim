@@ -43,7 +43,7 @@ function expectCrystallizeMutationRejected(
     assertTrustedSimulationResult(trustedResult)
   ).toThrow(
     expectedMessage ??
-      /Trusted SimulationResult 1\.48 integrity validation failed/
+      /Trusted SimulationResult 1\.49 integrity validation failed/
   );
 }
 

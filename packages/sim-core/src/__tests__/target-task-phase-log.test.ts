@@ -17,10 +17,12 @@ import {
   simulationResultV146Schema,
   simulationResultV147Schema,
   simulationResultV148Schema,
+  simulationResultV149Schema,
   simulationRunManifestSchema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
+  simulationRunManifestV149Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
@@ -531,16 +533,16 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.48 result and manifest boundaries", () => {
+  it("emits current simulations through the exact 1.49 result and manifest boundaries", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1")
     );
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.48.0-reaction-owned-application-root"
+      "1.49.0-reaction-owned-reset-boundary"
     );
-    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.4.0");
+    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.5.0");
     expect(result).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -559,8 +561,11 @@ describe("target task phase replay log", () => {
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
     });
     expect(
-      simulationRunManifestV148Schema.parse(result.runManifest)
+      simulationRunManifestV149Schema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
+    expect(simulationRunManifestSchema).toBe(
+      simulationRunManifestV149Schema
+    );
     expect(
       simulationRunManifestSchema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
@@ -569,12 +574,17 @@ describe("target task phase replay log", () => {
         .success
     ).toBe(false);
     expect(
+      simulationRunManifestV148Schema.safeParse(result.runManifest)
+        .success
+    ).toBe(false);
+    expect(
       simulationRunManifestV146Schema.safeParse(result.runManifest)
         .success
     ).toBe(false);
-    expect(simulationResultV148Schema.parse(result)).toStrictEqual(
+    expect(simulationResultV149Schema.parse(result)).toStrictEqual(
       result
     );
+    expect(simulationResultSchema).toBe(simulationResultV149Schema);
     expect(simulationResultSchema.parse(result)).toStrictEqual(
       result
     );
@@ -582,6 +592,9 @@ describe("target task phase replay log", () => {
       false
     );
     expect(simulationResultV147Schema.safeParse(result).success).toBe(
+      false
+    );
+    expect(simulationResultV148Schema.safeParse(result).success).toBe(
       false
     );
   });
@@ -883,9 +896,9 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.48.0-reaction-owned-application-root"
+      "1.49.0-reaction-owned-reset-boundary"
     );
 
     for (const scenarioId of scenarioIds) {

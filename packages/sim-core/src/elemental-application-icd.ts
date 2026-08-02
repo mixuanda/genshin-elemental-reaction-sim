@@ -1,11 +1,14 @@
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   resolveElementalApplicationGroup,
   resolveElementalApplicationResetAtFrame,
-  resolveReactionOwnedApplicationBinding,
+  resolveReactionOwnedApplicationBindingForPolicy,
   type GcsimElementalApplicationGroupId,
-  type GcsimReactionOwnedApplicationBinding,
+  type GcsimReactionOwnedApplicationPolicyId,
+  type GcsimReactionOwnedApplicationV1Binding,
+  type GcsimReactionOwnedApplicationV2Binding,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
 import type {
@@ -16,6 +19,7 @@ import type {
   ElementalApplicationIcdSelector,
   IcdProfile,
   IcdSequenceTailPolicy,
+  ReactionOwnedElementalApplicationModel,
   TrustedReactionElementalApplicationInput,
 } from "@genshin-dps-lab/schemas";
 
@@ -27,12 +31,55 @@ export interface ElementalApplicationAttemptInput {
 
 export interface ElementalApplicationIcdEngineOptions {
   legacyProfiles?: Readonly<Record<string, IcdProfile>>;
+  /**
+   * Simulator/config-owned selection. Individual reaction attempts cannot
+   * override this policy or supply their own tag/group/reset boundary.
+   * Omission preserves the frozen 1.48 v1 compatibility behavior.
+   */
+  reactionOwnedElementalApplicationModel?: Readonly<ReactionOwnedElementalApplicationModel>;
 }
 
 export interface PreparedTrustedReactionElementalApplicationAttempt {
   input: Readonly<TrustedReactionElementalApplicationInput>;
-  element: GcsimReactionOwnedApplicationBinding["element"];
+  element: AnyReactionOwnedApplicationBinding["element"];
   nominalGaugeUnits: number;
+}
+
+type AnyReactionOwnedApplicationBinding =
+  | GcsimReactionOwnedApplicationV1Binding
+  | GcsimReactionOwnedApplicationV2Binding;
+
+const DEFAULT_REACTION_OWNED_APPLICATION_MODEL: Readonly<ReactionOwnedElementalApplicationModel> =
+  Object.freeze({
+    mode: "fixed-gcsim-reaction-owned-application-v1",
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+  });
+
+function normalizeReactionOwnedApplicationModel(
+  model: Readonly<ReactionOwnedElementalApplicationModel> | undefined
+): Readonly<ReactionOwnedElementalApplicationModel> {
+  const selected = model ?? DEFAULT_REACTION_OWNED_APPLICATION_MODEL;
+  if (
+    selected.mode === "fixed-gcsim-reaction-owned-application-v1" &&
+    selected.policyId === GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+  ) {
+    return Object.freeze({
+      mode: selected.mode,
+      policyId: selected.policyId
+    });
+  }
+  if (
+    selected.mode === "fixed-gcsim-reaction-owned-application-v2" &&
+    selected.policyId === GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  ) {
+    return Object.freeze({
+      mode: selected.mode,
+      policyId: selected.policyId
+    });
+  }
+  throw new RangeError(
+    "Reaction-owned elemental application model mode/policyId pair is unsupported."
+  );
 }
 
 interface FixedWindowState<
@@ -244,11 +291,12 @@ function requireDataProperty(
 
 function normalizeReactionOwnedInput(
   input: TrustedReactionElementalApplicationInput,
+  policyId: GcsimReactionOwnedApplicationPolicyId,
 ): Readonly<{
   frame: number;
   sourceActorId: string;
   nominalGaugeUnits: number;
-  binding: GcsimReactionOwnedApplicationBinding;
+  binding: AnyReactionOwnedApplicationBinding;
 }> {
   const inputLabel = "Reaction-owned elemental application attempt";
   const inputProperties = snapshotPlainDataProperties(input, inputLabel);
@@ -280,7 +328,10 @@ function normalizeReactionOwnedInput(
       ["kind"],
       "Reaction-owned Burning channel",
     );
-    const binding = resolveReactionOwnedApplicationBinding("burning-tick");
+    const binding = resolveReactionOwnedApplicationBindingForPolicy(
+      policyId,
+      "burning-tick",
+    );
     if (binding.gauge.kind !== "fixed") {
       throw new Error(
         "Reaction-owned Burning policy must provide a fixed Gauge value.",
@@ -325,7 +376,8 @@ function normalizeReactionOwnedInput(
         `unknown swirl-propagation application element: ${String(element)}`,
       );
     }
-    const binding = resolveReactionOwnedApplicationBinding(
+    const binding = resolveReactionOwnedApplicationBindingForPolicy(
+      policyId,
       "swirl-propagation",
       element,
     );
@@ -350,8 +402,12 @@ function normalizeReactionOwnedInput(
  */
 export function resolveTrustedReactionElementalApplicationElement(
   input: TrustedReactionElementalApplicationInput,
-): GcsimReactionOwnedApplicationBinding["element"] {
-  return prepareTrustedReactionElementalApplicationAttempt(input).element;
+  reactionOwnedElementalApplicationModel?: Readonly<ReactionOwnedElementalApplicationModel>,
+): AnyReactionOwnedApplicationBinding["element"] {
+  return prepareTrustedReactionElementalApplicationAttempt(
+    input,
+    reactionOwnedElementalApplicationModel,
+  ).element;
 }
 
 /**
@@ -361,8 +417,12 @@ export function resolveTrustedReactionElementalApplicationElement(
  */
 export function prepareTrustedReactionElementalApplicationAttempt(
   input: TrustedReactionElementalApplicationInput,
+  reactionOwnedElementalApplicationModel?: Readonly<ReactionOwnedElementalApplicationModel>,
 ): Readonly<PreparedTrustedReactionElementalApplicationAttempt> {
-  const normalized = normalizeReactionOwnedInput(input);
+  const selectedModel = normalizeReactionOwnedApplicationModel(
+    reactionOwnedElementalApplicationModel,
+  );
+  const normalized = normalizeReactionOwnedInput(input, selectedModel.policyId);
   const preparedInput: TrustedReactionElementalApplicationInput =
     normalized.binding.sourceKind === "burning-tick"
       ? {
@@ -534,6 +594,7 @@ function normalizeApplication(
  */
 export class ElementalApplicationIcdEngine {
   private readonly legacyProfiles: ReadonlyMap<string, IcdProfile>;
+  private readonly reactionOwnedElementalApplicationModel: Readonly<ReactionOwnedElementalApplicationModel>;
   /** Configured/direct state: never read or written by reaction-owned hits. */
   private readonly fixedStatesByActor = new Map<
     string,
@@ -560,6 +621,10 @@ export class ElementalApplicationIcdEngine {
   private reentrantConsumptionAttempted = false;
 
   constructor(options: ElementalApplicationIcdEngineOptions = {}) {
+    this.reactionOwnedElementalApplicationModel =
+      normalizeReactionOwnedApplicationModel(
+        options.reactionOwnedElementalApplicationModel,
+      );
     const profiles = new Map<string, IcdProfile>();
     profiles.set(
       "default",
@@ -577,6 +642,10 @@ export class ElementalApplicationIcdEngine {
       validateLegacyProfile("burning", BURNING_LEGACY_PROFILE),
     );
     this.legacyProfiles = profiles;
+  }
+
+  getReactionOwnedElementalApplicationModel(): Readonly<ReactionOwnedElementalApplicationModel> {
+    return this.reactionOwnedElementalApplicationModel;
   }
 
   private runConsumptionEntry<T>(
@@ -631,7 +700,10 @@ export class ElementalApplicationIcdEngine {
 
   /** Validate a direct attempt and every referenced policy without mutation. */
   validateDirectAttempt(input: ElementalApplicationAttemptInput): void {
-    this.prepareDirectAttempt(input);
+    this.runConsumptionEntry("direct", () => {
+      this.prepareDirectAttempt(input);
+      this.assertNoReentrantConsumption();
+    });
   }
 
   private prepareDirectAttempt(
@@ -701,7 +773,10 @@ export class ElementalApplicationIcdEngine {
       // ordering cursor or counter. Forged fields, accessors, reentrant Proxy
       // traps, and policy mismatches fail closed without polluting a later
       // valid attempt.
-      const normalized = normalizeReactionOwnedInput(input);
+      const normalized = normalizeReactionOwnedInput(
+        input,
+        this.reactionOwnedElementalApplicationModel.policyId,
+      );
       this.assertNoReentrantConsumption();
       if (
         this.lastReactionAttemptFrame !== null &&
@@ -743,7 +818,11 @@ export class ElementalApplicationIcdEngine {
         existing = actorStates?.get(normalized.binding.sourceIcdTag);
       }
       const opensNewWindow =
-        existing === undefined || normalized.frame >= existing.resetAtFrame;
+        existing === undefined ||
+        ("resetBoundary" in normalized.binding &&
+        normalized.binding.resetBoundary === "attempt-before-core-reset"
+          ? normalized.frame > existing.resetAtFrame
+          : normalized.frame >= existing.resetAtFrame);
       let state: FixedWindowState<"reaction-a" | "burning">;
       let hitIndex: number;
       if (opensNewWindow) {
@@ -793,27 +872,55 @@ export class ElementalApplicationIcdEngine {
       }
       this.lastReactionAttemptFrame = normalized.frame;
 
-      const commonDecision = Object.freeze({
-        kind: "reaction-fixed-gcsim",
-        evaluated: true,
-        consumed: true,
-        applicationMultiplier,
-        allowed: applicationMultiplier > 0,
-        policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-        profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-        resetFrames: state.resetFrames,
-        windowStartFrame: state.windowStartFrame,
-        resetAtFrame: state.resetAtFrame,
-        hitIndex,
-        sequenceIndex,
-        tailPolicy: "clamp",
-        resetSchedulePolicy:
-          "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
-      } as const);
+      const makeCommonDecision = <
+        const PolicyId extends GcsimReactionOwnedApplicationPolicyId,
+        const ResetSchedulePolicy extends
+          | "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one"
+          | "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one",
+      >(
+        policyId: PolicyId,
+        resetSchedulePolicy: ResetSchedulePolicy,
+      ) =>
+        Object.freeze({
+          kind: "reaction-fixed-gcsim",
+          evaluated: true,
+          consumed: true,
+          applicationMultiplier,
+          allowed: applicationMultiplier > 0,
+          // Keep the frozen v1 insertion order byte-for-byte: policyId
+          // precedes profileId and resetSchedulePolicy follows tailPolicy.
+          policyId,
+          profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+          resetFrames: state.resetFrames,
+          windowStartFrame: state.windowStartFrame,
+          resetAtFrame: state.resetAtFrame,
+          hitIndex,
+          sequenceIndex,
+          tailPolicy: "clamp",
+          resetSchedulePolicy,
+        } as const);
 
       if (normalized.binding.sourceKind === "burning-tick") {
+        if (
+          this.reactionOwnedElementalApplicationModel.mode ===
+          "fixed-gcsim-reaction-owned-application-v1"
+        ) {
+          return Object.freeze({
+            ...makeCommonDecision(
+              GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+              "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+            ),
+            scope: "trusted-target-global-burning-projection",
+            icdTag: normalized.binding.sourceIcdTag,
+            groupId: "burning",
+            windowStartGroupId: "burning",
+          });
+        }
         return Object.freeze({
-          ...commonDecision,
+          ...makeCommonDecision(
+            GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+            "provisional-attempt-before-core-reset-at-window-start-plus-reset-frames-minus-one",
+          ),
           scope: "trusted-target-global-burning-projection",
           icdTag: normalized.binding.sourceIcdTag,
           groupId: "burning",
@@ -821,8 +928,26 @@ export class ElementalApplicationIcdEngine {
         });
       }
 
+      if (
+        this.reactionOwnedElementalApplicationModel.mode ===
+        "fixed-gcsim-reaction-owned-application-v1"
+      ) {
+        return Object.freeze({
+          ...makeCommonDecision(
+            GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+            "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+          ),
+          scope: "actor-tag",
+          icdTag: normalized.binding.sourceIcdTag,
+          groupId: "reaction-a",
+          windowStartGroupId: "reaction-a",
+        });
+      }
       return Object.freeze({
-        ...commonDecision,
+        ...makeCommonDecision(
+          GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+          "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one",
+        ),
         scope: "actor-tag",
         icdTag: normalized.binding.sourceIcdTag,
         groupId: "reaction-a",

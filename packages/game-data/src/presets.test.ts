@@ -5,7 +5,9 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -43,16 +45,28 @@ const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
 } as const;
 
 const EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL = {
-  mode: "fixed-gcsim-reaction-owned-application-v1",
+  mode: "fixed-gcsim-reaction-owned-application-v2",
   policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } as const;
 
 describe("game-data preset engine identity", () => {
   it("propagates the exact current mechanics-root identities without opting built-in presets into unrelated mechanics modes", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.48.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.48.0-reaction-owned-application-root"
+      "1.49.0-reaction-owned-reset-boundary"
     );
+    expect(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID).toBe(
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID
+    );
+    expect(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT).toMatchObject({
+      version: "2.0.0",
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
+      contentHash:
+        "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+      provisional: true,
+      officialServerTruth: false,
+      completeGcsimParity: false
+    });
 
     for (const preset of presets) {
       expect(
@@ -134,5 +148,11 @@ describe("game-data preset engine identity", () => {
           .toHaveProperty("directDamageGroup");
       }
     }
+  });
+
+  it("keeps the compatibility Durin preset explicitly provisional", () => {
+    expect(durinMeltPreset.dataVersion).toBe("0.1.0-demo");
+    expect(durinMeltPreset.meta.verificationStatus).toBe("provisional");
+    expect(durinMeltPreset.meta.note).toContain("示例魔法数");
   });
 });

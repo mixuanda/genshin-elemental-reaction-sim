@@ -72,7 +72,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   },
   reactionOwnedElementalApplicationModel: {
-    mode: "fixed-gcsim-reaction-owned-application-v1",
+    mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   },
   dataVersion:
@@ -368,7 +368,7 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   },
   reactionOwnedElementalApplicationModel: {
-    mode: "fixed-gcsim-reaction-owned-application-v1",
+    mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   },
   dataVersion:

@@ -22,6 +22,7 @@ import type {
   QuickenDecayEndCause,
   QuickenDecayMutationAudit,
   QuickenReactionAudit,
+  ReactionOwnedElementalApplicationModel,
   ReactionTaskBlockedReason,
   ReactionType,
   ReactionAudit,
@@ -419,6 +420,10 @@ export interface ShatterStateResult {
 
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
   freezeResistance?: number;
+  /** Simulator/config-owned reaction application policy selection. */
+  reactionOwnedElementalApplicationModel?: Readonly<
+    ReactionOwnedElementalApplicationModel
+  >;
   /**
    * Opt-in Reactable.Tick lifecycle cache. The default preserves the frozen
    * observer/event-heap behavior; target-phase-v2 enables order-independent
@@ -788,6 +793,9 @@ export class AuraEngine {
   private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
   private readonly elementalApplicationIcdEngine:
     ElementalApplicationIcdEngine;
+  private readonly reactionOwnedElementalApplicationModel: Readonly<
+    ReactionOwnedElementalApplicationModel
+  >;
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
   private readonly freezeResistance: number;
@@ -928,8 +936,16 @@ export class AuraEngine {
     };
     this.elementalApplicationIcdEngine =
       new ElementalApplicationIcdEngine({
-        legacyProfiles: this.icdProfiles
+        legacyProfiles: this.icdProfiles,
+        ...(config.reactionOwnedElementalApplicationModel === undefined
+          ? {}
+          : {
+              reactionOwnedElementalApplicationModel:
+                config.reactionOwnedElementalApplicationModel
+            })
       });
+    this.reactionOwnedElementalApplicationModel =
+      this.elementalApplicationIcdEngine.getReactionOwnedElementalApplicationModel();
     for (const initial of config.initialAura ?? []) {
       this.attachNormalAura(
         initial.element,
@@ -5486,7 +5502,10 @@ export class AuraEngine {
     // repeats the validation immediately before consuming the isolated ICD
     // state, keeping both public layers fail-closed.
     const prepared =
-      prepareTrustedReactionElementalApplicationAttempt(input);
+      prepareTrustedReactionElementalApplicationAttempt(
+        input,
+        this.reactionOwnedElementalApplicationModel
+      );
     return Object.freeze({
       hitInput: Object.freeze({
         frame: prepared.input.frame,

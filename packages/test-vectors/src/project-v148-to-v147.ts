@@ -6,7 +6,7 @@ import {
   createSimulationReproducibilityKey,
   simulationResultV147Schema,
   type SimConfigV147,
-  type SimulationResult,
+  type SimulationResultForV148,
   type SimulationResultForV147,
   type SimulationRunManifestV147,
   type TargetPhaseV3LogEntryV147
@@ -20,7 +20,7 @@ import {
  * compatibility tests do not accidentally reinterpret CURRENT as 1.47.
  */
 export function projectSimulationResultV148ToV147(
-  result: SimulationResult
+  result: SimulationResultForV148
 ): SimulationResultForV147 {
   const reactionOwnedApplications =
     result.elementalApplicationIcdLog.filter(
@@ -83,7 +83,7 @@ export function projectSimulationResultV148ToV147(
   );
 
   const stripDamageEvent = (
-    event: SimulationResult["damageEvents"][number]
+    event: SimulationResultForV148["damageEvents"][number]
   ) => {
     const {
       elementalApplicationIcdLogId: _applicationLogId,
@@ -92,7 +92,7 @@ export function projectSimulationResultV148ToV147(
     return v147;
   };
   const stripHitResolution = (
-    entry: SimulationResult["hitResolutionLog"][number]
+    entry: SimulationResultForV148["hitResolutionLog"][number]
   ) => {
     const {
       reactionDamageLogId: _reactionDamageLogId,
@@ -102,7 +102,7 @@ export function projectSimulationResultV148ToV147(
     return v147;
   };
   const stripReactionDamage = (
-    entry: SimulationResult["reactionDamageLog"][number]
+    entry: SimulationResultForV148["reactionDamageLog"][number]
   ) => {
     const {
       hitResolutionLogIds: _hitResolutionLogIds,
@@ -112,7 +112,7 @@ export function projectSimulationResultV148ToV147(
     return v147;
   };
   const stripTargetPhase = (
-    phase: SimulationResult["targetPhaseLog"][number]
+    phase: SimulationResultForV148["targetPhaseLog"][number]
   ) => {
     if (phase.model !== "target-phase-v3") return phase;
     return {

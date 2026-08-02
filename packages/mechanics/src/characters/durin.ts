@@ -444,7 +444,7 @@ export function createDurinBlackSkillAuditConfig(
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     },
     reactionOwnedElementalApplicationModel: {
-      mode: "fixed-gcsim-reaction-owned-application-v1",
+      mode: "fixed-gcsim-reaction-owned-application-v2",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
@@ -570,7 +570,7 @@ export function createDurinWhiteSkillAuditConfig(
       profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     },
     reactionOwnedElementalApplicationModel: {
-      mode: "fixed-gcsim-reaction-owned-application-v1",
+      mode: "fixed-gcsim-reaction-owned-application-v2",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,

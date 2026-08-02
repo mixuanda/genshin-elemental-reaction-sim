@@ -7,6 +7,8 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   targetPhaseV3ResultReferencesSchema,
@@ -137,17 +139,17 @@ function cloneWithIdentity(
 }
 
 describe("target-phase-v3 formula-root identity", () => {
-  it("accepts exact 1.48 and preserves the exact 1.44-1.47 callback semantics", () => {
+  it("accepts exact 1.49 and preserves the exact 1.44-1.48 callback semantics", () => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
       critMode: "noCrit"
     });
 
     expect(current).toMatchObject({
-      schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
-      engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
       config: {
-        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
-        engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
       }
     });
 
@@ -193,6 +195,14 @@ describe("target-phase-v3 formula-root identity", () => {
     expect(
       targetPhaseV3ResultReferencesSchema.safeParse(exactV147).success
     ).toBe(true);
+
+    const exactV148 = cloneWithIdentity(current, {
+      schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+    });
+    expect(
+      targetPhaseV3ResultReferencesSchema.safeParse(exactV148).success
+    ).toBe(true);
   });
 
   it.each([
@@ -232,8 +242,8 @@ describe("target-phase-v3 formula-root identity", () => {
     {
       label: "mixed current result and frozen config generations",
       resultIdentity: {
-        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
-        engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
       },
       configIdentity: {
         schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
@@ -243,11 +253,11 @@ describe("target-phase-v3 formula-root identity", () => {
     {
       label: "mixed current schema and frozen engine generations",
       resultIdentity: {
-        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
         engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
       },
       configIdentity: {
-        schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
         engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
       }
     }
@@ -267,7 +277,7 @@ describe("target-phase-v3 formula-root identity", () => {
       expect(
         parsed.error.issues.some((issue) =>
           issue.message.includes(
-            "exact 1.44, 1.45, 1.46, 1.47, or 1.48"
+            "exact 1.44, 1.45, 1.46, 1.47, 1.48, or 1.49"
           )
         )
       ).toBe(true);

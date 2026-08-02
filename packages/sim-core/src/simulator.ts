@@ -42,7 +42,7 @@ import {
   type Element,
   type ElementalApplication,
   type ElementalApplicationIcdDecisionV147,
-  type ReactionOwnedElementalApplicationIcdDecisionV148,
+  type ReactionOwnedElementalApplicationIcdDecisionV149,
   type ElectroChargedCleanupAudit,
   type ElectroChargedPropagationAudit,
   type ElectroChargedPropagationCandidateAudit,
@@ -84,8 +84,7 @@ import { CLASSIC_REACTION_FORMULA_ROOT } from "@genshin-dps-lab/reaction-formula
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  resolveReactionOwnedApplicationPolicyRoot
 } from "@genshin-dps-lab/icd-profiles";
 import {
   AURA_ENGINE_CONSTANTS,
@@ -1484,7 +1483,9 @@ function simulateConfig(
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
-        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+        resolveReactionOwnedApplicationPolicyRoot(
+          config.reactionOwnedElementalApplicationModel.policyId
+        ),
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -1857,6 +1858,8 @@ function simulateConfig(
             target.id,
             new AuraEngine({
               ...config.reactionEngine!,
+              reactionOwnedElementalApplicationModel:
+                config.reactionOwnedElementalApplicationModel,
               ...(targetPhaseV2Enabled
                 ? {
                     reactableTickModel:
@@ -2490,7 +2493,7 @@ function simulateConfig(
     reactionApplication: NonNullable<
       ReactionDamageEventPayload["reactionApplication"]
     >;
-    decision: Readonly<ReactionOwnedElementalApplicationIcdDecisionV148>;
+    decision: Readonly<ReactionOwnedElementalApplicationIcdDecisionV149>;
   }): number => {
     const runtimeDecision = decision as unknown as {
       kind?: unknown;
@@ -2553,8 +2556,7 @@ function simulateConfig(
         hitGroupId,
         element: "pyro",
         selector: {
-          mode: "fixed-gcsim-reaction-owned-application-v1",
-          policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+          ...config.reactionOwnedElementalApplicationModel,
           channel: { kind: "burning-tick" }
         },
         nominalGaugeUnits: reactionApplication.nominalGaugeUnits,
@@ -2582,8 +2584,7 @@ function simulateConfig(
         hitGroupId,
         element: reactionApplication.channel.element,
         selector: {
-          mode: "fixed-gcsim-reaction-owned-application-v1",
-          policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
+          ...config.reactionOwnedElementalApplicationModel,
           channel: deepClone(reactionApplication.channel)
         },
         nominalGaugeUnits: reactionApplication.nominalGaugeUnits,
@@ -11864,7 +11865,7 @@ function simulateConfig(
           ? null
           : resolvePropagatedReactionAudit();
         const readReactionApplicationIcdDecision =
-          (): Readonly<ReactionOwnedElementalApplicationIcdDecisionV148> | null => {
+          (): Readonly<ReactionOwnedElementalApplicationIcdDecisionV149> | null => {
             if (reactionApplication === undefined) return null;
             if (targetAuraEngine === null) {
               throw new Error(
