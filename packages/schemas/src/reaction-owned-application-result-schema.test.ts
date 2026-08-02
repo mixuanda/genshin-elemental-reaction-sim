@@ -17,6 +17,8 @@ import {
   simulationResultV149ValueSchema,
   simulationResultV150Schema,
   simulationResultV150ValueSchema,
+  simulationResultV151Schema,
+  simulationResultV151ValueSchema,
   targetPhaseV3DeliveryAttemptV148Schema
 } from "./result-schema";
 import {
@@ -24,10 +26,12 @@ import {
   simConfigV148Schema,
   simConfigV149Schema,
   simConfigV150Schema,
+  simConfigV151Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
+  simulationRunManifestV151Schema,
   targetPhaseV3DeliveryAttemptSchema
 } from "./schema";
 
@@ -720,6 +724,16 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
         "1.50.0"
       ).success
     ).toBe(true);
+    expect(
+      simulationResultV150ValueSchema.shape.schemaVersion.safeParse(
+        "1.51.0"
+      ).success
+    ).toBe(false);
+    expect(
+      simulationResultV151ValueSchema.shape.schemaVersion.safeParse(
+        "1.51.0"
+      ).success
+    ).toBe(true);
     expect(simulationResultV147ValueSchema.shape.config).toBe(
       simConfigV147Schema
     );
@@ -731,6 +745,9 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
     );
     expect(simulationResultV150ValueSchema.shape.config).toBe(
       simConfigV150Schema
+    );
+    expect(simulationResultV151ValueSchema.shape.config).toBe(
+      simConfigV151Schema
     );
     expect(simulationResultV147ValueSchema.shape.runManifest).toBe(
       simulationRunManifestV147Schema
@@ -744,7 +761,11 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
     expect(simulationResultV150ValueSchema.shape.runManifest).toBe(
       simulationRunManifestV150Schema
     );
-    expect(simulationResultSchema).toBe(simulationResultV150Schema);
+    expect(simulationResultV151ValueSchema.shape.runManifest).toBe(
+      simulationRunManifestV151Schema
+    );
+    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV150Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV149Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV148Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV147Schema);

@@ -13,7 +13,6 @@ import { describe, expect, it } from "vitest";
 import {
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
-  createSimulationRunManifest,
   createVersionedContentHash,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
@@ -32,7 +31,9 @@ import {
   simulationRunManifestV150Schema,
   type SimConfigV149,
   type SimConfigV150,
-  type SimulationRunManifestV149
+  type SimConfigV151,
+  type SimulationRunManifestV149,
+  type SimulationRunManifestV150
 } from "./index";
 
 const legacyConfig = {
@@ -62,11 +63,31 @@ const runtimeOptions = {
   randomSeed: "reaction-damage-reset-seed"
 };
 
-function freezeAsV149(config: SimConfigV150): SimConfigV149 {
+function freezeAsV150(config: SimConfigV151): SimConfigV150 {
   const {
-    reactionDamageGroupModel: _reactionDamageGroupModel,
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
     ...payload
   } = config;
+  return simConfigV150Schema.parse({
+    ...payload,
+    schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+  });
+}
+
+function freezeAsV149(
+  config: SimConfigV150 | SimConfigV151
+): SimConfigV149 {
+  const {
+    reactionDamageGroupModel: _reactionDamageGroupModel,
+    ...withPossibleScheduler
+  } = config;
+  const {
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    ...payload
+  } = withPossibleScheduler as typeof withPossibleScheduler & {
+    basicReactionSchedulerModel?: unknown;
+  };
   return simConfigV149Schema.parse({
     ...payload,
     schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -97,15 +118,15 @@ function createV149Manifest(config: SimConfigV149) {
 }
 
 describe("1.50 reaction damage-group reset-boundary identity", () => {
-  it("advances only current config and manifest identities", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
+  it("keeps 1.50 frozen after the current identity advances", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.50.0-reaction-damage-reset-boundary"
+      "1.51.0-basic-reaction-scheduler"
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe(
+    expect(CURRENT_SCHEMA_VERSION).not.toBe(
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
     );
-    expect(CURRENT_ENGINE_VERSION).toBe(
+    expect(CURRENT_ENGINE_VERSION).not.toBe(
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
     );
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
@@ -131,7 +152,7 @@ describe("1.50 reaction damage-group reset-boundary identity", () => {
     expect(migratedV149.engineVersion).toBe(CURRENT_ENGINE_VERSION);
 
     const nativeV2 = simConfigV150Schema.parse({
-      ...migratedV149,
+      ...freezeAsV150(migratedV149),
       reactionDamageGroupModel: {
         mode: "fixed-gcsim-reaction-damage-task-order-v2",
         policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
@@ -175,14 +196,14 @@ describe("1.50 reaction damage-group reset-boundary identity", () => {
     const {
       reactionDamageGroupModel: _reactionDamageGroupModel,
       ...missingModel
-    } = current;
+    } = freezeAsV150(current);
     expect(() => simConfigV150Schema.parse(missingModel)).toThrow(
       /reactionDamageGroupModel/
     );
   });
 
   it("binds each current config to its exact selected damage-group root", () => {
-    const migratedV1 = migrateConfig(legacyConfig);
+    const migratedV1 = freezeAsV150(migrateConfig(legacyConfig));
     const nativeV2 = simConfigV150Schema.parse({
       ...migratedV1,
       reactionDamageGroupModel: {
@@ -207,9 +228,14 @@ describe("1.50 reaction damage-group reset-boundary identity", () => {
         GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT
       ]
     ] as const) {
-      const manifest = createSimulationRunManifest({
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION,
+      const identity = {
+        version:
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+        identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM,
+        schemaVersion:
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion:
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
         dataVersion: config.dataVersion,
         configHash: createSimulationConfigHash(config),
         resolvedRuntimeOptions: runtimeOptions,
@@ -220,9 +246,20 @@ describe("1.50 reaction damage-group reset-boundary identity", () => {
         reactionOwnedElementalApplicationRoot:
           GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
         reactionDamageGroupRoot: root
-      });
+      } satisfies Omit<
+        SimulationRunManifestV150,
+        "reproducibilityKey"
+      >;
+      const manifest = {
+        ...identity,
+        reproducibilityKey:
+          createSimulationReproducibilityKey(identity)
+      };
       expect(simulationRunManifestV150Schema.parse(manifest)).toEqual(
         manifest
+      );
+      expect(manifest.reactionDamageGroupRoot.policyId).toBe(
+        config.reactionDamageGroupModel.policyId
       );
       expect(parseSimulationRunManifestForConfig(manifest, config)).toEqual(
         manifest
@@ -243,6 +280,9 @@ describe("1.50 reaction damage-group reset-boundary identity", () => {
       };
       expect(simulationRunManifestV150Schema.parse(forgedManifest)).toEqual(
         forgedManifest
+      );
+      expect(forgedManifest.reactionDamageGroupRoot.policyId).not.toBe(
+        config.reactionDamageGroupModel.policyId
       );
       expect(() =>
         parseSimulationRunManifestForConfig(forgedManifest, config)

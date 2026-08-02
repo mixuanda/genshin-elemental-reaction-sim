@@ -1,27 +1,20 @@
 import {
   assertTrustedSimulationResult,
   simulationResultSchema,
-  type SimConfig
+  type SimConfig,
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
-  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
-function auraV2RetainedGauge(
-  frame: number,
-  consumedGaugeUnits = 0
-): number {
-  return (
-    0.8 -
-    (0.8 / 426) * frame -
-    consumedGaugeUnits
-  );
+function auraV2RetainedGauge(frame: number, consumedGaugeUnits = 0): number {
+  return 0.8 - (0.8 / 426) * frame - consumedGaugeUnits;
 }
 
 function makeElectroChargedConfig(): SimConfig {
@@ -40,15 +33,15 @@ function makeElectroChargedConfig(): SimConfig {
           id: "enemy-0",
           name: "感电目标",
           position: { x: 0, y: 0 },
-          initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "enemy-1",
           name: "邻近但无独立感电流",
           position: { x: 0.1, y: 0 },
-          initialAura: [{ element: "hydro", gaugeUnits: 1 }]
-        }
-      ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [
       {
@@ -61,8 +54,8 @@ function makeElectroChargedConfig(): SimConfig {
           ...neutralStats,
           baseAtk: 1000,
           em: 100,
-          reactionBonus: 0.2
-        }
+          reactionBonus: 0.2,
+        },
       },
       {
         ...template,
@@ -74,13 +67,13 @@ function makeElectroChargedConfig(): SimConfig {
           ...neutralStats,
           baseAtk: 1000,
           em: 300,
-          reactionBonus: 0.1
-        }
-      }
+          reactionBonus: 0.1,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: {
-      mode: "aura-v2"
+      mode: "aura-v2",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -106,14 +99,14 @@ function makeElectroChargedConfig(): SimConfig {
               element: "electro",
               targeting: {
                 targetId: "enemy-0",
-                outcome: "landed"
+                outcome: "landed",
               },
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
         },
         {
           id: "hydro-refresh",
@@ -132,31 +125,31 @@ function makeElectroChargedConfig(): SimConfig {
               element: "hydro",
               targeting: {
                 targetId: "enemy-0",
-                outcome: "landed"
+                outcome: "landed",
               },
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "electro-a",
-          abilityId: "electro-start"
+          abilityId: "electro-start",
         },
         { type: "wait", frames: 7 },
         { type: "swap", characterId: "hydro-b" },
         {
           type: "skill",
           actorId: "hydro-b",
-          abilityId: "hydro-refresh"
-        }
-      ]
-    }
+          abilityId: "hydro-refresh",
+        },
+      ],
+    },
   };
 }
 
@@ -170,7 +163,7 @@ function enableAuraV9(config: SimConfig): SimConfig {
         kind: "circle",
         coordinateSpace: "world",
         origin: { x: 0, y: 0 },
-        radius: 0
+        radius: 0,
       };
     }
   }
@@ -178,7 +171,7 @@ function enableAuraV9(config: SimConfig): SimConfig {
 }
 
 function expectAcceptedAtBothBoundaries(
-  result: ReturnType<typeof simulate>
+  result: ReturnType<typeof simulate>,
 ): void {
   expect(simulationResultSchema.parse(result)).toEqual(result);
   expect(assertTrustedSimulationResult(result)).toBe(result);
@@ -186,19 +179,17 @@ function expectAcceptedAtBothBoundaries(
 
 function expectRejectedAtBothBoundaries(
   result: ReturnType<typeof simulate>,
-  expectedIssue?: RegExp
+  expectedIssue?: RegExp,
 ): void {
   const parsed = simulationResultSchema.safeParse(result);
   expect(parsed.success).toBe(false);
   if (!parsed.success && expectedIssue !== undefined) {
     expect(
-      parsed.error.issues.map((issue) => issue.message).join("\n")
+      parsed.error.issues.map((issue) => issue.message).join("\n"),
     ).toMatch(expectedIssue);
   }
-  expect(() =>
-    assertTrustedSimulationResult(result)
-  ).toThrow(
-    /Trusted SimulationResult 1\.50 integrity validation failed/
+  expect(() => assertTrustedSimulationResult(result)).toThrow(
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
 }
 
@@ -206,41 +197,41 @@ describe("Electro-Charged simulation integration", () => {
   it("emits every single-target tick and transfers future ownership on refresh", () => {
     const config = makeElectroChargedConfig();
     const result = simulate(config, {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const triggers = result.damageEvents.filter(
-      (event) => event.kind === "direct"
+      (event) => event.kind === "direct",
     );
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
     const firstExpected = calcTransformativeReactionDamage({
       characterLevel: 90,
       elementalMastery: 100,
       reactionBonus: 0.2,
       baseMultiplier: 2,
-      effectiveResistance: 0.1
+      effectiveResistance: 0.1,
     });
     const secondExpected = calcTransformativeReactionDamage({
       characterLevel: 90,
       elementalMastery: 300,
       reactionBonus: 0.1,
       baseMultiplier: 2,
-      effectiveResistance: 0.1
+      effectiveResistance: 0.1,
     });
 
     expect(triggers.map((event) => event.frame)).toEqual([0, 20]);
     expect(triggers[0]?.reactionAudit.periodicReaction).toMatchObject({
       operation: "start",
       firstDamageFrame: 10,
-      nextTickFrame: 70
+      nextTickFrame: 70,
     });
     expect(triggers[1]?.reactionAudit.periodicReaction).toMatchObject({
       operation: "refresh",
       firstDamageFrame: null,
-      nextTickFrame: 70
+      nextTickFrame: 70,
     });
     expect(ticks).toHaveLength(2);
     expect(
@@ -250,8 +241,8 @@ describe("Electro-Charged simulation integration", () => {
         parentDamageEventId: event.parentDamageEventId,
         targetId: event.targetId,
         element: event.element,
-        reaction: event.reaction
-      }))
+        reaction: event.reaction,
+      })),
     ).toEqual([
       {
         frame: 10,
@@ -259,7 +250,7 @@ describe("Electro-Charged simulation integration", () => {
         parentDamageEventId: triggers[0]?.id,
         targetId: "enemy-0",
         element: "electro",
-        reaction: "electroCharged"
+        reaction: "electroCharged",
       },
       {
         frame: 70,
@@ -267,27 +258,19 @@ describe("Electro-Charged simulation integration", () => {
         parentDamageEventId: triggers[1]?.id,
         targetId: "enemy-0",
         element: "electro",
-        reaction: "electroCharged"
-      }
+        reaction: "electroCharged",
+      },
     ]);
-    expect(ticks[0]?.finalDamage).toBeCloseTo(
-      firstExpected.finalDamage,
-      10
-    );
-    expect(ticks[1]?.finalDamage).toBeCloseTo(
-      secondExpected.finalDamage,
-      10
-    );
+    expect(ticks[0]?.finalDamage).toBeCloseTo(firstExpected.finalDamage, 10);
+    expect(ticks[1]?.finalDamage).toBeCloseTo(secondExpected.finalDamage, 10);
     expect(
       result.damageEvents.some(
         (event) =>
           event.kind === "transformative-reaction" &&
-          event.targetId === "enemy-1"
-      )
+          event.targetId === "enemy-1",
+      ),
     ).toBe(false);
-    expect(simulate(config, { critMode: "noCrit" })).toEqual(
-      result
-    );
+    expect(simulate(config, { critMode: "noCrit" })).toEqual(result);
   });
 
   it("logs an immediate stop when a later reaction removes the coexisting aura", () => {
@@ -296,51 +279,46 @@ describe("Electro-Charged simulation integration", () => {
     config.characters[1]!.name = "Pyro B";
     config.timeline!.abilities[1]!.name = "Pyro stop";
     config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
-    config.timeline!.abilities[1]!.hits![0]!.label =
-      "火触发超载并终止感电";
+    config.timeline!.abilities[1]!.hits![0]!.label = "火触发超载并终止感电";
     config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
       auraV2RetainedGauge(20, 0.4);
 
     const result = simulate(config, { critMode: "noCrit" });
     const directHits = result.damageEvents.filter(
-      (event) => event.kind === "direct"
+      (event) => event.kind === "direct",
     );
     const electroChargedTicks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
 
-    expect(electroChargedTicks.map((event) => event.frame)).toEqual([
-      10
-    ]);
-    expect(
-      directHits[1]?.reactionAudit.periodicReaction
-    ).toMatchObject({
+    expect(electroChargedTicks.map((event) => event.frame)).toEqual([10]);
+    expect(directHits[1]?.reactionAudit.periodicReaction).toMatchObject({
       operation: "stop",
       generation: 1,
       nextTickFrame: null,
-      coexistenceExpiresAtFrame: null
+      coexistenceExpiresAtFrame: null,
     });
     expect(
       result.periodicReactionLog.map((entry) => [
         entry.operation,
         entry.frame,
-        entry.reason
-      ])
+        entry.reason,
+      ]),
     ).toEqual([
       ["start", 0, null],
       ["tick", 10, null],
       ["wane", 16, null],
-      ["stop", 20, "COEXISTING_AURA_REMOVED_BY_HIT"]
+      ["stop", 20, "COEXISTING_AURA_REMOVED_BY_HIT"],
     ]);
     expect(
       result.damageEvents.some(
         (event) =>
           event.kind === "transformative-reaction" &&
           event.reaction === "overload" &&
-          event.frame === 21
-      )
+          event.frame === 21,
+      ),
     ).toBe(true);
   });
 
@@ -352,30 +330,28 @@ describe("Electro-Charged simulation integration", () => {
       auraV2RetainedGauge(20, 0.4);
     const legal = simulate(config, { critMode: "noCrit" });
     const trigger = legal.damageEvents.find(
-      (event) =>
-        event.reactionAudit.periodicReaction?.operation === "stop"
+      (event) => event.reactionAudit.periodicReaction?.operation === "stop",
     );
     const stop = legal.periodicReactionLog.find(
       (entry) =>
         entry.operation === "stop" &&
-        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT",
     );
     if (trigger === undefined || stop === undefined) {
       throw new Error(
-        "Immediate EC stop fixture must expose its trigger and terminal row."
+        "Immediate EC stop fixture must expose its trigger and terminal row.",
       );
     }
     expectAcceptedAtBothBoundaries(legal);
 
     const forgedSource = structuredClone(legal);
-    forgedSource.periodicReactionLog[stop.id]!.sourceActorId =
-      "electro-a";
+    forgedSource.periodicReactionLog[stop.id]!.sourceActorId = "electro-a";
     expectRejectedAtBothBoundaries(forgedSource);
 
     const missingAudit = structuredClone(legal);
     for (const event of [
       ...missingAudit.damageEvents,
-      ...missingAudit.hitEvents
+      ...missingAudit.hitEvents,
     ]) {
       if (event.id === trigger.id) {
         event.reactionAudit.periodicReaction = null;
@@ -388,7 +364,7 @@ describe("Electro-Charged simulation integration", () => {
       "COEXISTING_AURA_MISSING";
     for (const event of [
       ...launderedReason.damageEvents,
-      ...launderedReason.hitEvents
+      ...launderedReason.hitEvents,
     ]) {
       if (event.id === trigger.id) {
         event.reactionAudit.periodicReaction = null;
@@ -397,16 +373,13 @@ describe("Electro-Charged simulation integration", () => {
     expectRejectedAtBothBoundaries(launderedReason);
 
     const detachedLaunderedReason = structuredClone(legal);
-    Object.assign(
-      detachedLaunderedReason.periodicReactionLog[stop.id]!,
-      {
-        reason: "COEXISTING_AURA_MISSING" as const,
-        triggerDamageEventId: null
-      }
-    );
+    Object.assign(detachedLaunderedReason.periodicReactionLog[stop.id]!, {
+      reason: "COEXISTING_AURA_MISSING" as const,
+      triggerDamageEventId: null,
+    });
     for (const event of [
       ...detachedLaunderedReason.damageEvents,
-      ...detachedLaunderedReason.hitEvents
+      ...detachedLaunderedReason.hitEvents,
     ]) {
       if (event.id === trigger.id) {
         event.reactionAudit.periodicReaction = null;
@@ -415,17 +388,13 @@ describe("Electro-Charged simulation integration", () => {
     expectRejectedAtBothBoundaries(detachedLaunderedReason);
 
     const missingRow = structuredClone(legal);
-    missingRow.periodicReactionLog =
-      missingRow.periodicReactionLog.filter(
-        (entry) => entry.id !== stop.id
-      );
+    missingRow.periodicReactionLog = missingRow.periodicReactionLog.filter(
+      (entry) => entry.id !== stop.id,
+    );
     for (const point of missingRow.targetStateTimeline.points) {
       point.links = point.links.filter(
         (link) =>
-          !(
-            link.kind === "periodic-reaction-log" &&
-            link.id === stop.id
-          )
+          !(link.kind === "periodic-reaction-log" && link.id === stop.id),
       );
     }
     expectRejectedAtBothBoundaries(missingRow);
@@ -444,23 +413,20 @@ describe("Electro-Charged simulation integration", () => {
       kind: "circle",
       coordinateSpace: "world",
       origin: { x: 0, y: 0 },
-      radius: 0
+      radius: 0,
     };
     const legal = simulate(config, { critMode: "noCrit" });
     const wane = legal.periodicReactionLog.find(
-      (entry) => entry.operation === "wane"
+      (entry) => entry.operation === "wane",
     );
-    const point = legal.targetStateTimeline.points.find(
-      (candidate) =>
-        candidate.links.some(
-          (link) =>
-            link.kind === "periodic-reaction-log" &&
-            link.id === wane?.id
-        )
+    const point = legal.targetStateTimeline.points.find((candidate) =>
+      candidate.links.some(
+        (link) => link.kind === "periodic-reaction-log" && link.id === wane?.id,
+      ),
     );
     if (wane === undefined || point === undefined) {
       throw new Error(
-        "Aura-v9 EC fixture must expose its Wane row and timeline point."
+        "Aura-v9 EC fixture must expose its Wane row and timeline point.",
       );
     }
     expect(wane).toMatchObject({
@@ -468,62 +434,54 @@ describe("Electro-Charged simulation integration", () => {
       operation: "wane",
       reason: null,
       cadenceStatus: "scheduled",
-      waneListenerActive: true
+      waneListenerActive: true,
     });
     expect(wane.auraConsumed.map((entry) => entry.element)).toEqual([
       "hydro",
-      "electro"
+      "electro",
     ]);
     expectAcceptedAtBothBoundaries(legal);
 
     const forgedConsumption = structuredClone(legal);
-    const forgedWane =
-      forgedConsumption.periodicReactionLog[wane.id]!;
+    const forgedWane = forgedConsumption.periodicReactionLog[wane.id]!;
     forgedWane.auraConsumed[0]!.gaugeUnits += 0.1;
-    const forgedPoint =
-      forgedConsumption.targetStateTimeline.points[point.id]!;
-    forgedPoint.auraConsumed = structuredClone(
-      forgedWane.auraConsumed
-    );
+    const forgedPoint = forgedConsumption.targetStateTimeline.points[point.id]!;
+    forgedPoint.auraConsumed = structuredClone(forgedWane.auraConsumed);
     expectRejectedAtBothBoundaries(forgedConsumption);
 
     const forgedReason = structuredClone(legal);
-    forgedReason.periodicReactionLog[wane.id]!.reason =
-      "AURA_DEPLETED_BY_WANE";
+    forgedReason.periodicReactionLog[wane.id]!.reason = "AURA_DEPLETED_BY_WANE";
     expectRejectedAtBothBoundaries(forgedReason);
 
     const forgedCadence = structuredClone(legal);
     Object.assign(forgedCadence.periodicReactionLog[wane.id]!, {
       cadenceStatus: "dormant" as const,
-      waneListenerActive: false
+      waneListenerActive: false,
     });
     expectRejectedAtBothBoundaries(forgedCadence);
 
     const start = legal.periodicReactionLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const tick = legal.periodicReactionLog.find(
       (entry) =>
         entry.operation === "tick" &&
-        entry.damageEventId === wane.damageEventId
+        entry.damageEventId === wane.damageEventId,
     );
     if (start === undefined || tick === undefined) {
       throw new Error(
-        "Aura-v9 EC fixture must expose the owning start and tick rows."
+        "Aura-v9 EC fixture must expose the owning start and tick rows.",
       );
     }
 
     const forgedStartCadence = structuredClone(legal);
-    Object.assign(
-      forgedStartCadence.periodicReactionLog[start.id]!,
-      {
-        cadenceStatus: "dormant" as const,
-        waneListenerActive: false
-      }
-    );
+    Object.assign(forgedStartCadence.periodicReactionLog[start.id]!, {
+      cadenceStatus: "dormant" as const,
+      waneListenerActive: false,
+    });
     for (const event of [
       ...forgedStartCadence.damageEvents,
-      ...forgedStartCadence.hitEvents
+      ...forgedStartCadence.hitEvents,
     ]) {
       if (event.id !== start.triggerDamageEventId) continue;
       const audit = event.reactionAudit.periodicReaction;
@@ -535,13 +493,11 @@ describe("Electro-Charged simulation integration", () => {
     expectRejectedAtBothBoundaries(forgedStartCadence);
 
     const forgedTickCadence = structuredClone(legal);
-    forgedTickCadence.periodicReactionLog[tick.id]!.cadenceStatus =
-      "dormant";
+    forgedTickCadence.periodicReactionLog[tick.id]!.cadenceStatus = "dormant";
     expectRejectedAtBothBoundaries(forgedTickCadence);
 
     const missingTickBacklink = structuredClone(legal);
-    missingTickBacklink.periodicReactionLog[tick.id]!.waneFrame =
-      null;
+    missingTickBacklink.periodicReactionLog[tick.id]!.waneFrame = null;
     expectRejectedAtBothBoundaries(missingTickBacklink);
 
     const forgedStop = structuredClone(legal);
@@ -554,24 +510,21 @@ describe("Electro-Charged simulation integration", () => {
       coexistenceExpiresAtFrame: null,
       reason: "COEXISTING_AURA_MISSING_BEFORE_WANE",
       cadenceStatus: "stopped" as const,
-      waneListenerActive: false
+      waneListenerActive: false,
     });
-    const forgedStopPoint =
-      forgedStop.targetStateTimeline.points[point.id]!;
+    const forgedStopPoint = forgedStop.targetStateTimeline.points[point.id]!;
     Object.assign(forgedStopPoint, {
       pointKind: "observation" as const,
       auraConsumed: [],
-      auraAfter: structuredClone(forgedStopRow.auraBefore)
+      auraAfter: structuredClone(forgedStopRow.auraBefore),
     });
     expectRejectedAtBothBoundaries(forgedStop);
 
     const forgedDeadlines = structuredClone(legal);
-    const forgedDeadlineWane =
-      forgedDeadlines.periodicReactionLog[wane.id]!;
+    const forgedDeadlineWane = forgedDeadlines.periodicReactionLog[wane.id]!;
     for (const aura of forgedDeadlineWane.auraAfter) {
       if (
-        (aura.element === "hydro" ||
-          aura.element === "electro") &&
+        (aura.element === "hydro" || aura.element === "electro") &&
         aura.expiresAtFrame !== null
       ) {
         aura.expiresAtFrame += 100;
@@ -580,11 +533,9 @@ describe("Electro-Charged simulation integration", () => {
     forgedDeadlineWane.coexistenceExpiresAtFrame = Math.min(
       ...forgedDeadlineWane.auraAfter
         .filter(
-          (aura) =>
-            aura.element === "hydro" ||
-            aura.element === "electro"
+          (aura) => aura.element === "hydro" || aura.element === "electro",
         )
-        .map((aura) => aura.expiresAtFrame!)
+        .map((aura) => aura.expiresAtFrame!),
     );
     forgedDeadlines.targetStateTimeline.points[point.id]!.auraAfter =
       structuredClone(forgedDeadlineWane.auraAfter);
@@ -596,34 +547,32 @@ describe("Electro-Charged simulation integration", () => {
     config.duration = 1;
     config.cycleLength = 1;
     config.enemy.targets![0]!.initialAura = [
-      { element: "hydro", gaugeUnits: 1.30001856e-10 }
+      { element: "hydro", gaugeUnits: 1.30001856e-10 },
     ];
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const legal = simulate(enableAuraV9(config), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const terminalWane = legal.periodicReactionLog.find(
       (entry) =>
         entry.operation === "wane" &&
         entry.auraBefore.some((aura) => aura.element === "hydro") &&
-        !entry.auraAfter.some((aura) => aura.element === "hydro")
+        !entry.auraAfter.some((aura) => aura.element === "hydro"),
     );
-    const terminalPoint = legal.targetStateTimeline.points.find(
-      (point) =>
-        point.links.some(
-          (link) =>
-            link.kind === "periodic-reaction-log" &&
-            link.id === terminalWane?.id
-        )
+    const terminalPoint = legal.targetStateTimeline.points.find((point) =>
+      point.links.some(
+        (link) =>
+          link.kind === "periodic-reaction-log" && link.id === terminalWane?.id,
+      ),
     );
     const hydroBefore = terminalWane?.auraBefore.find(
-      (aura) => aura.element === "hydro"
+      (aura) => aura.element === "hydro",
     );
     if (
       terminalWane === undefined ||
@@ -631,7 +580,7 @@ describe("Electro-Charged simulation integration", () => {
       hydroBefore === undefined
     ) {
       throw new Error(
-        "Aura-v9 terminal fixture must deplete Hydro at its Wane callback."
+        "Aura-v9 terminal fixture must deplete Hydro at its Wane callback.",
       );
     }
     expect(hydroBefore.expiresAtFrame).toBe(421);
@@ -646,7 +595,7 @@ describe("Electro-Charged simulation integration", () => {
     ]!.auraBefore.find((aura) => aura.element === "hydro");
     if (forgedHydro === undefined || forgedPointHydro === undefined) {
       throw new Error(
-        "Forged terminal fixture must retain both reciprocal Hydro snapshots."
+        "Forged terminal fixture must retain both reciprocal Hydro snapshots.",
       );
     }
     forgedHydro.expiresAtFrame = 9999;
@@ -657,29 +606,25 @@ describe("Electro-Charged simulation integration", () => {
 
   it("rejects a coordinated non-canonical first Electro-Charged generation", () => {
     const legal = simulate(makeElectroChargedConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     expectAcceptedAtBothBoundaries(legal);
 
     const forgedHistoricalCadence = structuredClone(legal);
-    const historicalStart =
-      forgedHistoricalCadence.periodicReactionLog.find(
-        (entry) => entry.operation === "start"
-      );
+    const historicalStart = forgedHistoricalCadence.periodicReactionLog.find(
+      (entry) => entry.operation === "start",
+    );
     if (historicalStart === undefined) {
       throw new Error("EC fixture must expose its start row.");
     }
     Object.assign(historicalStart, {
       cadenceStatus: "scheduled" as const,
-      waneListenerActive: true
+      waneListenerActive: true,
     });
     expectRejectedAtBothBoundaries(forgedHistoricalCadence);
 
     const forged = structuredClone(legal);
-    for (const event of [
-      ...forged.damageEvents,
-      ...forged.hitEvents
-    ]) {
+    for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
       const audit = event.reactionAudit.periodicReaction;
       if (audit?.generation === 1) audit.generation = 7;
     }
@@ -687,9 +632,7 @@ describe("Electro-Charged simulation integration", () => {
       if (row.generation === 1) row.generation = 7;
     }
     for (const parent of forged.reactionDamageLog) {
-      if (
-        parent.electroChargedPropagation?.generation === 1
-      ) {
+      if (parent.electroChargedPropagation?.generation === 1) {
         parent.electroChargedPropagation.generation = 7;
       }
     }
@@ -705,21 +648,18 @@ describe("Electro-Charged simulation integration", () => {
         type: "skill",
         actorId: "electro-a",
         abilityId: "electro-start",
-        atFrame: 55
-      }
+        atFrame: 55,
+      },
     ];
     const legal = simulate(config, { critMode: "noCrit" });
-    expect(
-      legal.periodicReactionLog.map((entry) => entry.operation)
-    ).toEqual(["start"]);
+    expect(legal.periodicReactionLog.map((entry) => entry.operation)).toEqual([
+      "start",
+    ]);
     expectAcceptedAtBothBoundaries(legal);
 
     const forged = structuredClone(legal);
     forged.periodicReactionLog = [];
-    for (const event of [
-      ...forged.damageEvents,
-      ...forged.hitEvents
-    ]) {
+    for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
       const audit = event.reactionAudit.periodicReaction;
       if (audit?.operation === "start") audit.generation = 7;
     }
@@ -727,30 +667,26 @@ describe("Electro-Charged simulation integration", () => {
   });
 
   it("rejects coordinated suppression and deletion of a scheduled aura-v9 Wane", () => {
-    const legal = simulate(
-      enableAuraV9(makeElectroChargedConfig()),
-      { critMode: "noCrit" }
-    );
+    const legal = simulate(enableAuraV9(makeElectroChargedConfig()), {
+      critMode: "noCrit",
+    });
     const tick = legal.periodicReactionLog.find(
-      (entry) => entry.operation === "tick" && entry.tickIndex === 0
+      (entry) => entry.operation === "tick" && entry.tickIndex === 0,
     );
     const wane = legal.periodicReactionLog.find(
       (entry) =>
         entry.operation === "wane" &&
         entry.generation === tick?.generation &&
-        entry.tickIndex === tick.tickIndex
+        entry.tickIndex === tick.tickIndex,
     );
-    const wanePoint = legal.targetStateTimeline.points.find(
-      (point) =>
-        point.links.some(
-          (link) =>
-            link.kind === "periodic-reaction-log" &&
-            link.id === wane?.id
-        )
+    const wanePoint = legal.targetStateTimeline.points.find((point) =>
+      point.links.some(
+        (link) => link.kind === "periodic-reaction-log" && link.id === wane?.id,
+      ),
     );
     if (tick === undefined || wane === undefined || wanePoint === undefined) {
       throw new Error(
-        "Aura-v9 EC fixture must expose a scheduled first Wane callback."
+        "Aura-v9 EC fixture must expose a scheduled first Wane callback.",
       );
     }
     expectAcceptedAtBothBoundaries(legal);
@@ -758,69 +694,58 @@ describe("Electro-Charged simulation integration", () => {
     const suppressed = structuredClone(legal);
     Object.assign(suppressed.periodicReactionLog[tick.id]!, {
       waneFrame: null,
-      waneListenerActive: false
+      waneListenerActive: false,
     });
-    const forgedPoint =
-      suppressed.targetStateTimeline.points[wanePoint.id]!;
+    const forgedPoint = suppressed.targetStateTimeline.points[wanePoint.id]!;
     Object.assign(forgedPoint, {
       pointKind: "observation" as const,
       cause: "electro-charged-tick" as const,
       eventType: "periodicReactionTick" as const,
       auraConsumed: [],
-      auraAfter: structuredClone(forgedPoint.auraBefore)
+      auraAfter: structuredClone(forgedPoint.auraBefore),
     });
     forgedPoint.links = forgedPoint.links.map((link) =>
       link.kind === "periodic-reaction-log" && link.id === wane.id
         ? { kind: "periodic-reaction-log" as const, id: tick.id }
-        : link
+        : link,
     );
-    suppressed.periodicReactionLog =
-      suppressed.periodicReactionLog.filter(
-        (entry) => entry.id !== wane.id
-      );
-    for (const [index, row] of
-      suppressed.periodicReactionLog.entries()) {
+    suppressed.periodicReactionLog = suppressed.periodicReactionLog.filter(
+      (entry) => entry.id !== wane.id,
+    );
+    for (const [index, row] of suppressed.periodicReactionLog.entries()) {
       row.id = index;
     }
     for (const point of suppressed.targetStateTimeline.points) {
       for (const link of point.links) {
-        if (
-          link.kind === "periodic-reaction-log" &&
-          link.id > wane.id
-        ) {
+        if (link.kind === "periodic-reaction-log" && link.id > wane.id) {
           link.id -= 1;
         }
       }
     }
 
-    expectRejectedAtBothBoundaries(
-      suppressed,
-      /pinned first tick listener/
-    );
+    expectRejectedAtBothBoundaries(suppressed, /pinned first tick listener/);
   });
 
   it.each([
     ["past", -10],
-    ["future", 10]
+    ["future", 10],
   ] as const)(
     "rejects a coordinated aura-v9 cadence drift into the %s",
     (_direction, drift) => {
-      const legal = simulate(
-        enableAuraV9(makeElectroChargedConfig()),
-        { critMode: "noCrit" }
-      );
+      const legal = simulate(enableAuraV9(makeElectroChargedConfig()), {
+        critMode: "noCrit",
+      });
       const firstTick = legal.periodicReactionLog.find(
-        (entry) =>
-          entry.operation === "tick" && entry.tickIndex === 0
+        (entry) => entry.operation === "tick" && entry.tickIndex === 0,
       );
       const firstWane = legal.periodicReactionLog.find(
         (entry) =>
           entry.operation === "wane" &&
           entry.generation === firstTick?.generation &&
-          entry.tickIndex === firstTick.tickIndex
+          entry.tickIndex === firstTick.tickIndex,
       );
       const refresh = legal.periodicReactionLog.find(
-        (entry) => entry.operation === "refresh"
+        (entry) => entry.operation === "refresh",
       );
       if (
         firstTick === undefined ||
@@ -831,7 +756,7 @@ describe("Electro-Charged simulation integration", () => {
         refresh.nextTickFrame === null
       ) {
         throw new Error(
-          "Aura-v9 EC fixture must retain its first recurring cadence."
+          "Aura-v9 EC fixture must retain its first recurring cadence.",
         );
       }
       expectAcceptedAtBothBoundaries(legal);
@@ -843,25 +768,16 @@ describe("Electro-Charged simulation integration", () => {
         firstWane.nextTickFrame + drift;
       forged.periodicReactionLog[refresh.id]!.nextTickFrame =
         refresh.nextTickFrame + drift;
-      for (const event of [
-        ...forged.damageEvents,
-        ...forged.hitEvents
-      ]) {
+      for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
         if (event.id !== refresh.triggerDamageEventId) continue;
         const audit = event.reactionAudit.periodicReaction;
-        if (
-          audit?.operation === "refresh" &&
-          audit.nextTickFrame !== null
-        ) {
+        if (audit?.operation === "refresh" && audit.nextTickFrame !== null) {
           audit.nextTickFrame += drift;
         }
       }
 
-      expectRejectedAtBothBoundaries(
-        forged,
-        /pinned first tick cadence/
-      );
-    }
+      expectRejectedAtBothBoundaries(forged, /pinned first tick cadence/);
+    },
   );
 
   it("rejects erasing a real aura-v9 start and inventing one on a non-reacting hit", () => {
@@ -877,21 +793,20 @@ describe("Electro-Charged simulation integration", () => {
           type: "skill",
           actorId: "electro-a",
           abilityId: "electro-start",
-          atFrame: 55
-        }
+          atFrame: 55,
+        },
       ];
       return enableAuraV9(config);
     };
 
     const legalStart = simulate(makeLateConfig(true), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startRow = legalStart.periodicReactionLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const startTrigger = legalStart.damageEvents.find(
-      (event) =>
-        event.reactionAudit.periodicReaction?.operation === "start"
+      (event) => event.reactionAudit.periodicReaction?.operation === "start",
     );
     if (startRow === undefined || startTrigger === undefined) {
       throw new Error("Late EC fixture must expose one real start.");
@@ -907,19 +822,19 @@ describe("Electro-Charged simulation integration", () => {
     }
     for (const point of erased.targetStateTimeline.points) {
       point.links = point.links.filter(
-        (link) => link.kind !== "periodic-reaction-log"
+        (link) => link.kind !== "periodic-reaction-log",
       );
     }
     expectRejectedAtBothBoundaries(
       erased,
-      /hit reaction requires a start or refresh lifecycle audit/
+      /hit reaction requires a start or refresh lifecycle audit/,
     );
 
     const noReaction = simulate(makeLateConfig(false), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const noReactionTrigger = noReaction.damageEvents.find(
-      (event) => event.kind === "direct"
+      (event) => event.kind === "direct",
     );
     if (noReactionTrigger === undefined) {
       throw new Error("Non-reacting fixture must expose its direct hit.");
@@ -929,16 +844,12 @@ describe("Electro-Charged simulation integration", () => {
 
     const invented = structuredClone(noReaction);
     const inventedAudit = structuredClone(
-      startTrigger.reactionAudit.periodicReaction!
+      startTrigger.reactionAudit.periodicReaction!,
     );
     inventedAudit.coexistenceExpiresAtFrame = null;
-    for (const event of [
-      ...invented.damageEvents,
-      ...invented.hitEvents
-    ]) {
+    for (const event of [...invented.damageEvents, ...invented.hitEvents]) {
       if (event.id === noReactionTrigger.id) {
-        event.reactionAudit.periodicReaction =
-          structuredClone(inventedAudit);
+        event.reactionAudit.periodicReaction = structuredClone(inventedAudit);
       }
     }
     const inventedRow = structuredClone(startRow);
@@ -947,16 +858,16 @@ describe("Electro-Charged simulation integration", () => {
       triggerDamageEventId: noReactionTrigger.id,
       coexistenceExpiresAtFrame: null,
       auraBefore: structuredClone(
-        noReactionTrigger.reactionAudit.auraBefore ?? []
+        noReactionTrigger.reactionAudit.auraBefore ?? [],
       ),
       auraAfter: structuredClone(
-        noReactionTrigger.reactionAudit.auraAfter ?? []
-      )
+        noReactionTrigger.reactionAudit.auraAfter ?? [],
+      ),
     });
     invented.periodicReactionLog = [inventedRow];
     expectRejectedAtBothBoundaries(
       invented,
-      /start or refresh cannot be invented without an Electro-Charged hit reaction/
+      /start or refresh cannot be invented without an Electro-Charged hit reaction/,
     );
   });
 
@@ -969,24 +880,24 @@ describe("Electro-Charged simulation integration", () => {
         type: "skill",
         actorId: "electro-a",
         abilityId: "electro-start",
-        atFrame: 55
-      }
+        atFrame: 55,
+      },
     ];
     const retained = simulate(enableAuraV9(retainedConfig), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const retainedStart = retained.periodicReactionLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const retainedWane = retained.periodicReactionLog.find(
       (entry) =>
         entry.operation === "wane" &&
         entry.auraAfter.some((aura) => aura.element === "hydro") &&
-        entry.auraAfter.some((aura) => aura.element === "electro")
+        entry.auraAfter.some((aura) => aura.element === "electro"),
     );
     if (retainedStart === undefined || retainedWane === undefined) {
       throw new Error(
-        "Aura-v9 retained fixture must expose a live post-Wane stream."
+        "Aura-v9 retained fixture must expose a live post-Wane stream.",
       );
     }
     expectAcceptedAtBothBoundaries(retained);
@@ -1009,34 +920,32 @@ describe("Electro-Charged simulation integration", () => {
       auraAfter: structuredClone(retainedWane.auraAfter),
       reason: "COEXISTING_AURA_MISSING" as const,
       cadenceStatus: "stopped" as const,
-      waneListenerActive: false
+      waneListenerActive: false,
     });
     phantomStop.periodicReactionLog.push(stopRow);
     expectRejectedAtBothBoundaries(
       phantomStop,
-      /missing-Aura stop must observe unchanged non-coexisting Aura/
+      /missing-Aura stop must observe unchanged non-coexisting Aura/,
     );
 
     const removalConfig = makeElectroChargedConfig();
     removalConfig.characters[1]!.element = "pyro";
     removalConfig.timeline!.abilities[1]!.hits![0]!.element = "pyro";
-    removalConfig.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
-      1;
+    removalConfig.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits = 1;
     const removal = simulate(enableAuraV9(removalConfig), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const removalTrigger = removal.damageEvents.find(
-      (event) =>
-        event.reactionAudit.periodicReaction?.operation === "stop"
+      (event) => event.reactionAudit.periodicReaction?.operation === "stop",
     );
     const removalStop = removal.periodicReactionLog.find(
       (entry) =>
         entry.operation === "stop" &&
-        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT"
+        entry.reason === "COEXISTING_AURA_REMOVED_BY_HIT",
     );
     if (removalTrigger === undefined || removalStop === undefined) {
       throw new Error(
-        "Aura-v9 removal fixture must expose its hit-owned stop."
+        "Aura-v9 removal fixture must expose its hit-owned stop.",
       );
     }
     expectAcceptedAtBothBoundaries(removal);
@@ -1044,17 +953,14 @@ describe("Electro-Charged simulation integration", () => {
     const laundered = structuredClone(removal);
     laundered.periodicReactionLog[removalStop.id]!.reason =
       "COEXISTING_AURA_MISSING";
-    for (const event of [
-      ...laundered.damageEvents,
-      ...laundered.hitEvents
-    ]) {
+    for (const event of [...laundered.damageEvents, ...laundered.hitEvents]) {
       if (event.id === removalTrigger.id) {
         event.reactionAudit.periodicReaction = null;
       }
     }
     expectRejectedAtBothBoundaries(
       laundered,
-      /missing-Aura stop must observe unchanged non-coexisting Aura/
+      /missing-Aura stop must observe unchanged non-coexisting Aura/,
     );
   });
 
@@ -1062,36 +968,35 @@ describe("Electro-Charged simulation integration", () => {
     const config = makeElectroChargedConfig();
     config.duration = 1;
     config.cycleLength = 1;
-    config.timeline!.abilities[0]!.hits![0]!.application!.gaugeUnits =
-      0.5;
+    config.timeline!.abilities[0]!.hits![0]!.application!.gaugeUnits = 0.5;
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
+        abilityId: "electro-start",
       },
       { type: "wait", frames: 19 },
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const legal = simulate(enableAuraV9(config), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const starts = legal.periodicReactionLog.filter(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const terminal = legal.periodicReactionLog.find(
       (entry) =>
         entry.generation === 1 &&
         entry.operation === "wane" &&
-        entry.waneListenerActive === false
+        entry.waneListenerActive === false,
     );
     if (starts.length !== 2 || terminal === undefined) {
       throw new Error(
-        "Aura-v9 restart fixture must terminate generation 1 before generation 2."
+        "Aura-v9 restart fixture must terminate generation 1 before generation 2.",
       );
     }
     const replacementStart = starts[1]!;
@@ -1099,23 +1004,19 @@ describe("Electro-Charged simulation integration", () => {
     expectAcceptedAtBothBoundaries(legal);
 
     const forged = structuredClone(legal);
-    const forgedStart =
-      forged.periodicReactionLog[replacementStart.id]!;
+    const forgedStart = forged.periodicReactionLog[replacementStart.id]!;
     Object.assign(forgedStart, {
       operation: "refresh" as const,
-      generation: 1
+      generation: 1,
     });
-    for (const event of [
-      ...forged.damageEvents,
-      ...forged.hitEvents
-    ]) {
+    for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
       if (event.id !== replacementStart.triggerDamageEventId) continue;
       const audit = event.reactionAudit.periodicReaction;
       if (audit?.operation !== "start") continue;
       Object.assign(audit, {
         operation: "refresh" as const,
         generation: 1,
-        firstDamageFrame: null
+        firstDamageFrame: null,
       });
     }
     for (const row of forged.periodicReactionLog) {
@@ -1139,7 +1040,7 @@ describe("Electro-Charged simulation integration", () => {
 
     expectRejectedAtBothBoundaries(
       forged,
-      /refresh requires the current active generation/
+      /refresh requires the current active generation/,
     );
   });
 
@@ -1150,14 +1051,14 @@ describe("Electro-Charged simulation integration", () => {
     config.reactionEngine = { mode: "aura-v9" };
     config.targetTaskModel = { mode: "target-phase-v2" };
     config.enemy.targets![0]!.initialAura = [
-      { element: "hydro", gaugeUnits: 1.30001856e-10 }
+      { element: "hydro", gaugeUnits: 1.30001856e-10 },
     ];
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const startHit = config.timeline!.abilities[0]!.hits![0]!;
     delete startHit.targeting;
@@ -1165,23 +1066,22 @@ describe("Electro-Charged simulation integration", () => {
       kind: "circle",
       coordinateSpace: "world",
       origin: { x: 0, y: 0 },
-      radius: 0
+      radius: 0,
     };
 
     const result = simulate(config, { critMode: "noCrit" });
     const wane = result.periodicReactionLog.find(
-      (entry) => entry.operation === "wane"
+      (entry) => entry.operation === "wane",
     );
     expect(wane?.auraConsumed.map((entry) => entry.element)).toEqual([
-      "electro"
+      "electro",
     ]);
     expect(
-      wane?.auraBefore.find((entry) => entry.element === "hydro")
-        ?.gaugeUnits
+      wane?.auraBefore.find((entry) => entry.element === "hydro")?.gaugeUnits,
     ).toBe(1e-10);
-    expect(
-      wane?.auraAfter.some((entry) => entry.element === "hydro")
-    ).toBe(false);
+    expect(wane?.auraAfter.some((entry) => entry.element === "hydro")).toBe(
+      false,
+    );
     expectAcceptedAtBothBoundaries(result);
   });
 
@@ -1193,14 +1093,14 @@ describe("Electro-Charged simulation integration", () => {
     config.reactionEngine = { mode: "aura-v9" };
     config.targetTaskModel = { mode: "target-phase-v2" };
     config.enemy.targets![0]!.initialAura = [
-      { element: "hydro", gaugeUnits: nominalGaugeUnits }
+      { element: "hydro", gaugeUnits: nominalGaugeUnits },
     ];
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const startHit = config.timeline!.abilities[0]!.hits![0]!;
     startHit.application!.gaugeUnits = nominalGaugeUnits;
@@ -1209,25 +1109,23 @@ describe("Electro-Charged simulation integration", () => {
       kind: "circle",
       coordinateSpace: "world",
       origin: { x: 0, y: 0 },
-      radius: 0
+      radius: 0,
     };
 
     const result = simulate(config, { critMode: "noCrit" });
     const wane = result.periodicReactionLog.find(
-      (entry) => entry.operation === "wane"
+      (entry) => entry.operation === "wane",
     );
     expect(wane?.auraBefore.map((entry) => entry.gaugeUnits)).toEqual([
-      0.4000000001,
-      0.4000000001
+      0.4000000001, 0.4000000001,
     ]);
     expect(wane?.auraAfter.map((entry) => entry.gaugeUnits)).toEqual([
-      1e-10,
-      1e-10
+      1e-10, 1e-10,
     ]);
     expect(
       wane?.auraAfter.flatMap((entry) =>
-        (entry.sourceSlots ?? []).map((slot) => slot.gaugeUnits)
-      )
+        (entry.sourceSlots ?? []).map((slot) => slot.gaugeUnits),
+      ),
     ).toEqual([1e-10, 1e-10]);
     expectAcceptedAtBothBoundaries(result);
   });
@@ -1240,14 +1138,14 @@ describe("Electro-Charged simulation integration", () => {
     config.reactionEngine = { mode: "aura-v9" };
     config.targetTaskModel = { mode: "target-phase-v2" };
     config.enemy.targets![0]!.initialAura = [
-      { element: "hydro", gaugeUnits: nominalGaugeUnits }
+      { element: "hydro", gaugeUnits: nominalGaugeUnits },
     ];
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const startHit = config.timeline!.abilities[0]!.hits![0]!;
     startHit.application!.gaugeUnits = nominalGaugeUnits;
@@ -1256,26 +1154,24 @@ describe("Electro-Charged simulation integration", () => {
       kind: "circle",
       coordinateSpace: "world",
       origin: { x: 0, y: 0 },
-      radius: 0
+      radius: 0,
     };
 
     const result = simulate(config, { critMode: "noCrit" });
     const wane = result.periodicReactionLog.find(
-      (entry) => entry.operation === "wane"
+      (entry) => entry.operation === "wane",
     );
     expect(wane?.auraBefore.map((entry) => entry.gaugeUnits)).toEqual([
-      0.4000000001,
-      0.4000000001
+      0.4000000001, 0.4000000001,
     ]);
     expect(wane?.auraConsumed).toHaveLength(2);
     expect(wane?.auraConsumed).toSatisfy(
       (entries: NonNullable<typeof wane>["auraConsumed"]) =>
-        entries.every(
-        (entry) =>
+        entries.every((entry) =>
           entry.sourceMutations?.every(
-            (mutation) => mutation.gaugeUnitsAfter === 0
-          )
-        )
+            (mutation) => mutation.gaugeUnitsAfter === 0,
+          ),
+        ),
     );
     expect(wane?.auraAfter).toEqual([]);
     expectAcceptedAtBothBoundaries(result);
@@ -1288,37 +1184,32 @@ describe("Electro-Charged simulation integration", () => {
     config.timeline!.swapFrames = 4;
     config.timeline!.abilities[1]!.name = "Pyro stop before Wane";
     config.timeline!.abilities[1]!.hits![0]!.element = "pyro";
-    config.timeline!.abilities[1]!.hits![0]!.label =
-      "火在 Wane 前终止感电";
+    config.timeline!.abilities[1]!.hits![0]!.label = "火在 Wane 前终止感电";
     config.timeline!.abilities[1]!.hits![0]!.application!.gaugeUnits =
       auraV2RetainedGauge(12);
 
     const result = simulate(config, { critMode: "noCrit" });
     const nonWaneStop = result.periodicReactionLog.find(
-      (entry) =>
-        entry.operation === "stop" && entry.frame === 12
+      (entry) => entry.operation === "stop" && entry.frame === 12,
     );
     const waneStop = result.periodicReactionLog.find(
-      (entry) =>
-        entry.operation === "stop" && entry.waneFrame === 16
+      (entry) => entry.operation === "stop" && entry.waneFrame === 16,
     );
 
     expect(nonWaneStop).toMatchObject({
       damageEventId: null,
       tickIndex: null,
       waneFrame: null,
-      reason: "COEXISTING_AURA_REMOVED_BY_HIT"
+      reason: "COEXISTING_AURA_REMOVED_BY_HIT",
     });
     expect(waneStop).toMatchObject({
       frame: 16,
       damageEventId: expect.any(Number),
       tickIndex: 0,
       waneFrame: 16,
-      reason: "COEXISTING_AURA_MISSING_BEFORE_WANE"
+      reason: "COEXISTING_AURA_MISSING_BEFORE_WANE",
     });
-    expect(
-      simulationResultSchema.safeParse(result).success
-    ).toBe(true);
+    expect(simulationResultSchema.safeParse(result).success).toBe(true);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 
@@ -1333,27 +1224,26 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
+        abilityId: "electro-start",
       },
       { type: "wait", frames: 3 },
       { type: "swap", characterId: "hydro-b" },
       {
         type: "skill",
         actorId: "hydro-b",
-        abilityId: "hydro-refresh"
-      }
+        abilityId: "hydro-refresh",
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
-    const electroChargedSchedules =
-      result.reactionDamageLog.filter(
-        (entry) => entry.reaction === "electroCharged"
-      );
+    const electroChargedSchedules = result.reactionDamageLog.filter(
+      (entry) => entry.reaction === "electroCharged",
+    );
 
     expect(ticks.map((event) => event.frame)).toEqual([10]);
     expect(
@@ -1362,24 +1252,12 @@ describe("Electro-Charged simulation integration", () => {
         entry.frame,
         entry.reason,
         entry.nextTickFrame,
-        entry.waneFrame
-      ])
+        entry.waneFrame,
+      ]),
     ).toEqual([
       ["start", 0, null, 70, null],
-      [
-        "stop",
-        5,
-        "COEXISTING_AURA_REMOVED_BY_HIT",
-        null,
-        null
-      ],
-      [
-        "tick",
-        10,
-        "QUEUED_FIRST_TICK_AFTER_STREAM_STOP",
-        null,
-        null
-      ]
+      ["stop", 5, "COEXISTING_AURA_REMOVED_BY_HIT", null, null],
+      ["tick", 10, "QUEUED_FIRST_TICK_AFTER_STREAM_STOP", null, null],
     ]);
     expect(electroChargedSchedules).toHaveLength(1);
     expect(electroChargedSchedules[0]?.nextAvailableFrame).toBeNull();
@@ -1390,7 +1268,7 @@ describe("Electro-Charged simulation integration", () => {
     config.duration = 4;
     config.cycleLength = 4;
     const result = simulate(config, {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
 
     expect(
@@ -1400,21 +1278,21 @@ describe("Electro-Charged simulation integration", () => {
         actorId: entry.sourceActorId,
         tickIndex: entry.tickIndex,
         damageEventId: entry.damageEventId,
-        reason: entry.reason
-      }))
+        reason: entry.reason,
+      })),
     ).toMatchObject([
       {
         operation: "start",
         frame: 0,
         actorId: "electro-a",
-        tickIndex: null
+        tickIndex: null,
       },
       {
         operation: "tick",
         frame: 10,
         actorId: "electro-a",
         tickIndex: 0,
-        damageEventId: expect.any(Number)
+        damageEventId: expect.any(Number),
       },
       {
         operation: "wane",
@@ -1422,20 +1300,20 @@ describe("Electro-Charged simulation integration", () => {
         actorId: "electro-a",
         tickIndex: 0,
         damageEventId: expect.any(Number),
-        reason: null
+        reason: null,
       },
       {
         operation: "refresh",
         frame: 20,
         actorId: "hydro-b",
-        tickIndex: null
+        tickIndex: null,
       },
       {
         operation: "tick",
         frame: 70,
         actorId: "hydro-b",
         tickIndex: 1,
-        damageEventId: expect.any(Number)
+        damageEventId: expect.any(Number),
       },
       {
         operation: "wane",
@@ -1443,39 +1321,37 @@ describe("Electro-Charged simulation integration", () => {
         actorId: "hydro-b",
         tickIndex: 1,
         damageEventId: expect.any(Number),
-        reason: "AURA_DEPLETED_BY_WANE"
-      }
+        reason: "AURA_DEPLETED_BY_WANE",
+      },
     ]);
     const wanes = result.periodicReactionLog.filter(
-      (entry) => entry.operation === "wane"
+      (entry) => entry.operation === "wane",
     );
     expect(wanes[0]?.auraConsumed).toEqual([
       { element: "hydro", gaugeUnits: 0.4 },
-      { element: "electro", gaugeUnits: 0.4 }
+      { element: "electro", gaugeUnits: 0.4 },
     ]);
     expect(wanes[1]?.auraAfter).toEqual([
-      expect.objectContaining({ element: "hydro" })
+      expect.objectContaining({ element: "hydro" }),
     ]);
-    expect(
-      wanes[1]?.auraAfter.some(
-        (aura) => aura.element === "electro"
-      )
-    ).toBe(false);
+    expect(wanes[1]?.auraAfter.some((aura) => aura.element === "electro")).toBe(
+      false,
+    );
     expect(result.reactionDamageLog).toMatchObject([
       {
         reaction: "electroCharged",
         scheduleKind: "periodic-tick",
         targetingMode: "single-target",
         damageFrame: 10,
-        hitTargetIds: ["enemy-0"]
+        hitTargetIds: ["enemy-0"],
       },
       {
         reaction: "electroCharged",
         scheduleKind: "periodic-tick",
         targetingMode: "single-target",
         damageFrame: 70,
-        hitTargetIds: ["enemy-0"]
-      }
+        hitTargetIds: ["enemy-0"],
+      },
     ]);
   });
 
@@ -1485,8 +1361,8 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     config.enemy.targetPhases = [
       {
@@ -1499,30 +1375,30 @@ describe("Electro-Charged simulation integration", () => {
         effects: {
           damage: "immune",
           aura: "normal",
-          hitConfirm: "normal"
-        }
-      }
+          hitConfirm: "normal",
+        },
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
     const skippedWane = result.periodicReactionLog.find(
-      (entry) => entry.operation === "wane-skipped"
+      (entry) => entry.operation === "wane-skipped",
     );
 
     expect(ticks.map((event) => event.frame)).toEqual([10, 70, 130]);
     expect(ticks[0]).toMatchObject({
       targetDamagePolicy: "immune",
-      finalDamage: 0
+      finalDamage: 0,
     });
     expect(skippedWane).toMatchObject({
       frame: 16,
       auraConsumed: [],
-      reason: "ZERO_ACTUAL_DAMAGE"
+      reason: "ZERO_ACTUAL_DAMAGE",
     });
   });
 
@@ -1534,8 +1410,8 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     config.enemy.targetPhases = [
       {
@@ -1548,9 +1424,9 @@ describe("Electro-Charged simulation integration", () => {
         effects: {
           damage: "immune",
           aura: "normal",
-          hitConfirm: "normal"
-        }
-      }
+          hitConfirm: "normal",
+        },
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
@@ -1558,11 +1434,11 @@ describe("Electro-Charged simulation integration", () => {
       .filter(
         (event) =>
           event.kind === "transformative-reaction" &&
-          event.reaction === "electroCharged"
+          event.reaction === "electroCharged",
       )
       .map((event) => event.frame);
     const stopped = result.periodicReactionLog.find(
-      (entry) => entry.operation === "stop"
+      (entry) => entry.operation === "stop",
     );
 
     expect(tickFrames).toEqual([10, 70, 130, 190, 250, 310, 370]);
@@ -1570,7 +1446,7 @@ describe("Electro-Charged simulation integration", () => {
       frame: 426,
       operation: "stop",
       auraAfter: [],
-      reason: "AURA_DECAY_EXPIRED"
+      reason: "AURA_DECAY_EXPIRED",
     });
     expect(tickFrames).not.toContain(430);
   });
@@ -1583,39 +1459,37 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     config.timeline!.abilities[0]!.hits![0]!.targeting = {
       mode: "fanout",
       targets: [
         { targetId: "enemy-0", outcome: "landed" },
-        { targetId: "enemy-1", outcome: "landed" }
-      ]
+        { targetId: "enemy-1", outcome: "landed" },
+      ],
     };
 
     const result = simulate(config, { critMode: "noCrit" });
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
     const starts = result.periodicReactionLog.filter(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
 
-    expect(
-      ticks.map((event) => [event.frame, event.targetId])
-    ).toEqual([
+    expect(ticks.map((event) => [event.frame, event.targetId])).toEqual([
       [10, "enemy-0"],
-      [10, "enemy-1"]
+      [10, "enemy-1"],
     ]);
     expect(starts.map((entry) => entry.targetId)).toEqual([
       "enemy-0",
-      "enemy-1"
+      "enemy-1",
     ]);
     expect(
-      result.reactionDamageLog.map((entry) => entry.sourceTargetId)
+      result.reactionDamageLog.map((entry) => entry.sourceTargetId),
     ).toEqual(["enemy-0", "enemy-1"]);
   });
 
@@ -1625,33 +1499,31 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
+        abilityId: "electro-start",
       },
       { type: "wait", frames: 57 },
       { type: "swap", characterId: "hydro-b" },
       {
         type: "skill",
         actorId: "hydro-b",
-        abilityId: "hydro-refresh"
-      }
+        abilityId: "hydro-refresh",
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
-    const frame70 = result.damageEvents.filter(
-      (event) => event.frame === 70
-    );
+    const frame70 = result.damageEvents.filter((event) => event.frame === 70);
     const tick = frame70.find(
-      (event) => event.kind === "transformative-reaction"
+      (event) => event.kind === "transformative-reaction",
     );
 
     expect(frame70.map((event) => event.kind)).toEqual([
       "direct",
-      "transformative-reaction"
+      "transformative-reaction",
     ]);
     expect(tick).toMatchObject({
       sourceActorId: "hydro-b",
       parentDamageEventId: frame70[0]?.id,
-      reaction: "electroCharged"
+      reaction: "electroCharged",
     });
   });
 
@@ -1662,26 +1534,26 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
+        abilityId: "electro-start",
       },
       { type: "swap", characterId: "hydro-b" },
       {
         type: "skill",
         actorId: "hydro-b",
-        abilityId: "hydro-refresh"
-      }
+        abilityId: "hydro-refresh",
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
 
     expect(ticks.map((event) => event.sourceActorId)).toEqual([
       "electro-a",
-      "hydro-b"
+      "hydro-b",
     ]);
     expect(ticks.map((event) => event.frame)).toEqual([10, 70]);
   });
@@ -1702,8 +1574,8 @@ describe("Electro-Charged simulation integration", () => {
       element: "pyro",
       application: {
         gaugeUnits: auraV2RetainedGauge(5),
-        icd: { mode: "no-icd-v1" }
-      }
+        icd: { mode: "no-icd-v1" },
+      },
     };
     config.timeline!.abilities.push({
       ...electroStart,
@@ -1715,37 +1587,37 @@ describe("Electro-Charged simulation integration", () => {
         label: "雷重启感电",
         application: {
           gaugeUnits: 1,
-          icd: { mode: "no-icd-v1" }
-        }
-      }))
+          icd: { mode: "no-icd-v1" },
+        },
+      })),
     });
     config.timeline!.commands = [
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
+        abilityId: "electro-start",
       },
       { type: "wait", frames: 4 },
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "pyro-stop"
+        abilityId: "pyro-stop",
       },
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-restart"
-      }
+        abilityId: "electro-restart",
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
     const ticks = result.damageEvents.filter(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
     const schedules = result.reactionDamageLog.filter(
-      (entry) => entry.reaction === "electroCharged"
+      (entry) => entry.reaction === "electroCharged",
     );
 
     expect(
@@ -1755,21 +1627,21 @@ describe("Electro-Charged simulation integration", () => {
           frame: entry.frame,
           generation: entry.generation,
           sourceActorId: entry.sourceActorId,
-          reason: entry.reason
-        }))
+          reason: entry.reason,
+        })),
     ).toEqual([
       {
         frame: 10,
         generation: 1,
         sourceActorId: "electro-a",
-        reason: "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED"
+        reason: "QUEUED_FIRST_TICK_AFTER_STREAM_REPLACED",
       },
       {
         frame: 16,
         generation: 2,
         sourceActorId: "electro-a",
-        reason: null
-      }
+        reason: null,
+      },
     ]);
     expect(
       ticks.map((event) => ({
@@ -1777,23 +1649,23 @@ describe("Electro-Charged simulation integration", () => {
         sourceActorId: event.sourceActorId,
         targetId: event.targetId,
         finalDamage: event.finalDamage,
-        groupMultiplier: event.damageFactors.groupMultiplier
-      }))
+        groupMultiplier: event.damageFactors.groupMultiplier,
+      })),
     ).toEqual([
       {
         frame: 10,
         sourceActorId: "electro-a",
         targetId: "enemy-0",
         finalDamage: expect.any(Number),
-        groupMultiplier: 1
+        groupMultiplier: 1,
       },
       {
         frame: 16,
         sourceActorId: "electro-a",
         targetId: "enemy-0",
         finalDamage: 0,
-        groupMultiplier: 0
-      }
+        groupMultiplier: 0,
+      },
     ]);
     expect(ticks[0]?.finalDamage).toBeGreaterThan(0);
     expect(ticks[1]).toMatchObject({
@@ -1801,18 +1673,17 @@ describe("Electro-Charged simulation integration", () => {
       damageComposition: {
         direct: 0,
         additiveReaction: 0,
-        transformativeReaction: 0
-      }
+        transformativeReaction: 0,
+      },
     });
     expect(schedules).toHaveLength(2);
     expect(result.runManifest).toMatchObject({
-      reactionDamageGroupRoot:
-        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT
+      reactionDamageGroupRoot: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
     });
     expect(schedules[1]).toMatchObject({
       damageFrame: 16,
       damageGroupBlockedTargetIds: ["enemy-0"],
-      damageEventIds: [ticks[1]?.id]
+      damageEventIds: [ticks[1]?.id],
     });
     expect(schedules[1]?.damageGroupDecisions).toEqual([
       {
@@ -1823,8 +1694,7 @@ describe("Electro-Charged simulation integration", () => {
         reaction: "electroCharged",
         sourceActorId: "electro-a",
         targetId: "enemy-0",
-        scopeKey:
-          '["enemy-0","electro-a","ICDTagECDamage"]',
+        scopeKey: '["enemy-0","electro-a","ICDTagECDamage"]',
         frame: 16,
         damageGroupTaskSequence: 14,
         windowGeneration: 0,
@@ -1836,8 +1706,8 @@ describe("Electro-Charged simulation integration", () => {
         sequenceIndex: 1,
         sequenceMultiplier: 0,
         damageAllowed: false,
-        blockedReason: "REACTION_B_DAMAGE_ICD"
-      }
+        blockedReason: "REACTION_B_DAMAGE_ICD",
+      },
     ]);
     expect(result.reactionDamageGroupResetLog[2]).toEqual({
       id: 2,
@@ -1857,7 +1727,7 @@ describe("Electro-Charged simulation integration", () => {
       executedBeforeAttemptTaskSequence: null,
       executionFrame: 39,
       stale: false,
-      invalidatedReason: null
+      invalidatedReason: null,
     });
   });
 
@@ -1869,8 +1739,8 @@ describe("Electro-Charged simulation integration", () => {
       {
         type: "skill",
         actorId: "electro-a",
-        abilityId: "electro-start"
-      }
+        abilityId: "electro-start",
+      },
     ];
     const ability = config.timeline!.abilities[0]!;
     const hit = ability.hits![0]!;
@@ -1884,7 +1754,7 @@ describe("Electro-Charged simulation integration", () => {
         stat: "em",
         value: 200,
         startFrame: 5,
-        durationFrames: 6
+        durationFrames: 6,
       },
       {
         key: "ec-live-reaction-bonus",
@@ -1893,32 +1763,32 @@ describe("Electro-Charged simulation integration", () => {
         stat: "reactionBonus",
         value: 0.3,
         startFrame: 5,
-        durationFrames: 6
-      }
+        durationFrames: 6,
+      },
     ];
     ability.hits = [
       {
         ...hit,
         frame: 10,
-        snapshot: "action"
-      }
+        snapshot: "action",
+      },
     ];
 
     const result = simulate(config, { critMode: "noCrit" });
     const direct = result.damageEvents.find(
-      (event) => event.hitId === "electro-start-hit"
+      (event) => event.hitId === "electro-start-hit",
     );
     const tick = result.damageEvents.find(
       (event) =>
         event.kind === "transformative-reaction" &&
-        event.reaction === "electroCharged"
+        event.reaction === "electroCharged",
     );
     const expected = calcTransformativeReactionDamage({
       characterLevel: 90,
       elementalMastery: 300,
       reactionBonus: 0.5,
       baseMultiplier: 2,
-      effectiveResistance: 0.1
+      effectiveResistance: 0.1,
     });
 
     expect(direct).toMatchObject({
@@ -1926,8 +1796,8 @@ describe("Electro-Charged simulation integration", () => {
       snapshot: "action",
       statsBeforeDamage: {
         em: 100,
-        reactionBonus: 0.2
-      }
+        reactionBonus: 0.2,
+      },
     });
     expect(tick).toMatchObject({
       frame: 20,
@@ -1935,21 +1805,15 @@ describe("Electro-Charged simulation integration", () => {
       snapshot: "hit",
       statsBeforeDamage: {
         em: 300,
-        reactionBonus: 0.5
+        reactionBonus: 0.5,
       },
       transformativeReactionFactors: {
         characterLevel: 90,
         elementalMastery: 300,
-        reactionBonus: 0.5
-      }
+        reactionBonus: 0.5,
+      },
     });
-    expect(tick?.buffs).toEqual([
-      "感电触发帧精通",
-      "感电触发帧反应增伤"
-    ]);
-    expect(tick?.finalDamage).toBeCloseTo(
-      expected.finalDamage,
-      10
-    );
+    expect(tick?.buffs).toEqual(["感电触发帧精通", "感电触发帧反应增伤"]);
+    expect(tick?.finalDamage).toBeCloseTo(expected.finalDamage, 10);
   });
 });

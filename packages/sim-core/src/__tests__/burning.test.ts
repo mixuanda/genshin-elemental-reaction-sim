@@ -409,22 +409,35 @@ describe("aura-v4 Burning lifecycle", () => {
     }
   });
 
-  it("uses target-global Burning application ICD, clamps beyond the fixed sequence, and resets at 120f", () => {
-    const engine = new AuraEngine({ mode: "aura-v4" });
-    const frames = [
-      15, 25, 35, 45, 55, 65, 75, 85, 95, 105, 135
-    ];
-    const decisions = frames.map((frame) => {
+  it("shares target-global Burning application ICD across actors and tags, isolates targets, clamps the tail, and resets at 120f", () => {
+    const targetA = new AuraEngine({ mode: "aura-v4" });
+    const targetB = new AuraEngine({ mode: "aura-v4" });
+    const attempts = [
+      [15, "source-a", "burning-application-a"],
+      [25, "source-b", "burning-application-b"],
+      [35, "source-a", "burning-application-a"],
+      [45, "source-b", "burning-application-b"],
+      [55, "source-a", "burning-application-a"],
+      [65, "source-b", "burning-application-b"],
+      [75, "source-a", "burning-application-a"],
+      [85, "source-b", "burning-application-b"],
+      [95, "source-a", "burning-application-a"],
+      [105, "source-b", "burning-application-b"],
+      [135, "source-a", "burning-application-a"]
+    ] as const;
+    const consume = (
+      engine: AuraEngine,
+      [frame, sourceActorId, icdTag]: (typeof attempts)[number]
+    ) => {
       const audit = engine.processHit({
         frame,
-        sourceActorId:
-          frame % 30 === 0 ? "source-b" : "source-a",
+        sourceActorId,
         element: "pyro",
         application: {
           gaugeUnits: 1,
           icd: {
             mode: "legacy-boolean-profile-v1",
-            icdTag: "burning-application",
+            icdTag,
             profileId: "burning"
           }
         }
@@ -434,9 +447,15 @@ describe("aura-v4 Burning lifecycle", () => {
         decision:
           engine.getLastBurningApplicationIcdDecision()
       };
-    });
+    };
+    const targetADecisions = attempts.map((attempt) =>
+      consume(targetA, attempt)
+    );
+    const targetBFirstDecision = consume(targetB, attempts[1]);
 
-    expect(decisions.map((entry) => entry.allowed)).toEqual([
+    expect(
+      targetADecisions.map((entry) => entry.allowed)
+    ).toEqual([
       true,
       false,
       false,
@@ -449,16 +468,105 @@ describe("aura-v4 Burning lifecycle", () => {
       false,
       true
     ]);
-    expect(decisions.map((entry) => entry.decision?.hitIndex)).toEqual([
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
-    ]);
     expect(
-      decisions.map(
+      targetADecisions.map(
+        (entry) => entry.decision?.hitIndex
+      )
+    ).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    expect(
+      targetADecisions.map(
         (entry) => entry.decision?.windowStartFrame
       )
     ).toEqual([
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 135
     ]);
+    expect(targetBFirstDecision).toMatchObject({
+      allowed: true,
+      decision: {
+        windowStartFrame: 25,
+        hitIndex: 0,
+        allowed: true
+      }
+    });
+  });
+
+  it("keeps a same-frame Burning restart generation-safe when the stopped stream callback fires", () => {
+    const engine = new AuraEngine({
+      mode: "aura-v4",
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    });
+    const firstStart = engine.processHit({
+      frame: 0,
+      sourceActorId: "pyro-first",
+      element: "pyro",
+      application: noIcd()
+    });
+    const firstGeneration =
+      firstStart.burningReaction!.generation;
+    const stop = engine.processHit({
+      frame: 0,
+      sourceActorId: "cryo-stop",
+      element: "cryo",
+      application: noIcd(10)
+    });
+    const restart = engine.processHit({
+      frame: 0,
+      sourceActorId: "pyro-restart",
+      element: "pyro",
+      application: noIcd()
+    });
+    const restartGeneration =
+      restart.burningReaction!.generation;
+
+    expect(firstStart.burningReaction).toMatchObject({
+      operation: "start",
+      generation: firstGeneration,
+      firstTickFrame: 15,
+      nextTickFrame: 15
+    });
+    expect(stop.burningReaction).toMatchObject({
+      operation: "stop",
+      generation: firstGeneration,
+      stopReason: "BURNING_AURA_CONSUMED"
+    });
+    expect(restart.burningReaction).toMatchObject({
+      operation: "start",
+      generation: firstGeneration + 2,
+      damageSourceActorId: "pyro-restart",
+      firstTickFrame: 15,
+      nextTickFrame: 15
+    });
+    expect(restartGeneration).toBe(firstGeneration + 2);
+
+    const stale = engine.prepareBurningTick(
+      15,
+      firstGeneration,
+      1
+    );
+    const current = engine.prepareBurningTick(
+      15,
+      restartGeneration,
+      1
+    );
+
+    expect(stale).toMatchObject({
+      operation: "stale",
+      generation: firstGeneration,
+      tickIndex: 1,
+      reason: "SUPERSEDED_STREAM",
+      nextTickFrame: null,
+      damageSourceActorId: "pyro-restart"
+    });
+    expect(stale.auraAfter).toEqual(stale.auraBefore);
+    expect(current).toMatchObject({
+      operation: "tick",
+      generation: restartGeneration,
+      tickIndex: 1,
+      reason: null,
+      nextTickFrame: 30,
+      damageSourceActorId: "pyro-restart"
+    });
+    expect(current.auraBefore).toEqual(stale.auraAfter);
   });
 
   it("preserves fixed reaction order for Overload → Burning", () => {

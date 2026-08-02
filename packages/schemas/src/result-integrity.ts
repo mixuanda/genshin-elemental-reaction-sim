@@ -5,6 +5,7 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
@@ -15,6 +16,8 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  resolveBasicReactionSchedulerPolicyRoot,
   resolveDamageGroup,
   resolveElementalApplicationGroup,
   resolveReactionDamageGroupBindingForPolicy,
@@ -24,6 +27,9 @@ import {
   type GcsimDamageGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
+  BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+  BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
+  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
@@ -61,6 +67,7 @@ import {
   type SimulationResultForV147,
   type SimulationResultForV148,
   type SimulationResultForV150,
+  type SimulationResultForV151,
   type StatusTarget
 } from "./types";
 import {
@@ -107,6 +114,74 @@ const BURNING_ICD_SEQUENCE = [
   false,
   false,
   false
+] as const;
+
+const DAMAGE_FACTOR_ALIAS_FIELDS = [
+  ["scaling", "scaling"],
+  ["scalingValue", "scalingValue"],
+  ["flat", "flatDamage"],
+  ["baseDamage", "baseDamage"],
+  ["dmgBonus", "damageBonus"],
+  ["bonusFactor", "damageBonusMultiplier"],
+  ["defIgnore", "defenseIgnore"],
+  ["defReduction", "defenseReduction"],
+  ["defenseFactor", "defenseMultiplier"],
+  ["effectiveRes", "effectiveResistance"],
+  ["resFactor", "resistanceMultiplier"],
+  ["critRate", "critRate"],
+  ["critDmg", "critDamage"],
+  ["critFactor", "critMultiplier"],
+  ["reactionBase", "reactionBase"],
+  ["emBonus", "elementalMasteryBonus"],
+  ["reactionBonus", "reactionBonus"],
+  ["groupMultiplier", "groupMultiplier"]
+] as const;
+
+const TRANSFORMATIVE_FIXED_DAMAGE_FACTORS = [
+  ["scaling", 0],
+  ["damageBonus", 0],
+  ["damageBonusMultiplier", 1],
+  ["defenseIgnore", 1],
+  ["defenseMultiplier", 1],
+  ["critRate", 0],
+  ["critDamage", 0],
+  ["critMultiplier", 1]
+] as const;
+
+const DAMAGE_EVENT_RESOLUTION_FIELDS = [
+  ["frame", "frame"],
+  ["cycle", "cycle"],
+  ["sourceActorId", "sourceActorId"],
+  ["sourceActionId", "actionId"],
+  ["actionName", "actionName"],
+  ["hitId", "hitId"],
+  ["hitGroupId", "hitGroupId"],
+  ["hitLabel", "hitLabel"],
+  ["targetIndex", "targetIndex"],
+  ["targetCount", "targetCount"],
+  ["targetName", "targetName"],
+  ["element", "element"],
+  ["mechanicsStatus", "mechanicsStatus"]
+] as const;
+
+const OPTIONAL_DAMAGE_EVENT_RESOLUTION_FIELDS = [
+  ["timelineCommandIndex", "timelineCommandIndex"],
+  ["sourceAbilityId", "sourceAbilityId"]
+] as const;
+
+const DAMAGE_CURVE_EVENT_FIELDS = [
+  ["damageEventId", "id"],
+  ["targetId", "targetId"],
+  ["targetName", "targetName"],
+  ["frame", "frame"],
+  ["sourceActorId", "sourceActorId"],
+  ["creditOwnerId", "creditOwnerId"]
+] as const;
+
+const DAMAGE_COMPONENT_FIELDS = [
+  "direct",
+  "additiveReaction",
+  "transformativeReaction"
 ] as const;
 
 function usesCurrentAuraDurability(
@@ -279,6 +354,58 @@ function electroChargedWaneAfterGaugeCandidates(
 
 function semanticEqual(left: unknown, right: unknown): boolean {
   if (left === right) return true;
+  if (
+    left === null ||
+    right === null ||
+    typeof left !== typeof right
+  ) {
+    return false;
+  }
+  if (Array.isArray(left)) {
+    if (!Array.isArray(right) || left.length !== right.length) {
+      return false;
+    }
+    for (let index = 0; index < left.length; index += 1) {
+      if (left[index] === undefined || right[index] === undefined) {
+        return canonicalStringify(left) === canonicalStringify(right);
+      }
+      if (!semanticEqual(left[index], right[index])) return false;
+    }
+    return true;
+  }
+  if (
+    typeof left === "object" &&
+    typeof right === "object" &&
+    !Array.isArray(right)
+  ) {
+    const leftRecord = left as Record<string, unknown>;
+    const rightRecord = right as Record<string, unknown>;
+    const leftKeys = Object.keys(leftRecord);
+    const rightKeys = Object.keys(rightRecord);
+    let leftDefinedKeyCount = 0;
+    let rightDefinedKeyCount = 0;
+    for (const key of leftKeys) {
+      if (leftRecord[key] !== undefined) leftDefinedKeyCount += 1;
+    }
+    for (const key of rightKeys) {
+      if (rightRecord[key] !== undefined) rightDefinedKeyCount += 1;
+    }
+    if (leftDefinedKeyCount !== rightDefinedKeyCount) return false;
+    for (const key of leftKeys) {
+      if (leftRecord[key] === undefined) continue;
+      if (
+        !Object.prototype.propertyIsEnumerable.call(
+          rightRecord,
+          key
+        ) ||
+        rightRecord[key] === undefined ||
+        !semanticEqual(leftRecord[key], rightRecord[key])
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
   return canonicalStringify(left) === canonicalStringify(right);
 }
 
@@ -1963,9 +2090,15 @@ function compareFiniteRecord(
   expected: Record<string, number>,
   label: string
 ): void {
-  const actualKeys = Object.keys(actual).sort();
-  const expectedKeys = Object.keys(expected).sort();
-  if (!semanticEqual(actualKeys, expectedKeys)) {
+  const actualKeys = Object.keys(actual);
+  const expectedKeys = Object.keys(expected);
+  if (
+    actualKeys.length !== expectedKeys.length ||
+    expectedKeys.some(
+      (key) =>
+        !Object.prototype.propertyIsEnumerable.call(actual, key)
+    )
+  ) {
     addIssue(
       context,
       path,
@@ -1973,6 +2106,24 @@ function compareFiniteRecord(
     );
     return;
   }
+  let allValuesMatch = true;
+  for (const key of expectedKeys) {
+    if (
+      !nearlyEqual(
+        actual[key] ?? Number.NaN,
+        expected[key] ?? Number.NaN
+      )
+    ) {
+      allValuesMatch = false;
+      break;
+    }
+  }
+  if (allValuesMatch) return;
+
+  // Preserve the historical deterministic issue order only on the failing
+  // path. Successful trusted simulations avoid sorting and constructing one
+  // issue path and label per cumulative curve point.
+  expectedKeys.sort();
   for (const key of expectedKeys) {
     expectNearlyEqual(
       context,
@@ -2763,7 +2914,7 @@ function selectedReactionDamageGroupReplayPolicyV150(
 }
 
 function validateIdentityV150(
-  result: SimulationResult,
+  result: SimulationResultForV150,
   context: RefinementCtx
 ): {
   reactionOwnedPolicy: ReactionOwnedReplayPolicy | undefined;
@@ -2772,7 +2923,7 @@ function validateIdentityV150(
     | undefined;
 } {
   validateIdentityForVersion(
-    result,
+    result as unknown as SimulationResult,
     context,
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
@@ -2840,8 +2991,10 @@ function validateIdentityV150(
     "compiled elemental-application ICD profile selection"
   );
 
-  const reactionOwnedPolicy =
-    selectedReactionOwnedReplayPolicyV149(result, context);
+  const reactionOwnedPolicy = selectedReactionOwnedReplayPolicyV149(
+    result as unknown as SimulationResult,
+    context
+  );
   if (reactionOwnedPolicy !== undefined) {
     const expectedRoot =
       reactionOwnedPolicy.policyId ===
@@ -2858,7 +3011,10 @@ function validateIdentityV150(
   }
 
   const reactionDamageGroupPolicy =
-    selectedReactionDamageGroupReplayPolicyV150(result, context);
+    selectedReactionDamageGroupReplayPolicyV150(
+      result as unknown as SimulationResult,
+      context
+    );
   if (reactionDamageGroupPolicy !== undefined) {
     const expectedRoot = resolveReactionDamageGroupPolicyRoot(
       reactionDamageGroupPolicy.policyId
@@ -2900,6 +3056,237 @@ function validateIdentityV150(
     );
   }
   return { reactionOwnedPolicy, reactionDamageGroupPolicy };
+}
+
+type BasicReactionSchedulerReplayPolicyV151 =
+  | {
+      mode: "legacy-immediate-basic-reaction-scheduler-v1";
+      policyId: typeof LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID;
+    }
+  | {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2";
+      policyId: typeof GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID;
+    };
+
+function selectedBasicReactionSchedulerReplayPolicyV151(
+  result: SimulationResultForV151,
+  context: RefinementCtx
+): BasicReactionSchedulerReplayPolicyV151 | undefined {
+  const rawModel = (result.config as unknown as Record<string, unknown>)
+    .basicReactionSchedulerModel;
+  if (
+    rawModel === null ||
+    typeof rawModel !== "object" ||
+    Array.isArray(rawModel)
+  ) {
+    addIssue(
+      context,
+      ["config", "basicReactionSchedulerModel"],
+      "1.51 results require an explicit v1 or v2 basic-reaction scheduler model"
+    );
+    return undefined;
+  }
+  const model = rawModel as {
+    mode?: unknown;
+    policyId?: unknown;
+  };
+  let selected: BasicReactionSchedulerReplayPolicyV151 | undefined;
+  if (model.mode === "legacy-immediate-basic-reaction-scheduler-v1") {
+    selected = {
+      mode: "legacy-immediate-basic-reaction-scheduler-v1",
+      policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+    };
+  } else if (model.mode === "fixed-gcsim-basic-reaction-scheduler-v2") {
+    selected = {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+      policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+    };
+  } else {
+    addIssue(
+      context,
+      ["config", "basicReactionSchedulerModel", "mode"],
+      "1.51 results require a recognized basic-reaction scheduler mode"
+    );
+    return undefined;
+  }
+  expectEqual(
+    context,
+    ["config", "basicReactionSchedulerModel", "policyId"],
+    model.policyId,
+    selected.policyId,
+    "basic-reaction scheduler mode/policy binding"
+  );
+  return selected;
+}
+
+function validateIdentityV151(
+  result: SimulationResultForV151,
+  context: RefinementCtx
+): {
+  reactionOwnedPolicy: ReactionOwnedReplayPolicy | undefined;
+  reactionDamageGroupPolicy: ReactionDamageGroupReplayPolicyV150 | undefined;
+  basicReactionSchedulerPolicy:
+    | BasicReactionSchedulerReplayPolicyV151
+    | undefined;
+} {
+  validateIdentityForVersion(
+    result,
+    context,
+    BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+    BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !== BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.51 results require run-manifest version ${BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+
+  const reactionOwnedPolicy = selectedReactionOwnedReplayPolicyV149(
+    result,
+    context
+  );
+  if (reactionOwnedPolicy !== undefined) {
+    const expectedRoot =
+      reactionOwnedPolicy.policyId ===
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+        ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+        : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT;
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionOwnedElementalApplicationRoot"],
+      result.runManifest.reactionOwnedElementalApplicationRoot,
+      expectedRoot,
+      "selected reaction-owned elemental-application root"
+    );
+  }
+
+  const reactionDamageGroupPolicy = selectedReactionDamageGroupReplayPolicyV150(
+    result,
+    context
+  );
+  if (reactionDamageGroupPolicy !== undefined) {
+    const expectedRoot = resolveReactionDamageGroupPolicyRoot(
+      reactionDamageGroupPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "reactionDamageGroupModel"],
+      result.config.reactionDamageGroupModel,
+      reactionDamageGroupPolicy,
+      "selected reaction damage-group policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot"],
+      result.runManifest.reactionDamageGroupRoot,
+      expectedRoot,
+      "selected reaction damage-group root"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot", "damageGroupRootRef"],
+      result.runManifest.reactionDamageGroupRoot.damageGroupRootRef,
+      {
+        version: GCSIM_DAMAGE_GROUP_ROOT.version,
+        profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
+        contentHash: GCSIM_DAMAGE_GROUP_ROOT.contentHash,
+        sourceRevision: GCSIM_DAMAGE_GROUP_ROOT.sourceRevision,
+        tailPolicy: GCSIM_DAMAGE_GROUP_ROOT.tailPolicy,
+        resetSchedulePolicy: GCSIM_DAMAGE_GROUP_ROOT.resetSchedulePolicy
+      },
+      "reaction damage-group nested direct-group root"
+    );
+  }
+
+  const basicReactionSchedulerPolicy =
+    selectedBasicReactionSchedulerReplayPolicyV151(result, context);
+  if (basicReactionSchedulerPolicy !== undefined) {
+    const expectedRoot = resolveBasicReactionSchedulerPolicyRoot(
+      basicReactionSchedulerPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "basicReactionSchedulerModel"],
+      result.config.basicReactionSchedulerModel,
+      basicReactionSchedulerPolicy,
+      "selected basic-reaction scheduler policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot"],
+      result.runManifest.basicReactionSchedulerRoot,
+      expectedRoot,
+      "selected basic-reaction scheduler root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot", "policyId"],
+      result.runManifest.basicReactionSchedulerRoot.policyId,
+      basicReactionSchedulerPolicy.policyId,
+      "run-manifest/config basic-reaction scheduler policy"
+    );
+  }
+  return {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy
+  };
 }
 
 type ReactionDamageGroupDecisionV150 =
@@ -3748,6 +4135,700 @@ function validateReactionDamageGroupV150(
   }
 }
 
+
+function expectedSwirlReactionForSchedulerElement(
+  element: SimulationResultForV151["basicReactionSchedulerLog"][number]["element"]
+): "swirlPyro" | "swirlHydro" | "swirlCryo" | "swirlElectro" {
+  switch (element) {
+    case "pyro":
+      return "swirlPyro";
+    case "hydro":
+      return "swirlHydro";
+    case "cryo":
+      return "swirlCryo";
+    case "electro":
+      return "swirlElectro";
+  }
+}
+
+function reactionOwnedApplicationAllowsAttachment(
+  application:
+    | SimulationResultForV151["elementalApplicationIcdLog"][number]
+    | undefined
+): boolean {
+  if (
+    application === undefined ||
+    application.sourceKind !== "swirl-propagation"
+  ) {
+    return false;
+  }
+  return (
+    application.decision.kind === "reaction-fixed-gcsim" &&
+    application.decision.allowed &&
+    application.effectiveGaugeUnits > AURA_GAUGE_EPSILON
+  );
+}
+
+function damageAuditOwnsDeferredSwirlAttachment(
+  event: DamageEvent | undefined
+): boolean {
+  if (event === undefined) return false;
+  const audit = event.reactionAudit;
+  return (
+    audit.model === "aura-engine" &&
+    audit.triggered === false &&
+    audit.reaction === "none" &&
+    audit.reactions.length === 0 &&
+    audit.unsupportedReactions.length === 0 &&
+    audit.mechanicsTruncation === null &&
+    audit.applicationGaugeUnits !== null &&
+    audit.applicationGaugeUnits > AURA_GAUGE_EPSILON &&
+    (audit.auraApplied?.length ?? 0) === 0 &&
+    (audit.auraConsumed?.length ?? 0) === 0 &&
+    audit.transformativeReaction === null &&
+    (audit.transformativeReactions?.length ?? 0) === 0 &&
+    audit.periodicReaction === null &&
+    audit.frozenReaction === null &&
+    audit.shatterReaction === null &&
+    audit.swirlReactions.length === 0 &&
+    // ReactionA is resolved after the Aura token decision and then projected
+    // onto the final damage audit. Its exact parent decision is replayed by
+    // the shared Swirl damage-group proof below this scheduler proof.
+    audit.crystallizeReaction === null &&
+    audit.catalyzeReaction === null &&
+    audit.burningReaction === null &&
+    audit.bloomReactions.length === 0
+  );
+}
+
+function damageAuditOwnsLegacyImmediateSwirlAttachment(
+  event: DamageEvent | undefined
+): boolean {
+  if (event === undefined) return false;
+  const audit = event.reactionAudit;
+  return (
+    audit.model === "aura-engine" &&
+    audit.triggered === false &&
+    audit.reaction === "none" &&
+    audit.reactions.length === 0 &&
+    audit.unsupportedReactions.length === 0 &&
+    audit.mechanicsTruncation === null &&
+    audit.icdAllowed === true &&
+    audit.applicationGaugeUnits !== null &&
+    audit.applicationGaugeUnits > AURA_GAUGE_EPSILON &&
+    (audit.auraApplied?.length ?? 0) === 1 &&
+    (audit.auraConsumed?.length ?? 0) === 0 &&
+    audit.transformativeReaction === null &&
+    (audit.transformativeReactions?.length ?? 0) === 0 &&
+    audit.periodicReaction === null &&
+    audit.frozenReaction === null &&
+    audit.shatterReaction === null &&
+    audit.swirlReactions.length === 0 &&
+    audit.crystallizeReaction === null &&
+    audit.catalyzeReaction === null &&
+    audit.burningReaction === null &&
+    audit.bloomReactions.length === 0
+  );
+}
+
+/**
+ * Replays the narrow 1.51 Swirl scheduler audit from authoritative reaction,
+ * target-attempt, application-ICD, and target-state records. Scheduler rows
+ * never contribute damage: both phases backlink the one existing target
+ * attempt and the commit phase owns no damage event of its own.
+ */
+function validateBasicReactionSchedulerV151(
+  result: SimulationResultForV151,
+  selectedPolicy: BasicReactionSchedulerReplayPolicyV151,
+  context: RefinementCtx
+): void {
+  type SchedulerRow =
+    SimulationResultForV151["basicReactionSchedulerLog"][number];
+  type AttackRow = Extract<SchedulerRow, { kind: "swirl-attack-resolution" }>;
+  type CommitRow = Extract<SchedulerRow, { kind: "deferred-aura-attachment" }>;
+
+  const rows = Array.isArray(result.basicReactionSchedulerLog)
+    ? result.basicReactionSchedulerLog
+    : [];
+  if (!Array.isArray(result.basicReactionSchedulerLog)) {
+    addIssue(
+      context,
+      ["basicReactionSchedulerLog"],
+      "1.51 results require a basic-reaction scheduler log array"
+    );
+  }
+  if (
+    Array.isArray(result.basicReactionSchedulerLog) &&
+    rows.length === 0 &&
+    !result.reactionDamageLog.some(
+      (parent) => parent.scheduleKind === "swirl-propagation"
+    )
+  ) {
+    // The shared target-state backlink proof below independently rejects an
+    // invented scheduler link against this empty domain. There is no
+    // scheduler-owned event to index or replay in a non-Swirl run.
+    return;
+  }
+  const attacksByResolutionId = new Map<number, AttackRow[]>();
+  const timelinePointsBySchedulerId = new Map<
+    number,
+    SimulationResultForV151["targetStateTimeline"]["points"]
+  >();
+  for (const point of result.targetStateTimeline.points) {
+    for (const link of point.links) {
+      if (link.kind !== "basic-reaction-scheduler-log") continue;
+      const points = timelinePointsBySchedulerId.get(link.id) ?? [];
+      points.push(point);
+      timelinePointsBySchedulerId.set(link.id, points);
+    }
+  }
+
+  let previousOrder:
+    | {
+        frame: number;
+        eventPriority: number;
+        eventSequence: number;
+      }
+    | undefined;
+  for (const [rowIndex, row] of rows.entries()) {
+    const rowPath = ["basicReactionSchedulerLog", rowIndex] satisfies IssuePath;
+    expectEqual(
+      context,
+      [...rowPath, "id"],
+      row.id,
+      rowIndex,
+      "contiguous basic-reaction scheduler log ID"
+    );
+    expectNearlyEqual(
+      context,
+      [...rowPath, "timeSeconds"],
+      row.timeSeconds,
+      row.frame / 60,
+      "basic-reaction scheduler time"
+    );
+    if (
+      previousOrder !== undefined &&
+      (row.frame < previousOrder.frame ||
+        (row.frame === previousOrder.frame &&
+          (row.eventPriority < previousOrder.eventPriority ||
+            (row.eventPriority === previousOrder.eventPriority &&
+              row.eventSequence < previousOrder.eventSequence))))
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "eventSequence"],
+        "basic-reaction scheduler rows must remain in global event execution order"
+      );
+    }
+    previousOrder = {
+      frame: row.frame,
+      eventPriority: row.eventPriority,
+      eventSequence: row.eventSequence
+    };
+
+    const parent = result.reactionDamageLog[row.reactionDamageLogId];
+    const resolution = result.hitResolutionLog[row.hitResolutionLogId];
+    const application =
+      row.elementalApplicationIcdLogId === null
+        ? undefined
+        : result.elementalApplicationIcdLog[row.elementalApplicationIcdLogId];
+    const damageEvent =
+      resolution?.damageEventId === null || resolution === undefined
+        ? undefined
+        : result.damageEvents[resolution.damageEventId];
+    const expectedReaction = expectedSwirlReactionForSchedulerElement(
+      row.element
+    );
+
+    if (
+      parent === undefined ||
+      parent.id !== row.reactionDamageLogId ||
+      parent.scheduleKind !== "swirl-propagation" ||
+      parent.reaction !== expectedReaction ||
+      parent.sourceActorId !== row.sourceActorId ||
+      parent.damageFrame !== row.frame ||
+      !parent.hitResolutionLogIds.includes(row.hitResolutionLogId)
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "reactionDamageLogId"],
+        "scheduler row must reference its exact Swirl propagation delivery"
+      );
+    }
+    if (
+      resolution === undefined ||
+      resolution.id !== row.hitResolutionLogId ||
+      resolution.resolutionKind !== "reaction-damage" ||
+      resolution.reactionDamageLogId !== row.reactionDamageLogId ||
+      resolution.frame !== row.frame ||
+      resolution.sourceActorId !== row.sourceActorId ||
+      resolution.targetId !== row.targetId ||
+      resolution.element !== row.element ||
+      resolution.elementalApplicationIcdLogId !==
+        row.elementalApplicationIcdLogId
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "hitResolutionLogId"],
+        "scheduler row must reference its exact Swirl target attempt"
+      );
+    }
+    if (application !== undefined) {
+      if (
+        application.id !== row.elementalApplicationIcdLogId ||
+        application.sourceKind !== "swirl-propagation" ||
+        application.reactionDamageLogId !== row.reactionDamageLogId ||
+        application.hitResolutionLogId !== row.hitResolutionLogId ||
+        application.frame !== row.frame ||
+        application.sourceActorId !== row.sourceActorId ||
+        application.targetId !== row.targetId ||
+        application.element !== row.element ||
+        parent === undefined ||
+        !parent.elementalApplicationIcdLogIds.includes(application.id)
+      ) {
+        addIssue(
+          context,
+          [...rowPath, "elementalApplicationIcdLogId"],
+          "scheduler row must reference its exact Swirl application-ICD attempt"
+        );
+      }
+    } else if (row.elementalApplicationIcdLogId !== null) {
+      addIssue(
+        context,
+        [...rowPath, "elementalApplicationIcdLogId"],
+        "scheduler row references a missing application-ICD attempt"
+      );
+    }
+    if (damageEvent !== undefined) {
+      expectEqual(
+        context,
+        [...rowPath, "reaction"],
+        row.reaction,
+        damageEvent.reactionAudit.reaction,
+        "scheduler attack reaction"
+      );
+      expectSemanticEqual(
+        context,
+        [...rowPath, "reactions"],
+        row.reactions,
+        damageEvent.reactionAudit.reactions,
+        "scheduler attack reactions"
+      );
+    } else {
+      expectEqual(
+        context,
+        [...rowPath, "reaction"],
+        row.reaction,
+        "none",
+        "scheduler miss reaction"
+      );
+      expectSemanticEqual(
+        context,
+        [...rowPath, "reactions"],
+        row.reactions,
+        [],
+        "scheduler miss reactions"
+      );
+    }
+
+    const timelinePoints = timelinePointsBySchedulerId.get(row.id) ?? [];
+    if (timelinePoints.length !== 1) {
+      addIssue(
+        context,
+        [...rowPath, "id"],
+        "scheduler row must own exactly one target-state timeline backlink"
+      );
+    } else {
+      const point = timelinePoints[0]!;
+      for (const [field, expected] of [
+        ["frame", row.frame],
+        ["eventPriority", row.eventPriority],
+        ["eventSequence", row.eventSequence],
+        ["targetId", row.targetId],
+        ["reaction", row.reaction]
+      ] as const) {
+        expectEqual(
+          context,
+          ["targetStateTimeline", "points", point.id, field],
+          point[field],
+          expected,
+          `scheduler timeline ${field}`
+        );
+      }
+      expectNearlyEqual(
+        context,
+        ["targetStateTimeline", "points", point.id, "timeSeconds"],
+        point.timeSeconds,
+        row.timeSeconds,
+        "scheduler timeline time"
+      );
+      expectSemanticEqual(
+        context,
+        ["targetStateTimeline", "points", point.id, "reactions"],
+        point.reactions,
+        row.reactions,
+        "scheduler timeline reactions"
+      );
+      for (const field of [
+        "auraBefore",
+        "auraApplied",
+        "auraConsumed",
+        "auraAfter"
+      ] as const) {
+        expectSemanticEqual(
+          context,
+          ["targetStateTimeline", "points", point.id, field],
+          point[field],
+          row[field],
+          `scheduler timeline ${field}`
+        );
+      }
+      expectEqual(
+        context,
+        ["targetStateTimeline", "points", point.id, "eventType"],
+        point.eventType,
+        row.kind === "swirl-attack-resolution"
+          ? "reactionDamage"
+          : "reactionAuraAttachment",
+        "scheduler timeline event type"
+      );
+      expectEqual(
+        context,
+        ["targetStateTimeline", "points", point.id, "cause"],
+        point.cause,
+        row.kind === "swirl-attack-resolution"
+          ? "reaction-damage-application"
+          : "reaction-aura-attachment",
+        "scheduler timeline cause"
+      );
+      expectEqual(
+        context,
+        ["targetStateTimeline", "points", point.id, "primaryDamageEventId"],
+        point.primaryDamageEventId,
+        row.kind === "swirl-attack-resolution"
+          ? resolution?.damageEventId ?? null
+          : null,
+        "scheduler timeline damage ownership"
+      );
+    }
+
+    if (row.kind === "swirl-attack-resolution") {
+      const attacks = attacksByResolutionId.get(row.hitResolutionLogId) ?? [];
+      attacks.push(row);
+      attacksByResolutionId.set(row.hitResolutionLogId, attacks);
+      expectEqual(
+        context,
+        [...rowPath, "parentEventSequence"],
+        row.parentEventSequence,
+        row.eventSequence,
+        "Swirl attack parent event sequence"
+      );
+      if (resolution?.eventPriority !== undefined) {
+        expectEqual(
+          context,
+          [...rowPath, "eventPriority"],
+          row.eventPriority,
+          resolution.eventPriority,
+          "Swirl attack priority"
+        );
+      }
+      if (resolution?.eventSequence !== undefined) {
+        expectEqual(
+          context,
+          [...rowPath, "eventSequence"],
+          row.eventSequence,
+          resolution.eventSequence,
+          "Swirl attack event sequence"
+        );
+      }
+
+      if (
+        selectedPolicy.policyId === LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+      ) {
+        if (
+          row.disposition !== "legacy-immediate" ||
+          row.pairedLogId !== null ||
+          row.reactions.length !== 0 ||
+          !reactionOwnedApplicationAllowsAttachment(application) ||
+          row.auraApplied.length === 0
+        ) {
+          addIssue(
+            context,
+            [...rowPath, "disposition"],
+            "scheduler v1 may log only completed immediate non-reacted Aura attachments"
+          );
+        }
+      } else {
+        const shouldDefer =
+          resolution !== undefined &&
+          resolution.landed &&
+          resolution.auraAllowed &&
+          resolution.mechanicsStatus !== "mechanics-truncated" &&
+          damageAuditOwnsDeferredSwirlAttachment(damageEvent) &&
+          reactionOwnedApplicationAllowsAttachment(application);
+        expectEqual(
+          context,
+          [...rowPath, "disposition"],
+          row.disposition,
+          shouldDefer ? "deferred" : "not-attached",
+          "replayed scheduler v2 attachment disposition"
+        );
+        if (row.disposition === "deferred" && row.auraApplied.length !== 0) {
+          addIssue(
+            context,
+            [...rowPath, "auraApplied"],
+            "scheduler v2 attack phase cannot attach residual Aura"
+          );
+        }
+        if (shouldDefer) {
+          if (
+            row.pairedLogId === null ||
+            row.auraConsumed.length !== 0 ||
+            !auraStateProjectionEqual(row.auraBefore, row.auraAfter)
+          ) {
+            addIssue(
+              context,
+              [...rowPath, "pairedLogId"],
+              "deferred Swirl attack must preserve Aura and own one commit pair"
+            );
+          }
+        } else if (row.pairedLogId !== null) {
+          addIssue(
+            context,
+            [...rowPath, "pairedLogId"],
+            "non-attached Swirl attack cannot own a commit pair"
+          );
+        }
+      }
+      continue;
+    }
+
+    if (
+      selectedPolicy.policyId === LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "kind"],
+        "scheduler v1 cannot contain deferred Aura commits"
+      );
+    }
+    const attack = rows[row.pairedLogId];
+    if (
+      attack === undefined ||
+      attack.kind !== "swirl-attack-resolution" ||
+      attack.disposition !== "deferred" ||
+      attack.pairedLogId !== row.id
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "pairedLogId"],
+        "deferred Aura commit must reciprocally pair one deferred Swirl attack"
+      );
+      continue;
+    }
+    const commit = row as CommitRow;
+    for (const [field, expected] of [
+      ["frame", attack.frame],
+      ["eventPriority", attack.eventPriority],
+      ["parentEventSequence", attack.eventSequence],
+      ["reactionDamageLogId", attack.reactionDamageLogId],
+      ["hitResolutionLogId", attack.hitResolutionLogId],
+      ["elementalApplicationIcdLogId", attack.elementalApplicationIcdLogId],
+      ["sourceActorId", attack.sourceActorId],
+      ["targetId", attack.targetId],
+      ["element", attack.element],
+      ["reaction", attack.reaction]
+    ] as const) {
+      expectEqual(
+        context,
+        [...rowPath, field],
+        commit[field],
+        expected,
+        `deferred commit/attack ${field}`
+      );
+    }
+    expectSemanticEqual(
+      context,
+      [...rowPath, "reactions"],
+      commit.reactions,
+      attack.reactions,
+      "deferred commit/attack reactions"
+    );
+    const commitApplication =
+      commit.elementalApplicationIcdLogId === null
+        ? undefined
+        : result.elementalApplicationIcdLog[
+            commit.elementalApplicationIcdLogId
+          ];
+    const commitAppliedAura = commit.auraApplied[0];
+    const sourceActorMatchesAuraMode = usesCurrentAuraDurability(
+      result.config.reactionEngine?.mode
+    )
+      ? commitAppliedAura?.sourceActorId === commit.sourceActorId
+      : commitAppliedAura?.sourceActorId === undefined;
+    if (
+      !reactionOwnedApplicationAllowsAttachment(commitApplication) ||
+      commit.auraApplied.length !== 1 ||
+      commitAppliedAura?.element !== commit.element ||
+      !sourceActorMatchesAuraMode ||
+      !nearlyEqual(
+        commitAppliedAura?.gaugeUnits ?? Number.NaN,
+        commitApplication?.effectiveGaugeUnits ?? Number.NaN
+      )
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "auraApplied"],
+        "deferred commit must project the exact allowed application-ICD Gauge"
+      );
+    }
+    if (
+      commit.eventSequence <= attack.eventSequence ||
+      commit.reactions.length !== 0 ||
+      commit.auraApplied.length === 0 ||
+      commit.auraConsumed.length !== 0
+    ) {
+      addIssue(
+        context,
+        [...rowPath, "eventSequence"],
+        "deferred commit must execute later in-frame without consuming Aura"
+      );
+    }
+    const priorSameFrameAttackSequence = rows
+      .slice(0, rowIndex)
+      .filter(
+        (candidate): candidate is AttackRow =>
+          candidate.kind === "swirl-attack-resolution" &&
+          candidate.frame === commit.frame &&
+          candidate.eventPriority === commit.eventPriority
+      )
+      .reduce(
+        (maximum, candidate) => Math.max(maximum, candidate.eventSequence),
+        -1
+      );
+    if (commit.eventSequence <= priorSameFrameAttackSequence) {
+      addIssue(
+        context,
+        [...rowPath, "eventSequence"],
+        "deferred commit must follow every same-frame same-priority attack already queued before it"
+      );
+    }
+  }
+
+  const expectedResolutionIds = new Set<number>();
+  for (const parent of result.reactionDamageLog) {
+    if (parent.scheduleKind !== "swirl-propagation") continue;
+    for (const resolutionId of parent.hitResolutionLogIds) {
+      if (
+        selectedPolicy.policyId ===
+        GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+      ) {
+        expectedResolutionIds.add(resolutionId);
+        continue;
+      }
+      const resolution = result.hitResolutionLog[resolutionId];
+      const application =
+        resolution?.elementalApplicationIcdLogId === null ||
+        resolution === undefined
+          ? undefined
+          : result.elementalApplicationIcdLog[
+              resolution.elementalApplicationIcdLogId
+            ];
+      const event =
+        resolution?.damageEventId === null || resolution === undefined
+          ? undefined
+          : result.damageEvents[resolution.damageEventId];
+      if (
+        resolution?.landed &&
+        resolution.auraAllowed &&
+        resolution.mechanicsStatus !== "mechanics-truncated" &&
+        reactionOwnedApplicationAllowsAttachment(application) &&
+        damageAuditOwnsLegacyImmediateSwirlAttachment(event)
+      ) {
+        expectedResolutionIds.add(resolutionId);
+      }
+    }
+  }
+  for (const resolutionId of expectedResolutionIds) {
+    if ((attacksByResolutionId.get(resolutionId) ?? []).length !== 1) {
+      addIssue(
+        context,
+        ["basicReactionSchedulerLog"],
+        `selected scheduler requires exactly one attack row for Swirl target attempt ${resolutionId}`
+      );
+    }
+  }
+  for (const [resolutionId, attacks] of attacksByResolutionId) {
+    if (attacks.length !== 1 || !expectedResolutionIds.has(resolutionId)) {
+      addIssue(
+        context,
+        ["basicReactionSchedulerLog", attacks[0]?.id ?? 0],
+        "scheduler attack rows must be a one-to-one projection of the selected policy's Swirl target attempts"
+      );
+    }
+  }
+}
+
+function validateFrozenV150SchedulerBoundary(
+  result: SimulationResultForV150,
+  context: RefinementCtx
+): void {
+  const raw = result as unknown as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(raw, "basicReactionSchedulerLog")) {
+    addIssue(
+      context,
+      ["basicReactionSchedulerLog"],
+      "frozen 1.50 results cannot contain the 1.51 scheduler log"
+    );
+  }
+  if (
+    Object.prototype.hasOwnProperty.call(
+      result.config,
+      "basicReactionSchedulerModel"
+    )
+  ) {
+    addIssue(
+      context,
+      ["config", "basicReactionSchedulerModel"],
+      "frozen 1.50 configs cannot contain the 1.51 scheduler selector"
+    );
+  }
+  if (
+    Object.prototype.hasOwnProperty.call(
+      result.runManifest,
+      "basicReactionSchedulerRoot"
+    )
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot"],
+      "frozen 1.50 manifests cannot contain the 1.51 scheduler root"
+    );
+  }
+  for (const [
+    pointIndex,
+    point
+  ] of result.targetStateTimeline.points.entries()) {
+    const widenedPoint = point as unknown as {
+      cause?: unknown;
+      eventType?: unknown;
+      links?: Array<{ kind?: unknown }>;
+    };
+    if (
+      widenedPoint.cause === "reaction-aura-attachment" ||
+      widenedPoint.eventType === "reactionAuraAttachment" ||
+      widenedPoint.links?.some(
+        (link) => link.kind === "basic-reaction-scheduler-log"
+      )
+    ) {
+      addIssue(
+        context,
+        ["targetStateTimeline", "points", pointIndex],
+        "frozen 1.50 target-state timeline cannot contain 1.51 scheduler fields"
+      );
+    }
+  }
+}
 
 type ReactionDamageDelivery =
   SimulationResult["reactionDamageLog"][number];
@@ -6041,8 +7122,25 @@ function validateElementalApplicationIcdReactionOwned(
     context
   );
 
+  // The Burning channel is invariant for a replay policy. A sustained
+  // Burning run can contain hundreds of ticks, so resolving the same frozen
+  // policy and application group for every parent and every log row adds
+  // avoidable work without strengthening the proof.
+  const burningApplicationBinding =
+    resolveReactionOwnedApplicationBindingForPolicy(
+      replayPolicy.policyId,
+      "burning-tick"
+    );
+  const burningApplicationGroup = resolveElementalApplicationGroup(
+    burningApplicationBinding.groupId
+  );
+
   const lookup = buildConfiguredElementalApplicationHitLookup(result);
   const expectedAttempts: ExpectedUnifiedApplicationAttempt[] = [];
+  const reactionResolutionsByParentId = new Map<
+    number,
+    SimulationResult["hitResolutionLog"]
+  >();
   const burningDeliveryByResolutionId = new Map<
     number,
     {
@@ -6105,7 +7203,20 @@ function validateElementalApplicationIcdReactionOwned(
       resolutionIndex,
       "contiguous HitResolution ID"
     );
-    if (resolution.resolutionKind !== "direct") continue;
+    if (resolution.resolutionKind !== "direct") {
+      if (resolution.reactionDamageLogId !== null) {
+        const owned =
+          reactionResolutionsByParentId.get(
+            resolution.reactionDamageLogId
+          ) ?? [];
+        owned.push(resolution);
+        reactionResolutionsByParentId.set(
+          resolution.reactionDamageLogId,
+          owned
+        );
+      }
+      continue;
+    }
     expectEqual(
       context,
       ["hitResolutionLog", resolutionIndex, "reactionDamageLogId"],
@@ -6166,11 +7277,8 @@ function validateElementalApplicationIcdReactionOwned(
       "contiguous reaction-damage ID"
     );
 
-    const ownedResolutions = result.hitResolutionLog.filter(
-      (resolution) =>
-        resolution.resolutionKind === "reaction-damage" &&
-        resolution.reactionDamageLogId === parent.id
-    );
+    const ownedResolutions =
+      reactionResolutionsByParentId.get(parent.id) ?? [];
     let parentEventPriority: number | undefined;
     let parentEventSequence: number | undefined;
     for (const resolution of ownedResolutions) {
@@ -6298,14 +7406,9 @@ function validateElementalApplicationIcdReactionOwned(
     ) {
       sourceKind = "burning-tick";
       element = "pyro";
-      const binding =
-        resolveReactionOwnedApplicationBindingForPolicy(
-          replayPolicy.policyId,
-          "burning-tick"
-        );
       nominalGaugeUnits =
-        binding.gauge.kind === "fixed"
-          ? binding.gauge.units
+        burningApplicationBinding.gauge.kind === "fixed"
+          ? burningApplicationBinding.gauge.units
           : undefined;
       expectSemanticEqual(
         context,
@@ -6659,16 +7762,16 @@ function validateElementalApplicationIcdReactionOwned(
     let expectedDecision: unknown;
     const binding =
       expected.sourceKind === "burning-tick"
-        ? resolveReactionOwnedApplicationBindingForPolicy(
-            replayPolicy.policyId,
-            "burning-tick"
-          )
+        ? burningApplicationBinding
         : resolveReactionOwnedApplicationBindingForPolicy(
             replayPolicy.policyId,
             "swirl-propagation",
             expected.element
           );
-    const group = resolveElementalApplicationGroup(binding.groupId);
+    const group =
+      expected.sourceKind === "burning-tick"
+        ? burningApplicationGroup
+        : resolveElementalApplicationGroup(binding.groupId);
     if (skipReason !== null) {
       expectedDecision = {
         kind: "skipped",
@@ -6878,7 +7981,12 @@ function validateDamageEvent(
   event: DamageEvent,
   index: number,
   result: SimulationResult,
-  context: RefinementCtx
+  context: RefinementCtx,
+  characterById: ReadonlyMap<
+    string,
+    SimulationResult["config"]["characters"][number]
+  >,
+  hasDamagePlugin: boolean
 ): void {
   const path = ["damageEvents", index] satisfies IssuePath;
   if (event.id !== index) {
@@ -6960,101 +8068,35 @@ function validateDamageEvent(
       "must alias activeCharacterId"
     );
   }
-  const factorAliases: Array<
-    [keyof DamageEvent, number, string]
-  > = [
-    ["scaling", event.damageFactors.scaling, "scaling"],
-    [
-      "scalingValue",
-      event.damageFactors.scalingValue,
-      "scalingValue"
-    ],
-    ["flat", event.damageFactors.flatDamage, "flatDamage"],
-    ["baseDamage", event.damageFactors.baseDamage, "baseDamage"],
-    ["dmgBonus", event.damageFactors.damageBonus, "damageBonus"],
-    [
-      "bonusFactor",
-      event.damageFactors.damageBonusMultiplier,
-      "damageBonusMultiplier"
-    ],
-    [
-      "defIgnore",
-      event.damageFactors.defenseIgnore,
-      "defenseIgnore"
-    ],
-    [
-      "defReduction",
-      event.damageFactors.defenseReduction,
-      "defenseReduction"
-    ],
-    [
-      "defenseFactor",
-      event.damageFactors.defenseMultiplier,
-      "defenseMultiplier"
-    ],
-    [
-      "effectiveRes",
-      event.damageFactors.effectiveResistance,
-      "effectiveResistance"
-    ],
-    [
-      "resFactor",
-      event.damageFactors.resistanceMultiplier,
-      "resistanceMultiplier"
-    ],
-    ["critRate", event.damageFactors.critRate, "critRate"],
-    ["critDmg", event.damageFactors.critDamage, "critDamage"],
-    [
-      "critFactor",
-      event.damageFactors.critMultiplier,
-      "critMultiplier"
-    ],
-    [
-      "reactionBase",
-      event.damageFactors.reactionBase,
-      "reactionBase"
-    ],
-    [
-      "emBonus",
-      event.damageFactors.elementalMasteryBonus,
-      "elementalMasteryBonus"
-    ],
-    [
-      "reactionBonus",
-      event.damageFactors.reactionBonus,
-      "reactionBonus"
-    ],
-    [
-      "reactionFactor",
-      event.kind === "direct"
-        ? event.damageFactors.amplifyingReactionMultiplier
-        : event.damageFactors.reactionBase *
-          (1 +
-            event.damageFactors.elementalMasteryBonus +
-            event.damageFactors.reactionBonus) *
-          event.damageFactors.amplifyingReactionMultiplier,
-      event.kind === "direct"
-        ? "amplifyingReactionMultiplier"
-        : "transformative reaction multiplier"
-    ],
-    [
-      "groupMultiplier",
-      event.damageFactors.groupMultiplier,
-      "groupMultiplier"
-    ]
-  ];
-  for (const [alias, expected, source] of factorAliases) {
-    expectNearlyEqual(
+  for (const [alias, source] of DAMAGE_FACTOR_ALIAS_FIELDS) {
+    expectFieldNearlyEqual(
       context,
-      [...path, alias],
+      path,
+      alias,
       event[alias] as number,
-      expected,
+      event.damageFactors[source],
       `legacy ${String(alias)} alias for ${source}`
     );
   }
+  const expectedReactionFactor =
+    event.kind === "direct"
+      ? event.damageFactors.amplifyingReactionMultiplier
+      : event.damageFactors.reactionBase *
+        (1 +
+          event.damageFactors.elementalMasteryBonus +
+          event.damageFactors.reactionBonus) *
+        event.damageFactors.amplifyingReactionMultiplier;
+  expectFieldNearlyEqual(
+    context,
+    path,
+    "reactionFactor",
+    event.reactionFactor,
+    expectedReactionFactor,
+    event.kind === "direct"
+      ? "legacy reactionFactor alias for amplifyingReactionMultiplier"
+      : "legacy reactionFactor alias for transformative reaction multiplier"
+  );
   const factors = event.damageFactors;
-  const hasDamagePlugin =
-    result.runManifest.plugins.length > 0;
   if (
     event.kind === "transformative-reaction" ||
     !hasDamagePlugin
@@ -7105,9 +8147,7 @@ function validateDamageEvent(
     factors.critMultiplier *
     factors.amplifyingReactionMultiplier *
     factors.groupMultiplier;
-  const scalingOwner = result.config.characters.find(
-    (character) => character.id === event.scalingOwnerId
-  );
+  const scalingOwner = characterById.get(event.scalingOwnerId);
   if (scalingOwner === undefined) {
     addIssue(
       context,
@@ -7272,9 +8312,7 @@ function validateDamageEvent(
         "additive Catalyze Quicken Gauge conservation"
       );
     }
-    const sourceActor = result.config.characters.find(
-      (character) => character.id === event.sourceActorId
-    );
+    const sourceActor = characterById.get(event.sourceActorId);
     if (sourceActor !== undefined) {
       expectEqual(
         context,
@@ -7536,19 +8574,8 @@ function validateDamageEvent(
         "transformative contribution"
       );
     }
-    for (const [
-      factor,
-      expected
-    ] of [
-      ["scaling", 0],
-      ["damageBonus", 0],
-      ["damageBonusMultiplier", 1],
-      ["defenseIgnore", 1],
-      ["defenseMultiplier", 1],
-      ["critRate", 0],
-      ["critDamage", 0],
-      ["critMultiplier", 1]
-    ] as const) {
+    for (const [factor, expected] of
+      TRANSFORMATIVE_FIXED_DAMAGE_FACTORS) {
       expectNearlyEqual(
         context,
         [...path, "damageFactors", factor],
@@ -7621,30 +8648,17 @@ function validateDamageEvent(
       "must backlink a matching hit-resolution row"
     );
   } else {
-    for (const [field, expected] of [
-      ["frame", event.frame],
-      ["cycle", event.cycle],
-      ["sourceActorId", event.sourceActorId],
-      ["sourceActionId", event.actionId],
-      ["actionName", event.actionName],
-      ["hitId", event.hitId],
-      ["hitGroupId", event.hitGroupId],
-      ["hitLabel", event.hitLabel],
-      ["targetIndex", event.targetIndex],
-      ["targetCount", event.targetCount],
-      ["targetName", event.targetName],
-      ["element", event.element],
-      ["mechanicsStatus", event.mechanicsStatus]
-    ] as const) {
+    const resolutionPath = [
+      "hitResolutionLog",
+      event.targetResolutionId
+    ] satisfies IssuePath;
+    for (const [field, eventField] of
+      DAMAGE_EVENT_RESOLUTION_FIELDS) {
       expectEqual(
         context,
-        [
-          "hitResolutionLog",
-          event.targetResolutionId,
-          field
-        ],
+        [...resolutionPath, field],
         resolution[field],
-        expected,
+        event[eventField],
         `hit-resolution ${field}`
       );
     }
@@ -7659,19 +8673,13 @@ function validateDamageEvent(
       event.timeSeconds,
       "hit-resolution time"
     );
-    for (const [field, expected] of [
-      ["timelineCommandIndex", event.timelineCommandIndex],
-      ["sourceAbilityId", event.sourceAbilityId]
-    ] as const) {
+    for (const [field, eventField] of
+      OPTIONAL_DAMAGE_EVENT_RESOLUTION_FIELDS) {
       expectEqual(
         context,
-        [
-          "hitResolutionLog",
-          event.targetResolutionId,
-          field
-        ],
+        [...resolutionPath, field],
         resolution[field],
-        expected,
+        event[eventField],
         `hit-resolution ${field}`
       );
     }
@@ -7805,27 +8813,36 @@ function validateDamageAggregates(
       }
     ])
   );
+  const characterById = new Map(
+    result.config.characters.map((character) => [
+      character.id,
+      character
+    ])
+  );
+  const hasDamagePlugin = result.runManifest.plugins.length > 0;
   let totalDamage = 0;
   let reactedHits = 0;
-  let previousOrder:
-    | [frame: number, priority: number, sequence: number]
-    | undefined;
+  let previousFrame: number | undefined;
+  let previousPriority = 0;
+  let previousSequence = 0;
 
   for (const [index, event] of result.damageEvents.entries()) {
-    validateDamageEvent(event, index, result, context);
-    const order = [
-      event.frame,
-      event.eventPriority,
-      event.eventSequence
-    ] satisfies [number, number, number];
+    validateDamageEvent(
+      event,
+      index,
+      result,
+      context,
+      characterById,
+      hasDamagePlugin
+    );
     if (
-      previousOrder !== undefined &&
-      (order[0] < previousOrder[0] ||
-        (order[0] === previousOrder[0] &&
-          order[1] < previousOrder[1]) ||
-        (order[0] === previousOrder[0] &&
-          order[1] === previousOrder[1] &&
-          order[2] < previousOrder[2]))
+      previousFrame !== undefined &&
+      (event.frame < previousFrame ||
+        (event.frame === previousFrame &&
+          event.eventPriority < previousPriority) ||
+        (event.frame === previousFrame &&
+          event.eventPriority === previousPriority &&
+          event.eventSequence < previousSequence))
     ) {
       addIssue(
         context,
@@ -7833,7 +8850,9 @@ function validateDamageAggregates(
         "damage events must use nondecreasing queue order"
       );
     }
-    previousOrder = order;
+    previousFrame = event.frame;
+    previousPriority = event.eventPriority;
+    previousSequence = event.eventSequence;
     totalDamage += event.finalDamage;
     const targetAggregate = targetAggregates.get(event.targetId);
     if (targetAggregate === undefined) {
@@ -8037,35 +9056,41 @@ function validateDamageAggregates(
     }
     const point = result.damageCurve[index];
     if (point === undefined) continue;
-    for (const [field, expected] of [
-      ["damageEventId", event.id],
-      ["targetId", event.targetId],
-      ["targetName", event.targetName],
-      ["frame", event.frame],
-      ["sourceActorId", event.sourceActorId],
-      ["creditOwnerId", event.creditOwnerId]
-    ] as const) {
-      expectEqual(
+    const curvePath = ["damageCurve", index] satisfies IssuePath;
+    for (const [field, eventField] of DAMAGE_CURVE_EVENT_FIELDS) {
+      expectFieldEqual(
         context,
-        ["damageCurve", index, field],
+        curvePath,
+        field,
         point[field],
-        expected,
+        event[eventField],
         `damage curve ${field}`
       );
     }
-    for (const [field, expected] of [
-      ["timeSeconds", event.timeSeconds],
-      ["finalDamage", event.finalDamage],
-      ["cumulativeDamage", cumulativeDamage]
-    ] as const) {
-      expectNearlyEqual(
-        context,
-        ["damageCurve", index, field],
-        point[field],
-        expected,
-        `damage curve ${field}`
-      );
-    }
+    expectFieldNearlyEqual(
+      context,
+      curvePath,
+      "timeSeconds",
+      point.timeSeconds,
+      event.timeSeconds,
+      "damage curve timeSeconds"
+    );
+    expectFieldNearlyEqual(
+      context,
+      curvePath,
+      "finalDamage",
+      point.finalDamage,
+      event.finalDamage,
+      "damage curve finalDamage"
+    );
+    expectFieldNearlyEqual(
+      context,
+      curvePath,
+      "cumulativeDamage",
+      point.cumulativeDamage,
+      cumulativeDamage,
+      "damage curve cumulativeDamage"
+    );
     compareFiniteRecord(
       context,
       ["damageCurve", index, "cumulativeByCharacter"],
@@ -8073,11 +9098,7 @@ function validateDamageAggregates(
       cumulativeByCharacter,
       "damage curve cumulativeByCharacter"
     );
-    for (const component of [
-      "direct",
-      "additiveReaction",
-      "transformativeReaction"
-    ] as const) {
+    for (const component of DAMAGE_COMPONENT_FIELDS) {
       expectNearlyEqual(
         context,
         [
@@ -8352,6 +9373,9 @@ function validateAuraProjection(
     ),
     "reaction-damage-log": new Set(
       result.reactionDamageLog.map((entry) => entry.id)
+    ),
+    "basic-reaction-scheduler-log": new Set(
+      (result.basicReactionSchedulerLog ?? []).map((entry) => entry.id)
     ),
     "periodic-reaction-log": new Set(
       result.periodicReactionLog.map((entry) => entry.id)
@@ -11502,10 +12526,31 @@ function validateSwirlBacklinks(
               );
               const auraApplied =
                 child.reactionAudit.auraApplied;
-              if (
-                auraApplied === null ||
-                auraApplied.length !== 1
-              ) {
+              const deferredSchedulerAttack =
+                (result.schemaVersion as string) ===
+                BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
+                  ? (result.basicReactionSchedulerLog ?? []).find(
+                      (row) =>
+                        row.kind === "swirl-attack-resolution" &&
+                        row.disposition === "deferred" &&
+                        row.hitResolutionLogId === child.targetResolutionId
+                    )
+                  : undefined;
+              if (deferredSchedulerAttack !== undefined) {
+                if (auraApplied === null ||
+                auraApplied.length !== 0) {
+                addIssue(
+                  context,
+                  [
+                    "damageEvents",
+                    damageEventId,
+                    "reactionAudit",
+                    "auraApplied"
+                  ],
+                    "deferred Swirl attack phase cannot expose an immediate Aura attachment"
+                  );
+                }
+              } else if (auraApplied === null || auraApplied.length !== 1) {
                 addIssue(
                   context,
                   [
@@ -11662,7 +12707,9 @@ function validateSwirlBacklinks(
 
   if (
     (result.schemaVersion as string) !==
-    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+    (result.schemaVersion as string) !==
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
   ) {
     damageGroupAttempts.sort(
       (left, right) =>
@@ -11838,6 +12885,43 @@ function validateFrozenStateProjection(
     SimulationResult["frozenStateLog"][number]["auraBefore"];
   type FrozenStateRow =
     SimulationResult["frozenStateLog"][number];
+
+  if (result.frozenStateLog.length === 0) {
+    const hasFrozenDamageEvidence = result.damageEvents.some(
+      (event) =>
+        event.reactionAudit.frozenReaction !== null ||
+        event.reactionAudit.shatterReaction !== null ||
+        event.reactionAudit.reactions.includes("freeze")
+    );
+    const hasFrozenTimelineEvidence =
+      result.targetStateTimeline.points.some(
+        (point) =>
+          point.cause === "frozen-expiry" ||
+          point.links.some(
+            (link) => link.kind === "frozen-state-log"
+          ) ||
+          point.auraBefore.some(
+            (entry) => entry.element === "frozen"
+          ) ||
+          point.auraAfter.some(
+            (entry) => entry.element === "frozen"
+          )
+      );
+    const hasFrozenBoundaryEvidence =
+      result.auraInitialStates.some((state) =>
+        state.aura.some((entry) => entry.element === "frozen")
+      ) ||
+      result.auraEndStates.some((state) =>
+        state.aura.some((entry) => entry.element === "frozen")
+      );
+    if (
+      !hasFrozenDamageEvidence &&
+      !hasFrozenTimelineEvidence &&
+      !hasFrozenBoundaryEvidence
+    ) {
+      return;
+    }
+  }
 
   const targetById = new Map(
     result.enemyTargets.map((target) => [target.id, target])
@@ -14547,6 +15631,17 @@ function validateBurningStateProjection(
     targetFrame: number;
     frozenFrames: number;
   };
+  type SingleOwnerProjection<T> = {
+    first: T;
+    count: number;
+  };
+  type BurningTickOwnership = SingleOwnerProjection<
+    SimulationResult["burningStateLog"][number]
+  > & {
+    firstTick:
+      | SimulationResult["burningStateLog"][number]
+      | undefined;
+  };
 
   const usesTargetHitlagClock =
     result.config.targetClockModel.mode ===
@@ -14708,7 +15803,7 @@ function validateBurningStateProjection(
   }
   const burningTickByReactionDamageId = new Map<
     number,
-    SimulationResult["burningStateLog"]
+    BurningTickOwnership
   >();
   const rowsByTrigger = new Map<
     number,
@@ -14718,11 +15813,13 @@ function validateBurningStateProjection(
   const authoritativeBurningStopRowIds = new Set<number>();
   const lifecyclePointByBurningStateId = new Map<
     number,
-    SimulationResult["targetStateTimeline"]["points"]
+    SingleOwnerProjection<TargetStatePoint>
   >();
   const targetTaskPhasesByBurningStateId = new Map<
     number,
-    SimulationResult["targetTaskPhaseLog"]
+    SingleOwnerProjection<
+      SimulationResult["targetTaskPhaseLog"][number]
+    >
   >();
   const applicationPointsByDamageEventId = new Map<
     number,
@@ -14761,10 +15858,16 @@ function validateBurningStateProjection(
     }
     for (const link of point.links) {
       if (link.kind === "burning-state-log") {
-        const points =
-          lifecyclePointByBurningStateId.get(link.id) ?? [];
-        points.push(point);
-        lifecyclePointByBurningStateId.set(link.id, points);
+        const ownership =
+          lifecyclePointByBurningStateId.get(link.id);
+        if (ownership === undefined) {
+          lifecyclePointByBurningStateId.set(link.id, {
+            first: point,
+            count: 1
+          });
+        } else {
+          ownership.count += 1;
+        }
       } else if (link.kind === "quicken-state-log") {
         // Preserve one entry per link occurrence. This lets the reverse
         // ownership check reject a duplicated link even when both copies sit
@@ -15094,15 +16197,17 @@ function validateBurningStateProjection(
   };
   for (const phase of result.targetTaskPhaseLog) {
     for (const burningStateLogId of phase.burningStateLogIds) {
-      const phases =
-        targetTaskPhasesByBurningStateId.get(
-          burningStateLogId
-        ) ?? [];
-      phases.push(phase);
-      targetTaskPhasesByBurningStateId.set(
-        burningStateLogId,
-        phases
+      const ownership = targetTaskPhasesByBurningStateId.get(
+        burningStateLogId
       );
+      if (ownership === undefined) {
+        targetTaskPhasesByBurningStateId.set(
+          burningStateLogId,
+          { first: phase, count: 1 }
+        );
+      } else {
+        ownership.count += 1;
+      }
     }
   }
   for (const row of result.burningStateLog) {
@@ -15112,25 +16217,57 @@ function validateBurningStateProjection(
       rowsByTrigger.set(row.triggerDamageEventId, rows);
     }
     if (row.reactionDamageLogId !== null) {
-      const rows =
-        burningTickByReactionDamageId.get(
-          row.reactionDamageLogId
-        ) ?? [];
-      rows.push(row);
-      burningTickByReactionDamageId.set(
-        row.reactionDamageLogId,
-        rows
+      const ownership = burningTickByReactionDamageId.get(
+        row.reactionDamageLogId
       );
+      if (ownership === undefined) {
+        burningTickByReactionDamageId.set(
+          row.reactionDamageLogId,
+          {
+            first: row,
+            count: 1,
+            firstTick: row.operation === "tick" ? row : undefined
+          }
+        );
+      } else {
+        ownership.count += 1;
+        if (
+          ownership.firstTick === undefined &&
+          row.operation === "tick"
+        ) {
+          ownership.firstTick = row;
+        }
+      }
     }
   }
 
-  const orderedBurningRows = [...result.burningStateLog].sort(
-    (left, right) =>
-      left.frame - right.frame ||
-      left.eventPriority - right.eventPriority ||
-      left.eventSequence - right.eventSequence ||
-      left.id - right.id
-  );
+  const compareBurningStateOrder = (
+    left: SimulationResult["burningStateLog"][number],
+    right: SimulationResult["burningStateLog"][number]
+  ): number =>
+    left.frame - right.frame ||
+    left.eventPriority - right.eventPriority ||
+    left.eventSequence - right.eventSequence ||
+    left.id - right.id;
+  let burningRowsAlreadyOrdered = true;
+  for (
+    let rowIndex = 1;
+    rowIndex < result.burningStateLog.length;
+    rowIndex += 1
+  ) {
+    if (
+      compareBurningStateOrder(
+        result.burningStateLog[rowIndex - 1]!,
+        result.burningStateLog[rowIndex]!
+      ) > 0
+    ) {
+      burningRowsAlreadyOrdered = false;
+      break;
+    }
+  }
+  const orderedBurningRows = burningRowsAlreadyOrdered
+    ? result.burningStateLog
+    : [...result.burningStateLog].sort(compareBurningStateOrder);
   const replayBurningBeforeEventCut = (
     event: SimulationResult["damageEvents"][number]
   ): {
@@ -16255,11 +17392,11 @@ function validateBurningStateProjection(
       row.triggerDamageEventId === null
         ? undefined
         : damageEventById.get(row.triggerDamageEventId);
-    const callbackPoints =
-      lifecyclePointByBurningStateId.get(row.id) ?? [];
-    const callbackPoint = callbackPoints[0];
+    const callbackOwnership =
+      lifecyclePointByBurningStateId.get(row.id);
+    const callbackPoint = callbackOwnership?.first;
     const callbackOwned =
-      callbackPoints.length === 1 &&
+      callbackOwnership?.count === 1 &&
       callbackPoint !== undefined &&
       callbackPoint.cause === "burning-tick" &&
       callbackPoint.eventType === "burningTick" &&
@@ -16529,17 +17666,17 @@ function validateBurningStateProjection(
         "Burning application ICD sequence does not match its authoritative source"
       );
     }
-    const scalarLifecyclePoints =
-      lifecyclePointByBurningStateId.get(row.id) ?? [];
+    const scalarLifecycleOwnership =
+      lifecyclePointByBurningStateId.get(row.id);
     const scalarLifecyclePoint =
-      scalarLifecyclePoints.length === 1
-        ? scalarLifecyclePoints[0]
+      scalarLifecycleOwnership?.count === 1
+        ? scalarLifecycleOwnership.first
         : undefined;
-    const scalarTargetTaskPhases =
-      targetTaskPhasesByBurningStateId.get(row.id) ?? [];
+    const scalarTargetTaskPhaseOwnership =
+      targetTaskPhasesByBurningStateId.get(row.id);
     const scalarTargetTaskPhase =
-      scalarTargetTaskPhases.length === 1
-        ? scalarTargetTaskPhases[0]
+      scalarTargetTaskPhaseOwnership?.count === 1
+        ? scalarTargetTaskPhaseOwnership.first
         : undefined;
     const scalarAuraBefore =
       row.callbackAuraBefore ??
@@ -16629,16 +17766,16 @@ function validateBurningStateProjection(
       row.operation === "tick-skipped" ||
       row.operation === "fuel-expire"
     ) {
-      const points =
-        lifecyclePointByBurningStateId.get(row.id) ?? [];
-      if (points.length !== 1) {
+      const ownership =
+        lifecyclePointByBurningStateId.get(row.id);
+      if (ownership?.count !== 1) {
         addIssue(
           context,
           ["burningStateLog", rowIndex],
           `${row.operation} must own exactly one target-state lifecycle point`
         );
       } else {
-        const point = points[0]!;
+        const point = ownership.first;
         const expectedCause =
           row.operation === "fuel-expire"
             ? "burning-fuel-expiry"
@@ -17367,11 +18504,11 @@ function validateBurningStateProjection(
           expectedAuraConsumed,
           "Burning Fuel expiry consumed Aura"
         );
-        const expiryPoints =
-          lifecyclePointByBurningStateId.get(row.id) ?? [];
-        const expiryPoint = expiryPoints[0];
+        const expiryOwnership =
+          lifecyclePointByBurningStateId.get(row.id);
+        const expiryPoint = expiryOwnership?.first;
         if (
-          expiryPoints.length !== 1 ||
+          expiryOwnership?.count !== 1 ||
           expiryPoint === undefined ||
           !auraStateProjectionEqual(
             row.auraBefore,
@@ -17524,11 +18661,8 @@ function validateBurningStateProjection(
     for (const damageEventId of parent.damageEventIds) {
       burningParentByChildId.set(damageEventId, parent);
     }
-    const ownerRows =
-      burningTickByReactionDamageId.get(parent.id) ?? [];
-    const ownerRow = ownerRows.find(
-      (row) => row.operation === "tick"
-    );
+    const ownerRow =
+      burningTickByReactionDamageId.get(parent.id)?.firstTick;
     if (ownerRow !== undefined) {
       let sourceChildId: number | undefined;
       let sourceChildCount = 0;
@@ -17610,14 +18744,31 @@ function validateBurningStateProjection(
     string,
     { windowStartFrame: number; hitCount: number }
   >();
-  const burningApplicationChildren = result.damageEvents
-    .filter(
-      (event) =>
-        event.kind === "transformative-reaction" &&
-        event.reaction === "burning" &&
-        burningParentByChildId.has(event.id)
-    )
-    .sort(compareDamageEventOrder);
+  const burningApplicationChildren = result.damageEvents.filter(
+    (event) =>
+      event.kind === "transformative-reaction" &&
+      event.reaction === "burning" &&
+      burningParentByChildId.has(event.id)
+  );
+  let burningChildrenAlreadyOrdered = true;
+  for (
+    let childIndex = 1;
+    childIndex < burningApplicationChildren.length;
+    childIndex += 1
+  ) {
+    if (
+      compareDamageEventOrder(
+        burningApplicationChildren[childIndex - 1]!,
+        burningApplicationChildren[childIndex]!
+      ) > 0
+    ) {
+      burningChildrenAlreadyOrdered = false;
+      break;
+    }
+  }
+  if (!burningChildrenAlreadyOrdered) {
+    burningApplicationChildren.sort(compareDamageEventOrder);
+  }
 
   for (const child of burningApplicationChildren) {
     const childPath = [
@@ -17641,7 +18792,9 @@ function validateBurningStateProjection(
         (result.schemaVersion as string) ===
           REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
         (result.schemaVersion as string) ===
-          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION) &&
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+        (result.schemaVersion as string) ===
+          BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) &&
       child.elementalApplicationIcdLogId !== null
         ? result.elementalApplicationIcdLog[
             child.elementalApplicationIcdLogId
@@ -17888,9 +19041,11 @@ function validateBurningStateProjection(
   for (const [parentIndex, parent] of
     result.reactionDamageLog.entries()) {
     if (parent.scheduleKind !== "burning-tick") continue;
-    const rows =
-      burningTickByReactionDamageId.get(parent.id) ?? [];
-    if (rows.length !== 1 || rows[0]?.operation !== "tick") {
+    const ownership = burningTickByReactionDamageId.get(parent.id);
+    if (
+      ownership?.count !== 1 ||
+      ownership.first.operation !== "tick"
+    ) {
       addIssue(
         context,
         ["reactionDamageLog", parentIndex],
@@ -18742,7 +19897,8 @@ function validateMechanicsAndBoundaries(
     ["energyCurve", result.energyCurve]
   ];
   for (const [path, entries] of idLogs) {
-    for (const [index, entry] of entries.entries()) {
+    for (let index = 0; index < entries.length; index += 1) {
+      const entry = entries[index]!;
       if (entry.id !== index) {
         addIssue(
           context,
@@ -18752,10 +19908,18 @@ function validateMechanicsAndBoundaries(
       }
     }
   }
-  for (const [logIndex, entry] of
-    result.reactionDamageLog.entries()) {
-    for (const [referenceIndex, damageEventId] of
-      entry.damageEventIds.entries()) {
+  for (
+    let logIndex = 0;
+    logIndex < result.reactionDamageLog.length;
+    logIndex += 1
+  ) {
+    const entry = result.reactionDamageLog[logIndex]!;
+    for (
+      let referenceIndex = 0;
+      referenceIndex < entry.damageEventIds.length;
+      referenceIndex += 1
+    ) {
+      const damageEventId = entry.damageEventIds[referenceIndex]!;
       if (!damageEventIds.has(damageEventId)) {
         addIssue(
           context,
@@ -19191,10 +20355,55 @@ export function validateSimulationResultV150Integrity(
   result: SimulationResultForV150,
   context: RefinementCtx
 ): void {
+  const frozenResult = result as unknown as SimulationResult;
+  validateFrozenV150SchedulerBoundary(result, context);
   const {
     reactionOwnedPolicy,
     reactionDamageGroupPolicy
   } = validateIdentityV150(result, context);
+  validateReactionFormulaProfileV145(frozenResult, context);
+  validateDirectDamageGroupV146(frozenResult, context);
+  if (reactionOwnedPolicy !== undefined) {
+    validateElementalApplicationIcdReactionOwned(
+      frozenResult,
+      context,
+      reactionOwnedPolicy
+    );
+  }
+  if (reactionDamageGroupPolicy !== undefined) {
+    validateReactionDamageGroupV150(result, reactionDamageGroupPolicy, context);
+  }
+  validateDamageAggregates(frozenResult, context);
+  validateMechanicsAndBoundaries(frozenResult, context);
+  validateEnergy(frozenResult, context);
+  validateEnergyReplayIntegrity(frozenResult, context);
+  const frozenTargetPhaseIdentityResult = {
+    ...result,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    config: {
+      ...result.config,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    }
+  } as unknown as SimulationResult;
+  validateTargetPhaseV3Integrity(frozenTargetPhaseIdentityResult, context);
+}
+
+/**
+ * Cross-field proof for exact 1.51 results. The frozen 1.50 ReactionA/B task
+ * replay remains authoritative; the sixth root additionally selects and
+ * replays the basic Swirl attack/deferred-attachment scheduler.
+ */
+export function validateSimulationResultV151Integrity(
+  result: SimulationResultForV151,
+  context: RefinementCtx
+): void {
+  const {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy
+  } = validateIdentityV151(result, context);
   validateReactionFormulaProfileV145(result, context);
   validateDirectDamageGroupV146(result, context);
   if (reactionOwnedPolicy !== undefined) {
@@ -19206,8 +20415,15 @@ export function validateSimulationResultV150Integrity(
   }
   if (reactionDamageGroupPolicy !== undefined) {
     validateReactionDamageGroupV150(
-      result,
+      result as unknown as SimulationResultForV150,
       reactionDamageGroupPolicy,
+      context
+    );
+  }
+  if (basicReactionSchedulerPolicy !== undefined) {
+    validateBasicReactionSchedulerV151(
+      result,
+      basicReactionSchedulerPolicy,
       context
     );
   }
@@ -19225,10 +20441,7 @@ export function validateSimulationResultV150Integrity(
       engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
     }
   } as unknown as SimulationResult;
-  validateTargetPhaseV3Integrity(
-    frozenTargetPhaseIdentityResult,
-    context
-  );
+  validateTargetPhaseV3Integrity(frozenTargetPhaseIdentityResult, context);
 }
 /**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
@@ -19727,11 +20940,65 @@ export function assertTrustedSimulationResultV150(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.51 scheduler-bound results. */
+export function assertTrustedSimulationResultV151(
+  result: SimulationResultForV151
+): SimulationResultForV151 {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: { path?: PropertyKey[]; message?: string }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV151Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12 ? `; ${issues.length - 12} additional issue(s)` : "";
+    throw new Error(
+      `Trusted SimulationResult 1.51 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV150Integrity;
-export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV150;
+  validateSimulationResultV151Integrity;
+export const assertTrustedSimulationResult = assertTrustedSimulationResultV151;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

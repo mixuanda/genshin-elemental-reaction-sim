@@ -26,6 +26,7 @@ import {
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 
 const PREVIEW_FLAG = "PREVIEW_BURNING_RESET_BOUNDARY_V149_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BURNING_RESET_BOUNDARY_V149_GOLDEN";
@@ -331,9 +332,11 @@ function runScenarios() {
 function makeFixture(results: ReturnType<typeof runScenarios>) {
   const projected = {
     v1Compatibility: projectSimulationResultV150ToV149(
-      results.v1Compatibility,
+      projectSimulationResultV151ToV150(results.v1Compatibility),
     ),
-    v2Corrected: projectSimulationResultV150ToV149(results.v2Corrected),
+    v2Corrected: projectSimulationResultV150ToV149(
+      projectSimulationResultV151ToV150(results.v2Corrected),
+    ),
   };
   return {
     fixtureVersion: "1.0.0" as const,
@@ -586,8 +589,7 @@ describe("Burning reset boundary 1.49 Golden", () => {
           fixture: "burning-reset-boundary-1.49.golden.json",
           v1PolicyContentHash: candidate.policyRoots.v1.contentHash,
           v2PolicyContentHash: candidate.policyRoots.v2.contentHash,
-          v1ConfigHash:
-            candidate.scenarios.v1Compatibility.identity.configHash,
+          v1ConfigHash: candidate.scenarios.v1Compatibility.identity.configHash,
           v2ConfigHash: candidate.scenarios.v2Corrected.identity.configHash,
           v1ReproducibilityKey:
             candidate.scenarios.v1Compatibility.identity.reproducibilityKey,

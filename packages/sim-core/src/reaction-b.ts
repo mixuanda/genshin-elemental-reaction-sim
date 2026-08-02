@@ -88,6 +88,11 @@ export function makeReactionBScopeKey({
   return JSON.stringify([targetId, actorId, reactionTag]);
 }
 
+/**
+ * @deprecated Legacy lazy-window compatibility helper. New simulation code
+ * must use ReactionDamageGroupTaskEngine so policy roots and same-frame reset
+ * task order remain auditable.
+ */
 export class ReactionBLimiter {
   private readonly windows = new Map<string, ReactionBWindowState>();
 

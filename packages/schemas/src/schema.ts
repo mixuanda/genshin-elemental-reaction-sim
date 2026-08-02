@@ -5,6 +5,8 @@ import {
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
@@ -18,6 +20,8 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
   resolveDamageGroup,
   resolveReactionDamageGroupBindingForPolicy,
   type GcsimDamageGroupId,
@@ -28,6 +32,9 @@ import {
   ACTOR_POSE_SCHEMA_VERSION,
   ACTION_STATE_SCHEMA_VERSION,
   AOE_FANOUT_SCHEMA_VERSION,
+  BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+  BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
+  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   BURNING_REACTION_ENGINE_VERSION,
@@ -115,7 +122,9 @@ import {
   type SimConfigV148,
   type SimConfigV149,
   type SimConfigV150,
-  type SimulationRunManifest
+  type SimConfigV151,
+  type SimulationRunManifest,
+  type SimulationRunManifestV150
 } from "./types";
 import {
   canonicalStringify,
@@ -722,6 +731,34 @@ export const reactionDamageGroupModelSchema =
     reactionDamageGroupModelV2Schema
   ]);
 
+export const basicReactionSchedulerModelV1Schema = z
+  .object({
+    mode: z.literal(
+      "legacy-immediate-basic-reaction-scheduler-v1"
+    ),
+    policyId: z.literal(
+      LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+    )
+  })
+  .strict();
+
+export const basicReactionSchedulerModelV2Schema = z
+  .object({
+    mode: z.literal(
+      "fixed-gcsim-basic-reaction-scheduler-v2"
+    ),
+    policyId: z.literal(
+      GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+    )
+  })
+  .strict();
+
+export const basicReactionSchedulerModelSchema =
+  z.discriminatedUnion("mode", [
+    basicReactionSchedulerModelV1Schema,
+    basicReactionSchedulerModelV2Schema
+  ]);
+
 const swirlPropagationElementSchema = z.enum([
   "pyro",
   "hydro",
@@ -1097,6 +1134,62 @@ export const reactionDamageGroupRootV2Schema = z.preprocess(
 export const reactionDamageGroupRootSchema = z.union([
   reactionDamageGroupRootV1Schema,
   reactionDamageGroupRootV2Schema
+]);
+
+const legacyBasicReactionSchedulerV1RootCanonical =
+  canonicalStringify(
+    LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT
+  );
+const gcsimBasicReactionSchedulerV2RootCanonical =
+  canonicalStringify(
+    GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT
+  );
+
+export const basicReactionSchedulerRootV1Schema = z.preprocess(
+  rejectNonPlainJsonWire("basicReactionSchedulerRoot"),
+  z.custom<
+    typeof LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT
+  >(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          legacyBasicReactionSchedulerV1RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled legacy basic-reaction scheduler root"
+    }
+  )
+);
+
+export const basicReactionSchedulerRootV2Schema = z.preprocess(
+  rejectNonPlainJsonWire("basicReactionSchedulerRoot"),
+  z.custom<typeof GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimBasicReactionSchedulerV2RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled current basic-reaction scheduler root"
+    }
+  )
+);
+
+export const basicReactionSchedulerRootSchema = z.union([
+  basicReactionSchedulerRootV1Schema,
+  basicReactionSchedulerRootV2Schema
 ]);
 
 const simulationRunManifestV142ValueSchema = z
@@ -1766,12 +1859,100 @@ export const simulationRunManifestV150Schema = z.preprocess(
   simulationRunManifestV150ValueSchema
 );
 
+const simulationRunManifestV151ValueSchema = z
+  .object({
+    version: z.literal(BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION),
+    engineVersion: z.literal(BASIC_REACTION_SCHEDULER_ENGINE_VERSION),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot:
+      elementalApplicationIcdRootSchema,
+    reactionOwnedElementalApplicationRoot:
+      reactionOwnedElementalApplicationRootSchema,
+    reactionDamageGroupRoot: reactionDamageGroupRootSchema,
+    basicReactionSchedulerRoot: basicReactionSchedulerRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV151Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot",
+        "reactionOwnedElementalApplicationRoot",
+        "reactionDamageGroupRoot",
+        "basicReactionSchedulerRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV151ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV150Schema;
+  simulationRunManifestV151Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -1780,9 +1961,24 @@ export const simulationRunManifestSchema =
  */
 export function parseSimulationRunManifestForConfig(
   input: unknown,
-  config: SimConfig
-): SimulationRunManifest {
-  const manifest = simulationRunManifestSchema.parse(input);
+  config: SimConfigV150
+): SimulationRunManifestV150;
+export function parseSimulationRunManifestForConfig(
+  input: unknown,
+  config: SimConfigV151
+): SimulationRunManifest;
+export function parseSimulationRunManifestForConfig(
+  input: unknown,
+  config: SimConfigV150 | SimConfigV151
+): SimulationRunManifestV150 | SimulationRunManifest {
+  const isFrozenV150 =
+    config.schemaVersion ===
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+    config.engineVersion ===
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  const manifest = isFrozenV150
+    ? simulationRunManifestV150Schema.parse(input)
+    : simulationRunManifestV151Schema.parse(input);
   const formulaModel = reactionFormulaModelSchema.safeParse(
     config.reactionFormulaModel
   );
@@ -1825,6 +2021,22 @@ export function parseSimulationRunManifestForConfig(
     throw new Error(
       "Simulation run manifest is not bound to the supplied migrated config."
     );
+  }
+  if (!isFrozenV150) {
+    const schedulerModel =
+      basicReactionSchedulerModelSchema.safeParse(
+        config.basicReactionSchedulerModel
+      );
+    if (
+      !schedulerModel.success ||
+      !("basicReactionSchedulerRoot" in manifest) ||
+      manifest.basicReactionSchedulerRoot.policyId !==
+        schedulerModel.data.policyId
+    ) {
+      throw new Error(
+        "Simulation run manifest is not bound to the supplied migrated config."
+      );
+    }
   }
   return manifest;
 }
@@ -3032,6 +3244,7 @@ export const simulationEventTypeSchema = z.enum([
   "electroChargedCleanup",
   "reactionDamage",
   "reactionDamageGroupReset",
+  "reactionAuraAttachment",
   "periodicReactionTick",
   "periodicReactionWane",
   "periodicReactionExpiry",
@@ -3063,6 +3276,12 @@ export const targetStateTimelineLinkSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("reaction-damage-log"),
+      id: z.number().int().nonnegative()
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("basic-reaction-scheduler-log"),
       id: z.number().int().nonnegative()
     })
     .strict(),
@@ -3130,6 +3349,7 @@ export const targetStateTimelineCauseSchema = z.enum([
   "electro-charged-propagation-candidate",
   "burning-fuel-expiry",
   "burning-tick",
+  "reaction-aura-attachment",
   "target-mechanics-truncation"
 ]);
 
@@ -3431,7 +3651,8 @@ export const targetStateTimelinePointSchema = z.preprocess(
       "electro-charged-propagation-candidate":
         "reactionDamage",
       "burning-fuel-expiry": "burningFuelExpiry",
-      "burning-tick": "burningTick"
+      "burning-tick": "burningTick",
+      "reaction-aura-attachment": "reactionAuraAttachment"
     } as const;
     if (
       point.cause in requiredEventTypeByCause &&
@@ -3485,6 +3706,36 @@ export const targetStateTimelinePointSchema = z.preprocess(
         issue(
           "links",
           "Electro-Charged propagation candidate witnesses require only one reaction-damage-log parent link"
+        );
+      }
+    }
+    if (point.cause === "reaction-aura-attachment") {
+      if (point.pointKind !== "mutation") {
+        issue(
+          "pointKind",
+          "reaction Aura attachment witnesses must be mutation points"
+        );
+      }
+      if (
+        point.primaryDamageEventId !== null ||
+        point.links.length !== 1 ||
+        point.links[0]?.kind !==
+          "basic-reaction-scheduler-log"
+      ) {
+        issue(
+          "links",
+          "reaction Aura attachment witnesses require only one basic-reaction-scheduler-log link"
+        );
+      }
+      if (
+        point.reaction !== "none" ||
+        point.reactions.length !== 0 ||
+        point.auraApplied.length === 0 ||
+        point.auraConsumed.length !== 0
+      ) {
+        issue(
+          "auraApplied",
+          "reaction Aura attachment witnesses require a non-reacted application without Aura consumption"
         );
       }
     }
@@ -10177,6 +10428,28 @@ const hasExactReactionDamageGroupResetBoundaryIdentity = (result: {
   result.config.engineVersion ===
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
 
+const hasExactBasicReactionSchedulerIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+  result.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+  result.config.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+
+const hasReactionDamageGroupTaskOrderIdentity = (
+  result: Parameters<
+    typeof hasExactReactionDamageGroupResetBoundaryIdentity
+  >[0]
+): boolean =>
+  hasExactReactionDamageGroupResetBoundaryIdentity(result) ||
+  hasExactBasicReactionSchedulerIdentity(result);
+
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
     typeof hasExactBurningCallbackDeliveryIdentity
@@ -10188,7 +10461,7 @@ const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   hasExactElementalApplicationIcdRootIdentity(result) ||
   hasExactReactionOwnedApplicationRootIdentity(result) ||
   hasExactReactionOwnedResetBoundaryIdentity(result) ||
-  hasExactReactionDamageGroupResetBoundaryIdentity(result);
+  hasReactionDamageGroupTaskOrderIdentity(result);
 
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
@@ -10272,6 +10545,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
     engineVersion:
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
     maxAuraRevision: 9
+  },
+  [BASIC_REACTION_SCHEDULER_SCHEMA_VERSION]: {
+    engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+    maxAuraRevision: 9
   }
 };
 
@@ -10346,7 +10623,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       );
     }
     const exactReactionDamageGroupV150Identity =
-      hasExactReactionDamageGroupResetBoundaryIdentity(result);
+      hasReactionDamageGroupTaskOrderIdentity(result);
     const requiredDamageGroupDecisionSchema =
       exactReactionDamageGroupV150Identity
         ? reactionDamageGroupDecisionV150ReferenceSchema
@@ -11893,7 +12170,7 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
     // The frozen through-1.49 reference facet owns only the lazy F30 model.
     // Exact 1.50 rows are independently replayed from their policy-bound
     // decision and reset-task logs by result-integrity.ts.
-    if (!hasExactReactionDamageGroupResetBoundaryIdentity(result)) {
+    if (!hasReactionDamageGroupTaskOrderIdentity(result)) {
       const reactionAWindowByScope = new Map<
         string,
         { windowStartFrame: number; attemptCount: number }
@@ -16744,11 +17021,126 @@ export const simConfigV150Schema = z.preprocess(
   simConfigV150ValueSchema
 );
 
+/** Project only the 1.51 scheduler identity onto frozen 1.50. */
+const projectSimConfigV151ToV150 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    ...frozenWire
+  } = wire;
+  return {
+    ...frozenWire,
+    schemaVersion:
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion:
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+  };
+};
+
+const simConfigV151ValueSchema = z
+  .custom<SimConfigV151>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (wire.schemaVersion !== BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${BASIC_REACTION_SCHEDULER_SCHEMA_VERSION}`
+      });
+    }
+    if (wire.engineVersion !== BASIC_REACTION_SCHEDULER_ENGINE_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${BASIC_REACTION_SCHEDULER_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel = wire.basicReactionSchedulerModel;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["basicReactionSchedulerModel"],
+        message:
+          "requires an explicit legacy-immediate or deferred-attachment basic-reaction scheduler policy"
+      });
+    } else {
+      for (const field of ["mode", "policyId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: ["basicReactionSchedulerModel", field],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel =
+        basicReactionSchedulerModelSchema.safeParse(rawModel);
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["basicReactionSchedulerModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    const parsed = simConfigV150Schema.safeParse(
+      projectSimConfigV151ToV150(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({ ...issue, path: issue.path });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV150Schema.parse(
+      projectSimConfigV151ToV150(wire)
+    );
+    return {
+      ...parsed,
+      schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+      engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+      basicReactionSchedulerModel:
+        basicReactionSchedulerModelSchema.parse(
+          wire.basicReactionSchedulerModel
+        )
+    } as SimConfigV151;
+  });
+
+export const simConfigV151Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel",
+        "reactionOwnedElementalApplicationModel",
+        "reactionDamageGroupModel",
+        "basicReactionSchedulerModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV151ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV150Schema;
+export const simConfigSchema = simConfigV151Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -16811,6 +17203,11 @@ const simResultConfigSchema = z
         REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
       wire.engineVersion ===
         REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+    const exact150Identity =
+      wire.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -16883,7 +17280,9 @@ const simResultConfigSchema = z
                 ? simConfigV148Schema.safeParse(wire)
                 : exact149Identity
                   ? simConfigV149Schema.safeParse(wire)
-                  : simConfigV150Schema.safeParse(wire);
+                  : exact150Identity
+                    ? simConfigV150Schema.safeParse(wire)
+                    : simConfigV151Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -17736,7 +18135,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]:
     REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
   [REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION]:
-    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  [BASIC_REACTION_SCHEDULER_SCHEMA_VERSION]:
+    BASIC_REACTION_SCHEDULER_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -17977,7 +18378,10 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -19779,7 +20183,10 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -22020,7 +22427,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION),
       z.literal(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
-      )
+      ),
+      z.literal(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -22034,7 +22442,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION),
       z.literal(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
-      )
+      ),
+      z.literal(BASIC_REACTION_SCHEDULER_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -24228,7 +24637,7 @@ export function validateReactionDeliveryResultReferences(
       );
     }
     const exactReactionDamageGroupV150Identity =
-      hasExactReactionDamageGroupResetBoundaryIdentity(result);
+      hasReactionDamageGroupTaskOrderIdentity(result);
     const requiredDamageGroupDecisionSchema =
       exactReactionDamageGroupV150Identity
         ? reactionDamageGroupDecisionV150ReferenceSchema
@@ -28144,7 +28553,7 @@ export function validateReactionDeliveryResultReferences(
 
     // V150 owns an explicit reset-task log and a shared task sequence. Its
     // F29 semantics must not be collapsed back into this frozen F30 replay.
-    if (!hasExactReactionDamageGroupResetBoundaryIdentity(result)) {
+    if (!hasReactionDamageGroupTaskOrderIdentity(result)) {
       damageGroupAttempts.sort(
         (left, right) =>
           left.child.frame - right.child.frame ||
@@ -30521,10 +30930,11 @@ export const playerDamageResultReferencesSchema = z
   .passthrough()
   .superRefine((result, context) => {
     const exactReactionDamageGroupV150Identity =
-      result.config.schemaVersion ===
-        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
-      result.config.engineVersion ===
-        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+      hasReactionDamageGroupTaskOrderIdentity({
+        schemaVersion: result.config.schemaVersion,
+        engineVersion: result.config.engineVersion,
+        config: result.config
+      });
     const requiredReactionDamageGroupSchema =
       exactReactionDamageGroupV150Identity
         ? reactionDamageGroupDecisionV150ReferenceSchema
@@ -31671,6 +32081,11 @@ const LEGACY_REACTION_DAMAGE_GROUP_MODEL = {
   policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
 } as const;
 
+const LEGACY_BASIC_REACTION_SCHEDULER_MODEL = {
+  mode: "legacy-immediate-basic-reaction-scheduler-v1",
+  policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+} as const;
+
 function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unknown> {
   const meta = isRecord(input.meta) ? input.meta : {};
   const migratedApplications =
@@ -31686,6 +32101,8 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     engineVersion: CURRENT_ENGINE_VERSION,
     dataVersion,
     randomSeed: "legacy-default",
+    basicReactionSchedulerModel:
+      LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
     meta: {
       name:
         typeof meta.name === "string" && meta.name
@@ -31800,6 +32217,8 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
         "reactionOwnedElementalApplicationModel",
         ["mode", "policyId"]
       ],
+      ["reactionDamageGroupModel", ["mode", "policyId"]],
+      ["basicReactionSchedulerModel", ["mode", "policyId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -32231,10 +32650,73 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
+  const isBasicReactionSchedulerIdentity =
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+  if (
+    !isBasicReactionSchedulerIdentity &&
+    "basicReactionSchedulerModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `basicReactionSchedulerModel: schemaVersion "${historicalVersion}" does not support basic-reaction scheduler policy selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isBasicReactionSchedulerIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "basicReactionSchedulerModel"
+      ) ||
+      !isRecord(input.basicReactionSchedulerModel)
+    ) {
+      const issue =
+        `basicReactionSchedulerModel: schemaVersion "${String(version)}" requires an explicit basic-reaction scheduler policy`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "policyId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.basicReactionSchedulerModel,
+          field
+        )
+      ) {
+        const issue =
+          `basicReactionSchedulerModel.${field}: schemaVersion "${String(version)}" requires an explicit own scheduler identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+    const parsedBasicReactionSchedulerModel =
+      basicReactionSchedulerModelSchema.safeParse(
+        input.basicReactionSchedulerModel
+      );
+    if (!parsedBasicReactionSchedulerModel.success) {
+      const issues = formatZodError(
+        parsedBasicReactionSchedulerModel.error
+      ).map((issue) => `basicReactionSchedulerModel.${issue}`);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+  }
   const elementalApplicationIcdSelectorPath =
     findElementalApplicationIcdSelectorPath(input);
   const isElementalApplicationIcdIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
@@ -32290,6 +32772,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isReactionOwnedApplicationIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
   if (
@@ -32426,6 +32909,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
@@ -32478,6 +32962,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentDirectDamageGroupIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
@@ -32536,6 +33021,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
@@ -32978,7 +33464,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     return parseSimConfig({
       ...frozen.data,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   if (version === CURRENT_SCHEMA_VERSION) {
@@ -33003,7 +33491,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionDamageGroupModel:
-        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   if (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION) {
@@ -33022,7 +33512,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionDamageGroupModel:
-        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   if (version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION) {
@@ -33045,7 +33537,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       },
       reactionDamageGroupModel:
-        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   if (version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION) {
@@ -33074,7 +33568,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       },
       reactionDamageGroupModel:
-        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
@@ -33107,7 +33603,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
       },
       reactionDamageGroupModel:
-        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+      basicReactionSchedulerModel:
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
     });
   }
   input = {
@@ -33129,7 +33627,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
     },
     reactionDamageGroupModel:
-      LEGACY_REACTION_DAMAGE_GROUP_MODEL
+      LEGACY_REACTION_DAMAGE_GROUP_MODEL,
+    basicReactionSchedulerModel:
+      LEGACY_BASIC_REACTION_SCHEDULER_MODEL
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {
     return parseSimConfig({

@@ -31,6 +31,8 @@ const HISTORICAL_GOLDEN_SHA256 = {
     "d21e107dd1ed53f897d5f5d1f45af4735cd99297c281f5123d71e1fbc394d8c5",
   "reaction-owned-application-1.48.golden.json":
     "704c5db38dda87802aa000d664812b63673ea9498981ed21f26a21eac5c620bd",
+  "reaction-damage-group-reset-boundary-1.50.golden.json":
+    "f58cdac88ec2395239fc5f8c4818adff92e563479268ee5c4aa5a75639ae06d1",
   "shatter-recursive-delivery-1.39.golden.json":
     "a83ff459e5753ddef1082d923b6476bdbe5392dc9f574ac3d462e357df322579"
 } as const;

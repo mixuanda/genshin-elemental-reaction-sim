@@ -1,5 +1,6 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
@@ -452,6 +453,10 @@ export function createDurinBlackSkillAuditConfig(
       mode: "fixed-gcsim-reaction-damage-task-order-v2",
       policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
     },
+    basicReactionSchedulerModel: {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+      policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
     meta: {
@@ -581,6 +586,10 @@ export function createDurinWhiteSkillAuditConfig(
     reactionDamageGroupModel: {
       mode: "fixed-gcsim-reaction-damage-task-order-v2",
       policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
+    },
+    basicReactionSchedulerModel: {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+      policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",

@@ -5,7 +5,7 @@ import {
   type CharacterProfile,
   type Element,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
@@ -15,13 +15,13 @@ const SAME_TARGET_GEOMETRY = {
   kind: "circle" as const,
   coordinateSpace: "world" as const,
   origin: { x: 0, y: 0 },
-  radius: 1
+  radius: 1,
 };
 
 function character(
   template: CharacterProfile,
   id: string,
-  element: Element
+  element: Element,
 ): CharacterProfile {
   return {
     ...template,
@@ -30,22 +30,22 @@ function character(
     element,
     stats: {
       ...neutralStats,
-      baseAtk: 0
-    }
+      baseAtk: 0,
+    },
   };
 }
 
 function application(_id: string, gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icd: { mode: "no-icd-v1" as const }
+    icd: { mode: "no-icd-v1" as const },
   };
 }
 
 function ability(
   actorId: string,
   element: Element,
-  gaugeUnits = 1
+  gaugeUnits = 1,
 ): AbilityDefinition {
   const id = `${actorId}-burning-integrity-skill`;
   return {
@@ -64,9 +64,9 @@ function ability(
         scaling: 0,
         element,
         geometry: SAME_TARGET_GEOMETRY,
-        application: application(`${id}-application`, gaugeUnits)
-      }
-    ]
+        application: application(`${id}-application`, gaugeUnits),
+      },
+    ],
   };
 }
 
@@ -82,7 +82,7 @@ function makeActiveBurningConfig(duration = 1.1): SimConfig {
     meta: {
       name: "Burning result integrity edge cases",
       version: "1.44.0",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     duration,
     cycleLength: duration,
@@ -96,9 +96,9 @@ function makeActiveBurningConfig(duration = 1.1): SimConfig {
           name: "Burning target",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [{ element: "dendro", gaugeUnits: 1 }]
-        }
-      ]
+          initialAura: [{ element: "dendro", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [pyro],
     rotation: [],
@@ -115,10 +115,10 @@ function makeActiveBurningConfig(duration = 1.1): SimConfig {
           type: "skill",
           actorId: pyro.id,
           abilityId: pyroAbility.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -129,11 +129,11 @@ function makeSameHitHitlagBurningConfig(): SimConfig {
     throw new Error("Burning fixture must expose its Pyro hit.");
   }
   config.targetClockModel = {
-    mode: "target-local-hitlag-v1"
+    mode: "target-local-hitlag-v1",
   };
   hit.targetHitlag = {
     haltFrames: 3,
-    factor: 0
+    factor: 0,
   };
   return config;
 }
@@ -144,14 +144,13 @@ function makeTargetClockTruncationStopConfig(): SimConfig {
   if (pyroHit === undefined) {
     throw new Error("Truncation fixture must expose its Pyro hit.");
   }
-  config.randomSeed =
-    "burning-result-integrity-target-clock-truncation-stop";
+  config.randomSeed = "burning-result-integrity-target-clock-truncation-stop";
   config.targetClockModel = {
-    mode: "target-local-hitlag-v1"
+    mode: "target-local-hitlag-v1",
   };
   pyroHit.targetHitlag = {
     haltFrames: 3,
-    factor: 0
+    factor: 0,
   };
   return config;
 }
@@ -179,21 +178,21 @@ function makeCrossActorStopConfig(): SimConfig {
           type: "skill",
           actorId: pyro.id,
           abilityId: pyroAbility.id,
-          atFrame: 0
+          atFrame: 0,
         },
         {
           type: "swap",
           characterId: cryo.id,
-          atFrame: 1
+          atFrame: 1,
         },
         {
           type: "skill",
           actorId: cryo.id,
           abilityId: cryoAbility.id,
-          atFrame: 2
-        }
-      ]
-    }
+          atFrame: 2,
+        },
+      ],
+    },
   };
 }
 
@@ -215,8 +214,8 @@ function makeSameTriggerTruncationStopConfig(): SimConfig {
       label: "Hydro truncation hit",
       frame: 1,
       element: "hydro",
-      application: application("hydro-truncation-hit", 2)
-    }
+      application: application("hydro-truncation-hit", 2),
+    },
   ];
   return config;
 }
@@ -232,7 +231,7 @@ function makeBlockedBurningStartConfig(): SimConfig {
   }
   target.initialAura = [
     { element: "pyro", gaugeUnits: 1 },
-    { element: "hydro", gaugeUnits: 1 }
+    { element: "hydro", gaugeUnits: 1 },
   ];
   hit.id = "blocked-burning-start-hit";
   hit.label = "Blocked Burning start hit";
@@ -250,7 +249,7 @@ function makeLateTargetClockBurningConfig(): SimConfig {
   }
   config.randomSeed = "burning-result-integrity-late-target-clock";
   config.targetClockModel = {
-    mode: "target-local-hitlag-v1"
+    mode: "target-local-hitlag-v1",
   };
   burningAbility.cancelFrame = 60;
   burningAbility.animationEndFrame = 60;
@@ -276,7 +275,7 @@ function makeBurningRestartConfig(): SimConfig {
       label: "Restart Burning with Dendro",
       frame: 178,
       element: "dendro",
-      application: application("restart-burning-with-dendro")
+      application: application("restart-burning-with-dendro"),
     },
     {
       ...structuredClone(firstPyroHit),
@@ -284,17 +283,15 @@ function makeBurningRestartConfig(): SimConfig {
       label: "Refresh restarted Burning with Pyro",
       frame: 179,
       element: "pyro",
-      application: application(
-        "refresh-restarted-burning-with-pyro"
-      )
-    }
+      application: application("refresh-restarted-burning-with-pyro"),
+    },
   ];
   return config;
 }
 
 function shiftBurningFuelAuraDeadlines(
   result: SimulationResult,
-  offset: number
+  offset: number,
 ): void {
   const visited = new WeakSet<object>();
   const visit = (value: unknown): void => {
@@ -308,10 +305,7 @@ function shiftBurningFuelAuraDeadlines(
     }
     const record = value as Record<string, unknown>;
     if (record.element === "burningFuel") {
-      for (const field of [
-        "expiresAtFrame",
-        "expiresAtTargetFrame"
-      ] as const) {
+      for (const field of ["expiresAtFrame", "expiresAtTargetFrame"] as const) {
         const deadline = record[field];
         if (typeof deadline === "number") {
           record[field] = deadline + offset;
@@ -323,42 +317,33 @@ function shiftBurningFuelAuraDeadlines(
   visit(result);
 }
 
-function expectAcceptedAtBothBoundaries(
-  result: SimulationResult
-): void {
+function expectAcceptedAtBothBoundaries(result: SimulationResult): void {
   const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
         parsed.error.issues.map(({ path, message }) => ({
           path,
-          message
+          message,
         })),
         null,
-        2
-      )
+        2,
+      ),
     );
   }
   expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
-function expectRejectedAtBothBoundaries(
-  result: SimulationResult
-): void {
-  expect(simulationResultSchema.safeParse(result).success).toBe(
-    false
+function expectRejectedAtBothBoundaries(result: SimulationResult): void {
+  expect(simulationResultSchema.safeParse(result).success).toBe(false);
+  expect(() => assertTrustedSimulationResult(result)).toThrow(
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
-  expect(() =>
-    assertTrustedSimulationResult(result)
-  ).toThrow(/Trusted SimulationResult 1\.50 integrity validation failed/);
 }
 
-function appendUnownedStop(
-  result: SimulationResult,
-  generation: number
-): void {
+function appendUnownedStop(result: SimulationResult, generation: number): void {
   const start = result.burningStateLog.find(
-    (entry) => entry.operation === "start"
+    (entry) => entry.operation === "start",
   );
   if (start === undefined) {
     throw new Error("Burning fixture must expose a start row.");
@@ -397,55 +382,51 @@ function appendUnownedStop(
     icdHitIndex: null,
     applicationAllowed: null,
     applicationBlockedReason: null,
-    reason: "SOURCE_CHANGED"
+    reason: "SOURCE_CHANGED",
   });
 }
 
 describe("Burning result integrity edge cases", () => {
   it("accepts a cross-actor stop while preserving the stream damage owner", () => {
     const result = simulate(makeCrossActorStopConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const stopEvent = result.damageEvents.find(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "stop"
+      (event) => event.reactionAudit.burningReaction?.operation === "stop",
     );
     const stopRow = result.burningStateLog.find(
-      (entry) => entry.operation === "stop"
+      (entry) => entry.operation === "stop",
     );
 
     expect(stopEvent?.sourceActorId).toBe("cryo-stopper");
-    expect(
-      stopEvent?.reactionAudit.burningReaction?.damageSourceActorId
-    ).toBe("pyro-owner");
+    expect(stopEvent?.reactionAudit.burningReaction?.damageSourceActorId).toBe(
+      "pyro-owner",
+    );
     expect(stopRow).toMatchObject({
       damageSourceActorId: "pyro-owner",
       triggerDamageEventId: stopEvent?.id,
-      triggerElement: "cryo"
+      triggerElement: "cryo",
     });
     expectAcceptedAtBothBoundaries(result);
   });
 
   it("rejects a coordinated non-canonical generation for one Burning stream", () => {
     const result = simulate(makeLateTargetClockBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
-    const burningAudits = [
-      ...result.damageEvents,
-      ...result.hitEvents
-    ].flatMap((event) => {
-      const audit = event.reactionAudit.burningReaction;
-      return audit === null ? [] : [audit];
-    });
+    const burningAudits = [...result.damageEvents, ...result.hitEvents].flatMap(
+      (event) => {
+        const audit = event.reactionAudit.burningReaction;
+        return audit === null ? [] : [audit];
+      },
+    );
 
     expect(result.burningStateLog).toHaveLength(1);
     expect(result.burningStateLog[0]).toMatchObject({
       operation: "start",
-      generation: 1
+      generation: 1,
     });
-    expect(
-      burningAudits.every((audit) => audit.generation === 1)
-    ).toBe(true);
+    expect(burningAudits.every((audit) => audit.generation === 1)).toBe(true);
     expectAcceptedAtBothBoundaries(result);
 
     for (const audit of burningAudits) {
@@ -457,27 +438,27 @@ describe("Burning result integrity edge cases", () => {
 
   it("accepts a post-expiry restart and rejects reusing the retired generation", () => {
     const legal = simulate(makeBurningRestartConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const starts = legal.burningStateLog.filter(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const firstExpiry = legal.burningStateLog.find(
       (entry) =>
         entry.operation === "fuel-expire" &&
-        entry.frame < (starts[1]?.frame ?? 0)
+        entry.frame < (starts[1]?.frame ?? 0),
     );
 
     expect(starts.map((entry) => entry.generation)).toEqual([1, 3]);
     expect(firstExpiry).toMatchObject({
       operation: "fuel-expire",
-      generation: 1
+      generation: 1,
     });
     expectAcceptedAtBothBoundaries(legal);
 
     const forged = structuredClone(legal);
     const forgedStarts = forged.burningStateLog.filter(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const retiredGeneration = forgedStarts[0]?.generation;
     const restartedGeneration = forgedStarts[1]?.generation;
@@ -488,21 +469,15 @@ describe("Burning result integrity edge cases", () => {
       restartFrame === undefined
     ) {
       throw new Error(
-        "Burning restart fixture must expose two materialized streams."
+        "Burning restart fixture must expose two materialized streams.",
       );
     }
     for (const row of forged.burningStateLog) {
-      if (
-        row.frame >= restartFrame &&
-        row.generation === restartedGeneration
-      ) {
+      if (row.frame >= restartFrame && row.generation === restartedGeneration) {
         row.generation = retiredGeneration;
       }
     }
-    for (const event of [
-      ...forged.damageEvents,
-      ...forged.hitEvents
-    ]) {
+    for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
       const audit = event.reactionAudit.burningReaction;
       if (
         event.frame >= restartFrame &&
@@ -516,14 +491,13 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects a coordinated one-frame shift of the target-local Burning schedule", () => {
     const legal = simulate(makeLateTargetClockBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const legalAudit = legal.damageEvents.find(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     )?.reactionAudit.burningReaction;
     const legalStart = legal.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     expect(legalAudit).toMatchObject({
       snapshotFrame: 59,
@@ -531,7 +505,7 @@ describe("Burning result integrity edge cases", () => {
       firstTickFrame: 74,
       firstTickTargetFrame: 74,
       fuelExpiresAtFrame: 168,
-      fuelExpiresAtTargetFrame: 168
+      fuelExpiresAtTargetFrame: 168,
     });
     expect(legalStart).toMatchObject({
       frame: 59,
@@ -539,18 +513,16 @@ describe("Burning result integrity edge cases", () => {
       nextTickFrame: 74,
       nextTickTargetFrame: 74,
       fuelExpiresAtFrame: 168,
-      fuelExpiresAtTargetFrame: 168
+      fuelExpiresAtTargetFrame: 168,
     });
     expectAcceptedAtBothBoundaries(legal);
 
     const forged = structuredClone(legal);
     const burningAudits = new Set(
-      [...forged.damageEvents, ...forged.hitEvents].flatMap(
-        (event) => {
-          const audit = event.reactionAudit.burningReaction;
-          return audit === null ? [] : [audit];
-        }
-      )
+      [...forged.damageEvents, ...forged.hitEvents].flatMap((event) => {
+        const audit = event.reactionAudit.burningReaction;
+        return audit === null ? [] : [audit];
+      }),
     );
     for (const audit of burningAudits) {
       if (
@@ -566,7 +538,7 @@ describe("Burning result integrity edge cases", () => {
         audit.fuelExpiresAtTargetFrame === null
       ) {
         throw new Error(
-          "Late Burning fixture must expose its complete target-local schedule."
+          "Late Burning fixture must expose its complete target-local schedule.",
         );
       }
       audit.snapshotTargetFrame -= 1;
@@ -578,7 +550,7 @@ describe("Burning result integrity edge cases", () => {
       audit.fuelExpiresAtTargetFrame -= 1;
     }
     const forgedStart = forged.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     if (
       forgedStart?.targetFrame === undefined ||
@@ -590,7 +562,7 @@ describe("Burning result integrity edge cases", () => {
       forgedStart.fuelExpiresAtTargetFrame === null
     ) {
       throw new Error(
-        "Late Burning lifecycle must expose its complete target-local schedule."
+        "Late Burning lifecycle must expose its complete target-local schedule.",
       );
     }
     forgedStart.targetFrame -= 1;
@@ -605,10 +577,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects a same-generation stop without authoritative provenance", () => {
     const result = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const generation = result.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     )!.generation;
 
     appendUnownedStop(result, generation);
@@ -617,10 +589,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects an unowned stop with the wrong generation", () => {
     const result = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const generation = result.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     )!.generation;
 
     appendUnownedStop(result, generation + 1);
@@ -629,10 +601,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects disguising an in-range natural Fuel expiry as a stop", () => {
     const result = simulate(makeActiveBurningConfig(2.2), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const expiry = result.burningStateLog.find(
-      (entry) => entry.operation === "fuel-expire"
+      (entry) => entry.operation === "fuel-expire",
     );
     if (expiry === undefined) {
       throw new Error("Burning fixture must expose Fuel expiry.");
@@ -645,17 +617,16 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects hiding a live Burning start from its parent reaction projections", () => {
     const result = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startEvent = result.damageEvents.find(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     );
     if (startEvent === undefined) {
       throw new Error("Burning fixture must expose a start event.");
     }
     const startAlias = result.hitEvents.find(
-      (event) => event.id === startEvent.id
+      (event) => event.id === startEvent.id,
     );
     if (startAlias === undefined) {
       throw new Error("Burning start must expose its hit-event alias.");
@@ -684,18 +655,17 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects removing a Burning lifecycle audit while its parent still reports Burning", () => {
     const result = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startEventIndex = result.damageEvents.findIndex(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     );
     const startEvent = result.damageEvents[startEventIndex];
     if (startEvent === undefined) {
       throw new Error("Burning fixture must expose a start event.");
     }
     const startAlias = result.hitEvents.find(
-      (event) => event.id === startEvent.id
+      (event) => event.id === startEvent.id,
     );
     if (startAlias === undefined) {
       throw new Error("Burning start must expose its hit-event alias.");
@@ -713,17 +683,15 @@ describe("Burning result integrity edge cases", () => {
             "damageEvents",
             startEventIndex,
             "reactionAudit",
-            "burningReaction"
+            "burningReaction",
           ],
           message:
-            "a parent reaction audit that reports Burning requires its Burning lifecycle audit"
-        })
+            "a parent reaction audit that reports Burning requires its Burning lifecycle audit",
+        }),
       );
     }
-    expect(() =>
-      assertTrustedSimulationResult(result)
-    ).toThrow(
-      /Trusted SimulationResult 1\.50 integrity validation failed/
+    expect(() => assertTrustedSimulationResult(result)).toThrow(
+      /Trusted SimulationResult 1\.51 integrity validation failed/,
     );
   });
 
@@ -732,21 +700,19 @@ describe("Burning result integrity edge cases", () => {
       (row: SimulationResult["burningStateLog"][number]) => void
     > = [
       (row) => {
-        row.auraApplied = [
-          { element: "pyro", gaugeUnits: 0.25 }
-        ];
+        row.auraApplied = [{ element: "pyro", gaugeUnits: 0.25 }];
       },
       (row) => {
         row.auraConsumed = [];
-      }
+      },
     ];
 
     for (const mutate of mutations) {
       const result = simulate(makeActiveBurningConfig(2.2), {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
       const expiry = result.burningStateLog.find(
-        (entry) => entry.operation === "fuel-expire"
+        (entry) => entry.operation === "fuel-expire",
       );
       if (expiry === undefined) {
         throw new Error("Burning fixture must expose Fuel expiry.");
@@ -760,35 +726,32 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects forged Burning candidate and lifecycle Gauge summaries", () => {
     const auditResult = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startEvent = auditResult.damageEvents.find(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     );
     const startAlias = auditResult.hitEvents.find(
-      (event) => event.id === startEvent?.id
+      (event) => event.id === startEvent?.id,
     );
     if (startEvent === undefined || startAlias === undefined) {
       throw new Error("Burning fixture must expose its start aliases.");
     }
-    startEvent.reactionAudit.burningReaction!.candidateBurningGaugeUnits =
-      999;
-    startAlias.reactionAudit.burningReaction!.candidateBurningGaugeUnits =
-      999;
+    startEvent.reactionAudit.burningReaction!.candidateBurningGaugeUnits = 999;
+    startAlias.reactionAudit.burningReaction!.candidateBurningGaugeUnits = 999;
     expectRejectedAtBothBoundaries(auditResult);
 
     for (const field of [
       "burningGaugeUnitsBefore",
       "burningGaugeUnitsAfter",
       "fuelGaugeUnitsBefore",
-      "fuelGaugeUnitsAfter"
+      "fuelGaugeUnitsAfter",
     ] as const) {
       const result = simulate(makeActiveBurningConfig(), {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
       const tick = result.burningStateLog.find(
-        (entry) => entry.operation === "tick"
+        (entry) => entry.operation === "tick",
       );
       if (tick === undefined) {
         throw new Error("Burning fixture must expose a Tick row.");
@@ -800,10 +763,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects a Burning lifecycle clock identity that contradicts config", () => {
     const result = simulate(makeActiveBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const start = result.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     if (start === undefined) {
       throw new Error("Burning fixture must expose a start row.");
@@ -819,20 +782,19 @@ describe("Burning result integrity edge cases", () => {
 
   it("accepts Burning deadlines that exclude same-hit post-processing Hitlag", () => {
     const result = simulate(makeSameHitHitlagBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startEvent = result.damageEvents.find(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     );
     const start = result.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const firstTick = result.burningStateLog.find(
-      (entry) => entry.operation === "tick" && entry.tickIndex === 1
+      (entry) => entry.operation === "tick" && entry.tickIndex === 1,
     );
     const hitlag = result.targetHitlagLog.find(
-      (entry) => entry.hitId === startEvent?.hitId
+      (entry) => entry.hitId === startEvent?.hitId,
     );
     const audit = startEvent?.reactionAudit.burningReaction;
     if (
@@ -844,7 +806,7 @@ describe("Burning result integrity edge cases", () => {
       audit === undefined
     ) {
       throw new Error(
-        "Hitlag fixture must expose its Burning start, first Tick, and Hitlag row."
+        "Hitlag fixture must expose its Burning start, first Tick, and Hitlag row.",
       );
     }
 
@@ -856,7 +818,7 @@ describe("Burning result integrity edge cases", () => {
       nextTickFrame: 15,
       nextTickTargetFrame: 15,
       fuelExpiresAtFrame: 121,
-      fuelExpiresAtTargetFrame: 121
+      fuelExpiresAtTargetFrame: 121,
     });
     expect(start).toMatchObject({
       frame: 0,
@@ -864,14 +826,14 @@ describe("Burning result integrity edge cases", () => {
       nextTickFrame: 15,
       nextTickTargetFrame: 15,
       fuelExpiresAtFrame: 121,
-      fuelExpiresAtTargetFrame: 121
+      fuelExpiresAtTargetFrame: 121,
     });
     expect(hitlag).toMatchObject({
       globalFrame: 0,
       eventPriority: startEvent.eventPriority,
       eventSequence: startEvent.eventSequence,
       extensionFrames: 3,
-      applied: true
+      applied: true,
     });
     expect(firstTick).toMatchObject({
       frame: 18,
@@ -879,25 +841,24 @@ describe("Burning result integrity edge cases", () => {
       nextTickFrame: 33,
       nextTickTargetFrame: 30,
       fuelExpiresAtFrame: 124,
-      fuelExpiresAtTargetFrame: 121
+      fuelExpiresAtTargetFrame: 121,
     });
     expectAcceptedAtBothBoundaries(result);
   });
 
   it("rejects coordinated Burning global-deadline drift under Hitlag", () => {
     const result = simulate(makeSameHitHitlagBurningConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const startEventIndex = result.damageEvents.findIndex(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "start"
+      (event) => event.reactionAudit.burningReaction?.operation === "start",
     );
     const startEvent = result.damageEvents[startEventIndex];
     const startAlias = result.hitEvents.find(
-      (event) => event.id === startEvent?.id
+      (event) => event.id === startEvent?.id,
     );
     const start = result.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     const audit = startEvent?.reactionAudit.burningReaction;
     const aliasAudit = startAlias?.reactionAudit.burningReaction;
@@ -931,33 +892,31 @@ describe("Burning result integrity edge cases", () => {
             startEventIndex,
             "reactionAudit",
             "burningReaction",
-            "firstTickFrame"
+            "firstTickFrame",
           ],
           message: expect.stringContaining(
-            "target-clock projection must equal 15; received 16"
-          )
-        })
+            "target-clock projection must equal 15; received 16",
+          ),
+        }),
       );
     }
-    expect(() =>
-      assertTrustedSimulationResult(result)
-    ).toThrow(
-      /Trusted SimulationResult 1\.50 integrity validation failed/
+    expect(() => assertTrustedSimulationResult(result)).toThrow(
+      /Trusted SimulationResult 1\.51 integrity validation failed/,
     );
   });
 
   it("rejects target-frame drift on a truncation-owned Burning stop", () => {
     const result = simulate(makeTargetClockTruncationStopConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const stop = result.burningStateLog.find(
       (entry) =>
         entry.operation === "stop" &&
-        entry.reason === "TARGET_MECHANICS_TRUNCATION"
+        entry.reason === "TARGET_MECHANICS_TRUNCATION",
     );
     if (stop?.targetFrame === undefined) {
       throw new Error(
-        "Target-clock truncation fixture must expose its stop target frame."
+        "Target-clock truncation fixture must expose its stop target frame.",
       );
     }
     expectAcceptedAtBothBoundaries(result);
@@ -968,10 +927,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("rejects changing an audit-owned cross-actor stop reason", () => {
     const result = simulate(makeCrossActorStopConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const stopRow = result.burningStateLog.find(
-      (entry) => entry.operation === "stop"
+      (entry) => entry.operation === "stop",
     );
     if (stopRow === undefined) {
       throw new Error("Cross-actor fixture must expose its stop row.");
@@ -985,17 +944,16 @@ describe("Burning result integrity edge cases", () => {
     const config = makeCrossActorStopConfig();
     const result = simulate(config, { critMode: "noCrit" });
     const stopEventIndex = result.damageEvents.findIndex(
-      (event) =>
-        event.reactionAudit.burningReaction?.operation === "stop"
+      (event) => event.reactionAudit.burningReaction?.operation === "stop",
     );
     const stopEvent = result.damageEvents[stopEventIndex];
     const stopAlias = result.hitEvents.find(
-      (event) => event.id === stopEvent?.id
+      (event) => event.id === stopEvent?.id,
     );
     const stopRow = result.burningStateLog.find(
       (entry) =>
         entry.operation === "stop" &&
-        entry.triggerDamageEventId === stopEvent?.id
+        entry.triggerDamageEventId === stopEvent?.id,
     );
     if (
       stopEvent === undefined ||
@@ -1008,15 +966,12 @@ describe("Burning result integrity edge cases", () => {
     stopEvent.reactionAudit.burningReaction = null;
     stopAlias.reactionAudit.burningReaction = null;
     result.burningStateLog = result.burningStateLog.filter(
-      (entry) => entry.id !== stopRow.id
+      (entry) => entry.id !== stopRow.id,
     );
     for (const point of result.targetStateTimeline.points) {
       point.links = point.links.filter(
         (link) =>
-          !(
-            link.kind === "burning-state-log" &&
-            link.id === stopRow.id
-          )
+          !(link.kind === "burning-state-log" && link.id === stopRow.id),
       );
     }
 
@@ -1029,26 +984,24 @@ describe("Burning result integrity edge cases", () => {
             "damageEvents",
             stopEventIndex,
             "reactionAudit",
-            "burningReaction"
+            "burningReaction",
           ],
           message:
-            "a hit that removes active Burning requires its Burning stop audit"
-        })
+            "a hit that removes active Burning requires its Burning stop audit",
+        }),
       );
     }
-    expect(() =>
-      assertTrustedSimulationResult(result)
-    ).toThrow(
-      /Trusted SimulationResult 1\.50 integrity validation failed/
+    expect(() => assertTrustedSimulationResult(result)).toThrow(
+      /Trusted SimulationResult 1\.51 integrity validation failed/,
     );
   });
 
   it("accepts one trigger that consumes Burning while truncating target mechanics", () => {
     const result = simulate(makeSameTriggerTruncationStopConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const hydroEvent = result.damageEvents.find(
-      (event) => event.hitId === "hydro-truncation-hit"
+      (event) => event.hitId === "hydro-truncation-hit",
     );
     if (hydroEvent === undefined) {
       throw new Error("Truncation fixture must expose its Hydro hit.");
@@ -1057,37 +1010,33 @@ describe("Burning result integrity edge cases", () => {
     const stopRows = result.burningStateLog.filter(
       (entry) =>
         entry.operation === "stop" &&
-        entry.triggerDamageEventId === hydroEvent.id
+        entry.triggerDamageEventId === hydroEvent.id,
     );
 
     expect(audit).toMatchObject({
       operation: "stop",
       stopReason: "BURNING_AURA_CONSUMED",
-      triggerElement: "hydro"
+      triggerElement: "hydro",
     });
     expect(stopRows).toHaveLength(1);
     expect(stopRows[0]).toMatchObject({
       reason: "TARGET_MECHANICS_TRUNCATION",
-      triggerElement: null
+      triggerElement: null,
     });
     expect(
       result.targetMechanicsTruncationLog.filter(
-        (entry) => entry.triggerDamageEventId === hydroEvent.id
-      )
+        (entry) => entry.triggerDamageEventId === hydroEvent.id,
+      ),
     ).toHaveLength(1);
     expectAcceptedAtBothBoundaries(result);
 
     const forgedGeneration = structuredClone(result);
     for (const event of [
       ...forgedGeneration.damageEvents,
-      ...forgedGeneration.hitEvents
+      ...forgedGeneration.hitEvents,
     ]) {
-      const forgedAudit =
-        event.reactionAudit.burningReaction;
-      if (
-        event.id === hydroEvent.id &&
-        forgedAudit?.operation === "stop"
-      ) {
+      const forgedAudit = event.reactionAudit.burningReaction;
+      if (event.id === hydroEvent.id && forgedAudit?.operation === "stop") {
         forgedAudit.generation = 7;
       }
     }
@@ -1096,10 +1045,10 @@ describe("Burning result integrity edge cases", () => {
 
   it("accepts a mechanics-truncated Burning start without a lifecycle row", () => {
     const result = simulate(makeBlockedBurningStartConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const dendroEvent = result.damageEvents.find(
-      (event) => event.hitId === "blocked-burning-start-hit"
+      (event) => event.hitId === "blocked-burning-start-hit",
     );
     if (dendroEvent === undefined) {
       throw new Error("Blocked-start fixture must expose its Dendro hit.");
@@ -1108,28 +1057,25 @@ describe("Burning result integrity edge cases", () => {
     expect(dendroEvent.reactionAudit.burningReaction).toMatchObject({
       operation: "start",
       scheduled: false,
-      blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      blockedReason: "TARGET_MECHANICS_TRUNCATION",
     });
     expect(dendroEvent.reactionAudit.mechanicsTruncation).toMatchObject({
-      operation: "trigger"
+      operation: "trigger",
     });
     expect(
       result.burningStateLog.filter(
-        (entry) => entry.triggerDamageEventId === dendroEvent.id
-      )
+        (entry) => entry.triggerDamageEventId === dendroEvent.id,
+      ),
     ).toEqual([]);
     expect(
       result.targetMechanicsTruncationLog.filter(
-        (entry) => entry.triggerDamageEventId === dendroEvent.id
-      )
+        (entry) => entry.triggerDamageEventId === dendroEvent.id,
+      ),
     ).toHaveLength(1);
     expectAcceptedAtBothBoundaries(result);
 
     const forged = structuredClone(result);
-    for (const event of [
-      ...forged.damageEvents,
-      ...forged.hitEvents
-    ]) {
+    for (const event of [...forged.damageEvents, ...forged.hitEvents]) {
       const audit = event.reactionAudit.burningReaction;
       if (event.id === dendroEvent.id && audit?.operation === "start") {
         audit.generation = 7;
@@ -1140,7 +1086,7 @@ describe("Burning result integrity edge cases", () => {
     const forgedOperation = structuredClone(result);
     for (const event of [
       ...forgedOperation.damageEvents,
-      ...forgedOperation.hitEvents
+      ...forgedOperation.hitEvents,
     ]) {
       const audit = event.reactionAudit.burningReaction;
       if (event.id === dendroEvent.id && audit !== null) {
@@ -1148,21 +1094,21 @@ describe("Burning result integrity edge cases", () => {
           operation: "refresh-fuel" as const,
           generation: 7,
           reactionTriggered: false,
-          fuelOperation: "overwrite" as const
+          fuelOperation: "overwrite" as const,
         });
       }
     }
     expectRejectedAtBothBoundaries(forgedOperation);
 
     const donor = simulate(makeActiveBurningConfig(1), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const donorStart = donor.burningStateLog.find(
-      (entry) => entry.operation === "start"
+      (entry) => entry.operation === "start",
     );
     if (donorStart === undefined) {
       throw new Error(
-        "Active Burning donor must expose one start lifecycle row."
+        "Active Burning donor must expose one start lifecycle row.",
       );
     }
     const forgedLifecycle = structuredClone(result);
@@ -1176,7 +1122,7 @@ describe("Burning result integrity edge cases", () => {
       targetId: dendroEvent.targetId,
       targetName: dendroEvent.targetName,
       triggerDamageEventId: dendroEvent.id,
-      generation: 1
+      generation: 1,
     });
     expectRejectedAtBothBoundaries(forgedLifecycle);
   });

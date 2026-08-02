@@ -14,6 +14,10 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
   type GcsimReactionOwnedApplicationBinding,
   type GcsimReactionOwnedApplicationV1Binding,
   type GcsimReactionOwnedApplicationPolicyRoot,
@@ -64,13 +68,16 @@ export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION =
   "1.50.0" as const;
 export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION =
   "1.50.0-reaction-damage-reset-boundary" as const;
+export const BASIC_REACTION_SCHEDULER_SCHEMA_VERSION = "1.51.0" as const;
+export const BASIC_REACTION_SCHEDULER_ENGINE_VERSION =
+  "1.51.0-basic-reaction-scheduler" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION = "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION = "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
@@ -92,11 +99,13 @@ export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION = "1.3.0" as const;
 export const REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION = "1.4.0" as const;
 /** Frozen 1.49 run-manifest wire; 1.5 admits an explicit v1/v2 policy root. */
 export const REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION = "1.5.0" as const;
-/** Current 1.50 run-manifest wire; 1.6 binds reaction damage-group scheduling. */
+/** Frozen 1.50 run-manifest wire; 1.6 binds reaction damage-group scheduling. */
 export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION =
   "1.6.0" as const;
+/** Current 1.51 run-manifest wire; 1.7 binds basic reaction scheduling. */
+export const BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION = "1.7.0" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION =
-  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
+  BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -551,6 +560,10 @@ export interface EnemyProfile {
   resistance: number;
   /** Optional exact per-element base resistance table. */
   resistances?: EnemyElementalResistances;
+  /**
+   * Legacy signed defense adjustment: negative values reduce enemy defense,
+   * while positive values increase it. The name is frozen for compatibility.
+   */
   defReduction: number;
   /** 0 = normal Frozen decay; 1 = immune to Frozen durability. */
   freezeResistance?: number;
@@ -575,6 +588,7 @@ export interface EnemyTargetProfileBase {
   id: TargetId;
   name: string;
   level?: number;
+  /** Signed defense adjustment; negative means defense reduction. */
   defReduction?: number;
   /** Overrides the shared enemy Frozen resistance. */
   freezeResistance?: number;
@@ -735,6 +749,7 @@ export interface HitDefinition<TApplication = ElementalApplication> {
   flatSources?: FlatDamageSource[];
   dmgBonus?: number;
   defIgnore?: number;
+  /** Signed defense adjustment; negative means defense reduction. */
   defReduction?: number;
   resShred?: number;
   critRate?: number;
@@ -791,6 +806,7 @@ export interface DebuffDefinition {
   label?: string;
   element?: Element | "all";
   resShred?: number;
+  /** Signed defense adjustment; negative means defense reduction. */
   defReduction?: number;
   duration: number;
   offset?: number;
@@ -1089,6 +1105,22 @@ export type ReactionDamageGroupModel =
   | ReactionDamageGroupModelV1
   | ReactionDamageGroupModelV2;
 
+/** Frozen compatibility selection for migrated 1.50-and-earlier configs. */
+export interface BasicReactionSchedulerModelV1 {
+  mode: "legacy-immediate-basic-reaction-scheduler-v1";
+  policyId: typeof LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID;
+}
+
+/** Current 1.51 deferred non-reacted Aura attachment scheduler. */
+export interface BasicReactionSchedulerModelV2 {
+  mode: "fixed-gcsim-basic-reaction-scheduler-v2";
+  policyId: typeof GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID;
+}
+
+export type BasicReactionSchedulerModel =
+  | BasicReactionSchedulerModelV1
+  | BasicReactionSchedulerModelV2;
+
 interface SimConfigCommon<TApplication = ElementalApplication> {
   dataVersion: string;
   randomSeed: string;
@@ -1179,7 +1211,7 @@ export interface SimConfigV149 extends SimConfigCommon {
   reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
 }
 
-/** Current 1.50 config adds an explicit reaction damage-group policy. */
+/** Frozen 1.50 config adds an explicit reaction damage-group policy. */
 export interface SimConfigV150 extends SimConfigCommon {
   schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
   engineVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
@@ -1190,7 +1222,19 @@ export interface SimConfigV150 extends SimConfigCommon {
   reactionDamageGroupModel: ReactionDamageGroupModel;
 }
 
-export type SimConfig = SimConfigV150;
+/** Current 1.51 config adds an explicit basic-reaction scheduler policy. */
+export interface SimConfigV151 extends SimConfigCommon {
+  schemaVersion: typeof BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+  engineVersion: typeof BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
+  reactionDamageGroupModel: ReactionDamageGroupModel;
+  basicReactionSchedulerModel: BasicReactionSchedulerModel;
+}
+
+export type SimConfig = SimConfigV151;
 
 export type VersionedSimConfig =
   | SimConfigV142
@@ -1200,7 +1244,8 @@ export type VersionedSimConfig =
   | SimConfigV147
   | SimConfigV148
   | SimConfigV149
-  | SimConfigV150;
+  | SimConfigV150
+  | SimConfigV151;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1339,7 +1384,7 @@ export type ReactionDamageGroupRoot =
   | ReactionDamageGroupRootV1
   | ReactionDamageGroupRootV2;
 
-/** Current 1.50 manifest binds the exact selected reaction damage-group root. */
+/** Frozen 1.50 manifest binds the exact selected reaction damage-group root. */
 export interface SimulationRunManifestV150 extends SimulationRunManifestCommon {
   version: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
   schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
@@ -1351,7 +1396,28 @@ export interface SimulationRunManifestV150 extends SimulationRunManifestCommon {
   reactionDamageGroupRoot: ReactionDamageGroupRoot;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV150;
+export type BasicReactionSchedulerRootV1 =
+  typeof LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT;
+export type BasicReactionSchedulerRootV2 =
+  typeof GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT;
+export type BasicReactionSchedulerRoot =
+  | BasicReactionSchedulerRootV1
+  | BasicReactionSchedulerRootV2;
+
+/** Current 1.51 manifest binds the exact selected scheduler policy root. */
+export interface SimulationRunManifestV151 extends SimulationRunManifestCommon {
+  version: typeof BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+  engineVersion: typeof BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV149;
+  reactionDamageGroupRoot: ReactionDamageGroupRoot;
+  basicReactionSchedulerRoot: BasicReactionSchedulerRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV151;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
@@ -1361,7 +1427,8 @@ export type VersionedSimulationRunManifest =
   | SimulationRunManifestV147
   | SimulationRunManifestV148
   | SimulationRunManifestV149
-  | SimulationRunManifestV150;
+  | SimulationRunManifestV150
+  | SimulationRunManifestV151;
 
 export type SimulationEventType =
   | "action"
@@ -1374,6 +1441,7 @@ export type SimulationEventType =
   | "quickenBloomFollowup"
   | "reactionDamage"
   | "reactionDamageGroupReset"
+  | "reactionAuraAttachment"
   | "periodicReactionTick"
   | "periodicReactionWane"
   | "periodicReactionExpiry"
@@ -1442,6 +1510,51 @@ export interface AuraGaugeEntry {
   sourceActorId?: string;
   sourceMutations?: AuraSourceGaugeMutation[];
 }
+
+interface BasicReactionSchedulerLogEntryCommon {
+  /** Zero-based contiguous id equal to the row's array index. */
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  /** Sequence of the Swirl propagation attack that owns this row. */
+  parentEventSequence: number;
+  reactionDamageLogId: number;
+  hitResolutionLogId: number;
+  elementalApplicationIcdLogId: number | null;
+  sourceActorId: string;
+  targetId: TargetId;
+  element: GcsimSwirlPropagationElement;
+  reaction: ReactionType;
+  reactions: ReactionType[];
+  auraBefore: AuraStateEntry[];
+  auraApplied: AuraGaugeEntry[];
+  auraConsumed: AuraGaugeEntry[];
+  auraAfter: AuraStateEntry[];
+}
+
+/** Attack-resolution phase for one trusted Swirl propagation target. */
+export type BasicReactionSchedulerSwirlAttackResolutionLogEntry =
+  BasicReactionSchedulerLogEntryCommon & {
+    kind: "swirl-attack-resolution";
+  } & (
+      | { disposition: "legacy-immediate"; pairedLogId: null }
+      | { disposition: "deferred"; pairedLogId: number }
+      | { disposition: "not-attached"; pairedLogId: null }
+    );
+
+/** Deferred zero-delay Aura attachment committed after attack resolution. */
+export interface BasicReactionSchedulerDeferredAuraAttachmentLogEntry extends BasicReactionSchedulerLogEntryCommon {
+  kind: "deferred-aura-attachment";
+  disposition: "committed";
+  pairedLogId: number;
+}
+
+export type BasicReactionSchedulerLogEntry =
+  | BasicReactionSchedulerSwirlAttackResolutionLogEntry
+  | BasicReactionSchedulerDeferredAuraAttachmentLogEntry;
+export type BasicReactionSchedulerLog = BasicReactionSchedulerLogEntry[];
 
 export interface AuraSourceGaugeSlot {
   sourceActorId: string;
@@ -2824,12 +2937,14 @@ export type TargetStateTimelineCause =
   | "electro-charged-propagation-candidate"
   | "burning-fuel-expiry"
   | "burning-tick"
+  | "reaction-aura-attachment"
   | "target-mechanics-truncation";
 
 export type TargetStateTimelineLink =
   | { kind: "damage-event"; id: number }
   | { kind: "reaction-task-log"; id: number }
   | { kind: "reaction-damage-log"; id: number }
+  | { kind: "basic-reaction-scheduler-log"; id: number }
   | { kind: "periodic-reaction-log"; id: number }
   | { kind: "frozen-state-log"; id: number }
   | { kind: "quicken-state-log"; id: number }
@@ -2874,6 +2989,31 @@ export interface TargetStateTimelinePoint {
 export interface TargetStateTimeline {
   version: "1.0.0";
   points: TargetStateTimelinePoint[];
+}
+
+export type SimulationEventTypeV150 = Exclude<
+  SimulationEventType,
+  "reactionAuraAttachment"
+>;
+export type TargetStateTimelineCauseV150 = Exclude<
+  TargetStateTimelineCause,
+  "reaction-aura-attachment"
+>;
+export type TargetStateTimelineLinkV150 = Exclude<
+  TargetStateTimelineLink,
+  { kind: "basic-reaction-scheduler-log" }
+>;
+export type TargetStateTimelinePointV150 = Omit<
+  TargetStateTimelinePoint,
+  "cause" | "eventType" | "links"
+> & {
+  cause: TargetStateTimelineCauseV150;
+  eventType: SimulationEventTypeV150 | null;
+  links: TargetStateTimelineLinkV150[];
+};
+export interface TargetStateTimelineV150 {
+  version: "1.0.0";
+  points: TargetStateTimelinePointV150[];
 }
 
 export interface AuraEndState {
@@ -4232,6 +4372,8 @@ export interface SimulationResult {
   reactionDamageLog: ReactionDamageLogEntryV150[];
   /** Scheduled ReactionA/B reset tasks and their FIFO execution outcomes. */
   reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
+  /** Swirl attack resolution and deferred Aura-attachment scheduler audit. */
+  basicReactionSchedulerLog: BasicReactionSchedulerLog;
   /** Deferred live-Aura reaction operations in execution order. */
   reactionTaskLog: ReactionTaskLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
@@ -4312,6 +4454,8 @@ type VersionedSimulationResultIdentityFields =
   | "hitResolutionLog"
   | "reactionDamageLog"
   | "reactionDamageGroupResetLog"
+  | "basicReactionSchedulerLog"
+  | "targetStateTimeline"
   | "playerDamageEvents"
   | "targetPhaseLog";
 
@@ -4322,6 +4466,7 @@ type FrozenV147NestedResultLogs = {
   reactionDamageLog: ReactionDamageLogEntryV147[];
   playerDamageEvents: PlayerDamageEventV149[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV147>;
+  targetStateTimeline: TargetStateTimelineV150;
 };
 
 type FrozenV148NestedResultLogs = {
@@ -4331,6 +4476,7 @@ type FrozenV148NestedResultLogs = {
   reactionDamageLog: ReactionDamageLogEntryV148[];
   playerDamageEvents: PlayerDamageEventV149[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
+  targetStateTimeline: TargetStateTimelineV150;
 };
 
 /**
@@ -4421,8 +4567,29 @@ export type SimulationResultForV149 = Omit<
   elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV149[];
 } & FrozenV148NestedResultLogs;
 
-/** Current 1.50 result identity and reaction damage-group policy audit. */
-export type SimulationResultForV150 = SimulationResult;
+/** Frozen 1.50 result identity and reaction damage-group policy audit. */
+export type SimulationResultForV150 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  config: SimConfigV150;
+  runManifest: SimulationRunManifestV150;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV149[];
+  damageEvents: DamageEventV148[];
+  hitEvents: DamageEventV148[];
+  hitResolutionLog: HitResolutionLogEntryV148[];
+  reactionDamageLog: ReactionDamageLogEntryV150[];
+  reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
+  targetStateTimeline: TargetStateTimelineV150;
+  playerDamageEvents: PlayerDamageEventV150[];
+  targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
+};
+
+/** Current 1.51 result identity and basic-reaction scheduler audit. */
+export type SimulationResultForV151 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
@@ -4432,4 +4599,5 @@ export type VersionedSimulationResult =
   | SimulationResultForV147
   | SimulationResultForV148
   | SimulationResultForV149
-  | SimulationResultForV150;
+  | SimulationResultForV150
+  | SimulationResultForV151;

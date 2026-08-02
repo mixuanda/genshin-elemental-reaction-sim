@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   assertTrustedSimulationResult,
@@ -25,7 +25,7 @@ import {
   type FrameHitDefinition,
   type SimConfig,
   type SimulationRunManifestV142,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
@@ -35,24 +35,24 @@ type CadenceGoldenScenarioId =
   (typeof electroChargedGlobalCadenceGoldenScenarioIdsV142)[number];
 
 const SCENARIO_IDS: CadenceGoldenScenarioId[] = [
-  ...electroChargedGlobalCadenceGoldenScenarioIdsV142
+  ...electroChargedGlobalCadenceGoldenScenarioIdsV142,
 ];
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const SAME_TARGET_GEOMETRY = {
   kind: "circle" as const,
   coordinateSpace: "world" as const,
   origin: { x: 0, y: 0 },
-  radius: 1
+  radius: 1,
 };
 
 function applicationHit({
   id,
   element,
   gaugeUnits,
-  hitlagFrames
+  hitlagFrames,
 }: {
   id: string;
   element: NonNullable<FrameHitDefinition["element"]>;
@@ -68,16 +68,16 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icd: { mode: "no-icd-v1" }
+      icd: { mode: "no-icd-v1" },
     },
     ...(hitlagFrames === undefined
       ? {}
       : {
           targetHitlag: {
             haltFrames: hitlagFrames,
-            factor: 0
-          }
-        })
+            factor: 0,
+          },
+        }),
   };
 }
 
@@ -104,21 +104,21 @@ const NO_ICD_DECISION = {
   hitIndex: null,
   sequenceIndex: null,
   tailPolicy: null,
-  resetSchedulePolicy: "bypass"
+  resetSchedulePolicy: "bypass",
 } as const;
 
 function expectCurrentNoIcdApplicationContract(
   result: SimulationResult,
-  expected: readonly ExpectedNoIcdApplication[]
+  expected: readonly ExpectedNoIcdApplication[],
 ): void {
   expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
   expect(result.config.elementalApplicationIcdModel).toEqual({
     mode: "fixed-gcsim-elemental-application-v1",
-    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   });
   expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
-    GCSIM_ELEMENTAL_APPLICATION_ROOT
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
   );
   expect(
     result.config.timeline?.abilities.flatMap((ability) =>
@@ -128,19 +128,19 @@ function expectCurrentNoIcdApplicationContract(
           : [
               {
                 hitId: hit.id,
-                application: hit.application
-              }
-            ]
-      )
-    )
+                application: hit.application,
+              },
+            ],
+      ),
+    ),
   ).toEqual(
     expected.map(({ hitId, gaugeUnits }) => ({
       hitId,
       application: {
         gaugeUnits,
-        icd: { mode: "no-icd-v1" }
-      }
-    }))
+        icd: { mode: "no-icd-v1" },
+      },
+    })),
   );
   expect(
     result.elementalApplicationIcdLog.map((entry) => ({
@@ -152,8 +152,8 @@ function expectCurrentNoIcdApplicationContract(
       selector: entry.selector,
       nominalGaugeUnits: entry.nominalGaugeUnits,
       effectiveGaugeUnits: entry.effectiveGaugeUnits,
-      decision: entry.decision
-    }))
+      decision: entry.decision,
+    })),
   ).toEqual(
     expected.map(({ hitId, frame, gaugeUnits }, id) => ({
       id,
@@ -164,8 +164,8 @@ function expectCurrentNoIcdApplicationContract(
       selector: { mode: "no-icd-v1" },
       nominalGaugeUnits: gaugeUnits,
       effectiveGaugeUnits: gaugeUnits,
-      decision: NO_ICD_DECISION
-    }))
+      decision: NO_ICD_DECISION,
+    })),
   );
 }
 
@@ -175,13 +175,10 @@ function expectCurrentNoIcdApplicationContract(
  * represented by the explicit selector/log and therefore carries null audit
  * stream fields. Recreate only that frozen presentation for old Goldens.
  */
-function projectDamageEventsToFrozenNoIcd(
-  result: SimulationResult
-) {
+function projectDamageEventsToFrozenNoIcd(result: SimulationResult) {
   const legacyAuditByDamageEventId = new Map(
     result.elementalApplicationIcdLog.flatMap((entry) =>
-      entry.damageEventId === null ||
-      entry.selector.mode !== "no-icd-v1"
+      entry.damageEventId === null || entry.selector.mode !== "no-icd-v1"
         ? []
         : [
             [
@@ -189,16 +186,15 @@ function projectDamageEventsToFrozenNoIcd(
               {
                 icdAllowed: entry.decision.allowed,
                 icdTag: entry.hitId,
-                icdGroup: "no-icd" as const
-              }
-            ] as const
-          ]
-    )
+                icdGroup: "no-icd" as const,
+              },
+            ] as const,
+          ],
+    ),
   );
   return result.damageEvents.map((currentEvent) => {
     const {
-      elementalApplicationIcdLogId:
-        _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
       ...event
     } = currentEvent;
     const legacyAudit = legacyAuditByDamageEventId.get(event.id);
@@ -208,20 +204,17 @@ function projectDamageEventsToFrozenNoIcd(
           ...event,
           reactionAudit: {
             ...event.reactionAudit,
-            ...legacyAudit
-          }
+            ...legacyAudit,
+          },
         };
   });
 }
 
-function projectReactionDamageLogToFrozenV147(
-  result: SimulationResult
-) {
+function projectReactionDamageLogToFrozenV147(result: SimulationResult) {
   return result.reactionDamageLog.map(
     ({
       hitResolutionLogIds: _hitResolutionLogIds,
-      elementalApplicationIcdLogIds:
-        _elementalApplicationIcdLogIds,
+      elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
       damageGroupDecisions,
       ...entry
     }) => ({
@@ -238,22 +231,19 @@ function projectReactionDamageLogToFrozenV147(
             ? ([true, true, false] as const)
             : ([true, false] as const),
         damageAllowed: decision.damageAllowed,
-        blockedReason: decision.blockedReason
-      }))
-    })
+        blockedReason: decision.blockedReason,
+      })),
+    }),
   );
 }
 
-function projectHitResolutionLogToFrozenV147(
-  result: SimulationResult
-) {
+function projectHitResolutionLogToFrozenV147(result: SimulationResult) {
   return result.hitResolutionLog.map(
     ({
       reactionDamageLogId: _reactionDamageLogId,
-      elementalApplicationIcdLogId:
-        _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
       ...entry
-    }) => entry
+    }) => entry,
   );
 }
 
@@ -270,8 +260,8 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
   const projected = Object.fromEntries(
     Object.entries(value).map(([key, entry]) => [
       key,
-      projectNoIcdSelectorsToLegacyWire(entry)
-    ])
+      projectNoIcdSelectorsToLegacyWire(entry),
+    ]),
   );
   if (!Object.prototype.hasOwnProperty.call(value, "application")) {
     return projected;
@@ -284,7 +274,7 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
     value.application.icd.mode !== "no-icd-v1"
   ) {
     throw new Error(
-      "EC global-cadence frozen projection requires explicit no-icd-v1 hit applications."
+      "EC global-cadence frozen projection requires explicit no-icd-v1 hit applications.",
     );
   }
   return {
@@ -292,13 +282,13 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
     application: {
       gaugeUnits: value.application.gaugeUnits,
       icdTag: value.id,
-      icdGroup: "no-icd"
-    }
+      icdGroup: "no-icd",
+    },
   };
 }
 
 function projectCurrentConfigToFrozenV142(
-  config: SimConfig
+  config: SimConfig,
 ): Record<string, unknown> {
   const {
     reactionFormulaModel: _reactionFormulaModel,
@@ -307,6 +297,7 @@ function projectCurrentConfigToFrozenV142(
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
     ...frozenConfig
   } = structuredClone(config);
   return {
@@ -315,13 +306,13 @@ function projectCurrentConfigToFrozenV142(
       unknown
     >),
     schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
-    engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
+    engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   };
 }
 
 function makeLongHitlagConfig({
   restoreFrame,
-  restoreGaugeUnits = 1
+  restoreGaugeUnits = 1,
 }: {
   restoreFrame?: number;
   restoreGaugeUnits?: number;
@@ -331,17 +322,15 @@ function makeLongHitlagConfig({
     ...base,
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     dataVersion: "ec-global-cadence-provisional-1",
-    randomSeed:
-      `ec-global-cadence-${restoreFrame ?? "none"}-${restoreGaugeUnits}-145`,
+    randomSeed: `ec-global-cadence-${restoreFrame ?? "none"}-${restoreGaugeUnits}-145`,
     meta: {
       name: "Aura-v9 EC global cadence long-Hitlag Golden",
       version: "1.42.0",
       verificationStatus: "provisional",
-      note:
-        "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity."
+      note: "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity.",
     },
     duration: 145 / 60,
     cycleLength: 3,
@@ -357,10 +346,10 @@ function makeLongHitlagConfig({
           hitboxRadius: 0,
           initialAura: [
             { element: "hydro", gaugeUnits: 0.5 },
-            { element: "electro", gaugeUnits: 2 }
-          ]
-        }
-      ]
+            { element: "electro", gaugeUnits: 2 },
+          ],
+        },
+      ],
     },
     characters: [
       {
@@ -371,21 +360,21 @@ function makeLongHitlagConfig({
         level: 90,
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
-      }
+          baseAtk: 0,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     targetClockModel: {
-      mode: "target-local-hitlag-v1"
+      mode: "target-local-hitlag-v1",
     },
     targetTaskModel: { mode: "target-phase-v2" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     electroChargedPropagationModel: {
-      mode: "single-target-v1"
+      mode: "single-target-v1",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -406,15 +395,15 @@ function makeLongHitlagConfig({
             applicationHit({
               id: "dendro-quicken",
               element: "dendro",
-              gaugeUnits: 0.2
+              gaugeUnits: 0.2,
             }),
             applicationHit({
               id: "electro-stream",
               element: "electro",
               gaugeUnits: 0.8,
-              hitlagFrames: 120
-            })
-          ]
+              hitlagFrames: 120,
+            }),
+          ],
         },
         ...(restoreFrame === undefined
           ? []
@@ -431,18 +420,18 @@ function makeLongHitlagConfig({
                   applicationHit({
                     id: `hydro-restore-${restoreFrame}`,
                     element: "hydro",
-                    gaugeUnits: restoreGaugeUnits
-                  })
-                ]
-              }
-            ])
+                    gaugeUnits: restoreGaugeUnits,
+                  }),
+                ],
+              },
+            ]),
       ],
       commands: [
         {
           type: "skill",
           actorId: "driver",
           abilityId: "compound-chain",
-          atFrame: 0
+          atFrame: 0,
         },
         ...(restoreFrame === undefined
           ? []
@@ -451,11 +440,11 @@ function makeLongHitlagConfig({
                 type: "skill" as const,
                 actorId: "driver",
                 abilityId: "hydro-restore",
-                atFrame: restoreFrame
-              }
-            ])
-      ]
-    }
+                atFrame: restoreFrame,
+              },
+            ]),
+      ],
+    },
   };
 }
 
@@ -465,7 +454,7 @@ function makePureEcHitlag120Config(): SimConfig {
     ...base,
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     dataVersion: "ec-global-cadence-pure-provisional-1",
     randomSeed: "ec-pure-2-2-120-0",
@@ -473,8 +462,7 @@ function makePureEcHitlag120Config(): SimConfig {
       name: "Aura-v9 pure EC global cadence Golden",
       version: "1.42.0",
       verificationStatus: "provisional",
-      note:
-        "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity."
+      note: "Fixed-gcsim-provisional regression vector only; not official game data or a claim of complete gcsim parity.",
     },
     duration: 145 / 60,
     cycleLength: 3,
@@ -488,11 +476,9 @@ function makePureEcHitlag120Config(): SimConfig {
           name: "Pure EC target",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 2 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "hydro", gaugeUnits: 2 }],
+        },
+      ],
     },
     characters: [
       {
@@ -503,21 +489,21 @@ function makePureEcHitlag120Config(): SimConfig {
         level: 90,
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
-      }
+          baseAtk: 0,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     targetClockModel: {
-      mode: "target-local-hitlag-v1"
+      mode: "target-local-hitlag-v1",
     },
     targetTaskModel: { mode: "target-phase-v2" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     electroChargedPropagationModel: {
-      mode: "single-target-v1"
+      mode: "single-target-v1",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -539,42 +525,39 @@ function makePureEcHitlag120Config(): SimConfig {
               id: "ec-start-hit",
               element: "electro",
               gaugeUnits: 2,
-              hitlagFrames: 120
-            })
-          ]
-        }
+              hitlagFrames: 120,
+            }),
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "driver",
           abilityId: "ec-start",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function projectScenario(result: SimulationResult) {
-  const frozenDamageEvents =
-    projectDamageEventsToFrozenNoIcd(result);
+  const frozenDamageEvents = projectDamageEventsToFrozenNoIcd(result);
   const componentTotals = result.damageEvents.reduce(
     (totals, event) => ({
-      direct:
-        totals.direct + event.damageComposition.direct,
+      direct: totals.direct + event.damageComposition.direct,
       additiveReaction:
-        totals.additiveReaction +
-        event.damageComposition.additiveReaction,
+        totals.additiveReaction + event.damageComposition.additiveReaction,
       transformativeReaction:
         totals.transformativeReaction +
-        event.damageComposition.transformativeReaction
+        event.damageComposition.transformativeReaction,
     }),
     {
       direct: 0,
       additiveReaction: 0,
-      transformativeReaction: 0
-    }
+      transformativeReaction: 0,
+    },
   );
   return {
     identity: {
@@ -584,8 +567,7 @@ function projectScenario(result: SimulationResult) {
       randomSeed: result.randomSeed,
       configHash: result.runManifest.configHash,
       reproducibilityKey: result.reproducibilityKey,
-      resolvedRuntimeOptions:
-        result.resolvedRuntimeOptions
+      resolvedRuntimeOptions: result.resolvedRuntimeOptions,
     },
     configContract: {
       duration: result.config.duration,
@@ -593,26 +575,22 @@ function projectScenario(result: SimulationResult) {
       reactionEngine: result.config.reactionEngine,
       targetClockModel: result.config.targetClockModel,
       targetTaskModel: result.config.targetTaskModel,
-      reactionDeliveryModel:
-        result.config.reactionDeliveryModel,
+      reactionDeliveryModel: result.config.reactionDeliveryModel,
       electroChargedPropagationModel:
         result.config.electroChargedPropagationModel,
       timeline: {
         mode: result.config.timeline?.mode ?? null,
-        fps: result.config.timeline?.fps ?? null
+        fps: result.config.timeline?.fps ?? null,
       },
-      enemyTargets: result.enemyTargets
+      enemyTargets: result.enemyTargets,
     },
     reactionTasks: result.reactionTaskLog,
-    periodicElectroCharged:
-      result.periodicReactionLog.filter(
-        (entry) => entry.reaction === "electroCharged"
-      ),
-    reactionDamageLog:
-      projectReactionDamageLogToFrozenV147(result),
+    periodicElectroCharged: result.periodicReactionLog.filter(
+      (entry) => entry.reaction === "electroCharged",
+    ),
+    reactionDamageLog: projectReactionDamageLogToFrozenV147(result),
     damageEvents: frozenDamageEvents,
-    hitResolutionLog:
-      projectHitResolutionLogToFrozenV147(result),
+    hitResolutionLog: projectHitResolutionLogToFrozenV147(result),
     damageCurve: result.damageCurve,
     byCharacter: result.byCharacter,
     characterSummaries: result.characterSummaries,
@@ -635,15 +613,13 @@ function projectScenario(result: SimulationResult) {
       componentTotals,
       displayDamageTotal: result.damageEvents.reduce(
         (sum, event) => sum + event.displayDamage,
-        0
-      )
-    }
+        0,
+      ),
+    },
   };
 }
 
-type CadenceGoldenScenario = ReturnType<
-  typeof projectScenario
->;
+type CadenceGoldenScenario = ReturnType<typeof projectScenario>;
 
 type FrozenV142CadenceGoldenScenario = Omit<
   CadenceGoldenScenario,
@@ -651,10 +627,7 @@ type FrozenV142CadenceGoldenScenario = Omit<
 > & {
   identity: Omit<
     CadenceGoldenScenario["identity"],
-    | "schemaVersion"
-    | "engineVersion"
-    | "configHash"
-    | "reproducibilityKey"
+    "schemaVersion" | "engineVersion" | "configHash" | "reproducibilityKey"
   > & {
     schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
     engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
@@ -664,12 +637,10 @@ type FrozenV142CadenceGoldenScenario = Omit<
 };
 
 function projectScenarioToFrozenV142(
-  result: SimulationResult
+  result: SimulationResult,
 ): FrozenV142CadenceGoldenScenario {
   const scenario = projectScenario(result);
-  const frozenConfig = projectCurrentConfigToFrozenV142(
-    result.config
-  );
+  const frozenConfig = projectCurrentConfigToFrozenV142(result.config);
   const configHash = createSimulationConfigHash(frozenConfig);
   const runIdentity = {
     version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
@@ -678,13 +649,9 @@ function projectScenarioToFrozenV142(
     engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
     dataVersion: result.runManifest.dataVersion,
     configHash,
-    resolvedRuntimeOptions:
-      result.runManifest.resolvedRuntimeOptions,
-    plugins: result.runManifest.plugins
-  } satisfies Omit<
-    SimulationRunManifestV142,
-    "reproducibilityKey"
-  >;
+    resolvedRuntimeOptions: result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins,
+  } satisfies Omit<SimulationRunManifestV142, "reproducibilityKey">;
   return {
     ...scenario,
     identity: {
@@ -692,42 +659,32 @@ function projectScenarioToFrozenV142(
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
       engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
       configHash,
-      reproducibilityKey:
-        createSimulationReproducibilityKey(runIdentity)
-    }
+      reproducibilityKey: createSimulationReproducibilityKey(runIdentity),
+    },
   };
 }
 
 function semanticHash(value: unknown): string {
-  return createHash("sha256")
-    .update(canonicalStringify(value))
-    .digest("hex");
+  return createHash("sha256").update(canonicalStringify(value)).digest("hex");
 }
 
-function expectDamageConservation(
-  result: SimulationResult
-): void {
+function expectDamageConservation(result: SimulationResult): void {
   let cumulativeDamage = 0;
   const cumulativeComponents = {
     direct: 0,
     additiveReaction: 0,
-    transformativeReaction: 0
+    transformativeReaction: 0,
   };
-  expect(result.damageCurve).toHaveLength(
-    result.damageEvents.length
-  );
+  expect(result.damageCurve).toHaveLength(result.damageEvents.length);
   result.damageEvents.forEach((event, index) => {
     const composition =
       event.damageComposition.direct +
       event.damageComposition.additiveReaction +
       event.damageComposition.transformativeReaction;
     expect(composition).toBeCloseTo(event.finalDamage, 10);
-    expect(event.displayDamage).toBe(
-      Math.round(event.finalDamage)
-    );
+    expect(event.displayDamage).toBe(Math.round(event.finalDamage));
     cumulativeDamage += event.finalDamage;
-    cumulativeComponents.direct +=
-      event.damageComposition.direct;
+    cumulativeComponents.direct += event.damageComposition.direct;
     cumulativeComponents.additiveReaction +=
       event.damageComposition.additiveReaction;
     cumulativeComponents.transformativeReaction +=
@@ -744,41 +701,29 @@ function expectDamageConservation(
       finalDamage: event.finalDamage,
       cumulativeDamage,
       cumulativeByComponent: {
-        ...cumulativeComponents
-      }
+        ...cumulativeComponents,
+      },
     });
   });
-  expect(cumulativeDamage).toBeCloseTo(
-    result.totalDamage,
-    10
-  );
+  expect(cumulativeDamage).toBeCloseTo(result.totalDamage, 10);
   expect(
-    Object.values(result.byCharacter).reduce(
-      (sum, damage) => sum + damage,
-      0
-    )
+    Object.values(result.byCharacter).reduce((sum, damage) => sum + damage, 0),
   ).toBeCloseTo(result.totalDamage, 10);
   expect(
-    result.bySkill.reduce(
-      (sum, skill) => sum + skill.damage,
-      0
-    )
+    result.bySkill.reduce((sum, skill) => sum + skill.damage, 0),
   ).toBeCloseTo(result.totalDamage, 10);
   expect(
-    result.targetSummaries.reduce(
-      (sum, target) => sum + target.damage,
-      0
-    )
+    result.targetSummaries.reduce((sum, target) => sum + target.damage, 0),
   ).toBeCloseTo(result.totalDamage, 10);
   expect(result.dps * result.config.duration).toBeCloseTo(
     result.totalDamage,
-    10
+    10,
   );
 }
 
 function cleanupOf(result: SimulationResult) {
   const task = result.reactionTaskLog.find(
-    (entry) => entry.electroChargedCleanup !== null
+    (entry) => entry.electroChargedCleanup !== null,
   );
   if (task?.electroChargedCleanup === null || task === undefined) {
     throw new Error("Expected one EC cleanup task.");
@@ -798,50 +743,50 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
         config: makeLongHitlagConfig(),
         expectedApplications: [
           { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
-          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 }
-        ]
+          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
+        ],
       },
       {
         id: "longHitlagRestoreF70Scheduled",
         config: makeLongHitlagConfig({
-          restoreFrame: 70
+          restoreFrame: 70,
         }),
         expectedApplications: [
           { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
           { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
-          { hitId: "hydro-restore-70", frame: 70, gaugeUnits: 1 }
-        ]
+          { hitId: "hydro-restore-70", frame: 70, gaugeUnits: 1 },
+        ],
       },
       {
         id: "longHitlagRestoreF71Dormant",
         config: makeLongHitlagConfig({
-          restoreFrame: 71
+          restoreFrame: 71,
         }),
         expectedApplications: [
           { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
           { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
-          { hitId: "hydro-restore-71", frame: 71, gaugeUnits: 1 }
-        ]
+          { hitId: "hydro-restore-71", frame: 71, gaugeUnits: 1 },
+        ],
       },
       {
         id: "longHitlagRestoreF5EndedBeforeDeadline",
         config: makeLongHitlagConfig({
           restoreFrame: 5,
-          restoreGaugeUnits: 0.5
+          restoreGaugeUnits: 0.5,
         }),
         expectedApplications: [
           { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
           { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
-          { hitId: "hydro-restore-5", frame: 5, gaugeUnits: 0.5 }
-        ]
+          { hitId: "hydro-restore-5", frame: 5, gaugeUnits: 0.5 },
+        ],
       },
       {
         id: "pureEcHitlag120GlobalCadence",
         config: makePureEcHitlag120Config(),
         expectedApplications: [
-          { hitId: "ec-start-hit", frame: 0, gaugeUnits: 2 }
-        ]
-      }
+          { hitId: "ec-start-hit", frame: 0, gaugeUnits: 2 },
+        ],
+      },
     ];
     const scenarios = {} as Record<
       CadenceGoldenScenarioId,
@@ -849,220 +794,181 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
     >;
     for (const run of runs) {
       const first = simulate(run.config, {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
       const repeated = simulate(run.config, {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
       expect(repeated).toEqual(first);
-      expect(
-        electroChargedCleanupResultReferencesSchema.parse(
-          first
-        )
-      ).toEqual(first);
-      expect(
-        targetPhaseV2ResultReferencesSchema.parse(first)
-      ).toEqual(first);
-      expect(
-        reactionDeliveryResultReferencesSchema.parse(first)
-      ).toEqual(first);
-      expect(
-        playerDamageResultReferencesSchema.parse(first)
-      ).toEqual(first);
-      expectCurrentNoIcdApplicationContract(
+      expect(electroChargedCleanupResultReferencesSchema.parse(first)).toEqual(
         first,
-        run.expectedApplications
       );
+      expect(targetPhaseV2ResultReferencesSchema.parse(first)).toEqual(first);
+      expect(reactionDeliveryResultReferencesSchema.parse(first)).toEqual(
+        first,
+      );
+      expect(playerDamageResultReferencesSchema.parse(first)).toEqual(first);
+      expectCurrentNoIcdApplicationContract(first, run.expectedApplications);
       expectDamageConservation(first);
       scenarios[run.id] = projectScenarioToFrozenV142(first);
     }
 
-    expect(Object.keys(scenarios).sort()).toEqual(
-      [...SCENARIO_IDS].sort()
+    expect(Object.keys(scenarios).sort()).toEqual([...SCENARIO_IDS].sort());
+    const fixture = electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
+      JSON.parse(readFileSync(FIXTURE_URL, "utf8")),
     );
-    const fixture =
-      electroChargedGlobalCadenceGoldenFixtureV142Schema.parse(
-        JSON.parse(readFileSync(FIXTURE_URL, "utf8"))
-      );
     for (const id of SCENARIO_IDS) {
-      expect(semanticHash(fixture.scenarios[id])).toBe(
-        fixture.hashes[id]
-      );
+      expect(semanticHash(fixture.scenarios[id])).toBe(fixture.hashes[id]);
       expect(semanticHash(scenarios[id])).toBe(fixture.hashes[id]);
       expect(scenarios[id]).toEqual(fixture.scenarios[id]);
     }
 
-    const noRestore =
-      fixture.scenarios.longHitlagNoRestoreStop;
+    const noRestore = fixture.scenarios.longHitlagNoRestoreStop;
     expect(
-      noRestore.periodicElectroCharged.map(
-        ({ frame, operation }) => ({ frame, operation })
-      )
+      noRestore.periodicElectroCharged.map(({ frame, operation }) => ({
+        frame,
+        operation,
+      })),
     ).toEqual([
       { frame: 0, operation: "start" },
       { frame: 10, operation: "tick" },
       { frame: 70, operation: "tick-skipped" },
-      { frame: 121, operation: "stop" }
+      { frame: 121, operation: "stop" },
     ]);
-    expect(cleanupOf(simulate(runs[0]!.config, {
-      critMode: "noCrit"
-    })).cleanup).toMatchObject({
+    expect(
+      cleanupOf(
+        simulate(runs[0]!.config, {
+          critMode: "noCrit",
+        }),
+      ).cleanup,
+    ).toMatchObject({
       outcome: "stop",
-      periodicReactionLogId:
-        noRestore.periodicElectroCharged.at(-1)?.id,
+      periodicReactionLogId: noRestore.periodicElectroCharged.at(-1)?.id,
       cadence: {
         status: "stopped",
         nextTickFrame: null,
         waneListenerActive: false,
-        lastCallbackFrame: 70
-      }
+        lastCallbackFrame: 70,
+      },
     });
 
-    const scheduled =
-      fixture.scenarios.longHitlagRestoreF70Scheduled;
+    const scheduled = fixture.scenarios.longHitlagRestoreF70Scheduled;
     expect(
       scheduled.periodicElectroCharged
         .filter((row) => row.operation === "tick")
-        .map((row) => row.frame)
+        .map((row) => row.frame),
     ).toEqual([10, 70, 130]);
-    const restoreF70 =
-      scheduled.periodicElectroCharged.find(
-        (row) =>
-          row.operation === "refresh" && row.frame === 70
-      );
-    const tickF70 =
-      scheduled.periodicElectroCharged.find(
-        (row) =>
-          row.operation === "tick" && row.frame === 70
-      );
+    const restoreF70 = scheduled.periodicElectroCharged.find(
+      (row) => row.operation === "refresh" && row.frame === 70,
+    );
+    const tickF70 = scheduled.periodicElectroCharged.find(
+      (row) => row.operation === "tick" && row.frame === 70,
+    );
     if (restoreF70 === undefined || tickF70 === undefined) {
-      throw new Error(
-        "Expected the same-frame F70 refresh and callback."
-      );
+      throw new Error("Expected the same-frame F70 refresh and callback.");
     }
     expect(restoreF70.id).toBeLessThan(tickF70.id);
-    expect(
-      scheduled.reactionTasks[0]?.electroChargedCleanup
-    ).toMatchObject({
+    expect(scheduled.reactionTasks[0]?.electroChargedCleanup).toMatchObject({
       outcome: "retain",
       cadence: {
         status: "scheduled",
         nextTickFrame: 130,
         waneListenerActive: false,
-        lastCallbackFrame: 70
-      }
+        lastCallbackFrame: 70,
+      },
     });
 
-    const dormant =
-      fixture.scenarios.longHitlagRestoreF71Dormant;
+    const dormant = fixture.scenarios.longHitlagRestoreF71Dormant;
     expect(
-      dormant.periodicElectroCharged.find(
-        (row) => row.frame === 70
-      )
+      dormant.periodicElectroCharged.find((row) => row.frame === 70),
     ).toMatchObject({
       operation: "tick-skipped",
       cadenceStatus: "dormant",
       nextTickFrame: null,
-      waneListenerActive: false
+      waneListenerActive: false,
     });
-    expect(
-      dormant.reactionTasks[0]?.electroChargedCleanup
-    ).toMatchObject({
+    expect(dormant.reactionTasks[0]?.electroChargedCleanup).toMatchObject({
       outcome: "retain",
       cadence: {
         status: "dormant",
         nextTickFrame: null,
         waneListenerActive: false,
-        lastCallbackFrame: 70
-      }
+        lastCallbackFrame: 70,
+      },
     });
 
-    const ended =
-      fixture.scenarios
-        .longHitlagRestoreF5EndedBeforeDeadline;
+    const ended = fixture.scenarios.longHitlagRestoreF5EndedBeforeDeadline;
     const terminal = ended.periodicElectroCharged.find(
-      (row) =>
-        row.frame === 16 && row.operation === "wane"
+      (row) => row.frame === 16 && row.operation === "wane",
     );
     expect(terminal).toMatchObject({
       cadenceStatus: "stopped",
       nextTickFrame: null,
       waneListenerActive: false,
-      reason: "AURA_DEPLETED_BY_WANE"
+      reason: "AURA_DEPLETED_BY_WANE",
     });
-    expect(
-      ended.reactionTasks[0]?.electroChargedCleanup
-    ).toMatchObject({
+    expect(ended.reactionTasks[0]?.electroChargedCleanup).toMatchObject({
       outcome: "ended-before-deadline",
-      resolutionReason:
-        "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP",
-      periodicReactionLogId: terminal?.id
+      resolutionReason: "ELECTRO_CHARGED_STREAM_ENDED_BEFORE_CLEANUP",
+      periodicReactionLogId: terminal?.id,
     });
 
-    const pure =
-      fixture.scenarios.pureEcHitlag120GlobalCadence;
+    const pure = fixture.scenarios.pureEcHitlag120GlobalCadence;
     expect(
       pure.periodicElectroCharged
         .filter((row) => row.operation === "tick")
-        .map((row) => row.frame)
+        .map((row) => row.frame),
     ).toEqual([10, 70, 130]);
     expect(
       pure.periodicElectroCharged
         .filter((row) => row.operation === "wane")
-        .map((row) => row.frame)
+        .map((row) => row.frame),
     ).toEqual([16, 76, 136]);
     expect(
       pure.damageEvents
         .filter(
           (event) =>
             event.kind === "transformative-reaction" &&
-            event.reaction === "electroCharged"
+            event.reaction === "electroCharged",
         )
-        .map((event) => event.frame)
+        .map((event) => event.frame),
     ).toEqual([10, 70, 130]);
-
   });
 
   it("rejects coordinated per-source Wane and terminal-cadence drift", () => {
     const legal = simulate(
       makeLongHitlagConfig({
         restoreFrame: 5,
-        restoreGaugeUnits: 0.5
+        restoreGaugeUnits: 0.5,
       }),
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
     const wane = legal.periodicReactionLog.find(
-      (row) => row.frame === 16 && row.operation === "wane"
+      (row) => row.frame === 16 && row.operation === "wane",
     );
-    const point = legal.targetStateTimeline.points.find(
-      (candidate) =>
-        candidate.links.some(
-          (link) =>
-            link.kind === "periodic-reaction-log" &&
-            link.id === wane?.id
-        )
+    const point = legal.targetStateTimeline.points.find((candidate) =>
+      candidate.links.some(
+        (link) => link.kind === "periodic-reaction-log" && link.id === wane?.id,
+      ),
     );
     const electroConsumption = wane?.auraConsumed.find(
-      (entry) => entry.element === "electro"
+      (entry) => entry.element === "electro",
     );
-    const driverMutation =
-      electroConsumption?.sourceMutations?.find(
-        (mutation) => mutation.sourceActorId === "driver"
-      );
+    const driverMutation = electroConsumption?.sourceMutations?.find(
+      (mutation) => mutation.sourceActorId === "driver",
+    );
     if (
       wane === undefined ||
       point === undefined ||
       electroConsumption === undefined ||
       driverMutation === undefined
     ) {
-      throw new Error(
-        "Expected the F16 multi-source terminal Wane proof."
-      );
+      throw new Error("Expected the F16 multi-source terminal Wane proof.");
     }
     for (const mutation of electroConsumption.sourceMutations ?? []) {
       expect(mutation.consumedGaugeUnits).toBeCloseTo(
         Math.min(0.4, mutation.gaugeUnitsBefore),
-        12
+        12,
       );
     }
     expect(simulationResultSchema.parse(legal)).toEqual(legal);
@@ -1071,61 +977,51 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
     const forgedSource = structuredClone(legal);
     const forgedWane = forgedSource.periodicReactionLog[wane.id]!;
     const forgedElectro = forgedWane.auraConsumed.find(
-      (entry) => entry.element === "electro"
+      (entry) => entry.element === "electro",
     )!;
     const forgedMutation = forgedElectro.sourceMutations!.find(
-      (mutation) => mutation.sourceActorId === "driver"
+      (mutation) => mutation.sourceActorId === "driver",
     )!;
     forgedMutation.consumedGaugeUnits = 0.3;
-    forgedMutation.gaugeUnitsAfter =
-      forgedMutation.gaugeUnitsBefore - 0.3;
+    forgedMutation.gaugeUnitsAfter = forgedMutation.gaugeUnitsBefore - 0.3;
     const forgedElectroAfter = forgedWane.auraAfter.find(
-      (entry) => entry.element === "electro"
+      (entry) => entry.element === "electro",
     )!;
     forgedElectroAfter.sourceSlots!.find(
-      (slot) => slot.sourceActorId === "driver"
+      (slot) => slot.sourceActorId === "driver",
     )!.gaugeUnits = forgedMutation.gaugeUnitsAfter;
-    const forgedPoint =
-      forgedSource.targetStateTimeline.points[point.id]!;
-    forgedPoint.auraConsumed = structuredClone(
-      forgedWane.auraConsumed
-    );
+    const forgedPoint = forgedSource.targetStateTimeline.points[point.id]!;
+    forgedPoint.auraConsumed = structuredClone(forgedWane.auraConsumed);
     forgedPoint.auraAfter = structuredClone(forgedWane.auraAfter);
-    expect(simulationResultSchema.safeParse(forgedSource).success).toBe(
-      false
+    expect(simulationResultSchema.safeParse(forgedSource).success).toBe(false);
+    expect(() => assertTrustedSimulationResult(forgedSource)).toThrow(
+      /fixed 0\.4U budget/,
     );
-    expect(() =>
-      assertTrustedSimulationResult(forgedSource)
-    ).toThrow(/fixed 0\.4U budget/);
 
     const forgedDeadlines = structuredClone(legal);
-    const forgedDeadlineWane =
-      forgedDeadlines.periodicReactionLog[wane.id]!;
-    const forgedDeadlineElectro =
-      forgedDeadlineWane.auraAfter.find(
-        (entry) => entry.element === "electro"
-      )!;
+    const forgedDeadlineWane = forgedDeadlines.periodicReactionLog[wane.id]!;
+    const forgedDeadlineElectro = forgedDeadlineWane.auraAfter.find(
+      (entry) => entry.element === "electro",
+    )!;
     forgedDeadlineElectro.expiresAtFrame! += 100;
     forgedDeadlineElectro.expiresAtTargetFrame! += 100;
     forgedDeadlines.targetStateTimeline.points[point.id]!.auraAfter =
       structuredClone(forgedDeadlineWane.auraAfter);
-    expect(
-      simulationResultSchema.safeParse(forgedDeadlines).success
-    ).toBe(false);
-    expect(() =>
-      assertTrustedSimulationResult(forgedDeadlines)
-    ).toThrow(/Aura deadline must retain/);
+    expect(simulationResultSchema.safeParse(forgedDeadlines).success).toBe(
+      false,
+    );
+    expect(() => assertTrustedSimulationResult(forgedDeadlines)).toThrow(
+      /Aura deadline must retain/,
+    );
 
     const forgedCadence = structuredClone(legal);
     Object.assign(forgedCadence.periodicReactionLog[wane.id]!, {
       cadenceStatus: "scheduled" as const,
-      waneListenerActive: true
+      waneListenerActive: true,
     });
-    expect(simulationResultSchema.safeParse(forgedCadence).success).toBe(
-      false
+    expect(simulationResultSchema.safeParse(forgedCadence).success).toBe(false);
+    expect(() => assertTrustedSimulationResult(forgedCadence)).toThrow(
+      /post-Wane cadence status/,
     );
-    expect(() =>
-      assertTrustedSimulationResult(forgedCadence)
-    ).toThrow(/post-Wane cadence status/);
   });
 });

@@ -38,13 +38,9 @@ function expectAcceptedAtBothResultBoundaries(
 function expectRejectedAtBothResultBoundaries(
   result: ReturnType<typeof simulate>,
 ): void {
-  expect(simulationResultSchema.safeParse(result).success).toBe(
-    false,
-  );
-  expect(() =>
-    assertTrustedSimulationResult(result),
-  ).toThrow(
-    /Trusted SimulationResult 1\.50 integrity validation failed/,
+  expect(simulationResultSchema.safeParse(result).success).toBe(false);
+  expect(() => assertTrustedSimulationResult(result)).toThrow(
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
 }
 
@@ -395,10 +391,7 @@ function makeLateCleanupConfig({
   restartFrame?: number;
   durationFrames?: number;
 }): SimConfig {
-  const config = makeDelayedCleanupConfig(
-    cleanupFrame,
-    cleanupGaugeUnits,
-  );
+  const config = makeDelayedCleanupConfig(cleanupFrame, cleanupGaugeUnits);
   config.reactionEngine = { mode };
   config.duration = durationFrames / 60;
   config.cycleLength = durationFrames / 60;
@@ -526,20 +519,12 @@ function electroChargedDamageFrames(
 }
 
 type CleanupSimulationResult = ReturnType<typeof simulate>;
-type CleanupResultMutation = (
-  result: CleanupSimulationResult,
-) => void;
+type CleanupResultMutation = (result: CleanupSimulationResult) => void;
 
 function requirePeriodicRow(
   result: CleanupSimulationResult,
   frame: number,
-  operation:
-    | "start"
-    | "refresh"
-    | "tick"
-    | "wane"
-    | "wane-skipped"
-    | "stop",
+  operation: "start" | "refresh" | "tick" | "wane" | "wane-skipped" | "stop",
   generation = 1,
 ) {
   const row = result.periodicReactionLog.find(
@@ -710,8 +695,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       result.periodicReactionLog.filter(
         (entry) =>
           entry.targetId === task?.targetId &&
-          entry.generation ===
-            task?.electroChargedCleanup?.generation &&
+          entry.generation === task?.electroChargedCleanup?.generation &&
           entry.operation === "start",
       ),
     ).toEqual([
@@ -748,8 +732,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       },
     });
     const generationOne = result.periodicReactionLog.filter(
-      (entry) =>
-        entry.reaction === "electroCharged" && entry.generation === 1,
+      (entry) => entry.reaction === "electroCharged" && entry.generation === 1,
     );
     expect(generationOne).toEqual(
       expect.arrayContaining([
@@ -780,9 +763,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     ).toBe(false);
     expect(
       result.targetStateTimeline.points.some(
-        (point) =>
-          point.frame === 16 &&
-          point.cause === "electro-charged-wane",
+        (point) => point.frame === 16 && point.cause === "electro-charged-wane",
       ),
     ).toBe(false);
     expect(electroChargedDamageFrames(result)).toEqual([10]);
@@ -842,12 +823,8 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     expectRejectedAtBothResultBoundaries(forgedTickIndex);
 
     const forgedCallbackGeneration = structuredClone(legacyResult);
-    forgedCallbackGeneration.periodicReactionLog[
-      legacyWane.id
-    ]!.generation = 1;
-    expectRejectedAtBothResultBoundaries(
-      forgedCallbackGeneration,
-    );
+    forgedCallbackGeneration.periodicReactionLog[legacyWane.id]!.generation = 1;
+    expectRejectedAtBothResultBoundaries(forgedCallbackGeneration);
 
     const result = simulate(
       makeLateCleanupConfig({
@@ -866,8 +843,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     });
 
     const generationTwo = result.periodicReactionLog.filter(
-      (entry) =>
-        entry.reaction === "electroCharged" && entry.generation === 2,
+      (entry) => entry.reaction === "electroCharged" && entry.generation === 2,
     );
     expect(generationTwo).toEqual(
       expect.arrayContaining([
@@ -901,15 +877,12 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
           entry.reaction === "electroCharged" &&
           entry.generation === 1 &&
           entry.frame === 16 &&
-          (entry.operation === "wane" ||
-            entry.operation === "wane-skipped"),
+          (entry.operation === "wane" || entry.operation === "wane-skipped"),
       ),
     ).toBe(false);
     expect(
       result.targetStateTimeline.points.some(
-        (point) =>
-          point.frame === 16 &&
-          point.cause === "electro-charged-wane",
+        (point) => point.frame === 16 && point.cause === "electro-charged-wane",
       ),
     ).toBe(false);
     expect(electroChargedDamageFrames(result)).toEqual([10, 23, 83]);
@@ -934,9 +907,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         parent.electroChargedPropagation.generation = 3;
       }
     }
-    expectRejectedAtBothResultBoundaries(
-      forgedRestartGeneration,
-    );
+    expectRejectedAtBothResultBoundaries(forgedRestartGeneration);
   });
 
   it("preserves the historical F16 wane when cleanup starts at F17, then suppresses F70", () => {
@@ -961,15 +932,13 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       },
     });
     const generationOne = result.periodicReactionLog.filter(
-      (entry) =>
-        entry.reaction === "electroCharged" && entry.generation === 1,
+      (entry) => entry.reaction === "electroCharged" && entry.generation === 1,
     );
     expect(
       generationOne.filter(
         (entry) =>
           entry.frame === 16 &&
-          (entry.operation === "wane" ||
-            entry.operation === "wane-skipped"),
+          (entry.operation === "wane" || entry.operation === "wane-skipped"),
       ),
     ).toEqual([
       expect.objectContaining({
@@ -978,8 +947,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     ]);
     expect(
       generationOne.some(
-        (entry) =>
-          entry.frame === 70 && entry.operation === "tick",
+        (entry) => entry.frame === 70 && entry.operation === "tick",
       ),
     ).toBe(false);
     expect(electroChargedDamageFrames(result)).toEqual([10]);
@@ -1011,8 +979,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       },
     });
     const generationOne = result.periodicReactionLog.filter(
-      (entry) =>
-        entry.reaction === "electroCharged" && entry.generation === 1,
+      (entry) => entry.reaction === "electroCharged" && entry.generation === 1,
     );
     expect(
       generationOne
@@ -1023,8 +990,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       generationOne
         .filter(
           (entry) =>
-            entry.operation === "wane" ||
-            entry.operation === "wane-skipped",
+            entry.operation === "wane" || entry.operation === "wane-skipped",
         )
         .map((entry) => entry.frame),
     ).toEqual([16]);
@@ -1079,15 +1045,13 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       [
         "F10 trigger must remain the generation owner trigger",
         (result) => {
-          requirePeriodicRow(result, 10, "tick").triggerDamageEventId =
-            999;
+          requirePeriodicRow(result, 10, "tick").triggerDamageEventId = 999;
         },
       ],
       [
         "F10 target name must remain reciprocal",
         (result) => {
-          requirePeriodicRow(result, 10, "tick").targetName =
-            "forged-target";
+          requirePeriodicRow(result, 10, "tick").targetName = "forged-target";
         },
       ],
       [
@@ -1115,9 +1079,8 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
           if (tick.reactionDamageLogId === null) {
             throw new Error("Expected F10 reaction damage.");
           }
-          result.reactionDamageLog[
-            tick.reactionDamageLogId
-          ]!.damageEventIds = [];
+          result.reactionDamageLog[tick.reactionDamageLogId]!.damageEventIds =
+            [];
         },
       ],
       [
@@ -1128,18 +1091,14 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
             throw new Error("Expected F10 damage child.");
           }
           const damage = result.damageEvents[tick.damageEventId]!;
-          damage.parentDamageEventId =
-            (damage.parentDamageEventId ?? 0) + 100;
+          damage.parentDamageEventId = (damage.parentDamageEventId ?? 0) + 100;
         },
       ],
       [
         "F10 coexistence expiry must be derived from Aura",
         (result) => {
-          requirePeriodicRow(
-            result,
-            10,
-            "tick",
-          ).coexistenceExpiresAtFrame = 999;
+          requirePeriodicRow(result, 10, "tick").coexistenceExpiresAtFrame =
+            999;
         },
       ],
       [
@@ -1173,8 +1132,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         "cleanup stop must be the generation's only terminal row",
         (result) => {
           const task = result.reactionTaskLog.find(
-            (candidate) =>
-              candidate.electroChargedCleanup?.outcome === "stop",
+            (candidate) => candidate.electroChargedCleanup?.outcome === "stop",
           );
           const cleanup = task?.electroChargedCleanup;
           if (
@@ -1185,9 +1143,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
             throw new Error("Expected L11 cleanup stop.");
           }
           const stop = structuredClone(
-            result.periodicReactionLog[
-              cleanup.periodicReactionLogId
-            ]!,
+            result.periodicReactionLog[cleanup.periodicReactionLogId]!,
           );
           stop.id = result.periodicReactionLog.length;
           stop.frame = 5;
@@ -1220,8 +1176,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       [
         "F16 Wane trigger must match its Tick",
         (result) => {
-          requirePeriodicRow(result, 16, "wane").triggerDamageEventId =
-            999;
+          requirePeriodicRow(result, 16, "wane").triggerDamageEventId = 999;
         },
       ],
       [
@@ -1239,15 +1194,13 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       [
         "F16 Wane target name must remain reciprocal",
         (result) => {
-          requirePeriodicRow(result, 16, "wane").targetName =
-            "forged-target";
+          requirePeriodicRow(result, 16, "wane").targetName = "forged-target";
         },
       ],
       [
         "F16 positive-damage Wane cannot claim skipped semantics",
         (result) => {
-          requirePeriodicRow(result, 16, "wane").operation =
-            "wane-skipped";
+          requirePeriodicRow(result, 16, "wane").operation = "wane-skipped";
         },
       ],
       [
@@ -1260,11 +1213,8 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       [
         "F16 Wane coexistence expiry must be derived from Aura",
         (result) => {
-          requirePeriodicRow(
-            result,
-            16,
-            "wane",
-          ).coexistenceExpiresAtFrame = 999;
+          requirePeriodicRow(result, 16, "wane").coexistenceExpiresAtFrame =
+            999;
         },
       ],
       [
@@ -1386,11 +1336,8 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       [
         "F70 coexistence expiry must be derived from Aura",
         (result) => {
-          requirePeriodicRow(
-            result,
-            70,
-            "tick",
-          ).coexistenceExpiresAtFrame = 999;
+          requirePeriodicRow(result, 70, "tick").coexistenceExpiresAtFrame =
+            999;
         },
       ],
       [
@@ -1443,10 +1390,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       targetStateTimelinePointId: expect.any(Number),
     });
     const cleanup = cleanupTask?.electroChargedCleanup;
-    if (
-      cleanupTask === undefined ||
-      cleanup?.outcome !== "natural-expiry"
-    ) {
+    if (cleanupTask === undefined || cleanup?.outcome !== "natural-expiry") {
       throw new Error("Expected natural-expiry cleanup collision.");
     }
 
@@ -1474,9 +1418,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     ).toHaveLength(1);
 
     const point =
-      result.targetStateTimeline.points[
-        cleanup.targetStateTimelinePointId
-      ];
+      result.targetStateTimeline.points[cleanup.targetStateTimelinePointId];
     expect(point).toMatchObject({
       frame: 6,
       targetFrame: 1,
@@ -1485,8 +1427,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     });
     expect(
       result.targetStateTimeline.points.filter(
-        (candidate) =>
-          candidate.id === cleanup.targetStateTimelinePointId,
+        (candidate) => candidate.id === cleanup.targetStateTimelinePointId,
       ),
     ).toHaveLength(1);
 
@@ -1497,16 +1438,12 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
           transition.kind === "electro-charged-expiry" ||
           transition.kind === "electro-charged-cleanup",
       ) ?? [];
-    expect(
-      ecTransitions.map((transition) => transition.kind),
-    ).toEqual([
+    expect(ecTransitions.map((transition) => transition.kind)).toEqual([
       "electro-charged-expiry",
       "electro-charged-cleanup",
     ]);
     expect(
-      ecTransitions.map(
-        (transition) => transition.targetStateTimelinePointId,
-      ),
+      ecTransitions.map((transition) => transition.targetStateTimelinePointId),
     ).toEqual([
       cleanup.targetStateTimelinePointId,
       cleanup.targetStateTimelinePointId,
@@ -1521,10 +1458,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       (task) => task.electroChargedCleanup?.outcome === "natural-expiry",
     );
     const cleanup = cleanupTask?.electroChargedCleanup;
-    if (
-      cleanupTask === undefined ||
-      cleanup?.outcome !== "natural-expiry"
-    ) {
+    if (cleanupTask === undefined || cleanup?.outcome !== "natural-expiry") {
       throw new Error("Expected v3 natural-expiry cleanup collision.");
     }
     const forged = structuredClone(base);
@@ -1542,12 +1476,10 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     }
     cleanupTransition.reactionTaskLogId = 999;
 
-    expect(simulationResultSchema.safeParse(forged).success).toBe(
-      false,
+    expect(simulationResultSchema.safeParse(forged).success).toBe(false);
+    expect(() => assertTrustedSimulationResult(forged)).toThrow(
+      /Electro-Charged cleanup transition/,
     );
-    expect(() =>
-      assertTrustedSimulationResult(forged),
-    ).toThrow(/Electro-Charged cleanup transition/);
   });
 
   it("rejects forged natural-expiry stop and lifecycle observation fields", () => {
@@ -1558,23 +1490,19 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       (task) => task.electroChargedCleanup?.outcome === "natural-expiry",
     );
     const cleanup = cleanupTask?.electroChargedCleanup;
-    if (
-      cleanupTask === undefined ||
-      cleanup?.outcome !== "natural-expiry"
-    ) {
+    if (cleanupTask === undefined || cleanup?.outcome !== "natural-expiry") {
       throw new Error("Expected natural-expiry cleanup collision.");
     }
 
     const mutations: Array<(result: any) => void> = [
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].auraConsumed = [
-          {
-            element: "hydro",
-            gaugeUnits: 0.1,
-          },
-        ];
+        result.periodicReactionLog[cleanup.periodicReactionLogId].auraConsumed =
+          [
+            {
+              element: "hydro",
+              gaugeUnits: 0.1,
+            },
+          ];
       },
       (result) => {
         result.targetStateTimeline.points[
@@ -1582,40 +1510,30 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         ].eventPriority = 99;
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].targetId = "forged-target";
+        result.periodicReactionLog[cleanup.periodicReactionLogId].targetId =
+          "forged-target";
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].targetName = "forged-target-name";
+        result.periodicReactionLog[cleanup.periodicReactionLogId].targetName =
+          "forged-target-name";
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].auraBefore = [];
+        result.periodicReactionLog[cleanup.periodicReactionLogId].auraBefore =
+          [];
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].auraAfter = [];
+        result.periodicReactionLog[cleanup.periodicReactionLogId].auraAfter =
+          [];
       },
       (result) => {
-        const stop =
-          result.periodicReactionLog[
-            cleanup.periodicReactionLogId
-          ];
+        const stop = result.periodicReactionLog[cleanup.periodicReactionLogId];
         stop.sourceActorId =
           stop.sourceActorId === null
             ? "forged-source"
             : `${stop.sourceActorId}-forged`;
       },
       (result) => {
-        const stop =
-          result.periodicReactionLog[
-            cleanup.periodicReactionLogId
-          ];
+        const stop = result.periodicReactionLog[cleanup.periodicReactionLogId];
         stop.triggerDamageEventId =
           stop.triggerDamageEventId === null
             ? 0
@@ -1632,9 +1550,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         ].reactionDamageLogId = 0;
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].tickIndex = 0;
+        result.periodicReactionLog[cleanup.periodicReactionLogId].tickIndex = 0;
       },
       (result) => {
         result.periodicReactionLog[
@@ -1642,17 +1558,13 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         ].coexistenceExpiresAtFrame = 1;
       },
       (result) => {
-        const stop =
-          result.periodicReactionLog[
-            cleanup.periodicReactionLogId
-          ];
+        const stop = result.periodicReactionLog[cleanup.periodicReactionLogId];
         stop.frame += 1;
         stop.timeSeconds = stop.frame / 60;
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].targetFrame += 1;
+        result.periodicReactionLog[cleanup.periodicReactionLogId].targetFrame +=
+          1;
       },
       (result) => {
         result.periodicReactionLog[
@@ -1660,9 +1572,8 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
         ].nextTickFrame = 70;
       },
       (result) => {
-        result.periodicReactionLog[
-          cleanup.periodicReactionLogId
-        ].waneFrame = 16;
+        result.periodicReactionLog[cleanup.periodicReactionLogId].waneFrame =
+          16;
       },
     ];
 
@@ -1670,8 +1581,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
       const result = structuredClone(base);
       mutate(result);
       expect(
-        electroChargedCleanupResultReferencesSchema.safeParse(result)
-          .success,
+        electroChargedCleanupResultReferencesSchema.safeParse(result).success,
       ).toBe(false);
     }
   });

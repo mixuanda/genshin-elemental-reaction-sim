@@ -2,7 +2,7 @@ import {
   assertTrustedSimulationResult,
   simulationResultSchema,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
@@ -12,7 +12,7 @@ const SAME_TARGET_GEOMETRY = {
   kind: "circle" as const,
   coordinateSpace: "world" as const,
   origin: { x: 0, y: 0 },
-  radius: 1
+  radius: 1,
 };
 
 function makeBurningQuickenConfig(): SimConfig {
@@ -22,7 +22,7 @@ function makeBurningQuickenConfig(): SimConfig {
     id: "burning-quicken-driver",
     name: "Burning Quicken driver",
     element: "pyro" as const,
-    stats: { ...neutralStats, baseAtk: 0 }
+    stats: { ...neutralStats, baseAtk: 0 },
   };
   return {
     ...base,
@@ -33,7 +33,7 @@ function makeBurningQuickenConfig(): SimConfig {
     meta: {
       name: "Burning Quicken ownership integrity",
       version: "1.44.0",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     enemy: {
       level: 90,
@@ -44,11 +44,9 @@ function makeBurningQuickenConfig(): SimConfig {
           id: "enemy-0",
           name: "Burning Quicken target",
           position: { x: 0, y: 0 },
-          initialAura: [
-            { element: "dendro", gaugeUnits: 1 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "dendro", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [actor],
     rotation: [],
@@ -78,8 +76,8 @@ function makeBurningQuickenConfig(): SimConfig {
               geometry: SAME_TARGET_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
+                icd: { mode: "no-icd-v1" },
+              },
             },
             {
               id: "burning-hit",
@@ -90,57 +88,54 @@ function makeBurningQuickenConfig(): SimConfig {
               geometry: SAME_TARGET_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: actor.id,
           abilityId: "quicken-then-burning",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function makeOwnershipFixture(): SimulationResult {
   const result = simulate(makeBurningQuickenConfig(), {
-    critMode: "noCrit"
+    critMode: "noCrit",
   });
   const burningEvent = result.damageEvents.find(
     (event) =>
-      event.reactionAudit.burningReaction?.quickenStateMutation
-        .operation === "decay-rebase"
+      event.reactionAudit.burningReaction?.quickenStateMutation.operation ===
+      "decay-rebase",
   );
   const quickenRow = result.quickenStateLog.find(
-    (row) => row.reason === "BURNING_REBASED_QUICKEN_DECAY"
+    (row) => row.reason === "BURNING_REBASED_QUICKEN_DECAY",
   );
-  const applicationPoint =
-    result.targetStateTimeline.points.find(
-      (point) =>
-        point.primaryDamageEventId === burningEvent?.id &&
-        point.cause === "direct-hit-application"
-    );
+  const applicationPoint = result.targetStateTimeline.points.find(
+    (point) =>
+      point.primaryDamageEventId === burningEvent?.id &&
+      point.cause === "direct-hit-application",
+  );
   if (
     burningEvent === undefined ||
     quickenRow === undefined ||
     applicationPoint === undefined
   ) {
     throw new Error(
-      "Ownership fixture must expose a Burning decay-rebase event, row, and application point."
+      "Ownership fixture must expose a Burning decay-rebase event, row, and application point.",
     );
   }
   expect(
     applicationPoint.links.filter(
-      (link) =>
-        link.kind === "quicken-state-log" &&
-        link.id === quickenRow.id
-    )
+      (link) => link.kind === "quicken-state-log" && link.id === quickenRow.id,
+    ),
   ).toHaveLength(1);
   return result;
 }
@@ -152,7 +147,7 @@ function makeOrderedOwnershipFixture(): SimulationResult {
     id: "ordered-burning-driver",
     name: "Ordered Burning driver",
     element: "dendro" as const,
-    stats: { ...neutralStats, baseAtk: 0 }
+    stats: { ...neutralStats, baseAtk: 0 },
   };
   const config: SimConfig = {
     ...base,
@@ -163,7 +158,7 @@ function makeOrderedOwnershipFixture(): SimulationResult {
     meta: {
       name: "Burning Quicken order integrity",
       version: "1.44.0",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     enemy: {
       level: 90,
@@ -177,10 +172,10 @@ function makeOrderedOwnershipFixture(): SimulationResult {
           initialAura: [
             { element: "electro", gaugeUnits: 0.1 },
             { element: "pyro", gaugeUnits: 1 },
-            { element: "hydro", gaugeUnits: 2.4 }
-          ]
-        }
-      ]
+            { element: "hydro", gaugeUnits: 2.4 },
+          ],
+        },
+      ],
     },
     characters: [actor],
     rotation: [],
@@ -209,25 +204,25 @@ function makeOrderedOwnershipFixture(): SimulationResult {
               element: "dendro",
               targeting: {
                 targetId: "enemy-0",
-                outcome: "landed"
+                outcome: "landed",
               },
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: actor.id,
           abilityId: "ordered-quicken-burning-bloom",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
   return simulate(config, { critMode: "noCrit" });
 }
@@ -235,17 +230,16 @@ function makeOrderedOwnershipFixture(): SimulationResult {
 function ownershipParts(result: SimulationResult) {
   const event = result.damageEvents.find(
     (candidate) =>
-      candidate.reactionAudit.burningReaction
-        ?.quickenStateMutation.operation === "decay-rebase"
+      candidate.reactionAudit.burningReaction?.quickenStateMutation
+        .operation === "decay-rebase",
   );
   const row = result.quickenStateLog.find(
-    (candidate) =>
-      candidate.reason === "BURNING_REBASED_QUICKEN_DECAY"
+    (candidate) => candidate.reason === "BURNING_REBASED_QUICKEN_DECAY",
   );
   const point = result.targetStateTimeline.points.find(
     (candidate) =>
       candidate.primaryDamageEventId === event?.id &&
-      candidate.cause === "direct-hit-application"
+      candidate.cause === "direct-hit-application",
   );
   if (event === undefined || row === undefined || point === undefined) {
     throw new Error("Burning Quicken ownership fixture is incomplete.");
@@ -253,35 +247,27 @@ function ownershipParts(result: SimulationResult) {
   return { event, row, point };
 }
 
-function expectAcceptedAtBothBoundaries(
-  result: SimulationResult
-): void {
+function expectAcceptedAtBothBoundaries(result: SimulationResult): void {
   const parsed = simulationResultSchema.safeParse(result);
   if (!parsed.success) {
     throw new Error(
       JSON.stringify(
         parsed.error.issues.map(({ path, message }) => ({
           path,
-          message
+          message,
         })),
         null,
-        2
-      )
+        2,
+      ),
     );
   }
   expect(assertTrustedSimulationResult(result)).toBe(result);
 }
 
-function expectRejectedAtBothBoundaries(
-  result: SimulationResult
-): void {
-  expect(simulationResultSchema.safeParse(result).success).toBe(
-    false
-  );
-  expect(() =>
-    assertTrustedSimulationResult(result)
-  ).toThrow(
-    /Trusted SimulationResult 1\.50 integrity validation failed/
+function expectRejectedAtBothBoundaries(result: SimulationResult): void {
+  expect(simulationResultSchema.safeParse(result).success).toBe(false);
+  expect(() => assertTrustedSimulationResult(result)).toThrow(
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
 }
 
@@ -315,12 +301,10 @@ describe("Burning Quicken ownership integrity", () => {
   it("rejects coordinated G2/G3 row reordering with ids and links rewritten", () => {
     const result = makeOrderedOwnershipFixture();
     const burningRow = result.quickenStateLog.find(
-      (candidate) =>
-        candidate.reason === "BURNING_REBASED_QUICKEN_DECAY"
+      (candidate) => candidate.reason === "BURNING_REBASED_QUICKEN_DECAY",
     );
     const bloomRow = result.quickenStateLog.find(
-      (candidate) =>
-        candidate.reason === "BLOOM_PARTIALLY_CONSUMED_QUICKEN"
+      (candidate) => candidate.reason === "BLOOM_PARTIALLY_CONSUMED_QUICKEN",
     );
     if (burningRow === undefined || bloomRow === undefined) {
       throw new Error("Ordered fixture must expose G2 and G3 rows.");
@@ -329,11 +313,11 @@ describe("Burning Quicken ownership integrity", () => {
     const bloomId = bloomRow.id;
     result.quickenStateLog[burningId] = {
       ...structuredClone(bloomRow),
-      id: burningId
+      id: burningId,
     };
     result.quickenStateLog[bloomId] = {
       ...structuredClone(burningRow),
-      id: bloomId
+      id: bloomId,
     };
     for (const point of result.targetStateTimeline.points) {
       for (const link of point.links) {
@@ -355,8 +339,7 @@ describe("Burning Quicken ownership integrity", () => {
 
     result.quickenStateLog.splice(row.id, 1);
     point.links = point.links.filter(
-      (link) =>
-        link.kind !== "quicken-state-log" || link.id !== row.id
+      (link) => link.kind !== "quicken-state-log" || link.id !== row.id,
     );
 
     expectRejectedAtBothBoundaries(result);
@@ -367,8 +350,7 @@ describe("Burning Quicken ownership integrity", () => {
     const { row, point } = ownershipParts(result);
 
     point.links = point.links.filter(
-      (link) =>
-        link.kind !== "quicken-state-log" || link.id !== row.id
+      (link) => link.kind !== "quicken-state-log" || link.id !== row.id,
     );
 
     expectRejectedAtBothBoundaries(result);
@@ -378,12 +360,11 @@ describe("Burning Quicken ownership integrity", () => {
     const result = makeOwnershipFixture();
     const { row, point } = ownershipParts(result);
     const otherRow = result.quickenStateLog.find(
-      (candidate) => candidate.id !== row.id
+      (candidate) => candidate.id !== row.id,
     );
     const link = point.links.find(
       (candidate) =>
-        candidate.kind === "quicken-state-log" &&
-        candidate.id === row.id
+        candidate.kind === "quicken-state-log" && candidate.id === row.id,
     );
     if (otherRow === undefined || link === undefined) {
       throw new Error("Fixture must expose two Quicken rows and its link.");
@@ -400,7 +381,7 @@ describe("Burning Quicken ownership integrity", () => {
 
     result.quickenStateLog.push({
       ...structuredClone(row),
-      id: result.quickenStateLog.length
+      id: result.quickenStateLog.length,
     });
 
     expectRejectedAtBothBoundaries(result);

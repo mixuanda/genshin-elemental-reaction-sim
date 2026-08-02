@@ -27,6 +27,11 @@ export const TRANSFORMATIVE_REACTION_LEVEL_BASE =
 export interface DefenseMultiplierInput {
   characterLevel: number;
   enemyLevel: number;
+  /**
+   * Legacy signed defense adjustment inherited from gcsim's DefMod/def_adj:
+   * negative values reduce enemy defense; positive values increase it.
+   * The historical wire name is retained for compatibility.
+   */
   defenseReduction?: number;
   defenseIgnore?: number;
 }
@@ -163,6 +168,8 @@ export function calcTotalStat(stats: CharacterStats, stat: ScalingStat): number 
 
 export function calcDefenseMultiplier(input: DefenseMultiplierInput): number {
   const defenseIgnore = clamp(input.defenseIgnore ?? 0, 0, 1);
+  // This is a signed adjustment, despite the frozen historical field name.
+  // For example, -0.30 means 30% enemy-defense reduction.
   const defenseReduction = clamp(input.defenseReduction ?? 0, -1, 0.9);
   const characterTerm = input.characterLevel + 100;
   const enemyTerm =

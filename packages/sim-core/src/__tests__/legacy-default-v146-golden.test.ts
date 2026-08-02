@@ -6,7 +6,7 @@ import {
   readFileSync,
   rmSync,
   unlinkSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -21,7 +21,7 @@ import {
   directDamageGroupModelSchema,
   reactionFormulaModelSchema,
   simulationResultSchema,
-  simulationRunManifestV146Schema
+  simulationRunManifestV146Schema,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -35,8 +35,7 @@ const FROZEN_V145_SHA256 =
 const FROZEN_V146_SHA256 =
   "3ef783e206a4566fd935c3251f97d31aeb6cddb7ec7e82eccf661d62cb994465";
 const DEFAULT_V146_CONFIG_HASH = "fnv1a32:a6bb82c4";
-const DEFAULT_V146_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-0441a6ea";
+const DEFAULT_V146_REPRODUCIBILITY_KEY = "gdl-v2-fnv1a32-0441a6ea";
 const DEFAULT_DAMAGE_EVENTS_SHA256 =
   "b3bddf486cf85967f8be689ccad860a450377fab5f3e2318655430324348652f";
 const DEFAULT_DAMAGE_GROUP_LOG_SHA256 =
@@ -50,18 +49,18 @@ const NOTE =
 
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.46.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const FROZEN_V145_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.45.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const EMPTY_LEGACY_COMPATIBILITY_ARRAY_FIELDS = new Set([
   "bloomReactions",
   "damageGroupDecisions",
   "playerHitResolutionLogIds",
   "playerDamageEventIds",
-  "reactionTaskLog"
+  "reactionTaskLog",
 ]);
 const NULL_LEGACY_COMPATIBILITY_REFERENCE_FIELDS = new Set([
   "triggerHitGroupId",
@@ -71,11 +70,9 @@ const NULL_LEGACY_COMPATIBILITY_REFERENCE_FIELDS = new Set([
   "selectedTargetId",
   "resolutionReason",
   "playerHitResolutionLogId",
-  "playerDamageEventId"
+  "playerDamageEventId",
 ]);
-const POST_V146_DAMAGE_EVENT_FIELDS = new Set([
-  "elementalApplicationIcdLogId"
-]);
+const POST_V146_DAMAGE_EVENT_FIELDS = new Set(["elementalApplicationIcdLogId"]);
 
 const fixtureSchema = z
   .object({
@@ -88,25 +85,19 @@ const fixtureSchema = z
         verificationStatus: z.literal("provisional"),
         note: z.literal(NOTE),
         officialServerTruth: z.literal(false),
-        completeGcsimParity: z.literal(false)
+        completeGcsimParity: z.literal(false),
       })
       .strict(),
-    schemaVersion: z.literal(
-      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
-    ),
-    engineVersion: z.literal(
-      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
-    ),
+    schemaVersion: z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION),
+    engineVersion: z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION),
     configHash: z.literal(DEFAULT_V146_CONFIG_HASH),
-    reproducibilityKey: z.literal(
-      DEFAULT_V146_REPRODUCIBILITY_KEY
-    ),
+    reproducibilityKey: z.literal(DEFAULT_V146_REPRODUCIBILITY_KEY),
     options: z
       .object({
         energyMode: z.literal("configured"),
         critMode: z.literal("average"),
         compatibilityMode: z.literal("legacy-v0.1"),
-        randomSeed: z.literal("legacy-default")
+        randomSeed: z.literal("legacy-default"),
       })
       .strict(),
     totalDamage: z.literal(41410555.13728799),
@@ -119,7 +110,7 @@ const fixtureSchema = z
         nicole: z.literal(740338.5919263127),
         citlali: z.literal(77244.84267655843),
         durin: z.literal(38779268.124040276),
-        lohen: z.literal(1813703.5786448019)
+        lohen: z.literal(1813703.5786448019),
       })
       .strict(),
     bySkill: z.array(
@@ -128,13 +119,11 @@ const fixtureSchema = z
           creditId: z.string().min(1),
           actionName: z.string().min(1),
           damage: z.number().finite(),
-          hits: z.number().int().nonnegative()
+          hits: z.number().int().nonnegative(),
         })
-        .strict()
+        .strict(),
     ),
-    legacyDamageEventsSha256: z.literal(
-      DEFAULT_DAMAGE_EVENTS_SHA256
-    ),
+    legacyDamageEventsSha256: z.literal(DEFAULT_DAMAGE_EVENTS_SHA256),
     reactionDeliveryModel: z.unknown(),
     electroChargedPropagationModel: z.unknown(),
     targetClock: z.unknown(),
@@ -147,35 +136,29 @@ const fixtureSchema = z
         rowCount: z.literal(269),
         evaluatedCount: z.literal(0),
         bypassedCount: z.literal(269),
-        canonicalSha256: z.literal(
-          DEFAULT_DAMAGE_GROUP_LOG_SHA256
-        )
+        canonicalSha256: z.literal(DEFAULT_DAMAGE_GROUP_LOG_SHA256),
       })
       .strict(),
-    runManifest: simulationRunManifestV146Schema
+    runManifest: simulationRunManifestV146Schema,
   })
   .strict()
   .superRefine((fixture, context) => {
     if (
       fixture.runManifest.version !==
         DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION ||
-      fixture.runManifest.schemaVersion !==
-        fixture.schemaVersion ||
-      fixture.runManifest.engineVersion !==
-        fixture.engineVersion ||
+      fixture.runManifest.schemaVersion !== fixture.schemaVersion ||
+      fixture.runManifest.engineVersion !== fixture.engineVersion ||
       fixture.runManifest.configHash !== fixture.configHash ||
-      fixture.runManifest.reproducibilityKey !==
-        fixture.reproducibilityKey ||
-      JSON.stringify(
-        fixture.runManifest.resolvedRuntimeOptions
-      ) !== JSON.stringify(fixture.options) ||
+      fixture.runManifest.reproducibilityKey !== fixture.reproducibilityKey ||
+      JSON.stringify(fixture.runManifest.resolvedRuntimeOptions) !==
+        JSON.stringify(fixture.options) ||
       fixture.runManifest.plugins.length !== 0
     ) {
       context.addIssue({
         code: "custom",
         path: ["runManifest"],
         message:
-          "must bind the exact 1.46 default identity, options, empty plugin order, and reproducibility key"
+          "must bind the exact 1.46 default identity, options, empty plugin order, and reproducibility key",
       });
     }
     if (
@@ -188,7 +171,7 @@ const fixtureSchema = z
         code: "custom",
         path: ["runManifest", "directDamageGroupRoot"],
         message:
-          "must bind the exact direct-damage-group selector and provisional root"
+          "must bind the exact direct-damage-group selector and provisional root",
       });
     }
   });
@@ -208,7 +191,7 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.keys(record)
         .sort()
-        .map((key) => [key, canonicalize(record[key])])
+        .map((key) => [key, canonicalize(record[key])]),
     );
   }
   return value;
@@ -221,9 +204,7 @@ function canonicalSha256(value: unknown): string {
 /** Exact pre-1.45 damage-event digest projection retained by the frozen chain. */
 function legacyDamageEventCanonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map((entry) =>
-      legacyDamageEventCanonicalize(entry)
-    );
+    return value.map((entry) => legacyDamageEventCanonicalize(entry));
   }
   if (value !== null && typeof value === "object") {
     const record = value as Record<string, unknown>;
@@ -247,19 +228,14 @@ function legacyDamageEventCanonicalize(value: unknown): unknown {
             field === null
           );
         })
-        .map((key) => [
-          key,
-          legacyDamageEventCanonicalize(record[key])
-        ])
+        .map((key) => [key, legacyDamageEventCanonicalize(record[key])]),
     );
   }
   return value;
 }
 
 function legacyDamageEventsSha256(value: unknown): string {
-  return byteSha256(
-    JSON.stringify(legacyDamageEventCanonicalize(value))
-  );
+  return byteSha256(JSON.stringify(legacyDamageEventCanonicalize(value)));
 }
 
 function serializeFixture(value: unknown): string {
@@ -268,8 +244,7 @@ function serializeFixture(value: unknown): string {
 
 function atomicCreateFixture(outputUrl: URL, bytes: string): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
   writeFileSync(temporaryPath, bytes, { flag: "wx" });
   try {
     linkSync(temporaryPath, outputPath);
@@ -280,9 +255,7 @@ function atomicCreateFixture(outputUrl: URL, bytes: string): void {
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -300,15 +273,13 @@ function compatibilityProjection(fixture: DefaultV146Fixture) {
     skippedActionCount: fixture.skippedActionCount,
     byCharacter: fixture.byCharacter,
     bySkill: fixture.bySkill,
-    legacyDamageEventsSha256:
-      fixture.legacyDamageEventsSha256,
+    legacyDamageEventsSha256: fixture.legacyDamageEventsSha256,
     reactionDeliveryModel: fixture.reactionDeliveryModel,
-    electroChargedPropagationModel:
-      fixture.electroChargedPropagationModel,
+    electroChargedPropagationModel: fixture.electroChargedPropagationModel,
     targetClock: fixture.targetClock,
     targetTask: fixture.targetTask,
     targetPhaseLog: fixture.targetPhaseLog,
-    reactionFormulaModel: fixture.reactionFormulaModel
+    reactionFormulaModel: fixture.reactionFormulaModel,
   };
 }
 
@@ -322,30 +293,27 @@ function frozenV145CompatibilityProjection() {
     skippedActionCount: frozenV145Json.skippedActionCount,
     byCharacter: frozenV145Json.byCharacter,
     bySkill: frozenV145Json.bySkill,
-    legacyDamageEventsSha256:
-      frozenV145Json.legacyDamageEventsSha256,
-    reactionDeliveryModel:
-      frozenV145Json.reactionDeliveryModel,
+    legacyDamageEventsSha256: frozenV145Json.legacyDamageEventsSha256,
+    reactionDeliveryModel: frozenV145Json.reactionDeliveryModel,
     electroChargedPropagationModel:
       frozenV145Json.electroChargedPropagationModel,
     targetClock: frozenV145Json.targetClock,
     targetTask: frozenV145Json.targetTask,
     targetPhaseLog: frozenV145Json.targetPhaseLog,
-    reactionFormulaModel: frozenV145Json.reactionFormulaModel
+    reactionFormulaModel: frozenV145Json.reactionFormulaModel,
   };
 }
 
-function makeFixture(
-  result: ReturnType<typeof simulate>
-): DefaultV146Fixture {
+function makeFixture(result: ReturnType<typeof simulate>): DefaultV146Fixture {
   const evaluatedCount = result.directDamageGroupLog.filter(
-    (entry) => entry.evaluation === "evaluated"
+    (entry) => entry.evaluation === "evaluated",
   ).length;
   const {
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
       _reactionOwnedElementalApplicationRoot,
     reactionDamageGroupRoot: _reactionDamageGroupRoot,
+    basicReactionSchedulerRoot: _basicReactionSchedulerRoot,
     ...currentManifestWithoutApplicationRoot
   } = result.runManifest;
   const frozenRunManifest = {
@@ -354,7 +322,7 @@ function makeFixture(
     schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
     engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
     configHash: DEFAULT_V146_CONFIG_HASH,
-    reproducibilityKey: DEFAULT_V146_REPRODUCIBILITY_KEY
+    reproducibilityKey: DEFAULT_V146_REPRODUCIBILITY_KEY,
   };
   return fixtureSchema.parse({
     fixtureVersion: "1.0.0",
@@ -365,7 +333,7 @@ function makeFixture(
       verificationStatus: "provisional",
       note: NOTE,
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     },
     schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
     engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
@@ -378,17 +346,13 @@ function makeFixture(
     reactedHits: result.reactedHits,
     skippedActionCount: result.skippedActions.length,
     byCharacter: result.byCharacter,
-    bySkill: result.bySkill.map(
-      ({ creditId, actionName, damage, hits }) => ({
-        creditId,
-        actionName,
-        damage,
-        hits
-      })
-    ),
-    legacyDamageEventsSha256: legacyDamageEventsSha256(
-      result.damageEvents
-    ),
+    bySkill: result.bySkill.map(({ creditId, actionName, damage, hits }) => ({
+      creditId,
+      actionName,
+      damage,
+      hits,
+    })),
+    legacyDamageEventsSha256: legacyDamageEventsSha256(result.damageEvents),
     reactionDeliveryModel: result.config.reactionDeliveryModel,
     electroChargedPropagationModel:
       result.config.electroChargedPropagationModel,
@@ -396,26 +360,22 @@ function makeFixture(
       config: result.config.targetClockModel,
       audit: result.targetClockAudit,
       clockLog: result.targetClockLog,
-      hitlagLog: result.targetHitlagLog
+      hitlagLog: result.targetHitlagLog,
     },
     targetTask: {
       config: result.config.targetTaskModel,
-      phaseLog: result.targetTaskPhaseLog
+      phaseLog: result.targetTaskPhaseLog,
     },
     targetPhaseLog: result.targetPhaseLog,
     reactionFormulaModel: result.config.reactionFormulaModel,
-    directDamageGroupModel:
-      result.config.directDamageGroupModel,
+    directDamageGroupModel: result.config.directDamageGroupModel,
     directDamageGroupAudit: {
       rowCount: result.directDamageGroupLog.length,
       evaluatedCount,
-      bypassedCount:
-        result.directDamageGroupLog.length - evaluatedCount,
-      canonicalSha256: canonicalSha256(
-        result.directDamageGroupLog
-      )
+      bypassedCount: result.directDamageGroupLog.length - evaluatedCount,
+      canonicalSha256: canonicalSha256(result.directDamageGroupLog),
     },
-    runManifest: frozenRunManifest
+    runManifest: frozenRunManifest,
   });
 }
 
@@ -424,7 +384,7 @@ function loadOrCreateFixture(
   options: {
     updateRequested?: boolean;
     outputUrl?: URL;
-  } = {}
+  } = {},
 ): DefaultV146Fixture {
   const updateRequested =
     options.updateRequested ?? process.env[UPDATE_FLAG] === "1";
@@ -433,7 +393,7 @@ function loadOrCreateFixture(
   const sourceSha256 = byteSha256(sourceBytes);
   if (sourceSha256 !== FROZEN_V145_SHA256) {
     throw new Error(
-      `Refusing to derive 1.46 from modified 1.45 source; received ${sourceSha256}.`
+      `Refusing to derive 1.46 from modified 1.45 source; received ${sourceSha256}.`,
     );
   }
   if (
@@ -441,7 +401,7 @@ function loadOrCreateFixture(
     JSON.stringify(frozenV145CompatibilityProjection())
   ) {
     throw new Error(
-      "Refusing the 1.46 default fixture because its exact 1.45 compatibility projection changed."
+      "Refusing the 1.46 default fixture because its exact 1.45 compatibility projection changed.",
     );
   }
 
@@ -450,7 +410,7 @@ function loadOrCreateFixture(
     const generatedSha256 = byteSha256(bytes);
     if (generatedSha256 !== FROZEN_V146_SHA256) {
       throw new Error(
-        `Refusing to write the 1.46 default fixture because its generated bytes changed: received ${generatedSha256}.`
+        `Refusing to write the 1.46 default fixture because its generated bytes changed: received ${generatedSha256}.`,
       );
     }
     atomicCreateFixture(outputUrl, bytes);
@@ -461,18 +421,16 @@ function loadOrCreateFixture(
   const frozenSha256 = byteSha256(frozenBytes);
   if (frozenSha256 !== FROZEN_V146_SHA256) {
     throw new Error(
-      `Frozen 1.46 default fixture changed: received ${frozenSha256}.`
+      `Frozen 1.46 default fixture changed: received ${frozenSha256}.`,
     );
   }
-  const fixture = fixtureSchema.parse(
-    JSON.parse(frozenBytes.toString("utf8"))
-  );
+  const fixture = fixtureSchema.parse(JSON.parse(frozenBytes.toString("utf8")));
   if (
     JSON.stringify(compatibilityProjection(fixture)) !==
     JSON.stringify(frozenV145CompatibilityProjection())
   ) {
     throw new Error(
-      "Frozen 1.46 default fixture changed its exact 1.45 compatibility projection."
+      "Frozen 1.46 default fixture changed its exact 1.45 compatibility projection.",
     );
   }
   return fixture;
@@ -483,15 +441,13 @@ function runDefault() {
     energyMode: "configured",
     critMode: "average",
     compatibilityMode: "legacy-v0.1",
-    randomSeed: "legacy-default"
+    randomSeed: "legacy-default",
   });
 }
 
 describe("default 1.46 direct-damage-group Golden", () => {
   it("matches the exact default 120-second 1.46 baseline", () => {
-    expect(byteSha256(readFileSync(FROZEN_V145_URL))).toBe(
-      FROZEN_V145_SHA256
-    );
+    expect(byteSha256(readFileSync(FROZEN_V145_URL))).toBe(FROZEN_V145_SHA256);
     const result = runDefault();
     const repeated = runDefault();
     expect(repeated).toEqual(result);
@@ -502,22 +458,21 @@ describe("default 1.46 direct-damage-group Golden", () => {
     const frozen = loadOrCreateFixture(generated);
     expect(frozen).toEqual(generated);
     expect(compatibilityProjection(frozen)).toEqual(
-      frozenV145CompatibilityProjection()
+      frozenV145CompatibilityProjection(),
     );
     expect(
       result.directDamageGroupLog.every(
         (entry) =>
           entry.evaluation === "bypassed" &&
           entry.sequenceMultiplier === 1 &&
-          entry.effectiveMultiplier ===
-            entry.postPluginMultiplier
-      )
+          entry.effectiveMultiplier === entry.postPluginMultiplier,
+      ),
     ).toBe(true);
     expect(canonicalSha256(result.directDamageGroupLog)).toBe(
-      frozen.directDamageGroupAudit.canonicalSha256
+      frozen.directDamageGroupAudit.canonicalSha256,
     );
     expect(legacyDamageEventsSha256(result.damageEvents)).toBe(
-      DEFAULT_DAMAGE_EVENTS_SHA256
+      DEFAULT_DAMAGE_EVENTS_SHA256,
     );
   });
 
@@ -528,28 +483,26 @@ describe("default 1.46 direct-damage-group Golden", () => {
     ) {
       return;
     }
-    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(
-      FROZEN_V146_SHA256
-    );
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(FROZEN_V146_SHA256);
   });
 
   it("requires explicit creation and atomically refuses overwrite", () => {
     const generated = makeFixture(runDefault());
     const probeDirectory = mkdtempSync(
-      resolve(tmpdir(), "gdl-default-v146-gate-")
+      resolve(tmpdir(), "gdl-default-v146-gate-"),
     );
     const missingUrl = pathToFileURL(
-      resolve(probeDirectory, "missing.golden.json")
+      resolve(probeDirectory, "missing.golden.json"),
     );
     const existingUrl = pathToFileURL(
-      resolve(probeDirectory, "existing.golden.json")
+      resolve(probeDirectory, "existing.golden.json"),
     );
     try {
       expect(() =>
         loadOrCreateFixture(generated, {
           updateRequested: false,
-          outputUrl: missingUrl
-        })
+          outputUrl: missingUrl,
+        }),
       ).toThrow();
       expect(existsSync(fileURLToPath(missingUrl))).toBe(false);
 
@@ -557,12 +510,10 @@ describe("default 1.46 direct-damage-group Golden", () => {
       expect(() =>
         loadOrCreateFixture(generated, {
           updateRequested: true,
-          outputUrl: existingUrl
-        })
+          outputUrl: existingUrl,
+        }),
       ).toThrow(/Refusing to overwrite frozen fixture/);
-      expect(readFileSync(existingUrl, "utf8")).toBe(
-        "sentinel\n"
-      );
+      expect(readFileSync(existingUrl, "utf8")).toBe("sentinel\n");
     } finally {
       rmSync(probeDirectory, { recursive: true, force: true });
     }

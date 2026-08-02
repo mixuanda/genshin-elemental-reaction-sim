@@ -1,17 +1,21 @@
 import { createHash } from "node:crypto";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import type {
   SimConfig,
   SimulationResult,
-  TargetTaskPhaseLogEntry
+  TargetTaskPhaseLogEntry,
 } from "@genshin-dps-lab/schemas";
 import {
   canonicalStringify,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   simulationResultSchema,
   simulationResultV146Schema,
@@ -19,14 +23,16 @@ import {
   simulationResultV148Schema,
   simulationResultV149Schema,
   simulationResultV150Schema,
+  simulationResultV151Schema,
   simulationRunManifestSchema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
+  simulationRunManifestV151Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
-  TARGET_TASK_PHASE_SCHEMA_VERSION
+  TARGET_TASK_PHASE_SCHEMA_VERSION,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import targetTaskPhaseGoldenJson from "../../../test-vectors/fixtures/target-task-phase-1.37.golden.json";
@@ -41,13 +47,11 @@ interface TargetTaskPhaseScenarioOptions {
 
 function makeTargetTaskPhaseLogConfig(
   mode: SimConfig["targetTaskModel"]["mode"],
-  options: TargetTaskPhaseScenarioOptions = {}
+  options: TargetTaskPhaseScenarioOptions = {},
 ): SimConfig {
   const base = makeConfig();
   const incomingFrame = options.hitlag === true ? 20 : 15;
-  const targets: NonNullable<
-    SimConfig["enemy"]["targets"]
-  > = [
+  const targets: NonNullable<SimConfig["enemy"]["targets"]> = [
     {
       id: "enemy-0",
       name: "First target-phase target",
@@ -55,10 +59,10 @@ function makeTargetTaskPhaseLogConfig(
       initialAura: [
         {
           element: "dendro",
-          gaugeUnits: 7 / 60
-        }
-      ]
-    }
+          gaugeUnits: 7 / 60,
+        },
+      ],
+    },
   ];
   if (options.multiTarget === true) {
     targets.push({
@@ -68,9 +72,9 @@ function makeTargetTaskPhaseLogConfig(
       initialAura: [
         {
           element: "dendro",
-          gaugeUnits: 7 / 60
-        }
-      ]
+          gaugeUnits: 7 / 60,
+        },
+      ],
     });
   }
 
@@ -87,21 +91,21 @@ function makeTargetTaskPhaseLogConfig(
         kind: "circle",
         coordinateSpace: "world",
         origin: { x: 0, y: 0 },
-        radius: options.multiTarget === true ? 1 : 0.1
+        radius: options.multiTarget === true ? 1 : 0.1,
       },
       application: {
         gaugeUnits: 1,
-        icd: { mode: "no-icd-v1" }
+        icd: { mode: "no-icd-v1" },
       },
       ...(options.hitlag === true
         ? {
             targetHitlag: {
               haltFrames: 5,
-              factor: 0
-            }
+              factor: 0,
+            },
           }
-        : {})
-    }
+        : {}),
+    },
   ];
   if (options.includeIncoming === true) {
     hits.push({
@@ -116,15 +120,15 @@ function makeTargetTaskPhaseLogConfig(
               kind: "circle" as const,
               coordinateSpace: "world" as const,
               origin: { x: 0, y: 0 },
-              radius: 1
-            }
+              radius: 1,
+            },
           }
         : {
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed" as const
-            }
-          })
+              outcome: "landed" as const,
+            },
+          }),
     });
   }
 
@@ -136,7 +140,7 @@ function makeTargetTaskPhaseLogConfig(
       level: 90,
       resistance: 0.1,
       defReduction: 0,
-      targets
+      targets,
     },
     characters: [
       {
@@ -148,9 +152,9 @@ function makeTargetTaskPhaseLogConfig(
         stats: {
           ...neutralStats,
           baseAtk: 1000,
-          em: 100
-        }
-      }
+          em: 100,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v7" },
@@ -174,30 +178,28 @@ function makeTargetTaskPhaseLogConfig(
           cancelFrame: incomingFrame + 1,
           animationEndFrame: incomingFrame + 1,
           cooldownFrames: 0,
-          hits
-        }
+          hits,
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "tester",
           abilityId: "phase-log-sequence",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function phaseAt(
   result: SimulationResult,
   globalFrame: number,
-  targetId: string
+  targetId: string,
 ): TargetTaskPhaseLogEntry {
   const matches = result.targetTaskPhaseLog.filter(
-    (entry) =>
-      entry.globalFrame === globalFrame &&
-      entry.targetId === targetId
+    (entry) => entry.globalFrame === globalFrame && entry.targetId === targetId,
   );
   expect(matches).toHaveLength(1);
   return matches[0]!;
@@ -205,69 +207,56 @@ function phaseAt(
 
 function auraGauge(
   aura: TargetTaskPhaseLogEntry["auraBeforeTasks"],
-  element: string
+  element: string,
 ): number | undefined {
-  return aura.find((entry) => entry.element === element)
-    ?.gaugeUnits;
+  return aura.find((entry) => entry.element === element)?.gaugeUnits;
 }
 
 type TargetTaskPhaseGoldenScenarioId =
-  | "lowFuelPreDecay"
-  | "hitlagReprojection"
-  | "multiTargetOrder";
+  "lowFuelPreDecay" | "hitlagReprojection" | "multiTargetOrder";
 
 function sha256(value: unknown): string {
-  return createHash("sha256")
-    .update(canonicalStringify(value))
-    .digest("hex");
+  return createHash("sha256").update(canonicalStringify(value)).digest("hex");
 }
 
 function projectTargetTaskPhaseScenario(
   result: SimulationResult,
-  boundaryFrame: number
+  boundaryFrame: number,
 ) {
   const boundaryPhases = result.targetTaskPhaseLog.filter(
-    (entry) => entry.globalFrame === boundaryFrame
+    (entry) => entry.globalFrame === boundaryFrame,
   );
   const burningStateLogIds = new Set(
-    boundaryPhases.flatMap(
-      (entry) => entry.burningStateLogIds
-    )
+    boundaryPhases.flatMap((entry) => entry.burningStateLogIds),
   );
   const hitResolutionLogIds = new Set(
-    boundaryPhases.flatMap(
-      (entry) => entry.hitResolutionLogIds
-    )
+    boundaryPhases.flatMap((entry) => entry.hitResolutionLogIds),
   );
   const reactionTaskLogIds = new Set(
-    boundaryPhases.flatMap(
-      (entry) => entry.reactionTaskLogIds
-    )
+    boundaryPhases.flatMap((entry) => entry.reactionTaskLogIds),
   );
-  const projectAura = (
-    aura: TargetTaskPhaseLogEntry["auraBeforeTasks"]
-  ) =>
+  const projectAura = (aura: TargetTaskPhaseLogEntry["auraBeforeTasks"]) =>
     aura.map(
       (entry) =>
         [
           entry.element,
           entry.gaugeUnits,
           entry.expiresAtFrame,
-          entry.expiresAtTargetFrame ?? null
-        ] as const
+          entry.expiresAtTargetFrame ?? null,
+        ] as const,
     );
 
   const keyEventOrderRows = [
     ...boundaryPhases.map((entry) => ({
-        kind: "target-task" as const,
-        referenceId: entry.id,
-        targetId: entry.targetId,
-        eventType: entry.eventType,
-        eventPriority: entry.eventPriority,
-        eventSequence: entry.eventSequence,
-        intraEventSequence: entry.intraEventSequence,
-        targetOrder: entry.targetOrder
-      })),
+      kind: "target-task" as const,
+      referenceId: entry.id,
+      targetId: entry.targetId,
+      eventType: entry.eventType,
+      eventPriority: entry.eventPriority,
+      eventSequence: entry.eventSequence,
+      intraEventSequence: entry.intraEventSequence,
+      targetOrder: entry.targetOrder,
+    })),
     ...result.damageEvents
       .filter((entry) => entry.frame === boundaryFrame)
       .map((entry) => ({
@@ -277,14 +266,11 @@ function projectTargetTaskPhaseScenario(
             : ("reaction-damage" as const),
         referenceId: entry.id,
         targetId: entry.targetId,
-        eventType:
-          entry.kind === "direct"
-            ? entry.hitId
-            : entry.reaction,
+        eventType: entry.kind === "direct" ? entry.hitId : entry.reaction,
         eventPriority: entry.eventPriority,
         eventSequence: entry.eventSequence,
         intraEventSequence: null,
-        targetOrder: entry.targetIndex
+        targetOrder: entry.targetIndex,
       })),
     ...result.reactionTaskLog
       .filter((entry) => entry.frame === boundaryFrame)
@@ -296,19 +282,17 @@ function projectTargetTaskPhaseScenario(
         eventPriority: entry.eventPriority,
         eventSequence: entry.eventSequence,
         intraEventSequence: entry.intraEventSequence,
-        targetOrder:
-          result.enemyTargets.findIndex(
-            (target) => target.id === entry.targetId
-          )
-      }))
+        targetOrder: result.enemyTargets.findIndex(
+          (target) => target.id === entry.targetId,
+        ),
+      })),
   ].sort(
     (left, right) =>
       left.eventPriority - right.eventPriority ||
       left.eventSequence - right.eventSequence ||
-      (left.intraEventSequence ?? -1) -
-        (right.intraEventSequence ?? -1) ||
+      (left.intraEventSequence ?? -1) - (right.intraEventSequence ?? -1) ||
       left.targetOrder - right.targetOrder ||
-      left.kind.localeCompare(right.kind)
+      left.kind.localeCompare(right.kind),
   );
   const keyEventOrder = keyEventOrderRows.map(
     (entry) =>
@@ -320,8 +304,8 @@ function projectTargetTaskPhaseScenario(
         entry.eventPriority,
         entry.eventSequence,
         entry.intraEventSequence,
-        entry.targetOrder
-      ] as const
+        entry.targetOrder,
+      ] as const,
   );
 
   return {
@@ -333,8 +317,8 @@ function projectTargetTaskPhaseScenario(
       reactionEngine: result.config.reactionEngine,
       timeline: {
         mode: result.config.timeline?.mode,
-        fps: result.config.timeline?.fps
-      }
+        fps: result.config.timeline?.fps,
+      },
     },
     boundaryFrame,
     phases: boundaryPhases.map((entry) => ({
@@ -344,25 +328,25 @@ function projectTargetTaskPhaseScenario(
       frame: {
         global: entry.globalFrame,
         timeSeconds: entry.timeSeconds,
-        target: entry.targetFrame
+        target: entry.targetFrame,
       },
       targetOrder: entry.targetOrder,
       wake: [entry.wakeKind, entry.eventType] as const,
       eventOrder: [
         entry.eventPriority,
         entry.eventSequence,
-        entry.intraEventSequence
+        entry.intraEventSequence,
       ] as const,
       aura: {
         beforeTasks: projectAura(entry.auraBeforeTasks),
         afterTasks: projectAura(entry.auraAfterTasks),
-        afterDecay: projectAura(entry.auraAfterDecay)
+        afterDecay: projectAura(entry.auraAfterDecay),
       },
       refs: {
         burning: entry.burningStateLogIds,
         hits: entry.hitResolutionLogIds,
-        reactionTasks: entry.reactionTaskLogIds
-      }
+        reactionTasks: entry.reactionTaskLogIds,
+      },
     })),
     referencedLogs: {
       burning: result.burningStateLog
@@ -373,18 +357,15 @@ function projectTargetTaskPhaseScenario(
           frame: entry.frame,
           targetFrame: entry.targetFrame ?? null,
           target: entry.targetId,
-          order: [
-            entry.eventPriority,
-            entry.eventSequence
-          ] as const,
+          order: [entry.eventPriority, entry.eventSequence] as const,
           tick: entry.tickIndex,
           fuel: [
             entry.fuelGaugeUnitsBefore,
-            entry.fuelGaugeUnitsAfter
+            entry.fuelGaugeUnitsAfter,
           ] as const,
           nextTick: entry.nextTickFrame,
           reactionDamage: entry.reactionDamageLogId,
-          damage: entry.damageEventIds
+          damage: entry.damageEventIds,
         })),
       hits: result.hitResolutionLog
         .filter((entry) => hitResolutionLogIds.has(entry.id))
@@ -395,7 +376,7 @@ function projectTargetTaskPhaseScenario(
           hit: entry.hitId,
           resolution: entry.resolutionKind,
           landed: entry.landed,
-          damage: entry.damageEventId
+          damage: entry.damageEventId,
         })),
       reactionTasks: result.reactionTaskLog
         .filter((entry) => reactionTaskLogIds.has(entry.id))
@@ -408,9 +389,9 @@ function projectTargetTaskPhaseScenario(
           order: [
             entry.eventPriority,
             entry.eventSequence,
-            entry.intraEventSequence
-          ] as const
-        }))
+            entry.intraEventSequence,
+          ] as const,
+        })),
     },
     keyEventOrder,
     targetClock: {
@@ -429,8 +410,8 @@ function projectTargetTaskPhaseScenario(
             entry.addedFrozenFrames,
             entry.frozenFramesAfter,
             entry.targetHitlagLogId,
-            entry.cause
-          ] as const
+            entry.cause,
+          ] as const,
       ),
       hitlag: result.targetHitlagLog.map(
         (entry) =>
@@ -445,10 +426,10 @@ function projectTargetTaskPhaseScenario(
             entry.frozenFramesAfter,
             entry.pausedGlobalFrameStart,
             entry.nextTargetAdvanceGlobalFrame,
-            entry.applied
-          ] as const
-      )
-    }
+            entry.applied,
+          ] as const,
+      ),
+    },
   };
 }
 
@@ -457,15 +438,15 @@ type TargetTaskPhaseGoldenScenario = ReturnType<
 >;
 
 function normalizeIdentityForFrozenV137(
-  scenario: TargetTaskPhaseGoldenScenario
+  scenario: TargetTaskPhaseGoldenScenario,
 ) {
   return {
     ...scenario,
     identity: {
       ...scenario.identity,
       schemaVersion: TARGET_TASK_PHASE_SCHEMA_VERSION,
-      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION
-    }
+      engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
+    },
   };
 }
 
@@ -508,121 +489,105 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 > {
   return {
     lowFuelPreDecay: projectTargetTaskPhaseScenario(
-      simulate(
-        makeTargetTaskPhaseLogConfig("target-phase-v1")
-      ),
-      15
+      simulate(makeTargetTaskPhaseLogConfig("target-phase-v1")),
+      15,
     ),
     hitlagReprojection: projectTargetTaskPhaseScenario(
       simulate(
         makeTargetTaskPhaseLogConfig("target-phase-v1", {
           hitlag: true,
-          includeIncoming: true
-        })
+          includeIncoming: true,
+        }),
       ),
-      20
+      20,
     ),
     multiTargetOrder: projectTargetTaskPhaseScenario(
       simulate(
         makeTargetTaskPhaseLogConfig("target-phase-v1", {
           includeIncoming: true,
-          multiTarget: true
-        })
+          multiTarget: true,
+        }),
       ),
-      15
-    )
+      15,
+    ),
   };
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.50 result and manifest boundaries", () => {
-    const result = simulate(
-      makeTargetTaskPhaseLogConfig("target-phase-v1")
-    );
+  it("emits current simulations through the exact 1.51 result and manifest boundaries", () => {
+    const result = simulate(makeTargetTaskPhaseLogConfig("target-phase-v1"));
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
-    expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.50.0-reaction-damage-reset-boundary"
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
+      "1.50.0-reaction-damage-reset-boundary",
     );
-    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.6.0");
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
+      "1.6.0",
+    );
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.51.0-basic-reaction-scheduler");
+    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.7.0");
     expect(result).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       config: {
         schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION
-      }
+        engineVersion: CURRENT_ENGINE_VERSION,
+      },
     });
     expect(result.runManifest).toMatchObject({
       version: SIMULATION_RUN_MANIFEST_VERSION,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
-      elementalApplicationIcdRoot:
-        GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
-        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      basicReactionSchedulerRoot: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
     });
     expect(
-      simulationRunManifestV150Schema.parse(result.runManifest)
+      simulationRunManifestV151Schema.parse(result.runManifest),
     ).toStrictEqual(result.runManifest);
-    expect(simulationRunManifestSchema).toBe(
-      simulationRunManifestV150Schema
+    expect(simulationRunManifestSchema).toBe(simulationRunManifestV151Schema);
+    expect(simulationRunManifestSchema.parse(result.runManifest)).toStrictEqual(
+      result.runManifest,
     );
     expect(
-      simulationRunManifestSchema.parse(result.runManifest)
-    ).toStrictEqual(result.runManifest);
-    expect(
-      simulationRunManifestV147Schema.safeParse(result.runManifest)
-        .success
+      simulationRunManifestV147Schema.safeParse(result.runManifest).success,
     ).toBe(false);
     expect(
-      simulationRunManifestV148Schema.safeParse(result.runManifest)
-        .success
+      simulationRunManifestV148Schema.safeParse(result.runManifest).success,
     ).toBe(false);
     expect(
-      simulationRunManifestV149Schema.safeParse(result.runManifest)
-        .success
+      simulationRunManifestV149Schema.safeParse(result.runManifest).success,
     ).toBe(false);
     expect(
-      simulationRunManifestV146Schema.safeParse(result.runManifest)
-        .success
+      simulationRunManifestV150Schema.safeParse(result.runManifest).success,
     ).toBe(false);
-    expect(simulationResultV150Schema.parse(result)).toStrictEqual(
-      result
-    );
-    expect(simulationResultSchema).toBe(simulationResultV150Schema);
-    expect(simulationResultSchema.parse(result)).toStrictEqual(
-      result
-    );
-    expect(simulationResultV146Schema.safeParse(result).success).toBe(
-      false
-    );
-    expect(simulationResultV147Schema.safeParse(result).success).toBe(
-      false
-    );
-    expect(simulationResultV148Schema.safeParse(result).success).toBe(
-      false
-    );
-    expect(simulationResultV149Schema.safeParse(result).success).toBe(
-      false
-    );
+    expect(
+      simulationRunManifestV146Schema.safeParse(result.runManifest).success,
+    ).toBe(false);
+    expect(simulationResultV151Schema.parse(result)).toStrictEqual(result);
+    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(simulationResultSchema.parse(result)).toStrictEqual(result);
+    expect(simulationResultV146Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV147Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV148Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV149Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV150Schema.safeParse(result).success).toBe(false);
   });
 
   it("keeps the frozen legacy event heap free of target-phase rows", () => {
     const result = simulate(
-      makeTargetTaskPhaseLogConfig(
-        "legacy-event-heap-v1",
-        { includeIncoming: true }
-      )
+      makeTargetTaskPhaseLogConfig("legacy-event-heap-v1", {
+        includeIncoming: true,
+      }),
     );
 
     expect(result.targetTaskPhaseLog).toEqual([]);
   });
 
   it("records the low-Fuel F15 callback before decay as three explicit Aura states", () => {
-    const result = simulate(
-      makeTargetTaskPhaseLogConfig("target-phase-v1")
-    );
+    const result = simulate(makeTargetTaskPhaseLogConfig("target-phase-v1"));
     const phase = phaseAt(result, 15, "enemy-0");
 
     expect(phase).toMatchObject({
@@ -639,46 +604,33 @@ describe("target task phase replay log", () => {
       eventSequence: expect.any(Number),
       intraEventSequence: expect.any(Number),
       hitResolutionLogIds: [],
-      reactionTaskLogIds: []
+      reactionTaskLogIds: [],
     });
-    expect(
-      auraGauge(phase.auraBeforeTasks, "burningFuel")
-    ).toBeCloseTo(1 / 150, 12);
-    expect(
-      auraGauge(phase.auraBeforeTasks, "burning")
-    ).toBeGreaterThan(0);
-    expect(phase.auraAfterTasks).toStrictEqual(
-      phase.auraBeforeTasks
+    expect(auraGauge(phase.auraBeforeTasks, "burningFuel")).toBeCloseTo(
+      1 / 150,
+      12,
     );
-    expect(
-      auraGauge(phase.auraAfterDecay, "burningFuel")
-    ).toBeUndefined();
-    expect(
-      auraGauge(phase.auraAfterDecay, "burning")
-    ).toBeUndefined();
+    expect(auraGauge(phase.auraBeforeTasks, "burning")).toBeGreaterThan(0);
+    expect(phase.auraAfterTasks).toStrictEqual(phase.auraBeforeTasks);
+    expect(auraGauge(phase.auraAfterDecay, "burningFuel")).toBeUndefined();
+    expect(auraGauge(phase.auraAfterDecay, "burning")).toBeUndefined();
 
     expect(phase.burningStateLogIds).toHaveLength(1);
-    const burningRow =
-      result.burningStateLog[
-        phase.burningStateLogIds[0]!
-      ];
+    const burningRow = result.burningStateLog[phase.burningStateLogIds[0]!];
     expect(burningRow).toMatchObject({
       id: phase.burningStateLogIds[0],
       operation: "tick",
       frame: 15,
       targetId: "enemy-0",
-      fuelGaugeUnitsBefore: expect.closeTo(
-        1 / 150,
-        12
-      )
+      fuelGaugeUnitsBefore: expect.closeTo(1 / 150, 12),
     });
   });
 
   it("coalesces the same-frame Burning callback and physical hit while preserving later damage links", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1", {
-        includeIncoming: true
-      })
+        includeIncoming: true,
+      }),
     );
     const phase = phaseAt(result, 15, "enemy-0");
 
@@ -688,19 +640,13 @@ describe("target task phase replay log", () => {
     expect(phase.hitResolutionLogIds).toHaveLength(1);
     expect(phase.reactionTaskLogIds).toEqual([]);
 
-    const burningRow =
-      result.burningStateLog[
-        phase.burningStateLogIds[0]!
-      ]!;
-    const hitRow =
-      result.hitResolutionLog[
-        phase.hitResolutionLogIds[0]!
-      ]!;
+    const burningRow = result.burningStateLog[phase.burningStateLogIds[0]!]!;
+    const hitRow = result.hitResolutionLog[phase.hitResolutionLogIds[0]!]!;
     expect(burningRow).toMatchObject({
       id: phase.burningStateLogIds[0],
       operation: "tick",
       frame: 15,
-      targetId: "enemy-0"
+      targetId: "enemy-0",
     });
     expect(hitRow).toMatchObject({
       id: phase.hitResolutionLogIds[0],
@@ -709,42 +655,35 @@ describe("target task phase replay log", () => {
       hitId: "same-frame-incoming",
       element: "physical",
       resolutionKind: "direct",
-      landed: true
+      landed: true,
     });
 
     const physicalDamage = result.damageEvents.find(
-      (event) => event.id === hitRow.damageEventId
+      (event) => event.id === hitRow.damageEventId,
     );
-    const burningDamage = burningRow.damageEventIds.map(
-      (damageEventId) =>
-        result.damageEvents.find(
-          (event) => event.id === damageEventId
-        )
+    const burningDamage = burningRow.damageEventIds.map((damageEventId) =>
+      result.damageEvents.find((event) => event.id === damageEventId),
     );
     expect(physicalDamage).toMatchObject({
       frame: 15,
       targetId: "enemy-0",
       kind: "direct",
-      element: "physical"
+      element: "physical",
     });
     expect(burningDamage).toHaveLength(1);
     expect(burningDamage[0]).toMatchObject({
       frame: 15,
       targetId: "enemy-0",
       kind: "transformative-reaction",
-      reaction: "burning"
+      reaction: "burning",
     });
-    expect(burningRow.eventPriority).toBe(
-      phase.eventPriority
-    );
-    expect(burningRow.eventSequence).toBe(
-      phase.eventSequence
-    );
+    expect(burningRow.eventPriority).toBe(phase.eventPriority);
+    expect(burningRow.eventSequence).toBe(phase.eventSequence);
     expect(burningRow.eventPriority).toBeLessThan(
-      physicalDamage!.eventPriority
+      physicalDamage!.eventPriority,
     );
     expect(physicalDamage!.eventPriority).toBeLessThan(
-      burningDamage[0]!.eventPriority
+      burningDamage[0]!.eventPriority,
     );
   });
 
@@ -752,17 +691,15 @@ describe("target task phase replay log", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1", {
         hitlag: true,
-        includeIncoming: true
-      })
+        includeIncoming: true,
+      }),
     );
     const phase = phaseAt(result, 20, "enemy-0");
 
     expect(
       result.targetTaskPhaseLog.some(
-        (entry) =>
-          entry.globalFrame === 15 &&
-          entry.targetId === "enemy-0"
-      )
+        (entry) => entry.globalFrame === 15 && entry.targetId === "enemy-0",
+      ),
     ).toBe(false);
     expect(phase).toMatchObject({
       globalFrame: 20,
@@ -771,24 +708,21 @@ describe("target task phase replay log", () => {
       targetOrder: 0,
       wakeKind: "burning-tick",
       eventType: "burningTick",
-      eventPriority: 0.5
+      eventPriority: 0.5,
     });
-    expect(
-      auraGauge(phase.auraBeforeTasks, "burningFuel")
-    ).toBeCloseTo(1 / 150, 12);
-    expect(phase.auraAfterTasks).toStrictEqual(
-      phase.auraBeforeTasks
+    expect(auraGauge(phase.auraBeforeTasks, "burningFuel")).toBeCloseTo(
+      1 / 150,
+      12,
     );
-    expect(
-      auraGauge(phase.auraAfterDecay, "burningFuel")
-    ).toBeUndefined();
+    expect(phase.auraAfterTasks).toStrictEqual(phase.auraBeforeTasks);
+    expect(auraGauge(phase.auraAfterDecay, "burningFuel")).toBeUndefined();
     expect(result.targetClockAudit.targets).toEqual([
       expect.objectContaining({
         targetId: "enemy-0",
         finalGlobalFrame: 60,
         finalTargetFrame: 55,
-        totalExtensionFrames: 5
-      })
+        totalExtensionFrames: 5,
+      }),
     ]);
   });
 
@@ -796,11 +730,11 @@ describe("target task phase replay log", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1", {
         includeIncoming: true,
-        multiTarget: true
-      })
+        multiTarget: true,
+      }),
     );
     const frame15 = result.targetTaskPhaseLog.filter(
-      (entry) => entry.globalFrame === 15
+      (entry) => entry.globalFrame === 15,
     );
 
     expect(
@@ -808,68 +742,60 @@ describe("target task phase replay log", () => {
         targetId: entry.targetId,
         targetOrder: entry.targetOrder,
         wakeKind: entry.wakeKind,
-        eventType: entry.eventType
-      }))
+        eventType: entry.eventType,
+      })),
     ).toEqual([
       {
         targetId: "enemy-0",
         targetOrder: 0,
         wakeKind: "burning-tick",
-        eventType: "burningTick"
+        eventType: "burningTick",
       },
       {
         targetId: "enemy-1",
         targetOrder: 1,
         wakeKind: "burning-tick",
-        eventType: "burningTick"
-      }
+        eventType: "burningTick",
+      },
     ]);
-    expect(
-      frame15.map((entry) => entry.eventPriority)
-    ).toEqual([0.5, 0.5 + 0.5 / 3]);
+    expect(frame15.map((entry) => entry.eventPriority)).toEqual([
+      0.5,
+      0.5 + 0.5 / 3,
+    ]);
     expect(
       frame15.map((entry) => ({
         burningRows: entry.burningStateLogIds.length,
         hitRows: entry.hitResolutionLogIds.length,
-        reactionTasks: entry.reactionTaskLogIds.length
-      }))
+        reactionTasks: entry.reactionTaskLogIds.length,
+      })),
     ).toEqual([
       { burningRows: 1, hitRows: 1, reactionTasks: 0 },
-      { burningRows: 1, hitRows: 1, reactionTasks: 0 }
+      { burningRows: 1, hitRows: 1, reactionTasks: 0 },
     ]);
 
     const phaseKeys = result.targetTaskPhaseLog.map(
-      (entry) => `${entry.globalFrame}:${entry.targetId}`
+      (entry) => `${entry.globalFrame}:${entry.targetId}`,
     );
     expect(new Set(phaseKeys).size).toBe(phaseKeys.length);
-    expect(
-      result.targetTaskPhaseLog.map((entry) => entry.id)
-    ).toEqual(
-      result.targetTaskPhaseLog.map((_, index) => index)
+    expect(result.targetTaskPhaseLog.map((entry) => entry.id)).toEqual(
+      result.targetTaskPhaseLog.map((_, index) => index),
     );
     for (const entry of result.targetTaskPhaseLog) {
-      expect(entry.targetOrder).toBe(
-        entry.targetId === "enemy-0" ? 0 : 1
-      );
+      expect(entry.targetOrder).toBe(entry.targetId === "enemy-0" ? 0 : 1);
     }
   });
 
   it("is deeply reproducible when the config and random seed are unchanged", () => {
-    const config = makeTargetTaskPhaseLogConfig(
-      "target-phase-v1",
-      {
-        hitlag: true,
-        includeIncoming: true,
-        multiTarget: true
-      }
-    );
+    const config = makeTargetTaskPhaseLogConfig("target-phase-v1", {
+      hitlag: true,
+      includeIncoming: true,
+      multiTarget: true,
+    });
 
     const first = simulate(config);
     const second = simulate(config);
 
-    expect(second.targetTaskPhaseLog).toStrictEqual(
-      first.targetTaskPhaseLog
-    );
+    expect(second.targetTaskPhaseLog).toStrictEqual(first.targetTaskPhaseLog);
     expect(second).toStrictEqual(first);
   });
 
@@ -878,7 +804,7 @@ describe("target task phase replay log", () => {
     const scenarioIds: TargetTaskPhaseGoldenScenarioId[] = [
       "lowFuelPreDecay",
       "hitlagReprojection",
-      "multiTargetOrder"
+      "multiTargetOrder",
     ];
 
     expect(targetTaskPhaseGolden.commonConfig).toEqual({
@@ -886,52 +812,48 @@ describe("target task phase replay log", () => {
       engineVersion: TARGET_TASK_PHASE_ENGINE_VERSION,
       targetTaskModel: { mode: "target-phase-v1" },
       reactionEngine: { mode: "aura-v7" },
-      timeline: { mode: "legal-frame-v1", fps: 60 }
+      timeline: { mode: "legal-frame-v1", fps: 60 },
     });
-    expect(
-      targetTaskPhaseGolden.provenance
-    ).toMatchObject({
+    expect(targetTaskPhaseGolden.provenance).toMatchObject({
       mechanicsDataStatus: "fixed-gcsim-provisional",
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     });
-    expect(Object.keys(scenarios).sort()).toEqual(
-      [...scenarioIds].sort()
+    expect(Object.keys(scenarios).sort()).toEqual([...scenarioIds].sort());
+    expect(Object.keys(targetTaskPhaseGolden.scenarios).sort()).toEqual(
+      [...scenarioIds].sort(),
     );
-    expect(
-      Object.keys(targetTaskPhaseGolden.scenarios).sort()
-    ).toEqual([...scenarioIds].sort());
-    expect(
-      Object.keys(targetTaskPhaseGolden.hashes).sort()
-    ).toEqual([...scenarioIds].sort());
+    expect(Object.keys(targetTaskPhaseGolden.hashes).sort()).toEqual(
+      [...scenarioIds].sort(),
+    );
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
-    expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.50.0-reaction-damage-reset-boundary"
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
+      "1.50.0-reaction-damage-reset-boundary",
     );
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.51.0-basic-reaction-scheduler");
 
     for (const scenarioId of scenarioIds) {
       const currentScenario = scenarios[scenarioId];
       expect(currentScenario.identity.schemaVersion).toBe(
-        CURRENT_SCHEMA_VERSION
+        CURRENT_SCHEMA_VERSION,
       );
       expect(currentScenario.identity.engineVersion).toBe(
-        CURRENT_ENGINE_VERSION
+        CURRENT_ENGINE_VERSION,
       );
 
       const frozenComparableScenario =
         normalizeIdentityForFrozenV137(currentScenario);
       expect(frozenComparableScenario).toStrictEqual(
-        targetTaskPhaseGolden.scenarios[scenarioId]
+        targetTaskPhaseGolden.scenarios[scenarioId],
       );
       expect(sha256(frozenComparableScenario)).toBe(
-        targetTaskPhaseGolden.hashes[scenarioId]
+        targetTaskPhaseGolden.hashes[scenarioId],
       );
-      expect(
-        sha256(
-          targetTaskPhaseGolden.scenarios[scenarioId]
-        )
-      ).toBe(targetTaskPhaseGolden.hashes[scenarioId]);
+      expect(sha256(targetTaskPhaseGolden.scenarios[scenarioId])).toBe(
+        targetTaskPhaseGolden.hashes[scenarioId],
+      );
     }
   });
 });

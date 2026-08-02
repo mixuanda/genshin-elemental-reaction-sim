@@ -6,7 +6,7 @@ import {
   readFileSync,
   rmSync,
   unlinkSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -14,7 +14,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
@@ -25,7 +25,7 @@ import {
   elementalApplicationIcdModelSchema,
   reactionFormulaModelSchema,
   simulationResultV147Schema,
-  simulationRunManifestV147Schema
+  simulationRunManifestV147Schema,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -34,10 +34,10 @@ import frozenV146Json from "../../../test-vectors/fixtures/legacy-default-120s-1
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { simulate } from "../simulator";
 
-const PREVIEW_FLAG =
-  "PREVIEW_LEGACY_DEFAULT_V147_GOLDEN";
+const PREVIEW_FLAG = "PREVIEW_LEGACY_DEFAULT_V147_GOLDEN";
 const UPDATE_FLAG = "UPDATE_LEGACY_DEFAULT_V147_GOLDEN";
 const REVIEWED_FIXTURE_SHA256 =
   "918a78d9cdd57d11d5fc9012896c5a7fc240a29b31cd9c09c9ff761fe38d8996";
@@ -58,18 +58,18 @@ const NOTE =
 
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.47.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const FROZEN_V146_URL = new URL(
   "../../../test-vectors/fixtures/legacy-default-120s-1.46.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const EMPTY_LEGACY_COMPATIBILITY_ARRAY_FIELDS = new Set([
   "bloomReactions",
   "damageGroupDecisions",
   "playerHitResolutionLogIds",
   "playerDamageEventIds",
-  "reactionTaskLog"
+  "reactionTaskLog",
 ]);
 const NULL_LEGACY_COMPATIBILITY_REFERENCE_FIELDS = new Set([
   "triggerHitGroupId",
@@ -79,14 +79,14 @@ const NULL_LEGACY_COMPATIBILITY_REFERENCE_FIELDS = new Set([
   "selectedTargetId",
   "resolutionReason",
   "playerHitResolutionLogId",
-  "playerDamageEventId"
+  "playerDamageEventId",
 ]);
 const V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS = new Set([
   "applicationIcdDecision",
   "applicationIcdLogId",
   "applicationMultiplier",
   "nominalApplicationGaugeUnits",
-  "effectiveApplicationGaugeUnits"
+  "effectiveApplicationGaugeUnits",
 ]);
 
 const fixtureSchema = z
@@ -100,25 +100,19 @@ const fixtureSchema = z
         verificationStatus: z.literal("provisional"),
         note: z.literal(NOTE),
         officialServerTruth: z.literal(false),
-        completeGcsimParity: z.literal(false)
+        completeGcsimParity: z.literal(false),
       })
       .strict(),
-    schemaVersion: z.literal(
-      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
-    ),
-    engineVersion: z.literal(
-      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
-    ),
+    schemaVersion: z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION),
+    engineVersion: z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION),
     configHash: z.string().regex(/^fnv1a32:[0-9a-f]{8}$/),
-    reproducibilityKey: z
-      .string()
-      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
+    reproducibilityKey: z.string().regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
     options: z
       .object({
         energyMode: z.literal("configured"),
         critMode: z.literal("average"),
         compatibilityMode: z.literal("legacy-v0.1"),
-        randomSeed: z.literal("legacy-default")
+        randomSeed: z.literal("legacy-default"),
       })
       .strict(),
     totalDamage: z.literal(41410555.13728799),
@@ -131,7 +125,7 @@ const fixtureSchema = z
         nicole: z.literal(740338.5919263127),
         citlali: z.literal(77244.84267655843),
         durin: z.literal(38779268.124040276),
-        lohen: z.literal(1813703.5786448019)
+        lohen: z.literal(1813703.5786448019),
       })
       .strict(),
     bySkill: z.array(
@@ -140,13 +134,11 @@ const fixtureSchema = z
           creditId: z.string().min(1),
           actionName: z.string().min(1),
           damage: z.number().finite(),
-          hits: z.number().int().nonnegative()
+          hits: z.number().int().nonnegative(),
         })
-        .strict()
+        .strict(),
     ),
-    legacyDamageEventsSha256: z.literal(
-      DEFAULT_DAMAGE_EVENTS_SHA256
-    ),
+    legacyDamageEventsSha256: z.literal(DEFAULT_DAMAGE_EVENTS_SHA256),
     reactionDeliveryModel: z.unknown(),
     electroChargedPropagationModel: z.unknown(),
     targetClock: z.unknown(),
@@ -154,27 +146,22 @@ const fixtureSchema = z
     targetPhaseLog: z.unknown(),
     reactionFormulaModel: reactionFormulaModelSchema,
     directDamageGroupModel: directDamageGroupModelSchema,
-    elementalApplicationIcdModel:
-      elementalApplicationIcdModelSchema,
+    elementalApplicationIcdModel: elementalApplicationIcdModelSchema,
     directDamageGroupAudit: z
       .object({
         rowCount: z.literal(269),
         evaluatedCount: z.literal(0),
         bypassedCount: z.literal(269),
-        canonicalSha256: z.literal(
-          DEFAULT_DAMAGE_GROUP_LOG_SHA256
-        )
+        canonicalSha256: z.literal(DEFAULT_DAMAGE_GROUP_LOG_SHA256),
       })
       .strict(),
     elementalApplicationIcdAudit: z
       .object({
         rowCount: z.literal(0),
-        canonicalSha256: z.literal(
-          EMPTY_APPLICATION_LOG_SHA256
-        )
+        canonicalSha256: z.literal(EMPTY_APPLICATION_LOG_SHA256),
       })
       .strict(),
-    runManifest: simulationRunManifestV147Schema
+    runManifest: simulationRunManifestV147Schema,
   })
   .strict()
   .superRefine((fixture, context) => {
@@ -184,8 +171,7 @@ const fixtureSchema = z
       fixture.runManifest.schemaVersion !== fixture.schemaVersion ||
       fixture.runManifest.engineVersion !== fixture.engineVersion ||
       fixture.runManifest.configHash !== fixture.configHash ||
-      fixture.runManifest.reproducibilityKey !==
-        fixture.reproducibilityKey ||
+      fixture.runManifest.reproducibilityKey !== fixture.reproducibilityKey ||
       JSON.stringify(fixture.runManifest.resolvedRuntimeOptions) !==
         JSON.stringify(fixture.options) ||
       fixture.runManifest.plugins.length !== 0
@@ -194,7 +180,7 @@ const fixtureSchema = z
         code: "custom",
         path: ["runManifest"],
         message:
-          "must bind the exact 1.47 default identity, options, empty plugin order, and reproducibility key"
+          "must bind the exact 1.47 default identity, options, empty plugin order, and reproducibility key",
       });
     }
     if (
@@ -202,15 +188,14 @@ const fixtureSchema = z
         fixture.runManifest.elementalApplicationIcdRoot.profileId ||
       fixture.elementalApplicationIcdModel.profileId !==
         GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID ||
-      JSON.stringify(
-        fixture.runManifest.elementalApplicationIcdRoot
-      ) !== JSON.stringify(GCSIM_ELEMENTAL_APPLICATION_ROOT)
+      JSON.stringify(fixture.runManifest.elementalApplicationIcdRoot) !==
+        JSON.stringify(GCSIM_ELEMENTAL_APPLICATION_ROOT)
     ) {
       context.addIssue({
         code: "custom",
         path: ["runManifest", "elementalApplicationIcdRoot"],
         message:
-          "must bind the exact elemental-application selector and provisional root"
+          "must bind the exact elemental-application selector and provisional root",
       });
     }
   });
@@ -230,7 +215,7 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.keys(record)
         .sort()
-        .map((key) => [key, canonicalize(record[key])])
+        .map((key) => [key, canonicalize(record[key])]),
     );
   }
   return value;
@@ -243,9 +228,7 @@ function canonicalSha256(value: unknown): string {
 /** Exact pre-1.45 damage-event digest projection retained by the chain. */
 function legacyDamageEventCanonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map((entry) =>
-      legacyDamageEventCanonicalize(entry)
-    );
+    return value.map((entry) => legacyDamageEventCanonicalize(entry));
   }
   if (value !== null && typeof value === "object") {
     const record = value as Record<string, unknown>;
@@ -266,10 +249,7 @@ function legacyDamageEventCanonicalize(value: unknown): unknown {
             field === null
           );
         })
-        .map((key) => [
-          key,
-          legacyDamageEventCanonicalize(record[key])
-        ])
+        .map((key) => [key, legacyDamageEventCanonicalize(record[key])]),
     );
   }
   return value;
@@ -284,30 +264,23 @@ function legacyDamageEventsSha256(value: unknown): string {
         const event = entry as Record<string, unknown>;
         const withoutWireOnlyFields = Object.fromEntries(
           Object.entries(event).filter(
-            ([key]) =>
-              !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
-          )
+            ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key),
+          ),
         );
         const reactionAudit = event.reactionAudit;
-        return reactionAudit !== null &&
-          typeof reactionAudit === "object"
+        return reactionAudit !== null && typeof reactionAudit === "object"
           ? {
               ...withoutWireOnlyFields,
               reactionAudit: Object.fromEntries(
-                Object.entries(
-                  reactionAudit as Record<string, unknown>
-                ).filter(
-                  ([key]) =>
-                    !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
-                )
-              )
+                Object.entries(reactionAudit as Record<string, unknown>).filter(
+                  ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key),
+                ),
+              ),
             }
           : withoutWireOnlyFields;
       })
     : value;
-  return byteSha256(
-    JSON.stringify(legacyDamageEventCanonicalize(normalized))
-  );
+  return byteSha256(JSON.stringify(legacyDamageEventCanonicalize(normalized)));
 }
 
 function serializeFixture(fixture: DefaultV147Fixture): string {
@@ -316,8 +289,7 @@ function serializeFixture(fixture: DefaultV147Fixture): string {
 
 function atomicCreateFixture(outputUrl: URL, bytes: string): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
   writeFileSync(temporaryPath, bytes, { flag: "wx" });
   try {
     linkSync(temporaryPath, outputPath);
@@ -328,9 +300,7 @@ function atomicCreateFixture(outputUrl: URL, bytes: string): void {
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -348,7 +318,7 @@ function assertReviewedFixtureSha256(): string {
   const reviewed = reviewedFixtureSha256();
   if (reviewed === null) {
     throw new Error(
-      "Refusing to freeze the 1.47 default Golden until REVIEWED_FIXTURE_SHA256 is replaced with the reviewed 64-hex candidate SHA-256."
+      "Refusing to freeze the 1.47 default Golden until REVIEWED_FIXTURE_SHA256 is replaced with the reviewed 64-hex candidate SHA-256.",
     );
   }
   return reviewed;
@@ -362,7 +332,7 @@ function assertFrozenV146Source(): void {
   const sourceSha256 = sourceV146Sha256();
   if (sourceSha256 !== FROZEN_V146_SHA256) {
     throw new Error(
-      `Refusing to derive 1.47 from modified 1.46 source; received ${sourceSha256}.`
+      `Refusing to derive 1.47 from modified 1.46 source; received ${sourceSha256}.`,
     );
   }
 }
@@ -377,17 +347,15 @@ function compatibilityProjection(fixture: DefaultV147Fixture) {
     skippedActionCount: fixture.skippedActionCount,
     byCharacter: fixture.byCharacter,
     bySkill: fixture.bySkill,
-    legacyDamageEventsSha256:
-      fixture.legacyDamageEventsSha256,
+    legacyDamageEventsSha256: fixture.legacyDamageEventsSha256,
     reactionDeliveryModel: fixture.reactionDeliveryModel,
-    electroChargedPropagationModel:
-      fixture.electroChargedPropagationModel,
+    electroChargedPropagationModel: fixture.electroChargedPropagationModel,
     targetClock: fixture.targetClock,
     targetTask: fixture.targetTask,
     targetPhaseLog: fixture.targetPhaseLog,
     reactionFormulaModel: fixture.reactionFormulaModel,
     directDamageGroupModel: fixture.directDamageGroupModel,
-    directDamageGroupAudit: fixture.directDamageGroupAudit
+    directDamageGroupAudit: fixture.directDamageGroupAudit,
   };
 }
 
@@ -401,27 +369,24 @@ function frozenV146CompatibilityProjection() {
     skippedActionCount: frozenV146Json.skippedActionCount,
     byCharacter: frozenV146Json.byCharacter,
     bySkill: frozenV146Json.bySkill,
-    legacyDamageEventsSha256:
-      frozenV146Json.legacyDamageEventsSha256,
-    reactionDeliveryModel:
-      frozenV146Json.reactionDeliveryModel,
+    legacyDamageEventsSha256: frozenV146Json.legacyDamageEventsSha256,
+    reactionDeliveryModel: frozenV146Json.reactionDeliveryModel,
     electroChargedPropagationModel:
       frozenV146Json.electroChargedPropagationModel,
     targetClock: frozenV146Json.targetClock,
     targetTask: frozenV146Json.targetTask,
     targetPhaseLog: frozenV146Json.targetPhaseLog,
     reactionFormulaModel: frozenV146Json.reactionFormulaModel,
-    directDamageGroupModel:
-      frozenV146Json.directDamageGroupModel,
-    directDamageGroupAudit: frozenV146Json.directDamageGroupAudit
+    directDamageGroupModel: frozenV146Json.directDamageGroupModel,
+    directDamageGroupAudit: frozenV146Json.directDamageGroupAudit,
   };
 }
 
 function makeFixture(
-  result: ReturnType<typeof runDefault>
+  result: ReturnType<typeof runDefault>,
 ): DefaultV147Fixture {
   const evaluatedCount = result.directDamageGroupLog.filter(
-    (entry) => entry.evaluation === "evaluated"
+    (entry) => entry.evaluation === "evaluated",
   ).length;
   return fixtureSchema.parse({
     fixtureVersion: "1.0.0",
@@ -432,7 +397,7 @@ function makeFixture(
       verificationStatus: "provisional",
       note: NOTE,
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     },
     schemaVersion: result.schemaVersion,
     engineVersion: result.engineVersion,
@@ -445,17 +410,13 @@ function makeFixture(
     reactedHits: result.reactedHits,
     skippedActionCount: result.skippedActions.length,
     byCharacter: result.byCharacter,
-    bySkill: result.bySkill.map(
-      ({ creditId, actionName, damage, hits }) => ({
-        creditId,
-        actionName,
-        damage,
-        hits
-      })
-    ),
-    legacyDamageEventsSha256: legacyDamageEventsSha256(
-      result.damageEvents
-    ),
+    bySkill: result.bySkill.map(({ creditId, actionName, damage, hits }) => ({
+      creditId,
+      actionName,
+      damage,
+      hits,
+    })),
+    legacyDamageEventsSha256: legacyDamageEventsSha256(result.damageEvents),
     reactionDeliveryModel: result.config.reactionDeliveryModel,
     electroChargedPropagationModel:
       result.config.electroChargedPropagationModel,
@@ -463,49 +424,38 @@ function makeFixture(
       config: result.config.targetClockModel,
       audit: result.targetClockAudit,
       clockLog: result.targetClockLog,
-      hitlagLog: result.targetHitlagLog
+      hitlagLog: result.targetHitlagLog,
     },
     targetTask: {
       config: result.config.targetTaskModel,
-      phaseLog: result.targetTaskPhaseLog
+      phaseLog: result.targetTaskPhaseLog,
     },
     targetPhaseLog: result.targetPhaseLog,
     reactionFormulaModel: result.config.reactionFormulaModel,
-    directDamageGroupModel:
-      result.config.directDamageGroupModel,
-    elementalApplicationIcdModel:
-      result.config.elementalApplicationIcdModel,
+    directDamageGroupModel: result.config.directDamageGroupModel,
+    elementalApplicationIcdModel: result.config.elementalApplicationIcdModel,
     directDamageGroupAudit: {
       rowCount: result.directDamageGroupLog.length,
       evaluatedCount,
-      bypassedCount:
-        result.directDamageGroupLog.length - evaluatedCount,
-      canonicalSha256: canonicalSha256(
-        result.directDamageGroupLog
-      )
+      bypassedCount: result.directDamageGroupLog.length - evaluatedCount,
+      canonicalSha256: canonicalSha256(result.directDamageGroupLog),
     },
     elementalApplicationIcdAudit: {
       rowCount: result.elementalApplicationIcdLog.length,
-      canonicalSha256: canonicalSha256(
-        result.elementalApplicationIcdLog
-      )
+      canonicalSha256: canonicalSha256(result.elementalApplicationIcdLog),
     },
-    runManifest: result.runManifest
+    runManifest: result.runManifest,
   });
 }
 
-function printPreview(
-  fixture: DefaultV147Fixture,
-  bytes: string
-): void {
+function printPreview(fixture: DefaultV147Fixture, bytes: string): void {
   process.stdout.write(
     `${JSON.stringify(
       {
         fixture: "legacy-default-120s-1.47.golden.json",
         sourceV146ByteSha256: sourceV146Sha256(),
         fixtureByteSha256: byteSha256(bytes),
-        legacyDamageEventsSha256:
-          fixture.legacyDamageEventsSha256,
+        legacyDamageEventsSha256: fixture.legacyDamageEventsSha256,
         directDamageGroupLogCanonicalSha256:
           fixture.directDamageGroupAudit.canonicalSha256,
         elementalApplicationIcdLogCanonicalSha256:
@@ -517,23 +467,21 @@ function printPreview(
         hitCount: fixture.hitCount,
         reactedHits: fixture.reactedHits,
         skippedActionCount: fixture.skippedActionCount,
-        wroteFixture: false
+        wroteFixture: false,
       },
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   );
 }
 
 function loadPreviewOrCreateFixture(
-  generated: DefaultV147Fixture
+  generated: DefaultV147Fixture,
 ): DefaultV147Fixture {
   const previewRequested = process.env[PREVIEW_FLAG] === "1";
   const updateRequested = process.env[UPDATE_FLAG] === "1";
   if (previewRequested && updateRequested) {
-    throw new Error(
-      "Preview and update modes are mutually exclusive."
-    );
+    throw new Error("Preview and update modes are mutually exclusive.");
   }
   assertFrozenV146Source();
   if (
@@ -541,7 +489,7 @@ function loadPreviewOrCreateFixture(
     JSON.stringify(frozenV146CompatibilityProjection())
   ) {
     throw new Error(
-      "Refusing the 1.47 default fixture because its exact 1.46 compatibility projection changed."
+      "Refusing the 1.47 default fixture because its exact 1.46 compatibility projection changed.",
     );
   }
   const bytes = serializeFixture(fixtureSchema.parse(generated));
@@ -554,7 +502,7 @@ function loadPreviewOrCreateFixture(
     const generatedSha256 = byteSha256(bytes);
     if (generatedSha256 !== reviewedSha256) {
       throw new Error(
-        `Refusing to write the 1.47 default fixture because its generated bytes do not match the reviewed SHA-256: received ${generatedSha256}.`
+        `Refusing to write the 1.47 default fixture because its generated bytes do not match the reviewed SHA-256: received ${generatedSha256}.`,
       );
     }
     atomicCreateFixture(FIXTURE_URL, bytes);
@@ -565,18 +513,16 @@ function loadPreviewOrCreateFixture(
   const frozenSha256 = byteSha256(frozenBytes);
   if (frozenSha256 !== reviewedSha256) {
     throw new Error(
-      `Frozen 1.47 default fixture changed: received ${frozenSha256}.`
+      `Frozen 1.47 default fixture changed: received ${frozenSha256}.`,
     );
   }
-  const fixture = fixtureSchema.parse(
-    JSON.parse(frozenBytes.toString("utf8"))
-  );
+  const fixture = fixtureSchema.parse(JSON.parse(frozenBytes.toString("utf8")));
   if (
     JSON.stringify(compatibilityProjection(fixture)) !==
     JSON.stringify(frozenV146CompatibilityProjection())
   ) {
     throw new Error(
-      "Frozen 1.47 default fixture changed its exact 1.46 compatibility projection."
+      "Frozen 1.47 default fixture changed its exact 1.46 compatibility projection.",
     );
   }
   return fixture;
@@ -586,14 +532,16 @@ function runDefault() {
   return projectSimulationResultV148ToV147(
     projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
-        simulate(durinMeltPreset, {
-          energyMode: "configured",
-          critMode: "average",
-          compatibilityMode: "legacy-v0.1",
-          randomSeed: "legacy-default"
-        })
-      )
-    )
+        projectSimulationResultV151ToV150(
+          simulate(durinMeltPreset, {
+            energyMode: "configured",
+            critMode: "average",
+            compatibilityMode: "legacy-v0.1",
+            randomSeed: "legacy-default",
+          }),
+        ),
+      ),
+    ),
   );
 }
 
@@ -612,9 +560,7 @@ describe("default 1.47 Golden gate", () => {
     const reviewed = reviewedFixtureSha256();
     const fixtureExists = existsSync(fileURLToPath(FIXTURE_URL));
     if (reviewed === null) {
-      expect(REVIEWED_FIXTURE_SHA256).toBe(
-        "PENDING-V147-GOLDEN-REVIEW"
-      );
+      expect(REVIEWED_FIXTURE_SHA256).toBe("PENDING-V147-GOLDEN-REVIEW");
       expect(fixtureExists).toBe(false);
       return;
     }
@@ -625,30 +571,26 @@ describe("default 1.47 Golden gate", () => {
   it("requires a cryptographic reviewed hash before freezing", () => {
     if (reviewedFixtureSha256() === null) {
       expect(() => assertReviewedFixtureSha256()).toThrow(
-        /reviewed 64-hex candidate SHA-256/
+        /reviewed 64-hex candidate SHA-256/,
       );
     } else {
-      expect(assertReviewedFixtureSha256()).toMatch(
-        /^[0-9a-f]{64}$/
-      );
+      expect(assertReviewedFixtureSha256()).toMatch(/^[0-9a-f]{64}$/);
     }
   });
 
   it("atomically refuses to overwrite an existing path", () => {
     const probeDirectory = mkdtempSync(
-      resolve(tmpdir(), "gdl-default-v147-gate-")
+      resolve(tmpdir(), "gdl-default-v147-gate-"),
     );
     const existingUrl = pathToFileURL(
-      resolve(probeDirectory, "existing.golden.json")
+      resolve(probeDirectory, "existing.golden.json"),
     );
     try {
       writeFileSync(existingUrl, "sentinel\n", { flag: "wx" });
-      expect(() =>
-        atomicCreateFixture(existingUrl, "replacement\n")
-      ).toThrow(/Refusing to overwrite frozen fixture/);
-      expect(readFileSync(existingUrl, "utf8")).toBe(
-        "sentinel\n"
+      expect(() => atomicCreateFixture(existingUrl, "replacement\n")).toThrow(
+        /Refusing to overwrite frozen fixture/,
       );
+      expect(readFileSync(existingUrl, "utf8")).toBe("sentinel\n");
     } finally {
       rmSync(probeDirectory, { recursive: true, force: true });
     }
@@ -669,30 +611,29 @@ describe("default 1.47 elemental-application ICD Golden", () => {
       const frozen = loadPreviewOrCreateFixture(generated);
       expect(frozen).toEqual(generated);
       expect(compatibilityProjection(frozen)).toEqual(
-        frozenV146CompatibilityProjection()
+        frozenV146CompatibilityProjection(),
       );
       expect(result.elementalApplicationIcdLog).toEqual([]);
-      expect(
-        canonicalSha256(result.elementalApplicationIcdLog)
-      ).toBe(EMPTY_APPLICATION_LOG_SHA256);
+      expect(canonicalSha256(result.elementalApplicationIcdLog)).toBe(
+        EMPTY_APPLICATION_LOG_SHA256,
+      );
       expect(
         result.directDamageGroupLog.every(
           (entry) =>
             entry.evaluation === "bypassed" &&
             entry.sequenceMultiplier === 1 &&
-            entry.effectiveMultiplier ===
-              entry.postPluginMultiplier
-        )
+            entry.effectiveMultiplier === entry.postPluginMultiplier,
+        ),
       ).toBe(true);
       expect(canonicalSha256(result.directDamageGroupLog)).toBe(
-        DEFAULT_DAMAGE_GROUP_LOG_SHA256
+        DEFAULT_DAMAGE_GROUP_LOG_SHA256,
       );
       expect(legacyDamageEventsSha256(result.damageEvents)).toBe(
-        DEFAULT_DAMAGE_EVENTS_SHA256
+        DEFAULT_DAMAGE_EVENTS_SHA256,
       );
       expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
-        GCSIM_ELEMENTAL_APPLICATION_ROOT
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       );
-    }
+    },
   );
 });

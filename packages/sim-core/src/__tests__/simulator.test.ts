@@ -8,12 +8,12 @@ import {
   simConfigSchema,
   simConfigV144Schema,
   simulationResultSchema,
-  simulationRunManifestSchema
+  simulationRunManifestSchema,
 } from "@genshin-dps-lab/schemas";
 import {
   defineDamageModifierPlugin,
   type DamageModifierPlugin,
-  type DamageModifierPluginRuntime
+  type DamageModifierPluginRuntime,
 } from "../plugins";
 import { simulate } from "../simulator";
 import { makeConfig } from "./fixtures";
@@ -23,18 +23,17 @@ function makeTestPlugin(
   version: string,
   contentIdentity: unknown,
   createRuntime: () => DamageModifierPluginRuntime = () => ({
-    modifyDamage() {}
-  })
+    modifyDamage() {},
+  }),
 ): DamageModifierPlugin {
   return defineDamageModifierPlugin(
     {
       id,
       version,
       kind: "code",
-      contentHash:
-        createVersionedContentHash(contentIdentity)
+      contentHash: createVersionedContentHash(contentIdentity),
     },
-    createRuntime
+    createRuntime,
   );
 }
 
@@ -54,8 +53,8 @@ describe("deterministic event simulation", () => {
               stat: "dmgBonus",
               value: 1,
               duration: 1,
-              offset: 0
-            }
+              offset: 0,
+            },
           ],
           hits: [
             {
@@ -63,11 +62,11 @@ describe("deterministic event simulation", () => {
               offset: 0,
               scaling: 1,
               element: "pyro",
-              snapshot: "hit"
-            }
-          ]
-        }
-      ]
+              snapshot: "hit",
+            },
+          ],
+        },
+      ],
     });
     const result = simulate(config, { critMode: "noCrit" });
     expect(result.damageEvents[0]?.damageFactors.damageBonusMultiplier).toBe(2);
@@ -88,8 +87,8 @@ describe("deterministic event simulation", () => {
               stat: "dmgBonus",
               value: 1,
               duration: 1,
-              offset: 0
-            }
+              offset: 0,
+            },
           ],
           hits: [
             {
@@ -97,11 +96,11 @@ describe("deterministic event simulation", () => {
               offset: 1,
               scaling: 1,
               element: "pyro",
-              snapshot: "hit"
-            }
-          ]
-        }
-      ]
+              snapshot: "hit",
+            },
+          ],
+        },
+      ],
     });
     const result = simulate(config, { critMode: "noCrit" });
     expect(result.damageEvents[0]?.damageFactors.damageBonusMultiplier).toBe(1);
@@ -123,8 +122,8 @@ describe("deterministic event simulation", () => {
               stat: "dmgBonus",
               value: 1,
               duration: 2,
-              offset: 0
-            }
+              offset: 0,
+            },
           ],
           hits: [
             {
@@ -133,7 +132,7 @@ describe("deterministic event simulation", () => {
               offset: 1,
               scaling: 1,
               element: "pyro",
-              snapshot: "action"
+              snapshot: "action",
             },
             {
               id: "dynamic-hit",
@@ -141,20 +140,20 @@ describe("deterministic event simulation", () => {
               offset: 1,
               scaling: 1,
               element: "pyro",
-              snapshot: "hit"
-            }
-          ]
-        }
-      ]
+              snapshot: "hit",
+            },
+          ],
+        },
+      ],
     });
     const result = simulate(config, { critMode: "noCrit" });
     expect(
       result.damageEvents.find((event) => event.hitId === "snapshot-hit")
-        ?.damageFactors.damageBonusMultiplier
+        ?.damageFactors.damageBonusMultiplier,
     ).toBe(1);
     expect(
       result.damageEvents.find((event) => event.hitId === "dynamic-hit")
-        ?.damageFactors.damageBonusMultiplier
+        ?.damageFactors.damageBonusMultiplier,
     ).toBe(2);
   });
 
@@ -164,8 +163,8 @@ describe("deterministic event simulation", () => {
       characters: [
         {
           ...base.characters[0]!,
-          initialEnergy: 60
-        }
+          initialEnergy: 60,
+        },
       ],
       rotation: [
         {
@@ -178,11 +177,11 @@ describe("deterministic event simulation", () => {
             {
               offset: 0,
               scaling: 1,
-              element: "pyro"
-            }
-          ]
-        }
-      ]
+              element: "pyro",
+            },
+          ],
+        },
+      ],
     });
     const result = simulate(config);
     expect(result.skippedActions).toHaveLength(0);
@@ -197,8 +196,8 @@ describe("deterministic event simulation", () => {
       characters: [
         {
           ...base.characters[0]!,
-          initialEnergy: 59
-        }
+          initialEnergy: 59,
+        },
       ],
       rotation: [
         {
@@ -211,25 +210,23 @@ describe("deterministic event simulation", () => {
             {
               stat: "dmgBonus",
               value: 1,
-              duration: 10
-            }
+              duration: 10,
+            },
           ],
           energyGains: [{ amount: 60 }],
           hits: [
             {
               offset: 0,
               scaling: 1,
-              element: "pyro"
-            }
-          ]
-        }
-      ]
+              element: "pyro",
+            },
+          ],
+        },
+      ],
     });
     const result = simulate(config);
     expect(result.skippedActions).toHaveLength(1);
-    expect(result.skippedActions[0]?.reasonCode).toBe(
-      "INSUFFICIENT_ENERGY"
-    );
+    expect(result.skippedActions[0]?.reasonCode).toBe("INSUFFICIENT_ENERGY");
     expect(result.damageEvents).toHaveLength(0);
     expect(result.energyStats.a?.gained).toBe(0);
   });
@@ -244,15 +241,15 @@ describe("deterministic event simulation", () => {
           at: 0,
           hits: [
             { id: "first", offset: 1, scaling: 1, element: "pyro" },
-            { id: "second", offset: 1, scaling: 1, element: "pyro" }
-          ]
-        }
-      ]
+            { id: "second", offset: 1, scaling: 1, element: "pyro" },
+          ],
+        },
+      ],
     });
     const result = simulate(config);
     expect(result.damageEvents.map((event) => event.hitId)).toEqual([
       "first",
-      "second"
+      "second",
     ]);
   });
 
@@ -270,11 +267,11 @@ describe("deterministic event simulation", () => {
               offset: 0,
               scaling: 1.2345,
               element: "pyro",
-              reaction: "melt"
-            }
-          ]
-        }
-      ]
+              reaction: "melt",
+            },
+          ],
+        },
+      ],
     });
     const event = simulate(config).damageEvents[0]!;
     expect(event.displayDamage).toBe(Math.round(event.finalDamage));
@@ -285,7 +282,7 @@ describe("deterministic event simulation", () => {
       reaction: "melt",
       icdAllowed: null,
       auraBefore: null,
-      auraAfter: null
+      auraAfter: null,
     });
   });
 
@@ -295,7 +292,7 @@ describe("deterministic event simulation", () => {
       offset: 0,
       scaling: 1,
       element: "pyro" as const,
-      reaction: "none" as const
+      reaction: "none" as const,
     };
     const currentWithLegacyOverride = makeConfig({
       rotation: [
@@ -304,9 +301,9 @@ describe("deterministic event simulation", () => {
           actorId: "a",
           name: "Legacy explicit base",
           at: 0,
-          hits: [{ ...baseHit, ampBase: 2 }]
-        }
-      ]
+          hits: [{ ...baseHit, ampBase: 2 }],
+        },
+      ],
     });
     const {
       reactionFormulaModel: _reactionFormulaModel,
@@ -315,28 +312,29 @@ describe("deterministic event simulation", () => {
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
       reactionDamageGroupModel: _reactionDamageGroupModel,
+      basicReactionSchedulerModel: _basicReactionSchedulerModel,
       ...legacyPayload
     } = structuredClone(currentWithLegacyOverride);
     const frozenV144WithAmpBase = {
       ...legacyPayload,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
-      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+      engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     };
 
     // Exact 1.44 accepted ampBase as an explicit multiplier for legacy/manual
     // debug runs without inventing a reaction. Migration must not silently
     // carry that unrooted multiplier into the current fixed-formula contract.
-    expect(
-      simConfigV144Schema.parse(frozenV144WithAmpBase)
-    ).toEqual(frozenV144WithAmpBase);
-    expect(() => migrateConfig(frozenV144WithAmpBase)).toThrow(
-      /ampBase is forbidden by the 1\.45 formula-root contract/
+    expect(simConfigV144Schema.parse(frozenV144WithAmpBase)).toEqual(
+      frozenV144WithAmpBase,
     );
-    expect(() =>
-      simConfigSchema.parse(currentWithLegacyOverride)
-    ).toThrow(/ampBase is forbidden by the 1\.45 formula-root contract/);
+    expect(() => migrateConfig(frozenV144WithAmpBase)).toThrow(
+      /ampBase is forbidden by the 1\.45 formula-root contract/,
+    );
+    expect(() => simConfigSchema.parse(currentWithLegacyOverride)).toThrow(
+      /ampBase is forbidden by the 1\.45 formula-root contract/,
+    );
     expect(() => simulate(currentWithLegacyOverride)).toThrow(
-      /ampBase is forbidden by the 1\.45 formula-root contract/
+      /ampBase is forbidden by the 1\.45 formula-root contract/,
     );
   });
 
@@ -352,10 +350,10 @@ describe("deterministic event simulation", () => {
           at: 0,
           hits: [
             { id: "inside", offset: 1, scaling: 1, element: "pyro" },
-            { id: "outside", offset: 1.001, scaling: 1, element: "pyro" }
-          ]
-        }
-      ]
+            { id: "outside", offset: 1.001, scaling: 1, element: "pyro" },
+          ],
+        },
+      ],
     });
     const result = simulate(config);
     expect(result.damageEvents.map((event) => event.hitId)).toEqual(["inside"]);
@@ -366,21 +364,15 @@ describe("deterministic event simulation", () => {
     const first = simulate(config);
     const second = simulate(config);
     expect(second).toEqual(first);
-    expect(first.reproducibilityKey).toMatch(
-      /^gdl-v2-fnv1a32-[0-9a-f]{8}$/
-    );
+    expect(first.reproducibilityKey).toMatch(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/);
     expect(first.runManifest).toEqual(
-      simulationRunManifestSchema.parse(first.runManifest)
+      simulationRunManifestSchema.parse(first.runManifest),
     );
     expect(first.resolvedRuntimeOptions).toBe(
-      first.runManifest.resolvedRuntimeOptions
+      first.runManifest.resolvedRuntimeOptions,
     );
-    expect(first.pluginManifest).toBe(
-      first.runManifest.plugins
-    );
-    expect(first.reproducibilityKey).toBe(
-      first.runManifest.reproducibilityKey
-    );
+    expect(first.pluginManifest).toBe(first.runManifest.plugins);
+    expect(first.reproducibilityKey).toBe(first.runManifest.reproducibilityKey);
   });
 
   it("keys every resolved runtime option, including the effective seed", () => {
@@ -392,22 +384,20 @@ describe("deterministic event simulation", () => {
       simulate(config, { critMode: "allCrit" }),
       simulate(config, { critMode: "noCrit" }),
       simulate(config, {
-        compatibilityMode: "legal-frame-v1"
+        compatibilityMode: "legal-frame-v1",
       }),
-      simulate(config, { randomSeed: "other-seed" })
+      simulate(config, { randomSeed: "other-seed" }),
     ];
 
+    expect(variants.map((result) => result.reproducibilityKey)).not.toContain(
+      base,
+    );
     expect(
-      variants.map((result) => result.reproducibilityKey)
-    ).not.toContain(base);
-    expect(
-      new Set(
-        variants.map((result) => result.reproducibilityKey)
-      ).size
+      new Set(variants.map((result) => result.reproducibilityKey)).size,
     ).toBe(variants.length);
-    expect(
-      variants.at(-1)?.resolvedRuntimeOptions.randomSeed
-    ).toBe("other-seed");
+    expect(variants.at(-1)?.resolvedRuntimeOptions.randomSeed).toBe(
+      "other-seed",
+    );
   });
 
   it("binds the key to migrated config content and data version", () => {
@@ -415,96 +405,79 @@ describe("deterministic event simulation", () => {
     const base = simulate(config);
     const changedData = simulate({
       ...config,
-      dataVersion: "test-vector-2"
+      dataVersion: "test-vector-2",
     });
     const changedConfig = simulate({
       ...config,
       meta: {
         ...config.meta,
-        name: "不同配置"
-      }
+        name: "不同配置",
+      },
     });
     const legalCompatibility = {
-      compatibilityMode: "legal-frame-v1" as const
+      compatibilityMode: "legal-frame-v1" as const,
     };
-    const legacyTargetTasks = simulate(
-      config,
-      legalCompatibility
-    );
+    const legacyTargetTasks = simulate(config, legalCompatibility);
     const phasedTargetTasks = simulate(
       {
         ...config,
-        targetTaskModel: { mode: "target-phase-v1" }
+        targetTaskModel: { mode: "target-phase-v1" },
       },
-      legalCompatibility
+      legalCompatibility,
     );
 
-    expect(changedData.reproducibilityKey).not.toBe(
-      base.reproducibilityKey
+    expect(changedData.reproducibilityKey).not.toBe(base.reproducibilityKey);
+    expect(changedConfig.reproducibilityKey).not.toBe(base.reproducibilityKey);
+    expect(phasedTargetTasks.runManifest.configHash).not.toBe(
+      legacyTargetTasks.runManifest.configHash,
     );
-    expect(changedConfig.reproducibilityKey).not.toBe(
-      base.reproducibilityKey
-    );
-    expect(
-      phasedTargetTasks.runManifest.configHash
-    ).not.toBe(legacyTargetTasks.runManifest.configHash);
     expect(phasedTargetTasks.reproducibilityKey).not.toBe(
-      legacyTargetTasks.reproducibilityKey
+      legacyTargetTasks.reproducibilityKey,
     );
-    expect(changedData.runManifest.dataVersion).toBe(
-      "test-vector-2"
-    );
+    expect(changedData.runManifest.dataVersion).toBe("test-vector-2");
   });
 
   it("keys plugin version, declared content, and execution order", () => {
     const config = makeConfig();
     const first = makeTestPlugin("first", "1.0.0", {
-      behavior: 1
+      behavior: 1,
     });
-    const firstVersion2 = makeTestPlugin(
-      "first",
-      "2.0.0",
-      { behavior: 1 }
-    );
-    const firstContent2 = makeTestPlugin(
-      "first",
-      "1.0.0",
-      { behavior: 2 }
-    );
+    const firstVersion2 = makeTestPlugin("first", "2.0.0", { behavior: 1 });
+    const firstContent2 = makeTestPlugin("first", "1.0.0", { behavior: 2 });
     const second = makeTestPlugin("second", "1.0.0", {
-      behavior: 1
+      behavior: 1,
     });
     const base = simulate(config, {
-      plugins: [first, second]
+      plugins: [first, second],
     });
 
     expect(
       simulate(config, {
-        plugins: [firstVersion2, second]
-      }).reproducibilityKey
+        plugins: [firstVersion2, second],
+      }).reproducibilityKey,
     ).not.toBe(base.reproducibilityKey);
     expect(
       simulate(config, {
-        plugins: [firstContent2, second]
-      }).reproducibilityKey
+        plugins: [firstContent2, second],
+      }).reproducibilityKey,
     ).not.toBe(base.reproducibilityKey);
     expect(
       simulate(config, {
-        plugins: [second, first]
-      }).reproducibilityKey
+        plugins: [second, first],
+      }).reproducibilityKey,
     ).not.toBe(base.reproducibilityKey);
     expect(base.pluginManifest.map((entry) => entry.id)).toEqual([
       "first",
-      "second"
+      "second",
     ]);
     expect(
       base.pluginManifest.map(({ order, index }) => ({
         order,
-        index
-      }))
+        index,
+      })),
     ).toEqual([
       { order: 0, index: 0 },
-      { order: 1, index: 1 }
+      { order: 1, index: 1 },
     ]);
   });
 
@@ -516,11 +489,10 @@ describe("deterministic event simulation", () => {
       () => ({
         modifyDamage(context) {
           return {
-            scalingValue:
-              context.damageInput.scalingValue + 1
+            scalingValue: context.damageInput.scalingValue + 1,
           };
-        }
-      })
+        },
+      }),
     );
     const result = simulate(
       makeConfig({
@@ -535,26 +507,23 @@ describe("deterministic event simulation", () => {
                 id: "hit",
                 offset: 0,
                 scaling: 1,
-                element: "pyro"
-              }
-            ]
-          }
-        ]
+                element: "pyro",
+              },
+            ],
+          },
+        ],
       }),
       {
         plugins: [plugin],
-        critMode: "noCrit"
-      }
+        critMode: "noCrit",
+      },
     );
     const event = result.damageEvents[0]!;
     const snapshotAtk =
-      event.statsBeforeDamage.baseAtk *
-        (1 + event.statsBeforeDamage.atkPct) +
+      event.statsBeforeDamage.baseAtk * (1 + event.statsBeforeDamage.atkPct) +
       event.statsBeforeDamage.flatAtk;
 
-    expect(event.damageFactors.scalingValue).toBe(
-      snapshotAtk + 1
-    );
+    expect(event.damageFactors.scalingValue).toBe(snapshotAtk + 1);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
@@ -572,13 +541,11 @@ describe("deterministic event simulation", () => {
           modifyDamage(context) {
             hitCount += 1;
             return {
-              damageBonus:
-                context.damageInput.damageBonus +
-                hitCount / 100
+              damageBonus: context.damageInput.damageBonus + hitCount / 100,
             };
-          }
+          },
         };
-      }
+      },
     );
     const config = makeConfig({
       rotation: [
@@ -592,11 +559,11 @@ describe("deterministic event simulation", () => {
               id: "hit",
               offset: 0,
               scaling: 1,
-              element: "pyro"
-            }
-          ]
-        }
-      ]
+              element: "pyro",
+            },
+          ],
+        },
+      ],
     });
 
     const first = simulate(config, { plugins: [plugin] });
@@ -605,8 +572,7 @@ describe("deterministic event simulation", () => {
     expect(runtimeCount).toBe(2);
     expect(second).toEqual(first);
     expect(
-      first.damageEvents[0]?.damageFactors
-        .damageBonusMultiplier
+      first.damageEvents[0]?.damageFactors.damageBonusMultiplier,
     ).toBeCloseTo(1.01, 12);
   });
 
@@ -618,11 +584,10 @@ describe("deterministic event simulation", () => {
       () => ({
         modifyDamage(context) {
           return {
-            damageBonus:
-              context.damageInput.damageBonus + 0.01
+            damageBonus: context.damageInput.damageBonus + 0.01,
           };
-        }
-      })
+        },
+      }),
     );
     const config = makeConfig();
     const first = simulate(config, { plugins: [plugin] });
@@ -637,17 +602,14 @@ describe("deterministic event simulation", () => {
       ).createRuntime = () => ({
         modifyDamage(context) {
           return {
-            damageBonus:
-              context.damageInput.damageBonus + 100
+            damageBonus: context.damageInput.damageBonus + 100,
           };
-        }
+        },
       });
     }).toThrow(TypeError);
 
     const second = simulate(config, { plugins: [plugin] });
-    expect(second.reproducibilityKey).toBe(
-      first.reproducibilityKey
-    );
+    expect(second.reproducibilityKey).toBe(first.reproducibilityKey);
     expect(second).toEqual(first);
   });
 
@@ -659,11 +621,10 @@ describe("deterministic event simulation", () => {
       () => ({
         modifyDamage(context) {
           return {
-            damageBonus:
-              context.damageInput.damageBonus + 0.01
+            damageBonus: context.damageInput.damageBonus + 0.01,
           };
-        }
-      })
+        },
+      }),
     );
     let mutationError: unknown;
     const attacker = makeTestPlugin(
@@ -679,31 +640,28 @@ describe("deterministic event simulation", () => {
           ).createRuntime = () => ({
             modifyDamage(context) {
               return {
-                damageBonus:
-                  context.damageInput.damageBonus + 100
+                damageBonus: context.damageInput.damageBonus + 100,
               };
-            }
+            },
           });
         } catch (error) {
           mutationError = error;
         }
         return {
-          modifyDamage() {}
+          modifyDamage() {},
         };
-      }
+      },
     );
     const config = makeConfig();
     const first = simulate(config, {
-      plugins: [attacker, victim]
+      plugins: [attacker, victim],
     });
     const second = simulate(config, {
-      plugins: [attacker, victim]
+      plugins: [attacker, victim],
     });
 
     expect(mutationError).toBeInstanceOf(TypeError);
-    expect(second.reproducibilityKey).toBe(
-      first.reproducibilityKey
-    );
+    expect(second.reproducibilityKey).toBe(first.reproducibilityKey);
     expect(second).toEqual(first);
   });
 
@@ -720,13 +678,11 @@ describe("deterministic event simulation", () => {
           modifyDamage(context) {
             hitCount += 1;
             return {
-              damageBonus:
-                context.damageInput.damageBonus +
-                hitCount / 100
+              damageBonus: context.damageInput.damageBonus + hitCount / 100,
             };
-          }
+          },
         };
-      }
+      },
     );
     const base = makeConfig();
     const config = makeConfig({
@@ -735,8 +691,8 @@ describe("deterministic event simulation", () => {
       characters: [
         {
           ...base.characters[0]!,
-          initialEnergy: 60
-        }
+          initialEnergy: 60,
+        },
       ],
       timeline: {
         mode: "legal-frame-v1",
@@ -759,26 +715,25 @@ describe("deterministic event simulation", () => {
                 id: "burst-hit",
                 frame: 0,
                 scaling: 1,
-                element: "pyro"
-              }
-            ]
-          }
+                element: "pyro",
+              },
+            ],
+          },
         ],
         commands: [
           {
             type: "burst",
             actorId: "a",
-            abilityId: "burst"
-          }
-        ]
-      }
+            abilityId: "burst",
+          },
+        ],
+      },
     });
     const result = simulate(config, { plugins: [plugin] });
 
     expect(runtimeCount).toBe(2);
     expect(
-      result.damageEvents[0]?.damageFactors
-        .damageBonusMultiplier
+      result.damageEvents[0]?.damageFactors.damageBonusMultiplier,
     ).toBeCloseTo(1.01, 12);
   });
 });

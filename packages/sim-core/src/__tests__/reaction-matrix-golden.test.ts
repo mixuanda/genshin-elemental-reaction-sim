@@ -11,6 +11,8 @@ import {
   parseSimulationRunManifestForConfig,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   reactionDamageGroupDecisionAuditV150Schema,
   reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
@@ -29,7 +31,9 @@ import {
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import {
-  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
@@ -473,6 +477,12 @@ function makeMatrixConfig(
       mode: "legacy-reaction-damage-group-window-v1",
       policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
     },
+    // Historical 1.31–1.35 semantic projections keep the immediate
+    // attachment scheduler. V2 is selected only by the current 1.51 gate.
+    basicReactionSchedulerModel: {
+      mode: "legacy-immediate-basic-reaction-scheduler-v1",
+      policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+    },
     playerDamageModel: {
       mode: "reaction-self-v1",
       position: { x: 0, y: 0 },
@@ -603,7 +613,27 @@ function stripV147ApplicationWireOnlyFields(
 
 type ClassicReactionDamageSemanticProjection =
   | "historical-v147"
-  | "current-v148";
+  | "current-v151";
+
+function targetStateTimelineForSemanticDigest(
+  result: SimulationResult,
+  projection: ClassicReactionDamageSemanticProjection
+): SimulationResult["targetStateTimeline"] {
+  if (projection !== "historical-v147") {
+    return result.targetStateTimeline;
+  }
+
+  return {
+    ...result.targetStateTimeline,
+    points: result.targetStateTimeline.points.map((point) => ({
+      ...point,
+      links: point.links.filter(
+        (link) =>
+          link.kind !== "basic-reaction-scheduler-log"
+      )
+    }))
+  };
+}
 
 function classicReactionDamageEventsForSemanticDigest(
   result: SimulationResult,
@@ -913,6 +943,12 @@ function compactResult(
               blockedReason: decision.blockedReason
             }))
       })),
+      ...(applicationProjection === "current-v151"
+        ? {
+            basicReactionScheduler:
+              result.basicReactionSchedulerLog
+          }
+        : {}),
       periodic: result.periodicReactionLog.map((entry) => ({
         id: entry.id,
         operation: entry.operation,
@@ -1056,7 +1092,12 @@ function compactResult(
           result.crystallizeShieldTimeline,
         reactionStatusLog: result.reactionStatusLog
       }),
-      targetStateTimeline: sha256(result.targetStateTimeline),
+      targetStateTimeline: sha256(
+        targetStateTimelineForSemanticDigest(
+          result,
+          applicationProjection
+        )
+      ),
       auraBoundaries: sha256({
         initial: result.auraInitialStates,
         end: result.auraEndStates
@@ -1090,6 +1131,25 @@ function expectKnownNullableId(
 ): void {
   if (id !== null) {
     expect(ids.has(id)).toBe(true);
+  }
+}
+
+function expectLegacyBasicReactionSchedulerV1(
+  result: SimulationResult
+): void {
+  expect(result.config.basicReactionSchedulerModel).toEqual({
+    mode: "legacy-immediate-basic-reaction-scheduler-v1",
+    policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+  });
+  expect(result.runManifest.basicReactionSchedulerRoot).toMatchObject({
+    policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+  });
+  for (const entry of result.basicReactionSchedulerLog) {
+    expect(entry).toMatchObject({
+      kind: "swirl-attack-resolution",
+      disposition: "legacy-immediate",
+      pairedLogId: null
+    });
   }
 }
 
@@ -1293,6 +1353,9 @@ function validateCrossLinks(result: SimulationResult): void {
     "reaction-task-log": new Set(
       result.reactionTaskLog.map((entry) => entry.id)
     ),
+    "basic-reaction-scheduler-log": new Set(
+      result.basicReactionSchedulerLog.map((entry) => entry.id)
+    ),
     "target-phase-log": new Set(
       result.targetPhaseLog.map((entry) => entry.id)
     ),
@@ -1418,6 +1481,7 @@ function validateResultSchemas(result: SimulationResult): void {
   expectContiguousIds(result.hitResolutionLog);
   expectContiguousIds(result.targetMechanicsTruncationLog);
   expectContiguousIds(result.reactionDamageLog);
+  expectContiguousIds(result.basicReactionSchedulerLog);
   expectContiguousIds(result.reactionStatusLog);
   expectContiguousIds(result.periodicReactionLog);
   expectContiguousIds(result.frozenStateLog);
@@ -1546,32 +1610,53 @@ const SUPPLEMENTAL_CLASSIC_REACTION_SCENARIOS = {
 } as const satisfies Record<string, MatrixScenario>;
 
 const CLASSIC_REACTION_CLASS_COUNT = 16;
-// This current-release digest excludes version/config-manifest identity and
-// reciprocal wire backlinks, while retaining the trusted 1.48 Burning/Swirl
-// application semantics. Historical fixture comparisons use the explicit
-// V1.47 compatibility projection instead.
+// This provisional 1.51 digest excludes version/config-manifest identity but
+// retains scheduler-v2 attack/commit rows, reciprocal pairing, and deferred
+// Aura-attachment timeline semantics. It covers only the classic matrix and
+// does not claim Lunar, complete gcsim, or official-server parity. Historical
+// fixture comparisons use the explicit V1.47 compatibility projection.
 const AURA_V9_CLASSIC_MATRIX_SEMANTIC_DIGEST =
-  "0f3c885f1dbf0c5499d7e26ac913471caca1a821876aa312d3eb4945364babe5";
+  "41c35b3d025793cc35c7234356ea9df2645d53bbae6eb3227e9aa78272da24b9";
 
 function makeAuraV9MatrixConfig(
   scenarioId: string,
   scenario: MatrixScenario
 ): SimConfig {
-  const config = makeMatrixConfig(scenarioId, scenario);
+  const currentScenario: MatrixScenario =
+    scenarioId === "swirl" && scenario.targets !== undefined
+      ? {
+          ...scenario,
+          targets: [
+            ...scenario.targets,
+            {
+              id: "enemy-2",
+              name: "Swirl deferred attachment target",
+              position: { x: 2, y: 0 },
+              initialAura: []
+            }
+          ]
+        }
+      : scenario;
+  const config = makeMatrixConfig(scenarioId, currentScenario);
   return {
     ...config,
     meta: {
       ...config.meta,
-      name: `Reaction matrix 1.42 · ${scenarioId}`,
-      version: "1.42.0",
+      name: `Reaction matrix 1.51 · ${scenarioId}`,
+      version: "1.51.0",
       verificationStatus: "provisional",
       note:
-        `Exact 1.42 aura-v9 classic-reaction release gate; ` +
+        `Provisional 1.51 aura-v9 classic-reaction release gate; ` +
         `fixed gcsim ${FIXED_GCSIM_COMMIT} code cross-check; ` +
-        "not official game truth and does not cover Lunar reactions."
+        "narrow scheduler coverage only; not official game truth, " +
+        "complete gcsim parity, or Lunar-reaction coverage."
     },
     reactionEngine: {
       mode: "aura-v9"
+    },
+    basicReactionSchedulerModel: {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+      policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
     },
     electroChargedPropagationModel: {
       mode: "single-target-v1"
@@ -1829,6 +1914,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
         mode: "aura-v7"
       });
       for (const result of [v6Result, v7Result]) {
+        expectLegacyBasicReactionSchedulerV1(result);
         expect(result.runManifest).toMatchObject({
           schemaVersion: CURRENT_SCHEMA_VERSION,
           engineVersion: CURRENT_ENGINE_VERSION,
@@ -2000,6 +2086,7 @@ describe("1.35 provisional reaction-matrix Golden", () => {
       });
       expect(result.timelineExecution?.failures).toEqual([]);
       expect(result.mechanicsStatus).toBe("complete");
+      expectLegacyBasicReactionSchedulerV1(result);
       validateResultSchemas(result);
       expect(
         playerDamageResultReferencesSchema.parse(result)
@@ -2485,9 +2572,15 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
-    expect(CURRENT_ENGINE_VERSION).toBe(
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe(
+      "1.50.0"
+    );
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary"
+    );
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      "1.51.0-basic-reaction-scheduler"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 
@@ -2562,6 +2655,109 @@ describe("current aura-v9 classic reaction release gate", () => {
         expect(
           simulationResultSchema.safeParse(forged).success
         ).toBe(false);
+
+        expect(
+          result.basicReactionSchedulerLog.find(
+            (entry) =>
+              entry.kind === "swirl-attack-resolution" &&
+              entry.targetId === "enemy-1"
+          )
+        ).toMatchObject({
+          reaction: "reverseVaporize",
+          reactions: ["reverseVaporize"],
+          disposition: "not-attached",
+          pairedLogId: null
+        });
+
+        const deferredAttack =
+          result.basicReactionSchedulerLog.find(
+            (entry) =>
+              entry.kind === "swirl-attack-resolution" &&
+              entry.disposition === "deferred" &&
+              entry.targetId === "enemy-2"
+          );
+        if (
+          deferredAttack === undefined ||
+          deferredAttack.kind !== "swirl-attack-resolution" ||
+          deferredAttack.disposition !== "deferred"
+        ) {
+          throw new Error(
+            "Swirl scheduler-v2 vector must defer the empty target Aura attachment."
+          );
+        }
+        expect(deferredAttack).toMatchObject({
+          frame: 5,
+          reaction: "none",
+          reactions: [],
+          auraBefore: [],
+          auraApplied: [],
+          auraConsumed: [],
+          auraAfter: []
+        });
+
+        const deferredAttachment =
+          result.basicReactionSchedulerLog[
+            deferredAttack.pairedLogId
+          ];
+        if (
+          deferredAttachment === undefined ||
+          deferredAttachment.kind !==
+            "deferred-aura-attachment"
+        ) {
+          throw new Error(
+            "Swirl scheduler-v2 vector must commit the deferred Aura attachment."
+          );
+        }
+        expect(deferredAttachment).toMatchObject({
+          frame: deferredAttack.frame,
+          parentEventSequence:
+            deferredAttack.parentEventSequence,
+          targetId: "enemy-2",
+          element: "pyro",
+          reaction: "none",
+          reactions: [],
+          auraBefore: [],
+          auraApplied: [
+            expect.objectContaining({
+              element: "pyro",
+              sourceActorId: "matrix"
+            })
+          ],
+          auraConsumed: [],
+          pairedLogId: deferredAttack.id,
+          disposition: "committed"
+        });
+        expect(deferredAttack.pairedLogId).toBe(
+          deferredAttachment.id
+        );
+        expect(deferredAttachment.eventSequence).toBeGreaterThan(
+          deferredAttack.parentEventSequence
+        );
+        expect(
+          result.targetStateTimeline.points.find(
+            (point) =>
+              point.targetId === "enemy-2" &&
+              point.cause === "reaction-aura-attachment"
+          )
+        ).toMatchObject({
+          frame: deferredAttachment.frame,
+          pointKind: "mutation",
+          eventType: "reactionAuraAttachment",
+          eventSequence: deferredAttachment.eventSequence,
+          reaction: "none",
+          reactions: [],
+          primaryDamageEventId: null,
+          links: [
+            {
+              kind: "basic-reaction-scheduler-log",
+              id: deferredAttachment.id
+            }
+          ],
+          auraBefore: deferredAttachment.auraBefore,
+          auraApplied: deferredAttachment.auraApplied,
+          auraConsumed: [],
+          auraAfter: deferredAttachment.auraAfter
+        });
       }
       if (scenarioId === "crystallize") {
         const forged = structuredClone(result);
@@ -2618,6 +2814,10 @@ describe("current aura-v9 classic reaction release gate", () => {
         targetTaskModel: {
           mode: "target-phase-v2"
         },
+        basicReactionSchedulerModel: {
+          mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+          policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+        },
         timeline: {
           mode: "legal-frame-v1",
           fps: 60
@@ -2627,7 +2827,10 @@ describe("current aura-v9 classic reaction release gate", () => {
         schemaVersion: CURRENT_SCHEMA_VERSION,
         engineVersion: CURRENT_ENGINE_VERSION,
         dataVersion: DATA_VERSION,
-        resolvedRuntimeOptions: options
+        resolvedRuntimeOptions: options,
+        basicReactionSchedulerRoot: {
+          policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+        }
       });
       expect(result.timelineExecution?.failures).toEqual([]);
       expect(result.mechanicsStatus).toBe("complete");
@@ -2670,7 +2873,7 @@ describe("current aura-v9 classic reaction release gate", () => {
         damageEventCount: result.damageEvents.length,
         semanticDigest: sha256({
           compactResult: withoutSingleVersionIdentity(
-            compactResult(result, "current-v148")
+            compactResult(result, "current-v151")
           ),
           targetTaskPhaseLog: result.targetTaskPhaseLog,
           targetPhaseLog: result.targetPhaseLog,

@@ -27,6 +27,7 @@ import {
   simulationRunManifestV149Schema,
   type SimConfigV149,
   type SimConfigV150,
+  type SimConfigV151,
   type SimulationRunManifestV148,
   type SimulationRunManifestV149,
 } from "./index";
@@ -58,11 +59,19 @@ const runtimeOptions = {
   randomSeed: "reset-boundary-seed",
 };
 
-function freezeAsV149(config: SimConfigV150): SimConfigV149 {
+function freezeAsV149(
+  config: SimConfigV150 | SimConfigV151
+): SimConfigV149 {
   const {
     reactionDamageGroupModel: _reactionDamageGroupModel,
-    ...payload
+    ...withPossibleScheduler
   } = config;
+  const {
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    ...payload
+  } = withPossibleScheduler as typeof withPossibleScheduler & {
+    basicReactionSchedulerModel?: unknown;
+  };
   return simConfigV149Schema.parse({
     ...payload,
     schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,

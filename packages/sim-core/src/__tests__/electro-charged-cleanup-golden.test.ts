@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
@@ -18,39 +18,36 @@ import {
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 type CleanupGoldenScenarioId =
-  | "hydroDepletedCleanupF1"
-  | "hydroDepletedHitlag5F6";
+  "hydroDepletedCleanupF1" | "hydroDepletedHitlag5F6";
 
-const UPDATE_FLAG =
-  "UPDATE_EC_QUICKEN_CLEANUP_V140_GOLDEN";
-const CLEANUP_GOLDEN_SCENARIO_IDS: CleanupGoldenScenarioId[] =
-  [
-    "hydroDepletedCleanupF1",
-    "hydroDepletedHitlag5F6"
-  ];
+const UPDATE_FLAG = "UPDATE_EC_QUICKEN_CLEANUP_V140_GOLDEN";
+const CLEANUP_GOLDEN_SCENARIO_IDS: CleanupGoldenScenarioId[] = [
+  "hydroDepletedCleanupF1",
+  "hydroDepletedHitlag5F6",
+];
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/electro-charged-quicken-cleanup-1.40.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const SAME_TARGET_GEOMETRY = {
   kind: "circle" as const,
   coordinateSpace: "world" as const,
   origin: { x: 0, y: 0 },
-  radius: 1
+  radius: 1,
 };
 
 function applicationHit({
   id,
   element,
   gaugeUnits,
-  hitlagFrames
+  hitlagFrames,
 }: {
   id: string;
   element: NonNullable<FrameHitDefinition["element"]>;
@@ -66,16 +63,16 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icd: { mode: "no-icd-v1" }
+      icd: { mode: "no-icd-v1" },
     },
     ...(hitlagFrames === undefined
       ? {}
       : {
           targetHitlag: {
             haltFrames: hitlagFrames,
-            factor: 0
-          }
-        })
+            factor: 0,
+          },
+        }),
   };
 }
 
@@ -96,39 +93,37 @@ const NO_ICD_DECISION = {
   hitIndex: null,
   sequenceIndex: null,
   tailPolicy: null,
-  resetSchedulePolicy: "bypass"
+  resetSchedulePolicy: "bypass",
 } as const;
 
-function expectCurrentApplicationContract(
-  result: SimulationResult
-): void {
+function expectCurrentApplicationContract(result: SimulationResult): void {
   expect(result.config.elementalApplicationIcdModel).toEqual({
     mode: "fixed-gcsim-elemental-application-v1",
-    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   });
   expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
-    GCSIM_ELEMENTAL_APPLICATION_ROOT
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
   );
   expect(
     result.config.timeline?.abilities[0]?.hits?.map((hit) => ({
       hitId: hit.id,
-      application: hit.application
-    }))
+      application: hit.application,
+    })),
   ).toEqual([
     {
       hitId: "dendro-quicken",
       application: {
         gaugeUnits: 0.8,
-        icd: { mode: "no-icd-v1" }
-      }
+        icd: { mode: "no-icd-v1" },
+      },
     },
     {
       hitId: "electro-stream",
       application: {
         gaugeUnits: 0.8,
-        icd: { mode: "no-icd-v1" }
-      }
-    }
+        icd: { mode: "no-icd-v1" },
+      },
+    },
   ]);
   expect(
     result.elementalApplicationIcdLog.map((entry) => ({
@@ -140,8 +135,8 @@ function expectCurrentApplicationContract(
       selector: entry.selector,
       nominalGaugeUnits: entry.nominalGaugeUnits,
       effectiveGaugeUnits: entry.effectiveGaugeUnits,
-      decision: entry.decision
-    }))
+      decision: entry.decision,
+    })),
   ).toEqual(
     ["dendro-quicken", "electro-stream"].map((hitId, id) => ({
       id,
@@ -152,18 +147,15 @@ function expectCurrentApplicationContract(
       selector: { mode: "no-icd-v1" },
       nominalGaugeUnits: 0.8,
       effectiveGaugeUnits: 0.8,
-      decision: NO_ICD_DECISION
-    }))
+      decision: NO_ICD_DECISION,
+    })),
   );
 }
 
-function projectDamageEventsToFrozenNoIcd(
-  result: SimulationResult
-) {
+function projectDamageEventsToFrozenNoIcd(result: SimulationResult) {
   const legacyAuditByDamageEventId = new Map(
     result.elementalApplicationIcdLog.flatMap((entry) =>
-      entry.damageEventId === null ||
-      entry.selector.mode !== "no-icd-v1"
+      entry.damageEventId === null || entry.selector.mode !== "no-icd-v1"
         ? []
         : [
             [
@@ -171,16 +163,15 @@ function projectDamageEventsToFrozenNoIcd(
               {
                 icdAllowed: entry.decision.allowed,
                 icdTag: entry.hitId,
-                icdGroup: "no-icd" as const
-              }
-            ] as const
-          ]
-    )
+                icdGroup: "no-icd" as const,
+              },
+            ] as const,
+          ],
+    ),
   );
   return result.damageEvents.map((currentEvent) => {
     const {
-      elementalApplicationIcdLogId:
-        _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
       ...event
     } = currentEvent;
     const legacyAudit = legacyAuditByDamageEventId.get(event.id);
@@ -190,20 +181,17 @@ function projectDamageEventsToFrozenNoIcd(
           ...event,
           reactionAudit: {
             ...event.reactionAudit,
-            ...legacyAudit
-          }
+            ...legacyAudit,
+          },
         };
   });
 }
 
-function projectReactionDamageLogToFrozenV147(
-  result: SimulationResult
-) {
+function projectReactionDamageLogToFrozenV147(result: SimulationResult) {
   return result.reactionDamageLog.map(
     ({
       hitResolutionLogIds: _hitResolutionLogIds,
-      elementalApplicationIcdLogIds:
-        _elementalApplicationIcdLogIds,
+      elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
       damageGroupDecisions,
       ...entry
     }) => ({
@@ -220,9 +208,9 @@ function projectReactionDamageLogToFrozenV147(
             ? ([true, true, false] as const)
             : ([true, false] as const),
         damageAllowed: decision.damageAllowed,
-        blockedReason: decision.blockedReason
-      }))
-    })
+        blockedReason: decision.blockedReason,
+      })),
+    }),
   );
 }
 
@@ -238,8 +226,8 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
   const projected = Object.fromEntries(
     Object.entries(value).map(([key, entry]) => [
       key,
-      projectNoIcdSelectorsToLegacyWire(entry)
-    ])
+      projectNoIcdSelectorsToLegacyWire(entry),
+    ]),
   );
   if (!Object.prototype.hasOwnProperty.call(value, "application")) {
     return projected;
@@ -252,7 +240,7 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
     value.application.icd.mode !== "no-icd-v1"
   ) {
     throw new Error(
-      "EC cleanup frozen projection requires explicit no-icd-v1 hit applications."
+      "EC cleanup frozen projection requires explicit no-icd-v1 hit applications.",
     );
   }
   return {
@@ -260,13 +248,13 @@ function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
     application: {
       gaugeUnits: value.application.gaugeUnits,
       icdTag: value.id,
-      icdGroup: "no-icd"
-    }
+      icdGroup: "no-icd",
+    },
   };
 }
 
 function projectCurrentConfigToFrozenV140(
-  config: SimConfig
+  config: SimConfig,
 ): Record<string, unknown> {
   const {
     reactionFormulaModel: _reactionFormulaModel,
@@ -275,8 +263,8 @@ function projectCurrentConfigToFrozenV140(
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
-    electroChargedPropagationModel:
-      _electroChargedPropagationModel,
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    electroChargedPropagationModel: _electroChargedPropagationModel,
     ...frozenConfig
   } = structuredClone(config);
   return {
@@ -285,19 +273,17 @@ function projectCurrentConfigToFrozenV140(
       unknown
     >),
     schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
-    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION
+    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   };
 }
 
-function makeCleanupGoldenConfig(
-  hitlagFrames?: number
-): SimConfig {
+function makeCleanupGoldenConfig(hitlagFrames?: number): SimConfig {
   const base = makeConfig();
   return {
     ...base,
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     dataVersion: "ec-quicken-cleanup-provisional-1",
     randomSeed:
@@ -308,8 +294,7 @@ function makeCleanupGoldenConfig(
       name: "EC cleanup after Quicken to Bloom Golden",
       version: "1.40.0",
       verificationStatus: "provisional",
-      note:
-        "Fixed-gcsim-provisional regression vector only; this is not official game data or a claim of complete gcsim parity."
+      note: "Fixed-gcsim-provisional regression vector only; this is not official game data or a claim of complete gcsim parity.",
     },
     duration: 1.5,
     cycleLength: 1.5,
@@ -325,10 +310,10 @@ function makeCleanupGoldenConfig(
           hitboxRadius: 0,
           initialAura: [
             { element: "hydro", gaugeUnits: 1 },
-            { element: "electro", gaugeUnits: 1 }
-          ]
-        }
-      ]
+            { element: "electro", gaugeUnits: 1 },
+          ],
+        },
+      ],
     },
     characters: [
       {
@@ -339,9 +324,9 @@ function makeCleanupGoldenConfig(
         level: 90,
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
-      }
+          baseAtk: 0,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v8" },
@@ -351,7 +336,7 @@ function makeCleanupGoldenConfig(
         : { mode: "target-local-hitlag-v1" },
     targetTaskModel: { mode: "target-phase-v2" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -372,34 +357,31 @@ function makeCleanupGoldenConfig(
             applicationHit({
               id: "dendro-quicken",
               element: "dendro",
-              gaugeUnits: 0.8
+              gaugeUnits: 0.8,
             }),
             applicationHit({
               id: "electro-stream",
               element: "electro",
               gaugeUnits: 0.8,
-              ...(hitlagFrames === undefined
-                ? {}
-                : { hitlagFrames })
-            })
-          ]
-        }
+              ...(hitlagFrames === undefined ? {} : { hitlagFrames }),
+            }),
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "driver",
           abilityId: "compound-chain",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function projectCleanupScenario(result: SimulationResult) {
-  const frozenDamageEvents =
-    projectDamageEventsToFrozenNoIcd(result);
+  const frozenDamageEvents = projectDamageEventsToFrozenNoIcd(result);
   return {
     version: {
       schemaVersion: result.schemaVersion,
@@ -408,43 +390,33 @@ function projectCleanupScenario(result: SimulationResult) {
       randomSeed: result.randomSeed,
       configHash: result.runManifest.configHash,
       reproducibilityKey: result.reproducibilityKey,
-      resolvedRuntimeOptions:
-        result.resolvedRuntimeOptions,
-      reactionEngineMode:
-        result.config.reactionEngine?.mode ?? null,
-      targetClockModelMode:
-        result.config.targetClockModel.mode,
-      targetTaskModelMode:
-        result.config.targetTaskModel.mode,
-      reactionDeliveryModelMode:
-        result.config.reactionDeliveryModel.mode,
+      resolvedRuntimeOptions: result.resolvedRuntimeOptions,
+      reactionEngineMode: result.config.reactionEngine?.mode ?? null,
+      targetClockModelMode: result.config.targetClockModel.mode,
+      targetTaskModelMode: result.config.targetTaskModel.mode,
+      reactionDeliveryModelMode: result.config.reactionDeliveryModel.mode,
       timelineMode: result.config.timeline?.mode ?? null,
-      fps: result.config.timeline?.fps ?? null
+      fps: result.config.timeline?.fps ?? null,
     },
     reactionTasks: result.reactionTaskLog,
-    cleanupTargetPhases: result.targetPhaseLog.filter(
-      (phase) =>
-        phase.reactableTick.transitions.some(
-          (transition) =>
-            transition.kind === "electro-charged-cleanup"
-        )
+    cleanupTargetPhases: result.targetPhaseLog.filter((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) => transition.kind === "electro-charged-cleanup",
+      ),
     ),
     periodicElectroCharged: result.periodicReactionLog.filter(
-      (entry) => entry.reaction === "electroCharged"
+      (entry) => entry.reaction === "electroCharged",
     ),
-    reactionDamageLog:
-      projectReactionDamageLogToFrozenV147(result),
+    reactionDamageLog: projectReactionDamageLogToFrozenV147(result),
     damageEvents: frozenDamageEvents,
-    cleanupTimelinePoints:
-      result.targetStateTimeline.points.filter(
-        (point) =>
-          point.cause === "electro-charged-cleanup"
-      ),
+    cleanupTimelinePoints: result.targetStateTimeline.points.filter(
+      (point) => point.cause === "electro-charged-cleanup",
+    ),
     electroChargedDamageEvents: frozenDamageEvents
       .filter(
         (event) =>
           event.kind === "transformative-reaction" &&
-          event.reaction === "electroCharged"
+          event.reaction === "electroCharged",
       )
       .map((event) => ({
         id: event.id,
@@ -457,7 +429,7 @@ function projectCleanupScenario(result: SimulationResult) {
         reaction: event.reaction,
         reactionAudit: event.reactionAudit,
         finalDamage: event.finalDamage,
-        displayDamage: event.displayDamage
+        displayDamage: event.displayDamage,
       })),
     dendroCoreLog: result.dendroCoreLog,
     targetClockLog: result.targetClockLog,
@@ -465,13 +437,11 @@ function projectCleanupScenario(result: SimulationResult) {
     auraEndStates: result.auraEndStates,
     totalDamage: result.totalDamage,
     damageEventCount: result.damageEvents.length,
-    reactedHits: result.reactedHits
+    reactedHits: result.reactedHits,
   };
 }
 
-type CleanupGoldenScenario = ReturnType<
-  typeof projectCleanupScenario
->;
+type CleanupGoldenScenario = ReturnType<typeof projectCleanupScenario>;
 
 type FrozenV140CleanupGoldenScenario = Omit<
   CleanupGoldenScenario,
@@ -479,10 +449,7 @@ type FrozenV140CleanupGoldenScenario = Omit<
 > & {
   version: Omit<
     CleanupGoldenScenario["version"],
-    | "schemaVersion"
-    | "engineVersion"
-    | "configHash"
-    | "reproducibilityKey"
+    "schemaVersion" | "engineVersion" | "configHash" | "reproducibilityKey"
   > & {
     schemaVersion: typeof EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
     engineVersion: typeof EC_NEXT_TARGET_TICK_ENGINE_VERSION;
@@ -492,12 +459,10 @@ type FrozenV140CleanupGoldenScenario = Omit<
 };
 
 function projectScenarioToFrozenV140(
-  result: SimulationResult
+  result: SimulationResult,
 ): FrozenV140CleanupGoldenScenario {
   const scenario = projectCleanupScenario(result);
-  const frozenConfig = projectCurrentConfigToFrozenV140(
-    result.config
-  );
+  const frozenConfig = projectCurrentConfigToFrozenV140(result.config);
   const configHash = createSimulationConfigHash(frozenConfig);
   const frozenRunIdentity = {
     version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
@@ -506,12 +471,9 @@ function projectScenarioToFrozenV140(
     engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
     dataVersion: result.runManifest.dataVersion,
     configHash,
-    resolvedRuntimeOptions:
-      result.runManifest.resolvedRuntimeOptions,
-    plugins: result.runManifest.plugins
-  } as unknown as Parameters<
-    typeof createSimulationReproducibilityKey
-  >[0];
+    resolvedRuntimeOptions: result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins,
+  } as unknown as Parameters<typeof createSimulationReproducibilityKey>[0];
   return {
     ...scenario,
     version: {
@@ -519,9 +481,8 @@ function projectScenarioToFrozenV140(
       schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
       engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
       configHash,
-      reproducibilityKey:
-        createSimulationReproducibilityKey(frozenRunIdentity)
-    }
+      reproducibilityKey: createSimulationReproducibilityKey(frozenRunIdentity),
+    },
   };
 }
 
@@ -545,28 +506,21 @@ interface CleanupGoldenFixture {
     };
     timeline: { mode: "legal-frame-v1"; fps: 60 };
   };
-  scenarios: Record<
-    CleanupGoldenScenarioId,
-    FrozenV140CleanupGoldenScenario
-  >;
+  scenarios: Record<CleanupGoldenScenarioId, FrozenV140CleanupGoldenScenario>;
   hashes: Record<CleanupGoldenScenarioId, string>;
 }
 
 function semanticHash(value: unknown): string {
-  return createHash("sha256")
-    .update(canonicalStringify(value))
-    .digest("hex");
+  return createHash("sha256").update(canonicalStringify(value)).digest("hex");
 }
 
 function loadFrozenFixture(): CleanupGoldenFixture {
   if (process.env[UPDATE_FLAG] === "1") {
     throw new Error(
-      "electro-charged-quicken-cleanup-1.40.golden.json is frozen; create a new versioned fixture instead."
+      "electro-charged-quicken-cleanup-1.40.golden.json is frozen; create a new versioned fixture instead.",
     );
   }
-  return JSON.parse(
-    readFileSync(FIXTURE_URL, "utf8")
-  ) as CleanupGoldenFixture;
+  return JSON.parse(readFileSync(FIXTURE_URL, "utf8")) as CleanupGoldenFixture;
 }
 
 describe("aura-v8 Electro-Charged cleanup Golden", () => {
@@ -578,13 +532,13 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
     }> = [
       {
         id: "hydroDepletedCleanupF1",
-        expectedCleanupGlobalFrame: 1
+        expectedCleanupGlobalFrame: 1,
       },
       {
         id: "hydroDepletedHitlag5F6",
         hitlagFrames: 5,
-        expectedCleanupGlobalFrame: 6
-      }
+        expectedCleanupGlobalFrame: 6,
+      },
     ];
     const scenarioMap = new Map<
       CleanupGoldenScenarioId,
@@ -593,62 +547,42 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
     for (const scenarioRun of scenarioRuns) {
       if (scenarioMap.has(scenarioRun.id)) {
         throw new Error(
-          `Refusing duplicate cleanup Golden scenario ${scenarioRun.id}.`
+          `Refusing duplicate cleanup Golden scenario ${scenarioRun.id}.`,
         );
       }
-      const config = makeCleanupGoldenConfig(
-        scenarioRun.hitlagFrames
-      );
+      const config = makeCleanupGoldenConfig(scenarioRun.hitlagFrames);
       const first = simulate(config, {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
       const repeated = simulate(config, {
-        critMode: "noCrit"
+        critMode: "noCrit",
       });
+      expect(electroChargedCleanupResultReferencesSchema.parse(first)).toEqual(
+        first,
+      );
       expect(
-        electroChargedCleanupResultReferencesSchema.parse(first)
-      ).toEqual(first);
-      expect(
-        electroChargedCleanupResultReferencesSchema.parse(
-          repeated
-        )
+        electroChargedCleanupResultReferencesSchema.parse(repeated),
       ).toEqual(repeated);
-      expect(
-        targetPhaseV2ResultReferencesSchema.parse(first)
-      ).toEqual(first);
-      expect(
-        targetPhaseV2ResultReferencesSchema.parse(repeated)
-      ).toEqual(repeated);
-      expect(canonicalStringify(repeated)).toBe(
-        canonicalStringify(first)
+      expect(targetPhaseV2ResultReferencesSchema.parse(first)).toEqual(first);
+      expect(targetPhaseV2ResultReferencesSchema.parse(repeated)).toEqual(
+        repeated,
       );
-      expect(first.schemaVersion).toBe(
-        CURRENT_SCHEMA_VERSION
-      );
-      expect(first.engineVersion).toBe(
-        CURRENT_ENGINE_VERSION
-      );
+      expect(canonicalStringify(repeated)).toBe(canonicalStringify(first));
+      expect(first.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+      expect(first.engineVersion).toBe(CURRENT_ENGINE_VERSION);
       expectCurrentApplicationContract(first);
-      expect(
-        first.reactionTaskLog[0]?.electroChargedCleanup
-      ).toMatchObject({
+      expect(first.reactionTaskLog[0]?.electroChargedCleanup).toMatchObject({
         outcome: "stop",
         deadlineTargetFrame: 1,
-        resolvedGlobalFrame:
-          scenarioRun.expectedCleanupGlobalFrame,
-        resolvedTargetFrame: 1
+        resolvedGlobalFrame: scenarioRun.expectedCleanupGlobalFrame,
+        resolvedTargetFrame: 1,
       });
-      scenarioMap.set(
-        scenarioRun.id,
-        projectScenarioToFrozenV140(first)
-      );
+      scenarioMap.set(scenarioRun.id, projectScenarioToFrozenV140(first));
     }
     expect([...scenarioMap.keys()].sort()).toEqual(
-      [...CLEANUP_GOLDEN_SCENARIO_IDS].sort()
+      [...CLEANUP_GOLDEN_SCENARIO_IDS].sort(),
     );
-    const scenarios = Object.fromEntries(
-      scenarioMap
-    ) as Record<
+    const scenarios = Object.fromEntries(scenarioMap) as Record<
       CleanupGoldenScenarioId,
       FrozenV140CleanupGoldenScenario
     >;
@@ -659,62 +593,48 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       reactionEngine: { mode: "aura-v8" },
       targetTaskModel: { mode: "target-phase-v2" },
       reactionDeliveryModel: {
-        mode: "deferred-event-heap-v1"
+        mode: "deferred-event-heap-v1",
       },
-      timeline: { mode: "legal-frame-v1", fps: 60 }
+      timeline: { mode: "legal-frame-v1", fps: 60 },
     });
     for (const scenarioId of Object.keys(
-      scenarios
+      scenarios,
     ) as CleanupGoldenScenarioId[]) {
-      expect(scenarios[scenarioId]).toEqual(
-        fixture.scenarios[scenarioId]
-      );
+      expect(scenarios[scenarioId]).toEqual(fixture.scenarios[scenarioId]);
       expect(semanticHash(scenarios[scenarioId])).toBe(
-        fixture.hashes[scenarioId]
+        fixture.hashes[scenarioId],
       );
       expect(semanticHash(fixture.scenarios[scenarioId])).toBe(
-        fixture.hashes[scenarioId]
+        fixture.hashes[scenarioId],
       );
     }
 
-    const f1 =
-      fixture.scenarios.hydroDepletedCleanupF1;
-    const f6 =
-      fixture.scenarios.hydroDepletedHitlag5F6;
-    expect(
-      f1.reactionTasks[0]?.electroChargedCleanup
-    ).toMatchObject({
+    const f1 = fixture.scenarios.hydroDepletedCleanupF1;
+    const f6 = fixture.scenarios.hydroDepletedHitlag5F6;
+    expect(f1.reactionTasks[0]?.electroChargedCleanup).toMatchObject({
       outcome: "stop",
       deadlineTargetFrame: 1,
       resolvedGlobalFrame: 1,
-      resolvedTargetFrame: 1
+      resolvedTargetFrame: 1,
     });
-    expect(
-      f6.reactionTasks[0]?.electroChargedCleanup
-    ).toMatchObject({
+    expect(f6.reactionTasks[0]?.electroChargedCleanup).toMatchObject({
       outcome: "stop",
       deadlineTargetFrame: 1,
       resolvedGlobalFrame: 6,
-      resolvedTargetFrame: 1
+      resolvedTargetFrame: 1,
     });
-    expect(
-      f1.electroChargedDamageEvents.map(
-        (event) => event.frame
-      )
-    ).toEqual([10]);
-    expect(
-      f6.electroChargedDamageEvents.map(
-        (event) => event.frame
-      )
-    ).toEqual([10]);
+    expect(f1.electroChargedDamageEvents.map((event) => event.frame)).toEqual([
+      10,
+    ]);
+    expect(f6.electroChargedDamageEvents.map((event) => event.frame)).toEqual([
+      10,
+    ]);
     expect(f1.targetHitlagLog).toEqual([]);
     expect(
-      f6.targetHitlagLog.map(
-        ({ globalFrame, extensionFrames }) => ({
-          globalFrame,
-          extensionFrames
-        })
-      )
+      f6.targetHitlagLog.map(({ globalFrame, extensionFrames }) => ({
+        globalFrame,
+        extensionFrames,
+      })),
     ).toEqual([{ globalFrame: 0, extensionFrames: 5 }]);
   });
 });

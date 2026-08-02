@@ -6,7 +6,7 @@ import {
   readFileSync,
   rmSync,
   unlinkSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -23,7 +23,7 @@ import {
   type AbilityDefinition,
   type FrameHitDefinition,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -40,12 +40,11 @@ const DAMAGE_EVENTS_SHA256 =
   "7583ffabde20d47e97b1f096787730631afc1038d0c6b04eacb96d62446bada0";
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/direct-damage-group-1.46.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const VECTOR_SEED = "synthetic-direct-damage-group-v146";
 const VECTOR_CONFIG_HASH = "fnv1a32:3e6ab06a";
-const VECTOR_REPRODUCIBILITY_KEY =
-  "gdl-v2-fnv1a32-835cebb7";
+const VECTOR_REPRODUCIBILITY_KEY = "gdl-v2-fnv1a32-835cebb7";
 const DESCRIPTION =
   "Full 1.46 synthetic ordinary direct-damage-group result vector for zero slots, group switching, tail clamping, and reset-before-hit ordering.";
 const SOURCE =
@@ -66,7 +65,7 @@ const EXPECTED_DECISIONS = [
     sequenceIndex: 0,
     sequenceMultiplier: 1,
     effectiveMultiplier: 2,
-    damageGroupOnEnemyHitAllowed: true
+    damageGroupOnEnemyHitAllowed: true,
   },
   {
     hitId: "zero-xiao",
@@ -80,7 +79,7 @@ const EXPECTED_DECISIONS = [
     sequenceIndex: 1,
     sequenceMultiplier: 0,
     effectiveMultiplier: 0,
-    damageGroupOnEnemyHitAllowed: false
+    damageGroupOnEnemyHitAllowed: false,
   },
   {
     hitId: "switch-tail",
@@ -94,7 +93,7 @@ const EXPECTED_DECISIONS = [
     sequenceIndex: 1,
     sequenceMultiplier: 1,
     effectiveMultiplier: 2,
-    damageGroupOnEnemyHitAllowed: true
+    damageGroupOnEnemyHitAllowed: true,
   },
   {
     hitId: "pre-reset-tail",
@@ -108,7 +107,7 @@ const EXPECTED_DECISIONS = [
     sequenceIndex: 1,
     sequenceMultiplier: 1,
     effectiveMultiplier: 2,
-    damageGroupOnEnemyHitAllowed: true
+    damageGroupOnEnemyHitAllowed: true,
   },
   {
     hitId: "reset-pole",
@@ -122,8 +121,8 @@ const EXPECTED_DECISIONS = [
     sequenceIndex: 0,
     sequenceMultiplier: 1,
     effectiveMultiplier: 2,
-    damageGroupOnEnemyHitAllowed: true
-  }
+    damageGroupOnEnemyHitAllowed: true,
+  },
 ] as const;
 
 const decisionProjectionSchema = z
@@ -139,7 +138,7 @@ const decisionProjectionSchema = z
     sequenceIndex: z.number().int().nonnegative(),
     sequenceMultiplier: z.number().finite(),
     effectiveMultiplier: z.number().finite(),
-    damageGroupOnEnemyHitAllowed: z.boolean()
+    damageGroupOnEnemyHitAllowed: z.boolean(),
   })
   .strict();
 
@@ -154,19 +153,15 @@ const fixtureSchema = z
         verificationStatus: z.literal("provisional"),
         note: z.literal(NOTE),
         officialServerTruth: z.literal(false),
-        completeGcsimParity: z.literal(false)
+        completeGcsimParity: z.literal(false),
       })
       .strict(),
-    expectedDecisionProjection: z.array(
-      decisionProjectionSchema
-    ),
+    expectedDecisionProjection: z.array(decisionProjectionSchema),
     directDamageGroupLogCanonicalSha256: z.literal(
-      DIRECT_DAMAGE_GROUP_LOG_SHA256
+      DIRECT_DAMAGE_GROUP_LOG_SHA256,
     ),
-    damageEventsCanonicalSha256: z.literal(
-      DAMAGE_EVENTS_SHA256
-    ),
-    result: simulationResultV146Schema
+    damageEventsCanonicalSha256: z.literal(DAMAGE_EVENTS_SHA256),
+    result: simulationResultV146Schema,
   })
   .strict()
   .superRefine((fixture, context) => {
@@ -177,8 +172,7 @@ const fixtureSchema = z
       context.addIssue({
         code: "custom",
         path: ["expectedDecisionProjection"],
-        message:
-          "must retain the exact reviewed five-hit mechanics projection"
+        message: "must retain the exact reviewed five-hit mechanics projection",
       });
     }
     if (
@@ -189,21 +183,18 @@ const fixtureSchema = z
       fixture.result.runManifest.version !==
         DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION ||
       fixture.result.randomSeed !== VECTOR_SEED ||
-      fixture.result.runManifest.configHash !==
-        VECTOR_CONFIG_HASH ||
-      fixture.result.reproducibilityKey !==
-        VECTOR_REPRODUCIBILITY_KEY ||
+      fixture.result.runManifest.configHash !== VECTOR_CONFIG_HASH ||
+      fixture.result.reproducibilityKey !== VECTOR_REPRODUCIBILITY_KEY ||
       fixture.result.runManifest.reproducibilityKey !==
         VECTOR_REPRODUCIBILITY_KEY ||
-      JSON.stringify(
-        fixture.result.runManifest.directDamageGroupRoot
-      ) !== JSON.stringify(GCSIM_DAMAGE_GROUP_ROOT)
+      JSON.stringify(fixture.result.runManifest.directDamageGroupRoot) !==
+        JSON.stringify(GCSIM_DAMAGE_GROUP_ROOT)
     ) {
       context.addIssue({
         code: "custom",
         path: ["result", "runManifest"],
         message:
-          "must bind the exact 1.46 identity, random seed, manifest, and provisional Damage Group root"
+          "must bind the exact 1.46 identity, random seed, manifest, and provisional Damage Group root",
       });
     }
   });
@@ -223,7 +214,7 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.keys(record)
         .sort()
-        .map((key) => [key, canonicalize(record[key])])
+        .map((key) => [key, canonicalize(record[key])]),
     );
   }
   return value;
@@ -246,19 +237,15 @@ function projectResultToFrozenV146Wire(value: unknown): unknown {
       .filter(
         ([key]) =>
           key !== "elementalApplicationIcdLogId" &&
-          key !== "elementalApplicationIcdLogIds"
+          key !== "elementalApplicationIcdLogIds",
       )
-      .map(([key, entry]) => [
-        key,
-        projectResultToFrozenV146Wire(entry)
-      ])
+      .map(([key, entry]) => [key, projectResultToFrozenV146Wire(entry)]),
   );
 }
 
 function atomicCreateFixture(outputUrl: URL, bytes: string): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
   writeFileSync(temporaryPath, bytes, { flag: "wx" });
   try {
     linkSync(temporaryPath, outputPath);
@@ -269,9 +256,7 @@ function atomicCreateFixture(outputUrl: URL, bytes: string): void {
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -282,9 +267,7 @@ function atomicCreateFixture(outputUrl: URL, bytes: string): void {
 function directHit(
   id: string,
   frame: number,
-  icdGroup: NonNullable<
-    FrameHitDefinition["directDamageGroup"]
-  >["icdGroup"]
+  icdGroup: NonNullable<FrameHitDefinition["directDamageGroup"]>["icdGroup"],
 ): FrameHitDefinition {
   return {
     id,
@@ -294,8 +277,8 @@ function directHit(
     groupMultiplier: 2,
     directDamageGroup: {
       icdTag: "synthetic-shared-tag",
-      icdGroup
-    }
+      icdGroup,
+    },
   };
 }
 
@@ -305,7 +288,7 @@ function makeVectorConfig(): SimConfig {
     directHit("zero-xiao", 1, "xiao-dash"),
     directHit("switch-tail", 2, "chasca-tap"),
     directHit("pre-reset-tail", 4, "chasca-tap"),
-    directHit("reset-pole", 5, "pole-extra-attack")
+    directHit("reset-pole", 5, "pole-extra-attack"),
   ];
   const ability: AbilityDefinition = {
     id: "synthetic-direct-damage-group-ability",
@@ -316,7 +299,7 @@ function makeVectorConfig(): SimConfig {
     animationEndFrame: 5,
     cooldownFrames: 0,
     hits,
-    particles: []
+    particles: [],
   };
   const base = makeConfig({
     dataVersion: "synthetic-test-vector-1.46",
@@ -324,8 +307,8 @@ function makeVectorConfig(): SimConfig {
     meta: {
       name: "Synthetic Damage Group Golden",
       version: "1.46",
-      verificationStatus: "provisional"
-    }
+      verificationStatus: "provisional",
+    },
   });
   return {
     ...base,
@@ -344,10 +327,10 @@ function makeVectorConfig(): SimConfig {
           type: "skill",
           actorId: "a",
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -355,16 +338,14 @@ const OPTIONS = {
   energyMode: "configured",
   critMode: "noCrit",
   compatibilityMode: "legal-frame-v1",
-  randomSeed: VECTOR_SEED
+  randomSeed: VECTOR_SEED,
 } as const;
 
 function runVector() {
   return simulate(makeVectorConfig(), OPTIONS);
 }
 
-function decisionProjection(
-  result: ReturnType<typeof runVector>
-) {
+function decisionProjection(result: ReturnType<typeof runVector>) {
   return result.directDamageGroupLog.map(
     ({
       hitId,
@@ -378,7 +359,7 @@ function decisionProjection(
       sequenceIndex,
       sequenceMultiplier,
       effectiveMultiplier,
-      damageGroupOnEnemyHitAllowed
+      damageGroupOnEnemyHitAllowed,
     }) => ({
       hitId,
       frame,
@@ -391,47 +372,39 @@ function decisionProjection(
       sequenceIndex,
       sequenceMultiplier,
       effectiveMultiplier,
-      damageGroupOnEnemyHitAllowed
-    })
+      damageGroupOnEnemyHitAllowed,
+    }),
   );
 }
 
-function makeFixture(
-  result: ReturnType<typeof runVector>
-): DamageGroupFixture {
+function makeFixture(result: ReturnType<typeof runVector>): DamageGroupFixture {
   const projected = projectResultToFrozenV146Wire(
-    structuredClone(result)
+    structuredClone(result),
   ) as Record<string, unknown>;
   delete projected.elementalApplicationIcdLog;
   delete projected.reactionDamageGroupResetLog;
+  delete projected.basicReactionSchedulerLog;
   projected.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   projected.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
 
   const projectedConfig = projected.config as Record<string, unknown>;
-  projectedConfig.schemaVersion =
-    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
-  projectedConfig.engineVersion =
-    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  projectedConfig.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  projectedConfig.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   delete projectedConfig.elementalApplicationIcdModel;
   delete projectedConfig.reactionOwnedElementalApplicationModel;
   delete projectedConfig.reactionDamageGroupModel;
+  delete projectedConfig.basicReactionSchedulerModel;
 
-  const projectedManifest = projected.runManifest as Record<
-    string,
-    unknown
-  >;
-  projectedManifest.version =
-    DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION;
-  projectedManifest.schemaVersion =
-    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
-  projectedManifest.engineVersion =
-    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  const projectedManifest = projected.runManifest as Record<string, unknown>;
+  projectedManifest.version = DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION;
+  projectedManifest.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  projectedManifest.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   projectedManifest.configHash = VECTOR_CONFIG_HASH;
-  projectedManifest.reproducibilityKey =
-    VECTOR_REPRODUCIBILITY_KEY;
+  projectedManifest.reproducibilityKey = VECTOR_REPRODUCIBILITY_KEY;
   delete projectedManifest.elementalApplicationIcdRoot;
   delete projectedManifest.reactionOwnedElementalApplicationRoot;
   delete projectedManifest.reactionDamageGroupRoot;
+  delete projectedManifest.basicReactionSchedulerRoot;
   for (const entry of projected.hitResolutionLog as Array<
     Record<string, unknown>
   >) {
@@ -449,16 +422,14 @@ function makeFixture(
       verificationStatus: "provisional",
       note: NOTE,
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     },
     expectedDecisionProjection: EXPECTED_DECISIONS,
     directDamageGroupLogCanonicalSha256: canonicalSha256(
-      frozenResult.directDamageGroupLog
+      frozenResult.directDamageGroupLog,
     ),
-    damageEventsCanonicalSha256: canonicalSha256(
-      frozenResult.damageEvents
-    ),
-    result: frozenResult
+    damageEventsCanonicalSha256: canonicalSha256(frozenResult.damageEvents),
+    result: frozenResult,
   });
 }
 
@@ -471,22 +442,18 @@ function loadOrCreateFixture(
   options: {
     updateRequested?: boolean;
     outputUrl?: URL;
-  } = {}
+  } = {},
 ): DamageGroupFixture {
   const updateRequested =
     options.updateRequested ?? process.env[UPDATE_FLAG] === "1";
   const outputUrl = options.outputUrl ?? FIXTURE_URL;
   expect(
     decisionProjection(
-      generated.result as unknown as ReturnType<
-        typeof runVector
-      >
-    )
-  ).toEqual(
-    EXPECTED_DECISIONS
-  );
+      generated.result as unknown as ReturnType<typeof runVector>,
+    ),
+  ).toEqual(EXPECTED_DECISIONS);
   assertTrustedSimulationResultV146(
-    generated.result as unknown as SimulationResult
+    generated.result as unknown as SimulationResult,
   );
 
   if (updateRequested) {
@@ -494,7 +461,7 @@ function loadOrCreateFixture(
     const generatedSha256 = byteSha256(bytes);
     if (generatedSha256 !== FIXTURE_SHA256) {
       throw new Error(
-        `Refusing to write the 1.46 Damage Group fixture because its generated bytes changed: received ${generatedSha256}.`
+        `Refusing to write the 1.46 Damage Group fixture because its generated bytes changed: received ${generatedSha256}.`,
       );
     }
     atomicCreateFixture(outputUrl, bytes);
@@ -505,12 +472,10 @@ function loadOrCreateFixture(
   const frozenSha256 = byteSha256(frozenBytes);
   if (frozenSha256 !== FIXTURE_SHA256) {
     throw new Error(
-      `Frozen 1.46 Damage Group fixture changed: received ${frozenSha256}.`
+      `Frozen 1.46 Damage Group fixture changed: received ${frozenSha256}.`,
     );
   }
-  return fixtureSchema.parse(
-    JSON.parse(frozenBytes.toString("utf8"))
-  );
+  return fixtureSchema.parse(JSON.parse(frozenBytes.toString("utf8")));
 }
 
 describe("1.46 ordinary direct-damage-group Golden", () => {
@@ -520,59 +485,49 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
     expect(repeated).toEqual(result);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
-    expect(decisionProjection(result)).toEqual(
-      EXPECTED_DECISIONS
-    );
+    expect(decisionProjection(result)).toEqual(EXPECTED_DECISIONS);
 
     const generated = makeFixture(result);
     const frozen = loadOrCreateFixture(generated);
     expect(frozen).toEqual(generated);
     expect(frozen.result.directDamageGroupLog).toEqual(
-      result.directDamageGroupLog
+      result.directDamageGroupLog,
     );
     expect(canonicalSha256(result.directDamageGroupLog)).toBe(
-      frozen.directDamageGroupLogCanonicalSha256
+      frozen.directDamageGroupLogCanonicalSha256,
     );
     expect(
-      canonicalSha256(
-        projectResultToFrozenV146Wire(result.damageEvents)
-      )
-    ).toBe(
-      frozen.damageEventsCanonicalSha256
-    );
+      canonicalSha256(projectResultToFrozenV146Wire(result.damageEvents)),
+    ).toBe(frozen.damageEventsCanonicalSha256);
 
     expect(result.directDamageGroupLog).toHaveLength(5);
-    for (const [index, entry] of
-      result.directDamageGroupLog.entries()) {
-      expect(entry).toEqual(
-        frozen.result.directDamageGroupLog[index]
-      );
+    for (const [index, entry] of result.directDamageGroupLog.entries()) {
+      expect(entry).toEqual(frozen.result.directDamageGroupLog[index]);
       expect(entry).toMatchObject({
         id: index,
         damageEventId: index,
         hitResolutionLogId: index,
         sourceActorId: "a",
         targetId: "enemy-0",
-        profileId:
-          GCSIM_DAMAGE_GROUP_ROOT.profileId,
+        profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
         evaluation: "evaluated",
         icdTag: "synthetic-shared-tag",
         configuredMultiplier: 2,
         prePluginMultiplier: 2,
-        postPluginMultiplier: 2
+        postPluginMultiplier: 2,
       });
       expect(result.hitResolutionLog[index]).toMatchObject({
         id: entry.hitResolutionLogId,
         outcome: "landed",
-        damageEventId: entry.damageEventId
+        damageEventId: entry.damageEventId,
       });
       expect(result.damageEvents[index]).toMatchObject({
         id: entry.damageEventId,
         hitId: entry.hitId,
         groupMultiplier: entry.effectiveMultiplier,
         damageFactors: {
-          groupMultiplier: entry.effectiveMultiplier
-        }
+          groupMultiplier: entry.effectiveMultiplier,
+        },
       });
     }
 
@@ -585,21 +540,14 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
       damageComposition: {
         direct: 0,
         additiveReaction: 0,
-        transformativeReaction: 0
-      }
+        transformativeReaction: 0,
+      },
     });
     const positiveDamage = result.damageEvents[0]!.finalDamage;
     expect(positiveDamage).toBeGreaterThan(0);
     expect(
-      [0, 2, 3, 4].map(
-        (index) => result.damageEvents[index]!.finalDamage
-      )
-    ).toEqual([
-      positiveDamage,
-      positiveDamage,
-      positiveDamage,
-      positiveDamage
-    ]);
+      [0, 2, 3, 4].map((index) => result.damageEvents[index]!.finalDamage),
+    ).toEqual([positiveDamage, positiveDamage, positiveDamage, positiveDamage]);
   });
 
   it("keeps the full synthetic result fixture byte-for-byte frozen", () => {
@@ -609,36 +557,34 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
     ) {
       return;
     }
-    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(
-      FIXTURE_SHA256
-    );
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(FIXTURE_SHA256);
     const fixture = fixtureSchema.parse(
-      JSON.parse(readFileSync(FIXTURE_URL, "utf8"))
+      JSON.parse(readFileSync(FIXTURE_URL, "utf8")),
     );
     expect(
       assertTrustedSimulationResultV146(
-        fixture.result as unknown as SimulationResult
-      )
+        fixture.result as unknown as SimulationResult,
+      ),
     ).toBe(fixture.result);
   });
 
   it("requires explicit creation and atomically refuses overwrite", () => {
     const generated = makeFixture(runVector());
     const probeDirectory = mkdtempSync(
-      resolve(tmpdir(), "gdl-direct-group-v146-gate-")
+      resolve(tmpdir(), "gdl-direct-group-v146-gate-"),
     );
     const missingUrl = pathToFileURL(
-      resolve(probeDirectory, "missing.golden.json")
+      resolve(probeDirectory, "missing.golden.json"),
     );
     const existingUrl = pathToFileURL(
-      resolve(probeDirectory, "existing.golden.json")
+      resolve(probeDirectory, "existing.golden.json"),
     );
     try {
       expect(() =>
         loadOrCreateFixture(generated, {
           updateRequested: false,
-          outputUrl: missingUrl
-        })
+          outputUrl: missingUrl,
+        }),
       ).toThrow();
       expect(existsSync(fileURLToPath(missingUrl))).toBe(false);
 
@@ -646,12 +592,10 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
       expect(() =>
         loadOrCreateFixture(generated, {
           updateRequested: true,
-          outputUrl: existingUrl
-        })
+          outputUrl: existingUrl,
+        }),
       ).toThrow(/Refusing to overwrite frozen fixture/);
-      expect(readFileSync(existingUrl, "utf8")).toBe(
-        "sentinel\n"
-      );
+      expect(readFileSync(existingUrl, "utf8")).toBe("sentinel\n");
     } finally {
       rmSync(probeDirectory, { recursive: true, force: true });
     }

@@ -39,6 +39,45 @@ describe("damage formula primitives", () => {
     ).toBeCloseTo(190 / 400, 15);
   });
 
+  it("locks the legacy signed defense-adjustment convention", () => {
+    const base = calcDefenseMultiplier({
+      characterLevel: 90,
+      enemyLevel: 110,
+      defenseReduction: 0
+    });
+    const reduced = calcDefenseMultiplier({
+      characterLevel: 90,
+      enemyLevel: 110,
+      defenseReduction: -0.3
+    });
+    const increased = calcDefenseMultiplier({
+      characterLevel: 90,
+      enemyLevel: 110,
+      defenseReduction: 0.3
+    });
+
+    expect(base).toBeCloseTo(190 / (190 + 210), 15);
+    expect(reduced).toBeCloseTo(190 / (190 + 210 * 0.7), 15);
+    expect(increased).toBeCloseTo(190 / (190 + 210 * 1.3), 15);
+    expect(reduced).toBeGreaterThan(base);
+    expect(increased).toBeLessThan(base);
+
+    expect(
+      calcDefenseMultiplier({
+        characterLevel: 90,
+        enemyLevel: 110,
+        defenseReduction: -2
+      })
+    ).toBe(1);
+    expect(
+      calcDefenseMultiplier({
+        characterLevel: 90,
+        enemyLevel: 110,
+        defenseReduction: 2
+      })
+    ).toBeCloseTo(190 / (190 + 210 * 1.9), 15);
+  });
+
   it("clamps defense ignore at 100%", () => {
     expect(
       calcDefenseMultiplier({

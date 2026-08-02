@@ -20,6 +20,7 @@ import {
 } from "../../sim-core/src/__tests__/fixtures";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 
 const NO_CRIT = {
   critMode: "noCrit",
@@ -59,9 +60,7 @@ function makeThreeBloomConfig(
           name: "Bloom projection target",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "dendro", gaugeUnits: 1.875 },
-          ],
+          initialAura: [{ element: "dendro", gaugeUnits: 1.875 }],
         },
       ],
     },
@@ -180,15 +179,20 @@ describe("V1.50 to frozen V1.49 result projection", () => {
           ? []
           : [event.damageFactors.damageGroupDecision],
     );
-    expect(currentEnemyDecisions.map((entry) => entry.damageAllowed)).toEqual(
-      [true, true, false],
-    );
-    expect(currentPlayerDecisions.map((entry) => entry.damageAllowed)).toEqual(
-      [true, true, false],
-    );
+    expect(currentEnemyDecisions.map((entry) => entry.damageAllowed)).toEqual([
+      true,
+      true,
+      false,
+    ]);
+    expect(currentPlayerDecisions.map((entry) => entry.damageAllowed)).toEqual([
+      true,
+      true,
+      false,
+    ]);
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
-    const projected = projectSimulationResultV150ToV149(current);
+    const currentV150 = projectSimulationResultV151ToV150(current);
+    const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
     expect(projected.schemaVersion).toBe(
       REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -205,16 +209,12 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     expect(
       Object.hasOwn(projected.runManifest, "reactionDamageGroupRoot"),
     ).toBe(false);
-    expect(Object.hasOwn(projected, "reactionDamageGroupResetLog")).toBe(
-      false,
-    );
+    expect(Object.hasOwn(projected, "reactionDamageGroupResetLog")).toBe(false);
     expect(projected.runManifest.configHash).toBe(
       createSimulationConfigHash(projected.config),
     );
-    const {
-      reproducibilityKey: _reproducibilityKey,
-      ...manifestIdentity
-    } = projected.runManifest;
+    const { reproducibilityKey: _reproducibilityKey, ...manifestIdentity } =
+      projected.runManifest;
     expect(projected.reproducibilityKey).toBe(
       createSimulationReproducibilityKey(manifestIdentity),
     );
@@ -247,13 +247,14 @@ describe("V1.50 to frozen V1.49 result projection", () => {
 
   it("allows an inactive V2 run to discard only the unused identity", () => {
     const current = simulate(makeConfig(), NO_CRIT);
-    expect(current.reactionDamageLog.flatMap(
-      (entry) => entry.damageGroupDecisions,
-    )).toEqual([]);
+    expect(
+      current.reactionDamageLog.flatMap((entry) => entry.damageGroupDecisions),
+    ).toEqual([]);
     expect(current.playerDamageEvents).toEqual([]);
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
-    const projected = projectSimulationResultV150ToV149(current);
+    const currentV150 = projectSimulationResultV151ToV150(current);
+    const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
     expect(projected.totalDamage).toBe(current.totalDamage);
     expect(projected.damageEvents).toEqual(current.damageEvents);
@@ -268,19 +269,19 @@ describe("V1.50 to frozen V1.49 result projection", () => {
       NO_CRIT,
     );
     expect(
-      active.reactionDamageLog.flatMap(
-        (entry) => entry.damageGroupDecisions,
-      ).length,
+      active.reactionDamageLog.flatMap((entry) => entry.damageGroupDecisions)
+        .length,
     ).toBeGreaterThan(0);
     expect(active.playerDamageEvents.length).toBeGreaterThan(0);
     expect(active.reactionDamageGroupResetLog.length).toBeGreaterThan(0);
-    expect(() => projectSimulationResultV150ToV149(active)).toThrow(
+    const activeV150 = projectSimulationResultV151ToV150(active);
+    expect(() => projectSimulationResultV150ToV149(activeV150)).toThrow(
       /no faithful V1\.49 wire projection/,
     );
 
     const playerOnly = {
-      ...active,
-      reactionDamageLog: active.reactionDamageLog.map((entry) => ({
+      ...activeV150,
+      reactionDamageLog: activeV150.reactionDamageLog.map((entry) => ({
         ...entry,
         damageGroupDecisions: [],
       })),
@@ -291,9 +292,10 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     );
 
     const inactive = simulate(makeConfig(), NO_CRIT);
+    const inactiveV150 = projectSimulationResultV151ToV150(inactive);
     expect(() =>
       projectSimulationResultV150ToV149({
-        ...inactive,
+        ...inactiveV150,
         reactionDamageGroupResetLog: [{}] as never,
       }),
     ).toThrow(/no faithful V1\.49 wire projection/);

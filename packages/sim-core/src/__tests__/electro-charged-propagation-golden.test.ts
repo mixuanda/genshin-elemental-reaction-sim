@@ -1,15 +1,10 @@
 import { createHash } from "node:crypto";
-import {
-  linkSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync
-} from "node:fs";
+import { linkSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
@@ -25,52 +20,51 @@ import {
   simulationResultSchema,
   targetPhaseV2ResultReferencesSchema,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
-const UPDATE_FLAG =
-  "UPDATE_EC_PROPAGATION_V141_GOLDEN";
+const UPDATE_FLAG = "UPDATE_EC_PROPAGATION_V141_GOLDEN";
 const EXPECTED_SCENARIO_SHA256 =
   "b00a4a02e859e7744660fb71ed859763a67b0cb08dfb8cc8146e46f409d6e92c";
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const SOURCE_TARGET_ID = "enemy-0";
 const EXPECTED_CANDIDATE_OUTCOMES = [
   {
     targetId: SOURCE_TARGET_ID,
     selected: true,
-    reason: "SOURCE_STREAM_TARGET"
+    reason: "SOURCE_STREAM_TARGET",
   },
   {
     targetId: "wet-boundary",
     selected: true,
-    reason: "NEARBY_WET_IN_RANGE"
+    reason: "NEARBY_WET_IN_RANGE",
   },
   {
     targetId: "dry-nearby",
     selected: false,
-    reason: "NO_HYDRO_AURA"
+    reason: "NO_HYDRO_AURA",
   },
   {
     targetId: "wet-outside",
     selected: false,
-    reason: "OUT_OF_RANGE"
+    reason: "OUT_OF_RANGE",
   },
   {
     targetId: "wet-unresolved",
     selected: false,
-    reason: "POSITION_UNRESOLVED"
+    reason: "POSITION_UNRESOLVED",
   },
   {
     targetId: "wet-immune",
     selected: true,
-    reason: "NEARBY_WET_IN_RANGE"
-  }
+    reason: "NEARBY_WET_IN_RANGE",
+  },
 ] as const;
 
 function makePropagationGoldenConfig(): SimConfig {
@@ -79,7 +73,7 @@ function makePropagationGoldenConfig(): SimConfig {
   return makeConfig({
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     dataVersion: "ec-propagation-community-provisional-1",
     randomSeed: "ec-propagation-v141-golden-seed",
@@ -87,8 +81,7 @@ function makePropagationGoldenConfig(): SimConfig {
       name: "Electro-Charged propagation Golden",
       version: "1.41.0",
       verificationStatus: "provisional",
-      note:
-        "Community-provisional regression vector. Nearby-Wet selection is not implemented by the pinned gcsim reference and is not official game data."
+      note: "Community-provisional regression vector. Nearby-Wet selection is not implemented by the pinned gcsim reference and is not official game data.",
     },
     duration: 1,
     cycleLength: 1,
@@ -103,9 +96,7 @@ function makePropagationGoldenConfig(): SimConfig {
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
           resistance: 0.1,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "wet-boundary",
@@ -113,41 +104,33 @@ function makePropagationGoldenConfig(): SimConfig {
           position: { x: 3.5, y: 0 },
           hitboxRadius: 0.5,
           resistance: 0.5,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "dry-nearby",
           name: "Dry nearby",
           position: { x: 1, y: 0 },
-          hitboxRadius: 0
+          hitboxRadius: 0,
         },
         {
           id: "wet-outside",
           name: "Wet outside",
           position: { x: 3.51, y: 0 },
           hitboxRadius: 0.5,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "wet-unresolved",
           name: "Wet unresolved",
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "wet-immune",
           name: "Wet immune",
           position: { x: 2, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
-        }
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+        },
       ],
       targetPhases: [
         {
@@ -160,10 +143,10 @@ function makePropagationGoldenConfig(): SimConfig {
           effects: {
             damage: "immune",
             aura: "normal",
-            hitConfirm: "normal"
-          }
-        }
-      ]
+            hitConfirm: "normal",
+          },
+        },
+      ],
     },
     characters: [
       {
@@ -175,20 +158,20 @@ function makePropagationGoldenConfig(): SimConfig {
         stats: {
           ...neutralStats,
           em: 120,
-          reactionBonus: 0.2
-        }
-      }
+          reactionBonus: 0.2,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v8" },
     targetTaskModel: { mode: "target-phase-v2" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     electroChargedPropagationModel: {
       mode: "nearby-wet-radius-v1",
       radius: 3,
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -214,24 +197,24 @@ function makePropagationGoldenConfig(): SimConfig {
               element: "electro",
               targeting: {
                 targetId: SOURCE_TARGET_ID,
-                outcome: "landed"
+                outcome: "landed",
               },
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "ec-owner",
-          abilityId: "start-ec"
-        }
-      ]
-    }
+          abilityId: "start-ec",
+        },
+      ],
+    },
   });
 }
 
@@ -252,24 +235,20 @@ const NO_ICD_DECISION = {
   hitIndex: null,
   sequenceIndex: null,
   tailPolicy: null,
-  resetSchedulePolicy: "bypass"
+  resetSchedulePolicy: "bypass",
 } as const;
 
-function expectCurrentApplicationContract(
-  result: SimulationResult
-): void {
+function expectCurrentApplicationContract(result: SimulationResult): void {
   expect(result.config.elementalApplicationIcdModel).toEqual({
     mode: "fixed-gcsim-elemental-application-v1",
-    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   });
   expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
-    GCSIM_ELEMENTAL_APPLICATION_ROOT
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
   );
-  expect(
-    result.config.timeline?.abilities[0]?.hits?.[0]?.application
-  ).toEqual({
+  expect(result.config.timeline?.abilities[0]?.hits?.[0]?.application).toEqual({
     gaugeUnits: 1,
-    icd: { mode: "no-icd-v1" }
+    icd: { mode: "no-icd-v1" },
   });
   expect(
     result.elementalApplicationIcdLog.map((entry) => ({
@@ -281,8 +260,8 @@ function expectCurrentApplicationContract(
       selector: entry.selector,
       nominalGaugeUnits: entry.nominalGaugeUnits,
       effectiveGaugeUnits: entry.effectiveGaugeUnits,
-      decision: entry.decision
-    }))
+      decision: entry.decision,
+    })),
   ).toEqual([
     {
       id: 0,
@@ -293,18 +272,15 @@ function expectCurrentApplicationContract(
       selector: { mode: "no-icd-v1" },
       nominalGaugeUnits: 1,
       effectiveGaugeUnits: 1,
-      decision: NO_ICD_DECISION
-    }
+      decision: NO_ICD_DECISION,
+    },
   ]);
 }
 
-function projectDamageEventsToFrozenNoIcd(
-  result: SimulationResult
-) {
+function projectDamageEventsToFrozenNoIcd(result: SimulationResult) {
   const legacyAuditByDamageEventId = new Map(
     result.elementalApplicationIcdLog.flatMap((entry) =>
-      entry.damageEventId === null ||
-      entry.selector.mode !== "no-icd-v1"
+      entry.damageEventId === null || entry.selector.mode !== "no-icd-v1"
         ? []
         : [
             [
@@ -312,16 +288,15 @@ function projectDamageEventsToFrozenNoIcd(
               {
                 icdAllowed: entry.decision.allowed,
                 icdTag: entry.hitId,
-                icdGroup: "no-icd" as const
-              }
-            ] as const
-          ]
-    )
+                icdGroup: "no-icd" as const,
+              },
+            ] as const,
+          ],
+    ),
   );
   return result.damageEvents.map((currentEvent) => {
     const {
-      elementalApplicationIcdLogId:
-        _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
       ...event
     } = currentEvent;
     const legacyAudit = legacyAuditByDamageEventId.get(event.id);
@@ -331,20 +306,17 @@ function projectDamageEventsToFrozenNoIcd(
           ...event,
           reactionAudit: {
             ...event.reactionAudit,
-            ...legacyAudit
-          }
+            ...legacyAudit,
+          },
         };
   });
 }
 
-function projectReactionDamageLogToFrozenV147(
-  result: SimulationResult
-) {
+function projectReactionDamageLogToFrozenV147(result: SimulationResult) {
   return result.reactionDamageLog.map(
     ({
       hitResolutionLogIds: _hitResolutionLogIds,
-      elementalApplicationIcdLogIds:
-        _elementalApplicationIcdLogIds,
+      elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
       damageGroupDecisions,
       ...entry
     }) => ({
@@ -361,74 +333,58 @@ function projectReactionDamageLogToFrozenV147(
             ? ([true, true, false] as const)
             : ([true, false] as const),
         damageAllowed: decision.damageAllowed,
-        blockedReason: decision.blockedReason
-      }))
-    })
+        blockedReason: decision.blockedReason,
+      })),
+    }),
   );
 }
 
-function projectHitResolutionLogToFrozenV147(
-  result: SimulationResult
-) {
+function projectHitResolutionLogToFrozenV147(result: SimulationResult) {
   return result.hitResolutionLog.map(
     ({
       reactionDamageLogId: _reactionDamageLogId,
-      elementalApplicationIcdLogId:
-        _elementalApplicationIcdLogId,
+      elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
       ...entry
-    }) => entry
+    }) => entry,
   );
 }
 
-function projectPropagationScenario(
-  result: SimulationResult
-) {
-  const frozenDamageEvents =
-    projectDamageEventsToFrozenNoIcd(result);
-  const reactionDamage =
-    projectReactionDamageLogToFrozenV147(result).filter(
-      (entry) =>
-        entry.reaction === "electroCharged" &&
-        entry.withinSimulation
-    );
-  const reactionDamageIds = new Set(
-    reactionDamage.map((entry) => entry.id)
+function projectPropagationScenario(result: SimulationResult) {
+  const frozenDamageEvents = projectDamageEventsToFrozenNoIcd(result);
+  const reactionDamage = projectReactionDamageLogToFrozenV147(result).filter(
+    (entry) => entry.reaction === "electroCharged" && entry.withinSimulation,
   );
+  const reactionDamageIds = new Set(reactionDamage.map((entry) => entry.id));
   const propagationDamageEventIds = new Set(
-    reactionDamage.flatMap((entry) => entry.damageEventIds)
+    reactionDamage.flatMap((entry) => entry.damageEventIds),
   );
   const triggerDamageEventIds = new Set(
     reactionDamage.flatMap((entry) =>
-      entry.triggerDamageEventId === null
-        ? []
-        : [entry.triggerDamageEventId]
-    )
+      entry.triggerDamageEventId === null ? [] : [entry.triggerDamageEventId],
+    ),
   );
   const relevantDamageEventIds = new Set([
     ...triggerDamageEventIds,
-    ...propagationDamageEventIds
+    ...propagationDamageEventIds,
   ]);
   const relevantHitResolutionIds = new Set(
     reactionDamage.flatMap(
       (entry) =>
-        entry.electroChargedPropagation?.candidates.flatMap(
-          (candidate) =>
-            candidate.hitResolutionLogId === null
-              ? []
-              : [candidate.hitResolutionLogId]
-        ) ?? []
-    )
+        entry.electroChargedPropagation?.candidates.flatMap((candidate) =>
+          candidate.hitResolutionLogId === null
+            ? []
+            : [candidate.hitResolutionLogId],
+        ) ?? [],
+    ),
   );
-  const candidateAuraWitnesses =
-    result.targetStateTimeline.points.filter((point) =>
-      point.cause ===
-        "electro-charged-propagation-candidate" &&
+  const candidateAuraWitnesses = result.targetStateTimeline.points.filter(
+    (point) =>
+      point.cause === "electro-charged-propagation-candidate" &&
       point.links.some(
         (link) =>
-          link.kind === "reaction-damage-log" &&
-          reactionDamageIds.has(link.id)
-      )
-    );
+          link.kind === "reaction-damage-log" && reactionDamageIds.has(link.id),
+      ),
+  );
   const propagationDamageApplicationPoints =
     result.targetStateTimeline.points.filter(
       (point) =>
@@ -438,8 +394,8 @@ function projectPropagationScenario(
             (link.kind === "reaction-damage-log" &&
               reactionDamageIds.has(link.id)) ||
             (link.kind === "damage-event" &&
-              propagationDamageEventIds.has(link.id))
-        )
+              propagationDamageEventIds.has(link.id)),
+        ),
     );
 
   return {
@@ -450,46 +406,42 @@ function projectPropagationScenario(
       randomSeed: result.randomSeed,
       configHash: result.runManifest.configHash,
       reproducibilityKey: result.reproducibilityKey,
-      resolvedRuntimeOptions:
-        result.resolvedRuntimeOptions
+      resolvedRuntimeOptions: result.resolvedRuntimeOptions,
     },
     configContract: {
       reactionEngine: result.config.reactionEngine,
       targetClockModel: result.config.targetClockModel,
       targetTaskModel: result.config.targetTaskModel,
-      reactionDeliveryModel:
-        result.config.reactionDeliveryModel,
+      reactionDeliveryModel: result.config.reactionDeliveryModel,
       electroChargedPropagationModel:
         result.config.electroChargedPropagationModel,
       timeline: {
         mode: result.config.timeline?.mode ?? null,
-        fps: result.config.timeline?.fps ?? null
+        fps: result.config.timeline?.fps ?? null,
       },
-      enemyTargets: result.enemyTargets
+      enemyTargets: result.enemyTargets,
     },
-    periodicElectroCharged:
-      result.periodicReactionLog.filter(
-        (entry) => entry.reaction === "electroCharged"
-      ),
+    periodicElectroCharged: result.periodicReactionLog.filter(
+      (entry) => entry.reaction === "electroCharged",
+    ),
     reactionDamage,
     reactionBDecisions: reactionDamage.flatMap(
-      (entry) => entry.damageGroupDecisions
+      (entry) => entry.damageGroupDecisions,
     ),
     triggerDamageEvents: frozenDamageEvents.filter((event) =>
-      triggerDamageEventIds.has(event.id)
+      triggerDamageEventIds.has(event.id),
     ),
-    propagationDamageChildren: frozenDamageEvents.filter(
-      (event) => propagationDamageEventIds.has(event.id)
+    propagationDamageChildren: frozenDamageEvents.filter((event) =>
+      propagationDamageEventIds.has(event.id),
     ),
-    relevantHitResolutions:
-      projectHitResolutionLogToFrozenV147(result).filter(
-        (entry) =>
-          relevantHitResolutionIds.has(entry.id) ||
-          (entry.damageEventId !== null &&
-            relevantDamageEventIds.has(entry.damageEventId))
-      ),
+    relevantHitResolutions: projectHitResolutionLogToFrozenV147(result).filter(
+      (entry) =>
+        relevantHitResolutionIds.has(entry.id) ||
+        (entry.damageEventId !== null &&
+          relevantDamageEventIds.has(entry.damageEventId)),
+    ),
     allRelatedDamageEvents: frozenDamageEvents.filter((event) =>
-      relevantDamageEventIds.has(event.id)
+      relevantDamageEventIds.has(event.id),
     ),
     targetStateTimeline: result.targetStateTimeline,
     candidateAuraWitnesses,
@@ -501,14 +453,12 @@ function projectPropagationScenario(
       dps: result.dps,
       damageEventCount: result.damageEvents.length,
       reactedHits: result.reactedHits,
-      skippedActionCount: result.skippedActions.length
-    }
+      skippedActionCount: result.skippedActions.length,
+    },
   };
 }
 
-type PropagationGoldenScenario = ReturnType<
-  typeof projectPropagationScenario
->;
+type PropagationGoldenScenario = ReturnType<typeof projectPropagationScenario>;
 
 type FrozenV141PropagationGoldenScenario = Omit<
   PropagationGoldenScenario,
@@ -525,23 +475,23 @@ type FrozenV141PropagationGoldenScenario = Omit<
 
 function normalizeIdentityForFrozenV141(
   scenario: PropagationGoldenScenario,
-  result: SimulationResult
+  result: SimulationResult,
 ): FrozenV141PropagationGoldenScenario {
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
-    elementalApplicationIcdModel:
-      _elementalApplicationIcdModel,
+    elementalApplicationIcdModel: _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
     ...frozenConfigCommon
   } = result.config;
   const legacyWire = structuredClone(frozenConfigCommon);
   const starterHit = legacyWire.timeline?.abilities[0]?.hits?.[0];
   if (starterHit === undefined) {
     throw new Error(
-      "Electro-Charged propagation Golden projection requires its configured starter hit."
+      "Electro-Charged propagation Golden projection requires its configured starter hit.",
     );
   }
   (
@@ -551,46 +501,33 @@ function normalizeIdentityForFrozenV141(
   ).application = {
     gaugeUnits: 1,
     icdTag: "start-source-with-unresolved-candidate",
-    icdGroup: "no-icd"
+    icdGroup: "no-icd",
   };
   const frozenConfigHash = createSimulationConfigHash({
     ...legacyWire,
-    schemaVersion:
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-    engineVersion:
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION
+    schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   });
   const frozenRunIdentity = {
     version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
-    identityAlgorithm:
-      result.runManifest.identityAlgorithm,
-    schemaVersion:
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-    engineVersion:
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+    identityAlgorithm: result.runManifest.identityAlgorithm,
+    schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+    engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
     dataVersion: result.dataVersion,
     configHash: frozenConfigHash,
-    resolvedRuntimeOptions:
-      result.resolvedRuntimeOptions,
-    plugins: result.runManifest.plugins
-  } as unknown as Parameters<
-    typeof createSimulationReproducibilityKey
-  >[0];
+    resolvedRuntimeOptions: result.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins,
+  } as unknown as Parameters<typeof createSimulationReproducibilityKey>[0];
 
   return {
     ...scenario,
     identity: {
       ...scenario.identity,
-      schemaVersion:
-        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-      engineVersion:
-        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+      schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+      engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
       configHash: frozenConfigHash,
-      reproducibilityKey:
-        createSimulationReproducibilityKey(
-          frozenRunIdentity
-        )
-    }
+      reproducibilityKey: createSimulationReproducibilityKey(frozenRunIdentity),
+    },
   };
 }
 
@@ -609,23 +546,15 @@ interface PropagationGoldenFixture {
 }
 
 function semanticHash(value: unknown): string {
-  return createHash("sha256")
-    .update(canonicalStringify(value))
-    .digest("hex");
+  return createHash("sha256").update(canonicalStringify(value)).digest("hex");
 }
 
-function atomicCreateJsonFixture(
-  outputUrl: URL,
-  value: unknown
-): void {
+function atomicCreateJsonFixture(outputUrl: URL, value: unknown): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(
-    temporaryPath,
-    `${JSON.stringify(value, null, 2)}\n`,
-    { flag: "wx" }
-  );
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  writeFileSync(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, {
+    flag: "wx",
+  });
   try {
     linkSync(temporaryPath, outputPath);
   } catch (error) {
@@ -635,9 +564,7 @@ function atomicCreateJsonFixture(
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -646,14 +573,14 @@ function atomicCreateJsonFixture(
 }
 
 function loadOrCreateFixture(
-  generatedFixture: PropagationGoldenFixture
+  generatedFixture: PropagationGoldenFixture,
 ): PropagationGoldenFixture {
   if (process.env[UPDATE_FLAG] === "1") {
     atomicCreateJsonFixture(FIXTURE_URL, generatedFixture);
     return generatedFixture;
   }
   return JSON.parse(
-    readFileSync(FIXTURE_URL, "utf8")
+    readFileSync(FIXTURE_URL, "utf8"),
   ) as PropagationGoldenFixture;
 }
 
@@ -663,107 +590,74 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
     const first = simulate(config, { critMode: "noCrit" });
     const repeated = simulate(config, { critMode: "noCrit" });
 
-    expect(simulationResultSchema.parse(first)).toEqual(
-      first
-    );
-    expect(simulationResultSchema.parse(repeated)).toEqual(
-      repeated
-    );
+    expect(simulationResultSchema.parse(first)).toEqual(first);
+    expect(simulationResultSchema.parse(repeated)).toEqual(repeated);
     expect(assertTrustedSimulationResult(first)).toBe(first);
-    expect(assertTrustedSimulationResult(repeated)).toBe(
-      repeated
+    expect(assertTrustedSimulationResult(repeated)).toBe(repeated);
+    expect(reactionDeliveryResultReferencesSchema.parse(first)).toEqual(first);
+    expect(reactionDeliveryResultReferencesSchema.parse(repeated)).toEqual(
+      repeated,
     );
-    expect(
-      reactionDeliveryResultReferencesSchema.parse(first)
-    ).toEqual(first);
-    expect(
-      reactionDeliveryResultReferencesSchema.parse(repeated)
-    ).toEqual(repeated);
-    expect(
-      targetPhaseV2ResultReferencesSchema.parse(first)
-    ).toEqual(first);
-    expect(
-      targetPhaseV2ResultReferencesSchema.parse(repeated)
-    ).toEqual(repeated);
+    expect(targetPhaseV2ResultReferencesSchema.parse(first)).toEqual(first);
+    expect(targetPhaseV2ResultReferencesSchema.parse(repeated)).toEqual(
+      repeated,
+    );
     expect(repeated).toEqual(first);
-    expect(first.schemaVersion).toBe(
-      CURRENT_SCHEMA_VERSION
-    );
-    expect(first.engineVersion).toBe(
-      CURRENT_ENGINE_VERSION
-    );
+    expect(first.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(first.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expectCurrentApplicationContract(first);
 
-    const firstProjection =
-      normalizeIdentityForFrozenV141(
-        projectPropagationScenario(first),
-        first
-      );
-    const repeatedProjection =
-      normalizeIdentityForFrozenV141(
-        projectPropagationScenario(repeated),
-        repeated
-      );
+    const firstProjection = normalizeIdentityForFrozenV141(
+      projectPropagationScenario(first),
+      first,
+    );
+    const repeatedProjection = normalizeIdentityForFrozenV141(
+      projectPropagationScenario(repeated),
+      repeated,
+    );
     expect(repeatedProjection).toEqual(firstProjection);
 
     const generatedFixture: PropagationGoldenFixture = {
-      fixtureVersion:
-        "electro-charged-propagation-1.41",
+      fixtureVersion: "electro-charged-propagation-1.41",
       description:
         "Deterministic 1.41 runtime vector for source, in-range Wet, dry, out-of-range Wet, unresolved Wet, and immune Wet Electro-Charged propagation candidates.",
       provenance: {
         referenceProject: "genshinsim/gcsim",
-        referenceCommit:
-          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        referenceCommit: "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
         mechanicsDataStatus: "community-provisional",
         capturedAt: "2026-07-29",
         notes: [
           "The pinned gcsim reference remains single-target and does not implement nearby-Wet propagation.",
           "The radius, all-target registration-order selection, secondary ownership, and source-only Wane rules are community-provisional and are not official game data.",
           "The secondary Electro-Charged damage applies no Aura, starts no periodic stream, and does not mutate an existing stream.",
-          "This fixture is a regression contract, not a claim of complete gcsim or live-game parity."
-        ]
+          "This fixture is a regression contract, not a claim of complete gcsim or live-game parity.",
+        ],
       },
       scenario: firstProjection,
-      scenarioSha256: semanticHash(firstProjection)
+      scenarioSha256: semanticHash(firstProjection),
     };
     expect(generatedFixture.scenario.identity).toMatchObject({
-      schemaVersion:
-        EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
-      engineVersion:
-        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
-      dataVersion:
-        "ec-propagation-community-provisional-1",
-      randomSeed: "ec-propagation-v141-golden-seed"
+      schemaVersion: EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
+      engineVersion: EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
+      dataVersion: "ec-propagation-community-provisional-1",
+      randomSeed: "ec-propagation-v141-golden-seed",
     });
     expect(
-      generatedFixture.scenario.configContract
-        .electroChargedPropagationModel
+      generatedFixture.scenario.configContract.electroChargedPropagationModel,
     ).toEqual({
       mode: "nearby-wet-radius-v1",
       radius: 3,
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     });
 
-    const reactionDamage =
-      generatedFixture.scenario.reactionDamage[0]!;
-    const audit =
-      reactionDamage.electroChargedPropagation!;
+    const reactionDamage = generatedFixture.scenario.reactionDamage[0]!;
+    const audit = reactionDamage.electroChargedPropagation!;
     expect(reactionDamage).toMatchObject({
       damageFrame: 10,
-      targetingMode:
-        "electro-charged-nearby-wet",
-      checkedTargetIds: [
-        SOURCE_TARGET_ID,
-        "wet-boundary",
-        "wet-immune"
-      ],
-      hitTargetIds: [
-        SOURCE_TARGET_ID,
-        "wet-boundary",
-        "wet-immune"
-      ],
-      unresolvedTargetIds: ["wet-unresolved"]
+      targetingMode: "electro-charged-nearby-wet",
+      checkedTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
+      hitTargetIds: [SOURCE_TARGET_ID, "wet-boundary", "wet-immune"],
+      unresolvedTargetIds: ["wet-unresolved"],
     });
     expect(audit).toMatchObject({
       model: "nearby-wet-radius-v1",
@@ -774,96 +668,74 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
       evaluationFrame: 10,
       eventPriority: 5,
       radius: 3,
-      selectionMode:
-        "all-in-range-registration-order-v1"
+      selectionMode: "all-in-range-registration-order-v1",
     });
     expect(
-      audit.candidates.map(
-        ({ targetId, selected, reason }) => ({
-          targetId,
-          selected,
-          reason
-        })
-      )
+      audit.candidates.map(({ targetId, selected, reason }) => ({
+        targetId,
+        selected,
+        reason,
+      })),
     ).toEqual(EXPECTED_CANDIDATE_OUTCOMES);
     expect(
       generatedFixture.scenario.reactionBDecisions.map(
-        ({
+        ({ reaction, targetId, damageAllowed, blockedReason }) => ({
           reaction,
           targetId,
           damageAllowed,
-          blockedReason
-        }) => ({
-          reaction,
-          targetId,
-          damageAllowed,
-          blockedReason
-        })
-      )
+          blockedReason,
+        }),
+      ),
     ).toEqual([
       {
         reaction: "electroCharged",
         targetId: SOURCE_TARGET_ID,
         damageAllowed: true,
-        blockedReason: null
+        blockedReason: null,
       },
       {
         reaction: "electroCharged",
         targetId: "wet-boundary",
         damageAllowed: true,
-        blockedReason: null
+        blockedReason: null,
       },
       {
         reaction: "electroCharged",
         targetId: "wet-immune",
         damageAllowed: true,
-        blockedReason: null
-      }
+        blockedReason: null,
+      },
     ]);
 
-    const children =
-      generatedFixture.scenario.propagationDamageChildren;
+    const children = generatedFixture.scenario.propagationDamageChildren;
     expect(children.map((event) => event.targetId)).toEqual([
       SOURCE_TARGET_ID,
       "wet-boundary",
-      "wet-immune"
+      "wet-immune",
     ]);
     expect(
-      new Set(
-        children.map(
-          (event) => event.parentDamageEventId
-        )
-      ).size
+      new Set(children.map((event) => event.parentDamageEventId)).size,
     ).toBe(1);
     expect(
-      children.find(
-        (event) => event.targetId === "wet-immune"
-      )
+      children.find((event) => event.targetId === "wet-immune"),
     ).toMatchObject({
       targetDamagePolicy: "immune",
-      finalDamage: 0
+      finalDamage: 0,
     });
     expect(
       generatedFixture.scenario.periodicElectroCharged.some(
-        (entry) =>
-          entry.targetId !== SOURCE_TARGET_ID
-      )
+        (entry) => entry.targetId !== SOURCE_TARGET_ID,
+      ),
     ).toBe(false);
 
     const candidateAuraWitnesses =
       generatedFixture.scenario.candidateAuraWitnesses;
-    expect(
-      candidateAuraWitnesses.map((point) => point.targetId)
-    ).toEqual(
-      EXPECTED_CANDIDATE_OUTCOMES.map(
-        (candidate) => candidate.targetId
-      )
+    expect(candidateAuraWitnesses.map((point) => point.targetId)).toEqual(
+      EXPECTED_CANDIDATE_OUTCOMES.map((candidate) => candidate.targetId),
     );
     for (const candidate of audit.candidates) {
       const witness = candidateAuraWitnesses.find(
-        (point) =>
-          point.id ===
-          candidate.auraObservationTimelinePointId
+        (point) => point.id === candidate.auraObservationTimelinePointId,
       );
       expect(witness).toMatchObject({
         id: candidate.auraObservationTimelinePointId,
@@ -871,8 +743,7 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
         targetId: candidate.targetId,
         targetName: candidate.targetName,
         pointKind: "observation",
-        cause:
-          "electro-charged-propagation-candidate",
+        cause: "electro-charged-propagation-candidate",
         eventType: "reactionDamage",
         eventPriority: audit.eventPriority,
         eventSequence: audit.eventSequence,
@@ -882,79 +753,66 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
         links: [
           {
             kind: "reaction-damage-log",
-            id: reactionDamage.id
-          }
+            id: reactionDamage.id,
+          },
         ],
         auraApplied: [],
-        auraConsumed: []
+        auraConsumed: [],
       });
-      expect(witness?.auraAfter).toEqual(
-        witness?.auraBefore
-      );
+      expect(witness?.auraAfter).toEqual(witness?.auraBefore);
       expect(
-        witness?.auraBefore.find(
-          (entry) => entry.element === "hydro"
-        )?.gaugeUnits ?? 0
+        witness?.auraBefore.find((entry) => entry.element === "hydro")
+          ?.gaugeUnits ?? 0,
       ).toBe(candidate.hydroGaugeUnits);
     }
-    const witnessIntraEventSequences =
-      candidateAuraWitnesses.map(
-        (point) => point.intraEventSequence!
-      );
-    expect(witnessIntraEventSequences).toEqual(
-      [...witnessIntraEventSequences].sort(
-        (left, right) => left - right
-      )
+    const witnessIntraEventSequences = candidateAuraWitnesses.map(
+      (point) => point.intraEventSequence!,
     );
-    expect(
-      new Set(witnessIntraEventSequences).size
-    ).toBe(candidateAuraWitnesses.length);
+    expect(witnessIntraEventSequences).toEqual(
+      [...witnessIntraEventSequences].sort((left, right) => left - right),
+    );
+    expect(new Set(witnessIntraEventSequences).size).toBe(
+      candidateAuraWitnesses.length,
+    );
 
     const secondaryDamageTimeline =
       generatedFixture.scenario.propagationDamageApplicationPoints.filter(
-        (point) =>
-          point.targetId !== SOURCE_TARGET_ID
+        (point) => point.targetId !== SOURCE_TARGET_ID,
       );
-    expect(
-      secondaryDamageTimeline.map(
-        (point) => point.targetId
-      )
-    ).toEqual(["wet-boundary", "wet-immune"]);
+    expect(secondaryDamageTimeline.map((point) => point.targetId)).toEqual([
+      "wet-boundary",
+      "wet-immune",
+    ]);
     expect(
       secondaryDamageTimeline.every(
         (point) =>
-          point.cause ===
-            "reaction-damage-application" &&
+          point.cause === "reaction-damage-application" &&
           point.reaction === "electroCharged" &&
           point.reactions.includes("electroCharged") &&
           canonicalStringify(point.auraBefore) ===
             canonicalStringify(point.auraAfter) &&
           point.auraApplied.length === 0 &&
-          point.auraConsumed.length === 0
-      )
+          point.auraConsumed.length === 0,
+      ),
     ).toBe(true);
     for (const candidate of audit.candidates) {
       const damageApplication =
         generatedFixture.scenario.propagationDamageApplicationPoints.find(
-          (point) => point.targetId === candidate.targetId
+          (point) => point.targetId === candidate.targetId,
         );
       if (candidate.selected) {
         expect(damageApplication).toBeDefined();
-        expect(
-          candidate.auraObservationTimelinePointId
-        ).toBeLessThan(damageApplication!.id);
+        expect(candidate.auraObservationTimelinePointId).toBeLessThan(
+          damageApplication!.id,
+        );
       } else {
         expect(damageApplication).toBeUndefined();
       }
     }
 
-    expect(generatedFixture.scenarioSha256).toBe(
-      EXPECTED_SCENARIO_SHA256
-    );
+    expect(generatedFixture.scenarioSha256).toBe(EXPECTED_SCENARIO_SHA256);
     const fixture = loadOrCreateFixture(generatedFixture);
     expect(fixture).toEqual(generatedFixture);
-    expect(semanticHash(fixture.scenario)).toBe(
-      fixture.scenarioSha256
-    );
+    expect(semanticHash(fixture.scenario)).toBe(fixture.scenarioSha256);
   });
 });

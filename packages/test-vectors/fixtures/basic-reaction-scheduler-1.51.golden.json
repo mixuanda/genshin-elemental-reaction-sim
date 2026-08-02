@@ -1,0 +1,982 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Reviewed V1.51 same-frame mixed-Swirl scheduler Golden comparing the frozen immediate-attachment compatibility mode with the deferred zero-delay attachment mode.",
+  "provenance": {
+    "sourceProject": "genshinsim/gcsim",
+    "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "capturedAt": "2026-08-02",
+    "verificationStatus": "reviewed-provisional",
+    "note": "The V2 attack-then-zero-delay-attachment order is source-derived from pinned gcsim scheduler and enemy attack paths. The legacy scenario freezes prior local behavior. Neither scenario is official server truth or a claim of complete gcsim parity.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "currentIdentity": {
+    "schemaVersion": "1.51.0",
+    "engineVersion": "1.51.0-basic-reaction-scheduler",
+    "runManifestVersion": "1.7.0"
+  },
+  "policyRoots": {
+    "legacyImmediateV1": {
+      "version": "1.0.0",
+      "policyId": "legacy-partial-basic-reaction-scheduler-immediate-attachment-v1",
+      "mode": "legacy-1.50-partial-immediate-reaction-owned-attachment",
+      "contentHash": "sha256:2acb593bd32d61e908558d3d8fe8ffa0c36facff0c9f414c411af6cdf0c00ec8",
+      "mechanicsDataStatus": "legacy-project-partial",
+      "sourceProject": "genshin-dps-lab",
+      "sourceRevision": "genshin-dps-lab-1.50.0-local-baseline",
+      "pinnedGcsimReference": false,
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "legacy-1.50-partial-reaction-owned-attachment-scheduling-only",
+      "sameFrameOrdering": "legacy-partial-immediate-attachment-without-complete-provenance",
+      "nonReactedAttachmentPhase": "immediate-within-attack-resolution",
+      "includedReactions": [
+        "burning",
+        "swirl"
+      ],
+      "provisional": true
+    },
+    "deferredAttachmentV2": {
+      "version": "2.0.0",
+      "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+      "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+      "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+      "mechanicsDataStatus": "fixed-gcsim-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pinnedGcsimReference": true,
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+      "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+      "attackResolutionPhase": "immediate-core-task",
+      "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+      "includedReactions": [
+        "burning",
+        "swirl"
+      ],
+      "intentionalDeviations": [
+        "burning-monotonic-generation-guard"
+      ],
+      "provisional": true
+    }
+  },
+  "vector": {
+    "sourceTargets": [
+      {
+        "id": "source-pyro",
+        "element": "pyro",
+        "x": -4,
+        "y": 0
+      },
+      {
+        "id": "source-cryo",
+        "element": "cryo",
+        "x": 4,
+        "y": 0
+      }
+    ],
+    "sharedTarget": {
+      "id": "enemy-0",
+      "startsWithAura": false,
+      "x": 0,
+      "y": 0
+    },
+    "anemoHitFrames": [
+      10,
+      10
+    ],
+    "swirlPropagationFrame": 15,
+    "insertionOrder": [
+      "anemo-pyro",
+      "anemo-cryo"
+    ]
+  },
+  "expectedDifference": {
+    "legacyNestedReactions": [
+      "none",
+      "reverseMelt"
+    ],
+    "correctedNestedReactions": [
+      "none",
+      "none"
+    ],
+    "correctedDeferredAttackCount": 2,
+    "correctedDeferredCommitCount": 2,
+    "correctedFinalAuraElements": [
+      "cryo",
+      "pyro"
+    ]
+  },
+  "limitations": {
+    "covered": [
+      "same-frame-mixed-swirl-attack-resolution",
+      "zero-delay-nonreacted-aura-attachment",
+      "same-priority-insertion-order"
+    ],
+    "omitted": [
+      "complete-aura-and-icd-parity",
+      "all-reaction-scheduler-parity",
+      "official-character-and-enemy-data",
+      "official-server-validation"
+    ],
+    "intentionalDeviation": "burning-monotonic-generation-guard-not-exercised-by-this-vector",
+    "note": "This narrow synthetic fixture audits one mixed same-frame Swirl topology only. It does not validate every reaction, Aura/ICD edge, Burning callback topology, particle schedule, action frame, character, weapon, or enemy database entry."
+  },
+  "scenarios": {
+    "legacyImmediateV1": {
+      "identity": {
+        "schemaVersion": "1.51.0",
+        "engineVersion": "1.51.0-basic-reaction-scheduler",
+        "dataVersion": "synthetic-basic-reaction-scheduler-legacy-v1-1.51",
+        "randomSeed": "synthetic-basic-reaction-scheduler-legacy-v1-1.51",
+        "configHash": "fnv1a32:d52538f1",
+        "reproducibilityKey": "gdl-v2-fnv1a32-25595025",
+        "selectedModel": {
+          "mode": "legacy-immediate-basic-reaction-scheduler-v1",
+          "policyId": "legacy-partial-basic-reaction-scheduler-immediate-attachment-v1"
+        },
+        "selectedRoot": {
+          "version": "1.0.0",
+          "policyId": "legacy-partial-basic-reaction-scheduler-immediate-attachment-v1",
+          "mode": "legacy-1.50-partial-immediate-reaction-owned-attachment",
+          "contentHash": "sha256:2acb593bd32d61e908558d3d8fe8ffa0c36facff0c9f414c411af6cdf0c00ec8",
+          "mechanicsDataStatus": "legacy-project-partial",
+          "sourceProject": "genshin-dps-lab",
+          "sourceRevision": "genshin-dps-lab-1.50.0-local-baseline",
+          "pinnedGcsimReference": false,
+          "officialServerTruth": false,
+          "completeGcsimParity": false,
+          "coverage": "legacy-1.50-partial-reaction-owned-attachment-scheduling-only",
+          "sameFrameOrdering": "legacy-partial-immediate-attachment-without-complete-provenance",
+          "nonReactedAttachmentPhase": "immediate-within-attack-resolution",
+          "includedReactions": [
+            "burning",
+            "swirl"
+          ],
+          "provisional": true
+        },
+        "runManifest": {
+          "version": "1.7.0",
+          "identityAlgorithm": "fnv1a32-v2",
+          "schemaVersion": "1.51.0",
+          "engineVersion": "1.51.0-basic-reaction-scheduler",
+          "dataVersion": "synthetic-basic-reaction-scheduler-legacy-v1-1.51",
+          "configHash": "fnv1a32:d52538f1",
+          "resolvedRuntimeOptions": {
+            "energyMode": "configured",
+            "critMode": "noCrit",
+            "compatibilityMode": "legal-frame-v1",
+            "randomSeed": "synthetic-basic-reaction-scheduler-legacy-v1-1.51"
+          },
+          "plugins": [],
+          "reactionFormulaRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-classic-provisional-v1",
+            "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false
+          },
+          "directDamageGroupRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+            "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "damage-group-reset-and-damage-sequences-only",
+            "tailPolicy": "clamp-last",
+            "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+          },
+          "elementalApplicationIcdRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "elemental-application-reset-and-numeric-sequences-only",
+            "tailPolicy": "clamp-last",
+            "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+            "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+            "provisional": true
+          },
+          "reactionOwnedElementalApplicationRoot": {
+            "version": "2.0.0",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+            "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "elementalApplicationRootRef": {
+              "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+              "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+            },
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+            "resetTimerDataSource": "referenced-elemental-application-root",
+            "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+            "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+            "provisional": true
+          },
+          "reactionDamageGroupRoot": {
+            "version": "2.0.0",
+            "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+            "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+            "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "damageGroupRootRef": {
+              "version": "1.0.0",
+              "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+              "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+              "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "tailPolicy": "clamp-last",
+              "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+            },
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+            "scopeKeyFields": [
+              "receivingTargetId",
+              "sourceActorId",
+              "icdTag"
+            ],
+            "damageSourceInScopeKey": false,
+            "resetBoundary": "scheduled-reset-task",
+            "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+            "resetFrameOffsetAdjustment": -1,
+            "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+            "schedulerProvenance": "provisional-not-complete",
+            "provisional": true
+          },
+          "basicReactionSchedulerRoot": {
+            "version": "1.0.0",
+            "policyId": "legacy-partial-basic-reaction-scheduler-immediate-attachment-v1",
+            "mode": "legacy-1.50-partial-immediate-reaction-owned-attachment",
+            "contentHash": "sha256:2acb593bd32d61e908558d3d8fe8ffa0c36facff0c9f414c411af6cdf0c00ec8",
+            "mechanicsDataStatus": "legacy-project-partial",
+            "sourceProject": "genshin-dps-lab",
+            "sourceRevision": "genshin-dps-lab-1.50.0-local-baseline",
+            "pinnedGcsimReference": false,
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "legacy-1.50-partial-reaction-owned-attachment-scheduling-only",
+            "sameFrameOrdering": "legacy-partial-immediate-attachment-without-complete-provenance",
+            "nonReactedAttachmentPhase": "immediate-within-attack-resolution",
+            "includedReactions": [
+              "burning",
+              "swirl"
+            ],
+            "provisional": true
+          },
+          "reproducibilityKey": "gdl-v2-fnv1a32-25595025"
+        }
+      },
+      "totals": {
+        "totalDamage": 7477.288530454285,
+        "dps": 7477.288530454285,
+        "damageEventCount": 6,
+        "schedulerLogCount": 1
+      },
+      "sharedTargetPropagations": [
+        {
+          "id": 4,
+          "frame": 15,
+          "eventSequence": 9,
+          "sourceActorId": "anemo-pyro",
+          "targetId": "enemy-0",
+          "reaction": "swirlPyro",
+          "nestedReaction": "none",
+          "finalDamage": 1376.5777585714284,
+          "displayDamage": 1377
+        },
+        {
+          "id": 5,
+          "frame": 15,
+          "eventSequence": 11,
+          "sourceActorId": "anemo-cryo",
+          "targetId": "enemy-0",
+          "reaction": "swirlCryo",
+          "nestedReaction": "reverseMelt",
+          "finalDamage": 2447.55525474,
+          "displayDamage": 2448
+        }
+      ],
+      "sharedTargetSchedulerLog": [
+        {
+          "id": 0,
+          "frame": 15,
+          "timeSeconds": 0.25,
+          "eventPriority": 5,
+          "eventSequence": 9,
+          "parentEventSequence": 9,
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 5,
+          "elementalApplicationIcdLogId": 3,
+          "sourceActorId": "anemo-pyro",
+          "targetId": "enemy-0",
+          "element": "pyro",
+          "reaction": "none",
+          "reactions": [],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-pyro"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ],
+          "kind": "swirl-attack-resolution",
+          "disposition": "legacy-immediate",
+          "pairedLogId": null
+        }
+      ],
+      "sharedTargetTimeline": [
+        {
+          "id": 7,
+          "frame": 15,
+          "targetFrame": 15,
+          "timeSeconds": 0.25,
+          "targetId": "enemy-0",
+          "targetName": "Shared empty target",
+          "pointKind": "mutation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 9,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 4,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 4
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 1
+            },
+            {
+              "kind": "basic-reaction-scheduler-log",
+              "id": 0
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-pyro"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sharedTargetFinalAura": [
+        {
+          "element": "pyro",
+          "gaugeUnits": 0.5544
+        }
+      ],
+      "canonicalSha256": {
+        "config": "e491180fea28a0e03a27766e6086debf5ee6efa98a0b3f69661dd3fd6b1ee8a5",
+        "runManifest": "558b3407a126ad4452d517ed4387c7a3939adf42dc92e384d20e78883064d22b",
+        "sharedTargetPropagations": "651a3a8d3e3c82941eb2f6c30ab27d510b25df4c92f6496aefca0be045eeb24d",
+        "sharedTargetSchedulerLog": "2b4a0c55c4be7ddf3911a77dbdee03a4f7c235fb6d9a281ce2a3aafc2418b95f",
+        "sharedTargetTimeline": "3bfdf1fa5e8cab4f1fa0217d79e6c60955285a337d99eb67df27b2adc4db9d53",
+        "sharedTargetFinalAura": "9ee83aec1fca349d4561c233a9959e34bc86ee9dffebf00f4ca11996ff5972df"
+      }
+    },
+    "deferredAttachmentV2": {
+      "identity": {
+        "schemaVersion": "1.51.0",
+        "engineVersion": "1.51.0-basic-reaction-scheduler",
+        "dataVersion": "synthetic-basic-reaction-scheduler-deferred-v2-1.51",
+        "randomSeed": "synthetic-basic-reaction-scheduler-deferred-v2-1.51",
+        "configHash": "fnv1a32:18e3a554",
+        "reproducibilityKey": "gdl-v2-fnv1a32-79f69bf4",
+        "selectedModel": {
+          "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+          "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+        },
+        "selectedRoot": {
+          "version": "2.0.0",
+          "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+          "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+          "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+          "mechanicsDataStatus": "fixed-gcsim-provisional",
+          "sourceProject": "genshinsim/gcsim",
+          "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "pinnedGcsimReference": true,
+          "officialServerTruth": false,
+          "completeGcsimParity": false,
+          "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+          "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+          "attackResolutionPhase": "immediate-core-task",
+          "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+          "includedReactions": [
+            "burning",
+            "swirl"
+          ],
+          "intentionalDeviations": [
+            "burning-monotonic-generation-guard"
+          ],
+          "provisional": true
+        },
+        "runManifest": {
+          "version": "1.7.0",
+          "identityAlgorithm": "fnv1a32-v2",
+          "schemaVersion": "1.51.0",
+          "engineVersion": "1.51.0-basic-reaction-scheduler",
+          "dataVersion": "synthetic-basic-reaction-scheduler-deferred-v2-1.51",
+          "configHash": "fnv1a32:18e3a554",
+          "resolvedRuntimeOptions": {
+            "energyMode": "configured",
+            "critMode": "noCrit",
+            "compatibilityMode": "legal-frame-v1",
+            "randomSeed": "synthetic-basic-reaction-scheduler-deferred-v2-1.51"
+          },
+          "plugins": [],
+          "reactionFormulaRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-classic-provisional-v1",
+            "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false
+          },
+          "directDamageGroupRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+            "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "damage-group-reset-and-damage-sequences-only",
+            "tailPolicy": "clamp-last",
+            "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+          },
+          "elementalApplicationIcdRoot": {
+            "version": "1.0.0",
+            "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+            "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "elemental-application-reset-and-numeric-sequences-only",
+            "tailPolicy": "clamp-last",
+            "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+            "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+            "provisional": true
+          },
+          "reactionOwnedElementalApplicationRoot": {
+            "version": "2.0.0",
+            "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+            "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "elementalApplicationRootRef": {
+              "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+              "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+            },
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+            "resetTimerDataSource": "referenced-elemental-application-root",
+            "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+            "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+            "provisional": true
+          },
+          "reactionDamageGroupRoot": {
+            "version": "2.0.0",
+            "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+            "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+            "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "damageGroupRootRef": {
+              "version": "1.0.0",
+              "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+              "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+              "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "tailPolicy": "clamp-last",
+              "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+            },
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+            "scopeKeyFields": [
+              "receivingTargetId",
+              "sourceActorId",
+              "icdTag"
+            ],
+            "damageSourceInScopeKey": false,
+            "resetBoundary": "scheduled-reset-task",
+            "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+            "resetFrameOffsetAdjustment": -1,
+            "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+            "schedulerProvenance": "provisional-not-complete",
+            "provisional": true
+          },
+          "basicReactionSchedulerRoot": {
+            "version": "2.0.0",
+            "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+            "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+            "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+            "mechanicsDataStatus": "fixed-gcsim-provisional",
+            "sourceProject": "genshinsim/gcsim",
+            "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "pinnedGcsimReference": true,
+            "officialServerTruth": false,
+            "completeGcsimParity": false,
+            "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+            "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+            "attackResolutionPhase": "immediate-core-task",
+            "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+            "includedReactions": [
+              "burning",
+              "swirl"
+            ],
+            "intentionalDeviations": [
+              "burning-monotonic-generation-guard"
+            ],
+            "provisional": true
+          },
+          "reproducibilityKey": "gdl-v2-fnv1a32-79f69bf4"
+        }
+      },
+      "totals": {
+        "totalDamage": 6406.311034285714,
+        "dps": 6406.311034285714,
+        "damageEventCount": 6,
+        "schedulerLogCount": 6
+      },
+      "sharedTargetPropagations": [
+        {
+          "id": 4,
+          "frame": 15,
+          "eventSequence": 9,
+          "sourceActorId": "anemo-pyro",
+          "targetId": "enemy-0",
+          "reaction": "swirlPyro",
+          "nestedReaction": "none",
+          "finalDamage": 1376.5777585714284,
+          "displayDamage": 1377
+        },
+        {
+          "id": 5,
+          "frame": 15,
+          "eventSequence": 11,
+          "sourceActorId": "anemo-cryo",
+          "targetId": "enemy-0",
+          "reaction": "swirlCryo",
+          "nestedReaction": "none",
+          "finalDamage": 1376.5777585714284,
+          "displayDamage": 1377
+        }
+      ],
+      "sharedTargetSchedulerLog": [
+        {
+          "id": 1,
+          "frame": 15,
+          "timeSeconds": 0.25,
+          "eventPriority": 5,
+          "eventSequence": 9,
+          "parentEventSequence": 9,
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 5,
+          "elementalApplicationIcdLogId": 3,
+          "sourceActorId": "anemo-pyro",
+          "targetId": "enemy-0",
+          "element": "pyro",
+          "reaction": "none",
+          "reactions": [],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [],
+          "kind": "swirl-attack-resolution",
+          "disposition": "deferred",
+          "pairedLogId": 4
+        },
+        {
+          "id": 3,
+          "frame": 15,
+          "timeSeconds": 0.25,
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "parentEventSequence": 11,
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 7,
+          "elementalApplicationIcdLogId": 5,
+          "sourceActorId": "anemo-cryo",
+          "targetId": "enemy-0",
+          "element": "cryo",
+          "reaction": "none",
+          "reactions": [],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [],
+          "kind": "swirl-attack-resolution",
+          "disposition": "deferred",
+          "pairedLogId": 5
+        },
+        {
+          "id": 4,
+          "frame": 15,
+          "timeSeconds": 0.25,
+          "eventPriority": 5,
+          "eventSequence": 21,
+          "parentEventSequence": 9,
+          "reactionDamageLogId": 1,
+          "hitResolutionLogId": 5,
+          "elementalApplicationIcdLogId": 3,
+          "sourceActorId": "anemo-pyro",
+          "targetId": "enemy-0",
+          "element": "pyro",
+          "reaction": "none",
+          "reactions": [],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-pyro"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ],
+          "kind": "deferred-aura-attachment",
+          "disposition": "committed",
+          "pairedLogId": 1
+        },
+        {
+          "id": 5,
+          "frame": 15,
+          "timeSeconds": 0.25,
+          "eventPriority": 5,
+          "eventSequence": 23,
+          "parentEventSequence": 11,
+          "reactionDamageLogId": 3,
+          "hitResolutionLogId": 7,
+          "elementalApplicationIcdLogId": 5,
+          "sourceActorId": "anemo-cryo",
+          "targetId": "enemy-0",
+          "element": "cryo",
+          "reaction": "none",
+          "reactions": [],
+          "auraBefore": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-cryo"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-cryo",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ],
+          "kind": "deferred-aura-attachment",
+          "disposition": "committed",
+          "pairedLogId": 3
+        }
+      ],
+      "sharedTargetTimeline": [
+        {
+          "id": 8,
+          "frame": 15,
+          "targetFrame": 15,
+          "timeSeconds": 0.25,
+          "targetId": "enemy-0",
+          "targetName": "Shared empty target",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 9,
+          "intraEventSequence": 1,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 4,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 4
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 1
+            },
+            {
+              "kind": "basic-reaction-scheduler-log",
+              "id": 1
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": []
+        },
+        {
+          "id": 10,
+          "frame": 15,
+          "targetFrame": 15,
+          "timeSeconds": 0.25,
+          "targetId": "enemy-0",
+          "targetName": "Shared empty target",
+          "pointKind": "observation",
+          "cause": "reaction-damage-application",
+          "eventType": "reactionDamage",
+          "eventPriority": 5,
+          "eventSequence": 11,
+          "intraEventSequence": 1,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 5,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 5
+            },
+            {
+              "kind": "reaction-damage-log",
+              "id": 3
+            },
+            {
+              "kind": "basic-reaction-scheduler-log",
+              "id": 3
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": []
+        },
+        {
+          "id": 11,
+          "frame": 15,
+          "targetFrame": 15,
+          "timeSeconds": 0.25,
+          "targetId": "enemy-0",
+          "targetName": "Shared empty target",
+          "pointKind": "mutation",
+          "cause": "reaction-aura-attachment",
+          "eventType": "reactionAuraAttachment",
+          "eventPriority": 5,
+          "eventSequence": 21,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "basic-reaction-scheduler-log",
+              "id": 4
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-pyro"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "frame": 15,
+          "targetFrame": 15,
+          "timeSeconds": 0.25,
+          "targetId": "enemy-0",
+          "targetName": "Shared empty target",
+          "pointKind": "mutation",
+          "cause": "reaction-aura-attachment",
+          "eventType": "reactionAuraAttachment",
+          "eventPriority": 5,
+          "eventSequence": 23,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [
+            {
+              "kind": "basic-reaction-scheduler-log",
+              "id": 5
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 2.2,
+              "sourceActorId": "anemo-cryo"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-cryo",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            },
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.76,
+              "expiresAtFrame": 765,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "anemo-pyro",
+                  "gaugeUnits": 1.76
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "sharedTargetFinalAura": [
+        {
+          "element": "cryo",
+          "gaugeUnits": 1.6544
+        },
+        {
+          "element": "pyro",
+          "gaugeUnits": 1.6544
+        }
+      ],
+      "canonicalSha256": {
+        "config": "eb2b2d72e6f2b9baf68b7a8e444537ecf8c506a8ad9b569c4e427ea697a29076",
+        "runManifest": "28d4e8422fda4709e6132d63b456cf3d07b0c1c7ae1783241eed3473271eceba",
+        "sharedTargetPropagations": "672bc79617f5da4eee21ef4131fdd28ab4c25e53303124c7b1f0fc1e2042b97b",
+        "sharedTargetSchedulerLog": "645d4be57800056632a7cff12e16c91e0d1d26ce33d4b69e406d97dc9eacbf8d",
+        "sharedTargetTimeline": "71976b2590c5796c9624babaded044c87d2f592ff6c28d6094a2f1b143d08a52",
+        "sharedTargetFinalAura": "9e64db7c752813768cc04563108a24118bced36eaaf79e69d7dd51f636a98ef4"
+      }
+    }
+  }
+}

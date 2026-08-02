@@ -3,27 +3,24 @@ import {
   assertTrustedSimulationResult,
   simulationResultSchema,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { AuraEngine } from "../aura";
-import {
-  calcCrystallizeShield,
-  CRYSTALLIZE_CONSTANTS
-} from "../crystallize";
+import { calcCrystallizeShield, CRYSTALLIZE_CONSTANTS } from "../crystallize";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icd: { mode: "no-icd-v1" as const }
+    icd: { mode: "no-icd-v1" as const },
   };
 }
 
 function expectCrystallizeMutationRejected(
   result: SimulationResult,
   mutate: (value: SimulationResult) => void,
-  expectedMessage?: RegExp
+  expectedMessage?: RegExp,
 ): void {
   const publicWire = structuredClone(result);
   mutate(publicWire);
@@ -31,19 +28,15 @@ function expectCrystallizeMutationRejected(
   expect(parsed.success).toBe(false);
   if (!parsed.success && expectedMessage !== undefined) {
     expect(
-      parsed.error.issues
-        .map((issue) => issue.message)
-        .join("\n")
+      parsed.error.issues.map((issue) => issue.message).join("\n"),
     ).toMatch(expectedMessage);
   }
 
   const trustedResult = structuredClone(result);
   mutate(trustedResult);
-  expect(() =>
-    assertTrustedSimulationResult(trustedResult)
-  ).toThrow(
+  expect(() => assertTrustedSimulationResult(trustedResult)).toThrow(
     expectedMessage ??
-      /Trusted SimulationResult 1\.50 integrity validation failed/
+      /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
 }
 
@@ -51,12 +44,12 @@ describe("AuraEngine Crystallize", () => {
   it("consumes 0.5x Aura, queues one shard, and keeps the exact fixed timings", () => {
     const audit = new AuraEngine({
       mode: "aura-v2",
-      initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+      initialAura: [{ element: "pyro", gaugeUnits: 1 }],
     }).processHit({
       frame: 0,
       sourceActorId: "geo",
       element: "geo",
-      application: noIcd(1)
+      application: noIcd(1),
     });
 
     expect(audit).toMatchObject({
@@ -81,20 +74,20 @@ describe("AuraEngine Crystallize", () => {
         earliestPickupFrame: 54,
         shardExpiresAtFrame: 923,
         shardDurationFrames: 900,
-        maxActiveShards: 3
-      }
+        maxActiveShards: 3,
+      },
     });
   });
 
   it("emits literal crystallizeHydro and schedules a Hydro shard without independent damage", () => {
     const audit = new AuraEngine({
       mode: "aura-v2",
-      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }],
     }).processHit({
       frame: 0,
       sourceActorId: "geo",
       element: "geo",
-      application: noIcd(1)
+      application: noIcd(1),
     });
 
     expect(audit).toMatchObject({
@@ -109,8 +102,8 @@ describe("AuraEngine Crystallize", () => {
         scheduled: true,
         shardSpawnFrame: 23,
         earliestPickupFrame: 54,
-        shardExpiresAtFrame: 923
-      }
+        shardExpiresAtFrame: 923,
+      },
     });
     expect(audit.transformativeReaction).toBeNull();
     expect(audit.periodicReaction).toBeNull();
@@ -123,21 +116,21 @@ describe("AuraEngine Crystallize", () => {
       initialAura: [
         { element: "pyro", gaugeUnits: 2 },
         { element: "hydro", gaugeUnits: 2 },
-        { element: "electro", gaugeUnits: 2 }
-      ]
+        { element: "electro", gaugeUnits: 2 },
+      ],
     });
     const hit = (frame: number) =>
       engine.processHit({
         frame,
         sourceActorId: "geo",
         element: "geo",
-        application: noIcd(1)
+        application: noIcd(1),
       });
 
     const first = hit(0);
     expect(first.reaction).toBe("crystallizeElectro");
     expect(first.auraConsumed).toEqual([
-      { element: "electro", gaugeUnits: 0.5 }
+      { element: "electro", gaugeUnits: 0.5 },
     ]);
     const blocked = hit(30);
     expect(blocked).toMatchObject({
@@ -150,8 +143,8 @@ describe("AuraEngine Crystallize", () => {
         blockedReason: "REACTION_QUEUE_GCD",
         nextAvailableFrame: 60,
         sourceGaugeUnitsSpent: 0,
-        auraConsumedGaugeUnits: 0
-      }
+        auraConsumedGaugeUnits: 0,
+      },
     });
     expect(hit(60).reaction).toBe("crystallizeElectro");
   });
@@ -159,76 +152,76 @@ describe("AuraEngine Crystallize", () => {
   it("creates a Cryo shard while consuming Frozen durability", () => {
     const engine = new AuraEngine({
       mode: "aura-v2",
-      initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+      initialAura: [{ element: "cryo", gaugeUnits: 1 }],
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "hydro",
       element: "hydro",
-      application: noIcd(1)
+      application: noIcd(1),
     });
     const audit = engine.processHit({
       frame: 1,
       sourceActorId: "geo",
       element: "geo",
-      application: noIcd(1)
+      application: noIcd(1),
     });
 
     expect(audit.reaction).toBe("crystallizeCryo");
     expect(audit.crystallizeReaction).toMatchObject({
       crystallizedElement: "cryo",
-      consumedAuraElement: "frozen"
+      consumedAuraElement: "frozen",
     });
     expect(audit.frozenReaction).toMatchObject({
       operation: "consume",
-      consumedGaugeUnits: 0.5
+      consumedGaugeUnits: 0.5,
     });
   });
 
   it("stops Electro-Charged when Crystallize removes a coexistence Aura", () => {
     const engine = new AuraEngine({
       mode: "aura-v2",
-      initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+      initialAura: [{ element: "hydro", gaugeUnits: 1 }],
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "electro",
       element: "electro",
-      application: noIcd(1)
+      application: noIcd(1),
     });
     const audit = engine.processHit({
       frame: 1,
       sourceActorId: "geo",
       element: "geo",
-      application: noIcd(2)
+      application: noIcd(2),
     });
 
     expect(audit.reaction).toBe("crystallizeElectro");
     expect(audit.periodicReaction).toMatchObject({
       reaction: "electroCharged",
-      operation: "stop"
+      operation: "stop",
     });
     expect(audit.auraAfter).toEqual([
-      expect.objectContaining({ element: "hydro" })
+      expect.objectContaining({ element: "hydro" }),
     ]);
   });
 
   it("reports mapped Pyro durability after partially consuming ordinary Pyro and Burning", () => {
     const engine = new AuraEngine({
       mode: "aura-v4",
-      initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+      initialAura: [{ element: "dendro", gaugeUnits: 1 }],
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "pyro",
       element: "pyro",
-      application: noIcd(1)
+      application: noIcd(1),
     });
     const audit = engine.processHit({
       frame: 1,
       sourceActorId: "geo",
       element: "geo",
-      application: noIcd(1)
+      application: noIcd(1),
     });
 
     expect(audit.crystallizeReaction).toMatchObject({
@@ -236,22 +229,21 @@ describe("AuraEngine Crystallize", () => {
       consumedAuraElement: "pyro",
       auraGaugeUnitsBefore: 2,
       auraConsumedGaugeUnits: 0.5,
-      auraGaugeUnitsAfter: 1.5
+      auraGaugeUnitsAfter: 1.5,
     });
     expect(audit.auraAfter).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          element: "pyro"
+          element: "pyro",
         }),
         expect.objectContaining({
           element: "burning",
-          gaugeUnits: 1.5
-        })
-      ])
+          gaugeUnits: 1.5,
+        }),
+      ]),
     );
     expect(
-      audit.auraAfter?.find((entry) => entry.element === "pyro")
-        ?.gaugeUnits
+      audit.auraAfter?.find((entry) => entry.element === "pyro")?.gaugeUnits,
     ).toBeCloseTo(0.298596491228, 12);
   });
 });
@@ -266,24 +258,17 @@ describe("Crystallize shield formula", () => {
       elementalMastery: 0,
       baseHp: 1851.0603,
       elementalMasteryBonus: 0,
-      generalAbsorption: 1851.0603
+      generalAbsorption: 1851.0603,
     });
-    expect(zeroEm.matchingElementAbsorption).toBeCloseTo(
-      4627.65075,
-      11
-    );
-    expect(zeroEm.geoDamageAbsorption).toBeCloseTo(
-      2776.59045,
-      11
-    );
+    expect(zeroEm.matchingElementAbsorption).toBeCloseTo(4627.65075, 11);
+    expect(zeroEm.geoDamageAbsorption).toBeCloseTo(2776.59045, 11);
     expect(oneHundredEm.elementalMasteryBonus).toBeCloseTo(
       (40 / 9) * (100 / 1500),
-      12
+      12,
     );
     expect(oneHundredEm.generalAbsorption).toBeCloseTo(
-      1851.0603 *
-        (1 + oneHundredEm.elementalMasteryBonus),
-      12
+      1851.0603 * (1 + oneHundredEm.elementalMasteryBonus),
+      12,
     );
   });
 });
@@ -292,7 +277,7 @@ function makeCrystallizeConfig({
   triggerFrames = [0],
   pickupFrames = [53, 54],
   duration = 20,
-  emBuffAtSpawn = false
+  emBuffAtSpawn = false,
 }: {
   triggerFrames?: number[];
   pickupFrames?: number[];
@@ -314,9 +299,9 @@ function makeCrystallizeConfig({
           name: "结晶目标",
           position: { x: 10, y: 5 },
           hitboxRadius: 1,
-          initialAura: [{ element: "pyro", gaugeUnits: 4 }]
-        }
-      ]
+          initialAura: [{ element: "pyro", gaugeUnits: 4 }],
+        },
+      ],
     },
     characters: [
       {
@@ -328,9 +313,9 @@ function makeCrystallizeConfig({
         stats: {
           ...neutralStats,
           baseAtk: 1000,
-          em: 100
-        }
-      }
+          em: 100,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v2" },
@@ -358,10 +343,10 @@ function makeCrystallizeConfig({
               element: "geo",
               targeting: {
                 targetId: "enemy-0",
-                outcome: "landed"
+                outcome: "landed",
               },
-              application: noIcd(1)
-            }
+              application: noIcd(1),
+            },
           ],
           ...(emBuffAtSpawn
             ? {
@@ -373,37 +358,34 @@ function makeCrystallizeConfig({
                     stat: "em" as const,
                     value: 200,
                     startFrame: 10,
-                    durationFrames: 30
-                  }
-                ]
+                    durationFrames: 30,
+                  },
+                ],
               }
-            : {})
-        }
+            : {}),
+        },
       ],
       commands: [
         ...triggerFrames.map((atFrame) => ({
           type: "skill" as const,
           actorId: "geo",
           abilityId: "geo-skill",
-          atFrame
+          atFrame,
         })),
         ...pickupFrames.map((atFrame) => ({
           type: "pickUpCrystallize" as const,
           element: "pyro" as const,
-          atFrame
-        }))
-      ].sort(
-        (left, right) =>
-          (left.atFrame ?? 0) - (right.atFrame ?? 0)
-      )
-    }
+          atFrame,
+        })),
+      ].sort((left, right) => (left.atFrame ?? 0) - (right.atFrame ?? 0)),
+    },
   };
 }
 
 describe("Crystallize shard and shield simulation", () => {
   it("logs spawn, too-early pickup, exact pickup, shield, and expiry", () => {
     const result = simulate(makeCrystallizeConfig(), {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     const direct = result.damageEvents[0]!;
 
@@ -413,9 +395,9 @@ describe("Crystallize shard and shield simulation", () => {
       reactionAudit: {
         crystallizeReaction: {
           shardSpawnFrame: 23,
-          earliestPickupFrame: 54
-        }
-      }
+          earliestPickupFrame: 54,
+        },
+      },
     });
     expect(
       result.crystallizeShardLog.map((entry) => ({
@@ -424,8 +406,8 @@ describe("Crystallize shard and shield simulation", () => {
         success: entry.success,
         reason: entry.reason,
         shardId: entry.shardId,
-        shieldLogId: entry.shieldLogId
-      }))
+        shieldLogId: entry.shieldLogId,
+      })),
     ).toEqual([
       {
         operation: "spawn",
@@ -433,7 +415,7 @@ describe("Crystallize shard and shield simulation", () => {
         success: true,
         reason: "SPAWNED",
         shardId: 0,
-        shieldLogId: null
+        shieldLogId: null,
       },
       {
         operation: "pickup-attempt",
@@ -441,7 +423,7 @@ describe("Crystallize shard and shield simulation", () => {
         success: false,
         reason: "TOO_EARLY",
         shardId: 0,
-        shieldLogId: null
+        shieldLogId: null,
       },
       {
         operation: "pickup",
@@ -449,8 +431,8 @@ describe("Crystallize shard and shield simulation", () => {
         success: true,
         reason: "PICKED_UP",
         shardId: 0,
-        shieldLogId: 0
-      }
+        shieldLogId: 0,
+      },
     ]);
     expect(result.crystallizeShardLog[0]?.position).not.toBeNull();
     expect(result.crystallizeShardLog[0]?.spawnRadius).toBe(1.5);
@@ -464,34 +446,34 @@ describe("Crystallize shard and shield simulation", () => {
         sourceCharacterLevel: 90,
         sourceElementalMastery: 100,
         expiresAtFrame: 960,
-        previousShieldId: null
+        previousShieldId: null,
       },
       {
         operation: "expire",
         frame: 960,
         shieldId: 0,
-        currentBaseHp: 0
-      }
+        currentBaseHp: 0,
+      },
     ]);
     expect(result.crystallizeShieldTimeline).toMatchObject([
       {
         frame: 54,
         operation: "add",
         shieldId: 0,
-        element: "pyro"
+        element: "pyro",
       },
       {
         frame: 960,
         operation: "expire",
         shieldId: null,
         element: null,
-        generalAbsorption: 0
-      }
+        generalAbsorption: 0,
+      },
     ]);
     expect(result.auraTimeline[0]).toMatchObject({
       reaction: "crystallizePyro",
       auraApplied: [{ element: "geo", gaugeUnits: 1 }],
-      auraConsumed: [{ element: "pyro", gaugeUnits: 0.5 }]
+      auraConsumed: [{ element: "pyro", gaugeUnits: 0.5 }],
     });
   });
 
@@ -499,37 +481,35 @@ describe("Crystallize shard and shield simulation", () => {
     const result = simulate(
       makeCrystallizeConfig({
         pickupFrames: [54],
-        emBuffAtSpawn: true
+        emBuffAtSpawn: true,
       }),
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
 
     expect(result.crystallizeShardLog[0]).toMatchObject({
       operation: "spawn",
       frame: 23,
-      sourceElementalMastery: 300
+      sourceElementalMastery: 300,
     });
     expect(result.crystallizeShieldLog[0]).toMatchObject({
       operation: "add",
       frame: 54,
-      sourceElementalMastery: 300
+      sourceElementalMastery: 300,
     });
-    expect(
-      simulationResultSchema.safeParse(result).success
-    ).toBe(true);
+    expect(simulationResultSchema.safeParse(result).success).toBe(true);
     expect(assertTrustedSimulationResult(result)).toBe(result);
   });
 
   it("keeps shard positions reproducible and audits a pickup before spawn", () => {
     const config = makeCrystallizeConfig({
       pickupFrames: [22],
-      duration: 2
+      duration: 2,
     });
     const first = simulate(config, { critMode: "noCrit" });
     const second = simulate(config, { critMode: "noCrit" });
     const otherSeed = simulate(
       { ...config, randomSeed: `${config.randomSeed}-other` },
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
 
     expect(first.crystallizeShardLog).toMatchObject([
@@ -538,19 +518,19 @@ describe("Crystallize shard and shield simulation", () => {
         frame: 22,
         shardId: null,
         success: false,
-        reason: "NO_MATCHING_SHARD"
+        reason: "NO_MATCHING_SHARD",
       },
       {
         operation: "spawn",
         frame: 23,
-        shardId: 0
-      }
+        shardId: 0,
+      },
     ]);
     expect(first.crystallizeShardLog[1]?.position).toEqual(
-      second.crystallizeShardLog[1]?.position
+      second.crystallizeShardLog[1]?.position,
     );
     expect(first.crystallizeShardLog[1]?.position).not.toEqual(
-      otherSeed.crystallizeShardLog[1]?.position
+      otherSeed.crystallizeShardLog[1]?.position,
     );
   });
 
@@ -559,9 +539,9 @@ describe("Crystallize shard and shield simulation", () => {
       makeCrystallizeConfig({
         triggerFrames: [0, 60, 120, 180],
         pickupFrames: [],
-        duration: 5
+        duration: 5,
       }),
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
 
     expect(
@@ -569,8 +549,8 @@ describe("Crystallize shard and shield simulation", () => {
         operation: entry.operation,
         frame: entry.frame,
         shardId: entry.shardId,
-        reason: entry.reason
-      }))
+        reason: entry.reason,
+      })),
     ).toEqual([
       { operation: "spawn", frame: 23, shardId: 0, reason: "SPAWNED" },
       { operation: "spawn", frame: 83, shardId: 1, reason: "SPAWNED" },
@@ -579,9 +559,9 @@ describe("Crystallize shard and shield simulation", () => {
         operation: "evict",
         frame: 203,
         shardId: 0,
-        reason: "ACTIVE_SHARD_LIMIT"
+        reason: "ACTIVE_SHARD_LIMIT",
       },
-      { operation: "spawn", frame: 203, shardId: 3, reason: "SPAWNED" }
+      { operation: "spawn", frame: 203, shardId: 3, reason: "SPAWNED" },
     ]);
   });
 
@@ -590,9 +570,9 @@ describe("Crystallize shard and shield simulation", () => {
       makeCrystallizeConfig({
         triggerFrames: [0, 60],
         pickupFrames: [54, 114],
-        duration: 18
+        duration: 18,
       }),
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
 
     expect(
@@ -600,37 +580,36 @@ describe("Crystallize shard and shield simulation", () => {
         operation: entry.operation,
         frame: entry.frame,
         shieldId: entry.shieldId,
-        previousShieldId: entry.previousShieldId
-      }))
+        previousShieldId: entry.previousShieldId,
+      })),
     ).toEqual([
       {
         operation: "add",
         frame: 54,
         shieldId: 0,
-        previousShieldId: null
+        previousShieldId: null,
       },
       {
         operation: "overwrite",
         frame: 114,
         shieldId: 1,
-        previousShieldId: 0
+        previousShieldId: 0,
       },
       {
         operation: "expire",
-        frame:
-          114 + CRYSTALLIZE_CONSTANTS.shieldDurationFrames,
+        frame: 114 + CRYSTALLIZE_CONSTANTS.shieldDurationFrames,
         shieldId: 1,
-        previousShieldId: null
-      }
+        previousShieldId: null,
+      },
     ]);
   });
 
   it("accepts the any-element pickup selector", () => {
     const config = makeCrystallizeConfig({
-      pickupFrames: [54]
+      pickupFrames: [54],
     });
     const pickup = config.timeline?.commands.find(
-      (command) => command.type === "pickUpCrystallize"
+      (command) => command.type === "pickUpCrystallize",
     );
     if (pickup?.type !== "pickUpCrystallize") {
       throw new Error("expected a Crystallize pickup command");
@@ -643,8 +622,8 @@ describe("Crystallize shard and shield simulation", () => {
       {
         operation: "pickup",
         element: "pyro",
-        success: true
-      }
+        success: true,
+      },
     ]);
   });
 
@@ -653,33 +632,32 @@ describe("Crystallize shard and shield simulation", () => {
       makeCrystallizeConfig({
         triggerFrames: [0, 60],
         pickupFrames: [54, 114],
-        duration: 18
+        duration: 18,
       }),
-      { critMode: "noCrit" }
+      { critMode: "noCrit" },
     );
 
     expectCrystallizeMutationRejected(result, (mutation) => {
       const pickup = mutation.crystallizeShardLog.find(
-        (row) => row.operation === "pickup"
+        (row) => row.operation === "pickup",
       )!;
       pickup.pickupCommandIndex = 0;
     });
     expectCrystallizeMutationRejected(result, (mutation) => {
-      const pickupIndex =
-        mutation.crystallizeShardLog.findIndex(
-          (row) => row.operation === "pickup"
-        );
+      const pickupIndex = mutation.crystallizeShardLog.findIndex(
+        (row) => row.operation === "pickup",
+      );
       mutation.crystallizeShardLog.splice(pickupIndex, 1);
     });
     expectCrystallizeMutationRejected(result, (mutation) => {
       const overwrite = mutation.crystallizeShieldLog.find(
-        (row) => row.operation === "overwrite"
+        (row) => row.operation === "overwrite",
       )!;
       overwrite.operation = "add";
     });
     expectCrystallizeMutationRejected(result, (mutation) => {
       const overwrite = mutation.crystallizeShieldLog.find(
-        (row) => row.operation === "overwrite"
+        (row) => row.operation === "overwrite",
       )!;
       overwrite.previousShieldId = null;
     });
@@ -700,35 +678,32 @@ describe("Crystallize shard and shield simulation", () => {
         for (const shield of mutation.crystallizeShieldLog) {
           const calculation = calcCrystallizeShield(
             shield.sourceCharacterLevel,
-            777
+            777,
           );
           shield.sourceElementalMastery = 777;
           shield.baseHp = calculation.baseHp;
-          shield.elementalMasteryBonus =
-            calculation.elementalMasteryBonus;
-          shield.generalAbsorption =
-            calculation.generalAbsorption;
+          shield.elementalMasteryBonus = calculation.elementalMasteryBonus;
+          shield.generalAbsorption = calculation.generalAbsorption;
           shield.matchingElementAbsorption =
             calculation.matchingElementAbsorption;
-          shield.geoDamageAbsorption =
-            calculation.geoDamageAbsorption;
+          shield.geoDamageAbsorption = calculation.geoDamageAbsorption;
           shield.currentBaseHp =
-            shield.operation === "add" ||
-            shield.operation === "overwrite"
+            shield.operation === "add" || shield.operation === "overwrite"
               ? calculation.baseHp
               : 0;
         }
-        for (const [index, point] of
-          mutation.crystallizeShieldTimeline.entries()) {
+        for (const [
+          index,
+          point,
+        ] of mutation.crystallizeShieldTimeline.entries()) {
           const shield = mutation.crystallizeShieldLog[index]!;
           point.generalAbsorption =
             point.shieldId === null
               ? 0
-              : shield.currentBaseHp *
-                (1 + shield.elementalMasteryBonus);
+              : shield.currentBaseHp * (1 + shield.elementalMasteryBonus);
         }
       },
-      /spawn-frame elemental mastery/
+      /spawn-frame elemental mastery/,
     );
     expectCrystallizeMutationRejected(
       result,
@@ -737,33 +712,30 @@ describe("Crystallize shard and shield simulation", () => {
           const forgedBaseHp = shield.baseHp + 123;
           shield.baseHp = forgedBaseHp;
           shield.generalAbsorption =
-            forgedBaseHp *
-            (1 + shield.elementalMasteryBonus);
-          shield.matchingElementAbsorption =
-            shield.generalAbsorption * 2.5;
-          shield.geoDamageAbsorption =
-            shield.generalAbsorption * 1.5;
+            forgedBaseHp * (1 + shield.elementalMasteryBonus);
+          shield.matchingElementAbsorption = shield.generalAbsorption * 2.5;
+          shield.geoDamageAbsorption = shield.generalAbsorption * 1.5;
           shield.currentBaseHp =
-            shield.operation === "add" ||
-            shield.operation === "overwrite"
+            shield.operation === "add" || shield.operation === "overwrite"
               ? forgedBaseHp
               : 0;
         }
-        for (const [index, point] of
-          mutation.crystallizeShieldTimeline.entries()) {
+        for (const [
+          index,
+          point,
+        ] of mutation.crystallizeShieldTimeline.entries()) {
           const shield = mutation.crystallizeShieldLog[index]!;
           point.generalAbsorption =
             point.shieldId === null
               ? 0
-              : shield.currentBaseHp *
-                (1 + shield.elementalMasteryBonus);
+              : shield.currentBaseHp * (1 + shield.elementalMasteryBonus);
         }
       },
-      /formula baseHp/
+      /formula baseHp/,
     );
     expectCrystallizeMutationRejected(result, (mutation) => {
       const expiry = mutation.crystallizeShieldLog.find(
-        (row) => row.operation === "expire"
+        (row) => row.operation === "expire",
       )!;
       expiry.frame -= 1;
     });
@@ -771,8 +743,7 @@ describe("Crystallize shard and shield simulation", () => {
       mutation.crystallizeShieldTimeline[0]!.id += 1;
     });
     expectCrystallizeMutationRejected(result, (mutation) => {
-      mutation.crystallizeShieldTimeline[0]!.generalAbsorption +=
-        1;
+      mutation.crystallizeShieldTimeline[0]!.generalAbsorption += 1;
     });
   });
 });

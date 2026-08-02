@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import {
   durinMeltPreset,
-  legalTimelineDemoPreset
+  legalTimelineDemoPreset,
 } from "@genshin-dps-lab/game-data/presets";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
@@ -11,7 +11,9 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 
 function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
@@ -33,21 +35,21 @@ function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
       return {
         gaugeUnits: record.gaugeUnits,
         icdTag: "legacy-no-icd",
-        icdGroup: "no-icd"
+        icdGroup: "no-icd",
       };
     }
     if (icd.mode === "legacy-boolean-profile-v1") {
       return {
         gaugeUnits: record.gaugeUnits,
         icdTag: icd.icdTag,
-        icdGroup: icd.profileId
+        icdGroup: icd.profileId,
       };
     }
     if (icd.mode === "fixed-gcsim-application-v1") {
       return {
         gaugeUnits: record.gaugeUnits,
         icdTag: icd.icdTag,
-        icdGroup: icd.groupId
+        icdGroup: icd.groupId,
       };
     }
   }
@@ -55,13 +57,13 @@ function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
   return Object.fromEntries(
     Object.entries(record).map(([key, entry]) => [
       key,
-      projectCurrentApplicationsToLegacyWire(entry)
-    ])
+      projectCurrentApplicationsToLegacyWire(entry),
+    ]),
   );
 }
 
 test("runs, imports, explores, and exports the compatibility preset", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
 
@@ -70,15 +72,15 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await expect(page.locator("#metricGrid")).toContainText("269");
   await expect(page.locator("#metricGrid")).toContainText("跳过行动");
   await expect(page.locator("#notice")).toContainText("provisional");
-  await expect(
-    page.locator("#characterBreakdown .breakdown-row")
-  ).toHaveCount(4);
+  await expect(page.locator("#characterBreakdown .breakdown-row")).toHaveCount(
+    4,
+  );
   await expect(page.locator("#characterSummary")).toContainText(
-    "4 名角色产生伤害"
+    "4 名角色产生伤害",
   );
   for (const characterName of ["杜林", "尼可", "洛恩", "茜特菈莉"]) {
     await expect(page.locator("#characterBreakdown")).toContainText(
-      characterName
+      characterName,
     );
   }
   await expect(page.locator("#skillTableBody tr")).toHaveCount(7);
@@ -92,57 +94,63 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(durinMeltPreset))
+    buffer: Buffer.from(JSON.stringify(durinMeltPreset)),
   });
   await expect(page.locator("#notice")).toContainText("黑杜林融化");
   const importedTargetTaskModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().targetTaskModel
+    () => window.GenshinDpsLab.getConfig().targetTaskModel,
   );
   expect(importedTargetTaskModel).toEqual({
-    mode: "legacy-event-heap-v1"
+    mode: "legacy-event-heap-v1",
   });
   const importedReactionDeliveryModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().reactionDeliveryModel
+    () => window.GenshinDpsLab.getConfig().reactionDeliveryModel,
   );
   expect(importedReactionDeliveryModel).toEqual({
-    mode: "deferred-event-heap-v1"
+    mode: "deferred-event-heap-v1",
   });
   const importedReactionFormulaModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().reactionFormulaModel
+    () => window.GenshinDpsLab.getConfig().reactionFormulaModel,
   );
   expect(importedReactionFormulaModel).toEqual({
     mode: "classic-formula-profile-v1",
-    profileId: "gcsim-b4ae769-classic-provisional-v1"
+    profileId: "gcsim-b4ae769-classic-provisional-v1",
   });
   const importedDirectDamageGroupModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().directDamageGroupModel
+    () => window.GenshinDpsLab.getConfig().directDamageGroupModel,
   );
   expect(importedDirectDamageGroupModel).toEqual({
     mode: "fixed-gcsim-direct-damage-group-v1",
-    profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
   });
   const importedElementalApplicationIcdModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().elementalApplicationIcdModel
+    () => window.GenshinDpsLab.getConfig().elementalApplicationIcdModel,
   );
   expect(importedElementalApplicationIcdModel).toEqual({
     mode: "fixed-gcsim-elemental-application-v1",
-    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   });
   const importedReactionOwnedElementalApplicationModel = await page.evaluate(
     () =>
-      window.GenshinDpsLab.getConfig()
-        .reactionOwnedElementalApplicationModel
+      window.GenshinDpsLab.getConfig().reactionOwnedElementalApplicationModel,
   );
   expect(importedReactionOwnedElementalApplicationModel).toEqual({
     mode: "fixed-gcsim-reaction-owned-application-v2",
-    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+    policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   });
   const importedReactionDamageGroupModel = await page.evaluate(
-    () => window.GenshinDpsLab.getConfig().reactionDamageGroupModel
+    () => window.GenshinDpsLab.getConfig().reactionDamageGroupModel,
   );
   expect(importedReactionDamageGroupModel).toEqual({
     mode: "fixed-gcsim-reaction-damage-task-order-v2",
-    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
+    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
+  });
+  const importedBasicReactionSchedulerModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().basicReactionSchedulerModel,
+  );
+  expect(importedBasicReactionSchedulerModel).toEqual({
+    mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+    policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
@@ -152,9 +160,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await expect(page.locator("#damageCurveCanvas")).toBeVisible();
   await expect(page.locator("#timelineLegend")).toContainText("杜林");
   await expect(page.locator("#curveLegend")).toContainText("全队累计");
-  await expect(page.locator("#curveLegend")).toContainText(
-    "直接伤害累计"
-  );
+  await expect(page.locator("#curveLegend")).toContainText("直接伤害累计");
   await expect(page.locator("#curveLegend")).toContainText("杜林累计");
   await expect(page.locator("#curveLegend")).toContainText("洛恩累计");
 
@@ -182,7 +188,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   const downloadedPath = await download.path();
   expect(downloadedPath).not.toBeNull();
   const exportedConfig = JSON.parse(
-    await readFile(downloadedPath!, "utf8")
+    await readFile(downloadedPath!, "utf8"),
   ) as {
     targetTaskModel?: unknown;
     reactionDeliveryModel?: unknown;
@@ -191,42 +197,44 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     elementalApplicationIcdModel?: unknown;
     reactionOwnedElementalApplicationModel?: unknown;
     reactionDamageGroupModel?: unknown;
+    basicReactionSchedulerModel?: unknown;
   };
-  expect(exportedConfig.targetTaskModel).toEqual(
-    importedTargetTaskModel
-  );
+  expect(exportedConfig.targetTaskModel).toEqual(importedTargetTaskModel);
   expect(exportedConfig.reactionDeliveryModel).toEqual(
-    importedReactionDeliveryModel
+    importedReactionDeliveryModel,
   );
   expect(exportedConfig.reactionFormulaModel).toEqual(
-    importedReactionFormulaModel
+    importedReactionFormulaModel,
   );
   expect(exportedConfig.directDamageGroupModel).toEqual(
-    importedDirectDamageGroupModel
+    importedDirectDamageGroupModel,
   );
   expect(exportedConfig.elementalApplicationIcdModel).toEqual(
-    importedElementalApplicationIcdModel
+    importedElementalApplicationIcdModel,
   );
   expect(exportedConfig.reactionOwnedElementalApplicationModel).toEqual(
-    importedReactionOwnedElementalApplicationModel
+    importedReactionOwnedElementalApplicationModel,
   );
   expect(exportedConfig.reactionDamageGroupModel).toEqual(
-    importedReactionDamageGroupModel
+    importedReactionDamageGroupModel,
+  );
+  expect(exportedConfig.basicReactionSchedulerModel).toEqual(
+    importedBasicReactionSchedulerModel,
   );
 });
 
 test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   const historicalConfig = projectCurrentApplicationsToLegacyWire(
-    structuredClone(durinMeltPreset)
+    structuredClone(durinMeltPreset),
   ) as Record<string, unknown>;
   historicalConfig.schemaVersion = "1.38.0";
   historicalConfig.engineVersion = "1.38.0-target-reactable-phase";
   historicalConfig.meta = {
     ...(historicalConfig.meta as Record<string, unknown>),
-    name: "1.38 迁移验收"
+    name: "1.38 迁移验收",
   };
   delete historicalConfig.reactionDeliveryModel;
   delete historicalConfig.electroChargedPropagationModel;
@@ -235,11 +243,12 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
   delete historicalConfig.elementalApplicationIcdModel;
   delete historicalConfig.reactionOwnedElementalApplicationModel;
   delete historicalConfig.reactionDamageGroupModel;
+  delete historicalConfig.basicReactionSchedulerModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(historicalConfig))
+    buffer: Buffer.from(JSON.stringify(historicalConfig)),
   });
 
   await expect(page.locator("#jsonError")).toBeHidden();
@@ -250,77 +259,80 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       schemaVersion: config.schemaVersion,
       engineVersion: config.engineVersion,
       reactionDeliveryModel: config.reactionDeliveryModel,
-      electroChargedPropagationModel:
-        config.electroChargedPropagationModel,
+      electroChargedPropagationModel: config.electroChargedPropagationModel,
       reactionFormulaModel: config.reactionFormulaModel,
       directDamageGroupModel: config.directDamageGroupModel,
-      elementalApplicationIcdModel:
-        config.elementalApplicationIcdModel,
+      elementalApplicationIcdModel: config.elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         config.reactionOwnedElementalApplicationModel,
-      reactionDamageGroupModel: config.reactionDamageGroupModel
+      reactionDamageGroupModel: config.reactionDamageGroupModel,
+      basicReactionSchedulerModel: config.basicReactionSchedulerModel,
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.50.0",
-    engineVersion: "1.50.0-reaction-damage-reset-boundary",
+    schemaVersion: "1.51.0",
+    engineVersion: "1.51.0-basic-reaction-scheduler",
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     electroChargedPropagationModel: {
-      mode: "single-target-v1"
+      mode: "single-target-v1",
     },
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
-      profileId: "gcsim-b4ae769-classic-provisional-v1"
+      profileId: "gcsim-b4ae769-classic-provisional-v1",
     },
     directDamageGroupModel: {
       mode: "fixed-gcsim-direct-damage-group-v1",
-      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
     },
     elementalApplicationIcdModel: {
       mode: "fixed-gcsim-elemental-application-v1",
-      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
     },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
     },
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
-    }
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+    },
+    basicReactionSchedulerModel: {
+      mode: "legacy-immediate-basic-reaction-scheduler-v1",
+      policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+    },
   });
 });
 
 test("rejects a 1.38 wire polluted by the current reaction formula model", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   const pollutedHistoricalConfig = projectCurrentApplicationsToLegacyWire(
-    structuredClone(durinMeltPreset)
+    structuredClone(durinMeltPreset),
   ) as Record<string, unknown>;
   pollutedHistoricalConfig.schemaVersion = "1.38.0";
-  pollutedHistoricalConfig.engineVersion =
-    "1.38.0-target-reactable-phase";
+  pollutedHistoricalConfig.engineVersion = "1.38.0-target-reactable-phase";
   delete pollutedHistoricalConfig.reactionDeliveryModel;
   delete pollutedHistoricalConfig.electroChargedPropagationModel;
   delete pollutedHistoricalConfig.directDamageGroupModel;
   delete pollutedHistoricalConfig.elementalApplicationIcdModel;
   delete pollutedHistoricalConfig.reactionOwnedElementalApplicationModel;
   delete pollutedHistoricalConfig.reactionDamageGroupModel;
+  delete pollutedHistoricalConfig.basicReactionSchedulerModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(pollutedHistoricalConfig))
+    buffer: Buffer.from(JSON.stringify(pollutedHistoricalConfig)),
   });
 
   await expect(page.locator("#jsonError")).toContainText(
-    "reactionFormulaModel"
+    "reactionFormulaModel",
   );
   await expect(page.locator("#jsonError")).toContainText(
-    'schemaVersion "1.38.0" does not support reaction-formula profile selection'
+    'schemaVersion "1.38.0" does not support reaction-formula profile selection',
   );
 });
 
@@ -332,7 +344,7 @@ test("shows a field path for an invalid config", async ({ page }) => {
   const config = JSON.parse(value) as Record<string, unknown>;
   config.enemy = {
     ...(config.enemy as Record<string, unknown>),
-    level: 999
+    level: 999,
   };
   await editor.fill(JSON.stringify(config, null, 2));
   await page.getByRole("button", { name: "应用并运行" }).click();
@@ -340,14 +352,14 @@ test("shows a field path for an invalid config", async ({ page }) => {
 });
 
 test("locks the scalar resistance control when an elemental table is active", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   const config = await page.evaluate(() => {
     const nextConfig = structuredClone(window.GenshinDpsLab.getConfig());
     nextConfig.meta = {
       ...nextConfig.meta,
-      name: "逐元素敌方抗性 · 浏览器验收"
+      name: "逐元素敌方抗性 · 浏览器验收",
     };
     nextConfig.enemy.resistances = {
       pyro: 0.47,
@@ -357,7 +369,7 @@ test("locks the scalar resistance control when an elemental table is active", as
       anemo: 0.24,
       geo: 0.3,
       dendro: 0.36,
-      physical: 0.42
+      physical: 0.42,
     };
     return nextConfig;
   });
@@ -365,31 +377,31 @@ test("locks the scalar resistance control when an elemental table is active", as
   await page.locator("#importInput").setInputFiles({
     name: "elemental-enemy-resistance.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
   const resistanceInput = page.locator("#resInput");
   await expect(resistanceInput).toBeDisabled();
   await expect(resistanceInput).toHaveAttribute(
     "title",
-    "逐元素抗性由 enemy.resistances JSON 配置控制"
+    "逐元素抗性由 enemy.resistances JSON 配置控制",
   );
   await expect(page.locator("#resModeHint")).toContainText(
-    "逐元素抗性表已启用"
+    "逐元素抗性表已启用",
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.50.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.51.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.50.0-reaction-damage-reset-boundary"
+    "engine 1.51.0-basic-reaction-scheduler",
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const pyroHit = result?.damageEvents.find(
-      (event) => event.element === "pyro"
+      (event) => event.element === "pyro",
     );
     const cryoHit = result?.damageEvents.find(
-      (event) => event.element === "cryo"
+      (event) => event.element === "cryo",
     );
     return result
       ? {
@@ -398,7 +410,7 @@ test("locks the scalar resistance control when an elemental table is active", as
           pyroBaseResistance:
             pyroHit?.enemyStateBeforeHit.baseResistance ?? null,
           cryoBaseResistance:
-            cryoHit?.enemyStateBeforeHit.baseResistance ?? null
+            cryoHit?.enemyStateBeforeHit.baseResistance ?? null,
         }
       : null;
   });
@@ -413,21 +425,21 @@ test("locks the scalar resistance control when an elemental table is active", as
       anemo: 0.24,
       geo: 0.3,
       dendro: 0.36,
-      physical: 0.42
+      physical: 0.42,
     },
     pyroBaseResistance: 0.47,
-    cryoBaseResistance: -0.2
+    cryoBaseResistance: -0.2,
   });
 
   await page.locator("#presetSelect").selectOption({ index: 1 });
   await expect(resistanceInput).toBeEnabled();
   await expect(page.locator("#resModeHint")).toContainText(
-    "当前作用于：敌人 0"
+    "当前作用于：敌人 0",
   );
 });
 
 test("disables an unused shared scalar for target-level resistance tables and identifies mixed consumers", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   const targetTableConfig = await page.evaluate(() => {
@@ -435,7 +447,7 @@ test("disables an unused shared scalar for target-level resistance tables and id
     delete nextConfig.enemy.resistances;
     nextConfig.meta = {
       ...nextConfig.meta,
-      name: "目标级逐元素抗性 · 浏览器验收"
+      name: "目标级逐元素抗性 · 浏览器验收",
     };
     nextConfig.enemy.targets = [
       {
@@ -449,9 +461,9 @@ test("disables an unused shared scalar for target-level resistance tables and id
           anemo: 0.24,
           geo: 0.3,
           dendro: 0.36,
-          physical: 0.42
-        }
-      }
+          physical: 0.42,
+        },
+      },
     ];
     return nextConfig;
   });
@@ -459,27 +471,27 @@ test("disables an unused shared scalar for target-level resistance tables and id
   await page.locator("#importInput").setInputFiles({
     name: "target-elemental-enemy-resistance.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(targetTableConfig))
+    buffer: Buffer.from(JSON.stringify(targetTableConfig)),
   });
 
   const resistanceInput = page.locator("#resInput");
   await expect(resistanceInput).toBeDisabled();
   await expect(resistanceInput).toHaveAttribute(
     "title",
-    "所有目标已有目标级抗性覆盖；共享标量当前不参与伤害"
+    "所有目标已有目标级抗性覆盖；共享标量当前不参与伤害",
   );
   await expect(page.locator("#resModeHint")).toContainText(
-    "共享标量当前不参与伤害"
+    "共享标量当前不参与伤害",
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
   const targetAudit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const pyroHit = result?.damageEvents.find(
-      (event) => event.element === "pyro"
+      (event) => event.element === "pyro",
     );
     const cryoHit = result?.damageEvents.find(
-      (event) => event.element === "cryo"
+      (event) => event.element === "cryo",
     );
     return result
       ? {
@@ -487,15 +499,14 @@ test("disables an unused shared scalar for target-level resistance tables and id
           pyroBaseResistance:
             pyroHit?.enemyStateBeforeHit.baseResistance ?? null,
           cryoBaseResistance:
-            cryoHit?.enemyStateBeforeHit.baseResistance ?? null
+            cryoHit?.enemyStateBeforeHit.baseResistance ?? null,
         }
       : null;
   });
   expect(targetAudit).toEqual({
-    resolvedTable:
-      targetTableConfig.enemy.targets?.[0]?.resistances,
+    resolvedTable: targetTableConfig.enemy.targets?.[0]?.resistances,
     pyroBaseResistance: 0.47,
-    cryoBaseResistance: -0.2
+    cryoBaseResistance: -0.2,
   });
 
   const mixedConfig = structuredClone(targetTableConfig);
@@ -503,37 +514,35 @@ test("disables an unused shared scalar for target-level resistance tables and id
     ...targetTableConfig.enemy.targets!,
     {
       id: "enemy-1",
-      name: "继承共享标量的敌人"
-    }
+      name: "继承共享标量的敌人",
+    },
   ];
   await page.locator("#importInput").setInputFiles({
     name: "mixed-enemy-resistance.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(mixedConfig))
+    buffer: Buffer.from(JSON.stringify(mixedConfig)),
   });
   await expect(resistanceInput).toBeEnabled();
   await expect(page.locator("#resModeHint")).toContainText(
-    "共享标量当前作用于：继承共享标量的敌人"
+    "共享标量当前作用于：继承共享标量的敌人",
   );
   await expect(page.locator("#resModeHint")).toContainText(
-    "目标级抗性覆盖不受影响"
+    "目标级抗性覆盖不受影响",
   );
 });
 
 test("renders the legal frame action queue and traces hits to commands", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page.locator("#presetSelect").selectOption({ index: 2 });
 
   await expect(page.locator("#notice")).toContainText("legal-frame-v1");
   await expect(page.locator("#legalTimelineCard")).toBeVisible();
-  await expect(page.locator("#legalTimelineSummary")).toContainText(
-    "等待模式"
-  );
+  await expect(page.locator("#legalTimelineSummary")).toContainText("等待模式");
   await expect(page.locator("#legalTimelineBody tr")).toHaveCount(8);
   await expect(page.locator("#legalTimelineFailures")).toContainText(
-    "等待冷却/充能至第 176 帧"
+    "等待冷却/充能至第 176 帧",
   );
   await expect(page.locator("#metricGrid")).toContainText("时间线指令");
 
@@ -545,13 +554,13 @@ test("renders the legal frame action queue and traces hits to commands", async (
 });
 
 test("rolls back a failed burst before executing the following commands", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "运行时能量回滚 · 浏览器验收"
+    name: "运行时能量回滚 · 浏览器验收",
   };
   config.duration = 2;
   config.cycleLength = 2;
@@ -577,18 +586,18 @@ test("rolls back a failed burst before executing the following commands", async 
             id: "browser-burst-hit",
             frame: 1,
             scaling: 1,
-            element: "pyro"
-          }
+            element: "pyro",
+          },
         ],
         timelineState: {
           grants: [
             {
               key: "browser-burst-succeeded",
               label: "爆发成功",
-              durationFrames: 60
-            }
-          ]
-        }
+              durationFrames: 60,
+            },
+          ],
+        },
       },
       {
         id: "browser-refill",
@@ -606,61 +615,61 @@ test("rolls back a failed burst before executing the following commands", async 
             source: "browser-refill",
             internalCooldown: {
               key: "browser-refill-icd",
-              durationFrames: 360
-            }
-          }
-        ]
-      }
+              durationFrames: 360,
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "burst",
         actorId: character.id,
-        abilityId: "browser-burst"
+        abilityId: "browser-burst",
       },
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "browser-refill"
+        abilityId: "browser-refill",
       },
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "browser-refill"
+        abilityId: "browser-refill",
       },
       {
         type: "burst",
         actorId: character.id,
-        abilityId: "browser-burst"
-      }
-    ]
+        abilityId: "browser-burst",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "runtime-energy-rollback.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
   await expect(page.locator("#notice")).toContainText(
-    "运行时能量回滚 · 浏览器验收"
+    "运行时能量回滚 · 浏览器验收",
   );
   await expect(page.locator("#legalTimelineBody tr")).toHaveCount(4);
   await expect(page.locator("#legalTimelineBody tr").first()).toContainText(
-    "拒绝 · INSUFFICIENT_ENERGY"
+    "拒绝 · INSUFFICIENT_ENERGY",
   );
   await expect(page.locator("#legalTimelineFailures")).toContainText(
-    "未施放且不占用冷却或改变行动状态"
+    "未施放且不占用冷却或改变行动状态",
   );
   await expect(page.locator("#energyStatus")).toContainText("跳过 1");
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#energyAuditSummary")).toContainText(
-    "1 条被内部冷却阻止"
+    "1 条被内部冷却阻止",
   );
   await expect(page.locator("#energyLogBody")).toContainText("ICD 阻止");
   await expect(page.locator("#energyLogBody")).toContainText(
-    "browser-refill-icd"
+    "browser-refill-icd",
   );
 
   const audit = await page.evaluate(() => {
@@ -671,28 +680,22 @@ test("rolls back a failed burst before executing the following commands", async 
             ({ startFrame, status, failureCode }) => ({
               startFrame,
               status,
-              failureCode: failureCode ?? null
-            })
+              failureCode: failureCode ?? null,
+            }),
           ),
-          actions: result.actionLog.map(
-            (entry) => entry.timelineCommandIndex
-          ),
+          actions: result.actionLog.map((entry) => entry.timelineCommandIndex),
           skipped: result.skippedActions,
           fixedEnergy: result.energyLog.map(
-            ({
+            ({ applied, blockedReason, internalCooldownReadyFrame }) => ({
               applied,
               blockedReason,
-              internalCooldownReadyFrame
-            }) => ({
-              applied,
-              blockedReason,
-              internalCooldownReadyFrame
-            })
+              internalCooldownReadyFrame,
+            }),
           ),
           hits: result.damageEvents.map((event) => ({
             frame: event.frame,
-            commandIndex: event.timelineCommandIndex
-          }))
+            commandIndex: event.timelineCommandIndex,
+          })),
         }
       : null;
   });
@@ -701,46 +704,44 @@ test("rolls back a failed burst before executing the following commands", async 
       {
         startFrame: 0,
         status: "rejected",
-        failureCode: "INSUFFICIENT_ENERGY"
+        failureCode: "INSUFFICIENT_ENERGY",
       },
       { startFrame: 0, status: "executed", failureCode: null },
       { startFrame: 1, status: "executed", failureCode: null },
-      { startFrame: 2, status: "executed", failureCode: null }
+      { startFrame: 2, status: "executed", failureCode: null },
     ],
     actions: [1, 2, 3],
     skipped: [
       {
         timelineCommandIndex: 0,
         energyBefore: 0,
-        energyCost: 60
-      }
+        energyCost: 60,
+      },
     ],
     fixedEnergy: [
       {
         applied: true,
         blockedReason: null,
-        internalCooldownReadyFrame: 360
+        internalCooldownReadyFrame: 360,
       },
       {
         applied: false,
         blockedReason: "INTERNAL_COOLDOWN",
-        internalCooldownReadyFrame: 360
-      }
+        internalCooldownReadyFrame: 360,
+      },
     ],
-    hits: [{ frame: 3, commandIndex: 3 }]
+    hits: [{ frame: 3, commandIndex: 3 }],
   });
 });
 
 test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page.locator("#presetSelect").selectOption({ index: 3 });
 
   await expect(page.locator("#notice")).toContainText("Aura / ICD 自动反应");
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v1 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v1 自动判定");
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#auraTimelineCard")).toBeVisible();
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
@@ -754,7 +755,7 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await expect(page.locator("#hitDetail")).toContainText("Aura / ICD 引擎");
   await expect(page.locator("#hitDetail")).toContainText("本段消耗 Aura");
   await expect(page.locator("#hitDetail")).toContainText(
-    "m3-pyro-multihit / default"
+    "m3-pyro-multihit / default",
   );
 
   await page.getByRole("button", { name: "时间轴" }).click();
@@ -764,39 +765,34 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await auraCanvas.click({
     position: {
       x: auraCanvasBox!.width - 20,
-      y: auraCanvasBox!.height / 2
-    }
+      y: auraCanvasBox!.height / 2,
+    },
   });
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
-  await expect(page.locator("#hitDetail")).toContainText(
-    "Aura / ICD 引擎"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("Aura / ICD 引擎");
 
   const auraV7Config = await page.evaluate(() => {
-    const nextConfig = structuredClone(
-      window.GenshinDpsLab.getConfig()
-    );
+    const nextConfig = structuredClone(window.GenshinDpsLab.getConfig());
     nextConfig.reactionEngine = { mode: "aura-v7" };
     nextConfig.enemy.targets = [
       {
         id: "enemy-0",
         name: "Aura v7 browser target",
         position: { x: 0, y: 0 },
-        hitboxRadius: 0.5
-      }
+        hitboxRadius: 0.5,
+      },
     ];
     for (const ability of nextConfig.timeline?.abilities ?? []) {
       for (const hit of ability.hits ?? []) {
         if (
           hit.application !== undefined &&
-          (hit.element === "pyro" ||
-            hit.element === "electro")
+          (hit.element === "pyro" || hit.element === "electro")
         ) {
           hit.geometry = {
             kind: "circle",
             coordinateSpace: "world",
             origin: { x: 0, y: 0 },
-            radius: 1
+            radius: 1,
           };
         }
       }
@@ -806,72 +802,66 @@ test("renders automatic Aura, ICD, reaction audits, and the enemy aura curve", a
   await page.locator("#importInput").setInputFiles({
     name: "aura-v7-browser-label.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(auraV7Config))
+    buffer: Buffer.from(JSON.stringify(auraV7Config)),
   });
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
-      )
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode,
+      ),
     )
     .toBe("aura-v7");
   await page.getByRole("button", { name: "运行模拟" }).click();
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v7 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v7 自动判定");
 
   const auraV8Config = {
     ...auraV7Config,
     targetTaskModel: { mode: "target-phase-v2" as const },
-    reactionEngine: { mode: "aura-v8" as const }
+    reactionEngine: { mode: "aura-v8" as const },
   };
   await page.locator("#importInput").setInputFiles({
     name: "aura-v8-browser-label.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(auraV8Config))
+    buffer: Buffer.from(JSON.stringify(auraV8Config)),
   });
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
-      )
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode,
+      ),
     )
     .toBe("aura-v8");
   await page.getByRole("button", { name: "运行模拟" }).click();
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v8 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v8 自动判定");
 
   const auraV9Config = {
     ...auraV8Config,
-    reactionEngine: { mode: "aura-v9" as const }
+    reactionEngine: { mode: "aura-v9" as const },
   };
   await page.locator("#importInput").setInputFiles({
     name: "aura-v9-browser-label.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(auraV9Config))
+    buffer: Buffer.from(JSON.stringify(auraV9Config)),
   });
   await expect
     .poll(() =>
       page.evaluate(
-        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode
-      )
+        () => window.GenshinDpsLab.getConfig().reactionEngine?.mode,
+      ),
     )
     .toBe("aura-v9");
   await page.getByRole("button", { name: "运行模拟" }).click();
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v9 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v9 自动判定");
 });
 
 test("renders an initial enemy Aura even when the run has no hits or state events", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "仅初始敌方附着 · 浏览器验收"
+    name: "仅初始敌方附着 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
@@ -883,9 +873,9 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       {
         id: "enemy-0",
         name: "仅附着目标",
-        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.reactionEngine = { mode: "aura-v4" };
   config.rotation = [];
@@ -896,22 +886,20 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     initialActiveCharacterId: character.id,
     swapFrames: 12,
     abilities: [],
-    commands: []
+    commands: [],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "initial-aura-only-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#auraTimelineCard")).toBeVisible();
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
-  await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "草 Aura"
-  );
+  await expect(page.locator("#auraTimelineLegend")).toContainText("草 Aura");
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(0);
 
   const audit = await page.evaluate(() => {
@@ -919,8 +907,7 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     return {
       damageEvents: result?.damageEvents.length,
       auraTimeline: result?.auraTimeline.length,
-      targetStateTimelineVersion:
-        result?.targetStateTimeline.version,
+      targetStateTimelineVersion: result?.targetStateTimeline.version,
       targetStatePoints:
         result?.targetStateTimeline.points
           .filter((point) => point.targetId === "enemy-0")
@@ -935,16 +922,14 @@ test("renders an initial enemy Aura even when the run has no hits or state event
             intraEventSequence: point.intraEventSequence,
             primaryDamageEventId: point.primaryDamageEventId,
             auraBefore: point.auraBefore,
-            auraAfter: point.auraAfter
+            auraAfter: point.auraAfter,
           })) ?? [],
       initial:
-        result?.auraInitialStates.find(
-          (state) => state.targetId === "enemy-0"
-        )?.aura ?? [],
+        result?.auraInitialStates.find((state) => state.targetId === "enemy-0")
+          ?.aura ?? [],
       end:
-        result?.auraEndStates.find(
-          (state) => state.targetId === "enemy-0"
-        )?.aura ?? []
+        result?.auraEndStates.find((state) => state.targetId === "enemy-0")
+          ?.aura ?? [],
     };
   });
   expect(audit.damageEvents).toBe(0);
@@ -965,9 +950,9 @@ test("renders an initial enemy Aura even when the run has no hits or state event
         expect.objectContaining({
           element: "dendro",
           gaugeUnits: 0.8,
-          expiresAtFrame: 570
-        })
-      ]
+          expiresAtFrame: 570,
+        }),
+      ],
     }),
     expect.objectContaining({
       id: 1,
@@ -983,10 +968,10 @@ test("renders an initial enemy Aura even when the run has no hits or state event
         expect.objectContaining({
           element: "dendro",
           gaugeUnits: 0.715789473684,
-          expiresAtFrame: 570
-        })
-      ]
-    })
+          expiresAtFrame: 570,
+        }),
+      ],
+    }),
   ]);
   expect(audit.initial).toEqual([
     {
@@ -996,10 +981,10 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       sourceSlots: [
         {
           sourceActorId: "__initial__",
-          gaugeUnits: 0.8
-        }
-      ]
-    }
+          gaugeUnits: 0.8,
+        },
+      ],
+    },
   ]);
   expect(audit.end).toEqual([
     {
@@ -1009,10 +994,10 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       sourceSlots: [
         {
           sourceActorId: "__initial__",
-          gaugeUnits: 0.715789473684
-        }
-      ]
-    }
+          gaugeUnits: 0.715789473684,
+        },
+      ],
+    },
   ]);
 
   const rightEdgeDendroPixels = await page
@@ -1022,19 +1007,16 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       const context = canvas.getContext("2d");
       if (context === null) return 0;
       const ratio = window.devicePixelRatio || 1;
-      const startX = Math.max(
-        0,
-        Math.floor((canvas.clientWidth - 24) * ratio)
-      );
+      const startX = Math.max(0, Math.floor((canvas.clientWidth - 24) * ratio));
       const endX = Math.min(
         canvas.width - 1,
-        Math.ceil((canvas.clientWidth - 16) * ratio)
+        Math.ceil((canvas.clientWidth - 16) * ratio),
       );
       const pixels = context.getImageData(
         startX,
         0,
         endX - startX + 1,
-        canvas.height
+        canvas.height,
       ).data;
       let count = 0;
       for (let index = 0; index < pixels.length; index += 4) {
@@ -1056,7 +1038,7 @@ test("renders an initial enemy Aura even when the run has no hits or state event
   await page.locator("#importInput").setInputFiles({
     name: "initial-aura-expiry-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
   const expiredAudit = await page.evaluate(() => {
@@ -1076,12 +1058,11 @@ test("renders an initial enemy Aura even when the run has no hits or state event
             intraEventSequence: point.intraEventSequence,
             primaryDamageEventId: point.primaryDamageEventId,
             auraBefore: point.auraBefore,
-            auraAfter: point.auraAfter
+            auraAfter: point.auraAfter,
           })) ?? [],
       end:
-        result?.auraEndStates.find(
-          (state) => state.targetId === "enemy-0"
-        )?.aura ?? []
+        result?.auraEndStates.find((state) => state.targetId === "enemy-0")
+          ?.aura ?? [],
     };
   });
   expect(expiredAudit.end).toEqual([]);
@@ -1091,8 +1072,8 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       id: 0,
       frame: 0,
       pointKind: "boundary",
-      cause: "simulation-start"
-    })
+      cause: "simulation-start",
+    }),
   );
   expect(expiredAudit.points[1]).toEqual(
     expect.objectContaining({
@@ -1105,13 +1086,12 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       eventSequence: null,
       intraEventSequence: null,
       primaryDamageEventId: null,
-      auraAfter: []
-    })
+      auraAfter: [],
+    }),
   );
   expect(
-    expiredAudit.points[1]?.auraBefore.find(
-      (aura) => aura.element === "dendro"
-    )?.gaugeUnits
+    expiredAudit.points[1]?.auraBefore.find((aura) => aura.element === "dendro")
+      ?.gaugeUnits,
   ).toBeGreaterThan(0);
   expect(expiredAudit.points[2]).toEqual(
     expect.objectContaining({
@@ -1125,8 +1105,8 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       intraEventSequence: null,
       primaryDamageEventId: null,
       auraBefore: [],
-      auraAfter: []
-    })
+      auraAfter: [],
+    }),
   );
 
   const expiredRaster = await page
@@ -1139,24 +1119,19 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       }
       const ratio = window.devicePixelRatio || 1;
       const plotWidth = canvas.clientWidth - 58 - 18;
-      const after580X = Math.floor(
-        (58 + (580 / 600) * plotWidth) * ratio
-      );
-      const aboveAxisHeight = Math.max(
-        1,
-        Math.floor((300 - 42 - 4) * ratio)
-      );
+      const after580X = Math.floor((58 + (580 / 600) * plotWidth) * ratio);
+      const aboveAxisHeight = Math.max(1, Math.floor((300 - 42 - 4) * ratio));
       const allPixels = context.getImageData(
         0,
         0,
         canvas.width,
-        canvas.height
+        canvas.height,
       ).data;
       const tailPixels = context.getImageData(
         after580X,
         0,
         canvas.width - after580X,
-        aboveAxisHeight
+        aboveAxisHeight,
       ).data;
       const countDendro = (pixels: Uint8ClampedArray) => {
         let count = 0;
@@ -1174,7 +1149,7 @@ test("renders an initial enemy Aura even when the run has no hits or state event
       };
       return {
         totalDendro: countDendro(allPixels),
-        dendroAfter580AboveAxis: countDendro(tailPixels)
+        dendroAfter580AboveAxis: countDendro(tailPixels),
       };
     });
   expect(expiredRaster.totalDendro).toBeGreaterThan(8);
@@ -1182,20 +1157,20 @@ test("renders an initial enemy Aura even when the run has no hits or state event
 });
 
 test("renders Dendro Catalyze, per-hit composition, Quicken state, and component curves", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "草雷激化与伤害构成 · 浏览器验收"
+    name: "草雷激化与伤害构成 · 浏览器验收",
   };
   config.duration = 11;
   config.cycleLength = 11;
   config.enemy = {
     level: 90,
     resistance: 0.1,
-    defReduction: 0
+    defReduction: 0,
   };
   config.characters = [
     {
@@ -1211,13 +1186,13 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.1
-      }
-    }
+        reactionBonus: 0.1,
+      },
+    },
   ];
   config.reactionEngine = {
     mode: "aura-v3",
-    initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    initialAura: [{ element: "dendro", gaugeUnits: 1 }],
   };
   config.rotation = [];
   config.timeline = {
@@ -1244,8 +1219,8 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
+              icd: { mode: "no-icd-v1" },
+            },
           },
           {
             id: "aggravate-browser-hit",
@@ -1255,8 +1230,8 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
+              icd: { mode: "no-icd-v1" },
+            },
           },
           {
             id: "spread-browser-hit",
@@ -1266,51 +1241,43 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "dendro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "catalyze-browser"
-      }
-    ]
+        abilityId: "catalyze-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "catalyze-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v3 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v3 自动判定");
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#curveLegend")).toContainText("直接伤害累计");
   await expect(page.locator("#curveLegend")).toContainText("激化加算累计");
   await expect(page.locator("#auraTimelineLegend")).toContainText("草 Aura");
   await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "激元素 Aura"
+    "激元素 Aura",
   );
   await expect(page.locator("#auraTimelineBody")).toContainText("原激化");
   await expect(page.locator("#auraTimelineBody")).toContainText("超激化");
-  await expect(page.locator("#auraTimelineBody")).toContainText(
-    "蔓激化"
-  );
+  await expect(page.locator("#auraTimelineBody")).toContainText("蔓激化");
+  await expect(page.locator("#quickenStateSummary")).toContainText("1 次生成");
+  await expect(page.locator("#quickenStateSummary")).toContainText("1 次刷新");
   await expect(page.locator("#quickenStateSummary")).toContainText(
-    "1 次生成"
-  );
-  await expect(page.locator("#quickenStateSummary")).toContainText(
-    "1 次刷新"
-  );
-  await expect(page.locator("#quickenStateSummary")).toContainText(
-    "1 次自然到期"
+    "1 次自然到期",
   );
   await expect(page.locator("#quickenStateBody")).toContainText("602f");
 
@@ -1319,25 +1286,25 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
     const compositionSums = result?.damageEvents.map((event) =>
       Object.values(event.damageComposition).reduce(
         (sum, value) => sum + value,
-        0
-      )
+        0,
+      ),
     );
     const lastCurve = result?.damageCurve.at(-1);
     return {
       reactions: result?.damageEvents.map(
-        (event) => event.reactionAudit.reactions
+        (event) => event.reactionAudit.reactions,
       ),
       unsupported: result?.damageEvents.map(
-        (event) => event.reactionAudit.unsupportedReactions
+        (event) => event.reactionAudit.unsupportedReactions,
       ),
       additives: result?.damageEvents.map(
-        (event) => event.additiveReactionFactors?.reaction ?? null
+        (event) => event.additiveReactionFactors?.reaction ?? null,
       ),
       quicken: result?.quickenStateLog.map((entry) => ({
         operation: entry.operation,
         frame: entry.frame,
         generation: entry.generation,
-        expiresAtFrame: entry.expiresAtFrame
+        expiresAtFrame: entry.expiresAtFrame,
       })),
       eventDamage: result?.damageEvents.map((event) => event.finalDamage),
       compositionSums,
@@ -1346,17 +1313,13 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
           ? null
           : Object.values(lastCurve.cumulativeByComponent).reduce(
               (sum, value) => sum + value,
-              0
+              0,
             ),
-      totalDamage: result?.totalDamage
+      totalDamage: result?.totalDamage,
     };
   });
   expect(audit).toMatchObject({
-    reactions: [
-      ["quicken"],
-      ["aggravate"],
-      ["spread", "quicken"]
-    ],
+    reactions: [["quicken"], ["aggravate"], ["spread", "quicken"]],
     unsupported: [[], [], []],
     additives: [null, "aggravate", "spread"],
     quicken: [
@@ -1364,21 +1327,21 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
         operation: "start",
         frame: 0,
         generation: 1,
-        expiresAtFrame: 600
+        expiresAtFrame: 600,
       },
       {
         operation: "refresh",
         frame: 2,
         generation: 2,
-        expiresAtFrame: 602
+        expiresAtFrame: 602,
       },
       {
         operation: "expire",
         frame: 602,
         generation: 2,
-        expiresAtFrame: null
-      }
-    ]
+        expiresAtFrame: null,
+      },
+    ],
   });
   expect(audit.compositionSums).toEqual(audit.eventDamage);
   expect(audit.componentTotal).toBeCloseTo(audit.totalDamage ?? 0, 8);
@@ -1391,24 +1354,24 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
 });
 
 test("renders target-local mechanics truncation without counting later potential damage", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "未实现绽放的目标级截断 · 浏览器验收"
+    name: "未实现绽放的目标级截断 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
   config.enemy = {
     level: 90,
     resistance: 0.1,
-    defReduction: 0
+    defReduction: 0,
   };
   config.reactionEngine = {
     mode: "aura-v3",
-    initialAura: [{ element: "dendro", gaugeUnits: 1 }]
+    initialAura: [{ element: "dendro", gaugeUnits: 1 }],
   };
   config.rotation = [];
   config.timeline = {
@@ -1435,8 +1398,8 @@ test("renders target-local mechanics truncation without counting later potential
             element: "hydro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
+              icd: { mode: "no-icd-v1" },
+            },
           },
           {
             id: "post-truncation-hit",
@@ -1446,33 +1409,33 @@ test("renders target-local mechanics truncation without counting later potential
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "mechanics-truncation-browser"
-      }
-    ]
+        abilityId: "mechanics-truncation-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "mechanics-truncation-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
   await expect(page.locator("#notice")).toContainText("结果部分有效");
   await expect(page.locator("#notice")).toContainText("绽放：丢弃");
   await expect(page.locator("#metricGrid")).toContainText("部分有效");
   await expect(page.locator("#metricGrid")).toContainText(
-    "1 段后续伤害未计入总伤"
+    "1 段后续伤害未计入总伤",
   );
 
   await page.getByRole("button", { name: "逐段伤害" }).click();
@@ -1482,15 +1445,11 @@ test("renders target-local mechanics truncation without counting later potential
   await expect(truncatedRow).toContainText("机制截断");
   await expect(truncatedRow).toContainText("未计总伤");
   await truncatedRow.click();
+  await expect(page.locator("#hitDetail")).toContainText("继承第 0 帧");
   await expect(page.locator("#hitDetail")).toContainText(
-    "继承第 0 帧"
+    "Aura / ICD / 反应不再推演",
   );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "Aura / ICD / 反应不再推演"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "未执行的机制分支"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("未执行的机制分支");
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -1500,13 +1459,12 @@ test("renders target-local mechanics truncation without counting later potential
       events: result?.damageEvents.map((event) => ({
         hitId: event.hitId,
         mechanicsStatus: event.mechanicsStatus,
-        operation:
-          event.reactionAudit.mechanicsTruncation?.operation ?? null,
+        operation: event.reactionAudit.mechanicsTruncation?.operation ?? null,
         unsupported: event.reactionAudit.unsupportedReactions,
         potentialDamage: event.potentialDamage,
-        finalDamage: event.finalDamage
+        finalDamage: event.finalDamage,
       })),
-      totalDamage: result?.totalDamage
+      totalDamage: result?.totalDamage,
     };
   });
   expect(audit.mechanicsStatus).toBe("partial");
@@ -1516,45 +1474,42 @@ test("renders target-local mechanics truncation without counting later potential
       hitId: "unsupported-bloom-trigger",
       mechanicsStatus: "authoritative",
       operation: "trigger",
-      unsupported: ["bloom"]
+      unsupported: ["bloom"],
     },
     {
       hitId: "post-truncation-hit",
       mechanicsStatus: "mechanics-truncated",
       operation: "carry",
       unsupported: ["bloom"],
-      finalDamage: 0
-    }
+      finalDamage: 0,
+    },
   ]);
   expect(audit.events?.[1]?.potentialDamage ?? 0).toBeGreaterThan(0);
-  expect(audit.totalDamage).toBeCloseTo(
-    audit.events?.[0]?.finalDamage ?? 0,
-    8
-  );
+  expect(audit.totalDamage).toBeCloseTo(audit.events?.[0]?.finalDamage ?? 0, 8);
 });
 
 test("renders an ordered Overload as cancelled when the same hit truncates on Burning", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "超载后燃烧截断 · 浏览器验收"
+    name: "超载后燃烧截断 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
   config.enemy = {
     level: 90,
     resistance: 0.1,
-    defReduction: 0
+    defReduction: 0,
   };
   config.reactionEngine = {
     mode: "aura-v3",
     initialAura: [
       { element: "dendro", gaugeUnits: 1 },
-      { element: "electro", gaugeUnits: 1 }
-    ]
+      { element: "electro", gaugeUnits: 1 },
+    ],
   };
   config.rotation = [];
   config.timeline = {
@@ -1581,26 +1536,26 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "overload-burning-browser"
-      }
-    ]
+        abilityId: "overload-burning-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "overload-burning-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
   await expect(page.locator("#notice")).toContainText("结果部分有效");
@@ -1612,35 +1567,34 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
   await expect(triggerRow).toContainText("超载");
   await triggerRow.click();
   await expect(page.locator("#hitDetail")).toContainText(
-    "目标机制截断 · 本次独立反应伤害未排队"
+    "目标机制截断 · 本次独立反应伤害未排队",
   );
   await expect(page.locator("#hitDetail")).toContainText(
-    "本段已支持的直接伤害与激化加算保留"
+    "本段已支持的直接伤害与激化加算保留",
   );
   await expect(page.locator("#hitDetail")).not.toContainText(
-    "6f 可再次产生伤害"
+    "6f 可再次产生伤害",
   );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const trigger = result?.damageEvents.find(
-      (event) => event.hitId === "overload-burning-browser-hit"
+      (event) => event.hitId === "overload-burning-browser-hit",
     );
     return {
       reactions: trigger?.reactionAudit.reactions,
       unsupported: trigger?.reactionAudit.unsupportedReactions,
-      transformative:
-        trigger?.reactionAudit.transformativeReaction,
+      transformative: trigger?.reactionAudit.transformativeReaction,
       reactionLogs: result?.reactionDamageLog.filter(
         (entry) =>
           entry.triggerDamageEventId === trigger?.id &&
-          entry.reaction === "overload"
+          entry.reaction === "overload",
       ),
       childEvents: result?.damageEvents.filter(
         (event) =>
           event.parentDamageEventId === trigger?.id &&
-          event.reaction === "overload"
-      )
+          event.reaction === "overload",
+      ),
     };
   });
   expect(audit).toMatchObject({
@@ -1649,21 +1603,21 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
     transformative: {
       reaction: "overload",
       scheduled: false,
-      blockedReason: "TARGET_MECHANICS_TRUNCATION"
+      blockedReason: "TARGET_MECHANICS_TRUNCATION",
     },
     reactionLogs: [],
-    childEvents: []
+    childEvents: [],
   });
 });
 
 test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned curves", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "燃烧状态机 · 浏览器验收"
+    name: "燃烧状态机 · 浏览器验收",
   };
   config.duration = 2.6;
   config.cycleLength = 2.6;
@@ -1676,9 +1630,9 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         id: "enemy-0",
         name: "燃烧浏览器目标",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "dendro", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "dendro", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.characters = [
     {
@@ -1693,9 +1647,9 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.1
-      }
-    }
+        reactionBonus: 0.1,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v4" };
   config.rotation = [];
@@ -1723,12 +1677,12 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             element: "pyro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
+              icd: { mode: "no-icd-v1" },
+            },
           },
           {
             id: "burning-browser-refresh",
@@ -1738,83 +1692,77 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             element: "dendro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 2,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "burning-browser"
-      }
-    ]
+        abilityId: "burning-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "burning-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v4 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v4 自动判定");
   await expect(page.locator("#metricGrid")).toContainText("未截断");
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
+  await expect(page.locator("#burningStateSummary")).toContainText("次启动");
   await expect(page.locator("#burningStateSummary")).toContainText(
-    "次启动"
+    "次第 9 Tick 跳过",
   );
   await expect(page.locator("#burningStateSummary")).toContainText(
-    "次第 9 Tick 跳过"
+    "未实现敌方 Hitlag 暂停",
   );
   await expect(page.locator("#burningStateSummary")).toContainText(
-    "未实现敌方 Hitlag 暂停"
-  );
-  await expect(page.locator("#burningStateSummary")).toContainText(
-    "玩家自伤未模拟（玩家受击模型缺失）"
+    "玩家自伤未模拟（玩家受击模型缺失）",
   );
   await expect(page.locator("#burningStateBody")).toContainText(
-    "覆盖 Fuel / 刷新快照"
+    "覆盖 Fuel / 刷新快照",
   );
   await expect(page.locator("#burningStateBody")).toContainText(
-    "第 9 Tick 跳过"
+    "第 9 Tick 跳过",
   );
   await expect(page.locator("#burningStateBody")).toContainText(
-    "burning-application"
+    "burning-application",
   );
   await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "燃烧标记 Aura"
+    "燃烧标记 Aura",
   );
   await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "燃烧 Fuel Aura"
+    "燃烧 Fuel Aura",
   );
   await expect(page.locator("#curveLegend")).toContainText("燃烧累计");
-  await expect(page.locator("#reactionDamageBody")).toContainText(
-    "燃烧 Tick"
-  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("燃烧 Tick");
   const canvasExpectations = [
     {
       canvasId: "#auraTimelineCanvas",
       colors: {
         burning: [255, 112, 67],
-        fuel: [198, 221, 87]
-      }
+        fuel: [198, 221, 87],
+      },
     },
     {
       canvasId: "#damageCurveCanvas",
       colors: {
-        burning: [255, 112, 67]
-      }
-    }
+        burning: [255, 112, 67],
+      },
+    },
   ];
   for (const { canvasId, colors } of canvasExpectations) {
     const raster = await page
@@ -1826,19 +1774,19 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
           return {
             opaquePixels: 0,
             distinctColors: 0,
-            seriesPixels: {}
+            seriesPixels: {},
           };
         }
         const pixels = context.getImageData(
           0,
           0,
           canvas.width,
-          canvas.height
+          canvas.height,
         ).data;
         let opaquePixels = 0;
         const colors = new Set<string>();
         const seriesPixels = Object.fromEntries(
-          Object.keys(expectedColors).map((key) => [key, 0])
+          Object.keys(expectedColors).map((key) => [key, 0]),
         ) as Record<string, number>;
         for (let index = 0; index < pixels.length; index += 4) {
           const alpha = pixels[index + 3] ?? 0;
@@ -1846,25 +1794,17 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
           opaquePixels += 1;
           if (colors.size < 64) {
             colors.add(
-              `${pixels[index] ?? 0},${pixels[index + 1] ?? 0},${pixels[index + 2] ?? 0},${alpha}`
+              `${pixels[index] ?? 0},${pixels[index + 1] ?? 0},${pixels[index + 2] ?? 0},${alpha}`,
             );
           }
           if (alpha >= 160) {
-            for (const [key, expected] of Object.entries(
-              expectedColors
-            )) {
+            for (const [key, expected] of Object.entries(expectedColors)) {
               if (
-                Math.abs((pixels[index] ?? 0) - expected[0]!) <=
-                  16 &&
-                Math.abs(
-                  (pixels[index + 1] ?? 0) - expected[1]!
-                ) <= 16 &&
-                Math.abs(
-                  (pixels[index + 2] ?? 0) - expected[2]!
-                ) <= 16
+                Math.abs((pixels[index] ?? 0) - expected[0]!) <= 16 &&
+                Math.abs((pixels[index + 1] ?? 0) - expected[1]!) <= 16 &&
+                Math.abs((pixels[index + 2] ?? 0) - expected[2]!) <= 16
               ) {
-                seriesPixels[key] =
-                  (seriesPixels[key] ?? 0) + 1;
+                seriesPixels[key] = (seriesPixels[key] ?? 0) + 1;
               }
             }
           }
@@ -1872,7 +1812,7 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         return {
           opaquePixels,
           distinctColors: colors.size,
-          seriesPixels
+          seriesPixels,
         };
       }, colors);
     expect(raster.opaquePixels).toBeGreaterThan(100);
@@ -1890,34 +1830,29 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         return { burning: 0, fuel: 0 };
       }
       const ratio = window.devicePixelRatio || 1;
-      const startX = Math.max(
-        0,
-        Math.floor((canvas.clientWidth - 24) * ratio)
-      );
+      const startX = Math.max(0, Math.floor((canvas.clientWidth - 24) * ratio));
       const endX = Math.min(
         canvas.width - 1,
-        Math.ceil((canvas.clientWidth - 16) * ratio)
+        Math.ceil((canvas.clientWidth - 16) * ratio),
       );
       const pixels = context.getImageData(
         startX,
         0,
         endX - startX + 1,
-        canvas.height
+        canvas.height,
       ).data;
       const counts = { burning: 0, fuel: 0 };
       const expected = {
         burning: [255, 112, 67],
-        fuel: [198, 221, 87]
+        fuel: [198, 221, 87],
       };
       for (let index = 0; index < pixels.length; index += 4) {
         if ((pixels[index + 3] ?? 0) < 160) continue;
         for (const [key, color] of Object.entries(expected)) {
           if (
             Math.abs((pixels[index] ?? 0) - color[0]!) <= 16 &&
-            Math.abs((pixels[index + 1] ?? 0) - color[1]!) <=
-              16 &&
-            Math.abs((pixels[index + 2] ?? 0) - color[2]!) <=
-              16
+            Math.abs((pixels[index + 1] ?? 0) - color[1]!) <= 16 &&
+            Math.abs((pixels[index + 2] ?? 0) - color[2]!) <= 16
           ) {
             counts[key as keyof typeof counts] += 1;
           }
@@ -1933,21 +1868,20 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
     const burningState = result?.burningStateLog ?? [];
     const tickState = burningState.filter(
       (entry) =>
-        entry.operation === "tick" ||
-        entry.operation === "tick-skipped"
+        entry.operation === "tick" || entry.operation === "tick-skipped",
     );
     const burningDamageEvents =
       result?.damageEvents.filter(
         (event) =>
           event.kind === "transformative-reaction" &&
-          event.reaction === "burning"
+          event.reaction === "burning",
       ) ?? [];
     const lastCurve = result?.damageCurve.at(-1);
     return {
       mechanicsStatus: result?.mechanicsStatus,
       unsupported:
         result?.damageEvents.flatMap(
-          (event) => event.reactionAudit.unsupportedReactions
+          (event) => event.reactionAudit.unsupportedReactions,
         ) ?? [],
       tickFrames: tickState.map((entry) => entry.frame),
       tickIndices: tickState.map((entry) => entry.tickIndex),
@@ -1956,46 +1890,37 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
         .map((entry) => ({
           frame: entry.frame,
           tickIndex: entry.tickIndex,
-          reason: entry.skipReason
+          reason: entry.skipReason,
         })),
-      startFuelExpiry: burningState.find(
-        (entry) => entry.operation === "start"
-      )?.fuelExpiresAtFrame,
+      startFuelExpiry: burningState.find((entry) => entry.operation === "start")
+        ?.fuelExpiresAtFrame,
       refreshFuelExpiry: burningState.find(
-        (entry) => entry.operation === "refresh-fuel"
+        (entry) => entry.operation === "refresh-fuel",
       )?.fuelExpiresAtFrame,
-      burningDamageFrames: burningDamageEvents.map(
-        (event) => event.frame
-      ),
-      integerDisplays: result?.damageEvents.every(
-        (event) => Number.isInteger(event.displayDamage)
+      burningDamageFrames: burningDamageEvents.map((event) => event.frame),
+      integerDisplays: result?.damageEvents.every((event) =>
+        Number.isInteger(event.displayDamage),
       ),
       compositionConserves: result?.damageEvents.every(
         (event) =>
           Math.abs(
             Object.values(event.damageComposition).reduce(
               (sum, value) => sum + value,
-              0
-            ) - event.finalDamage
-          ) < 1e-8
+              0,
+            ) - event.finalDamage,
+          ) < 1e-8,
       ),
       burningDamage: burningDamageEvents.reduce(
         (sum, event) => sum + event.finalDamage,
-        0
+        0,
       ),
-      burningCurve:
-        lastCurve?.cumulativeByReaction.burning ?? 0,
+      burningCurve: lastCurve?.cumulativeByReaction.burning ?? 0,
       auraEnd:
-        result?.auraEndStates.find(
-          (state) => state.targetId === "enemy-0"
-        )?.aura ?? [],
+        result?.auraEndStates.find((state) => state.targetId === "enemy-0")
+          ?.aura ?? [],
       frame30TargetState:
         result?.targetStateTimeline.points
-          .filter(
-            (point) =>
-              point.targetId === "enemy-0" &&
-              point.frame === 30
-          )
+          .filter((point) => point.targetId === "enemy-0" && point.frame === 30)
           .map((point) => ({
             id: point.id,
             cause: point.cause,
@@ -2003,7 +1928,7 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             eventPriority: point.eventPriority,
             eventSequence: point.eventSequence,
             intraEventSequence: point.intraEventSequence,
-            primaryDamageEventId: point.primaryDamageEventId
+            primaryDamageEventId: point.primaryDamageEventId,
           })) ?? [],
       frame15ClickablePoint:
         result?.targetStateTimeline.points
@@ -2011,13 +1936,13 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             (point) =>
               point.targetId === "enemy-0" &&
               point.frame === 15 &&
-              point.primaryDamageEventId !== null
+              point.primaryDamageEventId !== null,
           )
           .map((point) => ({
             id: point.id,
             cause: point.cause,
             eventPriority: point.eventPriority,
-            primaryDamageEventId: point.primaryDamageEventId
+            primaryDamageEventId: point.primaryDamageEventId,
           })) ?? [],
       frame30Priorities: {
         damage: result?.auraTimeline
@@ -2025,115 +1950,99 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
           .map((point) => point.eventPriority),
         burningState: burningState
           .filter((entry) => entry.frame === 30)
-          .map((entry) => entry.eventPriority)
-      }
+          .map((entry) => entry.eventPriority),
+      },
     };
   });
 
   expect(audit.mechanicsStatus).toBe("complete");
   expect(audit.unsupported).toEqual([]);
   expect(audit.tickFrames).toEqual([
-    15, 30, 45, 60, 75, 90, 105, 120, 135, 150
+    15, 30, 45, 60, 75, 90, 105, 120, 135, 150,
   ]);
-  expect(audit.tickIndices).toEqual([
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-  ]);
+  expect(audit.tickIndices).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   expect(audit.skipped).toEqual([
     {
       frame: 135,
       tickIndex: 9,
-      reason: "COUNTER_9_SKIP"
-    }
+      reason: "COUNTER_9_SKIP",
+    },
   ]);
   expect(audit.startFuelExpiry).toBe(121);
   expect(audit.refreshFuelExpiry).toBe(271);
   expect(audit.burningDamageFrames).toEqual([
-    15, 30, 45, 60, 75, 90, 105, 120, 150
+    15, 30, 45, 60, 75, 90, 105, 120, 150,
   ]);
   expect(audit.integerDisplays).toBe(true);
   expect(audit.compositionConserves).toBe(true);
-  expect(audit.burningCurve).toBeCloseTo(
-    audit.burningDamage,
-    8
-  );
+  expect(audit.burningCurve).toBeCloseTo(audit.burningDamage, 8);
   expect(audit.auraEnd).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         element: "burning",
-        gaugeUnits: 2
+        gaugeUnits: 2,
       }),
       expect.objectContaining({
         element: "burningFuel",
-        gaugeUnits: expect.any(Number)
-      })
-    ])
+        gaugeUnits: expect.any(Number),
+      }),
+    ]),
   );
   expect(
-    audit.auraEnd.find(
-      (entry) => entry.element === "burningFuel"
-    )?.gaugeUnits
+    audit.auraEnd.find((entry) => entry.element === "burningFuel")?.gaugeUnits,
   ).toBeGreaterThan(0);
-  expect(audit.frame30Priorities.damage).toEqual([
-    3,
-    expect.any(Number)
-  ]);
+  expect(audit.frame30Priorities.damage).toEqual([3, expect.any(Number)]);
   expect(audit.frame30Priorities.damage?.[1]).toBeGreaterThan(4);
   expect(audit.frame30Priorities.burningState).toEqual(
-    expect.arrayContaining([3, 4, expect.any(Number)])
+    expect.arrayContaining([3, 4, expect.any(Number)]),
   );
   expect(
     audit.frame30TargetState.map((point) => ({
       cause: point.cause,
       eventType: point.eventType,
-      eventPriority: point.eventPriority
-    }))
+      eventPriority: point.eventPriority,
+    })),
   ).toEqual([
     {
       cause: "direct-hit-application",
       eventType: "hit",
-      eventPriority: 3
+      eventPriority: 3,
     },
     {
       cause: "burning-tick",
       eventType: "burningTick",
-      eventPriority: 4
+      eventPriority: 4,
     },
     {
       cause: "reaction-damage-application",
       eventType: "reactionDamage",
-      eventPriority: 4 + 1 / 3
-    }
+      eventPriority: 4 + 1 / 3,
+    },
   ]);
-  expect(
-    audit.frame30TargetState.map((point) => point.id)
-  ).toEqual(
+  expect(audit.frame30TargetState.map((point) => point.id)).toEqual(
     [...audit.frame30TargetState]
       .map((point) => point.id)
-      .sort((left, right) => left - right)
+      .sort((left, right) => left - right),
   );
-  for (
-    let index = 1;
-    index < audit.frame30TargetState.length;
-    index += 1
-  ) {
+  for (let index = 1; index < audit.frame30TargetState.length; index += 1) {
     const previous = audit.frame30TargetState[index - 1]!;
     const current = audit.frame30TargetState[index]!;
     expect([
       current.eventPriority!,
       current.eventSequence!,
-      current.intraEventSequence!
+      current.intraEventSequence!,
     ]).not.toEqual([
       previous.eventPriority!,
       previous.eventSequence!,
-      previous.intraEventSequence!
+      previous.intraEventSequence!,
     ]);
   }
   expect(audit.frame15ClickablePoint).toEqual([
     expect.objectContaining({
       cause: "reaction-damage-application",
       eventPriority: 4 + 1 / 3,
-      primaryDamageEventId: expect.any(Number)
-    })
+      primaryDamageEventId: expect.any(Number),
+    }),
   ]);
   const expectedCanvasDamageEventId =
     audit.frame15ClickablePoint[0]?.primaryDamageEventId;
@@ -2142,23 +2051,17 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
   const targetStateCanvas = page.locator("#auraTimelineCanvas");
   const targetStateCanvasBox = await targetStateCanvas.boundingBox();
   expect(targetStateCanvasBox).not.toBeNull();
-  const targetStatePlotWidth =
-    targetStateCanvasBox!.width - 58 - 18;
+  const targetStatePlotWidth = targetStateCanvasBox!.width - 58 - 18;
   await targetStateCanvas.click({
     position: {
-      x:
-        58 +
-        (15 / Math.round(config.duration * 60)) *
-          targetStatePlotWidth,
-      y: targetStateCanvasBox!.height / 2
-    }
+      x: 58 + (15 / Math.round(config.duration * 60)) * targetStatePlotWidth,
+      y: targetStateCanvasBox!.height / 2,
+    },
   });
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
-  await expect(
-    page.locator("#hitTableBody tr.selected")
-  ).toHaveAttribute(
+  await expect(page.locator("#hitTableBody tr.selected")).toHaveAttribute(
     "data-hit-id",
-    String(expectedCanvasDamageEventId)
+    String(expectedCanvasDamageEventId),
   );
   await page.getByRole("button", { name: "时间轴" }).click();
 
@@ -2168,13 +2071,11 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
     .first();
   await startRow.click();
   await expect(page.locator("#hitDetail")).toContainText("燃烧判定");
-  await expect(page.locator("#hitDetail")).toContainText(
-    "等级基准 × 0.25"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("等级基准 × 0.25");
   await expect(page.locator("#hitDetail")).toContainText("半径 1");
   await expect(page.locator("#hitDetail")).toContainText("1U");
   await expect(page.locator("#hitDetail")).toContainText(
-    "玩家自伤未模拟（玩家受击模型缺失）"
+    "玩家自伤未模拟（玩家受击模型缺失）",
   );
 
   await page.getByRole("button", { name: "时间轴" }).click();
@@ -2183,28 +2084,22 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
     .filter({ hasText: "Tick" })
     .first();
   await tickRow.click();
+  await expect(page.locator("#hitDetail")).toContainText("燃烧专用附着 ICD");
+  await expect(page.locator("#hitDetail")).toContainText("敌方 Aura（命中前）");
+  await expect(page.locator("#hitDetail")).toContainText("敌方 Aura（命中后）");
   await expect(page.locator("#hitDetail")).toContainText(
-    "燃烧专用附着 ICD"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "敌方 Aura（命中前）"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "敌方 Aura（命中后）"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "未实现敌方 Hitlag 暂停"
+    "未实现敌方 Hitlag 暂停",
   );
 });
 
 test("renders Swirl self damage, propagation, secondary reaction, Aura, and curve events", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "扩散传播与二次反应 · 浏览器验收"
+    name: "扩散传播与二次反应 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
@@ -2217,20 +2112,20 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
         id: "enemy-0",
         name: "火扩散源",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+        initialAura: [{ element: "pyro", gaugeUnits: 1 }],
       },
       {
         id: "enemy-1",
         name: "水附着传播目标",
         position: { x: 3, y: 0 },
-        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }],
       },
       {
         id: "enemy-2",
         name: "范围外目标",
-        position: { x: 5.1, y: 0 }
-      }
-    ]
+        position: { x: 5.1, y: 0 },
+      },
+    ],
   };
   config.characters = [
     {
@@ -2245,9 +2140,9 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.2
-      }
-    }
+        reactionBonus: 0.2,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -2275,37 +2170,37 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
             element: "anemo",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "swirl-browser"
-      }
-    ]
+        abilityId: "swirl-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "swirl-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "逐段伤害" }).click();
   await expect(
-    page.locator('#hitReactionFilter option[value="swirlPyro"]')
+    page.locator('#hitReactionFilter option[value="swirlPyro"]'),
   ).toHaveText("火扩散");
   await expect(
-    page.locator('#hitReactionFilter option[value="reverseVaporize"]')
+    page.locator('#hitReactionFilter option[value="reverseVaporize"]'),
   ).toHaveText("反向蒸发");
   const propagationRow = page
     .locator("#hitTableBody tr")
@@ -2318,103 +2213,89 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
   await expect(page.locator("#auraTimelineBody")).toContainText("火扩散");
   await page.locator("#auraTargetFilter").selectOption("enemy-1");
-  await expect(page.locator("#auraTimelineBody")).toContainText(
-    "反向蒸发"
-  );
+  await expect(page.locator("#auraTimelineBody")).toContainText("反向蒸发");
   await expect(page.locator("#reactionDamageSummary")).toContainText(
-    "2 次转化反应触发/扩散攻击"
+    "2 次转化反应触发/扩散攻击",
   );
   await expect(page.locator("#reactionDamageBody")).toContainText(
-    "扩散自身伤害"
+    "扩散自身伤害",
   );
   await expect(page.locator("#reactionDamageBody")).toContainText(
-    "扩散范围传播"
+    "扩散范围传播",
   );
+  await expect(page.locator("#reactionDamageBody")).toContainText("附着 2.2U");
   await expect(page.locator("#reactionDamageBody")).toContainText(
-    "附着 2.2U"
-  );
-  await expect(page.locator("#reactionDamageBody")).toContainText(
-    "排除 enemy-0"
+    "排除 enemy-0",
   );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const direct = result?.damageEvents.find(
-      (event) => event.kind === "direct"
+      (event) => event.kind === "direct",
     );
     const self = result?.damageEvents.find(
-      (event) =>
-        event.reaction === "swirlPyro" && event.frame === 1
+      (event) => event.reaction === "swirlPyro" && event.frame === 1,
     );
     const propagation = result?.damageEvents.find(
-      (event) =>
-        event.reaction === "swirlPyro" && event.frame === 5
+      (event) => event.reaction === "swirlPyro" && event.frame === 5,
     );
     return {
       direct: direct && {
         id: direct.id,
         reaction: direct.reaction,
         propagatedGaugeUnits:
-          direct.reactionAudit.swirlReactions[0]
-            ?.propagatedGaugeUnits
+          direct.reactionAudit.swirlReactions[0]?.propagatedGaugeUnits,
       },
       self: self && {
         frame: self.frame,
         targetId: self.targetId,
-        parentDamageEventId: self.parentDamageEventId
+        parentDamageEventId: self.parentDamageEventId,
       },
       propagation: propagation && {
         frame: propagation.frame,
         targetId: propagation.targetId,
         parentDamageEventId: propagation.parentDamageEventId,
         secondaryReaction: propagation.reactionAudit.reaction,
-        applicationGaugeUnits:
-          propagation.reactionAudit.applicationGaugeUnits
+        applicationGaugeUnits: propagation.reactionAudit.applicationGaugeUnits,
       },
-      curveEvents: result?.damageCurve.length
+      curveEvents: result?.damageCurve.length,
     };
   });
   expect(audit).toMatchObject({
     direct: {
       id: 0,
       reaction: "swirlPyro",
-      propagatedGaugeUnits: 2.2
+      propagatedGaugeUnits: 2.2,
     },
     self: {
       frame: 1,
       targetId: "enemy-0",
-      parentDamageEventId: 0
+      parentDamageEventId: 0,
     },
     propagation: {
       frame: 5,
       targetId: "enemy-1",
       parentDamageEventId: 0,
       secondaryReaction: "reverseVaporize",
-      applicationGaugeUnits: 2.2
+      applicationGaugeUnits: 2.2,
     },
-    curveEvents: 3
+    curveEvents: 3,
   });
 
   await page.locator("#reactionDamageBody tr").nth(1).click();
-  await expect(page.locator("#hitDetail")).toContainText(
-    "传播后的二次反应"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "扩散独立伤害组 ICD"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "反向蒸发"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("传播后的二次反应");
+  await expect(page.locator("#hitDetail")).toContainText("扩散独立伤害组 ICD");
+  await expect(page.locator("#hitDetail")).toContainText("反向蒸发");
 });
 
 test("renders Crystallize Aura, shard pickup, shield state, and shield curve", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "结晶碎片与护盾 · 浏览器验收"
+    name: "结晶碎片与护盾 · 浏览器验收",
   };
   config.duration = 20;
   config.cycleLength = 20;
@@ -2428,9 +2309,9 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
         name: "结晶目标",
         position: { x: 10, y: 5 },
         hitboxRadius: 1,
-        initialAura: [{ element: "pyro", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "pyro", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.characters = [
     {
@@ -2446,9 +2327,9 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0
-      }
-    }
+        reactionBonus: 0,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -2476,41 +2357,41 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
             element: "geo",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
         abilityId: "crystallize-browser",
-        atFrame: 0
+        atFrame: 0,
       },
       {
         type: "pickUpCrystallize",
         element: "pyro",
-        atFrame: 53
+        atFrame: 53,
       },
       {
         type: "pickUpCrystallize",
         element: "pyro",
-        atFrame: 54
-      }
-    ]
+        atFrame: 54,
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "crystallize-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "时间轴" }).click();
 
@@ -2518,28 +2399,24 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
   await expect(page.locator("#crystallizeShieldCanvas")).toBeVisible();
   await expect(page.locator("#auraTimelineBody")).toContainText("火结晶");
   await expect(page.locator("#crystallizeSummary")).toContainText(
-    "1 个碎片生成"
+    "1 个碎片生成",
   );
-  await expect(page.locator("#crystallizeSummary")).toContainText(
-    "1 次拾取"
-  );
+  await expect(page.locator("#crystallizeSummary")).toContainText("1 次拾取");
   await expect(page.locator("#crystallizeShardBody")).toContainText(
-    "尚未到最早拾取帧"
+    "尚未到最早拾取帧",
   );
-  await expect(page.locator("#crystallizeShardBody")).toContainText(
-    "拾取成功"
+  await expect(page.locator("#crystallizeShardBody")).toContainText("拾取成功");
+  await expect(page.locator("#crystallizeShieldBody")).toContainText(
+    "生成护盾",
   );
   await expect(page.locator("#crystallizeShieldBody")).toContainText(
-    "生成护盾"
-  );
-  await expect(page.locator("#crystallizeShieldBody")).toContainText(
-    "护盾到期"
+    "护盾到期",
   );
   await expect(page.locator("#crystallizeShieldLegend")).toContainText(
-    "通用结晶盾等效吸收量"
+    "通用结晶盾等效吸收量",
   );
   await expect(page.locator("#legalTimelineBody")).toContainText(
-    "拾取结晶碎片"
+    "拾取结晶碎片",
   );
 
   const audit = await page.evaluate(() => {
@@ -2548,13 +2425,13 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
       damageEvents: result?.damageEvents.map((event) => ({
         id: event.id,
         frame: event.frame,
-        reaction: event.reaction
+        reaction: event.reaction,
       })),
       shardLog: result?.crystallizeShardLog.map((entry) => ({
         operation: entry.operation,
         frame: entry.frame,
         reason: entry.reason,
-        shieldLogId: entry.shieldLogId
+        shieldLogId: entry.shieldLogId,
       })),
       shieldLog: result?.crystallizeShieldLog.map((entry) => ({
         operation: entry.operation,
@@ -2562,9 +2439,9 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
         sourceCharacterLevel: entry.sourceCharacterLevel,
         sourceElementalMastery: entry.sourceElementalMastery,
         expiresAtFrame: entry.expiresAtFrame,
-        baseHp: entry.baseHp
+        baseHp: entry.baseHp,
       })),
-      shieldTimeline: result?.crystallizeShieldTimeline
+      shieldTimeline: result?.crystallizeShieldTimeline,
     };
   });
   expect(audit).toMatchObject({
@@ -2572,28 +2449,28 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
       {
         id: 0,
         frame: 0,
-        reaction: "crystallizePyro"
-      }
+        reaction: "crystallizePyro",
+      },
     ],
     shardLog: [
       {
         operation: "spawn",
         frame: 23,
         reason: "SPAWNED",
-        shieldLogId: null
+        shieldLogId: null,
       },
       {
         operation: "pickup-attempt",
         frame: 53,
         reason: "TOO_EARLY",
-        shieldLogId: null
+        shieldLogId: null,
       },
       {
         operation: "pickup",
         frame: 54,
         reason: "PICKED_UP",
-        shieldLogId: 0
-      }
+        shieldLogId: 0,
+      },
     ],
     shieldLog: [
       {
@@ -2602,29 +2479,29 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
         sourceCharacterLevel: 90,
         sourceElementalMastery: 100,
         expiresAtFrame: 960,
-        baseHp: 1851.0603
+        baseHp: 1851.0603,
       },
       {
         operation: "expire",
         frame: 960,
-        expiresAtFrame: 960
-      }
+        expiresAtFrame: 960,
+      },
     ],
     shieldTimeline: [
       {
         frame: 54,
         operation: "add",
         shieldId: 0,
-        element: "pyro"
+        element: "pyro",
       },
       {
         frame: 960,
         operation: "expire",
         shieldId: null,
         element: null,
-        generalAbsorption: 0
-      }
-    ]
+        generalAbsorption: 0,
+      },
+    ],
   });
 
   await page
@@ -2637,13 +2514,13 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
 });
 
 test("renders Overload as independent per-target damage with queue and formula audits", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "超载独立伤害 · 浏览器验收"
+    name: "超载独立伤害 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
@@ -2656,23 +2533,23 @@ test("renders Overload as independent per-target damage with queue and formula a
         id: "enemy-0",
         name: "触发目标",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "electro", gaugeUnits: 1 }]
+        initialAura: [{ element: "electro", gaugeUnits: 1 }],
       },
       {
         id: "enemy-1",
         name: "范围内免疫目标",
         position: { x: 3, y: 0 },
-        resistance: 0.5
+        resistance: 0.5,
       },
       {
         id: "enemy-2",
         name: "范围外目标",
-        position: { x: 3.1, y: 0 }
+        position: { x: 3.1, y: 0 },
       },
       {
         id: "enemy-3",
-        name: "未提供位置目标"
-      }
+        name: "未提供位置目标",
+      },
     ],
     targetPhases: [
       {
@@ -2685,10 +2562,10 @@ test("renders Overload as independent per-target damage with queue and formula a
         effects: {
           damage: "immune",
           aura: "normal",
-          hitConfirm: "normal"
-        }
-      }
-    ]
+          hitConfirm: "normal",
+        },
+      },
+    ],
   };
   config.characters = [
     {
@@ -2697,9 +2574,9 @@ test("renders Overload as independent per-target damage with queue and formula a
       stats: {
         ...character.stats,
         em: 100,
-        reactionBonus: 0.2
-      }
-    }
+        reactionBonus: 0.2,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -2727,83 +2604,73 @@ test("renders Overload as independent per-target damage with queue and formula a
             element: "pyro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "overload-skill"
-      }
-    ]
+        abilityId: "overload-skill",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "overload-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
 
-  await expect(page.locator("#metricGrid")).toContainText(
-    "aura-v2 自动判定"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("aura-v2 自动判定");
   await expect(page.locator("#metricGrid")).toContainText("3");
   await page.getByRole("button", { name: "时间轴" }).click();
-  await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "雷 Aura"
-  );
+  await expect(page.locator("#auraTimelineLegend")).toContainText("雷 Aura");
   await expect(page.locator("#auraTimelineBody")).toContainText("超载");
   await expect(page.locator("#reactionDamageSummary")).toContainText(
-    "1 次转化反应触发"
+    "1 次转化反应触发",
   );
   await expect(page.locator("#reactionDamageSummary")).toContainText(
-    "2 段逐目标伤害事件"
+    "2 段逐目标伤害事件",
   );
   await expect(page.locator("#reactionDamageBody")).toContainText("0f → 1f");
-  await expect(page.locator("#reactionDamageBody")).toContainText(
-    "3 / 2 / 1"
-  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("3 / 2 / 1");
   await expect(page.locator("#reactionDamageBody")).toContainText("enemy-3");
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "Aura 不适用"
+    "Aura 不适用",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "OUTSIDE_CIRCLE_GEOMETRY"
+    "OUTSIDE_CIRCLE_GEOMETRY",
   );
 
   await page.locator("#reactionDamageBody tr").click();
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
+  await expect(page.locator("#hitDetail")).toContainText("独立转化反应伤害");
   await expect(page.locator("#hitDetail")).toContainText(
-    "独立转化反应伤害"
+    "转化反应伤害忽略防御",
   );
+  await expect(page.locator("#hitDetail")).toContainText("转化反应伤害不暴击");
   await expect(page.locator("#hitDetail")).toContainText(
-    "转化反应伤害忽略防御"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "转化反应伤害不暴击"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "等级 90 基准 1,446.8535 × 超载 2.75"
+    "等级 90 基准 1,446.8535 × 超载 2.75",
   );
 });
 
 test("renders Superconduct damage and target-scoped physical resistance windows", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const character = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "超导目标状态 · 浏览器验收"
+    name: "超导目标状态 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
@@ -2816,14 +2683,14 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
         id: "enemy-0",
         name: "超导触发目标",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }],
       },
       {
         id: "enemy-1",
         name: "范围外目标",
-        position: { x: 3.1, y: 0 }
-      }
-    ]
+        position: { x: 3.1, y: 0 },
+      },
+    ],
   };
   config.characters = [
     {
@@ -2838,9 +2705,9 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.2
-      }
-    }
+        reactionBonus: 0.2,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -2868,12 +2735,12 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
             element: "electro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
+              icd: { mode: "no-icd-v1" },
+            },
           },
           {
             id: "physical-same-frame-browser",
@@ -2883,8 +2750,8 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
             element: "physical",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
-            }
+              outcome: "landed",
+            },
           },
           {
             id: "physical-after-browser",
@@ -2894,57 +2761,55 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
             element: "physical",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
-            }
-          }
-        ]
-      }
+              outcome: "landed",
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: character.id,
-        abilityId: "superconduct-browser"
-      }
-    ]
+        abilityId: "superconduct-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "superconduct-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "时间轴" }).click();
 
   await expect(page.locator("#auraTimelineBody")).toContainText("超导");
   await expect(page.locator("#reactionDamageBody")).toContainText("超导");
   await expect(page.locator("#reactionStatusSummary")).toContainText(
-    "1 条目标级反应状态区间"
+    "1 条目标级反应状态区间",
   );
   await expect(page.locator("#reactionStatusBody")).toContainText(
-    "超导物理抗性降低"
+    "超导物理抗性降低",
   );
+  await expect(page.locator("#reactionStatusBody")).toContainText("1f → 721f");
   await expect(page.locator("#reactionStatusBody")).toContainText(
-    "1f → 721f"
-  );
-  await expect(page.locator("#reactionStatusBody")).toContainText(
-    "物理抗性 -40%"
+    "物理抗性 -40%",
   );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const sameFrame = result?.damageEvents.find(
-      (event) => event.hitId === "physical-same-frame-browser"
+      (event) => event.hitId === "physical-same-frame-browser",
     );
     const after = result?.damageEvents.find(
-      (event) => event.hitId === "physical-after-browser"
+      (event) => event.hitId === "physical-after-browser",
     );
     return {
       sameFrameResistance: sameFrame?.effectiveRes,
       afterResistance: after?.effectiveRes,
       afterDebuffs: after?.debuffs,
-      statusLog: result?.reactionStatusLog
+      statusLog: result?.reactionStatusLog,
     };
   });
   expect(audit).toMatchObject({
@@ -2956,32 +2821,28 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
         targetId: "enemy-0",
         startFrame: 1,
         endFrame: 721,
-        supersededAtFrame: null
-      }
-    ]
+        supersededAtFrame: null,
+      },
+    ],
   });
 
   await page.locator("#reactionDamageBody tr").click();
   await expect(page.locator("#hitDetail")).toContainText(
-    "等级 90 基准 1,446.8535 × 超导 1.5"
+    "等级 90 基准 1,446.8535 × 超导 1.5",
   );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "反应目标状态"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "物理抗性 -40%"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("反应目标状态");
+  await expect(page.locator("#hitDetail")).toContainText("物理抗性 -40%");
 });
 
 test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curve state", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const electro = config.characters[0]!;
   const hydro = config.characters[1]!;
   config.meta = {
     ...config.meta,
-    name: "感电周期流 · 浏览器验收"
+    name: "感电周期流 · 浏览器验收",
   };
   config.duration = 3;
   config.cycleLength = 3;
@@ -2994,9 +2855,9 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
         id: "enemy-0",
         name: "感电浏览器目标",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.characters = [
     {
@@ -3011,8 +2872,8 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.2
-      }
+        reactionBonus: 0.2,
+      },
     },
     {
       ...hydro,
@@ -3026,9 +2887,9 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
         critRate: 0,
         critDmg: 0.5,
         dmgBonus: 0,
-        reactionBonus: 0.1
-      }
-    }
+        reactionBonus: 0.1,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -3056,14 +2917,14 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
             element: "electro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
       },
       {
         id: "ec-browser-refresh",
@@ -3082,58 +2943,54 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
             element: "hydro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: electro.id,
-        abilityId: "ec-browser-start"
+        abilityId: "ec-browser-start",
       },
       { type: "wait", frames: 7 },
       { type: "swap", characterId: hydro.id },
       {
         type: "skill",
         actorId: hydro.id,
-        abilityId: "ec-browser-refresh"
-      }
-    ]
+        abilityId: "ec-browser-refresh",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "electro-charged-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "时间轴" }).click();
 
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
   await expect(page.locator("#auraTimelineBody")).toContainText("感电");
   await expect(page.locator("#reactionDamageBody tr")).toHaveCount(2);
-  await expect(page.locator("#reactionDamageBody")).toContainText(
-    "周期 Tick"
-  );
-  await expect(page.locator("#reactionDamageBody")).toContainText(
-    "单目标"
-  );
+  await expect(page.locator("#reactionDamageBody")).toContainText("周期 Tick");
+  await expect(page.locator("#reactionDamageBody")).toContainText("单目标");
   await expect(page.locator("#periodicReactionSummary")).toContainText(
-    "6 条周期状态记录"
+    "6 条周期状态记录",
   );
   await expect(page.locator("#periodicReactionBody tr")).toHaveCount(6);
   await expect(page.locator("#periodicReactionBody")).toContainText(
-    "削减 Aura"
+    "削减 Aura",
   );
   await expect(page.locator("#periodicReactionBody")).toContainText(
-    "AURA_DEPLETED_BY_WANE"
+    "AURA_DEPLETED_BY_WANE",
   );
 
   const audit = await page.evaluate(() => {
@@ -3143,17 +3000,17 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
         .filter(
           (event) =>
             event.kind === "transformative-reaction" &&
-            event.reaction === "electroCharged"
+            event.reaction === "electroCharged",
         )
         .map((event) => ({
           frame: event.frame,
           actorId: event.sourceActorId,
           targetId: event.targetId,
-          displayDamage: event.displayDamage
+          displayDamage: event.displayDamage,
         })),
       operations: result?.periodicReactionLog.map(
-        (entry) => `${entry.operation}@${entry.frame}`
-      )
+        (entry) => `${entry.operation}@${entry.frame}`,
+      ),
     };
   });
   expect(audit).toMatchObject({
@@ -3162,14 +3019,14 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
         frame: 10,
         actorId: electro.id,
         targetId: "enemy-0",
-        displayDamage: expect.any(Number)
+        displayDamage: expect.any(Number),
       },
       {
         frame: 70,
         actorId: hydro.id,
         targetId: "enemy-0",
-        displayDamage: expect.any(Number)
-      }
+        displayDamage: expect.any(Number),
+      },
     ],
     operations: [
       "start@0",
@@ -3177,27 +3034,25 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
       "wane@16",
       "refresh@20",
       "tick@70",
-      "wane@76"
-    ]
+      "wane@76",
+    ],
   });
 
   await page.locator("#reactionDamageBody tr").first().click();
   await expect(page.locator("#hitDetail")).toContainText(
-    "等级 90 基准 1,446.8535 × 感电 2"
+    "等级 90 基准 1,446.8535 × 感电 2",
   );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "独立转化反应伤害"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("独立转化反应伤害");
 });
 
 test("renders Frozen creation, exact expiry, resistance, and curve state", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const hydro = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "冻结状态 · 浏览器验收"
+    name: "冻结状态 · 浏览器验收",
   };
   config.duration = 3;
   config.cycleLength = 3;
@@ -3211,9 +3066,9 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
         id: "enemy-0",
         name: "冻结浏览器目标",
         freezeResistance: 0,
-        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.characters = [
     {
@@ -3226,9 +3081,9 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
         flatAtk: 0,
         critRate: 0,
         critDmg: 0.5,
-        dmgBonus: 0
-      }
-    }
+        dmgBonus: 0,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -3256,58 +3111,57 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
             element: "hydro",
             targeting: {
               targetId: "enemy-0",
-              outcome: "landed"
+              outcome: "landed",
             },
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
-      }
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: hydro.id,
-        abilityId: "freeze-browser"
-      }
-    ]
+        abilityId: "freeze-browser",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "freeze-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "时间轴" }).click();
 
   await expect(page.locator("#auraTimelineBody")).toContainText("冻结");
   await expect(page.locator("#auraTimelineLegend")).toContainText(
-    "冻元素 Aura"
+    "冻元素 Aura",
   );
   await expect(page.locator("#frozenStateSummary")).toContainText(
-    "2 条冻结耐久记录 · 1 次自然到期"
+    "2 条冻结耐久记录 · 1 次自然到期",
   );
   await expect(page.locator("#frozenStateBody tr")).toHaveCount(2);
   await expect(page.locator("#frozenStateBody")).toContainText("176f");
   await expect(page.locator("#frozenStateBody")).toContainText(
-    "FROZEN_DECAY_EXPIRED"
+    "FROZEN_DECAY_EXPIRED",
   );
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     return {
       reaction: result?.damageEvents[0]?.reaction,
-      reactionBase:
-        result?.damageEvents[0]?.damageFactors.reactionBase,
+      reactionBase: result?.damageEvents[0]?.damageFactors.reactionBase,
       frozen: result?.frozenStateLog.map((entry) => ({
         operation: entry.operation,
         frame: entry.frame,
         expiresAtFrame: entry.expiresAtFrame,
-        freezeResistance: entry.freezeResistance
-      }))
+        freezeResistance: entry.freezeResistance,
+      })),
     };
   });
   expect(audit).toEqual({
@@ -3318,15 +3172,15 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
         operation: "start",
         frame: 0,
         expiresAtFrame: 176,
-        freezeResistance: 0
+        freezeResistance: 0,
       },
       {
         operation: "expire",
         frame: 176,
         expiresAtFrame: null,
-        freezeResistance: 0
-      }
-    ]
+        freezeResistance: 0,
+      },
+    ],
   });
 
   await page.locator("#frozenStateBody tr").first().click();
@@ -3336,13 +3190,13 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
 });
 
 test("renders Shatter trigger audit, physical damage, frozen consumption, and curve", async ({
-  page
+  page,
 }) => {
   const config = structuredClone(legalTimelineDemoPreset);
   const template = config.characters[0]!;
   config.meta = {
     ...config.meta,
-    name: "碎冰反应 · 浏览器验收"
+    name: "碎冰反应 · 浏览器验收",
   };
   config.duration = 1;
   config.cycleLength = 1;
@@ -3356,9 +3210,9 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         id: "enemy-0",
         name: "碎冰浏览器目标",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: "cryo", gaugeUnits: 1 }]
-      }
-    ]
+        initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+      },
+    ],
   };
   config.characters = [
     {
@@ -3374,8 +3228,8 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         critRate: 0,
         dmgBonus: 0,
         em: 0,
-        reactionBonus: 0
-      }
+        reactionBonus: 0,
+      },
     },
     {
       ...template,
@@ -3390,9 +3244,9 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         critRate: 0,
         dmgBonus: 0,
         em: 100,
-        reactionBonus: 0.2
-      }
-    }
+        reactionBonus: 0.2,
+      },
+    },
   ];
   config.reactionEngine = { mode: "aura-v2" };
   config.rotation = [];
@@ -3420,10 +3274,10 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
             element: "hydro",
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" }
-            }
-          }
-        ]
+              icd: { mode: "no-icd-v1" },
+            },
+          },
+        ],
       },
       {
         id: "browser-shatter",
@@ -3440,44 +3294,44 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
             frame: 0,
             scaling: 1,
             element: "physical",
-            strikeType: "blunt"
-          }
-        ]
-      }
+            strikeType: "blunt",
+          },
+        ],
+      },
     ],
     commands: [
       {
         type: "skill",
         actorId: "hydro-browser",
-        abilityId: "freeze-before-shatter"
+        abilityId: "freeze-before-shatter",
       },
       { type: "swap", characterId: "crusher-browser" },
       {
         type: "skill",
         actorId: "crusher-browser",
-        abilityId: "browser-shatter"
-      }
-    ]
+        abilityId: "browser-shatter",
+      },
+    ],
   };
 
   await page.goto("/");
   await page.locator("#importInput").setInputFiles({
     name: "shatter-browser-vector.json",
     mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(config))
+    buffer: Buffer.from(JSON.stringify(config)),
   });
   await page.getByRole("button", { name: "时间轴" }).click();
 
   await expect(page.locator("#reactionDamageSummary")).toContainText(
-    "1 次转化反应触发"
+    "1 次转化反应触发",
   );
   await expect(page.locator("#reactionDamageBody")).toContainText("碎冰");
   await expect(page.locator("#reactionDamageBody")).toContainText("单目标");
   await expect(page.locator("#frozenStateSummary")).toContainText(
-    "2 条冻结耐久记录 · 0 次自然到期"
+    "2 条冻结耐久记录 · 0 次自然到期",
   );
   await expect(page.locator("#frozenStateSummary")).toContainText(
-    "1 次碎冰消耗"
+    "1 次碎冰消耗",
   );
   await expect(page.locator("#frozenStateBody")).toContainText("碎冰消耗");
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
@@ -3486,18 +3340,17 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
     const result = window.GenshinDpsLab.getLastResult();
     const trigger = result?.damageEvents.find(
       (event) =>
-        event.kind === "direct" &&
-        event.sourceActorId === "crusher-browser"
+        event.kind === "direct" && event.sourceActorId === "crusher-browser",
     );
     const shatter = result?.damageEvents.find(
-      (event) => event.reaction === "shatter"
+      (event) => event.reaction === "shatter",
     );
     return {
       trigger: trigger
         ? {
             id: trigger.id,
             frame: trigger.frame,
-            audit: trigger.reactionAudit.shatterReaction
+            audit: trigger.reactionAudit.shatterReaction,
           }
         : null,
       shatter: shatter
@@ -3506,14 +3359,14 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
             element: shatter.element,
             reaction: shatter.reaction,
             parentDamageEventId: shatter.parentDamageEventId,
-            displayDamage: shatter.displayDamage
+            displayDamage: shatter.displayDamage,
           }
         : null,
       frozen: result?.frozenStateLog.map((entry) => ({
         operation: entry.operation,
         frame: entry.frame,
-        consumedGaugeUnits: entry.consumedGaugeUnits
-      }))
+        consumedGaugeUnits: entry.consumedGaugeUnits,
+      })),
     };
   });
   expect(audit).toMatchObject({
@@ -3525,52 +3378,48 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
         damageFrame: 2,
         nextAvailableFrame: 14,
         baseMultiplier: 3,
-        frozenGaugeAfter: 0
-      }
+        frozenGaugeAfter: 0,
+      },
     },
     shatter: {
       frame: 2,
       element: "physical",
       reaction: "shatter",
       parentDamageEventId: audit.trigger?.id,
-      displayDamage: expect.any(Number)
+      displayDamage: expect.any(Number),
     },
     frozen: [
       { operation: "start", frame: 0 },
       {
         operation: "shatter-consume",
         frame: 2,
-        consumedGaugeUnits: expect.any(Number)
-      }
-    ]
+        consumedGaugeUnits: expect.any(Number),
+      },
+    ],
   });
 
   await page.locator("#frozenStateBody tr").nth(1).click();
   await expect(page.locator("#hitDetail")).toContainText("碎冰触发检查");
   await expect(page.locator("#hitDetail")).toContainText(
-    "单目标物理 · 等级基准 × 3.0"
+    "单目标物理 · 等级基准 × 3.0",
   );
   await page.getByRole("button", { name: "时间轴" }).click();
   await page.locator("#reactionDamageBody tr").first().click();
   await expect(page.locator("#hitDetail")).toContainText(
-    "等级 90 基准 1,446.8535 × 碎冰 3"
+    "等级 90 基准 1,446.8535 × 碎冰 3",
   );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "独立转化反应伤害"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("独立转化反应伤害");
 });
 
 test("renders deterministic particle travel, receive-time field state, and energy curves", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page.locator("#presetSelect").selectOption({ index: 4 });
 
   await expect(page.locator("#notice")).toContainText("粒子 / 回能");
   await expect(page.locator("#notice")).toContainText("不是已核验游戏数据");
-  await expect(page.locator("#metricGrid")).toContainText(
-    "未启用 Aura 引擎"
-  );
+  await expect(page.locator("#metricGrid")).toContainText("未启用 Aura 引擎");
   await expect(page.locator("#energyStatus")).toContainText("充能效率 150%");
   await expect(page.locator("#energyStatus")).toContainText("固定 45.6");
   await expect(page.locator("#energyStatus")).toContainText("粒子 14.4");
@@ -3583,7 +3432,7 @@ test("renders deterministic particle travel, receive-time field state, and energ
           randomSeed: result.randomSeed,
           particles: result.particleEvents,
           energyStats: result.energyStats,
-          skipped: result.skippedActions.length
+          skipped: result.skippedActions.length,
         }
       : null;
   });
@@ -3595,36 +3444,36 @@ test("renders deterministic particle travel, receive-time field state, and energ
         particleCount: 4,
         spawnFrame: 12,
         receiveFrame: 42,
-        receivedWithinSimulation: true
-      }
+        receivedWithinSimulation: true,
+      },
     ],
     energyStats: {
       "energy-a": {
         particleGained: 14.4,
         fixedGained: 45.6,
         wasted: 5.4,
-        final: 60
+        final: 60,
       },
       "energy-b": {
         particleGained: 8,
         fixedGained: 1,
         spent: 4,
-        final: 5
-      }
-    }
+        final: 5,
+      },
+    },
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#energyAuditCard")).toBeVisible();
   await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
   await expect(page.locator("#energyAuditSummary")).toContainText(
-    "1 次产球 · 2 条角色粒子结算 · 3 条固定回能"
+    "1 次产球 · 2 条角色粒子结算 · 3 条固定回能",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "火微粒 × 4"
+    "火微粒 × 4",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "12f → 42f"
+    "12f → 42f",
   );
   await expect(page.locator("#energyLogBody tr")).toHaveCount(5);
   await expect(page.locator("#energyLogBody")).toContainText("后台 · ×0.8");
@@ -3635,22 +3484,20 @@ test("renders deterministic particle travel, receive-time field state, and energ
 });
 
 test("renders the source-audited Durin black E hit, ICD, aura, energy, and damage curves", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page.locator("#presetSelect").selectOption({ index: 5 });
 
   await expect(page.locator("#notice")).toContainText(
-    "杜林黑 E · 部分机制审计向量"
+    "杜林黑 E · 部分机制审计向量",
   );
   await expect(page.locator("#notice")).toContainText("不是完整角色预设");
   await expect(page.locator("#notice")).toContainText("provisional");
   await expect(page.locator("#notice")).toContainText("partial");
   await expect(page.locator("#notice")).toContainText("4 项待实现");
   await page.locator("#notice summary").click();
-  await expect(page.locator("#notice")).toContainText(
-    "gcsim 杜林技能行为"
-  );
+  await expect(page.locator("#notice")).toContainText("gcsim 杜林技能行为");
   await expect(page.locator("#metricGrid")).toContainText("4,037");
   await expect(page.locator("#metricGrid")).toContainText("3");
 
@@ -3661,13 +3508,11 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
           frames: result.damageEvents.map((event) => event.frame),
           damage: result.damageEvents.map((event) => event.displayDamage),
           icd: result.damageEvents.map(
-            (event) => event.reactionAudit.icdAllowed
+            (event) => event.reactionAudit.icdAllowed,
           ),
           reactions: result.damageEvents.map((event) => event.reaction),
           energy: result.energyStats.durin,
-          fixedEnergy: result.energyLog.find(
-            (entry) => entry.kind === "fixed"
-          ),
+          fixedEnergy: result.energyLog.find((entry) => entry.kind === "fixed"),
           particleTriggers: result.particleTriggerLog.map(
             ({
               frame,
@@ -3675,15 +3520,15 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
               triggered,
               blockedReason,
               internalCooldownKey,
-              internalCooldownReadyFrame
+              internalCooldownReadyFrame,
             }) => ({
               frame,
               hitId,
               triggered,
               blockedReason,
               internalCooldownKey,
-              internalCooldownReadyFrame
-            })
+              internalCooldownReadyFrame,
+            }),
           ),
           particle: result.particleEvents[0],
           curve: result.damageCurve.map((point) => point.cumulativeDamage),
@@ -3691,9 +3536,9 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
             ({ startFrame, cancelFrame, animationEndFrame }) => ({
               startFrame,
               cancelFrame,
-              animationEndFrame
-            })
-          )
+              animationEndFrame,
+            }),
+          ),
         }
       : null;
   });
@@ -3705,14 +3550,14 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
     energy: {
       fixedGained: 33,
       particleGained: 12,
-      final: 45
+      final: 45,
     },
     fixedEnergy: {
       applied: true,
       blockedReason: null,
       internalCooldownKey: "durin-skill-energy-icd",
       internalCooldownDurationFrames: 360,
-      internalCooldownReadyFrame: 376
+      internalCooldownReadyFrame: 376,
     },
     particleTriggers: [
       {
@@ -3721,7 +3566,7 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
         triggered: true,
         blockedReason: null,
         internalCooldownKey: "durin-particle-icd",
-        internalCooldownReadyFrame: 66
+        internalCooldownReadyFrame: 66,
       },
       {
         frame: 53,
@@ -3729,7 +3574,7 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
         triggered: false,
         blockedReason: "INTERNAL_COOLDOWN",
         internalCooldownKey: "durin-particle-icd",
-        internalCooldownReadyFrame: 66
+        internalCooldownReadyFrame: 66,
       },
       {
         frame: 58,
@@ -3737,22 +3582,22 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
         triggered: false,
         blockedReason: "INTERNAL_COOLDOWN",
         internalCooldownKey: "durin-particle-icd",
-        internalCooldownReadyFrame: 66
-      }
+        internalCooldownReadyFrame: 66,
+      },
     ],
     particle: {
       particleCount: 4,
       spawnFrame: 48,
       receiveFrame: 148,
       triggerLogId: 0,
-      triggerHitId: "durin-black-e-1"
+      triggerHitId: "durin-black-e-1",
     },
     curve: [2223.5472, 3042.2952, 4037.1048],
     commands: [
       { startFrame: 0, cancelFrame: 16, animationEndFrame: 49 },
       { startFrame: 16, cancelFrame: 58, animationEndFrame: 83 },
-      { startFrame: 58, cancelFrame: 59, animationEndFrame: 59 }
-    ]
+      { startFrame: 58, cancelFrame: 59, animationEndFrame: 59 },
+    ],
   });
 
   await page.getByRole("button", { name: "逐段伤害" }).click();
@@ -3762,15 +3607,13 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#hitDetail")).toContainText("黑 E 第 1 段");
   await expect(page.locator("#hitDetail")).toContainText("1.30032");
   await expect(page.locator("#hitDetail")).toContainText(
-    "durin-elemental-art / durin-skill"
+    "durin-elemental-art / durin-skill",
   );
 
   await page.getByRole("button", { name: "总览" }).click();
   await expect(page.locator("#timelineStateAudit")).toBeVisible();
   await expect(page.locator("#timelineStateBody tr")).toHaveCount(3);
-  await expect(page.locator("#timelineStateBody")).toContainText(
-    "精质转变"
-  );
+  await expect(page.locator("#timelineStateBody")).toContainText("精质转变");
   await expect(page.locator("#timelineStateBody")).toContainText("黑度之否");
   await expect(page.locator("#timelineStateBody")).toContainText("消耗");
   await expect(page.locator("#legalTimelineBody")).toContainText("冲刺");
@@ -3782,23 +3625,23 @@ test("renders the source-audited Durin black E hit, ICD, aura, energy, and damag
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(3);
   await expect(page.locator("#energyLogBody tr")).toHaveCount(2);
   await expect(page.locator("#energyLogBody")).toContainText(
-    "durin-skill-energy-icd"
+    "durin-skill-energy-icd",
   );
   await expect(page.locator("#energyLogBody")).toContainText("至 376f");
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "命中确认产球"
+    "命中确认产球",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "粒子 ICD 阻止"
+    "粒子 ICD 阻止",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "durin-particle-icd"
+    "durin-particle-icd",
   );
   await expect(page.locator("#particleEventSummary")).toContainText("66f 可用");
 });
 
 test("audits a scripted target miss before damage, Aura, and hit-confirmed particles", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -3807,14 +3650,14 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
   const scriptedMissConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
     firstHit.targeting = {
       targetId: "enemy-0",
       outcome: "miss",
-      reason: "SCRIPTED_OUTSIDE_HITBOX"
+      reason: "SCRIPTED_OUTSIDE_HITBOX",
     };
     return JSON.stringify(config, null, 2);
   });
@@ -3835,15 +3678,15 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
               outcome,
               reason,
               damageEventId,
-              displayDamage
+              displayDamage,
             }) => ({
               frame,
               hitId,
               outcome,
               reason,
               damageEventId,
-              displayDamage
-            })
+              displayDamage,
+            }),
           ),
           damageFrames: result.damageEvents.map((event) => event.frame),
           auraFrames: result.auraTimeline.map((event) => event.frame),
@@ -3853,18 +3696,18 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
               hitId,
               triggered,
               blockedReason,
-              internalCooldownReadyFrame
+              internalCooldownReadyFrame,
             }) => ({
               frame,
               hitId,
               triggered,
               blockedReason,
-              internalCooldownReadyFrame
-            })
+              internalCooldownReadyFrame,
+            }),
           ),
           particleSpawns: result.particleEvents.map(
-            (event) => event.spawnFrame
-          )
+            (event) => event.spawnFrame,
+          ),
         }
       : null;
   });
@@ -3876,22 +3719,22 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
         outcome: "miss",
         reason: "SCRIPTED_OUTSIDE_HITBOX",
         damageEventId: null,
-        displayDamage: 0
+        displayDamage: 0,
       },
       {
         frame: 53,
         hitId: "durin-black-e-2",
         outcome: "landed",
         reason: null,
-        damageEventId: 0
+        damageEventId: 0,
       },
       {
         frame: 58,
         hitId: "durin-black-e-3",
         outcome: "landed",
         reason: null,
-        damageEventId: 1
-      }
+        damageEventId: 1,
+      },
     ],
     damageFrames: [53, 58],
     auraFrames: [53, 58],
@@ -3901,40 +3744,40 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
         hitId: "durin-black-e-1",
         triggered: false,
         blockedReason: "TARGET_MISS",
-        internalCooldownReadyFrame: null
+        internalCooldownReadyFrame: null,
       },
       {
         frame: 53,
         hitId: "durin-black-e-2",
         triggered: true,
         blockedReason: null,
-        internalCooldownReadyFrame: 71
+        internalCooldownReadyFrame: 71,
       },
       {
         frame: 58,
         hitId: "durin-black-e-3",
         triggered: false,
         blockedReason: "INTERNAL_COOLDOWN",
-        internalCooldownReadyFrame: 71
-      }
+        internalCooldownReadyFrame: 71,
+      },
     ],
-    particleSpawns: [53]
+    particleSpawns: [53],
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次目标检查 · 2 次命中 · 1 次 Miss"
+    "3 次目标检查 · 2 次命中 · 1 次 Miss",
   );
   await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(3);
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "SCRIPTED_OUTSIDE_HITBOX"
+    "SCRIPTED_OUTSIDE_HITBOX",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText("Miss");
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "目标 Miss"
+    "目标 Miss",
   );
   await expect(page.locator("#energyAuditSummary")).toContainText(
-    "1 次因 Miss 未触发"
+    "1 次因 Miss 未触发",
   );
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
@@ -3942,12 +3785,12 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
     .click();
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
   await expect(page.locator("#hitDetail")).toContainText(
-    "敌人 0 (enemy-0) / landed (#1)"
+    "敌人 0 (enemy-0) / landed (#1)",
   );
 });
 
 test("keeps landed target damage, Aura, and hit-confirm policies independent", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -3956,7 +3799,7 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
   const targetPolicyConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -3967,8 +3810,8 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
       effects: {
         damage: "immune",
         aura: "blocked",
-        hitConfirm: "blocked"
-      }
+        hitConfirm: "blocked",
+      },
     };
     return JSON.stringify(config, null, 2);
   });
@@ -3987,15 +3830,15 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
               auraAllowed,
               hitConfirmAllowed,
               potentialDamage,
-              finalDamage
+              finalDamage,
             }) => ({
               frame,
               damageAllowed,
               auraAllowed,
               hitConfirmAllowed,
               potentialDamage,
-              finalDamage
-            })
+              finalDamage,
+            }),
           ),
           damage: result.damageEvents.map(
             ({
@@ -4003,24 +3846,22 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
               reaction,
               targetDamagePolicy,
               potentialDamage,
-              finalDamage
+              finalDamage,
             }) => ({
               frame,
               reaction,
               targetDamagePolicy,
               potentialDamage,
-              finalDamage
-            })
+              finalDamage,
+            }),
           ),
           triggerReasons: result.particleTriggerLog.map(
-            (entry) => entry.blockedReason
+            (entry) => entry.blockedReason,
           ),
           particleSpawns: result.particleEvents.map(
-            (event) => event.spawnFrame
+            (event) => event.spawnFrame,
           ),
-          curve: result.damageCurve.map(
-            (point) => point.cumulativeDamage
-          )
+          curve: result.damageCurve.map((point) => point.cumulativeDamage),
         }
       : null;
   });
@@ -4032,7 +3873,7 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
         auraAllowed: false,
         hitConfirmAllowed: false,
         potentialDamage: 1111.7736,
-        finalDamage: 0
+        finalDamage: 0,
       },
       {
         frame: 53,
@@ -4040,7 +3881,7 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
         auraAllowed: true,
         hitConfirmAllowed: true,
         potentialDamage: 1637.496,
-        finalDamage: 1637.496
+        finalDamage: 1637.496,
       },
       {
         frame: 58,
@@ -4048,8 +3889,8 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
         auraAllowed: true,
         hitConfirmAllowed: true,
         potentialDamage: 994.8096,
-        finalDamage: 994.8096
-      }
+        finalDamage: 994.8096,
+      },
     ],
     damage: [
       {
@@ -4057,59 +3898,51 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
         reaction: "none",
         targetDamagePolicy: "immune",
         potentialDamage: 1111.7736,
-        finalDamage: 0
+        finalDamage: 0,
       },
       {
         frame: 53,
         reaction: "melt",
-        targetDamagePolicy: "normal"
+        targetDamagePolicy: "normal",
       },
       {
         frame: 58,
         reaction: "none",
-        targetDamagePolicy: "normal"
-      }
+        targetDamagePolicy: "normal",
+      },
     ],
-    triggerReasons: [
-      "TARGET_HIT_CONFIRM_BLOCKED",
-      null,
-      "INTERNAL_COOLDOWN"
-    ],
+    triggerReasons: ["TARGET_HIT_CONFIRM_BLOCKED", null, "INTERNAL_COOLDOWN"],
     particleSpawns: [53],
-    curve: [0, 1637.496, 2632.3056]
+    curve: [0, 1637.496, 2632.3056],
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "1 次伤害免疫"
+    "1 次伤害免疫",
   );
   const firstTargetRow = page.locator("#targetHitAuditBody tr").first();
-  await expect(firstTargetRow).toContainText(
-    "伤害免疫 / Aura 阻断 / 回调阻断"
-  );
-  await expect(firstTargetRow).toContainText(
-    "SCRIPTED_FULL_INVULNERABILITY"
-  );
+  await expect(firstTargetRow).toContainText("伤害免疫 / Aura 阻断 / 回调阻断");
+  await expect(firstTargetRow).toContainText("SCRIPTED_FULL_INVULNERABILITY");
   await expect(firstTargetRow).toContainText("潜在 1,112");
   await expect(page.locator("#auraTimelineBody tr").first()).toContainText(
-    "冰"
+    "冰",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "目标策略阻止回调"
+    "目标策略阻止回调",
   );
   await expect(page.locator("#energyAuditSummary")).toContainText(
-    "1 次被目标策略阻止"
+    "1 次被目标策略阻止",
   );
   await firstTargetRow.click();
   await expect(page.locator("#hitsPanel")).toHaveClass(/active/);
   await expect(page.locator("#hitDetail")).toContainText("目标伤害策略");
   await expect(page.locator("#hitDetail")).toContainText(
-    "免疫 · 公式潜在 1,112 × 0"
+    "免疫 · 公式潜在 1,112 × 0",
   );
 });
 
 test("applies half-open enemy target phases and exposes their source per hit", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4128,8 +3961,8 @@ test("applies half-open enemy target phases and exposes their source per hit", a
         effects: {
           damage: "immune",
           aura: "blocked",
-          hitConfirm: "blocked"
-        }
+          hitConfirm: "blocked",
+        },
       },
       {
         id: "damage-only",
@@ -4141,9 +3974,9 @@ test("applies half-open enemy target phases and exposes their source per hit", a
         effects: {
           damage: "immune",
           aura: "normal",
-          hitConfirm: "normal"
-        }
-      }
+          hitConfirm: "normal",
+        },
+      },
     ];
     return JSON.stringify(config, null, 2);
   });
@@ -4159,8 +3992,8 @@ test("applies half-open enemy target phases and exposes their source per hit", a
             ({ id, startFrame, endFrame }) => ({
               id,
               startFrame,
-              endFrame
-            })
+              endFrame,
+            }),
           ),
           hits: result.hitResolutionLog.map(
             ({
@@ -4170,7 +4003,7 @@ test("applies half-open enemy target phases and exposes their source per hit", a
               damageAllowed,
               auraAllowed,
               hitConfirmAllowed,
-              finalDamage
+              finalDamage,
             }) => ({
               frame,
               targetEffectSource,
@@ -4178,21 +4011,21 @@ test("applies half-open enemy target phases and exposes their source per hit", a
               damageAllowed,
               auraAllowed,
               hitConfirmAllowed,
-              finalDamage
-            })
+              finalDamage,
+            }),
           ),
           reactions: result.damageEvents.map((event) => event.reaction),
           triggerReasons: result.particleTriggerLog.map(
-            (entry) => entry.blockedReason
+            (entry) => entry.blockedReason,
           ),
-          totalDamage: result.totalDamage
+          totalDamage: result.totalDamage,
         }
       : null;
   });
   expect(audit).toEqual({
     phases: [
       { id: "full-block", startFrame: 48, endFrame: 53 },
-      { id: "damage-only", startFrame: 53, endFrame: 58 }
+      { id: "damage-only", startFrame: 53, endFrame: 58 },
     ],
     hits: [
       {
@@ -4202,7 +4035,7 @@ test("applies half-open enemy target phases and exposes their source per hit", a
         damageAllowed: false,
         auraAllowed: false,
         hitConfirmAllowed: false,
-        finalDamage: 0
+        finalDamage: 0,
       },
       {
         frame: 53,
@@ -4211,7 +4044,7 @@ test("applies half-open enemy target phases and exposes their source per hit", a
         damageAllowed: false,
         auraAllowed: true,
         hitConfirmAllowed: true,
-        finalDamage: 0
+        finalDamage: 0,
       },
       {
         frame: 58,
@@ -4220,43 +4053,39 @@ test("applies half-open enemy target phases and exposes their source per hit", a
         damageAllowed: true,
         auraAllowed: true,
         hitConfirmAllowed: true,
-        finalDamage: 994.8096
-      }
+        finalDamage: 994.8096,
+      },
     ],
     reactions: ["none", "melt", "none"],
-    triggerReasons: [
-      "TARGET_HIT_CONFIRM_BLOCKED",
-      null,
-      "INTERNAL_COOLDOWN"
-    ],
-    totalDamage: 994.8096
+    triggerReasons: ["TARGET_HIT_CONFIRM_BLOCKED", null, "INTERNAL_COOLDOWN"],
+    totalDamage: 994.8096,
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetPhaseAudit")).toBeVisible();
   await expect(page.locator("#targetPhaseSummary")).toContainText(
-    "2 个按帧窗口"
+    "2 个按帧窗口",
   );
   await expect(page.locator("#targetPhaseBody tr")).toHaveCount(2);
   await expect(page.locator("#targetPhaseBody tr").first()).toContainText(
-    "48f"
+    "48f",
   );
   await expect(page.locator("#targetPhaseBody tr").first()).toContainText(
-    "53f"
+    "53f",
   );
   await expect(page.locator("#targetHitAuditBody tr").nth(0)).toContainText(
-    "阶段 full-block"
+    "阶段 full-block",
   );
   await expect(page.locator("#targetHitAuditBody tr").nth(1)).toContainText(
-    "阶段 damage-only"
+    "阶段 damage-only",
   );
   await expect(page.locator("#targetHitAuditBody tr").nth(2)).toContainText(
-    "默认"
+    "默认",
   );
 });
 
 test("keeps registered enemy stats, Aura, ICD, and UI filters independent", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4270,17 +4099,17 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         id: "enemy-1",
         name: "副目标",
         resistance: 0.5,
-        initialAura: [{ element: "hydro", gaugeUnits: 1 }]
-      }
+        initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const secondHit = ability?.hits?.[1];
     if (!secondHit) throw new Error("expected Durin black E second hit");
     secondHit.targeting = {
       targetId: "enemy-1",
-      outcome: "landed"
+      outcome: "landed",
     };
     return JSON.stringify(config, null, 2);
   });
@@ -4300,25 +4129,25 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
               targetName,
               reaction,
               enemyStateBeforeHit,
-              finalDamage
+              finalDamage,
             }) => ({
               frame,
               targetId,
               targetName,
               reaction,
               resistance: enemyStateBeforeHit.baseResistance,
-              finalDamage
-            })
+              finalDamage,
+            }),
           ),
           aura: result.auraTimeline.map(
             ({ frame, targetId, reaction, icdAllowed }) => ({
               frame,
               targetId,
               reaction,
-              icdAllowed
-            })
+              icdAllowed,
+            }),
           ),
-          curveTargets: result.damageCurve.map((point) => point.targetId)
+          curveTargets: result.damageCurve.map((point) => point.targetId),
         }
       : null;
   });
@@ -4333,7 +4162,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         freezeResistance: 0,
         initialAura: [{ element: "cryo", gaugeUnits: 1 }],
         position: null,
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-1",
@@ -4344,8 +4173,8 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         freezeResistance: 0,
         initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         position: null,
-        hitboxRadius: 0
-      }
+        hitboxRadius: 0,
+      },
     ],
     hits: [
       {
@@ -4354,7 +4183,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         targetName: "主目标",
         reaction: "melt",
         resistance: 0.1,
-        finalDamage: 2223.5472
+        finalDamage: 2223.5472,
       },
       {
         frame: 53,
@@ -4362,7 +4191,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         targetName: "副目标",
         reaction: "reverseVaporize",
         resistance: 0.5,
-        finalDamage: 682.29
+        finalDamage: 682.29,
       },
       {
         frame: 58,
@@ -4370,45 +4199,39 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
         targetName: "主目标",
         reaction: "none",
         resistance: 0.1,
-        finalDamage: 994.8096
-      }
+        finalDamage: 994.8096,
+      },
     ],
     aura: [
       {
         frame: 48,
         targetId: "enemy-0",
         reaction: "melt",
-        icdAllowed: true
+        icdAllowed: true,
       },
       {
         frame: 53,
         targetId: "enemy-1",
         reaction: "reverseVaporize",
-        icdAllowed: true
+        icdAllowed: true,
       },
       {
         frame: 58,
         targetId: "enemy-0",
         reaction: "none",
-        icdAllowed: false
-      }
+        icdAllowed: false,
+      },
     ],
-    curveTargets: ["enemy-0", "enemy-1", "enemy-0"]
+    curveTargets: ["enemy-0", "enemy-1", "enemy-0"],
   });
 
   await page.getByRole("button", { name: "时间轴" }).click();
-  await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "主目标"
-  );
-  await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "副目标"
-  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText("主目标");
+  await expect(page.locator("#targetHitAuditBody")).toContainText("副目标");
   await expect(page.locator("#targetDamageSummary")).toContainText(
-    "3,218 伤害"
+    "3,218 伤害",
   );
-  await expect(page.locator("#targetDamageSummary")).toContainText(
-    "682 伤害"
-  );
+  await expect(page.locator("#targetDamageSummary")).toContainText("682 伤害");
   await expect(page.locator("#auraTargetFilter option")).toHaveCount(2);
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(2);
   await page.locator("#auraTargetFilter").selectOption("enemy-1");
@@ -4423,13 +4246,11 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
   await expect(secondaryRow).toHaveCount(1);
   await expect(secondaryRow).toContainText("副目标");
   await secondaryRow.click();
-  await expect(page.locator("#hitDetail")).toContainText(
-    "副目标 (enemy-1)"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("副目标 (enemy-1)");
 });
 
 test("fans one AoE hit across targets while producing hit-confirm particles once", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4439,10 +4260,10 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
       { id: "enemy-0", name: "主目标" },
-      { id: "enemy-1", name: "副目标" }
+      { id: "enemy-1", name: "副目标" },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -4450,8 +4271,8 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
       mode: "fanout",
       targets: [
         { targetId: "enemy-0", outcome: "landed" },
-        { targetId: "enemy-1", outcome: "landed" }
-      ]
+        { targetId: "enemy-1", outcome: "landed" },
+      ],
     };
     return JSON.stringify(config, null, 2);
   });
@@ -4462,7 +4283,7 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const firstGroup = result?.hitResolutionLog.filter(
-      (entry) => entry.hitId === "durin-black-e-1"
+      (entry) => entry.hitId === "durin-black-e-1",
     );
     return result
       ? {
@@ -4472,44 +4293,40 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
               hitGroupId,
               targetIndex,
               targetCount,
-              finalDamage
+              finalDamage,
             }) => ({
               targetId,
               hitGroupId,
               targetIndex,
               targetCount,
-              finalDamage
-            })
+              finalDamage,
+            }),
           ),
           firstTrigger: result.particleTriggerLog[0],
           particleSpawns: result.particleEvents.map(
-            (event) => event.spawnFrame
+            (event) => event.spawnFrame,
           ),
           checks: result.hitResolutionLog.length,
-          damageEvents: result.damageEvents.length
+          damageEvents: result.damageEvents.length,
         }
       : null;
   });
   expect(audit?.firstGroup).toHaveLength(2);
   expect(audit?.firstGroup?.map((entry) => entry.targetId)).toEqual([
     "enemy-0",
-    "enemy-1"
+    "enemy-1",
   ]);
   expect(
-    new Set(audit?.firstGroup?.map((entry) => entry.hitGroupId)).size
+    new Set(audit?.firstGroup?.map((entry) => entry.hitGroupId)).size,
   ).toBe(1);
-  expect(audit?.firstGroup?.map((entry) => entry.targetIndex)).toEqual([
-    0, 1
-  ]);
-  expect(audit?.firstGroup?.map((entry) => entry.targetCount)).toEqual([
-    2, 2
-  ]);
+  expect(audit?.firstGroup?.map((entry) => entry.targetIndex)).toEqual([0, 1]);
+  expect(audit?.firstGroup?.map((entry) => entry.targetCount)).toEqual([2, 2]);
   expect(audit?.firstTrigger).toMatchObject({
     hitId: "durin-black-e-1",
     checkedTargetIds: ["enemy-0", "enemy-1"],
     confirmedTargetIds: ["enemy-0", "enemy-1"],
     triggered: true,
-    blockedReason: null
+    blockedReason: null,
   });
   expect(audit?.particleSpawns).toEqual([48]);
   expect(audit?.checks).toBe(4);
@@ -4520,12 +4337,12 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
   await expect(page.locator("#targetHitAuditBody")).toContainText("1/2");
   await expect(page.locator("#targetHitAuditBody")).toContainText("2/2");
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "检查 2 目标 / 确认 2"
+    "检查 2 目标 / 确认 2",
   );
 });
 
 test("derives circle hits from target positions and exposes geometric evidence", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4538,23 +4355,23 @@ test("derives circle hits from target positions and exposes geometric evidence",
         id: "enemy-0",
         name: "中心目标",
         position: { x: 0, y: 0 },
-        hitboxRadius: 0.5
+        hitboxRadius: 0.5,
       },
       {
         id: "enemy-1",
         name: "边界目标",
         position: { x: 1.5, y: 0 },
-        hitboxRadius: 0.5
+        hitboxRadius: 0.5,
       },
       {
         id: "enemy-2",
         name: "范围外目标",
         position: { x: 1.5001, y: 0 },
-        hitboxRadius: 0.5
-      }
+        hitboxRadius: 0.5,
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -4562,7 +4379,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
     firstHit.geometry = {
       kind: "circle",
       origin: { x: 0, y: 0 },
-      radius: 1
+      radius: 1,
     };
     return JSON.stringify(config, null, 2);
   });
@@ -4583,20 +4400,20 @@ test("derives circle hits from target positions and exposes geometric evidence",
                 geometryDistance,
                 geometryThreshold,
                 outcome,
-                reason
+                reason,
               }) => ({
                 targetId,
                 targetingSource,
                 geometryDistance,
                 geometryThreshold,
                 outcome,
-                reason
-              })
+                reason,
+              }),
             ),
           firstTrigger: result.particleTriggerLog[0],
           checks: result.hitResolutionLog.length,
           damageEvents: result.damageEvents.length,
-          auraTargets: result.auraTimeline.map((entry) => entry.targetId)
+          auraTargets: result.auraTimeline.map((entry) => entry.targetId),
         }
       : null;
   });
@@ -4607,7 +4424,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
       geometryDistance: 0,
       geometryThreshold: 1.5,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-1",
@@ -4615,7 +4432,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
       geometryDistance: 1.5,
       geometryThreshold: 1.5,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-2",
@@ -4623,15 +4440,15 @@ test("derives circle hits from target positions and exposes geometric evidence",
       geometryDistance: 1.5001,
       geometryThreshold: 1.5,
       outcome: "miss",
-      reason: "OUTSIDE_CIRCLE_GEOMETRY"
-    }
+      reason: "OUTSIDE_CIRCLE_GEOMETRY",
+    },
   ]);
   expect(audit?.firstTrigger).toMatchObject({
     hitId: "durin-black-e-1",
     checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
     confirmedTargetIds: ["enemy-0", "enemy-1"],
     triggered: true,
-    blockedReason: null
+    blockedReason: null,
   });
   expect(audit?.checks).toBe(5);
   expect(audit?.damageEvents).toBe(4);
@@ -4639,26 +4456,26 @@ test("derives circle hits from target positions and exposes geometric evidence",
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "5 次目标检查 · 4 次命中 · 1 次 Miss"
+    "5 次目标检查 · 4 次命中 · 1 次 Miss",
   );
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次二维圆形几何求交"
+    "3 次二维圆形几何求交",
   );
   await expect(page.locator("#targetHitAuditBody tr")).toHaveCount(5);
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "圆形 d=1.5 ≤ 1.5"
+    "圆形 d=1.5 ≤ 1.5",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "圆形 d=1.5001 > 1.5"
+    "圆形 d=1.5001 > 1.5",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "OUTSIDE_CIRCLE_GEOMETRY"
+    "OUTSIDE_CIRCLE_GEOMETRY",
   );
   await expect(page.locator("#targetDamageSummary")).toContainText(
-    "初始坐标 (1.5, 0) · 碰撞半径 0.5"
+    "初始坐标 (1.5, 0) · 碰撞半径 0.5",
   );
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "检查 3 目标 / 确认 2"
+    "检查 3 目标 / 确认 2",
   );
 
   await page
@@ -4667,12 +4484,12 @@ test("derives circle hits from target positions and exposes geometric evidence",
     .click();
   await expect(page.locator("#hitDetail")).toContainText("命中判定来源");
   await expect(page.locator("#hitDetail")).toContainText(
-    "二维圆形几何 · 圆心 (0, 0) · 攻击半径 1 · 中心距离 0 / 总阈值 1.5"
+    "二维圆形几何 · 圆心 (0, 0) · 攻击半径 1 · 中心距离 0 / 总阈值 1.5",
   );
 });
 
 test("audits rotated rectangle intersections against circular target hitboxes", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4685,23 +4502,23 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
         id: "enemy-0",
         name: "矩形内部",
         position: { x: 0, y: 1.5 },
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-1",
         name: "短边接触",
         position: { x: -0.6, y: 0 },
-        hitboxRadius: 0.1
+        hitboxRadius: 0.1,
       },
       {
         id: "enemy-2",
         name: "短边范围外",
         position: { x: -0.6001, y: 0 },
-        hitboxRadius: 0.1
-      }
+        hitboxRadius: 0.1,
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -4711,7 +4528,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
       origin: { x: 0, y: 0 },
       halfWidth: 2,
       halfHeight: 0.5,
-      rotationDegrees: 90
+      rotationDegrees: 90,
     };
     return JSON.stringify(config, null, 2);
   });
@@ -4735,7 +4552,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
                 geometryDistance,
                 geometryThreshold,
                 outcome,
-                reason
+                reason,
               }) => ({
                 targetId,
                 geometryKind,
@@ -4748,12 +4565,12 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
                     : Number(geometryDistance.toFixed(6)),
                 geometryThreshold,
                 outcome,
-                reason
-              })
+                reason,
+              }),
             ),
           firstTrigger: result.particleTriggerLog[0],
           checks: result.hitResolutionLog.length,
-          damageEvents: result.damageEvents.length
+          damageEvents: result.damageEvents.length,
         }
       : null;
   });
@@ -4767,7 +4584,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
       geometryDistance: 0,
       geometryThreshold: 0,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-1",
@@ -4778,7 +4595,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
       geometryDistance: 0.1,
       geometryThreshold: 0.1,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-2",
@@ -4789,45 +4606,43 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
       geometryDistance: 0.1001,
       geometryThreshold: 0.1,
       outcome: "miss",
-      reason: "OUTSIDE_RECTANGLE_GEOMETRY"
-    }
+      reason: "OUTSIDE_RECTANGLE_GEOMETRY",
+    },
   ]);
   expect(audit?.firstTrigger).toMatchObject({
     hitId: "durin-black-e-1",
     checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
     confirmedTargetIds: ["enemy-0", "enemy-1"],
-    triggered: true
+    triggered: true,
   });
   expect(audit?.checks).toBe(5);
   expect(audit?.damageEvents).toBe(4);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次旋转矩形几何求交"
+    "3 次旋转矩形几何求交",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "矩形最近距离=0.1 ≤ 碰撞半径 0.1"
+    "矩形最近距离=0.1 ≤ 碰撞半径 0.1",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "矩形最近距离=0.1001 > 碰撞半径 0.1"
+    "矩形最近距离=0.1001 > 碰撞半径 0.1",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "OUTSIDE_RECTANGLE_GEOMETRY"
+    "OUTSIDE_RECTANGLE_GEOMETRY",
   );
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
     .first()
     .click();
+  await expect(page.locator("#hitDetail")).toContainText("二维旋转矩形");
   await expect(page.locator("#hitDetail")).toContainText(
-    "二维旋转矩形"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "半宽 2 · 半高 0.5 · 旋转 90°"
+    "半宽 2 · 半高 0.5 · 旋转 90°",
   );
 });
 
 test("audits finite capsule side and end-cap intersections", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4840,23 +4655,23 @@ test("audits finite capsule side and end-cap intersections", async ({
         id: "enemy-0",
         name: "线段内部",
         position: { x: 0, y: 0 },
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-1",
         name: "端帽边界",
         position: { x: 2.5, y: 0 },
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-2",
         name: "端帽范围外",
         position: { x: 2.5001, y: 0 },
-        hitboxRadius: 0
-      }
+        hitboxRadius: 0,
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -4865,7 +4680,7 @@ test("audits finite capsule side and end-cap intersections", async ({
       kind: "capsule",
       start: { x: -2, y: 0 },
       end: { x: 2, y: 0 },
-      radius: 0.5
+      radius: 0.5,
     };
     return JSON.stringify(config, null, 2);
   });
@@ -4889,7 +4704,7 @@ test("audits finite capsule side and end-cap intersections", async ({
                 geometryDistance,
                 geometryThreshold,
                 outcome,
-                reason
+                reason,
               }) => ({
                 targetId,
                 geometryKind,
@@ -4902,12 +4717,12 @@ test("audits finite capsule side and end-cap intersections", async ({
                     : Number(geometryDistance.toFixed(6)),
                 geometryThreshold,
                 outcome,
-                reason
-              })
+                reason,
+              }),
             ),
           firstTrigger: result.particleTriggerLog[0],
           checks: result.hitResolutionLog.length,
-          damageEvents: result.damageEvents.length
+          damageEvents: result.damageEvents.length,
         }
       : null;
   });
@@ -4921,7 +4736,7 @@ test("audits finite capsule side and end-cap intersections", async ({
       geometryDistance: 0,
       geometryThreshold: 0.5,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-1",
@@ -4932,7 +4747,7 @@ test("audits finite capsule side and end-cap intersections", async ({
       geometryDistance: 0.5,
       geometryThreshold: 0.5,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-2",
@@ -4943,44 +4758,42 @@ test("audits finite capsule side and end-cap intersections", async ({
       geometryDistance: 0.5001,
       geometryThreshold: 0.5,
       outcome: "miss",
-      reason: "OUTSIDE_CAPSULE_GEOMETRY"
-    }
+      reason: "OUTSIDE_CAPSULE_GEOMETRY",
+    },
   ]);
   expect(audit?.firstTrigger).toMatchObject({
     checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
     confirmedTargetIds: ["enemy-0", "enemy-1"],
-    triggered: true
+    triggered: true,
   });
   expect(audit?.checks).toBe(5);
   expect(audit?.damageEvents).toBe(4);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次胶囊几何求交"
+    "3 次胶囊几何求交",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "胶囊线段距离=0.5 ≤ 总阈值 0.5"
+    "胶囊线段距离=0.5 ≤ 总阈值 0.5",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "胶囊线段距离=0.5001 > 总阈值 0.5"
+    "胶囊线段距离=0.5001 > 总阈值 0.5",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "OUTSIDE_CAPSULE_GEOMETRY"
+    "OUTSIDE_CAPSULE_GEOMETRY",
   );
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
     .first()
     .click();
+  await expect(page.locator("#hitDetail")).toContainText("二维胶囊几何");
   await expect(page.locator("#hitDetail")).toContainText(
-    "二维胶囊几何"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "起点 (-2, 0) · 终点 (2, 0) · 扫掠半径 0.5"
+    "起点 (-2, 0) · 终点 (2, 0) · 扫掠半径 0.5",
   );
 });
 
 test("audits filled sector arc, radial-edge, and out-of-range intersections", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -4993,23 +4806,23 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
         id: "enemy-0",
         name: "扇形内部",
         position: { x: 1, y: 0 },
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-1",
         name: "径向边擦碰",
         position: { x: 1, y: 1.2 },
-        hitboxRadius: 0.15
+        hitboxRadius: 0.15,
       },
       {
         id: "enemy-2",
         name: "圆弧范围外",
         position: { x: 2.0001, y: 0 },
-        hitboxRadius: 0
-      }
+        hitboxRadius: 0,
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -5019,7 +4832,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
       origin: { x: 0, y: 0 },
       radius: 2,
       directionDegrees: 0,
-      angleDegrees: 90
+      angleDegrees: 90,
     };
     return JSON.stringify(config, null, 2);
   });
@@ -5044,7 +4857,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
                 geometryDistance,
                 geometryThreshold,
                 outcome,
-                reason
+                reason,
               }) => ({
                 targetId,
                 geometryKind,
@@ -5058,12 +4871,12 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
                     : Number(geometryDistance.toFixed(6)),
                 geometryThreshold,
                 outcome,
-                reason
-              })
+                reason,
+              }),
             ),
           firstTrigger: result.particleTriggerLog[0],
           checks: result.hitResolutionLog.length,
-          damageEvents: result.damageEvents.length
+          damageEvents: result.damageEvents.length,
         }
       : null;
   });
@@ -5078,7 +4891,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
       geometryDistance: 0,
       geometryThreshold: 0,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-1",
@@ -5090,7 +4903,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
       geometryDistance: 0.141421,
       geometryThreshold: 0.15,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-2",
@@ -5102,44 +4915,42 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
       geometryDistance: 0.0001,
       geometryThreshold: 0,
       outcome: "miss",
-      reason: "OUTSIDE_SECTOR_GEOMETRY"
-    }
+      reason: "OUTSIDE_SECTOR_GEOMETRY",
+    },
   ]);
   expect(audit?.firstTrigger).toMatchObject({
     checkedTargetIds: ["enemy-0", "enemy-1", "enemy-2"],
     confirmedTargetIds: ["enemy-0", "enemy-1"],
-    triggered: true
+    triggered: true,
   });
   expect(audit?.checks).toBe(5);
   expect(audit?.damageEvents).toBe(4);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次扇形几何求交"
+    "3 次扇形几何求交",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "扇形最近距离=0.1414 ≤ 碰撞半径 0.15"
+    "扇形最近距离=0.1414 ≤ 碰撞半径 0.15",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "扇形最近距离=0.0001 > 碰撞半径 0"
+    "扇形最近距离=0.0001 > 碰撞半径 0",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "OUTSIDE_SECTOR_GEOMETRY"
+    "OUTSIDE_SECTOR_GEOMETRY",
   );
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
     .first()
     .click();
+  await expect(page.locator("#hitDetail")).toContainText("二维填充扇形");
   await expect(page.locator("#hitDetail")).toContainText(
-    "二维填充扇形"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "半径 2 · 方向 0° · 夹角 90°"
+    "半径 2 · 方向 0° · 夹角 90°",
   );
 });
 
 test("transforms actor-local geometry from a static source pose and audits world coordinates", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -5151,25 +4962,25 @@ test("transforms actor-local geometry from a static source pose and audits world
       {
         actorId: "durin",
         position: { x: 10, y: 20 },
-        facingDegrees: 90
-      }
+        facingDegrees: 90,
+      },
     ];
     config.enemy.targets = [
       {
         id: "enemy-0",
         name: "施放者前方",
         position: { x: 10, y: 21 },
-        hitboxRadius: 0
+        hitboxRadius: 0,
       },
       {
         id: "enemy-1",
         name: "世界右侧",
         position: { x: 11, y: 20 },
-        hitboxRadius: 0
-      }
+        hitboxRadius: 0,
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     const firstHit = ability?.hits?.[0];
     if (!firstHit) throw new Error("expected Durin black E first hit");
@@ -5180,7 +4991,7 @@ test("transforms actor-local geometry from a static source pose and audits world
       origin: { x: 0, y: 0 },
       radius: 2,
       directionDegrees: 0,
-      angleDegrees: 60
+      angleDegrees: 60,
     };
     return JSON.stringify(config, null, 2);
   });
@@ -5204,7 +5015,7 @@ test("transforms actor-local geometry from a static source pose and audits world
                 geometryOrigin,
                 geometryDirectionDegrees,
                 outcome,
-                reason
+                reason,
               }) => ({
                 targetId,
                 sourceActorPosition,
@@ -5213,12 +5024,12 @@ test("transforms actor-local geometry from a static source pose and audits world
                 geometryOrigin,
                 geometryDirectionDegrees,
                 outcome,
-                reason
-              })
+                reason,
+              }),
             ),
           firstTrigger: result.particleTriggerLog[0],
           checks: result.hitResolutionLog.length,
-          damageEvents: result.damageEvents.length
+          damageEvents: result.damageEvents.length,
         }
       : null;
   });
@@ -5226,8 +5037,8 @@ test("transforms actor-local geometry from a static source pose and audits world
     {
       actorId: "durin",
       position: { x: 10, y: 20 },
-      facingDegrees: 90
-    }
+      facingDegrees: 90,
+    },
   ]);
   expect(audit?.firstGroup).toEqual([
     {
@@ -5238,7 +5049,7 @@ test("transforms actor-local geometry from a static source pose and audits world
       geometryOrigin: { x: 10, y: 20 },
       geometryDirectionDegrees: 90,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       targetId: "enemy-1",
@@ -5248,44 +5059,40 @@ test("transforms actor-local geometry from a static source pose and audits world
       geometryOrigin: { x: 10, y: 20 },
       geometryDirectionDegrees: 90,
       outcome: "miss",
-      reason: "OUTSIDE_SECTOR_GEOMETRY"
-    }
+      reason: "OUTSIDE_SECTOR_GEOMETRY",
+    },
   ]);
   expect(audit?.firstTrigger).toMatchObject({
     checkedTargetIds: ["enemy-0", "enemy-1"],
     confirmedTargetIds: ["enemy-0"],
-    triggered: true
+    triggered: true,
   });
   expect(audit?.checks).toBe(4);
   expect(audit?.damageEvents).toBe(3);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "1 个静态角色姿态"
+    "1 个静态角色姿态",
   );
   await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "局部→世界 扇形最近距离"
+    "局部→世界 扇形最近距离",
   );
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
     .first()
     .click();
+  await expect(page.locator("#hitDetail")).toContainText("施放者静态姿态");
+  await expect(page.locator("#hitDetail")).toContainText("(10, 20) · 朝向 90°");
   await expect(page.locator("#hitDetail")).toContainText(
-    "施放者静态姿态"
+    "施放者局部→世界 · 二维填充扇形",
   );
   await expect(page.locator("#hitDetail")).toContainText(
-    "(10, 20) · 朝向 90°"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "施放者局部→世界 · 二维填充扇形"
-  );
-  await expect(page.locator("#hitDetail")).toContainText(
-    "圆心 (10, 20) · 半径 2 · 方向 90° · 夹角 60°"
+    "圆心 (10, 20) · 半径 2 · 方向 90° · 夹角 60°",
   );
 });
 
 test("interpolates target motion at each hit frame before geometry resolution", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -5298,8 +5105,8 @@ test("interpolates target motion at each hit frame before geometry resolution", 
         id: "enemy-0",
         name: "移动目标",
         position: { x: 0, y: 0 },
-        hitboxRadius: 0.5
-      }
+        hitboxRadius: 0.5,
+      },
     ];
     config.enemy.targetMotions = [
       {
@@ -5308,11 +5115,11 @@ test("interpolates target motion at each hit frame before geometry resolution", 
         targetId: "enemy-0",
         startFrame: 0,
         endFrame: 60,
-        endPosition: { x: 1.8, y: 0 }
-      }
+        endPosition: { x: 1.8, y: 0 },
+      },
     ];
     const ability = config.timeline?.abilities.find(
-      (candidate) => candidate.id === "durin-denial-of-darkness"
+      (candidate) => candidate.id === "durin-denial-of-darkness",
     );
     if (!ability?.hits) throw new Error("expected Durin black E hits");
     for (const hit of ability.hits) {
@@ -5320,7 +5127,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
       hit.geometry = {
         kind: "circle",
         origin: { x: 0, y: 0 },
-        radius: 1
+        radius: 1,
       };
     }
     return JSON.stringify(config, null, 2);
@@ -5341,7 +5148,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
               geometryDistance,
               geometryThreshold,
               outcome,
-              reason
+              reason,
             }) => ({
               frame,
               targetPosition:
@@ -5349,7 +5156,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
                   ? null
                   : {
                       x: Number(targetPosition.x.toFixed(6)),
-                      y: Number(targetPosition.y.toFixed(6))
+                      y: Number(targetPosition.y.toFixed(6)),
                     },
               geometryDistance:
                 geometryDistance === null
@@ -5357,13 +5164,13 @@ test("interpolates target motion at each hit frame before geometry resolution", 
                   : Number(geometryDistance.toFixed(6)),
               geometryThreshold,
               outcome,
-              reason
-            })
+              reason,
+            }),
           ),
           damageFrames: result.damageEvents.map((event) => event.frame),
           triggerReasons: result.particleTriggerLog.map(
-            (entry) => entry.blockedReason
-          )
+            (entry) => entry.blockedReason,
+          ),
         }
       : null;
   });
@@ -5377,8 +5184,8 @@ test("interpolates target motion at each hit frame before geometry resolution", 
       endPosition: { x: 1.8, y: 0 },
       startPosition: { x: 0, y: 0 },
       startTimeSeconds: 0,
-      endTimeSeconds: 1
-    }
+      endTimeSeconds: 1,
+    },
   ]);
   expect(audit?.hits).toEqual([
     {
@@ -5387,7 +5194,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
       geometryDistance: 1.44,
       geometryThreshold: 1.5,
       outcome: "landed",
-      reason: null
+      reason: null,
     },
     {
       frame: 53,
@@ -5395,7 +5202,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
       geometryDistance: 1.59,
       geometryThreshold: 1.5,
       outcome: "miss",
-      reason: "OUTSIDE_CIRCLE_GEOMETRY"
+      reason: "OUTSIDE_CIRCLE_GEOMETRY",
     },
     {
       frame: 58,
@@ -5403,56 +5210,40 @@ test("interpolates target motion at each hit frame before geometry resolution", 
       geometryDistance: 1.74,
       geometryThreshold: 1.5,
       outcome: "miss",
-      reason: "OUTSIDE_CIRCLE_GEOMETRY"
-    }
+      reason: "OUTSIDE_CIRCLE_GEOMETRY",
+    },
   ]);
   expect(audit?.damageFrames).toEqual([48]);
-  expect(audit?.triggerReasons).toEqual([
-    null,
-    "TARGET_MISS",
-    "TARGET_MISS"
-  ]);
+  expect(audit?.triggerReasons).toEqual([null, "TARGET_MISS", "TARGET_MISS"]);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#targetMotionAudit")).toBeVisible();
   await expect(page.locator("#targetMotionSummary")).toContainText(
-    "1 个线性分段"
+    "1 个线性分段",
   );
   await expect(page.locator("#targetMotionBody tr")).toHaveCount(1);
-  await expect(page.locator("#targetMotionBody")).toContainText(
-    "线性远离"
-  );
-  await expect(page.locator("#targetMotionBody")).toContainText(
-    "(0, 0)"
-  );
-  await expect(page.locator("#targetMotionBody")).toContainText(
-    "(1.8, 0)"
+  await expect(page.locator("#targetMotionBody")).toContainText("线性远离");
+  await expect(page.locator("#targetMotionBody")).toContainText("(0, 0)");
+  await expect(page.locator("#targetMotionBody")).toContainText("(1.8, 0)");
+  await expect(page.locator("#targetHitAuditSummary")).toContainText(
+    "3 次目标检查 · 1 次命中 · 2 次 Miss",
   );
   await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "3 次目标检查 · 1 次命中 · 2 次 Miss"
+    "1 个目标移动段",
   );
-  await expect(page.locator("#targetHitAuditSummary")).toContainText(
-    "1 个目标移动段"
-  );
-  await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "(1.44, 0)"
-  );
-  await expect(page.locator("#targetHitAuditBody")).toContainText(
-    "(1.59, 0)"
-  );
+  await expect(page.locator("#targetHitAuditBody")).toContainText("(1.44, 0)");
+  await expect(page.locator("#targetHitAuditBody")).toContainText("(1.59, 0)");
 
   await page
     .locator("#targetHitAuditBody tr[data-target-damage-id]")
     .first()
     .click();
-  await expect(page.locator("#hitDetail")).toContainText(
-    "命中时目标位置"
-  );
+  await expect(page.locator("#hitDetail")).toContainText("命中时目标位置");
   await expect(page.locator("#hitDetail")).toContainText("(1.44, 0)");
 });
 
 test("renders the source-audited Durin white E branch and state transition", async ({
-  page
+  page,
 }) => {
   await page.goto("/");
   await page
@@ -5460,7 +5251,7 @@ test("renders the source-audited Durin white E branch and state transition", asy
     .selectOption({ label: "杜林白 E · 部分机制审计向量" });
 
   await expect(page.locator("#notice")).toContainText(
-    "杜林白 E · 部分机制审计向量"
+    "杜林白 E · 部分机制审计向量",
   );
   await expect(page.locator("#notice")).toContainText("不是完整角色预设");
   await expect(page.locator("#notice")).toContainText("partial");
@@ -5473,39 +5264,33 @@ test("renders the source-audited Durin white E branch and state transition", asy
     return result
       ? {
           damage: result.damageEvents.map(
-            ({
-              frame,
-              hitId,
-              displayDamage,
-              reaction,
-              reactionAudit
-            }) => ({
+            ({ frame, hitId, displayDamage, reaction, reactionAudit }) => ({
               frame,
               hitId,
               displayDamage,
               reaction,
               icdAllowed: reactionAudit.icdAllowed,
-              icdGroup: reactionAudit.icdGroup
-            })
+              icdGroup: reactionAudit.icdGroup,
+            }),
           ),
           commands: result.timelineExecution?.commandResults.map(
             ({ commandType, startFrame, cancelFrame, animationEndFrame }) => ({
               commandType,
               startFrame,
               cancelFrame,
-              animationEndFrame
-            })
+              animationEndFrame,
+            }),
           ),
           states: result.timelineExecution?.stateLog.map(
             ({ frame, operation, statusKey }) => ({
               frame,
               operation,
-              statusKey
-            })
+              statusKey,
+            }),
           ),
           energy: result.energyStats.durin,
           particle: result.particleEvents[0],
-          trigger: result.particleTriggerLog[0]
+          trigger: result.particleTriggerLog[0],
         }
       : null;
   });
@@ -5517,64 +5302,64 @@ test("renders the source-audited Durin white E branch and state transition", asy
         displayDamage: 1625,
         reaction: "none",
         icdAllowed: null,
-        icdGroup: null
-      }
+        icdGroup: null,
+      },
     ],
     commands: [
       {
         commandType: "skill",
         startFrame: 0,
         cancelFrame: 15,
-        animationEndFrame: 49
+        animationEndFrame: 49,
       },
       {
         commandType: "skill",
         startFrame: 15,
         cancelFrame: 61,
-        animationEndFrame: 98
+        animationEndFrame: 98,
       },
       {
         commandType: "dash",
         startFrame: 61,
         cancelFrame: 62,
-        animationEndFrame: 62
-      }
+        animationEndFrame: 62,
+      },
     ],
     states: [
       {
         frame: 0,
         operation: "grant",
-        statusKey: "durin-essential-transformation"
+        statusKey: "durin-essential-transformation",
       },
       {
         frame: 15,
         operation: "consume",
-        statusKey: "durin-essential-transformation"
+        statusKey: "durin-essential-transformation",
       },
       {
         frame: 15,
         operation: "grant",
-        statusKey: "durin-confirmation-of-purity-state"
-      }
+        statusKey: "durin-confirmation-of-purity-state",
+      },
     ],
     energy: {
       fixedGained: 33,
       particleGained: 12,
-      final: 45
+      final: 45,
     },
     particle: {
       particleCount: 4,
       spawnFrame: 50,
       receiveFrame: 150,
-      triggerHitId: "durin-white-e"
+      triggerHitId: "durin-white-e",
     },
     trigger: {
       frame: 50,
       hitId: "durin-white-e",
       triggered: true,
       internalCooldownKey: "durin-particle-icd",
-      internalCooldownReadyFrame: 68
-    }
+      internalCooldownReadyFrame: 68,
+    },
   });
 
   await page.getByRole("button", { name: "逐段伤害" }).click();
@@ -5600,15 +5385,15 @@ test("renders the source-audited Durin white E branch and state transition", asy
   await expect(auraRow.locator("td").nth(7)).toHaveText("—");
   await expect(auraRow.locator("td").nth(8)).toContainText("冰");
   await expect(page.locator("#particleEventSummary")).toContainText(
-    "durin-white-e"
+    "durin-white-e",
   );
   await expect(page.locator("#energyLogBody")).toContainText(
-    "durin-skill-energy-icd"
+    "durin-skill-energy-icd",
   );
 });
 
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
-  page
+  page,
 }) => {
   await page.route("**/api/showcase/283733593", async (route) => {
     await route.fulfill({
@@ -5622,19 +5407,19 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
           playerInfo: {
             level: 60,
             worldLevel: 9,
-            showAvatarInfoList: [{ avatarId: 10000075, level: 100 }]
+            showAvatarInfoList: [{ avatarId: 10000075, level: 100 }],
           },
           avatarInfoList: [
             {
               avatarId: 10000075,
               propMap: {
-                "4001": { type: 4001, ival: "100" }
+                "4001": { type: 4001, ival: "100" },
               },
               talentIdList: [751, 752, 753, 754, 755, 756],
               skillLevelMap: {
                 "10751": 10,
                 "10752": 10,
-                "10755": 10
+                "10755": 10,
               },
               fightPropMap: {
                 "20": 0.7863,
@@ -5644,19 +5429,19 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
                 "44": 0.466,
                 "2000": 17589.7,
                 "2001": 2551.7,
-                "2002": 752.9
+                "2002": 752.9,
               },
               equipList: [
                 {
                   itemId: 11501,
                   weapon: {
                     level: 90,
-                    affixMap: { "111501": 4 }
+                    affixMap: { "111501": 4 },
                   },
                   flat: {
                     itemType: "ITEM_WEAPON",
-                    rankLevel: 5
-                  }
+                    rankLevel: 5,
+                  },
                 },
                 {
                   itemId: 98544,
@@ -5665,34 +5450,32 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
                     itemType: "ITEM_RELIQUARY",
                     equipType: "EQUIP_BRACER",
                     rankLevel: 5,
-                    setId: 15024
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      })
+                    setId: 15024,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      }),
     });
   });
 
   await page.goto("/");
   await page.getByRole("button", { name: "账号展示柜" }).click();
+  await expect(page.locator("#catalogStatus")).toContainText("120 个角色");
   await expect(page.locator("#catalogStatus")).toContainText(
-    "120 个角色"
+    "762 个技能与被动",
   );
   await expect(page.locator("#catalogStatus")).toContainText(
-    "762 个技能与被动"
-  );
-  await expect(page.locator("#catalogStatus")).toContainText(
-    "数值目录与可执行机制严格分离"
+    "数值目录与可执行机制严格分离",
   );
   await page.getByRole("button", { name: "导入展示柜" }).click();
   await expect(page.locator("#showcaseStatus")).toContainText("导入成功");
   await expect(page.locator("#showcaseStatus")).toContainText("0 项未匹配");
   await expect(page.locator("#showcaseSummary")).toContainText("1 名角色");
   await expect(page.locator("#showcaseSummary")).toContainText(
-    "目录 6.7 · provisional"
+    "目录 6.7 · provisional",
   );
   await expect(page.locator("#showcaseCharacters")).toContainText("流浪者");
   await expect(page.locator("#showcaseCharacters")).toContainText("10000075");
@@ -5700,27 +5483,23 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
   await expect(page.locator("#showcaseCharacters")).toContainText("精5");
   await expect(page.locator("#showcaseCharacters")).toContainText("行幡鸣弦");
   await expect(page.locator("#showcaseCharacters")).toContainText(
-    "羽画·风姿华歌"
+    "羽画·风姿华歌",
   );
   await expect(page.locator("#showcaseCharacters")).toContainText(
-    "狂言·式乐五番"
+    "狂言·式乐五番",
   );
   await expect(page.locator("#showcaseCharacters")).toContainText(
-    "metadata-only"
+    "metadata-only",
   );
   await expect(page.locator("#showcaseCharacters")).toContainText(
-    "仅数据目录，不自动进入模拟"
+    "仅数据目录，不自动进入模拟",
   );
-  await page
-    .getByRole("button", { name: "设为毕业站位占位" })
-    .click();
+  await page.getByRole("button", { name: "设为毕业站位占位" }).click();
   await expect(page.locator("#graduationPlaceholder")).toContainText(
-    "graduation-target-placeholder"
+    "graduation-target-placeholder",
   );
+  await expect(page.locator("#graduationPlaceholder")).toContainText("流浪者");
   await expect(page.locator("#graduationPlaceholder")).toContainText(
-    "流浪者"
-  );
-  await expect(page.locator("#graduationPlaceholder")).toContainText(
-    "不进入伤害模拟"
+    "不进入伤害模拟",
   );
 });

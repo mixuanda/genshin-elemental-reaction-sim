@@ -1,12 +1,17 @@
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ID,
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -21,6 +26,9 @@ import {
   createSimulationRunManifest,
 } from "./reproducibility";
 import {
+  BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+  BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
+  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
@@ -42,8 +50,10 @@ import {
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   type DirectDamageGroupLogEntry,
@@ -71,6 +81,8 @@ import {
   type SimulationRunManifestV146,
   type SimulationRunManifestV147,
   type SimulationRunManifestV148,
+  type SimulationRunManifestV149,
+  type SimulationRunManifestV150,
 } from "./types";
 
 const commonIdentity = {
@@ -120,7 +132,7 @@ describe("versioned reproducibility identities", () => {
 
   });
 
-  it("binds all five fixed mechanics roots in the current 1.50 manifest", () => {
+  it("binds all six fixed mechanics roots in the current 1.51 manifest", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -131,6 +143,8 @@ describe("versioned reproducibility identities", () => {
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
       reactionDamageGroupRoot:
         GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
+      basicReactionSchedulerRoot:
+        GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
       dataVersion: commonIdentity.dataVersion,
       configHash: commonIdentity.configHash,
       resolvedRuntimeOptions: commonIdentity.resolvedRuntimeOptions,
@@ -138,13 +152,16 @@ describe("versioned reproducibility identities", () => {
     });
 
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+      BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
     );
     expect(manifest.version).toBe(SIMULATION_RUN_MANIFEST_VERSION);
-    expect(manifest.version).toBe("1.6.0");
+    expect(manifest.version).toBe(
+      BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
+    );
+    expect(manifest.version).toBe("1.7.0");
     expect(manifest.reactionFormulaRoot).toBe(CLASSIC_REACTION_FORMULA_ROOT);
     expect(manifest.directDamageGroupRoot).toBe(GCSIM_DAMAGE_GROUP_ROOT);
     expect(manifest.elementalApplicationIcdRoot).toBe(
@@ -155,6 +172,9 @@ describe("versioned reproducibility identities", () => {
     );
     expect(manifest.reactionDamageGroupRoot).toBe(
       GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
+    );
+    expect(manifest.basicReactionSchedulerRoot).toBe(
+      GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ROOT,
     );
 
     const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;
@@ -191,15 +211,47 @@ describe("versioned reproducibility identities", () => {
           contentHash: forgedContentHash,
         },
       },
+      {
+        ...identity,
+        reactionDamageGroupRoot: {
+          ...identity.reactionDamageGroupRoot,
+          contentHash: forgedContentHash,
+        },
+      },
+      {
+        ...identity,
+        basicReactionSchedulerRoot: {
+          ...identity.basicReactionSchedulerRoot,
+          contentHash: forgedContentHash,
+        },
+      },
     ] as unknown as Array<typeof identity>;
     for (const forgedIdentity of forgedIdentities) {
       expect(createSimulationReproducibilityKey(forgedIdentity)).not.toBe(
         manifest.reproducibilityKey,
       );
     }
+
+    const v1Identity = {
+      ...identity,
+      basicReactionSchedulerRoot:
+        LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+    };
+    expect(createSimulationReproducibilityKey(v1Identity)).not.toBe(
+      manifest.reproducibilityKey,
+    );
+    expect(
+      createSimulationReproducibilityKey({
+        ...v1Identity,
+        basicReactionSchedulerRoot: {
+          ...v1Identity.basicReactionSchedulerRoot,
+          contentHash: forgedContentHash,
+        },
+      } as unknown as typeof v1Identity),
+    ).not.toBe(createSimulationReproducibilityKey(v1Identity));
   });
 
-  it("retains exact 1.42, 1.44, 1.45, 1.46, 1.47, and 1.48 identities", () => {
+  it("retains exact historical identities through the frozen 1.50 wire", () => {
     const frozenV142Identity: Omit<
       SimulationRunManifestV142,
       "reproducibilityKey"
@@ -265,6 +317,37 @@ describe("versioned reproducibility identities", () => {
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
     };
+    const frozenV149Identity: Omit<
+      SimulationRunManifestV149,
+      "reproducibilityKey"
+    > = {
+      ...commonIdentity,
+      version: REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+    };
+    const frozenV150Identity: Omit<
+      SimulationRunManifestV150,
+      "reproducibilityKey"
+    > = {
+      ...commonIdentity,
+      version:
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+      schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      reactionOwnedElementalApplicationRoot:
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
+    };
 
     expect(frozenV145Identity.version).toBe("1.1.0");
     expect("directDamageGroupRoot" in frozenV142Identity).toBe(false);
@@ -274,6 +357,8 @@ describe("versioned reproducibility identities", () => {
     expect("reactionOwnedElementalApplicationRoot" in frozenV147Identity).toBe(
       false,
     );
+    expect("reactionDamageGroupRoot" in frozenV149Identity).toBe(false);
+    expect("basicReactionSchedulerRoot" in frozenV150Identity).toBe(false);
     expect([
       createSimulationReproducibilityKey(frozenV142Identity),
       createSimulationReproducibilityKey(frozenV144Identity),
@@ -281,6 +366,8 @@ describe("versioned reproducibility identities", () => {
       createSimulationReproducibilityKey(frozenV146Identity),
       createSimulationReproducibilityKey(frozenV147Identity),
       createSimulationReproducibilityKey(frozenV148Identity),
+      createSimulationReproducibilityKey(frozenV149Identity),
+      createSimulationReproducibilityKey(frozenV150Identity),
     ]).toEqual([
       "gdl-v2-fnv1a32-a82adc28",
       "gdl-v2-fnv1a32-452a4d63",
@@ -288,6 +375,8 @@ describe("versioned reproducibility identities", () => {
       "gdl-v2-fnv1a32-cba353ae",
       "gdl-v2-fnv1a32-ee6a05c7",
       "gdl-v2-fnv1a32-fe4848e6",
+      "gdl-v2-fnv1a32-fd502d2b",
+      "gdl-v2-fnv1a32-89f61b57",
     ]);
   });
 
@@ -309,6 +398,14 @@ describe("versioned reproducibility identities", () => {
         mode: "fixed-gcsim-reaction-owned-application-v2",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
       },
+      reactionDamageGroupModel: {
+        mode: "fixed-gcsim-reaction-damage-task-order-v2",
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
+      },
+      basicReactionSchedulerModel: {
+        mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+        policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_ID,
+      },
       configuredApplication: {
         gaugeUnits: 1,
         icd: {
@@ -325,6 +422,33 @@ describe("versioned reproducibility identities", () => {
         directDamageGroupModel: {
           ...configIdentity.directDamageGroupModel,
           profileId: "forged-profile",
+        },
+      }),
+    ).not.toBe(createSimulationConfigHash(configIdentity));
+    expect(
+      createSimulationConfigHash({
+        ...configIdentity,
+        reactionDamageGroupModel: {
+          ...configIdentity.reactionDamageGroupModel,
+          policyId: "forged-reaction-damage-policy",
+        },
+      }),
+    ).not.toBe(createSimulationConfigHash(configIdentity));
+    expect(
+      createSimulationConfigHash({
+        ...configIdentity,
+        basicReactionSchedulerModel: {
+          mode: "legacy-immediate-basic-reaction-scheduler-v1",
+          policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+        },
+      }),
+    ).not.toBe(createSimulationConfigHash(configIdentity));
+    expect(
+      createSimulationConfigHash({
+        ...configIdentity,
+        basicReactionSchedulerModel: {
+          ...configIdentity.basicReactionSchedulerModel,
+          policyId: "forged-basic-reaction-scheduler-policy",
         },
       }),
     ).not.toBe(createSimulationConfigHash(configIdentity));

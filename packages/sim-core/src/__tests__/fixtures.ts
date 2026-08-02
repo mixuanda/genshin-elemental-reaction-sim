@@ -8,6 +8,7 @@ import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
@@ -77,6 +78,11 @@ export function makeConfig(
       mode: "fixed-gcsim-reaction-damage-task-order-v2" as const,
       policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
     };
+  const basicReactionSchedulerModel =
+    overrides.basicReactionSchedulerModel ?? {
+      mode: "fixed-gcsim-basic-reaction-scheduler-v2" as const,
+      policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -118,6 +124,7 @@ export function makeConfig(
     directDamageGroupModel,
     elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel,
-    reactionDamageGroupModel
+    reactionDamageGroupModel,
+    basicReactionSchedulerModel
   };
 }

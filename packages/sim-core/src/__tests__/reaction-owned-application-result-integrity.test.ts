@@ -5,30 +5,31 @@ import {
   simulationResultV147Schema,
   type FrameHitDefinition,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
 } from "@genshin-dps-lab/icd-profiles";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 const OPTIONS = {
   energyMode: "configured" as const,
   critMode: "noCrit" as const,
-  compatibilityMode: "legal-frame-v1" as const
+  compatibilityMode: "legal-frame-v1" as const,
 };
 
 function applicationHit(
   id: string,
   element: NonNullable<FrameHitDefinition["element"]>,
-  targetId = "enemy-0"
+  targetId = "enemy-0",
 ): FrameHitDefinition {
   return {
     id,
@@ -42,19 +43,19 @@ function applicationHit(
             kind: "circle" as const,
             coordinateSpace: "world" as const,
             origin: { x: 0, y: 0 },
-            radius: 1
-          }
+            radius: 1,
+          },
         }
       : {
           targeting: {
             targetId,
-            outcome: "landed" as const
-          }
+            outcome: "landed" as const,
+          },
         }),
     application: {
       gaugeUnits: 1,
-      icd: { mode: "no-icd-v1" }
-    }
+      icd: { mode: "no-icd-v1" },
+    },
   };
 }
 
@@ -63,8 +64,8 @@ function makeReactionConfig(
   initialElement: "pyro" | "hydro" | "electro" | "dendro",
   incomingElement: "pyro" | "electro",
   targetTaskModel: SimConfig["targetTaskModel"] = {
-    mode: "target-phase-v2"
-  }
+    mode: "target-phase-v2",
+  },
 ): SimConfig {
   const base = makeConfig();
   return makeConfig({
@@ -81,9 +82,9 @@ function makeReactionConfig(
           id: "enemy-0",
           name: `${id} target`,
           position: { x: 0, y: 0 },
-          initialAura: [{ element: initialElement, gaugeUnits: 4 }]
-        }
-      ]
+          initialAura: [{ element: initialElement, gaugeUnits: 4 }],
+        },
+      ],
     },
     characters: [
       {
@@ -91,14 +92,14 @@ function makeReactionConfig(
         id: "driver",
         name: "Integrity driver",
         element: incomingElement,
-        stats: { ...neutralStats, baseAtk: 0, em: 100 }
-      }
+        stats: { ...neutralStats, baseAtk: 0, em: 100 },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     targetTaskModel,
     timeline: {
@@ -116,18 +117,18 @@ function makeReactionConfig(
           cancelFrame: 1,
           animationEndFrame: 1,
           cooldownFrames: 0,
-          hits: [applicationHit(`${id}-hit`, incomingElement, "enemy-0")]
-        }
+          hits: [applicationHit(`${id}-hit`, incomingElement, "enemy-0")],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "driver",
           abilityId: `${id}-ability`,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -147,20 +148,20 @@ function makeSwirlConfig(): SimConfig {
           id: "enemy-0",
           name: "Swirl source",
           position: { x: 0, y: 0 },
-          initialAura: [{ element: "pyro", gaugeUnits: 1 }]
+          initialAura: [{ element: "pyro", gaugeUnits: 1 }],
         },
         {
           id: "enemy-1",
           name: "Swirl recipient",
           position: { x: 1, y: 0 },
-          initialAura: [{ element: "hydro", gaugeUnits: 1 }]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
         },
         {
           id: "enemy-2",
           name: "Missed Swirl recipient",
-          position: { x: 5.1, y: 0 }
-        }
-      ]
+          position: { x: 5.1, y: 0 },
+        },
+      ],
     },
     characters: [
       {
@@ -168,14 +169,14 @@ function makeSwirlConfig(): SimConfig {
         id: "anemo",
         name: "Anemo integrity driver",
         element: "anemo",
-        stats: { ...neutralStats, baseAtk: 0, em: 100 }
-      }
+        stats: { ...neutralStats, baseAtk: 0, em: 100 },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     targetTaskModel: { mode: "target-phase-v2" },
     timeline: {
@@ -193,18 +194,18 @@ function makeSwirlConfig(): SimConfig {
           cancelFrame: 1,
           animationEndFrame: 1,
           cooldownFrames: 0,
-          hits: [applicationHit("swirl-hit", "anemo")]
-        }
+          hits: [applicationHit("swirl-hit", "anemo")],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "anemo",
           abilityId: "swirl-ability",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   });
 }
 
@@ -229,20 +230,20 @@ function makeMultiSwirlConfig(): SimConfig {
         kind: "circle",
         coordinateSpace: "world",
         origin: { x: 0, y: 0 },
-        radius: 0.1
+        radius: 0.1,
       },
       application: {
         gaugeUnits: 1,
-        icd: { mode: "no-icd-v1" }
-      }
+        icd: { mode: "no-icd-v1" },
+      },
     },
     {
       ...applicationHit("multi-swirl-hit", "anemo"),
       application: {
         gaugeUnits: 3,
-        icd: { mode: "no-icd-v1" }
-      }
-    }
+        icd: { mode: "no-icd-v1" },
+      },
+    },
   ];
   return config;
 }
@@ -255,7 +256,7 @@ function cloneResult(result: SimulationResult): SimulationResult {
 
 function expectRejectedByPublicAndTrusted(
   result: SimulationResult,
-  mutate: (forged: SimulationResult) => void
+  mutate: (forged: SimulationResult) => void,
 ): void {
   const publicWire = cloneResult(result);
   mutate(publicWire);
@@ -264,13 +265,13 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.50 integrity validation failed/
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
   );
 }
 
 function firstReactionOwnedRow(result: SimulationResult) {
   const row = result.elementalApplicationIcdLog.find(
-    (entry) => entry.sourceKind !== "configured-direct-hit"
+    (entry) => entry.sourceKind !== "configured-direct-hit",
   );
   if (row === undefined) {
     throw new Error("test vector requires a reaction-owned row");
@@ -281,7 +282,7 @@ function firstReactionOwnedRow(result: SimulationResult) {
 function rewriteReactionParentEventSequence(
   forged: SimulationResult,
   reactionDamageLogId: number,
-  eventSequence: number
+  eventSequence: number,
 ): void {
   const parent = forged.reactionDamageLog[reactionDamageLogId];
   if (parent === undefined) {
@@ -299,7 +300,7 @@ function rewriteReactionParentEventSequence(
         .map((row) => row.intraEventSequence ?? -1),
       ...forged.targetStateTimeline.points
         .filter((point) => point.eventSequence === eventSequence)
-        .map((point) => point.intraEventSequence ?? -1)
+        .map((point) => point.intraEventSequence ?? -1),
     ) + 1;
 
   for (const resolution of forged.hitResolutionLog) {
@@ -328,7 +329,7 @@ function rewriteReactionParentEventSequence(
   for (const point of forged.targetStateTimeline.points) {
     const linkedToParent = point.links.some(
       (link) =>
-        link.kind === "reaction-damage-log" && link.id === reactionDamageLogId
+        link.kind === "reaction-damage-log" && link.id === reactionDamageLogId,
     );
     if (
       !linkedToParent &&
@@ -342,7 +343,7 @@ function rewriteReactionParentEventSequence(
   }
 }
 
-describe("current V1.50 reaction-owned application result integrity", () => {
+describe("current V1.51 reaction-owned application result integrity", () => {
   let burning: SimulationResult;
   let swirl: SimulationResult;
   let swirlV1: SimulationResult;
@@ -352,7 +353,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
 
   beforeAll(() => {
     const burningConfig = makeReactionConfig("burning", "dendro", "pyro", {
-      mode: "target-phase-v3"
+      mode: "target-phase-v3",
     });
     if (burningConfig.timeline?.mode !== "legal-frame-v1") {
       throw new Error("test vector requires a legal-frame timeline");
@@ -364,24 +365,24 @@ describe("current V1.50 reaction-owned application result integrity", () => {
       ...(burningAbility.hits ?? []),
       {
         ...applicationHit("burning-followup-hit", "pyro"),
-        frame: 20
-      }
+        frame: 20,
+      },
     ];
     burning = simulate(burningConfig, OPTIONS);
     swirl = simulate(makeSwirlConfig(), OPTIONS);
     const swirlV1Config = makeSwirlConfig();
     swirlV1Config.reactionOwnedElementalApplicationModel = {
       mode: "fixed-gcsim-reaction-owned-application-v1",
-      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+      policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
     };
     swirlV1 = simulate(swirlV1Config, OPTIONS);
     overload = simulate(
       makeReactionConfig("overload", "electro", "pyro"),
-      OPTIONS
+      OPTIONS,
     );
     electroCharged = simulate(
       makeReactionConfig("electro-charged", "hydro", "electro"),
-      OPTIONS
+      OPTIONS,
     );
     multiSwirl = simulate(makeMultiSwirlConfig(), OPTIONS);
   });
@@ -394,22 +395,22 @@ describe("current V1.50 reaction-owned application result integrity", () => {
 
     expect(
       burning.elementalApplicationIcdLog.some(
-        (row) => row.sourceKind === "burning-tick"
-      )
+        (row) => row.sourceKind === "burning-tick",
+      ),
     ).toBe(true);
     const firstBurning = burning.elementalApplicationIcdLog.find(
-      (row) => row.sourceKind === "burning-tick"
+      (row) => row.sourceKind === "burning-tick",
     )!;
     const laterDirect = burning.elementalApplicationIcdLog.find(
       (row) =>
         row.sourceKind === "configured-direct-hit" &&
-        row.hitId === "burning-followup-hit"
+        row.hitId === "burning-followup-hit",
     )!;
     expect(firstBurning.id).toBeLessThan(laterDirect.id);
     expect(
       swirl.elementalApplicationIcdLog.some(
-        (row) => row.sourceKind === "swirl-propagation"
-      )
+        (row) => row.sourceKind === "swirl-propagation",
+      ),
     ).toBe(true);
     expect(
       swirlV1.elementalApplicationIcdLog
@@ -418,8 +419,8 @@ describe("current V1.50 reaction-owned application result integrity", () => {
           (row) =>
             row.selector.mode === "fixed-gcsim-reaction-owned-application-v1" &&
             row.selector.policyId ===
-              GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-        )
+              GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+        ),
     ).toBe(true);
   });
 
@@ -460,7 +461,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
         }
         (row.decision as { resetSchedulePolicy: string }).resetSchedulePolicy =
           "provisional-reset-before-attempt-at-window-start-plus-reset-frames-minus-one";
-      }
+      },
     ];
 
     for (const mutate of mutations) {
@@ -468,11 +469,13 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     }
   });
 
-  it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.50 replay", () => {
+  it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.51 replay", () => {
     const projected = projectSimulationResultV148ToV147(
       projectSimulationResultV149ToV148(
-        projectSimulationResultV150ToV149(overload)
-      )
+        projectSimulationResultV150ToV149(
+          projectSimulationResultV151ToV150(overload),
+        ),
+      ),
     );
 
     expect(simulationResultV147Schema.parse(projected)).toEqual(projected);
@@ -489,13 +492,13 @@ describe("current V1.50 reaction-owned application result integrity", () => {
       const row = structuredClone(firstReactionOwnedRow(forged));
       forged.elementalApplicationIcdLog.push({
         ...row,
-        id: forged.elementalApplicationIcdLog.length
+        id: forged.elementalApplicationIcdLog.length,
       });
     });
     expectRejectedByPublicAndTrusted(burning, (forged) => {
       const rows = forged.elementalApplicationIcdLog;
       const first = rows.findIndex(
-        (row) => row.sourceKind !== "configured-direct-hit"
+        (row) => row.sourceKind !== "configured-direct-hit",
       );
       const second = first + 1;
       const left = rows[first]!;
@@ -521,7 +524,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
       },
       (forged) => {
         firstReactionOwnedRow(forged).hitResolutionLogId += 1;
-      }
+      },
     ];
 
     for (const mutate of mutations) {
@@ -564,7 +567,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     });
   });
 
-  it("retains the target-phase Burning application ownership proof at both current V1.50 boundaries", () => {
+  it("retains the target-phase Burning application ownership proof at both current V1.51 boundaries", () => {
     const forgeDeliveryApplicationOwner = (forged: SimulationResult): void => {
       const row = firstReactionOwnedRow(forged);
       for (const phase of forged.targetPhaseLog) {
@@ -586,21 +589,21 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     const parsed = simulationResultSchema.safeParse(publicWire);
     expect(parsed.success).toBe(false);
     if (parsed.success) {
-      throw new Error("forged current V1.50 public wire was accepted");
+      throw new Error("forged current V1.51 public wire was accepted");
     }
     expect(parsed.error.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           message:
-            "Burning delivery application row must match its attempt, hit, reaction, and micro-event tuple"
-        })
-      ])
+            "Burning delivery application row must match its attempt, hit, reaction, and micro-event tuple",
+        }),
+      ]),
     );
 
     const trusted = cloneResult(burning);
     forgeDeliveryApplicationOwner(trusted);
     expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-      /Burning delivery application row must match its attempt, hit, reaction, and micro-event tuple/
+      /Burning delivery application row must match its attempt, hit, reaction, and micro-event tuple/,
     );
   });
 
@@ -647,7 +650,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
         (row) =>
           row.sourceKind === "swirl-propagation" &&
           row.decision.kind === "skipped" &&
-          row.decision.reason === "miss"
+          row.decision.reason === "miss",
       );
       if (missed === undefined) {
         throw new Error("test vector requires a missed Swirl row");
@@ -660,7 +663,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     });
     expectRejectedByPublicAndTrusted(burning, (forged) => {
       const direct = forged.elementalApplicationIcdLog.find(
-        (row) => row.sourceKind === "configured-direct-hit"
+        (row) => row.sourceKind === "configured-direct-hit",
       );
       if (direct === undefined) {
         throw new Error("test vector requires a direct row");
@@ -671,7 +674,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
 
   it("rejects a fabricated application row attached to Electro-Charged damage", () => {
     const parent = electroCharged.reactionDamageLog.find(
-      (entry) => entry.scheduleKind === "periodic-tick"
+      (entry) => entry.scheduleKind === "periodic-tick",
     );
     expect(parent).toBeDefined();
 
@@ -696,7 +699,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
         sourceActorId: resolution.sourceActorId,
         targetId: resolution.targetId,
         hitId: resolution.hitId,
-        hitGroupId: resolution.hitGroupId
+        hitGroupId: resolution.hitGroupId,
       };
       forged.elementalApplicationIcdLog.push(fake);
       forgedParent.elementalApplicationIcdLogIds = [id];
@@ -709,7 +712,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
 
   it("rejects application claims on damage-only reaction schedules", () => {
     const damageOnly = overload.reactionDamageLog.find(
-      (entry) => entry.scheduleKind === "one-shot"
+      (entry) => entry.scheduleKind === "one-shot",
     );
     expect(damageOnly).toBeDefined();
     expect(damageOnly!.elementalApplicationIcdLogIds).toEqual([]);
@@ -723,7 +726,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
 
   it("replays Burning and Swirl with separate policy namespaces", () => {
     const burningRows = burning.elementalApplicationIcdLog.filter(
-      (row) => row.sourceKind === "burning-tick"
+      (row) => row.sourceKind === "burning-tick",
     );
     expect(
       burningRows.slice(0, 3).map((row) => ({
@@ -736,31 +739,31 @@ describe("current V1.50 reaction-owned application result integrity", () => {
           row.decision.kind === "reaction-fixed-gcsim"
             ? row.decision.hitIndex
             : null,
-        multiplier: row.decision.applicationMultiplier
-      }))
+        multiplier: row.decision.applicationMultiplier,
+      })),
     ).toEqual([
       {
         targetId: "enemy-0",
         scope: "trusted-target-global-burning-projection",
         hitIndex: 0,
-        multiplier: 1
+        multiplier: 1,
       },
       {
         targetId: "enemy-0",
         scope: "trusted-target-global-burning-projection",
         hitIndex: 1,
-        multiplier: 0
+        multiplier: 0,
       },
       {
         targetId: "enemy-0",
         scope: "trusted-target-global-burning-projection",
         hitIndex: 2,
-        multiplier: 0
-      }
+        multiplier: 0,
+      },
     ]);
 
     const swirlRow = swirl.elementalApplicationIcdLog.find(
-      (row) => row.sourceKind === "swirl-propagation"
+      (row) => row.sourceKind === "swirl-propagation",
     );
     expect(swirlRow).toMatchObject({
       sourceKind: "swirl-propagation",
@@ -768,16 +771,16 @@ describe("current V1.50 reaction-owned application result integrity", () => {
       selector: {
         channel: {
           kind: "swirl-propagation",
-          element: "pyro"
-        }
+          element: "pyro",
+        },
       },
       decision: {
         kind: "reaction-fixed-gcsim",
         scope: "actor-tag",
         icdTag: "ICDTagSwirlPyro",
         groupId: "reaction-a",
-        hitIndex: 0
-      }
+        hitIndex: 0,
+      },
     });
   });
 
@@ -785,7 +788,7 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     const propagationParents = multiSwirl.reactionDamageLog.filter(
       (entry) =>
         entry.scheduleKind === "swirl-propagation" &&
-        entry.hitResolutionLogIds.length > 0
+        entry.hitResolutionLogIds.length > 0,
     );
     expect(propagationParents).toHaveLength(2);
     const first = propagationParents[0]!;
@@ -797,14 +800,14 @@ describe("current V1.50 reaction-owned application result integrity", () => {
     expect(first.damageFrame).toBe(second.damageFrame);
     expect(firstResolution.eventPriority).toBe(secondResolution.eventPriority);
     expect(firstResolution.eventSequence).not.toBe(
-      secondResolution.eventSequence
+      secondResolution.eventSequence,
     );
 
     expectRejectedByPublicAndTrusted(multiSwirl, (forged) => {
       rewriteReactionParentEventSequence(
         forged,
         second.id,
-        firstResolution.eventSequence!
+        firstResolution.eventSequence!,
       );
     });
   });

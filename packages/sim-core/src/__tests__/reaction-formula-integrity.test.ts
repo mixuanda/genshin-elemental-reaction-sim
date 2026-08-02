@@ -9,14 +9,14 @@ import {
   simulationResultV144Schema,
   simulationResultSchema,
   type SimulationResult,
-  type SimConfig
+  type SimConfig,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
 function immuneTarget(
-  initialAura: "cryo" | "pyro" | "electro" | "dendro"
+  initialAura: "cryo" | "pyro" | "electro" | "dendro",
 ): SimConfig["enemy"] {
   return {
     level: 90,
@@ -27,8 +27,8 @@ function immuneTarget(
         id: "enemy-0",
         name: "Formula proof target",
         position: { x: 0, y: 0 },
-        initialAura: [{ element: initialAura, gaugeUnits: 1 }]
-      }
+        initialAura: [{ element: initialAura, gaugeUnits: 1 }],
+      },
     ],
     targetPhases: [
       {
@@ -41,16 +41,16 @@ function immuneTarget(
         effects: {
           damage: "immune",
           aura: "normal",
-          hitConfirm: "normal"
-        }
-      }
-    ]
+          hitConfirm: "normal",
+        },
+      },
+    ],
   };
 }
 
 function makeOneHitConfig(
   element: "pyro" | "electro",
-  initialAura: "cryo" | "pyro"
+  initialAura: "cryo" | "pyro",
 ): SimConfig {
   const base = makeConfig();
   const source = {
@@ -63,8 +63,8 @@ function makeOneHitConfig(
       ...neutralStats,
       baseAtk: 1000,
       em: 100,
-      reactionBonus: 0.2
-    }
+      reactionBonus: 0.2,
+    },
   };
   return makeConfig({
     duration: 1.5,
@@ -97,31 +97,28 @@ function makeOneHitConfig(
               element,
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "source",
-          abilityId: "formula-hit"
-        }
-      ]
-    }
+          abilityId: "formula-hit",
+        },
+      ],
+    },
   });
 }
 
-function makeAdditiveConfig(
-  reaction: "aggravate" | "spread"
-): SimConfig {
+function makeAdditiveConfig(reaction: "aggravate" | "spread"): SimConfig {
   const base = makeConfig();
   const element: "electro" | "dendro" =
     reaction === "aggravate" ? "electro" : "dendro";
-  const initialAura =
-    reaction === "aggravate" ? "dendro" : "electro";
+  const initialAura = reaction === "aggravate" ? "dendro" : "electro";
   const source = {
     ...base.characters[0]!,
     id: "source",
@@ -132,8 +129,8 @@ function makeAdditiveConfig(
       ...neutralStats,
       baseAtk: 1000,
       em: 100,
-      reactionBonus: 0.2
-    }
+      reactionBonus: 0.2,
+    },
   };
   return makeConfig({
     duration: 1.5,
@@ -165,19 +162,19 @@ function makeAdditiveConfig(
             element,
             application: {
               gaugeUnits: 1,
-              icd: { mode: "no-icd-v1" as const }
-            }
-          }))
-        }
+              icd: { mode: "no-icd-v1" as const },
+            },
+          })),
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "source",
-          abilityId: "additive-formula-hits"
-        }
-      ]
-    }
+          abilityId: "additive-formula-hits",
+        },
+      ],
+    },
   });
 }
 
@@ -205,7 +202,7 @@ function projectApplicationsToFrozenWire(value: unknown): unknown {
       return {
         gaugeUnits: record.gaugeUnits,
         icdTag: icd.icdTag,
-        icdGroup: icd.profileId
+        icdGroup: icd.profileId,
       };
     }
     return {
@@ -214,29 +211,26 @@ function projectApplicationsToFrozenWire(value: unknown): unknown {
         icd.mode === "fixed-gcsim-application-v1"
           ? icd.icdTag
           : "__no_icd_v1__",
-      icdGroup: "no-icd"
+      icdGroup: "no-icd",
     };
   }
   return Object.fromEntries(
     Object.entries(record).map(([key, entry]) => [
       key,
-      projectApplicationsToFrozenWire(entry)
-    ])
+      projectApplicationsToFrozenWire(entry),
+    ]),
   );
 }
 
 function refreshReproducibilityIdentity(
   result: SimulationResult,
-  configChanged = false
+  configChanged = false,
 ): void {
   if (configChanged) {
-    result.runManifest.configHash =
-      createSimulationConfigHash(result.config);
+    result.runManifest.configHash = createSimulationConfigHash(result.config);
   }
-  const {
-    reproducibilityKey: _ignoredReproducibilityKey,
-    ...identity
-  } = result.runManifest;
+  const { reproducibilityKey: _ignoredReproducibilityKey, ...identity } =
+    result.runManifest;
   const key = createSimulationReproducibilityKey(identity);
   result.runManifest.reproducibilityKey = key;
   result.reproducibilityKey = key;
@@ -244,18 +238,14 @@ function refreshReproducibilityIdentity(
 
 function expectFormulaRejection(
   result: SimulationResult,
-  trustedMessage: RegExp
+  trustedMessage: RegExp,
 ): void {
-  expect(simulationResultSchema.safeParse(result).success).toBe(
-    false
-  );
-  expect(() =>
-    assertTrustedSimulationResult(result)
-  ).toThrow(trustedMessage);
+  expect(simulationResultSchema.safeParse(result).success).toBe(false);
+  expect(() => assertTrustedSimulationResult(result)).toThrow(trustedMessage);
 }
 
 function projectReactionDamageGroupDecisionToFrozenV144(
-  decision: Record<string, unknown>
+  decision: Record<string, unknown>,
 ): Record<string, unknown> {
   return {
     reaction: decision.reaction,
@@ -265,33 +255,26 @@ function projectReactionDamageGroupDecisionToFrozenV144(
     hitIndex: decision.hitIndex,
     resetFrames: 30,
     sequence:
-      decision.icdGroup === "reaction-a"
-        ? [true, true, false]
-        : [true, false],
+      decision.icdGroup === "reaction-a" ? [true, true, false] : [true, false],
     damageAllowed: decision.damageAllowed,
-    blockedReason: decision.blockedReason
+    blockedReason: decision.blockedReason,
   };
 }
 
 function projectToFrozenV144(result: SimulationResult): unknown {
-  const frozen = structuredClone(result) as unknown as Record<
-    string,
-    unknown
-  >;
-  frozen.schemaVersion =
-    BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
-  frozen.engineVersion =
-    BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+  const frozen = structuredClone(result) as unknown as Record<string, unknown>;
+  frozen.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+  frozen.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete frozen.directDamageGroupLog;
   delete frozen.elementalApplicationIcdLog;
   delete frozen.reactionDamageGroupResetLog;
+  delete frozen.basicReactionSchedulerLog;
   for (const collectionName of ["damageEvents", "hitEvents"] as const) {
     const collection = frozen[collectionName];
     if (!Array.isArray(collection)) continue;
     for (const entry of collection) {
       if (entry !== null && typeof entry === "object") {
-        delete (entry as Record<string, unknown>)
-          .elementalApplicationIcdLogId;
+        delete (entry as Record<string, unknown>).elementalApplicationIcdLogId;
       }
     }
   }
@@ -311,11 +294,10 @@ function projectToFrozenV144(result: SimulationResult): unknown {
       const record = entry as Record<string, unknown>;
       const damageGroupDecisions = record.damageGroupDecisions;
       if (Array.isArray(damageGroupDecisions)) {
-        record.damageGroupDecisions = damageGroupDecisions.map(
-          (decision) =>
-            projectReactionDamageGroupDecisionToFrozenV144(
-              decision as Record<string, unknown>
-            )
+        record.damageGroupDecisions = damageGroupDecisions.map((decision) =>
+          projectReactionDamageGroupDecisionToFrozenV144(
+            decision as Record<string, unknown>,
+          ),
         );
       }
       delete record.hitResolutionLogIds;
@@ -326,8 +308,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   if (Array.isArray(playerDamageEvents)) {
     for (const event of playerDamageEvents) {
       if (event === null || typeof event !== "object") continue;
-      const damageFactors = (event as Record<string, unknown>)
-        .damageFactors;
+      const damageFactors = (event as Record<string, unknown>).damageFactors;
       if (
         damageFactors === null ||
         typeof damageFactors !== "object" ||
@@ -339,7 +320,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
       if (factors.damageGroupDecision !== null) {
         factors.damageGroupDecision =
           projectReactionDamageGroupDecisionToFrozenV144(
-            factors.damageGroupDecision as Record<string, unknown>
+            factors.damageGroupDecision as Record<string, unknown>,
           );
       }
     }
@@ -348,8 +329,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   if (Array.isArray(targetPhaseLog)) {
     for (const phase of targetPhaseLog) {
       if (phase === null || typeof phase !== "object") continue;
-      const targetTasks = (phase as Record<string, unknown>)
-        .targetTasks;
+      const targetTasks = (phase as Record<string, unknown>).targetTasks;
       if (!Array.isArray(targetTasks)) continue;
       for (const task of targetTasks) {
         if (task === null || typeof task !== "object") continue;
@@ -366,9 +346,10 @@ function projectToFrozenV144(result: SimulationResult): unknown {
       }
     }
   }
-  const config = projectApplicationsToFrozenWire(
-    frozen.config
-  ) as Record<string, unknown>;
+  const config = projectApplicationsToFrozenWire(frozen.config) as Record<
+    string,
+    unknown
+  >;
   frozen.config = config;
   config.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   config.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
@@ -377,6 +358,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete config.elementalApplicationIcdModel;
   delete config.reactionOwnedElementalApplicationModel;
   delete config.reactionDamageGroupModel;
+  delete config.basicReactionSchedulerModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
@@ -386,54 +368,45 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete manifest.elementalApplicationIcdRoot;
   delete manifest.reactionOwnedElementalApplicationRoot;
   delete manifest.reactionDamageGroupRoot;
+  delete manifest.basicReactionSchedulerRoot;
   manifest.configHash = createSimulationConfigHash(config);
-  const {
-    reproducibilityKey: _ignoredReproducibilityKey,
-    ...identity
-  } = manifest;
+  const { reproducibilityKey: _ignoredReproducibilityKey, ...identity } =
+    manifest;
   const key = createSimulationReproducibilityKey(
-    identity as Parameters<
-      typeof createSimulationReproducibilityKey
-    >[0]
+    identity as Parameters<typeof createSimulationReproducibilityKey>[0],
   );
   manifest.reproducibilityKey = key;
   frozen.reproducibilityKey = key;
   return frozen;
 }
 
-function expectFrozenV144Accepts(
-  currentResult: SimulationResult
-): void {
+function expectFrozenV144Accepts(currentResult: SimulationResult): void {
   const parsed = simulationResultV144Schema.parse(
-    projectToFrozenV144(currentResult)
+    projectToFrozenV144(currentResult),
   );
   expect(
-    assertTrustedSimulationResultV144(
-      parsed as unknown as SimulationResult
-    )
+    assertTrustedSimulationResultV144(parsed as unknown as SimulationResult),
   ).toBe(parsed);
 }
 
 function updatePotentialDamage(
   result: SimulationResult,
   damageEventId: number,
-  potentialDamage: number
+  potentialDamage: number,
 ): void {
   const event = result.damageEvents[damageEventId]!;
   const previousPotentialDamage = event.potentialDamage;
   event.potentialDamage = potentialDamage;
-  result.hitResolutionLog[
-    event.targetResolutionId
-  ]!.potentialDamage = potentialDamage;
+  result.hitResolutionLog[event.targetResolutionId]!.potentialDamage =
+    potentialDamage;
   const targetSummary = result.targetSummaries.find(
-    (summary) => summary.targetId === event.targetId
+    (summary) => summary.targetId === event.targetId,
   )!;
-  targetSummary.potentialDamage +=
-    potentialDamage - previousPotentialDamage;
+  targetSummary.potentialDamage += potentialDamage - previousPotentialDamage;
 }
 
 function damageFormulaMultiplier(
-  event: SimulationResult["damageEvents"][number]
+  event: SimulationResult["damageEvents"][number],
 ): number {
   const factors = event.damageFactors;
   return (
@@ -448,10 +421,9 @@ function damageFormulaMultiplier(
 
 describe("current SimulationResult reaction-formula root integrity", () => {
   it("accepts exact current results at both public and trusted boundaries", () => {
-    const result = simulate(
-      makeOneHitConfig("pyro", "cryo"),
-      { critMode: "noCrit" }
-    );
+    const result = simulate(makeOneHitConfig("pyro", "cryo"), {
+      critMode: "noCrit",
+    });
 
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
@@ -461,13 +433,13 @@ describe("current SimulationResult reaction-formula root integrity", () => {
   it("rejects a coordinated Superconduct level-base rewrite", () => {
     const result = cloneResult(
       simulate(makeOneHitConfig("electro", "cryo"), {
-        critMode: "noCrit"
-      })
+        critMode: "noCrit",
+      }),
     );
     const event = result.damageEvents.find(
       (candidate) =>
         candidate.kind === "transformative-reaction" &&
-        candidate.reaction === "superconduct"
+        candidate.reaction === "superconduct",
     )!;
     expect(event.targetDamageMultiplier).toBe(0);
     const factors = event.transformativeReactionFactors!;
@@ -482,7 +454,7 @@ describe("current SimulationResult reaction-formula root integrity", () => {
     updatePotentialDamage(
       result,
       event.id,
-      factors.preResistanceDamage * damageFormulaMultiplier(event)
+      factors.preResistanceDamage * damageFormulaMultiplier(event),
     );
 
     // This is a deliberately frozen 1.44 limitation, not a claim that the
@@ -494,12 +466,12 @@ describe("current SimulationResult reaction-formula root integrity", () => {
   it("rejects a coordinated Melt base rewrite", () => {
     const result = cloneResult(
       simulate(makeOneHitConfig("pyro", "cryo"), {
-        critMode: "noCrit"
-      })
+        critMode: "noCrit",
+      }),
     );
     const event = result.damageEvents.find(
       (candidate) =>
-        candidate.kind === "direct" && candidate.reaction === "melt"
+        candidate.kind === "direct" && candidate.reaction === "melt",
     )!;
     expect(event.targetDamageMultiplier).toBe(0);
 
@@ -510,12 +482,11 @@ describe("current SimulationResult reaction-formula root integrity", () => {
       (1 +
         event.damageFactors.elementalMasteryBonus +
         event.damageFactors.reactionBonus);
-    event.reactionFactor =
-      event.damageFactors.amplifyingReactionMultiplier;
+    event.reactionFactor = event.damageFactors.amplifyingReactionMultiplier;
     updatePotentialDamage(
       result,
       event.id,
-      event.damageFactors.baseDamage * damageFormulaMultiplier(event)
+      event.damageFactors.baseDamage * damageFormulaMultiplier(event),
     );
 
     // This is a deliberately frozen 1.44 limitation, not a claim that the
@@ -527,53 +498,47 @@ describe("current SimulationResult reaction-formula root integrity", () => {
   it.each([
     {
       reaction: "aggravate" as const,
-      forgedField: "levelBaseDamage" as const
+      forgedField: "levelBaseDamage" as const,
     },
     {
       reaction: "spread" as const,
-      forgedField: "baseMultiplier" as const
-    }
+      forgedField: "baseMultiplier" as const,
+    },
   ])(
     "rejects a coordinated $reaction $forgedField rewrite",
     ({ reaction, forgedField }) => {
       const result = cloneResult(
         simulate(makeAdditiveConfig(reaction), {
-          critMode: "noCrit"
-        })
+          critMode: "noCrit",
+        }),
       );
       const event = result.damageEvents.find(
         (candidate) =>
-          candidate.kind === "direct" &&
-          candidate.reaction === reaction
+          candidate.kind === "direct" && candidate.reaction === reaction,
       )!;
       expect(event.targetDamageMultiplier).toBe(0);
       const factors = event.additiveReactionFactors!;
-      const previousAppliedFlatDamage =
-        factors.appliedFlatDamage;
+      const previousAppliedFlatDamage = factors.appliedFlatDamage;
       const ordinaryFlatDamage =
-        event.damageFactors.flatDamage -
-        previousAppliedFlatDamage;
+        event.damageFactors.flatDamage - previousAppliedFlatDamage;
 
       factors[forgedField] *= 10;
       factors.flatDamage =
         factors.levelBaseDamage *
         factors.baseMultiplier *
-        (1 +
-          factors.elementalMasteryBonus +
-          factors.reactionBonus);
+        (1 + factors.elementalMasteryBonus + factors.reactionBonus);
       factors.appliedFlatDamage = factors.flatDamage;
       event.damageFactors.flatDamage =
         ordinaryFlatDamage + factors.appliedFlatDamage;
       event.flat = event.damageFactors.flatDamage;
       event.damageFactors.baseDamage =
-        event.damageFactors.scaling *
-          event.damageFactors.scalingValue +
+        event.damageFactors.scaling * event.damageFactors.scalingValue +
         event.damageFactors.flatDamage;
       event.baseDamage = event.damageFactors.baseDamage;
       updatePotentialDamage(
         result,
         event.id,
-        event.damageFactors.baseDamage * damageFormulaMultiplier(event)
+        event.damageFactors.baseDamage * damageFormulaMultiplier(event),
       );
 
       if (forgedField === "levelBaseDamage") {
@@ -582,13 +547,12 @@ describe("current SimulationResult reaction-formula root integrity", () => {
         // The additive 1.15/1.25 multipliers were already fixed in the
         // frozen 1.44 proof; current now derives the same value from the root.
         expect(
-          simulationResultV144Schema.safeParse(
-            projectToFrozenV144(result)
-          ).success
+          simulationResultV144Schema.safeParse(projectToFrozenV144(result))
+            .success,
         ).toBe(false);
       }
       expectFormulaRejection(result, new RegExp(forgedField));
-    }
+    },
   );
 
   it.each([
@@ -596,35 +560,41 @@ describe("current SimulationResult reaction-formula root integrity", () => {
     ["sourceRevision", "0".repeat(40)],
     ["mechanicsDataStatus", "verified"],
     ["officialServerTruth", true],
-    ["completeGcsimParity", true]
+    ["completeGcsimParity", true],
   ] as const)(
     "rejects a re-keyed formula-root %s forgery",
     (field, forgedValue) => {
       const result = cloneResult(
         simulate(makeOneHitConfig("pyro", "cryo"), {
-          critMode: "noCrit"
-        })
+          critMode: "noCrit",
+        }),
       );
-      const root = result.runManifest
-        .reactionFormulaRoot as unknown as Record<string, unknown>;
+      const root = result.runManifest.reactionFormulaRoot as unknown as Record<
+        string,
+        unknown
+      >;
       root[field] = forgedValue;
       refreshReproducibilityIdentity(result);
 
       expectFormulaRejection(result, /reactionFormulaRoot/);
-    }
+    },
   );
 
   it("rejects a config/profile forgery even when root and hashes agree with it", () => {
     const result = cloneResult(
       simulate(makeOneHitConfig("pyro", "cryo"), {
-        critMode: "noCrit"
-      })
+        critMode: "noCrit",
+      }),
     );
     const forgedProfileId = "attacker-controlled-profile";
-    const configModel = result.config
-      .reactionFormulaModel as unknown as Record<string, unknown>;
-    const root = result.runManifest
-      .reactionFormulaRoot as unknown as Record<string, unknown>;
+    const configModel = result.config.reactionFormulaModel as unknown as Record<
+      string,
+      unknown
+    >;
+    const root = result.runManifest.reactionFormulaRoot as unknown as Record<
+      string,
+      unknown
+    >;
     configModel.profileId = forgedProfileId;
     root.profileId = forgedProfileId;
     refreshReproducibilityIdentity(result, true);

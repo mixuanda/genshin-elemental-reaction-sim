@@ -88,12 +88,14 @@ import { CLASSIC_REACTION_FORMULA_ROOT } from "@genshin-dps-lab/reaction-formula
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  resolveBasicReactionSchedulerPolicyRoot,
   resolveReactionDamageGroupPolicyRoot,
   resolveReactionOwnedApplicationPolicyRoot,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   AURA_ENGINE_CONSTANTS,
   AuraEngine,
+  type DeferredReactionOwnedAttachmentToken,
   type ElectroChargedCleanupResult,
   type ShatterStateResult
 } from "./aura";
@@ -193,6 +195,7 @@ export const EVENT_PRIORITY = {
   burningTick: 4,
   reactionDamage: 5,
   reactionDamageGroupReset: 5,
+  reactionAuraAttachment: 5,
   periodicReactionWane: 6,
   crystallizePickup: 7
 } as const;
@@ -831,6 +834,18 @@ interface ReactionDamageGroupResetEventPayload {
   task: Readonly<ReactionDamageGroupResetTask>;
 }
 
+interface ReactionAuraAttachmentEventPayload {
+  token: DeferredReactionOwnedAttachmentToken;
+  attackSchedulerLogId: number;
+  parentEventSequence: number;
+  reactionDamageLogId: number;
+  hitResolutionLogId: number;
+  elementalApplicationIcdLogId: number;
+  sourceActorId: string;
+  targetId: string;
+  element: "pyro" | "hydro" | "cryo" | "electro";
+}
+
 interface PeriodicReactionSourceSnapshot {
   generation: number;
   actorId: string;
@@ -1034,6 +1049,7 @@ type InternalEventBase =
   | SimulationEvent<QuickenBloomFollowupEventPayload>
   | SimulationEvent<ReactionDamageEventPayload>
   | SimulationEvent<ReactionDamageGroupResetEventPayload>
+  | SimulationEvent<ReactionAuraAttachmentEventPayload>
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
@@ -1501,6 +1517,10 @@ function simulateConfig(
       reactionDamageGroupRoot: resolveReactionDamageGroupPolicyRoot(
         config.reactionDamageGroupModel.policyId,
       ),
+      basicReactionSchedulerRoot:
+        resolveBasicReactionSchedulerPolicyRoot(
+          config.basicReactionSchedulerModel.policyId,
+        ),
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -1596,6 +1616,9 @@ function simulateConfig(
   const recursiveShatterDeliveryEnabled =
     config.reactionDeliveryModel.mode ===
     "shatter-recursive-zero-delay-v1";
+  const deferredSwirlAuraAttachmentEnabled =
+    config.basicReactionSchedulerModel.mode ===
+    "fixed-gcsim-basic-reaction-scheduler-v2";
   const targetPhaseEnabled = targetPhaseV1Enabled;
   const targetPhaseAuditEnabled =
     targetPhaseV1Enabled || targetPhaseV2Enabled;
@@ -3014,6 +3037,8 @@ function simulateConfig(
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
   const reactionDamageGroupResetLog: SimulationResult["reactionDamageGroupResetLog"] =
+    [];
+  const basicReactionSchedulerLog: SimulationResult["basicReactionSchedulerLog"] =
     [];
   const burningRootInlineDeliveryByReactionDamageLogId = new Map<
     number,
@@ -11430,6 +11455,113 @@ function simulateConfig(
       continue;
     }
 
+    if (event.type === "reactionAuraAttachment") {
+      if (!deferredSwirlAuraAttachmentEnabled) {
+        throw new Error(
+          "A deferred Swirl Aura attachment escaped the basic reaction scheduler v2 boundary."
+        );
+      }
+      const {
+        token,
+        attackSchedulerLogId,
+        parentEventSequence,
+        reactionDamageLogId,
+        hitResolutionLogId,
+        elementalApplicationIcdLogId,
+        sourceActorId,
+        targetId,
+        element
+      } = event.payload as ReactionAuraAttachmentEventPayload;
+      const targetProfile = enemyTargetById.get(targetId);
+      const targetAuraEngine = auraEngines?.get(targetId);
+      const attackLog = basicReactionSchedulerLog[attackSchedulerLogId];
+      if (
+        targetProfile === undefined ||
+        targetAuraEngine === undefined ||
+        attackLog === undefined ||
+        attackLog.kind !== "swirl-attack-resolution" ||
+        attackLog.disposition !== "deferred" ||
+        attackLog.pairedLogId !== -1 ||
+        attackLog.eventSequence !== parentEventSequence ||
+        attackLog.parentEventSequence !== parentEventSequence ||
+        attackLog.reactionDamageLogId !== reactionDamageLogId ||
+        attackLog.hitResolutionLogId !== hitResolutionLogId ||
+        attackLog.elementalApplicationIcdLogId !==
+          elementalApplicationIcdLogId ||
+        attackLog.sourceActorId !== sourceActorId ||
+        attackLog.targetId !== targetId ||
+        attackLog.element !== element ||
+        attackLog.frame !== event.frame ||
+        event.sequence <= parentEventSequence
+      ) {
+        throw new Error(
+          `Deferred Swirl Aura attachment for scheduler log ${attackSchedulerLogId} is missing or mismatched.`
+        );
+      }
+
+      const attachment =
+        targetAuraEngine.commitDeferredReactionOwnedAttachment(token);
+      if (
+        attachment.frame !== event.frame ||
+        attachment.sourceActorId !== sourceActorId ||
+        attachment.element !== element
+      ) {
+        throw new Error(
+          `Deferred Swirl Aura attachment for scheduler log ${attackSchedulerLogId} returned mismatched Aura ownership.`
+        );
+      }
+      const attachmentLogId = basicReactionSchedulerLog.length;
+      basicReactionSchedulerLog.push({
+        id: attachmentLogId,
+        kind: "deferred-aura-attachment",
+        frame: event.frame,
+        timeSeconds,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        parentEventSequence,
+        reactionDamageLogId,
+        hitResolutionLogId,
+        elementalApplicationIcdLogId,
+        sourceActorId,
+        targetId,
+        element,
+        reaction: "none",
+        reactions: [],
+        auraBefore: deepClone(attachment.auraBefore),
+        auraApplied: deepClone(attachment.auraApplied),
+        auraConsumed: [],
+        auraAfter: deepClone(attachment.auraAfter),
+        pairedLogId: attackSchedulerLogId,
+        disposition: "committed"
+      });
+      attackLog.pairedLogId = attachmentLogId;
+      targetStateTimelineRecorder.recordEvent({
+        frame: event.frame,
+        timeSeconds,
+        targetId,
+        targetName: targetProfile.name,
+        cause: "reaction-aura-attachment",
+        eventType: event.type,
+        eventPriority: event.priority,
+        eventSequence: event.sequence,
+        intraEventSequence: nextIntraEventSequence(),
+        reaction: "none",
+        reactions: [],
+        primaryDamageEventId: null,
+        links: [
+          {
+            kind: "basic-reaction-scheduler-log",
+            id: attachmentLogId
+          }
+        ],
+        auraBefore: attachment.auraBefore,
+        auraApplied: attachment.auraApplied,
+        auraConsumed: [],
+        auraAfter: attachment.auraAfter
+      });
+      continue;
+    }
+
     if (event.type === "reactionDamage") {
       const {
         reaction,
@@ -12076,47 +12208,75 @@ function simulateConfig(
           | null = recursiveShatterDeliveryEnabled
           ? appendParentReactionHitResolution()
           : null;
+        let pendingDeferredSwirlAttachment:
+          | DeferredReactionOwnedAttachmentToken
+          | null = null;
         const resolvePropagatedReactionAudit =
-          (): ReactionAudit | null =>
-          plan.landed &&
-          reactionDamageAuraAllowed &&
-          targetAuraEngine !== null &&
-          reactionApplication !== undefined &&
-          !mechanicsTruncatedBefore
-            ? projectPlayerSelfDamageStatus(
-                burningRootInlineDeliveryState === undefined
-                  ? targetAuraEngine.processReactionOwnedHit(
-                      reactionApplication.channel.kind === "burning-tick"
-                        ? {
-                            frame: event.frame,
-                            sourceActorId: actorId,
-                            channel: reactionApplication.channel
-                          }
-                        : {
-                            frame: event.frame,
-                            sourceActorId: actorId,
-                            channel: reactionApplication.channel,
-                            nominalGaugeUnits:
-                              reactionApplication.nominalGaugeUnits
-                          }
-                    )
-                  : targetAuraEngine.processReactionOwnedHitAtCurrentTargetState(
-                      reactionApplication.channel.kind === "burning-tick"
-                        ? {
-                            frame: event.frame,
-                            sourceActorId: actorId,
-                            channel: reactionApplication.channel
-                          }
-                        : {
-                            frame: event.frame,
-                            sourceActorId: actorId,
-                            channel: reactionApplication.channel,
-                            nominalGaugeUnits:
-                              reactionApplication.nominalGaugeUnits
-                          }
-                    )
-              )
-            : null;
+          (): ReactionAudit | null => {
+            if (
+              !plan.landed ||
+              !reactionDamageAuraAllowed ||
+              targetAuraEngine === null ||
+              reactionApplication === undefined ||
+              mechanicsTruncatedBefore
+            ) {
+              return null;
+            }
+            if (
+              deferredSwirlAuraAttachmentEnabled &&
+              burningRootInlineDeliveryState === undefined &&
+              reactionApplication.channel.kind === "swirl-propagation"
+            ) {
+              const deferred =
+                targetAuraEngine.processReactionOwnedHitWithDeferredNonReactedAttachment(
+                  {
+                    frame: event.frame,
+                    sourceActorId: actorId,
+                    channel: reactionApplication.channel,
+                    nominalGaugeUnits:
+                      reactionApplication.nominalGaugeUnits
+                  }
+                );
+              pendingDeferredSwirlAttachment =
+                deferred.pendingAttachment;
+              return projectPlayerSelfDamageStatus(
+                deferred.reactionAudit
+              );
+            }
+            return projectPlayerSelfDamageStatus(
+              burningRootInlineDeliveryState === undefined
+                ? targetAuraEngine.processReactionOwnedHit(
+                    reactionApplication.channel.kind === "burning-tick"
+                      ? {
+                          frame: event.frame,
+                          sourceActorId: actorId,
+                          channel: reactionApplication.channel
+                        }
+                      : {
+                          frame: event.frame,
+                          sourceActorId: actorId,
+                          channel: reactionApplication.channel,
+                          nominalGaugeUnits:
+                            reactionApplication.nominalGaugeUnits
+                        }
+                  )
+                : targetAuraEngine.processReactionOwnedHitAtCurrentTargetState(
+                    reactionApplication.channel.kind === "burning-tick"
+                      ? {
+                          frame: event.frame,
+                          sourceActorId: actorId,
+                          channel: reactionApplication.channel
+                        }
+                      : {
+                          frame: event.frame,
+                          sourceActorId: actorId,
+                          channel: reactionApplication.channel,
+                          nominalGaugeUnits:
+                            reactionApplication.nominalGaugeUnits
+                        }
+                  )
+            );
+          };
         let propagatedReactionAudit = recursiveShatterDeliveryEnabled
           ? null
           : resolvePropagatedReactionAudit();
@@ -12604,6 +12764,218 @@ function simulateConfig(
           if (inlineDeliveryLinks !== undefined) {
             inlineDeliveryLinks.elementalApplicationIcdLogId =
               elementalApplicationIcdLogId;
+          }
+          if (
+            swirlContext?.scheduleKind === "swirl-propagation" &&
+            reactionApplication.channel.kind === "swirl-propagation"
+          ) {
+            const legacyImmediateNonReactedAttachment =
+              !deferredSwirlAuraAttachmentEnabled &&
+              propagatedReactionAudit?.model === "aura-engine" &&
+              propagatedReactionAudit.icdAllowed === true &&
+              propagatedReactionAudit.triggered === false &&
+              propagatedReactionAudit.reaction === "none" &&
+              propagatedReactionAudit.reactions.length === 0 &&
+              propagatedReactionAudit.unsupportedReactions.length === 0 &&
+              propagatedReactionAudit.mechanicsTruncation === null &&
+              (propagatedReactionAudit.applicationGaugeUnits ?? 0) > 0 &&
+              propagatedReactionAudit.auraApplied?.length === 1 &&
+              (propagatedReactionAudit.auraConsumed?.length ?? 0) === 0 &&
+              propagatedReactionAudit.transformativeReaction === null &&
+              (propagatedReactionAudit.transformativeReactions?.length ??
+                0) === 0 &&
+              propagatedReactionAudit.periodicReaction === null &&
+              propagatedReactionAudit.frozenReaction === null &&
+              propagatedReactionAudit.shatterReaction === null &&
+              propagatedReactionAudit.swirlReactions.length === 0 &&
+              propagatedReactionAudit.swirlDamageGroup === null &&
+              propagatedReactionAudit.crystallizeReaction === null &&
+              propagatedReactionAudit.catalyzeReaction === null &&
+              propagatedReactionAudit.burningReaction === null &&
+              propagatedReactionAudit.bloomReactions.length === 0;
+            if (
+              !deferredSwirlAuraAttachmentEnabled &&
+              !legacyImmediateNonReactedAttachment
+            ) {
+              return elementalApplicationIcdLogId;
+            }
+            const mustDeferNonReactedAttachment =
+              deferredSwirlAuraAttachmentEnabled &&
+              plan.landed &&
+              reactionDamageAuraAllowed &&
+              !mechanicsTruncatedBefore &&
+              propagatedReactionAudit?.model === "aura-engine" &&
+              propagatedReactionAudit.icdAllowed === true &&
+              propagatedReactionAudit.triggered === false &&
+              propagatedReactionAudit.reaction === "none" &&
+              propagatedReactionAudit.reactions.length === 0 &&
+              propagatedReactionAudit.unsupportedReactions.length === 0 &&
+              propagatedReactionAudit.mechanicsTruncation === null &&
+              (propagatedReactionAudit.applicationGaugeUnits ?? 0) > 0 &&
+              (propagatedReactionAudit.auraConsumed?.length ?? 0) === 0 &&
+              propagatedReactionAudit.transformativeReaction === null &&
+              (propagatedReactionAudit.transformativeReactions?.length ??
+                0) === 0 &&
+              propagatedReactionAudit.periodicReaction === null &&
+              propagatedReactionAudit.frozenReaction === null &&
+              propagatedReactionAudit.shatterReaction === null &&
+              propagatedReactionAudit.swirlReactions.length === 0 &&
+              propagatedReactionAudit.swirlDamageGroup === null &&
+              propagatedReactionAudit.crystallizeReaction === null &&
+              propagatedReactionAudit.catalyzeReaction === null &&
+              propagatedReactionAudit.burningReaction === null &&
+              propagatedReactionAudit.bloomReactions.length === 0 &&
+              reactionApplicationIcdDecision.allowed &&
+              reactionApplicationIcdDecision.applicationMultiplier > 0;
+            if (
+              mustDeferNonReactedAttachment !==
+              (pendingDeferredSwirlAttachment !== null)
+            ) {
+              throw new Error(
+                `Swirl scheduler v2 produced an inconsistent deferred attachment decision for target "${plan.targetId}".`
+              );
+            }
+            const auditAura =
+              propagatedReactionAudit === null
+                ? readReactionApplicationAura(
+                    targetAuraEngine,
+                    event.frame,
+                    burningRootInlineDeliveryState !== undefined
+                  )
+                : null;
+            const attackSchedulerLogId =
+              basicReactionSchedulerLog.length;
+            const disposition = deferredSwirlAuraAttachmentEnabled
+              ? pendingDeferredSwirlAttachment === null
+                ? "not-attached"
+                : "deferred"
+              : "legacy-immediate";
+            const schedulerAttackCommon = {
+              id: attackSchedulerLogId,
+              kind: "swirl-attack-resolution",
+              frame: event.frame,
+              timeSeconds,
+              eventPriority: event.priority,
+              eventSequence: event.sequence,
+              parentEventSequence: event.sequence,
+              reactionDamageLogId,
+              hitResolutionLogId: targetResolutionId,
+              elementalApplicationIcdLogId,
+              sourceActorId: actorId,
+              targetId: plan.targetId,
+              element: reactionApplication.channel.element,
+              reaction:
+                propagatedReactionAudit?.reaction ?? "none",
+              reactions: deepClone(
+                propagatedReactionAudit?.reactions ?? []
+              ),
+              auraBefore: deepClone(
+                propagatedReactionAudit?.auraBefore ??
+                  auditAura ??
+                  []
+              ),
+              auraApplied: deepClone(
+                propagatedReactionAudit?.auraApplied ?? []
+              ),
+              auraConsumed: deepClone(
+                propagatedReactionAudit?.auraConsumed ?? []
+              ),
+              auraAfter: deepClone(
+                propagatedReactionAudit?.auraAfter ??
+                  auditAura ??
+                  []
+              )
+            } as const;
+            if (disposition === "deferred") {
+              basicReactionSchedulerLog.push({
+                ...schedulerAttackCommon,
+                disposition,
+                // Filled with the committed row id when the queued task runs.
+                pairedLogId: -1
+              });
+            } else {
+              basicReactionSchedulerLog.push({
+                ...schedulerAttackCommon,
+                disposition,
+                pairedLogId: null
+              });
+            }
+            if (reactionDamageApplicationTimelinePointId === null) {
+              reactionDamageApplicationTimelinePointId =
+                targetStateTimelineRecorder.recordEvent({
+                  frame: event.frame,
+                  timeSeconds,
+                  targetId: plan.targetId,
+                  targetName: targetProfile.name,
+                  cause: "reaction-damage-application",
+                  eventType: event.type,
+                  eventPriority: event.priority,
+                  eventSequence: event.sequence,
+                  intraEventSequence: nextIntraEventSequence(),
+                  reaction: schedulerAttackCommon.reaction,
+                  reactions: schedulerAttackCommon.reactions,
+                  primaryDamageEventId: damageEventId,
+                  links: [
+                    ...(damageEventId === null
+                      ? []
+                      : [
+                          {
+                            kind: "damage-event" as const,
+                            id: damageEventId
+                          }
+                        ]),
+                    {
+                      kind: "reaction-damage-log",
+                      id: reactionDamageLogId
+                    },
+                    {
+                      kind: "basic-reaction-scheduler-log",
+                      id: attackSchedulerLogId
+                    }
+                  ],
+                  auraBefore: schedulerAttackCommon.auraBefore,
+                  auraApplied: schedulerAttackCommon.auraApplied,
+                  auraConsumed: schedulerAttackCommon.auraConsumed,
+                  auraAfter: schedulerAttackCommon.auraAfter
+                });
+            } else {
+              const schedulerTimelinePoint =
+                targetStateTimelineRecorder.result().points[
+                  reactionDamageApplicationTimelinePointId
+                ];
+              if (schedulerTimelinePoint === undefined) {
+                throw new Error(
+                  `Swirl scheduler log ${attackSchedulerLogId} could not resolve target-state point ${reactionDamageApplicationTimelinePointId}.`
+                );
+              }
+              schedulerTimelinePoint.links.push({
+                kind: "basic-reaction-scheduler-log",
+                id: attackSchedulerLogId
+              });
+            }
+            if (pendingDeferredSwirlAttachment !== null) {
+              const attachmentSequence = push(
+                event.frame / 60,
+                "reactionAuraAttachment",
+                {
+                  token: pendingDeferredSwirlAttachment,
+                  attackSchedulerLogId,
+                  parentEventSequence: event.sequence,
+                  reactionDamageLogId,
+                  hitResolutionLogId: targetResolutionId,
+                  elementalApplicationIcdLogId,
+                  sourceActorId: actorId,
+                  targetId: plan.targetId,
+                  element: reactionApplication.channel.element
+                } satisfies ReactionAuraAttachmentEventPayload,
+                EVENT_PRIORITY.reactionAuraAttachment
+              );
+              if (attachmentSequence === null) {
+                throw new Error(
+                  `Deferred Swirl Aura attachment for scheduler log ${attackSchedulerLogId} fell outside the current simulation frame.`
+                );
+              }
+            }
           }
           return elementalApplicationIcdLogId;
         };
@@ -15508,6 +15880,18 @@ function simulateConfig(
       ].join(", ")}.`
     );
   }
+  const unsettledSchedulerAttachment =
+    basicReactionSchedulerLog.find(
+      (entry) =>
+        entry.kind === "swirl-attack-resolution" &&
+        entry.disposition === "deferred" &&
+        entry.pairedLogId < 0
+    );
+  if (unsettledSchedulerAttachment !== undefined) {
+    throw new Error(
+      `Deferred Swirl Aura attachment for scheduler log ${unsettledSchedulerAttachment.id} was not settled.`
+    );
+  }
   if (targetPhaseV3Enabled) {
     targetPhaseV3LogV148Schema.parse(targetPhaseLog);
   } else {
@@ -15546,6 +15930,7 @@ function simulateConfig(
     targetMechanicsTruncationLog,
     reactionDamageLog,
     reactionDamageGroupResetLog,
+    basicReactionSchedulerLog,
     reactionTaskLog,
     reactionStatusLog,
     periodicReactionLog,

@@ -535,6 +535,44 @@ export interface AuraHitInput {
 export type AuraReactionOwnedHitInput =
   TrustedReactionElementalApplicationInput;
 
+const DEFERRED_REACTION_OWNED_ATTACHMENT_TOKEN = Symbol(
+  "DeferredReactionOwnedAttachmentToken"
+);
+
+/**
+ * Opaque, engine-owned capability returned only when a trusted Swirl
+ * propagation application passed ICD and found no reaction. Runtime
+ * validation uses object identity in addition to this compile-time brand, so
+ * copying or structurally forging a token cannot authorize an attachment.
+ */
+export interface DeferredReactionOwnedAttachmentToken {
+  readonly [DEFERRED_REACTION_OWNED_ATTACHMENT_TOKEN]: true;
+}
+
+export interface ReactionOwnedDeferredHitResult {
+  reactionAudit: ReactionAudit;
+  pendingAttachment: DeferredReactionOwnedAttachmentToken | null;
+}
+
+export interface DeferredReactionOwnedAttachmentAudit {
+  model: "reaction-owned-deferred-attachment-v1";
+  frame: number;
+  sourceActorId: string;
+  element: PersistentAuraElement;
+  applicationGaugeUnits: number;
+  auraBefore: AuraStateEntry[];
+  auraApplied: NonNullable<ReactionAudit["auraApplied"]>;
+  auraAfter: AuraStateEntry[];
+}
+
+interface PendingReactionOwnedAttachment {
+  frame: number;
+  materializedFrame: number;
+  sourceActorId: string;
+  element: PersistentAuraElement;
+  applicationGaugeUnits: number;
+}
+
 type PreparedApplicationSource =
   | Readonly<{ kind: "configured" }>
   | Readonly<{
@@ -546,7 +584,9 @@ type PublicAuraHitEntryKind =
   | "configured"
   | "configured-current-state"
   | "reaction-owned"
-  | "reaction-owned-current-state";
+  | "reaction-owned-current-state"
+  | "reaction-owned-deferred"
+  | "reaction-owned-deferred-commit";
 
 export interface QuickenBloomFollowupInput {
   frame: number;
@@ -885,6 +925,12 @@ export class AuraEngine {
   private lastReactionOwnedElementalApplicationIcdDecision:
     | Readonly<ElementalApplicationReactionFixedGcsimDecision>
     | null = null;
+  private readonly pendingReactionOwnedAttachments = new WeakMap<
+    DeferredReactionOwnedAttachmentToken,
+    PendingReactionOwnedAttachment
+  >();
+  /** Latest hit frame observed by any Aura hit entry, including current-state entries. */
+  private latestAuraHitFrame = -1;
   private activePublicHitEntry: PublicAuraHitEntryKind | null = null;
   private reentrantPublicHitAttempted = false;
   private lastBurningStop: {
@@ -1424,6 +1470,37 @@ export class AuraEngine {
             }))
           })
     }));
+  }
+
+  private cloneMutableAuraState(): Map<
+    AuraStateElement,
+    MutableAura
+  > {
+    return new Map(
+      [...this.auras].map(([element, aura]) => [
+        element,
+        {
+          ...aura,
+          ...(aura.sourceSlots === undefined
+            ? {}
+            : { sourceSlots: new Map(aura.sourceSlots) })
+        }
+      ])
+    );
+  }
+
+  private restoreMutableAuraState(
+    snapshot: ReadonlyMap<AuraStateElement, MutableAura>
+  ): void {
+    this.auras.clear();
+    for (const [element, aura] of snapshot) {
+      this.auras.set(element, {
+        ...aura,
+        ...(aura.sourceSlots === undefined
+          ? {}
+          : { sourceSlots: new Map(aura.sourceSlots) })
+      });
+    }
   }
 
   private cloneElectroChargedCleanupResult(
@@ -5414,6 +5491,158 @@ export class AuraEngine {
   }
 
   /**
+   * Resolve a trusted reaction-owned hit while deferring only a Swirl
+   * propagation attachment that passed ICD and triggered no reaction at all.
+   *
+   * The attack still consumes its ReactionA ICD attempt and observes/consumes
+   * the currently materialized Aura immediately. A pending token is returned
+   * only for the otherwise-direct normal Aura attachment. Callers can resolve
+   * a same-frame attack cohort first, then commit each returned token in task
+   * order without rerunning ICD or reaction selection.
+   */
+  processReactionOwnedHitWithDeferredNonReactedAttachment(
+    input: AuraReactionOwnedHitInput
+  ): ReactionOwnedDeferredHitResult {
+    return this.runPublicHitEntry("reaction-owned-deferred", () => {
+      this.clearLastElementalApplicationDecisions();
+      const prepared = this.prepareReactionOwnedAuraHitInput(input);
+      this.assertNoReentrantPublicHit();
+      this.advanceTo(prepared.hitInput.frame);
+
+      const auraStateBeforeHit = this.cloneMutableAuraState();
+      const reactionAudit = this.processHitAtPreparedTargetState(
+        prepared.hitInput,
+        {
+          kind: "reaction-owned",
+          input: prepared.input
+        }
+      );
+      if (
+        prepared.input.channel.kind !== "swirl-propagation" ||
+        !this.isPureNonReactedNormalAttachment(reactionAudit)
+      ) {
+        return {
+          reactionAudit,
+          pendingAttachment: null
+        };
+      }
+
+      // Only the direct normal-Aura write is rolled back. The attack's ICD
+      // decision remains consumed and exposed through the normal getter.
+      this.restoreMutableAuraState(auraStateBeforeHit);
+      const token = Object.freeze(
+        Object.defineProperty(
+          Object.create(null) as object,
+          DEFERRED_REACTION_OWNED_ATTACHMENT_TOKEN,
+          { value: true }
+        )
+      ) as DeferredReactionOwnedAttachmentToken;
+      this.pendingReactionOwnedAttachments.set(token, {
+        frame: prepared.hitInput.frame,
+        materializedFrame: this.currentFrame,
+        sourceActorId: prepared.hitInput.sourceActorId,
+        element: prepared.hitInput.element as PersistentAuraElement,
+        applicationGaugeUnits:
+          reactionAudit.applicationGaugeUnits ??
+          reactionOwnedNominalGaugeUnits(prepared.input)
+      });
+      return {
+        reactionAudit: {
+          ...reactionAudit,
+          auraApplied: [],
+          auraAfter: this.snapshot(),
+          note: `${reactionAudit.note}；本次未反应的扩散附着已延迟至同帧任务提交阶段。`
+        },
+        pendingAttachment: token
+      };
+    });
+  }
+
+  /**
+   * Commit one engine-issued deferred attachment exactly once. This is a
+   * direct Aura attach/refill: it intentionally does not consume ICD again or
+   * run reaction selection against attachments committed earlier in the same
+   * frame.
+   */
+  commitDeferredReactionOwnedAttachment(
+    token: DeferredReactionOwnedAttachmentToken
+  ): DeferredReactionOwnedAttachmentAudit {
+    return this.runPublicHitEntry(
+      "reaction-owned-deferred-commit",
+      () => {
+        const pending = this.pendingReactionOwnedAttachments.get(token);
+        if (pending === undefined) {
+          throw new Error(
+            "Deferred reaction-owned attachment token is invalid, forged, already consumed, or belongs to another AuraEngine."
+          );
+        }
+        if (
+          this.currentFrame !== pending.materializedFrame ||
+          this.latestAuraHitFrame > pending.frame
+        ) {
+          this.pendingReactionOwnedAttachments.delete(token);
+          throw new Error(
+            `Deferred reaction-owned attachment from frame ${pending.frame} expired before commit.`
+          );
+        }
+
+        this.pendingReactionOwnedAttachments.delete(token);
+        const auraBefore = this.snapshot();
+        this.attachNormalAura(
+          pending.element,
+          pending.applicationGaugeUnits,
+          pending.sourceActorId
+        );
+        return {
+          model: "reaction-owned-deferred-attachment-v1",
+          frame: pending.frame,
+          sourceActorId: pending.sourceActorId,
+          element: pending.element,
+          applicationGaugeUnits: pending.applicationGaugeUnits,
+          auraBefore,
+          auraApplied: [
+            {
+              element: pending.element,
+              gaugeUnits: pending.applicationGaugeUnits,
+              ...(usesAuraV3Durability(this.mode)
+                ? { sourceActorId: pending.sourceActorId }
+                : {})
+            }
+          ],
+          auraAfter: this.snapshot()
+        };
+      }
+    );
+  }
+
+  private isPureNonReactedNormalAttachment(
+    audit: Readonly<ReactionAudit>
+  ): boolean {
+    return (
+      audit.model === "aura-engine" &&
+      audit.icdAllowed === true &&
+      audit.triggered === false &&
+      audit.reaction === "none" &&
+      audit.reactions.length === 0 &&
+      audit.unsupportedReactions.length === 0 &&
+      audit.mechanicsTruncation === null &&
+      audit.auraApplied?.length === 1 &&
+      audit.auraConsumed?.length === 0 &&
+      audit.transformativeReaction === null &&
+      (audit.transformativeReactions?.length ?? 0) === 0 &&
+      audit.periodicReaction === null &&
+      audit.frozenReaction === null &&
+      audit.shatterReaction === null &&
+      audit.swirlReactions.length === 0 &&
+      audit.swirlDamageGroup === null &&
+      audit.crystallizeReaction === null &&
+      audit.catalyzeReaction === null &&
+      audit.burningReaction === null &&
+      audit.bloomReactions.length === 0
+    );
+  }
+
+  /**
    * Resolve a hit against the target's currently materialized Aura state
    * without advancing its global or target-local clock.
    *
@@ -5564,6 +5793,10 @@ export class AuraEngine {
     input: AuraHitInput,
     applicationSource: PreparedApplicationSource
   ): ReactionAudit {
+    this.latestAuraHitFrame = Math.max(
+      this.latestAuraHitFrame,
+      input.frame
+    );
     const auraBefore = this.snapshot();
     if (this.mechanicsTruncation !== null) {
       const mechanicsTruncation =

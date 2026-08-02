@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
@@ -8,12 +9,15 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   resolveDamageGroup,
   resolveReactionDamageGroupBindingForPolicy,
   type GcsimDamageGroupId,
   type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
+  BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
@@ -49,6 +53,7 @@ import {
   type SimulationResult,
   type SimulationResultForV148,
   type SimulationResultForV150,
+  type SimulationResultForV151,
   type VersionedSimulationResult
 } from "./types";
 import {
@@ -59,7 +64,8 @@ import {
   validateSimulationResultV147Integrity,
   validateSimulationResultV148Integrity,
   validateSimulationResultV149Integrity,
-  validateSimulationResultV150Integrity
+  validateSimulationResultV150Integrity,
+  validateSimulationResultV151Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -107,6 +113,7 @@ import {
   simConfigV148Schema,
   simConfigV149Schema,
   simConfigV150Schema,
+  simConfigV151Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
@@ -115,6 +122,7 @@ import {
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
+  simulationRunManifestV151Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -4137,6 +4145,115 @@ export const elementalApplicationIcdLogEntryV149Schema =
     swirlPropagationElementalApplicationIcdLogEntryV149Schema
   ]) satisfies z.ZodType<ElementalApplicationIcdLogEntryV149>;
 
+const basicReactionSchedulerLogEntryCommonShape = {
+  id: nonNegativeSafeIntegerSchema,
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: finiteNumberSchema,
+  eventSequence: nonNegativeSafeIntegerSchema,
+  parentEventSequence: nonNegativeSafeIntegerSchema,
+  reactionDamageLogId: nonNegativeSafeIntegerSchema,
+  hitResolutionLogId: nonNegativeSafeIntegerSchema,
+  elementalApplicationIcdLogId:
+    nonNegativeSafeIntegerSchema.nullable(),
+  sourceActorId: nonEmptyStringSchema,
+  targetId: nonEmptyStringSchema,
+  element: swirlPropagationElementV148Schema,
+  reaction: reactionTypeSchema,
+  reactions: z.array(reactionTypeSchema),
+  auraBefore: z.array(auraStateEntrySchema),
+  auraApplied: z.array(auraGaugeEntrySchema),
+  auraConsumed: z.array(auraGaugeEntrySchema),
+  auraAfter: z.array(auraStateEntrySchema)
+} as const;
+
+/** The propagation attack resolves damage and any nested reactions first. */
+export const basicReactionSchedulerSwirlAttackResolutionLogEntrySchema =
+  z
+    .union([
+      z
+        .object({
+          ...basicReactionSchedulerLogEntryCommonShape,
+          kind: z.literal("swirl-attack-resolution"),
+          disposition: z.literal("legacy-immediate"),
+          pairedLogId: z.null()
+        })
+        .strict(),
+      z
+        .object({
+          ...basicReactionSchedulerLogEntryCommonShape,
+          kind: z.literal("swirl-attack-resolution"),
+          disposition: z.literal("deferred"),
+          pairedLogId: nonNegativeSafeIntegerSchema
+        })
+        .strict(),
+      z
+        .object({
+          ...basicReactionSchedulerLogEntryCommonShape,
+          kind: z.literal("swirl-attack-resolution"),
+          disposition: z.literal("not-attached"),
+          pairedLogId: z.null()
+        })
+        .strict()
+    ])
+    .superRefine((entry, context) => {
+      if (
+        entry.parentEventSequence !== entry.eventSequence
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["parentEventSequence"],
+          message:
+            "an attack row must own itself: parentEventSequence must equal eventSequence"
+        });
+      }
+      if (entry.timeSeconds !== entry.frame / 60) {
+        context.addIssue({
+          code: "custom",
+          path: ["timeSeconds"],
+          message: "must equal frame / 60"
+        });
+      }
+    });
+
+/** The zero-delay child task commits only the previously deferred Aura. */
+export const basicReactionSchedulerDeferredAuraAttachmentLogEntrySchema =
+  z
+    .object({
+      ...basicReactionSchedulerLogEntryCommonShape,
+      kind: z.literal("deferred-aura-attachment"),
+      disposition: z.literal("committed"),
+      pairedLogId: nonNegativeSafeIntegerSchema
+    })
+    .strict()
+    .superRefine((entry, context) => {
+      if (
+        entry.eventSequence <= entry.parentEventSequence
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["eventSequence"],
+          message:
+            "a deferred commit must execute after its parent attack sequence"
+        });
+      }
+      if (entry.timeSeconds !== entry.frame / 60) {
+        context.addIssue({
+          code: "custom",
+          path: ["timeSeconds"],
+          message: "must equal frame / 60"
+        });
+      }
+    });
+
+/** Strict public wire for the 1.51 attack/commit scheduler proof. */
+export const basicReactionSchedulerLogEntrySchema = z.union(
+  [
+    basicReactionSchedulerSwirlAttackResolutionLogEntrySchema,
+    basicReactionSchedulerDeferredAuraAttachmentLogEntrySchema
+  ]
+);
+
 function forwardSchemaIssues(
   label: string,
   parsed: z.ZodSafeParseResult<unknown>,
@@ -5242,7 +5359,58 @@ function projectV150ResultForFrozenReferenceFacets(
   };
 }
 
-/** Current 1.50 result wire with task-ordered ReactionA/B reset proof. */
+/**
+ * Frozen 1.50 timeline leaf. The shared current timeline schema admits the
+ * 1.51 scheduler event/cause/link, so the historical result boundary must
+ * explicitly reject those values.
+ */
+export const targetStateTimelineV150Schema =
+  targetStateTimelineSchema.superRefine(
+    (timeline, context) => {
+      for (const [
+        pointIndex,
+        point
+      ] of timeline.points.entries()) {
+        if (point.eventType === "reactionAuraAttachment") {
+          context.addIssue({
+            code: "custom",
+            path: ["points", pointIndex, "eventType"],
+            message:
+              "reactionAuraAttachment is a 1.51-only event type"
+          });
+        }
+        if (point.cause === "reaction-aura-attachment") {
+          context.addIssue({
+            code: "custom",
+            path: ["points", pointIndex, "cause"],
+            message:
+              "reaction-aura-attachment is a 1.51-only cause"
+          });
+        }
+        for (const [
+          linkIndex,
+          link
+        ] of point.links.entries()) {
+          if (link.kind !== "basic-reaction-scheduler-log")
+            continue;
+          context.addIssue({
+            code: "custom",
+            path: [
+              "points",
+              pointIndex,
+              "links",
+              linkIndex,
+              "kind"
+            ],
+            message:
+              "basic-reaction-scheduler-log is a 1.51-only timeline link"
+          });
+        }
+      }
+    }
+  );
+
+/** Frozen 1.50 result wire with task-ordered ReactionA/B reset proof. */
 export const simulationResultV150ValueSchema = z
   .object({
     ...simulationResultV149ValueSchema.shape,
@@ -5260,7 +5428,8 @@ export const simulationResultV150ValueSchema = z
     reactionDamageGroupResetLog: z.array(
       reactionDamageGroupResetLogEntryV150Schema
     ),
-    playerDamageEvents: z.array(playerDamageEventV150Schema)
+    playerDamageEvents: z.array(playerDamageEventV150Schema),
+    targetStateTimeline: targetStateTimelineV150Schema
   })
   .strict()
   .superRefine((result, context) => {
@@ -5491,10 +5660,967 @@ export type SimulationResultV150 = z.output<
   typeof simulationResultV150Schema
 >;
 
+function basicReactionSchedulerWireEquals(
+  left: unknown,
+  right: unknown
+): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function damageAuditOwnsSchedulerAttachment(
+  event:
+    | SimulationResultForV151["damageEvents"][number]
+    | undefined,
+  phase: "legacy-immediate" | "deferred"
+): boolean {
+  if (event === undefined) return false;
+  const audit = event.reactionAudit;
+  return (
+    audit.model === "aura-engine" &&
+    audit.icdAllowed === true &&
+    audit.triggered === false &&
+    audit.reaction === "none" &&
+    audit.reactions.length === 0 &&
+    audit.unsupportedReactions.length === 0 &&
+    audit.mechanicsTruncation === null &&
+    audit.applicationGaugeUnits !== null &&
+    audit.applicationGaugeUnits > 0 &&
+    (audit.auraApplied?.length ?? 0) ===
+      (phase === "legacy-immediate" ? 1 : 0) &&
+    (audit.auraConsumed?.length ?? 0) === 0 &&
+    audit.transformativeReaction === null &&
+    (audit.transformativeReactions?.length ?? 0) === 0 &&
+    audit.periodicReaction === null &&
+    audit.frozenReaction === null &&
+    audit.shatterReaction === null &&
+    audit.swirlReactions.length === 0 &&
+    audit.crystallizeReaction === null &&
+    audit.catalyzeReaction === null &&
+    audit.burningReaction === null &&
+    audit.bloomReactions.length === 0
+  );
+}
+
+function validateBasicReactionSchedulerResult(
+  result: SimulationResultForV151,
+  context: z.RefinementCtx
+): void {
+  const issue = (
+    path: Array<string | number>,
+    message: string
+  ): void =>
+    context.addIssue({ code: "custom", path, message });
+  const log = result.basicReactionSchedulerLog;
+  const selectedModel =
+    result.config.basicReactionSchedulerModel;
+  const selectedRoot =
+    result.runManifest.basicReactionSchedulerRoot;
+
+  if (selectedRoot.policyId !== selectedModel.policyId) {
+    issue(
+      [
+        "runManifest",
+        "basicReactionSchedulerRoot",
+        "policyId"
+      ],
+      "must equal config.basicReactionSchedulerModel.policyId"
+    );
+  }
+  if (
+    selectedModel.mode ===
+      "legacy-immediate-basic-reaction-scheduler-v1" &&
+    selectedModel.policyId !==
+      LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
+  ) {
+    issue(
+      ["config", "basicReactionSchedulerModel", "policyId"],
+      "must select the compiled legacy scheduler policy"
+    );
+  }
+  if (
+    selectedModel.mode ===
+      "fixed-gcsim-basic-reaction-scheduler-v2" &&
+    selectedModel.policyId !==
+      GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+  ) {
+    issue(
+      ["config", "basicReactionSchedulerModel", "policyId"],
+      "must select the compiled deferred-attachment scheduler policy"
+    );
+  }
+
+  const commitIdsByAttackId = new Map<number, number[]>();
+  const attackIndexesByResolutionId = new Map<
+    number,
+    number[]
+  >();
+  const commitIndexesByResolutionId = new Map<
+    number,
+    number[]
+  >();
+  const timelineLinkCounts = log.map(() => 0);
+  const expectedSwirlReactionByElement = {
+    pyro: "swirlPyro",
+    hydro: "swirlHydro",
+    cryo: "swirlCryo",
+    electro: "swirlElectro"
+  } as const;
+
+  for (const [index, entry] of log.entries()) {
+    const path = [
+      "basicReactionSchedulerLog",
+      index
+    ] as const;
+    if (entry.id !== index) {
+      issue(
+        [...path, "id"],
+        `scheduler log ids must be zero-based and contiguous; expected ${index}`
+      );
+    }
+    if (entry.timeSeconds !== entry.frame / 60) {
+      issue(
+        [...path, "timeSeconds"],
+        "must equal frame / 60"
+      );
+    }
+    if (entry.reactions.includes("none")) {
+      issue(
+        [...path, "reactions"],
+        "the ordered reactions list cannot contain the none sentinel"
+      );
+    }
+    const expectedPrimaryReaction =
+      [...entry.reactions]
+        .reverse()
+        .find(
+          (reaction) =>
+            reaction === "melt" ||
+            reaction === "reverseMelt" ||
+            reaction === "vaporize" ||
+            reaction === "reverseVaporize"
+        ) ??
+      entry.reactions[0] ??
+      "none";
+    if (entry.reaction !== expectedPrimaryReaction) {
+      issue(
+        [...path, "reaction"],
+        "must equal the last amplifying reaction, otherwise the first ordered reaction, or none"
+      );
+    }
+
+    if (entry.kind === "swirl-attack-resolution") {
+      const attackIndexes =
+        attackIndexesByResolutionId.get(
+          entry.hitResolutionLogId
+        ) ?? [];
+      attackIndexes.push(index);
+      attackIndexesByResolutionId.set(
+        entry.hitResolutionLogId,
+        attackIndexes
+      );
+      if (
+        entry.parentEventSequence !== entry.eventSequence
+      ) {
+        issue(
+          [...path, "parentEventSequence"],
+          "an attack row must own itself"
+        );
+      }
+      if (
+        selectedModel.mode ===
+          "legacy-immediate-basic-reaction-scheduler-v1" &&
+        entry.disposition === "deferred"
+      ) {
+        issue(
+          [...path, "disposition"],
+          "the v1 immediate scheduler cannot emit deferred attacks"
+        );
+      }
+      if (
+        selectedModel.mode ===
+          "fixed-gcsim-basic-reaction-scheduler-v2" &&
+        entry.disposition === "legacy-immediate"
+      ) {
+        issue(
+          [...path, "disposition"],
+          "the v2 scheduler cannot emit legacy-immediate attachment"
+        );
+      }
+      if (entry.disposition === "deferred") {
+        if (entry.reactions.length !== 0) {
+          issue(
+            [...path, "reactions"],
+            "a deferred non-reacted attachment cannot claim a reaction"
+          );
+        }
+        if (
+          entry.auraApplied.length !== 0 ||
+          entry.auraConsumed.length !== 0 ||
+          !basicReactionSchedulerWireEquals(
+            entry.auraBefore,
+            entry.auraAfter
+          )
+        ) {
+          issue(
+            [...path, "auraAfter"],
+            "a deferred attack must leave Aura unchanged until its child commit"
+          );
+        }
+      }
+    } else {
+      const commitIndexes =
+        commitIndexesByResolutionId.get(
+          entry.hitResolutionLogId
+        ) ?? [];
+      commitIndexes.push(index);
+      commitIndexesByResolutionId.set(
+        entry.hitResolutionLogId,
+        commitIndexes
+      );
+      const ownerCommitIds =
+        commitIdsByAttackId.get(entry.pairedLogId) ?? [];
+      ownerCommitIds.push(entry.id);
+      commitIdsByAttackId.set(
+        entry.pairedLogId,
+        ownerCommitIds
+      );
+      if (
+        selectedModel.mode ===
+        "legacy-immediate-basic-reaction-scheduler-v1"
+      ) {
+        issue(
+          [...path, "kind"],
+          "the v1 immediate scheduler cannot emit a deferred commit"
+        );
+      }
+      if (
+        entry.eventSequence <= entry.parentEventSequence
+      ) {
+        issue(
+          [...path, "eventSequence"],
+          "a deferred commit must follow its parent attack"
+        );
+      }
+      if (entry.reactions.length !== 0) {
+        issue(
+          [...path, "reactions"],
+          "a deferred non-reacted Aura commit cannot trigger a reaction"
+        );
+      }
+      if (entry.auraConsumed.length !== 0) {
+        issue(
+          [...path, "auraConsumed"],
+          "a deferred non-reacted Aura commit cannot consume Aura"
+        );
+      }
+      if (entry.auraApplied.length === 0) {
+        issue(
+          [...path, "auraApplied"],
+          "a committed deferred attachment must apply Aura"
+        );
+      }
+    }
+
+    if (entry.pairedLogId !== null) {
+      const paired = log[entry.pairedLogId];
+      if (paired === undefined) {
+        issue(
+          [...path, "pairedLogId"],
+          "must reference an existing scheduler log row"
+        );
+      } else {
+        if (paired.pairedLogId !== entry.id) {
+          issue(
+            [...path, "pairedLogId"],
+            "scheduler row pairs must be reciprocal"
+          );
+        }
+        if (paired.kind === entry.kind) {
+          issue(
+            [...path, "pairedLogId"],
+            "a pair must contain one attack row and one deferred commit row"
+          );
+        }
+        for (const [field, left, right] of [
+          ["frame", entry.frame, paired.frame],
+          [
+            "eventPriority",
+            entry.eventPriority,
+            paired.eventPriority
+          ],
+          [
+            "parentEventSequence",
+            entry.parentEventSequence,
+            paired.parentEventSequence
+          ],
+          [
+            "reactionDamageLogId",
+            entry.reactionDamageLogId,
+            paired.reactionDamageLogId
+          ],
+          [
+            "hitResolutionLogId",
+            entry.hitResolutionLogId,
+            paired.hitResolutionLogId
+          ],
+          [
+            "elementalApplicationIcdLogId",
+            entry.elementalApplicationIcdLogId,
+            paired.elementalApplicationIcdLogId
+          ],
+          [
+            "sourceActorId",
+            entry.sourceActorId,
+            paired.sourceActorId
+          ],
+          ["targetId", entry.targetId, paired.targetId],
+          ["element", entry.element, paired.element]
+        ] as const) {
+          if (left !== right) {
+            issue(
+              [...path, field],
+              `must equal the paired scheduler row ${field}`
+            );
+          }
+        }
+        if (
+          !basicReactionSchedulerWireEquals(
+            entry.reactions,
+            paired.reactions
+          )
+        ) {
+          issue(
+            [...path, "reactions"],
+            "must equal the paired scheduler row reactions"
+          );
+        }
+      }
+    }
+
+    const reactionDamage =
+      result.reactionDamageLog[entry.reactionDamageLogId];
+    if (
+      reactionDamage === undefined ||
+      reactionDamage.id !== entry.reactionDamageLogId
+    ) {
+      issue(
+        [...path, "reactionDamageLogId"],
+        "must reference an existing reaction damage row"
+      );
+    } else {
+      if (
+        reactionDamage.scheduleKind !==
+          "swirl-propagation" ||
+        reactionDamage.reaction !==
+          expectedSwirlReactionByElement[entry.element]
+      ) {
+        issue(
+          [...path, "reactionDamageLogId"],
+          "must reference the matching Swirl propagation reaction"
+        );
+      }
+      if (
+        reactionDamage.damageFrame !== entry.frame ||
+        reactionDamage.sourceActorId !==
+          entry.sourceActorId ||
+        !reactionDamage.checkedTargetIds.includes(
+          entry.targetId
+        ) ||
+        !reactionDamage.hitResolutionLogIds.includes(
+          entry.hitResolutionLogId
+        )
+      ) {
+        issue(
+          [...path, "reactionDamageLogId"],
+          "reaction damage frame, source, target, and hit-resolution backlink must match"
+        );
+      }
+      if (
+        entry.elementalApplicationIcdLogId !== null &&
+        !reactionDamage.elementalApplicationIcdLogIds.includes(
+          entry.elementalApplicationIcdLogId
+        )
+      ) {
+        issue(
+          [...path, "elementalApplicationIcdLogId"],
+          "must be backlinked by the owning reaction damage row"
+        );
+      }
+    }
+
+    const hitResolution =
+      result.hitResolutionLog[entry.hitResolutionLogId];
+    if (
+      hitResolution === undefined ||
+      hitResolution.id !== entry.hitResolutionLogId
+    ) {
+      issue(
+        [...path, "hitResolutionLogId"],
+        "must reference an existing hit-resolution row"
+      );
+    } else if (
+      hitResolution.reactionDamageLogId !==
+        entry.reactionDamageLogId ||
+      hitResolution.elementalApplicationIcdLogId !==
+        entry.elementalApplicationIcdLogId ||
+      hitResolution.resolutionKind !== "reaction-damage" ||
+      hitResolution.frame !== entry.frame ||
+      hitResolution.eventSequence !==
+        entry.parentEventSequence ||
+      hitResolution.sourceActorId !== entry.sourceActorId ||
+      hitResolution.targetId !== entry.targetId ||
+      hitResolution.element !== entry.element
+    ) {
+      issue(
+        [...path, "hitResolutionLogId"],
+        "hit-resolution ownership, frame, attack sequence, source, target, and element must match"
+      );
+    }
+    if (
+      hitResolution !== undefined &&
+      entry.kind === "swirl-attack-resolution" &&
+      entry.disposition !== "not-attached" &&
+      !hitResolution.landed
+    ) {
+      issue(
+        [...path, "disposition"],
+        "a deferred or legacy-immediate attachment requires a landed target attempt"
+      );
+    }
+    if (
+      hitResolution !== undefined &&
+      entry.kind === "deferred-aura-attachment" &&
+      !hitResolution.landed
+    ) {
+      issue(
+        [...path, "kind"],
+        "a deferred commit requires a landed parent target attempt"
+      );
+    }
+
+    if (entry.elementalApplicationIcdLogId === null) {
+      issue(
+        [...path, "elementalApplicationIcdLogId"],
+        "a scheduler row must reference its Swirl propagation application attempt"
+      );
+    } else {
+      const application =
+        result.elementalApplicationIcdLog[
+          entry.elementalApplicationIcdLogId
+        ];
+      if (
+        application === undefined ||
+        application.id !==
+          entry.elementalApplicationIcdLogId ||
+        application.sourceKind !== "swirl-propagation"
+      ) {
+        issue(
+          [...path, "elementalApplicationIcdLogId"],
+          "must reference an existing Swirl propagation application row"
+        );
+      } else if (
+        application.reactionDamageLogId !==
+          entry.reactionDamageLogId ||
+        application.hitResolutionLogId !==
+          entry.hitResolutionLogId ||
+        application.frame !== entry.frame ||
+        application.eventSequence !==
+          entry.parentEventSequence ||
+        application.sourceActorId !== entry.sourceActorId ||
+        application.targetId !== entry.targetId ||
+        application.element !== entry.element ||
+        application.selector.channel.element !==
+          entry.element
+      ) {
+        issue(
+          [...path, "elementalApplicationIcdLogId"],
+          "application ownership, frame, attack sequence, source, target, and element must match"
+        );
+      }
+    }
+  }
+
+  for (const [
+    attackId,
+    commitIds
+  ] of commitIdsByAttackId.entries()) {
+    if (commitIds.length !== 1) {
+      issue(
+        [
+          "basicReactionSchedulerLog",
+          attackId,
+          "pairedLogId"
+        ],
+        "a deferred attack must own exactly one commit"
+      );
+    }
+  }
+  for (const [index, entry] of log.entries()) {
+    if (
+      entry.kind === "swirl-attack-resolution" &&
+      entry.disposition === "deferred" &&
+      (commitIdsByAttackId.get(entry.id)?.length ?? 0) !== 1
+    ) {
+      issue(
+        ["basicReactionSchedulerLog", index, "pairedLogId"],
+        "a v2 deferred attack requires one unique commit"
+      );
+    }
+  }
+
+  const replayedResolutionIds = new Set<number>();
+  for (const parent of result.reactionDamageLog) {
+    if (parent.scheduleKind !== "swirl-propagation")
+      continue;
+    for (const resolutionId of parent.hitResolutionLogIds) {
+      if (replayedResolutionIds.has(resolutionId)) continue;
+      replayedResolutionIds.add(resolutionId);
+      const resolution = result.hitResolutionLog[resolutionId];
+      const damageEvent =
+        resolution === undefined ||
+        resolution.damageEventId === null
+          ? undefined
+          : result.damageEvents[resolution.damageEventId];
+      const ownsLegacyAttachment =
+        resolution !== undefined &&
+        resolution.landed &&
+        resolution.auraAllowed &&
+        resolution.mechanicsStatus !==
+          "mechanics-truncated" &&
+        damageAuditOwnsSchedulerAttachment(
+          damageEvent,
+          "legacy-immediate"
+        );
+      const ownsDeferredAttachment =
+        resolution !== undefined &&
+        resolution.landed &&
+        resolution.auraAllowed &&
+        resolution.mechanicsStatus !==
+          "mechanics-truncated" &&
+        damageAuditOwnsSchedulerAttachment(
+          damageEvent,
+          "deferred"
+        );
+      const expectsAttack =
+        selectedModel.mode ===
+          "fixed-gcsim-basic-reaction-scheduler-v2" ||
+        ownsLegacyAttachment;
+      const expectsCommit =
+        selectedModel.mode ===
+          "fixed-gcsim-basic-reaction-scheduler-v2" &&
+        ownsDeferredAttachment;
+      const attackIndexes =
+        attackIndexesByResolutionId.get(resolutionId) ?? [];
+      const commitIndexes =
+        commitIndexesByResolutionId.get(resolutionId) ?? [];
+
+      if (attackIndexes.length !== (expectsAttack ? 1 : 0)) {
+        issue(
+          ["basicReactionSchedulerLog"],
+          `${selectedModel.mode} requires ${
+            expectsAttack ? "exactly one" : "no"
+          } attack row for Swirl target attempt ${resolutionId}`
+        );
+      }
+      if (commitIndexes.length !== (expectsCommit ? 1 : 0)) {
+        issue(
+          ["basicReactionSchedulerLog"],
+          `${selectedModel.mode} requires ${
+            expectsCommit ? "exactly one" : "no"
+          } commit row for Swirl target attempt ${resolutionId}`
+        );
+      }
+      const attack = log[attackIndexes[0] ?? -1];
+      if (
+        attack !== undefined &&
+        attack.kind === "swirl-attack-resolution"
+      ) {
+        const expectedDisposition =
+          selectedModel.mode ===
+          "legacy-immediate-basic-reaction-scheduler-v1"
+            ? "legacy-immediate"
+            : ownsDeferredAttachment
+              ? "deferred"
+              : "not-attached";
+        if (attack.disposition !== expectedDisposition) {
+          issue(
+            [
+              "basicReactionSchedulerLog",
+              attack.id,
+              "disposition"
+            ],
+            `must equal replayed scheduler disposition ${expectedDisposition}`
+          );
+        }
+      }
+    }
+  }
+
+  for (const [
+    pointIndex,
+    point
+  ] of result.targetStateTimeline.points.entries()) {
+    for (const [linkIndex, link] of point.links.entries()) {
+      if (link.kind !== "basic-reaction-scheduler-log")
+        continue;
+      const entry = log[link.id];
+      if (entry === undefined || entry.id !== link.id) {
+        issue(
+          [
+            "targetStateTimeline",
+            "points",
+            pointIndex,
+            "links",
+            linkIndex,
+            "id"
+          ],
+          "must reference an existing basic-reaction scheduler row"
+        );
+        continue;
+      }
+      timelineLinkCounts[entry.id] =
+        (timelineLinkCounts[entry.id] ?? 0) + 1;
+      const expectedCause =
+        entry.kind === "swirl-attack-resolution"
+          ? "reaction-damage-application"
+          : "reaction-aura-attachment";
+      const expectedEventType =
+        entry.kind === "swirl-attack-resolution"
+          ? "reactionDamage"
+          : "reactionAuraAttachment";
+      if (
+        point.frame !== entry.frame ||
+        point.targetId !== entry.targetId ||
+        point.eventPriority !== entry.eventPriority ||
+        point.eventSequence !== entry.eventSequence ||
+        point.eventType !== expectedEventType ||
+        point.cause !== expectedCause ||
+        point.reaction !== entry.reaction ||
+        !basicReactionSchedulerWireEquals(
+          point.reactions,
+          entry.reactions
+        ) ||
+        !basicReactionSchedulerWireEquals(
+          point.auraBefore,
+          entry.auraBefore
+        ) ||
+        !basicReactionSchedulerWireEquals(
+          point.auraApplied,
+          entry.auraApplied
+        ) ||
+        !basicReactionSchedulerWireEquals(
+          point.auraConsumed,
+          entry.auraConsumed
+        ) ||
+        !basicReactionSchedulerWireEquals(
+          point.auraAfter,
+          entry.auraAfter
+        )
+      ) {
+        issue(
+          [
+            "targetStateTimeline",
+            "points",
+            pointIndex,
+            "links",
+            linkIndex
+          ],
+          "scheduler timeline link must preserve the row event tuple and Aura projection"
+        );
+      }
+    }
+  }
+  for (const [
+    index,
+    count
+  ] of timelineLinkCounts.entries()) {
+    if (count !== 1) {
+      issue(
+        ["basicReactionSchedulerLog", index],
+        "each scheduler row requires exactly one target-state timeline link"
+      );
+    }
+  }
+}
+
+/** Current 1.51 result wire with scheduler-root and attack/commit proof. */
+export const simulationResultV151ValueSchema = z
+  .object({
+    ...simulationResultV150ValueSchema.shape,
+    schemaVersion: z.literal(
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      BASIC_REACTION_SCHEDULER_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV151Schema,
+    config: simConfigV151Schema,
+    targetStateTimeline: targetStateTimelineSchema,
+    basicReactionSchedulerLog: z.array(
+      basicReactionSchedulerLogEntrySchema
+    )
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    try {
+      parseSimulationRunManifestForConfig(
+        result.runManifest,
+        result.config
+      );
+    } catch (error) {
+      issue(
+        ["runManifest"],
+        error instanceof Error
+          ? error.message
+          : "is not bound to the supplied migrated config"
+      );
+    }
+
+    const selectedReactionOwnedPolicy =
+      result.config.reactionOwnedElementalApplicationModel;
+    for (const [
+      index,
+      entry
+    ] of result.elementalApplicationIcdLog.entries()) {
+      if (entry.sourceKind === "configured-direct-hit")
+        continue;
+      if (
+        entry.selector.mode !==
+          selectedReactionOwnedPolicy.mode ||
+        entry.selector.policyId !==
+          selectedReactionOwnedPolicy.policyId
+      ) {
+        issue(
+          ["elementalApplicationIcdLog", index, "selector"],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+      if (
+        entry.decision.kind === "reaction-fixed-gcsim" &&
+        entry.decision.policyId !==
+          selectedReactionOwnedPolicy.policyId
+      ) {
+        issue(
+          [
+            "elementalApplicationIcdLog",
+            index,
+            "decision",
+            "policyId"
+          ],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+    }
+
+    const selectedDamageGroupPolicy =
+      result.config.reactionDamageGroupModel.policyId;
+    for (const [
+      logIndex,
+      reactionLog
+    ] of result.reactionDamageLog.entries()) {
+      for (const [
+        decisionIndex,
+        decision
+      ] of reactionLog.damageGroupDecisions.entries()) {
+        if (
+          decision.policyId !== selectedDamageGroupPolicy
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              logIndex,
+              "damageGroupDecisions",
+              decisionIndex,
+              "policyId"
+            ],
+            "must equal the reaction damage-group policy selected by config"
+          );
+        }
+      }
+    }
+    for (const [
+      index,
+      reset
+    ] of result.reactionDamageGroupResetLog.entries()) {
+      if (reset.policyId !== selectedDamageGroupPolicy) {
+        issue(
+          [
+            "reactionDamageGroupResetLog",
+            index,
+            "policyId"
+          ],
+          "must equal the reaction damage-group policy selected by config"
+        );
+      }
+    }
+    if (
+      selectedDamageGroupPolicy ===
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID &&
+      result.reactionDamageGroupResetLog.length !== 0
+    ) {
+      issue(
+        ["reactionDamageGroupResetLog"],
+        "the v1 lazy-window policy requires an empty reset-task log"
+      );
+    }
+
+    validateBasicReactionSchedulerResult(
+      result as SimulationResultForV151,
+      context
+    );
+
+    const frozenReferenceView =
+      projectV150ResultForFrozenReferenceFacets(
+        result as unknown as SimulationResultForV150
+      );
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType,
+      view: unknown = frozenReferenceView
+    ): void => {
+      const parsed = schema.safeParse(view);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema,
+        result
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV151Integrity(
+      result as SimulationResultForV151,
+      context
+    );
+  });
+
+export const simulationResultV151Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.51"),
+  simulationResultV151ValueSchema
+);
+
+export type SimulationResultV151 = z.output<
+  typeof simulationResultV151Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
 export const simulationResultSchema =
-  simulationResultV150Schema;
-export type ParsedSimulationResult = SimulationResultV150;
+  simulationResultV151Schema;
+export type ParsedSimulationResult = SimulationResultV151;
 
 /** Strict public parser for exact frozen/current result identities. */
 export function parseVersionedSimulationResult(
@@ -5509,6 +6635,16 @@ export function parseVersionedSimulationResult(
   const wire = cleanInput;
   const schemaVersion = wire.schemaVersion;
   const engineVersion = wire.engineVersion;
+  if (
+    schemaVersion ===
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+    engineVersion ===
+      BASIC_REACTION_SCHEDULER_ENGINE_VERSION
+  ) {
+    return simulationResultV151Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
   if (
     schemaVersion ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&

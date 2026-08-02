@@ -4,6 +4,7 @@ import {
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import {
+  GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
@@ -48,6 +49,13 @@ function createFixedReactionDamageGroupModel() {
   } as const;
 }
 
+function createFixedBasicReactionSchedulerModel() {
+  return {
+    mode: "fixed-gcsim-basic-reaction-scheduler-v2",
+    policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+  } as const;
+}
+
 /**
  * Compatibility fixture data copied from Vanilla v0.1.
  *
@@ -81,6 +89,8 @@ export const durinMeltPreset: SimConfig = {
     createFixedReactionOwnedElementalApplicationModel(),
   reactionDamageGroupModel:
     createFixedReactionDamageGroupModel(),
+  basicReactionSchedulerModel:
+    createFixedBasicReactionSchedulerModel(),
   characters: [
     {
       id: "durin",
@@ -534,6 +544,8 @@ export const blankPreset: SimConfig = {
     createFixedReactionOwnedElementalApplicationModel(),
   reactionDamageGroupModel:
     createFixedReactionDamageGroupModel(),
+  basicReactionSchedulerModel:
+    createFixedBasicReactionSchedulerModel(),
   characters: [
     {
       id: "a",
@@ -639,6 +651,8 @@ export const legalTimelineDemoPreset: SimConfig = {
     createFixedReactionOwnedElementalApplicationModel(),
   reactionDamageGroupModel:
     createFixedReactionDamageGroupModel(),
+  basicReactionSchedulerModel:
+    createFixedBasicReactionSchedulerModel(),
   characters: [
     {
       id: "frame-a",
@@ -825,6 +839,8 @@ export const auraReactionDemoPreset: SimConfig = {
     createFixedReactionOwnedElementalApplicationModel(),
   reactionDamageGroupModel:
     createFixedReactionDamageGroupModel(),
+  basicReactionSchedulerModel:
+    createFixedBasicReactionSchedulerModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -935,6 +951,8 @@ export const particleEnergyDemoPreset: SimConfig = {
     createFixedReactionOwnedElementalApplicationModel(),
   reactionDamageGroupModel:
     createFixedReactionDamageGroupModel(),
+  basicReactionSchedulerModel:
+    createFixedBasicReactionSchedulerModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

@@ -5,21 +5,21 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResult,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+  assertTrustedSimulationResultV150,
   damageEventV148Schema,
   hitResolutionLogEntryV148Schema,
   reactionDamageGroupModelV2Schema,
   reactionDamageGroupResetLogEntryV150Schema,
   reactionDamageGroupRootV2Schema,
   reactionDamageLogEntryV150Schema,
-  simulationResultSchema,
+  simulationResultV150Schema,
   simulationRunManifestV150Schema,
   type Element,
   type SimConfig,
-  type SimulationResult,
+  type SimulationResultForV150,
 } from "@genshin-dps-lab/schemas";
 import { z } from "zod";
 import { describe, expect, it } from "vitest";
@@ -34,11 +34,10 @@ import {
   canonicalSha256,
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
+import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 
-const PREVIEW_FLAG =
-  "PREVIEW_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
-const UPDATE_FLAG =
-  "UPDATE_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
+const PREVIEW_FLAG = "PREVIEW_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
+const UPDATE_FLAG = "UPDATE_REACTION_DAMAGE_GROUP_RESET_BOUNDARY_V150_GOLDEN";
 const REVIEWED_FIXTURE_SHA256 =
   "f58cdac88ec2395239fc5f8c4818adff92e563479268ee5c4aa5a75639ae06d1";
 const FIXTURE_URL = new URL(
@@ -86,14 +85,16 @@ const nonNegativeIntegerSchema = z.number().int().nonnegative();
 
 const resultIdentitySchema = z
   .object({
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-    engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+    ),
+    engineVersion: z.literal(
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+    ),
     dataVersion: z.string().min(1),
     randomSeed: z.string().min(1),
     configHash: z.string().regex(/^fnv1a32:[0-9a-f]{8}$/),
-    reproducibilityKey: z
-      .string()
-      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
+    reproducibilityKey: z.string().regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/),
     selectedModel: reactionDamageGroupModelV2Schema,
     runManifest: simulationRunManifestV150Schema,
   })
@@ -120,9 +121,7 @@ const scenarioSchema = z
     reactionHitResolutionLog: z
       .array(hitResolutionLogEntryV148Schema)
       .length(2),
-    resetTasks: z
-      .array(reactionDamageGroupResetLogEntryV150Schema)
-      .length(2),
+    resetTasks: z.array(reactionDamageGroupResetLogEntryV150Schema).length(2),
     canonicalSha256: z
       .object({
         config: sha256Schema,
@@ -144,9 +143,7 @@ const fixtureSchema = z
     provenance: z
       .object({
         sourceProject: z.literal("genshinsim/gcsim"),
-        sourceRevision: z.literal(
-          "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
-        ),
+        sourceRevision: z.literal("b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"),
         capturedAt: z.literal("2026-08-02"),
         verificationStatus: z.literal("reviewed-provisional"),
         note: z.string().min(1),
@@ -156,8 +153,12 @@ const fixtureSchema = z
       .strict(),
     currentIdentity: z
       .object({
-        schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-        engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+        schemaVersion: z.literal(
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+        ),
+        engineVersion: z.literal(
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+        ),
         runManifestVersion: z.literal(
           REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
         ),
@@ -291,12 +292,14 @@ function makeRepeatedReactionConfig(reaction: ReactionVector): SimConfig {
   });
 }
 
-function runScenario(reaction: ReactionVector): SimulationResult {
+function runScenario(reaction: ReactionVector): SimulationResultForV150 {
   const randomSeed = `synthetic-reaction-damage-group-${reaction}-1.50`;
-  return simulate(makeRepeatedReactionConfig(reaction), {
-    critMode: "noCrit",
-    randomSeed,
-  });
+  return projectSimulationResultV151ToV150(
+    simulate(makeRepeatedReactionConfig(reaction), {
+      critMode: "noCrit",
+      randomSeed,
+    }),
+  );
 }
 
 function runScenarios() {
@@ -306,7 +309,10 @@ function runScenarios() {
   };
 }
 
-function scenarioFixture(result: SimulationResult, reaction: ReactionVector) {
+function scenarioFixture(
+  result: SimulationResultForV150,
+  reaction: ReactionVector,
+) {
   const reactionDamageLog = result.reactionDamageLog.filter(
     (entry) => entry.reaction === reaction,
   );
@@ -376,8 +382,7 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
       "Reviewed current-wire V1.50 ReactionA/B simulator Golden for the V2 F+29 scheduled-reset boundary, covering Superconduct and Overload.",
     provenance: {
       sourceProject: "genshinsim/gcsim" as const,
-      sourceRevision:
-        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const,
+      sourceRevision: "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" as const,
       capturedAt: "2026-08-02" as const,
       verificationStatus: "reviewed-provisional" as const,
       note: "The task ordering is pinned to a source-derived provisional policy. This fixture is not official server truth and does not claim complete gcsim scheduler, Aura, ICD, character, particle, or action-frame parity.",
@@ -385,8 +390,8 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
       completeGcsimParity: false as const,
     },
     currentIdentity: {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION,
+      schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
       runManifestVersion:
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
     },
@@ -418,19 +423,20 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
         results.superconductReactionA,
         "superconduct",
       ),
-      overloadReactionB: scenarioFixture(
-        results.overloadReactionB,
-        "overload",
-      ),
+      overloadReactionB: scenarioFixture(results.overloadReactionB, "overload"),
     },
   };
 }
 
-function expectCurrentTrusted(result: SimulationResult): void {
-  expect(simulationResultSchema.parse(result)).toEqual(result);
-  expect(assertTrustedSimulationResult(result)).toBe(result);
-  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
-  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+function expectFrozenV150Trusted(result: SimulationResultForV150): void {
+  expect(simulationResultV150Schema.parse(result)).toEqual(result);
+  expect(assertTrustedSimulationResultV150(result)).toBe(result);
+  expect(result.schemaVersion).toBe(
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+  );
+  expect(result.engineVersion).toBe(
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  );
   expect(result.runManifest.version).toBe(
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   );
@@ -444,7 +450,7 @@ function expectCurrentTrusted(result: SimulationResult): void {
 }
 
 function expectBoundarySemantics(
-  result: SimulationResult,
+  result: SimulationResultForV150,
   reaction: ReactionVector,
   icdGroup: "reaction-a" | "reaction-b",
   icdTag: "ICDTagSuperconductDamage" | "ICDTagOverloadDamage",
@@ -605,9 +611,7 @@ describe("Reaction damage-group reset boundary 1.50 Golden review gate", () => {
       return;
     }
     expect(exists).toBe(true);
-    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(
-      REVIEWED_FIXTURE_SHA256,
-    );
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
   });
 
   it("keeps every historical reviewed fixture byte-for-byte frozen", () => {
@@ -630,8 +634,8 @@ describe("Reaction damage-group reset boundary 1.50 Golden", () => {
       const repeated = runScenarios();
       expect(repeated).toEqual(results);
 
-      expectCurrentTrusted(results.superconductReactionA);
-      expectCurrentTrusted(results.overloadReactionB);
+      expectFrozenV150Trusted(results.superconductReactionA);
+      expectFrozenV150Trusted(results.overloadReactionB);
       expectBoundarySemantics(
         results.superconductReactionA,
         "superconduct",
@@ -653,8 +657,7 @@ describe("Reaction damage-group reset boundary 1.50 Golden", () => {
         updateFlag: UPDATE_FLAG,
         reviewedFixtureSha256: REVIEWED_FIXTURE_SHA256,
         previewSummary: (candidate) => ({
-          fixture:
-            "reaction-damage-group-reset-boundary-1.50.golden.json",
+          fixture: "reaction-damage-group-reset-boundary-1.50.golden.json",
           schemaVersion: candidate.currentIdentity.schemaVersion,
           engineVersion: candidate.currentIdentity.engineVersion,
           runManifestVersion: candidate.currentIdentity.runManifestVersion,

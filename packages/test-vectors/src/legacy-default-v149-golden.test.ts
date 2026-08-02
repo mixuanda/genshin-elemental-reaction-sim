@@ -1,9 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
-import {
-  GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
-} from "@genshin-dps-lab/icd-profiles";
+import { GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT } from "@genshin-dps-lab/icd-profiles";
 import {
   REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
@@ -26,6 +24,7 @@ import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
 import {
   byteSha256,
   canonicalSha256,
@@ -63,12 +62,14 @@ const FROZEN_V147_APPLICATION_URL = new URL(
 
 function runDefault() {
   return projectSimulationResultV150ToV149(
-    simulate(durinMeltPreset, {
-      energyMode: "configured",
-      critMode: "average",
-      compatibilityMode: "legacy-v0.1",
-      randomSeed: "legacy-default",
-    }),
+    projectSimulationResultV151ToV150(
+      simulate(durinMeltPreset, {
+        energyMode: "configured",
+        critMode: "average",
+        compatibilityMode: "legacy-v0.1",
+        randomSeed: "legacy-default",
+      }),
+    ),
   );
 }
 
@@ -86,14 +87,12 @@ function compactBaseline(
     reactedHits: result.reactedHits,
     skippedActionCount: result.skippedActions.length,
     byCharacter: result.byCharacter,
-    bySkill: result.bySkill.map(
-      ({ creditId, actionName, damage, hits }) => ({
-        creditId,
-        actionName,
-        damage,
-        hits,
-      }),
-    ),
+    bySkill: result.bySkill.map(({ creditId, actionName, damage, hits }) => ({
+      creditId,
+      actionName,
+      damage,
+      hits,
+    })),
   };
 }
 
@@ -113,13 +112,9 @@ function frozenV148Baseline() {
 function currentAudit(result: ReturnType<typeof runDefault>) {
   return {
     damageEventsCanonicalSha256: canonicalSha256(result.damageEvents),
-    hitResolutionLogCanonicalSha256: canonicalSha256(
-      result.hitResolutionLog,
-    ),
+    hitResolutionLogCanonicalSha256: canonicalSha256(result.hitResolutionLog),
     reactionDamageLogRowCount: result.reactionDamageLog.length,
-    reactionDamageLogCanonicalSha256: canonicalSha256(
-      result.reactionDamageLog,
-    ),
+    reactionDamageLogCanonicalSha256: canonicalSha256(result.reactionDamageLog),
     elementalApplicationIcdLogRowCount:
       result.elementalApplicationIcdLog.length,
     elementalApplicationIcdLogCanonicalSha256: canonicalSha256(
@@ -128,9 +123,7 @@ function currentAudit(result: ReturnType<typeof runDefault>) {
   };
 }
 
-function makeV148Compatibility(
-  result: ReturnType<typeof runDefault>,
-) {
+function makeV148Compatibility(result: ReturnType<typeof runDefault>) {
   const projected = projectSimulationResultV149ToV148(result);
   return {
     fixtureByteSha256: FROZEN_V148_SHA256,
@@ -143,9 +136,7 @@ function makeV148Compatibility(
     runManifest: projected.runManifest,
     baseline: compactBaseline(projected),
     currentAudit: {
-      damageEventsCanonicalSha256: canonicalSha256(
-        projected.damageEvents,
-      ),
+      damageEventsCanonicalSha256: canonicalSha256(projected.damageEvents),
       hitResolutionLogCanonicalSha256: canonicalSha256(
         projected.hitResolutionLog,
       ),
@@ -187,8 +178,7 @@ function makeFixture(result: ReturnType<typeof runDefault>) {
         "simulate(durinMeltPreset) projected through the byte-frozen 1.48 compatibility contract",
       capturedAt: "2026-08-02",
       verificationStatus: "provisional" as const,
-      note:
-        "Regression baseline only. Character and equipment values remain illustrative magic numbers, not verified game data. This default preset selects the 1.49 v2 reaction-owned policy but exercises no Burning or Swirl propagation application rows, so damage and exact 1.48 compatibility remain unchanged. This is neither official server truth nor complete gcsim parity.",
+      note: "Regression baseline only. Character and equipment values remain illustrative magic numbers, not verified game data. This default preset selects the 1.49 v2 reaction-owned policy but exercises no Burning or Swirl propagation application rows, so damage and exact 1.48 compatibility remain unchanged. This is neither official server truth nor complete gcsim parity.",
       officialServerTruth: false as const,
       completeGcsimParity: false as const,
     },
@@ -212,30 +202,22 @@ const candidateEnabled =
 
 describe("default 1.49 Golden review gate", () => {
   it("keeps every historical compatibility fixture byte-frozen", () => {
-    expect(byteSha256(readFileSync(FROZEN_V148_URL))).toBe(
-      FROZEN_V148_SHA256,
+    expect(byteSha256(readFileSync(FROZEN_V148_URL))).toBe(FROZEN_V148_SHA256);
+    expect(byteSha256(readFileSync(FROZEN_V147_URL))).toBe(FROZEN_V147_SHA256);
+    expect(byteSha256(readFileSync(FROZEN_V147_APPLICATION_URL))).toBe(
+      FROZEN_V147_APPLICATION_VECTOR_SHA256,
     );
-    expect(byteSha256(readFileSync(FROZEN_V147_URL))).toBe(
-      FROZEN_V147_SHA256,
-    );
-    expect(
-      byteSha256(readFileSync(FROZEN_V147_APPLICATION_URL)),
-    ).toBe(FROZEN_V147_APPLICATION_VECTOR_SHA256);
   });
 
   it("keeps reviewed SHA and fixture presence coherent", () => {
     const exists = existsSync(fileURLToPath(FIXTURE_URL));
     if (!/^[0-9a-f]{64}$/.test(REVIEWED_FIXTURE_SHA256)) {
-      expect(REVIEWED_FIXTURE_SHA256).toBe(
-        "PENDING-V149-GOLDEN-REVIEW",
-      );
+      expect(REVIEWED_FIXTURE_SHA256).toBe("PENDING-V149-GOLDEN-REVIEW");
       expect(exists).toBe(false);
       return;
     }
     expect(exists).toBe(true);
-    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(
-      REVIEWED_FIXTURE_SHA256,
-    );
+    expect(byteSha256(readFileSync(FIXTURE_URL))).toBe(REVIEWED_FIXTURE_SHA256);
   });
 });
 
@@ -246,38 +228,31 @@ describe("default 1.49 reset-boundary Golden", () => {
       const result = runDefault();
       expect(runDefault()).toEqual(result);
       expect(simulationResultV149Schema.parse(result)).toEqual(result);
-      expect(assertTrustedSimulationResultV149(result as never)).toBe(
-        result,
-      );
+      expect(assertTrustedSimulationResultV149(result as never)).toBe(result);
       expect(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.49.0");
       expect(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION).toBe(
         "1.49.0-reaction-owned-reset-boundary",
       );
-      expect(REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
-        "1.5.0",
-      );
+      expect(REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe("1.5.0");
       expect(result.runManifest.version).toBe("1.5.0");
-      expect(
-        result.config.reactionOwnedElementalApplicationModel.mode,
-      ).toBe("fixed-gcsim-reaction-owned-application-v2");
-      expect(
-        result.runManifest.reactionOwnedElementalApplicationRoot,
-      ).toEqual(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT);
+      expect(result.config.reactionOwnedElementalApplicationModel.mode).toBe(
+        "fixed-gcsim-reaction-owned-application-v2",
+      );
+      expect(result.runManifest.reactionOwnedElementalApplicationRoot).toEqual(
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      );
       expect(compactBaseline(result)).toEqual(frozenV148Baseline());
       expect(result.elementalApplicationIcdLog).toEqual([]);
-      expect(
-        canonicalSha256(result.elementalApplicationIcdLog),
-      ).toBe(EMPTY_LOG_SHA256);
+      expect(canonicalSha256(result.elementalApplicationIcdLog)).toBe(
+        EMPTY_LOG_SHA256,
+      );
 
-      const projectedV148 =
-        projectSimulationResultV149ToV148(result);
+      const projectedV148 = projectSimulationResultV149ToV148(result);
       expect(simConfigV148Schema.parse(projectedV148.config)).toEqual(
         projectedV148.config,
       );
       expect(
-        simulationRunManifestV148Schema.parse(
-          projectedV148.runManifest,
-        ),
+        simulationRunManifestV148Schema.parse(projectedV148.runManifest),
       ).toEqual(projectedV148.runManifest);
       expect(simulationResultV148Schema.parse(projectedV148)).toEqual(
         projectedV148,
@@ -285,12 +260,9 @@ describe("default 1.49 reset-boundary Golden", () => {
       expect(assertTrustedSimulationResultV148(projectedV148)).toBe(
         projectedV148,
       );
-      expect(makeV148Compatibility(result)).toEqual(
-        frozenV148Compatibility(),
-      );
+      expect(makeV148Compatibility(result)).toEqual(frozenV148Compatibility());
 
-      const projectedV147 =
-        projectSimulationResultV148ToV147(projectedV148);
+      const projectedV147 = projectSimulationResultV148ToV147(projectedV148);
       expect(simulationResultV147Schema.parse(projectedV147)).toEqual(
         projectedV147,
       );
@@ -301,9 +273,7 @@ describe("default 1.49 reset-boundary Golden", () => {
       expect(projectedV147.engineVersion).toBe(
         "1.47.0-elemental-application-icd-root",
       );
-      expect(compactBaseline(projectedV147)).toEqual(
-        frozenV148Baseline(),
-      );
+      expect(compactBaseline(projectedV147)).toEqual(frozenV148Baseline());
 
       const generated = makeFixture(result);
       const frozen = loadPreviewOrCreateReviewedGolden({

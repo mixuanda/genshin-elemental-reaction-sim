@@ -6,14 +6,14 @@ import {
   readFileSync,
   rmSync,
   unlinkSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
@@ -26,7 +26,7 @@ import {
   type AbilityDefinition,
   type FrameHitDefinition,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
@@ -35,17 +35,16 @@ import { simulate } from "../simulator";
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { makeConfig } from "./fixtures";
 
-const PREVIEW_FLAG =
-  "PREVIEW_ELEMENTAL_APPLICATION_ICD_V147_GOLDEN";
-const UPDATE_FLAG =
-  "UPDATE_ELEMENTAL_APPLICATION_ICD_V147_GOLDEN";
+const PREVIEW_FLAG = "PREVIEW_ELEMENTAL_APPLICATION_ICD_V147_GOLDEN";
+const UPDATE_FLAG = "UPDATE_ELEMENTAL_APPLICATION_ICD_V147_GOLDEN";
 const REVIEWED_FIXTURE_SHA256 =
   "9238417a2b2e54414366ecb7bb9eeba7ed2070845dff0e6c978af8e96673ddf7";
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/elemental-application-icd-1.47.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const VECTOR_SEED = "synthetic-elemental-application-icd-v147";
 const SHARED_ICD_TAG = "synthetic-shared-application-stream";
@@ -68,7 +67,7 @@ const fixedDecision = ({
   windowStartFrame,
   resetAtFrame,
   hitIndex,
-  sequenceIndex
+  sequenceIndex,
 }: {
   multiplier: number;
   groupId: "default" | "nahida-skill" | "chasca-tap";
@@ -95,8 +94,7 @@ const fixedDecision = ({
   hitIndex,
   sequenceIndex,
   tailPolicy: "clamp" as const,
-  resetSchedulePolicy:
-    "window-start-plus-reset-frames-minus-one" as const
+  resetSchedulePolicy: "window-start-plus-reset-frames-minus-one" as const,
 });
 
 const projectionRow = ({
@@ -106,7 +104,7 @@ const projectionRow = ({
   groupId,
   effectiveGaugeUnits,
   reaction,
-  decision
+  decision,
 }: {
   id: number;
   frame: number;
@@ -129,12 +127,12 @@ const projectionRow = ({
   selector: {
     mode: "fixed-gcsim-application-v1" as const,
     icdTag: SHARED_ICD_TAG,
-    groupId
+    groupId,
   },
   nominalGaugeUnits: 1,
   effectiveGaugeUnits,
   reaction,
-  decision
+  decision,
 });
 
 const EXPECTED_DECISIONS = [
@@ -153,8 +151,8 @@ const EXPECTED_DECISIONS = [
       windowStartFrame: 0,
       resetAtFrame: 149,
       hitIndex: 0,
-      sequenceIndex: 0
-    })
+      sequenceIndex: 0,
+    }),
   }),
   projectionRow({
     id: 1,
@@ -171,8 +169,8 @@ const EXPECTED_DECISIONS = [
       windowStartFrame: 0,
       resetAtFrame: 149,
       hitIndex: 1,
-      sequenceIndex: 1
-    })
+      sequenceIndex: 1,
+    }),
   }),
   projectionRow({
     id: 2,
@@ -189,8 +187,8 @@ const EXPECTED_DECISIONS = [
       windowStartFrame: 0,
       resetAtFrame: 149,
       hitIndex: 2,
-      sequenceIndex: 1
-    })
+      sequenceIndex: 1,
+    }),
   }),
   projectionRow({
     id: 3,
@@ -207,8 +205,8 @@ const EXPECTED_DECISIONS = [
       windowStartFrame: 0,
       resetAtFrame: 149,
       hitIndex: 3,
-      sequenceIndex: 3
-    })
+      sequenceIndex: 3,
+    }),
   }),
   projectionRow({
     id: 4,
@@ -225,9 +223,9 @@ const EXPECTED_DECISIONS = [
       windowStartFrame: 149,
       resetAtFrame: 208,
       hitIndex: 0,
-      sequenceIndex: 0
-    })
-  })
+      sequenceIndex: 0,
+    }),
+  }),
 ] as const;
 
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
@@ -247,7 +245,7 @@ const decisionProjectionSchema = z
     nominalGaugeUnits: z.number().positive().finite(),
     effectiveGaugeUnits: z.number().nonnegative().finite(),
     reaction: z.enum(["none", "reverseVaporize"]),
-    decision: elementalApplicationIcdDecisionV147Schema
+    decision: elementalApplicationIcdDecisionV147Schema,
   })
   .strict();
 
@@ -262,27 +260,26 @@ const fixtureSchema = z
         verificationStatus: z.literal("provisional"),
         note: z.literal(NOTE),
         officialServerTruth: z.literal(false),
-        completeGcsimParity: z.literal(false)
+        completeGcsimParity: z.literal(false),
       })
       .strict(),
     expectedDecisionProjection: z.array(decisionProjectionSchema),
     elementalApplicationIcdLogCanonicalSha256: sha256Schema,
     damageEventsCanonicalSha256: sha256Schema,
     targetTimelineCanonicalSha256: sha256Schema,
-    result: simulationResultV147Schema
+    result: simulationResultV147Schema,
   })
   .strict()
   .superRefine((fixture, context) => {
     if (
-      JSON.stringify(
-        canonicalize(fixture.expectedDecisionProjection)
-      ) !== JSON.stringify(canonicalize(EXPECTED_DECISIONS))
+      JSON.stringify(canonicalize(fixture.expectedDecisionProjection)) !==
+      JSON.stringify(canonicalize(EXPECTED_DECISIONS))
     ) {
       context.addIssue({
         code: "custom",
         path: ["expectedDecisionProjection"],
         message:
-          "must retain the exact reviewed five-hit application-ICD projection"
+          "must retain the exact reviewed five-hit application-ICD projection",
       });
     }
     if (
@@ -294,9 +291,8 @@ const fixtureSchema = z
         ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION ||
       fixture.result.randomSeed !== VECTOR_SEED ||
       fixture.result.runManifest.plugins.length !== 0 ||
-      JSON.stringify(
-        fixture.result.runManifest.elementalApplicationIcdRoot
-      ) !== JSON.stringify(GCSIM_ELEMENTAL_APPLICATION_ROOT) ||
+      JSON.stringify(fixture.result.runManifest.elementalApplicationIcdRoot) !==
+        JSON.stringify(GCSIM_ELEMENTAL_APPLICATION_ROOT) ||
       fixture.result.config.elementalApplicationIcdModel.profileId !==
         GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     ) {
@@ -304,14 +300,12 @@ const fixtureSchema = z
         code: "custom",
         path: ["result", "runManifest"],
         message:
-          "must bind the exact 1.47 identity, random seed, empty plugin order, and provisional application-ICD root"
+          "must bind the exact 1.47 identity, random seed, empty plugin order, and provisional application-ICD root",
       });
     }
   });
 
-type ElementalApplicationFixture = z.output<
-  typeof fixtureSchema
->;
+type ElementalApplicationFixture = z.output<typeof fixtureSchema>;
 
 function byteSha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
@@ -326,7 +320,7 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.keys(record)
         .sort()
-        .map((key) => [key, canonicalize(record[key])])
+        .map((key) => [key, canonicalize(record[key])]),
     );
   }
   return value;
@@ -336,16 +330,13 @@ function canonicalSha256(value: unknown): string {
   return byteSha256(JSON.stringify(canonicalize(value)));
 }
 
-function serializeFixture(
-  fixture: ElementalApplicationFixture
-): string {
+function serializeFixture(fixture: ElementalApplicationFixture): string {
   return `${JSON.stringify(fixture, null, 2)}\n`;
 }
 
 function atomicCreateFixture(outputUrl: URL, bytes: string): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
   writeFileSync(temporaryPath, bytes, { flag: "wx" });
   try {
     linkSync(temporaryPath, outputPath);
@@ -356,9 +347,7 @@ function atomicCreateFixture(outputUrl: URL, bytes: string): void {
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -376,7 +365,7 @@ function assertReviewedFixtureSha256(): string {
   const reviewed = reviewedFixtureSha256();
   if (reviewed === null) {
     throw new Error(
-      "Refusing to freeze the 1.47 elemental-application ICD Golden until REVIEWED_FIXTURE_SHA256 is replaced with the reviewed 64-hex candidate SHA-256."
+      "Refusing to freeze the 1.47 elemental-application ICD Golden until REVIEWED_FIXTURE_SHA256 is replaced with the reviewed 64-hex candidate SHA-256.",
     );
   }
   return reviewed;
@@ -385,7 +374,7 @@ function assertReviewedFixtureSha256(): string {
 function directHit(
   id: string,
   frame: number,
-  groupId: "default" | "nahida-skill" | "chasca-tap"
+  groupId: "default" | "nahida-skill" | "chasca-tap",
 ): FrameHitDefinition {
   return {
     id,
@@ -397,16 +386,16 @@ function directHit(
       kind: "circle",
       coordinateSpace: "world",
       origin: { x: 0, y: 0 },
-      radius: 1
+      radius: 1,
     },
     application: {
       gaugeUnits: 1,
       icd: {
         mode: "fixed-gcsim-application-v1",
         icdTag: SHARED_ICD_TAG,
-        groupId
-      }
-    }
+        groupId,
+      },
+    },
   };
 }
 
@@ -424,15 +413,15 @@ function makeVectorConfig(): SimConfig {
       directHit("duplicate-hit", 1, "nahida-skill"),
       directHit("tail-clamp", 2, "chasca-tap"),
       directHit("pre-reset", 148, "nahida-skill"),
-      directHit("reset-nahida", 149, "nahida-skill")
+      directHit("reset-nahida", 149, "nahida-skill"),
     ],
-    particles: []
+    particles: [],
   };
   const base = makeConfig({
     elementalApplicationIcdModel: {
       mode: "fixed-gcsim-elemental-application-v1",
-      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
-    }
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+    },
   });
   return {
     ...base,
@@ -441,7 +430,7 @@ function makeVectorConfig(): SimConfig {
     meta: {
       name: "Synthetic elemental-application ICD Golden",
       version: "1.47",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     duration: 3,
     cycleLength: 3,
@@ -455,11 +444,9 @@ function makeVectorConfig(): SimConfig {
           name: "Synthetic Hydro target",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "hydro", gaugeUnits: 4 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "hydro", gaugeUnits: 4 }],
+        },
+      ],
     },
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
@@ -476,10 +463,10 @@ function makeVectorConfig(): SimConfig {
           type: "skill",
           actorId: "a",
           abilityId: ABILITY_ID,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -487,22 +474,22 @@ const OPTIONS = {
   energyMode: "configured",
   critMode: "noCrit",
   compatibilityMode: "legal-frame-v1",
-  randomSeed: VECTOR_SEED
+  randomSeed: VECTOR_SEED,
 } as const;
 
 function runVector() {
   return projectSimulationResultV148ToV147(
     projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
-        simulate(makeVectorConfig(), OPTIONS)
-      )
-    )
+        projectSimulationResultV151ToV150(
+          simulate(makeVectorConfig(), OPTIONS),
+        ),
+      ),
+    ),
   );
 }
 
-function targetTimelineProjection(
-  result: ReturnType<typeof runVector>
-) {
+function targetTimelineProjection(result: ReturnType<typeof runVector>) {
   return {
     auraInitialStates: result.auraInitialStates,
     auraEndStates: result.auraEndStates,
@@ -514,25 +501,22 @@ function targetTimelineProjection(
     targetTaskPhaseLog: result.targetTaskPhaseLog,
     targetPhaseLog: result.targetPhaseLog,
     targetPhaseTimeline: result.targetPhaseTimeline,
-    targetMotionTimeline: result.targetMotionTimeline
+    targetMotionTimeline: result.targetMotionTimeline,
   };
 }
 
-function decisionProjection(
-  result: ReturnType<typeof runVector>
-) {
+function decisionProjection(result: ReturnType<typeof runVector>) {
   return result.elementalApplicationIcdLog.map((entry) => ({
     ...entry,
     reaction:
       entry.damageEventId === null
         ? "none"
-        : (result.damageEvents[entry.damageEventId]?.reaction ??
-          "none")
+        : (result.damageEvents[entry.damageEventId]?.reaction ?? "none"),
   }));
 }
 
 function makeFixture(
-  result: ReturnType<typeof runVector>
+  result: ReturnType<typeof runVector>,
 ): ElementalApplicationFixture {
   return fixtureSchema.parse({
     fixtureVersion: "1.0.0",
@@ -543,38 +527,33 @@ function makeFixture(
       verificationStatus: "provisional",
       note: NOTE,
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     },
     expectedDecisionProjection: EXPECTED_DECISIONS,
     elementalApplicationIcdLogCanonicalSha256: canonicalSha256(
-      result.elementalApplicationIcdLog
+      result.elementalApplicationIcdLog,
     ),
-    damageEventsCanonicalSha256: canonicalSha256(
-      result.damageEvents
-    ),
+    damageEventsCanonicalSha256: canonicalSha256(result.damageEvents),
     targetTimelineCanonicalSha256: canonicalSha256(
-      targetTimelineProjection(result)
+      targetTimelineProjection(result),
     ),
-    result
+    result,
   });
 }
 
 function printPreview(
   fixture: ElementalApplicationFixture,
-  bytes: string
+  bytes: string,
 ): void {
   process.stdout.write(
     `${JSON.stringify(
       {
-        fixture:
-          "elemental-application-icd-1.47.golden.json",
+        fixture: "elemental-application-icd-1.47.golden.json",
         fixtureByteSha256: byteSha256(bytes),
         elementalApplicationIcdLogCanonicalSha256:
           fixture.elementalApplicationIcdLogCanonicalSha256,
-        damageEventsCanonicalSha256:
-          fixture.damageEventsCanonicalSha256,
-        targetTimelineCanonicalSha256:
-          fixture.targetTimelineCanonicalSha256,
+        damageEventsCanonicalSha256: fixture.damageEventsCanonicalSha256,
+        targetTimelineCanonicalSha256: fixture.targetTimelineCanonicalSha256,
         configHash: fixture.result.runManifest.configHash,
         reproducibilityKey: fixture.result.reproducibilityKey,
         totalDamage: fixture.result.totalDamage,
@@ -582,25 +561,22 @@ function printPreview(
         damageEventCount: fixture.result.damageEvents.length,
         reactedHits: fixture.result.reactedHits,
         skippedActionCount: fixture.result.skippedActions.length,
-        expectedDecisionProjection:
-          fixture.expectedDecisionProjection,
-        wroteFixture: false
+        expectedDecisionProjection: fixture.expectedDecisionProjection,
+        wroteFixture: false,
       },
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   );
 }
 
 function loadPreviewOrCreateFixture(
-  generated: ElementalApplicationFixture
+  generated: ElementalApplicationFixture,
 ): ElementalApplicationFixture {
   const previewRequested = process.env[PREVIEW_FLAG] === "1";
   const updateRequested = process.env[UPDATE_FLAG] === "1";
   if (previewRequested && updateRequested) {
-    throw new Error(
-      "Preview and update modes are mutually exclusive."
-    );
+    throw new Error("Preview and update modes are mutually exclusive.");
   }
   const bytes = serializeFixture(fixtureSchema.parse(generated));
   if (previewRequested) {
@@ -612,7 +588,7 @@ function loadPreviewOrCreateFixture(
     const generatedSha256 = byteSha256(bytes);
     if (generatedSha256 !== reviewedSha256) {
       throw new Error(
-        `Refusing to write the 1.47 elemental-application ICD fixture because its generated bytes do not match the reviewed SHA-256: received ${generatedSha256}.`
+        `Refusing to write the 1.47 elemental-application ICD fixture because its generated bytes do not match the reviewed SHA-256: received ${generatedSha256}.`,
       );
     }
     atomicCreateFixture(FIXTURE_URL, bytes);
@@ -623,12 +599,10 @@ function loadPreviewOrCreateFixture(
   const frozenSha256 = byteSha256(frozenBytes);
   if (frozenSha256 !== reviewedSha256) {
     throw new Error(
-      `Frozen 1.47 elemental-application ICD fixture changed: received ${frozenSha256}.`
+      `Frozen 1.47 elemental-application ICD fixture changed: received ${frozenSha256}.`,
     );
   }
-  return fixtureSchema.parse(
-    JSON.parse(frozenBytes.toString("utf8"))
-  );
+  return fixtureSchema.parse(JSON.parse(frozenBytes.toString("utf8")));
 }
 
 const candidateEnabled =
@@ -641,9 +615,7 @@ describe("1.47 elemental-application ICD Golden gate", () => {
     const reviewed = reviewedFixtureSha256();
     const fixtureExists = existsSync(fileURLToPath(FIXTURE_URL));
     if (reviewed === null) {
-      expect(REVIEWED_FIXTURE_SHA256).toBe(
-        "PENDING-V147-GOLDEN-REVIEW"
-      );
+      expect(REVIEWED_FIXTURE_SHA256).toBe("PENDING-V147-GOLDEN-REVIEW");
       expect(fixtureExists).toBe(false);
       return;
     }
@@ -654,30 +626,26 @@ describe("1.47 elemental-application ICD Golden gate", () => {
   it("requires a cryptographic reviewed hash before freezing", () => {
     if (reviewedFixtureSha256() === null) {
       expect(() => assertReviewedFixtureSha256()).toThrow(
-        /reviewed 64-hex candidate SHA-256/
+        /reviewed 64-hex candidate SHA-256/,
       );
     } else {
-      expect(assertReviewedFixtureSha256()).toMatch(
-        /^[0-9a-f]{64}$/
-      );
+      expect(assertReviewedFixtureSha256()).toMatch(/^[0-9a-f]{64}$/);
     }
   });
 
   it("atomically refuses to overwrite an existing path", () => {
     const probeDirectory = mkdtempSync(
-      resolve(tmpdir(), "gdl-application-icd-v147-gate-")
+      resolve(tmpdir(), "gdl-application-icd-v147-gate-"),
     );
     const existingUrl = pathToFileURL(
-      resolve(probeDirectory, "existing.golden.json")
+      resolve(probeDirectory, "existing.golden.json"),
     );
     try {
       writeFileSync(existingUrl, "sentinel\n", { flag: "wx" });
-      expect(() =>
-        atomicCreateFixture(existingUrl, "replacement\n")
-      ).toThrow(/Refusing to overwrite frozen fixture/);
-      expect(readFileSync(existingUrl, "utf8")).toBe(
-        "sentinel\n"
+      expect(() => atomicCreateFixture(existingUrl, "replacement\n")).toThrow(
+        /Refusing to overwrite frozen fixture/,
       );
+      expect(readFileSync(existingUrl, "utf8")).toBe("sentinel\n");
     } finally {
       rmSync(probeDirectory, { recursive: true, force: true });
     }
@@ -693,42 +661,37 @@ describe("1.47 elemental-application ICD Golden", () => {
       expect(repeated).toEqual(result);
       expect(simulationResultV147Schema.parse(result)).toEqual(result);
       expect(assertTrustedSimulationResultV147(result)).toBe(result);
-      expect(decisionProjection(result)).toEqual(
-        EXPECTED_DECISIONS
-      );
+      expect(decisionProjection(result)).toEqual(EXPECTED_DECISIONS);
 
       const generated = makeFixture(result);
       const frozen = loadPreviewOrCreateFixture(generated);
       expect(frozen).toEqual(generated);
       expect(canonicalSha256(result.elementalApplicationIcdLog)).toBe(
-        frozen.elementalApplicationIcdLogCanonicalSha256
+        frozen.elementalApplicationIcdLogCanonicalSha256,
       );
       expect(canonicalSha256(result.damageEvents)).toBe(
-        frozen.damageEventsCanonicalSha256
+        frozen.damageEventsCanonicalSha256,
       );
       expect(canonicalSha256(targetTimelineProjection(result))).toBe(
-        frozen.targetTimelineCanonicalSha256
+        frozen.targetTimelineCanonicalSha256,
       );
 
       expect(result.elementalApplicationIcdLog).toHaveLength(5);
       expect(result.damageEvents).toHaveLength(5);
       expect(result.reactedHits).toBe(2);
+      expect(result.damageEvents.every((event) => event.finalDamage > 0)).toBe(
+        true,
+      );
       expect(
-        result.damageEvents.every((event) => event.finalDamage > 0)
-      ).toBe(true);
-      expect(
-        result.elementalApplicationIcdLog.map(
-          (entry) => entry.hitGroupId
-        )
+        result.elementalApplicationIcdLog.map((entry) => entry.hitGroupId),
       ).toEqual(EXPECTED_DECISIONS.map((entry) => entry.hitGroupId));
 
       for (const entry of result.elementalApplicationIcdLog) {
-        const resolution =
-          result.hitResolutionLog[entry.hitResolutionLogId];
+        const resolution = result.hitResolutionLog[entry.hitResolutionLogId];
         expect(resolution).toMatchObject({
           id: entry.hitResolutionLogId,
           outcome: "landed",
-          damageEventId: entry.damageEventId
+          damageEventId: entry.damageEventId,
         });
         expect(entry.damageEventId).not.toBeNull();
         expect(result.damageEvents[entry.damageEventId!]).toMatchObject({
@@ -736,9 +699,9 @@ describe("1.47 elemental-application ICD Golden", () => {
           hitId: entry.hitId,
           hitGroupId: entry.hitGroupId,
           frame: entry.frame,
-          element: entry.element
+          element: entry.element,
         });
       }
-    }
+    },
   );
 });

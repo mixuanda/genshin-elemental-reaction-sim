@@ -1,10 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-  linkSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync
-} from "node:fs";
+import { linkSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
@@ -26,21 +21,21 @@ import {
   type SimulationRunManifestV144,
   type TargetPhaseV3DeliveryAttempt,
   type TargetPhaseV3LogEntry,
-  type TargetStateTimelinePoint
+  type TargetStateTimelinePoint,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID } from "@genshin-dps-lab/icd-profiles";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
+import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
-const UPDATE_FLAG =
-  "UPDATE_BURNING_CALLBACK_DELIVERY_V144_GOLDEN";
+const UPDATE_FLAG = "UPDATE_BURNING_CALLBACK_DELIVERY_V144_GOLDEN";
 const FROZEN_FIXTURE_SHA256 =
   "4caf9609daac1fde41195399e5c3af8daca60e14849aa4c5195b286ae947da65";
 const FIXTURE_URL = new URL(
   "../../../test-vectors/fixtures/burning-callback-delivery-1.44.golden.json",
-  import.meta.url
+  import.meta.url,
 );
 const OWNER_ID = "enemy-0";
 const ELECTRO_RECIPIENT_ID = "electro-recipient";
@@ -54,7 +49,7 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
     ...base,
     reactionDamageGroupModel: {
       mode: "legacy-reaction-damage-group-window-v1",
-      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
     },
     dataVersion: "burning-callback-delivery-provisional-1",
     randomSeed: "burning-callback-delivery-golden-seed",
@@ -62,8 +57,7 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
       name: "Burning callback delivery v1.44 Golden",
       version: "1.44.0",
       verificationStatus: "provisional",
-      note:
-        "Fixed-gcsim-provisional regression vector only; not official server truth or a claim of complete gcsim parity."
+      note: "Fixed-gcsim-provisional regression vector only; not official server truth or a claim of complete gcsim parity.",
     },
     duration: 1,
     cycleLength: 1,
@@ -77,37 +71,33 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
           name: "Electro recipient before owner",
           position: { x: 0.5, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "electro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "electro", gaugeUnits: 1 }],
         },
         {
           id: OWNER_ID,
           name: "Burning owner",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "dendro", gaugeUnits: 1 }
-          ]
+          initialAura: [{ element: "dendro", gaugeUnits: 1 }],
         },
         {
           id: PLAIN_RECIPIENT_ID,
           name: "Plain recipient after owner",
           position: { x: 0.75, y: 0 },
-          hitboxRadius: 0
+          hitboxRadius: 0,
         },
         {
           id: OUTSIDE_RADIUS_ID,
           name: "Outside Burning radius",
           position: { x: 5, y: 0 },
-          hitboxRadius: 0
+          hitboxRadius: 0,
         },
         {
           id: UNRESOLVED_POSITION_ID,
           name: "Unresolved position",
-          hitboxRadius: 0
-        }
-      ]
+          hitboxRadius: 0,
+        },
+      ],
     },
     characters: [
       {
@@ -120,21 +110,21 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
           ...neutralStats,
           baseAtk: 0,
           em: 100,
-          reactionBonus: 0.2
-        }
-      }
+          reactionBonus: 0.2,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     targetClockModel: { mode: "disabled" },
     targetTaskModel: { mode: "target-phase-v3" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     electroChargedPropagationModel: {
       mode: "nearby-wet-radius-v1",
       radius: 3,
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -160,35 +150,32 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
               element: "pyro",
               targeting: {
                 targetId: OWNER_ID,
-                outcome: "landed"
+                outcome: "landed",
               },
               application: {
                 gaugeUnits: 1,
-                icd: { mode: "no-icd-v1" }
-              }
-            }
-          ]
-        }
+                icd: { mode: "no-icd-v1" },
+              },
+            },
+          ],
+        },
       ],
       commands: [
         {
           type: "skill",
           actorId: "burning-driver",
           abilityId: "start-burning",
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
-function requireOne<T>(
-  values: T[],
-  description: string
-): T {
+function requireOne<T>(values: T[], description: string): T {
   if (values.length !== 1) {
     throw new Error(
-      `Expected exactly one ${description}; received ${values.length}.`
+      `Expected exactly one ${description}; received ${values.length}.`,
     );
   }
   return values[0]!;
@@ -218,7 +205,7 @@ function projectHit(entry: HitResolutionLogEntry) {
     targetEffectSource: entry.targetEffectSource,
     damageEventId: entry.damageEventId,
     finalDamage: entry.finalDamage,
-    displayDamage: entry.displayDamage
+    displayDamage: entry.displayDamage,
   };
 }
 
@@ -243,11 +230,11 @@ function projectDamage(entry: DamageEvent) {
       auraBefore: entry.reactionAudit.auraBefore,
       auraApplied: entry.reactionAudit.auraApplied,
       auraConsumed: entry.reactionAudit.auraConsumed,
-      auraAfter: entry.reactionAudit.auraAfter
+      auraAfter: entry.reactionAudit.auraAfter,
     },
     damageComposition: entry.damageComposition,
     finalDamage: entry.finalDamage,
-    displayDamage: entry.displayDamage
+    displayDamage: entry.displayDamage,
   };
 }
 
@@ -270,39 +257,33 @@ function projectTimelinePoint(entry: TargetStateTimelinePoint) {
     auraBefore: entry.auraBefore,
     auraApplied: entry.auraApplied,
     auraConsumed: entry.auraConsumed,
-    auraAfter: entry.auraAfter
+    auraAfter: entry.auraAfter,
   };
 }
 
-function projectAttemptWireToFrozenV144(
-  attempt: TargetPhaseV3DeliveryAttempt
-) {
+function projectAttemptWireToFrozenV144(attempt: TargetPhaseV3DeliveryAttempt) {
   const {
-    elementalApplicationIcdLogId:
-      _elementalApplicationIcdLogId,
+    elementalApplicationIcdLogId: _elementalApplicationIcdLogId,
     ...frozenAttempt
   } = attempt;
   return frozenAttempt;
 }
 
 function projectDeliveryToFrozenV144<
-  T extends { attempts: TargetPhaseV3DeliveryAttempt[] }
+  T extends { attempts: TargetPhaseV3DeliveryAttempt[] },
 >(delivery: T) {
   return {
     ...delivery,
-    attempts: delivery.attempts.map(
-      projectAttemptWireToFrozenV144
-    )
+    attempts: delivery.attempts.map(projectAttemptWireToFrozenV144),
   };
 }
 
 function projectReactionDamageToFrozenV144(
-  entry: SimulationResult["reactionDamageLog"][number]
+  entry: SimulationResult["reactionDamageLog"][number],
 ) {
   const {
     hitResolutionLogIds: _hitResolutionLogIds,
-    elementalApplicationIcdLogIds:
-      _elementalApplicationIcdLogIds,
+    elementalApplicationIcdLogIds: _elementalApplicationIcdLogIds,
     damageGroupDecisions,
     ...frozenEntry
   } = entry;
@@ -320,21 +301,19 @@ function projectReactionDamageToFrozenV144(
           ? ([true, true, false] as const)
           : ([true, false] as const),
       damageAllowed: decision.damageAllowed,
-      blockedReason: decision.blockedReason
-    }))
+      blockedReason: decision.blockedReason,
+    })),
   };
 }
 
 function projectAttempt(
   result: SimulationResult,
-  attempt: TargetPhaseV3DeliveryAttempt
+  attempt: TargetPhaseV3DeliveryAttempt,
 ) {
   const hit =
     attempt.hitResolutionLogId === null
       ? null
-      : result.hitResolutionLog[
-          attempt.hitResolutionLogId
-        ];
+      : result.hitResolutionLog[attempt.hitResolutionLogId];
   const damage =
     attempt.damageEventId === null
       ? null
@@ -342,33 +321,25 @@ function projectAttempt(
   const timelinePoint =
     attempt.targetStateTimelinePointId === null
       ? null
-      : result.targetStateTimeline.points[
-          attempt.targetStateTimelinePointId
-        ];
+      : result.targetStateTimeline.points[attempt.targetStateTimelinePointId];
   if (
-    (attempt.hitResolutionLogId !== null &&
-      hit === undefined) ||
-    (attempt.damageEventId !== null &&
-      damage === undefined) ||
-    (attempt.targetStateTimelinePointId !== null &&
-      timelinePoint === undefined)
+    (attempt.hitResolutionLogId !== null && hit === undefined) ||
+    (attempt.damageEventId !== null && damage === undefined) ||
+    (attempt.targetStateTimelinePointId !== null && timelinePoint === undefined)
   ) {
     throw new Error(
-      `Burning callback attempt ${attempt.order} has a dangling reference.`
+      `Burning callback attempt ${attempt.order} has a dangling reference.`,
     );
   }
   return {
     attempt: projectAttemptWireToFrozenV144(attempt),
-    hit: hit === null || hit === undefined
-      ? null
-      : projectHit(hit),
-    damage: damage === null || damage === undefined
-      ? null
-      : projectDamage(damage),
+    hit: hit === null || hit === undefined ? null : projectHit(hit),
+    damage:
+      damage === null || damage === undefined ? null : projectDamage(damage),
     targetStateTimelinePoint:
       timelinePoint === null || timelinePoint === undefined
         ? null
-        : projectTimelinePoint(timelinePoint)
+        : projectTimelinePoint(timelinePoint),
   };
 }
 
@@ -378,25 +349,22 @@ function projectAttempt(
  * compare their unchanged callback semantics through an explicit frozen-1.44
  * identity projection instead of rewriting the historical fixture.
  */
-function projectCurrentConfigToFrozenV144(
-  config: SimConfig
-): SimConfigV144 {
+function projectCurrentConfigToFrozenV144(config: SimConfig): SimConfigV144 {
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
-    elementalApplicationIcdModel:
-      _elementalApplicationIcdModel,
+    elementalApplicationIcdModel: _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
+    basicReactionSchedulerModel: _basicReactionSchedulerModel,
     ...frozenCommon
   } = config;
   const legacyWire = structuredClone(frozenCommon);
-  const startBurningHit =
-    legacyWire.timeline?.abilities[0]?.hits?.[0];
+  const startBurningHit = legacyWire.timeline?.abilities[0]?.hits?.[0];
   if (startBurningHit === undefined) {
     throw new Error(
-      "Burning callback Golden projection requires its configured starter hit."
+      "Burning callback Golden projection requires its configured starter hit.",
     );
   }
   (
@@ -406,18 +374,18 @@ function projectCurrentConfigToFrozenV144(
   ).application = {
     gaugeUnits: 1,
     icdTag: "start-burning",
-    icdGroup: "no-icd"
+    icdGroup: "no-icd",
   };
   return simConfigV144Schema.parse({
     ...legacyWire,
     schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
-    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
+    engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   });
 }
 
 function projectCurrentManifestToFrozenV144(
   result: SimulationResult,
-  frozenConfig: SimConfigV144
+  frozenConfig: SimConfigV144,
 ): SimulationRunManifestV144 {
   const identity = {
     version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
@@ -426,92 +394,73 @@ function projectCurrentManifestToFrozenV144(
     engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
     dataVersion: result.runManifest.dataVersion,
     configHash: createSimulationConfigHash(frozenConfig),
-    resolvedRuntimeOptions:
-      result.runManifest.resolvedRuntimeOptions,
-    plugins: result.runManifest.plugins
-  } satisfies Omit<
-    SimulationRunManifestV144,
-    "reproducibilityKey"
-  >;
+    resolvedRuntimeOptions: result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins,
+  } satisfies Omit<SimulationRunManifestV144, "reproducibilityKey">;
   return simulationRunManifestV144Schema.parse({
     ...identity,
-    reproducibilityKey:
-      createSimulationReproducibilityKey(identity)
+    reproducibilityKey: createSimulationReproducibilityKey(identity),
   });
 }
 
-function projectBurningCallbackScenario(
-  result: SimulationResult
-) {
-  const frozenConfig =
-    projectCurrentConfigToFrozenV144(result.config);
-  const frozenManifest =
-    projectCurrentManifestToFrozenV144(result, frozenConfig);
+function projectBurningCallbackScenario(result: SimulationResult) {
+  const frozenConfig = projectCurrentConfigToFrozenV144(result.config);
+  const frozenManifest = projectCurrentManifestToFrozenV144(
+    result,
+    frozenConfig,
+  );
   const ownerPhase = requireOne(
     result.targetPhaseLog.filter(
       (phase): phase is TargetPhaseV3LogEntry =>
         phase.model === "target-phase-v3" &&
         phase.targetId === OWNER_ID &&
-        phase.globalFrame === 15
+        phase.globalFrame === 15,
     ),
-    "F15 Burning owner phase"
+    "F15 Burning owner phase",
   );
   const ownerTask = requireOne(
     ownerPhase.targetTasks.filter(
       (task) =>
         task.kind === "burning-tick" &&
         task.tickIndex === 1 &&
-        task.delivery !== null
+        task.delivery !== null,
     ),
-    "F15 Burning callback task"
+    "F15 Burning callback task",
   );
   if (ownerTask.delivery === null) {
-    throw new Error(
-      "F15 Burning callback task must own a delivery."
-    );
+    throw new Error("F15 Burning callback task must own a delivery.");
   }
   const delivery = ownerTask.delivery;
-  const frozenDelivery =
-    projectDeliveryToFrozenV144(delivery);
+  const frozenDelivery = projectDeliveryToFrozenV144(delivery);
   const burningState =
     ownerTask.burningStateLogId === null
       ? undefined
-      : result.burningStateLog[
-          ownerTask.burningStateLogId
-        ];
+      : result.burningStateLog[ownerTask.burningStateLogId];
   if (burningState === undefined) {
     throw new Error(
-      "F15 Burning callback task has a dangling burningStateLogId."
+      "F15 Burning callback task has a dangling burningStateLogId.",
     );
   }
   const rootReactionDamage =
-    result.reactionDamageLog[
-      delivery.reactionDamageLogId
-    ];
+    result.reactionDamageLog[delivery.reactionDamageLogId];
   if (rootReactionDamage === undefined) {
-    throw new Error(
-      "Burning delivery has a dangling reactionDamageLogId."
-    );
+    throw new Error("Burning delivery has a dangling reactionDamageLogId.");
   }
-  const rootDamageEvents = rootReactionDamage.damageEventIds.map(
-    (id) => {
-      const entry = result.damageEvents[id];
-      if (entry === undefined) {
-        throw new Error(
-          `Root Burning damageEventId ${id} is dangling.`
-        );
-      }
-      return projectDamage(entry);
+  const rootDamageEvents = rootReactionDamage.damageEventIds.map((id) => {
+    const entry = result.damageEvents[id];
+    if (entry === undefined) {
+      throw new Error(`Root Burning damageEventId ${id} is dangling.`);
     }
-  );
+    return projectDamage(entry);
+  });
   const overload = requireOne(
     result.reactionDamageLog.filter(
       (entry) =>
         entry.reaction === "overload" &&
         entry.triggerFrame === 15 &&
-        entry.damageFrame === 16
+        entry.damageFrame === 16,
     ),
-    "F16 nested Overload delivery"
+    "F16 nested Overload delivery",
   );
   const overloadTrigger =
     overload.triggerDamageEventId === null
@@ -519,53 +468,43 @@ function projectBurningCallbackScenario(
       : result.damageEvents[overload.triggerDamageEventId];
   if (overloadTrigger === undefined) {
     throw new Error(
-      "Nested Overload must backlink to its F15 root damage event."
+      "Nested Overload must backlink to its F15 root damage event.",
     );
   }
-  const overloadDamageEvents = overload.damageEventIds.map(
-    (id) => {
-      const entry = result.damageEvents[id];
-      if (entry === undefined) {
-        throw new Error(
-          `Nested Overload damageEventId ${id} is dangling.`
-        );
-      }
-      return projectDamage(entry);
+  const overloadDamageEvents = overload.damageEventIds.map((id) => {
+    const entry = result.damageEvents[id];
+    if (entry === undefined) {
+      throw new Error(`Nested Overload damageEventId ${id} is dangling.`);
     }
-  );
-  const overloadHitResolutionRows = overload.damageEventIds.map(
-    (id) => {
-      const damage = result.damageEvents[id]!;
-      const hit = result.hitResolutionLog[
-        damage.targetResolutionId
-      ];
-      if (hit === undefined) {
-        throw new Error(
-          `Nested Overload targetResolutionId ${damage.targetResolutionId} is dangling.`
-        );
-      }
-      return projectHit(hit);
-    }
-  );
-  const overloadTimelinePoints = overload.damageEventIds.map(
-    (id) => {
-      const point = requireOne(
-        result.targetStateTimeline.points.filter(
-          (candidate) =>
-            candidate.primaryDamageEventId === id
-        ),
-        `nested Overload timeline point for damage ${id}`
+    return projectDamage(entry);
+  });
+  const overloadHitResolutionRows = overload.damageEventIds.map((id) => {
+    const damage = result.damageEvents[id]!;
+    const hit = result.hitResolutionLog[damage.targetResolutionId];
+    if (hit === undefined) {
+      throw new Error(
+        `Nested Overload targetResolutionId ${damage.targetResolutionId} is dangling.`,
       );
-      return projectTimelinePoint(point);
     }
+    return projectHit(hit);
+  });
+  const overloadTimelinePoints = overload.damageEventIds.map((id) => {
+    const point = requireOne(
+      result.targetStateTimeline.points.filter(
+        (candidate) => candidate.primaryDamageEventId === id,
+      ),
+      `nested Overload timeline point for damage ${id}`,
+    );
+    return projectTimelinePoint(point);
+  });
+  const damageByReaction = result.damageEvents.reduce<Record<string, number>>(
+    (totals, entry) => {
+      totals[entry.reaction] =
+        (totals[entry.reaction] ?? 0) + entry.finalDamage;
+      return totals;
+    },
+    {},
   );
-  const damageByReaction = result.damageEvents.reduce<
-    Record<string, number>
-  >((totals, entry) => {
-    totals[entry.reaction] =
-      (totals[entry.reaction] ?? 0) + entry.finalDamage;
-    return totals;
-  }, {});
   const lastCurvePoint = result.damageCurve.at(-1);
 
   return {
@@ -575,14 +514,12 @@ function projectBurningCallbackScenario(
       dataVersion: result.dataVersion,
       randomSeed: result.randomSeed,
       configHash: frozenManifest.configHash,
-      reproducibilityKey:
-        frozenManifest.reproducibilityKey,
+      reproducibilityKey: frozenManifest.reproducibilityKey,
       runManifest: frozenManifest,
-      resolvedRuntimeOptions:
-        result.resolvedRuntimeOptions,
+      resolvedRuntimeOptions: result.resolvedRuntimeOptions,
       compatibilityMode: result.compatibilityMode,
       mechanicsStatus: result.mechanicsStatus,
-      configSemanticHash: semanticHash(frozenConfig)
+      configSemanticHash: semanticHash(frozenConfig),
     },
     config: frozenConfig,
     callback: {
@@ -593,34 +530,26 @@ function projectBurningCallbackScenario(
         globalFrame: ownerPhase.globalFrame,
         targetFrame: ownerPhase.targetFrame,
         targetOrder: ownerPhase.targetOrder,
-        auraBeforeTargetTasks:
-          ownerPhase.auraBeforeTargetTasks,
-        auraAfterTargetTasks:
-          ownerPhase.auraAfterTargetTasks,
+        auraBeforeTargetTasks: ownerPhase.auraBeforeTargetTasks,
+        auraAfterTargetTasks: ownerPhase.auraAfterTargetTasks,
         reactableTick: ownerPhase.reactableTick,
-        hitResolutionLogIds:
-          ownerPhase.hitResolutionLogIds,
-        reactionTaskLogIds:
-          ownerPhase.reactionTaskLogIds
+        hitResolutionLogIds: ownerPhase.hitResolutionLogIds,
+        reactionTaskLogIds: ownerPhase.reactionTaskLogIds,
       },
       ownerTask: {
         ...ownerTask,
-        delivery: frozenDelivery
+        delivery: frozenDelivery,
       },
       delivery: frozenDelivery,
       burningState,
-      rootReactionDamage:
-        projectReactionDamageToFrozenV144(
-          rootReactionDamage
-        ),
+      rootReactionDamage: projectReactionDamageToFrozenV144(rootReactionDamage),
       attempts: delivery.attempts.map((attempt) =>
-        projectAttempt(result, attempt)
+        projectAttempt(result, attempt),
       ),
-      rootDamageEvents
+      rootDamageEvents,
     },
     nestedOverload: {
-      reactionDamage:
-        projectReactionDamageToFrozenV144(overload),
+      reactionDamage: projectReactionDamageToFrozenV144(overload),
       triggerDamageEvent: projectDamage(overloadTrigger),
       hitResolutionRows: overloadHitResolutionRows,
       damageEvents: overloadDamageEvents,
@@ -628,18 +557,15 @@ function projectBurningCallbackScenario(
       owningTargetPhases: result.targetPhaseLog
         .filter(
           (phase): phase is TargetPhaseV3LogEntry =>
-            phase.model === "target-phase-v3" &&
-            phase.globalFrame === 16
+            phase.model === "target-phase-v3" && phase.globalFrame === 16,
         )
         .map((phase) => ({
           id: phase.id,
           targetId: phase.targetId,
           targetOrder: phase.targetOrder,
-          hitResolutionLogIds:
-            phase.hitResolutionLogIds,
-          reactionTaskLogIds:
-            phase.reactionTaskLogIds
-        }))
+          hitResolutionLogIds: phase.hitResolutionLogIds,
+          reactionTaskLogIds: phase.reactionTaskLogIds,
+        })),
     },
     damageCurve: result.damageCurve,
     summary: {
@@ -647,7 +573,7 @@ function projectBurningCallbackScenario(
       dps: result.dps,
       displayDamageTotal: result.damageEvents.reduce(
         (sum, entry) => sum + entry.displayDamage,
-        0
+        0,
       ),
       damageEventCount: result.damageEvents.length,
       hitResolutionCount: result.hitResolutionLog.length,
@@ -663,14 +589,11 @@ function projectBurningCallbackScenario(
           : {
               damageEventId: lastCurvePoint.damageEventId,
               frame: lastCurvePoint.frame,
-              cumulativeDamage:
-                lastCurvePoint.cumulativeDamage,
-              cumulativeByComponent:
-                lastCurvePoint.cumulativeByComponent,
-              cumulativeByReaction:
-                lastCurvePoint.cumulativeByReaction
-            }
-    }
+              cumulativeDamage: lastCurvePoint.cumulativeDamage,
+              cumulativeByComponent: lastCurvePoint.cumulativeByComponent,
+              cumulativeByReaction: lastCurvePoint.cumulativeByReaction,
+            },
+    },
   };
 }
 
@@ -684,8 +607,7 @@ interface BurningCallbackGoldenFixture {
   provenance: {
     mechanicsDataStatus: "fixed-gcsim-provisional";
     referenceProject: "genshinsim/gcsim";
-    referenceCommit:
-      "ef41805d855a60b9e1035293584b85c085dc69e7";
+    referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7";
     officialServerTruth: false;
     completeGcsimParity: false;
     capturedAt: "2026-07-31";
@@ -693,10 +615,8 @@ interface BurningCallbackGoldenFixture {
     limitations: string[];
   };
   commonConfig: {
-    schemaVersion:
-      typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
-    engineVersion:
-      typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
+    schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
+    engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
     reactionEngine: { mode: "aura-v9" };
     targetClockModel: { mode: "disabled" };
     targetTaskModel: { mode: "target-phase-v3" };
@@ -710,9 +630,7 @@ interface BurningCallbackGoldenFixture {
 }
 
 function semanticHash(value: unknown): string {
-  return createHash("sha256")
-    .update(canonicalStringify(value))
-    .digest("hex");
+  return createHash("sha256").update(canonicalStringify(value)).digest("hex");
 }
 
 function serializeJsonFixture(value: unknown): string {
@@ -723,18 +641,10 @@ function byteSha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function atomicCreateJsonFixture(
-  outputUrl: URL,
-  value: unknown
-): void {
+function atomicCreateJsonFixture(outputUrl: URL, value: unknown): void {
   const outputPath = fileURLToPath(outputUrl);
-  const temporaryPath =
-    `${outputPath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(
-    temporaryPath,
-    serializeJsonFixture(value),
-    { flag: "wx" }
-  );
+  const temporaryPath = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+  writeFileSync(temporaryPath, serializeJsonFixture(value), { flag: "wx" });
   try {
     linkSync(temporaryPath, outputPath);
   } catch (error) {
@@ -744,9 +654,7 @@ function atomicCreateJsonFixture(
       "code" in error &&
       error.code === "EEXIST"
     ) {
-      throw new Error(
-        `Refusing to overwrite frozen fixture ${outputPath}.`
-      );
+      throw new Error(`Refusing to overwrite frozen fixture ${outputPath}.`);
     }
     throw error;
   } finally {
@@ -755,23 +663,19 @@ function atomicCreateJsonFixture(
 }
 
 function expectCallbackBacklinks(
-  scenario: BurningCallbackGoldenScenario
+  scenario: BurningCallbackGoldenScenario,
 ): void {
   const { callback, nestedOverload } = scenario;
-  expect(callback.ownerTask.delivery).toEqual(
-    callback.delivery
-  );
-  expect(callback.ownerTask.burningStateLogId).toBe(
-    callback.burningState.id
-  );
+  expect(callback.ownerTask.delivery).toEqual(callback.delivery);
+  expect(callback.ownerTask.burningStateLogId).toBe(callback.burningState.id);
   expect(callback.burningState.reactionDamageLogId).toBe(
-    callback.rootReactionDamage.id
+    callback.rootReactionDamage.id,
   );
   expect(callback.delivery.reactionDamageLogId).toBe(
-    callback.rootReactionDamage.id
+    callback.rootReactionDamage.id,
   );
   expect(callback.rootReactionDamage.damageEventIds).toEqual(
-    callback.rootDamageEvents.map((entry) => entry.id)
+    callback.rootDamageEvents.map((entry) => entry.id),
   );
   expect(
     callback.attempts.map(({ attempt }) => ({
@@ -779,64 +683,61 @@ function expectCallbackBacklinks(
       targetId: attempt.targetId,
       targetOrder: attempt.targetOrder,
       applicationPhase: attempt.applicationPhase,
-      outcome: attempt.outcome
-    }))
+      outcome: attempt.outcome,
+    })),
   ).toEqual([
     {
       order: 0,
       targetId: ELECTRO_RECIPIENT_ID,
       targetOrder: 0,
       applicationPhase: "after-reactable-tick",
-      outcome: "landed"
+      outcome: "landed",
     },
     {
       order: 1,
       targetId: OWNER_ID,
       targetOrder: 1,
       applicationPhase: "before-reactable-tick",
-      outcome: "landed"
+      outcome: "landed",
     },
     {
       order: 2,
       targetId: PLAIN_RECIPIENT_ID,
       targetOrder: 2,
       applicationPhase: "before-reactable-tick",
-      outcome: "landed"
+      outcome: "landed",
     },
     {
       order: 3,
       targetId: OUTSIDE_RADIUS_ID,
       targetOrder: 3,
       applicationPhase: "before-reactable-tick",
-      outcome: "miss"
+      outcome: "miss",
     },
     {
       order: 4,
       targetId: UNRESOLVED_POSITION_ID,
       targetOrder: 4,
       applicationPhase: "before-reactable-tick",
-      outcome: "unresolved"
-    }
+      outcome: "unresolved",
+    },
   ]);
   for (const projected of callback.attempts) {
-    const { attempt, hit, damage, targetStateTimelinePoint } =
-      projected;
+    const { attempt, hit, damage, targetStateTimelinePoint } = projected;
     if (attempt.outcome === "landed") {
       expect(hit?.id).toBe(attempt.hitResolutionLogId);
       expect(hit?.damageEventId).toBe(attempt.damageEventId);
       expect(damage?.id).toBe(attempt.damageEventId);
-      expect(damage?.targetResolutionId).toBe(
-        attempt.hitResolutionLogId
-      );
+      expect(damage?.targetResolutionId).toBe(attempt.hitResolutionLogId);
       expect(targetStateTimelinePoint?.id).toBe(
-        attempt.targetStateTimelinePointId
+        attempt.targetStateTimelinePointId,
       );
-      expect(
-        targetStateTimelinePoint?.primaryDamageEventId
-      ).toBe(attempt.damageEventId);
+      expect(targetStateTimelinePoint?.primaryDamageEventId).toBe(
+        attempt.damageEventId,
+      );
       expect(targetStateTimelinePoint?.links).toContainEqual({
         kind: "reaction-damage-log",
-        id: callback.rootReactionDamage.id
+        id: callback.rootReactionDamage.id,
       });
     } else if (attempt.outcome === "miss") {
       expect(hit?.id).toBe(attempt.hitResolutionLogId);
@@ -854,36 +755,30 @@ function expectCallbackBacklinks(
     triggerFrame: 15,
     damageFrame: 16,
     scheduled: true,
-    withinSimulation: true
+    withinSimulation: true,
   });
-  expect(
-    nestedOverload.reactionDamage.triggerDamageEventId
-  ).toBe(nestedOverload.triggerDamageEvent.id);
-  expect(nestedOverload.triggerDamageEvent.targetId).toBe(
-    ELECTRO_RECIPIENT_ID
+  expect(nestedOverload.reactionDamage.triggerDamageEventId).toBe(
+    nestedOverload.triggerDamageEvent.id,
   );
+  expect(nestedOverload.triggerDamageEvent.targetId).toBe(ELECTRO_RECIPIENT_ID);
   expect(nestedOverload.triggerDamageEvent.frame).toBe(15);
   expect(nestedOverload.damageEvents).not.toHaveLength(0);
-  expect(
-    nestedOverload.damageEvents.map((entry) => entry.frame)
-  ).toEqual(
-    nestedOverload.damageEvents.map(() => 16)
+  expect(nestedOverload.damageEvents.map((entry) => entry.frame)).toEqual(
+    nestedOverload.damageEvents.map(() => 16),
   );
   expect(
     nestedOverload.targetStateTimelinePoints.map(
-      (entry) => entry.primaryDamageEventId
-    )
+      (entry) => entry.primaryDamageEventId,
+    ),
   ).toEqual(nestedOverload.reactionDamage.damageEventIds);
   expect(
     nestedOverload.owningTargetPhases.flatMap(
-      (phase) => phase.hitResolutionLogIds
-    )
+      (phase) => phase.hitResolutionLogIds,
+    ),
   ).toEqual(
     expect.arrayContaining(
-      nestedOverload.hitResolutionRows.map(
-        (entry) => entry.id
-      )
-    )
+      nestedOverload.hitResolutionRows.map((entry) => entry.id),
+    ),
   );
 }
 
@@ -892,21 +787,17 @@ describe("Burning callback delivery 1.44 Golden", () => {
     const config = makeBurningCallbackGoldenConfig();
     const first = simulate(config, { critMode: "noCrit" });
     const repeated = simulate(config, {
-      critMode: "noCrit"
+      critMode: "noCrit",
     });
     expect(repeated).toStrictEqual(first);
-    expect(simulationResultSchema.parse(first)).toEqual(
-      first
+    expect(simulationResultSchema.parse(first)).toEqual(first);
+    expect(assertTrustedSimulationResult(first)).toBe(first);
+    const frozenV149TargetPhaseFacet = projectSimulationResultV150ToV149(
+      projectSimulationResultV151ToV150(first),
     );
-    expect(assertTrustedSimulationResult(first)).toBe(
-      first
-    );
-    const frozenV149TargetPhaseFacet =
-      projectSimulationResultV150ToV149(first);
     expect(
-      targetPhaseV3ResultReferencesSchema.safeParse(
-        frozenV149TargetPhaseFacet
-      ).success
+      targetPhaseV3ResultReferencesSchema.safeParse(frozenV149TargetPhaseFacet)
+        .success,
     ).toBe(true);
 
     const scenario = projectBurningCallbackScenario(first);
@@ -917,8 +808,7 @@ describe("Burning callback delivery 1.44 Golden", () => {
       provenance: {
         mechanicsDataStatus: "fixed-gcsim-provisional",
         referenceProject: "genshinsim/gcsim",
-        referenceCommit:
-          "ef41805d855a60b9e1035293584b85c085dc69e7",
+        referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7",
         officialServerTruth: false,
         completeGcsimParity: false,
         capturedAt: "2026-07-31",
@@ -927,8 +817,8 @@ describe("Burning callback delivery 1.44 Golden", () => {
         limitations: [
           "This fixture is fixed-code regression evidence, not an official server measurement.",
           "The pinned gcsim reference informs the provisional callback boundary; this fixture does not claim complete gcsim or game-mechanics parity.",
-          "Only the modeled Aura-v9, target-phase-v3, and deferred positive-delay delivery boundary is frozen here."
-        ]
+          "Only the modeled Aura-v9, target-phase-v3, and deferred positive-delay delivery boundary is frozen here.",
+        ],
       },
       commonConfig: {
         schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -937,56 +827,47 @@ describe("Burning callback delivery 1.44 Golden", () => {
         targetClockModel: { mode: "disabled" },
         targetTaskModel: { mode: "target-phase-v3" },
         reactionDeliveryModel: {
-          mode: "deferred-event-heap-v1"
+          mode: "deferred-event-heap-v1",
         },
-        timeline: { mode: "legal-frame-v1", fps: 60 }
+        timeline: { mode: "legal-frame-v1", fps: 60 },
       },
       scenario,
-      scenarioSha256: semanticHash(scenario)
+      scenarioSha256: semanticHash(scenario),
     };
-    const updateRequested =
-      process.env[UPDATE_FLAG] === "1";
+    const updateRequested = process.env[UPDATE_FLAG] === "1";
     const generatedBytes = serializeJsonFixture(generated);
     const frozenBytes = updateRequested
       ? generatedBytes
       : readFileSync(FIXTURE_URL, "utf8");
     const fixture = updateRequested
       ? generated
-      : (JSON.parse(
-          frozenBytes
-        ) as BurningCallbackGoldenFixture);
+      : (JSON.parse(frozenBytes) as BurningCallbackGoldenFixture);
 
     expect(fixture).toStrictEqual(generated);
     expect(fixture.provenance).toMatchObject({
       mechanicsDataStatus: "fixed-gcsim-provisional",
-      referenceCommit:
-        "ef41805d855a60b9e1035293584b85c085dc69e7",
+      referenceCommit: "ef41805d855a60b9e1035293584b85c085dc69e7",
       officialServerTruth: false,
-      completeGcsimParity: false
+      completeGcsimParity: false,
     });
-    expect(semanticHash(fixture.scenario)).toBe(
-      fixture.scenarioSha256
-    );
+    expect(semanticHash(fixture.scenario)).toBe(fixture.scenarioSha256);
     expect(fixture.scenario.identity).toMatchObject({
       schemaVersion: "1.44.0",
       engineVersion: "1.44.0-burning-callback-delivery",
-      dataVersion:
-        "burning-callback-delivery-provisional-1",
-      randomSeed:
-        "burning-callback-delivery-golden-seed"
+      dataVersion: "burning-callback-delivery-provisional-1",
+      randomSeed: "burning-callback-delivery-golden-seed",
     });
     expectCallbackBacklinks(fixture.scenario);
     expect(fixture.scenario.summary.damageCurveEnd).toMatchObject({
-      cumulativeDamage:
-        fixture.scenario.summary.totalDamage
+      cumulativeDamage: fixture.scenario.summary.totalDamage,
     });
     expect(
       byteSha256(generatedBytes),
-      "generated Burning callback fixture bytes"
+      "generated Burning callback fixture bytes",
     ).toBe(FROZEN_FIXTURE_SHA256);
     expect(
       byteSha256(frozenBytes),
-      "frozen Burning callback fixture bytes"
+      "frozen Burning callback fixture bytes",
     ).toBe(FROZEN_FIXTURE_SHA256);
 
     if (updateRequested) {

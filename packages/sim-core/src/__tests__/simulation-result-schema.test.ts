@@ -10,12 +10,14 @@ import {
   simulationResultV145Schema,
   simulationResultV146Schema,
   simulationResultV147Schema,
-  simulationResultV150ValueSchema,
+  simulationResultV150Schema,
+  simulationResultV151Schema,
+  simulationResultV151ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
   type SimConfig,
-  type SimulationResult
+  type SimulationResult,
 } from "@genshin-dps-lab/schemas";
 import frozenGoldenV142 from "../../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -30,20 +32,20 @@ const ZERO_RESISTANCES = {
   anemo: 0,
   geo: 0,
   dendro: 0,
-  physical: 0
+  physical: 0,
 } as const;
 
 const SAME_TARGET_GEOMETRY = {
   kind: "circle" as const,
   coordinateSpace: "world" as const,
   origin: { x: 0, y: 0 },
-  radius: 1
+  radius: 1,
 };
 
 function noIcd(id: string) {
   return {
     gaugeUnits: 1,
-    icd: { mode: "no-icd-v1" as const }
+    icd: { mode: "no-icd-v1" as const },
   };
 }
 
@@ -67,8 +69,8 @@ function makeAuraV9TargetPhaseConfig(): SimConfig {
         geometry: SAME_TARGET_GEOMETRY,
         application: {
           ...noIcd("dendro-quicken"),
-          gaugeUnits: 0.2
-        }
+          gaugeUnits: 0.2,
+        },
       },
       {
         id: "electro-hitlag",
@@ -79,23 +81,23 @@ function makeAuraV9TargetPhaseConfig(): SimConfig {
         geometry: SAME_TARGET_GEOMETRY,
         application: {
           ...noIcd("electro-hitlag"),
-          gaugeUnits: 0.8
+          gaugeUnits: 0.8,
         },
         targetHitlag: {
           haltFrames: 120,
-          factor: 0
-        }
-      }
+          factor: 0,
+        },
+      },
     ],
     timelineState: {
       grants: [
         {
           key: "result-schema-window",
           label: "Result Schema Window",
-          durationFrames: 10
-        }
-      ]
-    }
+          durationFrames: 10,
+        },
+      ],
+    },
   };
 
   return {
@@ -105,7 +107,7 @@ function makeAuraV9TargetPhaseConfig(): SimConfig {
     meta: {
       name: "SimulationResult Aura v9 vector",
       version: "1.42.0",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     duration: 145 / 60,
     cycleLength: 145 / 60,
@@ -121,28 +123,28 @@ function makeAuraV9TargetPhaseConfig(): SimConfig {
           hitboxRadius: 0,
           initialAura: [
             { element: "hydro", gaugeUnits: 0.5 },
-            { element: "electro", gaugeUnits: 2 }
-          ]
-        }
-      ]
+            { element: "electro", gaugeUnits: 2 },
+          ],
+        },
+      ],
     },
     characters: [
       {
         ...base.characters[0]!,
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
-      }
+          baseAtk: 0,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
     targetClockModel: {
-      mode: "target-local-hitlag-v1"
+      mode: "target-local-hitlag-v1",
     },
     targetTaskModel: { mode: "target-phase-v2" },
     reactionDeliveryModel: {
-      mode: "deferred-event-heap-v1"
+      mode: "deferred-event-heap-v1",
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -156,17 +158,17 @@ function makeAuraV9TargetPhaseConfig(): SimConfig {
           type: "skill",
           actorId: "a",
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function character(
   template: CharacterProfile,
   id: string,
-  element: Element
+  element: Element,
 ): CharacterProfile {
   return {
     ...template,
@@ -176,18 +178,14 @@ function character(
     stats: {
       ...neutralStats,
       baseAtk: 0,
-      baseHp: 10_000
-    }
+      baseHp: 10_000,
+    },
   };
 }
 
 function makePlayerDamageConfig(): SimConfig {
   const base = makeConfig();
-  const pyro = character(
-    base.characters[0]!,
-    "pyro",
-    "pyro"
-  );
+  const pyro = character(base.characters[0]!, "pyro", "pyro");
   const ability: AbilityDefinition = {
     id: "result-schema-burning",
     actorId: pyro.id,
@@ -204,9 +202,9 @@ function makePlayerDamageConfig(): SimConfig {
         scaling: 0,
         element: "pyro",
         geometry: SAME_TARGET_GEOMETRY,
-        application: noIcd("pyro-hit")
-      }
-    ]
+        application: noIcd("pyro-hit"),
+      },
+    ],
   };
 
   return {
@@ -216,7 +214,7 @@ function makePlayerDamageConfig(): SimConfig {
     meta: {
       name: "SimulationResult player-damage vector",
       version: "1.42.0",
-      verificationStatus: "provisional"
+      verificationStatus: "provisional",
     },
     duration: 1.1,
     cycleLength: 1.1,
@@ -230,11 +228,9 @@ function makePlayerDamageConfig(): SimConfig {
           name: "Burning source",
           position: { x: 0, y: 0 },
           hitboxRadius: 0,
-          initialAura: [
-            { element: "dendro", gaugeUnits: 1 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "dendro", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [pyro],
     rotation: [],
@@ -249,9 +245,9 @@ function makePlayerDamageConfig(): SimConfig {
         {
           actorId: pyro.id,
           initialHpRatio: 1,
-          resistances: { ...ZERO_RESISTANCES }
-        }
-      ]
+          resistances: { ...ZERO_RESISTANCES },
+        },
+      ],
     },
     timeline: {
       mode: "legal-frame-v1",
@@ -265,10 +261,10 @@ function makePlayerDamageConfig(): SimConfig {
           type: "skill",
           actorId: pyro.id,
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -291,11 +287,11 @@ function makeElectroChargedIntegrityConfig(): SimConfig {
         element: "electro",
         targeting: {
           targetId: "enemy-0",
-          outcome: "landed"
+          outcome: "landed",
         },
-        application: noIcd("electro-charged-trigger")
-      }
-    ]
+        application: noIcd("electro-charged-trigger"),
+      },
+    ],
   };
 
   return {
@@ -313,25 +309,19 @@ function makeElectroChargedIntegrityConfig(): SimConfig {
           id: "enemy-0",
           name: "Electro-Charged target",
           position: { x: 0, y: 0 },
-          initialAura: [
-            { element: "hydro", gaugeUnits: 1 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "hydro", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [
       {
         ...base.characters[0]!,
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
+          baseAtk: 0,
+        },
       },
-      character(
-        base.characters[0]!,
-        "spectator",
-        "cryo"
-      )
+      character(base.characters[0]!, "spectator", "cryo"),
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v2" },
@@ -347,20 +337,16 @@ function makeElectroChargedIntegrityConfig(): SimConfig {
           type: "skill",
           actorId: "a",
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
 function makeFrozenExpiryIntegrityConfig(): SimConfig {
   const base = makeConfig();
-  const hydro = character(
-    base.characters[0]!,
-    "hydro",
-    "hydro"
-  );
+  const hydro = character(base.characters[0]!, "hydro", "hydro");
   const ability: AbilityDefinition = {
     id: "result-schema-freeze",
     actorId: hydro.id,
@@ -378,18 +364,18 @@ function makeFrozenExpiryIntegrityConfig(): SimConfig {
         element: "hydro",
         targeting: {
           targetId: "enemy-0",
-          outcome: "landed"
+          outcome: "landed",
         },
-        application: noIcd("freeze-trigger")
+        application: noIcd("freeze-trigger"),
       },
       {
         id: "neutral-witness",
         label: "Unrelated neutral witness",
         frame: 1,
         scaling: 0,
-        element: "physical"
-      }
-    ]
+        element: "physical",
+      },
+    ],
   };
 
   return {
@@ -407,11 +393,9 @@ function makeFrozenExpiryIntegrityConfig(): SimConfig {
         {
           id: "enemy-0",
           name: "Frozen expiry target",
-          initialAura: [
-            { element: "cryo", gaugeUnits: 1 }
-          ]
-        }
-      ]
+          initialAura: [{ element: "cryo", gaugeUnits: 1 }],
+        },
+      ],
     },
     characters: [hydro],
     rotation: [],
@@ -428,10 +412,10 @@ function makeFrozenExpiryIntegrityConfig(): SimConfig {
           type: "skill",
           actorId: hydro.id,
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -442,18 +426,14 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
       id: "source-left",
       name: "Left Superconduct source",
       position: { x: 0, y: 0 },
-      initialAura: [
-        { element: "cryo" as const, gaugeUnits: 1 }
-      ]
+      initialAura: [{ element: "cryo" as const, gaugeUnits: 1 }],
     },
     {
       id: "source-right",
       name: "Right Superconduct source",
       position: { x: 4, y: 0 },
-      initialAura: [
-        { element: "cryo" as const, gaugeUnits: 1 }
-      ]
-    }
+      initialAura: [{ element: "cryo" as const, gaugeUnits: 1 }],
+    },
   ];
   const ability: AbilityDefinition = {
     id: "result-schema-same-frame-superconduct",
@@ -473,12 +453,10 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
         kind: "circle" as const,
         coordinateSpace: "world" as const,
         origin: target.position,
-        radius: 0.1
+        radius: 0.1,
       },
-      application: noIcd(
-        `same-frame-superconduct-${index}`
-      )
-    }))
+      application: noIcd(`same-frame-superconduct-${index}`),
+    })),
   };
 
   return {
@@ -488,7 +466,7 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
     duration: 1,
     cycleLength: 1,
     targetClockModel: {
-      mode: "target-local-hitlag-v1"
+      mode: "target-local-hitlag-v1",
     },
     enemy: {
       level: 90,
@@ -499,9 +477,9 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
         {
           id: "enemy-0",
           name: "Shared Superconduct target",
-          position: { x: 2, y: 0 }
-        }
-      ]
+          position: { x: 2, y: 0 },
+        },
+      ],
     },
     characters: [
       {
@@ -511,9 +489,9 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
         element: "electro",
         stats: {
           ...neutralStats,
-          baseAtk: 0
-        }
-      }
+          baseAtk: 0,
+        },
+      },
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v5" },
@@ -529,45 +507,39 @@ function makeSameFrameSuperconductIntegrityConfig(): SimConfig {
           type: "skill",
           actorId: "electro",
           abilityId: ability.id,
-          atFrame: 0
-        }
-      ]
-    }
+          atFrame: 0,
+        },
+      ],
+    },
   };
 }
 
-function cloneResult(
-  result: SimulationResult
-): SimulationResult {
+function cloneResult(result: SimulationResult): SimulationResult {
   return structuredClone(result);
 }
 
 function expectRejected(
   result: SimulationResult,
-  mutate: (value: SimulationResult) => void
+  mutate: (value: SimulationResult) => void,
 ): void {
   const mutation = cloneResult(result);
   mutate(mutation);
-  expect(
-    simulationResultSchema.safeParse(mutation).success
-  ).toBe(false);
+  expect(simulationResultSchema.safeParse(mutation).success).toBe(false);
 }
 
 function expectRejectedByPublicAndTrusted(
   result: SimulationResult,
-  mutate: (value: SimulationResult) => void
+  mutate: (value: SimulationResult) => void,
 ): void {
   const publicWire = cloneResult(result);
   mutate(publicWire);
-  expect(
-    simulationResultSchema.safeParse(publicWire).success
-  ).toBe(false);
+  expect(simulationResultSchema.safeParse(publicWire).success).toBe(false);
 
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
-  expect(() =>
-    assertTrustedSimulationResult(trustedResult)
-  ).toThrow(/Trusted SimulationResult 1\.50 integrity validation failed/);
+  expect(() => assertTrustedSimulationResult(trustedResult)).toThrow(
+    /Trusted SimulationResult 1\.51 integrity validation failed/,
+  );
 }
 
 function expectAccepted(result: SimulationResult): void {
@@ -577,11 +549,11 @@ function expectAccepted(result: SimulationResult): void {
       JSON.stringify(
         parsed.error.issues.map(({ path, message }) => ({
           path,
-          message
+          message,
         })),
         null,
-        2
-      )
+        2,
+      ),
     );
   }
 }
@@ -596,81 +568,75 @@ let sameFrameSuperconductResult: SimulationResult;
 beforeAll(() => {
   defaultResult = simulate(durinMeltPreset);
   auraV9Result = simulate(makeAuraV9TargetPhaseConfig(), {
-    critMode: "noCrit"
+    critMode: "noCrit",
   });
   playerDamageResult = simulate(makePlayerDamageConfig(), {
-    critMode: "noCrit"
+    critMode: "noCrit",
   });
-  electroChargedResult = simulate(
-    makeElectroChargedIntegrityConfig(),
-    {
-      critMode: "noCrit"
-    }
-  );
-  frozenExpiryResult = simulate(
-    makeFrozenExpiryIntegrityConfig(),
-    {
-      critMode: "noCrit"
-    }
-  );
+  electroChargedResult = simulate(makeElectroChargedIntegrityConfig(), {
+    critMode: "noCrit",
+  });
+  frozenExpiryResult = simulate(makeFrozenExpiryIntegrityConfig(), {
+    critMode: "noCrit",
+  });
   sameFrameSuperconductResult = simulate(
     makeSameFrameSuperconductIntegrityConfig(),
     {
-      critMode: "noCrit"
-    }
+      critMode: "noCrit",
+    },
   );
 });
 
-describe("exact current 1.50 SimulationResult schema", () => {
-  it("keeps persisted 1.42 and frozen 1.44-1.47 result identities separate", () => {
+describe("exact current 1.51 SimulationResult schema", () => {
+  it("keeps persisted 1.42 and frozen 1.44-1.50 result identities separate", () => {
     expect(
-      legacyDefault120sGoldenFixtureV142Schema.safeParse(
-        frozenGoldenV142
-      ).success
+      legacyDefault120sGoldenFixtureV142Schema.safeParse(frozenGoldenV142)
+        .success,
     ).toBe(true);
-    expect(
-      simulationResultV142Schema.safeParse(defaultResult).success
-    ).toBe(false);
-    expect(
-      simulationResultV144Schema.safeParse(defaultResult).success
-    ).toBe(false);
-    expect(
-      simulationResultV145Schema.safeParse(defaultResult).success
-    ).toBe(false);
-    expect(
-      simulationResultV146Schema.safeParse(defaultResult).success
-    ).toBe(false);
-    expect(
-      simulationResultV147Schema.safeParse(defaultResult).success
-    ).toBe(false);
+    expect(simulationResultV142Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultV144Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultV145Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultV146Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultV147Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultV150Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultSchema).toBe(simulationResultV151Schema);
   });
 
-  it(
-    "keeps the exact 68-field shape and all 67 non-timeline fields required",
-    () => {
-      const schemaKeys = Object.keys(
-        simulationResultV150ValueSchema.shape
-      ).sort();
-      expect(schemaKeys).toHaveLength(68);
-      expect(Object.keys(defaultResult).sort()).toEqual(
-        schemaKeys.filter((key) => key !== "timelineExecution")
-      );
-      expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys);
+  it("keeps the exact 69-field shape and all 68 non-timeline fields required", () => {
+    const schemaKeys = Object.keys(
+      simulationResultV151ValueSchema.shape,
+    ).sort();
+    expect(schemaKeys).toHaveLength(69);
+    expect(Object.keys(defaultResult).sort()).toEqual(
+      schemaKeys.filter((key) => key !== "timelineExecution"),
+    );
+    expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys);
 
-      for (const key of schemaKeys) {
-        if (key === "timelineExecution") continue;
-        const missing = cloneResult(
-          defaultResult
-        ) as unknown as Record<string, unknown>;
-        delete missing[key];
-        expect(
-          simulationResultSchema.safeParse(missing).success,
-          `missing required top-level field ${key}`
-        ).toBe(false);
-      }
-    },
-    15_000
-  );
+    for (const key of schemaKeys) {
+      if (key === "timelineExecution") continue;
+      const missing = cloneResult(defaultResult) as unknown as Record<
+        string,
+        unknown
+      >;
+      delete missing[key];
+      expect(
+        simulationResultSchema.safeParse(missing).success,
+        `missing required top-level field ${key}`,
+      ).toBe(false);
+    }
+  }, 15_000);
 
   it("accepts the default 120-second legacy-compatible result", () => {
     expect(defaultResult.compatibilityMode).toBe("legacy-v0.1");
@@ -680,35 +646,24 @@ describe("exact current 1.50 SimulationResult schema", () => {
   });
 
   it("accepts legal-frame Aura v9 target-clock and target-phase-v2 output", () => {
-    expect(auraV9Result.targetClockAudit.mode).toBe(
-      "target-local-hitlag-v1"
-    );
+    expect(auraV9Result.targetClockAudit.mode).toBe("target-local-hitlag-v1");
     expect(auraV9Result.targetHitlagLog.length).toBeGreaterThan(0);
     expect(auraV9Result.targetPhaseLog.length).toBeGreaterThan(0);
-    expect(auraV9Result.reactionDamageLog.length).toBeGreaterThan(
-      0
-    );
+    expect(auraV9Result.reactionDamageLog.length).toBeGreaterThan(0);
     expectAccepted(auraV9Result);
   });
 
   it("accepts modeled player reaction damage and HP projections", () => {
-    expect(
-      playerDamageResult.playerHitResolutionLog.length
-    ).toBeGreaterThan(0);
-    expect(
-      playerDamageResult.playerDamageEvents.length
-    ).toBeGreaterThan(0);
-    expect(playerDamageResult.totalPlayerDamageTaken).toBeGreaterThan(
-      0
-    );
+    expect(playerDamageResult.playerHitResolutionLog.length).toBeGreaterThan(0);
+    expect(playerDamageResult.playerDamageEvents.length).toBeGreaterThan(0);
+    expect(playerDamageResult.totalPlayerDamageTaken).toBeGreaterThan(0);
     expectAccepted(playerDamageResult);
   });
 
-  it("routes live V150 damage-group decisions through upgraded result facets", () => {
-    const decisions =
-      sameFrameSuperconductResult.reactionDamageLog.flatMap(
-        (entry) => entry.damageGroupDecisions
-      );
+  it("routes live V151 damage-group decisions through upgraded result facets", () => {
+    const decisions = sameFrameSuperconductResult.reactionDamageLog.flatMap(
+      (entry) => entry.damageGroupDecisions,
+    );
     expect(decisions.length).toBeGreaterThan(0);
     expect(
       decisions.every(
@@ -716,31 +671,24 @@ describe("exact current 1.50 SimulationResult schema", () => {
           "policyId" in decision &&
           "resetAtFrame" in decision &&
           !("resetFrames" in decision) &&
-          !("sequence" in decision)
-      )
+          !("sequence" in decision),
+      ),
     ).toBe(true);
     expectAccepted(sameFrameSuperconductResult);
   });
 
   it("rejects a cross-scope reset-sequence swap even when opener backlinks are synchronized", () => {
-    const decisions =
-      sameFrameSuperconductResult.reactionDamageLog.flatMap(
-        (entry) => entry.damageGroupDecisions
-      );
-    const resets =
-      sameFrameSuperconductResult.reactionDamageGroupResetLog;
+    const decisions = sameFrameSuperconductResult.reactionDamageLog.flatMap(
+      (entry) => entry.damageGroupDecisions,
+    );
+    const resets = sameFrameSuperconductResult.reactionDamageGroupResetLog;
     let selectedPair:
-      | readonly [
-          (typeof resets)[number],
-          (typeof resets)[number]
-        ]
-      | undefined;
+      readonly [(typeof resets)[number], (typeof resets)[number]] | undefined;
     for (let leftIndex = 0; leftIndex < resets.length; leftIndex += 1) {
       const left = resets[leftIndex]!;
       const leftOpener = decisions.find(
         (decision) =>
-          decision.resetTaskLogId === left.id &&
-          decision.hitIndex === 0
+          decision.resetTaskLogId === left.id && decision.hitIndex === 0,
       );
       if (leftOpener === undefined) continue;
       for (
@@ -751,8 +699,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
         const right = resets[rightIndex]!;
         const rightOpener = decisions.find(
           (decision) =>
-            decision.resetTaskLogId === right.id &&
-            decision.hitIndex === 0
+            decision.resetTaskLogId === right.id && decision.hitIndex === 0,
         );
         if (
           rightOpener !== undefined &&
@@ -768,14 +715,12 @@ describe("exact current 1.50 SimulationResult schema", () => {
     }
     expect(selectedPair).toBeDefined();
     const [firstReset, secondReset] = selectedPair!;
-    const swapResetTaskSequences = (
-      mutation: SimulationResult
-    ): void => {
+    const swapResetTaskSequences = (mutation: SimulationResult): void => {
       const first = mutation.reactionDamageGroupResetLog.find(
-        (reset) => reset.id === firstReset.id
+        (reset) => reset.id === firstReset.id,
       );
       const second = mutation.reactionDamageGroupResetLog.find(
-        (reset) => reset.id === secondReset.id
+        (reset) => reset.id === secondReset.id,
       );
       if (first === undefined || second === undefined) {
         throw new Error("Expected both cross-scope reset rows.");
@@ -784,7 +729,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
       first.taskSequence = second.taskSequence;
       second.taskSequence = firstSequence;
       const synchronizeDecision = (
-        decision: (typeof decisions)[number]
+        decision: (typeof decisions)[number],
       ): void => {
         if (decision.resetTaskLogId === first.id) {
           decision.resetTaskSequence = first.taskSequence;
@@ -793,7 +738,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
         }
       };
       mutation.reactionDamageLog.forEach((entry) =>
-        entry.damageGroupDecisions.forEach(synchronizeDecision)
+        entry.damageGroupDecisions.forEach(synchronizeDecision),
       );
       mutation.playerDamageEvents.forEach((event) => {
         const decision = event.damageFactors.damageGroupDecision;
@@ -803,14 +748,12 @@ describe("exact current 1.50 SimulationResult schema", () => {
 
     const publicWire = cloneResult(sameFrameSuperconductResult);
     swapResetTaskSequences(publicWire);
-    expect(
-      simulationResultSchema.safeParse(publicWire).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(publicWire).success).toBe(false);
 
     const trusted = cloneResult(sameFrameSuperconductResult);
     swapResetTaskSequences(trusted);
     expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-      /strictly increasing by reset log id/
+      /strictly increasing by reset log id/,
     );
   });
 
@@ -820,57 +763,48 @@ describe("exact current 1.50 SimulationResult schema", () => {
       unknown
     >;
     delete missing.damageCurve;
-    expect(
-      simulationResultSchema.safeParse(missing).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(missing).success).toBe(false);
 
     const unknown = cloneResult(defaultResult) as unknown as Record<
       string,
       unknown
     >;
     unknown.unversionedResultField = true;
-    expect(
-      simulationResultSchema.safeParse(unknown).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(unknown).success).toBe(false);
   });
 
   it("rejects prototype, accessor, sparse-array, and cyclic result wires", () => {
-    const inherited = cloneResult(
-      defaultResult
-    ) as unknown as Record<string, unknown>;
+    const inherited = cloneResult(defaultResult) as unknown as Record<
+      string,
+      unknown
+    >;
     const inheritedVersion = inherited.schemaVersion;
     delete inherited.schemaVersion;
     Object.setPrototypeOf(inherited, {
-      schemaVersion: inheritedVersion
+      schemaVersion: inheritedVersion,
     });
-    expect(
-      simulationResultSchema.safeParse(inherited).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(inherited).success).toBe(false);
 
-    const accessor = cloneResult(
-      defaultResult
-    ) as unknown as Record<string, unknown>;
+    const accessor = cloneResult(defaultResult) as unknown as Record<
+      string,
+      unknown
+    >;
     Object.defineProperty(accessor, "totalDamage", {
       enumerable: true,
-      get: () => defaultResult.totalDamage
+      get: () => defaultResult.totalDamage,
     });
-    expect(
-      simulationResultSchema.safeParse(accessor).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(accessor).success).toBe(false);
 
     const sparse = cloneResult(defaultResult);
     delete sparse.damageEvents[0];
-    expect(
-      simulationResultSchema.safeParse(sparse).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(sparse).success).toBe(false);
 
-    const cyclic = cloneResult(
-      defaultResult
-    ) as unknown as Record<string, unknown>;
+    const cyclic = cloneResult(defaultResult) as unknown as Record<
+      string,
+      unknown
+    >;
     cyclic.cycle = cyclic;
-    expect(
-      simulationResultSchema.safeParse(cyclic).success
-    ).toBe(false);
+    expect(simulationResultSchema.safeParse(cyclic).success).toBe(false);
   });
 
   it("rejects historical and mixed top-level/config/manifest identity", () => {
@@ -880,52 +814,45 @@ describe("exact current 1.50 SimulationResult schema", () => {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).schemaVersion =
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+    ).schemaVersion = EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
     (
       historical as unknown as {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).engineVersion =
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    ).engineVersion = EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
     (
       historical.config as unknown as {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).schemaVersion =
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+    ).schemaVersion = EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
     (
       historical.config as unknown as {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).engineVersion =
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    ).engineVersion = EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
     (
       historical.runManifest as unknown as {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).schemaVersion =
-      EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
+    ).schemaVersion = EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION;
     (
       historical.runManifest as unknown as {
         schemaVersion: string;
         engineVersion: string;
       }
-    ).engineVersion =
-      EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+    ).engineVersion = EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
 
-    expect(
-      simulationResultV144Schema.safeParse(historical).success
-    ).toBe(false);
+    expect(simulationResultV144Schema.safeParse(historical).success).toBe(
+      false,
+    );
 
     expectRejected(defaultResult, (mutation) => {
-      (
-        mutation as unknown as { engineVersion: string }
-      ).engineVersion = EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
+      (mutation as unknown as { engineVersion: string }).engineVersion =
+        EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION;
     });
   });
 
@@ -944,13 +871,12 @@ describe("exact current 1.50 SimulationResult schema", () => {
           id: "forged-alias",
           version: "1",
           kind: "declarative",
-          contentHash: "fnv1a32:00000000"
-        }
+          contentHash: "fnv1a32:00000000",
+        },
       ];
     });
     expectRejected(defaultResult, (mutation) => {
-      mutation.reproducibilityKey =
-        "gdl-v2-fnv1a32-00000000";
+      mutation.reproducibilityKey = "gdl-v2-fnv1a32-00000000";
     });
     expectRejected(defaultResult, (mutation) => {
       mutation.config.dataVersion = "forged-data-version";
@@ -970,68 +896,50 @@ describe("exact current 1.50 SimulationResult schema", () => {
   });
 
   it("rejects internally inconsistent damage factors and reaction aliases", () => {
-    for (const field of [
-      "baseAtk",
-      "atkPct",
-      "flatAtk"
-    ] as const) {
-      expectRejectedByPublicAndTrusted(
-        defaultResult,
-        (mutation) => {
-          const event = mutation.damageEvents.find(
-            (candidate) =>
-              candidate.damageFactors.scalingStat === "atk"
-          );
-          if (event === undefined) {
-            throw new Error(
-              "Default result must include an ATK-scaling event."
-            );
-          }
-          event.statsBeforeDamage[field] += 1;
-          mutation.hitEvents = mutation.damageEvents;
+    for (const field of ["baseAtk", "atkPct", "flatAtk"] as const) {
+      expectRejectedByPublicAndTrusted(defaultResult, (mutation) => {
+        const event = mutation.damageEvents.find(
+          (candidate) => candidate.damageFactors.scalingStat === "atk",
+        );
+        if (event === undefined) {
+          throw new Error("Default result must include an ATK-scaling event.");
         }
-      );
+        event.statsBeforeDamage[field] += 1;
+        mutation.hitEvents = mutation.damageEvents;
+      });
     }
-    expectRejectedByPublicAndTrusted(
-      auraV9Result,
-      (mutation) => {
-        const event = mutation.damageEvents.find(
-          (candidate) =>
-            candidate.kind === "transformative-reaction" &&
-            candidate.damageFactors.scalingStat === "em"
+    expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
+      const event = mutation.damageEvents.find(
+        (candidate) =>
+          candidate.kind === "transformative-reaction" &&
+          candidate.damageFactors.scalingStat === "em",
+      );
+      if (event === undefined) {
+        throw new Error(
+          "Aura v9 result must include an EM-scaling transformative event.",
         );
-        if (event === undefined) {
-          throw new Error(
-            "Aura v9 result must include an EM-scaling transformative event."
-          );
-        }
-        event.statsBeforeDamage.em += 1;
-        mutation.hitEvents = mutation.damageEvents;
       }
-    );
-    expectRejectedByPublicAndTrusted(
-      auraV9Result,
-      (mutation) => {
-        const event = mutation.damageEvents.find(
-          (candidate) =>
-            candidate.kind === "transformative-reaction"
+      event.statsBeforeDamage.em += 1;
+      mutation.hitEvents = mutation.damageEvents;
+    });
+    expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
+      const event = mutation.damageEvents.find(
+        (candidate) => candidate.kind === "transformative-reaction",
+      );
+      if (event === undefined) {
+        throw new Error(
+          "Aura v9 result must include transformative reaction damage.",
         );
-        if (event === undefined) {
-          throw new Error(
-            "Aura v9 result must include transformative reaction damage."
-          );
-        }
-        const forgedAtk =
-          event.statsBeforeDamage.baseAtk *
-            (1 + event.statsBeforeDamage.atkPct) +
-          event.statsBeforeDamage.flatAtk;
-        event.damageFactors.scalingStat = "atk";
-        event.damageFactors.scalingValue = forgedAtk;
-        event.scalingStat = "atk";
-        event.scalingValue = forgedAtk;
-        mutation.hitEvents = mutation.damageEvents;
       }
-    );
+      const forgedAtk =
+        event.statsBeforeDamage.baseAtk * (1 + event.statsBeforeDamage.atkPct) +
+        event.statsBeforeDamage.flatAtk;
+      event.damageFactors.scalingStat = "atk";
+      event.damageFactors.scalingValue = forgedAtk;
+      event.scalingStat = "atk";
+      event.scalingValue = forgedAtk;
+      mutation.hitEvents = mutation.damageEvents;
+    });
     expectRejected(defaultResult, (mutation) => {
       mutation.damageEvents[0]!.reactionFactor += 1;
       mutation.hitEvents = mutation.damageEvents;
@@ -1050,12 +958,11 @@ describe("exact current 1.50 SimulationResult schema", () => {
     });
     expectRejected(auraV9Result, (mutation) => {
       const event = mutation.damageEvents.find(
-        (candidate) =>
-          candidate.kind === "transformative-reaction"
+        (candidate) => candidate.kind === "transformative-reaction",
       );
       if (event === undefined) {
         throw new Error(
-          "Aura v9 result must include transformative reaction damage."
+          "Aura v9 result must include transformative reaction damage.",
         );
       }
       event.reactionFactor += 1;
@@ -1066,7 +973,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
   it.each([
     ["hp", "baseHp"],
     ["def", "baseDef"],
-    ["em", "em"]
+    ["em", "em"],
   ] as const)(
     "binds direct %s scaling to its damage snapshot",
     (scalingStat, snapshotField) => {
@@ -1084,48 +991,36 @@ describe("exact current 1.50 SimulationResult schema", () => {
                   offset: 0,
                   scaling: 1,
                   scalingStat,
-                  element: "pyro"
-                }
-              ]
-            }
-          ]
+                  element: "pyro",
+                },
+              ],
+            },
+          ],
         }),
-        { critMode: "noCrit" }
+        { critMode: "noCrit" },
       );
 
-      expectRejectedByPublicAndTrusted(
-        result,
-        (mutation) => {
-          mutation.damageEvents[0]!.statsBeforeDamage[
-            snapshotField
-          ] += 1;
-          mutation.hitEvents = mutation.damageEvents;
-        }
-      );
-    }
+      expectRejectedByPublicAndTrusted(result, (mutation) => {
+        mutation.damageEvents[0]!.statsBeforeDamage[snapshotField] += 1;
+        mutation.hitEvents = mutation.damageEvents;
+      });
+    },
   );
 
   it("rejects reaction-audit drift and forged damage composition even when the curve is synchronized", () => {
     expectRejected(defaultResult, (mutation) => {
       const event = mutation.damageEvents.find(
         (candidate) =>
-          candidate.kind === "direct" &&
-          candidate.reaction !== "none"
+          candidate.kind === "direct" && candidate.reaction !== "none",
       );
       if (event === undefined) {
-        throw new Error(
-          "Default result must include a direct reacted event."
-        );
+        throw new Error("Default result must include a direct reacted event.");
       }
-      const forgedReaction =
-        event.reaction === "melt" ? "vaporize" : "melt";
+      const forgedReaction = event.reaction === "melt" ? "vaporize" : "melt";
       event.reactionAudit.reaction = forgedReaction;
-      event.reactionAudit.reactions =
-        event.reactionAudit.reactions.map((reaction) =>
-          reaction === event.reaction
-            ? forgedReaction
-            : reaction
-        );
+      event.reactionAudit.reactions = event.reactionAudit.reactions.map(
+        (reaction) => (reaction === event.reaction ? forgedReaction : reaction),
+      );
       mutation.hitEvents = mutation.damageEvents;
     });
 
@@ -1134,12 +1029,10 @@ describe("exact current 1.50 SimulationResult schema", () => {
         (event) =>
           event.kind === "direct" &&
           event.additiveReactionFactors === null &&
-          event.damageComposition.direct > 1
+          event.damageComposition.direct > 1,
       );
       if (eventIndex < 0) {
-        throw new Error(
-          "Default result must include ordinary direct damage."
-        );
+        throw new Error("Default result must include ordinary direct damage.");
       }
       const event = mutation.damageEvents[eventIndex]!;
       event.damageComposition.direct -= 1;
@@ -1168,8 +1061,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
       mutation.reactedHits += 1;
     });
     expectRejected(defaultResult, (mutation) => {
-      const characterId =
-        mutation.characterSummaries[0]!.characterId;
+      const characterId = mutation.characterSummaries[0]!.characterId;
       mutation.byCharacter[characterId]! += 1;
     });
     expectRejected(defaultResult, (mutation) => {
@@ -1182,25 +1074,22 @@ describe("exact current 1.50 SimulationResult schema", () => {
       mutation.bySkill[0]!.damage += 1;
     });
     expectRejected(defaultResult, (mutation) => {
-      const terminal =
-        mutation.damageCurve[mutation.damageCurve.length - 1]!;
+      const terminal = mutation.damageCurve[mutation.damageCurve.length - 1]!;
       terminal.cumulativeDamage += 1;
     });
     expectRejected(defaultResult, (mutation) => {
       const populatedBucket = mutation.perSecond.find((bucket) =>
         Object.values(bucket).some(
           (value) =>
-            typeof value === "number" &&
-            Number.isFinite(value) &&
-            value !== 0
-        )
+            typeof value === "number" && Number.isFinite(value) && value !== 0,
+        ),
       )!;
       const damageKey = Object.keys(populatedBucket).find(
-        (key) => key !== "second" && key !== "total"
+        (key) => key !== "second" && key !== "total",
       );
       if (damageKey === undefined) {
         throw new Error(
-          "Default result must expose a populated per-second actor bucket."
+          "Default result must expose a populated per-second actor bucket.",
         );
       }
       populatedBucket[damageKey]! += 1;
@@ -1211,7 +1100,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
     expectRejected(defaultResult, (mutation) => {
       mutation.hitEvents = mutation.damageEvents.map((event) => ({
         ...event,
-        damageComposition: { ...event.damageComposition }
+        damageComposition: { ...event.damageComposition },
       }));
       mutation.hitEvents[0]!.displayDamage += 1;
     });
@@ -1236,44 +1125,44 @@ describe("exact current 1.50 SimulationResult schema", () => {
     });
     expectRejected(auraV9Result, (mutation) => {
       const linkedReaction = mutation.reactionDamageLog.find(
-        (entry) => entry.damageEventIds.length > 0
+        (entry) => entry.damageEventIds.length > 0,
       );
       if (linkedReaction === undefined) {
         throw new Error(
-          "Aura v9 result must expose a reaction-damage backlink."
+          "Aura v9 result must expose a reaction-damage backlink.",
         );
       }
       linkedReaction.damageEventIds[0] = 1_000_000;
     });
     expectRejected(auraV9Result, (mutation) => {
       const linkedReaction = mutation.reactionDamageLog.find(
-        (entry) => entry.damageEventIds.length > 0
+        (entry) => entry.damageEventIds.length > 0,
       );
       if (linkedReaction === undefined) {
         throw new Error(
-          "Aura v9 result must expose a reaction-damage backlink."
+          "Aura v9 result must expose a reaction-damage backlink.",
         );
       }
       const currentId = linkedReaction.damageEventIds[0]!;
       const wrongExisting = mutation.damageEvents.find(
         (event) =>
           event.id !== currentId &&
-          !linkedReaction.damageEventIds.includes(event.id)
+          !linkedReaction.damageEventIds.includes(event.id),
       );
       if (wrongExisting === undefined) {
         throw new Error(
-          "Aura v9 result must expose an unrelated damage event."
+          "Aura v9 result must expose an unrelated damage event.",
         );
       }
       linkedReaction.damageEventIds[0] = wrongExisting.id;
     });
     expectRejected(playerDamageResult, (mutation) => {
       const playerEvent = mutation.playerDamageEvents.find(
-        (event) => event.reactionDamageLogId !== null
+        (event) => event.reactionDamageLogId !== null,
       );
       if (playerEvent === undefined) {
         throw new Error(
-          "Player-damage result must expose a reaction-damage backlink."
+          "Player-damage result must expose a reaction-damage backlink.",
         );
       }
       playerEvent.reactionDamageLogId = 1_000_000;
@@ -1283,11 +1172,11 @@ describe("exact current 1.50 SimulationResult schema", () => {
   it("rejects reaction-damage trigger-frame drift at both result boundaries", () => {
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
       const parent = mutation.reactionDamageLog.find(
-        (entry) => entry.triggerDamageEventId !== null
+        (entry) => entry.triggerDamageEventId !== null,
       );
       if (parent === undefined) {
         throw new Error(
-          "Aura v9 result must expose a triggered reaction-damage log."
+          "Aura v9 result must expose a triggered reaction-damage log.",
         );
       }
       parent.triggerFrame += 1;
@@ -1296,681 +1185,501 @@ describe("exact current 1.50 SimulationResult schema", () => {
 
   it("rejects Electro-Charged tick clock drift and duplicate ownership at both result boundaries", () => {
     const tick = electroChargedResult.periodicReactionLog.find(
-      (entry) => entry.operation === "tick"
+      (entry) => entry.operation === "tick",
     );
     expect(tick).toBeDefined();
     expect(tick?.reactionDamageLogId).not.toBeNull();
     expect(tick?.damageEventId).not.toBeNull();
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const forgedTick = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a periodic tick."
-          );
-        }
-        forgedTick.frame += 1;
-        forgedTick.timeSeconds = forgedTick.frame / 60;
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const forgedTick = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Electro-Charged result must expose a periodic tick.");
       }
-    );
+      forgedTick.frame += 1;
+      forgedTick.timeSeconds = forgedTick.frame / 60;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const forgedTick = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a periodic tick."
-          );
-        }
-        mutation.periodicReactionLog.push({
-          ...forgedTick,
-          id: mutation.periodicReactionLog.length,
-          auraBefore: structuredClone(forgedTick.auraBefore),
-          auraConsumed: structuredClone(forgedTick.auraConsumed),
-          auraAfter: structuredClone(forgedTick.auraAfter)
-        });
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const forgedTick = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Electro-Charged result must expose a periodic tick.");
       }
-    );
+      mutation.periodicReactionLog.push({
+        ...forgedTick,
+        id: mutation.periodicReactionLog.length,
+        auraBefore: structuredClone(forgedTick.auraBefore),
+        auraConsumed: structuredClone(forgedTick.auraConsumed),
+        auraAfter: structuredClone(forgedTick.auraAfter),
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const forgedTick = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a periodic tick."
-          );
-        }
-        forgedTick.generation += 1;
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const forgedTick = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Electro-Charged result must expose a periodic tick.");
       }
-    );
+      forgedTick.generation += 1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const forgedTick = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a periodic tick."
-          );
-        }
-        forgedTick.tickIndex = 999;
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const forgedTick = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Electro-Charged result must expose a periodic tick.");
       }
-    );
+      forgedTick.tickIndex = 999;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const start = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "start"
-        );
-        if (start === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a start row."
-          );
-        }
-        mutation.periodicReactionLog.push({
-          ...structuredClone(start),
-          id: mutation.periodicReactionLog.length,
-          generation: 999,
-          operation: "stop",
-          frame: 119,
-          timeSeconds: 119 / 60,
-          sourceActorId: null,
-          triggerDamageEventId: null,
-          reactionDamageLogId: null,
-          damageEventId: null,
-          tickIndex: null,
-          auraBefore: [],
-          auraConsumed: [],
-          auraAfter: [],
-          nextTickFrame: null,
-          coexistenceExpiresAtFrame: null,
-          waneFrame: null,
-          reason: "FORGED"
-        });
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const start = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "start",
+      );
+      if (start === undefined) {
+        throw new Error("Electro-Charged result must expose a start row.");
       }
-    );
+      mutation.periodicReactionLog.push({
+        ...structuredClone(start),
+        id: mutation.periodicReactionLog.length,
+        generation: 999,
+        operation: "stop",
+        frame: 119,
+        timeSeconds: 119 / 60,
+        sourceActorId: null,
+        triggerDamageEventId: null,
+        reactionDamageLogId: null,
+        damageEventId: null,
+        tickIndex: null,
+        auraBefore: [],
+        auraConsumed: [],
+        auraAfter: [],
+        nextTickFrame: null,
+        coexistenceExpiresAtFrame: null,
+        waneFrame: null,
+        reason: "FORGED",
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const wane = mutation.periodicReactionLog.find(
-          (entry) =>
-            entry.operation === "wane" ||
-            entry.operation === "wane-skipped" ||
-            (entry.operation === "stop" &&
-              entry.waneFrame !== null)
-        );
-        if (wane === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a Wane callback."
-          );
-        }
-        mutation.periodicReactionLog.push({
-          ...structuredClone(wane),
-          id: mutation.periodicReactionLog.length
-        });
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const wane = mutation.periodicReactionLog.find(
+        (entry) =>
+          entry.operation === "wane" ||
+          entry.operation === "wane-skipped" ||
+          (entry.operation === "stop" && entry.waneFrame !== null),
+      );
+      if (wane === undefined) {
+        throw new Error("Electro-Charged result must expose a Wane callback.");
       }
-    );
+      mutation.periodicReactionLog.push({
+        ...structuredClone(wane),
+        id: mutation.periodicReactionLog.length,
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const wane = mutation.periodicReactionLog.find(
-          (entry) =>
-            entry.operation === "wane" ||
-            entry.operation === "wane-skipped" ||
-            (entry.operation === "stop" &&
-              entry.waneFrame !== null)
-        );
-        if (wane === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a Wane callback."
-          );
-        }
-        wane.frame += 1;
-        wane.timeSeconds = wane.frame / 60;
-        wane.waneFrame = wane.frame;
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const wane = mutation.periodicReactionLog.find(
+        (entry) =>
+          entry.operation === "wane" ||
+          entry.operation === "wane-skipped" ||
+          (entry.operation === "stop" && entry.waneFrame !== null),
+      );
+      if (wane === undefined) {
+        throw new Error("Electro-Charged result must expose a Wane callback.");
       }
-    );
+      wane.frame += 1;
+      wane.timeSeconds = wane.frame / 60;
+      wane.waneFrame = wane.frame;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const wane = mutation.periodicReactionLog.find(
-          (entry) => entry.operation === "wane"
-        );
-        if (wane === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a Wane mutation."
-          );
-        }
-        wane.operation = "stop";
-        wane.waneFrame = null;
-        wane.damageEventId = null;
-        wane.tickIndex = null;
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const wane = mutation.periodicReactionLog.find(
+        (entry) => entry.operation === "wane",
+      );
+      if (wane === undefined) {
+        throw new Error("Electro-Charged result must expose a Wane mutation.");
       }
-    );
+      wane.operation = "stop";
+      wane.waneFrame = null;
+      wane.damageEventId = null;
+      wane.tickIndex = null;
+    });
   });
 
   it("rejects transformative-reaction scaling ownership transferred away from its source", () => {
-    expectRejectedByPublicAndTrusted(
-      electroChargedResult,
-      (mutation) => {
-        const child = mutation.damageEvents.find(
-          (event) =>
-            event.kind === "transformative-reaction" &&
-            event.reaction === "electroCharged"
+    expectRejectedByPublicAndTrusted(electroChargedResult, (mutation) => {
+      const child = mutation.damageEvents.find(
+        (event) =>
+          event.kind === "transformative-reaction" &&
+          event.reaction === "electroCharged",
+      );
+      const alias = mutation.hitEvents.find((event) => event.id === child?.id);
+      if (child === undefined || alias === undefined) {
+        throw new Error(
+          "Electro-Charged result must expose a compatibility-linked damage child.",
         );
-        const alias = mutation.hitEvents.find(
-          (event) => event.id === child?.id
-        );
-        if (child === undefined || alias === undefined) {
-          throw new Error(
-            "Electro-Charged result must expose a compatibility-linked damage child."
-          );
-        }
-        child.scalingOwnerId = "spectator";
-        child.scalingOwnerName = "spectator";
-        alias.scalingOwnerId = "spectator";
-        alias.scalingOwnerName = "spectator";
       }
-    );
+      child.scalingOwnerId = "spectator";
+      child.scalingOwnerName = "spectator";
+      alias.scalingOwnerId = "spectator";
+      alias.scalingOwnerName = "spectator";
+    });
   });
 
   it("rejects Burning tick parent, child, and source drift at both result boundaries", () => {
     const tick = playerDamageResult.burningStateLog.find(
-      (entry) => entry.operation === "tick"
+      (entry) => entry.operation === "tick",
     );
     expect(tick).toBeDefined();
     expect(tick?.reactionDamageLogId).not.toBeNull();
     expect(tick?.damageEventIds.length).toBeGreaterThan(0);
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick?.reactionDamageLogId === null ||
-            forgedTick === undefined) {
-          throw new Error(
-            "Burning result must expose a linked tick."
-          );
-        }
-        mutation.reactionDamageLog[
-          forgedTick.reactionDamageLogId
-        ]!.damageFrame += 1;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (
+        forgedTick?.reactionDamageLogId === null ||
+        forgedTick === undefined
+      ) {
+        throw new Error("Burning result must expose a linked tick.");
       }
-    );
+      mutation.reactionDamageLog[forgedTick.reactionDamageLogId]!.damageFrame +=
+        1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Burning result must expose a tick."
-          );
-        }
-        forgedTick.damageEventIds = [];
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Burning result must expose a tick.");
       }
-    );
+      forgedTick.damageEventIds = [];
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Burning result must expose a tick."
-          );
-        }
-        forgedTick.damageSourceActorId = "forged-source";
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Burning result must expose a tick.");
       }
-    );
+      forgedTick.damageSourceActorId = "forged-source";
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined || forgedTick.damageAllowed === null) {
+        throw new Error(
+          "Burning result must expose a resolved source-target damage policy.",
         );
-        if (
-          forgedTick === undefined ||
-          forgedTick.damageAllowed === null
-        ) {
-          throw new Error(
-            "Burning result must expose a resolved source-target damage policy."
-          );
-        }
-        forgedTick.damageAllowed = !forgedTick.damageAllowed;
       }
-    );
+      forgedTick.damageAllowed = !forgedTick.damageAllowed;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const startEvent = mutation.damageEvents.find(
-          (event) =>
-            event.reactionAudit.burningReaction?.operation ===
-            "start"
-        );
-        const startRow = mutation.burningStateLog.find(
-          (entry) => entry.operation === "start"
-        );
-        if (startEvent === undefined || startRow === undefined) {
-          throw new Error(
-            "Burning result must expose its start source."
-          );
-        }
-        startEvent.reactionAudit.burningReaction!.damageSourceActorId =
-          "ghost";
-        startRow.damageSourceActorId = "ghost";
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const startEvent = mutation.damageEvents.find(
+        (event) => event.reactionAudit.burningReaction?.operation === "start",
+      );
+      const startRow = mutation.burningStateLog.find(
+        (entry) => entry.operation === "start",
+      );
+      if (startEvent === undefined || startRow === undefined) {
+        throw new Error("Burning result must expose its start source.");
       }
-    );
+      startEvent.reactionAudit.burningReaction!.damageSourceActorId = "ghost";
+      startRow.damageSourceActorId = "ghost";
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const startEvent = mutation.damageEvents.find(
-          (event) =>
-            event.reactionAudit.burningReaction?.operation ===
-            "start"
-        );
-        if (startEvent === undefined) {
-          throw new Error(
-            "Burning result must expose its start audit."
-          );
-        }
-        startEvent.reactionAudit.burningReaction!.snapshotFrame += 1;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const startEvent = mutation.damageEvents.find(
+        (event) => event.reactionAudit.burningReaction?.operation === "start",
+      );
+      if (startEvent === undefined) {
+        throw new Error("Burning result must expose its start audit.");
       }
-    );
+      startEvent.reactionAudit.burningReaction!.snapshotFrame += 1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        for (const event of mutation.damageEvents) {
-          const audit = event.reactionAudit.burningReaction;
-          if (audit !== null) {
-            audit.fuelDecayPerFrame += 0.001;
-          }
-        }
-        for (const entry of mutation.burningStateLog) {
-          entry.fuelDecayPerFrame += 0.001;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      for (const event of mutation.damageEvents) {
+        const audit = event.reactionAudit.burningReaction;
+        if (audit !== null) {
+          audit.fuelDecayPerFrame += 0.001;
         }
       }
-    );
+      for (const entry of mutation.burningStateLog) {
+        entry.fuelDecayPerFrame += 0.001;
+      }
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const startEvent = mutation.damageEvents.find(
-          (event) =>
-            event.reactionAudit.burningReaction?.operation ===
-            "start"
-        );
-        if (startEvent === undefined) {
-          throw new Error(
-            "Burning result must expose its start audit."
-          );
-        }
-        startEvent.reactionAudit.burningReaction!
-          .candidateFuelGaugeUnits += 0.1;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const startEvent = mutation.damageEvents.find(
+        (event) => event.reactionAudit.burningReaction?.operation === "start",
+      );
+      if (startEvent === undefined) {
+        throw new Error("Burning result must expose its start audit.");
       }
-    );
+      startEvent.reactionAudit.burningReaction!.candidateFuelGaugeUnits += 0.1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (
-          forgedTick === undefined ||
-          forgedTick.reactionDamageLogId === null ||
-          forgedTick.nextTickFrame === null
-        ) {
-          throw new Error(
-            "Burning result must expose a scheduled tick."
-          );
-        }
-        forgedTick.nextTickFrame += 1;
-        mutation.reactionDamageLog[
-          forgedTick.reactionDamageLogId
-        ]!.nextAvailableFrame = forgedTick.nextTickFrame;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (
+        forgedTick === undefined ||
+        forgedTick.reactionDamageLogId === null ||
+        forgedTick.nextTickFrame === null
+      ) {
+        throw new Error("Burning result must expose a scheduled tick.");
       }
-    );
+      forgedTick.nextTickFrame += 1;
+      mutation.reactionDamageLog[
+        forgedTick.reactionDamageLogId
+      ]!.nextAvailableFrame = forgedTick.nextTickFrame;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) => entry.operation === "tick"
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Burning result must expose a normal tick."
-          );
-        }
-        forgedTick.tickIndex = 9;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick",
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Burning result must expose a normal tick.");
       }
-    );
+      forgedTick.tickIndex = 9;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const forgedTick = mutation.burningStateLog.find(
-          (entry) =>
-            entry.operation === "tick" &&
-            entry.icdHitIndex !== null
-        );
-        if (forgedTick === undefined) {
-          throw new Error(
-            "Burning result must expose an ICD-bearing tick."
-          );
-        }
-        forgedTick.icdHitIndex! += 1;
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const forgedTick = mutation.burningStateLog.find(
+        (entry) => entry.operation === "tick" && entry.icdHitIndex !== null,
+      );
+      if (forgedTick === undefined) {
+        throw new Error("Burning result must expose an ICD-bearing tick.");
       }
-    );
+      forgedTick.icdHitIndex! += 1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      playerDamageResult,
-      (mutation) => {
-        const startEvent = mutation.damageEvents.find(
-          (event) =>
-            event.reactionAudit.burningReaction?.operation ===
-            "start"
-        );
-        const forgedTick = mutation.burningStateLog.find((entry) => {
-          if (
-            entry.operation !== "tick" ||
-            entry.triggerDamageEventId === null
-          ) {
-            return false;
-          }
-          return (
-            mutation.damageEvents[entry.triggerDamageEventId]
-              ?.reactionAudit.burningReaction?.operation ===
-            "refresh-snapshot"
-          );
-        });
-        if (
-          startEvent === undefined ||
-          forgedTick === undefined ||
-          forgedTick.reactionDamageLogId === null
-        ) {
-          throw new Error(
-            "Burning result must expose a post-refresh tick."
-          );
+    expectRejectedByPublicAndTrusted(playerDamageResult, (mutation) => {
+      const startEvent = mutation.damageEvents.find(
+        (event) => event.reactionAudit.burningReaction?.operation === "start",
+      );
+      const forgedTick = mutation.burningStateLog.find((entry) => {
+        if (entry.operation !== "tick" || entry.triggerDamageEventId === null) {
+          return false;
         }
-        forgedTick.triggerDamageEventId = startEvent.id;
-        const parent = mutation.reactionDamageLog[
-          forgedTick.reactionDamageLogId
-        ]!;
-        parent.triggerDamageEventId = startEvent.id;
-        parent.triggerFrame = startEvent.frame;
-        for (const childId of parent.damageEventIds) {
-          mutation.damageEvents[childId]!.parentDamageEventId =
-            startEvent.id;
-          const alias = mutation.hitEvents.find(
-            (event) => event.id === childId
-          );
-          if (alias !== undefined) {
-            alias.parentDamageEventId = startEvent.id;
-          }
+        return (
+          mutation.damageEvents[entry.triggerDamageEventId]?.reactionAudit
+            .burningReaction?.operation === "refresh-snapshot"
+        );
+      });
+      if (
+        startEvent === undefined ||
+        forgedTick === undefined ||
+        forgedTick.reactionDamageLogId === null
+      ) {
+        throw new Error("Burning result must expose a post-refresh tick.");
+      }
+      forgedTick.triggerDamageEventId = startEvent.id;
+      const parent =
+        mutation.reactionDamageLog[forgedTick.reactionDamageLogId]!;
+      parent.triggerDamageEventId = startEvent.id;
+      parent.triggerFrame = startEvent.frame;
+      for (const childId of parent.damageEventIds) {
+        mutation.damageEvents[childId]!.parentDamageEventId = startEvent.id;
+        const alias = mutation.hitEvents.find((event) => event.id === childId);
+        if (alias !== undefined) {
+          alias.parentDamageEventId = startEvent.id;
         }
       }
-    );
+    });
   });
 
   it("rejects Frozen expiry generation, clock, and Aura drift at both result boundaries", () => {
     const expiry = frozenExpiryResult.frozenStateLog.find(
-      (entry) => entry.operation === "expire"
+      (entry) => entry.operation === "expire",
     );
     expect(expiry).toBeDefined();
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const forgedExpiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (forgedExpiry === undefined) {
-          throw new Error(
-            "Frozen result must expose a natural expiry."
-          );
-        }
-        forgedExpiry.generation += 1;
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const forgedExpiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (forgedExpiry === undefined) {
+        throw new Error("Frozen result must expose a natural expiry.");
       }
-    );
+      forgedExpiry.generation += 1;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const forgedExpiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (forgedExpiry === undefined) {
-          throw new Error(
-            "Frozen result must expose a natural expiry."
-          );
-        }
-        forgedExpiry.frame += 1;
-        forgedExpiry.timeSeconds = forgedExpiry.frame / 60;
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const forgedExpiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (forgedExpiry === undefined) {
+        throw new Error("Frozen result must expose a natural expiry.");
       }
-    );
+      forgedExpiry.frame += 1;
+      forgedExpiry.timeSeconds = forgedExpiry.frame / 60;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const forgedExpiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (
-          forgedExpiry === undefined ||
-          forgedExpiry.auraBefore.length === 0
-        ) {
-          throw new Error(
-            "Frozen result must expose expiry Aura provenance."
-          );
-        }
-        forgedExpiry.auraBefore[0]!.gaugeUnits += 0.1;
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const forgedExpiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (forgedExpiry === undefined || forgedExpiry.auraBefore.length === 0) {
+        throw new Error("Frozen result must expose expiry Aura provenance.");
       }
-    );
+      forgedExpiry.auraBefore[0]!.gaugeUnits += 0.1;
+    });
   });
 
   it("rejects erased Freeze audits and missing natural-expiry closure at both result boundaries", () => {
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const expiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (expiry === undefined) {
-          throw new Error(
-            "Frozen result must expose a natural expiry."
-          );
-        }
-        mutation.frozenStateLog = mutation.frozenStateLog
-          .filter((entry) => entry.id !== expiry.id)
-          .map((entry, id) => ({ ...entry, id }));
-        mutation.targetStateTimeline.points =
-          mutation.targetStateTimeline.points
-            .filter(
-              (point) =>
-                !point.links.some(
-                  (link) =>
-                    link.kind === "frozen-state-log" &&
-                    link.id === expiry.id
-                )
-            )
-            .map((point, id) => ({ ...point, id }));
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const expiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (expiry === undefined) {
+        throw new Error("Frozen result must expose a natural expiry.");
       }
-    );
+      mutation.frozenStateLog = mutation.frozenStateLog
+        .filter((entry) => entry.id !== expiry.id)
+        .map((entry, id) => ({ ...entry, id }));
+      mutation.targetStateTimeline.points = mutation.targetStateTimeline.points
+        .filter(
+          (point) =>
+            !point.links.some(
+              (link) =>
+                link.kind === "frozen-state-log" && link.id === expiry.id,
+            ),
+        )
+        .map((point, id) => ({ ...point, id }));
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        for (const event of mutation.damageEvents) {
-          event.reactionAudit.frozenReaction = null;
-        }
-        for (const event of mutation.hitEvents) {
-          event.reactionAudit.frozenReaction = null;
-        }
-        mutation.frozenStateLog = [];
-        mutation.targetStateTimeline.points =
-          mutation.targetStateTimeline.points
-            .filter(
-              (point) =>
-                !point.links.some(
-                  (link) => link.kind === "frozen-state-log"
-                )
-            )
-            .map((point, id) => ({ ...point, id }));
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      for (const event of mutation.damageEvents) {
+        event.reactionAudit.frozenReaction = null;
       }
-    );
+      for (const event of mutation.hitEvents) {
+        event.reactionAudit.frozenReaction = null;
+      }
+      mutation.frozenStateLog = [];
+      mutation.targetStateTimeline.points = mutation.targetStateTimeline.points
+        .filter(
+          (point) =>
+            !point.links.some((link) => link.kind === "frozen-state-log"),
+        )
+        .map((point, id) => ({ ...point, id }));
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        for (const event of [
-          ...mutation.damageEvents,
-          ...mutation.hitEvents
-        ]) {
-          event.reaction = "none";
-          event.reactionAudit.triggered = false;
-          event.reactionAudit.reaction = "none";
-          event.reactionAudit.reactions = [];
-          event.reactionAudit.frozenReaction = null;
-        }
-        mutation.reactedHits = 0;
-        for (const point of mutation.auraTimeline) {
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      for (const event of [...mutation.damageEvents, ...mutation.hitEvents]) {
+        event.reaction = "none";
+        event.reactionAudit.triggered = false;
+        event.reactionAudit.reaction = "none";
+        event.reactionAudit.reactions = [];
+        event.reactionAudit.frozenReaction = null;
+      }
+      mutation.reactedHits = 0;
+      for (const point of mutation.auraTimeline) {
+        point.reaction = "none";
+        point.reactions = [];
+      }
+      for (const point of mutation.targetStateTimeline.points) {
+        if (point.primaryDamageEventId === 0) {
           point.reaction = "none";
           point.reactions = [];
+          point.links = point.links.filter(
+            (link) => link.kind !== "frozen-state-log",
+          );
         }
-        for (const point of mutation.targetStateTimeline.points) {
-          if (point.primaryDamageEventId === 0) {
-            point.reaction = "none";
-            point.reactions = [];
-            point.links = point.links.filter(
-              (link) => link.kind !== "frozen-state-log"
-            );
-          }
-          if (point.cause === "frozen-expiry") {
-            point.pointKind = "derived";
-            point.cause = "aura-natural-expiry";
-            point.eventType = null;
-            point.eventPriority = null;
-            point.eventSequence = null;
-            point.intraEventSequence = null;
-            point.links = [];
-          }
+        if (point.cause === "frozen-expiry") {
+          point.pointKind = "derived";
+          point.cause = "aura-natural-expiry";
+          point.eventType = null;
+          point.eventPriority = null;
+          point.eventSequence = null;
+          point.intraEventSequence = null;
+          point.links = [];
         }
-        mutation.frozenStateLog = [];
       }
-    );
+      mutation.frozenStateLog = [];
+    });
   });
 
   it("rejects forged or half-null Frozen expiry provenance", () => {
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const expiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const expiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      const unrelated = mutation.damageEvents.find(
+        (event) => event.reaction === "none",
+      );
+      if (expiry === undefined || unrelated === undefined) {
+        throw new Error(
+          "Frozen result must expose expiry and unrelated event provenance.",
         );
-        const unrelated = mutation.damageEvents.find(
-          (event) => event.reaction === "none"
-        );
-        if (expiry === undefined || unrelated === undefined) {
-          throw new Error(
-            "Frozen result must expose expiry and unrelated event provenance."
-          );
-        }
-        expiry.triggerDamageEventId = unrelated.id;
       }
-    );
+      expiry.triggerDamageEventId = unrelated.id;
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const expiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (expiry === undefined) {
-          throw new Error(
-            "Frozen result must expose a natural expiry."
-          );
-        }
-        expiry.sourceActorId = "ghost";
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const expiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (expiry === undefined) {
+        throw new Error("Frozen result must expose a natural expiry.");
       }
-    );
+      expiry.sourceActorId = "ghost";
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const expiry = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        if (expiry === undefined) {
-          throw new Error(
-            "Frozen result must expose a natural expiry."
-          );
-        }
-        expiry.sourceActorId = null;
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const expiry = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      if (expiry === undefined) {
+        throw new Error("Frozen result must expose a natural expiry.");
       }
-    );
+      expiry.sourceActorId = null;
+    });
   });
 
   it("binds normalized initial Aura to the resolved input target", () => {
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const initial = mutation.auraInitialStates[0]?.aura.find(
-          (entry) => entry.element === "cryo"
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const initial = mutation.auraInitialStates[0]?.aura.find(
+        (entry) => entry.element === "cryo",
+      );
+      const boundary = mutation.targetStateTimeline.points.find(
+        (point) =>
+          point.targetId === "enemy-0" && point.cause === "simulation-start",
+      );
+      const boundaryBefore = boundary?.auraBefore.find(
+        (entry) => entry.element === "cryo",
+      );
+      const boundaryAfter = boundary?.auraAfter.find(
+        (entry) => entry.element === "cryo",
+      );
+      if (
+        initial === undefined ||
+        boundaryBefore === undefined ||
+        boundaryAfter === undefined
+      ) {
+        throw new Error(
+          "Frozen result must expose normalized initial Cryo Aura.",
         );
-        const boundary =
-          mutation.targetStateTimeline.points.find(
-            (point) =>
-              point.targetId === "enemy-0" &&
-              point.cause === "simulation-start"
-          );
-        const boundaryBefore = boundary?.auraBefore.find(
-          (entry) => entry.element === "cryo"
-        );
-        const boundaryAfter = boundary?.auraAfter.find(
-          (entry) => entry.element === "cryo"
-        );
-        if (
-          initial === undefined ||
-          boundaryBefore === undefined ||
-          boundaryAfter === undefined
-        ) {
-          throw new Error(
-            "Frozen result must expose normalized initial Cryo Aura."
-          );
-        }
-        initial.gaugeUnits = 0.4;
-        boundaryBefore.gaugeUnits = 0.4;
-        boundaryAfter.gaugeUnits = 0.4;
       }
-    );
+      initial.gaugeUnits = 0.4;
+      boundaryBefore.gaugeUnits = 0.4;
+      boundaryAfter.gaugeUnits = 0.4;
+    });
   });
 
   it("rejects six independently forged Freeze state projections at both result boundaries", () => {
@@ -1980,356 +1689,276 @@ describe("exact current 1.50 SimulationResult schema", () => {
         audit: NonNullable<
           SimulationResult["damageEvents"][number]["reactionAudit"]["frozenReaction"]
         >,
-        row: SimulationResult["frozenStateLog"][number]
-      ) => void
+        row: SimulationResult["frozenStateLog"][number],
+      ) => void,
     ): void => {
       const event = mutation.damageEvents.find(
         (candidate) =>
-          candidate.reactionAudit.frozenReaction?.operation ===
-          "start"
+          candidate.reactionAudit.frozenReaction?.operation === "start",
       );
       const audit = event?.reactionAudit.frozenReaction;
       const row = mutation.frozenStateLog.find(
         (candidate) =>
           candidate.operation === "start" &&
-          candidate.triggerDamageEventId === event?.id
+          candidate.triggerDamageEventId === event?.id,
       );
       if (audit === null || audit === undefined || row === undefined) {
         throw new Error(
-          "Frozen result must expose a start audit and lifecycle row."
+          "Frozen result must expose a start audit and lifecycle row.",
         );
       }
       mutate(audit, row);
     };
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit) => {
-          audit.frozenGaugeAfter += 0.1;
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit) => {
+        audit.frozenGaugeAfter += 0.1;
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit, row) => {
-          audit.generatedGaugeUnits += 0.1;
-          row.generatedGaugeUnits =
-            audit.generatedGaugeUnits;
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit, row) => {
+        audit.generatedGaugeUnits += 0.1;
+        row.generatedGaugeUnits = audit.generatedGaugeUnits;
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit, row) => {
-          audit.operation = "refresh";
-          row.operation = "refresh";
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit, row) => {
+        audit.operation = "refresh";
+        row.operation = "refresh";
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit, row) => {
-          audit.freezeResistance = 0.25;
-          row.freezeResistance = 0.25;
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit, row) => {
+        audit.freezeResistance = 0.25;
+        row.freezeResistance = 0.25;
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit) => {
-          audit.decayRatePerFrame += 0.001;
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit) => {
+        audit.decayRatePerFrame += 0.001;
+      });
+    });
 
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        mutateFreezeStart(mutation, (audit, row) => {
-          if (audit.expiresAtFrame === null) {
-            throw new Error(
-              "Active Frozen start must expose an expiry."
-            );
-          }
-          audit.expiresAtFrame += 1;
-          row.expiresAtFrame = audit.expiresAtFrame;
-        });
-      }
-    );
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      mutateFreezeStart(mutation, (audit, row) => {
+        if (audit.expiresAtFrame === null) {
+          throw new Error("Active Frozen start must expose an expiry.");
+        }
+        audit.expiresAtFrame += 1;
+        row.expiresAtFrame = audit.expiresAtFrame;
+      });
+    });
   });
 
   it("rejects a coordinated forged Freeze generation and natural-decay history", () => {
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const startEvent = mutation.damageEvents.find(
-          (event) =>
-            event.reactionAudit.frozenReaction?.operation ===
-            "start"
-        );
-        const startAudit =
-          startEvent?.reactionAudit.frozenReaction;
-        const compatibilityEvent = mutation.hitEvents.find(
-          (event) => event.id === startEvent?.id
-        );
-        const startRow = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "start"
-        );
-        const expiryRow = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        const auraPoint = mutation.auraTimeline.find(
-          (point) =>
-            point.damageEventId === startEvent?.id
-        );
-        const applicationPoint =
-          mutation.targetStateTimeline.points.find(
-            (point) =>
-              point.primaryDamageEventId === startEvent?.id &&
-              point.cause === "direct-hit-application"
-          );
-        const expiryPoint =
-          mutation.targetStateTimeline.points.find((point) =>
-            point.links.some(
-              (link) =>
-                link.kind === "frozen-state-log" &&
-                link.id === expiryRow?.id
-            )
-          );
-        if (
-          startEvent === undefined ||
-          startAudit === null ||
-          startAudit === undefined ||
-          compatibilityEvent === undefined ||
-          startRow === undefined ||
-          expiryRow === undefined ||
-          auraPoint === undefined ||
-          applicationPoint === undefined ||
-          expiryPoint === undefined
-        ) {
-          throw new Error(
-            "Frozen result must expose its complete generation and expiry projection."
-          );
-        }
-        const rewriteFrozen = (
-          aura: Array<{
-            element: string;
-            gaugeUnits: number;
-            expiresAtFrame: number | null;
-            expiresAtTargetFrame?: number | null;
-          }>,
-          gaugeUnits: number,
-          expiresAtFrame: number
-        ): void => {
-          const frozen = aura.find(
-            (entry) => entry.element === "frozen"
-          );
-          if (frozen === undefined) {
-            throw new Error(
-              "Expected a Frozen Aura entry."
-            );
-          }
-          frozen.gaugeUnits = gaugeUnits;
-          frozen.expiresAtFrame = expiresAtFrame;
-          if (frozen.expiresAtTargetFrame !== undefined) {
-            frozen.expiresAtTargetFrame = expiresAtFrame;
-          }
-        };
-
-        for (const event of [
-          startEvent,
-          compatibilityEvent
-        ]) {
-          const frozen = event.reactionAudit.frozenReaction;
-          if (frozen === null) {
-            throw new Error(
-              "Expected a Frozen reaction audit."
-            );
-          }
-          frozen.generatedGaugeUnits = 1.5;
-          frozen.frozenGaugeAfter = 1.5;
-          frozen.expiresAtFrame = 167;
-          rewriteFrozen(
-            event.reactionAudit.auraAfter ?? [],
-            1.5,
-            167
-          );
-        }
-        startRow.generatedGaugeUnits = 1.5;
-        startRow.expiresAtFrame = 167;
-        rewriteFrozen(startRow.auraAfter, 1.5, 167);
-        rewriteFrozen(auraPoint.auraAfter, 1.5, 167);
-        rewriteFrozen(
-          applicationPoint.auraAfter,
-          1.5,
-          167
-        );
-
-        expiryRow.frame = 167;
-        expiryRow.timeSeconds = 167 / 60;
-        if (expiryRow.targetFrame !== undefined) {
-          expiryRow.targetFrame = 167;
-        }
-        rewriteFrozen(
-          expiryRow.auraBefore,
-          0.25,
-          167
-        );
-        expiryPoint.frame = 167;
-        expiryPoint.timeSeconds = 167 / 60;
-        if (expiryPoint.targetFrame !== undefined) {
-          expiryPoint.targetFrame = 167;
-        }
-        rewriteFrozen(
-          expiryPoint.auraBefore,
-          0.25,
-          167
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const startEvent = mutation.damageEvents.find(
+        (event) => event.reactionAudit.frozenReaction?.operation === "start",
+      );
+      const startAudit = startEvent?.reactionAudit.frozenReaction;
+      const compatibilityEvent = mutation.hitEvents.find(
+        (event) => event.id === startEvent?.id,
+      );
+      const startRow = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "start",
+      );
+      const expiryRow = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      const auraPoint = mutation.auraTimeline.find(
+        (point) => point.damageEventId === startEvent?.id,
+      );
+      const applicationPoint = mutation.targetStateTimeline.points.find(
+        (point) =>
+          point.primaryDamageEventId === startEvent?.id &&
+          point.cause === "direct-hit-application",
+      );
+      const expiryPoint = mutation.targetStateTimeline.points.find((point) =>
+        point.links.some(
+          (link) =>
+            link.kind === "frozen-state-log" && link.id === expiryRow?.id,
+        ),
+      );
+      if (
+        startEvent === undefined ||
+        startAudit === null ||
+        startAudit === undefined ||
+        compatibilityEvent === undefined ||
+        startRow === undefined ||
+        expiryRow === undefined ||
+        auraPoint === undefined ||
+        applicationPoint === undefined ||
+        expiryPoint === undefined
+      ) {
+        throw new Error(
+          "Frozen result must expose its complete generation and expiry projection.",
         );
       }
-    );
-
-    expectRejectedByPublicAndTrusted(
-      frozenExpiryResult,
-      (mutation) => {
-        const expiryRow = mutation.frozenStateLog.find(
-          (entry) => entry.operation === "expire"
-        );
-        const expiryPoint =
-          mutation.targetStateTimeline.points.find((point) =>
-            point.links.some(
-              (link) =>
-                link.kind === "frozen-state-log" &&
-                link.id === expiryRow?.id
-            )
-          );
-        const rowFrozen = expiryRow?.auraBefore.find(
-          (entry) => entry.element === "frozen"
-        );
-        const pointFrozen = expiryPoint?.auraBefore.find(
-          (entry) => entry.element === "frozen"
-        );
-        if (
-          rowFrozen === undefined ||
-          pointFrozen === undefined
-        ) {
-          throw new Error(
-            "Frozen result must expose reciprocal pre-expiry Aura snapshots."
-          );
+      const rewriteFrozen = (
+        aura: Array<{
+          element: string;
+          gaugeUnits: number;
+          expiresAtFrame: number | null;
+          expiresAtTargetFrame?: number | null;
+        }>,
+        gaugeUnits: number,
+        expiresAtFrame: number,
+      ): void => {
+        const frozen = aura.find((entry) => entry.element === "frozen");
+        if (frozen === undefined) {
+          throw new Error("Expected a Frozen Aura entry.");
         }
-        rowFrozen.gaugeUnits = 0.25;
-        pointFrozen.gaugeUnits = 0.25;
+        frozen.gaugeUnits = gaugeUnits;
+        frozen.expiresAtFrame = expiresAtFrame;
+        if (frozen.expiresAtTargetFrame !== undefined) {
+          frozen.expiresAtTargetFrame = expiresAtFrame;
+        }
+      };
+
+      for (const event of [startEvent, compatibilityEvent]) {
+        const frozen = event.reactionAudit.frozenReaction;
+        if (frozen === null) {
+          throw new Error("Expected a Frozen reaction audit.");
+        }
+        frozen.generatedGaugeUnits = 1.5;
+        frozen.frozenGaugeAfter = 1.5;
+        frozen.expiresAtFrame = 167;
+        rewriteFrozen(event.reactionAudit.auraAfter ?? [], 1.5, 167);
       }
-    );
+      startRow.generatedGaugeUnits = 1.5;
+      startRow.expiresAtFrame = 167;
+      rewriteFrozen(startRow.auraAfter, 1.5, 167);
+      rewriteFrozen(auraPoint.auraAfter, 1.5, 167);
+      rewriteFrozen(applicationPoint.auraAfter, 1.5, 167);
+
+      expiryRow.frame = 167;
+      expiryRow.timeSeconds = 167 / 60;
+      if (expiryRow.targetFrame !== undefined) {
+        expiryRow.targetFrame = 167;
+      }
+      rewriteFrozen(expiryRow.auraBefore, 0.25, 167);
+      expiryPoint.frame = 167;
+      expiryPoint.timeSeconds = 167 / 60;
+      if (expiryPoint.targetFrame !== undefined) {
+        expiryPoint.targetFrame = 167;
+      }
+      rewriteFrozen(expiryPoint.auraBefore, 0.25, 167);
+    });
+
+    expectRejectedByPublicAndTrusted(frozenExpiryResult, (mutation) => {
+      const expiryRow = mutation.frozenStateLog.find(
+        (entry) => entry.operation === "expire",
+      );
+      const expiryPoint = mutation.targetStateTimeline.points.find((point) =>
+        point.links.some(
+          (link) =>
+            link.kind === "frozen-state-log" && link.id === expiryRow?.id,
+        ),
+      );
+      const rowFrozen = expiryRow?.auraBefore.find(
+        (entry) => entry.element === "frozen",
+      );
+      const pointFrozen = expiryPoint?.auraBefore.find(
+        (entry) => entry.element === "frozen",
+      );
+      if (rowFrozen === undefined || pointFrozen === undefined) {
+        throw new Error(
+          "Frozen result must expose reciprocal pre-expiry Aura snapshots.",
+        );
+      }
+      rowFrozen.gaugeUnits = 0.25;
+      pointFrozen.gaugeUnits = 0.25;
+    });
   });
 
   it("keeps natural Frozen expiry source and trigger provenance nullable", () => {
     const nullableExpiry = cloneResult(frozenExpiryResult);
     const expiry = nullableExpiry.frozenStateLog.find(
-      (entry) => entry.operation === "expire"
+      (entry) => entry.operation === "expire",
     );
     if (expiry === undefined) {
-      throw new Error(
-        "Frozen result must expose a natural expiry."
-      );
+      throw new Error("Frozen result must expose a natural expiry.");
     }
     expiry.sourceActorId = null;
     expiry.triggerDamageEventId = null;
     expectAccepted(nullableExpiry);
-    expect(
-      assertTrustedSimulationResult(nullableExpiry)
-    ).toBe(nullableExpiry);
+    expect(assertTrustedSimulationResult(nullableExpiry)).toBe(nullableExpiry);
   });
 
   it("accepts same-frame Superconduct refreshes but rejects orphan zero-length and overlapping statuses", () => {
-    const sharedStatuses =
-      sameFrameSuperconductResult.reactionStatusLog.filter(
-        (entry) => entry.targetId === "enemy-0"
-      );
+    const sharedStatuses = sameFrameSuperconductResult.reactionStatusLog.filter(
+      (entry) => entry.targetId === "enemy-0",
+    );
     expect(sharedStatuses).toHaveLength(2);
     expect(sharedStatuses).toMatchObject([
       {
         startFrame: 1,
         endFrame: 1,
         operation: "apply",
-        supersededAtFrame: 1
+        supersededAtFrame: 1,
       },
       {
         startFrame: 1,
         endFrame: 721,
         operation: "refresh",
-        supersededAtFrame: null
-      }
+        supersededAtFrame: null,
+      },
     ]);
     expectAccepted(sameFrameSuperconductResult);
-    expect(
-      assertTrustedSimulationResult(
-        sameFrameSuperconductResult
-      )
-    ).toBe(sameFrameSuperconductResult);
-
-    expectRejectedByPublicAndTrusted(
+    expect(assertTrustedSimulationResult(sameFrameSuperconductResult)).toBe(
       sameFrameSuperconductResult,
-      (mutation) => {
-        const statuses = mutation.reactionStatusLog.filter(
-          (entry) => entry.targetId === "enemy-0"
-        );
-        const terminalStatus = statuses[1];
-        if (terminalStatus === undefined) {
-          throw new Error(
-            "Same-frame Superconduct result must expose a terminal refresh."
-          );
-        }
-        terminalStatus.endFrame = terminalStatus.startFrame;
-        terminalStatus.endTimeSeconds =
-          terminalStatus.startTimeSeconds;
-        terminalStatus.supersededAtFrame =
-          terminalStatus.startFrame;
-      }
     );
 
     expectRejectedByPublicAndTrusted(
       sameFrameSuperconductResult,
       (mutation) => {
         const statuses = mutation.reactionStatusLog.filter(
-          (entry) => entry.targetId === "enemy-0"
+          (entry) => entry.targetId === "enemy-0",
+        );
+        const terminalStatus = statuses[1];
+        if (terminalStatus === undefined) {
+          throw new Error(
+            "Same-frame Superconduct result must expose a terminal refresh.",
+          );
+        }
+        terminalStatus.endFrame = terminalStatus.startFrame;
+        terminalStatus.endTimeSeconds = terminalStatus.startTimeSeconds;
+        terminalStatus.supersededAtFrame = terminalStatus.startFrame;
+      },
+    );
+
+    expectRejectedByPublicAndTrusted(
+      sameFrameSuperconductResult,
+      (mutation) => {
+        const statuses = mutation.reactionStatusLog.filter(
+          (entry) => entry.targetId === "enemy-0",
         );
         const supersededStatus = statuses[0];
         if (supersededStatus === undefined) {
           throw new Error(
-            "Same-frame Superconduct result must expose a superseded status."
+            "Same-frame Superconduct result must expose a superseded status.",
           );
         }
-        supersededStatus.endFrame =
-          supersededStatus.startFrame + 1;
-        supersededStatus.endTimeSeconds =
-          supersededStatus.endFrame / 60;
-        supersededStatus.supersededAtFrame =
-          supersededStatus.endFrame;
-      }
+        supersededStatus.endFrame = supersededStatus.startFrame + 1;
+        supersededStatus.endTimeSeconds = supersededStatus.endFrame / 60;
+        supersededStatus.supersededAtFrame = supersededStatus.endFrame;
+      },
     );
   });
 
   it("rejects hit-resolution provenance and amount drift", () => {
     expectRejected(defaultResult, (mutation) => {
       const event = mutation.damageEvents[0]!;
-      mutation.hitResolutionLog[
-        event.targetResolutionId
-      ]!.potentialDamage += 1;
+      mutation.hitResolutionLog[event.targetResolutionId]!.potentialDamage += 1;
     });
     expectRejected(defaultResult, (mutation) => {
       const event = mutation.damageEvents[0]!;
-      mutation.hitResolutionLog[
-        event.targetResolutionId
-      ]!.actionName = "forged action";
+      mutation.hitResolutionLog[event.targetResolutionId]!.actionName =
+        "forged action";
     });
   });
 
@@ -2337,9 +1966,9 @@ describe("exact current 1.50 SimulationResult schema", () => {
     expectRejected(defaultResult, (mutation) => {
       const characterId = mutation.config.characters[0]!.id;
       mutation.energyStats[characterId]!.final += 1;
-      mutation.energyCurve[
-        mutation.energyCurve.length - 1
-      ]!.energyByCharacter[characterId]! += 1;
+      mutation.energyCurve[mutation.energyCurve.length - 1]!.energyByCharacter[
+        characterId
+      ]! += 1;
     });
   });
 
@@ -2348,26 +1977,21 @@ describe("exact current 1.50 SimulationResult schema", () => {
       mutation.timelineExecution!.fps = 30 as 60;
     });
     expectRejected(auraV9Result, (mutation) => {
-      mutation.timelineExecution!.commandResults[0]!.commandIndex =
-        1_000_000;
+      mutation.timelineExecution!.commandResults[0]!.commandIndex = 1_000_000;
     });
     expectRejected(auraV9Result, (mutation) => {
       mutation.timelineExecution!.commandResults = [];
     });
     expectRejected(auraV9Result, (mutation) => {
-      const command =
-        mutation.timelineExecution!.commandResults[0]!;
-      command.commandType =
-        command.commandType === "skill" ? "burst" : "skill";
+      const command = mutation.timelineExecution!.commandResults[0]!;
+      command.commandType = command.commandType === "skill" ? "burst" : "skill";
     });
   });
 
   it("accepts a real legal timeline with replayable execution and state transitions", () => {
     expect(auraV9Result.timelineExecution?.stateLog).toHaveLength(2);
     expectAccepted(auraV9Result);
-    expect(
-      assertTrustedSimulationResult(auraV9Result)
-    ).toBe(auraV9Result);
+    expect(assertTrustedSimulationResult(auraV9Result)).toBe(auraV9Result);
   });
 
   it("rejects legal-timeline frame, outcome, state, and source projection drift at both boundaries", () => {
@@ -2375,19 +1999,17 @@ describe("exact current 1.50 SimulationResult schema", () => {
       mutation.timelineExecution!.totalFrames += 1;
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
-      mutation.timelineExecution!.commandResults[0]!.requestedFrame +=
-        1;
+      mutation.timelineExecution!.commandResults[0]!.requestedFrame += 1;
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
-      mutation.timelineExecution!.commandResults[0]!.status =
-        "rejected";
+      mutation.timelineExecution!.commandResults[0]!.status = "rejected";
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
       mutation.timelineExecution!.stateLog = [];
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
       mutation.actionLog.find(
-        (entry) => entry.timelineCommandIndex === 0
+        (entry) => entry.timelineCommandIndex === 0,
       )!.frame += 1;
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
@@ -2395,8 +2017,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
       mutation.hitEvents = mutation.damageEvents;
     });
     expectRejectedByPublicAndTrusted(auraV9Result, (mutation) => {
-      const command =
-        mutation.timelineExecution!.commandResults[0]!;
+      const command = mutation.timelineExecution!.commandResults[0]!;
       mutation.skippedActions.push({
         time: command.startFrame! / 60,
         frame: command.startFrame!,
@@ -2409,7 +2030,7 @@ describe("exact current 1.50 SimulationResult schema", () => {
         energyCost: 60,
         cycle: 0,
         timelineCommandIndex: 0,
-        sourceAbilityId: command.abilityId!
+        sourceAbilityId: command.abilityId!,
       });
     });
   });
