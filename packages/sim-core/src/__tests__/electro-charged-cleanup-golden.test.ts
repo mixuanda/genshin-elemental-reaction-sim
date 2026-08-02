@@ -1,12 +1,19 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
+} from "@genshin-dps-lab/icd-profiles";
+import {
   canonicalStringify,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   EC_NEXT_TARGET_TICK_ENGINE_VERSION,
   EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
   electroChargedCleanupResultReferencesSchema,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
   type SimConfig,
@@ -58,8 +65,7 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icdTag: id,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     },
     ...(hitlagFrames === undefined
       ? {}
@@ -69,6 +75,178 @@ function applicationHit({
             factor: 0
           }
         })
+  };
+}
+
+const NO_ICD_DECISION = {
+  kind: "no-icd",
+  evaluated: true,
+  consumed: false,
+  applicationMultiplier: 1,
+  allowed: true,
+  scope: null,
+  profileId: null,
+  icdTag: null,
+  groupId: null,
+  windowStartGroupId: null,
+  resetFrames: null,
+  windowStartFrame: null,
+  resetAtFrame: null,
+  hitIndex: null,
+  sequenceIndex: null,
+  tailPolicy: null,
+  resetSchedulePolicy: "bypass"
+} as const;
+
+function expectCurrentApplicationContract(
+  result: SimulationResult
+): void {
+  expect(result.config.elementalApplicationIcdModel).toEqual({
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  });
+  expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+    GCSIM_ELEMENTAL_APPLICATION_ROOT
+  );
+  expect(
+    result.config.timeline?.abilities[0]?.hits?.map((hit) => ({
+      hitId: hit.id,
+      application: hit.application
+    }))
+  ).toEqual([
+    {
+      hitId: "dendro-quicken",
+      application: {
+        gaugeUnits: 0.8,
+        icd: { mode: "no-icd-v1" }
+      }
+    },
+    {
+      hitId: "electro-stream",
+      application: {
+        gaugeUnits: 0.8,
+        icd: { mode: "no-icd-v1" }
+      }
+    }
+  ]);
+  expect(
+    result.elementalApplicationIcdLog.map((entry) => ({
+      id: entry.id,
+      frame: entry.frame,
+      sourceActorId: entry.sourceActorId,
+      targetId: entry.targetId,
+      hitId: entry.hitId,
+      selector: entry.selector,
+      nominalGaugeUnits: entry.nominalGaugeUnits,
+      effectiveGaugeUnits: entry.effectiveGaugeUnits,
+      decision: entry.decision
+    }))
+  ).toEqual(
+    ["dendro-quicken", "electro-stream"].map((hitId, id) => ({
+      id,
+      frame: 0,
+      sourceActorId: "driver",
+      targetId: "enemy-0",
+      hitId,
+      selector: { mode: "no-icd-v1" },
+      nominalGaugeUnits: 0.8,
+      effectiveGaugeUnits: 0.8,
+      decision: NO_ICD_DECISION
+    }))
+  );
+}
+
+function projectDamageEventsToFrozenNoIcd(
+  result: SimulationResult
+): SimulationResult["damageEvents"] {
+  const legacyAuditByDamageEventId = new Map(
+    result.elementalApplicationIcdLog.flatMap((entry) =>
+      entry.damageEventId === null ||
+      entry.selector.mode !== "no-icd-v1"
+        ? []
+        : [
+            [
+              entry.damageEventId,
+              {
+                icdAllowed: entry.decision.allowed,
+                icdTag: entry.hitId,
+                icdGroup: "no-icd" as const
+              }
+            ] as const
+          ]
+    )
+  );
+  return result.damageEvents.map((event) => {
+    const legacyAudit = legacyAuditByDamageEventId.get(event.id);
+    return legacyAudit === undefined
+      ? event
+      : {
+          ...event,
+          reactionAudit: {
+            ...event.reactionAudit,
+            ...legacyAudit
+          }
+        };
+  });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectNoIcdSelectorsToLegacyWire);
+  }
+  if (!isRecord(value)) return value;
+  const projected = Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [
+      key,
+      projectNoIcdSelectorsToLegacyWire(entry)
+    ])
+  );
+  if (!Object.prototype.hasOwnProperty.call(value, "application")) {
+    return projected;
+  }
+  if (
+    typeof value.id !== "string" ||
+    !isRecord(value.application) ||
+    typeof value.application.gaugeUnits !== "number" ||
+    !isRecord(value.application.icd) ||
+    value.application.icd.mode !== "no-icd-v1"
+  ) {
+    throw new Error(
+      "EC cleanup frozen projection requires explicit no-icd-v1 hit applications."
+    );
+  }
+  return {
+    ...projected,
+    application: {
+      gaugeUnits: value.application.gaugeUnits,
+      icdTag: value.id,
+      icdGroup: "no-icd"
+    }
+  };
+}
+
+function projectCurrentConfigToFrozenV140(
+  config: SimConfig
+): Record<string, unknown> {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel: _elementalApplicationIcdModel,
+    electroChargedPropagationModel:
+      _electroChargedPropagationModel,
+    ...frozenConfig
+  } = structuredClone(config);
+  return {
+    ...(projectNoIcdSelectorsToLegacyWire(frozenConfig) as Record<
+      string,
+      unknown
+    >),
+    schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION
   };
 }
 
@@ -177,6 +355,8 @@ function makeCleanupGoldenConfig(
 }
 
 function projectCleanupScenario(result: SimulationResult) {
+  const frozenDamageEvents =
+    projectDamageEventsToFrozenNoIcd(result);
   return {
     version: {
       schemaVersion: result.schemaVersion,
@@ -210,13 +390,13 @@ function projectCleanupScenario(result: SimulationResult) {
       (entry) => entry.reaction === "electroCharged"
     ),
     reactionDamageLog: result.reactionDamageLog,
-    damageEvents: result.damageEvents,
+    damageEvents: frozenDamageEvents,
     cleanupTimelinePoints:
       result.targetStateTimeline.points.filter(
         (point) =>
           point.cause === "electro-charged-cleanup"
       ),
-    electroChargedDamageEvents: result.damageEvents
+    electroChargedDamageEvents: frozenDamageEvents
       .filter(
         (event) =>
           event.kind === "transformative-reaction" &&
@@ -249,6 +429,58 @@ type CleanupGoldenScenario = ReturnType<
   typeof projectCleanupScenario
 >;
 
+type FrozenV140CleanupGoldenScenario = Omit<
+  CleanupGoldenScenario,
+  "version"
+> & {
+  version: Omit<
+    CleanupGoldenScenario["version"],
+    | "schemaVersion"
+    | "engineVersion"
+    | "configHash"
+    | "reproducibilityKey"
+  > & {
+    schemaVersion: typeof EC_NEXT_TARGET_TICK_SCHEMA_VERSION;
+    engineVersion: typeof EC_NEXT_TARGET_TICK_ENGINE_VERSION;
+    configHash: string;
+    reproducibilityKey: string;
+  };
+};
+
+function projectScenarioToFrozenV140(
+  result: SimulationResult
+): FrozenV140CleanupGoldenScenario {
+  const scenario = projectCleanupScenario(result);
+  const frozenConfig = projectCurrentConfigToFrozenV140(
+    result.config
+  );
+  const configHash = createSimulationConfigHash(frozenConfig);
+  const frozenRunIdentity = {
+    version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+    identityAlgorithm: result.runManifest.identityAlgorithm,
+    schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+    engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+    dataVersion: result.runManifest.dataVersion,
+    configHash,
+    resolvedRuntimeOptions:
+      result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins
+  } as unknown as Parameters<
+    typeof createSimulationReproducibilityKey
+  >[0];
+  return {
+    ...scenario,
+    version: {
+      ...scenario.version,
+      schemaVersion: EC_NEXT_TARGET_TICK_SCHEMA_VERSION,
+      engineVersion: EC_NEXT_TARGET_TICK_ENGINE_VERSION,
+      configHash,
+      reproducibilityKey:
+        createSimulationReproducibilityKey(frozenRunIdentity)
+    }
+  };
+}
+
 interface CleanupGoldenFixture {
   fixtureVersion: "electro-charged-quicken-cleanup-1.40";
   description: string;
@@ -271,7 +503,7 @@ interface CleanupGoldenFixture {
   };
   scenarios: Record<
     CleanupGoldenScenarioId,
-    CleanupGoldenScenario
+    FrozenV140CleanupGoldenScenario
   >;
   hashes: Record<CleanupGoldenScenarioId, string>;
 }
@@ -293,22 +525,6 @@ function loadFrozenFixture(): CleanupGoldenFixture {
   ) as CleanupGoldenFixture;
 }
 
-function projectV140CompatibilitySemantics(
-  scenario: CleanupGoldenScenario
-) {
-  const {
-    schemaVersion: _schemaVersion,
-    engineVersion: _engineVersion,
-    configHash: _configHash,
-    reproducibilityKey: _reproducibilityKey,
-    ...compatibleVersion
-  } = scenario.version;
-  return {
-    ...scenario,
-    version: compatibleVersion
-  };
-}
-
 describe("aura-v8 Electro-Charged cleanup Golden", () => {
   it("keeps current identity separate while matching the frozen 1.40 F1 and Hitlag5-to-F6 semantics", () => {
     const scenarioRuns: Array<{
@@ -328,7 +544,7 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
     ];
     const scenarioMap = new Map<
       CleanupGoldenScenarioId,
-      CleanupGoldenScenario
+      FrozenV140CleanupGoldenScenario
     >();
     for (const scenarioRun of scenarioRuns) {
       if (scenarioMap.has(scenarioRun.id)) {
@@ -368,6 +584,7 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       expect(first.engineVersion).toBe(
         CURRENT_ENGINE_VERSION
       );
+      expectCurrentApplicationContract(first);
       expect(
         first.reactionTaskLog[0]?.electroChargedCleanup
       ).toMatchObject({
@@ -379,7 +596,7 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       });
       scenarioMap.set(
         scenarioRun.id,
-        projectCleanupScenario(first)
+        projectScenarioToFrozenV140(first)
       );
     }
     expect([...scenarioMap.keys()].sort()).toEqual(
@@ -389,7 +606,7 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
       scenarioMap
     ) as Record<
       CleanupGoldenScenarioId,
-      CleanupGoldenScenario
+      FrozenV140CleanupGoldenScenario
     >;
     const fixture = loadFrozenFixture();
     expect(fixture.commonConfig).toEqual({
@@ -405,14 +622,11 @@ describe("aura-v8 Electro-Charged cleanup Golden", () => {
     for (const scenarioId of Object.keys(
       scenarios
     ) as CleanupGoldenScenarioId[]) {
-      expect(
-        projectV140CompatibilitySemantics(
-          scenarios[scenarioId]
-        )
-      ).toEqual(
-        projectV140CompatibilitySemantics(
-          fixture.scenarios[scenarioId]
-        )
+      expect(scenarios[scenarioId]).toEqual(
+        fixture.scenarios[scenarioId]
+      );
+      expect(semanticHash(scenarios[scenarioId])).toBe(
+        fixture.hashes[scenarioId]
       );
       expect(semanticHash(fixture.scenarios[scenarioId])).toBe(
         fixture.hashes[scenarioId]

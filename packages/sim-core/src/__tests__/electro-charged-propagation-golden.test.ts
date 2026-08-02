@@ -7,6 +7,10 @@ import {
 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
+} from "@genshin-dps-lab/icd-profiles";
+import {
   canonicalStringify,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
@@ -209,9 +213,7 @@ function makePropagationGoldenConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag:
-                  "start-source-with-unresolved-candidate",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -228,9 +230,108 @@ function makePropagationGoldenConfig(): SimConfig {
   });
 }
 
+const NO_ICD_DECISION = {
+  kind: "no-icd",
+  evaluated: true,
+  consumed: false,
+  applicationMultiplier: 1,
+  allowed: true,
+  scope: null,
+  profileId: null,
+  icdTag: null,
+  groupId: null,
+  windowStartGroupId: null,
+  resetFrames: null,
+  windowStartFrame: null,
+  resetAtFrame: null,
+  hitIndex: null,
+  sequenceIndex: null,
+  tailPolicy: null,
+  resetSchedulePolicy: "bypass"
+} as const;
+
+function expectCurrentApplicationContract(
+  result: SimulationResult
+): void {
+  expect(result.config.elementalApplicationIcdModel).toEqual({
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  });
+  expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+    GCSIM_ELEMENTAL_APPLICATION_ROOT
+  );
+  expect(
+    result.config.timeline?.abilities[0]?.hits?.[0]?.application
+  ).toEqual({
+    gaugeUnits: 1,
+    icd: { mode: "no-icd-v1" }
+  });
+  expect(
+    result.elementalApplicationIcdLog.map((entry) => ({
+      id: entry.id,
+      frame: entry.frame,
+      sourceActorId: entry.sourceActorId,
+      targetId: entry.targetId,
+      hitId: entry.hitId,
+      selector: entry.selector,
+      nominalGaugeUnits: entry.nominalGaugeUnits,
+      effectiveGaugeUnits: entry.effectiveGaugeUnits,
+      decision: entry.decision
+    }))
+  ).toEqual([
+    {
+      id: 0,
+      frame: 0,
+      sourceActorId: "ec-owner",
+      targetId: SOURCE_TARGET_ID,
+      hitId: "start-source-with-unresolved-candidate",
+      selector: { mode: "no-icd-v1" },
+      nominalGaugeUnits: 1,
+      effectiveGaugeUnits: 1,
+      decision: NO_ICD_DECISION
+    }
+  ]);
+}
+
+function projectDamageEventsToFrozenNoIcd(
+  result: SimulationResult
+): SimulationResult["damageEvents"] {
+  const legacyAuditByDamageEventId = new Map(
+    result.elementalApplicationIcdLog.flatMap((entry) =>
+      entry.damageEventId === null ||
+      entry.selector.mode !== "no-icd-v1"
+        ? []
+        : [
+            [
+              entry.damageEventId,
+              {
+                icdAllowed: entry.decision.allowed,
+                icdTag: entry.hitId,
+                icdGroup: "no-icd" as const
+              }
+            ] as const
+          ]
+    )
+  );
+  return result.damageEvents.map((event) => {
+    const legacyAudit = legacyAuditByDamageEventId.get(event.id);
+    return legacyAudit === undefined
+      ? event
+      : {
+          ...event,
+          reactionAudit: {
+            ...event.reactionAudit,
+            ...legacyAudit
+          }
+        };
+  });
+}
+
 function projectPropagationScenario(
   result: SimulationResult
 ) {
+  const frozenDamageEvents =
+    projectDamageEventsToFrozenNoIcd(result);
   const reactionDamage = result.reactionDamageLog.filter(
     (entry) =>
       entry.reaction === "electroCharged" &&
@@ -320,10 +421,10 @@ function projectPropagationScenario(
     reactionBDecisions: reactionDamage.flatMap(
       (entry) => entry.damageGroupDecisions
     ),
-    triggerDamageEvents: result.damageEvents.filter((event) =>
+    triggerDamageEvents: frozenDamageEvents.filter((event) =>
       triggerDamageEventIds.has(event.id)
     ),
-    propagationDamageChildren: result.damageEvents.filter(
+    propagationDamageChildren: frozenDamageEvents.filter(
       (event) => propagationDamageEventIds.has(event.id)
     ),
     relevantHitResolutions:
@@ -333,7 +434,7 @@ function projectPropagationScenario(
           (entry.damageEventId !== null &&
             relevantDamageEventIds.has(entry.damageEventId))
       ),
-    allRelatedDamageEvents: result.damageEvents.filter((event) =>
+    allRelatedDamageEvents: frozenDamageEvents.filter((event) =>
       relevantDamageEventIds.has(event.id)
     ),
     targetStateTimeline: result.targetStateTimeline,
@@ -375,10 +476,28 @@ function normalizeIdentityForFrozenV141(
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
     ...frozenConfigCommon
   } = result.config;
+  const legacyWire = structuredClone(frozenConfigCommon);
+  const starterHit = legacyWire.timeline?.abilities[0]?.hits?.[0];
+  if (starterHit === undefined) {
+    throw new Error(
+      "Electro-Charged propagation Golden projection requires its configured starter hit."
+    );
+  }
+  (
+    starterHit as unknown as {
+      application: unknown;
+    }
+  ).application = {
+    gaugeUnits: 1,
+    icdTag: "start-source-with-unresolved-candidate",
+    icdGroup: "no-icd"
+  };
   const frozenConfigHash = createSimulationConfigHash({
-    ...frozenConfigCommon,
+    ...legacyWire,
     schemaVersion:
       EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
     engineVersion:
@@ -516,6 +635,7 @@ describe("Electro-Charged nearby-Wet propagation Golden", () => {
     expect(first.engineVersion).toBe(
       CURRENT_ENGINE_VERSION
     );
+    expectCurrentApplicationContract(first);
 
     const firstProjection =
       normalizeIdentityForFrozenV141(

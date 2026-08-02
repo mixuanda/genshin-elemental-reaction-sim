@@ -11,8 +11,7 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: "quicken-expiry-order",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 

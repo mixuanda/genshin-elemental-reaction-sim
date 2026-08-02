@@ -4,6 +4,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
@@ -26,6 +27,7 @@ import {
   type AmplifyingReaction,
   type ActionDefinition,
   type ActiveStatusSnapshot,
+  type AnyElementalApplication,
   type AuraElement,
   type AuraStateEntry,
   type BloomReactionAudit,
@@ -40,6 +42,7 @@ import {
   type DendroCoreReaction,
   type Element,
   type ElementalApplication,
+  type ElementalApplicationIcdDecision,
   type ElectroChargedCleanupAudit,
   type ElectroChargedPropagationAudit,
   type ElectroChargedPropagationCandidateAudit,
@@ -47,6 +50,7 @@ import {
   type HitGeometry,
   type HitDefinition,
   type HitTargeting,
+  type LegacyElementalApplicationV146,
   type ParticleDefinition,
   type ReactionAudit,
   type ReactionADamageGroupAudit,
@@ -80,7 +84,8 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
-  GCSIM_DAMAGE_GROUP_ROOT
+  GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
   AURA_ENGINE_CONSTANTS,
@@ -180,6 +185,23 @@ export const EVENT_PRIORITY = {
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly DamageModifierPlugin[];
+}
+
+function skippedElementalApplicationDecision(
+  reason:
+    | "miss"
+    | "target-aura-blocked"
+    | "no-aura-engine"
+    | "mechanics-truncated"
+): ElementalApplicationIcdDecision {
+  return {
+    kind: "skipped",
+    evaluated: false,
+    reason,
+    consumed: false,
+    applicationMultiplier: 0,
+    allowed: false
+  };
 }
 
 export function projectBloomBurningFuelExpiry(
@@ -771,7 +793,8 @@ interface ReactionDamageEventPayload {
   snapshot: DamageEvent["snapshot"];
   cycle: number;
   reactionDamageLogId: number;
-  application?: ElementalApplication;
+  /** Reaction-owned application wire; it is outside the generic 1.47 log. */
+  application?: LegacyElementalApplicationV146;
   excludedTargetIds?: string[];
   swirlContext?: {
     scheduleKind: "swirl-self" | "swirl-propagation";
@@ -1469,6 +1492,8 @@ function simulateConfig(
       configHash: createSimulationConfigHash(resultConfig),
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -2385,7 +2410,56 @@ function simulateConfig(
   const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
   const directDamageGroupLog: SimulationResult["directDamageGroupLog"] = [];
+  const elementalApplicationIcdLog:
+    SimulationResult["elementalApplicationIcdLog"] = [];
   const hitResolutionLog: SimulationResult["hitResolutionLog"] = [];
+  const appendElementalApplicationIcdLog = ({
+    hitResolutionLogId,
+    damageEventId,
+    frame,
+    sourceActorId,
+    targetId,
+    hitId,
+    hitGroupId,
+    element,
+    application,
+    decision
+  }: {
+    hitResolutionLogId: number;
+    damageEventId: number | null;
+    frame: number;
+    sourceActorId: string;
+    targetId: string;
+    hitId: string;
+    hitGroupId: string;
+    element: Element;
+    application: ElementalApplication;
+    decision: Readonly<ElementalApplicationIcdDecision>;
+  }): void => {
+    if (element === "physical") {
+      throw new Error(
+        `Configured elemental application "${hitGroupId}" cannot use physical damage.`
+      );
+    }
+    elementalApplicationIcdLog.push({
+      id: elementalApplicationIcdLog.length,
+      sourceKind: "configured-direct-hit",
+      hitResolutionLogId,
+      damageEventId,
+      frame,
+      sourceActorId,
+      targetId,
+      hitId,
+      hitGroupId,
+      element,
+      selector: { ...application.icd },
+      nominalGaugeUnits: application.gaugeUnits,
+      effectiveGaugeUnits:
+        application.gaugeUnits *
+        decision.applicationMultiplier,
+      decision: { ...decision }
+    });
+  };
   const targetClockLog: SimulationResult["targetClockLog"] = [];
   const targetHitlagLog: SimulationResult["targetHitlagLog"] = [];
   const targetTaskPhaseLog: SimulationResult["targetTaskPhaseLog"] =
@@ -5599,7 +5673,7 @@ function simulateConfig(
             gaugeUnits: audit.propagatedGaugeUnits,
             icdTag: audit.reaction,
             icdGroup: "no-icd"
-          } satisfies ElementalApplication,
+          } satisfies LegacyElementalApplicationV146,
           excludedTargetIds: [sourceTargetId]
         }
       ];
@@ -7252,7 +7326,7 @@ function simulateConfig(
     hitId: string;
     hitGroupId: string;
     element: Element;
-    application: ElementalApplication | undefined;
+    application: AnyElementalApplication | undefined;
     reactionBonusDelta: number;
     hitResolutionLogIds: number[];
     triggerDamageEventIds: number[];
@@ -13135,6 +13209,20 @@ function simulateConfig(
       targetResolutionId
     );
     if (!targetResolution.landed) {
+      if (hit.application !== undefined) {
+        appendElementalApplicationIcdLog({
+          hitResolutionLogId: targetResolutionId,
+          damageEventId: null,
+          frame: event.frame,
+          sourceActorId: actorId,
+          targetId,
+          hitId,
+          hitGroupId,
+          element,
+          application: hit.application,
+          decision: skippedElementalApplicationDecision("miss")
+        });
+      }
       completeHitTarget({
         actorId,
         action,
@@ -13461,6 +13549,28 @@ function simulateConfig(
             };
     const reactionAudit =
       projectPlayerSelfDamageStatus(rawReactionAudit);
+    const elementalApplicationIcdDecision =
+      hit.application === undefined
+        ? null
+        : !auraAllowed
+          ? skippedElementalApplicationDecision(
+              "target-aura-blocked"
+            )
+          : auraEngine === null
+            ? skippedElementalApplicationDecision("no-aura-engine")
+            : mechanicsTruncatedBefore
+              ? skippedElementalApplicationDecision(
+                  "mechanics-truncated"
+                )
+              : auraEngine.getLastElementalApplicationIcdDecision();
+    if (
+      hit.application !== undefined &&
+      elementalApplicationIcdDecision === null
+    ) {
+      throw new Error(
+        `Aura engine did not expose an elemental-application ICD decision for configured hit "${hitGroupId}".`
+      );
+    }
     if (
       recursiveShatterDeliveryEnabled &&
       shatterState?.audit.triggered === true &&
@@ -13600,7 +13710,7 @@ function simulateConfig(
     }
     if (
       config.schemaVersion ===
-        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
       hit.ampBase !== undefined
     ) {
       throw new Error(
@@ -13630,7 +13740,7 @@ function simulateConfig(
       // reaction. Only frozen pre-1.45 replay paths may forward ampBase;
       // the formula-root current path rejects it above.
       ...(config.schemaVersion ===
-          DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+          ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
           hit.ampBase === undefined ||
           (auraEngine !== null &&
             reactionAudit.model !== "manual-override")
@@ -13877,6 +13987,23 @@ function simulateConfig(
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
+    if (
+      hit.application !== undefined &&
+      elementalApplicationIcdDecision !== null
+    ) {
+      appendElementalApplicationIcdLog({
+        hitResolutionLogId: targetResolutionId,
+        damageEventId,
+        frame: event.frame,
+        sourceActorId: actorId,
+        targetId,
+        hitId,
+        hitGroupId,
+        element,
+        application: hit.application,
+        decision: elementalApplicationIcdDecision
+      });
+    }
     recordTargetMechanicsTruncation({
       audit: reactionAudit,
       targetId,
@@ -14989,6 +15116,7 @@ function simulateConfig(
     damageEvents,
     hitEvents: damageEvents,
     directDamageGroupLog,
+    elementalApplicationIcdLog,
     hitResolutionLog,
     targetClockAudit,
     targetClockLog: parsedTargetClockLog,
@@ -15499,7 +15627,7 @@ function simulateLegalTimeline(
         (right.timelineCommandIndex ?? Number.MAX_SAFE_INTEGER) ||
       left.actionId.localeCompare(right.actionId)
   );
-  return result;
+  return assertTrustedSimulationResult(result);
 }
 
 export function simulate(
@@ -15518,8 +15646,10 @@ export function simulate(
       `targetTaskModel ${config.targetTaskModel.mode} requires compatibilityMode legal-frame-v1.`
     );
   }
-  const result = config.timeline
-    ? simulateLegalTimeline(config, runtimeOptions)
-    : simulateConfig(config, runtimeOptions);
-  return assertTrustedSimulationResult(result);
+  if (config.timeline) {
+    return simulateLegalTimeline(config, runtimeOptions);
+  }
+  return assertTrustedSimulationResult(
+    simulateConfig(config, runtimeOptions)
+  );
 }

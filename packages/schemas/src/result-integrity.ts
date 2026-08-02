@@ -7,26 +7,33 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
   resolveDamageGroup,
+  resolveElementalApplicationGroup,
   type GcsimDamageGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
   type AuraGaugeEntry,
   type AuraReactionEngineConfig,
   type AuraStateEntry,
   type CharacterStats,
   type DamageEvent,
+  type ElementalApplication,
   type HitDefinition,
   type ScalingStat,
   type SimulationResult,
@@ -2168,13 +2175,13 @@ function validateIdentityV146(
     "current"
   );
   if (
-    result.runManifest.version !==
-    SIMULATION_RUN_MANIFEST_VERSION
+    (result.runManifest.version as string) !==
+    DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION
   ) {
     addIssue(
       context,
       ["runManifest", "version"],
-      `1.46 results require run-manifest version ${SIMULATION_RUN_MANIFEST_VERSION}`
+      `1.46 results require run-manifest version ${DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION}`
     );
   }
   expectSemanticEqual(
@@ -2224,6 +2231,105 @@ function validateIdentityV146(
     result.runManifest.directDamageGroupRoot?.profileId,
     result.config.directDamageGroupModel?.profileId,
     "run-manifest/config direct-damage-group profile"
+  );
+}
+
+function validateIdentityV147(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityForVersion(
+    result,
+    context,
+    ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+    ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !==
+    ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.47 results require run-manifest version ${ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot", "profileId"],
+    result.runManifest.reactionFormulaRoot?.profileId,
+    result.config.reactionFormulaModel?.profileId,
+    "run-manifest/config reaction formula profile"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot", "profileId"],
+    result.runManifest.directDamageGroupRoot?.profileId,
+    result.config.directDamageGroupModel?.profileId,
+    "run-manifest/config direct-damage-group profile"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+  expectEqual(
+    context,
+    [
+      "runManifest",
+      "elementalApplicationIcdRoot",
+      "profileId"
+    ],
+    result.runManifest.elementalApplicationIcdRoot?.profileId,
+    result.config.elementalApplicationIcdModel?.profileId,
+    "run-manifest/config elemental-application ICD profile"
   );
 }
 
@@ -3113,6 +3219,1314 @@ function validateDirectDamageGroupV146(
         context,
         ["directDamageGroupLog"],
         `missing landed ordinary direct damage event ${event.id}`
+      );
+    }
+  }
+}
+
+type ConfiguredElementalApplicationHit = Pick<
+  HitDefinition<ElementalApplication>,
+  | "id"
+  | "element"
+  | "scalingOwnerId"
+  | "application"
+>;
+
+interface ConfiguredElementalApplicationHitLookup {
+  rotationHits: Map<string, ConfiguredElementalApplicationHit[]>;
+  abilityHits: Map<string, ConfiguredElementalApplicationHit[]>;
+}
+
+type DirectHitResolution =
+  SimulationResult["hitResolutionLog"][number];
+
+interface ApplicationReplayWindow<TGroup extends string> {
+  startFrame: number;
+  resetAtFrame: number;
+  resetFrames: number;
+  startGroup: TGroup;
+  hitCount: number;
+}
+
+interface LegacyApplicationProfile {
+  resetFrames: number;
+  applicationSequence: readonly boolean[];
+  tailPolicy: "repeat" | "clamp";
+}
+
+const APPLICATION_WINDOW_FIELDS = [
+  "scope",
+  "profileId",
+  "icdTag",
+  "groupId",
+  "windowStartGroupId",
+  "resetFrames",
+  "windowStartFrame",
+  "resetAtFrame",
+  "hitIndex",
+  "sequenceIndex",
+  "tailPolicy"
+] as const;
+
+function buildConfiguredElementalApplicationHitLookup(
+  result: SimulationResult
+): ConfiguredElementalApplicationHitLookup {
+  const rotationHits = new Map<
+    string,
+    ConfiguredElementalApplicationHit[]
+  >();
+  for (const action of result.config.rotation) {
+    rotationHits.set(
+      JSON.stringify([action.actorId, action.id]),
+      [...(action.hits ?? [])] as ConfiguredElementalApplicationHit[]
+    );
+  }
+
+  const abilityHits = new Map<
+    string,
+    ConfiguredElementalApplicationHit[]
+  >();
+  for (const ability of result.config.timeline?.abilities ?? []) {
+    abilityHits.set(
+      JSON.stringify([ability.actorId, ability.id]),
+      [...(ability.hits ?? [])] as ConfiguredElementalApplicationHit[]
+    );
+  }
+  return { rotationHits, abilityHits };
+}
+
+/**
+ * Resolve the simulator-authored stable hit occurrence. Visible hit IDs are
+ * deliberately not used as keys: duplicate IDs are valid, and action IDs may
+ * contain colons. Only the exact known prefix/suffix surround the decimal
+ * config hit index.
+ */
+function parseConfiguredApplicationHitIndex(
+  resolution: DirectHitResolution
+): number | undefined {
+  const prefix = `${resolution.sourceActionId}:${resolution.cycle}:`;
+  const suffix = `:${resolution.frame}`;
+  if (
+    !resolution.hitGroupId.startsWith(prefix) ||
+    !resolution.hitGroupId.endsWith(suffix)
+  ) {
+    return undefined;
+  }
+  const indexText = resolution.hitGroupId.slice(
+    prefix.length,
+    resolution.hitGroupId.length - suffix.length
+  );
+  if (!/^(0|[1-9]\d*)$/.test(indexText)) {
+    return undefined;
+  }
+  const hitIndex = Number(indexText);
+  return Number.isSafeInteger(hitIndex) ? hitIndex : undefined;
+}
+
+function findConfiguredElementalApplicationHit(
+  lookup: ConfiguredElementalApplicationHitLookup,
+  resolution: DirectHitResolution
+): ConfiguredElementalApplicationHit | undefined {
+  const hitIndex = parseConfiguredApplicationHitIndex(resolution);
+  if (hitIndex === undefined) return undefined;
+
+  const configuredHits =
+    resolution.timelineCommandIndex !== undefined &&
+    resolution.sourceAbilityId !== undefined
+      ? lookup.abilityHits.get(
+          JSON.stringify([
+            resolution.sourceActorId,
+            resolution.sourceAbilityId
+          ])
+        )
+      : lookup.rotationHits.get(
+          JSON.stringify([
+            resolution.sourceActorId,
+            resolution.sourceActionId
+          ])
+        );
+  const configuredHit = configuredHits?.[hitIndex];
+  if (configuredHit === undefined) return undefined;
+  const effectiveHitId =
+    configuredHit.id ??
+    `${resolution.sourceActionId}:hit-${hitIndex}`;
+  return effectiveHitId === resolution.hitId
+    ? configuredHit
+    : undefined;
+}
+
+function expectNonNegativeSafeInteger(
+  context: RefinementCtx,
+  path: IssuePath,
+  value: unknown,
+  label: string
+): value is number {
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 0
+  ) {
+    addIssue(
+      context,
+      path,
+      `${label} must be a non-negative safe integer`
+    );
+    return false;
+  }
+  return true;
+}
+
+function expectPositiveSafeInteger(
+  context: RefinementCtx,
+  path: IssuePath,
+  value: unknown,
+  label: string
+): value is number {
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value <= 0
+  ) {
+    addIssue(
+      context,
+      path,
+      `${label} must be a positive safe integer`
+    );
+    return false;
+  }
+  return true;
+}
+
+function expectFiniteNumber(
+  context: RefinementCtx,
+  path: IssuePath,
+  value: unknown,
+  minimum: number,
+  label: string
+): value is number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < minimum
+  ) {
+    addIssue(
+      context,
+      path,
+      `${label} must be finite and at least ${minimum}`
+    );
+    return false;
+  }
+  return true;
+}
+
+function resolveLegacyApplicationProfile(
+  result: SimulationResult,
+  profileId: string,
+  context: RefinementCtx,
+  path: IssuePath
+): LegacyApplicationProfile | undefined {
+  // Burning is engine-owned and cannot be overridden by config. Default can
+  // be overridden because the frozen Aura engine spreads custom profiles
+  // after its built-in default and before its built-in Burning profile.
+  if (profileId === "burning") {
+    const group = resolveElementalApplicationGroup("burning");
+    return {
+      resetFrames: group.resetFrames,
+      applicationSequence: group.applicationSequence.map(
+        (multiplier) => multiplier > 0
+      ),
+      tailPolicy: "clamp"
+    };
+  }
+
+  const customProfiles = result.config.reactionEngine?.icdProfiles;
+  const hasCustomProfile =
+    customProfiles !== undefined &&
+    Object.prototype.hasOwnProperty.call(customProfiles, profileId);
+  if (!hasCustomProfile && profileId === "default") {
+    const group = resolveElementalApplicationGroup("default");
+    return {
+      resetFrames: group.resetFrames,
+      applicationSequence: group.applicationSequence.map(
+        (multiplier) => multiplier > 0
+      ),
+      tailPolicy: "clamp"
+    };
+  }
+
+  const profile = hasCustomProfile
+    ? customProfiles?.[profileId]
+    : undefined;
+  if (profile === undefined) {
+    addIssue(
+      context,
+      path,
+      `legacy boolean ICD profile ${profileId} is not present in config`
+    );
+    return undefined;
+  }
+  const resetValid = expectPositiveSafeInteger(
+    context,
+    [...path, "resetFrames"],
+    profile.resetFrames,
+    "legacy ICD resetFrames"
+  );
+  if (
+    !Array.isArray(profile.applicationSequence) ||
+    profile.applicationSequence.length === 0 ||
+    profile.applicationSequence.some(
+      (entry) => typeof entry !== "boolean"
+    )
+  ) {
+    addIssue(
+      context,
+      [...path, "applicationSequence"],
+      "legacy ICD applicationSequence must be a non-empty boolean array"
+    );
+    return undefined;
+  }
+  const tailPolicy = profile.tailPolicy ?? "repeat";
+  if (tailPolicy !== "repeat" && tailPolicy !== "clamp") {
+    addIssue(
+      context,
+      [...path, "tailPolicy"],
+      "legacy ICD tailPolicy must be repeat or clamp"
+    );
+    return undefined;
+  }
+  if (!resetValid) return undefined;
+  return {
+    resetFrames: profile.resetFrames,
+    applicationSequence: profile.applicationSequence,
+    tailPolicy
+  };
+}
+
+function expectedApplicationSkipReason(
+  result: SimulationResult,
+  resolution: DirectHitResolution
+):
+  | "miss"
+  | "target-aura-blocked"
+  | "no-aura-engine"
+  | "mechanics-truncated"
+  | null {
+  if (!resolution.landed || resolution.outcome === "miss") {
+    return "miss";
+  }
+  if (!resolution.auraAllowed) return "target-aura-blocked";
+  if (result.config.reactionEngine === undefined) {
+    return "no-aura-engine";
+  }
+  if (resolution.mechanicsStatus === "mechanics-truncated") {
+    return "mechanics-truncated";
+  }
+  return null;
+}
+
+function validateApplicationReactionAuditV147(
+  result: SimulationResult,
+  context: RefinementCtx,
+  logPath: IssuePath,
+  event: DamageEvent | undefined,
+  element: Exclude<DamageEvent["element"], "physical">,
+  selector: ElementalApplication["icd"],
+  skipReason:
+    | "miss"
+    | "target-aura-blocked"
+    | "no-aura-engine"
+    | "mechanics-truncated"
+    | null,
+  expectedMultiplier: number,
+  expectedEffectiveGauge: number
+): void {
+  if (skipReason === "miss") return;
+  if (event === undefined) {
+    addIssue(
+      context,
+      [...logPath, "damageEventId"],
+      "non-miss application attempt requires a direct damage event"
+    );
+    return;
+  }
+  const auditPath = [
+    "damageEvents",
+    event.id,
+    "reactionAudit"
+  ] satisfies IssuePath;
+  const audit = event.reactionAudit;
+  if (
+    audit.applicationGaugeUnits !== null &&
+    !Number.isFinite(audit.applicationGaugeUnits)
+  ) {
+    addIssue(
+      context,
+      [...auditPath, "applicationGaugeUnits"],
+      "trusted application Gauge audit must be finite"
+    );
+  }
+
+  if (skipReason !== null) {
+    expectEqual(
+      context,
+      [...auditPath, "icdAllowed"],
+      audit.icdAllowed,
+      null,
+      "skipped application ICD permission"
+    );
+    expectEqual(
+      context,
+      [...auditPath, "icdTag"],
+      audit.icdTag,
+      null,
+      "skipped application ICD tag"
+    );
+    expectEqual(
+      context,
+      [...auditPath, "icdGroup"],
+      audit.icdGroup,
+      null,
+      "skipped application ICD group"
+    );
+    expectEqual(
+      context,
+      [...auditPath, "applicationGaugeUnits"],
+      audit.applicationGaugeUnits,
+      null,
+      "skipped application Gauge"
+    );
+    if (result.config.reactionEngine === undefined) {
+      if (audit.model !== "none" && audit.model !== "manual-override") {
+        addIssue(
+          context,
+          [...auditPath, "model"],
+          "application attempt without a configured Aura engine cannot claim Aura-engine resolution"
+        );
+      }
+      for (const [field, value] of [
+        ["auraBefore", audit.auraBefore],
+        ["auraApplied", audit.auraApplied],
+        ["auraConsumed", audit.auraConsumed],
+        ["auraAfter", audit.auraAfter]
+      ] as const) {
+        expectEqual(
+          context,
+          [...auditPath, field],
+          value,
+          null,
+          "unconfigured Aura-engine projection"
+        );
+      }
+      return;
+    }
+    expectEqual(
+      context,
+      [...auditPath, "model"],
+      audit.model,
+      "aura-engine",
+      "skipped application Aura model"
+    );
+    if (audit.auraBefore === null || audit.auraAfter === null) {
+      addIssue(
+        context,
+        [...auditPath, "auraBefore"],
+        "Aura-engine skip must retain array-valued before/after projections"
+      );
+    }
+    expectEqual(
+      context,
+      [...auditPath, "triggered"],
+      audit.triggered,
+      false,
+      "skipped Aura application reaction trigger"
+    );
+    expectEqual(
+      context,
+      [...auditPath, "reaction"],
+      audit.reaction,
+      "none",
+      "skipped Aura application reaction"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "reactions"],
+      audit.reactions,
+      [],
+      "skipped Aura application ordered reactions"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraApplied"],
+      audit.auraApplied,
+      [],
+      "skipped Aura application mutations"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraConsumed"],
+      audit.auraConsumed,
+      [],
+      "skipped Aura consumption mutations"
+    );
+    const expectedTruncationCarry =
+      event.mechanicsStatus === "mechanics-truncated";
+    expectEqual(
+      context,
+      [...auditPath, "mechanicsTruncation"],
+      audit.mechanicsTruncation === null,
+      !expectedTruncationCarry,
+      "skipped mechanics-truncation state"
+    );
+    if (!expectedTruncationCarry) {
+      expectSemanticEqual(
+        context,
+        [...auditPath, "auraAfter"],
+        audit.auraAfter,
+        audit.auraBefore,
+        "Aura-blocked application state after frame settlement"
+      );
+    } else {
+      expectSemanticEqual(
+        context,
+        [...auditPath, "auraAfter"],
+        audit.auraAfter,
+        [],
+        "mechanics-truncated fail-closed Aura projection"
+      );
+    }
+    return;
+  }
+
+  const expectedIcdTag =
+    selector.mode === "no-icd-v1" ? null : selector.icdTag;
+  const expectedIcdGroup =
+    selector.mode === "legacy-boolean-profile-v1"
+      ? selector.profileId
+      : selector.mode === "fixed-gcsim-application-v1"
+        ? selector.groupId
+        : null;
+  const expectedAllowed = expectedMultiplier > 0;
+  if (audit.model !== "aura-engine" && audit.model !== "manual-override") {
+    addIssue(
+      context,
+      [...auditPath, "model"],
+      "evaluated application requires an Aura-engine or explicit debug-override audit"
+    );
+  }
+  if (
+    audit.model === "manual-override" &&
+    result.config.reactionEngine?.debugAllowReactionOverride !== true
+  ) {
+    addIssue(
+      context,
+      [...auditPath, "model"],
+      "manual application override requires the explicit config debug gate"
+    );
+  }
+  expectEqual(
+    context,
+    [...auditPath, "icdAllowed"],
+    audit.icdAllowed,
+    expectedAllowed,
+    "replayed application ICD permission"
+  );
+  expectEqual(
+    context,
+    [...auditPath, "icdTag"],
+    audit.icdTag,
+    expectedIcdTag,
+    "replayed application ICD tag"
+  );
+  expectEqual(
+    context,
+    [...auditPath, "icdGroup"],
+    audit.icdGroup,
+    expectedIcdGroup,
+    "replayed application ICD group"
+  );
+  expectNearlyEqual(
+    context,
+    [...auditPath, "applicationGaugeUnits"],
+    audit.applicationGaugeUnits ?? Number.NaN,
+    expectedEffectiveGauge,
+    "replayed effective application Gauge"
+  );
+
+  if (!expectedAllowed) {
+    expectEqual(
+      context,
+      [...auditPath, "triggered"],
+      audit.triggered,
+      false,
+      "zero-slot application reaction trigger"
+    );
+    expectEqual(
+      context,
+      [...auditPath, "reaction"],
+      audit.reaction,
+      "none",
+      "zero-slot application reaction"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "reactions"],
+      audit.reactions,
+      [],
+      "zero-slot ordered reactions"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraApplied"],
+      audit.auraApplied,
+      [],
+      "zero-slot Aura application"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraConsumed"],
+      audit.auraConsumed,
+      [],
+      "zero-slot Aura consumption"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraAfter"],
+      audit.auraAfter,
+      audit.auraBefore,
+      "zero-slot Aura state"
+    );
+    return;
+  }
+
+  if (audit.model === "aura-engine") {
+    const applied = audit.auraApplied ?? [];
+    if (
+      applied.length !== 1 ||
+      applied[0]?.element !== element ||
+      !nearlyEqual(
+        applied[0]?.gaugeUnits ?? Number.NaN,
+        expectedEffectiveGauge
+      )
+    ) {
+      addIssue(
+        context,
+        [...auditPath, "auraApplied"],
+        "allowed application must expose exactly one effective-Gauge Aura input"
+      );
+    }
+  } else if (audit.model === "manual-override") {
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraApplied"],
+      audit.auraApplied,
+      [],
+      "manual override Aura application"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraConsumed"],
+      audit.auraConsumed,
+      [],
+      "manual override Aura consumption"
+    );
+    expectSemanticEqual(
+      context,
+      [...auditPath, "auraAfter"],
+      audit.auraAfter,
+      audit.auraBefore,
+      "manual override Aura state"
+    );
+  }
+}
+
+/**
+ * Independent 1.47 application-ICD replay. Every configured application
+ * target attempt is discovered from the stable hit-resolution stream, then
+ * consumed in that exact order. No decision or counter is trusted from the
+ * result log itself.
+ */
+function validateElementalApplicationIcdV147(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const lookup = buildConfiguredElementalApplicationHitLookup(result);
+  const attempts: Array<{
+    resolution: DirectHitResolution;
+    hit: ConfiguredElementalApplicationHit;
+    application: ElementalApplication;
+  }> = [];
+
+  for (const [resolutionIndex, resolution] of
+    result.hitResolutionLog.entries()) {
+    if (resolution.resolutionKind !== "direct") continue;
+    expectNonNegativeSafeInteger(
+      context,
+      ["hitResolutionLog", resolutionIndex, "id"],
+      resolution.id,
+      "application replay hit-resolution ID"
+    );
+    expectNonNegativeSafeInteger(
+      context,
+      ["hitResolutionLog", resolutionIndex, "frame"],
+      resolution.frame,
+      "application replay frame"
+    );
+    expectNonNegativeSafeInteger(
+      context,
+      ["hitResolutionLog", resolutionIndex, "cycle"],
+      resolution.cycle,
+      "application replay cycle"
+    );
+    const hit = findConfiguredElementalApplicationHit(
+      lookup,
+      resolution
+    );
+    if (hit === undefined) {
+      addIssue(
+        context,
+        ["hitResolutionLog", resolutionIndex, "hitGroupId"],
+        "direct hit resolution must resolve one stable configured hit occurrence"
+      );
+      continue;
+    }
+    if (hit.application !== undefined) {
+      attempts.push({
+        resolution,
+        hit,
+        application: hit.application
+      });
+    }
+  }
+
+  if (result.elementalApplicationIcdLog.length !== attempts.length) {
+    addIssue(
+      context,
+      ["elementalApplicationIcdLog"],
+      "must contain exactly one row per configured direct-hit target application attempt"
+    );
+  }
+
+  const fixedWindows = new Map<
+    string,
+    ApplicationReplayWindow<string>
+  >();
+  const legacyWindows = new Map<
+    string,
+    ApplicationReplayWindow<string>
+  >();
+  const loggedResolutionIds = new Set<number>();
+
+  for (const [logIndex, log] of
+    result.elementalApplicationIcdLog.entries()) {
+    const logPath = [
+      "elementalApplicationIcdLog",
+      logIndex
+    ] satisfies IssuePath;
+    const attempt = attempts[logIndex];
+    const decision = log.decision as unknown as Record<
+      string,
+      unknown
+    >;
+
+    expectNonNegativeSafeInteger(
+      context,
+      [...logPath, "id"],
+      log.id,
+      "application log ID"
+    );
+    expectEqual(
+      context,
+      [...logPath, "id"],
+      log.id,
+      logIndex,
+      "contiguous application log ID"
+    );
+    expectNonNegativeSafeInteger(
+      context,
+      [...logPath, "hitResolutionLogId"],
+      log.hitResolutionLogId,
+      "application hit-resolution backlink"
+    );
+    if (
+      log.damageEventId !== null &&
+      !expectNonNegativeSafeInteger(
+        context,
+        [...logPath, "damageEventId"],
+        log.damageEventId,
+        "application damage-event backlink"
+      )
+    ) {
+      // Keep replaying from the authoritative hit resolution.
+    }
+    expectNonNegativeSafeInteger(
+      context,
+      [...logPath, "frame"],
+      log.frame,
+      "application log frame"
+    );
+    expectFiniteNumber(
+      context,
+      [...logPath, "nominalGaugeUnits"],
+      log.nominalGaugeUnits,
+      Number.MIN_VALUE,
+      "nominal application Gauge"
+    );
+    expectFiniteNumber(
+      context,
+      [...logPath, "effectiveGaugeUnits"],
+      log.effectiveGaugeUnits,
+      0,
+      "effective application Gauge"
+    );
+    expectFiniteNumber(
+      context,
+      [...logPath, "decision", "applicationMultiplier"],
+      decision.applicationMultiplier,
+      0,
+      "application multiplier"
+    );
+
+    if (loggedResolutionIds.has(log.hitResolutionLogId)) {
+      addIssue(
+        context,
+        [...logPath, "hitResolutionLogId"],
+        "must not duplicate another configured application attempt"
+      );
+    }
+    loggedResolutionIds.add(log.hitResolutionLogId);
+
+    if (attempt === undefined) {
+      addIssue(
+        context,
+        [...logPath, "hitResolutionLogId"],
+        "has no configured application attempt at this stable replay position"
+      );
+      continue;
+    }
+    const { resolution, hit, application } = attempt;
+    const expectedElement =
+      hit.element ??
+      result.config.characters.find(
+        (character) =>
+          character.id ===
+          (hit.scalingOwnerId ?? resolution.sourceActorId)
+      )?.element;
+    if (expectedElement === undefined || expectedElement === "physical") {
+      addIssue(
+        context,
+        [...logPath, "element"],
+        "configured application must resolve a non-physical source element"
+      );
+      continue;
+    }
+    expectEqual(
+      context,
+      [...logPath, "sourceKind"],
+      log.sourceKind,
+      "configured-direct-hit",
+      "application source kind"
+    );
+    expectEqual(
+      context,
+      [...logPath, "hitResolutionLogId"],
+      log.hitResolutionLogId,
+      resolution.id,
+      "stable application hit-resolution backlink"
+    );
+    expectEqual(
+      context,
+      [...logPath, "damageEventId"],
+      log.damageEventId,
+      resolution.damageEventId,
+      "application damage-event backlink"
+    );
+    expectEqual(
+      context,
+      [...logPath, "frame"],
+      log.frame,
+      resolution.frame,
+      "application attempt frame"
+    );
+    expectEqual(
+      context,
+      [...logPath, "sourceActorId"],
+      log.sourceActorId,
+      resolution.sourceActorId,
+      "application source actor"
+    );
+    expectEqual(
+      context,
+      [...logPath, "targetId"],
+      log.targetId,
+      resolution.targetId,
+      "application target"
+    );
+    expectEqual(
+      context,
+      [...logPath, "hitId"],
+      log.hitId,
+      resolution.hitId,
+      "application visible hit ID"
+    );
+    expectEqual(
+      context,
+      [...logPath, "hitGroupId"],
+      log.hitGroupId,
+      resolution.hitGroupId,
+      "application stable hit group"
+    );
+    expectEqual(
+      context,
+      [...logPath, "element"],
+      log.element,
+      expectedElement,
+      "configured application element"
+    );
+    expectEqual(
+      context,
+      ["hitResolutionLog", resolution.id, "element"],
+      resolution.element,
+      expectedElement,
+      "configured hit-resolution element"
+    );
+    expectSemanticEqual(
+      context,
+      [...logPath, "selector"],
+      log.selector,
+      application.icd,
+      "configured application selector"
+    );
+    expectFiniteNumber(
+      context,
+      [...logPath, "nominalGaugeUnits"],
+      application.gaugeUnits,
+      Number.MIN_VALUE,
+      "configured nominal application Gauge"
+    );
+    expectNearlyEqual(
+      context,
+      [...logPath, "nominalGaugeUnits"],
+      log.nominalGaugeUnits,
+      application.gaugeUnits,
+      "configured nominal application Gauge"
+    );
+
+    const event =
+      resolution.damageEventId === null
+        ? undefined
+        : result.damageEvents[resolution.damageEventId];
+    if (event !== undefined) {
+      const eventPath = [
+        "damageEvents",
+        resolution.damageEventId!
+      ] satisfies IssuePath;
+      expectEqual(
+        context,
+        [...eventPath, "id"],
+        event.id,
+        resolution.damageEventId,
+        "application damage-event ID"
+      );
+      expectEqual(
+        context,
+        [...eventPath, "kind"],
+        event.kind,
+        "direct",
+        "application damage-event kind"
+      );
+      expectEqual(
+        context,
+        [...eventPath, "parentDamageEventId"],
+        event.parentDamageEventId,
+        null,
+        "application direct damage parent"
+      );
+      expectEqual(
+        context,
+        [...eventPath, "targetResolutionId"],
+        event.targetResolutionId,
+        resolution.id,
+        "application damage-event hit-resolution backlink"
+      );
+      for (const [field, actual, expected] of [
+        ["frame", event.frame, resolution.frame],
+        ["sourceActorId", event.sourceActorId, resolution.sourceActorId],
+        ["targetId", event.targetId, resolution.targetId],
+        ["hitId", event.hitId, resolution.hitId],
+        ["hitGroupId", event.hitGroupId, resolution.hitGroupId],
+        ["element", event.element, expectedElement]
+      ] as const) {
+        expectEqual(
+          context,
+          [...eventPath, field],
+          actual,
+          expected,
+          `application damage-event ${field}`
+        );
+      }
+    } else if (resolution.damageEventId !== null) {
+      addIssue(
+        context,
+        [...logPath, "damageEventId"],
+        "must reference an existing direct damage event"
+      );
+    }
+
+    const skipReason = expectedApplicationSkipReason(
+      result,
+      resolution
+    );
+    let expectedMultiplier = 0;
+    if (skipReason !== null) {
+      expectEqual(
+        context,
+        [...logPath, "decision", "kind"],
+        decision.kind,
+        "skipped",
+        "skipped application decision kind"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "evaluated"],
+        decision.evaluated,
+        false,
+        "skipped application evaluation"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "reason"],
+        decision.reason,
+        skipReason,
+        "skipped application reason"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "consumed"],
+        decision.consumed,
+        false,
+        "skipped application consumption"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "applicationMultiplier"],
+        decision.applicationMultiplier,
+        0,
+        "skipped application multiplier"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "allowed"],
+        decision.allowed,
+        false,
+        "skipped application permission"
+      );
+      if (skipReason === "miss") {
+        expectEqual(
+          context,
+          [...logPath, "damageEventId"],
+          log.damageEventId,
+          null,
+          "missed application damage event"
+        );
+      } else if (log.damageEventId === null) {
+        addIssue(
+          context,
+          [...logPath, "damageEventId"],
+          `${skipReason} application attempt must retain its landed damage event`
+        );
+      }
+    } else if (application.icd.mode === "no-icd-v1") {
+      expectedMultiplier = 1;
+      expectEqual(
+        context,
+        [...logPath, "decision", "kind"],
+        decision.kind,
+        "no-icd",
+        "no-ICD decision kind"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "evaluated"],
+        decision.evaluated,
+        true,
+        "no-ICD evaluation"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "consumed"],
+        decision.consumed,
+        false,
+        "no-ICD state consumption"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "applicationMultiplier"],
+        decision.applicationMultiplier,
+        1,
+        "no-ICD application multiplier"
+      );
+      expectEqual(
+        context,
+        [...logPath, "decision", "allowed"],
+        decision.allowed,
+        true,
+        "no-ICD application permission"
+      );
+      for (const field of APPLICATION_WINDOW_FIELDS) {
+        expectEqual(
+          context,
+          [...logPath, "decision", field],
+          decision[field],
+          null,
+          `no-ICD ${field}`
+        );
+      }
+      expectEqual(
+        context,
+        [...logPath, "decision", "resetSchedulePolicy"],
+        decision.resetSchedulePolicy,
+        "bypass",
+        "no-ICD reset schedule"
+      );
+    } else if (
+      application.icd.mode === "legacy-boolean-profile-v1"
+    ) {
+      const selector = application.icd;
+      const profile = resolveLegacyApplicationProfile(
+        result,
+        selector.profileId,
+        context,
+        [...logPath, "selector", "profileId"]
+      );
+      if (profile !== undefined) {
+        const scope =
+          selector.profileId === "burning"
+            ? JSON.stringify([resolution.targetId, "burning"])
+            : JSON.stringify([
+                resolution.targetId,
+                resolution.sourceActorId,
+                selector.icdTag,
+                selector.profileId
+              ]);
+        let window = legacyWindows.get(scope);
+        if (
+          window === undefined ||
+          resolution.frame >= window.resetAtFrame
+        ) {
+          const resetAtFrame = resolution.frame + profile.resetFrames;
+          if (!Number.isSafeInteger(resetAtFrame)) {
+            addIssue(
+              context,
+              [...logPath, "decision", "resetAtFrame"],
+              "legacy ICD reset boundary exceeds the safe integer range"
+            );
+          }
+          window = {
+            startFrame: resolution.frame,
+            resetAtFrame,
+            resetFrames: profile.resetFrames,
+            startGroup: selector.profileId,
+            hitCount: 0
+          };
+        }
+        const hitIndex = window.hitCount;
+        const sequenceIndex =
+          profile.tailPolicy === "clamp"
+            ? Math.min(
+                hitIndex,
+                profile.applicationSequence.length - 1
+              )
+            : hitIndex % profile.applicationSequence.length;
+        expectedMultiplier = profile.applicationSequence[
+          sequenceIndex
+        ]
+          ? 1
+          : 0;
+        const expectedFields: ReadonlyArray<
+          readonly [string, unknown]
+        > = [
+          ["kind", "legacy-profile"],
+          ["evaluated", true],
+          ["consumed", true],
+          ["applicationMultiplier", expectedMultiplier],
+          ["allowed", expectedMultiplier > 0],
+          [
+            "scope",
+            selector.profileId === "burning"
+              ? "target-global-burning"
+              : "actor-tag-profile"
+          ],
+          ["profileId", selector.profileId],
+          ["icdTag", selector.icdTag],
+          ["groupId", null],
+          ["windowStartGroupId", null],
+          ["resetFrames", window.resetFrames],
+          ["windowStartFrame", window.startFrame],
+          ["resetAtFrame", window.resetAtFrame],
+          ["hitIndex", hitIndex],
+          ["sequenceIndex", sequenceIndex],
+          ["tailPolicy", profile.tailPolicy],
+          [
+            "resetSchedulePolicy",
+            "window-start-plus-reset-frames"
+          ]
+        ];
+        for (const [field, expected] of expectedFields) {
+          expectEqual(
+            context,
+            [...logPath, "decision", field],
+            decision[field],
+            expected,
+            `replayed legacy application ${field}`
+          );
+        }
+        for (const [field, value, positive] of [
+          ["resetFrames", decision.resetFrames, true],
+          ["windowStartFrame", decision.windowStartFrame, false],
+          ["resetAtFrame", decision.resetAtFrame, false],
+          ["hitIndex", decision.hitIndex, false],
+          ["sequenceIndex", decision.sequenceIndex, false]
+        ] as const) {
+          (positive
+            ? expectPositiveSafeInteger
+            : expectNonNegativeSafeInteger)(
+            context,
+            [...logPath, "decision", field],
+            value,
+            `trusted legacy application ${field}`
+          );
+        }
+        window.hitCount += 1;
+        legacyWindows.set(scope, window);
+      }
+    } else {
+      const selector = application.icd;
+      const group = resolveElementalApplicationGroup(
+        selector.groupId
+      );
+      const scope = JSON.stringify([
+        resolution.targetId,
+        resolution.sourceActorId,
+        selector.icdTag
+      ]);
+      let window = fixedWindows.get(scope);
+      if (
+        window === undefined ||
+        resolution.frame >= window.resetAtFrame
+      ) {
+        const resetAtFrame =
+          resolution.frame + group.resetFrames - 1;
+        if (!Number.isSafeInteger(resetAtFrame)) {
+          addIssue(
+            context,
+            [...logPath, "decision", "resetAtFrame"],
+            "fixed application reset boundary exceeds the safe integer range"
+          );
+        }
+        window = {
+          startFrame: resolution.frame,
+          resetAtFrame,
+          resetFrames: group.resetFrames,
+          startGroup: group.id,
+          hitCount: 0
+        };
+      }
+      const hitIndex = window.hitCount;
+      const sequenceIndex = Math.min(
+        hitIndex,
+        group.applicationSequence.length - 1
+      );
+      expectedMultiplier =
+        group.applicationSequence[sequenceIndex] ?? 0;
+      const expectedFields: ReadonlyArray<
+        readonly [string, unknown]
+      > = [
+        ["kind", "fixed-gcsim"],
+        ["evaluated", true],
+        ["consumed", true],
+        ["applicationMultiplier", expectedMultiplier],
+        ["allowed", expectedMultiplier > 0],
+        ["scope", "actor-tag"],
+        ["profileId", GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID],
+        ["icdTag", selector.icdTag],
+        ["groupId", selector.groupId],
+        ["windowStartGroupId", window.startGroup],
+        ["resetFrames", window.resetFrames],
+        ["windowStartFrame", window.startFrame],
+        ["resetAtFrame", window.resetAtFrame],
+        ["hitIndex", hitIndex],
+        ["sequenceIndex", sequenceIndex],
+        ["tailPolicy", "clamp"],
+        [
+          "resetSchedulePolicy",
+          "window-start-plus-reset-frames-minus-one"
+        ]
+      ];
+      for (const [field, expected] of expectedFields) {
+        expectEqual(
+          context,
+          [...logPath, "decision", field],
+          decision[field],
+          expected,
+          `replayed fixed application ${field}`
+        );
+      }
+      for (const [field, value, positive] of [
+        ["resetFrames", decision.resetFrames, true],
+        ["windowStartFrame", decision.windowStartFrame, false],
+        ["resetAtFrame", decision.resetAtFrame, false],
+        ["hitIndex", decision.hitIndex, false],
+        ["sequenceIndex", decision.sequenceIndex, false]
+      ] as const) {
+        (positive
+          ? expectPositiveSafeInteger
+          : expectNonNegativeSafeInteger)(
+          context,
+          [...logPath, "decision", field],
+          value,
+          `trusted fixed application ${field}`
+        );
+      }
+      window.hitCount += 1;
+      fixedWindows.set(scope, window);
+    }
+
+    const expectedEffectiveGauge =
+      application.gaugeUnits * expectedMultiplier;
+    if (!Number.isFinite(expectedEffectiveGauge)) {
+      addIssue(
+        context,
+        [...logPath, "effectiveGaugeUnits"],
+        "replayed effective application Gauge must be finite"
+      );
+    } else {
+      expectNearlyEqual(
+        context,
+        [...logPath, "effectiveGaugeUnits"],
+        log.effectiveGaugeUnits,
+        expectedEffectiveGauge,
+        "replayed effective application Gauge"
+      );
+    }
+    validateApplicationReactionAuditV147(
+      result,
+      context,
+      logPath,
+      event,
+      expectedElement,
+      application.icd,
+      skipReason,
+      expectedMultiplier,
+      expectedEffectiveGauge
+    );
+  }
+
+  for (const attempt of attempts) {
+    if (!loggedResolutionIds.has(attempt.resolution.id)) {
+      addIssue(
+        context,
+        ["elementalApplicationIcdLog"],
+        `missing configured application attempt for hit-resolution ${attempt.resolution.id}`
       );
     }
   }
@@ -15187,6 +16601,52 @@ export function validateSimulationResultV146Integrity(
 }
 
 /**
+ * The target-phase-v3 proof was frozen before the 1.47 result identity and
+ * intentionally accepts only its 1.44-1.46 identity envelope. Project only
+ * the top-level identity seen by that proof: all target-phase/config/result
+ * data remains the original 1.47 value and is still checked byte-for-byte by
+ * the frozen validator. The real 1.47 identity is validated separately by
+ * validateIdentityV147 before this compatibility call.
+ */
+function validateTargetPhaseV3IntegrityV147(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  const frozenIdentityResult = {
+    ...result,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    config: {
+      ...result.config,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    }
+  } as unknown as SimulationResult;
+
+  validateTargetPhaseV3Integrity(frozenIdentityResult, context);
+}
+
+/**
+ * Cross-field proof for exact 1.47 results. The application-ICD facet is
+ * replayed independently from config and the pinned mechanics root below;
+ * all unchanged 1.46 mechanics proofs remain in force.
+ */
+export function validateSimulationResultV147Integrity(
+  result: SimulationResult,
+  context: RefinementCtx
+): void {
+  validateIdentityV147(result, context);
+  validateReactionFormulaProfileV145(result, context);
+  validateDirectDamageGroupV146(result, context);
+  validateElementalApplicationIcdV147(result, context);
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
+  validateTargetPhaseV3IntegrityV147(result, context);
+}
+
+/**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
  *
  * Internal results have already passed TypeScript construction and the
@@ -15237,7 +16697,7 @@ export function assertTrustedSimulationResultV142(
 }
 
 /**
- * Trusted assertion for current 1.44 results produced inside sim-core.
+ * Trusted assertion for frozen 1.44 results produced inside sim-core.
  * The common path is zero-copy; v2 results that contain an EC expiry or
  * cleanup transition additionally run the dedicated reference facet.
  */
@@ -15302,7 +16762,7 @@ export function assertTrustedSimulationResultV144(
   return result;
 }
 
-/** Trusted, zero-copy assertion for current 1.45 fixed-profile results. */
+/** Trusted, zero-copy assertion for frozen 1.45 fixed-profile results. */
 export function assertTrustedSimulationResultV145(
   result: SimulationResult
 ): SimulationResult {
@@ -15364,7 +16824,7 @@ export function assertTrustedSimulationResultV145(
   return result;
 }
 
-/** Trusted, zero-copy assertion for current 1.46 fixed-root results. */
+/** Trusted, zero-copy assertion for frozen 1.46 fixed-root results. */
 export function assertTrustedSimulationResultV146(
   result: SimulationResult
 ): SimulationResult {
@@ -15426,11 +16886,73 @@ export function assertTrustedSimulationResultV146(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.47 fixed-root results. */
+export function assertTrustedSimulationResultV147(
+  result: SimulationResult
+): SimulationResult {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV147Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${
+            issue.message
+          }`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.47 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV146Integrity;
+  validateSimulationResultV147Integrity;
 export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV146;
+  assertTrustedSimulationResultV147;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

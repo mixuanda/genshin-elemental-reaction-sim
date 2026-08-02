@@ -16,8 +16,7 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "burning-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -423,8 +422,11 @@ describe("aura-v4 Burning lifecycle", () => {
         element: "pyro",
         application: {
           gaugeUnits: 1,
-          icdTag: "burning-application",
-          icdGroup: "burning"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "burning-application",
+            profileId: "burning"
+          }
         }
       });
       return {

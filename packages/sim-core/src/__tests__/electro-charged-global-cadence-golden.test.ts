@@ -1,17 +1,29 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
+} from "@genshin-dps-lab/icd-profiles";
+import {
   assertTrustedSimulationResult,
   canonicalStringify,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+  EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   electroChargedCleanupResultReferencesSchema,
   electroChargedGlobalCadenceGoldenFixtureV142Schema,
   electroChargedGlobalCadenceGoldenScenarioIdsV142,
+  LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
   playerDamageResultReferencesSchema,
   reactionDeliveryResultReferencesSchema,
   simulationResultSchema,
   targetPhaseV2ResultReferencesSchema,
   type FrameHitDefinition,
   type SimConfig,
+  type SimulationRunManifestV142,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
@@ -55,8 +67,7 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icdTag: id,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     },
     ...(hitlagFrames === undefined
       ? {}
@@ -66,6 +77,193 @@ function applicationHit({
             factor: 0
           }
         })
+  };
+}
+
+interface ExpectedNoIcdApplication {
+  hitId: string;
+  frame: number;
+  gaugeUnits: number;
+}
+
+const NO_ICD_DECISION = {
+  kind: "no-icd",
+  evaluated: true,
+  consumed: false,
+  applicationMultiplier: 1,
+  allowed: true,
+  scope: null,
+  profileId: null,
+  icdTag: null,
+  groupId: null,
+  windowStartGroupId: null,
+  resetFrames: null,
+  windowStartFrame: null,
+  resetAtFrame: null,
+  hitIndex: null,
+  sequenceIndex: null,
+  tailPolicy: null,
+  resetSchedulePolicy: "bypass"
+} as const;
+
+function expectCurrentNoIcdApplicationContract(
+  result: SimulationResult,
+  expected: readonly ExpectedNoIcdApplication[]
+): void {
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.config.elementalApplicationIcdModel).toEqual({
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  });
+  expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+    GCSIM_ELEMENTAL_APPLICATION_ROOT
+  );
+  expect(
+    result.config.timeline?.abilities.flatMap((ability) =>
+      (ability.hits ?? []).flatMap((hit) =>
+        hit.application === undefined
+          ? []
+          : [
+              {
+                hitId: hit.id,
+                application: hit.application
+              }
+            ]
+      )
+    )
+  ).toEqual(
+    expected.map(({ hitId, gaugeUnits }) => ({
+      hitId,
+      application: {
+        gaugeUnits,
+        icd: { mode: "no-icd-v1" }
+      }
+    }))
+  );
+  expect(
+    result.elementalApplicationIcdLog.map((entry) => ({
+      id: entry.id,
+      frame: entry.frame,
+      sourceActorId: entry.sourceActorId,
+      targetId: entry.targetId,
+      hitId: entry.hitId,
+      selector: entry.selector,
+      nominalGaugeUnits: entry.nominalGaugeUnits,
+      effectiveGaugeUnits: entry.effectiveGaugeUnits,
+      decision: entry.decision
+    }))
+  ).toEqual(
+    expected.map(({ hitId, frame, gaugeUnits }, id) => ({
+      id,
+      frame,
+      sourceActorId: "driver",
+      targetId: "enemy-0",
+      hitId,
+      selector: { mode: "no-icd-v1" },
+      nominalGaugeUnits: gaugeUnits,
+      effectiveGaugeUnits: gaugeUnits,
+      decision: NO_ICD_DECISION
+    }))
+  );
+}
+
+/**
+ * Before 1.47, a no-ICD application copied its configured hit id and the
+ * `no-icd` group into the direct damage reaction audit. The 1.47 decision is
+ * represented by the explicit selector/log and therefore carries null audit
+ * stream fields. Recreate only that frozen presentation for old Goldens.
+ */
+function projectDamageEventsToFrozenNoIcd(
+  result: SimulationResult
+): SimulationResult["damageEvents"] {
+  const legacyAuditByDamageEventId = new Map(
+    result.elementalApplicationIcdLog.flatMap((entry) =>
+      entry.damageEventId === null ||
+      entry.selector.mode !== "no-icd-v1"
+        ? []
+        : [
+            [
+              entry.damageEventId,
+              {
+                icdAllowed: entry.decision.allowed,
+                icdTag: entry.hitId,
+                icdGroup: "no-icd" as const
+              }
+            ] as const
+          ]
+    )
+  );
+  return result.damageEvents.map((event) => {
+    const legacyAudit = legacyAuditByDamageEventId.get(event.id);
+    return legacyAudit === undefined
+      ? event
+      : {
+          ...event,
+          reactionAudit: {
+            ...event.reactionAudit,
+            ...legacyAudit
+          }
+        };
+  });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function projectNoIcdSelectorsToLegacyWire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectNoIcdSelectorsToLegacyWire);
+  }
+  if (!isRecord(value)) return value;
+
+  const projected = Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [
+      key,
+      projectNoIcdSelectorsToLegacyWire(entry)
+    ])
+  );
+  if (!Object.prototype.hasOwnProperty.call(value, "application")) {
+    return projected;
+  }
+  if (
+    typeof value.id !== "string" ||
+    !isRecord(value.application) ||
+    typeof value.application.gaugeUnits !== "number" ||
+    !isRecord(value.application.icd) ||
+    value.application.icd.mode !== "no-icd-v1"
+  ) {
+    throw new Error(
+      "EC global-cadence frozen projection requires explicit no-icd-v1 hit applications."
+    );
+  }
+  return {
+    ...projected,
+    application: {
+      gaugeUnits: value.application.gaugeUnits,
+      icdTag: value.id,
+      icdGroup: "no-icd"
+    }
+  };
+}
+
+function projectCurrentConfigToFrozenV142(
+  config: SimConfig
+): Record<string, unknown> {
+  const {
+    reactionFormulaModel: _reactionFormulaModel,
+    directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel: _elementalApplicationIcdModel,
+    ...frozenConfig
+  } = structuredClone(config);
+  return {
+    ...(projectNoIcdSelectorsToLegacyWire(frozenConfig) as Record<
+      string,
+      unknown
+    >),
+    schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+    engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION
   };
 }
 
@@ -299,6 +497,8 @@ function makePureEcHitlag120Config(): SimConfig {
 }
 
 function projectScenario(result: SimulationResult) {
+  const frozenDamageEvents =
+    projectDamageEventsToFrozenNoIcd(result);
   const componentTotals = result.damageEvents.reduce(
     (totals, event) => ({
       direct:
@@ -349,7 +549,7 @@ function projectScenario(result: SimulationResult) {
         (entry) => entry.reaction === "electroCharged"
       ),
     reactionDamageLog: result.reactionDamageLog,
-    damageEvents: result.damageEvents,
+    damageEvents: frozenDamageEvents,
     hitResolutionLog: result.hitResolutionLog,
     damageCurve: result.damageCurve,
     byCharacter: result.byCharacter,
@@ -383,33 +583,63 @@ type CadenceGoldenScenario = ReturnType<
   typeof projectScenario
 >;
 
+type FrozenV142CadenceGoldenScenario = Omit<
+  CadenceGoldenScenario,
+  "identity"
+> & {
+  identity: Omit<
+    CadenceGoldenScenario["identity"],
+    | "schemaVersion"
+    | "engineVersion"
+    | "configHash"
+    | "reproducibilityKey"
+  > & {
+    schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
+    engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
+    configHash: string;
+    reproducibilityKey: string;
+  };
+};
+
+function projectScenarioToFrozenV142(
+  result: SimulationResult
+): FrozenV142CadenceGoldenScenario {
+  const scenario = projectScenario(result);
+  const frozenConfig = projectCurrentConfigToFrozenV142(
+    result.config
+  );
+  const configHash = createSimulationConfigHash(frozenConfig);
+  const runIdentity = {
+    version: LEGACY_SIMULATION_RUN_MANIFEST_VERSION,
+    identityAlgorithm: result.runManifest.identityAlgorithm,
+    schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+    engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+    dataVersion: result.runManifest.dataVersion,
+    configHash,
+    resolvedRuntimeOptions:
+      result.runManifest.resolvedRuntimeOptions,
+    plugins: result.runManifest.plugins
+  } satisfies Omit<
+    SimulationRunManifestV142,
+    "reproducibilityKey"
+  >;
+  return {
+    ...scenario,
+    identity: {
+      ...scenario.identity,
+      schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+      engineVersion: EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
+      configHash,
+      reproducibilityKey:
+        createSimulationReproducibilityKey(runIdentity)
+    }
+  };
+}
+
 function semanticHash(value: unknown): string {
   return createHash("sha256")
     .update(canonicalStringify(value))
     .digest("hex");
-}
-
-function withoutWireIdentity<
-  TScenario extends {
-    identity: {
-      schemaVersion: string;
-      engineVersion: string;
-      configHash: string;
-      reproducibilityKey: string;
-    };
-  }
->(scenario: TScenario) {
-  const {
-    schemaVersion: _schemaVersion,
-    engineVersion: _engineVersion,
-    configHash: _configHash,
-    reproducibilityKey: _reproducibilityKey,
-    ...stableIdentity
-  } = scenario.identity;
-  return {
-    ...scenario,
-    identity: stableIdentity
-  };
 }
 
 function expectDamageConservation(
@@ -499,38 +729,61 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
     const runs: Array<{
       id: CadenceGoldenScenarioId;
       config: SimConfig;
+      expectedApplications: readonly ExpectedNoIcdApplication[];
     }> = [
       {
         id: "longHitlagNoRestoreStop",
-        config: makeLongHitlagConfig()
+        config: makeLongHitlagConfig(),
+        expectedApplications: [
+          { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
+          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 }
+        ]
       },
       {
         id: "longHitlagRestoreF70Scheduled",
         config: makeLongHitlagConfig({
           restoreFrame: 70
-        })
+        }),
+        expectedApplications: [
+          { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
+          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
+          { hitId: "hydro-restore-70", frame: 70, gaugeUnits: 1 }
+        ]
       },
       {
         id: "longHitlagRestoreF71Dormant",
         config: makeLongHitlagConfig({
           restoreFrame: 71
-        })
+        }),
+        expectedApplications: [
+          { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
+          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
+          { hitId: "hydro-restore-71", frame: 71, gaugeUnits: 1 }
+        ]
       },
       {
         id: "longHitlagRestoreF5EndedBeforeDeadline",
         config: makeLongHitlagConfig({
           restoreFrame: 5,
           restoreGaugeUnits: 0.5
-        })
+        }),
+        expectedApplications: [
+          { hitId: "dendro-quicken", frame: 0, gaugeUnits: 0.2 },
+          { hitId: "electro-stream", frame: 0, gaugeUnits: 0.8 },
+          { hitId: "hydro-restore-5", frame: 5, gaugeUnits: 0.5 }
+        ]
       },
       {
         id: "pureEcHitlag120GlobalCadence",
-        config: makePureEcHitlag120Config()
+        config: makePureEcHitlag120Config(),
+        expectedApplications: [
+          { hitId: "ec-start-hit", frame: 0, gaugeUnits: 2 }
+        ]
       }
     ];
     const scenarios = {} as Record<
       CadenceGoldenScenarioId,
-      CadenceGoldenScenario
+      FrozenV142CadenceGoldenScenario
     >;
     for (const run of runs) {
       const first = simulate(run.config, {
@@ -554,8 +807,12 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       expect(
         playerDamageResultReferencesSchema.parse(first)
       ).toEqual(first);
+      expectCurrentNoIcdApplicationContract(
+        first,
+        run.expectedApplications
+      );
       expectDamageConservation(first);
-      scenarios[run.id] = projectScenario(first);
+      scenarios[run.id] = projectScenarioToFrozenV142(first);
     }
 
     expect(Object.keys(scenarios).sort()).toEqual(
@@ -569,9 +826,8 @@ describe("Aura-v9 Electro-Charged global cadence Golden", () => {
       expect(semanticHash(fixture.scenarios[id])).toBe(
         fixture.hashes[id]
       );
-      expect(withoutWireIdentity(scenarios[id])).toEqual(
-        withoutWireIdentity(fixture.scenarios[id])
-      );
+      expect(semanticHash(scenarios[id])).toBe(fixture.hashes[id]);
+      expect(scenarios[id]).toEqual(fixture.scenarios[id]);
     }
 
     const noRestore =

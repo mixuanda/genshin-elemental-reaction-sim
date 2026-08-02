@@ -120,7 +120,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/
+    /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 
@@ -131,7 +131,7 @@ function expectRejectedByTrustedOnly(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/
+    /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 
@@ -143,6 +143,7 @@ function projectCurrentBypassResultToV145(
     unknown
   >;
   delete projected.directDamageGroupLog;
+  delete projected.elementalApplicationIcdLog;
   projected.schemaVersion = REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   projected.engineVersion = REACTION_FORMULA_ROOT_ENGINE_VERSION;
 
@@ -150,12 +151,14 @@ function projectCurrentBypassResultToV145(
   config.schemaVersion = REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   config.engineVersion = REACTION_FORMULA_ROOT_ENGINE_VERSION;
   delete config.directDamageGroupModel;
+  delete config.elementalApplicationIcdModel;
 
   const manifest = projected.runManifest as Record<string, unknown>;
   manifest.version = REACTION_FORMULA_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   manifest.engineVersion = REACTION_FORMULA_ROOT_ENGINE_VERSION;
   delete manifest.directDamageGroupRoot;
+  delete manifest.elementalApplicationIcdRoot;
   manifest.configHash = createSimulationConfigHash(
     config as unknown as VersionedSimConfig
   );

@@ -4,7 +4,8 @@ import {
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -21,6 +22,13 @@ function createFixedDirectDamageGroupModel() {
   return {
     mode: "fixed-gcsim-direct-damage-group-v1",
     profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+  } as const;
+}
+
+function createFixedElementalApplicationIcdModel() {
+  return {
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   } as const;
 }
 
@@ -51,6 +59,8 @@ export const durinMeltPreset: SimConfig = {
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
+  elementalApplicationIcdModel:
+    createFixedElementalApplicationIcdModel(),
   characters: [
     {
       id: "durin",
@@ -498,6 +508,8 @@ export const blankPreset: SimConfig = {
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
+  elementalApplicationIcdModel:
+    createFixedElementalApplicationIcdModel(),
   characters: [
     {
       id: "a",
@@ -597,6 +609,8 @@ export const legalTimelineDemoPreset: SimConfig = {
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
+  elementalApplicationIcdModel:
+    createFixedElementalApplicationIcdModel(),
   characters: [
     {
       id: "frame-a",
@@ -777,6 +791,8 @@ export const auraReactionDemoPreset: SimConfig = {
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
+  elementalApplicationIcdModel:
+    createFixedElementalApplicationIcdModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -810,8 +826,7 @@ export const auraReactionDemoPreset: SimConfig = {
             element: "cryo",
             application: {
               gaugeUnits: 1,
-              icdTag: "none",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             snapshot: "hit"
           }
@@ -834,8 +849,11 @@ export const auraReactionDemoPreset: SimConfig = {
           element: "pyro" as const,
           application: {
             gaugeUnits: 1,
-            icdTag: "m3-pyro-multihit",
-            icdGroup: "default" as const
+            icd: {
+              mode: "fixed-gcsim-application-v1" as const,
+              icdTag: "m3-pyro-multihit",
+              groupId: "default" as const
+            }
           },
           snapshot: "hit" as const
         }))
@@ -879,6 +897,8 @@ export const particleEnergyDemoPreset: SimConfig = {
   electroChargedPropagationModel: { mode: "single-target-v1" },
   reactionFormulaModel: createClassicReactionFormulaModel(),
   directDamageGroupModel: createFixedDirectDamageGroupModel(),
+  elementalApplicationIcdModel:
+    createFixedElementalApplicationIcdModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

@@ -4,10 +4,14 @@ import {
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
 import {
+  GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
-  type GcsimDamageGroupId
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  type GcsimDamageGroupId,
+  type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
   ACTOR_POSE_SCHEMA_VERSION,
@@ -24,6 +28,7 @@ import {
   CRYSTALLIZE_REACTION_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
@@ -37,6 +42,9 @@ import {
   ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
   ELECTRO_CHARGED_REACTION_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
   FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
@@ -65,7 +73,6 @@ import {
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
   SECTOR_GEOMETRY_SCHEMA_VERSION,
   SUPERCONDUCT_REACTION_SCHEMA_VERSION,
   SWIRL_REACTION_SCHEMA_VERSION,
@@ -84,6 +91,7 @@ import {
   type SimConfigV144,
   type SimConfigV145,
   type SimConfigV146,
+  type SimConfigV147,
   type SimulationRunManifest
 } from "./types";
 import {
@@ -542,6 +550,7 @@ const rejectInheritedVersionedResultIdentity = (
     "reactionEngine",
     "reactionFormulaModel",
     "directDamageGroupModel",
+    "elementalApplicationIcdModel",
     "targetClockModel",
     "targetTaskModel",
     "reactionDeliveryModel",
@@ -564,7 +573,8 @@ const rejectInheritedVersionedResultIdentity = (
       );
       if (
         modelField === "reactionFormulaModel" ||
-        modelField === "directDamageGroupModel"
+        modelField === "directDamageGroupModel" ||
+        modelField === "elementalApplicationIcdModel"
       ) {
         requireOwnWhenPresent(
           model as Record<string, unknown>,
@@ -617,12 +627,29 @@ export const directDamageGroupModelSchema = z
   })
   .strict();
 
+export const elementalApplicationIcdModelSchema = z
+  .object({
+    mode: z.literal("fixed-gcsim-elemental-application-v1"),
+    profileId: z.literal(GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID)
+  })
+  .strict();
+
 const gcsimDamageGroupIds = GCSIM_DAMAGE_GROUP_PROFILE.groups.map(
   (group) => group.id
 ) as [GcsimDamageGroupId, ...GcsimDamageGroupId[]];
 
 export const directDamageGroupIdSchema = z.enum(
   gcsimDamageGroupIds
+);
+
+const configurableElementalApplicationGroupIds =
+  GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS as readonly [
+    PublicGcsimElementalApplicationGroupId,
+    ...PublicGcsimElementalApplicationGroupId[]
+  ];
+
+export const elementalApplicationIcdGroupIdSchema = z.enum(
+  configurableElementalApplicationGroupIds
 );
 
 const directDamageGroupTagSchema = wireNonEmptyStringSchema
@@ -710,6 +737,35 @@ export const directDamageGroupRootSchema = z.preprocess(
     {
       message:
         "must exactly equal the compiled provisional direct-damage-group root"
+    }
+  )
+);
+
+const gcsimElementalApplicationRootCanonical = canonicalStringify(
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
+);
+
+/**
+ * Exact compiled numeric elemental-application ICD root. It is independent
+ * from the frozen 1.46 direct-damage-group root even though both are derived
+ * from the same pinned reference revision.
+ */
+export const elementalApplicationIcdRootSchema = z.preprocess(
+  rejectNonPlainJsonWire("elementalApplicationIcdRoot"),
+  z.custom<typeof GCSIM_ELEMENTAL_APPLICATION_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimElementalApplicationRootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled provisional elemental-application ICD root"
     }
   )
 );
@@ -944,7 +1000,7 @@ export const simulationRunManifestV145Schema = z.preprocess(
 
 const simulationRunManifestV146ValueSchema = z
   .object({
-    version: z.literal(SIMULATION_RUN_MANIFEST_VERSION),
+    version: z.literal(DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION),
     identityAlgorithm: z.literal(
       REPRODUCIBILITY_IDENTITY_ALGORITHM
     ),
@@ -1024,12 +1080,97 @@ export const simulationRunManifestV146Schema = z.preprocess(
   simulationRunManifestV146ValueSchema
 );
 
+const simulationRunManifestV147ValueSchema = z
+  .object({
+    version: z.literal(ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    ),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot:
+      elementalApplicationIcdRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV147Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV147ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV146Schema;
+  simulationRunManifestV147Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -1047,9 +1188,14 @@ export function parseSimulationRunManifestForConfig(
   const damageGroupModel = directDamageGroupModelSchema.safeParse(
     config.directDamageGroupModel
   );
+  const elementalApplicationIcdModel =
+    elementalApplicationIcdModelSchema.safeParse(
+      config.elementalApplicationIcdModel
+    );
   if (
     !formulaModel.success ||
     !damageGroupModel.success ||
+    !elementalApplicationIcdModel.success ||
     manifest.schemaVersion !== config.schemaVersion ||
     manifest.engineVersion !== config.engineVersion ||
     manifest.dataVersion !== config.dataVersion ||
@@ -1057,7 +1203,9 @@ export function parseSimulationRunManifestForConfig(
     manifest.reactionFormulaRoot.profileId !==
       formulaModel.data.profileId ||
     manifest.directDamageGroupRoot.profileId !==
-      damageGroupModel.data.profileId
+      damageGroupModel.data.profileId ||
+    manifest.elementalApplicationIcdRoot.profileId !==
+      elementalApplicationIcdModel.data.profileId
   ) {
     throw new Error(
       "Simulation run manifest is not bound to the supplied migrated config."
@@ -1215,11 +1363,52 @@ export const reactionSchema = z.enum([
 
 export const scalingStatSchema = z.enum(["atk", "hp", "def", "em"]);
 
-export const elementalApplicationSchema = z
+/** Exact frozen elemental-application wire used through schema 1.46. */
+export const elementalApplicationV146Schema = z
   .object({
     gaugeUnits: finiteNumber.positive().max(20),
     icdTag: idSchema,
     icdGroup: idSchema
+  })
+  .strict();
+
+/** Historical alias retained for callers auditing frozen result/config wires. */
+export const elementalApplicationSchema =
+  elementalApplicationV146Schema;
+
+export const elementalApplicationIcdSelectorSchema =
+  z.discriminatedUnion("mode", [
+    z
+      .object({
+        mode: z.literal("no-icd-v1")
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal("legacy-boolean-profile-v1"),
+        icdTag: idSchema,
+        profileId: idSchema.refine(
+          (profileId) => profileId !== "no-icd",
+          {
+            message:
+              'profileId "no-icd" must use the explicit no-icd-v1 selector'
+          }
+        )
+      })
+      .strict(),
+    z
+      .object({
+        mode: z.literal("fixed-gcsim-application-v1"),
+        icdTag: idSchema,
+        groupId: elementalApplicationIcdGroupIdSchema
+      })
+      .strict()
+  ]);
+
+export const elementalApplicationV147Schema = z
+  .object({
+    gaugeUnits: finiteNumber.positive().max(20),
+    icd: elementalApplicationIcdSelectorSchema
   })
   .strict();
 
@@ -9030,6 +9219,23 @@ const hasExactDirectDamageGroupRootIdentity = (result: {
   result.config.engineVersion ===
     DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
 
+const hasExactElementalApplicationIcdRootIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion ===
+    ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+  result.engineVersion ===
+    ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+  result.config.engineVersion ===
+    ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
     typeof hasExactBurningCallbackDeliveryIdentity
@@ -9037,7 +9243,8 @@ const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
 ): boolean =>
   hasExactBurningCallbackDeliveryIdentity(result) ||
   hasExactReactionFormulaRootIdentity(result) ||
-  hasExactDirectDamageGroupRootIdentity(result);
+  hasExactDirectDamageGroupRootIdentity(result) ||
+  hasExactElementalApplicationIcdRootIdentity(result);
 
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
@@ -9103,6 +9310,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION]: {
     engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION]: {
+    engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -14496,15 +14707,24 @@ const forEachDirectDamageGroupHit = (
   wire: Record<string, unknown>,
   visitor: (
     hit: Record<string, unknown>,
-    path: Array<string | number>
+    path: Array<string | number>,
+    actorId: string | undefined
   ) => void
 ): void => {
   if (Array.isArray(wire.rotation)) {
     wire.rotation.forEach((action, actionIndex) => {
       if (!isRecord(action) || !Array.isArray(action.hits)) return;
+      const actorId =
+        typeof action.actorId === "string"
+          ? action.actorId.trim()
+          : undefined;
       action.hits.forEach((hit, hitIndex) => {
         if (!isRecord(hit)) return;
-        visitor(hit, ["rotation", actionIndex, "hits", hitIndex]);
+        visitor(
+          hit,
+          ["rotation", actionIndex, "hits", hitIndex],
+          actorId
+        );
       });
     });
   }
@@ -14514,15 +14734,23 @@ const forEachDirectDamageGroupHit = (
   ) {
     wire.timeline.abilities.forEach((ability, abilityIndex) => {
       if (!isRecord(ability) || !Array.isArray(ability.hits)) return;
+      const actorId =
+        typeof ability.actorId === "string"
+          ? ability.actorId.trim()
+          : undefined;
       ability.hits.forEach((hit, hitIndex) => {
         if (!isRecord(hit)) return;
-        visitor(hit, [
-          "timeline",
-          "abilities",
-          abilityIndex,
-          "hits",
-          hitIndex
-        ]);
+        visitor(
+          hit,
+          [
+            "timeline",
+            "abilities",
+            abilityIndex,
+            "hits",
+            hitIndex
+          ],
+          actorId
+        );
       });
     });
   }
@@ -14794,11 +15022,360 @@ export const simConfigV146Schema = z.preprocess(
   simConfigV146ValueSchema
 );
 
+const projectElementalApplicationV147ToV146 = (
+  application: unknown
+): unknown => {
+  const parsed = elementalApplicationV147Schema.safeParse(
+    application
+  );
+  if (!parsed.success) return application;
+  const { gaugeUnits, icd } = parsed.data;
+  if (icd.mode === "legacy-boolean-profile-v1") {
+    return {
+      gaugeUnits,
+      icdTag: icd.icdTag,
+      icdGroup: icd.profileId
+    };
+  }
+  return {
+    gaugeUnits,
+    icdTag:
+      icd.mode === "fixed-gcsim-application-v1"
+        ? icd.icdTag
+        : "__no_icd_v1__",
+    icdGroup: "no-icd"
+  };
+};
+
+const projectElementalApplicationHitV147ToV146 = (
+  hit: unknown
+): unknown => {
+  if (
+    !isRecord(hit) ||
+    !Object.prototype.hasOwnProperty.call(hit, "application")
+  ) {
+    return hit;
+  }
+  return {
+    ...hit,
+    application: projectElementalApplicationV147ToV146(
+      hit.application
+    )
+  };
+};
+
+/** Project the 1.47-only model and selector onto exact frozen 1.46. */
+const projectSimConfigV147ToV146 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    elementalApplicationIcdModel: _elementalApplicationIcdModel,
+    ...frozenWire
+  } = wire;
+  const projectedRotation = Array.isArray(frozenWire.rotation)
+    ? frozenWire.rotation.map((action) =>
+        isRecord(action) && Array.isArray(action.hits)
+          ? {
+              ...action,
+              hits: action.hits.map(
+                projectElementalApplicationHitV147ToV146
+              )
+            }
+          : action
+      )
+    : frozenWire.rotation;
+  const rawTimeline = frozenWire.timeline;
+  const projectedTimeline =
+    isRecord(rawTimeline) && Array.isArray(rawTimeline.abilities)
+      ? {
+          ...rawTimeline,
+          abilities: rawTimeline.abilities.map((ability) =>
+            isRecord(ability) && Array.isArray(ability.hits)
+              ? {
+                  ...ability,
+                  hits: ability.hits.map(
+                    projectElementalApplicationHitV147ToV146
+                  )
+                }
+              : ability
+          )
+        }
+      : rawTimeline;
+  return {
+    ...frozenWire,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    rotation: projectedRotation,
+    ...(Object.prototype.hasOwnProperty.call(frozenWire, "timeline")
+      ? { timeline: projectedTimeline }
+      : {})
+  };
+};
+
+const restoreElementalApplicationHitArray = (
+  parsedHits: unknown,
+  rawHits: unknown
+): unknown => {
+  if (!Array.isArray(parsedHits) || !Array.isArray(rawHits)) {
+    return parsedHits;
+  }
+  return parsedHits.map((parsedHit, hitIndex) => {
+    const rawHit = rawHits[hitIndex];
+    if (
+      !isRecord(parsedHit) ||
+      !isRecord(rawHit) ||
+      !Object.prototype.hasOwnProperty.call(rawHit, "application")
+    ) {
+      return parsedHit;
+    }
+    return {
+      ...parsedHit,
+      application: elementalApplicationV147Schema.parse(
+        rawHit.application
+      )
+    };
+  });
+};
+
+const restoreElementalApplicationHitOwner = (
+  parsedOwner: unknown,
+  rawOwner: unknown
+): unknown => {
+  if (!isRecord(parsedOwner) || !isRecord(rawOwner)) {
+    return parsedOwner;
+  }
+  if (!Array.isArray(parsedOwner.hits)) return parsedOwner;
+  return {
+    ...parsedOwner,
+    hits: restoreElementalApplicationHitArray(
+      parsedOwner.hits,
+      rawOwner.hits
+    )
+  };
+};
+
+const simConfigV147ValueSchema = z
+  .custom<SimConfigV147>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (
+      wire.schemaVersion !==
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION}`
+      });
+    }
+    if (
+      wire.engineVersion !==
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel = wire.elementalApplicationIcdModel;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["elementalApplicationIcdModel"],
+        message:
+          "requires the explicit compiled provisional elemental-application ICD profile"
+      });
+    } else {
+      for (const field of ["mode", "profileId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: ["elementalApplicationIcdModel", field],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel = elementalApplicationIcdModelSchema.safeParse(
+        rawModel
+      );
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["elementalApplicationIcdModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    forEachDirectDamageGroupHit(wire, (hit, path, actorId) => {
+      if (
+        !Object.prototype.hasOwnProperty.call(hit, "application")
+      ) {
+        return;
+      }
+      const parsedApplication =
+        elementalApplicationV147Schema.safeParse(hit.application);
+      if (!parsedApplication.success) {
+        for (const issue of parsedApplication.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: [...path, "application", ...issue.path]
+          });
+        }
+        return;
+      }
+      const scalingOwnerId =
+        typeof hit.scalingOwnerId === "string"
+          ? hit.scalingOwnerId.trim()
+          : actorId;
+      const inheritedElement = Array.isArray(wire.characters)
+        ? wire.characters.find(
+            (character) =>
+              isRecord(character) &&
+              typeof character.id === "string" &&
+              character.id.trim() === scalingOwnerId
+          )?.element
+        : undefined;
+      const resolvedElement =
+        typeof hit.element === "string"
+          ? hit.element
+          : inheritedElement;
+      if (resolvedElement === "physical") {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "application"],
+          message:
+            "configured elemental applications cannot use physical damage, including an inherited scaling-owner element"
+        });
+      }
+      const selector = parsedApplication.data.icd;
+      const auraMode = isRecord(wire.reactionEngine)
+        ? wire.reactionEngine.mode
+        : undefined;
+      if (
+        selector.mode === "legacy-boolean-profile-v1" &&
+        selector.profileId === "burning" &&
+        (auraMode === "aura-v4" ||
+          auraMode === "aura-v5" ||
+          auraMode === "aura-v6" ||
+          auraMode === "aura-v7" ||
+          auraMode === "aura-v8" ||
+          auraMode === "aura-v9")
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "application", "icd", "profileId"],
+          message:
+            "configured direct-hit legacy burning ICD cannot share the reaction-owned Burning application stream; use a distinct declared legacy profile"
+        });
+      }
+      if (
+        selector.mode === "legacy-boolean-profile-v1" &&
+        selector.profileId !== "default" &&
+        selector.profileId !== "burning" &&
+        !(
+          isRecord(wire.reactionEngine) &&
+          isRecord(wire.reactionEngine.icdProfiles) &&
+          Object.prototype.hasOwnProperty.call(
+            wire.reactionEngine.icdProfiles,
+            selector.profileId
+          )
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [...path, "application", "icd", "profileId"],
+          message: `unknown legacy boolean ICD profile "${selector.profileId}"`
+        });
+      }
+    });
+
+    const parsed = simConfigV146Schema.safeParse(
+      projectSimConfigV147ToV146(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({
+        ...issue,
+        path: issue.path
+      });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV146Schema.parse(
+      projectSimConfigV147ToV146(wire)
+    );
+    const rawRotation = Array.isArray(wire.rotation)
+      ? wire.rotation
+      : [];
+    const rotation = parsed.rotation.map((action, actionIndex) =>
+      restoreElementalApplicationHitOwner(
+        action,
+        rawRotation[actionIndex]
+      )
+    );
+    const rawTimeline = isRecord(wire.timeline)
+      ? wire.timeline
+      : undefined;
+    const timeline =
+      parsed.timeline === undefined || rawTimeline === undefined
+        ? parsed.timeline
+        : {
+            ...parsed.timeline,
+            abilities: parsed.timeline.abilities.map(
+              (ability, abilityIndex) =>
+                restoreElementalApplicationHitOwner(
+                  ability,
+                  Array.isArray(rawTimeline.abilities)
+                    ? rawTimeline.abilities[abilityIndex]
+                    : undefined
+                )
+            )
+          };
+    return {
+      ...parsed,
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+      elementalApplicationIcdModel:
+        elementalApplicationIcdModelSchema.parse(
+          wire.elementalApplicationIcdModel
+        ),
+      rotation,
+      ...(timeline === undefined ? {} : { timeline })
+    } as unknown as SimConfigV147;
+  });
+
+export const simConfigV147Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV147ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV146Schema;
+export const simConfigSchema = simConfigV147Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -14841,6 +15418,11 @@ const simResultConfigSchema = z
         REACTION_FORMULA_ROOT_SCHEMA_VERSION &&
       wire.engineVersion ===
         REACTION_FORMULA_ROOT_ENGINE_VERSION;
+    const exact146Identity =
+      wire.schemaVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -14905,7 +15487,9 @@ const simResultConfigSchema = z
         ? simConfigV144Schema.safeParse(wire)
         : exact145Identity
           ? simConfigV145Schema.safeParse(wire)
-          : simConfigV146Schema.safeParse(wire);
+          : exact146Identity
+            ? simConfigV146Schema.safeParse(wire)
+            : simConfigV147Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -15750,7 +16334,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [REACTION_FORMULA_ROOT_SCHEMA_VERSION]:
     REACTION_FORMULA_ROOT_ENGINE_VERSION,
   [DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION]:
-    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  [ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION]:
+    ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -15975,7 +16561,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -17761,7 +18351,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -19944,7 +20538,45 @@ const electroChargedCleanupDamageEventReferenceSchema = z
   .passthrough();
 
 /**
- * Exact 1.40–1.42/1.44–1.46 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
+ * The EC cleanup facet predates 1.47, but it only reads the timeline's clock
+ * identity. Validate the complete timeline through an ephemeral 1.46
+ * application projection while returning the original 1.47 wire unchanged.
+ */
+const electroChargedCleanupTimelineReferenceSchema = z
+  .object({
+    mode: z.literal("legal-frame-v1"),
+    fps: z.literal(60)
+  })
+  .passthrough()
+  .superRefine((timeline, context) => {
+    const projected = {
+      ...timeline,
+      abilities: Array.isArray(timeline.abilities)
+        ? timeline.abilities.map((ability) =>
+            isRecord(ability) && Array.isArray(ability.hits)
+              ? {
+                  ...ability,
+                  hits: ability.hits.map(
+                    projectElementalApplicationHitV147ToV146
+                  )
+                }
+              : ability
+          )
+        : timeline.abilities
+    };
+    const parsed = legalTimelineConfigSchema.safeParse(projected);
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({
+        code: "custom",
+        path: issue.path,
+        message: issue.message
+      });
+    }
+  });
+
+/**
+ * Exact 1.40–1.42/1.44–1.47 cross-log proof for Aura-v8/v9 Electro-Charged cleanup
  * requested by Quicken→Bloom. This consumes a versioned config and the full
  * cleanup-owned logs while accepting unrelated SimulationResult fields.
  */
@@ -19958,7 +20590,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION),
       z.literal(BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION),
       z.literal(REACTION_FORMULA_ROOT_SCHEMA_VERSION),
-      z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION)
+      z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION),
+      z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -19966,7 +20599,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION),
       z.literal(BURNING_CALLBACK_DELIVERY_ENGINE_VERSION),
       z.literal(REACTION_FORMULA_ROOT_ENGINE_VERSION),
-      z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION)
+      z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION),
+      z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -19977,7 +20611,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
         reactionEngine: auraReactionEngineConfigSchema.optional(),
         targetClockModel: targetClockModelSchema,
         targetTaskModel: targetTaskModelSchema,
-        timeline: legalTimelineConfigSchema.optional(),
+        timeline:
+          electroChargedCleanupTimelineReferenceSchema.optional(),
         electroChargedPropagationModel:
           electroChargedPropagationModelSchema.optional()
       })
@@ -29395,15 +30030,102 @@ function normalizeLegacyCharacter(raw: unknown, index: number): unknown {
   };
 }
 
+const migrateElementalApplicationV146ToV147 = (
+  application: unknown
+): unknown => {
+  if (!isRecord(application)) return application;
+  if (
+    typeof application.icdGroup !== "string" ||
+    typeof application.icdTag !== "string"
+  ) {
+    return application;
+  }
+  const {
+    icdGroup,
+    icdTag,
+    ...unchangedApplication
+  } = application;
+  return {
+    ...unchangedApplication,
+    icd:
+      icdGroup === "no-icd"
+        ? { mode: "no-icd-v1" as const }
+        : {
+            mode: "legacy-boolean-profile-v1" as const,
+            icdTag,
+            profileId: icdGroup
+          }
+  };
+};
+
+const migrateElementalApplicationHitV146ToV147 = (
+  hit: unknown
+): unknown => {
+  if (
+    !isRecord(hit) ||
+    !Object.prototype.hasOwnProperty.call(hit, "application")
+  ) {
+    return hit;
+  }
+  return {
+    ...hit,
+    application: migrateElementalApplicationV146ToV147(
+      hit.application
+    )
+  };
+};
+
+const migrateElementalApplicationWiresV146ToV147 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const rotation = Array.isArray(wire.rotation)
+    ? wire.rotation.map((action) =>
+        isRecord(action) && Array.isArray(action.hits)
+          ? {
+              ...action,
+              hits: action.hits.map(
+                migrateElementalApplicationHitV146ToV147
+              )
+            }
+          : action
+      )
+    : wire.rotation;
+  const timeline =
+    isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)
+      ? {
+          ...wire.timeline,
+          abilities: wire.timeline.abilities.map((ability) =>
+            isRecord(ability) && Array.isArray(ability.hits)
+              ? {
+                  ...ability,
+                  hits: ability.hits.map(
+                    migrateElementalApplicationHitV146ToV147
+                  )
+                }
+              : ability
+          )
+        }
+      : wire.timeline;
+  return {
+    ...wire,
+    rotation,
+    ...(Object.prototype.hasOwnProperty.call(wire, "timeline")
+      ? { timeline }
+      : {})
+  };
+};
+
 function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unknown> {
   const meta = isRecord(input.meta) ? input.meta : {};
+  const migratedApplications =
+    migrateElementalApplicationWiresV146ToV147(input);
   const dataVersion =
     typeof meta.version === "string" && meta.version
       ? meta.version
       : "0.1.0-demo";
 
   return {
-    ...input,
+    ...migratedApplications,
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: CURRENT_ENGINE_VERSION,
     dataVersion,
@@ -29438,7 +30160,9 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     characters: Array.isArray(input.characters)
       ? input.characters.map(normalizeLegacyCharacter)
       : [],
-    rotation: Array.isArray(input.rotation) ? input.rotation : [],
+    rotation: Array.isArray(migratedApplications.rotation)
+      ? migratedApplications.rotation
+      : [],
     playerDamageModel: { mode: "disabled" },
     targetClockModel: { mode: "disabled" },
     targetTaskModel: { mode: "legacy-event-heap-v1" },
@@ -29453,6 +30177,10 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     directDamageGroupModel: {
       mode: "fixed-gcsim-direct-damage-group-v1",
       profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    elementalApplicationIcdModel: {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     }
   };
 }
@@ -29505,6 +30233,7 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
       ["reactionEngine", ["mode"]],
       ["reactionFormulaModel", ["mode", "profileId"]],
       ["directDamageGroupModel", ["mode", "profileId"]],
+      ["elementalApplicationIcdModel", ["mode", "profileId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -29797,6 +30526,14 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [REACTION_FORMULA_ROOT_SCHEMA_VERSION]: {
     engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION]: {
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION]: {
+    engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -29869,6 +30606,26 @@ function findDirectDamageGroupHitPath(
   return foundPath;
 }
 
+function findElementalApplicationIcdSelectorPath(
+  input: Record<string, unknown>
+): string | null {
+  let foundPath: string | null = null;
+  forEachDirectDamageGroupHit(input, (hit, path) => {
+    if (foundPath !== null || !isRecord(hit.application)) {
+      return;
+    }
+    if (
+      Object.prototype.hasOwnProperty.call(
+        hit.application,
+        "icd"
+      )
+    ) {
+      foundPath = `${path.join(".")}.application.icd`;
+    }
+  });
+  return foundPath;
+}
+
 export function migrateConfig(rawInput: unknown): SimConfig {
   const plainInput = parsePlainSimConfigWire(rawInput);
   if (!isRecord(plainInput)) {
@@ -29895,8 +30652,63 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
+  const elementalApplicationIcdSelectorPath =
+    findElementalApplicationIcdSelectorPath(input);
+  const isElementalApplicationIcdIdentity =
+    version === CURRENT_SCHEMA_VERSION;
+  if (
+    !isElementalApplicationIcdIdentity &&
+    ("elementalApplicationIcdModel" in input ||
+      elementalApplicationIcdSelectorPath !== null)
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const field =
+      "elementalApplicationIcdModel" in input
+        ? "elementalApplicationIcdModel"
+        : elementalApplicationIcdSelectorPath!;
+    const issue = `${field}: schemaVersion "${historicalVersion}" does not support elemental-application ICD root selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isElementalApplicationIcdIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "elementalApplicationIcdModel"
+      ) ||
+      !isRecord(input.elementalApplicationIcdModel)
+    ) {
+      const issue =
+        `elementalApplicationIcdModel: schemaVersion "${String(version)}" requires the explicit compiled provisional elemental-application ICD profile`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "profileId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.elementalApplicationIcdModel,
+          field
+        )
+      ) {
+        const issue =
+          `elementalApplicationIcdModel.${field}: schemaVersion "${String(version)}" requires an explicit own elemental-application ICD identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+  }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
     version === REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   if (
     !isFormulaIdentity &&
@@ -29944,7 +30756,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const isCurrentDirectDamageGroupIdentity =
-    version === CURRENT_SCHEMA_VERSION;
+    version === CURRENT_SCHEMA_VERSION ||
+    version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   const directDamageGroupHitPath =
     findDirectDamageGroupHitPath(input);
   if (
@@ -29999,6 +30812,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
     version === REACTION_FORMULA_ROOT_SCHEMA_VERSION ||
     version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION ||
     version === EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
@@ -30422,6 +31236,29 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
   }
+  if (version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION) {
+    const frozen = simConfigV146Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...migrateElementalApplicationWiresV146ToV147(
+        frozen.data as unknown as Record<string, unknown>
+      ),
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      elementalApplicationIcdModel: {
+        mode: "fixed-gcsim-elemental-application-v1",
+        profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+      }
+    });
+  }
   if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
     const frozen = simConfigV145Schema.safeParse(input);
     if (!frozen.success) {
@@ -30434,17 +31271,23 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       );
     }
     return parseSimConfig({
-      ...frozen.data,
+      ...migrateElementalApplicationWiresV146ToV147(
+        frozen.data as unknown as Record<string, unknown>
+      ),
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       directDamageGroupModel: {
         mode: "fixed-gcsim-direct-damage-group-v1",
         profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+      },
+      elementalApplicationIcdModel: {
+        mode: "fixed-gcsim-elemental-application-v1",
+        profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
       }
     });
   }
   input = {
-    ...input,
+    ...migrateElementalApplicationWiresV146ToV147(input),
     reactionFormulaModel: {
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -30452,6 +31295,10 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     directDamageGroupModel: {
       mode: "fixed-gcsim-direct-damage-group-v1",
       profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    elementalApplicationIcdModel: {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     }
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {

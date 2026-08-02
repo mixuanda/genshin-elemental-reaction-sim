@@ -1,0 +1,4373 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Full 1.47 synthetic elemental-application ICD result vector for shared actor/tag windows, group switching, numeric gauge multipliers, tail clamping, and reset-before-hit ordering.",
+  "provenance": {
+    "source": "Synthetic five-hit engine regression vector bound to the fixed genshinsim/gcsim b4ae769 elemental-application profile root",
+    "capturedAt": "2026-08-01",
+    "verificationStatus": "provisional",
+    "note": "This fixture verifies simulator state transitions only. It does not claim that the generic actor, hit labels, timings, multipliers, character skills, equipment data, or target scenario are verified game data. The bound elemental-application profile is fixed-gcsim-provisional, not official server truth or complete gcsim parity. Reaction-owned application groups, gcsim task-order parity beyond this explicit reset-before-hit boundary, particles, action-frame data, and a complete character database remain outside this fixture.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "expectedDecisionProjection": [
+    {
+      "id": 0,
+      "sourceKind": "configured-direct-hit",
+      "hitResolutionLogId": 0,
+      "damageEventId": 0,
+      "frame": 0,
+      "sourceActorId": "a",
+      "targetId": "enemy-0",
+      "hitId": "duplicate-hit",
+      "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:0:0",
+      "element": "pyro",
+      "selector": {
+        "mode": "fixed-gcsim-application-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "default"
+      },
+      "nominalGaugeUnits": 1,
+      "effectiveGaugeUnits": 1,
+      "reaction": "reverseVaporize",
+      "decision": {
+        "kind": "fixed-gcsim",
+        "evaluated": true,
+        "consumed": true,
+        "allowed": true,
+        "scope": "actor-tag",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "default",
+        "windowStartGroupId": "default",
+        "resetFrames": 150,
+        "windowStartFrame": 0,
+        "resetAtFrame": 149,
+        "hitIndex": 0,
+        "sequenceIndex": 0,
+        "applicationMultiplier": 1,
+        "tailPolicy": "clamp",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      }
+    },
+    {
+      "id": 1,
+      "sourceKind": "configured-direct-hit",
+      "hitResolutionLogId": 1,
+      "damageEventId": 1,
+      "frame": 1,
+      "sourceActorId": "a",
+      "targetId": "enemy-0",
+      "hitId": "duplicate-hit",
+      "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:1:1",
+      "element": "pyro",
+      "selector": {
+        "mode": "fixed-gcsim-application-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill"
+      },
+      "nominalGaugeUnits": 1,
+      "effectiveGaugeUnits": 0,
+      "reaction": "none",
+      "decision": {
+        "kind": "fixed-gcsim",
+        "evaluated": true,
+        "consumed": true,
+        "allowed": false,
+        "scope": "actor-tag",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill",
+        "windowStartGroupId": "default",
+        "resetFrames": 150,
+        "windowStartFrame": 0,
+        "resetAtFrame": 149,
+        "hitIndex": 1,
+        "sequenceIndex": 1,
+        "applicationMultiplier": 0,
+        "tailPolicy": "clamp",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      }
+    },
+    {
+      "id": 2,
+      "sourceKind": "configured-direct-hit",
+      "hitResolutionLogId": 2,
+      "damageEventId": 2,
+      "frame": 2,
+      "sourceActorId": "a",
+      "targetId": "enemy-0",
+      "hitId": "tail-clamp",
+      "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:2:2",
+      "element": "pyro",
+      "selector": {
+        "mode": "fixed-gcsim-application-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "chasca-tap"
+      },
+      "nominalGaugeUnits": 1,
+      "effectiveGaugeUnits": 0,
+      "reaction": "none",
+      "decision": {
+        "kind": "fixed-gcsim",
+        "evaluated": true,
+        "consumed": true,
+        "allowed": false,
+        "scope": "actor-tag",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "chasca-tap",
+        "windowStartGroupId": "default",
+        "resetFrames": 150,
+        "windowStartFrame": 0,
+        "resetAtFrame": 149,
+        "hitIndex": 2,
+        "sequenceIndex": 1,
+        "applicationMultiplier": 0,
+        "tailPolicy": "clamp",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      }
+    },
+    {
+      "id": 3,
+      "sourceKind": "configured-direct-hit",
+      "hitResolutionLogId": 3,
+      "damageEventId": 3,
+      "frame": 148,
+      "sourceActorId": "a",
+      "targetId": "enemy-0",
+      "hitId": "pre-reset",
+      "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:3:148",
+      "element": "pyro",
+      "selector": {
+        "mode": "fixed-gcsim-application-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill"
+      },
+      "nominalGaugeUnits": 1,
+      "effectiveGaugeUnits": 0,
+      "reaction": "none",
+      "decision": {
+        "kind": "fixed-gcsim",
+        "evaluated": true,
+        "consumed": true,
+        "allowed": false,
+        "scope": "actor-tag",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill",
+        "windowStartGroupId": "default",
+        "resetFrames": 150,
+        "windowStartFrame": 0,
+        "resetAtFrame": 149,
+        "hitIndex": 3,
+        "sequenceIndex": 3,
+        "applicationMultiplier": 0,
+        "tailPolicy": "clamp",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      }
+    },
+    {
+      "id": 4,
+      "sourceKind": "configured-direct-hit",
+      "hitResolutionLogId": 4,
+      "damageEventId": 4,
+      "frame": 149,
+      "sourceActorId": "a",
+      "targetId": "enemy-0",
+      "hitId": "reset-nahida",
+      "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:4:149",
+      "element": "pyro",
+      "selector": {
+        "mode": "fixed-gcsim-application-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill"
+      },
+      "nominalGaugeUnits": 1,
+      "effectiveGaugeUnits": 1.5,
+      "reaction": "reverseVaporize",
+      "decision": {
+        "kind": "fixed-gcsim",
+        "evaluated": true,
+        "consumed": true,
+        "allowed": true,
+        "scope": "actor-tag",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "icdTag": "synthetic-shared-application-stream",
+        "groupId": "nahida-skill",
+        "windowStartGroupId": "nahida-skill",
+        "resetFrames": 60,
+        "windowStartFrame": 149,
+        "resetAtFrame": 208,
+        "hitIndex": 0,
+        "sequenceIndex": 0,
+        "applicationMultiplier": 1.5,
+        "tailPolicy": "clamp",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      }
+    }
+  ],
+  "elementalApplicationIcdLogCanonicalSha256": "66eab58f46d75556a661e51cd0ed16c9cc46d9ff5048365d3bb886b8c9643d62",
+  "damageEventsCanonicalSha256": "f7a9da88535903ed2a18a966e172e57217007056d3dc861a8b20e18cb54597e1",
+  "targetTimelineCanonicalSha256": "fc0a62bd92559e2356c3e33b4a44a8e50be1db521086ec70070ed3f995caaf99",
+  "result": {
+    "schemaVersion": "1.47.0",
+    "engineVersion": "1.47.0-elemental-application-icd-root",
+    "dataVersion": "synthetic-test-vector-1.47",
+    "randomSeed": "synthetic-elemental-application-icd-v147",
+    "runManifest": {
+      "version": "1.3.0",
+      "identityAlgorithm": "fnv1a32-v2",
+      "schemaVersion": "1.47.0",
+      "engineVersion": "1.47.0-elemental-application-icd-root",
+      "dataVersion": "synthetic-test-vector-1.47",
+      "configHash": "fnv1a32:0ab2b9f4",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "noCrit",
+        "compatibilityMode": "legal-frame-v1",
+        "randomSeed": "synthetic-elemental-application-icd-v147"
+      },
+      "plugins": [],
+      "reactionFormulaRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1",
+        "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false
+      },
+      "directDamageGroupRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "damage-group-reset-and-damage-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      },
+      "elementalApplicationIcdRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "elemental-application-reset-and-numeric-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+        "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+        "provisional": true
+      },
+      "reproducibilityKey": "gdl-v2-fnv1a32-ed3a7352"
+    },
+    "resolvedRuntimeOptions": {
+      "energyMode": "configured",
+      "critMode": "noCrit",
+      "compatibilityMode": "legal-frame-v1",
+      "randomSeed": "synthetic-elemental-application-icd-v147"
+    },
+    "pluginManifest": [],
+    "reproducibilityKey": "gdl-v2-fnv1a32-ed3a7352",
+    "compatibilityMode": "legal-frame-v1",
+    "mechanicsStatus": "complete",
+    "config": {
+      "schemaVersion": "1.47.0",
+      "engineVersion": "1.47.0-elemental-application-icd-root",
+      "dataVersion": "synthetic-test-vector-1.47",
+      "randomSeed": "synthetic-elemental-application-icd-v147",
+      "meta": {
+        "name": "Synthetic elemental-application ICD Golden",
+        "version": "1.47",
+        "verificationStatus": "provisional"
+      },
+      "duration": 3,
+      "cycleLength": 3,
+      "enemy": {
+        "level": 90,
+        "resistance": 0.1,
+        "defReduction": 0,
+        "targets": [
+          {
+            "id": "enemy-0",
+            "name": "Synthetic Hydro target",
+            "initialAura": [
+              {
+                "element": "hydro",
+                "gaugeUnits": 4
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "hitboxRadius": 0
+          }
+        ]
+      },
+      "characters": [
+        {
+          "id": "a",
+          "name": "A",
+          "element": "pyro",
+          "color": "#ff0000",
+          "level": 90,
+          "energyMax": 60,
+          "initialEnergy": 0,
+          "stats": {
+            "baseAtk": 1000,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          }
+        }
+      ],
+      "rotation": [],
+      "timeline": {
+        "mode": "legal-frame-v1",
+        "fps": 60,
+        "legalityMode": "strict",
+        "initialActiveCharacterId": "a",
+        "swapFrames": 1,
+        "abilities": [
+          {
+            "id": "synthetic-elemental-application-icd-ability",
+            "actorId": "a",
+            "name": "Synthetic elemental-application ICD vector",
+            "kind": "skill",
+            "cancelFrame": 149,
+            "animationEndFrame": 149,
+            "cooldownFrames": 0,
+            "hits": [
+              {
+                "id": "duplicate-hit",
+                "label": "duplicate-hit",
+                "scaling": 1,
+                "element": "pyro",
+                "geometry": {
+                  "kind": "circle",
+                  "coordinateSpace": "world",
+                  "origin": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "radius": 1
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "synthetic-shared-application-stream",
+                    "groupId": "default"
+                  }
+                },
+                "frame": 0
+              },
+              {
+                "id": "duplicate-hit",
+                "label": "duplicate-hit",
+                "scaling": 1,
+                "element": "pyro",
+                "geometry": {
+                  "kind": "circle",
+                  "coordinateSpace": "world",
+                  "origin": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "radius": 1
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "synthetic-shared-application-stream",
+                    "groupId": "nahida-skill"
+                  }
+                },
+                "frame": 1
+              },
+              {
+                "id": "tail-clamp",
+                "label": "tail-clamp",
+                "scaling": 1,
+                "element": "pyro",
+                "geometry": {
+                  "kind": "circle",
+                  "coordinateSpace": "world",
+                  "origin": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "radius": 1
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "synthetic-shared-application-stream",
+                    "groupId": "chasca-tap"
+                  }
+                },
+                "frame": 2
+              },
+              {
+                "id": "pre-reset",
+                "label": "pre-reset",
+                "scaling": 1,
+                "element": "pyro",
+                "geometry": {
+                  "kind": "circle",
+                  "coordinateSpace": "world",
+                  "origin": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "radius": 1
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "synthetic-shared-application-stream",
+                    "groupId": "nahida-skill"
+                  }
+                },
+                "frame": 148
+              },
+              {
+                "id": "reset-nahida",
+                "label": "reset-nahida",
+                "scaling": 1,
+                "element": "pyro",
+                "geometry": {
+                  "kind": "circle",
+                  "coordinateSpace": "world",
+                  "origin": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "radius": 1
+                },
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "synthetic-shared-application-stream",
+                    "groupId": "nahida-skill"
+                  }
+                },
+                "frame": 149
+              }
+            ],
+            "particles": []
+          }
+        ],
+        "commands": [
+          {
+            "type": "skill",
+            "actorId": "a",
+            "abilityId": "synthetic-elemental-application-icd-ability",
+            "atFrame": 0
+          }
+        ]
+      },
+      "reactionEngine": {
+        "mode": "aura-v9"
+      },
+      "playerDamageModel": {
+        "mode": "disabled"
+      },
+      "targetClockModel": {
+        "mode": "disabled"
+      },
+      "targetTaskModel": {
+        "mode": "target-phase-v2"
+      },
+      "reactionDeliveryModel": {
+        "mode": "deferred-event-heap-v1"
+      },
+      "electroChargedPropagationModel": {
+        "mode": "single-target-v1"
+      },
+      "reactionFormulaModel": {
+        "mode": "classic-formula-profile-v1",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1"
+      },
+      "directDamageGroupModel": {
+        "mode": "fixed-gcsim-direct-damage-group-v1",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+      },
+      "elementalApplicationIcdModel": {
+        "mode": "fixed-gcsim-elemental-application-v1",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+      }
+    },
+    "actorPoses": [],
+    "enemyTargets": [
+      {
+        "id": "enemy-0",
+        "name": "Synthetic Hydro target",
+        "level": 90,
+        "resistance": 0.1,
+        "defReduction": 0,
+        "freezeResistance": 0,
+        "initialAura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 4
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "hitboxRadius": 0
+      }
+    ],
+    "damageEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 675,
+        "frame": 0,
+        "timeSeconds": 0,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "default",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.5,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 3.2,
+                  "consumedGaugeUnits": 0.5,
+                  "gaugeUnitsAfter": 2.7
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.7,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.7
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.5,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 675,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1.5,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1.5,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 1,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 2,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:1:1",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"nahida-skill\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0.016666666666666666,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 2,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 3,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "tail-clamp",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:2:2",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 2,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "chasca-tap",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"chasca-tap\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "tail-clamp",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0.03333333333333333,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 3,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "pre-reset",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:3:148",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 3,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 148,
+        "timeSeconds": 2.466666666666667,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"nahida-skill\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "pre-reset",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 2.466666666666667,
+        "second": 2,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 4,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "reset-nahida",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:4:149",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 4,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 675,
+        "frame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 1.5,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.232549019608,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.232549019608
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.5,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.75,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 2.232549019608,
+                  "consumedGaugeUnits": 0.75,
+                  "gaugeUnitsAfter": 1.482549019608
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1.482549019608,
+              "expiresAtFrame": 622,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 1.482549019608
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.5,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 675,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "reset-nahida",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 2.4833333333333334,
+        "second": 2,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1.5,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1.5,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      }
+    ],
+    "hitEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 675,
+        "frame": 0,
+        "timeSeconds": 0,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "default",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.5,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 3.2,
+                  "consumedGaugeUnits": 0.5,
+                  "gaugeUnitsAfter": 2.7
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.7,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.7
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.5,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 675,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1.5,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1.5,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 1,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 2,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:1:1",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"nahida-skill\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0.016666666666666666,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 2,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 3,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "tail-clamp",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:2:2",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 2,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "chasca-tap",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"chasca-tap\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "tail-clamp",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 0.03333333333333333,
+        "second": 0,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 3,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "pre-reset",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:3:148",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 3,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 450,
+        "frame": 148,
+        "timeSeconds": 2.466666666666667,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": false,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "ICD Profile \"nahida-skill\" 阻止本段附着与反应。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 450,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "pre-reset",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 2.466666666666667,
+        "second": 2,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      },
+      {
+        "id": 4,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "parentDamageEventId": null,
+        "sourceActorId": "a",
+        "scalingOwnerId": "a",
+        "creditOwnerId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "reset-nahida",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:4:149",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 4,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 675,
+        "frame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "activeCharacterId": "a",
+        "statsBeforeDamage": {
+          "baseAtk": 1000,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 10000,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 700,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "synthetic-shared-application-stream",
+          "icdGroup": "nahida-skill",
+          "applicationGaugeUnits": 1.5,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.232549019608,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.232549019608
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.5,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.75,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 2.232549019608,
+                  "consumedGaugeUnits": 0.75,
+                  "gaugeUnitsAfter": 1.482549019608
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1.482549019608,
+              "expiresAtFrame": 622,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 1.482549019608
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1,
+          "scalingStat": "atk",
+          "scalingValue": 1000,
+          "flatDamage": 0,
+          "baseDamage": 1000,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.5,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.5,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 675,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "sourceActorName": "A",
+        "scalingOwnerName": "A",
+        "creditOwnerName": "A",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitLabel": "reset-nahida",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "actionStartFrame": 0,
+        "actionCancelFrame": 149,
+        "actionAnimationEndFrame": 149,
+        "time": 2.4833333333333334,
+        "second": 2,
+        "actorId": "a",
+        "creditId": "a",
+        "actorName": "A",
+        "activeId": "a",
+        "scaling": 1,
+        "scalingStat": "atk",
+        "scalingValue": 1000,
+        "flat": 0,
+        "baseDamage": 1000,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.5,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1.5,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1.5,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": []
+      }
+    ],
+    "hitResolutionLog": [
+      {
+        "id": 0,
+        "frame": 0,
+        "timeSeconds": 0,
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "a",
+        "sourceActionId": "synthetic-elemental-application-icd-ability#0",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:0:0",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetingSource": "geometry",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 1,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 0,
+        "geometryThreshold": 1,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 0,
+        "potentialDamage": 675,
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability"
+      },
+      {
+        "id": 1,
+        "frame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "eventPriority": 3,
+        "eventSequence": 2,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "a",
+        "sourceActionId": "synthetic-elemental-application-icd-ability#0",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:1:1",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "duplicate-hit",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetingSource": "geometry",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 1,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 0,
+        "geometryThreshold": 1,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 1,
+        "potentialDamage": 450,
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability"
+      },
+      {
+        "id": 2,
+        "frame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "eventPriority": 3,
+        "eventSequence": 3,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "a",
+        "sourceActionId": "synthetic-elemental-application-icd-ability#0",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitId": "tail-clamp",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:2:2",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "tail-clamp",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetingSource": "geometry",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 1,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 0,
+        "geometryThreshold": 1,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 2,
+        "potentialDamage": 450,
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability"
+      },
+      {
+        "id": 3,
+        "frame": 148,
+        "timeSeconds": 2.466666666666667,
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "a",
+        "sourceActionId": "synthetic-elemental-application-icd-ability#0",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitId": "pre-reset",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:3:148",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "pre-reset",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetingSource": "geometry",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 1,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 0,
+        "geometryThreshold": 1,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 3,
+        "potentialDamage": 450,
+        "finalDamage": 450,
+        "displayDamage": 450,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability"
+      },
+      {
+        "id": 4,
+        "frame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "intraEventSequence": 0,
+        "cycle": 0,
+        "sourceActorId": "a",
+        "sourceActionId": "synthetic-elemental-application-icd-ability#0",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "hitId": "reset-nahida",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:4:149",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "reset-nahida",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "targetingSource": "geometry",
+        "resolutionKind": "direct",
+        "targetPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": "circle",
+        "geometryCoordinateSpace": "world",
+        "geometryOrigin": {
+          "x": 0,
+          "y": 0
+        },
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": 1,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": 0,
+        "geometryThreshold": 1,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 4,
+        "potentialDamage": 675,
+        "finalDamage": 675,
+        "displayDamage": 675,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability"
+      }
+    ],
+    "targetClockAudit": {
+      "version": "1.0.0",
+      "mode": "disabled",
+      "hitlagStatus": "unsupported-enemy-hitlag",
+      "targets": []
+    },
+    "targetClockLog": [],
+    "targetHitlagLog": [],
+    "targetTaskPhaseLog": [],
+    "targetPhaseLog": [
+      {
+        "model": "target-phase-v2",
+        "id": 0,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "globalFrame": 0,
+        "timeSeconds": 0,
+        "targetFrame": 0,
+        "targetOrder": 0,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 3.2,
+            "expiresAtFrame": 1020,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 3.2
+              }
+            ]
+          }
+        ],
+        "targetTasks": [],
+        "auraAfterTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 3.2,
+            "expiresAtFrame": 1020,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 3.2
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 0,
+          "toTargetFrame": 0,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [
+          0
+        ],
+        "reactionTaskLogIds": []
+      },
+      {
+        "model": "target-phase-v2",
+        "id": 1,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "globalFrame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "targetFrame": 1,
+        "targetOrder": 0,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.696862745098,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.696862745098
+              }
+            ]
+          }
+        ],
+        "targetTasks": [],
+        "auraAfterTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.696862745098,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.696862745098
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 0,
+          "toTargetFrame": 1,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [
+          1
+        ],
+        "reactionTaskLogIds": []
+      },
+      {
+        "model": "target-phase-v2",
+        "id": 2,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "globalFrame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "targetFrame": 2,
+        "targetOrder": 0,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.693725490196,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.693725490196
+              }
+            ]
+          }
+        ],
+        "targetTasks": [],
+        "auraAfterTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.693725490196,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.693725490196
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 1,
+          "toTargetFrame": 2,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [
+          2
+        ],
+        "reactionTaskLogIds": []
+      },
+      {
+        "model": "target-phase-v2",
+        "id": 3,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "globalFrame": 148,
+        "timeSeconds": 2.466666666666667,
+        "targetFrame": 148,
+        "targetOrder": 0,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.23568627451,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.23568627451
+              }
+            ]
+          }
+        ],
+        "targetTasks": [],
+        "auraAfterTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.23568627451,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.23568627451
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 2,
+          "toTargetFrame": 148,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [
+          3
+        ],
+        "reactionTaskLogIds": []
+      },
+      {
+        "model": "target-phase-v2",
+        "id": 4,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "globalFrame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "targetFrame": 149,
+        "targetOrder": 0,
+        "auraBeforeTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.232549019608,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.232549019608
+              }
+            ]
+          }
+        ],
+        "targetTasks": [],
+        "auraAfterTargetTasks": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.232549019608,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.232549019608
+              }
+            ]
+          }
+        ],
+        "reactableTick": {
+          "fromTargetFrame": 148,
+          "toTargetFrame": 149,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.232549019608,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.232549019608
+                }
+              ]
+            }
+          ],
+          "transitions": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.232549019608,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.232549019608
+                }
+              ]
+            }
+          ]
+        },
+        "hitResolutionLogIds": [
+          4
+        ],
+        "reactionTaskLogIds": []
+      }
+    ],
+    "targetMechanicsTruncationLog": [],
+    "reactionDamageLog": [],
+    "reactionTaskLog": [],
+    "reactionStatusLog": [],
+    "periodicReactionLog": [],
+    "frozenStateLog": [],
+    "quickenStateLog": [],
+    "burningStateLog": [],
+    "dendroCoreLog": [],
+    "dendroCoreContactLog": [],
+    "dendroCoreTimeline": {
+      "version": "1.0.0",
+      "points": []
+    },
+    "crystallizeShardLog": [],
+    "crystallizeShieldLog": [],
+    "crystallizeShieldTimeline": [],
+    "playerHitResolutionLog": [],
+    "playerDamageEvents": [],
+    "playerHpTimeline": {
+      "version": "1.0.0",
+      "points": []
+    },
+    "playerHpSummaries": [],
+    "playerSelfDamageStatus": "unsupported-player-damage-model",
+    "totalPlayerDamageTaken": 0,
+    "totalReactionSelfDamageTaken": 0,
+    "targetPhaseTimeline": [],
+    "targetMotionTimeline": [],
+    "skippedActions": [],
+    "actionLog": [
+      {
+        "time": 0,
+        "frame": 0,
+        "actorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "action": "Synthetic elemental-application ICD vector",
+        "cycle": 0,
+        "energyBefore": 0,
+        "energyAfter": 0,
+        "timelineCommandIndex": 0,
+        "sourceAbilityId": "synthetic-elemental-application-icd-ability",
+        "cancelFrame": 149,
+        "animationEndFrame": 149
+      }
+    ],
+    "energyStats": {
+      "a": {
+        "initial": 0,
+        "gained": 0,
+        "fixedGained": 0,
+        "particleGained": 0,
+        "wasted": 0,
+        "spent": 0,
+        "skipped": 0,
+        "final": 0
+      }
+    },
+    "energyLog": [],
+    "particleEvents": [],
+    "particleTriggerLog": [],
+    "energyCurve": [
+      {
+        "id": 0,
+        "frame": 0,
+        "timeSeconds": 0,
+        "kind": "initial",
+        "receiverId": null,
+        "source": "initial-energy",
+        "energyByCharacter": {
+          "a": 0
+        }
+      }
+    ],
+    "totalDamage": 2700,
+    "dps": 900,
+    "reactedHits": 2,
+    "byCharacter": {
+      "a": 2700
+    },
+    "characterSummaries": [
+      {
+        "characterId": "a",
+        "damage": 2700,
+        "hits": 5,
+        "dps": 900,
+        "share": 1
+      }
+    ],
+    "targetSummaries": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "damage": 2700,
+        "potentialDamage": 2700,
+        "damageEvents": 5,
+        "landedChecks": 5,
+        "missedChecks": 0,
+        "immuneDamageEvents": 0,
+        "dps": 900,
+        "share": 1
+      }
+    ],
+    "bySkill": [
+      {
+        "creditId": "a",
+        "actionName": "Synthetic elemental-application ICD vector",
+        "damage": 2700,
+        "hits": 5,
+        "dps": 900,
+        "share": 1
+      }
+    ],
+    "perSecond": [
+      {
+        "a": 1575
+      },
+      {},
+      {
+        "a": 1125
+      }
+    ],
+    "damageCurve": [
+      {
+        "damageEventId": 0,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 0,
+        "timeSeconds": 0,
+        "sourceActorId": "a",
+        "creditOwnerId": "a",
+        "finalDamage": 675,
+        "cumulativeDamage": 675,
+        "cumulativeByCharacter": {
+          "a": 675
+        },
+        "cumulativeByComponent": {
+          "direct": 675,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 1,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "sourceActorId": "a",
+        "creditOwnerId": "a",
+        "finalDamage": 450,
+        "cumulativeDamage": 1125,
+        "cumulativeByCharacter": {
+          "a": 1125
+        },
+        "cumulativeByComponent": {
+          "direct": 1125,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 2,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "sourceActorId": "a",
+        "creditOwnerId": "a",
+        "finalDamage": 450,
+        "cumulativeDamage": 1575,
+        "cumulativeByCharacter": {
+          "a": 1575
+        },
+        "cumulativeByComponent": {
+          "direct": 1575,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 3,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 148,
+        "timeSeconds": 2.466666666666667,
+        "sourceActorId": "a",
+        "creditOwnerId": "a",
+        "finalDamage": 450,
+        "cumulativeDamage": 2025,
+        "cumulativeByCharacter": {
+          "a": 2025
+        },
+        "cumulativeByComponent": {
+          "direct": 2025,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 4,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "sourceActorId": "a",
+        "creditOwnerId": "a",
+        "finalDamage": 675,
+        "cumulativeDamage": 2700,
+        "cumulativeByCharacter": {
+          "a": 2700
+        },
+        "cumulativeByComponent": {
+          "direct": 2700,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      }
+    ],
+    "auraTimeline": [
+      {
+        "damageEventId": 0,
+        "eventPriority": 3,
+        "eventSequence": 1,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 0,
+        "timeSeconds": 0,
+        "sourceActorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "incomingElement": "pyro",
+        "icdAllowed": true,
+        "reaction": "reverseVaporize",
+        "reactions": [
+          "reverseVaporize"
+        ],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 3.2,
+            "expiresAtFrame": 1020,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 3.2
+              }
+            ]
+          }
+        ],
+        "auraApplied": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 1,
+            "sourceActorId": "a"
+          }
+        ],
+        "auraConsumed": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.5,
+            "sourceMutations": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnitsBefore": 3.2,
+                "consumedGaugeUnits": 0.5,
+                "gaugeUnitsAfter": 2.7
+              }
+            ]
+          }
+        ],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.7,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "damageEventId": 1,
+        "eventPriority": 3,
+        "eventSequence": 2,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 1,
+        "timeSeconds": 0.016666666666666666,
+        "sourceActorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "duplicate-hit",
+        "incomingElement": "pyro",
+        "icdAllowed": false,
+        "reaction": "none",
+        "reactions": [],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.696862745098,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.696862745098
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.696862745098,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.696862745098
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "damageEventId": 2,
+        "eventPriority": 3,
+        "eventSequence": 3,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 2,
+        "timeSeconds": 0.03333333333333333,
+        "sourceActorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "tail-clamp",
+        "incomingElement": "pyro",
+        "icdAllowed": false,
+        "reaction": "none",
+        "reactions": [],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.693725490196,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.693725490196
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.693725490196,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.693725490196
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "damageEventId": 3,
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 148,
+        "timeSeconds": 2.466666666666667,
+        "sourceActorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "pre-reset",
+        "incomingElement": "pyro",
+        "icdAllowed": false,
+        "reaction": "none",
+        "reactions": [],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.23568627451,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.23568627451
+              }
+            ]
+          }
+        ],
+        "auraApplied": [],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.23568627451,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.23568627451
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "damageEventId": 4,
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 149,
+        "timeSeconds": 2.4833333333333334,
+        "sourceActorId": "a",
+        "actionId": "synthetic-elemental-application-icd-ability#0",
+        "hitId": "reset-nahida",
+        "incomingElement": "pyro",
+        "icdAllowed": true,
+        "reaction": "reverseVaporize",
+        "reactions": [
+          "reverseVaporize"
+        ],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 2.232549019608,
+            "expiresAtFrame": 861,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 2.232549019608
+              }
+            ]
+          }
+        ],
+        "auraApplied": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 1.5,
+            "sourceActorId": "a"
+          }
+        ],
+        "auraConsumed": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.75,
+            "sourceMutations": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnitsBefore": 2.232549019608,
+                "consumedGaugeUnits": 0.75,
+                "gaugeUnitsAfter": 1.482549019608
+              }
+            ]
+          }
+        ],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 1.482549019608,
+            "expiresAtFrame": 622,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 1.482549019608
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "targetStateTimeline": {
+      "version": "1.0.0",
+      "points": [
+        {
+          "id": 0,
+          "frame": 0,
+          "targetFrame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "frame": 0,
+          "targetFrame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 1,
+          "intraEventSequence": 0,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "primaryDamageEventId": 0,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 0
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 3.2,
+              "expiresAtFrame": 1020,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 3.2
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.5,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 3.2,
+                  "consumedGaugeUnits": 0.5,
+                  "gaugeUnitsAfter": 2.7
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.7,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "frame": 1,
+          "targetFrame": 1,
+          "timeSeconds": 0.016666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "observation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 2,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 1,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.696862745098,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.696862745098
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "frame": 2,
+          "targetFrame": 2,
+          "timeSeconds": 0.03333333333333333,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "observation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 3,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 2,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 2
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.693725490196,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.693725490196
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "frame": 148,
+          "targetFrame": 148,
+          "timeSeconds": 2.466666666666667,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "observation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 3,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 3
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.23568627451,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.23568627451
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "frame": 149,
+          "targetFrame": 149,
+          "timeSeconds": 2.4833333333333334,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 5,
+          "intraEventSequence": 0,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "primaryDamageEventId": 4,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 4
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 2.232549019608,
+              "expiresAtFrame": 861,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 2.232549019608
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.5,
+              "sourceActorId": "a"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.75,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnitsBefore": 2.232549019608,
+                  "consumedGaugeUnits": 0.75,
+                  "gaugeUnitsAfter": 1.482549019608
+                }
+              ]
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1.482549019608,
+              "expiresAtFrame": 622,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 1.482549019608
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "frame": 180,
+          "targetFrame": 180,
+          "timeSeconds": 3,
+          "targetId": "enemy-0",
+          "targetName": "Synthetic Hydro target",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1.385294117647,
+              "expiresAtFrame": 622,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 1.385294117647
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1.385294117647,
+              "expiresAtFrame": 622,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "__initial__",
+                  "gaugeUnits": 1.385294117647
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "auraInitialStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 3.2,
+            "expiresAtFrame": 1020,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 3.2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "auraEndStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "Synthetic Hydro target",
+        "frame": 180,
+        "timeSeconds": 3,
+        "aura": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 1.385294117647,
+            "expiresAtFrame": 622,
+            "sourceSlots": [
+              {
+                "sourceActorId": "__initial__",
+                "gaugeUnits": 1.385294117647
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "timelineExecution": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "a",
+      "finalActiveCharacterId": "a",
+      "totalFrames": 149,
+      "commandResults": [
+        {
+          "commandIndex": 0,
+          "commandType": "skill",
+          "actorId": "a",
+          "abilityId": "synthetic-elemental-application-icd-ability",
+          "requestedFrame": 0,
+          "startFrame": 0,
+          "cancelFrame": 149,
+          "animationEndFrame": 149,
+          "endFrame": 149,
+          "status": "executed",
+          "waitedFrames": 0
+        }
+      ],
+      "adjustments": [],
+      "failures": [],
+      "stateLog": []
+    },
+    "directDamageGroupLog": [
+      {
+        "id": 0,
+        "damageEventId": 0,
+        "hitResolutionLogId": 0,
+        "frame": 0,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "duplicate-hit",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 1,
+        "damageEventId": 1,
+        "hitResolutionLogId": 1,
+        "frame": 1,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "duplicate-hit",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 2,
+        "damageEventId": 2,
+        "hitResolutionLogId": 2,
+        "frame": 2,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "tail-clamp",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 3,
+        "damageEventId": 3,
+        "hitResolutionLogId": 3,
+        "frame": 148,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "pre-reset",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 4,
+        "damageEventId": 4,
+        "hitResolutionLogId": 4,
+        "frame": 149,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "reset-nahida",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      }
+    ],
+    "elementalApplicationIcdLog": [
+      {
+        "id": 0,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 0,
+        "damageEventId": 0,
+        "frame": 0,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:0:0",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "default"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 1,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": true,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "default",
+          "windowStartGroupId": "default",
+          "resetFrames": 150,
+          "windowStartFrame": 0,
+          "resetAtFrame": 149,
+          "hitIndex": 0,
+          "sequenceIndex": 0,
+          "applicationMultiplier": 1,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 1,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 1,
+        "damageEventId": 1,
+        "frame": 1,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "duplicate-hit",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:1:1",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 0,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": false,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill",
+          "windowStartGroupId": "default",
+          "resetFrames": 150,
+          "windowStartFrame": 0,
+          "resetAtFrame": 149,
+          "hitIndex": 1,
+          "sequenceIndex": 1,
+          "applicationMultiplier": 0,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 2,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 2,
+        "damageEventId": 2,
+        "frame": 2,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "tail-clamp",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:2:2",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "chasca-tap"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 0,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": false,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "chasca-tap",
+          "windowStartGroupId": "default",
+          "resetFrames": 150,
+          "windowStartFrame": 0,
+          "resetAtFrame": 149,
+          "hitIndex": 2,
+          "sequenceIndex": 1,
+          "applicationMultiplier": 0,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 3,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 3,
+        "damageEventId": 3,
+        "frame": 148,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "pre-reset",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:3:148",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 0,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": false,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill",
+          "windowStartGroupId": "default",
+          "resetFrames": 150,
+          "windowStartFrame": 0,
+          "resetAtFrame": 149,
+          "hitIndex": 3,
+          "sequenceIndex": 3,
+          "applicationMultiplier": 0,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 4,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 4,
+        "damageEventId": 4,
+        "frame": 149,
+        "sourceActorId": "a",
+        "targetId": "enemy-0",
+        "hitId": "reset-nahida",
+        "hitGroupId": "synthetic-elemental-application-icd-ability#0:0:4:149",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 1.5,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": true,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "synthetic-shared-application-stream",
+          "groupId": "nahida-skill",
+          "windowStartGroupId": "nahida-skill",
+          "resetFrames": 60,
+          "windowStartFrame": 149,
+          "resetAtFrame": 208,
+          "hitIndex": 0,
+          "sequenceIndex": 0,
+          "applicationMultiplier": 1.5,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      }
+    ]
+  }
+}

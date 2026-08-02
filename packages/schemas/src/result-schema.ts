@@ -1,8 +1,11 @@
 import { z } from "zod";
 import {
+  GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  type GcsimDamageGroupId
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  type GcsimDamageGroupId,
+  type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
@@ -10,17 +13,22 @@ import {
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  type ElementalApplicationIcdDecision,
+  type ElementalApplicationIcdLogEntry,
   type SimulationResult
 } from "./types";
 import {
   validateSimulationResultV142Integrity,
   validateSimulationResultV144Integrity,
   validateSimulationResultV145Integrity,
-  validateSimulationResultV146Integrity
+  validateSimulationResultV146Integrity,
+  validateSimulationResultV147Integrity
 } from "./result-integrity";
 import {
   actorPoseDefinitionSchema,
@@ -39,6 +47,7 @@ import {
   electroChargedCleanupResultReferencesSchema,
   electroChargedPropagationAuditSchema,
   elementSchema,
+  elementalApplicationIcdSelectorSchema,
   enemyTargetsResultReferencesSchema,
   playerDamageEventSchema,
   playerDamageResultReferencesSchema,
@@ -61,10 +70,12 @@ import {
   simConfigV144Schema,
   simConfigV145Schema,
   simConfigV146Schema,
+  simConfigV147Schema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
   simulationRunManifestV146Schema,
+  simulationRunManifestV147Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -84,6 +95,18 @@ const positiveFiniteNumberSchema = finiteNumberSchema.positive();
 const integerSchema = z.number().int();
 const nonNegativeIntegerSchema = integerSchema.nonnegative();
 const positiveIntegerSchema = integerSchema.positive();
+const nonNegativeSafeIntegerSchema = integerSchema
+  .finite()
+  .nonnegative()
+  .refine(Number.isSafeInteger, {
+    message: "must be a safe integer"
+  });
+const positiveSafeIntegerSchema = integerSchema
+  .finite()
+  .positive()
+  .refine(Number.isSafeInteger, {
+    message: "must be a safe integer"
+  });
 const frameSchema = nonNegativeIntegerSchema;
 const nullableFrameSchema = frameSchema.nullable();
 const nonEmptyStringSchema = z
@@ -181,6 +204,16 @@ const directDamageGroupIdSchema = z.custom<GcsimDamageGroupId>(
     typeof value === "string" && directDamageGroupIds.has(value),
   "unknown fixed direct-damage group"
 );
+const publicElementalApplicationGroupIds = new Set<string>(
+  GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS
+);
+const publicElementalApplicationGroupIdSchema =
+  z.custom<PublicGcsimElementalApplicationGroupId>(
+    (value) =>
+      typeof value === "string" &&
+      publicElementalApplicationGroupIds.has(value),
+    "unknown public fixed elemental-application group"
+  );
 
 export const activeStatusSnapshotV142Schema = z
   .object({
@@ -300,16 +333,30 @@ export const additiveReactionAuditV142Schema = z
         message: `${audit.reaction} requires ${expectedElement}`
       });
     }
+    const expectedQuickenGaugeUnitsAfter =
+      audit.quickenGaugeUnitsBefore -
+      audit.consumedQuickenGaugeUnits;
+    const gaugeTolerance =
+      1e-12 *
+      Math.max(
+        1,
+        Math.abs(audit.quickenGaugeUnitsBefore),
+        Math.abs(audit.quickenGaugeUnitsAfter),
+        Math.abs(expectedQuickenGaugeUnitsAfter)
+      );
     if (
-      audit.quickenGaugeUnitsAfter !==
-      audit.quickenGaugeUnitsBefore
+      Math.abs(
+        audit.quickenGaugeUnitsAfter -
+          expectedQuickenGaugeUnitsAfter
+      ) > gaugeTolerance
     ) {
       context.addIssue({
         code: "custom",
         path: ["quickenGaugeUnitsAfter"],
         message:
           `${audit.reaction} cannot consume Quicken Gauge; ` +
-          "quickenGaugeUnitsAfter must equal quickenGaugeUnitsBefore"
+          "quickenGaugeUnitsAfter must approximately equal " +
+          "quickenGaugeUnitsBefore - consumedQuickenGaugeUnits"
       });
     }
   });
@@ -1091,6 +1138,297 @@ export const hitResolutionLogEntryV142Schema = z
       });
     }
   });
+
+const elementalApplicationIcdNoWindowShape = {
+  scope: z.null(),
+  profileId: z.null(),
+  icdTag: z.null(),
+  groupId: z.null(),
+  windowStartGroupId: z.null(),
+  resetFrames: z.null(),
+  windowStartFrame: z.null(),
+  resetAtFrame: z.null(),
+  hitIndex: z.null(),
+  sequenceIndex: z.null(),
+  tailPolicy: z.null()
+} as const;
+
+const elementalApplicationIcdWindowShape = {
+  resetFrames: positiveSafeIntegerSchema,
+  windowStartFrame: nonNegativeSafeIntegerSchema,
+  resetAtFrame: nonNegativeSafeIntegerSchema,
+  hitIndex: nonNegativeSafeIntegerSchema,
+  sequenceIndex: nonNegativeSafeIntegerSchema
+} as const;
+
+/**
+ * Exact 1.47 elemental-application ICD decision wire.
+ *
+ * Skips are not evaluations and therefore omit every window field. No-ICD is
+ * an evaluated bypass but carries explicit nulls, making it impossible to
+ * serialize a plausible-looking partial window. Legacy and fixed decisions
+ * are consumed attempts and own complete, mutually exclusive window shapes.
+ */
+export const elementalApplicationIcdDecisionV147Schema = z
+  .discriminatedUnion("kind", [
+    z
+      .object({
+        kind: z.literal("skipped"),
+        evaluated: z.literal(false),
+        reason: z.enum([
+          "miss",
+          "target-aura-blocked",
+          "no-aura-engine",
+          "mechanics-truncated"
+        ]),
+        consumed: z.literal(false),
+        applicationMultiplier: z.literal(0),
+        allowed: z.literal(false)
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("no-icd"),
+        evaluated: z.literal(true),
+        consumed: z.literal(false),
+        applicationMultiplier: z.literal(1),
+        allowed: z.literal(true),
+        ...elementalApplicationIcdNoWindowShape,
+        resetSchedulePolicy: z.literal("bypass")
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("legacy-profile"),
+        evaluated: z.literal(true),
+        consumed: z.literal(true),
+        allowed: z.boolean(),
+        scope: z.enum([
+          "actor-tag-profile",
+          "target-global-burning"
+        ]),
+        profileId: nonEmptyStringSchema,
+        icdTag: nonEmptyStringSchema,
+        groupId: z.null(),
+        windowStartGroupId: z.null(),
+        ...elementalApplicationIcdWindowShape,
+        applicationMultiplier: z.union([
+          z.literal(0),
+          z.literal(1)
+        ]),
+        tailPolicy: z.enum(["repeat", "clamp"]),
+        resetSchedulePolicy: z.literal(
+          "window-start-plus-reset-frames"
+        )
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("fixed-gcsim"),
+        evaluated: z.literal(true),
+        consumed: z.literal(true),
+        allowed: z.boolean(),
+        scope: z.literal("actor-tag"),
+        profileId: z.literal(
+          GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+        ),
+        icdTag: nonEmptyStringSchema,
+        groupId: publicElementalApplicationGroupIdSchema,
+        windowStartGroupId:
+          publicElementalApplicationGroupIdSchema,
+        ...elementalApplicationIcdWindowShape,
+        applicationMultiplier:
+          nonNegativeFiniteNumberSchema,
+        tailPolicy: z.literal("clamp"),
+        resetSchedulePolicy: z.literal(
+          "window-start-plus-reset-frames-minus-one"
+        )
+      })
+      .strict()
+  ])
+  .superRefine((decision, context) => {
+    if (decision.kind === "skipped" || decision.kind === "no-icd") {
+      return;
+    }
+    if (decision.allowed !== (decision.applicationMultiplier > 0)) {
+      context.addIssue({
+        code: "custom",
+        path: ["allowed"],
+        message: "must equal applicationMultiplier > 0"
+      });
+    }
+    const expectedResetAtFrame =
+      decision.kind === "fixed-gcsim"
+        ? decision.windowStartFrame + decision.resetFrames - 1
+        : decision.windowStartFrame + decision.resetFrames;
+    if (
+      !Number.isSafeInteger(expectedResetAtFrame) ||
+      decision.resetAtFrame !== expectedResetAtFrame
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["resetAtFrame"],
+        message:
+          "must equal the decision window start plus its versioned reset schedule"
+      });
+    }
+  }) satisfies z.ZodType<ElementalApplicationIcdDecision>;
+
+const elementalApplicationElementV147Schema = z.enum([
+  "pyro",
+  "cryo",
+  "hydro",
+  "electro",
+  "anemo",
+  "geo",
+  "dendro"
+]);
+
+/** One source-configured elemental application attempt, including skips. */
+export const elementalApplicationIcdLogEntryV147Schema = z
+  .object({
+    id: nonNegativeSafeIntegerSchema,
+    sourceKind: z.literal("configured-direct-hit"),
+    hitResolutionLogId: nonNegativeSafeIntegerSchema,
+    damageEventId: nonNegativeSafeIntegerSchema.nullable(),
+    frame: nonNegativeSafeIntegerSchema,
+    sourceActorId: nonEmptyStringSchema,
+    targetId: nonEmptyStringSchema,
+    hitId: nonEmptyStringSchema,
+    hitGroupId: nonEmptyStringSchema,
+    element: elementalApplicationElementV147Schema,
+    selector: elementalApplicationIcdSelectorSchema,
+    nominalGaugeUnits: positiveFiniteNumberSchema,
+    effectiveGaugeUnits: nonNegativeFiniteNumberSchema,
+    decision: elementalApplicationIcdDecisionV147Schema
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const statefulDecision =
+      entry.decision.kind === "legacy-profile" ||
+      entry.decision.kind === "fixed-gcsim"
+        ? entry.decision
+        : null;
+    if (
+      statefulDecision !== null &&
+      (statefulDecision.windowStartFrame > entry.frame ||
+        statefulDecision.resetAtFrame <= entry.frame)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["decision", "windowStartFrame"],
+        message:
+          "active window must start no later than this frame and reset after it"
+      });
+    }
+    if (
+      statefulDecision !== null &&
+      statefulDecision.sequenceIndex > statefulDecision.hitIndex
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["decision", "sequenceIndex"],
+        message: "cannot exceed hitIndex"
+      });
+    }
+    if (
+      entry.decision.kind === "skipped" &&
+      entry.decision.reason === "miss"
+    ) {
+      if (entry.damageEventId !== null) {
+        context.addIssue({
+          code: "custom",
+          path: ["damageEventId"],
+          message: "missed application attempts cannot own a damage event"
+        });
+      }
+    } else if (entry.damageEventId === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["damageEventId"],
+        message: "landed configured direct-hit attempts require a damage event"
+      });
+    }
+
+    const expectedEffectiveGaugeUnits =
+      entry.nominalGaugeUnits * entry.decision.applicationMultiplier;
+    const gaugeTolerance =
+      1e-12 * Math.max(1, Math.abs(expectedEffectiveGaugeUnits));
+    if (
+      !Number.isFinite(expectedEffectiveGaugeUnits) ||
+      Math.abs(
+        entry.effectiveGaugeUnits - expectedEffectiveGaugeUnits
+      ) > gaugeTolerance
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["effectiveGaugeUnits"],
+        message:
+          "must approximately equal nominalGaugeUnits * decision.applicationMultiplier"
+      });
+    }
+
+    if (
+      entry.decision.kind === "no-icd" &&
+      entry.selector.mode !== "no-icd-v1"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["decision", "kind"],
+        message: "no-icd decision requires the no-icd-v1 selector"
+      });
+    }
+    if (entry.decision.kind === "legacy-profile") {
+      if (entry.selector.mode !== "legacy-boolean-profile-v1") {
+        context.addIssue({
+          code: "custom",
+          path: ["decision", "kind"],
+          message:
+            "legacy-profile decision requires a legacy-boolean-profile-v1 selector"
+        });
+      } else {
+        if (entry.decision.icdTag !== entry.selector.icdTag) {
+          context.addIssue({
+            code: "custom",
+            path: ["decision", "icdTag"],
+            message: "must equal selector.icdTag"
+          });
+        }
+        if (entry.decision.profileId !== entry.selector.profileId) {
+          context.addIssue({
+            code: "custom",
+            path: ["decision", "profileId"],
+            message: "must equal selector.profileId"
+          });
+        }
+      }
+    }
+    if (entry.decision.kind === "fixed-gcsim") {
+      if (entry.selector.mode !== "fixed-gcsim-application-v1") {
+        context.addIssue({
+          code: "custom",
+          path: ["decision", "kind"],
+          message:
+            "fixed-gcsim decision requires a fixed-gcsim-application-v1 selector"
+        });
+      } else {
+        if (entry.decision.icdTag !== entry.selector.icdTag) {
+          context.addIssue({
+            code: "custom",
+            path: ["decision", "icdTag"],
+            message: "must equal selector.icdTag"
+          });
+        }
+        if (entry.decision.groupId !== entry.selector.groupId) {
+          context.addIssue({
+            code: "custom",
+            path: ["decision", "groupId"],
+            message: "must equal selector.groupId"
+          });
+        }
+      }
+    }
+  }) satisfies z.ZodType<ElementalApplicationIcdLogEntry>;
 
 const directDamageGroupLogCommonV146Shape = {
   id: nonNegativeIntegerSchema,
@@ -2623,7 +2961,7 @@ export type SimulationResultV145 = z.output<
 >;
 
 /**
- * Exact current 1.46 result wire. All inherited 1.45 fields remain exact;
+ * Exact frozen 1.46 result wire. All inherited 1.45 fields remain exact;
  * this boundary adds only the fixed direct-damage-group identity and the
  * required replay log.
  */
@@ -2775,6 +3113,159 @@ export type SimulationResultV146 = z.output<
   typeof simulationResultV146Schema
 >;
 
+/**
+ * Exact current 1.47 result wire. The frozen 1.46 shape is copied before the
+ * new identity and required application-ICD log are introduced, so parsing a
+ * historical result never starts accepting 1.47-only fields.
+ */
+export const simulationResultV147ValueSchema = z
+  .object({
+    ...simulationResultV146ValueSchema.shape,
+    schemaVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV147Schema,
+    config: simConfigV147Schema,
+    elementalApplicationIcdLog: z.array(
+      elementalApplicationIcdLogEntryV147Schema
+    )
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void => context.addIssue({ code: "custom", path, message });
+    if (result.engineVersion !== result.config.engineVersion) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(["dataVersion"], "must equal config.dataVersion");
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType
+    ): void => {
+      const parsed = schema.safeParse(result);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (result.config.targetTaskModel.mode !== "target-phase-v3") {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV147Integrity(
+      result as unknown as SimulationResult,
+      context
+    );
+  });
+
+export const simulationResultV147Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.47"),
+  simulationResultV147ValueSchema
+);
+
+export type SimulationResultV147 = z.output<
+  typeof simulationResultV147Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
-export const simulationResultSchema = simulationResultV146Schema;
-export type ParsedSimulationResult = SimulationResultV146;
+export const simulationResultSchema = simulationResultV147Schema;
+export type ParsedSimulationResult = SimulationResultV147;

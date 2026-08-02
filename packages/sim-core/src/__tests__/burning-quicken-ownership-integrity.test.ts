@@ -78,8 +78,7 @@ function makeBurningQuickenConfig(): SimConfig {
               geometry: SAME_TARGET_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icdTag: "quicken-hit",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -91,8 +90,7 @@ function makeBurningQuickenConfig(): SimConfig {
               geometry: SAME_TARGET_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icdTag: "burning-hit",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -215,8 +213,7 @@ function makeOrderedOwnershipFixture(): SimulationResult {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "ordered-chain",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -284,7 +281,7 @@ function expectRejectedAtBothBoundaries(
   expect(() =>
     assertTrustedSimulationResult(result)
   ).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/
+    /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 

@@ -79,8 +79,7 @@ function makeOrderedElectroConfig(
               },
               application: {
                 gaugeUnits: 2,
-                icdTag: "ordered-electro",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -165,8 +164,7 @@ function makeFrozenSuperconductConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "cryo-freeze-setup",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -183,8 +181,7 @@ function makeFrozenSuperconductConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 2,
-                icdTag: "frozen-superconduct",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -220,8 +217,7 @@ function makeFrozenNoopConsumptionConfig(): SimConfig {
     element: "hydro",
     application: {
       gaugeUnits: 0.5,
-      icdTag: "hydro-freeze-with-cryo-remnant",
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
   hits[1] = {
@@ -231,8 +227,7 @@ function makeFrozenNoopConsumptionConfig(): SimConfig {
     frame: 0,
     application: {
       gaugeUnits: 1.1,
-      icdTag: "superconduct-without-frozen-consumption",
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
   return config;

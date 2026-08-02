@@ -4,8 +4,7 @@ import { AuraEngine } from "../aura";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "aura-v6-electro-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 

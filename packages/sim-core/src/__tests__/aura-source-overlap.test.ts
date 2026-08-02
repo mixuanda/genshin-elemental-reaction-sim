@@ -26,8 +26,9 @@ function apply(
     element: input.element,
     application: {
       gaugeUnits: input.gaugeUnits,
-      icdTag: "aura-source-overlap",
-      icdGroup: "no-icd"
+      icd: {
+        mode: "no-icd-v1"
+      }
     }
   });
 }

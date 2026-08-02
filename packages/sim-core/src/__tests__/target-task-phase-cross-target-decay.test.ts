@@ -82,8 +82,7 @@ function makeCrossTargetDecayConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "late-pyro",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

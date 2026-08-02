@@ -6,8 +6,55 @@ import {
   legalTimelineDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
+
+function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectCurrentApplicationsToLegacyWire);
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.gaugeUnits === "number" &&
+    record.icd !== null &&
+    typeof record.icd === "object"
+  ) {
+    const icd = record.icd as Record<string, unknown>;
+    if (icd.mode === "no-icd-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: "legacy-no-icd",
+        icdGroup: "no-icd"
+      };
+    }
+    if (icd.mode === "legacy-boolean-profile-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: icd.icdTag,
+        icdGroup: icd.profileId
+      };
+    }
+    if (icd.mode === "fixed-gcsim-application-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: icd.icdTag,
+        icdGroup: icd.groupId
+      };
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).map(([key, entry]) => [
+      key,
+      projectCurrentApplicationsToLegacyWire(entry)
+    ])
+  );
+}
 
 test("runs, imports, explores, and exports the compatibility preset", async ({
   page
@@ -55,6 +102,13 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     mode: "fixed-gcsim-direct-damage-group-v1",
     profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
   });
+  const importedElementalApplicationIcdModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().elementalApplicationIcdModel
+  );
+  expect(importedElementalApplicationIcdModel).toEqual({
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -87,6 +141,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     reactionDeliveryModel?: unknown;
     reactionFormulaModel?: unknown;
     directDamageGroupModel?: unknown;
+    elementalApplicationIcdModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
@@ -100,15 +155,18 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   expect(exportedConfig.directDamageGroupModel).toEqual(
     importedDirectDamageGroupModel
   );
+  expect(exportedConfig.elementalApplicationIcdModel).toEqual(
+    importedElementalApplicationIcdModel
+  );
 });
 
-test("migrates a 1.38 config to deferred delivery and both fixed mechanics roots", async ({
+test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots", async ({
   page
 }) => {
   await page.goto("/");
-  const historicalConfig = structuredClone(
-    durinMeltPreset
-  ) as unknown as Record<string, unknown>;
+  const historicalConfig = projectCurrentApplicationsToLegacyWire(
+    structuredClone(durinMeltPreset)
+  ) as Record<string, unknown>;
   historicalConfig.schemaVersion = "1.38.0";
   historicalConfig.engineVersion = "1.38.0-target-reactable-phase";
   historicalConfig.meta = {
@@ -119,6 +177,7 @@ test("migrates a 1.38 config to deferred delivery and both fixed mechanics roots
   delete historicalConfig.electroChargedPropagationModel;
   delete historicalConfig.reactionFormulaModel;
   delete historicalConfig.directDamageGroupModel;
+  delete historicalConfig.elementalApplicationIcdModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -137,12 +196,14 @@ test("migrates a 1.38 config to deferred delivery and both fixed mechanics roots
       electroChargedPropagationModel:
         config.electroChargedPropagationModel,
       reactionFormulaModel: config.reactionFormulaModel,
-      directDamageGroupModel: config.directDamageGroupModel
+      directDamageGroupModel: config.directDamageGroupModel,
+      elementalApplicationIcdModel:
+        config.elementalApplicationIcdModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.46.0",
-    engineVersion: "1.46.0-direct-damage-group-root",
+    schemaVersion: "1.47.0",
+    engineVersion: "1.47.0-elemental-application-icd-root",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -156,6 +217,10 @@ test("migrates a 1.38 config to deferred delivery and both fixed mechanics roots
     directDamageGroupModel: {
       mode: "fixed-gcsim-direct-damage-group-v1",
       profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    elementalApplicationIcdModel: {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     }
   });
 });
@@ -164,14 +229,16 @@ test("rejects a 1.38 wire polluted by the current reaction formula model", async
   page
 }) => {
   await page.goto("/");
-  const pollutedHistoricalConfig = structuredClone(
-    durinMeltPreset
-  ) as unknown as Record<string, unknown>;
+  const pollutedHistoricalConfig = projectCurrentApplicationsToLegacyWire(
+    structuredClone(durinMeltPreset)
+  ) as Record<string, unknown>;
   pollutedHistoricalConfig.schemaVersion = "1.38.0";
   pollutedHistoricalConfig.engineVersion =
     "1.38.0-target-reactable-phase";
   delete pollutedHistoricalConfig.reactionDeliveryModel;
   delete pollutedHistoricalConfig.electroChargedPropagationModel;
+  delete pollutedHistoricalConfig.directDamageGroupModel;
+  delete pollutedHistoricalConfig.elementalApplicationIcdModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
@@ -240,9 +307,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.46.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.47.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.46.0-direct-damage-group-root"
+    "engine 1.47.0-elemental-application-icd-root"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
@@ -1107,8 +1174,7 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icdTag: "catalyze-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           {
@@ -1119,8 +1185,7 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icdTag: "catalyze-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           {
@@ -1131,8 +1196,7 @@ test("renders Dendro Catalyze, per-hit composition, Quicken state, and component
             element: "dendro",
             application: {
               gaugeUnits: 1,
-              icdTag: "catalyze-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -1301,8 +1365,7 @@ test("renders target-local mechanics truncation without counting later potential
             element: "hydro",
             application: {
               gaugeUnits: 1,
-              icdTag: "truncation-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           {
@@ -1313,8 +1376,7 @@ test("renders target-local mechanics truncation without counting later potential
             element: "electro",
             application: {
               gaugeUnits: 1,
-              icdTag: "truncation-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -1449,8 +1511,7 @@ test("renders an ordered Overload as cancelled when the same hit truncates on Bu
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "overload-burning-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -1596,8 +1657,7 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "burning-browser-start",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           {
@@ -1612,8 +1672,7 @@ test("renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned cu
             },
             application: {
               gaugeUnits: 2,
-              icdTag: "burning-browser-refresh",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -2150,8 +2209,7 @@ test("renders Swirl self damage, propagation, secondary reaction, Aura, and curv
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "swirl-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -2352,8 +2410,7 @@ test("renders Crystallize Aura, shard pickup, shield state, and shield curve", a
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "crystallize-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -2604,8 +2661,7 @@ test("renders Overload as independent per-target damage with queue and formula a
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "overload-skill",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -2746,8 +2802,7 @@ test("renders Superconduct damage and target-scoped physical resistance windows"
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "superconduct-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           {
@@ -2935,8 +2990,7 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "ec-browser-start",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -2962,8 +3016,7 @@ test("renders every Electro-Charged tick, ownership refresh, Aura wane, and curv
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "ec-browser-refresh",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -3137,8 +3190,7 @@ test("renders Frozen creation, exact expiry, resistance, and curve state", async
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "freeze-browser",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -3298,8 +3350,7 @@ test("renders Shatter trigger audit, physical damage, frozen consumption, and cu
             element: "hydro",
             application: {
               gaugeUnits: 1,
-              icdTag: "freeze-before-shatter",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]

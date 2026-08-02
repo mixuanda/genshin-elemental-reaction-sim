@@ -16,8 +16,7 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "crystallize-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -44,7 +43,7 @@ function expectCrystallizeMutationRejected(
     assertTrustedSimulationResult(trustedResult)
   ).toThrow(
     expectedMessage ??
-      /Trusted SimulationResult 1\.46 integrity validation failed/
+      /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 

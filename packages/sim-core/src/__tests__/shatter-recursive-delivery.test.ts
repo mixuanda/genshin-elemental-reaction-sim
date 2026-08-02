@@ -32,6 +32,90 @@ function sha256(value: unknown): string {
     .digest("hex");
 }
 
+const V147_APPLICATION_WIRE_ONLY_KEYS = new Set([
+  "applicationIcdDecision",
+  "applicationIcdLogId",
+  "applicationMultiplier",
+  "nominalApplicationGaugeUnits",
+  "effectiveApplicationGaugeUnits",
+]);
+
+const SHATTER_V146_NO_ICD_TAG_BY_HIT_ID = {
+  "hydro-freeze-hit": "freeze",
+  "refreeze-cryo": "refreeze-cryo",
+  "refreeze-hydro": "refreeze-hydro",
+  "freeze-neighbor-hit": "freeze-neighbor",
+  "trigger-overload-hit": "trigger-overload",
+} as const satisfies Record<string, string>;
+
+function stripV147ApplicationWireOnlyFields(
+  value: Record<string, unknown>,
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      ([key]) => !V147_APPLICATION_WIRE_ONLY_KEYS.has(key),
+    ),
+  );
+}
+
+/**
+ * Preserve the frozen 1.39/V146 damage-event digest across the 1.47
+ * application-ICD wire bump. Only the DamageEvent and ReactionAudit wire
+ * surfaces are stripped; recursive stripping would erase a real mechanics
+ * decision's applicationMultiplier and weaken the Golden.
+ */
+function shatterDamageEventsForV146SemanticDigest(
+  result: SimulationResult,
+): unknown {
+  const directNoIcdApplicationByDamageEventId = new Map(
+    result.elementalApplicationIcdLog
+      .filter(
+        (entry) =>
+          entry.sourceKind === "configured-direct-hit" &&
+          entry.damageEventId !== null &&
+          entry.decision.kind === "no-icd",
+      )
+      .map((entry) => [entry.damageEventId!, entry] as const),
+  );
+
+  return result.damageEvents.map((event) => {
+    const normalized = {
+      ...stripV147ApplicationWireOnlyFields(
+        event as unknown as Record<string, unknown>,
+      ),
+      reactionAudit: stripV147ApplicationWireOnlyFields(
+        event.reactionAudit as unknown as Record<string, unknown>,
+      ),
+    } as unknown as SimulationResult["damageEvents"][number];
+    const application =
+      directNoIcdApplicationByDamageEventId.get(event.id);
+    if (application === undefined || event.kind !== "direct") {
+      // Reaction-owned applications retain their exact legacy audit fields.
+      return normalized;
+    }
+    const legacyIcdTag =
+      SHATTER_V146_NO_ICD_TAG_BY_HIT_ID[
+        event.hitId as keyof typeof SHATTER_V146_NO_ICD_TAG_BY_HIT_ID
+      ];
+    if (legacyIcdTag === undefined) {
+      throw new Error(
+        `Missing frozen V146 no-ICD tag projection for Shatter hit "${event.hitId}".`,
+      );
+    }
+
+    return {
+      ...normalized,
+      reactionAudit: {
+        ...normalized.reactionAudit,
+        icdAllowed: true,
+        icdTag: legacyIcdTag,
+        icdGroup: "no-icd",
+        applicationGaugeUnits: application.nominalGaugeUnits,
+      },
+    };
+  });
+}
+
 function projectShatterResult(result: SimulationResult) {
   reactionDeliveryResultReferencesSchema.parse(result);
   return {
@@ -108,7 +192,9 @@ function projectShatterResult(result: SimulationResult) {
     ]),
     digests: {
       config: sha256(result.config),
-      damageEvents: sha256(result.damageEvents),
+      damageEvents: sha256(
+        shatterDamageEventsForV146SemanticDigest(result),
+      ),
       reactionDamageLog: sha256(
         result.reactionDamageLog,
       ),
@@ -358,8 +444,7 @@ function makeDirectShatterConfig(options?: {
               element: "hydro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze",
-                icdGroup: "no-icd",
+                icd: { mode: "no-icd-v1" },
               },
             },
           ],
@@ -382,8 +467,7 @@ function makeDirectShatterConfig(options?: {
                   element: "cryo",
                   application: {
                     gaugeUnits: 1,
-                    icdTag: "refreeze-cryo",
-                    icdGroup: "no-icd",
+                    icd: { mode: "no-icd-v1" },
                   },
                 },
                 {
@@ -393,8 +477,7 @@ function makeDirectShatterConfig(options?: {
                   element: "hydro",
                   application: {
                     gaugeUnits: 1,
-                    icdTag: "refreeze-hydro",
-                    icdGroup: "no-icd",
+                    icd: { mode: "no-icd-v1" },
                   },
                 },
                 {
@@ -504,8 +587,7 @@ function makeNestedOverloadShatterConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze-neighbor",
-                icdGroup: "no-icd",
+                icd: { mode: "no-icd-v1" },
               },
             },
           ],
@@ -532,8 +614,7 @@ function makeNestedOverloadShatterConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "trigger-overload",
-                icdGroup: "no-icd",
+                icd: { mode: "no-icd-v1" },
               },
             },
           ],

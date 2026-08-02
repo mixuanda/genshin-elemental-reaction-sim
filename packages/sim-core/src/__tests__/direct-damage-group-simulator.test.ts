@@ -682,8 +682,7 @@ describe("ordinary direct-damage groups in the simulator", () => {
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "aura-open",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             targetHitlag: { haltFrames: 2, factor: 0 }
           }),
@@ -691,8 +690,7 @@ describe("ordinary direct-damage groups in the simulator", () => {
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "aura-zero",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             targetHitlag: { haltFrames: 2, factor: 0 }
           })
@@ -760,8 +758,7 @@ describe("ordinary direct-damage groups in the simulator", () => {
             element: "hydro",
             application: {
               gaugeUnits: 1,
-              icdTag: "create-core",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           },
           directHit("zero-core-contact", 32, "core", "pole-extra-attack", {
@@ -774,8 +771,7 @@ describe("ordinary direct-damage groups in the simulator", () => {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "zero-core-contact",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           })
         ]

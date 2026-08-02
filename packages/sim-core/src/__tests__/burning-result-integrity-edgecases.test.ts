@@ -35,11 +35,10 @@ function character(
   };
 }
 
-function application(id: string, gaugeUnits = 1) {
+function application(_id: string, gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: id,
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -351,7 +350,7 @@ function expectRejectedAtBothBoundaries(
   );
   expect(() =>
     assertTrustedSimulationResult(result)
-  ).toThrow(/Trusted SimulationResult 1\.46 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.47 integrity validation failed/);
 }
 
 function appendUnownedStop(
@@ -724,7 +723,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.46 integrity validation failed/
+      /Trusted SimulationResult 1\.47 integrity validation failed/
     );
   });
 
@@ -943,7 +942,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.46 integrity validation failed/
+      /Trusted SimulationResult 1\.47 integrity validation failed/
     );
   });
 
@@ -1040,7 +1039,7 @@ describe("Burning result integrity edge cases", () => {
     expect(() =>
       assertTrustedSimulationResult(result)
     ).toThrow(
-      /Trusted SimulationResult 1\.46 integrity validation failed/
+      /Trusted SimulationResult 1\.47 integrity validation failed/
     );
   });
 

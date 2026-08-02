@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { GCSIM_ELEMENTAL_APPLICATION_ROOT } from "@genshin-dps-lab/icd-profiles";
 import type {
   SimConfig,
   SimulationResult,
@@ -11,8 +12,10 @@ import {
   SIMULATION_RUN_MANIFEST_VERSION,
   simulationResultSchema,
   simulationResultV146Schema,
+  simulationResultV147Schema,
   simulationRunManifestSchema,
   simulationRunManifestV146Schema,
+  simulationRunManifestV147Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
@@ -79,8 +82,7 @@ function makeTargetTaskPhaseLogConfig(
       },
       application: {
         gaugeUnits: 1,
-        icdTag: "burning-start",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       },
       ...(options.hitlag === true
         ? {
@@ -524,15 +526,16 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.46 result and manifest boundaries", () => {
+  it("emits current simulations through the exact 1.47 result and manifest boundaries", () => {
     const result = simulate(
       makeTargetTaskPhaseLogConfig("target-phase-v1")
     );
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.46.0-direct-damage-group-root"
+      "1.47.0-elemental-application-icd-root"
     );
+    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.3.0");
     expect(result).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -544,19 +547,28 @@ describe("target task phase replay log", () => {
     expect(result.runManifest).toMatchObject({
       version: SIMULATION_RUN_MANIFEST_VERSION,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT
     });
     expect(
-      simulationRunManifestV146Schema.parse(result.runManifest)
+      simulationRunManifestV147Schema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
     expect(
       simulationRunManifestSchema.parse(result.runManifest)
     ).toStrictEqual(result.runManifest);
-    expect(simulationResultV146Schema.parse(result)).toStrictEqual(
+    expect(
+      simulationRunManifestV146Schema.safeParse(result.runManifest)
+        .success
+    ).toBe(false);
+    expect(simulationResultV147Schema.parse(result)).toStrictEqual(
       result
     );
     expect(simulationResultSchema.parse(result)).toStrictEqual(
       result
+    );
+    expect(simulationResultV146Schema.safeParse(result).success).toBe(
+      false
     );
   });
 
@@ -857,9 +869,9 @@ describe("target task phase replay log", () => {
       Object.keys(targetTaskPhaseGolden.hashes).sort()
     ).toEqual([...scenarioIds].sort());
 
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.46.0-direct-damage-group-root"
+      "1.47.0-elemental-application-icd-root"
     );
 
     for (const scenarioId of scenarioIds) {

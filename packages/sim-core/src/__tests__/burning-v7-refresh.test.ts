@@ -87,8 +87,7 @@ function makeBurningRefreshConfig(
             },
             application: {
               gaugeUnits: hit.gaugeUnits ?? 1,
-              icdTag: hit.id,
-              icdGroup: "no-icd" as const
+              icd: { mode: "no-icd-v1" as const }
             }
           }))
         }

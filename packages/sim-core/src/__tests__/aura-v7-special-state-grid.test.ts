@@ -205,11 +205,10 @@ const SPECIAL_STATE_SCENARIOS = [
   }
 ] as const satisfies readonly SpecialStateScenario[];
 
-function noIcd(gaugeUnits: number, tag: string) {
+function noIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: tag,
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -310,10 +309,7 @@ function replayPrefix(
       frame: 0,
       sourceActorId,
       element: hit.element,
-      application: noIcd(
-        hit.gaugeUnits,
-        `${scenario.id}:prefix:${index}`
-      )
+      application: noIcd(hit.gaugeUnits)
     });
     audits.push(audit);
     electroChargedActive = updateElectroChargedState(
@@ -357,10 +353,7 @@ function replayOrderSeed(
       frame: 0,
       sourceActorId: `${scenario.id}:order:${index}`,
       element: hit.element,
-      application: noIcd(
-        hit.gaugeUnits,
-        `${scenario.id}:order:${index}`
-      )
+      application: noIcd(hit.gaugeUnits)
     })
   );
 }
@@ -640,10 +633,7 @@ function applyIncoming(
     ...(vector.gaugeUnits === null
       ? {}
       : {
-          application: noIcd(
-            vector.gaugeUnits,
-            `${scenario.id}:incoming:${vector.element}:${vector.gaugeUnits}`
-          )
+          application: noIcd(vector.gaugeUnits)
         })
   });
   return {
@@ -1097,7 +1087,7 @@ describe("aura-v7 special-state public lifecycle boundaries", () => {
         frame: 0,
         sourceActorId: "electro",
         element: "electro",
-        application: noIcd(2, "strong-ec")
+        application: noIcd(2)
       }).periodicReaction!;
       return { engine, start };
     };

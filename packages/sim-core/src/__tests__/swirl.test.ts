@@ -16,8 +16,7 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "swirl-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -289,8 +288,7 @@ function makeSwirlSimulationConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "skill",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

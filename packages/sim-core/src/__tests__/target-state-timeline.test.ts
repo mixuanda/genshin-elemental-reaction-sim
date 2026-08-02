@@ -66,8 +66,7 @@ function makeShatterOrderingConfig(): SimConfig {
               element: "hydro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -90,8 +89,7 @@ function makeShatterOrderingConfig(): SimConfig {
               poiseDamage: 1,
               application: {
                 gaugeUnits: 1,
-                icdTag: "shatter",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -184,8 +182,7 @@ function makeMultiTargetBurningConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "burning-two-targets",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -277,8 +274,7 @@ function makeMissedOverloadShatterConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze-neighbor",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -303,8 +299,7 @@ function makeMissedOverloadShatterConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "trigger-overload",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -395,8 +390,7 @@ function makeSameFrameExpiryReactionMissConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "delayed-overload",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

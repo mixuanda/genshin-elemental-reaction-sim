@@ -129,8 +129,7 @@ const LEVEL_BASE_ORACLE = [
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "reaction-formula-profile-oracle",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 

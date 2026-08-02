@@ -14,9 +14,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { durinMeltPreset } from "@genshin-dps-lab/game-data/presets";
 import { GCSIM_DAMAGE_GROUP_ROOT } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   assertTrustedSimulationResult,
   directDamageGroupModelSchema,
   reactionFormulaModelSchema,
@@ -88,8 +88,12 @@ const fixtureSchema = z
         completeGcsimParity: z.literal(false)
       })
       .strict(),
-    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-    engineVersion: z.literal(CURRENT_ENGINE_VERSION),
+    schemaVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    ),
     configHash: z.literal(DEFAULT_V146_CONFIG_HASH),
     reproducibilityKey: z.literal(
       DEFAULT_V146_REPRODUCIBILITY_KEY
@@ -151,7 +155,7 @@ const fixtureSchema = z
   .superRefine((fixture, context) => {
     if (
       fixture.runManifest.version !==
-        SIMULATION_RUN_MANIFEST_VERSION ||
+        DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION ||
       fixture.runManifest.schemaVersion !==
         fixture.schemaVersion ||
       fixture.runManifest.engineVersion !==
@@ -331,6 +335,18 @@ function makeFixture(
   const evaluatedCount = result.directDamageGroupLog.filter(
     (entry) => entry.evaluation === "evaluated"
   ).length;
+  const {
+    elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
+    ...currentManifestWithoutApplicationRoot
+  } = result.runManifest;
+  const frozenRunManifest = {
+    ...currentManifestWithoutApplicationRoot,
+    version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    configHash: DEFAULT_V146_CONFIG_HASH,
+    reproducibilityKey: DEFAULT_V146_REPRODUCIBILITY_KEY
+  };
   return fixtureSchema.parse({
     fixtureVersion: "1.0.0",
     description: DESCRIPTION,
@@ -342,10 +358,10 @@ function makeFixture(
       officialServerTruth: false,
       completeGcsimParity: false
     },
-    schemaVersion: result.schemaVersion,
-    engineVersion: result.engineVersion,
-    configHash: result.runManifest.configHash,
-    reproducibilityKey: result.reproducibilityKey,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    configHash: DEFAULT_V146_CONFIG_HASH,
+    reproducibilityKey: DEFAULT_V146_REPRODUCIBILITY_KEY,
     options: result.resolvedRuntimeOptions,
     totalDamage: result.totalDamage,
     dps: result.dps,
@@ -390,7 +406,7 @@ function makeFixture(
         result.directDamageGroupLog
       )
     },
-    runManifest: result.runManifest
+    runManifest: frozenRunManifest
   });
 }
 

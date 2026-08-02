@@ -19,6 +19,9 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   EC_SECONDARY_WET_PROPAGATION_ENGINE_VERSION,
   EC_SECONDARY_WET_PROPAGATION_SCHEMA_VERSION,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
@@ -26,14 +29,21 @@ import {
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   assertTrustedSimulationResult,
+  createSimulationConfigHash,
+  createSimulationReproducibilityKey,
   legacyDefault120sGoldenFixtureV142Schema,
   legacyDefault120sGoldenFixtureV144Schema,
   migrateConfig,
   playerDamageResultReferencesSchema,
   reactionFormulaModelSchema,
   reactionFormulaRootSchema,
+  simConfigV146Schema,
   simulationResultSchema,
-  simulationRunManifestV145Schema
+  simulationRunManifestV145Schema,
+  simulationRunManifestV146Schema,
+  type SimConfig,
+  type SimConfigV146,
+  type SimulationRunManifestV146
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_ROOT
@@ -254,6 +264,214 @@ function serializeJsonFixture(value: unknown): string {
 
 function byteSha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
+}
+
+/**
+ * Project only the 1.47 elemental-application selector wire. A no-ICD
+ * selector no longer carries the old, semantically inert tag, so an exact
+ * frozen source may supply it when byte-identical 1.46 identity matters.
+ */
+function projectApplicationsToFrozenV146Wire(
+  value: unknown,
+  frozenReference?: unknown
+): unknown {
+  if (Array.isArray(value)) {
+    const referenceEntries = Array.isArray(frozenReference)
+      ? frozenReference
+      : [];
+    return value.map((entry, index) =>
+      projectApplicationsToFrozenV146Wire(
+        entry,
+        referenceEntries[index]
+      )
+    );
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.gaugeUnits === "number" &&
+    record.icd !== null &&
+    typeof record.icd === "object"
+  ) {
+    const selector = record.icd as Record<string, unknown>;
+    if (selector.mode === "no-icd-v1") {
+      const reference =
+        frozenReference !== null &&
+        typeof frozenReference === "object"
+          ? (frozenReference as Record<string, unknown>)
+          : undefined;
+      const frozenIcdTag =
+        reference?.gaugeUnits === record.gaugeUnits &&
+        reference.icdGroup === "no-icd" &&
+        typeof reference.icdTag === "string" &&
+        reference.icdTag.length > 0
+          ? reference.icdTag
+          : "__no_icd_v1__";
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: frozenIcdTag,
+        icdGroup: "no-icd"
+      };
+    }
+    if (
+      selector.mode === "legacy-boolean-profile-v1" &&
+      typeof selector.icdTag === "string" &&
+      selector.icdTag.length > 0 &&
+      typeof selector.profileId === "string" &&
+      selector.profileId.length > 0
+    ) {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: selector.icdTag,
+        icdGroup: selector.profileId
+      };
+    }
+    if (
+      selector.mode === "fixed-gcsim-application-v1" &&
+      typeof selector.icdTag === "string" &&
+      selector.icdTag.length > 0 &&
+      typeof selector.groupId === "string" &&
+      selector.groupId.length > 0
+    ) {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: selector.icdTag,
+        icdGroup: selector.groupId
+      };
+    }
+    throw new Error(
+      "Cannot safely project an unknown elemental-application selector onto the frozen 1.46 wire."
+    );
+  }
+  const frozenRecord =
+    frozenReference !== null &&
+    typeof frozenReference === "object"
+      ? (frozenReference as Record<string, unknown>)
+      : undefined;
+  return Object.fromEntries(
+    Object.entries(record).map(([key, entry]) => [
+      key,
+      projectApplicationsToFrozenV146Wire(
+        entry,
+        frozenRecord?.[key]
+      )
+    ])
+  );
+}
+
+function projectCurrentConfigToFrozenV146(
+  config: SimConfig,
+  frozenReference?: unknown
+): SimConfigV146 {
+  const {
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
+    ...currentWithoutApplicationModel
+  } = structuredClone(config);
+  const projected = projectApplicationsToFrozenV146Wire(
+    currentWithoutApplicationModel,
+    frozenReference
+  ) as Record<string, unknown>;
+  return simConfigV146Schema.parse({
+    ...projected,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+  });
+}
+
+function projectCurrentManifestToFrozenV146(
+  result: ReturnType<typeof simulate>,
+  frozenConfig: SimConfigV146
+): SimulationRunManifestV146 {
+  const {
+    elementalApplicationIcdRoot:
+      _elementalApplicationIcdRoot,
+    reproducibilityKey: _currentReproducibilityKey,
+    ...currentIdentity
+  } = result.runManifest;
+  const frozenIdentity = {
+    ...currentIdentity,
+    version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+    configHash: createSimulationConfigHash(frozenConfig)
+  } satisfies Omit<
+    SimulationRunManifestV146,
+    "reproducibilityKey"
+  >;
+  return simulationRunManifestV146Schema.parse({
+    ...frozenIdentity,
+    reproducibilityKey:
+      createSimulationReproducibilityKey(frozenIdentity)
+  });
+}
+
+/**
+ * The 1.47 no-ICD decision intentionally reports null legacy tag/group fields.
+ * Restore those semantically inert 1.46 wire values only for frozen digests;
+ * the current result itself remains untouched and is validated above.
+ */
+function projectCurrentDamageEventsToFrozenV146(
+  result: ReturnType<typeof simulate>,
+  frozenConfig: SimConfigV146
+): ReturnType<typeof simulate>["damageEvents"] {
+  const configuredHits = [
+    ...frozenConfig.rotation.flatMap((action) => action.hits),
+    ...(frozenConfig.timeline?.abilities.flatMap(
+      (ability) => ability.hits
+    ) ?? [])
+  ];
+  const projected = structuredClone(result.damageEvents);
+  for (const row of result.elementalApplicationIcdLog) {
+    if (row.damageEventId === null) continue;
+    const event = projected[row.damageEventId];
+    if (
+      event === undefined ||
+      event.id !== row.damageEventId ||
+      event.hitId !== row.hitId ||
+      event.hitGroupId !== row.hitGroupId
+    ) {
+      throw new Error(
+        `Cannot project dangling elemental-application audit row ${row.id} onto frozen 1.46 damage events.`
+      );
+    }
+    const matches = configuredHits.filter(
+      (hit) =>
+        hit?.id === row.hitId && hit.application !== undefined
+    );
+    const application = matches[0]?.application;
+    if (matches.length !== 1 || application === undefined) {
+      throw new Error(
+        `Frozen 1.46 application projection requires exactly one configured hit for "${row.hitId}"; received ${matches.length}.`
+      );
+    }
+    const selector = row.selector;
+    const selectorMatchesFrozenWire =
+      (selector.mode === "no-icd-v1" &&
+        application.icdGroup === "no-icd") ||
+      (selector.mode === "legacy-boolean-profile-v1" &&
+        application.icdTag === selector.icdTag &&
+        application.icdGroup === selector.profileId) ||
+      (selector.mode === "fixed-gcsim-application-v1" &&
+        application.icdTag === selector.icdTag &&
+        application.icdGroup === selector.groupId);
+    if (
+      !selectorMatchesFrozenWire ||
+      application.gaugeUnits !== row.nominalGaugeUnits ||
+      event.reactionAudit.applicationGaugeUnits !==
+        row.effectiveGaugeUnits ||
+      event.reactionAudit.icdAllowed !== row.decision.allowed
+    ) {
+      throw new Error(
+        `Elemental-application audit row ${row.id} cannot be represented by the supplied frozen 1.46 hit.`
+      );
+    }
+    event.reactionAudit.icdTag = application.icdTag;
+    event.reactionAudit.icdGroup = application.icdGroup;
+  }
+  return projected;
 }
 
 function atomicCreateFixtureBytes(
@@ -733,6 +951,8 @@ function makeLegacyDefaultV145CreationProbeFixture(
 ): LegacyDefaultV145Fixture {
   const {
     directDamageGroupRoot: _directDamageGroupRoot,
+    elementalApplicationIcdRoot:
+      _elementalApplicationIcdRoot,
     ...historicalRunManifest
   } = result.runManifest;
   return legacyDefault120sGoldenFixtureV145Schema.parse({
@@ -847,7 +1067,8 @@ function stripV132BurningSkipAuditCorrection(
 
 function v130CompatibilityResult(
   result: ReturnType<typeof simulate>,
-  reproducibilityKey: string
+  reproducibilityKey: string,
+  frozenConfig?: SimConfigV146
 ): unknown {
   const {
     targetStateTimeline: _targetStateTimeline,
@@ -868,6 +1089,8 @@ function v130CompatibilityResult(
     targetTaskPhaseLog: _targetTaskPhaseLog,
     targetPhaseLog: _targetPhaseLog,
     directDamageGroupLog: _directDamageGroupLog,
+    elementalApplicationIcdLog:
+      _elementalApplicationIcdLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -883,7 +1106,9 @@ function v130CompatibilityResult(
       reproducibilityKey,
       config: {
         ...Object.fromEntries(
-          Object.entries(preDendroCoreResult.config).filter(
+          Object.entries(
+            frozenConfig ?? preDendroCoreResult.config
+          ).filter(
             ([key]) =>
               key !== "playerDamageModel" &&
               key !== "targetClockModel" &&
@@ -891,7 +1116,8 @@ function v130CompatibilityResult(
               key !== "reactionDeliveryModel" &&
               key !== "electroChargedPropagationModel" &&
               key !== "reactionFormulaModel" &&
-              key !== "directDamageGroupModel"
+              key !== "directDamageGroupModel" &&
+              key !== "elementalApplicationIcdModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -939,6 +1165,8 @@ function makeBurningGoldenConfig(): unknown {
       _electroChargedPropagationModel,
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
     ...v130Base
   } = base;
   return {
@@ -1452,11 +1680,13 @@ describe("1.44 identity migration release gate", () => {
         commands: []
       }
     });
+    const frozenV146 =
+      projectCurrentConfigToFrozenV146(current);
     const {
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
       ...historical
-    } = current;
+    } = frozenV146;
     return {
       ...historical,
       schemaVersion:
@@ -1485,7 +1715,9 @@ describe("1.44 identity migration release gate", () => {
         reactionFormulaModel:
           makeConfig().reactionFormulaModel,
         directDamageGroupModel:
-          makeConfig().directDamageGroupModel
+          makeConfig().directDamageGroupModel,
+        elementalApplicationIcdModel:
+          makeConfig().elementalApplicationIcdModel
       });
       expect(historical).toEqual(before);
     });
@@ -1509,7 +1741,9 @@ describe("1.44 identity migration release gate", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaModel: makeConfig().reactionFormulaModel,
       directDamageGroupModel:
-        makeConfig().directDamageGroupModel
+        makeConfig().directDamageGroupModel,
+      elementalApplicationIcdModel:
+        makeConfig().elementalApplicationIcdModel
     };
     expect(migrateConfig(currentAuraV8)).toEqual(
       currentAuraV8
@@ -2277,6 +2511,18 @@ describe("Burning aura-v4 provisional golden", () => {
       reactionEngine: { mode: "aura-v4" }
     });
     const result = simulate(input, options);
+    const frozenV146Config =
+      projectCurrentConfigToFrozenV146(result.config, input);
+    const frozenV146Manifest =
+      projectCurrentManifestToFrozenV146(
+        result,
+        frozenV146Config
+      );
+    const frozenV146DamageEvents =
+      projectCurrentDamageEventsToFrozenV146(
+        result,
+        frozenV146Config
+      );
     expect(
       playerDamageResultReferencesSchema.parse(result)
     ).toEqual(result);
@@ -2286,7 +2532,7 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(assertTrustedSimulationResult(result)).toBe(
       result
     );
-    expect(result.runManifest.configHash).toBe(
+    expect(frozenV146Manifest.configHash).toBe(
       BURNING_V146_CONFIG_HASH
     );
 
@@ -2325,7 +2571,7 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(burningGolden.reproducibilityKey).toBe(
       "gdl-37da25f5"
     );
-    expect(result.reproducibilityKey).toBe(
+    expect(frozenV146Manifest.reproducibilityKey).toBe(
       BURNING_V146_REPRODUCIBILITY_KEY
     );
     expect(result.runManifest).toMatchObject({
@@ -2340,9 +2586,23 @@ describe("Burning aura-v4 provisional golden", () => {
         result.runManifest.reactionFormulaRoot,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
       reproducibilityKey:
+        result.reproducibilityKey
+    });
+    expect(frozenV146Manifest).toMatchObject({
+      version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+      identityAlgorithm: "fnv1a32-v2",
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      configHash: BURNING_V146_CONFIG_HASH,
+      resolvedRuntimeOptions: options,
+      plugins: [],
+      reactionFormulaRoot:
+        result.runManifest.reactionFormulaRoot,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      reproducibilityKey:
         BURNING_V146_REPRODUCIBILITY_KEY
     });
-    expect(sha256(result.damageEvents)).toBe(
+    expect(sha256(frozenV146DamageEvents)).toBe(
       BURNING_DAMAGE_EVENTS_SHA256
     );
     expect(sha256(result.burningStateLog)).toBe(
@@ -2351,8 +2611,13 @@ describe("Burning aura-v4 provisional golden", () => {
     expect(
       sha256(
         v130CompatibilityResult(
-          result,
-          burningGolden.reproducibilityKey
+          {
+            ...result,
+            damageEvents: frozenV146DamageEvents,
+            hitEvents: frozenV146DamageEvents
+          },
+          burningGolden.reproducibilityKey,
+          frozenV146Config
         )
       )
     ).toBe(

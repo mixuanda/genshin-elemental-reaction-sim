@@ -4,7 +4,10 @@ import {
   durinMeltPreset,
   particleEnergyDemoPreset
 } from "@genshin-dps-lab/game-data/presets";
-import type { SimConfig } from "@genshin-dps-lab/schemas";
+import type {
+  SimConfig,
+  SimulationResult
+} from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -80,6 +83,76 @@ function sha256(value: unknown): string {
     .digest("hex");
 }
 
+const V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS = new Set([
+  "applicationIcdDecision",
+  "applicationIcdLogId",
+  "applicationMultiplier",
+  "nominalApplicationGaugeUnits",
+  "effectiveApplicationGaugeUnits"
+]);
+
+/** Keep the sustained-Burning performance sentinel on frozen 1.46 semantics. */
+function projectDamageEventsToFrozenV146(
+  result: SimulationResult
+): unknown[] {
+  const legacyAuditByDamageEventId = new Map(
+    result.elementalApplicationIcdLog.flatMap((entry) => {
+      if (
+        entry.damageEventId === null ||
+        entry.selector.mode !== "no-icd-v1"
+      ) {
+        return [];
+      }
+      const legacyIcdTag =
+        entry.hitId === "pyro-start"
+          ? "burning-performance-start"
+          : entry.hitId.startsWith("dendro-refresh-")
+            ? entry.hitId.replace(
+                "dendro-refresh-",
+                "burning-refresh-"
+              )
+            : null;
+      if (legacyIcdTag === null) {
+        throw new Error(
+          `Unknown sustained-Burning hit ${entry.hitId} in frozen performance projection.`
+        );
+      }
+      return [
+        [
+          entry.damageEventId,
+          {
+            icdAllowed: entry.decision.allowed,
+            icdTag: legacyIcdTag,
+            icdGroup: "no-icd" as const
+          }
+        ] as const
+      ];
+    })
+  );
+  return result.damageEvents.map((event) => {
+    const withoutApplicationAudit = Object.fromEntries(
+      Object.entries(event).filter(
+        ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
+      )
+    );
+    const reactionAudit = event.reactionAudit;
+    const legacyAudit = legacyAuditByDamageEventId.get(event.id);
+    return reactionAudit === null || legacyAudit === undefined
+      ? withoutApplicationAudit
+      : {
+          ...withoutApplicationAudit,
+          reactionAudit: Object.fromEntries(
+            [
+              ...Object.entries(reactionAudit).filter(
+                ([key]) => !V147_DAMAGE_EVENT_WIRE_ONLY_FIELDS.has(key)
+              ),
+              ...Object.entries(legacyAudit)
+            ]
+          )
+        };
+  });
+}
+
 function makeSustainedBurningPerformanceConfig(): SimConfig {
   const base = makeConfig();
   const refreshHits = Array.from(
@@ -96,8 +169,7 @@ function makeSustainedBurningPerformanceConfig(): SimConfig {
       },
       application: {
         gaugeUnits: 1,
-        icdTag: `burning-refresh-${index + 1}`,
-        icdGroup: "no-icd" as const
+        icd: { mode: "no-icd-v1" as const }
       }
     })
   );
@@ -172,8 +244,7 @@ function makeSustainedBurningPerformanceConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "burning-performance-start",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             ...refreshHits
@@ -241,7 +312,7 @@ describe("simulation performance", () => {
     const sustainedOutputHash = sha256({
       totalDamage: probe.totalDamage,
       dps: probe.dps,
-      damageEvents: probe.damageEvents,
+      damageEvents: projectDamageEventsToFrozenV146(probe),
       burningStateLog: probe.burningStateLog,
       quickenStateLog: probe.quickenStateLog,
       targetStateTimeline: probe.targetStateTimeline

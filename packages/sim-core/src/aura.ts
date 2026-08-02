@@ -12,7 +12,8 @@ import type {
   CrystallizeReaction,
   CrystallizeReactionAudit,
   Element,
-  ElementalApplication,
+  AnyElementalApplication,
+  ElementalApplicationIcdDecision,
   IcdProfile,
   OneShotTransformativeReaction,
   PersistentAuraElement,
@@ -40,6 +41,7 @@ import {
   type TargetHitlagInput,
   type TargetLocalClockState
 } from "./target-clock";
+import { ElementalApplicationIcdEngine } from "./elemental-application-icd";
 
 const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
@@ -164,9 +166,10 @@ interface MutableAura {
   sourceSlots?: Map<string, number>;
 }
 
-interface IcdState {
-  windowStartFrame: number;
-  hitCount: number;
+interface ResolvedElementalApplication {
+  gaugeUnits: number;
+  icdTag: string | null;
+  icdGroup: string | null;
 }
 
 interface BurningStateCapture {
@@ -509,7 +512,7 @@ export interface AuraHitInput {
   frame: number;
   sourceActorId: string;
   element: Element;
-  application?: ElementalApplication;
+  application?: AnyElementalApplication;
   reactionOverride?: AmplifyingReaction;
 }
 
@@ -717,8 +720,9 @@ function remainingDecayFrames(
  */
 export class AuraEngine {
   private readonly auras = new Map<AuraStateElement, MutableAura>();
-  private readonly icdStates = new Map<string, IcdState>();
   private readonly icdProfiles: Readonly<Record<string, IcdProfile>>;
+  private readonly elementalApplicationIcdEngine:
+    ElementalApplicationIcdEngine;
   private readonly debugAllowReactionOverride: boolean;
   private readonly mode: AuraReactionEngineConfig["mode"];
   private readonly freezeResistance: number;
@@ -799,6 +803,9 @@ export class AuraEngine {
   private lastBurningApplicationIcdDecision:
     | BurningApplicationIcdDecision
     | null = null;
+  private lastElementalApplicationIcdDecision:
+    | Readonly<ElementalApplicationIcdDecision>
+    | null = null;
   private lastBurningStop: {
     fromGeneration: number;
     frame: number;
@@ -846,6 +853,10 @@ export class AuraEngine {
       ...(config.icdProfiles ?? {}),
       burning: BUILT_IN_BURNING_ICD_PROFILE
     };
+    this.elementalApplicationIcdEngine =
+      new ElementalApplicationIcdEngine({
+        legacyProfiles: this.icdProfiles
+      });
     for (const initial of config.initialAura ?? []) {
       this.attachNormalAura(
         initial.element,
@@ -976,6 +987,15 @@ export class AuraEngine {
     return this.lastBurningApplicationIcdDecision === null
       ? null
       : { ...this.lastBurningApplicationIcdDecision };
+  }
+
+  /**
+   * Returns the most recent configured/low-level application decision made by
+   * this target-local Aura engine. Calls which skip application return null
+   * and never advance the underlying state machine.
+   */
+  getLastElementalApplicationIcdDecision(): Readonly<ElementalApplicationIcdDecision> | null {
+    return this.lastElementalApplicationIcdDecision;
   }
 
   private triggerMechanicsTruncation(
@@ -3754,7 +3774,7 @@ export class AuraEngine {
 
   private startOrRefreshBurning(
     input: AuraHitInput,
-    application: ElementalApplication
+    application: ResolvedElementalApplication
   ): BurningReactionAudit | null {
     if (
       !usesBurningModel(this.mode) ||
@@ -4638,54 +4658,56 @@ export class AuraEngine {
     };
   }
 
-  private willApply(
+  private resolveElementalApplication(
     frame: number,
     sourceActorId: string,
-    application: ElementalApplication
-  ): boolean {
-    if (application.icdGroup === "no-icd") return true;
-    const profile = this.icdProfiles[application.icdGroup];
-    if (!profile) {
-      throw new Error(
-        `Unknown ICD profile "${application.icdGroup}"; declare it in reactionEngine.icdProfiles.`
-      );
-    }
-    const key =
-      application.icdGroup === "burning"
-        ? "__target__\u0000burning"
-        : `${sourceActorId}\u0000${application.icdTag}\u0000${application.icdGroup}`;
-    const existing = this.icdStates.get(key);
-    const state =
-      existing === undefined ||
-      frame - existing.windowStartFrame >= profile.resetFrames
-        ? { windowStartFrame: frame, hitCount: 0 }
-        : existing;
-    const tailPolicy = profile.tailPolicy ?? "repeat";
-    const applicationSequenceIndex =
-      tailPolicy === "clamp"
-        ? Math.min(
-            state.hitCount,
-            profile.applicationSequence.length - 1
-          )
-        : state.hitCount % profile.applicationSequence.length;
-    const allowed =
-      profile.applicationSequence[applicationSequenceIndex] ??
-      false;
-    if (application.icdGroup === "burning") {
+    application: AnyElementalApplication
+  ): Readonly<{
+    decision: Readonly<ElementalApplicationIcdDecision>;
+    application: ResolvedElementalApplication;
+  }> {
+    const decision =
+      this.elementalApplicationIcdEngine.consumeAttempt({
+        frame,
+        sourceActorId,
+        application
+      });
+    this.lastElementalApplicationIcdDecision = decision;
+    if (
+      decision.kind === "legacy-profile" &&
+      decision.profileId === "burning"
+    ) {
       this.lastBurningApplicationIcdDecision = {
-        windowStartFrame: state.windowStartFrame,
-        hitIndex: state.hitCount,
-        allowed
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        allowed: decision.allowed
       };
     }
-    state.hitCount += 1;
-    this.icdStates.set(key, state);
-    return allowed;
+    const legacyWire = !("icd" in application) ? application : null;
+    return {
+      decision,
+      application: {
+        gaugeUnits:
+          application.gaugeUnits *
+          decision.applicationMultiplier,
+        icdTag:
+          decision.kind === "legacy-profile" ||
+          decision.kind === "fixed-gcsim"
+            ? decision.icdTag
+            : legacyWire?.icdTag ?? null,
+        icdGroup:
+          decision.kind === "legacy-profile"
+            ? decision.profileId
+            : decision.kind === "fixed-gcsim"
+              ? decision.groupId
+              : legacyWire?.icdGroup ?? null
+      }
+    };
   }
 
   private processSwirl(
     input: AuraHitInput,
-    application: ElementalApplication,
+    application: ResolvedElementalApplication,
     auraBefore: AuraStateEntry[],
     electroChargedWasActive: boolean
   ): ReactionAudit {
@@ -4925,7 +4947,7 @@ export class AuraEngine {
 
   private processCrystallize(
     input: AuraHitInput,
-    application: ElementalApplication,
+    application: ResolvedElementalApplication,
     auraBefore: AuraStateEntry[],
     electroChargedWasActive: boolean
   ): ReactionAudit {
@@ -5250,6 +5272,7 @@ export class AuraEngine {
   private processHitAtPreparedTargetState(
     input: AuraHitInput
   ): ReactionAudit {
+    this.lastElementalApplicationIcdDecision = null;
     const auraBefore = this.snapshot();
     if (this.mechanicsTruncation !== null) {
       const mechanicsTruncation =
@@ -5264,10 +5287,9 @@ export class AuraEngine {
         ],
         mechanicsTruncation,
         icdAllowed: null,
-        icdTag: input.application?.icdTag ?? null,
-        icdGroup: input.application?.icdGroup ?? null,
-        applicationGaugeUnits:
-          input.application?.gaugeUnits ?? null,
+        icdTag: null,
+        icdGroup: null,
+        applicationGaugeUnits: null,
         auraBefore,
         auraApplied: [],
         auraConsumed: [],
@@ -5287,10 +5309,10 @@ export class AuraEngine {
     }
     const electroChargedWasActive =
       this.electroChargedActive;
-    const application = input.application;
+    const configuredApplication = input.application;
 
     if (
-      !application ||
+      !configuredApplication ||
       !isAuraApplicationElement(input.element, this.mode)
     ) {
       const override =
@@ -5331,11 +5353,17 @@ export class AuraEngine {
       };
     }
 
-    const icdAllowed = this.willApply(
-      input.frame,
-      input.sourceActorId,
-      application
-    );
+    const resolvedApplication =
+      this.resolveElementalApplication(
+        input.frame,
+        input.sourceActorId,
+        configuredApplication
+      );
+    const { application, decision } = resolvedApplication;
+    const icdAllowed = decision.allowed;
+    const reactionOwnedBurningApplication =
+      !("icd" in configuredApplication) &&
+      configuredApplication.icdGroup === "burning";
     if (!icdAllowed) {
       return {
         model: "aura-engine",
@@ -5347,7 +5375,9 @@ export class AuraEngine {
         icdAllowed,
         icdTag: application.icdTag,
         icdGroup: application.icdGroup,
-        applicationGaugeUnits: application.gaugeUnits,
+        applicationGaugeUnits: reactionOwnedBurningApplication
+          ? configuredApplication.gaugeUnits
+          : application.gaugeUnits,
         auraBefore,
         auraApplied: [],
         auraConsumed: [],

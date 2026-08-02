@@ -100,8 +100,7 @@ function makeOverloadConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "skill",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -286,8 +285,7 @@ describe("Overload simulation integration", () => {
       },
       application: {
         gaugeUnits: 1,
-        icdTag: "skill",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     });
 
@@ -422,8 +420,7 @@ describe("Overload simulation integration", () => {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "overlap",
-                icdGroup: "no-icd" as const
+                icd: { mode: "no-icd-v1" as const }
               }
             }))
           }

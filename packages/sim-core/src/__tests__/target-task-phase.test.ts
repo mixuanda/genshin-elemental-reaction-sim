@@ -97,8 +97,7 @@ function makeTargetTaskPhaseConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "burning-start",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               },
               ...(options.hitlag === true
                 ? {

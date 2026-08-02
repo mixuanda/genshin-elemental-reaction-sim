@@ -10,8 +10,7 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: "hydro-order-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 

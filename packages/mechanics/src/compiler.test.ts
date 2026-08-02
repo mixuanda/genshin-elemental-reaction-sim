@@ -37,6 +37,16 @@ describe("ability blueprint compiler gates", () => {
     expect(compiled.ability.hits?.map((hit) => hit.scaling)).toEqual([
       1.30032, 0.9576, 1.16352
     ]);
+    expect(compiled.ability.hits?.map((hit) => hit.application)).toEqual(
+      Array.from({ length: 3 }, () => ({
+        gaugeUnits: 1,
+        icd: {
+          mode: "legacy-boolean-profile-v1",
+          icdTag: "durin-elemental-art",
+          profileId: "durin-skill"
+        }
+      }))
+    );
     expect(compiled.ability.energyGains?.[0]?.amount).toBe(33);
     expect(
       compiled.resolvedParameters.map(({ path, value }) => ({ path, value }))
@@ -160,7 +170,8 @@ describe("ability blueprint compiler gates", () => {
     "1.4.0",
     "1.5.0",
     "1.6.0",
-    "1.7.0"
+    "1.7.0",
+    "1.8.0"
   ])(
     "migrates mechanics schema %s before compiling",
     (schemaVersion) => {

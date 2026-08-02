@@ -1,6 +1,10 @@
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   targetPhaseV3ResultReferencesSchema,
@@ -98,8 +102,7 @@ function makeFormulaRootTargetPhaseV3Config(): SimConfig {
               geometry: DIRECT_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icdTag: "start-burning",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -132,9 +135,18 @@ function cloneWithIdentity(
 }
 
 describe("target-phase-v3 formula-root identity", () => {
-  it("accepts exact 1.45 and preserves the exact 1.44 callback semantics", () => {
+  it("accepts exact 1.47 and preserves the exact 1.44-1.46 callback semantics", () => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
       critMode: "noCrit"
+    });
+
+    expect(current).toMatchObject({
+      schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+      engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+      config: {
+        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+      }
     });
 
     expect(
@@ -154,6 +166,22 @@ describe("target-phase-v3 formula-root identity", () => {
     });
     expect(
       targetPhaseV3ResultReferencesSchema.safeParse(exactV144).success
+    ).toBe(true);
+
+    const exactV145 = cloneWithIdentity(current, {
+      schemaVersion: REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+      engineVersion: REACTION_FORMULA_ROOT_ENGINE_VERSION
+    });
+    expect(
+      targetPhaseV3ResultReferencesSchema.safeParse(exactV145).success
+    ).toBe(true);
+
+    const exactV146 = cloneWithIdentity(current, {
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+    });
+    expect(
+      targetPhaseV3ResultReferencesSchema.safeParse(exactV146).success
     ).toBe(true);
   });
 
@@ -190,6 +218,28 @@ describe("target-phase-v3 formula-root identity", () => {
         schemaVersion: "9.9.9",
         engineVersion: "9.9.9-unknown"
       }
+    },
+    {
+      label: "mixed current result and frozen config generations",
+      resultIdentity: {
+        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+        engineVersion: ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+      },
+      configIdentity: {
+        schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+      }
+    },
+    {
+      label: "mixed current schema and frozen engine generations",
+      resultIdentity: {
+        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+      },
+      configIdentity: {
+        schemaVersion: ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+        engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+      }
     }
   ])("fails closed for $label", ({ resultIdentity, configIdentity }) => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
@@ -206,7 +256,7 @@ describe("target-phase-v3 formula-root identity", () => {
     if (!parsed.success) {
       expect(
         parsed.error.issues.some((issue) =>
-          issue.message.includes("exact 1.44, 1.45, or 1.46")
+          issue.message.includes("exact 1.44, 1.45, 1.46, or 1.47")
         )
       ).toBe(true);
     }

@@ -232,8 +232,7 @@ function makeFrozenBoundaryConfig(
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "freeze-at-f0",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       },
       {
@@ -250,8 +249,7 @@ function makeFrozenBoundaryConfig(
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "start-burning-at-f56",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       }
     ]
@@ -295,8 +293,7 @@ function makeHitlagConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "start-burning-with-hitlag",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         },
         targetHitlag: {
           haltFrames: 5,
@@ -344,8 +341,7 @@ function makeBeforeReactableRecipientHitlagConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "start-owner-burning",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       },
       {
@@ -360,8 +356,7 @@ function makeBeforeReactableRecipientHitlagConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "pause-recipient-with-dendro",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         },
         targetHitlag: {
           haltFrames: 20,
@@ -411,8 +406,7 @@ function makeOverloadChildConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "start-burning",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       }
     ]
@@ -465,8 +459,7 @@ function makeAttemptCoverageConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "start-burning",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       }
     ]

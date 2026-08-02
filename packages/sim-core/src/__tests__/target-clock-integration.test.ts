@@ -118,8 +118,7 @@ function makeFrozenHitlagConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "freeze-with-hitlag",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         },
         targetHitlag: {
           haltFrames: 3.2,
@@ -157,8 +156,7 @@ function makeDendroCoreHitlagConfig(): SimConfig {
         },
         application: {
           gaugeUnits: 1,
-          icdTag: "bloom-with-hitlag",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         },
         targetHitlag: {
           haltFrames: 5,
@@ -296,8 +294,7 @@ describe("target-local-hitlag-v1 simulator integration", () => {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "burning-with-hitlag",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             targetHitlag: {
               haltFrames: 3,
@@ -370,8 +367,7 @@ describe("target-local-hitlag-v1 simulator integration", () => {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "quicken-with-hitlag",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             targetHitlag: {
               haltFrames: 3,
@@ -856,8 +852,7 @@ describe("target-local-hitlag-v1 simulator integration", () => {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "electro-charged-with-hitlag",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             },
             targetHitlag: {
               haltFrames: 3,

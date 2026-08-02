@@ -103,8 +103,7 @@ function makeShatterConfig(options?: {
               element: "hydro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -136,8 +135,7 @@ function makeShatterConfig(options?: {
               element: "cryo",
               application: {
                 gaugeUnits: 1,
-                icdTag: "cryo-attach",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -200,8 +198,7 @@ function makeReactionAShatterConfig(): SimConfig {
       element: "cryo",
       application: {
         gaugeUnits: 1,
-        icdTag: "refreeze-cryo-2",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     },
     {
@@ -212,8 +209,7 @@ function makeReactionAShatterConfig(): SimConfig {
       element: "hydro",
       application: {
         gaugeUnits: 1,
-        icdTag: "refreeze-hydro-2",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     },
     {
@@ -229,8 +225,7 @@ function makeReactionAShatterConfig(): SimConfig {
       element: "cryo",
       application: {
         gaugeUnits: 1,
-        icdTag: "refreeze-cryo-3",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     },
     {
@@ -241,8 +236,7 @@ function makeReactionAShatterConfig(): SimConfig {
       element: "hydro",
       application: {
         gaugeUnits: 1,
-        icdTag: "refreeze-hydro-3",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     },
     {
@@ -331,8 +325,7 @@ function makeOverloadShatterConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze-neighbor",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -357,8 +350,7 @@ function makeOverloadShatterConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "trigger-overload",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

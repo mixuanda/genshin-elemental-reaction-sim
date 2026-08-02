@@ -23,7 +23,9 @@ import {
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_DAMAGE_GROUP_ROOT
+  GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { defineDamageModifierPlugin } from "../plugins";
@@ -38,15 +40,68 @@ const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
   mode: "fixed-gcsim-direct-damage-group-v1",
   profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
 } as const;
+const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
+  mode: "fixed-gcsim-elemental-application-v1",
+  profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+} as const;
+
+function projectApplicationsToLegacyWire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectApplicationsToLegacyWire);
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.gaugeUnits === "number" &&
+    record.icd !== null &&
+    typeof record.icd === "object"
+  ) {
+    const icd = record.icd as Record<string, unknown>;
+    if (icd.mode === "no-icd-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: "legacy-no-icd",
+        icdGroup: "no-icd"
+      };
+    }
+    if (icd.mode === "legacy-boolean-profile-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: icd.icdTag,
+        icdGroup: icd.profileId
+      };
+    }
+    if (icd.mode === "fixed-gcsim-application-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: icd.icdTag,
+        icdGroup: icd.groupId
+      };
+    }
+  }
+  return Object.fromEntries(
+    Object.entries(record).map(([key, entry]) => [
+      key,
+      projectApplicationsToLegacyWire(entry)
+    ])
+  );
+}
 
 function asV144Input(config: SimConfig): unknown {
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
     ...legacyConfig
   } = structuredClone(config);
   return {
-    ...legacyConfig,
+    ...(projectApplicationsToLegacyWire(legacyConfig) as Record<
+      string,
+      unknown
+    >),
     schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
     engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
   };
@@ -97,6 +152,9 @@ describe("reaction formula run-manifest root", () => {
       expect(config.directDamageGroupModel).toEqual(
         EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
       );
+      expect(config.elementalApplicationIcdModel).toEqual(
+        EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
+      );
     }
   });
 
@@ -108,6 +166,9 @@ describe("reaction formula run-manifest root", () => {
     );
     expect(result.runManifest.directDamageGroupRoot).toEqual(
       GCSIM_DAMAGE_GROUP_ROOT
+    );
+    expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+      GCSIM_ELEMENTAL_APPLICATION_ROOT
     );
     expect(result.runManifest.configHash).toBe(
       createSimulationConfigHash(result.config)
@@ -147,7 +208,7 @@ describe("reaction formula run-manifest root", () => {
     );
   });
 
-  it("migrates a 1.44 input into both fixed 1.46 mechanics profiles", () => {
+  it("migrates a 1.44 input into all fixed current mechanics profiles", () => {
     const legacyInput = asV144Input(durinMeltPreset);
     const migrated = migrateConfig(legacyInput);
     const result = simulate(legacyInput);
@@ -156,7 +217,9 @@ describe("reaction formula run-manifest root", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaModel: EXPECTED_FORMULA_MODEL,
-      directDamageGroupModel: EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
+      directDamageGroupModel: EXPECTED_DIRECT_DAMAGE_GROUP_MODEL,
+      elementalApplicationIcdModel:
+        EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
     });
     expect(result.config.reactionFormulaModel).toEqual(
       EXPECTED_FORMULA_MODEL
@@ -164,11 +227,17 @@ describe("reaction formula run-manifest root", () => {
     expect(result.config.directDamageGroupModel).toEqual(
       EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
     );
+    expect(result.config.elementalApplicationIcdModel).toEqual(
+      EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
+    );
     expect(result.runManifest.reactionFormulaRoot).toEqual(
       CLASSIC_REACTION_FORMULA_ROOT
     );
     expect(result.runManifest.directDamageGroupRoot).toEqual(
       GCSIM_DAMAGE_GROUP_ROOT
+    );
+    expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+      GCSIM_ELEMENTAL_APPLICATION_ROOT
     );
   });
 
@@ -248,7 +317,9 @@ describe("reaction formula run-manifest root", () => {
 
       expect(() =>
         simulate(oneHitConfig(), { plugins: [plugin] })
-      ).toThrow(/cannot override formula-bound field/);
+      ).toThrow(
+        /Trusted SimulationResult 1\.47 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/
+      );
     }
   );
 });

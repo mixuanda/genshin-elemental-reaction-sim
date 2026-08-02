@@ -52,7 +52,7 @@ function expectRejectedByPublicAndTrusted(
     () => assertTrustedSimulationResult(trustedResult),
     `${label}: trusted sim-core boundary`
   ).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/
+    /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 

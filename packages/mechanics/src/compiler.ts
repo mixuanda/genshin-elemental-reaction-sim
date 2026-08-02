@@ -125,8 +125,7 @@ export function compileAbilityBlueprint(
         ? {
             application: {
               gaugeUnits: hit.application.gaugeUnits,
-              icdTag: hit.application.icdTag,
-              icdGroup: hit.application.icdGroup
+              icd: { ...hit.application.icd }
             }
           }
         : {}),

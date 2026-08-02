@@ -101,8 +101,7 @@ function makeThreeTargetDirectConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "elemental-all-targets",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -178,8 +177,7 @@ function makeAggravateConfig(): SimConfig {
               element: "electro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "quicken-setup",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -189,8 +187,7 @@ function makeAggravateConfig(): SimConfig {
               element: "electro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "aggravate-hit",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -269,8 +266,7 @@ function makeSuperconductConfig(): SimConfig {
               element: "electro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "superconduct-trigger",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -347,8 +343,7 @@ function makeSwirlConfig(): SimConfig {
               element: "anemo",
               application: {
                 gaugeUnits: 1,
-                icdTag: "swirl-trigger",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

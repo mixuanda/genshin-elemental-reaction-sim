@@ -27,8 +27,11 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "target-vector",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "target-vector",
+              profileId: "default"
+            }
           }
         },
         {
@@ -39,8 +42,11 @@ describe("single-target hit resolution", () => {
           element: "pyro",
           application: {
             gaugeUnits: 1,
-            icdTag: "target-vector",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "target-vector",
+              profileId: "default"
+            }
           }
         },
         {
@@ -56,8 +62,11 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "target-vector",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "target-vector",
+              profileId: "default"
+            }
           }
         },
         {
@@ -72,8 +81,11 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "target-vector",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "target-vector",
+              profileId: "default"
+            }
           }
         }
       ],
@@ -312,8 +324,7 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "effect-policy",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -334,8 +345,7 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "effect-policy",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ],
@@ -545,8 +555,7 @@ describe("single-target hit resolution", () => {
           element: "pyro",
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -556,8 +565,7 @@ describe("single-target hit resolution", () => {
           element: "pyro",
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -577,8 +585,7 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -593,8 +600,7 @@ describe("single-target hit resolution", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -604,8 +610,7 @@ describe("single-target hit resolution", () => {
           element: "pyro",
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         },
         {
@@ -615,8 +620,7 @@ describe("single-target hit resolution", () => {
           element: "pyro",
           application: {
             gaugeUnits: 1,
-            icdTag: "target-phase",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ]

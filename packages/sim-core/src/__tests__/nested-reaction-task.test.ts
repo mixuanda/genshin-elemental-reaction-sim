@@ -89,8 +89,7 @@ function makeNestedReactionDamageTaskConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "anemo-hit",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

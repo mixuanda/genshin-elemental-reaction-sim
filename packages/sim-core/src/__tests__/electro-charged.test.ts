@@ -105,8 +105,7 @@ function makeElectroChargedConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "ec-start",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -132,8 +131,7 @@ function makeElectroChargedConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "ec-refresh",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -195,7 +193,7 @@ function expectRejectedAtBothBoundaries(
   expect(() =>
     assertTrustedSimulationResult(result)
   ).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/
+    /Trusted SimulationResult 1\.47 integrity validation failed/
   );
 }
 
@@ -1699,8 +1697,7 @@ describe("Electro-Charged simulation integration", () => {
       element: "pyro",
       application: {
         gaugeUnits: auraV2RetainedGauge(5),
-        icdTag: "ec-stop",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     };
     config.timeline!.abilities.push({
@@ -1713,8 +1710,7 @@ describe("Electro-Charged simulation integration", () => {
         label: "雷重启感电",
         application: {
           gaugeUnits: 1,
-          icdTag: "ec-restart",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       }))
     });

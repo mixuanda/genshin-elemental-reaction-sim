@@ -6,7 +6,9 @@ import {
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_DAMAGE_GROUP_ROOT
+  GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import electroChargedGlobalCadenceGoldenV142 from "../../test-vectors/fixtures/electro-charged-global-cadence-1.42.golden.json";
 import electroChargedPropagationGolden from "../../test-vectors/fixtures/electro-charged-propagation-1.41.golden.json";
@@ -34,6 +36,7 @@ import {
   crystallizeShieldTimelinePointSchema,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   DENDRO_CORE_ENGINE_VERSION,
@@ -60,6 +63,14 @@ import {
   dendroCoreTimelineSchema,
   ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION,
   ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+  elementalApplicationIcdGroupIdSchema,
+  elementalApplicationIcdModelSchema,
+  elementalApplicationIcdRootSchema,
+  elementalApplicationIcdSelectorSchema,
+  elementalApplicationV147Schema,
   enemyTargetProfileSchema,
   enemyTargetsResultReferencesSchema,
   GENERAL_REACTION_ORDER_ENGINE_VERSION,
@@ -102,11 +113,13 @@ import {
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
   simulationRunManifestV146Schema,
+  simulationRunManifestV147Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
   simConfigV145Schema,
   simConfigV146Schema,
+  simConfigV147Schema,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   TARGET_REACTABLE_PHASE_ENGINE_VERSION,
@@ -176,6 +189,11 @@ const fixedDirectDamageGroupModel = {
   profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
 } as const;
 
+const fixedElementalApplicationIcdModel = {
+  mode: "fixed-gcsim-elemental-application-v1",
+  profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T
 ): Omit<
@@ -184,6 +202,7 @@ const asPre139Wire = <T extends object>(
   | "electroChargedPropagationModel"
   | "reactionFormulaModel"
   | "directDamageGroupModel"
+  | "elementalApplicationIcdModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
@@ -191,19 +210,116 @@ const asPre139Wire = <T extends object>(
       _electroChargedPropagationModel,
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
     electroChargedPropagationModel?: unknown;
     reactionFormulaModel?: unknown;
     directDamageGroupModel?: unknown;
+    elementalApplicationIcdModel?: unknown;
   };
-  return wire as Omit<
+  const projectHit = (hit: unknown): unknown => {
+    if (
+      typeof hit !== "object" ||
+      hit === null ||
+      Array.isArray(hit) ||
+      !("application" in hit)
+    ) {
+      return hit;
+    }
+    const record = hit as Record<string, unknown>;
+    const application = record.application;
+    if (
+      typeof application !== "object" ||
+      application === null ||
+      Array.isArray(application) ||
+      !("icd" in application)
+    ) {
+      return hit;
+    }
+    const currentApplication = application as Record<
+      string,
+      unknown
+    >;
+    const icd = currentApplication.icd as Record<string, unknown>;
+    const { icd: _icd, ...applicationCommon } =
+      currentApplication;
+    const legacyApplication =
+      icd.mode === "legacy-boolean-profile-v1"
+        ? {
+            ...applicationCommon,
+            icdTag: icd.icdTag,
+            icdGroup: icd.profileId
+          }
+        : {
+            ...applicationCommon,
+            icdTag:
+              icd.mode === "fixed-gcsim-application-v1"
+                ? icd.icdTag
+                : "legacy-no-icd",
+            icdGroup: "no-icd"
+          };
+    return { ...record, application: legacyApplication };
+  };
+  const projectOwner = (owner: unknown): unknown =>
+    typeof owner === "object" &&
+    owner !== null &&
+    !Array.isArray(owner) &&
+    Array.isArray((owner as Record<string, unknown>).hits)
+      ? {
+          ...(owner as Record<string, unknown>),
+          hits: (
+            (owner as Record<string, unknown>).hits as unknown[]
+          ).map(projectHit)
+        }
+      : owner;
+  const historicalWire = {
+    ...wire,
+    rotation: Array.isArray((wire as Record<string, unknown>).rotation)
+      ? ((wire as Record<string, unknown>).rotation as unknown[]).map(
+          projectOwner
+        )
+      : (wire as Record<string, unknown>).rotation,
+    ...(
+      typeof (wire as Record<string, unknown>).timeline === "object" &&
+      (wire as Record<string, unknown>).timeline !== null &&
+      !Array.isArray((wire as Record<string, unknown>).timeline)
+        ? {
+            timeline: {
+              ...((wire as Record<string, unknown>).timeline as Record<
+                string,
+                unknown
+              >),
+              abilities: Array.isArray(
+                ((wire as Record<string, unknown>).timeline as Record<
+                  string,
+                  unknown
+                >).abilities
+              )
+                ? (
+                    ((wire as Record<string, unknown>).timeline as Record<
+                      string,
+                      unknown
+                    >).abilities as unknown[]
+                  ).map(projectOwner)
+                : ((wire as Record<string, unknown>).timeline as Record<
+                    string,
+                    unknown
+                  >).abilities
+            }
+          }
+        : {}
+    )
+  };
+  return historicalWire as Omit<
     T,
     | "reactionDeliveryModel"
     | "electroChargedPropagationModel"
     | "reactionFormulaModel"
     | "directDamageGroupModel"
+    | "elementalApplicationIcdModel"
   >;
 };
 
@@ -984,6 +1100,8 @@ describe("1.32 player reaction self-damage contract", () => {
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
+      elementalApplicationIcdModel:
+        _elementalApplicationIcdModel,
       ...wire132
     } = current;
     const historical = {
@@ -2301,6 +2419,7 @@ describe("1.33 target-local Hitlag contract", () => {
     delete frozen139Result.config.electroChargedPropagationModel;
     delete frozen139Result.config.reactionFormulaModel;
     delete frozen139Result.config.directDamageGroupModel;
+    delete frozen139Result.config.elementalApplicationIcdModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
@@ -2600,8 +2719,7 @@ describe("1.34 general reaction order contract", () => {
           element: "pyro" as const,
           application: {
             gaugeUnits: 1,
-            icdTag: "v6-pyro",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" as const }
           },
           geometry: {
             kind: "circle" as const,
@@ -2757,6 +2875,7 @@ describe("1.34 general reaction order contract", () => {
 
     expect(migrateConfig(historical)).toEqual({
       ...historical,
+      timeline: current.timeline,
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionDeliveryModel: {
@@ -2766,7 +2885,9 @@ describe("1.34 general reaction order contract", () => {
         mode: "single-target-v1"
       },
       reactionFormulaModel: fixedReactionFormulaModel,
-      directDamageGroupModel: fixedDirectDamageGroupModel
+      directDamageGroupModel: fixedDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        fixedElementalApplicationIcdModel
     });
   });
 
@@ -2774,7 +2895,10 @@ describe("1.34 general reaction order contract", () => {
     const current = migrateConfig(legacyConfig);
     const frozenV144 = {
       ...withoutOwn(
-        withoutOwn(current, "directDamageGroupModel"),
+        withoutOwn(
+          withoutOwn(current, "elementalApplicationIcdModel"),
+          "directDamageGroupModel"
+        ),
         "reactionFormulaModel"
       ),
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -3134,6 +3258,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
+      elementalApplicationIcdModel:
+        _elementalApplicationIcdModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3167,7 +3293,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
           mode: "single-target-v1"
         },
         reactionFormulaModel: fixedReactionFormulaModel,
-        directDamageGroupModel: fixedDirectDamageGroupModel
+        directDamageGroupModel: fixedDirectDamageGroupModel,
+        elementalApplicationIcdModel:
+          fixedElementalApplicationIcdModel
       });
     }
 
@@ -3179,6 +3307,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         _currentElectroChargedPropagationModel,
       reactionFormulaModel: _currentReactionFormulaModel,
       directDamageGroupModel: _currentDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        _currentElementalApplicationIcdModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3286,9 +3416,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.46.0-direct-damage-group-root"
+      "1.47.0-elemental-application-icd-root"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -4344,10 +4474,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       "1.39.0-shatter-recursive-delivery"
     );
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4435,6 +4565,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
+      elementalApplicationIcdModel:
+        _elementalApplicationIcdModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4452,7 +4584,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         mode: "single-target-v1"
       },
       reactionFormulaModel: fixedReactionFormulaModel,
-      directDamageGroupModel: fixedDirectDamageGroupModel
+      directDamageGroupModel: fixedDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        fixedElementalApplicationIcdModel
     });
     expect(() =>
       migrateConfig({
@@ -4483,7 +4617,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     const historical = {
       ...withoutOwn(
         withoutOwn(
-          makeLegalAuraV7Config(),
+          withoutOwn(
+            makeLegalAuraV7Config(),
+            "elementalApplicationIcdModel"
+          ),
           "directDamageGroupModel"
         ),
         "reactionFormulaModel"
@@ -4502,7 +4639,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaModel: fixedReactionFormulaModel,
-      directDamageGroupModel: fixedDirectDamageGroupModel
+      directDamageGroupModel: fixedDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        fixedElementalApplicationIcdModel
     });
     expect(() =>
       migrateConfig({
@@ -4550,7 +4689,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     const frozenV142 = {
       ...withoutOwn(
         withoutOwn(
-          makeLegalAuraV7Config(),
+          withoutOwn(
+            makeLegalAuraV7Config(),
+            "elementalApplicationIcdModel"
+          ),
           "directDamageGroupModel"
         ),
         "reactionFormulaModel"
@@ -4586,7 +4728,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         mode: "classic-formula-profile-v1" as const,
         profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
       },
-      directDamageGroupModel: fixedDirectDamageGroupModel
+      directDamageGroupModel: fixedDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        fixedElementalApplicationIcdModel
     };
     expect(migrated).toEqual(expectedCurrent);
     expect(migratedFromV144).toEqual(expectedCurrent);
@@ -4601,7 +4745,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV146Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV147Schema.parse(migrated)).toEqual(migrated);
     expect(simConfigSchema.parse(migrated)).toEqual(migrated);
     expect(() => simConfigV144Schema.parse(migrated)).toThrow();
     expect(() => simConfigV145Schema.parse(migrated)).toThrow();
@@ -4626,6 +4770,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       engineVersion: _currentEngineVersion,
       reactionFormulaModel: _currentFormulaModel,
       directDamageGroupModel: _currentDirectDamageGroupModel,
+      elementalApplicationIcdModel:
+        _currentElementalApplicationIcdModel,
       ...currentNumericalSemantics
     } = migratedTargetPhaseV3;
     const {
@@ -4770,8 +4916,11 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "test",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1" as const,
+              icdTag: "test",
+              profileId: "default"
+            }
           }
         }
       ]
@@ -7280,6 +7429,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         _electroChargedPropagationModel,
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
+      elementalApplicationIcdModel:
+        _elementalApplicationIcdModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -13731,6 +13882,8 @@ describe("simulation run manifest contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13759,9 +13912,15 @@ describe("simulation run manifest contract", () => {
     expect(
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
-    expect(simulationRunManifestV146Schema.parse(manifest)).toEqual(
+    expect(manifest.version).toBe(
+      ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION
+    );
+    expect(simulationRunManifestV147Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV146Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV145Schema.parse(manifest)
     ).toThrow();
@@ -13776,6 +13935,8 @@ describe("simulation run manifest contract", () => {
       reproducibilityKey: _currentReproducibilityKey,
       reactionFormulaRoot: _reactionFormulaRoot,
       directDamageGroupRoot: _directDamageGroupRoot,
+      elementalApplicationIcdRoot:
+        _elementalApplicationIcdRoot,
       version: _currentManifestVersion,
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
@@ -13841,6 +14002,26 @@ describe("simulation run manifest contract", () => {
     expect(() =>
       simulationRunManifestV146Schema.parse(frozenV145Manifest)
     ).toThrow();
+    const frozenV146Identity = {
+      ...frozenCommonIdentity,
+      version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT
+    };
+    const frozenV146Manifest = {
+      ...frozenV146Identity,
+      reproducibilityKey: createSimulationReproducibilityKey(
+        frozenV146Identity
+      )
+    };
+    expect(
+      simulationRunManifestV146Schema.parse(frozenV146Manifest)
+    ).toEqual(frozenV146Manifest);
+    expect(() =>
+      simulationRunManifestV147Schema.parse(frozenV146Manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestSchema.parse({
         ...manifest,
@@ -13874,6 +14055,8 @@ describe("simulation run manifest contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       dataVersion: forgedFormulaConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedFormulaConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
@@ -13885,6 +14068,56 @@ describe("simulation run manifest contract", () => {
         forgedFormulaConfig as unknown as typeof config
       )
     ).toThrow(/not bound to the supplied migrated config/);
+    const forgedApplicationConfig = {
+      ...config,
+      elementalApplicationIcdModel: {
+        ...config.elementalApplicationIcdModel,
+        profileId: "latest"
+      }
+    };
+    const forgedApplicationManifest = createSimulationRunManifest({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
+      dataVersion: forgedApplicationConfig.dataVersion,
+      configHash: createSimulationConfigHash(
+        forgedApplicationConfig
+      ),
+      resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
+      plugins: manifest.plugins
+    });
+    expect(() =>
+      parseSimulationRunManifestForConfig(
+        forgedApplicationManifest,
+        forgedApplicationConfig as unknown as typeof config
+      )
+    ).toThrow(/not bound to the supplied migrated config/);
+
+    const {
+      reproducibilityKey: _applicationRootKey,
+      ...applicationRootIdentity
+    } = {
+      ...manifest,
+      elementalApplicationIcdRoot: {
+        ...GCSIM_ELEMENTAL_APPLICATION_ROOT,
+        profileId: "latest"
+      }
+    };
+    expect(() =>
+      simulationRunManifestV147Schema.parse({
+        ...applicationRootIdentity,
+        reproducibilityKey: createSimulationReproducibilityKey(
+          applicationRootIdentity as unknown as Parameters<
+            typeof createSimulationReproducibilityKey
+          >[0]
+        )
+      })
+    ).toThrow(
+      /must exactly equal the compiled provisional elemental-application ICD root/
+    );
   });
 
   it("requires the exact compiled 1.45 formula root even after a coherent manifest re-key", () => {
@@ -13894,6 +14127,8 @@ describe("simulation run manifest contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14012,6 +14247,8 @@ describe("simulation run manifest contract", () => {
       engineVersion: CURRENT_ENGINE_VERSION,
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
       directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14070,6 +14307,407 @@ describe("versioned config schema", () => {
       mode: "classic-formula-profile-v1",
       profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
     });
+    expect(migrated.elementalApplicationIcdModel).toEqual(
+      fixedElementalApplicationIcdModel
+    );
+  });
+
+  it("strictly validates the 1.47 application model and public fixed selectors", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(
+      ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION
+    );
+    expect(CURRENT_ENGINE_VERSION).toBe(
+      ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION
+    );
+    expect(
+      elementalApplicationIcdModelSchema.parse(
+        fixedElementalApplicationIcdModel
+      )
+    ).toEqual(fixedElementalApplicationIcdModel);
+    expect(
+      elementalApplicationIcdRootSchema.parse(
+        structuredClone(GCSIM_ELEMENTAL_APPLICATION_ROOT)
+      )
+    ).toEqual(GCSIM_ELEMENTAL_APPLICATION_ROOT);
+    expect(
+      elementalApplicationIcdGroupIdSchema.parse("default")
+    ).toBe("default");
+    for (const reserved of [
+      "reaction-a",
+      "reaction-b",
+      "burning"
+    ]) {
+      expect(() =>
+        elementalApplicationIcdGroupIdSchema.parse(reserved)
+      ).toThrow();
+    }
+    expect(
+      elementalApplicationIcdSelectorSchema.parse({
+        mode: "fixed-gcsim-application-v1",
+        icdTag: "skill",
+        groupId: "nahida-skill"
+      })
+    ).toEqual({
+      mode: "fixed-gcsim-application-v1",
+      icdTag: "skill",
+      groupId: "nahida-skill"
+    });
+    expect(() =>
+      elementalApplicationIcdSelectorSchema.parse({
+        mode: "legacy-boolean-profile-v1",
+        icdTag: "skill",
+        profileId: "no-icd"
+      })
+    ).toThrow(/must use the explicit no-icd-v1 selector/);
+    expect(() =>
+      elementalApplicationV147Schema.parse({
+        gaugeUnits: 1,
+        icdTag: "old",
+        icdGroup: "default"
+      })
+    ).toThrow();
+    const current = migrateConfig(legacyConfig);
+    expect(() =>
+      parseSimConfig(
+        withoutOwn(current, "elementalApplicationIcdModel")
+      )
+    ).toThrow(/elementalApplicationIcdModel/);
+  });
+
+  it("fails closed when a direct hit could share the reaction-owned Burning ICD stream", () => {
+    const current = migrateConfig(legacyConfig);
+    const withDirectBurningApplication = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "direct-burning-application",
+            actorId: "a",
+            name: "Direct Burning application namespace guard",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "direct-burning-application-hit",
+                frame: 0,
+                scaling: 1,
+                element: "pyro" as const,
+                application: {
+                  gaugeUnits: 1,
+                  icd: {
+                    mode: "legacy-boolean-profile-v1" as const,
+                    icdTag: "configured-direct-burning",
+                    profileId: "burning"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    };
+
+    expect(
+      migrateConfig({
+        ...withDirectBurningApplication,
+        reactionEngine: { mode: "aura-v2" }
+      }).timeline?.abilities[0]?.hits?.[0]?.application
+    ).toEqual(
+      withDirectBurningApplication.timeline.abilities[0]?.hits?.[0]
+        ?.application
+    );
+    expect(() =>
+      migrateConfig({
+        ...withDirectBurningApplication,
+        reactionEngine: { mode: "aura-v4" }
+      })
+    ).toThrow(
+      /configured direct-hit legacy burning ICD cannot share the reaction-owned Burning application stream/
+    );
+  });
+
+  it("rejects physical configured applications before simulation in rotation and timeline wires", () => {
+    const current = migrateConfig(legacyConfig);
+    const application = {
+      gaugeUnits: 1,
+      icd: { mode: "no-icd-v1" as const }
+    };
+    const physicalOwner = {
+      ...current.characters[0]!,
+      id: "physical-owner",
+      name: "Physical owner",
+      element: "physical" as const
+    };
+    const rotationWire = {
+      ...current,
+      characters: [...current.characters, physicalOwner],
+      rotation: [
+        {
+          id: "physical-rotation-action",
+          actorId: "a",
+          name: "Physical rotation application",
+          at: 0,
+          hits: [
+            {
+              id: "physical-rotation-hit",
+              offset: 0,
+              scaling: 1,
+              scalingOwnerId: ` ${physicalOwner.id} `,
+              application
+            }
+          ]
+        }
+      ]
+    };
+    const timelineWire = {
+      ...current,
+      rotation: [],
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "physical-timeline-ability",
+            actorId: "a",
+            name: "Physical timeline application",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "physical-timeline-hit",
+                frame: 0,
+                scaling: 1,
+                element: "physical" as const,
+                application
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    };
+
+    for (const wire of [rotationWire, timelineWire]) {
+      expect(() => parseSimConfig(wire)).toThrow(
+        /configured elemental applications cannot use physical damage/
+      );
+      expect(() => migrateConfig(wire)).toThrow(
+        /configured elemental applications cannot use physical damage/
+      );
+    }
+
+    const inheritedActorWire = {
+      ...current,
+      characters: [
+        {
+          ...current.characters[0]!,
+          element: "physical" as const
+        }
+      ],
+      rotation: [
+        {
+          id: "physical-actor-action",
+          actorId: " a ",
+          name: "Inherited physical actor application",
+          at: 0,
+          hits: [
+            {
+              id: "physical-actor-hit",
+              offset: 0,
+              scaling: 1,
+              application
+            }
+          ]
+        }
+      ]
+    };
+    expect(() => parseSimConfig(inheritedActorWire)).toThrow(
+      /configured elemental applications cannot use physical damage/
+    );
+
+    expect(
+      parseSimConfig({
+        ...inheritedActorWire,
+        rotation: inheritedActorWire.rotation.map((action) => ({
+          ...action,
+          hits: action.hits.map((hit) => ({
+            ...hit,
+            element: "pyro" as const
+          }))
+        }))
+      }).rotation[0]?.hits?.[0]?.element
+    ).toBe("pyro");
+  });
+
+  it("migrates every 1.46 application selector without guessing fixed groups", () => {
+    const current = migrateConfig(legacyConfig);
+    const {
+      elementalApplicationIcdModel: _applicationModel,
+      ...currentWithoutApplicationModel
+    } = current;
+    const frozenRotationV146 = {
+      ...currentWithoutApplicationModel,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      rotation: [
+        {
+          id: "legacy-applications",
+          actorId: "a",
+          name: "Legacy applications",
+          at: 0,
+          hits: [
+            {
+              id: "no-icd",
+              offset: 0,
+              scaling: 1,
+              element: "pyro" as const,
+              application: {
+                gaugeUnits: 1,
+                icdTag: "discarded-no-icd-tag",
+                icdGroup: "no-icd"
+              }
+            },
+            {
+              id: "same-name-fixed-group",
+              offset: 0.1,
+              scaling: 1,
+              element: "pyro" as const,
+              application: {
+                gaugeUnits: 2,
+                icdTag: "shared-tag",
+                icdGroup: "default"
+              }
+            }
+          ]
+        }
+      ]
+    };
+    expect(
+      simConfigV146Schema.parse(frozenRotationV146)
+    ).toEqual(frozenRotationV146);
+    const migratedRotation = migrateConfig(frozenRotationV146);
+    expect(
+      migratedRotation.rotation[0]?.hits?.map(
+        (hit) => hit.application
+      )
+    ).toEqual([
+      { gaugeUnits: 1, icd: { mode: "no-icd-v1" } },
+      {
+        gaugeUnits: 2,
+        icd: {
+          mode: "legacy-boolean-profile-v1",
+          icdTag: "shared-tag",
+          profileId: "default"
+        }
+      }
+    ]);
+
+    const frozenTimelineV146 = {
+      ...currentWithoutApplicationModel,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      rotation: [],
+      reactionEngine: {
+        mode: "aura-v1" as const,
+        icdProfiles: {
+          custom: {
+            resetFrames: 12,
+            applicationSequence: [true, false]
+          }
+        }
+      },
+      timeline: {
+        mode: "legal-frame-v1" as const,
+        fps: 60 as const,
+        legalityMode: "strict" as const,
+        initialActiveCharacterId: "a",
+        swapFrames: 12,
+        abilities: [
+          {
+            id: "legacy-custom-ability",
+            actorId: "a",
+            name: "Legacy custom ability",
+            kind: "skill" as const,
+            cancelFrame: 1,
+            animationEndFrame: 1,
+            cooldownFrames: 0,
+            hits: [
+              {
+                id: "legacy-custom-hit",
+                frame: 0,
+                scaling: 1,
+                element: "pyro" as const,
+                application: {
+                  gaugeUnits: 1,
+                  icdTag: "custom-tag",
+                  icdGroup: "custom"
+                }
+              }
+            ]
+          }
+        ],
+        commands: []
+      }
+    };
+    expect(simConfigV146Schema.parse(frozenTimelineV146)).toEqual(
+      frozenTimelineV146
+    );
+    const migratedTimeline = migrateConfig(frozenTimelineV146);
+    expect(migratedTimeline.reactionEngine?.icdProfiles).toEqual(
+      frozenTimelineV146.reactionEngine.icdProfiles
+    );
+    expect(
+      migratedTimeline.timeline?.abilities[0]?.hits?.[0]
+        ?.application
+    ).toEqual({
+      gaugeUnits: 1,
+      icd: {
+        mode: "legacy-boolean-profile-v1",
+        icdTag: "custom-tag",
+        profileId: "custom"
+      }
+    });
+
+    expect(() =>
+      migrateConfig({
+        ...frozenRotationV146,
+        elementalApplicationIcdModel:
+          fixedElementalApplicationIcdModel
+      })
+    ).toThrow(/does not support elemental-application ICD root selection/);
+    expect(() =>
+      migrateConfig({
+        ...frozenRotationV146,
+        rotation: [
+          {
+            ...frozenRotationV146.rotation[0],
+            hits: [
+              {
+                ...frozenRotationV146.rotation[0]!.hits[0],
+                application: {
+                  gaugeUnits: 1,
+                  icd: { mode: "no-icd-v1" }
+                }
+              }
+            ]
+          }
+        ]
+      })
+    ).toThrow(/application\.icd.*does not support/);
   });
 
   it("requires the exact explicit 1.45 formula profile and rejects it on frozen wires", () => {
@@ -14122,7 +14760,10 @@ describe("versioned config schema", () => {
 
     const frozenV144 = {
       ...withoutOwn(
-        withoutOwn(current, "directDamageGroupModel"),
+        withoutOwn(
+          withoutOwn(current, "elementalApplicationIcdModel"),
+          "directDamageGroupModel"
+        ),
         "reactionFormulaModel"
       ),
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -14181,12 +14822,15 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV146Schema.safeParse(nullPrototypeWire).success
+      simConfigV147Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {
       ...withoutOwn(
-        withoutOwn(current, "directDamageGroupModel"),
+        withoutOwn(
+          withoutOwn(current, "elementalApplicationIcdModel"),
+          "directDamageGroupModel"
+        ),
         "reactionFormulaModel"
       ),
       schemaVersion: EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
@@ -16338,8 +16982,7 @@ describe("versioned config schema", () => {
                 element: "electro",
                 application: {
                   gaugeUnits: 1,
-                  icdTag: "electro",
-                  icdGroup: "no-icd"
+                  icd: { mode: "no-icd-v1" as const }
                 }
               }
             ]
@@ -16384,8 +17027,7 @@ describe("versioned config schema", () => {
                 element: "anemo" as const,
                 application: {
                   gaugeUnits: 1,
-                  icdTag: "anemo",
-                  icdGroup: "no-icd" as const
+                  icd: { mode: "no-icd-v1" as const }
                 }
               }
             ]
@@ -16442,8 +17084,7 @@ describe("versioned config schema", () => {
                 element: "geo" as const,
                 application: {
                   gaugeUnits: 1,
-                  icdTag: "geo",
-                  icdGroup: "no-icd" as const
+                  icd: { mode: "no-icd-v1" as const }
                 }
               }
             ]
@@ -16739,8 +17380,7 @@ describe("versioned config schema", () => {
           element: "pyro" as const,
           application: {
             gaugeUnits: 1,
-            icdTag: "pyro",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" as const }
           },
           geometry: {
             kind: "circle" as const,
@@ -19209,8 +19849,7 @@ describe("versioned config schema", () => {
                 element: "dendro" as const,
                 application: {
                   gaugeUnits: 1,
-                  icdTag: "dendro",
-                  icdGroup: "no-icd" as const
+                  icd: { mode: "no-icd-v1" as const }
                 }
               }
             ]
@@ -19392,8 +20031,11 @@ describe("versioned config schema", () => {
           element: "dendro",
           application: {
             gaugeUnits: 1,
-            icdTag: "dendro",
-            icdGroup: "missing-profile"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "dendro",
+              profileId: "missing-profile"
+            }
           }
         })
       )
@@ -19405,8 +20047,7 @@ describe("versioned config schema", () => {
           element: "physical",
           application: {
             gaugeUnits: 1,
-            icdTag: "invalid",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         })
       )
@@ -19420,8 +20061,7 @@ describe("versioned config schema", () => {
         reactionOverride: "melt",
         application: {
           gaugeUnits: 1,
-          icdTag: "dendro",
-          icdGroup: "no-icd"
+          icd: { mode: "no-icd-v1" }
         }
       }),
       reactionEngine: {
@@ -19440,8 +20080,7 @@ describe("versioned config schema", () => {
           ampBase: 2,
           application: {
             gaugeUnits: 1,
-            icdTag: "dendro",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }),
         reactionEngine: {

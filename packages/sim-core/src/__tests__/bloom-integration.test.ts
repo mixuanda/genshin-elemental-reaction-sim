@@ -81,8 +81,7 @@ function applicationHit(
     element,
     application: {
       gaugeUnits: 1,
-      icdTag: id,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     },
     ...(element === "hydro"
       ? {}
@@ -573,8 +572,7 @@ describe("aura-v5 Dendro-core integration", () => {
                 element: "dendro",
                 application: {
                   gaugeUnits: 1.5,
-                  icdTag: "double-core",
-                  icdGroup: "no-icd"
+                  icd: { mode: "no-icd-v1" }
                 }
               }
             ]
@@ -1549,8 +1547,7 @@ describe("aura-v5 Dendro-core integration", () => {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: "anemo-hit",
-              icdGroup: "no-icd"
+              icd: { mode: "no-icd-v1" }
             }
           }
         ]
@@ -1900,8 +1897,7 @@ describe("aura-v5 Dendro-core integration", () => {
           },
           application: {
             gaugeUnits: 0.8,
-            icdTag: "electro-ec-quicken-bloom",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ]
@@ -2109,8 +2105,7 @@ describe("aura-v5 Dendro-core integration", () => {
           element: "dendro",
           application: {
             gaugeUnits: 0.8,
-            icdTag: "dendro-hit",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ]

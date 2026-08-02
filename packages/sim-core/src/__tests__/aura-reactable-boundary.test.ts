@@ -5,8 +5,9 @@ import { TargetLocalClock } from "../target-clock";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: `reactable-boundary-${gaugeUnits}`,
-    icdGroup: "no-icd" as const
+    icd: {
+      mode: "no-icd-v1" as const
+    }
   };
 }
 

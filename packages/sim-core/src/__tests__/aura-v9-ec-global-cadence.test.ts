@@ -31,8 +31,7 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icdTag: id,
-      icdGroup: "no-icd",
+      icd: { mode: "no-icd-v1" },
     },
     ...(hitlagFrames === undefined
       ? {}
@@ -581,34 +580,33 @@ describe("aura-v9 Electro-Charged global cadence", () => {
       mode: "aura-v9",
       reactableTickModel: "cached-boundary-v2",
     });
-    const noIcd = (gaugeUnits: number, icdTag: string) => ({
+    const noIcd = (gaugeUnits: number) => ({
       gaugeUnits,
-      icdTag,
-      icdGroup: "no-icd" as const,
+      icd: { mode: "no-icd-v1" as const },
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "hydro-weak",
       element: "hydro",
-      application: noIcd(0.5, "hydro-weak"),
+      application: noIcd(0.5),
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "hydro-strong",
       element: "hydro",
-      application: noIcd(1, "hydro-strong"),
+      application: noIcd(1),
     });
     const start = engine.processHit({
       frame: 0,
       sourceActorId: "electro-weak",
       element: "electro",
-      application: noIcd(0.5, "electro-weak"),
+      application: noIcd(0.5),
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "electro-strong",
       element: "electro",
-      application: noIcd(1, "electro-strong"),
+      application: noIcd(1),
     });
     const generation = start.periodicReaction?.generation;
     if (generation === undefined) {
@@ -818,22 +816,21 @@ describe("aura-v9 Electro-Charged global cadence", () => {
       mode: "aura-v9",
       reactableTickModel: "cached-boundary-v2",
     });
-    const noIcd = (gaugeUnits: number, icdTag: string) => ({
+    const noIcd = (gaugeUnits: number) => ({
       gaugeUnits,
-      icdTag,
-      icdGroup: "no-icd" as const,
+      icd: { mode: "no-icd-v1" as const },
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "hydro",
       element: "hydro",
-      application: noIcd(1, "hydro"),
+      application: noIcd(1),
     });
     const firstStart = engine.processHit({
       frame: 0,
       sourceActorId: "electro-one",
       element: "electro",
-      application: noIcd(1, "electro-one"),
+      application: noIcd(1),
     });
     const firstGeneration = firstStart.periodicReaction?.generation;
     if (firstGeneration === undefined) {
@@ -845,7 +842,7 @@ describe("aura-v9 Electro-Charged global cadence", () => {
         frame: 11,
         sourceActorId: "pyro",
         element: "pyro",
-        application: noIcd(1, "pyro"),
+        application: noIcd(1),
       }).periodicReaction,
     ).toMatchObject({
       generation: firstGeneration,
@@ -855,7 +852,7 @@ describe("aura-v9 Electro-Charged global cadence", () => {
       frame: 12,
       sourceActorId: "electro-two",
       element: "electro",
-      application: noIcd(1, "electro-two"),
+      application: noIcd(1),
     });
     expect(replacement.periodicReaction).toMatchObject({
       operation: "start",
@@ -878,22 +875,21 @@ describe("aura-v9 Electro-Charged global cadence", () => {
       mode: "aura-v9",
       reactableTickModel: "cached-boundary-v2",
     });
-    const noIcd = (gaugeUnits: number, icdTag: string) => ({
+    const noIcd = (gaugeUnits: number) => ({
       gaugeUnits,
-      icdTag,
-      icdGroup: "no-icd" as const,
+      icd: { mode: "no-icd-v1" as const },
     });
     engine.processHit({
       frame: 0,
       sourceActorId: "hydro",
       element: "hydro",
-      application: noIcd(1, "hydro"),
+      application: noIcd(1),
     });
     const start = engine.processHit({
       frame: 0,
       sourceActorId: "electro",
       element: "electro",
-      application: noIcd(1, "electro"),
+      application: noIcd(1),
     });
     const generation = start.periodicReaction?.generation;
     if (generation === undefined) {
@@ -921,7 +917,7 @@ describe("aura-v9 Electro-Charged global cadence", () => {
       frame: 0,
       sourceActorId: "hydro-residual",
       element: "hydro",
-      application: noIcd(1, "hydro-residual"),
+      application: noIcd(1),
     });
     expect(residual.bloomReactions).toHaveLength(1);
     expect(residual.periodicReaction).toMatchObject({

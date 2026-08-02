@@ -120,8 +120,7 @@ function makeTargetPhaseV3BurningConfig(): SimConfig {
               geometry: DIRECT_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icdTag: "start-burning",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -232,8 +231,7 @@ function makeTargetPhaseV3ReactionTaskConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 0.8,
-                icdTag: "dendro-quicken",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -248,8 +246,7 @@ function makeTargetPhaseV3ReactionTaskConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 0.8,
-                icdTag: "electro-followup",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -331,8 +328,7 @@ function makeTargetPhaseV3FrozenBoundaryConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze-at-f0",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -344,8 +340,7 @@ function makeTargetPhaseV3FrozenBoundaryConfig(): SimConfig {
               geometry: DIRECT_GEOMETRY,
               application: {
                 gaugeUnits: 1,
-                icdTag: "start-burning-at-f56",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -425,7 +420,7 @@ describe("target-phase-v3 result integrity", () => {
       critMode: "noCrit"
     });
 
-    expect(Object.keys(result)).toHaveLength(66);
+    expect(Object.keys(result)).toHaveLength(67);
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
 

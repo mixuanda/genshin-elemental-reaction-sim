@@ -40,8 +40,7 @@ function testDamagePlugin(
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "catalyze-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -369,7 +368,7 @@ describe("aura-v3 Dendro and Catalyze", () => {
       expect(() =>
         assertTrustedSimulationResult(forged)
       ).toThrow(
-        /Trusted SimulationResult 1\.46 integrity validation failed/
+        /Trusted SimulationResult 1\.47 integrity validation failed/
       );
     }
   });
@@ -413,8 +412,11 @@ describe("aura-v3 Dendro and Catalyze", () => {
     });
     const application = {
       gaugeUnits: 1,
-      icdTag: "normal",
-      icdGroup: "default"
+      icd: {
+        mode: "legacy-boolean-profile-v1" as const,
+        icdTag: "normal",
+        profileId: "default"
+      }
     };
     engine.processHit({
       frame: 0,
@@ -926,7 +928,7 @@ describe("Catalyze simulation integration", () => {
     expect(() =>
       assertTrustedSimulationResult(forged)
     ).toThrow(
-      /Trusted SimulationResult 1\.46 integrity validation failed/
+      /Trusted SimulationResult 1\.47 integrity validation failed/
     );
   });
 

@@ -7,8 +7,9 @@ import { AuraEngine } from "../aura";
 
 const noIcd = {
   gaugeUnits: 1,
-  icdTag: "stable-order",
-  icdGroup: "no-icd" as const
+  icd: {
+    mode: "no-icd-v1" as const
+  }
 };
 
 function snapshotWithInitialAura(

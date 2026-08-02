@@ -3,6 +3,7 @@ export * from "./bloom-gauge";
 export * from "./crystallize";
 export * from "./dendro-core";
 export * from "./direct-damage-group";
+export * from "./elemental-application-icd";
 export * from "./energy";
 export * from "./formulas";
 export * from "./legal-timeline";

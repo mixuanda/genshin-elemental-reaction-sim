@@ -5,7 +5,10 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   type GcsimDamageGroupId,
-  type GcsimDamageGroupRoot
+  type GcsimDamageGroupRoot,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  type GcsimElementalApplicationRoot,
+  type PublicGcsimElementalApplicationGroupId
 } from "@genshin-dps-lab/icd-profiles";
 
 export const TARGET_TASK_PHASE_SCHEMA_VERSION =
@@ -43,14 +46,18 @@ export const DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION =
   "1.46.0" as const;
 export const DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION =
   "1.46.0-direct-damage-group-root" as const;
+export const ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION =
+  "1.47.0" as const;
+export const ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION =
+  "1.47.0-elemental-application-icd-root" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION =
   "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION =
   "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
@@ -67,8 +74,14 @@ export const LEGACY_SIMULATION_RUN_MANIFEST_VERSION =
 /** Frozen 1.45 run-manifest wire; 1.1 adds the reaction-formula trust root. */
 export const REACTION_FORMULA_RUN_MANIFEST_VERSION =
   "1.1.0" as const;
-/** Current run-manifest wire; 1.2 also binds the direct-damage-group root. */
-export const SIMULATION_RUN_MANIFEST_VERSION = "1.2.0" as const;
+/** Frozen 1.46 run-manifest wire; 1.2 binds the direct-damage-group root. */
+export const DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION =
+  "1.2.0" as const;
+/** Current run-manifest wire; 1.3 also binds the application-ICD root. */
+export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION =
+  "1.3.0" as const;
+export const SIMULATION_RUN_MANIFEST_VERSION =
+  ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -322,13 +335,47 @@ export interface HitTargetingGroup {
 
 export type HitTargetingConfig = HitTargeting | HitTargetingGroup;
 
-export interface ElementalApplication {
+/** Exact elemental-application wire embedded in every config through 1.46. */
+export interface LegacyElementalApplicationV146 {
   /** Nominal elemental application strength (for example 1U, 2U, or 4U). */
   gaugeUnits: number;
   /** Independent ICD stream identifier within one actor and ICD group. */
   icdTag: string;
   icdGroup: IcdGroup;
 }
+
+/** Explicit 1.47 selector for one configured elemental application. */
+export type ElementalApplicationIcdSelector =
+  | {
+      mode: "no-icd-v1";
+    }
+  | {
+      mode: "legacy-boolean-profile-v1";
+      icdTag: string;
+      /** Key in reactionEngine.icdProfiles. */
+      profileId: string;
+    }
+  | {
+      mode: "fixed-gcsim-application-v1";
+      icdTag: string;
+      /** Public fixed groups exclude reaction-owned and Burning-only groups. */
+      groupId: PublicGcsimElementalApplicationGroupId;
+    };
+
+/** Current, explicitly versioned elemental-application input. */
+export interface ElementalApplication {
+  /** Nominal elemental application strength before the ICD multiplier. */
+  gaugeUnits: number;
+  icd: ElementalApplicationIcdSelector;
+}
+
+/**
+ * In-memory helper boundary used by low-level Aura tests and adapters while
+ * persisted V146/V147 configs remain separately exact.
+ */
+export type AnyElementalApplication =
+  | ElementalApplication
+  | LegacyElementalApplicationV146;
 
 export interface InitialAuraApplication {
   element: PersistentAuraElement;
@@ -608,7 +655,9 @@ export interface TargetHitlagDefinition {
   factor: number;
 }
 
-export interface HitDefinition {
+export interface HitDefinition<
+  TApplication = ElementalApplication
+> {
   id?: string;
   offset: number;
   label?: string;
@@ -626,7 +675,7 @@ export interface HitDefinition {
   targetHitlag?: TargetHitlagDefinition;
   targeting?: HitTargetingConfig;
   geometry?: HitGeometry;
-  application?: ElementalApplication;
+  application?: TApplication;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
   snapshot?: SnapshotMode;
@@ -654,6 +703,9 @@ export interface HitDefinition {
   };
   groupMultiplier?: number;
 }
+
+export type LegacyHitDefinitionV146 =
+  HitDefinition<LegacyElementalApplicationV146>;
 
 export type BuffStat =
   | "atkFlat"
@@ -734,7 +786,9 @@ export interface ParticleDefinition {
   };
 }
 
-export interface ActionDefinition {
+export interface ActionDefinition<
+  TApplication = ElementalApplication
+> {
   id: string;
   actorId: string;
   name: string;
@@ -744,7 +798,7 @@ export interface ActionDefinition {
   everyNCycles?: number;
   cycleRemainder?: number;
   energyCost?: number;
-  hits?: HitDefinition[];
+  hits?: HitDefinition<TApplication>[];
   buffs?: BuffDefinition[];
   debuffs?: DebuffDefinition[];
   energyGains?: EnergyEvent[];
@@ -757,11 +811,18 @@ export interface ActionDefinition {
   animationEndFrame?: number;
 }
 
-export type RotationCommand = ActionDefinition;
+export type RotationCommand = ActionDefinition<ElementalApplication>;
+export type LegacyRotationCommandV146 =
+  ActionDefinition<LegacyElementalApplicationV146>;
 
-export type FrameHitDefinition = Omit<HitDefinition, "offset"> & {
+export type FrameHitDefinition<
+  TApplication = ElementalApplication
+> = Omit<HitDefinition<TApplication>, "offset"> & {
   frame: number;
 };
+
+export type LegacyFrameHitDefinitionV146 =
+  FrameHitDefinition<LegacyElementalApplicationV146>;
 
 export type FrameBuffDefinition = Omit<
   BuffDefinition,
@@ -824,7 +885,9 @@ export interface AbilityTimelineState {
   grants?: TimelineStateGrant[];
 }
 
-export interface AbilityDefinition {
+export interface AbilityDefinition<
+  TApplication = ElementalApplication
+> {
   id: string;
   actorId: string;
   name: string;
@@ -837,13 +900,16 @@ export interface AbilityDefinition {
   maxCharges?: number;
   chargeRecoveryFrames?: number;
   energyCost?: number;
-  hits?: FrameHitDefinition[];
+  hits?: FrameHitDefinition<TApplication>[];
   buffs?: FrameBuffDefinition[];
   debuffs?: FrameDebuffDefinition[];
   energyGains?: FrameEnergyEvent[];
   particles?: FrameParticleDefinition[];
   timelineState?: AbilityTimelineState;
 }
+
+export type LegacyAbilityDefinitionV146 =
+  AbilityDefinition<LegacyElementalApplicationV146>;
 
 export interface TimelineWaitCommand {
   type: "wait";
@@ -884,15 +950,20 @@ export type LegalTimelineCommand =
   | TimelineAbilityCommand
   | TimelineCrystallizePickupCommand;
 
-export interface LegalTimelineConfig {
+export interface LegalTimelineConfig<
+  TApplication = ElementalApplication
+> {
   mode: "legal-frame-v1";
   fps: 60;
   legalityMode: TimelineLegalityMode;
   initialActiveCharacterId: string;
   swapFrames: number;
-  abilities: AbilityDefinition[];
+  abilities: AbilityDefinition<TApplication>[];
   commands: LegalTimelineCommand[];
 }
+
+export type LegacyLegalTimelineConfigV146 =
+  LegalTimelineConfig<LegacyElementalApplicationV146>;
 
 export interface ConfigMeta {
   name: string;
@@ -923,7 +994,15 @@ export interface DirectDamageGroupModel {
   profileId: typeof GCSIM_DAMAGE_GROUP_PROFILE_ID;
 }
 
-interface SimConfigCommon {
+/** Fixed numeric elemental-application profile selected by current configs. */
+export interface ElementalApplicationIcdModel {
+  mode: "fixed-gcsim-elemental-application-v1";
+  profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
+}
+
+interface SimConfigCommon<
+  TApplication = ElementalApplication
+> {
   dataVersion: string;
   randomSeed: string;
   meta: ConfigMeta;
@@ -933,8 +1012,8 @@ interface SimConfigCommon {
   characters: CharacterProfile[];
   /** Static scenario pose. Actor movement is not inferred in this version. */
   actorPoses?: ActorPoseDefinition[];
-  rotation: RotationCommand[];
-  timeline?: LegalTimelineConfig;
+  rotation: ActionDefinition<TApplication>[];
+  timeline?: LegalTimelineConfig<TApplication>;
   reactionEngine?: AuraReactionEngineConfig;
   /** Explicitly versioned player self-damage boundary. */
   playerDamageModel: PlayerDamageModel;
@@ -956,40 +1035,56 @@ export type TargetTaskModelV142 = Exclude<
 
 /** Exact persisted config shape for the frozen 1.42 wire. */
 export interface SimConfigV142
-  extends Omit<SimConfigCommon, "targetTaskModel"> {
+  extends Omit<
+    SimConfigCommon<LegacyElementalApplicationV146>,
+    "targetTaskModel"
+  > {
   schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
   targetTaskModel: TargetTaskModelV142;
 }
 
 /** Exact persisted config shape for the frozen 1.44 wire. */
-export interface SimConfigV144 extends SimConfigCommon {
+export interface SimConfigV144
+  extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
 }
 
-/** Current config shape. The formula profile participates in configHash. */
-export interface SimConfigV145 extends SimConfigCommon {
+/** Frozen 1.45 config shape. The formula profile participates in configHash. */
+export interface SimConfigV145
+  extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
   reactionFormulaModel: ReactionFormulaModel;
 }
 
-/** Current 1.46 config shape. Both fixed mechanics roots bind configHash. */
-export interface SimConfigV146 extends SimConfigCommon {
+/** Frozen 1.46 config shape. Both fixed mechanics roots bind configHash. */
+export interface SimConfigV146
+  extends SimConfigCommon<LegacyElementalApplicationV146> {
   schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   reactionFormulaModel: ReactionFormulaModel;
   directDamageGroupModel: DirectDamageGroupModel;
 }
 
-export type SimConfig = SimConfigV146;
+/** Current 1.47 config. All elemental applications use explicit selectors. */
+export interface SimConfigV147 extends SimConfigCommon {
+  schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
+}
+
+export type SimConfig = SimConfigV147;
 
 export type VersionedSimConfig =
   | SimConfigV142
   | SimConfigV144
   | SimConfigV145
-  | SimConfigV146;
+  | SimConfigV146
+  | SimConfigV147;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1057,7 +1152,7 @@ export interface SimulationRunManifestV144
 /** Exact pinned formula root embedded in current run manifests. */
 export type ReactionFormulaRoot = ClassicReactionFormulaRoot;
 
-/** Current 1.45 run manifest. */
+/** Frozen 1.45 run manifest. */
 export interface SimulationRunManifestV145
   extends SimulationRunManifestCommon {
   version: typeof REACTION_FORMULA_RUN_MANIFEST_VERSION;
@@ -1069,23 +1164,39 @@ export interface SimulationRunManifestV145
 /** Exact pinned direct-damage-group root embedded in 1.46 run manifests. */
 export type DirectDamageGroupRoot = GcsimDamageGroupRoot;
 
-/** Current 1.46 run manifest. */
+/** Frozen 1.46 run manifest. */
 export interface SimulationRunManifestV146
   extends SimulationRunManifestCommon {
-  version: typeof SIMULATION_RUN_MANIFEST_VERSION;
+  version: typeof DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION;
   schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   reactionFormulaRoot: ReactionFormulaRoot;
   directDamageGroupRoot: DirectDamageGroupRoot;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV146;
+/** Exact pinned elemental-application ICD root embedded in 1.47 manifests. */
+export type ElementalApplicationIcdRoot =
+  GcsimElementalApplicationRoot;
+
+/** Current 1.47 run manifest binds all three fixed mechanics roots. */
+export interface SimulationRunManifestV147
+  extends SimulationRunManifestCommon {
+  version: typeof ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV147;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
   | SimulationRunManifestV144
   | SimulationRunManifestV145
-  | SimulationRunManifestV146;
+  | SimulationRunManifestV146
+  | SimulationRunManifestV147;
 
 export type SimulationEventType =
   | "action"
@@ -1836,6 +1947,122 @@ export interface DirectDamageGroupLogEntry {
   effectiveMultiplier: number;
   /** Only the generic gcsim-style OnEnemyHit signal is gated by the sequence. */
   damageGroupOnEnemyHitAllowed: boolean;
+}
+
+export type ElementalApplicationIcdSkippedReason =
+  | "miss"
+  | "target-aura-blocked"
+  | "no-aura-engine"
+  | "mechanics-truncated";
+
+/**
+ * A configured application was not presented to any ICD state machine.
+ * Skips never create or advance an application window.
+ */
+export interface ElementalApplicationIcdSkippedDecision {
+  kind: "skipped";
+  evaluated: false;
+  reason: ElementalApplicationIcdSkippedReason;
+  consumed: false;
+  applicationMultiplier: 0;
+  allowed: false;
+}
+
+/** Explicit no-ICD applications bypass all counters and timers. */
+export interface ElementalApplicationNoIcdDecision {
+  kind: "no-icd";
+  evaluated: true;
+  consumed: false;
+  applicationMultiplier: 1;
+  allowed: true;
+  scope: null;
+  profileId: null;
+  icdTag: null;
+  groupId: null;
+  windowStartGroupId: null;
+  resetFrames: null;
+  windowStartFrame: null;
+  resetAtFrame: null;
+  hitIndex: null;
+  sequenceIndex: null;
+  tailPolicy: null;
+  resetSchedulePolicy: "bypass";
+}
+
+/**
+ * Frozen boolean-profile decision used by explicitly migrated legacy inputs.
+ * The profile consumes an attempt even when its multiplier is zero.
+ */
+export interface ElementalApplicationLegacyProfileDecision {
+  kind: "legacy-profile";
+  evaluated: true;
+  consumed: true;
+  applicationMultiplier: 0 | 1;
+  allowed: boolean;
+  scope: "actor-tag-profile" | "target-global-burning";
+  profileId: string;
+  icdTag: string;
+  groupId: null;
+  windowStartGroupId: null;
+  resetFrames: number;
+  windowStartFrame: number;
+  resetAtFrame: number;
+  hitIndex: number;
+  sequenceIndex: number;
+  tailPolicy: IcdSequenceTailPolicy;
+  resetSchedulePolicy: "window-start-plus-reset-frames";
+}
+
+/**
+ * Numeric decision from the pinned gcsim elemental-application profile.
+ * Group selects the current sequence; actor plus tag owns the shared window.
+ */
+export interface ElementalApplicationFixedGcsimDecision {
+  kind: "fixed-gcsim";
+  evaluated: true;
+  consumed: true;
+  applicationMultiplier: number;
+  allowed: boolean;
+  scope: "actor-tag";
+  profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
+  icdTag: string;
+  groupId: PublicGcsimElementalApplicationGroupId;
+  windowStartGroupId: PublicGcsimElementalApplicationGroupId;
+  resetFrames: number;
+  windowStartFrame: number;
+  resetAtFrame: number;
+  hitIndex: number;
+  sequenceIndex: number;
+  tailPolicy: "clamp";
+  resetSchedulePolicy:
+    "window-start-plus-reset-frames-minus-one";
+}
+
+export type ElementalApplicationIcdDecision =
+  | ElementalApplicationIcdSkippedDecision
+  | ElementalApplicationNoIcdDecision
+  | ElementalApplicationLegacyProfileDecision
+  | ElementalApplicationFixedGcsimDecision;
+
+/**
+ * One auditable decision for each target attempt of a configured direct-hit
+ * elemental application. Reaction-owned applications are outside 1.47.
+ */
+export interface ElementalApplicationIcdLogEntry {
+  id: number;
+  sourceKind: "configured-direct-hit";
+  hitResolutionLogId: number;
+  damageEventId: number | null;
+  frame: number;
+  sourceActorId: string;
+  targetId: TargetId;
+  hitId: string;
+  hitGroupId: string;
+  element: Exclude<Element, "physical">;
+  selector: ElementalApplicationIcdSelector;
+  nominalGaugeUnits: number;
+  effectiveGaugeUnits: number;
+  decision: ElementalApplicationIcdDecision;
 }
 
 export interface DamageEvent {
@@ -3478,6 +3705,8 @@ export interface SimulationResult {
   hitEvents: DamageEvent[];
   /** Ordinary direct-damage sequence and hit-callback decisions. */
   directDamageGroupLog: DirectDamageGroupLogEntry[];
+  /** Numeric elemental-application ICD decisions for configured target attempts. */
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntry[];
   /** Every scheduled target check, including misses that did no damage. */
   hitResolutionLog: HitResolutionLogEntry[];
   /** Versioned target-clock mode and per-target final state. */
@@ -3569,7 +3798,8 @@ type VersionedSimulationResultIdentityFields =
   | "engineVersion"
   | "config"
   | "runManifest"
-  | "directDamageGroupLog";
+  | "directDamageGroupLog"
+  | "elementalApplicationIcdLog";
 
 /**
  * Frozen 1.42 top-level result identity. Nested audit unions stay deliberately
@@ -3596,7 +3826,7 @@ export type SimulationResultForV144 = Omit<
   runManifest: SimulationRunManifestV144;
 };
 
-/** Current 1.45 top-level result identity. */
+/** Frozen 1.45 top-level result identity. */
 export type SimulationResultForV145 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
@@ -3607,11 +3837,24 @@ export type SimulationResultForV145 = Omit<
   runManifest: SimulationRunManifestV145;
 };
 
-/** Current 1.46 top-level result identity and direct-damage-group audit. */
-export type SimulationResultForV146 = SimulationResult;
+/** Frozen 1.46 result identity and direct-damage-group audit. */
+export type SimulationResultForV146 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  config: SimConfigV146;
+  runManifest: SimulationRunManifestV146;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+};
+
+/** Current 1.47 result identity and elemental-application ICD audit. */
+export type SimulationResultForV147 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
   | SimulationResultForV144
   | SimulationResultForV145
-  | SimulationResultForV146;
+  | SimulationResultForV146
+  | SimulationResultForV147;

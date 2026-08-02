@@ -1,6 +1,7 @@
 import { gameDataCatalog } from "@genshin-dps-lab/game-data/catalog";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -181,8 +182,11 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       element: "pyro",
       application: {
         gaugeUnits: 1,
-        icdTag: "durin-elemental-art",
-        icdGroup: DURIN_SKILL_ICD_GROUP
+        icd: {
+          mode: "legacy-boolean-profile-v1",
+          icdTag: "durin-elemental-art",
+          profileId: DURIN_SKILL_ICD_GROUP
+        }
       },
       snapshot: "hit"
     },
@@ -195,8 +199,11 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       element: "pyro",
       application: {
         gaugeUnits: 1,
-        icdTag: "durin-elemental-art",
-        icdGroup: DURIN_SKILL_ICD_GROUP
+        icd: {
+          mode: "legacy-boolean-profile-v1",
+          icdTag: "durin-elemental-art",
+          profileId: DURIN_SKILL_ICD_GROUP
+        }
       },
       snapshot: "hit"
     },
@@ -209,8 +216,11 @@ export const durinDenialOfDarknessBlueprint: AbilityBlueprint = {
       element: "pyro",
       application: {
         gaugeUnits: 1,
-        icdTag: "durin-elemental-art",
-        icdGroup: DURIN_SKILL_ICD_GROUP
+        icd: {
+          mode: "legacy-boolean-profile-v1",
+          icdTag: "durin-elemental-art",
+          profileId: DURIN_SKILL_ICD_GROUP
+        }
       },
       snapshot: "hit"
     }
@@ -428,6 +438,10 @@ export function createDurinBlackSkillAuditConfig(
       mode: "fixed-gcsim-direct-damage-group-v1",
       profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
     },
+    elementalApplicationIcdModel: {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-black-e-audit-v1",
     meta: {
@@ -545,6 +559,10 @@ export function createDurinWhiteSkillAuditConfig(
     directDamageGroupModel: {
       mode: "fixed-gcsim-direct-damage-group-v1",
       profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    elementalApplicationIcdModel: {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
     },
     dataVersion: `${gameDataCatalog.catalogVersion}+${DURIN_MECHANICS_MAPPING_VERSION}`,
     randomSeed: "durin-white-e-audit-v1",

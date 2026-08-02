@@ -994,8 +994,7 @@ function makeLifecycleScenarioConfig(
               },
               application: {
                 gaugeUnits: definition.triggerGaugeUnits,
-                icdTag: `${scenario}-start`,
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               },
               ...(hitlagFrames > 0
                 ? {
@@ -1020,8 +1019,7 @@ function makeLifecycleScenarioConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "later-burning-start",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

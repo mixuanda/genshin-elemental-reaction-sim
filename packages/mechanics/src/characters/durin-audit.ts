@@ -4,7 +4,8 @@ import {
   type SimConfig
 } from "@genshin-dps-lab/schemas";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -64,6 +65,10 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   directDamageGroupModel: {
     mode: "fixed-gcsim-direct-damage-group-v1",
     profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+  },
+  elementalApplicationIcdModel: {
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
@@ -180,8 +185,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "durin-elemental-art",
-              icdGroup: "durin-skill"
+              icd: {
+                mode: "legacy-boolean-profile-v1",
+                icdTag: "durin-elemental-art",
+                profileId: "durin-skill"
+              }
             },
             snapshot: "hit"
           },
@@ -194,8 +202,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "durin-elemental-art",
-              icdGroup: "durin-skill"
+              icd: {
+                mode: "legacy-boolean-profile-v1",
+                icdTag: "durin-elemental-art",
+                profileId: "durin-skill"
+              }
             },
             snapshot: "hit"
           },
@@ -208,8 +219,11 @@ export const durinBlackSkillAuditPreset: SimConfig = {
             element: "pyro",
             application: {
               gaugeUnits: 1,
-              icdTag: "durin-elemental-art",
-              icdGroup: "durin-skill"
+              icd: {
+                mode: "legacy-boolean-profile-v1",
+                icdTag: "durin-elemental-art",
+                profileId: "durin-skill"
+              }
             },
             snapshot: "hit"
           }
@@ -343,6 +357,10 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
   directDamageGroupModel: {
     mode: "fixed-gcsim-direct-damage-group-v1",
     profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+  },
+  elementalApplicationIcdModel: {
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",

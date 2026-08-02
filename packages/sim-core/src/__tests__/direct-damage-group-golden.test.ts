@@ -13,11 +13,13 @@ import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { GCSIM_DAMAGE_GROUP_ROOT } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+  DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   assertTrustedSimulationResult,
+  assertTrustedSimulationResultV146,
   simulationResultSchema,
+  simulationResultV146Schema,
   type AbilityDefinition,
   type FrameHitDefinition,
   type SimConfig,
@@ -164,7 +166,7 @@ const fixtureSchema = z
     damageEventsCanonicalSha256: z.literal(
       DAMAGE_EVENTS_SHA256
     ),
-    result: simulationResultSchema
+    result: simulationResultV146Schema
   })
   .strict()
   .superRefine((fixture, context) => {
@@ -180,10 +182,12 @@ const fixtureSchema = z
       });
     }
     if (
-      fixture.result.schemaVersion !== CURRENT_SCHEMA_VERSION ||
-      fixture.result.engineVersion !== CURRENT_ENGINE_VERSION ||
+      fixture.result.schemaVersion !==
+        DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
+      fixture.result.engineVersion !==
+        DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION ||
       fixture.result.runManifest.version !==
-        SIMULATION_RUN_MANIFEST_VERSION ||
+        DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION ||
       fixture.result.randomSeed !== VECTOR_SEED ||
       fixture.result.runManifest.configHash !==
         VECTOR_CONFIG_HASH ||
@@ -373,6 +377,38 @@ function decisionProjection(
 function makeFixture(
   result: ReturnType<typeof runVector>
 ): DamageGroupFixture {
+  const projected = structuredClone(result) as unknown as Record<
+    string,
+    unknown
+  >;
+  delete projected.elementalApplicationIcdLog;
+  projected.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  projected.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+
+  const projectedConfig = projected.config as Record<string, unknown>;
+  projectedConfig.schemaVersion =
+    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  projectedConfig.engineVersion =
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  delete projectedConfig.elementalApplicationIcdModel;
+
+  const projectedManifest = projected.runManifest as Record<
+    string,
+    unknown
+  >;
+  projectedManifest.version =
+    DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION;
+  projectedManifest.schemaVersion =
+    DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
+  projectedManifest.engineVersion =
+    DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
+  projectedManifest.configHash = VECTOR_CONFIG_HASH;
+  projectedManifest.reproducibilityKey =
+    VECTOR_REPRODUCIBILITY_KEY;
+  delete projectedManifest.elementalApplicationIcdRoot;
+  projected.reproducibilityKey = VECTOR_REPRODUCIBILITY_KEY;
+
+  const frozenResult = simulationResultV146Schema.parse(projected);
   return fixtureSchema.parse({
     fixtureVersion: "1.0.0",
     description: DESCRIPTION,
@@ -386,12 +422,12 @@ function makeFixture(
     },
     expectedDecisionProjection: EXPECTED_DECISIONS,
     directDamageGroupLogCanonicalSha256: canonicalSha256(
-      result.directDamageGroupLog
+      frozenResult.directDamageGroupLog
     ),
     damageEventsCanonicalSha256: canonicalSha256(
-      result.damageEvents
+      frozenResult.damageEvents
     ),
-    result
+    result: frozenResult
   });
 }
 
@@ -418,7 +454,7 @@ function loadOrCreateFixture(
   ).toEqual(
     EXPECTED_DECISIONS
   );
-  assertTrustedSimulationResult(
+  assertTrustedSimulationResultV146(
     generated.result as unknown as SimulationResult
   );
 
@@ -545,7 +581,7 @@ describe("1.46 ordinary direct-damage-group Golden", () => {
       JSON.parse(readFileSync(FIXTURE_URL, "utf8"))
     );
     expect(
-      assertTrustedSimulationResult(
+      assertTrustedSimulationResultV146(
         fixture.result as unknown as SimulationResult
       )
     ).toBe(fixture.result);

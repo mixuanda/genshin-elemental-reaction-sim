@@ -78,8 +78,7 @@ function makeSingleHitChainConfig(
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "dendro-chain",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

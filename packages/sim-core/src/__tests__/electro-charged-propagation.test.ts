@@ -9,11 +9,10 @@ import { makeConfig, neutralStats } from "./fixtures";
 
 const SOURCE_ID = "enemy-0";
 
-function electroApplication(id: string) {
+function electroApplication(_id: string) {
   return {
     gaugeUnits: 1,
-    icdTag: id,
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -685,8 +684,7 @@ describe("Electro-Charged nearby Wet propagation", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "same-frame-hydro",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ]

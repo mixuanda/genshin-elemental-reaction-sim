@@ -89,8 +89,7 @@ function makeTargetHitlagSuperconductConfig({
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "superconduct-trigger",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               },
               ...(hitlagOnTrigger
                 ? {

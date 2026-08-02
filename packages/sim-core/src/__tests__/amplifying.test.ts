@@ -164,8 +164,9 @@ function makeAmplifyingConfig(
               element: vector.sourceElement,
               application: {
                 gaugeUnits: 1,
-                icdTag: "amplifying-test",
-                icdGroup: "no-icd"
+                icd: {
+                  mode: "no-icd-v1"
+                }
               },
               snapshot: "action",
               reactionBonus: 0.05,

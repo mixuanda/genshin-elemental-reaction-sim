@@ -97,8 +97,7 @@ function makeAudit(
     element: vector.incomingElement,
     application: {
       gaugeUnits: vector.incomingGauge,
-      icdTag: "aura-v7-public-grid",
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   });
 }

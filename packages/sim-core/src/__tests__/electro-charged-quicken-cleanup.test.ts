@@ -1,5 +1,11 @@
 import {
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+} from "@genshin-dps-lab/icd-profiles";
+import {
   assertTrustedSimulationResult,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   electroChargedCleanupResultReferencesSchema,
   simulationResultSchema,
   type AuraReactionEngineConfig,
@@ -38,7 +44,7 @@ function expectRejectedAtBothResultBoundaries(
   expect(() =>
     assertTrustedSimulationResult(result),
   ).toThrow(
-    /Trusted SimulationResult 1\.46 integrity validation failed/,
+    /Trusted SimulationResult 1\.47 integrity validation failed/,
   );
 }
 
@@ -62,8 +68,7 @@ function applicationHit({
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icdTag: id,
-      icdGroup: "no-icd",
+      icd: { mode: "no-icd-v1" },
     },
     ...(hitlagFrames === undefined
       ? {}
@@ -74,6 +79,86 @@ function applicationHit({
           },
         }),
   };
+}
+
+const NO_ICD_DECISION = {
+  kind: "no-icd",
+  evaluated: true,
+  consumed: false,
+  applicationMultiplier: 1,
+  allowed: true,
+  scope: null,
+  profileId: null,
+  icdTag: null,
+  groupId: null,
+  windowStartGroupId: null,
+  resetFrames: null,
+  windowStartFrame: null,
+  resetAtFrame: null,
+  hitIndex: null,
+  sequenceIndex: null,
+  tailPolicy: null,
+  resetSchedulePolicy: "bypass",
+} as const;
+
+function expectCurrentApplicationContract(
+  result: ReturnType<typeof simulate>,
+): void {
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.config.elementalApplicationIcdModel).toEqual({
+    mode: "fixed-gcsim-elemental-application-v1",
+    profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  });
+  expect(result.runManifest.elementalApplicationIcdRoot).toEqual(
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  );
+  expect(
+    result.config.timeline?.abilities[0]?.hits?.map((hit) => ({
+      hitId: hit.id,
+      application: hit.application,
+    })),
+  ).toEqual([
+    {
+      hitId: "dendro-quicken",
+      application: {
+        gaugeUnits: 0.8,
+        icd: { mode: "no-icd-v1" },
+      },
+    },
+    {
+      hitId: "electro-stream",
+      application: {
+        gaugeUnits: 0.8,
+        icd: { mode: "no-icd-v1" },
+      },
+    },
+  ]);
+  expect(
+    result.elementalApplicationIcdLog.map((entry) => ({
+      id: entry.id,
+      frame: entry.frame,
+      sourceActorId: entry.sourceActorId,
+      targetId: entry.targetId,
+      hitId: entry.hitId,
+      selector: entry.selector,
+      nominalGaugeUnits: entry.nominalGaugeUnits,
+      effectiveGaugeUnits: entry.effectiveGaugeUnits,
+      decision: entry.decision,
+    })),
+  ).toEqual(
+    ["dendro-quicken", "electro-stream"].map((hitId, id) => ({
+      id,
+      frame: 0,
+      sourceActorId: "driver",
+      targetId: "enemy-0",
+      hitId,
+      selector: { mode: "no-icd-v1" },
+      nominalGaugeUnits: 0.8,
+      effectiveGaugeUnits: 0.8,
+      decision: NO_ICD_DECISION,
+    })),
+  );
 }
 
 function makeCleanupConfig({
@@ -601,6 +686,7 @@ describe("aura-v8 Quicken to Bloom Electro-Charged cleanup", () => {
     const result = simulate(makeCleanupConfig(), {
       critMode: "noCrit",
     });
+    expectCurrentApplicationContract(result);
     assertStoppedCleanup(result, 1);
   });
 

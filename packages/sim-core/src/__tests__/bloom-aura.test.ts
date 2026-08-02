@@ -10,16 +10,18 @@ import { AuraEngine, type AuraEngineConfig } from "../aura";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "bloom-aura-test",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
 function defaultIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "bloom-aura-test",
-    icdGroup: "default" as const
+    icd: {
+      mode: "legacy-boolean-profile-v1" as const,
+      icdTag: "bloom-aura-test",
+      profileId: "default"
+    }
   };
 }
 

@@ -73,8 +73,7 @@ function makeFreezeConfig(includeSuperconduct: boolean): SimConfig {
               element: "hydro",
               application: {
                 gaugeUnits: 1,
-                icdTag: "freeze",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -96,8 +95,7 @@ function makeFreezeConfig(includeSuperconduct: boolean): SimConfig {
               element: "electro",
               application: {
                 gaugeUnits: 2,
-                icdTag: "frozen-superconduct",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]

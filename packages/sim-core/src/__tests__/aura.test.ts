@@ -14,16 +14,20 @@ import { makeConfig, neutralStats } from "./fixtures";
 function noIcd(gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: "none",
-    icdGroup: "no-icd" as const
+    icd: {
+      mode: "no-icd-v1" as const
+    }
   };
 }
 
 function defaultIcd(tag = "attack", gaugeUnits = 1) {
   return {
     gaugeUnits,
-    icdTag: tag,
-    icdGroup: "default" as const
+    icd: {
+      mode: "legacy-boolean-profile-v1" as const,
+      icdTag: tag,
+      profileId: "default"
+    }
   };
 }
 
@@ -205,8 +209,14 @@ describe("AuraEngine ICD", () => {
         element: "hydro",
         application: {
           gaugeUnits: 1,
-          icdTag: tag,
-          icdGroup: group
+          icd:
+            group === "no-icd"
+              ? { mode: "no-icd-v1" as const }
+              : {
+                  mode: "legacy-boolean-profile-v1" as const,
+                  icdTag: tag,
+                  profileId: group
+                }
         }
       }).icdAllowed;
 
@@ -235,8 +245,11 @@ describe("AuraEngine ICD", () => {
         element: "pyro",
         application: {
           gaugeUnits: 1,
-          icdTag: "denial-of-darkness",
-          icdGroup: "durin-skill"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "denial-of-darkness",
+            profileId: "durin-skill"
+          }
         }
       }).icdAllowed;
 
@@ -285,8 +298,11 @@ describe("AuraEngine ICD", () => {
           element: "hydro",
           application: {
             gaugeUnits: 1,
-            icdTag: "custom-tail",
-            icdGroup
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "custom-tail",
+              profileId: icdGroup
+            }
           }
         }).icdAllowed;
         if (allowed === null) {
@@ -318,8 +334,11 @@ describe("AuraEngine ICD", () => {
         element: "pyro",
         application: {
           gaugeUnits: 1,
-          icdTag: "skill",
-          icdGroup: "missing-profile"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "skill",
+            profileId: "missing-profile"
+          }
         }
       })
     ).toThrow(/Unknown ICD profile/);
@@ -1469,7 +1488,7 @@ describe("Aura engine simulation integration", () => {
     );
   });
 
-  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.46", () => {
+  it("keeps exact 1.44 debug ampBase validation frozen but fail-closes migration and current 1.47", () => {
     const current = makeAuraTimelineConfig(false);
     current.reactionEngine = {
       mode: "aura-v1",
@@ -1482,8 +1501,16 @@ describe("Aura engine simulation integration", () => {
     const {
       reactionFormulaModel: _reactionFormulaModel,
       directDamageGroupModel: _directDamageGroupModel,
+      elementalApplicationIcdModel: _elementalApplicationIcdModel,
       ...legacyPayload
     } = structuredClone(current);
+    const frozenApplication =
+      legacyPayload.timeline!.abilities[0]!.hits![0]!.application!;
+    legacyPayload.timeline!.abilities[0]!.hits![0]!.application = {
+      gaugeUnits: frozenApplication.gaugeUnits,
+      icdTag: "legacy-no-icd",
+      icdGroup: "no-icd"
+    } as never;
     const frozenV144 = {
       ...legacyPayload,
       schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
@@ -1563,8 +1590,11 @@ describe("Aura engine simulation integration", () => {
 
   it("rejects undeclared custom ICD groups before simulation starts", () => {
     const config = makeAuraTimelineConfig(false);
-    config.timeline!.abilities[0]!.hits![0]!.application!.icdGroup =
-      "missing-profile";
+    config.timeline!.abilities[0]!.hits![0]!.application!.icd = {
+      mode: "legacy-boolean-profile-v1",
+      icdTag: "normal",
+      profileId: "missing-profile"
+    };
 
     expect(() => simulate(config)).toThrow(
       /unknown ICD profile "missing-profile"/

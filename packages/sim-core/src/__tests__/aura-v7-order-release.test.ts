@@ -14,16 +14,18 @@ type AuraAudit = ReturnType<AuraEngine["processHit"]>;
 function noIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: "aura-v7-order-release",
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
 function defaultIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: "aura-v7-order-release",
-    icdGroup: "default" as const
+    icd: {
+      mode: "legacy-boolean-profile-v1" as const,
+      icdTag: "aura-v7-order-release",
+      profileId: "default"
+    }
   };
 }
 

@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest";
 import { AuraEngine, type ElectroChargedCleanupResult } from "../aura";
 import { TargetLocalClock } from "../target-clock";
 
-function noIcd(gaugeUnits: number, tag: string) {
+function noIcd(gaugeUnits: number) {
   return {
     gaugeUnits,
-    icdTag: tag,
-    icdGroup: "no-icd" as const,
+    icd: { mode: "no-icd-v1" as const },
   };
 }
 
@@ -25,19 +24,19 @@ function createQuickenBloomStream(
     frame: 0,
     sourceActorId: "hydro",
     element: "hydro",
-    application: noIcd(hydroGaugeUnits, "hydro"),
+    application: noIcd(hydroGaugeUnits),
   });
   const electro = engine.processHit({
     frame: 0,
     sourceActorId: "electro",
     element: "electro",
-    application: noIcd(1, "electro"),
+    application: noIcd(1),
   });
   const dendro = engine.processHit({
     frame: 0,
     sourceActorId: "dendro",
     element: "dendro",
-    application: noIcd(dendroGaugeUnits, "dendro"),
+    application: noIcd(dendroGaugeUnits),
   });
   const generation = electro.periodicReaction?.generation;
   if (generation === undefined) {
@@ -163,7 +162,7 @@ describe("aura-v8 Quicken→Bloom Electro-Charged cleanup", () => {
       frame: 0,
       sourceActorId: "same-frame-hydro",
       element: "hydro",
-      application: noIcd(0.5, "same-frame-hydro"),
+      application: noIcd(0.5),
     });
     expect(restored.periodicReaction).toMatchObject({
       operation: "refresh",

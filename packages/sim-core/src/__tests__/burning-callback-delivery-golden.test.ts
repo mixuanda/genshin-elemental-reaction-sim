@@ -158,8 +158,7 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "start-burning",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -318,7 +317,7 @@ function projectAttempt(
 
 /**
  * The callback fixture is an exact 1.44 wire. Current simulations run under
- * 1.46 and bind both fixed mechanics profiles in config and run manifest, so
+ * 1.47 and bind all fixed mechanics profiles in config and run manifest, so
  * compare their unchanged callback semantics through an explicit frozen-1.44
  * identity projection instead of rewriting the historical fixture.
  */
@@ -328,10 +327,29 @@ function projectCurrentConfigToFrozenV144(
   const {
     reactionFormulaModel: _reactionFormulaModel,
     directDamageGroupModel: _directDamageGroupModel,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
     ...frozenCommon
   } = config;
+  const legacyWire = structuredClone(frozenCommon);
+  const startBurningHit =
+    legacyWire.timeline?.abilities[0]?.hits?.[0];
+  if (startBurningHit === undefined) {
+    throw new Error(
+      "Burning callback Golden projection requires its configured starter hit."
+    );
+  }
+  (
+    startBurningHit as unknown as {
+      application: unknown;
+    }
+  ).application = {
+    gaugeUnits: 1,
+    icdTag: "start-burning",
+    icdGroup: "no-icd"
+  };
   return simConfigV144Schema.parse({
-    ...frozenCommon,
+    ...legacyWire,
     schemaVersion: BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
     engineVersion: BURNING_CALLBACK_DELIVERY_ENGINE_VERSION
   });

@@ -28,8 +28,7 @@ function applicationHit(
     },
     application: {
       gaugeUnits: 1,
-      icdTag: id,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
 }

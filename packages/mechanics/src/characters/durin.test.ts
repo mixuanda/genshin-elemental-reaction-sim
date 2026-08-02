@@ -1,6 +1,7 @@
 import { simulate } from "@genshin-dps-lab/sim-core";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -32,8 +33,13 @@ const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
   profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
 } as const;
 
+const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
+  mode: "fixed-gcsim-elemental-application-v1",
+  profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+} as const;
+
 describe("Durin current mechanics-root identity", () => {
-  it("pins both authoring configs and compact presets to both fixed profiles", () => {
+  it("pins authoring configs and compact presets to all fixed roots", () => {
     const configs = [
       createDurinBlackSkillAuditConfig(),
       createDurinWhiteSkillAuditConfig(),
@@ -47,6 +53,9 @@ describe("Durin current mechanics-root identity", () => {
       );
       expect(config.directDamageGroupModel).toEqual(
         EXPECTED_DIRECT_DAMAGE_GROUP_MODEL
+      );
+      expect(config.elementalApplicationIcdModel).toEqual(
+        EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL
       );
       for (const ability of config.timeline?.abilities ?? []) {
         for (const hit of ability.hits ?? []) {
@@ -186,8 +195,11 @@ describe("Durin black E partial mechanics audit vector", () => {
         scaling: 1.30032,
         application: {
           gaugeUnits: 1,
-          icdTag: "durin-elemental-art",
-          icdGroup: "durin-skill"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "durin-elemental-art",
+            profileId: "durin-skill"
+          }
         }
       },
       {
@@ -195,8 +207,11 @@ describe("Durin black E partial mechanics audit vector", () => {
         scaling: 0.9576,
         application: {
           gaugeUnits: 1,
-          icdTag: "durin-elemental-art",
-          icdGroup: "durin-skill"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "durin-elemental-art",
+            profileId: "durin-skill"
+          }
         }
       },
       {
@@ -204,8 +219,11 @@ describe("Durin black E partial mechanics audit vector", () => {
         scaling: 1.16352,
         application: {
           gaugeUnits: 1,
-          icdTag: "durin-elemental-art",
-          icdGroup: "durin-skill"
+          icd: {
+            mode: "legacy-boolean-profile-v1",
+            icdTag: "durin-elemental-art",
+            profileId: "durin-skill"
+          }
         }
       }
     ]);

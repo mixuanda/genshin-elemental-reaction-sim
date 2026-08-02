@@ -3,7 +3,8 @@ import {
   CURRENT_SCHEMA_VERSION
 } from "@genshin-dps-lab/schemas";
 import {
-  GCSIM_DAMAGE_GROUP_PROFILE_ID
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
@@ -35,11 +36,16 @@ const EXPECTED_DIRECT_DAMAGE_GROUP_MODEL = {
   profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
 } as const;
 
+const EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL = {
+  mode: "fixed-gcsim-elemental-application-v1",
+  profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+} as const;
+
 describe("game-data preset engine identity", () => {
   it("propagates the exact current mechanics-root identities without opting built-in presets into unrelated mechanics modes", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.46.0-direct-damage-group-root"
+      "1.47.0-elemental-application-icd-root"
     );
 
     for (const preset of presets) {
@@ -59,6 +65,10 @@ describe("game-data preset engine identity", () => {
         preset.meta.name
       ).toEqual(EXPECTED_DIRECT_DAMAGE_GROUP_MODEL);
       expect(
+        preset.elementalApplicationIcdModel,
+        preset.meta.name
+      ).toEqual(EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL);
+      expect(
         preset.reactionEngine?.mode,
         preset.meta.name
       ).not.toBe("aura-v9");
@@ -72,6 +82,30 @@ describe("game-data preset engine identity", () => {
         mode: "single-target-v1"
       });
     }
+  });
+
+  it("uses explicit current selectors for no-ICD and fixed default application", () => {
+    const applications = auraReactionDemoPreset.timeline?.abilities.flatMap(
+      (ability) =>
+        (ability.hits ?? []).flatMap((hit) =>
+          hit.application === undefined ? [] : [hit.application]
+        )
+    );
+
+    expect(applications).toEqual([
+      {
+        gaugeUnits: 1,
+        icd: { mode: "no-icd-v1" }
+      },
+      ...Array.from({ length: 4 }, () => ({
+        gaugeUnits: 1,
+        icd: {
+          mode: "fixed-gcsim-application-v1",
+          icdTag: "m3-pyro-multihit",
+          groupId: "default"
+        }
+      }))
+    ]);
   });
 
   it("does not mislabel provisional preset hits as verified ordinary direct-damage groups", () => {

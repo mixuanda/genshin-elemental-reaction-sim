@@ -97,8 +97,7 @@ function applicationHit({
       : {}),
     application: {
       gaugeUnits,
-      icdTag: `matrix-${id}`,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
 }
@@ -569,6 +568,78 @@ function compactEvent(event: SimulationResult["damageEvents"][number]) {
   };
 }
 
+const V147_APPLICATION_WIRE_ONLY_KEYS = new Set([
+  "applicationIcdDecision",
+  "applicationIcdLogId",
+  "applicationMultiplier",
+  "nominalApplicationGaugeUnits",
+  "effectiveApplicationGaugeUnits"
+]);
+
+/**
+ * Keep the 1.42 classic-reaction semantic digest stable across the 1.47
+ * application-ICD wire bump. The old digest intentionally proves reaction,
+ * Aura, damage, and task behavior; it must not rotate merely because a
+ * no-ICD selector moved from legacy tag/group fields into a top-level audit
+ * log.
+ */
+function stripV147ApplicationWireOnlyFields(
+  value: Record<string, unknown>
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      ([key]) => !V147_APPLICATION_WIRE_ONLY_KEYS.has(key)
+    )
+  );
+}
+
+function classicReactionDamageEventsForSemanticDigest(
+  result: SimulationResult
+): unknown {
+  const noIcdApplicationByDamageEventId = new Map(
+    result.elementalApplicationIcdLog
+      .filter(
+        (entry) =>
+          entry.damageEventId !== null &&
+          entry.decision.kind === "no-icd"
+      )
+      .map((entry) => [entry.damageEventId!, entry] as const)
+  );
+
+  return result.damageEvents.map((event) => {
+    // Restrict normalization to the two application-audit wire locations.
+    // Recursive stripping would erase the numeric multiplier inside a real
+    // mechanics decision and would weaken this semantic digest.
+    const normalized = {
+      ...stripV147ApplicationWireOnlyFields(
+        event as unknown as Record<string, unknown>
+      ),
+      reactionAudit: stripV147ApplicationWireOnlyFields(
+        event.reactionAudit as unknown as Record<string, unknown>
+      )
+    } as unknown as SimulationResult["damageEvents"][number];
+    const application = noIcdApplicationByDamageEventId.get(
+      event.id
+    );
+    if (application === undefined || event.kind !== "direct") {
+      return normalized;
+    }
+
+    return {
+      ...normalized,
+      reactionAudit: {
+        ...normalized.reactionAudit,
+        // Exact legacy projection authored by applicationHit(). These fields
+        // were identifiers for a bypass, not mechanics inputs.
+        icdAllowed: true,
+        icdTag: `matrix-${event.hitId}`,
+        icdGroup: "no-icd",
+        applicationGaugeUnits: application.nominalGaugeUnits
+      }
+    };
+  });
+}
+
 function compactResult(result: SimulationResult) {
   const timeline = result.config.timeline;
   if (timeline?.mode !== "legal-frame-v1") {
@@ -780,7 +851,9 @@ function compactResult(result: SimulationResult) {
     hashes: {
       config: sha256(result.config),
       runManifest: sha256(result.runManifest),
-      damageEvents: sha256(result.damageEvents),
+      damageEvents: sha256(
+        classicReactionDamageEventsForSemanticDigest(result)
+      ),
       hitResolutionLog: sha256(result.hitResolutionLog),
       reactionDamageLog: sha256(result.reactionDamageLog),
       stateLogs: sha256({
@@ -2221,9 +2294,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.46.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.47.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.46.0-direct-damage-group-root"
+      "1.47.0-elemental-application-icd-root"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 

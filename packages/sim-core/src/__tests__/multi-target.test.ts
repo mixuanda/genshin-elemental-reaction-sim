@@ -26,8 +26,11 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "shared-attack-stream",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "shared-attack-stream",
+              profileId: "default"
+            }
           }
         },
         {
@@ -42,8 +45,11 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "shared-attack-stream",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "shared-attack-stream",
+              profileId: "default"
+            }
           }
         },
         {
@@ -58,8 +64,11 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "shared-attack-stream",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "shared-attack-stream",
+              profileId: "default"
+            }
           }
         },
         {
@@ -74,8 +83,11 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "shared-attack-stream",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "shared-attack-stream",
+              profileId: "default"
+            }
           }
         },
         {
@@ -90,8 +102,11 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "shared-attack-stream",
-            icdGroup: "default"
+            icd: {
+              mode: "legacy-boolean-profile-v1",
+              icdTag: "shared-attack-stream",
+              profileId: "default"
+            }
           }
         }
       ]
@@ -389,8 +404,7 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "aoe",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ],
@@ -560,8 +574,7 @@ describe("registered enemy targets", () => {
           },
           application: {
             gaugeUnits: 1,
-            icdTag: "circle-hit",
-            icdGroup: "no-icd"
+            icd: { mode: "no-icd-v1" }
           }
         }
       ],

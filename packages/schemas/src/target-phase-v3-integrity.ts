@@ -5,6 +5,8 @@ import {
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
+  ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   type AuraStateEntry,
@@ -460,11 +462,21 @@ export function validateTargetPhaseV3Integrity(
     resultEngineVersion === DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION &&
     configSchemaVersion === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION &&
     configEngineVersion === DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
-  if (!exactV144Identity && !exactV145Identity && !exactV146Identity) {
+  const exactV147Identity =
+    resultSchemaVersion === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+    resultEngineVersion === ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION &&
+    configSchemaVersion === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION &&
+    configEngineVersion === ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
+  if (
+    !exactV144Identity &&
+    !exactV145Identity &&
+    !exactV146Identity &&
+    !exactV147Identity
+  ) {
     addIssue(
       context,
       ["schemaVersion"],
-      "target-phase-v3 integrity requires an exact 1.44, 1.45, or 1.46 schema and engine identity"
+      "target-phase-v3 integrity requires an exact 1.44, 1.45, 1.46, or 1.47 schema and engine identity"
     );
     return;
   }

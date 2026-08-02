@@ -37,8 +37,7 @@ function applicationHit(
     geometry: SAME_TARGET_GEOMETRY,
     application: {
       gaugeUnits,
-      icdTag: id,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
 }

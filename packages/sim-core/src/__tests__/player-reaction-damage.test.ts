@@ -70,11 +70,10 @@ function withPlayerDamage(
   };
 }
 
-function noIcd(id: string) {
+function noIcd() {
   return {
     gaugeUnits: 1,
-    icdTag: id,
-    icdGroup: "no-icd" as const
+    icd: { mode: "no-icd-v1" as const }
   };
 }
 
@@ -119,7 +118,7 @@ function makeBurningScenario({
           origin: { x: 0, y: 0 },
           radius: 1
         },
-        application: noIcd("pyro-start-burning")
+        application: noIcd()
       }
     ]
   };
@@ -221,7 +220,7 @@ function makeThreeBloomScenario(): SimConfig {
         targetId: "enemy-0",
         outcome: "landed" as const
       },
-      application: noIcd(`hydro-${index}`)
+      application: noIcd()
     }))
   };
   return withPlayerDamage(
@@ -303,7 +302,7 @@ function makeShieldedBurningScenario(
           targetId: "enemy-0",
           outcome: "landed"
         },
-        application: noIcd("geo-crystallize")
+        application: noIcd()
       }
     ]
   };
@@ -326,7 +325,7 @@ function makeShieldedBurningScenario(
           targetId: "enemy-0",
           outcome: "landed"
         },
-        application: noIcd("dendro-burning")
+        application: noIcd()
       }
     ]
   };

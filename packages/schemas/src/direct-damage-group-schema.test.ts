@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
-  GCSIM_DAMAGE_GROUP_ROOT
+  GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_ELEMENTAL_APPLICATION_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
@@ -23,6 +24,7 @@ import {
   directDamageGroupModelSchema,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+  DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
   migrateConfig,
   parseSimConfig,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
@@ -73,8 +75,24 @@ const makeDirectHit = (icdGroup = "pole-extra-attack") => ({
 
 const makeCurrentConfig = () => migrateConfig(legacyConfig);
 
-const makeV145Config = () => {
+const makeV146Config = () => {
   const current = makeCurrentConfig();
+  const {
+    schemaVersion: _schemaVersion,
+    engineVersion: _engineVersion,
+    elementalApplicationIcdModel:
+      _elementalApplicationIcdModel,
+    ...unchanged
+  } = current;
+  return simConfigV146Schema.parse({
+    ...unchanged,
+    schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+    engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
+  });
+};
+
+const makeV145Config = () => {
+  const current = makeV146Config();
   const {
     schemaVersion: _schemaVersion,
     engineVersion: _engineVersion,
@@ -91,13 +109,12 @@ const makeV145Config = () => {
 describe("1.46 direct-damage-group config wire", () => {
   it("requires the exact fixed model and injects it into legacy configs", () => {
     const current = makeCurrentConfig();
-    expect(current.schemaVersion).toBe(
-      DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION
-    );
-    expect(current.engineVersion).toBe(
-      DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION
-    );
+    expect(current.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(current.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(current.directDamageGroupModel).toEqual(fixedModel);
+    expect(simConfigV146Schema.parse(makeV146Config())).toEqual(
+      makeV146Config()
+    );
     expect(directDamageGroupModelSchema.parse(fixedModel)).toEqual(
       fixedModel
     );
@@ -133,7 +150,7 @@ describe("1.46 direct-damage-group config wire", () => {
   });
 
   it("accepts selectors on rotation and legal-timeline hits and requires explicit hit ids", () => {
-    const current = makeCurrentConfig();
+    const current = makeV146Config();
     const rotationWire = {
       ...current,
       rotation: [
@@ -215,7 +232,7 @@ describe("1.46 direct-damage-group config wire", () => {
     );
 
     expect(() =>
-      parseSimConfig({
+      simConfigV146Schema.parse({
         ...current,
         rotation: [
           {
@@ -365,7 +382,7 @@ describe("1.46 direct-damage-group config wire", () => {
     ).toThrow(/does not support ordinary direct-damage-group selection/);
   });
 
-  it("migrates exact 1.45 by changing only identity and adding the fixed model", () => {
+  it("migrates exact 1.45 through current fixed roots without changing old semantics", () => {
     const frozen = makeV145Config();
     const migrated = migrateConfig(frozen);
     expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
@@ -384,6 +401,8 @@ describe("1.46 direct-damage-group config wire", () => {
       schemaVersion: _newSchema,
       engineVersion: _newEngine,
       directDamageGroupModel: _newModel,
+      elementalApplicationIcdModel:
+        _newElementalApplicationIcdModel,
       ...newSemantics
     } = migrated;
     expect(newSemantics).toEqual(oldSemantics);
@@ -416,12 +435,46 @@ describe("1.46 run-manifest exact roots", () => {
       },
       plugins: [],
       reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
-      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
+      elementalApplicationIcdRoot:
+        GCSIM_ELEMENTAL_APPLICATION_ROOT
     });
   };
 
+  const makeV146Manifest = () => {
+    const config = makeV146Config();
+    const identity = {
+      version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
+      identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM,
+      schemaVersion: DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
+      engineVersion: DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
+      dataVersion: config.dataVersion,
+      configHash: createSimulationConfigHash(config),
+      resolvedRuntimeOptions: {
+        energyMode: "configured" as const,
+        critMode: "average" as const,
+        compatibilityMode: "legacy-v0.1" as const,
+        randomSeed: config.randomSeed
+      },
+      plugins: [],
+      reactionFormulaRoot: CLASSIC_REACTION_FORMULA_ROOT,
+      directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT
+    };
+    return {
+      ...identity,
+      reproducibilityKey:
+        createSimulationReproducibilityKey(identity)
+    };
+  };
+
+  it("binds the canonical elemental-application root in the current manifest", () => {
+    expect(makeCurrentManifest().elementalApplicationIcdRoot).toEqual(
+      GCSIM_ELEMENTAL_APPLICATION_ROOT
+    );
+  });
+
   it("keeps 1.45 and 1.46 manifest wires mutually exact", () => {
-    const current = makeCurrentManifest();
+    const current = makeV146Manifest();
     expect(simulationRunManifestV146Schema.parse(current)).toEqual(
       current
     );
@@ -454,7 +507,7 @@ describe("1.46 run-manifest exact roots", () => {
   });
 
   it("rejects a tampered damage-group root even after coherent re-keying", () => {
-    const current = makeCurrentManifest();
+    const current = makeV146Manifest();
     const tamperedIdentity = {
       ...current,
       directDamageGroupRoot: {

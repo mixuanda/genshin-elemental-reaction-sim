@@ -97,8 +97,7 @@ function makeOneHitConfig(
               element,
               application: {
                 gaugeUnits: 1,
-                icdTag: "formula-proof",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -166,8 +165,7 @@ function makeAdditiveConfig(
             element,
             application: {
               gaugeUnits: 1,
-              icdTag: "additive-formula-proof",
-              icdGroup: "no-icd" as const
+              icd: { mode: "no-icd-v1" as const }
             }
           }))
         }
@@ -187,6 +185,44 @@ function cloneResult(result: SimulationResult): SimulationResult {
   const cloned = structuredClone(result);
   cloned.hitEvents = cloned.damageEvents;
   return cloned;
+}
+
+function projectApplicationsToFrozenWire(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(projectApplicationsToFrozenWire);
+  }
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.gaugeUnits === "number" &&
+    record.icd !== null &&
+    typeof record.icd === "object"
+  ) {
+    const icd = record.icd as Record<string, unknown>;
+    if (icd.mode === "legacy-boolean-profile-v1") {
+      return {
+        gaugeUnits: record.gaugeUnits,
+        icdTag: icd.icdTag,
+        icdGroup: icd.profileId
+      };
+    }
+    return {
+      gaugeUnits: record.gaugeUnits,
+      icdTag:
+        icd.mode === "fixed-gcsim-application-v1"
+          ? icd.icdTag
+          : "__no_icd_v1__",
+      icdGroup: "no-icd"
+    };
+  }
+  return Object.fromEntries(
+    Object.entries(record).map(([key, entry]) => [
+      key,
+      projectApplicationsToFrozenWire(entry)
+    ])
+  );
 }
 
 function refreshReproducibilityIdentity(
@@ -228,17 +264,23 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   frozen.engineVersion =
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete frozen.directDamageGroupLog;
-  const config = frozen.config as Record<string, unknown>;
+  delete frozen.elementalApplicationIcdLog;
+  const config = projectApplicationsToFrozenWire(
+    frozen.config
+  ) as Record<string, unknown>;
+  frozen.config = config;
   config.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   config.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete config.reactionFormulaModel;
   delete config.directDamageGroupModel;
+  delete config.elementalApplicationIcdModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   manifest.engineVersion = BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete manifest.reactionFormulaRoot;
   delete manifest.directDamageGroupRoot;
+  delete manifest.elementalApplicationIcdRoot;
   manifest.configHash = createSimulationConfigHash(config);
   const {
     reproducibilityKey: _ignoredReproducibilityKey,
@@ -255,10 +297,10 @@ function projectToFrozenV144(result: SimulationResult): unknown {
 }
 
 function expectFrozenV144Accepts(
-  forgedV145: SimulationResult
+  currentResult: SimulationResult
 ): void {
   const parsed = simulationResultV144Schema.parse(
-    projectToFrozenV144(forgedV145)
+    projectToFrozenV144(currentResult)
   );
   expect(
     assertTrustedSimulationResultV144(
@@ -339,7 +381,7 @@ describe("current SimulationResult reaction-formula root integrity", () => {
     );
 
     // This is a deliberately frozen 1.44 limitation, not a claim that the
-    // forged formula is trustworthy. The 1.45 boundary below must reject it.
+    // forged formula is trustworthy. The current boundary must reject it.
     expectFrozenV144Accepts(result);
     expectFormulaRejection(result, /levelBaseDamage/);
   });
@@ -372,7 +414,7 @@ describe("current SimulationResult reaction-formula root integrity", () => {
     );
 
     // This is a deliberately frozen 1.44 limitation, not a claim that the
-    // forged formula is trustworthy. The 1.45 boundary below must reject it.
+    // forged formula is trustworthy. The current boundary must reject it.
     expectFrozenV144Accepts(result);
     expectFormulaRejection(result, /reactionBase/);
   });
@@ -433,7 +475,7 @@ describe("current SimulationResult reaction-formula root integrity", () => {
         expectFrozenV144Accepts(result);
       } else {
         // The additive 1.15/1.25 multipliers were already fixed in the
-        // frozen 1.44 proof; 1.45 now derives the same value from the root.
+        // frozen 1.44 proof; current now derives the same value from the root.
         expect(
           simulationResultV144Schema.safeParse(
             projectToFrozenV144(result)

@@ -101,8 +101,7 @@ function makeSuperconductConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "superconduct",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             ...[1, 2, 720, 721].map((frame) => ({
@@ -198,8 +197,7 @@ function makeOrderedCryoPipelineConfig(): SimConfig {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "ordered-cryo-ec",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             },
             {
@@ -210,8 +208,7 @@ function makeOrderedCryoPipelineConfig(): SimConfig {
               element: "cryo",
               application: {
                 gaugeUnits: 2,
-                icdTag: "ordered-cryo-hit",
-                icdGroup: "no-icd"
+                icd: { mode: "no-icd-v1" }
               }
             }
           ]
@@ -315,8 +312,7 @@ function makeSameFrameSuperconductRefreshConfig(): SimConfig {
             },
             application: {
               gaugeUnits: 1,
-              icdTag: `same-frame-superconduct-${index}`,
-              icdGroup: "no-icd" as const
+              icd: { mode: "no-icd-v1" as const }
             }
           }))
         }
@@ -578,8 +574,7 @@ describe("Superconduct simulation integration", () => {
       },
       application: {
         gaugeUnits: 1,
-        icdTag: "superconduct",
-        icdGroup: "no-icd"
+        icd: { mode: "no-icd-v1" }
       }
     });
 
@@ -724,8 +719,7 @@ describe("Superconduct simulation integration", () => {
               },
               application: {
                 gaugeUnits: 1,
-                icdTag: "overlap",
-                icdGroup: "no-icd" as const
+                icd: { mode: "no-icd-v1" as const }
               }
             }))
           }

@@ -60,8 +60,7 @@ function applicationHit({
       : {}),
     application: {
       gaugeUnits,
-      icdTag: `target-phase-v2-gate:${id}`,
-      icdGroup: "no-icd"
+      icd: { mode: "no-icd-v1" }
     }
   };
 }
