@@ -34,6 +34,7 @@ import { z } from "zod";
 import { simulate } from "../simulator";
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
+import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { makeConfig } from "./fixtures";
 
 const PREVIEW_FLAG =
@@ -492,7 +493,9 @@ const OPTIONS = {
 function runVector() {
   return projectSimulationResultV148ToV147(
     projectSimulationResultV149ToV148(
-      simulate(makeVectorConfig(), OPTIONS)
+      projectSimulationResultV150ToV149(
+        simulate(makeVectorConfig(), OPTIONS)
+      )
     )
   );
 }

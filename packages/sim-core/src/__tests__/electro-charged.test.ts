@@ -3,6 +3,11 @@ import {
   simulationResultSchema,
   type SimConfig
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { calcTransformativeReactionDamage } from "../formulas";
 import { simulate } from "../simulator";
@@ -193,7 +198,7 @@ function expectRejectedAtBothBoundaries(
   expect(() =>
     assertTrustedSimulationResult(result)
   ).toThrow(
-    /Trusted SimulationResult 1\.49 integrity validation failed/
+    /Trusted SimulationResult 1\.50 integrity validation failed/
   );
 }
 
@@ -1800,23 +1805,59 @@ describe("Electro-Charged simulation integration", () => {
       }
     });
     expect(schedules).toHaveLength(2);
+    expect(result.runManifest).toMatchObject({
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT
+    });
     expect(schedules[1]).toMatchObject({
       damageFrame: 16,
       damageGroupBlockedTargetIds: ["enemy-0"],
-      damageEventIds: [ticks[1]?.id],
-      damageGroupDecisions: [
-        {
-          reaction: "electroCharged",
-          sourceActorId: "electro-a",
-          targetId: "enemy-0",
-          windowStartFrame: 10,
-          hitIndex: 1,
-          resetFrames: 30,
-          sequence: [true, false],
-          damageAllowed: false,
-          blockedReason: "REACTION_B_DAMAGE_ICD"
-        }
-      ]
+      damageEventIds: [ticks[1]?.id]
+    });
+    expect(schedules[1]?.damageGroupDecisions).toEqual([
+      {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+        icdTag: "ICDTagECDamage",
+        icdGroup: "reaction-b",
+        reaction: "electroCharged",
+        sourceActorId: "electro-a",
+        targetId: "enemy-0",
+        scopeKey:
+          '["enemy-0","electro-a","ICDTagECDamage"]',
+        frame: 16,
+        damageGroupTaskSequence: 14,
+        windowGeneration: 0,
+        windowStartFrame: 10,
+        resetAtFrame: 39,
+        resetTaskLogId: 2,
+        resetTaskSequence: 12,
+        hitIndex: 1,
+        sequenceIndex: 1,
+        sequenceMultiplier: 0,
+        damageAllowed: false,
+        blockedReason: "REACTION_B_DAMAGE_ICD"
+      }
+    ]);
+    expect(result.reactionDamageGroupResetLog[2]).toEqual({
+      id: 2,
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+      sourceActorId: "electro-a",
+      targetId: "enemy-0",
+      scopeKey: '["enemy-0","electro-a","ICDTagECDamage"]',
+      reaction: "electroCharged",
+      icdTag: "ICDTagECDamage",
+      icdGroup: "reaction-b",
+      windowGeneration: 0,
+      windowStartFrame: 10,
+      resetAtFrame: 39,
+      taskSequence: 12,
+      withinSimulation: true,
+      executed: true,
+      executedBeforeAttemptTaskSequence: null,
+      executionFrame: 39,
+      stale: false,
+      invalidatedReason: null
     });
   });
 

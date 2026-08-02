@@ -18,6 +18,9 @@ import {
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import taskOrderGoldenV136Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.36.golden.json";
 import taskOrderGoldenV137Json from "../../../test-vectors/fixtures/quicken-bloom-task-order-1.37.golden.json";
@@ -75,6 +78,10 @@ function makeTaskOrderConfig(
 
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "quicken-bloom-task-order-provisional-1",
     randomSeed: `quicken-bloom-task-order-${mode}-${
       interveningHit?.id ?? "fifo"

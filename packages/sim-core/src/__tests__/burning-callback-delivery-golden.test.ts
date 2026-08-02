@@ -29,6 +29,8 @@ import {
   type TargetStateTimelinePoint
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
+import { GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID } from "@genshin-dps-lab/icd-profiles";
+import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -50,6 +52,10 @@ function makeBurningCallbackGoldenConfig(): SimConfig {
   const base = makeConfig();
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "burning-callback-delivery-provisional-1",
     randomSeed: "burning-callback-delivery-golden-seed",
     meta: {
@@ -297,9 +303,26 @@ function projectReactionDamageToFrozenV144(
     hitResolutionLogIds: _hitResolutionLogIds,
     elementalApplicationIcdLogIds:
       _elementalApplicationIcdLogIds,
+    damageGroupDecisions,
     ...frozenEntry
   } = entry;
-  return frozenEntry;
+  return {
+    ...frozenEntry,
+    damageGroupDecisions: damageGroupDecisions.map((decision) => ({
+      reaction: decision.reaction,
+      sourceActorId: decision.sourceActorId,
+      targetId: decision.targetId,
+      windowStartFrame: decision.windowStartFrame,
+      hitIndex: decision.hitIndex,
+      resetFrames: 30 as const,
+      sequence:
+        decision.icdGroup === "reaction-a"
+          ? ([true, true, false] as const)
+          : ([true, false] as const),
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason
+    }))
+  };
 }
 
 function projectAttempt(
@@ -365,6 +388,7 @@ function projectCurrentConfigToFrozenV144(
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...frozenCommon
   } = config;
   const legacyWire = structuredClone(frozenCommon);
@@ -877,9 +901,12 @@ describe("Burning callback delivery 1.44 Golden", () => {
     expect(assertTrustedSimulationResult(first)).toBe(
       first
     );
+    const frozenV149TargetPhaseFacet =
+      projectSimulationResultV150ToV149(first);
     expect(
-      targetPhaseV3ResultReferencesSchema.safeParse(first)
-        .success
+      targetPhaseV3ResultReferencesSchema.safeParse(
+        frozenV149TargetPhaseFacet
+      ).success
     ).toBe(true);
 
     const scenario = projectBurningCallbackScenario(first);

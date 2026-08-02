@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
@@ -203,8 +204,25 @@ function projectReactionDamageLogToFrozenV147(
       hitResolutionLogIds: _hitResolutionLogIds,
       elementalApplicationIcdLogIds:
         _elementalApplicationIcdLogIds,
+      damageGroupDecisions,
       ...entry
-    }) => entry
+    }) => ({
+      ...entry,
+      damageGroupDecisions: damageGroupDecisions.map((decision) => ({
+        reaction: decision.reaction,
+        sourceActorId: decision.sourceActorId,
+        targetId: decision.targetId,
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        resetFrames: 30 as const,
+        sequence:
+          decision.icdGroup === "reaction-a"
+            ? ([true, true, false] as const)
+            : ([true, false] as const),
+        damageAllowed: decision.damageAllowed,
+        blockedReason: decision.blockedReason
+      }))
+    })
   );
 }
 
@@ -256,6 +274,7 @@ function projectCurrentConfigToFrozenV140(
     elementalApplicationIcdModel: _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     electroChargedPropagationModel:
       _electroChargedPropagationModel,
     ...frozenConfig
@@ -276,6 +295,10 @@ function makeCleanupGoldenConfig(
   const base = makeConfig();
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "ec-quicken-cleanup-provisional-1",
     randomSeed:
       hitlagFrames === undefined

@@ -11,6 +11,7 @@ import {
   simulationResultSchema,
   type SimConfig,
   type SimulationResult,
+  type SimulationResultForV149,
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 
@@ -24,6 +25,7 @@ import {
   canonicalSha256,
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
+import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 
 const PREVIEW_FLAG = "PREVIEW_BURNING_RESET_BOUNDARY_V149_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BURNING_RESET_BOUNDARY_V149_GOLDEN";
@@ -36,7 +38,7 @@ const FIXTURE_URL = new URL(
 
 type PolicyVariant = "v1" | "v2";
 type ElementalApplicationRow =
-  SimulationResult["elementalApplicationIcdLog"][number];
+  SimulationResultForV149["elementalApplicationIcdLog"][number];
 type BurningApplicationRow = Extract<
   ElementalApplicationRow,
   { sourceKind: "burning-tick" }
@@ -174,7 +176,7 @@ function makeBoundaryConfig(policy: PolicyVariant): SimConfig {
 }
 
 function findDeliveryAttempt(
-  result: SimulationResult,
+  result: SimulationResult | SimulationResultForV149,
   reactionDamageLogId: number,
   targetId: string,
 ) {
@@ -207,7 +209,7 @@ function findDeliveryAttempt(
   );
 }
 
-function reactionOwnedApplicationProjection(result: SimulationResult) {
+function reactionOwnedApplicationProjection(result: SimulationResultForV149) {
   return result.elementalApplicationIcdLog
     .filter(isBurningApplicationRow)
     .map((row) => {
@@ -259,7 +261,7 @@ function reactionOwnedApplicationProjection(result: SimulationResult) {
     });
 }
 
-function reactionDamageProjection(result: SimulationResult) {
+function reactionDamageProjection(result: SimulationResultForV149) {
   return result.reactionDamageLog
     .filter((row) => row.scheduleKind === "burning-tick")
     .map((row) => ({
@@ -277,7 +279,7 @@ function reactionDamageProjection(result: SimulationResult) {
     }));
 }
 
-function scenarioFixture(result: SimulationResult) {
+function scenarioFixture(result: SimulationResultForV149) {
   return {
     identity: {
       schemaVersion: result.schemaVersion,
@@ -327,6 +329,12 @@ function runScenarios() {
 }
 
 function makeFixture(results: ReturnType<typeof runScenarios>) {
+  const projected = {
+    v1Compatibility: projectSimulationResultV150ToV149(
+      results.v1Compatibility,
+    ),
+    v2Corrected: projectSimulationResultV150ToV149(results.v2Corrected),
+  };
   return {
     fixtureVersion: "1.0.0" as const,
     description:
@@ -368,8 +376,8 @@ function makeFixture(results: ReturnType<typeof runScenarios>) {
       v2: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
     },
     scenarios: {
-      v1Compatibility: scenarioFixture(results.v1Compatibility),
-      v2Corrected: scenarioFixture(results.v2Corrected),
+      v1Compatibility: scenarioFixture(projected.v1Compatibility),
+      v2Corrected: scenarioFixture(projected.v2Corrected),
     },
   };
 }

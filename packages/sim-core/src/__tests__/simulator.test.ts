@@ -314,6 +314,7 @@ describe("deterministic event simulation", () => {
       elementalApplicationIcdModel: _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...legacyPayload
     } = structuredClone(currentWithLegacyOverride);
     const frozenV144WithAmpBase = {

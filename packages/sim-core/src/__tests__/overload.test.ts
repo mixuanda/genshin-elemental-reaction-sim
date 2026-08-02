@@ -1,3 +1,7 @@
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID
+} from "@genshin-dps-lab/icd-profiles";
 import type { SimConfig } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { calcTransformativeReactionDamage } from "../formulas";
@@ -450,6 +454,11 @@ describe("Overload simulation integration", () => {
             decision.targetId === "shared-target"
         )
     );
+    const sharedScopeKey = JSON.stringify([
+      "shared-target",
+      "pyro",
+      "ICDTagOverloadDamage"
+    ]);
 
     expect(sharedExplosions).toHaveLength(2);
     expect(
@@ -473,28 +482,82 @@ describe("Overload simulation integration", () => {
     expect(sharedExplosions[0]?.finalDamage).toBeGreaterThan(0);
     expect(sharedDecisions).toEqual([
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
         reaction: "overload",
+        icdTag: "ICDTagOverloadDamage",
+        icdGroup: "reaction-b",
         sourceActorId: "pyro",
         targetId: "shared-target",
+        scopeKey: sharedScopeKey,
+        frame: 1,
+        damageGroupTaskSequence: 3,
+        windowGeneration: 0,
         windowStartFrame: 1,
+        resetAtFrame: 30,
+        resetTaskLogId: 2,
+        resetTaskSequence: 6,
         hitIndex: 0,
-        resetFrames: 30,
-        sequence: [true, false],
+        sequenceIndex: 0,
+        sequenceMultiplier: 1,
         damageAllowed: true,
         blockedReason: null
       },
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
         reaction: "overload",
+        icdTag: "ICDTagOverloadDamage",
+        icdGroup: "reaction-b",
         sourceActorId: "pyro",
         targetId: "shared-target",
+        scopeKey: sharedScopeKey,
+        frame: 7,
+        damageGroupTaskSequence: 7,
+        windowGeneration: 0,
         windowStartFrame: 1,
+        resetAtFrame: 30,
+        resetTaskLogId: 2,
+        resetTaskSequence: 6,
         hitIndex: 1,
-        resetFrames: 30,
-        sequence: [true, false],
+        sequenceIndex: 1,
+        sequenceMultiplier: 0,
         damageAllowed: false,
         blockedReason: "REACTION_B_DAMAGE_ICD"
       }
     ]);
+    expect(result.reactionDamageGroupResetLog[2]).toEqual({
+      id: 2,
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+      sourceActorId: "pyro",
+      targetId: "shared-target",
+      scopeKey: sharedScopeKey,
+      reaction: "overload",
+      icdTag: "ICDTagOverloadDamage",
+      icdGroup: "reaction-b",
+      windowGeneration: 0,
+      windowStartFrame: 1,
+      resetAtFrame: 30,
+      taskSequence: 6,
+      withinSimulation: true,
+      executed: true,
+      executedBeforeAttemptTaskSequence: null,
+      executionFrame: 30,
+      stale: false,
+      invalidatedReason: null
+    });
+    expect(sharedDecisions[0]?.resetTaskLogId).toBe(
+      result.reactionDamageGroupResetLog[2]?.id
+    );
+    expect(sharedDecisions[0]?.resetTaskSequence).toBe(
+      result.reactionDamageGroupResetLog[2]?.taskSequence
+    );
+    expect(sharedDecisions[1]?.resetTaskLogId).toBe(
+      result.reactionDamageGroupResetLog[2]?.id
+    );
+    expect(sharedDecisions[1]?.resetTaskSequence).toBe(
+      result.reactionDamageGroupResetLog[2]?.taskSequence
+    );
     const blockedLog = result.reactionDamageLog.find(
       (entry) => entry.damageFrame === 7
     );

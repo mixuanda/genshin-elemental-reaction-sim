@@ -8,6 +8,8 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -68,6 +70,21 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await expect(page.locator("#metricGrid")).toContainText("269");
   await expect(page.locator("#metricGrid")).toContainText("跳过行动");
   await expect(page.locator("#notice")).toContainText("provisional");
+  await expect(
+    page.locator("#characterBreakdown .breakdown-row")
+  ).toHaveCount(4);
+  await expect(page.locator("#characterSummary")).toContainText(
+    "4 名角色产生伤害"
+  );
+  for (const characterName of ["杜林", "尼可", "洛恩", "茜特菈莉"]) {
+    await expect(page.locator("#characterBreakdown")).toContainText(
+      characterName
+    );
+  }
+  await expect(page.locator("#skillTableBody tr")).toHaveCount(7);
+  const topSkillRow = page.locator("#skillTableBody tr").first();
+  await expect(topSkillRow).toContainText("杜林 黑 Q");
+  await expect(topSkillRow.locator("td").nth(2)).toHaveText("103");
 
   await page.locator("#presetSelect").selectOption({ index: 1 });
   await expect(page.locator("#notice")).toContainText("空白四人队模板");
@@ -120,6 +137,13 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
   });
+  const importedReactionDamageGroupModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().reactionDamageGroupModel
+  );
+  expect(importedReactionDamageGroupModel).toEqual({
+    mode: "fixed-gcsim-reaction-damage-task-order-v2",
+    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -128,8 +152,14 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await expect(page.locator("#damageCurveCanvas")).toBeVisible();
   await expect(page.locator("#timelineLegend")).toContainText("杜林");
   await expect(page.locator("#curveLegend")).toContainText("全队累计");
+  await expect(page.locator("#curveLegend")).toContainText(
+    "直接伤害累计"
+  );
+  await expect(page.locator("#curveLegend")).toContainText("杜林累计");
+  await expect(page.locator("#curveLegend")).toContainText("洛恩累计");
 
   await page.getByRole("button", { name: "逐段伤害" }).click();
+  await expect(page.locator("#pageInfo")).toContainText("共 269 段");
   await page.locator("#hitCharacterFilter").selectOption("citlali");
   await expect(page.locator("#pageInfo")).toContainText("共 51 段");
   const hitRows = page.locator("#hitTableBody tr[data-hit-id]");
@@ -138,6 +168,12 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   await expect(page.locator("#hitDetail")).toContainText("实际施放者");
   await expect(page.locator("#hitDetail")).toContainText("缩放面板");
   await expect(page.locator("#hitDetail")).toContainText("伤害归属");
+  const damageComposition = page
+    .locator("#hitDetail .factor")
+    .filter({ hasText: "最终伤害构成" });
+  await expect(damageComposition).toContainText("直接");
+  await expect(damageComposition).toContainText("激化加算");
+  await expect(damageComposition).toContainText("转化反应");
 
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "导出 JSON" }).click();
@@ -154,6 +190,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     directDamageGroupModel?: unknown;
     elementalApplicationIcdModel?: unknown;
     reactionOwnedElementalApplicationModel?: unknown;
+    reactionDamageGroupModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(
     importedTargetTaskModel
@@ -172,6 +209,9 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   );
   expect(exportedConfig.reactionOwnedElementalApplicationModel).toEqual(
     importedReactionOwnedElementalApplicationModel
+  );
+  expect(exportedConfig.reactionDamageGroupModel).toEqual(
+    importedReactionDamageGroupModel
   );
 });
 
@@ -194,6 +234,7 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
   delete historicalConfig.directDamageGroupModel;
   delete historicalConfig.elementalApplicationIcdModel;
   delete historicalConfig.reactionOwnedElementalApplicationModel;
+  delete historicalConfig.reactionDamageGroupModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -216,12 +257,13 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       elementalApplicationIcdModel:
         config.elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        config.reactionOwnedElementalApplicationModel
+        config.reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: config.reactionDamageGroupModel
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.49.0",
-    engineVersion: "1.49.0-reaction-owned-reset-boundary",
+    schemaVersion: "1.50.0",
+    engineVersion: "1.50.0-reaction-damage-reset-boundary",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
@@ -243,6 +285,10 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+    },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
     }
   });
 });
@@ -262,6 +308,7 @@ test("rejects a 1.38 wire polluted by the current reaction formula model", async
   delete pollutedHistoricalConfig.directDamageGroupModel;
   delete pollutedHistoricalConfig.elementalApplicationIcdModel;
   delete pollutedHistoricalConfig.reactionOwnedElementalApplicationModel;
+  delete pollutedHistoricalConfig.reactionDamageGroupModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
@@ -330,9 +377,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用"
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.49.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.50.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.49.0-reaction-owned-reset-boundary"
+    "engine 1.50.0-reaction-damage-reset-boundary"
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

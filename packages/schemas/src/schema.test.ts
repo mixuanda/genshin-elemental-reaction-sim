@@ -9,6 +9,8 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
@@ -105,7 +107,11 @@ import {
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
-  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   reactionOwnedElementalApplicationModelSchema,
   reactionOwnedElementalApplicationRootSchema,
   reactionDeliveryResultReferencesSchema,
@@ -126,6 +132,7 @@ import {
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
+  simulationRunManifestV150Schema,
   simConfigSchema,
   simConfigV142Schema,
   simConfigV144Schema,
@@ -134,6 +141,7 @@ import {
   simConfigV147Schema,
   simConfigV148Schema,
   simConfigV149Schema,
+  simConfigV150Schema,
   trustedReactionElementalApplicationChannelSchema,
   trustedReactionElementalApplicationInputSchema,
   trustedReactionElementalApplicationSelectorSchema,
@@ -216,6 +224,11 @@ const fixedReactionOwnedElementalApplicationModel = {
   policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } as const;
 
+const fixedReactionDamageGroupModel = {
+  mode: "legacy-reaction-damage-group-window-v1",
+  policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+} as const;
+
 const asPre139Wire = <T extends object>(
   config: T
 ): Omit<
@@ -226,6 +239,7 @@ const asPre139Wire = <T extends object>(
   | "directDamageGroupModel"
   | "elementalApplicationIcdModel"
   | "reactionOwnedElementalApplicationModel"
+  | "reactionDamageGroupModel"
 > => {
   const {
     reactionDeliveryModel: _reactionDeliveryModel,
@@ -237,6 +251,7 @@ const asPre139Wire = <T extends object>(
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...wire
   } = config as T & {
     reactionDeliveryModel?: unknown;
@@ -245,6 +260,7 @@ const asPre139Wire = <T extends object>(
     directDamageGroupModel?: unknown;
     elementalApplicationIcdModel?: unknown;
     reactionOwnedElementalApplicationModel?: unknown;
+    reactionDamageGroupModel?: unknown;
   };
   const projectHit = (hit: unknown): unknown => {
     if (
@@ -347,6 +363,7 @@ const asPre139Wire = <T extends object>(
     | "directDamageGroupModel"
     | "elementalApplicationIcdModel"
     | "reactionOwnedElementalApplicationModel"
+    | "reactionDamageGroupModel"
   >;
 };
 
@@ -1131,6 +1148,7 @@ describe("1.32 player reaction self-damage contract", () => {
         _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...wire132
     } = current;
     const historical = {
@@ -1743,6 +1761,42 @@ describe("1.32 player reaction self-damage contract", () => {
     } as const;
     expect(() =>
       playerDamageEventSchema.parse(bloomEvent)
+    ).not.toThrow();
+    const bloomEventV150 = {
+      ...bloomEvent,
+      damageFactors: {
+        ...bloomEvent.damageFactors,
+        damageGroupDecision: {
+          policyId:
+            GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+          profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+          icdTag: "ICDTagBloomDamage" as const,
+          icdGroup: "reaction-a" as const,
+          reaction: "bloom" as const,
+          sourceActorId: "a",
+          targetId: "player-avatar",
+          scopeKey: JSON.stringify([
+            "player-avatar",
+            "a",
+            "ICDTagBloomDamage"
+          ]),
+          frame: 15,
+          damageGroupTaskSequence: 0,
+          windowGeneration: 0,
+          windowStartFrame: 15,
+          resetAtFrame: 45,
+          resetTaskLogId: null,
+          resetTaskSequence: null,
+          hitIndex: 0,
+          sequenceIndex: 0,
+          sequenceMultiplier: 1 as const,
+          damageAllowed: true,
+          blockedReason: null
+        }
+      }
+    };
+    expect(() =>
+      playerDamageEventSchema.parse(bloomEventV150)
     ).not.toThrow();
     expect(() =>
       playerDamageEventSchema.parse({
@@ -2451,6 +2505,7 @@ describe("1.33 target-local Hitlag contract", () => {
     delete frozen139Result.config.elementalApplicationIcdModel;
     delete frozen139Result.config
       .reactionOwnedElementalApplicationModel;
+    delete frozen139Result.config.reactionDamageGroupModel;
     expect(() =>
       targetClockResultReferencesSchema.parse(frozen139Result)
     ).not.toThrow();
@@ -2920,7 +2975,8 @@ describe("1.34 general reaction order contract", () => {
       elementalApplicationIcdModel:
         fixedElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        fixedReactionOwnedElementalApplicationModel
+        fixedReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: fixedReactionDamageGroupModel
     });
   });
 
@@ -2931,7 +2987,7 @@ describe("1.34 general reaction order contract", () => {
         withoutOwn(
           withoutOwn(
             withoutOwn(
-              current,
+              withoutOwn(current, "reactionDamageGroupModel"),
               "reactionOwnedElementalApplicationModel"
             ),
             "elementalApplicationIcdModel"
@@ -3301,6 +3357,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...wire136
     } = makeAuraV7Config();
     const historical = {
@@ -3338,7 +3395,8 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         elementalApplicationIcdModel:
           fixedElementalApplicationIcdModel,
         reactionOwnedElementalApplicationModel:
-          fixedReactionOwnedElementalApplicationModel
+          fixedReactionOwnedElementalApplicationModel,
+        reactionDamageGroupModel: fixedReactionDamageGroupModel
       });
     }
 
@@ -3354,6 +3412,7 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
         _currentElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _currentReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _currentReactionDamageGroupModel,
       ...historicalWire
     } = current;
     for (const identity of [
@@ -3461,9 +3520,9 @@ describe("1.38 target Reactable phase config and frozen 1.37 migration", () => {
   });
 
   it("strictly accepts the established modes and fail-closes v2 to legal 60 FPS Aura v7", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.49.0-reaction-owned-reset-boundary"
+      "1.50.0-reaction-damage-reset-boundary"
     );
     expect(TARGET_TASK_PHASE_SCHEMA_VERSION).toBe("1.37.0");
     expect(TARGET_TASK_PHASE_ENGINE_VERSION).toBe(
@@ -3743,6 +3802,77 @@ describe("1.39 Shatter recursive delivery config and references", () => {
           ? ("REACTION_B_DAMAGE_ICD" as const)
           : ("REACTION_A_DAMAGE_ICD" as const)
     };
+  };
+  const v150IcdTagByReaction = {
+    overload: "ICDTagOverloadDamage",
+    electroCharged: "ICDTagECDamage",
+    superconduct: "ICDTagSuperconductDamage",
+    bloom: "ICDTagBloomDamage",
+    burgeon: "ICDTagBurgeonDamage",
+    hyperbloom: "ICDTagHyperbloomDamage",
+    shatter: "ICDTagShatter",
+    swirlPyro: "ICDTagSwirlPyro",
+    swirlHydro: "ICDTagSwirlHydro",
+    swirlCryo: "ICDTagSwirlCryo",
+    swirlElectro: "ICDTagSwirlElectro"
+  } as const;
+  const upgradeDamageGroupDecisionsToV150 = <T>(result: T): T => {
+    const mutable = result as any;
+    let taskSequence = 0;
+    mutable.reactionDamageLog = mutable.reactionDamageLog.map(
+      (entry: {
+        damageFrame: number;
+        damageGroupDecisions: Array<
+          ReturnType<typeof makeDamageGroupDecision>
+        >;
+      }) => ({
+        ...entry,
+        damageGroupDecisions: entry.damageGroupDecisions.map(
+          (decision: ReturnType<typeof makeDamageGroupDecision>) => {
+            const {
+              resetFrames: _resetFrames,
+              sequence: _sequence,
+              ...frozenDecision
+            } = decision;
+            const reactionB =
+              decision.reaction === "overload" ||
+              decision.reaction === "electroCharged";
+            const icdGroup = reactionB
+              ? ("reaction-b" as const)
+              : ("reaction-a" as const);
+            const icdTag =
+              v150IcdTagByReaction[decision.reaction];
+            const sequenceLength = reactionB ? 2 : 3;
+            const sequenceIndex = Math.min(
+              decision.hitIndex,
+              sequenceLength - 1
+            );
+            return {
+              policyId:
+                GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+              profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+              icdTag,
+              icdGroup,
+              ...frozenDecision,
+              scopeKey: JSON.stringify([
+                decision.targetId,
+                decision.sourceActorId,
+                icdTag
+              ]),
+              frame: entry.damageFrame,
+              damageGroupTaskSequence: taskSequence++,
+              windowGeneration: 0,
+              resetAtFrame: decision.windowStartFrame + 30,
+              resetTaskLogId: null,
+              resetTaskSequence: null,
+              sequenceIndex,
+              sequenceMultiplier: decision.damageAllowed ? 1 : 0
+            };
+          }
+        )
+      })
+    );
+    return result;
   };
   const makeTriggeredShatterReactionAudit = (
     scheduled: boolean,
@@ -4452,7 +4582,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     const scenario = structuredClone(
       electroChargedPropagationGolden.scenario
     );
-    return {
+    return upgradeDamageGroupDecisionsToV150({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       config: {
@@ -4508,7 +4638,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       targetClockLog: [],
       targetHitlagLog: [],
       targetStateTimeline: scenario.targetStateTimeline
-    };
+    });
   };
 
   it("freezes the 1.39 identity and strictly gates the recursive model under 1.40", () => {
@@ -4518,9 +4648,9 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION).toBe(
       "1.39.0-shatter-recursive-delivery"
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.49.0-reaction-owned-reset-boundary"
+      "1.50.0-reaction-damage-reset-boundary"
     );
     expect(
       reactionDeliveryModelSchema.parse({
@@ -4612,6 +4742,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...currentPayload
     } = current;
     const historical = {
@@ -4633,7 +4764,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       elementalApplicationIcdModel:
         fixedElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        fixedReactionOwnedElementalApplicationModel
+        fixedReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: fixedReactionDamageGroupModel
     });
     expect(() =>
       migrateConfig({
@@ -4666,7 +4798,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         withoutOwn(
           withoutOwn(
             withoutOwn(
-              makeLegalAuraV7Config(),
+              withoutOwn(
+                makeLegalAuraV7Config(),
+                "reactionDamageGroupModel"
+              ),
               "reactionOwnedElementalApplicationModel"
             ),
             "elementalApplicationIcdModel"
@@ -4693,7 +4828,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       elementalApplicationIcdModel:
         fixedElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        fixedReactionOwnedElementalApplicationModel
+        fixedReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: fixedReactionDamageGroupModel
     });
     expect(() =>
       migrateConfig({
@@ -4743,7 +4879,10 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         withoutOwn(
           withoutOwn(
             withoutOwn(
-              makeLegalAuraV7Config(),
+              withoutOwn(
+                makeLegalAuraV7Config(),
+                "reactionDamageGroupModel"
+              ),
               "reactionOwnedElementalApplicationModel"
             ),
             "elementalApplicationIcdModel"
@@ -4787,7 +4926,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
       elementalApplicationIcdModel:
         fixedElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        fixedReactionOwnedElementalApplicationModel
+        fixedReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: fixedReactionDamageGroupModel
     };
     expect(migrated).toEqual(expectedCurrent);
     expect(migratedFromV144).toEqual(expectedCurrent);
@@ -4802,7 +4942,8 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(migrated.targetTaskModel).toEqual({
       mode: "target-phase-v2"
     });
-    expect(simConfigV149Schema.parse(migrated)).toEqual(migrated);
+    expect(simConfigV150Schema.parse(migrated)).toEqual(migrated);
+    expect(() => simConfigV149Schema.parse(migrated)).toThrow();
     expect(() => simConfigV148Schema.parse(migrated)).toThrow();
     expect(simConfigSchema.parse(migrated)).toEqual(migrated);
     expect(() => simConfigV144Schema.parse(migrated)).toThrow();
@@ -4832,6 +4973,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         _currentElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _currentReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _currentReactionDamageGroupModel,
       ...currentNumericalSemantics
     } = migratedTargetPhaseV3;
     const {
@@ -7138,6 +7280,16 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse(historical)
     ).not.toThrow();
+    const historicalWithV150Decision =
+      structuredClone(historical);
+    upgradeDamageGroupDecisionsToV150(
+      historicalWithV150Decision
+    );
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        historicalWithV150Decision
+      )
+    ).toThrow(/frozen pre-1\.50.*strict V149/);
 
     const smuggled = structuredClone(historical) as any;
     smuggled.reactionDamageLog[0].targetingMode =
@@ -7186,6 +7338,12 @@ describe("1.39 Shatter recursive delivery config and references", () => {
     currentSingle.config.electroChargedPropagationModel = {
       mode: "single-target-v1"
     };
+    expect(() =>
+      reactionDeliveryResultReferencesSchema.parse(
+        structuredClone(currentSingle)
+      )
+    ).toThrow(/exact 1\.50.*strict policy-bound V150/);
+    upgradeDamageGroupDecisionsToV150(currentSingle);
     expect(() =>
       reactionDeliveryResultReferencesSchema.parse(
         currentSingle
@@ -7493,6 +7651,7 @@ describe("1.39 Shatter recursive delivery config and references", () => {
         _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...migratedPayload
     } = migrated;
     const {
@@ -13948,6 +14107,8 @@ describe("simulation run manifest contract", () => {
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -13977,11 +14138,14 @@ describe("simulation run manifest contract", () => {
       parseSimulationRunManifestForConfig(manifest, config)
     ).toEqual(manifest);
     expect(manifest.version).toBe(
-      REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION
     );
-    expect(simulationRunManifestV149Schema.parse(manifest)).toEqual(
+    expect(simulationRunManifestV150Schema.parse(manifest)).toEqual(
       manifest
     );
+    expect(() =>
+      simulationRunManifestV149Schema.parse(manifest)
+    ).toThrow();
     expect(() =>
       simulationRunManifestV148Schema.parse(manifest)
     ).toThrow();
@@ -14009,6 +14173,7 @@ describe("simulation run manifest contract", () => {
         _elementalApplicationIcdRoot,
       reactionOwnedElementalApplicationRoot:
         _reactionOwnedElementalApplicationRoot,
+      reactionDamageGroupRoot: _reactionDamageGroupRoot,
       version: _currentManifestVersion,
       schemaVersion: _currentSchemaVersion,
       engineVersion: _currentEngineVersion,
@@ -14153,6 +14318,8 @@ describe("simulation run manifest contract", () => {
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       dataVersion: forgedFormulaConfig.dataVersion,
       configHash: createSimulationConfigHash(forgedFormulaConfig),
       resolvedRuntimeOptions: manifest.resolvedRuntimeOptions,
@@ -14180,6 +14347,8 @@ describe("simulation run manifest contract", () => {
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       dataVersion: forgedApplicationConfig.dataVersion,
       configHash: createSimulationConfigHash(
         forgedApplicationConfig
@@ -14210,6 +14379,8 @@ describe("simulation run manifest contract", () => {
           GCSIM_ELEMENTAL_APPLICATION_ROOT,
         reactionOwnedElementalApplicationRoot:
           GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+        reactionDamageGroupRoot:
+          GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
         dataVersion: forgedReactionOwnedConfig.dataVersion,
         configHash: createSimulationConfigHash(
           forgedReactionOwnedConfig
@@ -14282,6 +14453,8 @@ describe("simulation run manifest contract", () => {
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14404,6 +14577,8 @@ describe("simulation run manifest contract", () => {
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       dataVersion: config.dataVersion,
       configHash: createSimulationConfigHash(config),
       resolvedRuntimeOptions: {
@@ -14470,10 +14645,34 @@ describe("versioned config schema", () => {
     ).toEqual(fixedReactionOwnedElementalApplicationModel);
   });
 
+  it("keeps reactionDamageGroupModel behind the named 1.50 migration boundary", () => {
+    const current = migrateConfig(legacyConfig);
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe(
+      "1.50.0"
+    );
+    expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
+      "1.50.0-reaction-damage-reset-boundary"
+    );
+    expect(migrateConfig(structuredClone(current))).toEqual(current);
+
+    expect(() =>
+      migrateConfig({
+        ...current,
+        schemaVersion:
+          REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion:
+          REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+      })
+    ).toThrow(
+      /schemaVersion "1\.49\.0" does not support reaction damage-group policy selection/
+    );
+  });
+
   it("migrates exact 1.47 to current by changing only identity and injecting v1", () => {
     const current = migrateConfig(legacyConfig);
     const {
       reactionOwnedElementalApplicationModel: _currentPolicy,
+      reactionDamageGroupModel: _currentReactionDamageGroupModel,
       ...currentWithoutPolicy
     } = current;
     const frozenV147 = {
@@ -14492,6 +14691,7 @@ describe("versioned config schema", () => {
     const migrated = migrateConfig(frozenV147);
     const {
       reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel,
       schemaVersion,
       engineVersion,
       ...migratedPayload
@@ -14506,6 +14706,9 @@ describe("versioned config schema", () => {
     expect(engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(reactionOwnedElementalApplicationModel).toEqual(
       fixedReactionOwnedElementalApplicationModel
+    );
+    expect(reactionDamageGroupModel).toEqual(
+      fixedReactionDamageGroupModel
     );
 
     expect(() =>
@@ -14535,9 +14738,9 @@ describe("versioned config schema", () => {
   });
 
   it("strictly validates the current trusted reaction policy models and closed channels", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.49.0-reaction-owned-reset-boundary"
+      "1.50.0-reaction-damage-reset-boundary"
     );
     expect(
       reactionOwnedElementalApplicationModelSchema.parse(
@@ -14860,6 +15063,7 @@ describe("versioned config schema", () => {
       elementalApplicationIcdModel: _applicationModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...currentWithoutApplicationModel
     } = current;
     const frozenRotationV146 = {
@@ -15066,7 +15270,7 @@ describe("versioned config schema", () => {
         withoutOwn(
           withoutOwn(
             withoutOwn(
-              current,
+              withoutOwn(current, "reactionDamageGroupModel"),
               "reactionOwnedElementalApplicationModel"
             ),
             "elementalApplicationIcdModel"
@@ -15131,7 +15335,7 @@ describe("versioned config schema", () => {
     expect(parseSimConfig(nullPrototypeWire)).toEqual(current);
     expect(migrateConfig(nullPrototypeWire)).toEqual(current);
     expect(
-      simConfigV149Schema.safeParse(nullPrototypeWire).success
+      simConfigV150Schema.safeParse(nullPrototypeWire).success
     ).toBe(true);
 
     const frozenV142 = {
@@ -15139,7 +15343,7 @@ describe("versioned config schema", () => {
         withoutOwn(
           withoutOwn(
             withoutOwn(
-              current,
+              withoutOwn(current, "reactionDamageGroupModel"),
               "reactionOwnedElementalApplicationModel"
             ),
             "elementalApplicationIcdModel"
@@ -19414,6 +19618,13 @@ describe("versioned config schema", () => {
     };
     const completeReferences = {
       ...references,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      config: {
+        ...references.config,
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+      },
       dendroCoreLog: [
         scheduledInDuration,
         spawned,
@@ -19459,6 +19670,88 @@ describe("versioned config schema", () => {
     expect(() =>
       dendroCoreResultReferencesSchema.parse(completeReferences)
     ).not.toThrow();
+    const currentDamageGroupDecision = {
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+      icdTag: "ICDTagBloomDamage" as const,
+      icdGroup: "reaction-a" as const,
+      reaction: "bloom" as const,
+      sourceActorId: "hydro-owner",
+      targetId: "enemy-0",
+      scopeKey: JSON.stringify([
+        "enemy-0",
+        "hydro-owner",
+        "ICDTagBloomDamage"
+      ]),
+      frame: 341,
+      damageGroupTaskSequence: 0,
+      windowGeneration: 0,
+      windowStartFrame: 341,
+      resetAtFrame: 371,
+      resetTaskLogId: null,
+      resetTaskSequence: null,
+      hitIndex: 0,
+      sequenceIndex: 0,
+      sequenceMultiplier: 1 as const,
+      damageAllowed: true,
+      blockedReason: null
+    };
+    const currentReferences = {
+      ...completeReferences,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      config: {
+        ...completeReferences.config,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION
+      },
+      reactionDamageLog: [
+        {
+          ...reactionDamage,
+          damageGroupDecisions: [currentDamageGroupDecision]
+        }
+      ]
+    };
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse(currentReferences)
+    ).not.toThrow();
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse({
+        ...currentReferences,
+        reactionDamageLog: [reactionDamage]
+      })
+    ).toThrow(/exact 1\.50.*strict policy-bound V150/);
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse({
+        ...completeReferences,
+        reactionDamageLog: [
+          {
+            ...reactionDamage,
+            damageGroupDecisions: [currentDamageGroupDecision]
+          }
+        ]
+      })
+    ).toThrow(/frozen pre-1\.50.*strict V149/);
+    const {
+      policyId: inheritedPolicyId,
+      ...currentDecisionOwnFields
+    } = currentDamageGroupDecision;
+    expect(() =>
+      dendroCoreResultReferencesSchema.parse({
+        ...currentReferences,
+        reactionDamageLog: [
+          {
+            ...reactionDamage,
+            damageGroupDecisions: [
+              Object.assign(
+                Object.create({ policyId: inheritedPolicyId }),
+                currentDecisionOwnFields
+              )
+            ]
+          }
+        ]
+      })
+    ).toThrow(/explicit own wire property/);
     expect(() =>
       dendroCoreResultReferencesSchema.parse({
         ...completeReferences,

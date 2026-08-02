@@ -10,6 +10,7 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 
@@ -71,6 +72,11 @@ export function makeConfig(
       mode: "fixed-gcsim-reaction-owned-application-v2" as const,
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
     };
+  const reactionDamageGroupModel =
+    overrides.reactionDamageGroupModel ?? {
+      mode: "fixed-gcsim-reaction-damage-task-order-v2" as const,
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -111,6 +117,7 @@ export function makeConfig(
     reactionFormulaModel,
     directDamageGroupModel,
     elementalApplicationIcdModel,
-    reactionOwnedElementalApplicationModel
+    reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel
   };
 }

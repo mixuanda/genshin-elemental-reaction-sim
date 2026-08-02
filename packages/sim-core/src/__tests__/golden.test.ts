@@ -47,6 +47,7 @@ import {
 } from "@genshin-dps-lab/schemas";
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
@@ -371,6 +372,7 @@ function projectCurrentConfigToFrozenV146(
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...currentWithoutApplicationModel
   } = structuredClone(config);
   const projected = projectApplicationsToFrozenV146Wire(
@@ -393,6 +395,7 @@ function projectCurrentManifestToFrozenV146(
       _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
       _reactionOwnedElementalApplicationRoot,
+    reactionDamageGroupRoot: _reactionDamageGroupRoot,
     reproducibilityKey: _currentReproducibilityKey,
     ...currentIdentity
   } = result.runManifest;
@@ -411,6 +414,25 @@ function projectCurrentManifestToFrozenV146(
     reproducibilityKey:
       createSimulationReproducibilityKey(frozenIdentity)
   });
+}
+
+function projectReactionDamageGroupDecisionToFrozenWire(
+  decision: Record<string, unknown>
+): Record<string, unknown> {
+  return {
+    reaction: decision.reaction,
+    sourceActorId: decision.sourceActorId,
+    targetId: decision.targetId,
+    windowStartFrame: decision.windowStartFrame,
+    hitIndex: decision.hitIndex,
+    resetFrames: 30,
+    sequence:
+      decision.icdGroup === "reaction-a"
+        ? [true, true, false]
+        : [true, false],
+    damageAllowed: decision.damageAllowed,
+    blockedReason: decision.blockedReason
+  };
 }
 
 /**
@@ -1006,6 +1028,7 @@ function makeLegacyDefaultV145CreationProbeFixture(
       _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
       _reactionOwnedElementalApplicationRoot,
+    reactionDamageGroupRoot: _reactionDamageGroupRoot,
     ...historicalRunManifest
   } = result.runManifest;
   return legacyDefault120sGoldenFixtureV145Schema.parse({
@@ -1160,8 +1183,16 @@ function v130CompatibilityResult(
       hitResolutionLogIds: _hitResolutionLogIds,
       elementalApplicationIcdLogIds:
         _elementalApplicationIcdLogIds,
+      damageGroupDecisions,
       ...frozenEntry
-    }) => frozenEntry
+    }) => ({
+      ...frozenEntry,
+      damageGroupDecisions: damageGroupDecisions.map((decision) =>
+        projectReactionDamageGroupDecisionToFrozenWire(
+          decision as unknown as Record<string, unknown>
+        )
+      )
+    })
   );
   const {
     targetStateTimeline: _targetStateTimeline,
@@ -1184,6 +1215,8 @@ function v130CompatibilityResult(
     directDamageGroupLog: _directDamageGroupLog,
     elementalApplicationIcdLog:
       _elementalApplicationIcdLog,
+    reactionDamageGroupResetLog:
+      _reactionDamageGroupResetLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -1216,7 +1249,8 @@ function v130CompatibilityResult(
               key !== "directDamageGroupModel" &&
               key !== "elementalApplicationIcdModel" &&
               key !==
-                "reactionOwnedElementalApplicationModel"
+                "reactionOwnedElementalApplicationModel" &&
+              key !== "reactionDamageGroupModel"
           )
         ),
         schemaVersion: "1.30.0",
@@ -1268,6 +1302,7 @@ function makeBurningGoldenConfig(): unknown {
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...v130Base
   } = base;
   return {
@@ -1824,7 +1859,11 @@ describe("1.44 identity migration release gate", () => {
             mode: "fixed-gcsim-reaction-owned-application-v1",
             policyId:
               GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-          }
+          },
+        reactionDamageGroupModel: {
+          mode: "legacy-reaction-damage-group-window-v1",
+          policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+        }
       });
       expect(historical).toEqual(before);
     });
@@ -1852,7 +1891,9 @@ describe("1.44 identity migration release gate", () => {
       elementalApplicationIcdModel:
         makeConfig().elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
-        makeConfig().reactionOwnedElementalApplicationModel
+        makeConfig().reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel:
+        makeConfig().reactionDamageGroupModel
     };
     expect(migrateConfig(currentAuraV8)).toEqual(
       currentAuraV8

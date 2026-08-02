@@ -8,7 +8,8 @@ import {
 import { fileURLToPath } from "node:url";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   canonicalStringify,
@@ -76,6 +77,10 @@ function makePropagationGoldenConfig(): SimConfig {
   const base = makeConfig();
   const template = base.characters[0]!;
   return makeConfig({
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "ec-propagation-community-provisional-1",
     randomSeed: "ec-propagation-v141-golden-seed",
     meta: {
@@ -340,8 +345,25 @@ function projectReactionDamageLogToFrozenV147(
       hitResolutionLogIds: _hitResolutionLogIds,
       elementalApplicationIcdLogIds:
         _elementalApplicationIcdLogIds,
+      damageGroupDecisions,
       ...entry
-    }) => entry
+    }) => ({
+      ...entry,
+      damageGroupDecisions: damageGroupDecisions.map((decision) => ({
+        reaction: decision.reaction,
+        sourceActorId: decision.sourceActorId,
+        targetId: decision.targetId,
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        resetFrames: 30 as const,
+        sequence:
+          decision.icdGroup === "reaction-a"
+            ? ([true, true, false] as const)
+            : ([true, false] as const),
+        damageAllowed: decision.damageAllowed,
+        blockedReason: decision.blockedReason
+      }))
+    })
   );
 }
 
@@ -512,6 +534,7 @@ function normalizeIdentityForFrozenV141(
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...frozenConfigCommon
   } = result.config;
   const legacyWire = structuredClone(frozenConfigCommon);

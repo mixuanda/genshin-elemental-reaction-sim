@@ -16,6 +16,9 @@ import {
   TARGET_REACTABLE_PHASE_SCHEMA_VERSION,
   simulationResultSchema
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import targetReactablePhaseGoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.38.golden.json";
 import targetReactablePhaseV139GoldenJson from "../../../test-vectors/fixtures/target-reactable-phase-1.39.golden.json";
@@ -902,6 +905,10 @@ function makeLifecycleScenarioConfig(
 
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     duration: durationFrames / 60,
     cycleLength: durationFrames / 60,
     enemy: {

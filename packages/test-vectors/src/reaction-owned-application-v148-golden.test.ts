@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
 } from "@genshin-dps-lab/icd-profiles";
@@ -24,6 +25,7 @@ import {
 } from "./reviewed-golden";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
+import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 
 const PREVIEW_FLAG =
   "PREVIEW_REACTION_OWNED_APPLICATION_V148_GOLDEN";
@@ -102,6 +104,10 @@ function makeBurningApplicationConfig(): SimConfig {
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
@@ -210,6 +216,10 @@ function makeSwirlApplicationConfig(): SimConfig {
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
@@ -400,16 +410,20 @@ function scenarioFixture(result: SimulationResultForV148) {
 function runScenarios() {
   return {
     burning: projectSimulationResultV149ToV148(
-      simulate(makeBurningApplicationConfig(), {
-        critMode: "noCrit",
-        randomSeed: "synthetic-reaction-owned-burning-1.48"
-      })
+      projectSimulationResultV150ToV149(
+        simulate(makeBurningApplicationConfig(), {
+          critMode: "noCrit",
+          randomSeed: "synthetic-reaction-owned-burning-1.48"
+        })
+      )
     ),
     swirl: projectSimulationResultV149ToV148(
-      simulate(makeSwirlApplicationConfig(), {
-        critMode: "noCrit",
-        randomSeed: "synthetic-reaction-owned-swirl-1.48"
-      })
+      projectSimulationResultV150ToV149(
+        simulate(makeSwirlApplicationConfig(), {
+          critMode: "noCrit",
+          randomSeed: "synthetic-reaction-owned-swirl-1.48"
+        })
+      )
     )
   };
 }

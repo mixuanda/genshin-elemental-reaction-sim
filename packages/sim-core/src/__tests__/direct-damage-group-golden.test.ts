@@ -403,6 +403,7 @@ function makeFixture(
     structuredClone(result)
   ) as Record<string, unknown>;
   delete projected.elementalApplicationIcdLog;
+  delete projected.reactionDamageGroupResetLog;
   projected.schemaVersion = DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   projected.engineVersion = DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
 
@@ -413,6 +414,7 @@ function makeFixture(
     DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   delete projectedConfig.elementalApplicationIcdModel;
   delete projectedConfig.reactionOwnedElementalApplicationModel;
+  delete projectedConfig.reactionDamageGroupModel;
 
   const projectedManifest = projected.runManifest as Record<
     string,
@@ -429,6 +431,7 @@ function makeFixture(
     VECTOR_REPRODUCIBILITY_KEY;
   delete projectedManifest.elementalApplicationIcdRoot;
   delete projectedManifest.reactionOwnedElementalApplicationRoot;
+  delete projectedManifest.reactionDamageGroupRoot;
   for (const entry of projected.hitResolutionLog as Array<
     Record<string, unknown>
   >) {

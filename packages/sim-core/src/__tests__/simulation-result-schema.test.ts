@@ -10,7 +10,7 @@ import {
   simulationResultV145Schema,
   simulationResultV146Schema,
   simulationResultV147Schema,
-  simulationResultV149ValueSchema,
+  simulationResultV150ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -567,7 +567,7 @@ function expectRejectedByPublicAndTrusted(
   mutate(trustedResult);
   expect(() =>
     assertTrustedSimulationResult(trustedResult)
-  ).toThrow(/Trusted SimulationResult 1\.49 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.50 integrity validation failed/);
 }
 
 function expectAccepted(result: SimulationResult): void {
@@ -621,7 +621,7 @@ beforeAll(() => {
   );
 });
 
-describe("exact current 1.49 SimulationResult schema", () => {
+describe("exact current 1.50 SimulationResult schema", () => {
   it("keeps persisted 1.42 and frozen 1.44-1.47 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(
@@ -646,12 +646,12 @@ describe("exact current 1.49 SimulationResult schema", () => {
   });
 
   it(
-    "keeps the exact 67-field shape and all 66 non-timeline fields required",
+    "keeps the exact 68-field shape and all 67 non-timeline fields required",
     () => {
       const schemaKeys = Object.keys(
-        simulationResultV149ValueSchema.shape
+        simulationResultV150ValueSchema.shape
       ).sort();
-      expect(schemaKeys).toHaveLength(67);
+      expect(schemaKeys).toHaveLength(68);
       expect(Object.keys(defaultResult).sort()).toEqual(
         schemaKeys.filter((key) => key !== "timelineExecution")
       );
@@ -702,6 +702,116 @@ describe("exact current 1.49 SimulationResult schema", () => {
       0
     );
     expectAccepted(playerDamageResult);
+  });
+
+  it("routes live V150 damage-group decisions through upgraded result facets", () => {
+    const decisions =
+      sameFrameSuperconductResult.reactionDamageLog.flatMap(
+        (entry) => entry.damageGroupDecisions
+      );
+    expect(decisions.length).toBeGreaterThan(0);
+    expect(
+      decisions.every(
+        (decision) =>
+          "policyId" in decision &&
+          "resetAtFrame" in decision &&
+          !("resetFrames" in decision) &&
+          !("sequence" in decision)
+      )
+    ).toBe(true);
+    expectAccepted(sameFrameSuperconductResult);
+  });
+
+  it("rejects a cross-scope reset-sequence swap even when opener backlinks are synchronized", () => {
+    const decisions =
+      sameFrameSuperconductResult.reactionDamageLog.flatMap(
+        (entry) => entry.damageGroupDecisions
+      );
+    const resets =
+      sameFrameSuperconductResult.reactionDamageGroupResetLog;
+    let selectedPair:
+      | readonly [
+          (typeof resets)[number],
+          (typeof resets)[number]
+        ]
+      | undefined;
+    for (let leftIndex = 0; leftIndex < resets.length; leftIndex += 1) {
+      const left = resets[leftIndex]!;
+      const leftOpener = decisions.find(
+        (decision) =>
+          decision.resetTaskLogId === left.id &&
+          decision.hitIndex === 0
+      );
+      if (leftOpener === undefined) continue;
+      for (
+        let rightIndex = leftIndex + 1;
+        rightIndex < resets.length;
+        rightIndex += 1
+      ) {
+        const right = resets[rightIndex]!;
+        const rightOpener = decisions.find(
+          (decision) =>
+            decision.resetTaskLogId === right.id &&
+            decision.hitIndex === 0
+        );
+        if (
+          rightOpener !== undefined &&
+          left.scopeKey !== right.scopeKey &&
+          left.taskSequence > rightOpener.damageGroupTaskSequence &&
+          right.taskSequence > leftOpener.damageGroupTaskSequence
+        ) {
+          selectedPair = [left, right];
+          break;
+        }
+      }
+      if (selectedPair !== undefined) break;
+    }
+    expect(selectedPair).toBeDefined();
+    const [firstReset, secondReset] = selectedPair!;
+    const swapResetTaskSequences = (
+      mutation: SimulationResult
+    ): void => {
+      const first = mutation.reactionDamageGroupResetLog.find(
+        (reset) => reset.id === firstReset.id
+      );
+      const second = mutation.reactionDamageGroupResetLog.find(
+        (reset) => reset.id === secondReset.id
+      );
+      if (first === undefined || second === undefined) {
+        throw new Error("Expected both cross-scope reset rows.");
+      }
+      const firstSequence = first.taskSequence;
+      first.taskSequence = second.taskSequence;
+      second.taskSequence = firstSequence;
+      const synchronizeDecision = (
+        decision: (typeof decisions)[number]
+      ): void => {
+        if (decision.resetTaskLogId === first.id) {
+          decision.resetTaskSequence = first.taskSequence;
+        } else if (decision.resetTaskLogId === second.id) {
+          decision.resetTaskSequence = second.taskSequence;
+        }
+      };
+      mutation.reactionDamageLog.forEach((entry) =>
+        entry.damageGroupDecisions.forEach(synchronizeDecision)
+      );
+      mutation.playerDamageEvents.forEach((event) => {
+        const decision = event.damageFactors.damageGroupDecision;
+        if (decision !== null) synchronizeDecision(decision);
+      });
+    };
+
+    const publicWire = cloneResult(sameFrameSuperconductResult);
+    swapResetTaskSequences(publicWire);
+    expect(
+      simulationResultSchema.safeParse(publicWire).success
+    ).toBe(false);
+
+    const trusted = cloneResult(sameFrameSuperconductResult);
+    swapResetTaskSequences(trusted);
+    expect(() => assertTrustedSimulationResult(trusted)).toThrow(
+      /strictly increasing by reset log id/
+    );
   });
 
   it("rejects missing and unknown top-level fields", () => {

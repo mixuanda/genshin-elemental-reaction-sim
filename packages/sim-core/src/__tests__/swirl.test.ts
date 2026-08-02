@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   assertTrustedSimulationResultV142,
   simulationResultV142Schema,
   type SimConfig,
@@ -1084,21 +1088,57 @@ describe("Swirl simulation integration", () => {
         entry.damageFrame === 17
     );
     const blockedEvent = sharedPropagation[2];
-    expect(blockedLog?.damageGroupDecisions).toEqual(
-      expect.arrayContaining([
-        {
-          reaction: "swirlPyro",
-          sourceActorId: "anemo",
-          targetId: "shared-target",
-          windowStartFrame: 5,
-          hitIndex: 2,
-          resetFrames: 30,
-          sequence: [true, true, false],
-          damageAllowed: false,
-          blockedReason: "REACTION_A_DAMAGE_ICD"
-        }
-      ])
+    const sharedDecision = blockedLog?.damageGroupDecisions.find(
+      (decision) => decision.targetId === "shared-target"
     );
+    expect(sharedDecision).toEqual({
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+      icdTag: "ICDTagSwirlPyro",
+      icdGroup: "reaction-a",
+      reaction: "swirlPyro",
+      sourceActorId: "anemo",
+      targetId: "shared-target",
+      scopeKey:
+        '["shared-target","anemo","ICDTagSwirlPyro"]',
+      frame: 17,
+      damageGroupTaskSequence: 15,
+      windowGeneration: 0,
+      windowStartFrame: 5,
+      resetAtFrame: 34,
+      resetTaskLogId: 3,
+      resetTaskSequence: 9,
+      hitIndex: 2,
+      sequenceIndex: 2,
+      sequenceMultiplier: 0,
+      damageAllowed: false,
+      blockedReason: "REACTION_A_DAMAGE_ICD"
+    });
+    expect(
+      result.reactionDamageGroupResetLog.find(
+        (entry) => entry.id === sharedDecision?.resetTaskLogId
+      )
+    ).toEqual({
+      id: 3,
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+      sourceActorId: "anemo",
+      targetId: "shared-target",
+      scopeKey:
+        '["shared-target","anemo","ICDTagSwirlPyro"]',
+      reaction: "swirlPyro",
+      icdTag: "ICDTagSwirlPyro",
+      icdGroup: "reaction-a",
+      windowGeneration: 0,
+      windowStartFrame: 5,
+      resetAtFrame: 34,
+      taskSequence: 9,
+      withinSimulation: true,
+      executed: true,
+      executedBeforeAttemptTaskSequence: null,
+      executionFrame: 34,
+      stale: false,
+      invalidatedReason: null
+    });
     expect(
       blockedLog?.damageGroupDecisions.map(
         (decision) => decision.targetId

@@ -1504,6 +1504,7 @@ describe("Aura engine simulation integration", () => {
       elementalApplicationIcdModel: _elementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _reactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _reactionDamageGroupModel,
       ...legacyPayload
     } = structuredClone(current);
     const frozenApplication =

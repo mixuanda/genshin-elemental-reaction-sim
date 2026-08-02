@@ -254,6 +254,25 @@ function expectFormulaRejection(
   ).toThrow(trustedMessage);
 }
 
+function projectReactionDamageGroupDecisionToFrozenV144(
+  decision: Record<string, unknown>
+): Record<string, unknown> {
+  return {
+    reaction: decision.reaction,
+    sourceActorId: decision.sourceActorId,
+    targetId: decision.targetId,
+    windowStartFrame: decision.windowStartFrame,
+    hitIndex: decision.hitIndex,
+    resetFrames: 30,
+    sequence:
+      decision.icdGroup === "reaction-a"
+        ? [true, true, false]
+        : [true, false],
+    damageAllowed: decision.damageAllowed,
+    blockedReason: decision.blockedReason
+  };
+}
+
 function projectToFrozenV144(result: SimulationResult): unknown {
   const frozen = structuredClone(result) as unknown as Record<
     string,
@@ -265,6 +284,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
     BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   delete frozen.directDamageGroupLog;
   delete frozen.elementalApplicationIcdLog;
+  delete frozen.reactionDamageGroupResetLog;
   for (const collectionName of ["damageEvents", "hitEvents"] as const) {
     const collection = frozen[collectionName];
     if (!Array.isArray(collection)) continue;
@@ -289,8 +309,39 @@ function projectToFrozenV144(result: SimulationResult): unknown {
     for (const entry of reactionDamageLog) {
       if (entry === null || typeof entry !== "object") continue;
       const record = entry as Record<string, unknown>;
+      const damageGroupDecisions = record.damageGroupDecisions;
+      if (Array.isArray(damageGroupDecisions)) {
+        record.damageGroupDecisions = damageGroupDecisions.map(
+          (decision) =>
+            projectReactionDamageGroupDecisionToFrozenV144(
+              decision as Record<string, unknown>
+            )
+        );
+      }
       delete record.hitResolutionLogIds;
       delete record.elementalApplicationIcdLogIds;
+    }
+  }
+  const playerDamageEvents = frozen.playerDamageEvents;
+  if (Array.isArray(playerDamageEvents)) {
+    for (const event of playerDamageEvents) {
+      if (event === null || typeof event !== "object") continue;
+      const damageFactors = (event as Record<string, unknown>)
+        .damageFactors;
+      if (
+        damageFactors === null ||
+        typeof damageFactors !== "object" ||
+        !("damageGroupDecision" in damageFactors)
+      ) {
+        continue;
+      }
+      const factors = damageFactors as Record<string, unknown>;
+      if (factors.damageGroupDecision !== null) {
+        factors.damageGroupDecision =
+          projectReactionDamageGroupDecisionToFrozenV144(
+            factors.damageGroupDecision as Record<string, unknown>
+          );
+      }
     }
   }
   const targetPhaseLog = frozen.targetPhaseLog;
@@ -325,6 +376,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete config.directDamageGroupModel;
   delete config.elementalApplicationIcdModel;
   delete config.reactionOwnedElementalApplicationModel;
+  delete config.reactionDamageGroupModel;
   const manifest = frozen.runManifest as Record<string, unknown>;
   manifest.version = LEGACY_SIMULATION_RUN_MANIFEST_VERSION;
   manifest.schemaVersion = BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
@@ -333,6 +385,7 @@ function projectToFrozenV144(result: SimulationResult): unknown {
   delete manifest.directDamageGroupRoot;
   delete manifest.elementalApplicationIcdRoot;
   delete manifest.reactionOwnedElementalApplicationRoot;
+  delete manifest.reactionDamageGroupRoot;
   manifest.configHash = createSimulationConfigHash(config);
   const {
     reproducibilityKey: _ignoredReproducibilityKey,

@@ -345,6 +345,7 @@ function makeFixture(
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
       _reactionOwnedElementalApplicationRoot,
+    reactionDamageGroupRoot: _reactionDamageGroupRoot,
     ...currentManifestWithoutApplicationRoot
   } = result.runManifest;
   const frozenRunManifest = {

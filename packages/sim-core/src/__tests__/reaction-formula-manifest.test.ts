@@ -109,6 +109,7 @@ function asV144Input(config: SimConfig): unknown {
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...legacyConfig
   } = structuredClone(config);
   return {
@@ -346,7 +347,7 @@ describe("reaction formula run-manifest root", () => {
       expect(() =>
         simulate(oneHitConfig(), { plugins: [plugin] })
       ).toThrow(
-        /Trusted SimulationResult 1\.49 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/
+        /Trusted SimulationResult 1\.50 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/
       );
     }
   );

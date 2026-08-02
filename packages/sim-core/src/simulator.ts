@@ -5,6 +5,8 @@ import {
   DIRECT_DAMAGE_GROUP_PLUGIN_TRACE_VERIFICATION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationRunManifest,
   dendroCoreResultReferencesSchema,
@@ -52,8 +54,10 @@ import {
   type HitTargeting,
   type ParticleDefinition,
   type ReactionAudit,
-  type ReactionADamageGroupAudit,
-  type ReactionBDamageGroupAudit,
+  type ReactionADamageGroupDecisionAuditV150,
+  type ReactionBDamageGroupDecisionAuditV150,
+  type ReactionDamageGroupAuditV149,
+  type ReactionDamageGroupDecisionAuditV150,
   type ResolvedWorldHitGeometry,
   type ResolvedSimulationRuntimeOptions,
   type ShatterReactionAudit,
@@ -84,7 +88,8 @@ import { CLASSIC_REACTION_FORMULA_ROOT } from "@genshin-dps-lab/reaction-formula
 import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
-  resolveReactionOwnedApplicationPolicyRoot
+  resolveReactionDamageGroupPolicyRoot,
+  resolveReactionOwnedApplicationPolicyRoot,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   AURA_ENGINE_CONSTANTS,
@@ -129,8 +134,13 @@ import {
   auraStateSnapshotsEqual,
   TargetStateTimelineRecorder
 } from "./target-state-timeline";
-import { ReactionALimiter } from "./reaction-a";
-import { ReactionBLimiter } from "./reaction-b";
+import {
+  ReactionDamageGroupTaskEngine,
+  type ReactionDamageGroupAttemptResult,
+  type ReactionDamageGroupResetExecution,
+  type ReactionDamageGroupResetTask,
+  type ReactionDamageGroupResetTaskDraft,
+} from "./reaction-damage-group";
 import {
   DENDRO_CORE_CONSTANTS,
   DendroCoreManager,
@@ -182,6 +192,7 @@ export const EVENT_PRIORITY = {
   periodicReactionTick: 4,
   burningTick: 4,
   reactionDamage: 5,
+  reactionDamageGroupReset: 5,
   periodicReactionWane: 6,
   crystallizePickup: 7
 } as const;
@@ -815,6 +826,11 @@ interface ReactionDamageEventPayload {
   };
 }
 
+interface ReactionDamageGroupResetEventPayload {
+  resetLogId: number;
+  task: Readonly<ReactionDamageGroupResetTask>;
+}
+
 interface PeriodicReactionSourceSnapshot {
   generation: number;
   actorId: string;
@@ -861,11 +877,6 @@ interface QuickenStateSource {
   generation: number;
   actorId: string;
   triggerDamageEventId: number;
-}
-
-interface SwirlDamageIcdState {
-  windowStartFrame: number;
-  hitCount: number;
 }
 
 interface PeriodicReactionTickEventPayload {
@@ -1022,6 +1033,7 @@ type InternalEventBase =
   | SimulationEvent<HitEventPayload>
   | SimulationEvent<QuickenBloomFollowupEventPayload>
   | SimulationEvent<ReactionDamageEventPayload>
+  | SimulationEvent<ReactionDamageGroupResetEventPayload>
   | SimulationEvent<PeriodicReactionTickEventPayload>
   | SimulationEvent<PeriodicReactionWaneEventPayload>
   | SimulationEvent<PeriodicReactionExpiryEventPayload>
@@ -1486,6 +1498,9 @@ function simulateConfig(
         resolveReactionOwnedApplicationPolicyRoot(
           config.reactionOwnedElementalApplicationModel.policyId
         ),
+      reactionDamageGroupRoot: resolveReactionDamageGroupPolicyRoot(
+        config.reactionDamageGroupModel.policyId,
+      ),
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -1576,6 +1591,8 @@ function simulateConfig(
     }
     return { cadenceStatus, waneListenerActive };
   };
+  // Pinned gcsim delivers a zero-delay Shatter inside its parent core task;
+  // V2 reset reconciliation therefore uses that parent's task sequence.
   const recursiveShatterDeliveryEnabled =
     config.reactionDeliveryModel.mode ===
     "shatter-recursive-zero-delay-v1";
@@ -2996,6 +3013,8 @@ function simulateConfig(
   const targetMechanicsTruncationLog: SimulationResult["targetMechanicsTruncationLog"] =
     [];
   const reactionDamageLog: SimulationResult["reactionDamageLog"] = [];
+  const reactionDamageGroupResetLog: SimulationResult["reactionDamageGroupResetLog"] =
+    [];
   const burningRootInlineDeliveryByReactionDamageLogId = new Map<
     number,
     {
@@ -3189,17 +3208,262 @@ function simulateConfig(
     QuickenStateSource
   >();
   const quickenExpiryScheduleKeys = new Set<string>();
-  const swirlDamageIcdStates = new Map<
-    string,
-    SwirlDamageIcdState
-  >();
-  const dendroCoreReactionALimiter = new ReactionALimiter();
-  const playerDendroCoreReactionALimiter =
-    new ReactionALimiter();
-  const shatterReactionALimiter = new ReactionALimiter();
-  const superconductReactionALimiter = new ReactionALimiter();
-  const overloadAndElectroChargedReactionBLimiter =
-    new ReactionBLimiter();
+  const reactionDamageGroupEngine = new ReactionDamageGroupTaskEngine(
+    config.reactionDamageGroupModel,
+  );
+  const resetLogIdByTask = new WeakMap<object, number>();
+  const executedResetAwaitingSameFrameAttempt = new Map<string, number>();
+  const recordReactionDamageGroupResetExecution = (
+    execution: Readonly<ReactionDamageGroupResetExecution>,
+    expectedResetLogId?: number,
+  ): void => {
+    const resetLogId = resetLogIdByTask.get(execution.task);
+    if (
+      resetLogId === undefined ||
+      (expectedResetLogId !== undefined && resetLogId !== expectedResetLogId)
+    ) {
+      throw new Error(
+        "Reaction damage-group reset execution references an unlogged or mismatched task.",
+      );
+    }
+    const resetLog = reactionDamageGroupResetLog[resetLogId];
+    if (
+      resetLog === undefined ||
+      resetLog.executed ||
+      execution.invalidatedReason === "ALREADY_EXECUTED"
+    ) {
+      throw new Error(
+        `Reaction damage-group reset execution ${resetLogId} is missing or duplicated.`,
+      );
+    }
+    resetLog.executed = true;
+    resetLog.executionFrame = execution.executionFrame;
+    resetLog.stale = execution.stale;
+    resetLog.invalidatedReason = execution.invalidatedReason;
+    if (execution.applied) {
+      executedResetAwaitingSameFrameAttempt.set(
+        execution.task.scopeKey,
+        resetLogId,
+      );
+    }
+  };
+  const consumeReactionDamageGroup = ({
+    targetId,
+    actorId,
+    reaction,
+    damageSourceId,
+    frame,
+    taskSequence,
+  }: {
+    targetId: string;
+    actorId: string;
+    reaction: ReactionDamageGroupDecisionAuditV150["reaction"];
+    damageSourceId: string | null;
+    frame: number;
+    taskSequence: number;
+  }): ReactionDamageGroupDecisionAuditV150 => {
+    if (
+      config.reactionDamageGroupModel.mode ===
+      "fixed-gcsim-reaction-damage-task-order-v2"
+    ) {
+      for (const execution of reactionDamageGroupEngine.executeResetsBefore({
+        frame,
+        taskSequence,
+      })) {
+        recordReactionDamageGroupResetExecution(execution);
+      }
+    }
+    const result: Readonly<ReactionDamageGroupAttemptResult> =
+      config.reactionDamageGroupModel.mode ===
+      "fixed-gcsim-reaction-damage-task-order-v2"
+        ? reactionDamageGroupEngine.consumeAttempt(
+            {
+              targetId,
+              actorId,
+              reactionTag: reaction,
+              damageSourceId,
+              frame,
+              taskSequence,
+            },
+            (draft: Readonly<ReactionDamageGroupResetTaskDraft>) => ({
+              // Reset tasks share the simulation's global insertion ordinal
+              // even when their deadline is outside this run.
+              taskSequence: sequence++,
+              withinSimulation:
+                draft.resetAtFrame / 60 <= config.duration + 1e-9,
+            }),
+          )
+        : reactionDamageGroupEngine.consumeAttempt({
+            targetId,
+            actorId,
+            reactionTag: reaction,
+            damageSourceId,
+            frame,
+            taskSequence,
+          });
+
+    if (result.scheduledResetTask !== null) {
+      const task = result.scheduledResetTask;
+      const resetLogId = reactionDamageGroupResetLog.length;
+      reactionDamageGroupResetLog.push({
+        id: resetLogId,
+        policyId: task.policyId,
+        sourceActorId: task.actorId,
+        targetId: task.targetId,
+        scopeKey: task.scopeKey,
+        reaction: task.reactionTag,
+        icdTag: task.icdTag,
+        icdGroup: task.icdGroup,
+        windowGeneration: task.windowGeneration,
+        windowStartFrame: task.windowStartFrame,
+        resetAtFrame: task.resetAtFrame,
+        taskSequence: task.taskSequence,
+        withinSimulation: task.withinSimulation,
+        executed: false,
+        executedBeforeAttemptTaskSequence: null,
+        executionFrame: null,
+        stale: false,
+        invalidatedReason: null,
+      });
+      resetLogIdByTask.set(task, resetLogId);
+      if (task.withinSimulation) {
+        queue.push({
+          type: "reactionDamageGroupReset",
+          timeSeconds: task.resetAtFrame / 60,
+          frame: task.resetAtFrame,
+          priority: EVENT_PRIORITY.reactionDamageGroupReset,
+          sequence: task.taskSequence,
+          payload: { resetLogId, task },
+        } as InternalEvent);
+      }
+    }
+
+    const decision = result.decision;
+    const resetTaskLogId =
+      decision.resetTask === null
+        ? null
+        : resetLogIdByTask.get(decision.resetTask);
+    if (decision.resetTask !== null && resetTaskLogId === undefined) {
+      throw new Error(
+        `Reaction damage-group decision for ${decision.scopeKey} references an unlogged reset task.`,
+      );
+    }
+    const precedingResetLogId = executedResetAwaitingSameFrameAttempt.get(
+      decision.scopeKey,
+    );
+    if (precedingResetLogId !== undefined) {
+      const precedingReset = reactionDamageGroupResetLog[precedingResetLogId];
+      if (
+        precedingReset !== undefined &&
+        precedingReset.executionFrame === frame
+      ) {
+        precedingReset.executedBeforeAttemptTaskSequence = taskSequence;
+      }
+      executedResetAwaitingSameFrameAttempt.delete(decision.scopeKey);
+    }
+
+    return {
+      policyId: decision.policyId,
+      profileId: decision.profileId,
+      icdTag: decision.icdTag,
+      icdGroup: decision.icdGroup,
+      reaction: decision.reactionTag,
+      sourceActorId: actorId,
+      targetId,
+      scopeKey: decision.scopeKey,
+      frame,
+      damageGroupTaskSequence: taskSequence,
+      windowGeneration: decision.windowGeneration,
+      windowStartFrame: decision.windowStartFrame,
+      resetAtFrame: decision.resetAtFrame,
+      resetTaskLogId: resetTaskLogId ?? null,
+      resetTaskSequence: decision.resetTask?.taskSequence ?? null,
+      hitIndex: decision.hitIndex,
+      sequenceIndex: decision.sequenceIndex,
+      sequenceMultiplier: decision.sequenceMultiplier,
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason,
+    } as ReactionDamageGroupDecisionAuditV150;
+  };
+  type ReactionDamageGroupAttemptInput = {
+    targetId: string;
+    actorId: string;
+    damageSourceId: string | null;
+    frame: number;
+    taskSequence: number;
+  };
+  const consumeReactionADamageGroup = (
+    input: ReactionDamageGroupAttemptInput & {
+      reaction: ReactionADamageGroupDecisionAuditV150["reaction"];
+    },
+  ): ReactionADamageGroupDecisionAuditV150 => {
+    const decision = consumeReactionDamageGroup(input);
+    if (decision.icdGroup !== "reaction-a") {
+      throw new Error(
+        `Reaction ${input.reaction} unexpectedly resolved to ${decision.icdGroup}.`,
+      );
+    }
+    return decision;
+  };
+  const consumeReactionBDamageGroup = (
+    input: ReactionDamageGroupAttemptInput & {
+      reaction: ReactionBDamageGroupDecisionAuditV150["reaction"];
+    },
+  ): ReactionBDamageGroupDecisionAuditV150 => {
+    const decision = consumeReactionDamageGroup(input);
+    if (decision.icdGroup !== "reaction-b") {
+      throw new Error(
+        `Reaction ${input.reaction} unexpectedly resolved to ${decision.icdGroup}.`,
+      );
+    }
+    return decision;
+  };
+  const projectSwirlDamageGroupAudit = (
+    decision: ReactionADamageGroupDecisionAuditV150,
+  ): SwirlDamageGroupAudit => {
+    if (!decision.reaction.startsWith("swirl")) {
+      throw new Error(
+        `Cannot project non-Swirl reaction ${decision.reaction} into a Swirl audit.`,
+      );
+    }
+    return {
+      reaction: decision.reaction as SwirlReaction,
+      windowStartFrame: decision.windowStartFrame,
+      hitIndex: decision.hitIndex,
+      resetFrames: 30,
+      sequence: [true, true, false],
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason,
+    };
+  };
+  const projectReactionDamageGroupAuditV149 = (
+    decision: ReactionDamageGroupDecisionAuditV150,
+  ): ReactionDamageGroupAuditV149 => {
+    if (decision.icdGroup === "reaction-a") {
+      return {
+        reaction: decision.reaction,
+        sourceActorId: decision.sourceActorId,
+        targetId: decision.targetId,
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed: decision.damageAllowed,
+        blockedReason: decision.blockedReason,
+      };
+    }
+    return {
+      reaction: decision.reaction,
+      sourceActorId: decision.sourceActorId,
+      targetId: decision.targetId,
+      windowStartFrame: decision.windowStartFrame,
+      hitIndex: decision.hitIndex,
+      resetFrames: 30,
+      sequence: [true, false],
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason,
+    };
+  };
   const recordTargetMechanicsTruncation = ({
     audit,
     targetId,
@@ -4531,29 +4795,16 @@ function simulateConfig(
     const playerReactionA =
       reaction === "burning"
         ? null
-        : playerDendroCoreReactionALimiter.decide({
+        : consumeReactionADamageGroup({
             targetId: "player-avatar",
             actorId: sourceActorId,
-            reactionTag: reaction,
-            frame
+            reaction,
+            damageSourceId: sourceTargetId,
+            frame,
+            taskSequence: eventSequence,
           });
-    const damageGroupDecision:
-      | ReactionADamageGroupAudit
-      | null =
-      playerReactionA === null
-        ? null
-        : {
-            reaction: playerReactionA.reactionTag,
-            sourceActorId,
-            targetId: "player-avatar",
-            windowStartFrame:
-              playerReactionA.windowStartFrame,
-            hitIndex: playerReactionA.hitIndex,
-            resetFrames: 30,
-            sequence: [true, true, false],
-            damageAllowed: playerReactionA.damageAllowed,
-            blockedReason: playerReactionA.blockedReason
-          };
+    const damageGroupDecision: ReactionADamageGroupDecisionAuditV150 | null =
+      playerReactionA;
     const damageGroupMultiplier =
       damageGroupDecision?.damageAllowed === false
         ? (0 as const)
@@ -5737,36 +5988,25 @@ function simulateConfig(
     targetId,
     actorId,
     reaction,
-    frame
+    damageSourceId,
+    frame,
+    taskSequence,
   }: {
     targetId: string;
     actorId: string;
     reaction: SwirlReaction;
+    damageSourceId: string;
     frame: number;
-  }): SwirlDamageGroupAudit => {
-    const key = `${targetId}\u0000${actorId}\u0000${reaction}`;
-    const previous = swirlDamageIcdStates.get(key);
-    const state =
-      previous === undefined ||
-      frame - previous.windowStartFrame >= 30
-        ? { windowStartFrame: frame, hitCount: 0 }
-        : previous;
-    const hitIndex = state.hitCount;
-    const damageAllowed = hitIndex < 2;
-    state.hitCount += 1;
-    swirlDamageIcdStates.set(key, state);
-    return {
+    taskSequence: number;
+  }): ReactionADamageGroupDecisionAuditV150 =>
+    consumeReactionADamageGroup({
+      targetId,
+      actorId,
       reaction,
-      windowStartFrame: state.windowStartFrame,
-      hitIndex,
-      resetFrames: 30,
-      sequence: [true, true, false],
-      damageAllowed,
-      blockedReason: damageAllowed
-        ? null
-        : "REACTION_A_DAMAGE_ICD"
-    };
-  };
+      damageSourceId,
+      frame,
+      taskSequence,
+    });
 
   const scheduleSwirlAttacks = ({
     audits,
@@ -6958,31 +7198,15 @@ function simulateConfig(
       });
     }
 
-    const shatterDamageGroupDecision =
-      shatterReactionALimiter.decide({
-        targetId: sourceTargetId,
-        actorId,
-        reactionTag: "shatter",
-        frame
-      });
-    const shatterDamageGroupAudit: ReactionADamageGroupAudit =
-      {
-        reaction: "shatter",
-        sourceActorId: actorId,
-        targetId: sourceTargetId,
-        windowStartFrame:
-          shatterDamageGroupDecision.windowStartFrame,
-        hitIndex: shatterDamageGroupDecision.hitIndex,
-        resetFrames: 30,
-        sequence: [true, true, false],
-        damageAllowed:
-          shatterDamageGroupDecision.damageAllowed,
-        blockedReason:
-          shatterDamageGroupDecision.blockedReason
-      };
-    reactionLog.damageGroupDecisions.push(
-      shatterDamageGroupAudit
-    );
+    const shatterDamageGroupAudit = consumeReactionADamageGroup({
+      targetId: sourceTargetId,
+      actorId,
+      reaction: "shatter",
+      damageSourceId: sourceTargetId,
+      frame,
+      taskSequence: eventSequence,
+    });
+    reactionLog.damageGroupDecisions.push(shatterDamageGroupAudit);
     if (!shatterDamageGroupAudit.damageAllowed) {
       reactionLog.damageGroupBlockedTargetIds.push(
         sourceTargetId
@@ -7780,6 +8004,38 @@ function simulateConfig(
     if (!event) break;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
+    if (event.type === "reactionDamageGroupReset") {
+      const { resetLogId, task } =
+        event.payload as ReactionDamageGroupResetEventPayload;
+      const resetLog = reactionDamageGroupResetLog[resetLogId];
+      if (
+        resetLog === undefined ||
+        resetLog.taskSequence !== event.sequence ||
+        resetLog.resetAtFrame !== event.frame ||
+        resetLogIdByTask.get(task) !== resetLogId
+      ) {
+        throw new Error(
+          `Reaction damage-group reset event ${resetLogId} is missing or mismatched.`,
+        );
+      }
+      const execution = reactionDamageGroupEngine.executeReset(task);
+      if (resetLog.executed) {
+        if (
+          execution.applied ||
+          !execution.stale ||
+          execution.invalidatedReason !== "ALREADY_EXECUTED"
+        ) {
+          throw new Error(
+            `Reaction damage-group reset event ${resetLogId} did not deterministically no-op after inline execution.`,
+          );
+        }
+      } else {
+        recordReactionDamageGroupResetExecution(execution, resetLogId);
+      }
+      // Damage-counter resets are core bookkeeping tasks. They must not wake
+      // Aura decay or target-local clock machinery merely by existing.
+      continue;
+    }
     // The fixed-reference target phase checks a target-local wake before
     // advancing Aura. A stale wake must be reprojected without consuming a
     // target frame or triggering an Aura expiry on the abandoned frame.
@@ -12047,55 +12303,29 @@ function simulateConfig(
                 targetId: plan.targetId,
                 actorId,
                 reaction: swirlContext.reaction,
-                frame: event.frame
+                damageSourceId: sourceTargetId,
+                frame: event.frame,
+                taskSequence: event.sequence,
               })
             : null;
         if (swirlDamageGroup !== null) {
-          reactionLog.damageGroupDecisions.push({
-            reaction: swirlDamageGroup.reaction,
-            sourceActorId: actorId,
-            targetId: plan.targetId,
-            windowStartFrame: swirlDamageGroup.windowStartFrame,
-            hitIndex: swirlDamageGroup.hitIndex,
-            resetFrames: 30,
-            sequence: [true, true, false],
-            damageAllowed: swirlDamageGroup.damageAllowed,
-            blockedReason: swirlDamageGroup.blockedReason
-          });
+          reactionLog.damageGroupDecisions.push(swirlDamageGroup);
           if (!swirlDamageGroup.damageAllowed) {
             reactionLog.damageGroupBlockedTargetIds.push(plan.targetId);
           }
         }
         const dendroCoreDamageGroupDecision =
           plan.landed && dendroCoreContext !== undefined
-            ? dendroCoreReactionALimiter.decide({
+            ? consumeReactionADamageGroup({
                 targetId: plan.targetId,
                 actorId,
-                reactionTag: dendroCoreContext.reaction,
-                frame: event.frame
+                reaction: dendroCoreContext.reaction,
+                damageSourceId: `dendro-core-${dendroCoreContext.coreId}`,
+                frame: event.frame,
+                taskSequence: event.sequence,
               })
             : null;
-        const dendroCoreDamageGroupAudit:
-          | ReactionADamageGroupAudit
-          | null =
-          dendroCoreDamageGroupDecision === null
-            ? null
-            : {
-                reaction:
-                  dendroCoreDamageGroupDecision.reactionTag,
-                sourceActorId: actorId,
-                targetId: plan.targetId,
-                windowStartFrame:
-                  dendroCoreDamageGroupDecision.windowStartFrame,
-                hitIndex:
-                  dendroCoreDamageGroupDecision.hitIndex,
-                resetFrames: 30,
-                sequence: [true, true, false],
-                damageAllowed:
-                  dendroCoreDamageGroupDecision.damageAllowed,
-                blockedReason:
-                  dendroCoreDamageGroupDecision.blockedReason
-              };
+        const dendroCoreDamageGroupAudit = dendroCoreDamageGroupDecision;
         if (dendroCoreDamageGroupAudit !== null) {
           reactionLog.damageGroupDecisions.push(
             dendroCoreDamageGroupAudit
@@ -12108,93 +12338,41 @@ function simulateConfig(
         }
         const shatterDamageGroupDecision =
           plan.landed && reaction === "shatter"
-            ? shatterReactionALimiter.decide({
+            ? consumeReactionADamageGroup({
                 targetId: plan.targetId,
                 actorId,
-                reactionTag: "shatter",
-                frame: event.frame
+                reaction: "shatter",
+                damageSourceId: sourceTargetId,
+                frame: event.frame,
+                taskSequence: event.sequence,
               })
             : null;
-        const shatterDamageGroupAudit:
-          | ReactionADamageGroupAudit
-          | null =
-          shatterDamageGroupDecision === null
-            ? null
-            : {
-                reaction: "shatter",
-                sourceActorId: actorId,
-                targetId: plan.targetId,
-                windowStartFrame:
-                  shatterDamageGroupDecision.windowStartFrame,
-                hitIndex: shatterDamageGroupDecision.hitIndex,
-                resetFrames: 30,
-                sequence: [true, true, false],
-                damageAllowed:
-                  shatterDamageGroupDecision.damageAllowed,
-                blockedReason:
-                  shatterDamageGroupDecision.blockedReason
-              };
+        const shatterDamageGroupAudit = shatterDamageGroupDecision;
         const superconductDamageGroupDecision =
           plan.landed && reaction === "superconduct"
-            ? superconductReactionALimiter.decide({
+            ? consumeReactionADamageGroup({
                 targetId: plan.targetId,
                 actorId,
-                reactionTag: "superconduct",
-                frame: event.frame
+                reaction: "superconduct",
+                damageSourceId: sourceTargetId,
+                frame: event.frame,
+                taskSequence: event.sequence,
               })
             : null;
-        const superconductDamageGroupAudit:
-          | ReactionADamageGroupAudit
-          | null =
-          superconductDamageGroupDecision === null
-            ? null
-            : {
-                reaction: "superconduct",
-                sourceActorId: actorId,
-                targetId: plan.targetId,
-                windowStartFrame:
-                  superconductDamageGroupDecision.windowStartFrame,
-                hitIndex:
-                  superconductDamageGroupDecision.hitIndex,
-                resetFrames: 30,
-                sequence: [true, true, false],
-                damageAllowed:
-                  superconductDamageGroupDecision.damageAllowed,
-                blockedReason:
-                  superconductDamageGroupDecision.blockedReason
-              };
+        const superconductDamageGroupAudit = superconductDamageGroupDecision;
         const reactionBDamageGroupDecision =
           plan.landed &&
-          (reaction === "overload" ||
-            reaction === "electroCharged")
-            ? overloadAndElectroChargedReactionBLimiter.decide({
+          (reaction === "overload" || reaction === "electroCharged")
+            ? consumeReactionBDamageGroup({
                 targetId: plan.targetId,
                 actorId,
-                reactionTag: reaction,
-                frame: event.frame
+                reaction,
+                damageSourceId: sourceTargetId,
+                frame: event.frame,
+                taskSequence: event.sequence,
               })
             : null;
-        const reactionBDamageGroupAudit:
-          | ReactionBDamageGroupAudit
-          | null =
-          reactionBDamageGroupDecision === null
-            ? null
-            : {
-                reaction:
-                  reactionBDamageGroupDecision.reactionTag,
-                sourceActorId: actorId,
-                targetId: plan.targetId,
-                windowStartFrame:
-                  reactionBDamageGroupDecision.windowStartFrame,
-                hitIndex:
-                  reactionBDamageGroupDecision.hitIndex,
-                resetFrames: 30,
-                sequence: [true, false],
-                damageAllowed:
-                  reactionBDamageGroupDecision.damageAllowed,
-                blockedReason:
-                  reactionBDamageGroupDecision.blockedReason
-              };
+        const reactionBDamageGroupAudit = reactionBDamageGroupDecision;
         for (const groupAudit of [
           shatterDamageGroupAudit,
           superconductDamageGroupAudit,
@@ -12681,7 +12859,10 @@ function simulateConfig(
             bloomReactions: []
           }),
           shatterReaction: nestedShatterState?.audit ?? null,
-          swirlDamageGroup,
+          swirlDamageGroup:
+            swirlDamageGroup === null
+              ? null
+              : projectSwirlDamageGroupAudit(swirlDamageGroup),
           note:
             reactionApplication === undefined
               ? `${reactionLabel}自身伤害：不暴击、忽略防御且不附着元素；应用目标元素抗性、伤害策略与对应反应伤害组 ICD。`
@@ -15364,6 +15545,7 @@ function simulateConfig(
     targetPhaseLog: parsedTargetPhaseLog,
     targetMechanicsTruncationLog,
     reactionDamageLog,
+    reactionDamageGroupResetLog,
     reactionTaskLog,
     reactionStatusLog,
     periodicReactionLog,
@@ -15411,6 +15593,45 @@ function simulateConfig(
     auraEndStates,
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+  // Frozen reference facets still own the exact through-1.49 compact
+  // ReactionA/B wire. Feed those validators a lossless nested projection;
+  // the current 1.50 task-order proof validates the enriched decisions and
+  // reset log separately before the result leaves sim-core.
+  const frozenReactionDamageGroupFacet = {
+    ...simulationResult,
+    reactionDamageLog: simulationResult.reactionDamageLog.map((entry) => ({
+      ...entry,
+      damageGroupDecisions: entry.damageGroupDecisions.map(
+        projectReactionDamageGroupAuditV149,
+      ),
+    })),
+    playerDamageEvents: simulationResult.playerDamageEvents.map((event) => ({
+      ...event,
+      damageFactors: {
+        ...event.damageFactors,
+        damageGroupDecision:
+          event.damageFactors.damageGroupDecision === null
+            ? null
+            : projectReactionDamageGroupAuditV149(
+                event.damageFactors.damageGroupDecision,
+              ),
+      },
+    })),
+  };
+  // target-phase-v3 is a frozen through-1.49 cross-log proof. Keep the live
+  // 1.50 result untouched, but present that checker with the exact historical
+  // result/config identity it owns, on top of the lossless nested V149 damage
+  // group projection above.
+  const frozenTargetPhaseV3Facet = Object.freeze({
+    ...frozenReactionDamageGroupFacet,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    config: Object.freeze({
+      ...frozenReactionDamageGroupFacet.config,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    }),
+  });
   // The public reference schema still accepts and descriptor-cleans a full
   // result. The simulator only needs to validate the fields that participate
   // in its cross-log proof, so avoid cloning unrelated timelines and summaries
@@ -15565,16 +15786,14 @@ function simulateConfig(
     (hasElectroChargedCleanupAudit ||
       hasElectroChargedPeriodicRows)
   ) {
-    electroChargedCleanupResultReferencesSchema.parse(simulationResult);
+    electroChargedCleanupResultReferencesSchema.parse(
+      frozenReactionDamageGroupFacet,
+    );
   }
   if (targetPhaseV3Enabled) {
-    targetPhaseV3ResultReferencesSchema.parse(
-      simulationResult
-    );
+    targetPhaseV3ResultReferencesSchema.parse(frozenTargetPhaseV3Facet);
   } else if (targetPhaseV2Enabled) {
-    targetPhaseV2ResultReferencesSchema.parse(
-      simulationResult
-    );
+    targetPhaseV2ResultReferencesSchema.parse(frozenReactionDamageGroupFacet);
   } else {
     // The public v2 result-reference schema deliberately performs a deep,
     // cross-log audit. Legacy/v1 runs cannot produce v2 phases, so reparsing
@@ -15723,7 +15942,7 @@ function simulateConfig(
     }
   }
   if (config.targetClockModel.mode === "target-local-hitlag-v1") {
-    targetClockResultReferencesSchema.parse(simulationResult);
+    targetClockResultReferencesSchema.parse(frozenReactionDamageGroupFacet);
   } else {
     validateEnemyTargetOutputProjection(simulationResult);
     if (

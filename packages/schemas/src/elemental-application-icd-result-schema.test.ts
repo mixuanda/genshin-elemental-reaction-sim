@@ -9,7 +9,9 @@ import {
   simulationResultV148Schema,
   simulationResultV148ValueSchema,
   simulationResultV149Schema,
-  simulationResultV149ValueSchema
+  simulationResultV149ValueSchema,
+  simulationResultV150Schema,
+  simulationResultV150ValueSchema
 } from "./result-schema";
 
 const noIcdRow = {
@@ -259,7 +261,15 @@ describe("elemental-application ICD result leaf schema", () => {
       simulationResultV148ValueSchema.shape.elementalApplicationIcdLog
         .element
     );
-    expect(simulationResultSchema).toBe(simulationResultV149Schema);
+    expect(
+      simulationResultV150ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    ).toBe(
+      simulationResultV149ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    );
+    expect(simulationResultSchema).toBe(simulationResultV150Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV149Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV148Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV147Schema);
   });

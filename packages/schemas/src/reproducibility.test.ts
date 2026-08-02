@@ -3,6 +3,7 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
@@ -42,6 +43,8 @@ import {
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   SIMULATION_RUN_MANIFEST_VERSION,
   type DirectDamageGroupLogEntry,
   type ElementalApplication,
@@ -117,7 +120,7 @@ describe("versioned reproducibility identities", () => {
 
   });
 
-  it("binds all four fixed mechanics roots in the current 1.49 manifest", () => {
+  it("binds all five fixed mechanics roots in the current 1.50 manifest", () => {
     const manifest = createSimulationRunManifest({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -126,6 +129,8 @@ describe("versioned reproducibility identities", () => {
       elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
         GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
       dataVersion: commonIdentity.dataVersion,
       configHash: commonIdentity.configHash,
       resolvedRuntimeOptions: commonIdentity.resolvedRuntimeOptions,
@@ -133,13 +138,13 @@ describe("versioned reproducibility identities", () => {
     });
 
     expect(CURRENT_SCHEMA_VERSION).toBe(
-      REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
     );
     expect(CURRENT_ENGINE_VERSION).toBe(
-      REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
     );
     expect(manifest.version).toBe(SIMULATION_RUN_MANIFEST_VERSION);
-    expect(manifest.version).toBe("1.5.0");
+    expect(manifest.version).toBe("1.6.0");
     expect(manifest.reactionFormulaRoot).toBe(CLASSIC_REACTION_FORMULA_ROOT);
     expect(manifest.directDamageGroupRoot).toBe(GCSIM_DAMAGE_GROUP_ROOT);
     expect(manifest.elementalApplicationIcdRoot).toBe(
@@ -147,6 +152,9 @@ describe("versioned reproducibility identities", () => {
     );
     expect(manifest.reactionOwnedElementalApplicationRoot).toBe(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+    );
+    expect(manifest.reactionDamageGroupRoot).toBe(
+      GCSIM_REACTION_DAMAGE_GROUP_POLICY_ROOT,
     );
 
     const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;

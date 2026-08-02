@@ -51,9 +51,9 @@ const EXPECTED_REACTION_OWNED_ELEMENTAL_APPLICATION_MODEL = {
 
 describe("game-data preset engine identity", () => {
   it("propagates the exact current mechanics-root identities without opting built-in presets into unrelated mechanics modes", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.49.0-reaction-owned-reset-boundary"
+      "1.50.0-reaction-damage-reset-boundary"
     );
     expect(GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID).toBe(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID

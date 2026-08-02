@@ -7,11 +7,15 @@ import {
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
-import { GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID } from "@genshin-dps-lab/icd-profiles";
+import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+} from "@genshin-dps-lab/icd-profiles";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
+import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -92,6 +96,10 @@ function makeReactionConfig(
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     targetTaskModel,
     timeline: {
       mode: "legal-frame-v1",
@@ -165,6 +173,10 @@ function makeSwirlConfig(): SimConfig {
     ],
     rotation: [],
     reactionEngine: { mode: "aura-v9" },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     targetTaskModel: { mode: "target-phase-v2" },
     timeline: {
       mode: "legal-frame-v1",
@@ -252,7 +264,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.49 integrity validation failed/
+    /Trusted SimulationResult 1\.50 integrity validation failed/
   );
 }
 
@@ -330,7 +342,7 @@ function rewriteReactionParentEventSequence(
   }
 }
 
-describe("V1.49 reaction-owned application result integrity", () => {
+describe("current V1.50 reaction-owned application result integrity", () => {
   let burning: SimulationResult;
   let swirl: SimulationResult;
   let swirlV1: SimulationResult;
@@ -456,9 +468,11 @@ describe("V1.49 reaction-owned application result integrity", () => {
     }
   });
 
-  it("keeps the frozen V1.47 public and trusted contracts isolated from V1.49 replay", () => {
+  it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.50 replay", () => {
     const projected = projectSimulationResultV148ToV147(
-      projectSimulationResultV149ToV148(overload)
+      projectSimulationResultV149ToV148(
+        projectSimulationResultV150ToV149(overload)
+      )
     );
 
     expect(simulationResultV147Schema.parse(projected)).toEqual(projected);
@@ -550,7 +564,7 @@ describe("V1.49 reaction-owned application result integrity", () => {
     });
   });
 
-  it("runs the exact V1.49 target-phase Burning application ownership proof at both full boundaries", () => {
+  it("retains the target-phase Burning application ownership proof at both current V1.50 boundaries", () => {
     const forgeDeliveryApplicationOwner = (forged: SimulationResult): void => {
       const row = firstReactionOwnedRow(forged);
       for (const phase of forged.targetPhaseLog) {
@@ -572,7 +586,7 @@ describe("V1.49 reaction-owned application result integrity", () => {
     const parsed = simulationResultSchema.safeParse(publicWire);
     expect(parsed.success).toBe(false);
     if (parsed.success) {
-      throw new Error("forged V1.49 public wire was accepted");
+      throw new Error("forged current V1.50 public wire was accepted");
     }
     expect(parsed.error.issues).toEqual(
       expect.arrayContaining([

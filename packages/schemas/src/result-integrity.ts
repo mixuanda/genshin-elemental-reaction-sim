@@ -9,12 +9,17 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
   resolveDamageGroup,
   resolveElementalApplicationGroup,
+  resolveReactionDamageGroupBindingForPolicy,
+  resolveReactionDamageGroupPolicyRoot,
+  resolveReactionDamageGroupResetFrame,
   resolveReactionOwnedApplicationBindingForPolicy,
   type GcsimDamageGroupId
 } from "@genshin-dps-lab/icd-profiles";
@@ -36,6 +41,9 @@ import {
   REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
@@ -47,10 +55,12 @@ import {
   type ElementalApplication,
   type HitDefinition,
   type ReactionOwnedElementalApplicationIcdSkippedReasonV148,
+  type ReactionDamageGroupAuditV149,
   type ScalingStat,
   type SimulationResult,
   type SimulationResultForV147,
   type SimulationResultForV148,
+  type SimulationResultForV150,
   type StatusTarget
 } from "./types";
 import {
@@ -2562,7 +2572,7 @@ function validateIdentityV149(
     "current"
   );
   if (
-    result.runManifest.version !==
+    (result.runManifest.version as string) !==
     REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION
   ) {
     addIssue(
@@ -2690,6 +2700,1052 @@ function validateIdentityV149(
     "run-manifest/config reaction-owned elemental-application policy"
   );
   return selected;
+}
+
+type ReactionDamageGroupReplayPolicyV150 = {
+  mode:
+    | "legacy-reaction-damage-group-window-v1"
+    | "fixed-gcsim-reaction-damage-task-order-v2";
+  policyId:
+    | typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    | typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID;
+};
+
+function selectedReactionDamageGroupReplayPolicyV150(
+  result: SimulationResult,
+  context: RefinementCtx
+): ReactionDamageGroupReplayPolicyV150 | undefined {
+  const rawModel = (
+    result.config as unknown as Record<string, unknown>
+  ).reactionDamageGroupModel;
+  if (
+    rawModel === null ||
+    typeof rawModel !== "object" ||
+    Array.isArray(rawModel)
+  ) {
+    addIssue(
+      context,
+      ["config", "reactionDamageGroupModel"],
+      "1.50 results require an explicit v1 or v2 reaction damage-group model"
+    );
+    return undefined;
+  }
+  const model = rawModel as { mode?: unknown; policyId?: unknown };
+  let selected: ReactionDamageGroupReplayPolicyV150 | undefined;
+  if (model.mode === "legacy-reaction-damage-group-window-v1") {
+    selected = {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    };
+  } else if (
+    model.mode === "fixed-gcsim-reaction-damage-task-order-v2"
+  ) {
+    selected = {
+      mode: "fixed-gcsim-reaction-damage-task-order-v2",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID
+    };
+  } else {
+    addIssue(
+      context,
+      ["config", "reactionDamageGroupModel", "mode"],
+      "1.50 results require a recognized reaction damage-group mode"
+    );
+    return undefined;
+  }
+  expectEqual(
+    context,
+    ["config", "reactionDamageGroupModel", "policyId"],
+    model.policyId,
+    selected.policyId,
+    "reaction damage-group mode/policy binding"
+  );
+  return selected;
+}
+
+function validateIdentityV150(
+  result: SimulationResult,
+  context: RefinementCtx
+): {
+  reactionOwnedPolicy: ReactionOwnedReplayPolicy | undefined;
+  reactionDamageGroupPolicy:
+    | ReactionDamageGroupReplayPolicyV150
+    | undefined;
+} {
+  validateIdentityForVersion(
+    result,
+    context,
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+    "current"
+  );
+  if (
+    result.runManifest.version !==
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION
+  ) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.50 results require run-manifest version ${REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+
+  const reactionOwnedPolicy =
+    selectedReactionOwnedReplayPolicyV149(result, context);
+  if (reactionOwnedPolicy !== undefined) {
+    const expectedRoot =
+      reactionOwnedPolicy.policyId ===
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+        ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+        : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT;
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionOwnedElementalApplicationRoot"],
+      result.runManifest.reactionOwnedElementalApplicationRoot,
+      expectedRoot,
+      "selected reaction-owned elemental-application root"
+    );
+  }
+
+  const reactionDamageGroupPolicy =
+    selectedReactionDamageGroupReplayPolicyV150(result, context);
+  if (reactionDamageGroupPolicy !== undefined) {
+    const expectedRoot = resolveReactionDamageGroupPolicyRoot(
+      reactionDamageGroupPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "reactionDamageGroupModel"],
+      result.config.reactionDamageGroupModel,
+      reactionDamageGroupPolicy,
+      "selected reaction damage-group policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot"],
+      result.runManifest.reactionDamageGroupRoot,
+      expectedRoot,
+      "selected reaction damage-group root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot", "policyId"],
+      result.runManifest.reactionDamageGroupRoot?.policyId,
+      reactionDamageGroupPolicy.policyId,
+      "run-manifest/config reaction damage-group policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot", "damageGroupRootRef"],
+      result.runManifest.reactionDamageGroupRoot?.damageGroupRootRef,
+      {
+        version: GCSIM_DAMAGE_GROUP_ROOT.version,
+        profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
+        contentHash: GCSIM_DAMAGE_GROUP_ROOT.contentHash,
+        sourceRevision: GCSIM_DAMAGE_GROUP_ROOT.sourceRevision,
+        tailPolicy: GCSIM_DAMAGE_GROUP_ROOT.tailPolicy,
+        resetSchedulePolicy: GCSIM_DAMAGE_GROUP_ROOT.resetSchedulePolicy
+      },
+      "reaction damage-group nested direct-group root"
+    );
+  }
+  return { reactionOwnedPolicy, reactionDamageGroupPolicy };
+}
+
+type ReactionDamageGroupDecisionV150 =
+  SimulationResultForV150["reactionDamageLog"][number]["damageGroupDecisions"][number];
+type ReactionDamageGroupResetV150 =
+  SimulationResultForV150["reactionDamageGroupResetLog"][number];
+
+interface ReactionDamageGroupAttemptV150 {
+  decision: ReactionDamageGroupDecisionV150;
+  path: IssuePath;
+  stableOrder: number;
+}
+
+interface ReactionDamageGroupWindowReplayV150 {
+  generation: number;
+  reaction: ReactionDamageGroupDecisionV150["reaction"];
+  windowStartFrame: number;
+  resetAtFrame: number;
+  resetTaskLogId: number;
+  resetTaskSequence: number;
+  nextHitIndex: number;
+}
+
+function compareReactionDamageGroupOperationV150(
+  left: { frame: number; taskSequence: number },
+  right: { frame: number; taskSequence: number }
+): number {
+  return (
+    left.frame - right.frame ||
+    left.taskSequence - right.taskSequence
+  );
+}
+
+function expectedReactionDamageGroupResetFrameV150(
+  policyId: ReactionDamageGroupReplayPolicyV150["policyId"],
+  reaction: ReactionDamageGroupDecisionV150["reaction"],
+  windowStartFrame: number,
+  context: RefinementCtx,
+  path: IssuePath
+): number | undefined {
+  try {
+    return resolveReactionDamageGroupResetFrame(
+      policyId,
+      reaction,
+      windowStartFrame
+    );
+  } catch (error) {
+    addIssue(
+      context,
+      path,
+      error instanceof Error
+        ? error.message
+        : "reaction damage-group reset frame is invalid"
+    );
+    return undefined;
+  }
+}
+
+function validateReactionDamageGroupDecisionLeafV150(
+  attempt: ReactionDamageGroupAttemptV150,
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): void {
+  const { decision, path } = attempt;
+  const binding = resolveReactionDamageGroupBindingForPolicy(
+    selectedPolicy.policyId,
+    decision.reaction
+  );
+  const group = resolveDamageGroup(binding.groupId);
+  const expectedScopeKey = JSON.stringify([
+    decision.targetId,
+    decision.sourceActorId,
+    binding.icdTag
+  ]);
+  const expectedResetAtFrame =
+    expectedReactionDamageGroupResetFrameV150(
+      selectedPolicy.policyId,
+      decision.reaction,
+      decision.windowStartFrame,
+      context,
+      [...path, "resetAtFrame"]
+    );
+  const expectedSequenceIndex = Math.min(
+    decision.hitIndex,
+    group.damageSequence.length - 1
+  );
+  const expectedSequenceMultiplier =
+    group.damageSequence[expectedSequenceIndex];
+  const expectedDamageAllowed =
+    expectedSequenceMultiplier === 1;
+  const expectedBlockedReason = expectedDamageAllowed
+    ? null
+    : binding.groupId === "reaction-a"
+      ? "REACTION_A_DAMAGE_ICD"
+      : "REACTION_B_DAMAGE_ICD";
+
+  for (const [field, expected] of [
+    ["policyId", selectedPolicy.policyId],
+    ["profileId", GCSIM_DAMAGE_GROUP_PROFILE_ID],
+    ["icdTag", binding.icdTag],
+    ["icdGroup", binding.groupId],
+    ["scopeKey", expectedScopeKey],
+    ["sequenceIndex", expectedSequenceIndex],
+    ["sequenceMultiplier", expectedSequenceMultiplier],
+    ["damageAllowed", expectedDamageAllowed],
+    ["blockedReason", expectedBlockedReason]
+  ] as const) {
+    expectEqual(
+      context,
+      [...path, field],
+      decision[field],
+      expected,
+      `reaction damage-group decision ${field}`
+    );
+  }
+  if (expectedResetAtFrame !== undefined) {
+    expectEqual(
+      context,
+      [...path, "resetAtFrame"],
+      decision.resetAtFrame,
+      expectedResetAtFrame,
+      "reaction damage-group reset frame"
+    );
+  }
+  if (decision.frame < decision.windowStartFrame) {
+    addIssue(
+      context,
+      [...path, "frame"],
+      "reaction damage-group attempt cannot precede its window"
+    );
+  }
+}
+
+function collectReactionDamageGroupAttemptsV150(
+  result: SimulationResultForV150,
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): ReactionDamageGroupAttemptV150[] {
+  const damageEventById = new Map(
+    result.damageEvents.map((event) => [event.id, event])
+  );
+  const attempts: ReactionDamageGroupAttemptV150[] = [];
+  let stableOrder = 0;
+
+  for (const [logIndex, log] of
+    result.reactionDamageLog.entries()) {
+    if (
+      log.reaction !== "burning" &&
+      log.damageGroupDecisions.length !== log.hitTargetIds.length
+    ) {
+      addIssue(
+        context,
+        ["reactionDamageLog", logIndex, "damageGroupDecisions"],
+        "settled non-Burning targets require one ordered damage-group decision each"
+      );
+    }
+    for (const [decisionIndex, decision] of
+      log.damageGroupDecisions.entries()) {
+      const path = [
+        "reactionDamageLog",
+        logIndex,
+        "damageGroupDecisions",
+        decisionIndex
+      ] satisfies IssuePath;
+      const attempt = {
+        decision,
+        path,
+        stableOrder: stableOrder++
+      } satisfies ReactionDamageGroupAttemptV150;
+      attempts.push(attempt);
+      validateReactionDamageGroupDecisionLeafV150(
+        attempt,
+        selectedPolicy,
+        context
+      );
+      for (const [field, expected] of [
+        ["reaction", log.reaction],
+        ["sourceActorId", log.sourceActorId],
+        ["targetId", log.hitTargetIds[decisionIndex]],
+        ["frame", log.damageFrame]
+      ] as const) {
+        expectEqual(
+          context,
+          [...path, field],
+          decision[field],
+          expected,
+          `reaction damage log decision ${field}`
+        );
+      }
+
+      const damageEventId = log.damageEventIds[decisionIndex];
+      if (damageEventId === undefined) {
+        addIssue(
+          context,
+          [...path, "damageGroupTaskSequence"],
+          "damage-group decision must own an aligned reaction damage child"
+        );
+        continue;
+      }
+      const child = damageEventById.get(damageEventId);
+      if (child === undefined) {
+        addIssue(
+          context,
+          [...path, "damageGroupTaskSequence"],
+          "damage-group decision references a missing reaction damage child"
+        );
+        continue;
+      }
+      expectEqual(
+        context,
+        [...path, "damageGroupTaskSequence"],
+        decision.damageGroupTaskSequence,
+        child.eventSequence,
+        "damage-group attempt/shared event sequence"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "frame"],
+        child.frame,
+        decision.frame,
+        "damage child/decision frame"
+      );
+      expectEqual(
+        context,
+        ["damageEvents", damageEventId, "groupMultiplier"],
+        child.groupMultiplier,
+        decision.sequenceMultiplier,
+        "damage child/group decision multiplier"
+      );
+      if (!decision.damageAllowed) {
+        expectEqual(
+          context,
+          ["damageEvents", damageEventId, "finalDamage"],
+          child.finalDamage,
+          0,
+          "blocked reaction damage child"
+        );
+      }
+    }
+  }
+
+  for (const [eventIndex, event] of
+    result.playerDamageEvents.entries()) {
+    const decision = event.damageFactors.damageGroupDecision;
+    if (decision === null) continue;
+    const path = [
+      "playerDamageEvents",
+      eventIndex,
+      "damageFactors",
+      "damageGroupDecision"
+    ] satisfies IssuePath;
+    const attempt = {
+      decision,
+      path,
+      stableOrder: stableOrder++
+    } satisfies ReactionDamageGroupAttemptV150;
+    attempts.push(attempt);
+    validateReactionDamageGroupDecisionLeafV150(
+      attempt,
+      selectedPolicy,
+      context
+    );
+    for (const [field, expected] of [
+      ["reaction", event.reaction],
+      ["sourceActorId", event.sourceActorId],
+      ["targetId", "player-avatar"],
+      ["frame", event.frame],
+      ["damageGroupTaskSequence", event.eventSequence]
+    ] as const) {
+      expectEqual(
+        context,
+        [...path, field],
+        decision[field],
+        expected,
+        `player damage-group decision ${field}`
+      );
+    }
+    expectEqual(
+      context,
+      [
+        "playerDamageEvents",
+        eventIndex,
+        "damageFactors",
+        "damageGroupMultiplier"
+      ],
+      event.damageFactors.damageGroupMultiplier,
+      decision.sequenceMultiplier,
+      "player damage-group multiplier projection"
+    );
+  }
+  return attempts;
+}
+
+function validateReactionDamageGroupV1ReplayV150(
+  result: SimulationResultForV150,
+  attempts: readonly ReactionDamageGroupAttemptV150[],
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): void {
+  if (result.reactionDamageGroupResetLog.length !== 0) {
+    addIssue(
+      context,
+      ["reactionDamageGroupResetLog"],
+      "the v1 lazy-window policy cannot emit reset tasks"
+    );
+  }
+  const byScope = new Map<
+    string,
+    ReactionDamageGroupAttemptV150[]
+  >();
+  for (const attempt of attempts) {
+    const list = byScope.get(attempt.decision.scopeKey) ?? [];
+    list.push(attempt);
+    byScope.set(attempt.decision.scopeKey, list);
+  }
+  for (const [scopeKey, scopeAttempts] of byScope) {
+    scopeAttempts.sort(
+      (left, right) =>
+        compareReactionDamageGroupOperationV150(
+          {
+            frame: left.decision.frame,
+            taskSequence: left.decision.damageGroupTaskSequence
+          },
+          {
+            frame: right.decision.frame,
+            taskSequence: right.decision.damageGroupTaskSequence
+          }
+        ) || left.stableOrder - right.stableOrder
+    );
+    let previousOperation:
+      | { frame: number; taskSequence: number }
+      | undefined;
+    let window:
+      | {
+          generation: number;
+          windowStartFrame: number;
+          resetAtFrame: number;
+          nextHitIndex: number;
+        }
+      | undefined;
+    for (const attempt of scopeAttempts) {
+      const { decision, path } = attempt;
+      const operation = {
+        frame: decision.frame,
+        taskSequence: decision.damageGroupTaskSequence
+      };
+      if (
+        previousOperation !== undefined &&
+        compareReactionDamageGroupOperationV150(
+          operation,
+          previousOperation
+        ) <= 0
+      ) {
+        addIssue(
+          context,
+          [...path, "damageGroupTaskSequence"],
+          `damage-group operations for ${scopeKey} must be strictly ordered by frame and taskSequence`
+        );
+      }
+      const opensWindow =
+        window === undefined ||
+        decision.frame >= window.resetAtFrame;
+      if (opensWindow) {
+        const generation =
+          window === undefined ? 0 : window.generation + 1;
+        const resetAtFrame =
+          expectedReactionDamageGroupResetFrameV150(
+            selectedPolicy.policyId,
+            decision.reaction,
+            decision.frame,
+            context,
+            [...path, "resetAtFrame"]
+          );
+        if (resetAtFrame === undefined) continue;
+        window = {
+          generation,
+          windowStartFrame: decision.frame,
+          resetAtFrame,
+          nextHitIndex: 0
+        };
+      }
+      if (window === undefined) continue;
+      for (const [field, expected] of [
+        ["windowGeneration", window.generation],
+        ["windowStartFrame", window.windowStartFrame],
+        ["resetAtFrame", window.resetAtFrame],
+        ["hitIndex", window.nextHitIndex],
+        ["resetTaskLogId", null],
+        ["resetTaskSequence", null]
+      ] as const) {
+        expectEqual(
+          context,
+          [...path, field],
+          decision[field],
+          expected,
+          `v1 damage-group replay ${field}`
+        );
+      }
+      window.nextHitIndex += 1;
+      previousOperation = operation;
+    }
+  }
+}
+
+function validateReactionDamageGroupResetLeafV150(
+  reset: ReactionDamageGroupResetV150,
+  resetIndex: number,
+  result: SimulationResultForV150,
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): void {
+  const path = [
+    "reactionDamageGroupResetLog",
+    resetIndex
+  ] satisfies IssuePath;
+  const binding = resolveReactionDamageGroupBindingForPolicy(
+    selectedPolicy.policyId,
+    reset.reaction
+  );
+  const expectedScopeKey = JSON.stringify([
+    reset.targetId,
+    reset.sourceActorId,
+    binding.icdTag
+  ]);
+  const expectedResetAtFrame =
+    expectedReactionDamageGroupResetFrameV150(
+      selectedPolicy.policyId,
+      reset.reaction,
+      reset.windowStartFrame,
+      context,
+      [...path, "resetAtFrame"]
+    );
+  const expectedWithinSimulation =
+    reset.resetAtFrame <= Math.round(result.config.duration * 60);
+  for (const [field, expected] of [
+    ["id", resetIndex],
+    ["policyId", selectedPolicy.policyId],
+    ["icdTag", binding.icdTag],
+    ["icdGroup", binding.groupId],
+    ["scopeKey", expectedScopeKey],
+    ["withinSimulation", expectedWithinSimulation],
+    ["executed", expectedWithinSimulation],
+    [
+      "executionFrame",
+      expectedWithinSimulation ? reset.resetAtFrame : null
+    ],
+    ["stale", false],
+    ["invalidatedReason", null]
+  ] as const) {
+    expectEqual(
+      context,
+      [...path, field],
+      reset[field],
+      expected,
+      `reaction damage-group reset ${field}`
+    );
+  }
+  if (expectedResetAtFrame !== undefined) {
+    expectEqual(
+      context,
+      [...path, "resetAtFrame"],
+      reset.resetAtFrame,
+      expectedResetAtFrame,
+      "reaction damage-group scheduled reset frame"
+    );
+  }
+}
+
+function validateReactionDamageGroupV2ReplayV150(
+  result: SimulationResultForV150,
+  attempts: readonly ReactionDamageGroupAttemptV150[],
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): void {
+  const resetById = new Map<number, ReactionDamageGroupResetV150>();
+  const resetIndexById = new Map<number, number>();
+  const resetTaskSequences = new Set<number>();
+  const attemptTaskSequences = new Set(
+    attempts.map(
+      (attempt) => attempt.decision.damageGroupTaskSequence
+    )
+  );
+  let previousResetTaskSequence = -1;
+  for (const [resetIndex, reset] of
+    result.reactionDamageGroupResetLog.entries()) {
+    validateReactionDamageGroupResetLeafV150(
+      reset,
+      resetIndex,
+      result,
+      selectedPolicy,
+      context
+    );
+    if (resetById.has(reset.id)) {
+      addIssue(
+        context,
+        ["reactionDamageGroupResetLog", resetIndex, "id"],
+        `duplicate reaction damage-group reset id ${reset.id}`
+      );
+    }
+    resetById.set(reset.id, reset);
+    resetIndexById.set(reset.id, resetIndex);
+    if (resetTaskSequences.has(reset.taskSequence)) {
+      addIssue(
+        context,
+        [
+          "reactionDamageGroupResetLog",
+          resetIndex,
+          "taskSequence"
+        ],
+        `duplicate reset taskSequence ${reset.taskSequence}`
+      );
+    }
+    if (reset.taskSequence <= previousResetTaskSequence) {
+      addIssue(
+        context,
+        [
+          "reactionDamageGroupResetLog",
+          resetIndex,
+          "taskSequence"
+        ],
+        "reset taskSequence must be strictly increasing by reset log id"
+      );
+    }
+    if (attemptTaskSequences.has(reset.taskSequence)) {
+      addIssue(
+        context,
+        [
+          "reactionDamageGroupResetLog",
+          resetIndex,
+          "taskSequence"
+        ],
+        "a reset task cannot reuse a reaction-damage event sequence"
+      );
+    }
+    resetTaskSequences.add(reset.taskSequence);
+    previousResetTaskSequence = reset.taskSequence;
+  }
+
+  const attemptsByScope = new Map<
+    string,
+    ReactionDamageGroupAttemptV150[]
+  >();
+  for (const attempt of attempts) {
+    const list = attemptsByScope.get(attempt.decision.scopeKey) ?? [];
+    list.push(attempt);
+    attemptsByScope.set(attempt.decision.scopeKey, list);
+  }
+  const resetsByScope = new Map<
+    string,
+    Array<{ reset: ReactionDamageGroupResetV150; index: number }>
+  >();
+  for (const [index, reset] of
+    result.reactionDamageGroupResetLog.entries()) {
+    const list = resetsByScope.get(reset.scopeKey) ?? [];
+    list.push({ reset, index });
+    resetsByScope.set(reset.scopeKey, list);
+  }
+
+  const allScopes = new Set([
+    ...attemptsByScope.keys(),
+    ...resetsByScope.keys()
+  ]);
+  const claimedResetIds = new Set<number>();
+  for (const scopeKey of allScopes) {
+    const scopeAttempts = attemptsByScope.get(scopeKey) ?? [];
+    const scopeResets = resetsByScope.get(scopeKey) ?? [];
+    const operations: Array<
+      | {
+          kind: "attempt";
+          frame: number;
+          taskSequence: number;
+          stableOrder: number;
+          attempt: ReactionDamageGroupAttemptV150;
+        }
+      | {
+          kind: "reset";
+          frame: number;
+          taskSequence: number;
+          stableOrder: number;
+          reset: ReactionDamageGroupResetV150;
+          resetIndex: number;
+        }
+    > = scopeAttempts.map((attempt) => ({
+      kind: "attempt" as const,
+      frame: attempt.decision.frame,
+      taskSequence: attempt.decision.damageGroupTaskSequence,
+      stableOrder: attempt.stableOrder,
+      attempt
+    }));
+    for (const { reset, index } of scopeResets) {
+      if (!reset.withinSimulation) continue;
+      operations.push({
+        kind: "reset",
+        frame: reset.resetAtFrame,
+        taskSequence: reset.taskSequence,
+        stableOrder: attempts.length + index,
+        reset,
+        resetIndex: index
+      });
+    }
+    operations.sort(
+      (left, right) =>
+        compareReactionDamageGroupOperationV150(left, right) ||
+        left.stableOrder - right.stableOrder
+    );
+
+    let previousOperation:
+      | { frame: number; taskSequence: number }
+      | undefined;
+    let window: ReactionDamageGroupWindowReplayV150 | undefined;
+    let lastGeneration = -1;
+    for (const operation of operations) {
+      const operationPath =
+        operation.kind === "attempt"
+          ? operation.attempt.path
+          : [
+              "reactionDamageGroupResetLog",
+              operation.resetIndex
+            ];
+      if (
+        previousOperation !== undefined &&
+        compareReactionDamageGroupOperationV150(
+          operation,
+          previousOperation
+        ) <= 0
+      ) {
+        addIssue(
+          context,
+          [
+            ...operationPath,
+            operation.kind === "attempt"
+              ? "damageGroupTaskSequence"
+              : "taskSequence"
+          ],
+          `damage-group operations for ${scopeKey} must be strictly ordered by frame and taskSequence`
+        );
+      }
+      previousOperation = operation;
+
+      if (operation.kind === "reset") {
+        const { reset, resetIndex } = operation;
+        const path = [
+          "reactionDamageGroupResetLog",
+          resetIndex
+        ] satisfies IssuePath;
+        if (window === undefined) {
+          addIssue(
+            context,
+            [...path, "windowGeneration"],
+            "reset task has no active damage-group window"
+          );
+          continue;
+        }
+        for (const [field, expected] of [
+          ["id", window.resetTaskLogId],
+          ["taskSequence", window.resetTaskSequence],
+          ["reaction", window.reaction],
+          ["windowGeneration", window.generation],
+          ["windowStartFrame", window.windowStartFrame],
+          ["resetAtFrame", window.resetAtFrame]
+        ] as const) {
+          expectEqual(
+            context,
+            [...path, field],
+            reset[field],
+            expected,
+            `executed reset/window ${field}`
+          );
+        }
+        claimedResetIds.add(reset.id);
+        window = undefined;
+        continue;
+      }
+
+      const { decision, path } = operation.attempt;
+      if (window === undefined) {
+        const resetTaskLogId = decision.resetTaskLogId;
+        const resetTaskSequence = decision.resetTaskSequence;
+        if (
+          resetTaskLogId === null ||
+          resetTaskSequence === null
+        ) {
+          addIssue(
+            context,
+            [...path, "resetTaskLogId"],
+            "a v2 window opener must reference its scheduled reset task"
+          );
+          continue;
+        }
+        const reset = resetById.get(resetTaskLogId);
+        const resetIndex = resetIndexById.get(resetTaskLogId);
+        if (reset === undefined || resetIndex === undefined) {
+          addIssue(
+            context,
+            [...path, "resetTaskLogId"],
+            `reset task ${resetTaskLogId} does not exist`
+          );
+          continue;
+        }
+        const expectedGeneration = lastGeneration + 1;
+        const expectedResetAtFrame =
+          expectedReactionDamageGroupResetFrameV150(
+            selectedPolicy.policyId,
+            decision.reaction,
+            decision.frame,
+            context,
+            [...path, "resetAtFrame"]
+          );
+        if (expectedResetAtFrame === undefined) continue;
+        for (const [field, expected] of [
+          ["scopeKey", decision.scopeKey],
+          ["sourceActorId", decision.sourceActorId],
+          ["targetId", decision.targetId],
+          ["reaction", decision.reaction],
+          ["icdTag", decision.icdTag],
+          ["icdGroup", decision.icdGroup],
+          ["windowGeneration", expectedGeneration],
+          ["windowStartFrame", decision.frame],
+          ["resetAtFrame", expectedResetAtFrame],
+          ["taskSequence", resetTaskSequence]
+        ] as const) {
+          expectEqual(
+            context,
+            [
+              "reactionDamageGroupResetLog",
+              resetIndex,
+              field
+            ],
+            reset[field],
+            expected,
+            `scheduled reset/opener ${field}`
+          );
+        }
+        if (
+          resetTaskSequence <=
+          decision.damageGroupTaskSequence
+        ) {
+          addIssue(
+            context,
+            [...path, "resetTaskSequence"],
+            "a v2 reset task must be allocated after its opening attempt"
+          );
+        }
+        window = {
+          generation: expectedGeneration,
+          reaction: decision.reaction,
+          windowStartFrame: decision.frame,
+          resetAtFrame: expectedResetAtFrame,
+          resetTaskLogId,
+          resetTaskSequence,
+          nextHitIndex: 0
+        };
+        lastGeneration = expectedGeneration;
+        claimedResetIds.add(reset.id);
+      }
+      if (window === undefined) continue;
+      for (const [field, expected] of [
+        ["windowGeneration", window.generation],
+        ["windowStartFrame", window.windowStartFrame],
+        ["resetAtFrame", window.resetAtFrame],
+        ["resetTaskLogId", window.resetTaskLogId],
+        ["resetTaskSequence", window.resetTaskSequence],
+        ["hitIndex", window.nextHitIndex]
+      ] as const) {
+        expectEqual(
+          context,
+          [...path, field],
+          decision[field],
+          expected,
+          `v2 damage-group replay ${field}`
+        );
+      }
+      window.nextHitIndex += 1;
+    }
+
+    for (const { reset, index } of scopeResets) {
+      const expectedSameFrameAttempt = scopeAttempts
+        .filter(
+          (attempt) =>
+            attempt.decision.frame === reset.resetAtFrame &&
+            attempt.decision.damageGroupTaskSequence >
+              reset.taskSequence
+        )
+        .sort(
+          (left, right) =>
+            left.decision.damageGroupTaskSequence -
+              right.decision.damageGroupTaskSequence ||
+            left.stableOrder - right.stableOrder
+        )[0];
+      expectEqual(
+        context,
+        [
+          "reactionDamageGroupResetLog",
+          index,
+          "executedBeforeAttemptTaskSequence"
+        ],
+        reset.executedBeforeAttemptTaskSequence,
+        reset.withinSimulation
+          ? (expectedSameFrameAttempt?.decision
+              .damageGroupTaskSequence ?? null)
+          : null,
+        "reset/same-frame next attempt projection"
+      );
+    }
+  }
+
+  for (const [resetIndex, reset] of
+    result.reactionDamageGroupResetLog.entries()) {
+    if (!claimedResetIds.has(reset.id)) {
+      addIssue(
+        context,
+        ["reactionDamageGroupResetLog", resetIndex, "id"],
+        "reset task must be owned by exactly one replayed damage-group window"
+      );
+    }
+  }
+}
+
+function validateReactionDamageGroupV150(
+  result: SimulationResultForV150,
+  selectedPolicy: ReactionDamageGroupReplayPolicyV150,
+  context: RefinementCtx
+): void {
+  const attempts = collectReactionDamageGroupAttemptsV150(
+    result,
+    selectedPolicy,
+    context
+  );
+  if (
+    selectedPolicy.policyId ===
+    GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+  ) {
+    validateReactionDamageGroupV1ReplayV150(
+      result,
+      attempts,
+      selectedPolicy,
+      context
+    );
+  } else {
+    validateReactionDamageGroupV2ReplayV150(
+      result,
+      attempts,
+      selectedPolicy,
+      context
+    );
+  }
 }
 
 
@@ -10148,8 +11204,40 @@ function validateSwirlBacklinks(
     child: DamageEvent;
     logIndex: number;
     decisionIndex: number;
-    decision: SimulationResult["reactionDamageLog"][number]["damageGroupDecisions"][number];
+    decision: ReactionDamageGroupAuditV149;
   }> = [];
+
+  const frozenDecisionView = (
+    decision: SimulationResult["reactionDamageLog"][number]["damageGroupDecisions"][number]
+  ): ReactionDamageGroupAuditV149 => {
+    if (!("icdGroup" in decision)) {
+      return decision as unknown as ReactionDamageGroupAuditV149;
+    }
+    if (decision.icdGroup === "reaction-a") {
+      return {
+        reaction: decision.reaction,
+        sourceActorId: decision.sourceActorId,
+        targetId: decision.targetId,
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        resetFrames: 30,
+        sequence: [true, true, false],
+        damageAllowed: decision.damageAllowed,
+        blockedReason: decision.blockedReason
+      };
+    }
+    return {
+      reaction: decision.reaction,
+      sourceActorId: decision.sourceActorId,
+      targetId: decision.targetId,
+      windowStartFrame: decision.windowStartFrame,
+      hitIndex: decision.hitIndex,
+      resetFrames: 30,
+      sequence: [true, false],
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason
+    };
+  };
 
   for (const [eventIndex, event] of
     result.damageEvents.entries()) {
@@ -10372,8 +11460,12 @@ function validateSwirlBacklinks(
         for (const [decisionIndex, damageEventId] of
           log.damageEventIds.entries()) {
           const child = damageEventById.get(damageEventId);
-          const decision =
+          const currentDecision =
             log.damageGroupDecisions[decisionIndex];
+          const decision =
+            currentDecision === undefined
+              ? undefined
+              : frozenDecisionView(currentDecision);
           if (child === undefined || decision === undefined) {
             continue;
           }
@@ -10568,67 +11660,72 @@ function validateSwirlBacklinks(
     }
   }
 
-  damageGroupAttempts.sort(
-    (left, right) =>
-      left.child.frame - right.child.frame ||
-      left.child.eventPriority - right.child.eventPriority ||
-      left.child.eventSequence - right.child.eventSequence ||
-      left.child.id - right.child.id
-  );
-  const windowByScope = new Map<
-    string,
-    { startFrame: number; attempts: number }
-  >();
-  for (const attempt of damageGroupAttempts) {
-    const scope = `${attempt.child.targetId}\u0000${attempt.child.sourceActorId}\u0000${attempt.child.reaction}`;
-    const previous = windowByScope.get(scope);
-    const startsNewWindow =
-      previous === undefined ||
-      attempt.child.frame - previous.startFrame >= 30;
-    const expectedStartFrame = startsNewWindow
-      ? attempt.child.frame
-      : previous.startFrame;
-    const expectedHitIndex = startsNewWindow
-      ? 0
-      : previous.attempts;
-    const expectedDamageAllowed = expectedHitIndex < 2;
-    const decisionPath = [
-      "reactionDamageLog",
-      attempt.logIndex,
-      "damageGroupDecisions",
-      attempt.decisionIndex
-    ] satisfies IssuePath;
-    for (const [field, expected] of [
-      ["windowStartFrame", expectedStartFrame],
-      ["hitIndex", expectedHitIndex],
-      ["resetFrames", 30],
-      ["damageAllowed", expectedDamageAllowed],
-      [
-        "blockedReason",
-        expectedDamageAllowed
-          ? null
-          : "REACTION_A_DAMAGE_ICD"
-      ]
-    ] as const) {
-      expectEqual(
-        context,
-        [...decisionPath, field],
-        attempt.decision[field],
-        expected,
-        `Swirl ReactionA replay ${field}`
-      );
-    }
-    expectSemanticEqual(
-      context,
-      [...decisionPath, "sequence"],
-      attempt.decision.sequence,
-      [true, true, false],
-      "Swirl ReactionA replay sequence"
+  if (
+    (result.schemaVersion as string) !==
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+  ) {
+    damageGroupAttempts.sort(
+      (left, right) =>
+        left.child.frame - right.child.frame ||
+        left.child.eventPriority - right.child.eventPriority ||
+        left.child.eventSequence - right.child.eventSequence ||
+        left.child.id - right.child.id
     );
-    windowByScope.set(scope, {
-      startFrame: expectedStartFrame,
-      attempts: expectedHitIndex + 1
-    });
+    const windowByScope = new Map<
+      string,
+      { startFrame: number; attempts: number }
+    >();
+    for (const attempt of damageGroupAttempts) {
+      const scope = `${attempt.child.targetId}\u0000${attempt.child.sourceActorId}\u0000${attempt.child.reaction}`;
+      const previous = windowByScope.get(scope);
+      const startsNewWindow =
+        previous === undefined ||
+        attempt.child.frame - previous.startFrame >= 30;
+      const expectedStartFrame = startsNewWindow
+        ? attempt.child.frame
+        : previous.startFrame;
+      const expectedHitIndex = startsNewWindow
+        ? 0
+        : previous.attempts;
+      const expectedDamageAllowed = expectedHitIndex < 2;
+      const decisionPath = [
+        "reactionDamageLog",
+        attempt.logIndex,
+        "damageGroupDecisions",
+        attempt.decisionIndex
+      ] satisfies IssuePath;
+      for (const [field, expected] of [
+        ["windowStartFrame", expectedStartFrame],
+        ["hitIndex", expectedHitIndex],
+        ["resetFrames", 30],
+        ["damageAllowed", expectedDamageAllowed],
+        [
+          "blockedReason",
+          expectedDamageAllowed
+            ? null
+            : "REACTION_A_DAMAGE_ICD"
+        ]
+      ] as const) {
+        expectEqual(
+          context,
+          [...decisionPath, field],
+          attempt.decision[field],
+          expected,
+          `Swirl ReactionA replay ${field}`
+        );
+      }
+      expectSemanticEqual(
+        context,
+        [...decisionPath, "sequence"],
+        attempt.decision.sequence,
+        [true, true, false],
+        "Swirl ReactionA replay sequence"
+      );
+      windowByScope.set(scope, {
+        startFrame: expectedStartFrame,
+        attempts: expectedHitIndex + 1
+      });
+    }
   }
 }
 
@@ -16542,7 +17639,9 @@ function validateBurningStateProjection(
       ((result.schemaVersion as string) ===
         REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
         (result.schemaVersion as string) ===
-          REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION) &&
+          REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
+        (result.schemaVersion as string) ===
+          REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION) &&
       child.elementalApplicationIcdLogId !== null
         ? result.elementalApplicationIcdLog[
             child.elementalApplicationIcdLogId
@@ -18082,6 +19181,55 @@ export function validateSimulationResultV149Integrity(
   // gate and every Burning callback/application reciprocal reference.
   validateTargetPhaseV3Integrity(result, context);
 }
+
+/**
+ * Cross-field proof for exact 1.50 results. The selected ReactionA/B policy
+ * is replayed independently from every enemy/player attempt and, for v2,
+ * from the explicit reset-task stream ordered by `(frame, taskSequence)`.
+ */
+export function validateSimulationResultV150Integrity(
+  result: SimulationResultForV150,
+  context: RefinementCtx
+): void {
+  const {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy
+  } = validateIdentityV150(result, context);
+  validateReactionFormulaProfileV145(result, context);
+  validateDirectDamageGroupV146(result, context);
+  if (reactionOwnedPolicy !== undefined) {
+    validateElementalApplicationIcdReactionOwned(
+      result,
+      context,
+      reactionOwnedPolicy
+    );
+  }
+  if (reactionDamageGroupPolicy !== undefined) {
+    validateReactionDamageGroupV150(
+      result,
+      reactionDamageGroupPolicy,
+      context
+    );
+  }
+  validateDamageAggregates(result, context);
+  validateMechanicsAndBoundaries(result, context);
+  validateEnergy(result, context);
+  validateEnergyReplayIntegrity(result, context);
+  const frozenTargetPhaseIdentityResult = {
+    ...result,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    config: {
+      ...result.config,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    }
+  } as unknown as SimulationResult;
+  validateTargetPhaseV3Integrity(
+    frozenTargetPhaseIdentityResult,
+    context
+  );
+}
 /**
  * Zero-copy assertion for a SimulationResult produced inside sim-core.
  *
@@ -18517,11 +19665,73 @@ export function assertTrustedSimulationResultV149(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.50 task-ordered results. */
+export function assertTrustedSimulationResultV150(
+  result: SimulationResultForV150
+): SimulationResultForV150 {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: {
+      path?: PropertyKey[];
+      message?: string;
+    }): void {
+      issues.push({
+        path:
+          issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV150Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode ===
+      "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12
+        ? `; ${issues.length - 12} additional issue(s)`
+        : "";
+    throw new Error(
+      `Trusted SimulationResult 1.50 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV149Integrity;
+  validateSimulationResultV150Integrity;
 export const assertTrustedSimulationResult =
-  assertTrustedSimulationResultV149;
+  assertTrustedSimulationResultV150;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

@@ -11,11 +11,9 @@ import { describe, expect, it } from "vitest";
 import {
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
-  createSimulationRunManifest,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   migrateConfig,
-  parseSimulationRunManifestForConfig,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
@@ -27,7 +25,10 @@ import {
   simConfigV149Schema,
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
+  type SimConfigV149,
+  type SimConfigV150,
   type SimulationRunManifestV148,
+  type SimulationRunManifestV149,
 } from "./index";
 
 const legacyConfig = {
@@ -57,16 +58,28 @@ const runtimeOptions = {
   randomSeed: "reset-boundary-seed",
 };
 
+function freezeAsV149(config: SimConfigV150): SimConfigV149 {
+  const {
+    reactionDamageGroupModel: _reactionDamageGroupModel,
+    ...payload
+  } = config;
+  return simConfigV149Schema.parse({
+    ...payload,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  });
+}
+
 describe("1.49 reaction-owned reset-boundary identity", () => {
-  it("advances only the current schema, engine, and manifest identities", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
-    expect(CURRENT_ENGINE_VERSION).toBe(
+  it("keeps the 1.49 schema, engine, and manifest identities frozen", () => {
+    expect(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.49.0");
+    expect(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.49.0-reaction-owned-reset-boundary",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe(
+    expect(CURRENT_SCHEMA_VERSION).not.toBe(
       REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
     );
-    expect(CURRENT_ENGINE_VERSION).toBe(
+    expect(CURRENT_ENGINE_VERSION).not.toBe(
       REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
     );
     expect(REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe("1.5.0");
@@ -84,8 +97,9 @@ describe("1.49 reaction-owned reset-boundary identity", () => {
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
     });
 
+    const frozenV149 = freezeAsV149(migratedLegacy);
     const frozenV148 = simConfigV148Schema.parse({
-      ...migratedLegacy,
+      ...frozenV149,
       schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
       engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
     });
@@ -97,7 +111,7 @@ describe("1.49 reaction-owned reset-boundary identity", () => {
     expect(migratedV148.engineVersion).toBe(CURRENT_ENGINE_VERSION);
 
     const explicitV2 = simConfigV149Schema.parse({
-      ...migratedV148,
+      ...frozenV149,
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v2",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT.policyId,
@@ -116,9 +130,9 @@ describe("1.49 reaction-owned reset-boundary identity", () => {
   });
 
   it("binds the 1.49 manifest to the exact selected v1 or v2 root", () => {
-    const migratedV1 = migrateConfig(legacyConfig);
+    const configV1 = freezeAsV149(migrateConfig(legacyConfig));
     const configV2 = simConfigV149Schema.parse({
-      ...migratedV1,
+      ...configV1,
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v2",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT.policyId,
@@ -126,12 +140,14 @@ describe("1.49 reaction-owned reset-boundary identity", () => {
     });
 
     for (const [config, root] of [
-      [migratedV1, GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT],
+      [configV1, GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT],
       [configV2, GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT],
     ] as const) {
-      const manifest = createSimulationRunManifest({
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        engineVersion: CURRENT_ENGINE_VERSION,
+      const identity = {
+        version: REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+        identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM,
+        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+        engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
         dataVersion: config.dataVersion,
         configHash: createSimulationConfigHash(config),
         resolvedRuntimeOptions: runtimeOptions,
@@ -140,40 +156,23 @@ describe("1.49 reaction-owned reset-boundary identity", () => {
         directDamageGroupRoot: GCSIM_DAMAGE_GROUP_ROOT,
         elementalApplicationIcdRoot: GCSIM_ELEMENTAL_APPLICATION_ROOT,
         reactionOwnedElementalApplicationRoot: root,
-      });
+      } satisfies Omit<SimulationRunManifestV149, "reproducibilityKey">;
+      const manifest = {
+        ...identity,
+        reproducibilityKey: createSimulationReproducibilityKey(identity),
+      };
       expect(manifest.version).toBe(
         REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
       );
       expect(simulationRunManifestV149Schema.parse(manifest)).toEqual(manifest);
-      expect(parseSimulationRunManifestForConfig(manifest, config)).toEqual(
-        manifest,
+      expect(manifest.reactionOwnedElementalApplicationRoot.policyId).toBe(
+        config.reactionOwnedElementalApplicationModel.policyId,
       );
-
-      const forgedRoot =
-        root.policyId === GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-          ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
-          : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT;
-      const forgedIdentity = {
-        ...manifest,
-        reactionOwnedElementalApplicationRoot: forgedRoot,
-      };
-      const {
-        reproducibilityKey: _reproducibilityKey,
-        ...identityWithoutKey
-      } = forgedIdentity;
-      const forgedManifest = {
-        ...forgedIdentity,
-        reproducibilityKey:
-          createSimulationReproducibilityKey(identityWithoutKey),
-      };
-      expect(() =>
-        parseSimulationRunManifestForConfig(forgedManifest, config),
-      ).toThrow(/not bound/);
     }
   });
 
   it("keeps the exact 1.48 manifest root frozen to v1", () => {
-    const configV149 = migrateConfig(legacyConfig);
+    const configV149 = freezeAsV149(migrateConfig(legacyConfig));
     const configV148 = simConfigV148Schema.parse({
       ...configV149,
       schemaVersion: REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,

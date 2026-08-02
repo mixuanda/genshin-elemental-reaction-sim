@@ -11,7 +11,7 @@ import {
   parseSimulationRunManifestForConfig,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
-  reactionDamageGroupAuditSchema,
+  reactionDamageGroupDecisionAuditV150Schema,
   reactionDeliveryResultReferencesSchema,
   playerDamageResultReferencesSchema,
   simConfigSchema,
@@ -28,6 +28,9 @@ import {
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import historicalMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.31.golden.json";
 import playerDamageMatrixGolden from "../../../test-vectors/fixtures/reaction-matrix-1.32.golden.json";
@@ -466,6 +469,10 @@ function makeMatrixConfig(
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1"
     },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     playerDamageModel: {
       mode: "reaction-self-v1",
       position: { x: 0, y: 0 },
@@ -758,10 +765,52 @@ function classicReactionDamageLogForSemanticDigest(
     const {
       hitResolutionLogIds: _hitResolutionLogIds,
       elementalApplicationIcdLogIds: _applicationLogIds,
+      damageGroupDecisions,
       ...frozen
     } = entry;
-    return frozen;
+    return {
+      ...frozen,
+      damageGroupDecisions: damageGroupDecisions.map(
+        projectReactionDamageGroupDecisionToFrozenV149
+      )
+    };
   });
+}
+
+function projectReactionDamageGroupDecisionToFrozenV149(
+  decision: SimulationResult["reactionDamageLog"][number]["damageGroupDecisions"][number]
+) {
+  return {
+    reaction: decision.reaction,
+    sourceActorId: decision.sourceActorId,
+    targetId: decision.targetId,
+    windowStartFrame: decision.windowStartFrame,
+    hitIndex: decision.hitIndex,
+    resetFrames: 30 as const,
+    sequence:
+      decision.icdGroup === "reaction-a"
+        ? ([true, true, false] as const)
+        : ([true, false] as const),
+    damageAllowed: decision.damageAllowed,
+    blockedReason: decision.blockedReason
+  };
+}
+
+function projectPlayerDamageEventsToFrozenV149(
+  result: SimulationResult
+) {
+  return result.playerDamageEvents.map((entry) => ({
+    ...entry,
+    damageFactors: {
+      ...entry.damageFactors,
+      damageGroupDecision:
+        entry.damageFactors.damageGroupDecision === null
+          ? null
+          : projectReactionDamageGroupDecisionToFrozenV149(
+              entry.damageFactors.damageGroupDecision
+            )
+    }
+  }));
 }
 
 function compactResult(
@@ -773,6 +822,8 @@ function compactResult(
   if (timeline?.mode !== "legal-frame-v1") {
     throw new Error("Reaction matrix requires a legal timeline.");
   }
+  const frozenPlayerDamageEvents =
+    projectPlayerDamageEventsToFrozenV149(result);
   return {
     config: {
       durationFrames: Math.round(result.config.duration * 60),
@@ -953,7 +1004,7 @@ function compactResult(
           playerDamageEventId: entry.playerDamageEventId
         })
       ),
-      damageEvents: result.playerDamageEvents.map((entry) => ({
+      damageEvents: frozenPlayerDamageEvents.map((entry) => ({
         id: entry.id,
         frame: entry.frame,
         reaction: entry.reaction,
@@ -1013,7 +1064,7 @@ function compactResult(
       damageCurve: sha256(result.damageCurve),
       player: sha256({
         playerHitResolutionLog: result.playerHitResolutionLog,
-        playerDamageEvents: result.playerDamageEvents,
+        playerDamageEvents: frozenPlayerDamageEvents,
         playerHpTimeline: result.playerHpTimeline,
         playerHpSummaries: result.playerHpSummaries,
         playerSelfDamageStatus: result.playerSelfDamageStatus,
@@ -1358,7 +1409,7 @@ function validateResultSchemas(result: SimulationResult): void {
   for (const entry of result.reactionDamageLog) {
     for (const decision of entry.damageGroupDecisions) {
       expect(
-        reactionDamageGroupAuditSchema.parse(decision)
+        reactionDamageGroupDecisionAuditV150Schema.parse(decision)
       ).toEqual(decision);
     }
   }
@@ -2434,9 +2485,9 @@ describe("1.35 provisional reaction-matrix Golden", () => {
 
 describe("current aura-v9 classic reaction release gate", () => {
   it("covers all 16 classic reaction classes and 24 non-none labels without Lunar scope", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.50.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.49.0-reaction-owned-reset-boundary"
+      "1.50.0-reaction-damage-reset-boundary"
     );
     expect(REQUIRED_REACTIONS).toHaveLength(24);
 

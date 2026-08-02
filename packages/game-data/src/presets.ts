@@ -6,6 +6,7 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -40,6 +41,13 @@ function createFixedReactionOwnedElementalApplicationModel() {
   } as const;
 }
 
+function createFixedReactionDamageGroupModel() {
+  return {
+    mode: "fixed-gcsim-reaction-damage-task-order-v2",
+    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
+  } as const;
+}
+
 /**
  * Compatibility fixture data copied from Vanilla v0.1.
  *
@@ -71,6 +79,8 @@ export const durinMeltPreset: SimConfig = {
     createFixedElementalApplicationIcdModel(),
   reactionOwnedElementalApplicationModel:
     createFixedReactionOwnedElementalApplicationModel(),
+  reactionDamageGroupModel:
+    createFixedReactionDamageGroupModel(),
   characters: [
     {
       id: "durin",
@@ -522,6 +532,8 @@ export const blankPreset: SimConfig = {
     createFixedElementalApplicationIcdModel(),
   reactionOwnedElementalApplicationModel:
     createFixedReactionOwnedElementalApplicationModel(),
+  reactionDamageGroupModel:
+    createFixedReactionDamageGroupModel(),
   characters: [
     {
       id: "a",
@@ -625,6 +637,8 @@ export const legalTimelineDemoPreset: SimConfig = {
     createFixedElementalApplicationIcdModel(),
   reactionOwnedElementalApplicationModel:
     createFixedReactionOwnedElementalApplicationModel(),
+  reactionDamageGroupModel:
+    createFixedReactionDamageGroupModel(),
   characters: [
     {
       id: "frame-a",
@@ -809,6 +823,8 @@ export const auraReactionDemoPreset: SimConfig = {
     createFixedElementalApplicationIcdModel(),
   reactionOwnedElementalApplicationModel:
     createFixedReactionOwnedElementalApplicationModel(),
+  reactionDamageGroupModel:
+    createFixedReactionDamageGroupModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -917,6 +933,8 @@ export const particleEnergyDemoPreset: SimConfig = {
     createFixedElementalApplicationIcdModel(),
   reactionOwnedElementalApplicationModel:
     createFixedReactionOwnedElementalApplicationModel(),
+  reactionDamageGroupModel:
+    createFixedReactionDamageGroupModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

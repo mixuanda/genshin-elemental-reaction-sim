@@ -1,4 +1,8 @@
 import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID
+} from "@genshin-dps-lab/icd-profiles";
+import {
   assertTrustedSimulationResult,
   simulationResultSchema,
   targetClockResultReferencesSchema,
@@ -749,6 +753,11 @@ describe("Superconduct simulation integration", () => {
             decision.targetId === "shared-target"
         )
     );
+    const sharedScopeKey = JSON.stringify([
+      "shared-target",
+      "electro",
+      "ICDTagSuperconductDamage"
+    ]);
 
     expect(sharedExplosions).toHaveLength(3);
     expect(
@@ -778,39 +787,100 @@ describe("Superconduct simulation integration", () => {
     expect(sharedExplosions[1]?.finalDamage).toBeGreaterThan(0);
     expect(sharedDecisions).toEqual([
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
         reaction: "superconduct",
+        icdTag: "ICDTagSuperconductDamage",
+        icdGroup: "reaction-a",
         sourceActorId: "electro",
         targetId: "shared-target",
+        scopeKey: sharedScopeKey,
+        frame: 1,
+        damageGroupTaskSequence: 4,
+        windowGeneration: 0,
         windowStartFrame: 1,
+        resetAtFrame: 30,
+        resetTaskLogId: 3,
+        resetTaskSequence: 8,
         hitIndex: 0,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 0,
+        sequenceMultiplier: 1,
         damageAllowed: true,
         blockedReason: null
       },
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
         reaction: "superconduct",
+        icdTag: "ICDTagSuperconductDamage",
+        icdGroup: "reaction-a",
         sourceActorId: "electro",
         targetId: "shared-target",
+        scopeKey: sharedScopeKey,
+        frame: 7,
+        damageGroupTaskSequence: 9,
+        windowGeneration: 0,
         windowStartFrame: 1,
+        resetAtFrame: 30,
+        resetTaskLogId: 3,
+        resetTaskSequence: 8,
         hitIndex: 1,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 1,
+        sequenceMultiplier: 1,
         damageAllowed: true,
         blockedReason: null
       },
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
         reaction: "superconduct",
+        icdTag: "ICDTagSuperconductDamage",
+        icdGroup: "reaction-a",
         sourceActorId: "electro",
         targetId: "shared-target",
+        scopeKey: sharedScopeKey,
+        frame: 13,
+        damageGroupTaskSequence: 10,
+        windowGeneration: 0,
         windowStartFrame: 1,
+        resetAtFrame: 30,
+        resetTaskLogId: 3,
+        resetTaskSequence: 8,
         hitIndex: 2,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 2,
+        sequenceMultiplier: 0,
         damageAllowed: false,
         blockedReason: "REACTION_A_DAMAGE_ICD"
       }
     ]);
+    expect(result.reactionDamageGroupResetLog[3]).toEqual({
+      id: 3,
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+      sourceActorId: "electro",
+      targetId: "shared-target",
+      scopeKey: sharedScopeKey,
+      reaction: "superconduct",
+      icdTag: "ICDTagSuperconductDamage",
+      icdGroup: "reaction-a",
+      windowGeneration: 0,
+      windowStartFrame: 1,
+      resetAtFrame: 30,
+      taskSequence: 8,
+      withinSimulation: true,
+      executed: true,
+      executedBeforeAttemptTaskSequence: null,
+      executionFrame: 30,
+      stale: false,
+      invalidatedReason: null
+    });
+    for (const decision of sharedDecisions) {
+      expect(decision.resetTaskLogId).toBe(
+        result.reactionDamageGroupResetLog[3]?.id
+      );
+      expect(decision.resetTaskSequence).toBe(
+        result.reactionDamageGroupResetLog[3]?.taskSequence
+      );
+    }
     const blockedLog = result.reactionDamageLog.find(
       (entry) => entry.damageFrame === 13
     );

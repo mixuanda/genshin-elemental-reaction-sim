@@ -7,7 +7,8 @@ import {
   type SimulationRunManifestV145,
   type SimulationRunManifestV146,
   type SimulationRunManifestV147,
-  type SimulationRunManifestV148
+  type SimulationRunManifestV148,
+  type SimulationRunManifestV149
 } from "./types";
 
 type CurrentSimulationRunIdentity = Omit<
@@ -20,7 +21,8 @@ type FrozenSimulationRunIdentity =
   | Omit<SimulationRunManifestV145, "reproducibilityKey">
   | Omit<SimulationRunManifestV146, "reproducibilityKey">
   | Omit<SimulationRunManifestV147, "reproducibilityKey">
-  | Omit<SimulationRunManifestV148, "reproducibilityKey">;
+  | Omit<SimulationRunManifestV148, "reproducibilityKey">
+  | Omit<SimulationRunManifestV149, "reproducibilityKey">;
 type VersionedSimulationRunIdentity =
   | FrozenSimulationRunIdentity
   | CurrentSimulationRunIdentity;
@@ -127,8 +129,8 @@ export function createSimulationConfigHash(
 export function createSimulationReproducibilityKey(
   identity: VersionedSimulationRunIdentity
 ): string {
-  // The current identity includes all four mechanics roots and the exact
-  // selected v1/v2 policy. Frozen identities remain accepted verbatim.
+  // The current identity includes all five mechanics roots and each exact
+  // policy selection. Frozen identities remain accepted verbatim.
   return `gdl-v2-fnv1a32-${fnv1a32Hex(
     canonicalStringify(identity)
   )}`;

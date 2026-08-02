@@ -5,6 +5,7 @@ import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -85,6 +86,7 @@ const makeV146Config = () => {
       _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...unchanged
   } = current;
   return simConfigV146Schema.parse({
@@ -408,6 +410,7 @@ describe("1.46 direct-damage-group config wire", () => {
         _newElementalApplicationIcdModel,
       reactionOwnedElementalApplicationModel:
         _newReactionOwnedElementalApplicationModel,
+      reactionDamageGroupModel: _newReactionDamageGroupModel,
       ...newSemantics
     } = migrated;
     expect(newSemantics).toEqual(oldSemantics);
@@ -444,7 +447,9 @@ describe("1.46 run-manifest exact roots", () => {
       elementalApplicationIcdRoot:
         GCSIM_ELEMENTAL_APPLICATION_ROOT,
       reactionOwnedElementalApplicationRoot:
-        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT
+        GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+      reactionDamageGroupRoot:
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT
     });
   };
 

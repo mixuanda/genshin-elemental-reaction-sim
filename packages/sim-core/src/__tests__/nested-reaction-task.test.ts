@@ -146,6 +146,46 @@ describe("aura-v7 nested reaction-damage task provenance", () => {
     );
     const origin = requireReactionDamageOrigin(result);
     const [task] = result.reactionTaskLog;
+    const sourcePropagation = result.damageEvents.find(
+      (event) =>
+        event.kind === "transformative-reaction" &&
+        event.reaction === "swirlElectro" &&
+        event.targetId === "enemy-0" &&
+        event.frame === 1
+    );
+    const sourceReactionDamage = result.reactionDamageLog.find(
+      (entry) =>
+        sourcePropagation !== undefined &&
+        entry.damageEventIds.includes(sourcePropagation.id)
+    );
+    const originReactionDamage = result.reactionDamageLog.find(
+      (entry) => entry.damageEventIds.includes(origin.id)
+    );
+    const sourceDamageGroupDecision =
+      sourceReactionDamage?.damageGroupDecisions[0];
+    const originDamageGroupDecision =
+      originReactionDamage?.damageGroupDecisions[0];
+    const sourceReset = result.reactionDamageGroupResetLog.find(
+      (entry) =>
+        entry.id ===
+        sourceDamageGroupDecision?.resetTaskLogId
+    );
+    const originReset = result.reactionDamageGroupResetLog.find(
+      (entry) =>
+        entry.id === originDamageGroupDecision?.resetTaskLogId
+    );
+
+    if (
+      sourcePropagation === undefined ||
+      sourceDamageGroupDecision === undefined ||
+      originDamageGroupDecision === undefined ||
+      sourceReset === undefined ||
+      originReset === undefined
+    ) {
+      throw new Error(
+        "Expected both Electro Swirl damage-group decisions and their V2 reset tasks."
+      );
+    }
 
     expect(direct).toMatchObject({
       frame: 0,
@@ -194,9 +234,86 @@ describe("aura-v7 nested reaction-damage task provenance", () => {
       dendroCoreLogIds: [0],
       dendroCoreIds: [0]
     });
-    expect(task!.eventSequence).toBe(
-      origin.eventSequence + 1
+    expect(result.config.reactionDamageGroupModel.mode).toBe(
+      "fixed-gcsim-reaction-damage-task-order-v2"
     );
+    expect(sourceDamageGroupDecision).toMatchObject({
+      reaction: "swirlElectro",
+      targetId: sourcePropagation.targetId,
+      frame: sourcePropagation.frame,
+      damageGroupTaskSequence:
+        sourcePropagation.eventSequence,
+      resetTaskLogId: sourceReset.id,
+      resetTaskSequence: sourceReset.taskSequence
+    });
+    expect(originDamageGroupDecision).toMatchObject({
+      reaction: "swirlElectro",
+      targetId: origin.targetId,
+      frame: origin.frame,
+      damageGroupTaskSequence: origin.eventSequence,
+      resetTaskLogId: originReset.id,
+      resetTaskSequence: originReset.taskSequence
+    });
+    expect(sourceReset).toMatchObject({
+      scopeKey: sourceDamageGroupDecision.scopeKey,
+      windowGeneration:
+        sourceDamageGroupDecision.windowGeneration,
+      windowStartFrame:
+        sourceDamageGroupDecision.windowStartFrame,
+      resetAtFrame: sourceDamageGroupDecision.resetAtFrame
+    });
+    expect(originReset).toMatchObject({
+      scopeKey: originDamageGroupDecision.scopeKey,
+      windowGeneration:
+        originDamageGroupDecision.windowGeneration,
+      windowStartFrame:
+        originDamageGroupDecision.windowStartFrame,
+      resetAtFrame: originDamageGroupDecision.resetAtFrame
+    });
+
+    // V2 reset tasks use the same global insertion ordinal as event-heap
+    // tasks. Both Swirl damage events were prequeued before either reset was
+    // allocated, so validate the semantic ordering instead of assuming the
+    // follow-up's sequence is numerically adjacent to its origin event.
+    const globalInsertionOrder = [
+      {
+        label: "source-propagation",
+        sequence: sourcePropagation.eventSequence
+      },
+      {
+        label: "nested-origin",
+        sequence: origin.eventSequence
+      },
+      {
+        label: "source-reset",
+        sequence: sourceReset.taskSequence
+      },
+      {
+        label: "origin-reset",
+        sequence: originReset.taskSequence
+      },
+      {
+        label: "quicken-bloom-followup",
+        sequence: task!.eventSequence
+      }
+    ].sort((left, right) => left.sequence - right.sequence);
+    expect(
+      globalInsertionOrder.every(
+        (entry, index) =>
+          index === 0 ||
+          globalInsertionOrder[index - 1]!.sequence <
+            entry.sequence
+      )
+    ).toBe(true);
+    expect(
+      globalInsertionOrder.map((entry) => entry.label)
+    ).toEqual([
+      "source-propagation",
+      "nested-origin",
+      "source-reset",
+      "origin-reset",
+      "quicken-bloom-followup"
+    ]);
 
     const originAuraAfter =
       origin.reactionAudit.auraAfter ?? [];

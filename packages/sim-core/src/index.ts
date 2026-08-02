@@ -12,6 +12,7 @@ export * from "./player-damage";
 export * from "./plugins";
 export * from "./reaction-a";
 export * from "./reaction-b";
+export * from "./reaction-damage-group";
 export * from "./simulator";
 export * from "./target-clock";
 export * from "./target-state-timeline";

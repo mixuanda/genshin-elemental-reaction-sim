@@ -5,16 +5,16 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
-  CURRENT_ENGINE_VERSION,
-  CURRENT_SCHEMA_VERSION,
-  SIMULATION_RUN_MANIFEST_VERSION,
-  assertTrustedSimulationResult,
+  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   assertTrustedSimulationResultV147,
   assertTrustedSimulationResultV148,
+  assertTrustedSimulationResultV149,
   simConfigV148Schema,
-  simulationResultSchema,
   simulationResultV147Schema,
   simulationResultV148Schema,
+  simulationResultV149Schema,
   simulationRunManifestV148Schema,
   type SimulationResultForV148,
   type SimulationResultForV147,
@@ -25,6 +25,7 @@ import frozenV148 from "../fixtures/legacy-default-120s-1.48.golden.json";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
+import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import {
   byteSha256,
   canonicalSha256,
@@ -61,12 +62,14 @@ const FROZEN_V147_APPLICATION_URL = new URL(
 );
 
 function runDefault() {
-  return simulate(durinMeltPreset, {
-    energyMode: "configured",
-    critMode: "average",
-    compatibilityMode: "legacy-v0.1",
-    randomSeed: "legacy-default",
-  });
+  return projectSimulationResultV150ToV149(
+    simulate(durinMeltPreset, {
+      energyMode: "configured",
+      critMode: "average",
+      compatibilityMode: "legacy-v0.1",
+      randomSeed: "legacy-default",
+    }),
+  );
 }
 
 function compactBaseline(
@@ -242,13 +245,17 @@ describe("default 1.49 reset-boundary Golden", () => {
     () => {
       const result = runDefault();
       expect(runDefault()).toEqual(result);
-      expect(simulationResultSchema.parse(result)).toEqual(result);
-      expect(assertTrustedSimulationResult(result)).toBe(result);
-      expect(CURRENT_SCHEMA_VERSION).toBe("1.49.0");
-      expect(CURRENT_ENGINE_VERSION).toBe(
+      expect(simulationResultV149Schema.parse(result)).toEqual(result);
+      expect(assertTrustedSimulationResultV149(result as never)).toBe(
+        result,
+      );
+      expect(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.49.0");
+      expect(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION).toBe(
         "1.49.0-reaction-owned-reset-boundary",
       );
-      expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.5.0");
+      expect(REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
+        "1.5.0",
+      );
       expect(result.runManifest.version).toBe("1.5.0");
       expect(
         result.config.reactionOwnedElementalApplicationModel.mode,

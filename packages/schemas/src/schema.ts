@@ -14,6 +14,12 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
+  resolveDamageGroup,
+  resolveReactionDamageGroupBindingForPolicy,
   type GcsimDamageGroupId,
   type GcsimSwirlPropagationElement,
   type PublicGcsimElementalApplicationGroupId
@@ -81,6 +87,9 @@ import {
   REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION,
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
   SHATTER_RECURSIVE_DELIVERY_ENGINE_VERSION,
   SHATTER_RECURSIVE_DELIVERY_SCHEMA_VERSION,
   SHATTER_REACTION_SCHEMA_VERSION,
@@ -105,6 +114,7 @@ import {
   type SimConfigV147,
   type SimConfigV148,
   type SimConfigV149,
+  type SimConfigV150,
   type SimulationRunManifest
 } from "./types";
 import {
@@ -564,6 +574,8 @@ const rejectInheritedVersionedResultIdentity = (
     "reactionFormulaModel",
     "directDamageGroupModel",
     "elementalApplicationIcdModel",
+    "reactionOwnedElementalApplicationModel",
+    "reactionDamageGroupModel",
     "targetClockModel",
     "targetTaskModel",
     "reactionDeliveryModel",
@@ -593,6 +605,16 @@ const rejectInheritedVersionedResultIdentity = (
           model as Record<string, unknown>,
           "profileId",
           ["config", modelField, "profileId"]
+        );
+      }
+      if (
+        modelField === "reactionOwnedElementalApplicationModel" ||
+        modelField === "reactionDamageGroupModel"
+      ) {
+        requireOwnWhenPresent(
+          model as Record<string, unknown>,
+          "policyId",
+          ["config", modelField, "policyId"]
         );
       }
     }
@@ -674,6 +696,30 @@ export const reactionOwnedElementalApplicationModelSchema =
   z.discriminatedUnion("mode", [
     reactionOwnedElementalApplicationModelV1Schema,
     reactionOwnedElementalApplicationModelV2Schema
+  ]);
+
+export const reactionDamageGroupModelV1Schema = z
+  .object({
+    mode: z.literal("legacy-reaction-damage-group-window-v1"),
+    policyId: z.literal(
+      GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    )
+  })
+  .strict();
+
+export const reactionDamageGroupModelV2Schema = z
+  .object({
+    mode: z.literal(
+      "fixed-gcsim-reaction-damage-task-order-v2"
+    ),
+    policyId: z.literal(GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID)
+  })
+  .strict();
+
+export const reactionDamageGroupModelSchema =
+  z.discriminatedUnion("mode", [
+    reactionDamageGroupModelV1Schema,
+    reactionDamageGroupModelV2Schema
   ]);
 
 const swirlPropagationElementSchema = z.enum([
@@ -997,6 +1043,60 @@ export const reactionOwnedElementalApplicationRootV2Schema =
 export const reactionOwnedElementalApplicationRootSchema = z.union([
   reactionOwnedElementalApplicationRootV148Schema,
   reactionOwnedElementalApplicationRootV2Schema
+]);
+
+const gcsimReactionDamageGroupV1RootCanonical =
+  canonicalStringify(
+    GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT
+  );
+const gcsimReactionDamageGroupV2RootCanonical =
+  canonicalStringify(
+    GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT
+  );
+
+export const reactionDamageGroupRootV1Schema = z.preprocess(
+  rejectNonPlainJsonWire("reactionDamageGroupRoot"),
+  z.custom<typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimReactionDamageGroupV1RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled legacy reaction damage-group root"
+    }
+  )
+);
+
+export const reactionDamageGroupRootV2Schema = z.preprocess(
+  rejectNonPlainJsonWire("reactionDamageGroupRoot"),
+  z.custom<typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimReactionDamageGroupV2RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled reaction damage-group reset-task root"
+    }
+  )
+);
+
+export const reactionDamageGroupRootSchema = z.union([
+  reactionDamageGroupRootV1Schema,
+  reactionDamageGroupRootV2Schema
 ]);
 
 const simulationRunManifestV142ValueSchema = z
@@ -1574,12 +1674,104 @@ export const simulationRunManifestV149Schema = z.preprocess(
   simulationRunManifestV149ValueSchema
 );
 
+const simulationRunManifestV150ValueSchema = z
+  .object({
+    version: z.literal(
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION
+    ),
+    identityAlgorithm: z.literal(
+      REPRODUCIBILITY_IDENTITY_ALGORITHM
+    ),
+    schemaVersion: z.literal(
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+    ),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions:
+      resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot:
+      elementalApplicationIcdRootSchema,
+    reactionOwnedElementalApplicationRoot:
+      reactionOwnedElementalApplicationRootSchema,
+    reactionDamageGroupRoot: reactionDamageGroupRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const {
+      reproducibilityKey: _reproducibilityKey,
+      ...identity
+    } = manifest;
+    const expectedKey =
+      createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message:
+          "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV150Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot",
+        "reactionOwnedElementalApplicationRoot",
+        "reactionDamageGroupRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV150ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV149Schema;
+  simulationRunManifestV150Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -1605,11 +1797,16 @@ export function parseSimulationRunManifestForConfig(
     reactionOwnedElementalApplicationModelSchema.safeParse(
       config.reactionOwnedElementalApplicationModel
     );
+  const reactionDamageGroupModel =
+    reactionDamageGroupModelSchema.safeParse(
+      config.reactionDamageGroupModel
+    );
   if (
     !formulaModel.success ||
     !damageGroupModel.success ||
     !elementalApplicationIcdModel.success ||
     !reactionOwnedApplicationModel.success ||
+    !reactionDamageGroupModel.success ||
     manifest.schemaVersion !== config.schemaVersion ||
     manifest.engineVersion !== config.engineVersion ||
     manifest.dataVersion !== config.dataVersion ||
@@ -1621,7 +1818,9 @@ export function parseSimulationRunManifestForConfig(
     manifest.elementalApplicationIcdRoot.profileId !==
       elementalApplicationIcdModel.data.profileId ||
     manifest.reactionOwnedElementalApplicationRoot.policyId !==
-      reactionOwnedApplicationModel.data.policyId
+      reactionOwnedApplicationModel.data.policyId ||
+    manifest.reactionDamageGroupRoot.policyId !==
+      reactionDamageGroupModel.data.policyId
   ) {
     throw new Error(
       "Simulation run manifest is not bound to the supplied migrated config."
@@ -2832,6 +3031,7 @@ export const simulationEventTypeSchema = z.enum([
   "quickenBloomFollowup",
   "electroChargedCleanup",
   "reactionDamage",
+  "reactionDamageGroupReset",
   "periodicReactionTick",
   "periodicReactionWane",
   "periodicReactionExpiry",
@@ -7837,6 +8037,280 @@ export const reactionDamageGroupAuditSchema = z.union([
   reactionBDamageGroupAuditSchema
 ]);
 
+const reactionDamageGroupSafeOrdinalV150ReferenceSchema = z
+  .number()
+  .int()
+  .finite()
+  .nonnegative()
+  .refine(Number.isSafeInteger, {
+    message: "must be a safe integer"
+  });
+
+const reactionDamageGroupIcdTagV150ReferenceSchema = z.enum([
+  "ICDTagSwirlPyro",
+  "ICDTagSwirlHydro",
+  "ICDTagSwirlCryo",
+  "ICDTagSwirlElectro",
+  "ICDTagShatter",
+  "ICDTagSuperconductDamage",
+  "ICDTagBloomDamage",
+  "ICDTagBurgeonDamage",
+  "ICDTagHyperbloomDamage",
+  "ICDTagOverloadDamage",
+  "ICDTagECDamage"
+]);
+
+const reactionDamageGroupDecisionCommonV150ReferenceShape = {
+  profileId: z.literal(GCSIM_DAMAGE_GROUP_PROFILE_ID),
+  icdTag: reactionDamageGroupIcdTagV150ReferenceSchema,
+  sourceActorId: wireNonEmptyStringSchema,
+  targetId: wireNonEmptyStringSchema,
+  scopeKey: wireNonEmptyStringSchema,
+  frame: reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  damageGroupTaskSequence:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  windowGeneration:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  windowStartFrame:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  resetAtFrame:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  hitIndex: reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  sequenceIndex:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  sequenceMultiplier: z.union([z.literal(0), z.literal(1)]),
+  damageAllowed: z.boolean()
+} as const;
+
+const reactionDamageGroupPolicyV1DecisionV150ReferenceShape = {
+  policyId: z.literal(GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID),
+  resetTaskLogId: z.null(),
+  resetTaskSequence: z.null()
+} as const;
+
+const reactionDamageGroupPolicyV2DecisionV150ReferenceShape = {
+  policyId: z.literal(GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID),
+  resetTaskLogId:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema,
+  resetTaskSequence:
+    reactionDamageGroupSafeOrdinalV150ReferenceSchema
+} as const;
+
+const reactionADamageGroupDecisionV150ReferenceShape = {
+  reaction: z.enum([
+    "swirlPyro",
+    "swirlHydro",
+    "swirlCryo",
+    "swirlElectro",
+    "shatter",
+    "superconduct",
+    "bloom",
+    "burgeon",
+    "hyperbloom"
+  ]),
+  icdGroup: z.literal("reaction-a"),
+  blockedReason: z.literal("REACTION_A_DAMAGE_ICD").nullable()
+} as const;
+
+const reactionBDamageGroupDecisionV150ReferenceShape = {
+  reaction: z.enum(["overload", "electroCharged"]),
+  icdGroup: z.literal("reaction-b"),
+  blockedReason: z.literal("REACTION_B_DAMAGE_ICD").nullable()
+} as const;
+
+const reactionDamageGroupDecisionV150ReferenceVariants = [
+  z
+    .object({
+      ...reactionDamageGroupDecisionCommonV150ReferenceShape,
+      ...reactionDamageGroupPolicyV1DecisionV150ReferenceShape,
+      ...reactionADamageGroupDecisionV150ReferenceShape
+    })
+    .strict(),
+  z
+    .object({
+      ...reactionDamageGroupDecisionCommonV150ReferenceShape,
+      ...reactionDamageGroupPolicyV1DecisionV150ReferenceShape,
+      ...reactionBDamageGroupDecisionV150ReferenceShape
+    })
+    .strict(),
+  z
+    .object({
+      ...reactionDamageGroupDecisionCommonV150ReferenceShape,
+      ...reactionDamageGroupPolicyV2DecisionV150ReferenceShape,
+      ...reactionADamageGroupDecisionV150ReferenceShape
+    })
+    .strict(),
+  z
+    .object({
+      ...reactionDamageGroupDecisionCommonV150ReferenceShape,
+      ...reactionDamageGroupPolicyV2DecisionV150ReferenceShape,
+      ...reactionBDamageGroupDecisionV150ReferenceShape
+    })
+    .strict()
+] as const;
+
+const reactionDamageGroupDecisionV150ReferenceFields = [
+  "policyId",
+  "profileId",
+  "icdTag",
+  "icdGroup",
+  "reaction",
+  "sourceActorId",
+  "targetId",
+  "scopeKey",
+  "frame",
+  "damageGroupTaskSequence",
+  "windowGeneration",
+  "windowStartFrame",
+  "resetAtFrame",
+  "resetTaskLogId",
+  "resetTaskSequence",
+  "hitIndex",
+  "sequenceIndex",
+  "sequenceMultiplier",
+  "damageAllowed",
+  "blockedReason"
+] as const;
+
+type ReactionDamageGroupDecisionV150Reference = z.infer<
+  (typeof reactionDamageGroupDecisionV150ReferenceVariants)[number]
+>;
+
+const refineReactionDamageGroupDecisionV150Reference = (
+  decision: ReactionDamageGroupDecisionV150Reference,
+  context: z.RefinementCtx
+): void => {
+  const issue = (path: string, message: string): void => {
+    context.addIssue({ code: "custom", path: [path], message });
+  };
+  const binding = resolveReactionDamageGroupBindingForPolicy(
+    decision.policyId,
+    decision.reaction
+  );
+  const group = resolveDamageGroup(binding.groupId);
+  const expectedScopeKey = JSON.stringify([
+    decision.targetId,
+    decision.sourceActorId,
+    binding.icdTag
+  ]);
+  const expectedResetAtFrame =
+    decision.windowStartFrame +
+    (decision.policyId ===
+    GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+      ? group.resetFrames
+      : group.resetFrames - 1);
+  const expectedSequenceIndex = Math.min(
+    decision.hitIndex,
+    group.damageSequence.length - 1
+  );
+  const expectedSequenceMultiplier =
+    group.damageSequence[expectedSequenceIndex];
+  if (decision.icdTag !== binding.icdTag) {
+    issue("icdTag", "must equal the compiled reaction binding ICD tag");
+  }
+  if (decision.icdGroup !== binding.groupId) {
+    issue("icdGroup", "must equal the compiled reaction binding group");
+  }
+  if (decision.scopeKey !== expectedScopeKey) {
+    issue("scopeKey", "must equal [targetId, sourceActorId, icdTag]");
+  }
+  if (decision.frame < decision.windowStartFrame) {
+    issue("frame", "cannot precede windowStartFrame");
+  }
+  if (decision.resetAtFrame !== expectedResetAtFrame) {
+    issue(
+      "resetAtFrame",
+      `must equal windowStartFrame plus ${group.resetFrames}${
+        decision.policyId ===
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+          ? ""
+          : " minus one"
+      }`
+    );
+  }
+  if (decision.sequenceIndex !== expectedSequenceIndex) {
+    issue("sequenceIndex", "must apply the compiled clamp-last policy");
+  }
+  if (decision.sequenceMultiplier !== expectedSequenceMultiplier) {
+    issue(
+      "sequenceMultiplier",
+      "must equal the compiled damage-group sequence multiplier"
+    );
+  }
+  const expectedAllowed = expectedSequenceMultiplier === 1;
+  const expectedBlockedReason = expectedAllowed
+    ? null
+    : decision.icdGroup === "reaction-a"
+      ? "REACTION_A_DAMAGE_ICD"
+      : "REACTION_B_DAMAGE_ICD";
+  if (
+    decision.damageAllowed !== expectedAllowed ||
+    decision.blockedReason !== expectedBlockedReason
+  ) {
+    issue(
+      "damageAllowed",
+      "must match sequenceMultiplier and the group-specific blocked reason"
+    );
+  }
+  if (
+    decision.policyId === GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID &&
+    decision.hitIndex === 0 &&
+    decision.resetTaskSequence <= decision.damageGroupTaskSequence
+  ) {
+    issue(
+      "resetTaskSequence",
+      "a v2 reset task must be allocated after its opening attempt"
+    );
+  }
+};
+
+const reactionADamageGroupDecisionV150ReferenceValueSchema = z
+  .union([
+    reactionDamageGroupDecisionV150ReferenceVariants[0],
+    reactionDamageGroupDecisionV150ReferenceVariants[2]
+  ])
+  .superRefine(
+    refineReactionDamageGroupDecisionV150Reference
+  );
+
+const reactionADamageGroupDecisionV150ReferenceSchema =
+  z.preprocess(
+    rejectInheritedWireFields(
+      reactionDamageGroupDecisionV150ReferenceFields,
+      "reactionADamageGroupDecisionV150"
+    ),
+    reactionADamageGroupDecisionV150ReferenceValueSchema
+  );
+
+const reactionDamageGroupDecisionV150ReferenceValueSchema = z
+  .union([
+    reactionDamageGroupDecisionV150ReferenceVariants[0],
+    reactionDamageGroupDecisionV150ReferenceVariants[1],
+    reactionDamageGroupDecisionV150ReferenceVariants[2],
+    reactionDamageGroupDecisionV150ReferenceVariants[3]
+  ])
+  .superRefine(
+    refineReactionDamageGroupDecisionV150Reference
+  );
+
+const reactionDamageGroupDecisionV150ReferenceSchema = z.preprocess(
+  rejectInheritedWireFields(
+    reactionDamageGroupDecisionV150ReferenceFields,
+    "reactionDamageGroupDecisionV150"
+  ),
+  reactionDamageGroupDecisionV150ReferenceValueSchema
+);
+
+const versionedReactionDamageGroupAuditReferenceSchema = z.union([
+  reactionDamageGroupAuditSchema,
+  reactionDamageGroupDecisionV150ReferenceSchema
+]);
+
+const versionedReactionADamageGroupAuditReferenceSchema = z.union([
+  reactionADamageGroupAuditSchema,
+  reactionADamageGroupDecisionV150ReferenceSchema
+]);
+
 const electroChargedAuraEpsilon = 1e-10;
 const electroChargedWitnessTolerance = 1e-9;
 const electroChargedPropagationPointSchema = z.preprocess(
@@ -9430,7 +9904,7 @@ const dendroCoreReactionDamageReferenceSchema = z
       z.number().int().nonnegative()
     ),
     damageGroupDecisions: z.array(
-      reactionDamageGroupAuditSchema
+      versionedReactionDamageGroupAuditReferenceSchema
     )
   })
   .passthrough();
@@ -9686,6 +10160,23 @@ const hasExactReactionOwnedResetBoundaryIdentity = (result: {
   result.config.engineVersion ===
     REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
 
+const hasExactReactionDamageGroupResetBoundaryIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion ===
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+  result.engineVersion ===
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION &&
+  result.config?.schemaVersion ===
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+  result.config.engineVersion ===
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
     typeof hasExactBurningCallbackDeliveryIdentity
@@ -9696,7 +10187,8 @@ const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   hasExactDirectDamageGroupRootIdentity(result) ||
   hasExactElementalApplicationIcdRootIdentity(result) ||
   hasExactReactionOwnedApplicationRootIdentity(result) ||
-  hasExactReactionOwnedResetBoundaryIdentity(result);
+  hasExactReactionOwnedResetBoundaryIdentity(result) ||
+  hasExactReactionDamageGroupResetBoundaryIdentity(result);
 
 const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   Record<
@@ -9775,6 +10267,11 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]: {
     engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
     maxAuraRevision: 9
+  },
+  [REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION]: {
+    engineVersion:
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+    maxAuraRevision: 9
   }
 };
 
@@ -9848,6 +10345,35 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         "Dendro-core result and config require an exact supported schema and engine identity"
       );
     }
+    const exactReactionDamageGroupV150Identity =
+      hasExactReactionDamageGroupResetBoundaryIdentity(result);
+    const requiredDamageGroupDecisionSchema =
+      exactReactionDamageGroupV150Identity
+        ? reactionDamageGroupDecisionV150ReferenceSchema
+        : reactionDamageGroupAuditSchema;
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      entry.damageGroupDecisions.forEach(
+        (decision, decisionIndex) => {
+          if (
+            !requiredDamageGroupDecisionSchema.safeParse(decision)
+              .success
+          ) {
+            addMissingReferenceIssue(
+              context,
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageGroupDecisions",
+                decisionIndex
+              ],
+              exactReactionDamageGroupV150Identity
+                ? "exact 1.50 Dendro-core output requires the strict policy-bound V150 damage-group decision wire"
+                : "frozen pre-1.50 Dendro-core output requires the strict V149 damage-group audit wire"
+            );
+          }
+        }
+      );
+    });
     const auraMode = result.config.reactionEngine?.mode;
     const exactEcCleanupIdentity =
       (result.schemaVersion ===
@@ -11294,27 +11820,33 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
 
         entry.damageGroupDecisions.forEach(
           (decision, decisionIndex) => {
-            coreReactionAAttempts.push({
-              reaction: decision.reaction,
-              sourceActorId: decision.sourceActorId,
-              targetId: decision.targetId,
-              frame: entry.damageFrame,
-              damageEventId:
-                entry.damageEventIds[decisionIndex] ??
-                Number.MAX_SAFE_INTEGER,
-              windowStartFrame: decision.windowStartFrame,
-              hitIndex: decision.hitIndex,
-              logIndex: index,
-              decisionIndex
-            });
+            const isV150Decision = "policyId" in decision;
+            if (!isV150Decision) {
+              coreReactionAAttempts.push({
+                reaction: decision.reaction,
+                sourceActorId: decision.sourceActorId,
+                targetId: decision.targetId,
+                frame: entry.damageFrame,
+                damageEventId:
+                  entry.damageEventIds[decisionIndex] ??
+                  Number.MAX_SAFE_INTEGER,
+                windowStartFrame: decision.windowStartFrame,
+                hitIndex: decision.hitIndex,
+                logIndex: index,
+                decisionIndex
+              });
+            }
             if (
               decision.reaction !== entry.reaction ||
               decision.sourceActorId !== entry.sourceActorId ||
               decision.targetId !==
                 entry.hitTargetIds[decisionIndex] ||
-              decision.windowStartFrame > entry.damageFrame ||
-              entry.damageFrame >=
-                decision.windowStartFrame + decision.resetFrames
+              (isV150Decision
+                ? decision.frame !== entry.damageFrame
+                : decision.windowStartFrame > entry.damageFrame ||
+                  entry.damageFrame >=
+                    decision.windowStartFrame +
+                      decision.resetFrames)
             ) {
               addMissingReferenceIssue(
                 context,
@@ -11324,7 +11856,9 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
                   "damageGroupDecisions",
                   decisionIndex
                 ],
-                "ReactionA decision does not match the core reaction, source, target, or 30-frame damage window"
+                isV150Decision
+                  ? "V150 ReactionA decision does not match the core reaction, source, target, or damage frame"
+                  : "ReactionA decision does not match the core reaction, source, target, or 30-frame damage window"
               );
             }
           }
@@ -11356,53 +11890,58 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       }
     });
 
-    const reactionAWindowByScope = new Map<
-      string,
-      { windowStartFrame: number; attemptCount: number }
-    >();
-    coreReactionAAttempts
-      .sort(
-        (left, right) =>
-          left.frame - right.frame ||
-          left.damageEventId - right.damageEventId
-      )
-      .forEach((attempt) => {
-        const scopeKey = JSON.stringify([
-          attempt.targetId,
-          attempt.sourceActorId,
-          attempt.reaction
-        ]);
-        const previous = reactionAWindowByScope.get(scopeKey);
-        const startsNewWindow =
-          previous === undefined ||
-          attempt.frame - previous.windowStartFrame >= 30;
-        const expectedWindowStartFrame = startsNewWindow
-          ? attempt.frame
-          : previous.windowStartFrame;
-        const expectedHitIndex = startsNewWindow
-          ? 0
-          : previous.attemptCount;
-        if (
-          attempt.windowStartFrame !==
-            expectedWindowStartFrame ||
-          attempt.hitIndex !== expectedHitIndex
-        ) {
-          addMissingReferenceIssue(
-            context,
-            [
-              "reactionDamageLog",
-              attempt.logIndex,
-              "damageGroupDecisions",
-              attempt.decisionIndex
-            ],
-            "ReactionA windowStartFrame and hitIndex must follow target/actor/reaction attempt order"
-          );
-        }
-        reactionAWindowByScope.set(scopeKey, {
-          windowStartFrame: expectedWindowStartFrame,
-          attemptCount: expectedHitIndex + 1
+    // The frozen through-1.49 reference facet owns only the lazy F30 model.
+    // Exact 1.50 rows are independently replayed from their policy-bound
+    // decision and reset-task logs by result-integrity.ts.
+    if (!hasExactReactionDamageGroupResetBoundaryIdentity(result)) {
+      const reactionAWindowByScope = new Map<
+        string,
+        { windowStartFrame: number; attemptCount: number }
+      >();
+      coreReactionAAttempts
+        .sort(
+          (left, right) =>
+            left.frame - right.frame ||
+            left.damageEventId - right.damageEventId
+        )
+        .forEach((attempt) => {
+          const scopeKey = JSON.stringify([
+            attempt.targetId,
+            attempt.sourceActorId,
+            attempt.reaction
+          ]);
+          const previous = reactionAWindowByScope.get(scopeKey);
+          const startsNewWindow =
+            previous === undefined ||
+            attempt.frame - previous.windowStartFrame >= 30;
+          const expectedWindowStartFrame = startsNewWindow
+            ? attempt.frame
+            : previous.windowStartFrame;
+          const expectedHitIndex = startsNewWindow
+            ? 0
+            : previous.attemptCount;
+          if (
+            attempt.windowStartFrame !==
+              expectedWindowStartFrame ||
+            attempt.hitIndex !== expectedHitIndex
+          ) {
+            addMissingReferenceIssue(
+              context,
+              [
+                "reactionDamageLog",
+                attempt.logIndex,
+                "damageGroupDecisions",
+                attempt.decisionIndex
+              ],
+              "ReactionA windowStartFrame and hitIndex must follow target/actor/reaction attempt order"
+            );
+          }
+          reactionAWindowByScope.set(scopeKey, {
+            windowStartFrame: expectedWindowStartFrame,
+            attemptCount: expectedHitIndex + 1
+          });
         });
-      });
+    }
   })
 );
 
@@ -12050,7 +12589,7 @@ export const playerReactionSelfDamageFactorsSchema = z
       z.literal(1)
     ]),
     damageGroupDecision:
-      reactionADamageGroupAuditSchema.nullable(),
+      versionedReactionADamageGroupAuditReferenceSchema.nullable(),
     finalDamage: finiteNumber.nonnegative()
   })
   .strict()
@@ -16085,11 +16624,131 @@ export const simConfigV149Schema = z.preprocess(
   simConfigV149ValueSchema
 );
 
+/** Project only the 1.50 damage-group identity onto frozen 1.49. */
+const projectSimConfigV150ToV149 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    reactionDamageGroupModel: _reactionDamageGroupModel,
+    ...frozenWire
+  } = wire;
+  return {
+    ...frozenWire,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+  };
+};
+
+const simConfigV150ValueSchema = z
+  .custom<SimConfigV150>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .superRefine((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (
+      wire.schemaVersion !==
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION}`
+      });
+    }
+    if (
+      wire.engineVersion !==
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel = wire.reactionDamageGroupModel;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["reactionDamageGroupModel"],
+        message:
+          "requires an explicit legacy-window or core-reset-task reaction damage-group policy"
+      });
+    } else {
+      for (const field of ["mode", "policyId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: ["reactionDamageGroupModel", field],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      const parsedModel =
+        reactionDamageGroupModelSchema.safeParse(rawModel);
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["reactionDamageGroupModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    const parsed = simConfigV149Schema.safeParse(
+      projectSimConfigV150ToV149(wire)
+    );
+    if (parsed.success) return;
+    for (const issue of parsed.error.issues) {
+      context.addIssue({ ...issue, path: issue.path });
+    }
+  })
+  .transform((config) => {
+    const wire = config as unknown as Record<string, unknown>;
+    const parsed = simConfigV149Schema.parse(
+      projectSimConfigV150ToV149(wire)
+    );
+    return {
+      ...parsed,
+      schemaVersion:
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion:
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+      reactionDamageGroupModel:
+        reactionDamageGroupModelSchema.parse(
+          wire.reactionDamageGroupModel
+        )
+    } as SimConfigV150;
+  });
+
+export const simConfigV150Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(
+      input,
+      context
+    );
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel",
+        "reactionOwnedElementalApplicationModel",
+        "reactionDamageGroupModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV150ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV149Schema;
+export const simConfigSchema = simConfigV150Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -16147,6 +16806,11 @@ const simResultConfigSchema = z
         REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION &&
       wire.engineVersion ===
         REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
+    const exact149Identity =
+      wire.schemaVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION &&
+      wire.engineVersion ===
+        REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -16217,7 +16881,9 @@ const simResultConfigSchema = z
               ? simConfigV147Schema.safeParse(wire)
               : exact148Identity
                 ? simConfigV148Schema.safeParse(wire)
-                : simConfigV149Schema.safeParse(wire);
+                : exact149Identity
+                  ? simConfigV149Schema.safeParse(wire)
+                  : simConfigV150Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -17068,7 +17734,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION]:
     REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]:
-    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+  [REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION]:
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -17305,7 +17973,11 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -19103,7 +19775,11 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
       result.schemaVersion ===
         REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+        REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+      result.config.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -21341,7 +22017,10 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION),
       z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION),
       z.literal(REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION),
-      z.literal(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION)
+      z.literal(REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION),
+      z.literal(
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+      )
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -21352,7 +22031,10 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION),
       z.literal(ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION),
       z.literal(REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION),
-      z.literal(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION)
+      z.literal(REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION),
+      z.literal(
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
+      )
     ]),
     config: z
       .object({
@@ -23382,7 +24064,7 @@ const reactionDeliveryLogReferenceSchema = z.preprocess(
       .array(wireNonEmptyStringSchema)
       .optional(),
     damageGroupDecisions: z
-      .array(reactionDamageGroupAuditSchema)
+      .array(versionedReactionDamageGroupAuditReferenceSchema)
       .optional()
   })
   .passthrough()
@@ -23545,6 +24227,45 @@ export function validateReactionDeliveryResultReferences(
         "result and config engineVersion must match"
       );
     }
+    const exactReactionDamageGroupV150Identity =
+      hasExactReactionDamageGroupResetBoundaryIdentity(result);
+    const requiredDamageGroupDecisionSchema =
+      exactReactionDamageGroupV150Identity
+        ? reactionDamageGroupDecisionV150ReferenceSchema
+        : reactionDamageGroupAuditSchema;
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      (entry.damageGroupDecisions ?? []).forEach(
+        (decision, decisionIndex) => {
+          const decisionPath = [
+            "reactionDamageLog",
+            entryIndex,
+            "damageGroupDecisions",
+            decisionIndex
+          ];
+          if (
+            !requiredDamageGroupDecisionSchema.safeParse(decision)
+              .success
+          ) {
+            issue(
+              decisionPath,
+              exactReactionDamageGroupV150Identity
+                ? "exact 1.50 reaction-delivery output requires the strict policy-bound V150 damage-group decision wire"
+                : "frozen pre-1.50 reaction-delivery output requires the strict V149 damage-group audit wire"
+            );
+          }
+          if (
+            exactReactionDamageGroupV150Identity &&
+            "policyId" in decision &&
+            decision.frame !== entry.damageFrame
+          ) {
+            issue(
+              [...decisionPath, "frame"],
+              "V150 damage-group decision frame must equal its reaction-delivery damage frame"
+            );
+          }
+        }
+      );
+    });
 
     const configEnemy =
       Object.prototype.hasOwnProperty.call(
@@ -24673,7 +25394,7 @@ export function validateReactionDeliveryResultReferences(
     type DamageGroupReaction =
       keyof typeof damageGroupPolicyByReaction;
     type DamageGroupDecision = z.infer<
-      typeof reactionDamageGroupAuditSchema
+      typeof versionedReactionDamageGroupAuditReferenceSchema
     >;
     const damageGroupAttempts: Array<{
       reaction: DamageGroupReaction;
@@ -27421,82 +28142,86 @@ export function validateReactionDeliveryResultReferences(
       }
     );
 
-    damageGroupAttempts.sort(
-      (left, right) =>
-        left.child.frame - right.child.frame ||
-        left.child.eventPriority -
-          right.child.eventPriority ||
-        left.child.eventSequence -
-          right.child.eventSequence ||
-        left.child.id - right.child.id
-    );
-    const damageGroupWindowByScope = new Map<
-      string,
-      {
-        windowStartFrame: number;
-        attemptCount: number;
-      }
-    >();
-    damageGroupAttempts.forEach((attempt) => {
-      const policy =
-        damageGroupPolicyByReaction[attempt.reaction];
-      const scopeKey = JSON.stringify([
-        attempt.child.targetId,
-        attempt.child.sourceActorId,
-        attempt.reaction
-      ]);
-      const previous = damageGroupWindowByScope.get(scopeKey);
-      const startsNewWindow =
-        previous === undefined ||
-        attempt.child.frame - previous.windowStartFrame >= 30;
-      const expectedWindowStartFrame = startsNewWindow
-        ? attempt.child.frame
-        : previous.windowStartFrame;
-      const expectedHitIndex = startsNewWindow
-        ? 0
-        : previous.attemptCount;
-      const expectedDamageAllowed =
-        expectedHitIndex < policy.allowedInstances;
-      const expectedBlockedReason = expectedDamageAllowed
-        ? null
-        : policy.blockedReason;
-      const decisionPath = [
-        "reactionDamageLog",
-        attempt.logIndex,
-        "damageGroupDecisions",
-        attempt.decisionIndex
-      ] as const;
-      if (
-        attempt.decision.windowStartFrame !==
-        expectedWindowStartFrame
-      ) {
-        issue(
-          [...decisionPath, "windowStartFrame"],
-          `ReactionA/B windowStartFrame must replay to ${expectedWindowStartFrame} for scope ${scopeKey}`
-        );
-      }
-      if (attempt.decision.hitIndex !== expectedHitIndex) {
-        issue(
-          [...decisionPath, "hitIndex"],
-          `ReactionA/B hitIndex must replay to ${expectedHitIndex} for scope ${scopeKey}`
-        );
-      }
-      if (
-        attempt.decision.damageAllowed !==
-          expectedDamageAllowed ||
-        attempt.decision.blockedReason !==
-          expectedBlockedReason
-      ) {
-        issue(
-          [...decisionPath, "damageAllowed"],
-          `ReactionA/B decision must replay the half-open 30-frame window for scope ${scopeKey}`
-        );
-      }
-      damageGroupWindowByScope.set(scopeKey, {
-        windowStartFrame: expectedWindowStartFrame,
-        attemptCount: expectedHitIndex + 1
+    // V150 owns an explicit reset-task log and a shared task sequence. Its
+    // F29 semantics must not be collapsed back into this frozen F30 replay.
+    if (!hasExactReactionDamageGroupResetBoundaryIdentity(result)) {
+      damageGroupAttempts.sort(
+        (left, right) =>
+          left.child.frame - right.child.frame ||
+          left.child.eventPriority -
+            right.child.eventPriority ||
+          left.child.eventSequence -
+            right.child.eventSequence ||
+          left.child.id - right.child.id
+      );
+      const damageGroupWindowByScope = new Map<
+        string,
+        {
+          windowStartFrame: number;
+          attemptCount: number;
+        }
+      >();
+      damageGroupAttempts.forEach((attempt) => {
+        const policy =
+          damageGroupPolicyByReaction[attempt.reaction];
+        const scopeKey = JSON.stringify([
+          attempt.child.targetId,
+          attempt.child.sourceActorId,
+          attempt.reaction
+        ]);
+        const previous = damageGroupWindowByScope.get(scopeKey);
+        const startsNewWindow =
+          previous === undefined ||
+          attempt.child.frame - previous.windowStartFrame >= 30;
+        const expectedWindowStartFrame = startsNewWindow
+          ? attempt.child.frame
+          : previous.windowStartFrame;
+        const expectedHitIndex = startsNewWindow
+          ? 0
+          : previous.attemptCount;
+        const expectedDamageAllowed =
+          expectedHitIndex < policy.allowedInstances;
+        const expectedBlockedReason = expectedDamageAllowed
+          ? null
+          : policy.blockedReason;
+        const decisionPath = [
+          "reactionDamageLog",
+          attempt.logIndex,
+          "damageGroupDecisions",
+          attempt.decisionIndex
+        ] as const;
+        if (
+          attempt.decision.windowStartFrame !==
+          expectedWindowStartFrame
+        ) {
+          issue(
+            [...decisionPath, "windowStartFrame"],
+            `ReactionA/B windowStartFrame must replay to ${expectedWindowStartFrame} for scope ${scopeKey}`
+          );
+        }
+        if (attempt.decision.hitIndex !== expectedHitIndex) {
+          issue(
+            [...decisionPath, "hitIndex"],
+            `ReactionA/B hitIndex must replay to ${expectedHitIndex} for scope ${scopeKey}`
+          );
+        }
+        if (
+          attempt.decision.damageAllowed !==
+            expectedDamageAllowed ||
+          attempt.decision.blockedReason !==
+            expectedBlockedReason
+        ) {
+          issue(
+            [...decisionPath, "damageAllowed"],
+            `ReactionA/B decision must replay the half-open 30-frame window for scope ${scopeKey}`
+          );
+        }
+        damageGroupWindowByScope.set(scopeKey, {
+          windowStartFrame: expectedWindowStartFrame,
+          attemptCount: expectedHitIndex + 1
+        });
       });
-    });
+    }
 
     shatterLogIndexesByTrigger.forEach(
       (logIndexes, triggerDamageEventId) => {
@@ -29795,6 +30520,80 @@ export const playerDamageResultReferencesSchema = z
   })
   .passthrough()
   .superRefine((result, context) => {
+    const exactReactionDamageGroupV150Identity =
+      result.config.schemaVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
+      result.config.engineVersion ===
+        REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+    const requiredReactionDamageGroupSchema =
+      exactReactionDamageGroupV150Identity
+        ? reactionDamageGroupDecisionV150ReferenceSchema
+        : reactionDamageGroupAuditSchema;
+    const requiredPlayerDamageGroupSchema =
+      exactReactionDamageGroupV150Identity
+        ? reactionADamageGroupDecisionV150ReferenceSchema
+        : reactionADamageGroupAuditSchema;
+    result.reactionDamageLog.forEach((entry, entryIndex) => {
+      entry.damageGroupDecisions.forEach(
+        (decision, decisionIndex) => {
+          if (
+            !requiredReactionDamageGroupSchema.safeParse(decision)
+              .success
+          ) {
+            addMissingReferenceIssue(
+              context,
+              [
+                "reactionDamageLog",
+                entryIndex,
+                "damageGroupDecisions",
+                decisionIndex
+              ],
+              exactReactionDamageGroupV150Identity
+                ? "exact 1.50 player-damage output requires the strict policy-bound V150 damage-group decision wire"
+                : "frozen pre-1.50 player-damage output requires the strict V149 damage-group audit wire"
+            );
+          }
+        }
+      );
+    });
+    result.playerDamageEvents.forEach((event, eventIndex) => {
+      const decision = event.damageFactors.damageGroupDecision;
+      if (
+        decision !== null &&
+        !requiredPlayerDamageGroupSchema.safeParse(decision).success
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "playerDamageEvents",
+            eventIndex,
+            "damageFactors",
+            "damageGroupDecision"
+          ],
+          exactReactionDamageGroupV150Identity
+            ? "exact 1.50 player self-damage requires the strict policy-bound V150 ReactionA decision wire"
+            : "frozen pre-1.50 player self-damage requires the strict V149 ReactionA audit wire"
+        );
+      }
+      if (
+        exactReactionDamageGroupV150Identity &&
+        decision !== null &&
+        "policyId" in decision &&
+        decision.frame !== event.frame
+      ) {
+        addMissingReferenceIssue(
+          context,
+          [
+            "playerDamageEvents",
+            eventIndex,
+            "damageFactors",
+            "damageGroupDecision",
+            "frame"
+          ],
+          "V150 player self-damage decision frame must equal its player damage event frame"
+        );
+      }
+    });
     const reactionDamageById = new Map(
       result.reactionDamageLog.map((entry) => [entry.id, entry])
     );
@@ -30867,6 +31666,11 @@ const migrateElementalApplicationWiresV146ToV147 = (
   };
 };
 
+const LEGACY_REACTION_DAMAGE_GROUP_MODEL = {
+  mode: "legacy-reaction-damage-group-window-v1",
+  policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+} as const;
+
 function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unknown> {
   const meta = isRecord(input.meta) ? input.meta : {};
   const migratedApplications =
@@ -30937,7 +31741,9 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-    }
+    },
+    reactionDamageGroupModel:
+      LEGACY_REACTION_DAMAGE_GROUP_MODEL
   };
 }
 
@@ -31298,6 +32104,15 @@ const HISTORICAL_SCHEMA_CONTRACTS = {
   [REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION]: {
     engineVersion: REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
     allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION]: {
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
+  },
+  [REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION]: {
+    engineVersion:
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
+    allowedAuraModes: HISTORICAL_AURA_MODES.v9
   }
 } as const satisfies Record<string, HistoricalSchemaContract>;
 
@@ -31420,6 +32235,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     findElementalApplicationIcdSelectorPath(input);
   const isElementalApplicationIcdIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
   if (
@@ -31474,6 +32290,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isReactionOwnedApplicationIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
   if (
     !isReactionOwnedApplicationIdentity &&
@@ -31541,8 +32358,75 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       );
     }
   }
+  const isReactionDamageGroupIdentity =
+    version ===
+      REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+    version === CURRENT_SCHEMA_VERSION;
+  if (
+    !isReactionDamageGroupIdentity &&
+    "reactionDamageGroupModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined
+        ? LEGACY_SCHEMA_VERSION
+        : String(version);
+    const issue = `reactionDamageGroupModel: schemaVersion "${historicalVersion}" does not support reaction damage-group policy selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isReactionDamageGroupIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "reactionDamageGroupModel"
+      ) ||
+      !isRecord(input.reactionDamageGroupModel)
+    ) {
+      const issue =
+        `reactionDamageGroupModel: schemaVersion "${String(version)}" requires an explicit reaction damage-group policy`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "policyId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.reactionDamageGroupModel,
+          field
+        )
+      ) {
+        const issue =
+          `reactionDamageGroupModel.${field}: schemaVersion "${String(version)}" requires an explicit own reaction damage-group identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+    const parsedReactionDamageGroupModel =
+      reactionDamageGroupModelSchema.safeParse(
+        input.reactionDamageGroupModel
+      );
+    if (!parsedReactionDamageGroupModel.success) {
+      const issues = formatZodError(
+        parsedReactionDamageGroupModel.error
+      ).map(
+        (issue) => `reactionDamageGroupModel.${issue}`
+      );
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+  }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
@@ -31594,6 +32478,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentDirectDamageGroupIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
@@ -31651,6 +32536,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
     version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION ||
     version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION ||
@@ -32071,11 +32957,54 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   ) {
     return parseSimConfig(migrateLegacyConfig(input));
   }
+  if (
+    version ===
+    REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
+  ) {
+    const frozen = simConfigV150Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    // This branch deliberately names the frozen 1.50 contract instead of
+    // relying on CURRENT_SCHEMA_VERSION. A later engine version can extend
+    // this projection without making valid 1.50 wires fail the early
+    // future-field gate.
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION
+    });
+  }
   if (version === CURRENT_SCHEMA_VERSION) {
     return parseSimConfig(input);
   }
   if (typeof version === "string") {
     validateHistoricalSchemaContract(input, version);
+  }
+  if (version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION) {
+    const frozen = simConfigV149Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionDamageGroupModel:
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL
+    });
   }
   if (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION) {
     const frozen = simConfigV148Schema.safeParse(input);
@@ -32091,7 +33020,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     return parseSimConfig({
       ...frozen.data,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      engineVersion: CURRENT_ENGINE_VERSION
+      engineVersion: CURRENT_ENGINE_VERSION,
+      reactionDamageGroupModel:
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL
     });
   }
   if (version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION) {
@@ -32112,7 +33043,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-      }
+      },
+      reactionDamageGroupModel:
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL
     });
   }
   if (version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION) {
@@ -32139,7 +33072,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-      }
+      },
+      reactionDamageGroupModel:
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL
     });
   }
   if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
@@ -32170,7 +33105,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionOwnedElementalApplicationModel: {
         mode: "fixed-gcsim-reaction-owned-application-v1",
         policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-      }
+      },
+      reactionDamageGroupModel:
+        LEGACY_REACTION_DAMAGE_GROUP_MODEL
     });
   }
   input = {
@@ -32190,7 +33127,9 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     reactionOwnedElementalApplicationModel: {
       mode: "fixed-gcsim-reaction-owned-application-v1",
       policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
-    }
+    },
+    reactionDamageGroupModel:
+      LEGACY_REACTION_DAMAGE_GROUP_MODEL
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {
     return parseSimConfig({

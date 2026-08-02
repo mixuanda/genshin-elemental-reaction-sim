@@ -1,6 +1,8 @@
 import {
   BURNING_CALLBACK_DELIVERY_ENGINE_VERSION,
   BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION,
+  CURRENT_ENGINE_VERSION,
+  CURRENT_SCHEMA_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION,
   DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
@@ -11,11 +13,13 @@ import {
   REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  simulationResultSchema,
   targetPhaseV3ResultReferencesSchema,
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
+import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -139,17 +143,17 @@ function cloneWithIdentity(
 }
 
 describe("target-phase-v3 formula-root identity", () => {
-  it("accepts exact 1.49 and preserves the exact 1.44-1.48 callback semantics", () => {
+  it("accepts the current identity and preserves the exact 1.44-1.49 callback semantics", () => {
     const current = simulate(makeFormulaRootTargetPhaseV3Config(), {
       critMode: "noCrit"
     });
 
     expect(current).toMatchObject({
-      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
-      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
       config: {
-        schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
-        engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        engineVersion: CURRENT_ENGINE_VERSION
       }
     });
 
@@ -160,8 +164,10 @@ describe("target-phase-v3 formula-root identity", () => {
           phase.targetTasks.some((task) => task.delivery !== null)
       )
     ).toBe(true);
+    expect(simulationResultSchema.safeParse(current).success).toBe(true);
+    const frozenV149Facet = projectSimulationResultV150ToV149(current);
     expect(
-      targetPhaseV3ResultReferencesSchema.safeParse(current).success
+      targetPhaseV3ResultReferencesSchema.safeParse(frozenV149Facet).success
     ).toBe(true);
 
     const exactV144 = cloneWithIdentity(current, {

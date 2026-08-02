@@ -1,3 +1,7 @@
+import {
+  GCSIM_DAMAGE_GROUP_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+} from "@genshin-dps-lab/icd-profiles";
 import type { SimConfig } from "@genshin-dps-lab/schemas";
 import { describe, expect, it } from "vitest";
 import { calcTransformativeReactionDamage } from "../formulas";
@@ -245,6 +249,66 @@ function makeReactionAShatterConfig(): SimConfig {
       frame: 24
     }
   ];
+  return config;
+}
+
+function makeShatterHitBeforeResetConfig(): SimConfig {
+  const config = makeReactionAShatterConfig();
+  config.reactionDeliveryModel = {
+    mode: "shatter-recursive-zero-delay-v1",
+  };
+  config.reactionEngine = { mode: "aura-v7" };
+  const crusherAbility = config.timeline!.abilities.find(
+    (ability) => ability.id === "crusher-skill",
+  )!;
+  crusherAbility.cancelFrame = 30;
+  crusherAbility.animationEndFrame = 30;
+  crusherAbility.hits = crusherAbility.hits!.map((hit) =>
+    hit.id === "crusher-hit-3" ? { ...hit, frame: 29 } : hit,
+  );
+  return config;
+}
+
+function makeShatterResetBeforeHitConfig(): SimConfig {
+  const config = makeReactionAShatterConfig();
+  config.reactionDeliveryModel = {
+    mode: "shatter-recursive-zero-delay-v1",
+  };
+  config.reactionEngine = { mode: "aura-v7" };
+  const timeline = config.timeline!;
+  const crusherAbility = timeline.abilities.find(
+    (ability) => ability.id === "crusher-skill",
+  )!;
+  const shatterHit = crusherAbility.hits!.find(
+    (hit) => hit.id === "crusher-hit",
+  )!;
+  crusherAbility.cancelFrame = 17;
+  crusherAbility.animationEndFrame = 17;
+  crusherAbility.hits = crusherAbility.hits!.filter(
+    (hit) => hit.id !== "crusher-hit-3",
+  );
+  timeline.abilities.push({
+    id: "boundary-crusher-skill",
+    actorId: "crusher",
+    name: "Boundary Crusher Hit",
+    kind: "skill",
+    cancelFrame: 1,
+    animationEndFrame: 1,
+    cooldownFrames: 0,
+    hits: [
+      {
+        ...shatterHit,
+        id: "boundary-crusher-hit",
+        frame: 0,
+      },
+    ],
+  });
+  timeline.commands.push({
+    type: "skill",
+    actorId: "crusher",
+    abilityId: "boundary-crusher-skill",
+    atFrame: 31,
+  });
   return config;
 }
 
@@ -661,47 +725,96 @@ describe("Shatter simulation integration", () => {
       (event) => event.reaction === "shatter"
     );
 
-    expect(
-      shatterLogs.map((entry) => entry.triggerFrame)
-    ).toEqual([2, 14, 26]);
-    expect(
-      shatterLogs.map(
-        (entry) => entry.damageGroupDecisions[0]
-      )
-    ).toMatchObject([
+    expect(shatterLogs.map((entry) => entry.triggerFrame)).toEqual([2, 14, 26]);
+    expect(shatterLogs.map((entry) => entry.damageGroupDecisions[0])).toEqual([
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+        icdTag: "ICDTagShatter",
+        icdGroup: "reaction-a",
         reaction: "shatter",
         sourceActorId: "crusher",
         targetId: "enemy-0",
+        scopeKey: '["enemy-0","crusher","ICDTagShatter"]',
+        frame: 2,
+        damageGroupTaskSequence: 11,
+        windowGeneration: 0,
         windowStartFrame: 2,
+        resetAtFrame: 31,
+        resetTaskLogId: 0,
+        resetTaskSequence: 12,
         hitIndex: 0,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 0,
+        sequenceMultiplier: 1,
         damageAllowed: true,
         blockedReason: null
       },
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+        icdTag: "ICDTagShatter",
+        icdGroup: "reaction-a",
         reaction: "shatter",
         sourceActorId: "crusher",
         targetId: "enemy-0",
+        scopeKey: '["enemy-0","crusher","ICDTagShatter"]',
+        frame: 14,
+        damageGroupTaskSequence: 13,
+        windowGeneration: 0,
         windowStartFrame: 2,
+        resetAtFrame: 31,
+        resetTaskLogId: 0,
+        resetTaskSequence: 12,
         hitIndex: 1,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 1,
+        sequenceMultiplier: 1,
         damageAllowed: true,
         blockedReason: null
       },
       {
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+        icdTag: "ICDTagShatter",
+        icdGroup: "reaction-a",
         reaction: "shatter",
         sourceActorId: "crusher",
         targetId: "enemy-0",
+        scopeKey: '["enemy-0","crusher","ICDTagShatter"]',
+        frame: 26,
+        damageGroupTaskSequence: 14,
+        windowGeneration: 0,
         windowStartFrame: 2,
+        resetAtFrame: 31,
+        resetTaskLogId: 0,
+        resetTaskSequence: 12,
         hitIndex: 2,
-        resetFrames: 30,
-        sequence: [true, true, false],
+        sequenceIndex: 2,
+        sequenceMultiplier: 0,
         damageAllowed: false,
         blockedReason: "REACTION_A_DAMAGE_ICD"
       }
+    ]);
+    expect(first.reactionDamageGroupResetLog).toEqual([
+      {
+        id: 0,
+        policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
+        sourceActorId: "crusher",
+        targetId: "enemy-0",
+        scopeKey: '["enemy-0","crusher","ICDTagShatter"]',
+        reaction: "shatter",
+        icdTag: "ICDTagShatter",
+        icdGroup: "reaction-a",
+        windowGeneration: 0,
+        windowStartFrame: 2,
+        resetAtFrame: 31,
+        taskSequence: 12,
+        withinSimulation: true,
+        executed: true,
+        executedBeforeAttemptTaskSequence: null,
+        executionFrame: 31,
+        stale: false,
+        invalidatedReason: null,
+      },
     ]);
     expect(
       shatterLogs.map(
@@ -735,6 +848,101 @@ describe("Shatter simulation integration", () => {
         .map((entry) => entry.frame)
     ).toEqual([2, 14, 26]);
     expect(second).toEqual(first);
+  });
+
+  it("keeps an inline Shatter in the old window when its parent hit was queued before the same-frame reset", () => {
+    const result = simulate(makeShatterHitBeforeResetConfig(), {
+      critMode: "noCrit",
+    });
+    const shatterLogs = result.reactionDamageLog.filter(
+      (entry) => entry.reaction === "shatter",
+    );
+    const thirdLog = shatterLogs[2]!;
+    const decision = thirdLog.damageGroupDecisions[0]!;
+    if (thirdLog.triggerDamageEventId === null) {
+      throw new Error("Third Shatter is missing its parent damage event.");
+    }
+    const parentDamageEvent =
+      result.damageEvents[thirdLog.triggerDamageEventId]!;
+    const firstReset = result.reactionDamageGroupResetLog[0]!;
+
+    expect(shatterLogs.map((entry) => entry.triggerFrame)).toEqual([2, 14, 31]);
+    expect(decision).toMatchObject({
+      frame: 31,
+      damageGroupTaskSequence: parentDamageEvent.eventSequence,
+      windowGeneration: 0,
+      windowStartFrame: 2,
+      resetAtFrame: 31,
+      hitIndex: 2,
+      sequenceMultiplier: 0,
+      damageAllowed: false,
+      blockedReason: "REACTION_A_DAMAGE_ICD",
+    });
+    expect(parentDamageEvent).toMatchObject({
+      kind: "direct",
+      hitId: "crusher-hit-3",
+      frame: 31,
+    });
+    expect(decision.damageGroupTaskSequence).toBeLessThan(
+      firstReset.taskSequence,
+    );
+    expect(firstReset).toMatchObject({
+      resetAtFrame: 31,
+      executed: true,
+      executedBeforeAttemptTaskSequence: null,
+      executionFrame: 31,
+      stale: false,
+      invalidatedReason: null,
+    });
+    expect(thirdLog.damageGroupBlockedTargetIds).toEqual(["enemy-0"]);
+  });
+
+  it("drains a same-frame reset before inline Shatter when the parent hit was queued later", () => {
+    const result = simulate(makeShatterResetBeforeHitConfig(), {
+      critMode: "noCrit",
+    });
+    const shatterLogs = result.reactionDamageLog.filter(
+      (entry) => entry.reaction === "shatter",
+    );
+    const thirdLog = shatterLogs[2]!;
+    const decision = thirdLog.damageGroupDecisions[0]!;
+    if (thirdLog.triggerDamageEventId === null) {
+      throw new Error("Third Shatter is missing its parent damage event.");
+    }
+    const parentDamageEvent =
+      result.damageEvents[thirdLog.triggerDamageEventId]!;
+    const firstReset = result.reactionDamageGroupResetLog[0]!;
+
+    expect(shatterLogs.map((entry) => entry.triggerFrame)).toEqual([2, 14, 31]);
+    expect(parentDamageEvent).toMatchObject({
+      kind: "direct",
+      hitId: "boundary-crusher-hit",
+      frame: 31,
+    });
+    expect(decision).toMatchObject({
+      frame: 31,
+      damageGroupTaskSequence: parentDamageEvent.eventSequence,
+      windowGeneration: 1,
+      windowStartFrame: 31,
+      resetAtFrame: 60,
+      resetTaskLogId: 1,
+      hitIndex: 0,
+      sequenceMultiplier: 1,
+      damageAllowed: true,
+      blockedReason: null,
+    });
+    expect(decision.damageGroupTaskSequence).toBeGreaterThan(
+      firstReset.taskSequence,
+    );
+    expect(firstReset).toMatchObject({
+      resetAtFrame: 31,
+      executed: true,
+      executedBeforeAttemptTaskSequence: decision.damageGroupTaskSequence,
+      executionFrame: 31,
+      stale: false,
+      invalidatedReason: null,
+    });
+    expect(thirdLog.damageGroupBlockedTargetIds).toEqual([]);
   });
 
   it("models Overload as a 90-poise blunt hit that can Shatter a nearby frozen target", () => {

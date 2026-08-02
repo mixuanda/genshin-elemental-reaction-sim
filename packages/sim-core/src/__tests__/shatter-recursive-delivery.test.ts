@@ -9,6 +9,9 @@ import {
   type SimConfig,
   type SimulationResult,
 } from "@genshin-dps-lab/schemas";
+import {
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+} from "@genshin-dps-lab/icd-profiles";
 import * as schemaModule from "@genshin-dps-lab/schemas";
 import { describe, expect, it, vi } from "vitest";
 import shatterRecursiveDeliveryGoldenJson from "../../../test-vectors/fixtures/shatter-recursive-delivery-1.39.golden.json";
@@ -146,12 +149,26 @@ function shatterDamageEventsForV146SemanticDigest(
 function shatterReactionDamageLogForV146SemanticDigest(
   result: SimulationResult,
 ): unknown {
-  return result.reactionDamageLog.map((entry) =>
-    stripWireOnlyFields(
+  return result.reactionDamageLog.map((entry) => ({
+    ...stripWireOnlyFields(
       entry as unknown as Record<string, unknown>,
       V148_REACTION_DAMAGE_LOG_WIRE_ONLY_KEYS,
     ),
-  );
+    damageGroupDecisions: entry.damageGroupDecisions.map((decision) => ({
+      reaction: decision.reaction,
+      sourceActorId: decision.sourceActorId,
+      targetId: decision.targetId,
+      windowStartFrame: decision.windowStartFrame,
+      hitIndex: decision.hitIndex,
+      resetFrames: 30 as const,
+      sequence:
+        decision.icdGroup === "reaction-a"
+          ? ([true, true, false] as const)
+          : ([true, false] as const),
+      damageAllowed: decision.damageAllowed,
+      blockedReason: decision.blockedReason,
+    })),
+  }));
 }
 
 function projectShatterResult(result: SimulationResult) {
@@ -402,6 +419,10 @@ function makeDirectShatterConfig(options?: {
     reactionDeliveryModel: {
       mode: options?.deliveryMode ?? "shatter-recursive-zero-delay-v1",
     },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+    },
   });
   const template = base.characters[0]!;
   const element = options?.element ?? "physical";
@@ -549,6 +570,10 @@ function makeNestedOverloadShatterConfig(
 ): SimConfig {
   const base = makeConfig({
     reactionDeliveryModel: { mode: deliveryMode },
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+    },
   });
   const template = base.characters[0]!;
   return {

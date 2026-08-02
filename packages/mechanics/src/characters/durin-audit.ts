@@ -6,6 +6,7 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
@@ -74,6 +75,10 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   reactionOwnedElementalApplicationModel: {
     mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  },
+  reactionDamageGroupModel: {
+    mode: "fixed-gcsim-reaction-damage-task-order-v2",
+    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
@@ -370,6 +375,10 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
   reactionOwnedElementalApplicationModel: {
     mode: "fixed-gcsim-reaction-owned-application-v2",
     policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
+  },
+  reactionDamageGroupModel: {
+    mode: "fixed-gcsim-reaction-damage-task-order-v2",
+    policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",

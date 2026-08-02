@@ -10,10 +10,16 @@ import {
   type GcsimElementalApplicationRoot,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
   type GcsimReactionOwnedApplicationBinding,
   type GcsimReactionOwnedApplicationV1Binding,
   type GcsimReactionOwnedApplicationPolicyRoot,
   type GcsimReactionOwnedApplicationPolicyV1Root,
+  type GcsimReactionDamageGroupBinding,
+  type GcsimReactionDamageGroupReaction,
   type GcsimSwirlPropagationElement,
   type PublicGcsimElementalApplicationGroupId,
 } from "@genshin-dps-lab/icd-profiles";
@@ -54,13 +60,17 @@ export const REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION =
 export const REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION = "1.49.0" as const;
 export const REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION =
   "1.49.0-reaction-owned-reset-boundary" as const;
+export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION =
+  "1.50.0" as const;
+export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION =
+  "1.50.0-reaction-damage-reset-boundary" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION = "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION = "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
@@ -80,10 +90,13 @@ export const DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION = "1.2.0" as const;
 export const ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION = "1.3.0" as const;
 /** Frozen 1.48 run-manifest wire; 1.4 binds the first reaction-owned root. */
 export const REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION = "1.4.0" as const;
-/** Current run-manifest wire; 1.5 admits an explicit v1/v2 policy root. */
+/** Frozen 1.49 run-manifest wire; 1.5 admits an explicit v1/v2 policy root. */
 export const REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION = "1.5.0" as const;
+/** Current 1.50 run-manifest wire; 1.6 binds reaction damage-group scheduling. */
+export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION =
+  "1.6.0" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION =
-  REACTION_OWNED_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
+  REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -1057,6 +1070,25 @@ export type ReactionOwnedElementalApplicationModel =
   | ReactionOwnedElementalApplicationModelV1
   | ReactionOwnedElementalApplicationModelV2;
 
+/** Frozen 1.49 lazy F30 reaction-damage-group window. */
+export interface ReactionDamageGroupModelV1 {
+  mode: "legacy-reaction-damage-group-window-v1";
+  policyId: typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID;
+}
+
+/**
+ * Current 1.50 scheduled F29 reset task. Same-frame resolution remains
+ * insertion/eventSequence dependent and is not an unconditional reset-before.
+ */
+export interface ReactionDamageGroupModelV2 {
+  mode: "fixed-gcsim-reaction-damage-task-order-v2";
+  policyId: typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID;
+}
+
+export type ReactionDamageGroupModel =
+  | ReactionDamageGroupModelV1
+  | ReactionDamageGroupModelV2;
+
 interface SimConfigCommon<TApplication = ElementalApplication> {
   dataVersion: string;
   randomSeed: string;
@@ -1147,7 +1179,18 @@ export interface SimConfigV149 extends SimConfigCommon {
   reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
 }
 
-export type SimConfig = SimConfigV149;
+/** Current 1.50 config adds an explicit reaction damage-group policy. */
+export interface SimConfigV150 extends SimConfigCommon {
+  schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
+  reactionDamageGroupModel: ReactionDamageGroupModel;
+}
+
+export type SimConfig = SimConfigV150;
 
 export type VersionedSimConfig =
   | SimConfigV142
@@ -1156,7 +1199,8 @@ export type VersionedSimConfig =
   | SimConfigV146
   | SimConfigV147
   | SimConfigV148
-  | SimConfigV149;
+  | SimConfigV149
+  | SimConfigV150;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1287,7 +1331,27 @@ export interface SimulationRunManifestV149 extends SimulationRunManifestCommon {
   reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV149;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV149;
+export type ReactionDamageGroupRootV1 =
+  typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT;
+export type ReactionDamageGroupRootV2 =
+  typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT;
+export type ReactionDamageGroupRoot =
+  | ReactionDamageGroupRootV1
+  | ReactionDamageGroupRootV2;
+
+/** Current 1.50 manifest binds the exact selected reaction damage-group root. */
+export interface SimulationRunManifestV150 extends SimulationRunManifestCommon {
+  version: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV149;
+  reactionDamageGroupRoot: ReactionDamageGroupRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV150;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
@@ -1296,7 +1360,8 @@ export type VersionedSimulationRunManifest =
   | SimulationRunManifestV146
   | SimulationRunManifestV147
   | SimulationRunManifestV148
-  | SimulationRunManifestV149;
+  | SimulationRunManifestV149
+  | SimulationRunManifestV150;
 
 export type SimulationEventType =
   | "action"
@@ -1308,6 +1373,7 @@ export type SimulationEventType =
   | "hit"
   | "quickenBloomFollowup"
   | "reactionDamage"
+  | "reactionDamageGroupReset"
   | "periodicReactionTick"
   | "periodicReactionWane"
   | "periodicReactionExpiry"
@@ -2833,7 +2899,8 @@ export interface TargetMechanicsTruncationLogEntry {
   reason: "UNSUPPORTED_DENDRO_REACTION" | "UNSUPPORTED_REACTION_ORDER";
 }
 
-export interface ReactionADamageGroupAudit {
+/** Exact legacy ReactionA decision wire frozen through result schema 1.49. */
+export interface ReactionADamageGroupAuditV149 {
   reaction: SwirlReaction | DendroCoreReaction | "shatter" | "superconduct";
   sourceActorId: string;
   targetId: TargetId;
@@ -2845,7 +2912,8 @@ export interface ReactionADamageGroupAudit {
   blockedReason: "REACTION_A_DAMAGE_ICD" | null;
 }
 
-export interface ReactionBDamageGroupAudit {
+/** Exact legacy ReactionB decision wire frozen through result schema 1.49. */
+export interface ReactionBDamageGroupAuditV149 {
   reaction: "overload" | "electroCharged";
   sourceActorId: string;
   targetId: TargetId;
@@ -2857,8 +2925,101 @@ export interface ReactionBDamageGroupAudit {
   blockedReason: "REACTION_B_DAMAGE_ICD" | null;
 }
 
+export type ReactionDamageGroupAuditV149 =
+  | ReactionADamageGroupAuditV149
+  | ReactionBDamageGroupAuditV149;
+
+/** Compatibility aliases for frozen child/player projections. */
+export type ReactionADamageGroupAudit =
+  ReactionADamageGroupAuditV149;
+export type ReactionBDamageGroupAudit =
+  ReactionBDamageGroupAuditV149;
 export type ReactionDamageGroupAudit =
-  ReactionADamageGroupAudit | ReactionBDamageGroupAudit;
+  ReactionDamageGroupAuditV149;
+
+type ReactionDamageGroupPolicyTaskAuditV150 =
+  | {
+      policyId: typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID;
+      resetTaskLogId: null;
+      resetTaskSequence: null;
+    }
+  | {
+      policyId: typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID;
+      resetTaskLogId: number;
+      resetTaskSequence: number;
+    };
+
+interface ReactionDamageGroupDecisionAuditV150Common {
+  profileId: typeof GCSIM_DAMAGE_GROUP_PROFILE_ID;
+  icdTag: GcsimReactionDamageGroupBinding["icdTag"];
+  sourceActorId: string;
+  targetId: TargetId;
+  /** Canonical JSON tuple [targetId, sourceActorId, icdTag]. */
+  scopeKey: string;
+  frame: number;
+  /** Global event/task ordinal; V2 reset tasks share this same sequence. */
+  damageGroupTaskSequence: number;
+  windowGeneration: number;
+  windowStartFrame: number;
+  /** F30 for v1; scheduled F29 reset-task frame for v2. */
+  resetAtFrame: number;
+  hitIndex: number;
+  sequenceIndex: number;
+  sequenceMultiplier: 0 | 1;
+  damageAllowed: boolean;
+}
+
+export type ReactionADamageGroupDecisionAuditV150 =
+  ReactionDamageGroupDecisionAuditV150Common &
+    ReactionDamageGroupPolicyTaskAuditV150 & {
+      reaction: Exclude<
+        GcsimReactionDamageGroupReaction,
+        "overload" | "electroCharged"
+      >;
+      icdGroup: "reaction-a";
+      blockedReason: "REACTION_A_DAMAGE_ICD" | null;
+    };
+
+export type ReactionBDamageGroupDecisionAuditV150 =
+  ReactionDamageGroupDecisionAuditV150Common &
+    ReactionDamageGroupPolicyTaskAuditV150 & {
+      reaction: "overload" | "electroCharged";
+      icdGroup: "reaction-b";
+      blockedReason: "REACTION_B_DAMAGE_ICD" | null;
+    };
+
+/** Current policy/root-bound ReactionA/B decision wire. */
+export type ReactionDamageGroupDecisionAuditV150 =
+  | ReactionADamageGroupDecisionAuditV150
+  | ReactionBDamageGroupDecisionAuditV150;
+
+/** One scheduled v2 reset task and its eventual FIFO execution outcome. */
+export interface ReactionDamageGroupResetLogEntryV150 {
+  id: number;
+  policyId: typeof GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID;
+  sourceActorId: string;
+  targetId: TargetId;
+  /** Canonical JSON tuple [targetId, sourceActorId, icdTag]. */
+  scopeKey: string;
+  reaction: GcsimReactionDamageGroupReaction;
+  icdTag: GcsimReactionDamageGroupBinding["icdTag"];
+  icdGroup: "reaction-a" | "reaction-b";
+  windowGeneration: number;
+  windowStartFrame: number;
+  resetAtFrame: number;
+  /** Shared priority-5 global event sequence allocated after the opener. */
+  taskSequence: number;
+  withinSimulation: boolean;
+  executed: boolean;
+  /** First same-frame attempt observed after this reset, when one exists. */
+  executedBeforeAttemptTaskSequence: number | null;
+  executionFrame: number | null;
+  stale: boolean;
+  invalidatedReason:
+    | "WINDOW_GENERATION_MISMATCH"
+    | "ALREADY_EXECUTED"
+    | null;
+}
 
 export type ElectroChargedPropagationCandidateReason =
   | "SOURCE_STREAM_TARGET"
@@ -2955,7 +3116,7 @@ export interface ReactionDamageLogEntryV147 {
   /** Player HP damage events produced by this reaction damage event. */
   playerDamageEventIds: number[];
   reactionStatusLogIds: number[];
-  damageGroupDecisions: ReactionDamageGroupAudit[];
+  damageGroupDecisions: ReactionDamageGroupAuditV149[];
 }
 
 /** Current reaction-damage audit with complete reciprocal target-attempt links. */
@@ -2964,7 +3125,15 @@ export interface ReactionDamageLogEntryV148 extends ReactionDamageLogEntryV147 {
   elementalApplicationIcdLogIds: number[];
 }
 
-export type ReactionDamageLogEntry = ReactionDamageLogEntryV148;
+/** Current 1.50 reaction-damage row with policy/root-bound decisions. */
+export type ReactionDamageLogEntryV150 = Omit<
+  ReactionDamageLogEntryV148,
+  "damageGroupDecisions"
+> & {
+  damageGroupDecisions: ReactionDamageGroupDecisionAuditV150[];
+};
+
+export type ReactionDamageLogEntry = ReactionDamageLogEntryV150;
 
 export interface DendroCoreLogBase {
   id: number;
@@ -3343,7 +3512,8 @@ export interface PlayerHitResolutionLogEntry {
   playerDamageEventId: number | null;
 }
 
-export interface PlayerReactionSelfDamageFactors {
+/** Exact player reaction self-damage factors frozen through result 1.49. */
+export interface PlayerReactionSelfDamageFactorsV149 {
   reaction: PlayerReactionSelfDamageKind;
   sourcePreResistanceDamage: number;
   selfDamageMultiplier: number;
@@ -3355,10 +3525,21 @@ export interface PlayerReactionSelfDamageFactors {
   defenseMultiplier: 1;
   /** Player-avatar ReactionA result; Burning is outside ReactionA. */
   damageGroupMultiplier: 0 | 1;
-  damageGroupDecision: ReactionADamageGroupAudit | null;
+  damageGroupDecision: ReactionADamageGroupAuditV149 | null;
   /** Player incoming damage after resistance and damage-group gating. */
   finalDamage: number;
 }
+
+/** Current player reaction self-damage factors with a policy-bound decision. */
+export interface PlayerReactionSelfDamageFactorsV150 extends Omit<
+  PlayerReactionSelfDamageFactorsV149,
+  "damageGroupDecision"
+> {
+  damageGroupDecision: ReactionADamageGroupDecisionAuditV150 | null;
+}
+
+export type PlayerReactionSelfDamageFactors =
+  PlayerReactionSelfDamageFactorsV150;
 
 export interface PlayerCrystallizeShieldResolution {
   mode: "crystallize-v1";
@@ -3392,7 +3573,8 @@ export interface PlayerHpDamageResolution {
   hpRatioAfter: number;
 }
 
-export interface PlayerDamageEvent {
+/** Exact player damage event wire frozen through result 1.49. */
+export interface PlayerDamageEventV149 {
   id: number;
   frame: number;
   timeSeconds: number;
@@ -3408,13 +3590,23 @@ export interface PlayerDamageEvent {
   playerHitResolutionLogId: number;
   burningStateLogId: number | null;
   dendroCoreRemovalLogId: number | null;
-  damageFactors: PlayerReactionSelfDamageFactors;
+  damageFactors: PlayerReactionSelfDamageFactorsV149;
   shieldResolution: PlayerCrystallizeShieldResolution;
   hpResolution: PlayerHpDamageResolution;
   /** Actual HP removed after shield absorption and zero-HP clamping. */
   finalDamage: number;
   displayDamage: number;
 }
+
+/** Current 1.50 player damage event with a policy-bound group decision. */
+export interface PlayerDamageEventV150 extends Omit<
+  PlayerDamageEventV149,
+  "damageFactors"
+> {
+  damageFactors: PlayerReactionSelfDamageFactorsV150;
+}
+
+export type PlayerDamageEvent = PlayerDamageEventV150;
 
 export type PlayerHpTimelineOperation = "initial" | "damage" | "simulation-end";
 
@@ -4037,7 +4229,9 @@ export interface SimulationResult {
   /** One first-crossing entry per target; later hits carry the audit in-place. */
   targetMechanicsTruncationLog: TargetMechanicsTruncationLogEntry[];
   /** Transformative reaction scheduling, GCD, spatial fanout, and damage links. */
-  reactionDamageLog: ReactionDamageLogEntryV148[];
+  reactionDamageLog: ReactionDamageLogEntryV150[];
+  /** Scheduled ReactionA/B reset tasks and their FIFO execution outcomes. */
+  reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
   /** Deferred live-Aura reaction operations in execution order. */
   reactionTaskLog: ReactionTaskLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
@@ -4117,6 +4311,8 @@ type VersionedSimulationResultIdentityFields =
   | "hitEvents"
   | "hitResolutionLog"
   | "reactionDamageLog"
+  | "reactionDamageGroupResetLog"
+  | "playerDamageEvents"
   | "targetPhaseLog";
 
 type FrozenV147NestedResultLogs = {
@@ -4124,6 +4320,7 @@ type FrozenV147NestedResultLogs = {
   hitEvents: DamageEventV147[];
   hitResolutionLog: HitResolutionLogEntryV147[];
   reactionDamageLog: ReactionDamageLogEntryV147[];
+  playerDamageEvents: PlayerDamageEventV149[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV147>;
 };
 
@@ -4132,6 +4329,7 @@ type FrozenV148NestedResultLogs = {
   hitEvents: DamageEventV148[];
   hitResolutionLog: HitResolutionLogEntryV148[];
   reactionDamageLog: ReactionDamageLogEntryV148[];
+  playerDamageEvents: PlayerDamageEventV149[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
 };
 
@@ -4210,8 +4408,21 @@ export type SimulationResultForV148 = Omit<
   elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV148[];
 } & FrozenV148NestedResultLogs;
 
-/** Current 1.49 result identity and explicit reset-boundary policy audit. */
-export type SimulationResultForV149 = SimulationResult;
+/** Frozen 1.49 result identity and explicit application reset policy audit. */
+export type SimulationResultForV149 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
+  engineVersion: typeof REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
+  config: SimConfigV149;
+  runManifest: SimulationRunManifestV149;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV149[];
+} & FrozenV148NestedResultLogs;
+
+/** Current 1.50 result identity and reaction damage-group policy audit. */
+export type SimulationResultForV150 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
@@ -4220,4 +4431,5 @@ export type VersionedSimulationResult =
   | SimulationResultForV146
   | SimulationResultForV147
   | SimulationResultForV148
-  | SimulationResultForV149;
+  | SimulationResultForV149
+  | SimulationResultForV150;

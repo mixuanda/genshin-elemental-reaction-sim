@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
-  GCSIM_ELEMENTAL_APPLICATION_ROOT
+  GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
 } from "@genshin-dps-lab/icd-profiles";
 import {
   assertTrustedSimulationResult,
@@ -221,8 +222,25 @@ function projectReactionDamageLogToFrozenV147(
       hitResolutionLogIds: _hitResolutionLogIds,
       elementalApplicationIcdLogIds:
         _elementalApplicationIcdLogIds,
+      damageGroupDecisions,
       ...entry
-    }) => entry
+    }) => ({
+      ...entry,
+      damageGroupDecisions: damageGroupDecisions.map((decision) => ({
+        reaction: decision.reaction,
+        sourceActorId: decision.sourceActorId,
+        targetId: decision.targetId,
+        windowStartFrame: decision.windowStartFrame,
+        hitIndex: decision.hitIndex,
+        resetFrames: 30 as const,
+        sequence:
+          decision.icdGroup === "reaction-a"
+            ? ([true, true, false] as const)
+            : ([true, false] as const),
+        damageAllowed: decision.damageAllowed,
+        blockedReason: decision.blockedReason
+      }))
+    })
   );
 }
 
@@ -288,6 +306,7 @@ function projectCurrentConfigToFrozenV142(
     elementalApplicationIcdModel: _elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel:
       _reactionOwnedElementalApplicationModel,
+    reactionDamageGroupModel: _reactionDamageGroupModel,
     ...frozenConfig
   } = structuredClone(config);
   return {
@@ -310,6 +329,10 @@ function makeLongHitlagConfig({
   const base = makeConfig();
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "ec-global-cadence-provisional-1",
     randomSeed:
       `ec-global-cadence-${restoreFrame ?? "none"}-${restoreGaugeUnits}-145`,
@@ -440,6 +463,10 @@ function makePureEcHitlag120Config(): SimConfig {
   const base = makeConfig();
   return {
     ...base,
+    reactionDamageGroupModel: {
+      mode: "legacy-reaction-damage-group-window-v1",
+      policyId: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID
+    },
     dataVersion: "ec-global-cadence-pure-provisional-1",
     randomSeed: "ec-pure-2-2-120-0",
     meta: {
