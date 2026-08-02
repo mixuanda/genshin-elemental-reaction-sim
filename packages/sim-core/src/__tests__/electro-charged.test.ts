@@ -175,6 +175,8 @@ function expectAcceptedAtBothBoundaries(
 ): void {
   expect(simulationResultSchema.parse(result)).toEqual(result);
   expect(assertTrustedSimulationResult(result)).toBe(result);
+  expect(result.freezeBrokenAttackLog).toEqual([]);
+  expect(result.mechanicsStatus).toBe("complete");
 }
 
 function expectRejectedAtBothBoundaries(
@@ -189,7 +191,7 @@ function expectRejectedAtBothBoundaries(
     ).toMatch(expectedIssue);
   }
   expect(() => assertTrustedSimulationResult(result)).toThrow(
-    /Trusted SimulationResult 1\.51 integrity validation failed/,
+    /Trusted SimulationResult 1\.52 integrity validation failed/,
   );
 }
 

@@ -27,6 +27,7 @@ import {
 } from "./reviewed-golden";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
 
 const PREVIEW_FLAG = "PREVIEW_BURNING_RESET_BOUNDARY_V149_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BURNING_RESET_BOUNDARY_V149_GOLDEN";
@@ -332,10 +333,14 @@ function runScenarios() {
 function makeFixture(results: ReturnType<typeof runScenarios>) {
   const projected = {
     v1Compatibility: projectSimulationResultV150ToV149(
-      projectSimulationResultV151ToV150(results.v1Compatibility),
+      projectSimulationResultV151ToV150(
+        projectSimulationResultV152ToV151(results.v1Compatibility),
+      ),
     ),
     v2Corrected: projectSimulationResultV150ToV149(
-      projectSimulationResultV151ToV150(results.v2Corrected),
+      projectSimulationResultV151ToV150(
+        projectSimulationResultV152ToV151(results.v2Corrected),
+      ),
     ),
   };
   return {

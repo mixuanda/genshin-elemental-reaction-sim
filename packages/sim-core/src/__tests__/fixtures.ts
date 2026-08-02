@@ -11,6 +11,8 @@ import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -83,6 +85,11 @@ export function makeConfig(
       mode: "fixed-gcsim-basic-reaction-scheduler-v2" as const,
       policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
     };
+  const freezeBrokenAttackModel =
+    overrides.freezeBrokenAttackModel ?? {
+      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+    };
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -125,6 +132,7 @@ export function makeConfig(
     elementalApplicationIcdModel,
     reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel,
-    basicReactionSchedulerModel
+    basicReactionSchedulerModel,
+    freezeBrokenAttackModel
   };
 }

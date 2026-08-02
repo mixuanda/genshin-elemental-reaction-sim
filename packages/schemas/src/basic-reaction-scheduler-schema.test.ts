@@ -17,13 +17,13 @@ import {
   BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
-  createSimulationRunManifest,
   CURRENT_ENGINE_VERSION,
   CURRENT_SCHEMA_VERSION,
   migrateConfig,
   parseSimulationRunManifestForConfig,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
   REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
+  REPRODUCIBILITY_IDENTITY_ALGORITHM,
   simConfigV150Schema,
   simConfigV151Schema,
   simulationRunManifestV151Schema
@@ -60,6 +60,7 @@ function freezeAsV150() {
   const current = migrateConfig(legacyConfig);
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...payload
   } = current;
   return simConfigV150Schema.parse({
@@ -70,8 +71,14 @@ function freezeAsV150() {
 }
 
 function makeNativeV151() {
+  const {
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    ...frozen
+  } = migrateConfig(legacyConfig);
   return simConfigV151Schema.parse({
-    ...migrateConfig(legacyConfig),
+    ...frozen,
+    schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+    engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
     basicReactionSchedulerModel: {
       mode: "fixed-gcsim-basic-reaction-scheduler-v2",
       policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
@@ -80,9 +87,13 @@ function makeNativeV151() {
 }
 
 describe("1.51 basic reaction scheduler identity", () => {
-  it("advances the current config and manifest identities only", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION);
-    expect(CURRENT_ENGINE_VERSION).toBe(BASIC_REACTION_SCHEDULER_ENGINE_VERSION);
+  it("retains the frozen 1.51 config and manifest identities", () => {
+    expect(CURRENT_SCHEMA_VERSION).not.toBe(
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
+    );
+    expect(CURRENT_ENGINE_VERSION).not.toBe(
+      BASIC_REACTION_SCHEDULER_ENGINE_VERSION
+    );
     expect(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION).toBe("1.51.0");
     expect(BASIC_REACTION_SCHEDULER_ENGINE_VERSION).toBe(
       "1.51.0-basic-reaction-scheduler"
@@ -93,8 +104,8 @@ describe("1.51 basic reaction scheduler identity", () => {
   it("migrates an exact 1.50 wire with the legacy V1 scheduler only", () => {
     const frozen = freezeAsV150();
     const migrated = migrateConfig(frozen);
-    expect(migrated.schemaVersion).toBe(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION);
-    expect(migrated.engineVersion).toBe(BASIC_REACTION_SCHEDULER_ENGINE_VERSION);
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.engineVersion).toBe(CURRENT_ENGINE_VERSION);
     expect(migrated.basicReactionSchedulerModel).toEqual({
       mode: "legacy-immediate-basic-reaction-scheduler-v1",
       policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
@@ -147,7 +158,9 @@ describe("1.51 basic reaction scheduler identity", () => {
 
   it("binds the current manifest to the exact selected scheduler root", () => {
     const config = makeNativeV151();
-    const manifest = createSimulationRunManifest({
+    const identity = {
+      version: BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION,
+      identityAlgorithm: REPRODUCIBILITY_IDENTITY_ALGORITHM,
       schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
       engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
       dataVersion: config.dataVersion,
@@ -163,7 +176,11 @@ describe("1.51 basic reaction scheduler identity", () => {
         GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       basicReactionSchedulerRoot:
         GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT
-    });
+    };
+    const manifest = {
+      ...identity,
+      reproducibilityKey: createSimulationReproducibilityKey(identity)
+    };
     expect(simulationRunManifestV151Schema.parse(manifest)).toEqual(manifest);
     expect(parseSimulationRunManifestForConfig(manifest, config)).toEqual(
       manifest

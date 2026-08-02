@@ -15,6 +15,7 @@ import {
   type TargetPhaseV3LogEntry,
   type TargetPhaseV3TargetTask,
 } from "@genshin-dps-lab/schemas";
+import { GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -404,7 +405,11 @@ describe("target-phase-v3 result integrity", () => {
       critMode: "noCrit",
     });
 
-    expect(Object.keys(result)).toHaveLength(69);
+    expect(Object.keys(result)).toHaveLength(70);
+    expect(result.freezeBrokenAttackLog).toEqual([]);
+    expect(result.runManifest.freezeBrokenAttackRoot).toEqual(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+    );
     expect(simulationResultSchema.parse(result)).toEqual(result);
     expect(assertTrustedSimulationResult(result)).toBe(result);
 
@@ -777,6 +782,22 @@ describe("target-phase-v3 result integrity", () => {
 
   it("binds typed Frozen expiry transitions to their exact lifecycle row and timeline point", () => {
     const base = simulate(makeTargetPhaseV3FrozenBoundaryConfig());
+    expect(base.runManifest.freezeBrokenAttackRoot).toEqual(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
+    );
+    expect(base.runManifest.freezeBrokenAttackRoot).toMatchObject({
+      mechanicsStatus: "partial",
+    });
+    expect(base.freezeBrokenAttackLog).toHaveLength(1);
+    expect(base.freezeBrokenAttackLog[0]).toMatchObject({
+      frame: 176,
+      targetId: "frozen-recipient",
+      depletionOperation: "expire",
+      triggerEventType: "frozenExpiry",
+      executionStatus: "reference-audit-only-not-dispatched",
+      damageEventId: null,
+      hitResolutionLogId: null,
+    });
     const ownerPhase = v3Phases(base).find((phase) =>
       phase.reactableTick.transitions.some(
         (transition) => transition.kind === "frozen-expiry",

@@ -89,6 +89,7 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
   resolveBasicReactionSchedulerPolicyRoot,
+  resolveFreezeBrokenAttackPolicyRoot,
   resolveReactionDamageGroupPolicyRoot,
   resolveReactionOwnedApplicationPolicyRoot,
 } from "@genshin-dps-lab/icd-profiles";
@@ -169,6 +170,10 @@ import {
   skippedConfiguredElementalApplicationDecision,
   skippedReactionOwnedElementalApplicationDecision
 } from "./elemental-application-decision";
+import {
+  buildFreezeBrokenAttackLogEntry,
+  classifyFreezeBrokenAttackTransition,
+} from "./freeze-broken-attack";
 
 export const EVENT_PRIORITY = {
   action: 0,
@@ -1521,6 +1526,9 @@ function simulateConfig(
         resolveBasicReactionSchedulerPolicyRoot(
           config.basicReactionSchedulerModel.policyId,
         ),
+      freezeBrokenAttackRoot: resolveFreezeBrokenAttackPolicyRoot(
+        config.freezeBrokenAttackModel.policyId,
+      ),
       resolvedRuntimeOptions: options,
       plugins: pluginManifest
     })
@@ -3095,6 +3103,59 @@ function simulateConfig(
   const periodicReactionLog: SimulationResult["periodicReactionLog"] =
     [];
   const frozenStateLog: SimulationResult["frozenStateLog"] = [];
+  const freezeBrokenAttackLog: SimulationResult["freezeBrokenAttackLog"] = [];
+  const emittedFreezeBrokenTerminalRows = new Set<number>();
+  const appendFreezeBrokenAttackAudit = ({
+    frozenStateEntry,
+    depletionDamageEventId,
+    sourceFreezeDamageEventId,
+    triggerEventType,
+    triggerEventPriority,
+    triggerEventSequence,
+    nextIntraEventSequence,
+  }: {
+    frozenStateEntry: SimulationResult["frozenStateLog"][number];
+    depletionDamageEventId: number | null;
+    sourceFreezeDamageEventId: number | null;
+    triggerEventType: SimulationEvent["type"];
+    triggerEventPriority: number;
+    triggerEventSequence: number;
+    nextIntraEventSequence: () => number;
+  }): void => {
+    const classification = classifyFreezeBrokenAttackTransition(
+      config.freezeBrokenAttackModel.mode,
+      frozenStateEntry,
+    );
+    if (
+      classification === null ||
+      emittedFreezeBrokenTerminalRows.has(
+        classification.terminalFrozenStateLogId,
+      )
+    ) {
+      return;
+    }
+    emittedFreezeBrokenTerminalRows.add(
+      classification.terminalFrozenStateLogId,
+    );
+    const auditEntry = buildFreezeBrokenAttackLogEntry({
+      id: freezeBrokenAttackLog.length,
+      mode: config.freezeBrokenAttackModel.mode,
+      frozenStateEntry,
+      resolvedActorId: config.characters[0]!.id,
+      depletionDamageEventId,
+      sourceFreezeDamageEventId,
+      triggerEventType,
+      triggerEventPriority,
+      triggerEventSequence,
+      intraEventSequence: nextIntraEventSequence(),
+    });
+    if (auditEntry === null) {
+      throw new Error(
+        `Freeze Broken terminal row ${frozenStateEntry.id} changed classification while building its audit.`,
+      );
+    }
+    freezeBrokenAttackLog.push(auditEntry);
+  };
   const quickenStateLog: SimulationResult["quickenStateLog"] = [];
   const burningStateLog: SimulationResult["burningStateLog"] = [];
   const dendroCoreLog: SimulationResult["dendroCoreLog"] = [];
@@ -5474,7 +5535,11 @@ function simulateConfig(
     triggerDamageEventId,
     frame,
     timeSeconds,
-    freezeResistance
+    freezeResistance,
+    triggerEventType,
+    triggerEventPriority,
+    triggerEventSequence,
+    nextIntraEventSequence,
   }: {
     result: ShatterStateResult;
     targetId: string;
@@ -5484,9 +5549,14 @@ function simulateConfig(
     frame: number;
     timeSeconds: number;
     freezeResistance: number;
+    triggerEventType: SimulationEvent["type"];
+    triggerEventPriority: number;
+    triggerEventSequence: number;
+    nextIntraEventSequence: () => number;
   }): void => {
+    const existingSource = activeFrozenStateSources.get(targetId);
     for (const mutation of result.mutations) {
-      frozenStateLog.push({
+      const frozenStateEntry: SimulationResult["frozenStateLog"][number] = {
         id: frozenStateLog.length,
         reaction: "shatter",
         generation: result.audit.generation,
@@ -5509,10 +5579,20 @@ function simulateConfig(
         auraAfter: deepClone(mutation.auraAfter),
         expiresAtFrame: result.audit.expiresAtFrame,
         reason: mutation.reason
+      };
+      frozenStateLog.push(frozenStateEntry);
+      appendFreezeBrokenAttackAudit({
+        frozenStateEntry,
+        depletionDamageEventId: triggerDamageEventId,
+        sourceFreezeDamageEventId:
+          existingSource?.triggerDamageEventId ?? null,
+        triggerEventType,
+        triggerEventPriority,
+        triggerEventSequence,
+        nextIntraEventSequence,
       });
     }
     if (result.mutations.length === 0) return;
-    const existingSource = activeFrozenStateSources.get(targetId);
     if (result.audit.frozenGaugeAfter > 0) {
       activeFrozenStateSources.set(targetId, {
         generation: result.audit.generation,
@@ -6763,6 +6843,14 @@ function simulateConfig(
 
     const frozenReaction = audit.frozenReaction;
     if (frozenReaction !== null) {
+      const existingSource = activeFrozenStateSources.get(targetId);
+      const consumedByFrozenSwirl =
+        frozenReaction.operation === "consume" &&
+        audit.swirlReactions.some(
+          (entry) =>
+            entry.reaction === "swirlCryo" &&
+            entry.consumedAuraElement === "frozen",
+        );
       const consumedBySuperconduct =
         frozenReaction.operation === "consume" &&
         audit.reactions.includes("superconduct");
@@ -6774,7 +6862,7 @@ function simulateConfig(
         frozenReaction.operation === "immune"
           ? "FREEZE_RESISTANCE_IMMUNE"
           : frozenReaction.operation === "consume"
-            ? audit.reaction === "swirlCryo"
+            ? consumedByFrozenSwirl
               ? `${frozenConsumptionExtent}_BY_SWIRL`
               : `${frozenConsumptionExtent}_BY_${
                   audit.reaction === "melt"
@@ -6782,14 +6870,14 @@ function simulateConfig(
                     : "SUPERCONDUCT"
                 }`
             : null;
-      frozenStateLog.push({
+      const frozenStateEntry: SimulationResult["frozenStateLog"][number] = {
         id: frozenStateLog.length,
         reaction:
           audit.reaction === "melt"
             ? "melt"
             : consumedBySuperconduct
               ? "superconduct"
-              : audit.reaction === "swirlCryo"
+              : consumedByFrozenSwirl
                 ? "swirlCryo"
                 : "freeze",
         generation: frozenReaction.generation,
@@ -6814,6 +6902,17 @@ function simulateConfig(
         auraAfter: deepClone(audit.auraAfter ?? []),
         expiresAtFrame: frozenReaction.expiresAtFrame,
         reason
+      };
+      frozenStateLog.push(frozenStateEntry);
+      appendFreezeBrokenAttackAudit({
+        frozenStateEntry,
+        depletionDamageEventId: damageEventId,
+        sourceFreezeDamageEventId:
+          existingSource?.triggerDamageEventId ?? null,
+        triggerEventType: "reactionDamage",
+        triggerEventPriority: eventPriority,
+        triggerEventSequence: eventSequence,
+        nextIntraEventSequence,
       });
       if (
         frozenReaction.operation === "start" ||
@@ -6825,8 +6924,6 @@ function simulateConfig(
           triggerDamageEventId: damageEventId
         });
       } else if (frozenReaction.operation === "consume") {
-        const existingSource =
-          activeFrozenStateSources.get(targetId);
         if (frozenReaction.frozenGaugeAfter > 0) {
           activeFrozenStateSources.set(targetId, {
             generation: frozenReaction.generation,
@@ -9679,6 +9776,16 @@ function simulateConfig(
         auraAfter: result.auraAfter,
         expiresAtFrame: null,
         reason: result.reason
+      });
+      appendFreezeBrokenAttackAudit({
+        frozenStateEntry: frozenStateLog[frozenStateLogId]!,
+        depletionDamageEventId: null,
+        sourceFreezeDamageEventId:
+          source?.triggerDamageEventId ?? null,
+        triggerEventType: event.type,
+        triggerEventPriority: event.priority,
+        triggerEventSequence: event.sequence,
+        nextIntraEventSequence,
       });
       if (targetPhaseV2State !== null) {
         appendTargetPhaseV2Transition(
@@ -12639,7 +12746,11 @@ function simulateConfig(
             frame: event.frame,
             timeSeconds,
             freezeResistance:
-              targetProfile.freezeResistance
+              targetProfile.freezeResistance,
+            triggerEventType: event.type,
+            triggerEventPriority: event.priority,
+            triggerEventSequence: event.sequence,
+            nextIntraEventSequence,
           });
           if (nestedShatterState.audit.triggered) {
             const shatterSourceStats = computeStats(
@@ -13446,7 +13557,11 @@ function simulateConfig(
             triggerDamageEventId: damageEventId,
             frame: event.frame,
             timeSeconds,
-            freezeResistance: targetProfile.freezeResistance
+            freezeResistance: targetProfile.freezeResistance,
+            triggerEventType: event.type,
+            triggerEventPriority: event.priority,
+            triggerEventSequence: event.sequence,
+            nextIntraEventSequence,
           });
           if (nestedShatterState.audit.triggered) {
             // A Shatter triggered by reaction damage also snapshots this
@@ -14226,7 +14341,11 @@ function simulateConfig(
         triggerDamageEventId: pendingDirectDamageEventId,
         frame: event.frame,
         timeSeconds,
-        freezeResistance: targetProfile.freezeResistance
+        freezeResistance: targetProfile.freezeResistance,
+        triggerEventType: event.type,
+        triggerEventPriority: event.priority,
+        triggerEventSequence: event.sequence,
+        nextIntraEventSequence,
       });
       if (shatterState.audit.triggered) {
         const shatterSourceStats = computeStats(
@@ -14895,7 +15014,11 @@ function simulateConfig(
         triggerDamageEventId: damageEventId,
         frame: event.frame,
         timeSeconds,
-        freezeResistance: targetProfile.freezeResistance
+        freezeResistance: targetProfile.freezeResistance,
+        triggerEventType: event.type,
+        triggerEventPriority: event.priority,
+        triggerEventSequence: event.sequence,
+        nextIntraEventSequence,
       });
       if (shatterState.audit.triggered) {
         // Shatter freezes its own trigger-frame reaction snapshot; it must not
@@ -15106,16 +15229,28 @@ function simulateConfig(
     }
     const frozenReaction = reactionAudit.frozenReaction;
     if (frozenReaction !== null) {
+      const existingSource = activeFrozenStateSources.get(targetId);
       const operation = frozenReaction.operation;
+      const consumedByFrozenSwirl =
+        operation === "consume" &&
+        reactionAudit.swirlReactions.some(
+          (entry) =>
+            entry.reaction === "swirlCryo" &&
+            entry.consumedAuraElement === "frozen",
+        );
+      const consumedByFrozenCrystallize =
+        operation === "consume" &&
+        reactionAudit.crystallizeReaction?.reaction === "crystallizeCryo" &&
+        reactionAudit.crystallizeReaction.consumedAuraElement === "frozen";
       const consumedBySuperconduct =
         operation === "consume" &&
         reactionAudit.reactions.includes("superconduct");
       const frozenConsumptionReaction =
         reaction === "melt"
           ? "MELT"
-          : reaction === "swirlCryo"
+          : consumedByFrozenSwirl
             ? "SWIRL"
-            : reaction === "crystallizeCryo"
+            : consumedByFrozenCrystallize
               ? "CRYSTALLIZE"
             : "SUPERCONDUCT";
       const frozenConsumptionExtent =
@@ -15128,16 +15263,16 @@ function simulateConfig(
           : operation === "consume"
             ? `${frozenConsumptionExtent}_BY_${frozenConsumptionReaction}`
             : null;
-      frozenStateLog.push({
+      const frozenStateEntry: SimulationResult["frozenStateLog"][number] = {
         id: frozenStateLog.length,
         reaction:
           reaction === "melt"
             ? "melt"
             : consumedBySuperconduct
               ? "superconduct"
-              : reaction === "swirlCryo"
+              : consumedByFrozenSwirl
                 ? "swirlCryo"
-                : reaction === "crystallizeCryo"
+                : consumedByFrozenCrystallize
                   ? "crystallizeCryo"
                 : "freeze",
         generation: frozenReaction.generation,
@@ -15166,6 +15301,17 @@ function simulateConfig(
         ),
         expiresAtFrame: frozenReaction.expiresAtFrame,
         reason
+      };
+      frozenStateLog.push(frozenStateEntry);
+      appendFreezeBrokenAttackAudit({
+        frozenStateEntry,
+        depletionDamageEventId: damageEventId,
+        sourceFreezeDamageEventId:
+          existingSource?.triggerDamageEventId ?? null,
+        triggerEventType: event.type,
+        triggerEventPriority: event.priority,
+        triggerEventSequence: event.sequence,
+        nextIntraEventSequence,
       });
       if (
         operation === "start" ||
@@ -15177,8 +15323,6 @@ function simulateConfig(
           triggerDamageEventId: damageEventId
         });
       } else if (operation === "consume") {
-        const existingSource =
-          activeFrozenStateSources.get(targetId);
         if (frozenReaction.frozenGaugeAfter > 0) {
           activeFrozenStateSources.set(targetId, {
             generation: frozenReaction.generation,
@@ -15911,7 +16055,8 @@ function simulateConfig(
     reproducibilityKey: runManifest.reproducibilityKey,
     compatibilityMode: options.compatibilityMode,
     mechanicsStatus:
-      targetMechanicsTruncationLog.length === 0
+      targetMechanicsTruncationLog.length === 0 &&
+      freezeBrokenAttackLog.length === 0
         ? "complete"
         : "partial",
     config: resultConfig,
@@ -15931,6 +16076,7 @@ function simulateConfig(
     reactionDamageLog,
     reactionDamageGroupResetLog,
     basicReactionSchedulerLog,
+    freezeBrokenAttackLog,
     reactionTaskLog,
     reactionStatusLog,
     periodicReactionLog,

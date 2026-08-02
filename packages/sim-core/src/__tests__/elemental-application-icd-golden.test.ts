@@ -36,6 +36,7 @@ import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { makeConfig } from "./fixtures";
 
 const PREVIEW_FLAG = "PREVIEW_ELEMENTAL_APPLICATION_ICD_V147_GOLDEN";
@@ -482,7 +483,9 @@ function runVector() {
     projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
-          simulate(makeVectorConfig(), OPTIONS),
+          projectSimulationResultV152ToV151(
+            simulate(makeVectorConfig(), OPTIONS),
+          ),
         ),
       ),
     ),

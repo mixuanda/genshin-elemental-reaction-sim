@@ -1,0 +1,1751 @@
+{
+  "fixtureVersion": "1.0.0",
+  "description": "Reviewed V1.52 Freeze Broken audit Golden covering legacy-empty compatibility, six normalized positive depletion paths, and three excluded or partial negative paths.",
+  "provenance": {
+    "sourceProject": "genshinsim/gcsim",
+    "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "capturedAt": "2026-08-02",
+    "verificationStatus": "reviewed-provisional",
+    "note": "The pinned gcsim Freeze Broken attack is retained only as reference provenance. Local V2 rows are a normalized audit contract and are not dispatched callbacks, DamageEvents, HitResolution rows, RNG draws, official server truth, or complete gcsim parity.",
+    "officialServerTruth": false,
+    "completeGcsimParity": false
+  },
+  "currentIdentity": {
+    "schemaVersion": "1.52.0",
+    "engineVersion": "1.52.0-freeze-broken-attack",
+    "runManifestVersion": "1.8.0"
+  },
+  "policyRoots": {
+    "legacyNoCallbackV1": {
+      "version": "1.0.0",
+      "policyId": "legacy-no-freeze-broken-attack-callback-v1",
+      "mode": "legacy-no-freeze-broken-attack-callback",
+      "contentHash": "sha256:2831fac7a15189b772db58c245ffd8091b1128b5fd5ea516885f03a99961c838",
+      "mechanicsDataStatus": "legacy-project-absent",
+      "sourceProject": "genshin-dps-lab",
+      "sourceRevision": "genshin-dps-lab-1.51.0-local-baseline",
+      "pinnedGcsimReference": false,
+      "callbackDisposition": "none",
+      "triggerSources": [],
+      "damageEventDisposition": "none",
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "legacy-no-freeze-broken-callback-only",
+      "provisional": true
+    },
+    "normalizedAuditV2": {
+      "version": "2.0.0",
+      "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2",
+      "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+      "contentHash": "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14",
+      "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+      "sourceProject": "genshinsim/gcsim",
+      "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pinnedGcsimReference": true,
+      "mechanicsStatus": "partial",
+      "callbackSurface": "audit-only-until-callback-bus-bubble-and-impulse-implementation",
+      "callbackDisposition": "reference-audit-only-not-dispatched",
+      "triggerSources": [
+        "natural-decay",
+        "poise",
+        "shatter",
+        "swirl-frozen",
+        "crystallize-frozen"
+      ],
+      "excludedReactionSources": [
+        "melt",
+        "superconduct"
+      ],
+      "executionStatus": "reference-audit-only-not-dispatched",
+      "auditDisposition": "reference-audit-only-not-dispatched",
+      "plannedCallbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+      "normalizedDepletionThreshold": 1e-10,
+      "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+      "rngDisposition": "consume-none",
+      "damageEventDisposition": "emit-none",
+      "intentionalDeviations": [
+        "collapse-zero-durability-duplicate-to-exactly-once",
+        "consume-no-crit-rng",
+        "emit-no-synthetic-damage-event",
+        "normalize-depletion-threshold-from-1e-11-to-1e-10",
+        "callback-subscriber-side-effects-unimplemented",
+        "mona-bubble-and-impulse-bus-unimplemented"
+      ],
+      "officialServerTruth": false,
+      "completeGcsimParity": false,
+      "coverage": "freeze-depletion-callback-trigger-sources-and-local-normalization-only",
+      "provisional": true
+    }
+  },
+  "sevenRootManifestIdentity": {
+    "trustRootKeys": [
+      "reactionFormulaRoot",
+      "directDamageGroupRoot",
+      "elementalApplicationIcdRoot",
+      "reactionOwnedElementalApplicationRoot",
+      "reactionDamageGroupRoot",
+      "basicReactionSchedulerRoot",
+      "freezeBrokenAttackRoot"
+    ],
+    "trustRootCount": 7,
+    "referenceRunManifest": {
+      "version": "1.8.0",
+      "identityAlgorithm": "fnv1a32-v2",
+      "schemaVersion": "1.52.0",
+      "engineVersion": "1.52.0-freeze-broken-attack",
+      "dataVersion": "synthetic-freeze-broken-natural-decay-v2-1.52",
+      "configHash": "fnv1a32:464635e0",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "noCrit",
+        "compatibilityMode": "legal-frame-v1",
+        "randomSeed": "synthetic-freeze-broken-natural-decay-v2-1.52"
+      },
+      "plugins": [],
+      "reactionFormulaRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1",
+        "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false
+      },
+      "directDamageGroupRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "damage-group-reset-and-damage-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      },
+      "elementalApplicationIcdRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "elemental-application-reset-and-numeric-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+        "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+        "provisional": true
+      },
+      "reactionOwnedElementalApplicationRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+        "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "elementalApplicationRootRef": {
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+        "resetTimerDataSource": "referenced-elemental-application-root",
+        "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+        "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+        "provisional": true
+      },
+      "reactionDamageGroupRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "damageGroupRootRef": {
+          "version": "1.0.0",
+          "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+          "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+          "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "tailPolicy": "clamp-last",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+        "scopeKeyFields": [
+          "receivingTargetId",
+          "sourceActorId",
+          "icdTag"
+        ],
+        "damageSourceInScopeKey": false,
+        "resetBoundary": "scheduled-reset-task",
+        "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+        "resetFrameOffsetAdjustment": -1,
+        "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+        "schedulerProvenance": "provisional-not-complete",
+        "provisional": true
+      },
+      "basicReactionSchedulerRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+        "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+        "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+        "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+        "attackResolutionPhase": "immediate-core-task",
+        "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+        "includedReactions": [
+          "burning",
+          "swirl"
+        ],
+        "intentionalDeviations": [
+          "burning-monotonic-generation-guard"
+        ],
+        "provisional": true
+      },
+      "freezeBrokenAttackRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2",
+        "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+        "contentHash": "sha256:71646812a4061c9ef2d4ae8ca7cef1abaa79d718c8831ffaf5e3f27832955e14",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "callbackSurface": "audit-only-until-callback-bus-bubble-and-impulse-implementation",
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "triggerSources": [
+          "natural-decay",
+          "poise",
+          "shatter",
+          "swirl-frozen",
+          "crystallize-frozen"
+        ],
+        "excludedReactionSources": [
+          "melt",
+          "superconduct"
+        ],
+        "executionStatus": "reference-audit-only-not-dispatched",
+        "auditDisposition": "reference-audit-only-not-dispatched",
+        "plannedCallbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+        "normalizedDepletionThreshold": 1e-10,
+        "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "intentionalDeviations": [
+          "collapse-zero-durability-duplicate-to-exactly-once",
+          "consume-no-crit-rng",
+          "emit-no-synthetic-damage-event",
+          "normalize-depletion-threshold-from-1e-11-to-1e-10",
+          "callback-subscriber-side-effects-unimplemented",
+          "mona-bubble-and-impulse-bus-unimplemented"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-depletion-callback-trigger-sources-and-local-normalization-only",
+        "provisional": true
+      },
+      "reproducibilityKey": "gdl-v2-fnv1a32-4ac51d21"
+    }
+  },
+  "normalizedContract": {
+    "auditOnly": true,
+    "callbackBusImplemented": false,
+    "syntheticDamageEventEmitted": false,
+    "syntheticHitResolutionEmitted": false,
+    "rngDrawConsumed": false,
+    "note": "The current slice records eligible positive-to-depleted Frozen transitions. It intentionally does not dispatch either pinned reference phase or consume the pinned reference crit RNG draw."
+  },
+  "mixedSwirlClassification": {
+    "primaryDamageReaction": "swirlHydro",
+    "orderedReactionsInclude": [
+      "swirlHydro",
+      "swirlCryo"
+    ],
+    "consumedFrozenAuditReaction": "swirlCryo",
+    "freezeBrokenAuditReaction": "swirlCryo"
+  },
+  "limitations": {
+    "testOnlyHighGaugeCrystallizeBoundary": true,
+    "noOfficialServerValidation": true,
+    "noCompleteGcsimParity": true,
+    "noCallbackSubscriberSideEffects": true,
+    "noGeneralPhysicsOrImpulseBus": true,
+    "note": "The Crystallize case uses a synthetic high-gauge exact boundary solely to exercise the local transition. The fixture does not validate live character data, callback subscribers, Mona bubble, enemy impulse, complete Aura/ICD, particles, or action frames."
+  },
+  "legacySameScenario": {
+    "identity": {
+      "schemaVersion": "1.52.0",
+      "engineVersion": "1.52.0-freeze-broken-attack",
+      "dataVersion": "synthetic-freeze-broken-natural-decay-v1-1.52",
+      "randomSeed": "synthetic-freeze-broken-natural-decay-v1-1.52",
+      "configHash": "fnv1a32:b3745dfb",
+      "reproducibilityKey": "gdl-v2-fnv1a32-385a1540",
+      "selectedModel": {
+        "mode": "legacy-no-freeze-broken-attack-callback",
+        "policyId": "legacy-no-freeze-broken-attack-callback-v1"
+      },
+      "manifestCanonicalSha256": "37734fcbb91e7543abd8c4a250704c4939cb342f4880914662460729e4055c1f"
+    },
+    "mechanicsStatus": "complete",
+    "totals": {
+      "totalDamage": 450,
+      "dps": 112.5,
+      "damageEventCount": 1,
+      "hitResolutionCount": 1,
+      "frozenStateLogCount": 2,
+      "freezeBrokenAttackLogCount": 0
+    },
+    "frozenStateLog": [
+      {
+        "id": 0,
+        "reaction": "freeze",
+        "generation": 1,
+        "operation": "start",
+        "frame": 0,
+        "timeSeconds": 0,
+        "targetId": "enemy-0",
+        "targetName": "Freeze Broken reviewed target",
+        "sourceActorId": "tester",
+        "triggerDamageEventId": 0,
+        "freezeResistance": 0,
+        "generatedGaugeUnits": 1.6,
+        "consumedGaugeUnits": 0,
+        "auraBefore": [
+          {
+            "element": "cryo",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 426
+          }
+        ],
+        "auraAfter": [
+          {
+            "element": "frozen",
+            "gaugeUnits": 1.6,
+            "expiresAtFrame": 176
+          }
+        ],
+        "expiresAtFrame": 176,
+        "reason": null
+      },
+      {
+        "id": 1,
+        "reaction": "freeze",
+        "generation": 1,
+        "operation": "expire",
+        "frame": 176,
+        "timeSeconds": 2.933333333333333,
+        "targetId": "enemy-0",
+        "targetName": "Freeze Broken reviewed target",
+        "sourceActorId": "tester",
+        "triggerDamageEventId": 0,
+        "freezeResistance": 0,
+        "generatedGaugeUnits": 0,
+        "consumedGaugeUnits": 0,
+        "auraBefore": [
+          {
+            "element": "frozen",
+            "gaugeUnits": 0.005555555556,
+            "expiresAtFrame": 176
+          }
+        ],
+        "auraAfter": [],
+        "expiresAtFrame": null,
+        "reason": "FROZEN_DECAY_EXPIRED"
+      }
+    ],
+    "freezeBrokenAttackLog": [],
+    "normalizedExecution": {
+      "combatOutputMatchesLegacy": true,
+      "totalDamageDelta": 0,
+      "damageEventCountDelta": 0,
+      "hitResolutionCountDelta": 0,
+      "materializedFreezeBrokenDamageEvent": false,
+      "materializedFreezeBrokenHitResolution": false,
+      "callbackDisposition": "reference-audit-only-not-dispatched",
+      "rngDisposition": "consume-none",
+      "configuredCritMode": "noCrit"
+    },
+    "canonicalSha256": {
+      "config": "27f971a0eba5a35fe12accd78b77d6f702e7ea2235394bce2b37e8dbf5df4aaf",
+      "runManifest": "37734fcbb91e7543abd8c4a250704c4939cb342f4880914662460729e4055c1f",
+      "frozenStateLog": "935da6110f54d2268f8de7ff1d78638ee2345b8e74519c75d80a783c5c7acbd0",
+      "freezeBrokenAttackLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "combatOutput": "f2d09bf55639ff5e8313e4a1c832969d7e3225c151a1dbc68fd28d3d7cde84a2",
+      "legacyCombatOutput": "f2d09bf55639ff5e8313e4a1c832969d7e3225c151a1dbc68fd28d3d7cde84a2"
+    }
+  },
+  "positiveMatrix": {
+    "naturalDecay": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-natural-decay-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-natural-decay-v2-1.52",
+        "configHash": "fnv1a32:464635e0",
+        "reproducibilityKey": "gdl-v2-fnv1a32-4ac51d21",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "1daf013184bbb9a0727a063c39fef60ee75418b3d1a8db1f18ac77f110f2cc6b"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 450,
+        "dps": 112.5,
+        "damageEventCount": 1,
+        "hitResolutionCount": 1,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "expire",
+          "frame": 176,
+          "timeSeconds": 2.933333333333333,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.005555555556,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_DECAY_EXPIRED"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 176,
+          "timeSeconds": 2.933333333333333,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 1,
+          "sourceFrozenStateLogId": 1,
+          "depletionOperation": "expire",
+          "reaction": "freeze",
+          "reason": "FROZEN_DECAY_EXPIRED",
+          "depletionDamageEventId": null,
+          "sourceFreezeDamageEventId": 0,
+          "triggerEventType": "frozenExpiry",
+          "triggerEventPriority": 2,
+          "triggerEventSequence": 2,
+          "intraEventSequence": 1,
+          "frozenGaugeBefore": 0.005555555556,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "not-applicable"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "616c8029f912604e322aa203f2dc560ccdbcb06aa6c825d71e69021c704aa27f",
+        "runManifest": "1daf013184bbb9a0727a063c39fef60ee75418b3d1a8db1f18ac77f110f2cc6b",
+        "frozenStateLog": "935da6110f54d2268f8de7ff1d78638ee2345b8e74519c75d80a783c5c7acbd0",
+        "freezeBrokenAttackLog": "78612dfcaf0a32f448313d30055eb7cb43952cd8afc74ea6c7e954daacdb074d",
+        "combatOutput": "f2d09bf55639ff5e8313e4a1c832969d7e3225c151a1dbc68fd28d3d7cde84a2",
+        "legacyCombatOutput": "f2d09bf55639ff5e8313e4a1c832969d7e3225c151a1dbc68fd28d3d7cde84a2"
+      }
+    },
+    "poise": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-poise-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-poise-v2-1.52",
+        "configHash": "fnv1a32:60afce02",
+        "reproducibilityKey": "gdl-v2-fnv1a32-464a1cf3",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "3da4a924c77306116531293afc230c6b36fa5d79777c80100440ea73993ca5fb"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 900,
+        "dps": 900,
+        "damageEventCount": 2,
+        "hitResolutionCount": 2,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "shatter",
+          "generation": 2,
+          "operation": "poise-consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 1.559416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.559416666667,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_DEPLETED_BY_BLUNT_POISE"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 2,
+          "sourceFrozenStateLogId": 1,
+          "depletionOperation": "poise-consume",
+          "reaction": "shatter",
+          "reason": "FROZEN_DEPLETED_BY_BLUNT_POISE",
+          "depletionDamageEventId": 1,
+          "sourceFreezeDamageEventId": 0,
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 2,
+          "intraEventSequence": 2,
+          "frozenGaugeBefore": 1.559416666667,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "before"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "56241caac518380ef189b66b7b212939ef7497b3555e8e6151dfa5bff4bf7f35",
+        "runManifest": "3da4a924c77306116531293afc230c6b36fa5d79777c80100440ea73993ca5fb",
+        "frozenStateLog": "dd4b362a3dbe23543331624d9f3e77284c107b3fd991b0bc3c7aa9b5f5553cc2",
+        "freezeBrokenAttackLog": "80a268fb37800c020de43593cebbc95ca509ffa07c5619e5391aa65d4d7663dd",
+        "combatOutput": "292bdc566e11223e3320a63fb5ceac26c1cd14f6c6c4304582313615c19bfbc6",
+        "legacyCombatOutput": "292bdc566e11223e3320a63fb5ceac26c1cd14f6c6c4304582313615c19bfbc6"
+      }
+    },
+    "shatter": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-shatter-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-shatter-v2-1.52",
+        "configHash": "fnv1a32:c736e4b9",
+        "reproducibilityKey": "gdl-v2-fnv1a32-10bc1537",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "9513d34432256fe12e5e44c2d3a11c035cf527c03790d6ce68b9825c6f27211f"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 4806.50445,
+        "dps": 4806.50445,
+        "damageEventCount": 3,
+        "hitResolutionCount": 3,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "shatter",
+          "generation": 2,
+          "operation": "shatter-consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 1.559416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.559416666667,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_SHATTER"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 2,
+          "sourceFrozenStateLogId": 1,
+          "depletionOperation": "shatter-consume",
+          "reaction": "shatter",
+          "reason": "FROZEN_CONSUMED_BY_SHATTER",
+          "depletionDamageEventId": 1,
+          "sourceFreezeDamageEventId": 0,
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 2,
+          "intraEventSequence": 2,
+          "frozenGaugeBefore": 1.559416666667,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "before"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "f2e733529bb940f9d1e602c5a94a34616b4bdccf7262d06d7ce62301be383e38",
+        "runManifest": "9513d34432256fe12e5e44c2d3a11c035cf527c03790d6ce68b9825c6f27211f",
+        "frozenStateLog": "3408861ad7c5e3bc06b7c5b192baa05268e423a42001a17c2197153ce6f106d2",
+        "freezeBrokenAttackLog": "9b28e35be956ad6cecd28655c280c81761a790d0fa30dac54b268f160522f9d1",
+        "combatOutput": "ebfad79bb4a18678e0efcfb7efee1fba0caf8c1f16e7398de58db5c5ce8bbf65",
+        "legacyCombatOutput": "ebfad79bb4a18678e0efcfb7efee1fba0caf8c1f16e7398de58db5c5ce8bbf65"
+      }
+    },
+    "swirlFrozen": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-swirl-frozen-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-swirl-frozen-v2-1.52",
+        "configHash": "fnv1a32:8c40bc54",
+        "reproducibilityKey": "gdl-v2-fnv1a32-2e2abbb5",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "5adf70d29cfd466706f36339b4b56486b9621909792b2474cdc765f14f8ae09b"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 1681.30089,
+        "dps": 1681.30089,
+        "damageEventCount": 3,
+        "hitResolutionCount": 3,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0.4,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.2,
+              "expiresAtFrame": 422
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.4,
+              "expiresAtFrame": 54
+            }
+          ],
+          "expiresAtFrame": 54,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "swirlCryo",
+          "generation": 2,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 0.359416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.359416666667,
+              "expiresAtFrame": 54
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_SWIRL"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 2,
+          "sourceFrozenStateLogId": 1,
+          "depletionOperation": "consume",
+          "reaction": "swirlCryo",
+          "reason": "FROZEN_CONSUMED_BY_SWIRL",
+          "depletionDamageEventId": 1,
+          "sourceFreezeDamageEventId": 0,
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 2,
+          "intraEventSequence": 1,
+          "frozenGaugeBefore": 0.359416666667,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "before"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "d3af55af1611060fa38b6583cc1a2b493928238125eb060280d7ab0730dcf6fe",
+        "runManifest": "5adf70d29cfd466706f36339b4b56486b9621909792b2474cdc765f14f8ae09b",
+        "frozenStateLog": "7dfd2f5998f24f7fe624cf296eb72ddfda4009116061173747f9f3a49d2a4d7b",
+        "freezeBrokenAttackLog": "63ee889c2091255f02400c3293d44135c9ccb3c9346e5634f13b2be1c44f0bee",
+        "combatOutput": "3f506786bb769f35dbd64c6ebe0b821e3bf66e2e516b4fa242aedba6fa632aff",
+        "legacyCombatOutput": "3f506786bb769f35dbd64c6ebe0b821e3bf66e2e516b4fa242aedba6fa632aff"
+      }
+    },
+    "mixedHydroFrozenSwirl": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-mixed-hydro-frozen-swirl-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-mixed-hydro-frozen-swirl-v2-1.52",
+        "configHash": "fnv1a32:edfe34a0",
+        "reproducibilityKey": "gdl-v2-fnv1a32-98d91356",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "0d2991be2ffdf84c965e65f3c32950aea4488a9b0bc5ad1f26d6984a6313420c"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 2912.60178,
+        "dps": 2912.60178,
+        "damageEventCount": 5,
+        "hitResolutionCount": 5,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0.4,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.2,
+              "expiresAtFrame": 422
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.4,
+              "expiresAtFrame": 54
+            }
+          ],
+          "expiresAtFrame": 54,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "swirlCryo",
+          "generation": 2,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 2,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 0.359416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.359416666667,
+              "expiresAtFrame": 54
+            },
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.794366197183,
+              "expiresAtFrame": 429
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_SWIRL"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 2,
+          "sourceFrozenStateLogId": 1,
+          "depletionOperation": "consume",
+          "reaction": "swirlCryo",
+          "reason": "FROZEN_CONSUMED_BY_SWIRL",
+          "depletionDamageEventId": 2,
+          "sourceFreezeDamageEventId": 0,
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 3,
+          "intraEventSequence": 1,
+          "frozenGaugeBefore": 0.359416666667,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "before"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "26ac45bb9b3609d35a99ce5033a7edb06952e1dbe620162a6dc3b02d9972c11b",
+        "runManifest": "0d2991be2ffdf84c965e65f3c32950aea4488a9b0bc5ad1f26d6984a6313420c",
+        "frozenStateLog": "40540423d3ffb127a99f3d0a8677791ae460f5edce541c194d36687222977fd2",
+        "freezeBrokenAttackLog": "79ea976c7b2bd99eda332ff6455bdd741127539491593cea29ce5b57cca3fd50",
+        "combatOutput": "43820dfb645915a72b4388699c3a3ba79a44f26decc762f0a0ea1e9368fd7a23",
+        "legacyCombatOutput": "43820dfb645915a72b4388699c3a3ba79a44f26decc762f0a0ea1e9368fd7a23"
+      }
+    },
+    "crystallizeFrozen": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-crystallize-frozen-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-crystallize-frozen-v2-1.52",
+        "configHash": "fnv1a32:9e8873c4",
+        "reproducibilityKey": "gdl-v2-fnv1a32-ff819cdf",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "4633d881dc37a85649a7e82f3809c9fe3f9cbdcfb785e3d8410a29dd811b7b66"
+      },
+      "mechanicsStatus": "partial",
+      "totals": {
+        "totalDamage": 5256.50445,
+        "dps": 5256.50445,
+        "damageEventCount": 4,
+        "hitResolutionCount": 4,
+        "frozenStateLogCount": 3,
+        "freezeBrokenAttackLogCount": 1
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 1,
+          "timeSeconds": 0.016666666666666666,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 8.496244131456,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 4.248122065728,
+              "expiresAtFrame": 2264
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 8.496244131456,
+              "expiresAtFrame": 579
+            }
+          ],
+          "expiresAtFrame": 579,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "shatter",
+          "generation": 2,
+          "operation": "shatter-consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 2,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 8,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 8.462494131456,
+              "expiresAtFrame": 579
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.462494131456,
+              "expiresAtFrame": 67
+            }
+          ],
+          "expiresAtFrame": 67,
+          "reason": "FROZEN_PARTIALLY_CONSUMED_BY_SHATTER"
+        },
+        {
+          "id": 2,
+          "reaction": "crystallizeCryo",
+          "generation": 3,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 2,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 0.462494131456,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 0.462494131456,
+              "expiresAtFrame": 67
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_CRYSTALLIZE"
+        }
+      ],
+      "freezeBrokenAttackLog": [
+        {
+          "id": 0,
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "generation": 3,
+          "sourceFrozenStateLogId": 2,
+          "depletionOperation": "consume",
+          "reaction": "crystallizeCryo",
+          "reason": "FROZEN_CONSUMED_BY_CRYSTALLIZE",
+          "depletionDamageEventId": 2,
+          "sourceFreezeDamageEventId": 1,
+          "triggerEventType": "hit",
+          "triggerEventPriority": 3,
+          "triggerEventSequence": 3,
+          "intraEventSequence": 2,
+          "frozenGaugeBefore": 0.462494131456,
+          "frozenGaugeAfter": 0,
+          "attack": {
+            "actorIndex": 0,
+            "resolvedActorId": "tester",
+            "damageSource": "receiving-target",
+            "damageSourceTargetId": "enemy-0",
+            "ability": "Freeze Broken",
+            "attackTag": "AttackTagNone",
+            "icdTag": "ICDTagNone",
+            "icdGroup": "ICDGroupDefault",
+            "strikeType": "StrikeTypeDefault",
+            "element": "NoElement",
+            "noImpulse": false,
+            "durability": 0,
+            "multiplier": 0,
+            "flatDamage": 0,
+            "snapshotDelayFrames": -1,
+            "damageDelayFrames": 0,
+            "targeting": "single-target",
+            "sourceIsSim": true,
+            "doNotLog": true
+          },
+          "syncPhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "same-call-stack-immediate",
+            "order": [
+              "on-aura-durability-depleted-frozen",
+              "on-apply-attack-freeze-broken",
+              "on-enemy-hit-freeze-broken",
+              "damage-log-freeze-broken"
+            ]
+          },
+          "endOfFramePhase": {
+            "disposition": "reference-audit-only-not-dispatched",
+            "referencePhase": "zero-delay-core-task",
+            "order": [
+              "apply-zero-damage",
+              "on-enemy-damage-freeze-broken-zero",
+              "attack-callbacks-none-supplied"
+            ],
+            "damage": 0,
+            "relativeToTriggerEnemyDamage": "before"
+          },
+          "executionStatus": "reference-audit-only-not-dispatched",
+          "damageEventId": null,
+          "hitResolutionLogId": null
+        }
+      ],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "388125fb25b6e63fe7b79baae903f4ede2fb09af165984534b5c168e04ea0a93",
+        "runManifest": "4633d881dc37a85649a7e82f3809c9fe3f9cbdcfb785e3d8410a29dd811b7b66",
+        "frozenStateLog": "b80a0958cfc04e0777b8615b4dbdcff562b06370a3869b99b3b4cede07361b5f",
+        "freezeBrokenAttackLog": "b223aee46f72acfd4545a5d41c5f37fd5980d2579bff39f05eef88f39e053a8c",
+        "combatOutput": "743d5373a6c369d73b703e6e18c5c26989e488fb23b83b2a473a46f7f23db97f",
+        "legacyCombatOutput": "743d5373a6c369d73b703e6e18c5c26989e488fb23b83b2a473a46f7f23db97f"
+      }
+    }
+  },
+  "negativeMatrix": {
+    "meltExcluded": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-melt-excluded-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-melt-excluded-v2-1.52",
+        "configHash": "fnv1a32:ae6f3138",
+        "reproducibilityKey": "gdl-v2-fnv1a32-e95d3b91",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "09495fb3bdf15312b89bd1bd31e06cb2a0bd2ed545b905dd6ce8ddccda3d9165"
+      },
+      "mechanicsStatus": "complete",
+      "totals": {
+        "totalDamage": 1350,
+        "dps": 1350,
+        "damageEventCount": 2,
+        "hitResolutionCount": 2,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 0
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "melt",
+          "generation": 2,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 1.559416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.559416666667,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_MELT"
+        }
+      ],
+      "freezeBrokenAttackLog": [],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "3182a79fde754c1149c2b2f05efdc3ee03d665671e2e0731ad70802aa4e1b523",
+        "runManifest": "09495fb3bdf15312b89bd1bd31e06cb2a0bd2ed545b905dd6ce8ddccda3d9165",
+        "frozenStateLog": "012c1b8e44dcfcba0efaf8a4a0ce3406ee24f5129da61df13379bb051a0f61b1",
+        "freezeBrokenAttackLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "combatOutput": "a0d6385c37d632796889428f09889191ce1c8019414bcf8cc1df055e5f83a21f",
+        "legacyCombatOutput": "a0d6385c37d632796889428f09889191ce1c8019414bcf8cc1df055e5f83a21f"
+      }
+    },
+    "superconductExcluded": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-superconduct-excluded-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-superconduct-excluded-v2-1.52",
+        "configHash": "fnv1a32:f37e4a5b",
+        "reproducibilityKey": "gdl-v2-fnv1a32-70279027",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "2c79e2ce2cd4c8bc5eb1646c715061f690b61c70e0ea0d911a042435c132de18"
+      },
+      "mechanicsStatus": "complete",
+      "totals": {
+        "totalDamage": 2853.252225,
+        "dps": 2853.252225,
+        "damageEventCount": 3,
+        "hitResolutionCount": 3,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 0
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "superconduct",
+          "generation": 2,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 1.559416666667,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.559416666667,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [],
+          "expiresAtFrame": null,
+          "reason": "FROZEN_CONSUMED_BY_SUPERCONDUCT"
+        }
+      ],
+      "freezeBrokenAttackLog": [],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "458f1b9902d4bb455e983b1627e715e31dc14ae497d3881d72f055fe25e7ba99",
+        "runManifest": "2c79e2ce2cd4c8bc5eb1646c715061f690b61c70e0ea0d911a042435c132de18",
+        "frozenStateLog": "d4e4e82ec1a57ec804d26d9804ae1249b633a1d689bf6d1a5502e281fd1e3ead",
+        "freezeBrokenAttackLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "combatOutput": "f87faf1ac1f53759fc5779b30d5fee519af99ecde93b79edf7487f1e71da9caf",
+        "legacyCombatOutput": "f87faf1ac1f53759fc5779b30d5fee519af99ecde93b79edf7487f1e71da9caf"
+      }
+    },
+    "partialFrozenConsumption": {
+      "identity": {
+        "schemaVersion": "1.52.0",
+        "engineVersion": "1.52.0-freeze-broken-attack",
+        "dataVersion": "synthetic-freeze-broken-partial-frozen-consumption-v2-1.52",
+        "randomSeed": "synthetic-freeze-broken-partial-frozen-consumption-v2-1.52",
+        "configHash": "fnv1a32:f282c8bc",
+        "reproducibilityKey": "gdl-v2-fnv1a32-70d8b56c",
+        "selectedModel": {
+          "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+          "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+        },
+        "manifestCanonicalSha256": "82e0c53410d1ff7feeba07c630cacb2de0d5cc2c8d13bd1caa6a87383758be85"
+      },
+      "mechanicsStatus": "complete",
+      "totals": {
+        "totalDamage": 1681.30089,
+        "dps": 1681.30089,
+        "damageEventCount": 3,
+        "hitResolutionCount": 3,
+        "frozenStateLogCount": 2,
+        "freezeBrokenAttackLogCount": 0
+      },
+      "frozenStateLog": [
+        {
+          "id": 0,
+          "reaction": "freeze",
+          "generation": 1,
+          "operation": "start",
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 0,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 1.6,
+          "consumedGaugeUnits": 0,
+          "auraBefore": [
+            {
+              "element": "cryo",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 426
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 176
+            }
+          ],
+          "expiresAtFrame": 176,
+          "reason": null
+        },
+        {
+          "id": 1,
+          "reaction": "swirlCryo",
+          "generation": 2,
+          "operation": "consume",
+          "frame": 6,
+          "timeSeconds": 0.1,
+          "targetId": "enemy-0",
+          "targetName": "Freeze Broken reviewed target",
+          "sourceActorId": "tester",
+          "triggerDamageEventId": 1,
+          "freezeResistance": 0,
+          "generatedGaugeUnits": 0,
+          "consumedGaugeUnits": 0.5,
+          "auraBefore": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.559416666667,
+              "expiresAtFrame": 176
+            }
+          ],
+          "auraAfter": [
+            {
+              "element": "frozen",
+              "gaugeUnits": 1.059416666667,
+              "expiresAtFrame": 130
+            }
+          ],
+          "expiresAtFrame": 130,
+          "reason": "FROZEN_PARTIALLY_CONSUMED_BY_SWIRL"
+        }
+      ],
+      "freezeBrokenAttackLog": [],
+      "normalizedExecution": {
+        "combatOutputMatchesLegacy": true,
+        "totalDamageDelta": 0,
+        "damageEventCountDelta": 0,
+        "hitResolutionCountDelta": 0,
+        "materializedFreezeBrokenDamageEvent": false,
+        "materializedFreezeBrokenHitResolution": false,
+        "callbackDisposition": "reference-audit-only-not-dispatched",
+        "rngDisposition": "consume-none",
+        "configuredCritMode": "noCrit"
+      },
+      "canonicalSha256": {
+        "config": "09eabb235f9f943ad513d94df3634cdd9e46f80ca5156ffeefd8138e3d8e45dd",
+        "runManifest": "82e0c53410d1ff7feeba07c630cacb2de0d5cc2c8d13bd1caa6a87383758be85",
+        "frozenStateLog": "40418570b3a76bfcdfb603b50baa9fea36530923928b6118725f877605c6b02b",
+        "freezeBrokenAttackLog": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "combatOutput": "91cc8097dffefb33be18a59a6659f8cdd146ea36f63b9f1d4b574f651b9fefa6",
+        "legacyCombatOutput": "91cc8097dffefb33be18a59a6659f8cdd146ea36f63b9f1d4b574f651b9fefa6"
+      }
+    }
+  }
+}

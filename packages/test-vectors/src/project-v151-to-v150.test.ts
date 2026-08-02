@@ -21,6 +21,7 @@ import {
 } from "../../sim-core/src/__tests__/fixtures";
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
 
 const NO_CRIT = {
   compatibilityMode: "legal-frame-v1",
@@ -122,11 +123,15 @@ function makeSingleSwirlConfig(
 }
 
 function runEmpty(model: BasicReactionSchedulerModel) {
-  return simulate(makeConfig({ basicReactionSchedulerModel: model }), NO_CRIT);
+  return projectSimulationResultV152ToV151(
+    simulate(makeConfig({ basicReactionSchedulerModel: model }), NO_CRIT),
+  );
 }
 
 function runSingleSwirl(model: BasicReactionSchedulerModel) {
-  return simulate(makeSingleSwirlConfig(model), NO_CRIT);
+  return projectSimulationResultV152ToV151(
+    simulate(makeSingleSwirlConfig(model), NO_CRIT),
+  );
 }
 
 describe("V1.51 to frozen V1.50 result projection", () => {

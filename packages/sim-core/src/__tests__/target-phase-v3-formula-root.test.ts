@@ -21,6 +21,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -167,7 +168,9 @@ describe("target-phase-v3 formula-root identity", () => {
     ).toBe(true);
     expect(simulationResultSchema.safeParse(current).success).toBe(true);
     const frozenV149Facet = projectSimulationResultV150ToV149(
-      projectSimulationResultV151ToV150(current),
+      projectSimulationResultV151ToV150(
+        projectSimulationResultV152ToV151(current),
+      ),
     );
     expect(
       targetPhaseV3ResultReferencesSchema.safeParse(frozenV149Facet).success,

@@ -24,6 +24,7 @@ import {
   simulationResultV149Schema,
   simulationResultV150Schema,
   simulationResultV151Schema,
+  simulationResultV152Schema,
   simulationRunManifestSchema,
   simulationRunManifestV146Schema,
   simulationRunManifestV147Schema,
@@ -31,6 +32,7 @@ import {
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
   simulationRunManifestV151Schema,
+  simulationRunManifestV152Schema,
   TARGET_TASK_PHASE_ENGINE_VERSION,
   TARGET_TASK_PHASE_SCHEMA_VERSION,
 } from "@genshin-dps-lab/schemas";
@@ -514,7 +516,7 @@ function projectAllTargetTaskPhaseScenarios(): Record<
 }
 
 describe("target task phase replay log", () => {
-  it("emits current simulations through the exact 1.51 result and manifest boundaries", () => {
+  it("emits current simulations through the exact 1.52 result and manifest boundaries", () => {
     const result = simulate(makeTargetTaskPhaseLogConfig("target-phase-v1"));
 
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION).toBe("1.50.0");
@@ -524,9 +526,9 @@ describe("target task phase replay log", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION).toBe(
       "1.6.0",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.51.0-basic-reaction-scheduler");
-    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.7.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
+    expect(SIMULATION_RUN_MANIFEST_VERSION).toBe("1.8.0");
     expect(result).toMatchObject({
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
@@ -545,9 +547,9 @@ describe("target task phase replay log", () => {
       basicReactionSchedulerRoot: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
     });
     expect(
-      simulationRunManifestV151Schema.parse(result.runManifest),
+      simulationRunManifestV152Schema.parse(result.runManifest),
     ).toStrictEqual(result.runManifest);
-    expect(simulationRunManifestSchema).toBe(simulationRunManifestV151Schema);
+    expect(simulationRunManifestSchema).toBe(simulationRunManifestV152Schema);
     expect(simulationRunManifestSchema.parse(result.runManifest)).toStrictEqual(
       result.runManifest,
     );
@@ -564,16 +566,20 @@ describe("target task phase replay log", () => {
       simulationRunManifestV150Schema.safeParse(result.runManifest).success,
     ).toBe(false);
     expect(
+      simulationRunManifestV151Schema.safeParse(result.runManifest).success,
+    ).toBe(false);
+    expect(
       simulationRunManifestV146Schema.safeParse(result.runManifest).success,
     ).toBe(false);
-    expect(simulationResultV151Schema.parse(result)).toStrictEqual(result);
-    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(simulationResultV152Schema.parse(result)).toStrictEqual(result);
+    expect(simulationResultSchema).toBe(simulationResultV152Schema);
     expect(simulationResultSchema.parse(result)).toStrictEqual(result);
     expect(simulationResultV146Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV147Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV148Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV149Schema.safeParse(result).success).toBe(false);
     expect(simulationResultV150Schema.safeParse(result).success).toBe(false);
+    expect(simulationResultV151Schema.safeParse(result).success).toBe(false);
   });
 
   it("keeps the frozen legacy event heap free of target-phase rows", () => {
@@ -831,8 +837,8 @@ describe("target task phase replay log", () => {
     expect(REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION).toBe(
       "1.50.0-reaction-damage-reset-boundary",
     );
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
-    expect(CURRENT_ENGINE_VERSION).toBe("1.51.0-basic-reaction-scheduler");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
+    expect(CURRENT_ENGINE_VERSION).toBe("1.52.0-freeze-broken-attack");
 
     for (const scenarioId of scenarioIds) {
       const currentScenario = scenarios[scenarioId];

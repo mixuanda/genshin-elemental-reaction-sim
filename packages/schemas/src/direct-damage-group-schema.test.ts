@@ -8,6 +8,7 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
@@ -88,6 +89,7 @@ const makeV146Config = () => {
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...unchanged
   } = current;
   return simConfigV146Schema.parse({
@@ -397,6 +399,7 @@ describe("1.46 direct-damage-group config wire", () => {
         _newReactionOwnedElementalApplicationModel,
       reactionDamageGroupModel: _newReactionDamageGroupModel,
       basicReactionSchedulerModel: _newBasicReactionSchedulerModel,
+      freezeBrokenAttackModel: _newFreezeBrokenAttackModel,
       ...newSemantics
     } = migrated;
     expect(newSemantics).toEqual(oldSemantics);
@@ -436,6 +439,8 @@ describe("1.46 run-manifest exact roots", () => {
       reactionDamageGroupRoot: GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ROOT,
       basicReactionSchedulerRoot:
         LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+      freezeBrokenAttackRoot:
+        LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
     });
   };
 

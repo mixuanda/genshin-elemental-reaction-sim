@@ -35,6 +35,7 @@ import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 
 const PREVIEW_FLAG = "PREVIEW_LEGACY_DEFAULT_V147_GOLDEN";
@@ -533,12 +534,14 @@ function runDefault() {
     projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
-          simulate(durinMeltPreset, {
-            energyMode: "configured",
-            critMode: "average",
-            compatibilityMode: "legacy-v0.1",
-            randomSeed: "legacy-default",
-          }),
+          projectSimulationResultV152ToV151(
+            simulate(durinMeltPreset, {
+              energyMode: "configured",
+              critMode: "average",
+              compatibilityMode: "legacy-v0.1",
+              randomSeed: "legacy-default",
+            }),
+          ),
         ),
       ),
     ),

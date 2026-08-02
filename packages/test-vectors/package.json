@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "golden:v152:freeze-broken-attack:preview": "node scripts/generate-freeze-broken-attack-v152.mjs --preview",
+    "golden:v152:freeze-broken-attack:freeze": "UPDATE_FREEZE_BROKEN_ATTACK_V152_GOLDEN=1 node scripts/generate-freeze-broken-attack-v152.mjs",
     "golden:v151:basic-reaction-scheduler:preview": "node scripts/generate-basic-reaction-scheduler-v151.mjs --preview",
     "golden:v151:basic-reaction-scheduler:freeze": "UPDATE_BASIC_REACTION_SCHEDULER_V151_GOLDEN=1 node scripts/generate-basic-reaction-scheduler-v151.mjs",
     "golden:v150:reaction-damage-group-reset-boundary:preview": "node scripts/generate-reaction-damage-group-reset-boundary-v150.mjs --preview",

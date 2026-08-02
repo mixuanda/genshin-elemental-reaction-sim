@@ -10,6 +10,8 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
@@ -17,9 +19,12 @@ import {
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
   resolveBasicReactionSchedulerPolicyRoot,
   resolveDamageGroup,
   resolveElementalApplicationGroup,
+  resolveFreezeBrokenAttackPolicyRoot,
   resolveReactionDamageGroupBindingForPolicy,
   resolveReactionDamageGroupPolicyRoot,
   resolveReactionDamageGroupResetFrame,
@@ -41,6 +46,9 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION,
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   ELEMENTAL_APPLICATION_ICD_RUN_MANIFEST_VERSION,
+  FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+  FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+  FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_RUN_MANIFEST_VERSION,
@@ -68,6 +76,7 @@ import {
   type SimulationResultForV148,
   type SimulationResultForV150,
   type SimulationResultForV151,
+  type SimulationResultForV152,
   type StatusTarget
 } from "./types";
 import {
@@ -80,6 +89,7 @@ import { validateEnergyReplayIntegrity } from "./energy-replay-integrity";
 import { validateParticleProvenanceIntegrity } from "./particle-provenance-integrity";
 import { targetPhaseV2ResultReferencesSchema } from "./schema";
 import { validateTargetPhaseV3Integrity } from "./target-phase-v3-integrity";
+import { validateFreezeBrokenAttackIntegrity } from "./freeze-broken-attack-integrity";
 
 type IssuePath = Array<string | number>;
 
@@ -3130,7 +3140,7 @@ function validateIdentityV151(
     | undefined;
 } {
   validateIdentityForVersion(
-    result,
+    result as unknown as SimulationResult,
     context,
     BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
     BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
@@ -3143,6 +3153,235 @@ function validateIdentityV151(
       context,
       ["runManifest", "version"],
       `1.51 results require run-manifest version ${BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION}`
+    );
+  }
+  expectSemanticEqual(
+    context,
+    ["runManifest", "reactionFormulaRoot"],
+    result.runManifest.reactionFormulaRoot,
+    CLASSIC_REACTION_FORMULA_ROOT,
+    "compiled reaction formula root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "reactionFormulaModel"],
+    result.config.reactionFormulaModel,
+    {
+      mode: "classic-formula-profile-v1",
+      profileId: CLASSIC_REACTION_FORMULA_PROFILE_ID
+    },
+    "compiled reaction formula profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "directDamageGroupRoot"],
+    result.runManifest.directDamageGroupRoot,
+    GCSIM_DAMAGE_GROUP_ROOT,
+    "compiled direct-damage-group root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "directDamageGroupModel"],
+    result.config.directDamageGroupModel,
+    {
+      mode: "fixed-gcsim-direct-damage-group-v1",
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID
+    },
+    "compiled direct-damage-group profile selection"
+  );
+  expectSemanticEqual(
+    context,
+    ["runManifest", "elementalApplicationIcdRoot"],
+    result.runManifest.elementalApplicationIcdRoot,
+    GCSIM_ELEMENTAL_APPLICATION_ROOT,
+    "compiled elemental-application ICD root"
+  );
+  expectSemanticEqual(
+    context,
+    ["config", "elementalApplicationIcdModel"],
+    result.config.elementalApplicationIcdModel,
+    {
+      mode: "fixed-gcsim-elemental-application-v1",
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID
+    },
+    "compiled elemental-application ICD profile selection"
+  );
+
+  const reactionOwnedPolicy = selectedReactionOwnedReplayPolicyV149(
+    result as unknown as SimulationResult,
+    context
+  );
+  if (reactionOwnedPolicy !== undefined) {
+    const expectedRoot =
+      reactionOwnedPolicy.policyId ===
+      GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID
+        ? GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT
+        : GCSIM_REACTION_OWNED_APPLICATION_POLICY_V2_ROOT;
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionOwnedElementalApplicationRoot"],
+      result.runManifest.reactionOwnedElementalApplicationRoot,
+      expectedRoot,
+      "selected reaction-owned elemental-application root"
+    );
+  }
+
+  const reactionDamageGroupPolicy = selectedReactionDamageGroupReplayPolicyV150(
+    result as unknown as SimulationResult,
+    context
+  );
+  if (reactionDamageGroupPolicy !== undefined) {
+    const expectedRoot = resolveReactionDamageGroupPolicyRoot(
+      reactionDamageGroupPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "reactionDamageGroupModel"],
+      result.config.reactionDamageGroupModel,
+      reactionDamageGroupPolicy,
+      "selected reaction damage-group policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot"],
+      result.runManifest.reactionDamageGroupRoot,
+      expectedRoot,
+      "selected reaction damage-group root"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "reactionDamageGroupRoot", "damageGroupRootRef"],
+      result.runManifest.reactionDamageGroupRoot.damageGroupRootRef,
+      {
+        version: GCSIM_DAMAGE_GROUP_ROOT.version,
+        profileId: GCSIM_DAMAGE_GROUP_ROOT.profileId,
+        contentHash: GCSIM_DAMAGE_GROUP_ROOT.contentHash,
+        sourceRevision: GCSIM_DAMAGE_GROUP_ROOT.sourceRevision,
+        tailPolicy: GCSIM_DAMAGE_GROUP_ROOT.tailPolicy,
+        resetSchedulePolicy: GCSIM_DAMAGE_GROUP_ROOT.resetSchedulePolicy
+      },
+      "reaction damage-group nested direct-group root"
+    );
+  }
+
+  const basicReactionSchedulerPolicy =
+    selectedBasicReactionSchedulerReplayPolicyV151(result, context);
+  if (basicReactionSchedulerPolicy !== undefined) {
+    const expectedRoot = resolveBasicReactionSchedulerPolicyRoot(
+      basicReactionSchedulerPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "basicReactionSchedulerModel"],
+      result.config.basicReactionSchedulerModel,
+      basicReactionSchedulerPolicy,
+      "selected basic-reaction scheduler policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot"],
+      result.runManifest.basicReactionSchedulerRoot,
+      expectedRoot,
+      "selected basic-reaction scheduler root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "basicReactionSchedulerRoot", "policyId"],
+      result.runManifest.basicReactionSchedulerRoot.policyId,
+      basicReactionSchedulerPolicy.policyId,
+      "run-manifest/config basic-reaction scheduler policy"
+    );
+  }
+  return {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy
+  };
+}
+
+type FreezeBrokenAttackReplayPolicyV152 =
+  | {
+      mode: typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE;
+      policyId: typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID;
+    }
+  | {
+      mode: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE;
+      policyId: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID;
+    };
+
+function selectedFreezeBrokenAttackReplayPolicyV152(
+  result: SimulationResultForV152,
+  context: RefinementCtx
+): FreezeBrokenAttackReplayPolicyV152 | undefined {
+  const rawModel = (result.config as unknown as Record<string, unknown>)
+    .freezeBrokenAttackModel;
+  if (
+    rawModel === null ||
+    typeof rawModel !== "object" ||
+    Array.isArray(rawModel)
+  ) {
+    addIssue(
+      context,
+      ["config", "freezeBrokenAttackModel"],
+      "1.52 results require an explicit v1 or v2 Freeze Broken attack model"
+    );
+    return undefined;
+  }
+  const model = rawModel as { mode?: unknown; policyId?: unknown };
+  let selected: FreezeBrokenAttackReplayPolicyV152 | undefined;
+  if (model.mode === LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE) {
+    selected = {
+      mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+      policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
+    };
+  } else if (model.mode === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE) {
+    selected = {
+      mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+      policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+    };
+  } else {
+    addIssue(
+      context,
+      ["config", "freezeBrokenAttackModel", "mode"],
+      "1.52 results require a recognized Freeze Broken attack mode"
+    );
+    return undefined;
+  }
+  expectEqual(
+    context,
+    ["config", "freezeBrokenAttackModel", "policyId"],
+    model.policyId,
+    selected.policyId,
+    "Freeze Broken attack mode/policy binding"
+  );
+  return selected;
+}
+
+function validateIdentityV152(
+  result: SimulationResultForV152,
+  context: RefinementCtx
+): {
+  reactionOwnedPolicy: ReactionOwnedReplayPolicy | undefined;
+  reactionDamageGroupPolicy: ReactionDamageGroupReplayPolicyV150 | undefined;
+  basicReactionSchedulerPolicy:
+    | BasicReactionSchedulerReplayPolicyV151
+    | undefined;
+  freezeBrokenAttackPolicy:
+    | FreezeBrokenAttackReplayPolicyV152
+    | undefined;
+} {
+  validateIdentityForVersion(
+    result,
+    context,
+    FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
+    FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+    "current"
+  );
+  if (result.runManifest.version !== FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION) {
+    addIssue(
+      context,
+      ["runManifest", "version"],
+      `1.52 results require run-manifest version ${FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION}`
     );
   }
   expectSemanticEqual(
@@ -3255,7 +3494,10 @@ function validateIdentityV151(
   }
 
   const basicReactionSchedulerPolicy =
-    selectedBasicReactionSchedulerReplayPolicyV151(result, context);
+    selectedBasicReactionSchedulerReplayPolicyV151(
+      result as unknown as SimulationResultForV151,
+      context
+    );
   if (basicReactionSchedulerPolicy !== undefined) {
     const expectedRoot = resolveBasicReactionSchedulerPolicyRoot(
       basicReactionSchedulerPolicy.policyId
@@ -3282,10 +3524,41 @@ function validateIdentityV151(
       "run-manifest/config basic-reaction scheduler policy"
     );
   }
+
+  const freezeBrokenAttackPolicy =
+    selectedFreezeBrokenAttackReplayPolicyV152(result, context);
+  if (freezeBrokenAttackPolicy !== undefined) {
+    const expectedRoot = resolveFreezeBrokenAttackPolicyRoot(
+      freezeBrokenAttackPolicy.policyId
+    );
+    expectSemanticEqual(
+      context,
+      ["config", "freezeBrokenAttackModel"],
+      result.config.freezeBrokenAttackModel,
+      freezeBrokenAttackPolicy,
+      "selected Freeze Broken attack policy"
+    );
+    expectSemanticEqual(
+      context,
+      ["runManifest", "freezeBrokenAttackRoot"],
+      result.runManifest.freezeBrokenAttackRoot,
+      expectedRoot,
+      "selected Freeze Broken attack root"
+    );
+    expectEqual(
+      context,
+      ["runManifest", "freezeBrokenAttackRoot", "policyId"],
+      result.runManifest.freezeBrokenAttackRoot.policyId,
+      freezeBrokenAttackPolicy.policyId,
+      "run-manifest/config Freeze Broken attack policy"
+    );
+  }
+
   return {
     reactionOwnedPolicy,
     reactionDamageGroupPolicy,
-    basicReactionSchedulerPolicy
+    basicReactionSchedulerPolicy,
+    freezeBrokenAttackPolicy
   };
 }
 
@@ -8777,6 +9050,9 @@ function validateDamageAggregates(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
+  const reservesFreezeBrokenAttack =
+    result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+
   expectSemanticEqual(
     context,
     ["hitEvents"],
@@ -8827,6 +9103,16 @@ function validateDamageAggregates(
   let previousSequence = 0;
 
   for (const [index, event] of result.damageEvents.entries()) {
+    if (
+      reservesFreezeBrokenAttack &&
+      event.actionName === "Freeze Broken"
+    ) {
+      addIssue(
+        context,
+        ["damageEvents", index, "actionName"],
+        "Freeze Broken is a reserved audit-only attack and cannot be a DamageEvent"
+      );
+    }
     validateDamageEvent(
       event,
       index,
@@ -8899,6 +9185,16 @@ function validateDamageAggregates(
   }
   for (const [index, resolution] of
     result.hitResolutionLog.entries()) {
+    if (
+      reservesFreezeBrokenAttack &&
+      resolution.actionName === "Freeze Broken"
+    ) {
+      addIssue(
+        context,
+        ["hitResolutionLog", index, "actionName"],
+        "Freeze Broken is a reserved audit-only attack and cannot be a HitResolution row"
+      );
+    }
     const targetAggregate = targetAggregates.get(
       resolution.targetId
     );
@@ -12527,8 +12823,10 @@ function validateSwirlBacklinks(
               const auraApplied =
                 child.reactionAudit.auraApplied;
               const deferredSchedulerAttack =
-                (result.schemaVersion as string) ===
-                BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
+                ((result.schemaVersion as string) ===
+                  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+                  (result.schemaVersion as string) ===
+                    FREEZE_BROKEN_ATTACK_SCHEMA_VERSION)
                   ? (result.basicReactionSchedulerLog ?? []).find(
                       (row) =>
                         row.kind === "swirl-attack-resolution" &&
@@ -12709,7 +13007,9 @@ function validateSwirlBacklinks(
     (result.schemaVersion as string) !==
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
     (result.schemaVersion as string) !==
-      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION
+      BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+    (result.schemaVersion as string) !==
+      FREEZE_BROKEN_ATTACK_SCHEMA_VERSION
   ) {
     damageGroupAttempts.sort(
       (left, right) =>
@@ -13281,6 +13581,12 @@ function validateFrozenStateProjection(
       } else {
         const row = rows[0]!;
         matchedRowIds.add(row.id);
+        const consumedFrozenByCryoSwirl =
+          event.reactionAudit.swirlReactions.some(
+            (swirl) =>
+              swirl.reaction === "swirlCryo" &&
+              swirl.consumedAuraElement === "frozen"
+          );
         const expectedReaction =
           event.reactionAudit.reaction === "melt"
             ? "melt"
@@ -13289,7 +13595,7 @@ function validateFrozenStateProjection(
                   "superconduct"
                 )
               ? "superconduct"
-              : event.reactionAudit.reaction === "swirlCryo"
+              : consumedFrozenByCryoSwirl
                 ? "swirlCryo"
                 : event.reactionAudit.reaction ===
                     "crystallizeCryo"
@@ -18794,7 +19100,9 @@ function validateBurningStateProjection(
         (result.schemaVersion as string) ===
           REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
         (result.schemaVersion as string) ===
-          BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) &&
+          BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+        (result.schemaVersion as string) ===
+          FREEZE_BROKEN_ATTACK_SCHEMA_VERSION) &&
       child.elementalApplicationIcdLogId !== null
         ? result.elementalApplicationIcdLog[
             child.elementalApplicationIcdLogId
@@ -19943,15 +20251,36 @@ function validateMechanicsAndBoundaries(
   validateCrystallizeShardProjection(result, context);
   validateBurningStateProjection(result, context);
   validateTimelineExecutionProjection(result, context);
+  const rawResult = result as unknown as Record<string, unknown>;
+  const rawConfig = rawResult.config;
+  const rawFreezeBrokenAttackLog = rawResult.freezeBrokenAttackLog;
+  const hasReferenceOnlyFreezeBrokenAudit =
+    rawResult.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+    rawConfig !== null &&
+    typeof rawConfig === "object" &&
+    !Array.isArray(rawConfig) &&
+    (rawConfig as Record<string, unknown>).freezeBrokenAttackModel !== null &&
+    typeof (rawConfig as Record<string, unknown>).freezeBrokenAttackModel ===
+      "object" &&
+    !Array.isArray(
+      (rawConfig as Record<string, unknown>).freezeBrokenAttackModel
+    ) &&
+    (
+      (rawConfig as Record<string, unknown>)
+        .freezeBrokenAttackModel as Record<string, unknown>
+    ).mode === GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE &&
+    Array.isArray(rawFreezeBrokenAttackLog) &&
+    rawFreezeBrokenAttackLog.length !== 0;
   const expectedMechanicsStatus =
-    result.targetMechanicsTruncationLog.length === 0
-      ? "complete"
-      : "partial";
+    result.targetMechanicsTruncationLog.length !== 0 ||
+    hasReferenceOnlyFreezeBrokenAudit
+      ? "partial"
+      : "complete";
   if (result.mechanicsStatus !== expectedMechanicsStatus) {
     addIssue(
       context,
       ["mechanicsStatus"],
-      `must be ${expectedMechanicsStatus} for the truncation log`
+      `must be ${expectedMechanicsStatus} for truncation and reference-only Freeze Broken audit status`
     );
   }
   const targetIdentity = result.enemyTargets.map((target) => ({
@@ -20399,11 +20728,67 @@ export function validateSimulationResultV151Integrity(
   result: SimulationResultForV151,
   context: RefinementCtx
 ): void {
+  const frozenResult = result as unknown as SimulationResult;
   const {
     reactionOwnedPolicy,
     reactionDamageGroupPolicy,
     basicReactionSchedulerPolicy
   } = validateIdentityV151(result, context);
+  validateReactionFormulaProfileV145(frozenResult, context);
+  validateDirectDamageGroupV146(frozenResult, context);
+  if (reactionOwnedPolicy !== undefined) {
+    validateElementalApplicationIcdReactionOwned(
+      frozenResult,
+      context,
+      reactionOwnedPolicy
+    );
+  }
+  if (reactionDamageGroupPolicy !== undefined) {
+    validateReactionDamageGroupV150(
+      result as unknown as SimulationResultForV150,
+      reactionDamageGroupPolicy,
+      context
+    );
+  }
+  if (basicReactionSchedulerPolicy !== undefined) {
+    validateBasicReactionSchedulerV151(
+      result,
+      basicReactionSchedulerPolicy,
+      context
+    );
+  }
+  validateDamageAggregates(frozenResult, context);
+  validateMechanicsAndBoundaries(frozenResult, context);
+  validateEnergy(frozenResult, context);
+  validateEnergyReplayIntegrity(frozenResult, context);
+  const frozenTargetPhaseIdentityResult = {
+    ...result,
+    schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+    engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION,
+    config: {
+      ...result.config,
+      schemaVersion: REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION,
+      engineVersion: REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION
+    }
+  } as unknown as SimulationResult;
+  validateTargetPhaseV3Integrity(frozenTargetPhaseIdentityResult, context);
+}
+
+/**
+ * Cross-field proof for exact 1.52 results. All six inherited mechanics roots
+ * remain authoritative; the seventh root additionally proves the normalized,
+ * audit-only Freeze Broken row for every supported terminal Frozen transition.
+ */
+export function validateSimulationResultV152Integrity(
+  result: SimulationResultForV152,
+  context: RefinementCtx
+): void {
+  const {
+    reactionOwnedPolicy,
+    reactionDamageGroupPolicy,
+    basicReactionSchedulerPolicy,
+    freezeBrokenAttackPolicy
+  } = validateIdentityV152(result, context);
   validateReactionFormulaProfileV145(result, context);
   validateDirectDamageGroupV146(result, context);
   if (reactionOwnedPolicy !== undefined) {
@@ -20422,10 +20807,13 @@ export function validateSimulationResultV151Integrity(
   }
   if (basicReactionSchedulerPolicy !== undefined) {
     validateBasicReactionSchedulerV151(
-      result,
+      result as unknown as SimulationResultForV151,
       basicReactionSchedulerPolicy,
       context
     );
+  }
+  if (freezeBrokenAttackPolicy !== undefined) {
+    validateFreezeBrokenAttackIntegrity(result, context);
   }
   validateDamageAggregates(result, context);
   validateMechanicsAndBoundaries(result, context);
@@ -20995,10 +21383,65 @@ export function assertTrustedSimulationResultV151(
   return result;
 }
 
+/** Trusted, zero-copy assertion for current 1.52 Freeze Broken audit results. */
+export function assertTrustedSimulationResultV152(
+  result: SimulationResultForV152
+): SimulationResultForV152 {
+  const issues: Array<{
+    path: PropertyKey[];
+    message: string;
+  }> = [];
+  const context = {
+    addIssue(issue: { path?: PropertyKey[]; message?: string }): void {
+      issues.push({
+        path: issue.path === undefined ? [] : [...issue.path],
+        message: issue.message ?? "invalid SimulationResult"
+      });
+    }
+  } as unknown as RefinementCtx;
+  validateSimulationResultV152Integrity(result, context);
+  const hasElectroChargedTargetPhaseV2Transition =
+    result.config.targetTaskModel.mode === "target-phase-v2" &&
+    result.targetPhaseLog.some((phase) =>
+      phase.reactableTick.transitions.some(
+        (transition) =>
+          transition.kind === "electro-charged-expiry" ||
+          transition.kind === "electro-charged-cleanup"
+      )
+    );
+  if (hasElectroChargedTargetPhaseV2Transition) {
+    const targetPhaseReferences =
+      targetPhaseV2ResultReferencesSchema.safeParse(result);
+    if (!targetPhaseReferences.success) {
+      for (const issue of targetPhaseReferences.error.issues) {
+        issues.push({
+          path: [...issue.path],
+          message: `target phase v2 references: ${issue.message}`
+        });
+      }
+    }
+  }
+  if (issues.length !== 0) {
+    const preview = issues
+      .slice(0, 12)
+      .map(
+        (issue) =>
+          `${issue.path.map(String).join(".") || "<root>"}: ${issue.message}`
+      )
+      .join("; ");
+    const remainder =
+      issues.length > 12 ? `; ${issues.length - 12} additional issue(s)` : "";
+    throw new Error(
+      `Trusted SimulationResult 1.52 integrity validation failed: ${preview}${remainder}`
+    );
+  }
+  return result;
+}
+
 /** Current aliases; versioned validators above remain frozen exports. */
 export const validateSimulationResultIntegrity =
-  validateSimulationResultV151Integrity;
-export const assertTrustedSimulationResult = assertTrustedSimulationResultV151;
+  validateSimulationResultV152Integrity;
+export const assertTrustedSimulationResult = assertTrustedSimulationResultV152;
 export {
   targetPhaseV3ResultReferencesSchema,
   validateTargetPhaseV3Integrity

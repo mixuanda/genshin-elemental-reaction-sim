@@ -50,7 +50,7 @@ import {
   prepareTrustedReactionElementalApplicationAttempt
 } from "./elemental-application-icd";
 
-const AURA_EPSILON = 1e-10;
+export const AURA_EPSILON = 1e-10;
 const NORMAL_AURA_RATIO = 0.8;
 const NORMAL_AURA_BASE_DURATION_FRAMES = 420;
 /** Historical aura-v1/v2 coefficient retained for exact config replay. */

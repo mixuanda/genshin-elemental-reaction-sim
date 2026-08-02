@@ -12,7 +12,8 @@ import {
   simulationResultV147Schema,
   simulationResultV150Schema,
   simulationResultV151Schema,
-  simulationResultV151ValueSchema,
+  simulationResultV152Schema,
+  simulationResultV152ValueSchema,
   type AbilityDefinition,
   type CharacterProfile,
   type Element,
@@ -538,7 +539,7 @@ function expectRejectedByPublicAndTrusted(
   const trustedResult = cloneResult(result);
   mutate(trustedResult);
   expect(() => assertTrustedSimulationResult(trustedResult)).toThrow(
-    /Trusted SimulationResult 1\.51 integrity validation failed/,
+    /Trusted SimulationResult 1\.52 integrity validation failed/,
   );
 }
 
@@ -587,7 +588,7 @@ beforeAll(() => {
   );
 });
 
-describe("exact current 1.51 SimulationResult schema", () => {
+describe("exact current 1.52 SimulationResult schema", () => {
   it("keeps persisted 1.42 and frozen 1.44-1.50 result identities separate", () => {
     expect(
       legacyDefault120sGoldenFixtureV142Schema.safeParse(frozenGoldenV142)
@@ -611,14 +612,17 @@ describe("exact current 1.51 SimulationResult schema", () => {
     expect(simulationResultV150Schema.safeParse(defaultResult).success).toBe(
       false,
     );
-    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(simulationResultV151Schema.safeParse(defaultResult).success).toBe(
+      false,
+    );
+    expect(simulationResultSchema).toBe(simulationResultV152Schema);
   });
 
-  it("keeps the exact 69-field shape and all 68 non-timeline fields required", () => {
+  it("keeps the exact 70-field shape and all 69 non-timeline fields required", () => {
     const schemaKeys = Object.keys(
-      simulationResultV151ValueSchema.shape,
+      simulationResultV152ValueSchema.shape,
     ).sort();
-    expect(schemaKeys).toHaveLength(69);
+    expect(schemaKeys).toHaveLength(70);
     expect(Object.keys(defaultResult).sort()).toEqual(
       schemaKeys.filter((key) => key !== "timelineExecution"),
     );

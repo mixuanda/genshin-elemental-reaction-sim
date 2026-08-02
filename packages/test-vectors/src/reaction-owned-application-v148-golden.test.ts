@@ -28,6 +28,7 @@ import { projectSimulationResultV148ToV147 } from "./project-v148-to-v147";
 import { projectSimulationResultV149ToV148 } from "./project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
 
 const PREVIEW_FLAG = "PREVIEW_REACTION_OWNED_APPLICATION_V148_GOLDEN";
 const UPDATE_FLAG = "UPDATE_REACTION_OWNED_APPLICATION_V148_GOLDEN";
@@ -405,20 +406,24 @@ function runScenarios() {
     burning: projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
-          simulate(makeBurningApplicationConfig(), {
-            critMode: "noCrit",
-            randomSeed: "synthetic-reaction-owned-burning-1.48",
-          }),
+          projectSimulationResultV152ToV151(
+            simulate(makeBurningApplicationConfig(), {
+              critMode: "noCrit",
+              randomSeed: "synthetic-reaction-owned-burning-1.48",
+            }),
+          ),
         ),
       ),
     ),
     swirl: projectSimulationResultV149ToV148(
       projectSimulationResultV150ToV149(
         projectSimulationResultV151ToV150(
-          simulate(makeSwirlApplicationConfig(), {
-            critMode: "noCrit",
-            randomSeed: "synthetic-reaction-owned-swirl-1.48",
-          }),
+          projectSimulationResultV152ToV151(
+            simulate(makeSwirlApplicationConfig(), {
+              critMode: "noCrit",
+              randomSeed: "synthetic-reaction-owned-swirl-1.48",
+            }),
+          ),
         ),
       ),
     ),

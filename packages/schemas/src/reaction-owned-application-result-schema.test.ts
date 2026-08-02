@@ -19,6 +19,8 @@ import {
   simulationResultV150ValueSchema,
   simulationResultV151Schema,
   simulationResultV151ValueSchema,
+  simulationResultV152Schema,
+  simulationResultV152ValueSchema,
   targetPhaseV3DeliveryAttemptV148Schema
 } from "./result-schema";
 import {
@@ -27,11 +29,13 @@ import {
   simConfigV149Schema,
   simConfigV150Schema,
   simConfigV151Schema,
+  simConfigV152Schema,
   simulationRunManifestV147Schema,
   simulationRunManifestV148Schema,
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
   simulationRunManifestV151Schema,
+  simulationRunManifestV152Schema,
   targetPhaseV3DeliveryAttemptSchema
 } from "./schema";
 
@@ -688,7 +692,7 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
     ).toBe(true);
   });
 
-  it("freezes V147-V149 while advancing only the current V150 identity", () => {
+  it("freezes V147-V151 while advancing only the current V152 identity", () => {
     expect(
       simulationResultV147ValueSchema.shape.schemaVersion.safeParse(
         "1.47.0"
@@ -734,6 +738,16 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
         "1.51.0"
       ).success
     ).toBe(true);
+    expect(
+      simulationResultV151ValueSchema.shape.schemaVersion.safeParse(
+        "1.52.0"
+      ).success
+    ).toBe(false);
+    expect(
+      simulationResultV152ValueSchema.shape.schemaVersion.safeParse(
+        "1.52.0"
+      ).success
+    ).toBe(true);
     expect(simulationResultV147ValueSchema.shape.config).toBe(
       simConfigV147Schema
     );
@@ -748,6 +762,9 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
     );
     expect(simulationResultV151ValueSchema.shape.config).toBe(
       simConfigV151Schema
+    );
+    expect(simulationResultV152ValueSchema.shape.config).toBe(
+      simConfigV152Schema
     );
     expect(simulationResultV147ValueSchema.shape.runManifest).toBe(
       simulationRunManifestV147Schema
@@ -764,7 +781,23 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
     expect(simulationResultV151ValueSchema.shape.runManifest).toBe(
       simulationRunManifestV151Schema
     );
-    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(simulationResultV152ValueSchema.shape.runManifest).toBe(
+      simulationRunManifestV152Schema
+    );
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        simulationResultV151ValueSchema.shape,
+        "freezeBrokenAttackLog"
+      )
+    ).toBe(false);
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        simulationResultV152ValueSchema.shape,
+        "freezeBrokenAttackLog"
+      )
+    ).toBe(true);
+    expect(simulationResultSchema).toBe(simulationResultV152Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV151Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV150Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV149Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV148Schema);

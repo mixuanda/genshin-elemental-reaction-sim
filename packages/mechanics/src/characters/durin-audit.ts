@@ -7,6 +7,8 @@ import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -84,6 +86,10 @@ export const durinBlackSkillAuditPreset: SimConfig = {
   basicReactionSchedulerModel: {
     mode: "fixed-gcsim-basic-reaction-scheduler-v2",
     policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+  },
+  freezeBrokenAttackModel: {
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
@@ -388,6 +394,10 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
   basicReactionSchedulerModel: {
     mode: "fixed-gcsim-basic-reaction-scheduler-v2",
     policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID
+  },
+  freezeBrokenAttackModel: {
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
   },
   dataVersion:
     "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",

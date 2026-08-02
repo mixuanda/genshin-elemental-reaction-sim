@@ -21,6 +21,7 @@ import {
 import { simulate } from "../../sim-core/src/simulator";
 import { projectSimulationResultV150ToV149 } from "./project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "./project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
 
 const NO_CRIT = {
   critMode: "noCrit",
@@ -191,7 +192,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     ]);
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
-    const currentV150 = projectSimulationResultV151ToV150(current);
+    const currentV150 = projectSimulationResultV151ToV150(
+      projectSimulationResultV152ToV151(current),
+    );
     const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
     expect(projected.schemaVersion).toBe(
@@ -253,7 +256,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     expect(current.playerDamageEvents).toEqual([]);
     expect(current.reactionDamageGroupResetLog).toEqual([]);
 
-    const currentV150 = projectSimulationResultV151ToV150(current);
+    const currentV150 = projectSimulationResultV151ToV150(
+      projectSimulationResultV152ToV151(current),
+    );
     const projected = projectSimulationResultV150ToV149(currentV150);
     expect(simulationResultV149Schema.parse(projected)).toEqual(projected);
     expect(projected.totalDamage).toBe(current.totalDamage);
@@ -274,7 +279,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     ).toBeGreaterThan(0);
     expect(active.playerDamageEvents.length).toBeGreaterThan(0);
     expect(active.reactionDamageGroupResetLog.length).toBeGreaterThan(0);
-    const activeV150 = projectSimulationResultV151ToV150(active);
+    const activeV150 = projectSimulationResultV151ToV150(
+      projectSimulationResultV152ToV151(active),
+    );
     expect(() => projectSimulationResultV150ToV149(activeV150)).toThrow(
       /no faithful V1\.49 wire projection/,
     );
@@ -292,7 +299,9 @@ describe("V1.50 to frozen V1.49 result projection", () => {
     );
 
     const inactive = simulate(makeConfig(), NO_CRIT);
-    const inactiveV150 = projectSimulationResultV151ToV150(inactive);
+    const inactiveV150 = projectSimulationResultV151ToV150(
+      projectSimulationResultV152ToV151(inactive),
+    );
     expect(() =>
       projectSimulationResultV150ToV149({
         ...inactiveV150,

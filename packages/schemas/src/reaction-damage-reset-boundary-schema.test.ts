@@ -32,6 +32,7 @@ import {
   type SimConfigV149,
   type SimConfigV150,
   type SimConfigV151,
+  type SimConfigV152,
   type SimulationRunManifestV149,
   type SimulationRunManifestV150
 } from "./index";
@@ -63,11 +64,14 @@ const runtimeOptions = {
   randomSeed: "reaction-damage-reset-seed"
 };
 
-function freezeAsV150(config: SimConfigV151): SimConfigV150 {
+function freezeAsV150(
+  config: SimConfigV151 | SimConfigV152
+): SimConfigV150 {
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...payload
-  } = config;
+  } = config as SimConfigV152;
   return simConfigV150Schema.parse({
     ...payload,
     schemaVersion: REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION,
@@ -76,7 +80,7 @@ function freezeAsV150(config: SimConfigV151): SimConfigV150 {
 }
 
 function freezeAsV149(
-  config: SimConfigV150 | SimConfigV151
+  config: SimConfigV150 | SimConfigV151 | SimConfigV152
 ): SimConfigV149 {
   const {
     reactionDamageGroupModel: _reactionDamageGroupModel,
@@ -84,9 +88,11 @@ function freezeAsV149(
   } = config;
   const {
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...payload
   } = withPossibleScheduler as typeof withPossibleScheduler & {
     basicReactionSchedulerModel?: unknown;
+    freezeBrokenAttackModel?: unknown;
   };
   return simConfigV149Schema.parse({
     ...payload,
@@ -119,9 +125,9 @@ function createV149Manifest(config: SimConfigV149) {
 
 describe("1.50 reaction damage-group reset-boundary identity", () => {
   it("keeps 1.50 frozen after the current identity advances", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe("1.51.0");
+    expect(CURRENT_SCHEMA_VERSION).toBe("1.52.0");
     expect(CURRENT_ENGINE_VERSION).toBe(
-      "1.51.0-basic-reaction-scheduler"
+      "1.52.0-freeze-broken-attack"
     );
     expect(CURRENT_SCHEMA_VERSION).not.toBe(
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION

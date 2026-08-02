@@ -27,6 +27,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import frozenV145Json from "../../../test-vectors/fixtures/legacy-default-120s-1.45.golden.json";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 
 const UPDATE_FLAG = "UPDATE_LEGACY_DEFAULT_V146_GOLDEN";
@@ -304,7 +305,10 @@ function frozenV145CompatibilityProjection() {
   };
 }
 
-function makeFixture(result: ReturnType<typeof simulate>): DefaultV146Fixture {
+function makeFixture(
+  currentResult: ReturnType<typeof simulate>,
+): DefaultV146Fixture {
+  const result = projectSimulationResultV152ToV151(currentResult);
   const evaluatedCount = result.directDamageGroupLog.filter(
     (entry) => entry.evaluation === "evaluated",
   ).length;

@@ -50,6 +50,8 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
 import burningGolden from "../../../test-vectors/fixtures/burning-aura-v4-1.30.golden.json";
 import goldenV133 from "../../../test-vectors/fixtures/legacy-default-120s-1.33.golden.json";
@@ -62,6 +64,7 @@ import goldenV139 from "../../../test-vectors/fixtures/legacy-default-120s-1.39.
 import goldenV141Json from "../../../test-vectors/fixtures/legacy-default-120s-1.41.golden.json";
 import goldenV142Json from "../../../test-vectors/fixtures/legacy-default-120s-1.42.golden.json";
 import golden from "../../../test-vectors/fixtures/legacy-default-120s.golden.json";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -360,6 +363,7 @@ function projectCurrentConfigToFrozenV146(
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...currentWithoutApplicationModel
   } = structuredClone(config);
   const projected = projectApplicationsToFrozenV146Wire(
@@ -377,6 +381,7 @@ function projectCurrentManifestToFrozenV146(
   result: ReturnType<typeof simulate>,
   frozenConfig: SimConfigV146,
 ): SimulationRunManifestV146 {
+  const historicalResult = projectSimulationResultV152ToV151(result);
   const {
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
     reactionOwnedElementalApplicationRoot:
@@ -385,7 +390,7 @@ function projectCurrentManifestToFrozenV146(
     basicReactionSchedulerRoot: _basicReactionSchedulerRoot,
     reproducibilityKey: _currentReproducibilityKey,
     ...currentIdentity
-  } = result.runManifest;
+  } = historicalResult.runManifest;
   const frozenIdentity = {
     ...currentIdentity,
     version: DIRECT_DAMAGE_GROUP_RUN_MANIFEST_VERSION,
@@ -907,6 +912,7 @@ function makeLegacyDefaultV145CreationProbeFixture(
   result: ReturnType<typeof simulate>,
   frozenV144: LegacyDefaultV144Fixture,
 ): LegacyDefaultV145Fixture {
+  const historicalResult = projectSimulationResultV152ToV151(result);
   const {
     directDamageGroupRoot: _directDamageGroupRoot,
     elementalApplicationIcdRoot: _elementalApplicationIcdRoot,
@@ -915,7 +921,7 @@ function makeLegacyDefaultV145CreationProbeFixture(
     reactionDamageGroupRoot: _reactionDamageGroupRoot,
     basicReactionSchedulerRoot: _basicReactionSchedulerRoot,
     ...historicalRunManifest
-  } = result.runManifest;
+  } = historicalResult.runManifest;
   return legacyDefault120sGoldenFixtureV145Schema.parse({
     ...frozenV144,
     description: LEGACY_DEFAULT_V145_DESCRIPTION,
@@ -1078,6 +1084,7 @@ function v130CompatibilityResult(
     elementalApplicationIcdLog: _elementalApplicationIcdLog,
     reactionDamageGroupResetLog: _reactionDamageGroupResetLog,
     basicReactionSchedulerLog: _basicReactionSchedulerLog,
+    freezeBrokenAttackLog: _freezeBrokenAttackLog,
     runManifest: _runManifest,
     resolvedRuntimeOptions: _resolvedRuntimeOptions,
     pluginManifest: _pluginManifest,
@@ -1157,6 +1164,7 @@ function makeBurningGoldenConfig(): unknown {
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...v130Base
   } = base;
   return {
@@ -1665,6 +1673,10 @@ describe("1.44 identity migration release gate", () => {
           mode: "legacy-immediate-basic-reaction-scheduler-v1",
           policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
         },
+        freezeBrokenAttackModel: {
+          mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+          policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+        },
       });
       expect(historical).toEqual(before);
     });
@@ -1691,6 +1703,7 @@ describe("1.44 identity migration release gate", () => {
         makeConfig().reactionOwnedElementalApplicationModel,
       reactionDamageGroupModel: makeConfig().reactionDamageGroupModel,
       basicReactionSchedulerModel: makeConfig().basicReactionSchedulerModel,
+      freezeBrokenAttackModel: makeConfig().freezeBrokenAttackModel,
     };
     expect(migrateConfig(currentAuraV8)).toEqual(currentAuraV8);
     expect(migrateConfig(currentAuraV8).reactionEngine?.mode).toBe("aura-v8");

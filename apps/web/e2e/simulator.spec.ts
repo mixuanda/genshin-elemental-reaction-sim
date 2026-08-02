@@ -8,12 +8,16 @@ import {
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
 
 function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
@@ -152,6 +156,13 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     mode: "fixed-gcsim-basic-reaction-scheduler-v2",
     policyId: GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   });
+  const importedFreezeBrokenAttackModel = await page.evaluate(
+    () => window.GenshinDpsLab.getConfig().freezeBrokenAttackModel,
+  );
+  expect(importedFreezeBrokenAttackModel).toEqual({
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  });
   await page.getByRole("button", { name: "运行模拟" }).click();
   await expect(page.locator("#metricGrid")).toContainText("41,410,555");
 
@@ -198,6 +209,7 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
     reactionOwnedElementalApplicationModel?: unknown;
     reactionDamageGroupModel?: unknown;
     basicReactionSchedulerModel?: unknown;
+    freezeBrokenAttackModel?: unknown;
   };
   expect(exportedConfig.targetTaskModel).toEqual(importedTargetTaskModel);
   expect(exportedConfig.reactionDeliveryModel).toEqual(
@@ -220,6 +232,9 @@ test("runs, imports, explores, and exports the compatibility preset", async ({
   );
   expect(exportedConfig.basicReactionSchedulerModel).toEqual(
     importedBasicReactionSchedulerModel,
+  );
+  expect(exportedConfig.freezeBrokenAttackModel).toEqual(
+    importedFreezeBrokenAttackModel,
   );
 });
 
@@ -244,6 +259,7 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
   delete historicalConfig.reactionOwnedElementalApplicationModel;
   delete historicalConfig.reactionDamageGroupModel;
   delete historicalConfig.basicReactionSchedulerModel;
+  delete historicalConfig.freezeBrokenAttackModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38.json",
@@ -267,11 +283,12 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
         config.reactionOwnedElementalApplicationModel,
       reactionDamageGroupModel: config.reactionDamageGroupModel,
       basicReactionSchedulerModel: config.basicReactionSchedulerModel,
+      freezeBrokenAttackModel: config.freezeBrokenAttackModel,
     };
   });
   expect(migratedIdentityAndDelivery).toEqual({
-    schemaVersion: "1.51.0",
-    engineVersion: "1.51.0-basic-reaction-scheduler",
+    schemaVersion: "1.52.0",
+    engineVersion: "1.52.0-freeze-broken-attack",
     reactionDeliveryModel: {
       mode: "deferred-event-heap-v1",
     },
@@ -302,6 +319,10 @@ test("migrates a 1.38 config to deferred delivery and all fixed mechanics roots"
       mode: "legacy-immediate-basic-reaction-scheduler-v1",
       policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
     },
+    freezeBrokenAttackModel: {
+      mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+      policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+    },
   });
 });
 
@@ -321,6 +342,7 @@ test("rejects a 1.38 wire polluted by the current reaction formula model", async
   delete pollutedHistoricalConfig.reactionOwnedElementalApplicationModel;
   delete pollutedHistoricalConfig.reactionDamageGroupModel;
   delete pollutedHistoricalConfig.basicReactionSchedulerModel;
+  delete pollutedHistoricalConfig.freezeBrokenAttackModel;
 
   await page.locator("#importInput").setInputFiles({
     name: "durin-compatibility-preset-1.38-polluted.json",
@@ -389,9 +411,9 @@ test("locks the scalar resistance control when an elemental table is active", as
   await expect(page.locator("#resModeHint")).toContainText(
     "逐元素抗性表已启用",
   );
-  await expect(page.locator("#notice")).toContainText("schema 1.51.0");
+  await expect(page.locator("#notice")).toContainText("schema 1.52.0");
   await expect(page.locator("#notice")).toContainText(
-    "engine 1.51.0-basic-reaction-scheduler",
+    "engine 1.52.0-freeze-broken-attack",
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();

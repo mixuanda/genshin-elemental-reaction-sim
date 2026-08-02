@@ -7,6 +7,8 @@ import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID
 } from "@genshin-dps-lab/icd-profiles";
@@ -56,6 +58,13 @@ function createFixedBasicReactionSchedulerModel() {
   } as const;
 }
 
+function createFixedFreezeBrokenAttackModel() {
+  return {
+    mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+    policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID
+  } as const;
+}
+
 /**
  * Compatibility fixture data copied from Vanilla v0.1.
  *
@@ -91,6 +100,8 @@ export const durinMeltPreset: SimConfig = {
     createFixedReactionDamageGroupModel(),
   basicReactionSchedulerModel:
     createFixedBasicReactionSchedulerModel(),
+  freezeBrokenAttackModel:
+    createFixedFreezeBrokenAttackModel(),
   characters: [
     {
       id: "durin",
@@ -546,6 +557,8 @@ export const blankPreset: SimConfig = {
     createFixedReactionDamageGroupModel(),
   basicReactionSchedulerModel:
     createFixedBasicReactionSchedulerModel(),
+  freezeBrokenAttackModel:
+    createFixedFreezeBrokenAttackModel(),
   characters: [
     {
       id: "a",
@@ -653,6 +666,8 @@ export const legalTimelineDemoPreset: SimConfig = {
     createFixedReactionDamageGroupModel(),
   basicReactionSchedulerModel:
     createFixedBasicReactionSchedulerModel(),
+  freezeBrokenAttackModel:
+    createFixedFreezeBrokenAttackModel(),
   characters: [
     {
       id: "frame-a",
@@ -841,6 +856,8 @@ export const auraReactionDemoPreset: SimConfig = {
     createFixedReactionDamageGroupModel(),
   basicReactionSchedulerModel:
     createFixedBasicReactionSchedulerModel(),
+  freezeBrokenAttackModel:
+    createFixedFreezeBrokenAttackModel(),
   characters: legalTimelineDemoPreset.characters.map((character) => ({
     ...character,
     stats: { ...character.stats }
@@ -953,6 +970,8 @@ export const particleEnergyDemoPreset: SimConfig = {
     createFixedReactionDamageGroupModel(),
   basicReactionSchedulerModel:
     createFixedBasicReactionSchedulerModel(),
+  freezeBrokenAttackModel:
+    createFixedFreezeBrokenAttackModel(),
   characters: [
     {
       ...legalTimelineDemoPreset.characters[0]!,

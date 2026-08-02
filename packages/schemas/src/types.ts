@@ -16,8 +16,14 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
   type GcsimReactionOwnedApplicationBinding,
   type GcsimReactionOwnedApplicationV1Binding,
   type GcsimReactionOwnedApplicationPolicyRoot,
@@ -71,13 +77,16 @@ export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION =
 export const BASIC_REACTION_SCHEDULER_SCHEMA_VERSION = "1.51.0" as const;
 export const BASIC_REACTION_SCHEDULER_ENGINE_VERSION =
   "1.51.0-basic-reaction-scheduler" as const;
+export const FREEZE_BROKEN_ATTACK_SCHEMA_VERSION = "1.52.0" as const;
+export const FREEZE_BROKEN_ATTACK_ENGINE_VERSION =
+  "1.52.0-freeze-broken-attack" as const;
 export const QUICKEN_BLOOM_TASK_SCHEMA_VERSION = "1.36.0" as const;
 export const QUICKEN_BLOOM_TASK_ENGINE_VERSION =
   "1.36.0-quicken-bloom-task" as const;
 export const CURRENT_SCHEMA_VERSION =
-  BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+  FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
 export const CURRENT_ENGINE_VERSION =
-  BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+  FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
 export const ELEMENTAL_ENEMY_RESISTANCE_SCHEMA_VERSION = "1.35.0" as const;
 export const ELEMENTAL_ENEMY_RESISTANCE_ENGINE_VERSION =
   "1.35.0-elemental-enemy-resistance" as const;
@@ -104,8 +113,10 @@ export const REACTION_DAMAGE_GROUP_RESET_BOUNDARY_RUN_MANIFEST_VERSION =
   "1.6.0" as const;
 /** Current 1.51 run-manifest wire; 1.7 binds basic reaction scheduling. */
 export const BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION = "1.7.0" as const;
+/** Current 1.52 run-manifest wire; 1.8 binds Freeze Broken audit behavior. */
+export const FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION = "1.8.0" as const;
 export const SIMULATION_RUN_MANIFEST_VERSION =
-  BASIC_REACTION_SCHEDULER_RUN_MANIFEST_VERSION;
+  FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION;
 /**
  * Public results can verify plugin trace structure and downstream arithmetic,
  * but cannot replay arbitrary runtime plugin code from its declared manifest.
@@ -1121,6 +1132,22 @@ export type BasicReactionSchedulerModel =
   | BasicReactionSchedulerModelV1
   | BasicReactionSchedulerModelV2;
 
+/** Frozen compatibility selection for migrated 1.51-and-earlier configs. */
+export interface FreezeBrokenAttackModelV1 {
+  mode: typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE;
+  policyId: typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID;
+}
+
+/** Current 1.52 normalized, reference-audit-only Freeze Broken policy. */
+export interface FreezeBrokenAttackModelV2 {
+  mode: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE;
+  policyId: typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID;
+}
+
+export type FreezeBrokenAttackModel =
+  | FreezeBrokenAttackModelV1
+  | FreezeBrokenAttackModelV2;
+
 interface SimConfigCommon<TApplication = ElementalApplication> {
   dataVersion: string;
   randomSeed: string;
@@ -1234,7 +1261,20 @@ export interface SimConfigV151 extends SimConfigCommon {
   basicReactionSchedulerModel: BasicReactionSchedulerModel;
 }
 
-export type SimConfig = SimConfigV151;
+/** Current 1.52 config binds the Freeze Broken audit/callback policy. */
+export interface SimConfigV152 extends SimConfigCommon {
+  schemaVersion: typeof FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+  engineVersion: typeof FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
+  reactionFormulaModel: ReactionFormulaModel;
+  directDamageGroupModel: DirectDamageGroupModel;
+  elementalApplicationIcdModel: ElementalApplicationIcdModel;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
+  reactionDamageGroupModel: ReactionDamageGroupModel;
+  basicReactionSchedulerModel: BasicReactionSchedulerModel;
+  freezeBrokenAttackModel: FreezeBrokenAttackModel;
+}
+
+export type SimConfig = SimConfigV152;
 
 export type VersionedSimConfig =
   | SimConfigV142
@@ -1245,7 +1285,8 @@ export type VersionedSimConfig =
   | SimConfigV148
   | SimConfigV149
   | SimConfigV150
-  | SimConfigV151;
+  | SimConfigV151
+  | SimConfigV152;
 
 export interface SimulationOptions {
   energyMode?: EnergyMode;
@@ -1417,7 +1458,29 @@ export interface SimulationRunManifestV151 extends SimulationRunManifestCommon {
   basicReactionSchedulerRoot: BasicReactionSchedulerRoot;
 }
 
-export type SimulationRunManifest = SimulationRunManifestV151;
+export type FreezeBrokenAttackRootV1 =
+  typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT;
+export type FreezeBrokenAttackRootV2 =
+  typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT;
+export type FreezeBrokenAttackRoot =
+  | FreezeBrokenAttackRootV1
+  | FreezeBrokenAttackRootV2;
+
+/** Current 1.52 manifest binds the exact selected Freeze Broken policy root. */
+export interface SimulationRunManifestV152 extends SimulationRunManifestCommon {
+  version: typeof FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION;
+  schemaVersion: typeof FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+  engineVersion: typeof FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
+  reactionFormulaRoot: ReactionFormulaRoot;
+  directDamageGroupRoot: DirectDamageGroupRoot;
+  elementalApplicationIcdRoot: ElementalApplicationIcdRoot;
+  reactionOwnedElementalApplicationRoot: ReactionOwnedElementalApplicationRootV149;
+  reactionDamageGroupRoot: ReactionDamageGroupRoot;
+  basicReactionSchedulerRoot: BasicReactionSchedulerRoot;
+  freezeBrokenAttackRoot: FreezeBrokenAttackRoot;
+}
+
+export type SimulationRunManifest = SimulationRunManifestV152;
 
 export type VersionedSimulationRunManifest =
   | SimulationRunManifestV142
@@ -1428,7 +1491,8 @@ export type VersionedSimulationRunManifest =
   | SimulationRunManifestV148
   | SimulationRunManifestV149
   | SimulationRunManifestV150
-  | SimulationRunManifestV151;
+  | SimulationRunManifestV151
+  | SimulationRunManifestV152;
 
 export type SimulationEventType =
   | "action"
@@ -3483,6 +3547,96 @@ export interface FrozenStateLogEntry {
   reason: string | null;
 }
 
+export type FreezeBrokenAttackDepletionOperation = Extract<
+  FrozenStateOperation,
+  "consume" | "poise-consume" | "shatter-consume" | "expire"
+>;
+
+export type FreezeBrokenAttackReaction = Extract<
+  ReactionType,
+  "freeze" | "shatter" | "swirlCryo" | "crystallizeCryo"
+>;
+
+/**
+ * Fixed reference AttackInfo projected by the 1.52 Freeze Broken audit.
+ * The normalized local policy never dispatches this as a DamageEvent.
+ */
+export interface FreezeBrokenReferenceAttack {
+  actorIndex: 0;
+  resolvedActorId: string;
+  damageSource: "receiving-target";
+  damageSourceTargetId: TargetId;
+  ability: "Freeze Broken";
+  attackTag: "AttackTagNone";
+  icdTag: "ICDTagNone";
+  icdGroup: "ICDGroupDefault";
+  strikeType: "StrikeTypeDefault";
+  element: "NoElement";
+  noImpulse: false;
+  durability: 0;
+  multiplier: 0;
+  flatDamage: 0;
+  snapshotDelayFrames: -1;
+  damageDelayFrames: 0;
+  targeting: "single-target";
+  sourceIsSim: true;
+  doNotLog: true;
+}
+
+/**
+ * One normalized audit row for a pinned Freeze-depletion trigger source.
+ * Both pinned reference phases are recorded, but neither creates a local
+ * DamageEvent, HitResolution row, callback dispatch, or RNG draw.
+ */
+export interface FreezeBrokenAttackLogEntry {
+  id: number;
+  frame: number;
+  targetFrame?: number;
+  timeSeconds: number;
+  targetId: TargetId;
+  targetName: string;
+  generation: number;
+  sourceFrozenStateLogId: number;
+  depletionOperation: FreezeBrokenAttackDepletionOperation;
+  reaction: FreezeBrokenAttackReaction;
+  reason: string | null;
+  depletionDamageEventId: number | null;
+  sourceFreezeDamageEventId: number | null;
+  triggerEventType: SimulationEventType;
+  triggerEventPriority: number;
+  triggerEventSequence: number;
+  intraEventSequence: number;
+  frozenGaugeBefore: number;
+  frozenGaugeAfter: 0;
+  attack: FreezeBrokenReferenceAttack;
+  syncPhase: {
+    disposition: "reference-audit-only-not-dispatched";
+    referencePhase: "same-call-stack-immediate";
+    order: [
+      "on-aura-durability-depleted-frozen",
+      "on-apply-attack-freeze-broken",
+      "on-enemy-hit-freeze-broken",
+      "damage-log-freeze-broken",
+    ];
+  };
+  endOfFramePhase: {
+    disposition: "reference-audit-only-not-dispatched";
+    referencePhase: "zero-delay-core-task";
+    order: [
+      "apply-zero-damage",
+      "on-enemy-damage-freeze-broken-zero",
+      "attack-callbacks-none-supplied",
+    ];
+    damage: 0;
+    relativeToTriggerEnemyDamage: "before" | "not-applicable";
+  };
+  executionStatus: "reference-audit-only-not-dispatched";
+  damageEventId: null;
+  hitResolutionLogId: null;
+}
+
+export type FreezeBrokenAttackLog = FreezeBrokenAttackLogEntry[];
+
 export type QuickenStateOperation =
   | "start"
   | "refresh"
@@ -4374,6 +4528,8 @@ export interface SimulationResult {
   reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
   /** Swirl attack resolution and deferred Aura-attachment scheduler audit. */
   basicReactionSchedulerLog: BasicReactionSchedulerLog;
+  /** Reference-only Freeze Broken attack/callback audit; never damage output. */
+  freezeBrokenAttackLog: FreezeBrokenAttackLog;
   /** Deferred live-Aura reaction operations in execution order. */
   reactionTaskLog: ReactionTaskLogEntry[];
   /** Target-scoped reaction status applications with exact half-open windows. */
@@ -4455,6 +4611,7 @@ type VersionedSimulationResultIdentityFields =
   | "reactionDamageLog"
   | "reactionDamageGroupResetLog"
   | "basicReactionSchedulerLog"
+  | "freezeBrokenAttackLog"
   | "targetStateTimeline"
   | "playerDamageEvents"
   | "targetPhaseLog";
@@ -4588,8 +4745,30 @@ export type SimulationResultForV150 = Omit<
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
 };
 
-/** Current 1.51 result identity and basic-reaction scheduler audit. */
-export type SimulationResultForV151 = SimulationResult;
+/** Frozen 1.51 result identity and basic-reaction scheduler audit. */
+export type SimulationResultForV151 = Omit<
+  SimulationResult,
+  VersionedSimulationResultIdentityFields
+> & {
+  schemaVersion: typeof BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+  engineVersion: typeof BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
+  config: SimConfigV151;
+  runManifest: SimulationRunManifestV151;
+  directDamageGroupLog: DirectDamageGroupLogEntry[];
+  elementalApplicationIcdLog: ElementalApplicationIcdLogEntryV149[];
+  damageEvents: DamageEventV148[];
+  hitEvents: DamageEventV148[];
+  hitResolutionLog: HitResolutionLogEntryV148[];
+  reactionDamageLog: ReactionDamageLogEntryV150[];
+  reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
+  basicReactionSchedulerLog: BasicReactionSchedulerLog;
+  targetStateTimeline: TargetStateTimeline;
+  playerDamageEvents: PlayerDamageEventV150[];
+  targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
+};
+
+/** Current 1.52 result identity and Freeze Broken reference audit. */
+export type SimulationResultForV152 = SimulationResult;
 
 export type VersionedSimulationResult =
   | SimulationResultForV142
@@ -4600,4 +4779,5 @@ export type VersionedSimulationResult =
   | SimulationResultForV148
   | SimulationResultForV149
   | SimulationResultForV150
-  | SimulationResultForV151;
+  | SimulationResultForV151
+  | SimulationResultForV152;

@@ -6,6 +6,7 @@ export * from "./direct-damage-group";
 export * from "./elemental-application-icd";
 export * from "./energy";
 export * from "./formulas";
+export * from "./freeze-broken-attack";
 export * from "./legal-timeline";
 export * from "./min-heap";
 export * from "./player-damage";

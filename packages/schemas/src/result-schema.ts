@@ -27,6 +27,8 @@ import {
   ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION,
   EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION,
+  FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+  FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
   REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION,
@@ -54,6 +56,7 @@ import {
   type SimulationResultForV148,
   type SimulationResultForV150,
   type SimulationResultForV151,
+  type SimulationResultForV152,
   type VersionedSimulationResult
 } from "./types";
 import {
@@ -65,8 +68,11 @@ import {
   validateSimulationResultV148Integrity,
   validateSimulationResultV149Integrity,
   validateSimulationResultV150Integrity,
-  validateSimulationResultV151Integrity
+  validateSimulationResultV151Integrity,
+  validateSimulationResultV152Integrity
 } from "./result-integrity";
+import { freezeBrokenAttackLogEntrySchema } from "./freeze-broken-attack-result-schema";
+export { freezeBrokenAttackLogEntrySchema } from "./freeze-broken-attack-result-schema";
 import {
   actorPoseDefinitionSchema,
   auraGaugeEntrySchema,
@@ -114,6 +120,8 @@ import {
   simConfigV149Schema,
   simConfigV150Schema,
   simConfigV151Schema,
+  simConfigV152Schema,
+  simulationEventTypeSchema,
   simulationRunManifestV142Schema,
   simulationRunManifestV144Schema,
   simulationRunManifestV145Schema,
@@ -123,6 +131,7 @@ import {
   simulationRunManifestV149Schema,
   simulationRunManifestV150Schema,
   simulationRunManifestV151Schema,
+  simulationRunManifestV152Schema,
   targetClockAuditSchema,
   targetClockLogSchema,
   targetClockResultReferencesSchema,
@@ -6617,10 +6626,286 @@ export type SimulationResultV151 = z.output<
   typeof simulationResultV151Schema
 >;
 
+/**
+ * Current 1.52 result wire. The inherited 1.51 scheduler proof stays frozen;
+ * the seventh trust root adds only the audit-only Freeze Broken projection.
+ */
+export const simulationResultV152ValueSchema = z
+  .object({
+    ...simulationResultV151ValueSchema.shape,
+    schemaVersion: z.literal(
+      FREEZE_BROKEN_ATTACK_SCHEMA_VERSION
+    ),
+    engineVersion: z.literal(
+      FREEZE_BROKEN_ATTACK_ENGINE_VERSION
+    ),
+    runManifest: simulationRunManifestV152Schema,
+    config: simConfigV152Schema,
+    freezeBrokenAttackLog: z.array(
+      freezeBrokenAttackLogEntrySchema
+    )
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const issue = (
+      path: Array<string | number>,
+      message: string
+    ): void =>
+      context.addIssue({ code: "custom", path, message });
+    if (
+      result.engineVersion !== result.config.engineVersion
+    ) {
+      issue(
+        ["engineVersion"],
+        "must equal config.engineVersion"
+      );
+    }
+    if (result.dataVersion !== result.config.dataVersion) {
+      issue(
+        ["dataVersion"],
+        "must equal config.dataVersion"
+      );
+    }
+    if (
+      result.randomSeed !==
+      result.resolvedRuntimeOptions.randomSeed
+    ) {
+      issue(
+        ["randomSeed"],
+        "must equal resolvedRuntimeOptions.randomSeed"
+      );
+    }
+    if (
+      result.compatibilityMode !==
+      result.resolvedRuntimeOptions.compatibilityMode
+    ) {
+      issue(
+        ["compatibilityMode"],
+        "must equal resolvedRuntimeOptions.compatibilityMode"
+      );
+    }
+    if (
+      result.reproducibilityKey !==
+      result.runManifest.reproducibilityKey
+    ) {
+      issue(
+        ["reproducibilityKey"],
+        "must equal runManifest.reproducibilityKey"
+      );
+    }
+    if (
+      JSON.stringify(result.pluginManifest) !==
+      JSON.stringify(result.runManifest.plugins)
+    ) {
+      issue(
+        ["pluginManifest"],
+        "must equal runManifest.plugins"
+      );
+    }
+    try {
+      parseSimulationRunManifestForConfig(
+        result.runManifest,
+        result.config
+      );
+    } catch (error) {
+      issue(
+        ["runManifest"],
+        error instanceof Error
+          ? error.message
+          : "is not bound to the supplied migrated config"
+      );
+    }
+
+    const selectedReactionOwnedPolicy =
+      result.config.reactionOwnedElementalApplicationModel;
+    for (const [
+      index,
+      entry
+    ] of result.elementalApplicationIcdLog.entries()) {
+      if (entry.sourceKind === "configured-direct-hit")
+        continue;
+      if (
+        entry.selector.mode !==
+          selectedReactionOwnedPolicy.mode ||
+        entry.selector.policyId !==
+          selectedReactionOwnedPolicy.policyId
+      ) {
+        issue(
+          ["elementalApplicationIcdLog", index, "selector"],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+      if (
+        entry.decision.kind === "reaction-fixed-gcsim" &&
+        entry.decision.policyId !==
+          selectedReactionOwnedPolicy.policyId
+      ) {
+        issue(
+          [
+            "elementalApplicationIcdLog",
+            index,
+            "decision",
+            "policyId"
+          ],
+          "must equal the reaction-owned policy selected by config"
+        );
+      }
+    }
+
+    const selectedDamageGroupPolicy =
+      result.config.reactionDamageGroupModel.policyId;
+    for (const [
+      logIndex,
+      reactionLog
+    ] of result.reactionDamageLog.entries()) {
+      for (const [
+        decisionIndex,
+        decision
+      ] of reactionLog.damageGroupDecisions.entries()) {
+        if (
+          decision.policyId !== selectedDamageGroupPolicy
+        ) {
+          issue(
+            [
+              "reactionDamageLog",
+              logIndex,
+              "damageGroupDecisions",
+              decisionIndex,
+              "policyId"
+            ],
+            "must equal the reaction damage-group policy selected by config"
+          );
+        }
+      }
+    }
+    for (const [
+      index,
+      reset
+    ] of result.reactionDamageGroupResetLog.entries()) {
+      if (reset.policyId !== selectedDamageGroupPolicy) {
+        issue(
+          [
+            "reactionDamageGroupResetLog",
+            index,
+            "policyId"
+          ],
+          "must equal the reaction damage-group policy selected by config"
+        );
+      }
+    }
+    if (
+      selectedDamageGroupPolicy ===
+        GCSIM_REACTION_DAMAGE_GROUP_POLICY_V1_ID &&
+      result.reactionDamageGroupResetLog.length !== 0
+    ) {
+      issue(
+        ["reactionDamageGroupResetLog"],
+        "the v1 lazy-window policy requires an empty reset-task log"
+      );
+    }
+
+    validateBasicReactionSchedulerResult(
+      result as unknown as SimulationResultForV151,
+      context
+    );
+
+    const frozenReferenceView =
+      projectV150ResultForFrozenReferenceFacets(
+        result as unknown as SimulationResultForV150
+      );
+    const validateFacet = (
+      label: string,
+      schema: z.ZodType,
+      view: unknown = frozenReferenceView
+    ): void => {
+      const parsed = schema.safeParse(view);
+      if (parsed.success) return;
+      for (const facetIssue of parsed.error.issues) {
+        context.addIssue({
+          code: "custom",
+          path: [...facetIssue.path],
+          message: `${label}: ${facetIssue.message}`
+        });
+      }
+    };
+    validateFacet(
+      "enemy target references",
+      enemyTargetsResultReferencesSchema
+    );
+    validateFacet(
+      "reaction delivery references",
+      reactionDeliveryResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target task phase references",
+      targetTaskPhaseResultReferencesSchema
+    );
+    if (
+      result.config.targetTaskModel.mode !==
+      "target-phase-v3"
+    ) {
+      validateFacet(
+        "target phase v2 references",
+        targetPhaseV2ResultReferencesSchema
+      );
+    }
+    validateFacet(
+      "player damage references",
+      playerDamageResultReferencesSchema,
+      result
+    );
+    validateFacet(
+      "target clock references",
+      targetClockResultReferencesSchema
+    );
+    const auraMode = result.config.reactionEngine?.mode;
+    if (
+      auraMode === "aura-v5" ||
+      auraMode === "aura-v6" ||
+      auraMode === "aura-v7" ||
+      auraMode === "aura-v8" ||
+      auraMode === "aura-v9"
+    ) {
+      validateFacet(
+        "Dendro core references",
+        dendroCoreResultReferencesSchema,
+        result
+      );
+    }
+    if (
+      (auraMode === "aura-v8" || auraMode === "aura-v9") &&
+      (result.reactionTaskLog.some(
+        (task) => task.electroChargedCleanup !== null
+      ) ||
+        result.periodicReactionLog.some(
+          (entry) => entry.reaction === "electroCharged"
+        ))
+    ) {
+      validateFacet(
+        "Electro-Charged cleanup references",
+        electroChargedCleanupResultReferencesSchema
+      );
+    }
+    validateSimulationResultV152Integrity(
+      result as SimulationResultForV152,
+      context
+    );
+  });
+
+export const simulationResultV152Schema = z.preprocess(
+  rejectNonPlainJsonWire("SimulationResult 1.52"),
+  simulationResultV152ValueSchema
+);
+
+export type SimulationResultV152 = z.output<
+  typeof simulationResultV152Schema
+>;
+
 /** Current public result boundary. Frozen versioned schemas remain exported. */
 export const simulationResultSchema =
-  simulationResultV151Schema;
-export type ParsedSimulationResult = SimulationResultV151;
+  simulationResultV152Schema;
+export type ParsedSimulationResult = SimulationResultV152;
 
 /** Strict public parser for exact frozen/current result identities. */
 export function parseVersionedSimulationResult(
@@ -6635,6 +6920,14 @@ export function parseVersionedSimulationResult(
   const wire = cleanInput;
   const schemaVersion = wire.schemaVersion;
   const engineVersion = wire.engineVersion;
+  if (
+    schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+    engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION
+  ) {
+    return simulationResultV152Schema.parse(
+      cleanInput
+    ) as VersionedSimulationResult;
+  }
   if (
     schemaVersion ===
       BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&

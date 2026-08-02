@@ -97,6 +97,10 @@ const NO_ICD_DECISION = {
 } as const;
 
 function expectCurrentApplicationContract(result: SimulationResult): void {
+  expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  expect(result.engineVersion).toBe(CURRENT_ENGINE_VERSION);
+  expect(result.freezeBrokenAttackLog).toEqual([]);
+  expect(result.mechanicsStatus).toBe("complete");
   expect(result.config.elementalApplicationIcdModel).toEqual({
     mode: "fixed-gcsim-elemental-application-v1",
     profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
@@ -264,6 +268,7 @@ function projectCurrentConfigToFrozenV140(
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     electroChargedPropagationModel: _electroChargedPropagationModel,
     ...frozenConfig
   } = structuredClone(config);

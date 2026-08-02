@@ -26,10 +26,16 @@ import {
   GCSIM_DAMAGE_GROUP_ROOT,
   GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
   GCSIM_ELEMENTAL_APPLICATION_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
   GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
 } from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { defineDamageModifierPlugin } from "../plugins";
@@ -55,6 +61,14 @@ const EXPECTED_REACTION_OWNED_APPLICATION_MODEL = {
 const EXPECTED_MIGRATED_REACTION_OWNED_APPLICATION_MODEL = {
   mode: "fixed-gcsim-reaction-owned-application-v1",
   policyId: GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ID,
+} as const;
+const EXPECTED_FREEZE_BROKEN_ATTACK_MODEL = {
+  mode: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  policyId: GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+} as const;
+const EXPECTED_MIGRATED_FREEZE_BROKEN_ATTACK_MODEL = {
+  mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+  policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
 } as const;
 
 function projectApplicationsToLegacyWire(value: unknown): unknown {
@@ -110,6 +124,7 @@ function asV144Input(config: SimConfig): unknown {
       _reactionOwnedElementalApplicationModel,
     reactionDamageGroupModel: _reactionDamageGroupModel,
     basicReactionSchedulerModel: _basicReactionSchedulerModel,
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...legacyConfig
   } = structuredClone(config);
   return {
@@ -171,6 +186,9 @@ describe("reaction formula run-manifest root", () => {
       expect(config.reactionOwnedElementalApplicationModel).toEqual(
         EXPECTED_REACTION_OWNED_APPLICATION_MODEL,
       );
+      expect(config.freezeBrokenAttackModel).toEqual(
+        EXPECTED_FREEZE_BROKEN_ATTACK_MODEL,
+      );
     }
   });
 
@@ -188,6 +206,9 @@ describe("reaction formula run-manifest root", () => {
     );
     expect(result.runManifest.reactionOwnedElementalApplicationRoot).toEqual(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_ROOT,
+    );
+    expect(result.runManifest.freezeBrokenAttackRoot).toEqual(
+      GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
     );
     expect(result.runManifest.configHash).toBe(
       createSimulationConfigHash(result.config),
@@ -238,6 +259,7 @@ describe("reaction formula run-manifest root", () => {
       elementalApplicationIcdModel: EXPECTED_ELEMENTAL_APPLICATION_ICD_MODEL,
       reactionOwnedElementalApplicationModel:
         EXPECTED_MIGRATED_REACTION_OWNED_APPLICATION_MODEL,
+      freezeBrokenAttackModel: EXPECTED_MIGRATED_FREEZE_BROKEN_ATTACK_MODEL,
     });
     expect(result.config.reactionFormulaModel).toEqual(EXPECTED_FORMULA_MODEL);
     expect(result.config.directDamageGroupModel).toEqual(
@@ -248,6 +270,9 @@ describe("reaction formula run-manifest root", () => {
     );
     expect(result.config.reactionOwnedElementalApplicationModel).toEqual(
       EXPECTED_MIGRATED_REACTION_OWNED_APPLICATION_MODEL,
+    );
+    expect(result.config.freezeBrokenAttackModel).toEqual(
+      EXPECTED_MIGRATED_FREEZE_BROKEN_ATTACK_MODEL,
     );
     expect(result.runManifest.reactionFormulaRoot).toEqual(
       CLASSIC_REACTION_FORMULA_ROOT,
@@ -260,6 +285,9 @@ describe("reaction formula run-manifest root", () => {
     );
     expect(result.runManifest.reactionOwnedElementalApplicationRoot).toEqual(
       GCSIM_REACTION_OWNED_APPLICATION_POLICY_V1_ROOT,
+    );
+    expect(result.runManifest.freezeBrokenAttackRoot).toEqual(
+      LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
     );
   });
 
@@ -336,7 +364,7 @@ describe("reaction formula run-manifest root", () => {
       );
 
       expect(() => simulate(oneHitConfig(), { plugins: [plugin] })).toThrow(
-        /Trusted SimulationResult 1\.51 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/,
+        /Trusted SimulationResult 1\.52 integrity validation failed: damageEvents\.0\.damageFactors\.reactionBase/,
       );
     },
   );

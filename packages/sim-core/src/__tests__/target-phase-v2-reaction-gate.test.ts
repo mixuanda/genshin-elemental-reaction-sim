@@ -10,6 +10,10 @@ import {
   type SimConfig,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
+import {
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE
+} from "@genshin-dps-lab/icd-profiles";
 import { describe, expect, it } from "vitest";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
@@ -304,7 +308,12 @@ function makeReactionGateConfig(
   scenarioId: string,
   scenario: ReactionGateScenario
 ): SimConfig {
-  const base = makeConfig();
+  const base = makeConfig({
+    freezeBrokenAttackModel: {
+      mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+      policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
+    }
+  });
   const durationFrames = Math.max(60, scenario.durationFrames);
   const lastHitFrame = Math.max(
     ...scenario.hits.map((hit) => hit.frame)
@@ -413,7 +422,12 @@ function makeSameFrameBoundaryConfig(
   incomingHitId: string;
   expectedTransition: "frozen-expiry" | "quicken-expiry";
 } {
-  const base = makeConfig();
+  const base = makeConfig({
+    freezeBrokenAttackModel: {
+      mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+      policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
+    }
+  });
   const frozen = kind === "frozen";
   const boundaryFrame = frozen ? 176 : 600;
   const incomingHitId = `${kind}-same-frame-incoming`;

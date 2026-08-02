@@ -13,6 +13,7 @@ import {
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -314,10 +315,12 @@ describe("basic-reaction scheduler trusted result integrity", () => {
 
   it("keeps the frozen V1.50 trusted boundary free of V1.51 log and timeline fields", () => {
     const projected = projectSimulationResultV151ToV150(
-      simulate(makeConfig(), {
-        energyMode: "configured",
-        critMode: "noCrit",
-      }),
+      projectSimulationResultV152ToV151(
+        simulate(makeConfig(), {
+          energyMode: "configured",
+          critMode: "noCrit",
+        }),
+      ),
     );
     expect(assertTrustedSimulationResultV150(projected)).toBe(projected);
 

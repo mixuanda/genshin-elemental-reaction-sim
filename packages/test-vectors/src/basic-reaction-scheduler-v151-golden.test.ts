@@ -34,6 +34,7 @@ import {
   canonicalSha256,
   loadPreviewOrCreateReviewedGolden,
 } from "./reviewed-golden";
+import { projectSimulationResultV152ToV151 } from "./project-v152-to-v151";
 
 const PREVIEW_FLAG = "PREVIEW_BASIC_REACTION_SCHEDULER_V151_GOLDEN";
 const UPDATE_FLAG = "UPDATE_BASIC_REACTION_SCHEDULER_V151_GOLDEN";
@@ -343,11 +344,13 @@ function runScenario(
   model: BasicReactionSchedulerModel,
 ): SimulationResultForV151 {
   const config = makeSameFrameMixedSwirlConfig(model);
-  return simulate(config, {
-    compatibilityMode: "legal-frame-v1",
-    critMode: "noCrit",
-    randomSeed: config.randomSeed,
-  });
+  return projectSimulationResultV152ToV151(
+    simulate(config, {
+      compatibilityMode: "legal-frame-v1",
+      critMode: "noCrit",
+      randomSeed: config.randomSeed,
+    }),
+  );
 }
 
 function scenarioFixture(result: SimulationResultForV151) {

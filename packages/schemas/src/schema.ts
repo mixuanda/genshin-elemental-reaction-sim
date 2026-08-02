@@ -7,6 +7,9 @@ import {
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ROOT,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE,
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT,
   GCSIM_DAMAGE_GROUP_PROFILE,
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
   GCSIM_DAMAGE_GROUP_ROOT,
@@ -22,6 +25,9 @@ import {
   GCSIM_REACTION_DAMAGE_GROUP_POLICY_V2_ROOT,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID,
   LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ROOT,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT,
   resolveDamageGroup,
   resolveReactionDamageGroupBindingForPolicy,
   type GcsimDamageGroupId,
@@ -66,6 +72,9 @@ import {
   FREEZE_REACTION_SCHEMA_VERSION,
   FIXED_ENERGY_ICD_SCHEMA_VERSION,
   FOLLOWUP_CANCEL_SCHEMA_VERSION,
+  FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+  FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION,
+  FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
   GENERAL_REACTION_ORDER_ENGINE_VERSION,
   GENERAL_REACTION_ORDER_SCHEMA_VERSION,
   HIT_PARTICLE_TRIGGER_SCHEMA_VERSION,
@@ -123,8 +132,10 @@ import {
   type SimConfigV149,
   type SimConfigV150,
   type SimConfigV151,
+  type SimConfigV152,
   type SimulationRunManifest,
-  type SimulationRunManifestV150
+  type SimulationRunManifestV150,
+  type SimulationRunManifestV151
 } from "./types";
 import {
   canonicalStringify,
@@ -759,6 +770,25 @@ export const basicReactionSchedulerModelSchema =
     basicReactionSchedulerModelV2Schema
   ]);
 
+export const freezeBrokenAttackModelV1Schema = z
+  .object({
+    mode: z.literal(LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE),
+    policyId: z.literal(LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID)
+  })
+  .strict();
+
+export const freezeBrokenAttackModelV2Schema = z
+  .object({
+    mode: z.literal(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_MODE),
+    policyId: z.literal(GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ID)
+  })
+  .strict();
+
+export const freezeBrokenAttackModelSchema = z.discriminatedUnion("mode", [
+  freezeBrokenAttackModelV1Schema,
+  freezeBrokenAttackModelV2Schema
+]);
+
 const swirlPropagationElementSchema = z.enum([
   "pyro",
   "hydro",
@@ -1190,6 +1220,58 @@ export const basicReactionSchedulerRootV2Schema = z.preprocess(
 export const basicReactionSchedulerRootSchema = z.union([
   basicReactionSchedulerRootV1Schema,
   basicReactionSchedulerRootV2Schema
+]);
+
+const legacyFreezeBrokenAttackV1RootCanonical = canonicalStringify(
+  LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT
+);
+const gcsimFreezeBrokenAttackV2RootCanonical = canonicalStringify(
+  GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT
+);
+
+export const freezeBrokenAttackRootV1Schema = z.preprocess(
+  rejectNonPlainJsonWire("freezeBrokenAttackRoot"),
+  z.custom<typeof LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          legacyFreezeBrokenAttackV1RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled legacy Freeze Broken attack root"
+    }
+  )
+);
+
+export const freezeBrokenAttackRootV2Schema = z.preprocess(
+  rejectNonPlainJsonWire("freezeBrokenAttackRoot"),
+  z.custom<typeof GCSIM_FREEZE_BROKEN_ATTACK_POLICY_V2_ROOT>(
+    (value) => {
+      try {
+        return (
+          canonicalStringify(value) ===
+          gcsimFreezeBrokenAttackV2RootCanonical
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      message:
+        "must exactly equal the compiled current Freeze Broken attack root"
+    }
+  )
+);
+
+export const freezeBrokenAttackRootSchema = z.union([
+  freezeBrokenAttackRootV1Schema,
+  freezeBrokenAttackRootV2Schema
 ]);
 
 const simulationRunManifestV142ValueSchema = z
@@ -1947,12 +2029,90 @@ export const simulationRunManifestV151Schema = z.preprocess(
   simulationRunManifestV151ValueSchema
 );
 
+const simulationRunManifestV152ValueSchema = z
+  .object({
+    version: z.literal(FREEZE_BROKEN_ATTACK_RUN_MANIFEST_VERSION),
+    identityAlgorithm: z.literal(REPRODUCIBILITY_IDENTITY_ALGORITHM),
+    schemaVersion: z.literal(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION),
+    engineVersion: z.literal(FREEZE_BROKEN_ATTACK_ENGINE_VERSION),
+    dataVersion: wireNonEmptyStringSchema,
+    configHash: fnv1a32ContentHashSchema,
+    resolvedRuntimeOptions: resolvedSimulationRuntimeOptionsSchema,
+    plugins: z.array(damagePluginManifestEntrySchema),
+    reactionFormulaRoot: reactionFormulaRootSchema,
+    directDamageGroupRoot: directDamageGroupRootSchema,
+    elementalApplicationIcdRoot: elementalApplicationIcdRootSchema,
+    reactionOwnedElementalApplicationRoot:
+      reactionOwnedElementalApplicationRootSchema,
+    reactionDamageGroupRoot: reactionDamageGroupRootSchema,
+    basicReactionSchedulerRoot: basicReactionSchedulerRootSchema,
+    freezeBrokenAttackRoot: freezeBrokenAttackRootSchema,
+    reproducibilityKey: z
+      .string()
+      .regex(/^gdl-v2-fnv1a32-[0-9a-f]{8}$/)
+  })
+  .strict()
+  .superRefine((manifest, context) => {
+    const pluginIds = new Set<string>();
+    for (const [index, plugin] of manifest.plugins.entries()) {
+      if (plugin.order !== index || plugin.index !== index) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index],
+          message:
+            "plugin order and index must equal the descriptor array position"
+        });
+      }
+      if (pluginIds.has(plugin.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["plugins", index, "id"],
+          message: `duplicate plugin id "${plugin.id}"`
+        });
+      }
+      pluginIds.add(plugin.id);
+    }
+
+    const { reproducibilityKey: _reproducibilityKey, ...identity } = manifest;
+    const expectedKey = createSimulationReproducibilityKey(identity);
+    if (manifest.reproducibilityKey !== expectedKey) {
+      context.addIssue({
+        code: "custom",
+        path: ["reproducibilityKey"],
+        message: "does not match the versioned run-manifest identity"
+      });
+    }
+  });
+
+export const simulationRunManifestV152Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("runManifest")(input, context);
+    return rejectInheritedWireFields(
+      [
+        "version",
+        "identityAlgorithm",
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaRoot",
+        "directDamageGroupRoot",
+        "elementalApplicationIcdRoot",
+        "reactionOwnedElementalApplicationRoot",
+        "reactionDamageGroupRoot",
+        "basicReactionSchedulerRoot",
+        "freezeBrokenAttackRoot"
+      ],
+      "runManifest"
+    )(cleanInput, context);
+  },
+  simulationRunManifestV152ValueSchema
+);
+
 /**
  * Current manifest alias. Keep frozen versioned schemas separate so advancing
  * CURRENT cannot silently change persisted 1.42 result validation.
  */
 export const simulationRunManifestSchema =
-  simulationRunManifestV151Schema;
+  simulationRunManifestV152Schema;
 
 /**
  * Parse a strict run manifest and verify that it is bound to this already
@@ -1966,19 +2126,31 @@ export function parseSimulationRunManifestForConfig(
 export function parseSimulationRunManifestForConfig(
   input: unknown,
   config: SimConfigV151
+): SimulationRunManifestV151;
+export function parseSimulationRunManifestForConfig(
+  input: unknown,
+  config: SimConfigV152
 ): SimulationRunManifest;
 export function parseSimulationRunManifestForConfig(
   input: unknown,
-  config: SimConfigV150 | SimConfigV151
-): SimulationRunManifestV150 | SimulationRunManifest {
+  config: SimConfigV150 | SimConfigV151 | SimConfigV152
+):
+  | SimulationRunManifestV150
+  | SimulationRunManifestV151
+  | SimulationRunManifest {
   const isFrozenV150 =
     config.schemaVersion ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
     config.engineVersion ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+  const isFrozenV151 =
+    config.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+    config.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
   const manifest = isFrozenV150
     ? simulationRunManifestV150Schema.parse(input)
-    : simulationRunManifestV151Schema.parse(input);
+    : isFrozenV151
+      ? simulationRunManifestV151Schema.parse(input)
+      : simulationRunManifestV152Schema.parse(input);
   const formulaModel = reactionFormulaModelSchema.safeParse(
     config.reactionFormulaModel
   );
@@ -2032,6 +2204,21 @@ export function parseSimulationRunManifestForConfig(
       !("basicReactionSchedulerRoot" in manifest) ||
       manifest.basicReactionSchedulerRoot.policyId !==
         schedulerModel.data.policyId
+    ) {
+      throw new Error(
+        "Simulation run manifest is not bound to the supplied migrated config."
+      );
+    }
+  }
+  if (!isFrozenV150 && !isFrozenV151) {
+    const freezeBrokenModel = freezeBrokenAttackModelSchema.safeParse(
+      config.freezeBrokenAttackModel
+    );
+    if (
+      !freezeBrokenModel.success ||
+      !("freezeBrokenAttackRoot" in manifest) ||
+      manifest.freezeBrokenAttackRoot.policyId !==
+        freezeBrokenModel.data.policyId
     ) {
       throw new Error(
         "Simulation run manifest is not bound to the supplied migrated config."
@@ -10442,13 +10629,27 @@ const hasExactBasicReactionSchedulerIdentity = (result: {
     BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
   result.config.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
 
+const hasExactFreezeBrokenAttackIdentity = (result: {
+  schemaVersion?: unknown;
+  engineVersion?: unknown;
+  config?: {
+    schemaVersion?: unknown;
+    engineVersion?: unknown;
+  };
+}): boolean =>
+  result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+  result.engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION &&
+  result.config?.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION &&
+  result.config.engineVersion === FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
+
 const hasReactionDamageGroupTaskOrderIdentity = (
   result: Parameters<
     typeof hasExactReactionDamageGroupResetBoundaryIdentity
   >[0]
 ): boolean =>
   hasExactReactionDamageGroupResetBoundaryIdentity(result) ||
-  hasExactBasicReactionSchedulerIdentity(result);
+  hasExactBasicReactionSchedulerIdentity(result) ||
+  hasExactFreezeBrokenAttackIdentity(result);
 
 const hasExactBurningCallbackDeliveryOrCurrentIdentity = (
   result: Parameters<
@@ -10548,6 +10749,10 @@ const DENDRO_CORE_RESULT_IDENTITY_CONTRACTS: Readonly<
   },
   [BASIC_REACTION_SCHEDULER_SCHEMA_VERSION]: {
     engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+    maxAuraRevision: 9
+  },
+  [FREEZE_BROKEN_ATTACK_SCHEMA_VERSION]: {
+    engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
     maxAuraRevision: 9
   }
 };
@@ -17136,11 +17341,125 @@ export const simConfigV151Schema = z.preprocess(
   simConfigV151ValueSchema
 );
 
+/** Project only the 1.52 Freeze Broken identity onto frozen 1.51. */
+const projectSimConfigV152ToV151 = (
+  wire: Record<string, unknown>
+): Record<string, unknown> => {
+  const {
+    freezeBrokenAttackModel: _freezeBrokenAttackModel,
+    ...frozenWire
+  } = wire;
+  return {
+    ...frozenWire,
+    schemaVersion: BASIC_REACTION_SCHEDULER_SCHEMA_VERSION,
+    engineVersion: BASIC_REACTION_SCHEDULER_ENGINE_VERSION
+  };
+};
+
+const simConfigV152ValueSchema = z
+  .custom<SimConfigV152>((value) => isRecord(value), {
+    message: "expected a simulation config object"
+  })
+  .transform((config, context) => {
+    const wire = config as unknown as Record<string, unknown>;
+    if (wire.schemaVersion !== FREEZE_BROKEN_ATTACK_SCHEMA_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["schemaVersion"],
+        message: `expected ${FREEZE_BROKEN_ATTACK_SCHEMA_VERSION}`
+      });
+    }
+    if (wire.engineVersion !== FREEZE_BROKEN_ATTACK_ENGINE_VERSION) {
+      context.addIssue({
+        code: "custom",
+        path: ["engineVersion"],
+        message: `expected ${FREEZE_BROKEN_ATTACK_ENGINE_VERSION}`
+      });
+    }
+
+    const rawModel = wire.freezeBrokenAttackModel;
+    let parsedModel:
+      | ReturnType<typeof freezeBrokenAttackModelSchema.safeParse>
+      | undefined;
+    if (!isRecord(rawModel)) {
+      context.addIssue({
+        code: "custom",
+        path: ["freezeBrokenAttackModel"],
+        message:
+          "requires an explicit legacy-absent or normalized Freeze Broken attack policy"
+      });
+    } else {
+      for (const field of ["mode", "policyId"] as const) {
+        if (!Object.prototype.hasOwnProperty.call(rawModel, field)) {
+          context.addIssue({
+            code: "custom",
+            path: ["freezeBrokenAttackModel", field],
+            message: "must be an explicit own wire property"
+          });
+        }
+      }
+      parsedModel = freezeBrokenAttackModelSchema.safeParse(rawModel);
+      if (!parsedModel.success) {
+        for (const issue of parsedModel.error.issues) {
+          context.addIssue({
+            ...issue,
+            path: ["freezeBrokenAttackModel", ...issue.path]
+          });
+        }
+      }
+    }
+
+    const parsed = simConfigV151Schema.safeParse(
+      projectSimConfigV152ToV151(wire)
+    );
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        context.addIssue({ ...issue, path: issue.path });
+      }
+    }
+
+    if (
+      !parsed.success ||
+      parsedModel?.success !== true ||
+      context.issues.length > 0
+    ) {
+      return z.NEVER;
+    }
+
+    return {
+      ...parsed.data,
+      schemaVersion: FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
+      engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
+      freezeBrokenAttackModel: parsedModel.data
+    } as SimConfigV152;
+  });
+
+export const simConfigV152Schema = z.preprocess(
+  (input, context) => {
+    const cleanInput = rejectNonPlainJsonWire("config")(input, context);
+    return rejectInheritedWireFields(
+      [
+        "schemaVersion",
+        "engineVersion",
+        "reactionFormulaModel",
+        "directDamageGroupModel",
+        "elementalApplicationIcdModel",
+        "reactionOwnedElementalApplicationModel",
+        "reactionDamageGroupModel",
+        "basicReactionSchedulerModel",
+        "freezeBrokenAttackModel"
+      ],
+      "config"
+    )(cleanInput, context);
+  },
+  simConfigV152ValueSchema
+);
+
 /**
  * Current config alias. A future schema bump must add a new frozen schema and
  * move this alias; the explicit V142/V144/V145 schemas remain frozen.
  */
-export const simConfigSchema = simConfigV151Schema;
+export const simConfigSchema = simConfigV152Schema;
 
 /**
  * Result-reference validators must remain able to audit frozen 1.39–1.42
@@ -17208,6 +17527,9 @@ const simResultConfigSchema = z
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION &&
       wire.engineVersion ===
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
+    const exact151Identity =
+      wire.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION &&
+      wire.engineVersion === BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
     const exactHistoricalIdentity =
       exact139Identity || exact140Identity || exact141Identity;
     if (
@@ -17282,7 +17604,9 @@ const simResultConfigSchema = z
                   ? simConfigV149Schema.safeParse(wire)
                   : exact150Identity
                     ? simConfigV150Schema.safeParse(wire)
-                    : simConfigV151Schema.safeParse(wire);
+                    : exact151Identity
+                      ? simConfigV151Schema.safeParse(wire)
+                      : simConfigV152Schema.safeParse(wire);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) {
       context.addIssue({
@@ -18137,7 +18461,9 @@ const TARGET_TASK_RESULT_ENGINE_BY_SCHEMA_VERSION: Readonly<
   [REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION]:
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION,
   [BASIC_REACTION_SCHEDULER_SCHEMA_VERSION]:
-    BASIC_REACTION_SCHEDULER_ENGINE_VERSION
+    BASIC_REACTION_SCHEDULER_ENGINE_VERSION,
+  [FREEZE_BROKEN_ATTACK_SCHEMA_VERSION]:
+    FREEZE_BROKEN_ATTACK_ENGINE_VERSION
 };
 
 const targetTaskPhaseTargetReferenceSchema = z
@@ -18381,7 +18707,9 @@ export const targetTaskPhaseResultReferencesSchema = z.preprocess(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+      result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
     if (
       result.schemaVersion !== undefined &&
       result.config.schemaVersion !== undefined &&
@@ -20186,7 +20514,9 @@ export const targetPhaseV2ResultReferencesSchema = z.preprocess(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
       result.schemaVersion === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
       result.config.schemaVersion ===
-        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+        BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+      result.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION ||
+      result.config.schemaVersion === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
     if (
       currentIdentity &&
       result.config.targetTaskModel === undefined
@@ -22428,7 +22758,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
       ),
-      z.literal(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION)
+      z.literal(BASIC_REACTION_SCHEDULER_SCHEMA_VERSION),
+      z.literal(FREEZE_BROKEN_ATTACK_SCHEMA_VERSION)
     ]),
     engineVersion: z.union([
       z.literal(EC_NEXT_TARGET_TICK_ENGINE_VERSION),
@@ -22443,7 +22774,8 @@ export const electroChargedCleanupResultReferencesSchema = z.preprocess(
       z.literal(
         REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION
       ),
-      z.literal(BASIC_REACTION_SCHEDULER_ENGINE_VERSION)
+      z.literal(BASIC_REACTION_SCHEDULER_ENGINE_VERSION),
+      z.literal(FREEZE_BROKEN_ATTACK_ENGINE_VERSION)
     ]),
     config: z
       .object({
@@ -32086,6 +32418,11 @@ const LEGACY_BASIC_REACTION_SCHEDULER_MODEL = {
   policyId: LEGACY_BASIC_REACTION_SCHEDULER_POLICY_V1_ID
 } as const;
 
+const LEGACY_FREEZE_BROKEN_ATTACK_MODEL = {
+  mode: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
+  policyId: LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID
+} as const;
+
 function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unknown> {
   const meta = isRecord(input.meta) ? input.meta : {};
   const migratedApplications =
@@ -32103,6 +32440,7 @@ function migrateLegacyConfig(input: Record<string, unknown>): Record<string, unk
     randomSeed: "legacy-default",
     basicReactionSchedulerModel:
       LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+    freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL,
     meta: {
       name:
         typeof meta.name === "string" && meta.name
@@ -32219,6 +32557,7 @@ export function parseSimConfig(rawInput: unknown): SimConfig {
       ],
       ["reactionDamageGroupModel", ["mode", "policyId"]],
       ["basicReactionSchedulerModel", ["mode", "policyId"]],
+      ["freezeBrokenAttackModel", ["mode", "policyId"]],
       ["playerDamageModel", ["mode"]],
       ["targetClockModel", ["mode"]],
       ["targetTaskModel", ["mode"]],
@@ -32650,8 +32989,69 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     }
   }
   const version = input.schemaVersion;
+  const isFreezeBrokenAttackIdentity =
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
+  if (
+    !isFreezeBrokenAttackIdentity &&
+    "freezeBrokenAttackModel" in input
+  ) {
+    const historicalVersion =
+      version === undefined ? LEGACY_SCHEMA_VERSION : String(version);
+    const issue = `freezeBrokenAttackModel: schemaVersion "${historicalVersion}" does not support Freeze Broken attack policy selection`;
+    throw new ConfigMigrationError(
+      `配置校验失败：\n- ${issue}`,
+      [issue]
+    );
+  }
+  if (isFreezeBrokenAttackIdentity) {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        input,
+        "freezeBrokenAttackModel"
+      ) ||
+      !isRecord(input.freezeBrokenAttackModel)
+    ) {
+      const issue =
+        `freezeBrokenAttackModel: schemaVersion "${String(version)}" requires an explicit Freeze Broken attack policy`;
+      throw new ConfigMigrationError(
+        `配置校验失败：\n- ${issue}`,
+        [issue]
+      );
+    }
+    for (const field of ["mode", "policyId"] as const) {
+      if (
+        !Object.prototype.hasOwnProperty.call(
+          input.freezeBrokenAttackModel,
+          field
+        )
+      ) {
+        const issue =
+          `freezeBrokenAttackModel.${field}: schemaVersion "${String(version)}" requires an explicit own policy identity field`;
+        throw new ConfigMigrationError(
+          `配置校验失败：\n- ${issue}`,
+          [issue]
+        );
+      }
+    }
+    const parsedFreezeBrokenAttackModel =
+      freezeBrokenAttackModelSchema.safeParse(
+        input.freezeBrokenAttackModel
+      );
+    if (!parsedFreezeBrokenAttackModel.success) {
+      const issues = formatZodError(
+        parsedFreezeBrokenAttackModel.error
+      ).map((issue) => `freezeBrokenAttackModel.${issue}`);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+  }
   const isBasicReactionSchedulerIdentity =
-    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
+    version === FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
   if (
     !isBasicReactionSchedulerIdentity &&
     "basicReactionSchedulerModel" in input
@@ -32716,6 +33116,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     findElementalApplicationIcdSelectorPath(input);
   const isElementalApplicationIcdIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
@@ -32772,6 +33173,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isReactionOwnedApplicationIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
@@ -32844,6 +33246,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   const isReactionDamageGroupIdentity =
     version ===
       REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === CURRENT_SCHEMA_VERSION;
   if (
     !isReactionDamageGroupIdentity &&
@@ -32909,6 +33312,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isFormulaIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
@@ -32962,6 +33366,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentDirectDamageGroupIdentity =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
@@ -33021,6 +33426,7 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const isCurrentOrFrozenV142 =
     version === CURRENT_SCHEMA_VERSION ||
+    version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION ||
     version === REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION ||
     version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION ||
@@ -33443,6 +33849,24 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   ) {
     return parseSimConfig(migrateLegacyConfig(input));
   }
+  if (version === BASIC_REACTION_SCHEDULER_SCHEMA_VERSION) {
+    const frozen = simConfigV151Schema.safeParse(input);
+    if (!frozen.success) {
+      const issues = formatZodError(frozen.error);
+      throw new ConfigMigrationError(
+        `配置校验失败：\n${issues
+          .map((issue) => `- ${issue}`)
+          .join("\n")}`,
+        issues
+      );
+    }
+    return parseSimConfig({
+      ...frozen.data,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      engineVersion: CURRENT_ENGINE_VERSION,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
+    });
+  }
   if (
     version ===
     REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION
@@ -33466,7 +33890,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       engineVersion: CURRENT_ENGINE_VERSION,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   if (version === CURRENT_SCHEMA_VERSION) {
@@ -33493,7 +33918,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionDamageGroupModel:
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   if (version === REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION) {
@@ -33514,7 +33940,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionDamageGroupModel:
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   if (version === ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION) {
@@ -33539,7 +33966,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionDamageGroupModel:
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   if (version === DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION) {
@@ -33570,7 +33998,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionDamageGroupModel:
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   if (version === REACTION_FORMULA_ROOT_SCHEMA_VERSION) {
@@ -33605,7 +34034,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
       reactionDamageGroupModel:
         LEGACY_REACTION_DAMAGE_GROUP_MODEL,
       basicReactionSchedulerModel:
-        LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+        LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+      freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
     });
   }
   input = {
@@ -33629,7 +34059,8 @@ export function migrateConfig(rawInput: unknown): SimConfig {
     reactionDamageGroupModel:
       LEGACY_REACTION_DAMAGE_GROUP_MODEL,
     basicReactionSchedulerModel:
-      LEGACY_BASIC_REACTION_SCHEDULER_MODEL
+      LEGACY_BASIC_REACTION_SCHEDULER_MODEL,
+    freezeBrokenAttackModel: LEGACY_FREEZE_BROKEN_ATTACK_MODEL
   };
   if (version === BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION) {
     return parseSimConfig({

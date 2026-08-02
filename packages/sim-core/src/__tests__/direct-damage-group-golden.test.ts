@@ -28,6 +28,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 import { makeConfig } from "./fixtures";
 
@@ -379,7 +380,7 @@ function decisionProjection(result: ReturnType<typeof runVector>) {
 
 function makeFixture(result: ReturnType<typeof runVector>): DamageGroupFixture {
   const projected = projectResultToFrozenV146Wire(
-    structuredClone(result),
+    structuredClone(projectSimulationResultV152ToV151(result)),
   ) as Record<string, unknown>;
   delete projected.elementalApplicationIcdLog;
   delete projected.reactionDamageGroupResetLog;

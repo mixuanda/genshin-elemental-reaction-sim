@@ -17,6 +17,7 @@ import { projectSimulationResultV148ToV147 } from "../../../test-vectors/src/pro
 import { projectSimulationResultV149ToV148 } from "../../../test-vectors/src/project-v149-to-v148";
 import { projectSimulationResultV150ToV149 } from "../../../test-vectors/src/project-v150-to-v149";
 import { projectSimulationResultV151ToV150 } from "../../../test-vectors/src/project-v151-to-v150";
+import { projectSimulationResultV152ToV151 } from "../../../test-vectors/src/project-v152-to-v151";
 import { simulate } from "../simulator";
 import { makeConfig, neutralStats } from "./fixtures";
 
@@ -265,7 +266,7 @@ function expectRejectedByPublicAndTrusted(
   const trusted = cloneResult(result);
   mutate(trusted);
   expect(() => assertTrustedSimulationResult(trusted)).toThrow(
-    /Trusted SimulationResult 1\.51 integrity validation failed/,
+    /Trusted SimulationResult 1\.52 integrity validation failed/,
   );
 }
 
@@ -343,7 +344,7 @@ function rewriteReactionParentEventSequence(
   }
 }
 
-describe("current V1.51 reaction-owned application result integrity", () => {
+describe("current V1.52 reaction-owned application result integrity", () => {
   let burning: SimulationResult;
   let swirl: SimulationResult;
   let swirlV1: SimulationResult;
@@ -469,11 +470,13 @@ describe("current V1.51 reaction-owned application result integrity", () => {
     }
   });
 
-  it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.51 replay", () => {
+  it("keeps the frozen V1.47 public and trusted contracts isolated from current V1.52 replay", () => {
     const projected = projectSimulationResultV148ToV147(
       projectSimulationResultV149ToV148(
         projectSimulationResultV150ToV149(
-          projectSimulationResultV151ToV150(overload),
+          projectSimulationResultV151ToV150(
+            projectSimulationResultV152ToV151(overload),
+          ),
         ),
       ),
     );
@@ -567,7 +570,7 @@ describe("current V1.51 reaction-owned application result integrity", () => {
     });
   });
 
-  it("retains the target-phase Burning application ownership proof at both current V1.51 boundaries", () => {
+  it("retains the target-phase Burning application ownership proof at both current V1.52 boundaries", () => {
     const forgeDeliveryApplicationOwner = (forged: SimulationResult): void => {
       const row = firstReactionOwnedRow(forged);
       for (const phase of forged.targetPhaseLog) {
@@ -589,7 +592,7 @@ describe("current V1.51 reaction-owned application result integrity", () => {
     const parsed = simulationResultSchema.safeParse(publicWire);
     expect(parsed.success).toBe(false);
     if (parsed.success) {
-      throw new Error("forged current V1.51 public wire was accepted");
+      throw new Error("forged current V1.52 public wire was accepted");
     }
     expect(parsed.error.issues).toEqual(
       expect.arrayContaining([

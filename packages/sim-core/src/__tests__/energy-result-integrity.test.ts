@@ -47,7 +47,7 @@ function expectRejectedByPublicAndTrusted(
   expect(
     () => assertTrustedSimulationResult(trustedResult),
     `${label}: trusted sim-core boundary`,
-  ).toThrow(/Trusted SimulationResult 1\.51 integrity validation failed/);
+  ).toThrow(/Trusted SimulationResult 1\.52 integrity validation failed/);
 }
 
 function makeLegacyEnergyAuditConfig(): SimConfig {

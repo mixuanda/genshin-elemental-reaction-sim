@@ -13,7 +13,9 @@ import {
   simulationResultV150Schema,
   simulationResultV150ValueSchema,
   simulationResultV151Schema,
-  simulationResultV151ValueSchema
+  simulationResultV151ValueSchema,
+  simulationResultV152Schema,
+  simulationResultV152ValueSchema
 } from "./result-schema";
 
 const noIcdRow = {
@@ -235,7 +237,7 @@ describe("elemental-application ICD result leaf schema", () => {
     ).toBe(false);
   });
 
-  it("keeps the 1.46-1.48 top-level field sets frozen while CURRENT advances", () => {
+  it("keeps the 1.46-1.51 application field sets frozen while CURRENT advances", () => {
     expect(
       Object.prototype.hasOwnProperty.call(
         simulationResultV146ValueSchema.shape,
@@ -277,7 +279,43 @@ describe("elemental-application ICD result leaf schema", () => {
       simulationResultV150ValueSchema.shape.elementalApplicationIcdLog
         .element
     );
-    expect(simulationResultSchema).toBe(simulationResultV151Schema);
+    expect(
+      simulationResultV152ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    ).toBe(
+      simulationResultV151ValueSchema.shape.elementalApplicationIcdLog
+        .element
+    );
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        simulationResultV151ValueSchema.shape,
+        "freezeBrokenAttackLog"
+      )
+    ).toBe(false);
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        simulationResultV152ValueSchema.shape,
+        "freezeBrokenAttackLog"
+      )
+    ).toBe(true);
+    const frozenTopLevelFields = Object.keys(
+      simulationResultV151ValueSchema.shape
+    );
+    const currentTopLevelFields = Object.keys(
+      simulationResultV152ValueSchema.shape
+    );
+    expect(
+      currentTopLevelFields.filter(
+        (field) => !frozenTopLevelFields.includes(field)
+      )
+    ).toEqual(["freezeBrokenAttackLog"]);
+    expect(
+      frozenTopLevelFields.filter(
+        (field) => !currentTopLevelFields.includes(field)
+      )
+    ).toEqual([]);
+    expect(simulationResultSchema).toBe(simulationResultV152Schema);
+    expect(simulationResultSchema).not.toBe(simulationResultV151Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV150Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV149Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV148Schema);
