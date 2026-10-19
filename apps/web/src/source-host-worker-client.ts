@@ -14,7 +14,7 @@ export interface SourceHostDiagnosticReceipt {
   createdAt: string;
   application: { name: "GIDPS"; version: string; mode: string };
   source: { hostVariant: "classic" | "stellar"; expectedCommit: string; actualCommit?: string; wasmSha256?: string; wasmBytes?: number };
-  failure: { kind: SourceHostFailureKind; stage: SourceHostWorkerStage; code: string; name?: string; message: string; stack?: string };
+  failure: { kind: SourceHostFailureKind; stage: SourceHostWorkerStage; code: string; name?: string; message: string; stack?: string | undefined };
   worker: { timeoutMs: number; elapsedMs: number; lastProgress?: string };
   input: {
     requestKind: "single" | "batch" | "startup" | "reexecution";
@@ -41,7 +41,7 @@ export type SourceHostWorkerMessage =
   | { type: "error"; message: string; failureLogs?: unknown; diagnostic?: SourceHostDiagnosticReceipt };
 
 export interface SourceHostWorkerRunHandle {
-  readonly worker: Worker;
+  readonly worker: Worker | null;
   cancel(): void;
 }
 
@@ -53,7 +53,7 @@ export interface SourceHostWorkerRunHandlers {
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const cleanText = (value: unknown, limit = 2400): string => String(value ?? "")
-  .replace(/(\b(?:authorization|cookie|password|passwd|secret|access[_-]?token|refresh[_-]?token|api[_-]?key|uid)\b\s*[:=]\s*)[^\s,;]+/gi, "$1[redacted]")
+  .replace(/(\b(?:authorization|cookie|password|passwd|secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|uid)\b\s*[:=]\s*)[^\s,;]+/gi, "$1[redacted]")
   .replace(/\b(?:Bearer\s+)?(?:gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9_-]{16,})\b/g, "[redacted]")
   .replace(/\/Users\/[^/\s]+/g, "/Users/[redacted]")
   .replace(/(?:file:\/\/)[^\s)]+/g, "file://[redacted]")
@@ -74,13 +74,13 @@ function makeRunId(): string {
 
 export async function createSourceHostDiagnostic(input: {
   request: SourceHostWorkerRequest;
-  failure: { kind: SourceHostFailureKind; stage: SourceHostWorkerStage; code?: string; name?: string; message: string; stack?: string };
-  timeoutMs?: number;
-  elapsedMs?: number;
-  lastProgress?: string;
-  actualCommit?: string;
-  wasmSha256?: string;
-  wasmBytes?: number;
+  failure: { kind: SourceHostFailureKind; stage: SourceHostWorkerStage; code?: string | undefined; name?: string | undefined; message: string; stack?: string | undefined };
+  timeoutMs?: number | undefined;
+  elapsedMs?: number | undefined;
+  lastProgress?: string | undefined;
+  actualCommit?: string | undefined;
+  wasmSha256?: string | undefined;
+  wasmBytes?: number | undefined;
 }): Promise<SourceHostDiagnosticReceipt> {
   const { request } = input;
   const variant = request.hostVariant === "stellar" ? "stellar" : "classic";
@@ -102,7 +102,7 @@ export async function createSourceHostDiagnostic(input: {
     ...(request.executionMode ? { executionMode: request.executionMode } : {}),
     ...(request.stopAtDuration === undefined ? {} : { stopAtDuration: request.stopAtDuration }),
     ...(request.primaryTargetIndex === undefined ? {} : { primaryTargetIndex: request.primaryTargetIndex }),
-    ...(request.targetPhases ? { targetPhaseCount: request.targetPhases.length } : {}),
+    ...(request.targetPhases ? { targetPhaseCount: request.targetPhases.phases.length } : {}),
     ...(jobs?.length ? { jobSeeds: jobs } : request.startupJobs?.length ? { jobSeeds: request.startupJobs.slice(0, 256).map(job => ({ seed: cleanText(job.request.seed, 80) })) } : {}),
   };
   const expectedCommit = variant === "stellar" ? SOURCE_HOST_STELLAR_COMMIT : SOURCE_HOST_COMMIT;
@@ -134,11 +134,13 @@ export function sourceHostDiagnosticMessage(receipt: SourceHostDiagnosticReceipt
 
 /** One terminal path for both source-host UI entry points; worker instances never survive a result or failure. */
 export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers: SourceHostWorkerRunHandlers, timeoutMs = DEFAULT_TIMEOUT_MS): SourceHostWorkerRunHandle {
-  const worker = new Worker(new URL("./source-host-worker.ts", import.meta.url), { type: "module" });
+  request = structuredClone(request);
+  let worker: Worker | null = null;
+  let cancelled = false;
   const startedAt = performance.now();
   let stage: SourceHostWorkerStage = "request", lastProgress: string | undefined, settled = false, timer: ReturnType<typeof setTimeout>;
   const clear = () => clearTimeout(timer);
-  const terminate = () => { clear(); worker.terminate(); };
+  const terminate = () => { clear(); worker?.terminate(); };
   const finish = () => { if (settled) return false; settled = true; terminate(); return true; };
   const armTimeout = () => { clear(); timer = setTimeout(() => { void fail("timeout", "Worker 超过等待上限没有返回进度或结果。", undefined, "WORKER_TIMEOUT"); }, timeoutMs); };
   const fail = async (kind: SourceHostFailureKind, message: string, stack?: string, code?: string, name?: string, failureLogs?: unknown) => {
@@ -146,8 +148,14 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
     settled = true; terminate();
     const diagnostic = await createSourceHostDiagnostic({ request, failure: { kind, stage, message, ...(stack ? { stack } : {}), ...(code ? { code } : {}), ...(name ? { name } : {}) }, timeoutMs,
       elapsedMs: performance.now() - startedAt, lastProgress });
-    handlers.onFailure(diagnostic, failureLogs);
+    if (!cancelled) handlers.onFailure(diagnostic, failureLogs);
   };
+  const handle: SourceHostWorkerRunHandle = { get worker() { return worker; }, cancel() { cancelled = true; finish(); } };
+  try { worker = new Worker(new URL("./source-host-worker.ts", import.meta.url), { type: "module" }); }
+  catch (error) {
+    void fail("worker-error", error instanceof Error ? error.message : String(error), error instanceof Error ? error.stack : undefined, "WORKER_CONSTRUCTION_FAILED");
+    return handle;
+  }
   worker.onmessage = event => {
     if (settled) return;
     const message = event.data as SourceHostWorkerMessage;
@@ -160,8 +168,7 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
         handlers.onFailure(message.diagnostic, message.failureLogs);
         return;
       }
-      void fail("runtime-error", message.diagnostic?.failure.message ?? message.message, message.diagnostic?.failure.stack,
-        message.diagnostic?.failure.code, message.diagnostic?.failure.name, message.failureLogs);
+      void fail("runtime-error", message.message, undefined, undefined, undefined, message.failureLogs);
       return;
     }
     if (!finish()) return;
@@ -176,5 +183,5 @@ export function startSourceHostWorker(request: SourceHostWorkerRequest, handlers
   armTimeout();
   try { worker.postMessage(request); }
   catch (error) { void fail("post-message-error", error instanceof Error ? error.message : String(error), error instanceof Error ? error.stack : undefined, "WORKER_POSTMESSAGE_ERROR", error instanceof Error ? error.name : undefined); }
-  return { worker, cancel: () => { if (finish()) { /* Cancellation is deliberate and does not create a failure receipt. */ } } };
+  return handle;
 }

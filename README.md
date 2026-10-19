@@ -13,10 +13,12 @@
 
 ```sh
 npm ci
-./serve.sh
+npm run dev:local
 ```
 
-`./serve.sh` 将开发服务器限制在本机 `127.0.0.1:4179`。打开 `http://127.0.0.1:4179/builds` 从角色配装开始；按 `Ctrl+C` 关闭服务器。首次运行前需要安装依赖，之后无需重复执行 `npm ci`。
+`npm run dev:local` 可在 Windows PowerShell、macOS 和 Linux 使用，将开发服务器限制在本机 `127.0.0.1:4179`；原 `./serve.sh` 仍可用于 macOS/Linux。打开 `http://127.0.0.1:4179/builds` 从角色配装开始；按 `Ctrl+C` 关闭服务器。首次运行前需要安装依赖，之后无需重复执行 `npm ci`。
+
+云端开发与 Windows 浏览器说明见 [cloud-windows-development](docs/cloud-windows-development.zh-CN.md)。
 
 开发服务器启动后使用以下入口：
 
